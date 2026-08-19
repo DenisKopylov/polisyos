@@ -471,3 +471,51 @@ the semantic trigger: `GY-DEF7` remains closed, no `GY-DEF17` is registered, the
 repaired, and no further candidate verification or writer is run. The existing mechanism-round 2/2
 stop and the declared six-file / 3,444-leaf versus accepted zero-file / zero-leaf artifact outcome
 stand unchanged.
+
+## Superseding P41 ownership correction and GY-DEF17 registration
+
+The exact-base replay receipt above remains valid: two separate fresh processes at
+`068aab9df41f2aeebf7b83a80c7939b02d196a5d` produced the same zero-transition manifest. Its former
+budget consequence does not. P41 establishes whether a symptom reproduces at the slice base; it
+does not identify the component whose predicate is defective once a legitimate later input reaches
+it. Here both facts hold:
+
+- `7ca24cda0` supplies a legitimate governed semantic transition by adding the v3 N9 identity and
+  additive decisive-predicate rows;
+- the N10a writer already carries the defective operational-preservation mechanism; its equality
+  guard predates `8816df5f4`, and that commit added the measured-transition consumer without
+  extending the inherited normalization to that consumer.
+
+The current branch coordinate was independently read before registration:
+`_preserve_frozen_operational_metrics` is at
+`tools/quality/validation/check_layer3_gy_second_domain_pack.py:6914`. The governed record cites the
+symbol, not that movable line number. Its guard skips whenever top-level frozen/live content hashes
+differ, so the writer's normalization is unreachable on a declared semantic delta. Its local member
+tuple contains two outputs although `_ARTIFACT_WRITE_SPECS` at the same branch declares five. The
+previously unclassified `pack`, `smoke_problem`, and `gaps` members are therefore absent from the
+consumer denominator. These are member A (the equality proxy) and member B (the partial
+denominator), and both belong to the same `GY-DEF7` class one level deeper. `GY-DEF7` remains closed
+for its scoped `--rederive-audit` consumer. P37: commit ancestry, live symbol coordinates, guard
+predicate, and both member sets are `recomputed`.
+
+`GY-DEF17` is registered before any source or test byte moves. Its mechanism is the canonical
+operational-leaf owner/export plus the N10a writer consumer. Its companions are the plan, this
+journal, mirrored behavioral witnesses, and any induced transition receipt. Per the architect's
+ruling, the lane enters a fresh shared **0/2**: only a Blocking or Important new-class finding against
+GY-GAP1's or GY-DEF17's mechanism consumes a round. Closure requires the full derived writer-output
+denominator, unconditional (or operational-predicate) reconciliation that constructs the live shape,
+a fresh-process stability witness holding the declared GAP1 semantic delta fixed while operational
+time varies, and an opposite-direction second governing mutation that still changes the manifest. At
+least one positive case must exercise `pack`, `smoke_problem`, or `gaps`.
+
+### Reboot and timing-catalog survival receipt
+
+At observation time `2026-08-19 21:48 +0300`, the host reports boot time
+`2026-08-19 21:28:37 +0300`. The worktree's
+`.polisyos-tools/timing.jsonl` predates that boot (`2026-08-19 18:51:47 +0300`) and survived it
+byte-readable: one JSON line / `306` bytes, recording a successful `measure-write-transition`
+sample started `2026-08-19T15:45:00.496792+00:00` with duration `407018.089` ms. The primary
+workspace timing log is also readable and had `38` JSON lines / `10,831` bytes at this measurement,
+including an append after the reboot. The retained worktree row's regime is explicitly `unknown`;
+survival does not promote any sample from this timing window to budget-grade evidence. P37: boot
+time, mtimes, byte counts, line counts, and retained row content are `recomputed`.

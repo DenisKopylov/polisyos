@@ -3624,6 +3624,50 @@ and cold closeout remain unproved.
   differing. `catalog_provenance_manifest_mismatch` no longer fires at all, which is the closure
   signal for the derived consequence rather than an exclusion.
 
+- **GY-DEF17 — the N10a writer gates operational preservation on top-level identity equality and
+  omits members of its artifact denominator (found 2026-08-19 during the GY-GAP1 artifact freeze).**
+  Owner: **the N10a writer / runtime-quality**. Class: `GY-DEF7`'s uncovered second consumer;
+  siblings: `GY-DEF14` (two members, one scoped) and `GY-DEF16` (a correct-looking predicate
+  amplified into a governed failure). Pattern: `P38`. `GY-DEF7` stays closed: its
+  `--rederive-audit` witness compares content made equal by construction and therefore honestly
+  exercised the consumer it scoped. The equality guard predates `8816df5f4`; that commit added the
+  measured-transition consumer without extending the existing normalization to it. The transition
+  gate was intended and its inherited eligibility predicate is the defect.
+
+  `_preserve_frozen_operational_metrics` says it reconciles through the artifact-owned projection
+  when content is unchanged, then skips reconciliation whenever frozen and live content identities
+  differ. Total content equality is a proxy for “only operational leaves differ” and diverges at
+  exactly the boundary the writer exists to serve: a declared semantic transition. That is member
+  A. Member B is the denominator: the same function carries a local two-output tuple for `census`
+  and `cycle_trace`, while the writer's declared output specification owns five members, so `pack`,
+  `smoke_problem`, and `gaps` never enter reconciliation. GY-GAP1 legitimately makes the embedded
+  N9 receipt non-equal and exposes both members; it is the worked example, not the owner of this
+  writer defect.
+
+  **P40 / P39 entry.** `GY-DEF17` is a **new registered owner record**. Its two members are one
+  `GY-DEF7` mechanism class one level deeper: eligibility is decided by a proxy and only part of the
+  consumer denominator entered the scope. The mechanism must widen once to the complete writer-owned
+  quantity, not spend one round per member. The shared operational-leaf projection, its PDC export,
+  and the N10a writer consumer are mechanism; the plan and journal records, mirrored behavioral
+  tests, and any exact artifact-transition receipt are mandatory companions. Per the architect's
+  ruling, this lane enters a fresh **0/2** shared implementation budget: only a Blocking or Important
+  new-class finding against GY-GAP1's or GY-DEF17's mechanism consumes a round. The design-stage
+  diagnosis and the earlier stopped freeze consume none.
+
+  **Smallest correct closure:** apply the canonical operational-leaf preservation before transition
+  comparison unconditionally, or under a predicate about operational leaves rather than whole
+  content equality, and derive the member set from the writer's complete output specification. The
+  reconciliation constructs the live shape, preserves only shared canonically classified
+  operational leaves, and retains every genuine live semantic change. **Closure signal / two-way
+  falsifier:** two fresh processes holding the same declared semantic delta fixed while operational
+  time varies produce an identical transition manifest; a second genuine governing mutation still
+  produces a different manifest; and the positive witness includes a previously omitted member
+  (`pack`, `smoke_problem`, or `gaps`), not only `cycle_trace`. Removing or adding an unclassified
+  writer output must make the denominator witness red. **Forbidden closures:** naming
+  `generated_at`; a field allowlist; a hand-maintained output list; a “close enough” identity guard;
+  re-hashing over locally projected bytes; rebaselining the declared GAP1 delta; or treating
+  exact-base symptom absence as component-ownership evidence.
+
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
   then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry
   catalog/discovery boundary as co-owner of items 1 and 2.
@@ -4030,6 +4074,21 @@ nothing.
   normalization whose first, scoped `--rederive-audit` consumer was closed by `GY-DEF7`. DEF7 remains
   closed; P41 assigns this escape to GY-GAP1's budget because its semantic transition is the trigger,
   so no new defect is registered and the 2/2 GY-GAP1 stop stands.
+
+  **P41 OWNERSHIP CORRECTION + GY-DEF17 REGISTRATION (2026-08-19; supersedes only the budget and
+  ownership consequence above).** The two fresh-process, zero-delta replays at exact base
+  `068aab9df` establish that the freeze symptom did not manifest without the later semantic
+  transition. They do **not** establish which component owns the predicate that fails when that
+  transition is present. Commit `7ca24cda0` is a legitimate GY-GAP1 delta: it changes the embedded
+  N9 receipt and exposes the pre-existing writer predicate by making the trace semantically
+  non-equal. The equality guard predates `8816df5f4`; that commit added the transition-manifest
+  consumer without extending the inherited two-member, equal-content-only reconciliation. Base
+  stability and a pre-existing defective mechanism are therefore true at once. That
+  mechanism is now registered as `GY-DEF17`, in `GY-DEF7`'s class; the finding is not against
+  GY-GAP1's obligation-instance mechanism. Per the architect's ruling, the lane consequently
+  re-enters artifact freeze with a fresh shared **0/2** implementation-round budget covering new
+  mechanism findings against GY-GAP1 or GY-DEF17. Its earlier zero-file / zero-leaf hand-back remains
+  an accurate receipt of that stopped attempt, not the final disposition of this lane.
 - **GY-GAP2 — the confidence ledger has no cross-scope composition.** Owner: **runtime/quality
   (confidence ledger / the N11 lane)**. `promotion_sequence.confidence_risk_scope_for_problem`
   keys the budget on `owner_scope_key = f"design-problem:{binding.design_problem_id}"` and its

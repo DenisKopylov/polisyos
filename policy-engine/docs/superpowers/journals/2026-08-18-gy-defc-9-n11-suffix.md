@@ -825,7 +825,7 @@ spent. `[P37: recomputed]`
       "policy-engine/docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md"
     ],
     "direct_parent": true,
-    "head": "d894f0bd834b1bd0d1e25ae04bdaa741085867d5"
+    "head": "b19f9941d9fe5efebd7417347e723f566746843d"
   },
   "branch": "codex/gy-defc-9-n11-suffix",
   "checks": [
@@ -920,15 +920,16 @@ spent. `[P37: recomputed]`
       "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": "2",
       "POLISYOS_RETRIEVAL_EXPLORE_ENABLED": "true",
       "POLISYOS_RETRIEVAL_FASTLANE_ENABLED": "true",
-      "POLISYOS_TOOLS_TIMING_LOG": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-v2-timing.jsonl",
+      "POLISYOS_TOOLS_TIMING_LOG": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-v3-timing.jsonl",
       "POLISYOS_TOOLS_TIMING_REGIME": "contended",
       "POLISYOS_TOOLS_TIMING_RETENTION": "2000",
       "PYTHONDONTWRITEBYTECODE": "1",
       "PYTHONHASHSEED": "0",
       "PYTHONNOUSERSITE": "1",
       "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine:/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
-      "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-v2-runtime-tmp",
-      "USER": "deniskopylov"
+      "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-v3-runtime-tmp",
+      "USER": "deniskopylov",
+      "__CF_USER_TEXT_ENCODING": "0x1F5:0x7:0x31"
     }
   },
   "history_path_union": [
@@ -989,14 +990,14 @@ spent. `[P37: recomputed]`
     "frozen_contract_derived"
   ],
   "outputs": {
-    "cold_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-receipt.json",
-    "launch_lock": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-launch-lock.json",
-    "meta": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-meta.json",
-    "preflight_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-preflight.json",
-    "runtime_tmp": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-runtime-tmp",
-    "stderr": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-stderr.log",
-    "stdout": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-stdout.jsonl",
-    "timing_log": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v2-timing.jsonl"
+    "cold_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v3-receipt.json",
+    "launch_lock": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v3-launch-lock.json",
+    "meta": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v3-meta.json",
+    "preflight_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v3-preflight.json",
+    "runtime_tmp": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v3-runtime-tmp",
+    "stderr": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v3-stderr.log",
+    "stdout": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v3-stdout.jsonl",
+    "timing_log": ".tmp/gy-defc-9/cold-n11/authorized-20260819-v3-timing.jsonl"
   },
   "pin_denominator": 11,
   "pins": {
@@ -1216,3 +1217,41 @@ absent; every earlier terminal output remains present and untouched. The enforci
 authorization-derived `4,693.118600` s and the three short checks, exact `11` pins and exact `28`
 milestones are unchanged. The launch is authorized only after this journal-only direct-child commit
 is cleanly attached and dynamic admission revalidates it. `[P37: recomputed]`
+
+## Proxy-free launch non-receipt — exact Darwin environment correction
+
+The proxy-free v2 launch completed all three short checks and started the child, then returned `1`
+after `5.013173` s without timeout or process leak. Its child receipt is `21,451` bytes, SHA-256
+`3b7f7914138f709393709c5f0aeabd2f33ef31e8e9597958e208611aeb2b6a74`: the inherited capability
+admitted with all `15/15` decisive conjuncts green, the false Darwin parent-command text remained
+non-decisive, and the terminal was `cold_n11_child_environment_not_authorized`. The complete
+milestone trace is still `[]` over `28/28`, operation counts are `0/0/0`, and all `11/11` pins are
+byte-identical. Under the corrected boundary this is another pre-milestone non-receipt; no cold
+subject was measured and the single allowance remains intact. `[P37: recomputed over the complete
+capability, milestone, operation and pin denominators]`
+
+The preserved preflight uptime pair was `11:34  up 2 days, 17:04, 1 user, load averages: 3.27 4.20
+3.74` then `11:34  up 2 days, 17:04, 1 user, load averages: 3.14 4.07 3.71`; both canonical process
+censuses were empty. N8 passed in `12.351375` wrapper seconds, N10a passed in `14.410328`, and the
+confidence owner's JSON validation passed in `6.677636` with deployment identity `f05a816f…5983955f`.
+The preflight receipt is `9,603` bytes, SHA-256
+`8f47c629b5f6b27da19e1e788be81c19c57b0f2aadbc72e2c569091557b3257f`. `[P37: recomputed]`
+
+A fresh child launched with exactly the block's environment observed one and only one added key over
+the full environment denominator: Darwin injected `__CF_USER_TEXT_ENCODING=0x1F5:0x7:0x31`; zero
+authorized keys were missing or changed. A second fresh child with that exact key supplied by the
+block observed byte-exact environment equality. Independent review classified this as a worked
+example of the existing P40 launch-environment class, not a new class or repair round. `[P37:
+recomputed for both full-environment probes; independently_reconciled for classification]`
+
+The authorization block now carries that exact OS-injected value, advances its journal-only direct
+parent to `b19f9941d9fe5efebd7417347e723f566746843d`, and binds eight disjoint
+`authorized-20260819-v3-*` outputs under authorization fingerprint
+`2a008360aa3043856dd9e082634628c09d64023dad3d4c4b39b8f1f4125d9d7e`. All `8/8` v3 paths are
+absent. Every v2 output remains preserved, including launcher meta SHA-256
+`b340f5694bcd93fac55c5986c841e7759dd6ce92aea2db3488f0b634affa0680`, stdout SHA-256
+`9615e244b43ad7e6e13d04bc02c471a72abaf23ab45d45f8247207b034ebf4c7`, and timing SHA-256
+`12ca5ebef21f9966364711bbe323e7f2f635b66a0d9979c77215c3b4ce37b664`. The ignored launcher and
+child source hashes remain `36c1da…` and `883d41…`. Relaunch is authorized only after this sole
+journal path is committed as the clean direct child and the committed falsifier/admission checks are
+green again. `[P37: recomputed]`

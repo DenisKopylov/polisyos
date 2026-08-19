@@ -363,6 +363,58 @@ def test_wrong_role_human_click_is_recorded_and_never_fires_effect() -> None:
     )
 
 
+def test_five_rights_record_is_the_only_out_of_envelope_override() -> None:
+    contract = _contract(_envelope())
+    operation = _operation("agent.outside-envelope")
+    records: list[object] = []
+    effects: list[str] = []
+
+    result = _dispatch(
+        contract=contract,
+        operation=operation,
+        invocation=_invocation(operation),
+        resolve_human_decision=lambda request: _human_record(
+            request,
+            actor_role="mandate_owner",
+        ),
+        records=records,
+        effect=lambda: effects.append("FIRED") or "human-authorized",
+    )
+
+    assert result == "human-authorized"
+    assert effects == ["FIRED"]
+    assert records[0].outcome == "allowed"
+    assert records[0].human_decision_record_ref is not None
+    assert all(check.satisfied for check in records[0].predicate_checks)
+
+
+def test_failed_five_rights_override_is_recorded_and_never_fires_effect() -> None:
+    contract = _contract(_envelope())
+    operation = _operation("agent.outside-envelope")
+
+    def failed_right(request: HumanDecisionRequest) -> HumanDecisionRecord:
+        record = _human_record(request, actor_role="mandate_owner")
+        return record.model_copy(
+            update={
+                "five_rights_check": FiveRightsCheck(
+                    right_decision=True,
+                    right_person=True,
+                    right_information=True,
+                    right_format_channel=True,
+                    right_time=False,
+                )
+            }
+        )
+
+    _assert_refused_with_zero_effect(
+        contract=contract,
+        operation=operation,
+        invocation=_invocation(operation),
+        expected_reason="human_decision_five_rights_failed",
+        resolve_human_decision=failed_right,
+    )
+
+
 def test_expired_envelope_is_recorded_and_never_fires_effect() -> None:
     contract = _contract(
         _envelope(
@@ -394,6 +446,14 @@ def test_search_authority_does_not_grant_data_request() -> None:
         invocation=_invocation(operation),
         intent=_intent("data_request"),
         expected_reason="explicit_permission_mismatch",
+    )
+
+
+def test_non_ds20_object_cannot_masquerade_as_verified_identity() -> None:
+    _assert_refused_with_zero_effect(
+        contract=_contract(_envelope()),
+        proof=object(),
+        expected_reason="verified_identity_proof_missing",
     )
 
 

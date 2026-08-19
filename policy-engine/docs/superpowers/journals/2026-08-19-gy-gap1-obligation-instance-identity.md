@@ -427,3 +427,47 @@ source-level acceptance witness does pass: one decisive obligation instance remo
 denominator total and green, authority-band result red. That source witness does not override the
 failed governed-artifact freeze. Plan line 7 remains byte-identical at
 `f88d113f34f339f14d333cdd3fe6459cf0e73d449ec3bb5f026567276a14aa37`.
+
+## P41 exact-base ownership replay
+
+Before any further source or artifact mutation, two isolated branch-attached clones were checked out
+at exact base `068aab9df41f2aeebf7b83a80c7939b02d196a5d`. Each clone had zero tracked delta from that base,
+zero status entry under `src/polisyos` or `tools`, and zero `GY-GAP1` source/tool match. Each invoked
+the canonical measurement entry point in a distinct fresh process, with the exact-base `src` and
+product root forced to the front of `PYTHONPATH`:
+
+```text
+.venv/bin/python tools/quality/validation/check_layer3_gy_second_domain_pack.py \
+  --repo-root <exact-base-product-root> --measure-write-transition --output-format json
+```
+
+Both processes completed below the existing N10a writer ceiling of `852.699146` s. Their samples are
+contended regime evidence only and do not enter a clean p95:
+
+| Replay | Duration | `uptime` load averages, before -> after | Transition manifest |
+| --- | ---: | --- | --- |
+| A | `381.213158` s | `4.47 / 4.83 / 4.39` -> `8.62 / 8.45 / 6.33` | `sha256:86ca60383705ef20151186d4d505af2fe0ae4506f18058332b1d969763a176a7` |
+| B | `369.202892` s | `7.97 / 6.05 / 4.98` -> `8.67 / 8.45 / 6.70` | `sha256:86ca60383705ef20151186d4d505af2fe0ae4506f18058332b1d969763a176a7` |
+
+The two parsed manifest objects and their canonical bytes are identical; the latter have SHA-256
+`1e3712a98b605c94c7591c3c1e5d56d21b8d8791f657c84e9ee2562a429cc02f`. Both bind source scope
+`sha256:98449d8d2f74f1461b1a5c821438f27794453339d73d363b048a80697313545f`; all five artifact rows
+have equal frozen/live identities and zero changed leaves. P37: checkout identity, source absence,
+status, manifests, canonical bytes, row counts, durations, and `uptime` pairs are `recomputed`.
+
+P41 therefore returns **stable at the exact base**, not inherited. The introducing change is
+`7ca24cda0` (`feat(gy): bind decisive obligation instances`): its v3 identity fields and additive
+`decisive_predicate` rows create the legitimate semantic transition in the promotion receipts
+embedded by the N10a trace. That non-equality bypasses the writer's existing operational-leaf
+reconciliation guard, which only runs when the frozen and live top-level content identities already
+match, and exposes the live-clock `acquisition_routing_report.generated_at` during the transition.
+Commit `1de11b8bd` only admits historical v2 custody for comparison and is not the semantic trigger.
+
+The freeze blocker is a defect in the separately owned N10a writer. Its transition-manifest gate is
+the uncovered second consumer of the operational normalization whose first consumer, scoped
+`--rederive-audit`, was closed by `GY-DEF7`. Under the ratified P41 conditional, however, exact-base
+stability assigns this transition escape to GY-GAP1 for budget purposes because GY-GAP1 introduced
+the semantic trigger: `GY-DEF7` remains closed, no `GY-DEF17` is registered, the N10a writer is not
+repaired, and no further candidate verification or writer is run. The existing mechanism-round 2/2
+stop and the declared six-file / 3,444-leaf versus accepted zero-file / zero-leaf artifact outcome
+stand unchanged.

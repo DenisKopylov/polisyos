@@ -4018,7 +4018,18 @@ nothing.
   class** after rounds 1/2 and 2/2 were already consumed. The stop rule therefore binds: no repair or
   rebaseline was attempted, the guarded writer restored every candidate, and the declared six-file /
   3,444-leaf transition has an observed accepted delta of zero files / zero leaves. GY-GAP1 remains
-  open as a governed capability; the partial source mechanism does not constitute closure.
+  open as a governed capability; the partial source mechanism does not constitute closure. A P41
+  ownership replay subsequently ran the transition derivation twice in distinct fresh processes at
+  exact base `068aab9df`: both produced the identical zero-delta manifest
+  `sha256:86ca60383705ef20151186d4d505af2fe0ae4506f18058332b1d969763a176a7`.
+  The finding is therefore not inherited at that base. Commit `7ca24cda0` introduces its trigger:
+  GY-GAP1's legitimate v3 obligation transition makes the embedded N10a trace semantically non-equal,
+  bypassing the writer's equal-content-only operational reconciliation and exposing live
+  `acquisition_routing_report.generated_at`. The freeze blocker is a defect in the separately owned
+  N10a writer: its transition-manifest gate is the uncovered second consumer of the operational
+  normalization whose first, scoped `--rederive-audit` consumer was closed by `GY-DEF7`. DEF7 remains
+  closed; P41 assigns this escape to GY-GAP1's budget because its semantic transition is the trigger,
+  so no new defect is registered and the 2/2 GY-GAP1 stop stands.
 - **GY-GAP2 — the confidence ledger has no cross-scope composition.** Owner: **runtime/quality
   (confidence ledger / the N11 lane)**. `promotion_sequence.confidence_risk_scope_for_problem`
   keys the budget on `owner_scope_key = f"design-problem:{binding.design_problem_id}"` and its

@@ -210,13 +210,14 @@ def test_layer3_g6_registration_rejects_stale_public_surface_prose(
             encoding="utf-8",
         )
     public_surface_path = tmp_path / validator.PUBLIC_SURFACE_DOC_PATH
+    public_surface_text = public_surface_path.read_text(encoding="utf-8")
+    safe_projection_marker = "owner-recomputed safe summary or governed refusal"
+    assert safe_projection_marker in public_surface_text
     public_surface_path.write_text(
-        public_surface_path.read_text(encoding="utf-8").replace(
-            "`authority_preserving_public_export`, registers a redacted "
-            "public-export bundle route, and emits only the owner-recomputed "
-            "safe summary or governed refusal.",
-            "`out_of_scope_reference_only` and does not register a "
-            "public-export bundle route.",
+        public_surface_text.replace(
+            safe_projection_marker,
+            "caller-supplied clean summary",
+            1,
         ),
         encoding="utf-8",
     )

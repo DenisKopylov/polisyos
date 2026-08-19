@@ -2487,6 +2487,33 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   goes red; a low-`k_eff` selected set presented as broad consensus goes red; a framing-narrowing
   that changes governance burden without a recorded delta goes red. Feeds Atlas DS14 + INT-R8.
   `P05`/`P10`/`P14`.
+  **STANDING RECORDED (GY-PA3 first entry, 2026-08-19; closed):** N11's Rev 47 sequencing
+  block had cleared. The three required behavioural reds landed before the mechanism
+  (`3db4c2c39`; first producer `bf42d0108`): retained-limitation loss, low-independence evidence
+  presented as broad consensus, and unrecorded framing-burden narrowing all fail closed. The
+  producer extends the existing `PromptToolParserAuthorityLedger` and G6 generated-artifact family
+  (no second ledger owner or new family), carries empty per-delta authority, and bridges normal,
+  blocked, replay, persisted, and owner-recomputed public-export paths; a blocked result exports a
+  completed governed refusal with protected claims, limitations, denied uses, and counterevidence,
+  never a clean summary. P35 full-denominator readback is owner / observed / emitted = `5 / 5 / 5`,
+  with catalog / observed / delta fingerprints
+  `sha256:593000e41c1e27d438e6ac7282f21d15a4ac2b743ba1fb5113460d9935975562` /
+  `sha256:8a625407514354e59c9d83458f88d0189f6691b1420a3a85de96473070196061` /
+  `sha256:2d3aa266772301c5ca63d191f63eda37b14f5f3169158a6d1777823c7b673832`;
+  a data-only sixth kind passes through the real G6 producer, while unknown / missing / duplicate /
+  overlapping candidates and owner-validation bypass go red. Canonical write/readback covers all
+  `28 / 28` existing G6 family artifacts, including persisted-public-export tamper rejection. The
+  pre-write census walked all 14 other worktrees: 42 planned paths and 32 governed-write paths had
+  zero governed intersections; GY-GAP1 shared only this plan companion, never an artifact. Final
+  targeted verification was 73 green tests in 24.04 s, changed-path Ruff in 0.15 s, and G6
+  readiness readback in 40.0 s under the measured 1.6–2.0× shared-host regime (next ceilings 60 s,
+  10 s, and 90 s respectively). The canonical architecture check reported only six deep-import
+  baseline drifts reproduced exactly at the slice base (47.66 s); because its full `src/**/*.py`
+  denominator intersects PA3, P41 leaves the aggregate gate `not_established`, so no unrelated
+  baseline was accepted. With only that baseline replaced by an independently recomputed temporary
+  value, the real public/generated renderer check passed (23.87 s sync + 42.31 s check; 120 s
+  ceiling). Review rounds remain `0 / 2`; GY-GAP3 transcripts and Atlas DS14 surfaces remain with
+  their named lanes / phase gates and were not built here.
 
 #### Registered debt — artifact identity over-binding (NEW, Rev 20; measured during GY-N11)
 

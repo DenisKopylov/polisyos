@@ -129,3 +129,37 @@ search-permission/data-request separation, memory-as-fact, missing tool admissio
 caller-supplied widened envelope, and widened draft scope; it also pins recorded refusal shape,
 record-before-effect, an unrecordable allow, unknown action fail-closed, data-only free growth, and
 the decisive remove-the-envelope mutation. `[P37: recomputed]`
+
+## Independent-review repair ledger — append-only correction
+
+The initial `0/2` line above records entry state, not final round use. Three read-only reviews then
+froze the implementation at `e4c40beac` before any repair. The first review found two Blocking new
+classes: caller-provided contract/human resolvers could self-attest authority (`P32/P37`), and an
+arbitrary non-throwing recorder plus arbitrary effect callable was used as a persistence/effect
+predicate (`P29/P31/P38`). This consumed mechanism round 1. A second review independently reproduced
+both and added invocation-replayed human approval, malformed inner DS20 fields, raw influence
+summaries, and missing decision/effect receipt binding. Those are the same two classes one level
+deeper, so P40 stops per-instance repair and widens the authority-owner intake and governed dispatch
+quantities; they consume no additional round. `[P37: independently_reconciled]`
+
+The artifact review confirmed all six frozen governed artifacts byte-identical and the readiness
+validator green, then found one distinct Important new class: envelope-bearing fields were serialized
+under the legacy `DelegationContract` v1 schema identity without a forward-reader contract. This
+consumed mechanism round 2. Its content-hash and `model_copy(update=...)` sightings are the same
+compatibility class at depth and must be closed by a symmetric v1/v2 discriminator plus raw
+deserialization/content-binding witnesses. Mechanism rounds are therefore **2/2**; any further new
+Blocking or Important class is a stop, while worked examples of these declared classes fold into the
+single widening. `[P37: independently_reconciled]`
+
+## Review-derived red receipt
+
+Eight exact behavioral nodes were added before the repair. They assert zero effects for a
+caller-minted contract (through a real `ToolRegistry` handler), a no-op recorder, a valid-looking
+receipt for a different decision, a search decision pointed at a data-request callable, a human
+approval replayed after invocation-content mutation, malformed inner DS20 roles, unpersisted
+memory/input summaries, and an envelope-bearing v1 contract. They printed `FFFFFFFF` and returned
+exit `1` in 12.27 s: five reached the forbidden effect, one raised `AttributeError` before any
+recorded refusal, one accepted raw influence summaries, and one accepted the old schema identity.
+An attempted `--timeout=30` run returned exit `4` because pytest-timeout is not installed; it changed
+no bytes and is a tooling non-receipt. The measured 12.27 s run under four-lane 1.6–2.0x contention
+sets a 30 s per-node review timeout for environments that provide the plugin. `[P37: recomputed]`

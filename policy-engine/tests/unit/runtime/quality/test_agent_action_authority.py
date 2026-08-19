@@ -35,6 +35,8 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     build_delegation_contract,
     build_governance_decision_class_registry,
 )
+from polisyos.scientist.agent.tools.registry import ToolRegistry
+from polisyos.scientist.agent.tools.schema import ToolDefinition
 
 NOW = datetime(2026, 8, 19, 12, tzinfo=UTC)
 CASE_ID = "gy-pa2-case"
@@ -629,3 +631,197 @@ def test_an_allow_that_cannot_be_recorded_never_fires_effect() -> None:
         )
 
     assert effects == []
+
+
+def test_caller_minted_contract_resolution_never_fires_effect() -> None:
+    authority = _authority_module()
+    effects: list[str] = []
+    records: list[object] = []
+    registry = ToolRegistry()
+    registry.register(
+        ToolDefinition(
+            name="external_search",
+            description="External search transport witness.",
+            parameters={"type": "object", "properties": {}},
+        ),
+        lambda: effects.append("FIRED"),
+    )
+
+    with pytest.raises(authority.AgentActionAuthorityRefused):
+        _dispatch(
+            contract=_contract(_envelope()),
+            records=records,
+            effect=lambda: registry.execute("external_search", {}),
+        )
+
+    assert effects == []
+    assert len(records) == 1
+    assert "delegation_contract_not_persisted" in records[0].refusal_reasons
+
+
+def test_noop_record_callback_never_authorizes_an_effect() -> None:
+    authority = _authority_module()
+    effects: list[str] = []
+
+    with pytest.raises(authority.AgentActionAuthorityRecordingError):
+        authority.dispatch_agent_external_action(
+            bound_permission=_proof(),
+            operation=_operation(),
+            invocation=_invocation(_operation()),
+            intent=_intent(),
+            resolve_delegation_contract=lambda _resource: _resolved(
+                _contract(_envelope())
+            ),
+            resolve_human_decision=None,
+            record_decision=lambda _decision: None,
+            effect=lambda: effects.append("FIRED"),
+            now=NOW,
+            memory_claim_payload={},
+            authority_input_payload={},
+            tool_ledger=None,
+        )
+
+    assert effects == []
+
+
+def test_receipt_for_a_different_decision_never_authorizes_an_effect() -> None:
+    authority = _authority_module()
+    effects: list[str] = []
+
+    with pytest.raises(authority.AgentActionAuthorityRecordingError):
+        authority.dispatch_agent_external_action(
+            bound_permission=_proof(),
+            operation=_operation(),
+            invocation=_invocation(_operation()),
+            intent=_intent(),
+            resolve_delegation_contract=lambda _resource: _resolved(
+                _contract(_envelope())
+            ),
+            resolve_human_decision=None,
+            record_decision=lambda _decision: {
+                "cas_ref": "sha256:" + "f" * 64,
+                "payload_sha256": "f" * 64,
+                "effect_binding_digest": "sha256:" + "e" * 64,
+            },
+            effect=lambda: effects.append("FIRED"),
+            now=NOW,
+            memory_claim_payload={},
+            authority_input_payload={},
+            tool_ledger=None,
+        )
+
+    assert effects == []
+
+
+def test_search_decision_cannot_execute_a_data_request_callable() -> None:
+    authority = _authority_module()
+    data_requests: list[str] = []
+    records: list[object] = []
+
+    with pytest.raises(authority.AgentActionAuthorityRefused):
+        _dispatch(
+            contract=_contract(_envelope(action_kind="search")),
+            records=records,
+            effect=lambda: data_requests.append("DATA_REQUESTED"),
+        )
+
+    assert data_requests == []
+
+
+def test_human_approval_cannot_be_replayed_for_a_changed_invocation() -> None:
+    authority = _authority_module()
+    contract = _contract(_envelope())
+    operation = _operation("agent.outside-envelope")
+    first_invocation = _invocation(operation, parameters={"limit": 1})
+    replayed_record: HumanDecisionRecord | None = None
+
+    def decide(request: HumanDecisionRequest) -> HumanDecisionRecord:
+        nonlocal replayed_record
+        if replayed_record is None:
+            replayed_record = _human_record(request, actor_role="mandate_owner")
+        return replayed_record
+
+    _dispatch(
+        contract=contract,
+        operation=operation,
+        invocation=first_invocation,
+        resolve_human_decision=decide,
+        records=[],
+        effect=lambda: "first-effect",
+    )
+    replay_effects: list[str] = []
+    changed_invocation = _invocation(operation, parameters={"limit": 1_000_000})
+
+    with pytest.raises(authority.AgentActionAuthorityRefused) as exc_info:
+        _dispatch(
+            contract=contract,
+            operation=operation,
+            invocation=changed_invocation,
+            resolve_human_decision=decide,
+            records=[],
+            effect=lambda: replay_effects.append("FIRED"),
+        )
+
+    assert replay_effects == []
+    assert "human_decision_request_mismatch" in exc_info.value.decision.refusal_reasons
+
+
+def test_malformed_inner_ds20_proof_records_refusal_before_raising() -> None:
+    authority = _authority_module()
+    valid = _proof()
+    malformed_verification = ActionPermissionVerification(
+        requirement=valid.verification.requirement,
+        subject=valid.verification.subject,
+        tenant_id=valid.verification.tenant_id,
+        jwt_id=valid.verification.jwt_id,
+        roles=frozenset({"analyst"}),  # type: ignore[arg-type]
+        authorization_source=valid.verification.authorization_source,
+        granted_permissions=valid.verification.granted_permissions,
+    )
+    malformed = BoundActionPermissionVerification(
+        verification=malformed_verification,
+        bound_resource=valid.bound_resource,
+    )
+    effects: list[str] = []
+    records: list[object] = []
+
+    with pytest.raises(authority.AgentActionAuthorityRefused) as exc_info:
+        _dispatch(
+            contract=_contract(_envelope()),
+            proof=malformed,
+            records=records,
+            effect=lambda: effects.append("FIRED"),
+        )
+
+    assert effects == []
+    assert len(records) == 1
+    assert exc_info.value.decision == records[0]
+    assert "verified_identity_proof_invalid" in records[0].refusal_reasons
+
+
+def test_unpersisted_influence_inputs_never_authorize_an_effect() -> None:
+    authority = _authority_module()
+    effects: list[str] = []
+    records: list[object] = []
+
+    with pytest.raises(authority.AgentActionAuthorityRefused):
+        _dispatch(
+            contract=_contract(_envelope()),
+            records=records,
+            effect=lambda: effects.append("FIRED"),
+            memory_claim_payload={},
+            authority_input_payload={},
+        )
+
+    assert effects == []
+    assert len(records) == 1
+    assert "governed_admission_bundle_missing" in records[0].refusal_reasons
+
+
+def test_envelope_bearing_contract_cannot_serialize_under_legacy_v1_identity() -> None:
+    delegation = _delegation_module()
+    payload = _contract(_envelope()).model_dump(mode="json")
+    payload["schema_version"] = delegation.LAYER2_S7_DELEGATION_SCHEMA_VERSION
+
+    with pytest.raises(ValueError, match="envelope-bearing delegation contract requires v2"):
+        delegation.DelegationContract.model_validate(payload)

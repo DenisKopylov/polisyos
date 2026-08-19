@@ -2623,6 +2623,27 @@ being written here. Fixing them is a separate decision.
   `S0-K06`/`S0-K11` closure that H2 needs. Re-typed in Rev 22 as a violation of the ratified kernel
   rather than a bare finding. No repair attempt has been made.
 
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 42957f826): closed.** Checkpoint schema
+  `1.2` carries tenant/cell scope, every sync/async producer and runtime restore reconciles it at one
+  shared ambient-scope intake, every incremental chain member is bound to that scope, and all five
+  workflow builders transport it. Resume validates the latest artifact before history repair,
+  materialization, context/event construction, or runner dispatch; both remote activity entrypoints
+  validate before store/`RunContext` construction, node discovery, node execution, or merge. The
+  final ten named pytest nodes printed `..............` (`14 passed`, exit `0`, `8.980387708` s):
+  tenant/cell mismatch preserved protected node counters and trace bytes, same-scope resume
+  succeeded, direct sync/async producers rejected asserted foreign scope, omitted scope was captured,
+  foreign incremental ancestry failed, and colluding, malformed, and parser-short-circuit worker
+  transports all reached zero protected effects. One independent-review P40 `new class` finding
+  consumed mechanism round 1; its producer, sibling-worker, malformed-input, and parser-order
+  sightings were the same class one level deeper and were folded into the shared-owner widening.
+  Terra's final complete production census returned commit-ready; round 2 remains unused. The
+  canonical confidence owner freshly resolved `120` modules / `120` unique paths, equal to its
+  separately frozen import-time tuple; none of this commit's seven mechanism paths or two record
+  companions is in that authority import closure. This verdict authorizes only GY-DEF3 checkpoint
+  scope closure at the exercised local and distributed boundaries. It does not establish a new
+  remote authentication carrier, full-suite health, confidence-artifact freshness beyond this
+  measured non-membership, publication, or any GY-DEF4 repair.
+
 - **GY-DEF4 — a temporal diagnostic mints the authority pass token (found by OPS-R4, verified
   2026-08-02).** Owner: **runtime/quality + runtime/http** (consumer and producer).
   `runtime/http/services/temporal.py::_time_source_mismatch_disposition` returns honest

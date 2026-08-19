@@ -715,6 +715,8 @@ def run_policy_design_workflow(
             run_dir=run_dir,
             sequence_start=0,
             checkpoint_policy=policy,
+            tenant_id=ctx.run.tenant_id,
+            cell_id=ctx.run.cell_id,
         )
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
         workflow = policy_design_workflow_spec()
@@ -785,6 +787,8 @@ def run_discovery_workflow(
             run_dir=run_dir,
             sequence_start=0,
             checkpoint_policy=policy,
+            tenant_id=ctx.run.tenant_id,
+            cell_id=ctx.run.cell_id,
         )
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
         workflow = discovery_workflow_spec()
@@ -864,6 +868,8 @@ def run_default_workflow(
             run_dir=run_dir,
             sequence_start=0,
             checkpoint_policy=policy,
+            tenant_id=ctx.run.tenant_id,
+            cell_id=ctx.run.cell_id,
         )
         _maybe_create_provenance_dag(state.run_id)
 
@@ -973,6 +979,8 @@ def run_policy_verified_workflow(
             run_dir=run_dir,
             sequence_start=0,
             checkpoint_policy=policy,
+            tenant_id=ctx.run.tenant_id,
+            cell_id=ctx.run.cell_id,
         )
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
         workflow = policy_verified_workflow_spec()
@@ -1051,6 +1059,8 @@ def run_causal_full_workflow(
             run_dir=run_dir,
             sequence_start=0,
             checkpoint_policy=policy,
+            tenant_id=ctx.run.tenant_id,
+            cell_id=ctx.run.cell_id,
         )
         executor = WorkflowExecutor(ctx, registry, checkpoint_hook=checkpoint_hook)
         workflow = causal_full_workflow_spec()

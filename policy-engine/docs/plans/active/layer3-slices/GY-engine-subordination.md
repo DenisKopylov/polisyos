@@ -3207,6 +3207,13 @@ and cold closeout remain unproved.
   reopens this closed member; the frozen N8 artifact remains one of the `11/11` byte-stable pins.
   `[P37: recomputed]`
 
+  **GY-DEFC-9 final cold standing (2026-08-19).** The superseding authorized preflight re-ran N8 in
+  `12.631764` wrapper seconds and returned `0`, `status=pass`, `scope=catalog_provenance`, with
+  `ambient_findings=[]`. The cold child then completed all `28/28` milestones and returned zero
+  validation issues. The N8 artifact stayed byte-identical across the complete `11/11` pin
+  denominator, so the cold result confirms rather than reopens this member: ambient observations
+  remain fully recorded, diagnostic and non-governing. `[P37: recomputed]`
+
 - **GY-DEF15 — canonical identity has no owner for null-versus-absent representation (measured
   2026-08-14 and 2026-08-16).** Owner: **the N11 confidence-ledger artifact projection**, extending
   the shared PDC identity boundary rather than adding another validator-local normalizer.
@@ -3505,6 +3512,12 @@ and cold closeout remain unproved.
   reopen this typed-consumer closure; all five frozen N10a artifacts remain byte-identical.
   `[P37: recomputed]`
 
+  **GY-DEFC-9 final cold standing (2026-08-19).** The superseding preflight re-ran N10a over the
+  complete pack and returned `0`, `status=pass`, `issues=[]` in `15.106248` wrapper seconds. The
+  authorized cold child subsequently completed the exact `28/28` milestone sequence and returned
+  zero validation issues. The typed governing subset remained the bridge decision and all five
+  frozen N10a artifacts stayed byte-identical. `[P37: recomputed]`
+
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
   then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry
   catalog/discovery boundary as co-owner of items 1 and 2.
@@ -3608,6 +3621,35 @@ and cold closeout remain unproved.
   is `not_established`, and cold closeout is incomplete. Full terminal receipts and the complete pin
   denominator are in the execution journal. `[P37: recomputed for the proxy divergence, terminal,
   and Items 1–4; not_established for the exact conjunct and every cold-validation claim]`
+
+  **Final superseding closure (2026-08-19): OBJECTIVE MET; N11 SUFFIX CLOSED.** The corrected
+  allowance boundary classifies both earlier `0/28`, `0/0/0` terminals as pre-milestone
+  non-receipts. The ignored harness removed Darwin `ps` text from the decision and retained it as a
+  false, non-decisive diagnostic; inherited-FD-plus-per-launch-nonce is the parentage predicate. Its
+  two-direction falsifier refuses a missing capability and a wrong nonce with return `71`, while the
+  real launcher pipe admits all `15/15` decisive conjuncts. The preserved falsifier receipt is
+  SHA-256 `048217478b07acc5741365d495d21c59c57321e0bea6dd8067df7a9690d34c76`.
+  `[P37: recomputed]`
+
+  At clean attached head `69f3fa39a`, authorization fingerprint `2a008360…d9d7e`, the launch
+  preflight found both process censuses empty, all three short checks green, and all `11/11` pins
+  exact. The single counted cold run reached milestone 1 and completed the exact `28/28` sequence
+  through `frozen_contract_derived`; clear/build/validate ran exactly `1/1/1`. The child returned
+  `status=pass`, `issue_count=0`, `issues=[]`, with the `977,814` governed bytes byte-equal to the
+  live object. Child wall time was `1,019.478574` s and wrapper wall time was `1,025.936140` s under
+  the authorization-derived `4,693.118600` s ceiling, with no timeout, signal or process leak. The
+  complete `11/11` pin denominator and git identity stayed byte-identical. Receipt SHA-256 is
+  `d53184b800266080a83298f3fc64a291e838e59f2b90b0424e1944358484eb86`.
+  `[P37: recomputed]`
+
+  This meets the registered `GY-DEFC-9` P30 objective, closes the N11 suffix, and exercises the
+  `GY-DEF15` null-versus-absent projection successfully cold. `GY-N11` may now claim this exact
+  authorized fresh-process derivation, byte-equal live validation and zero-issue suffix result at
+  the bound head and inputs. It does **not** claim blanket completion of the broader cold closeout,
+  universality outside this bound environment/input set, privilege-separated launcher provenance,
+  publication or deployment, or any result for `GY-N12`, `GY-N13a/b`, `GY-GAP1`–`GY-GAP4` or
+  `GY-INFRA-3`; those remain governed by their own acceptance records. `[P37:
+  institutionally_supplied for the claim boundary; not_established for every excluded objective]`
 
 - **GY-DI2 — the timing catalog omits most lanes it already has data for, and nothing surfaces the
   omission (measured by the architect 2026-08-11 while adjudicating `GY-DEFC-3`).** Owner:

@@ -1255,3 +1255,182 @@ absent. Every v2 output remains preserved, including launcher meta SHA-256
 child source hashes remain `36c1da…` and `883d41…`. Relaunch is authorized only after this sole
 journal path is committed as the clean direct child and the committed falsifier/admission checks are
 green again. `[P37: recomputed]`
+
+## Final Item 5 receipt — outcome 1, zero issues
+
+The final repair ledger is:
+
+| Item | Blocking/Important findings | Remaining rounds | Final status |
+| --- | ---: | ---: | --- |
+| Items 1+2 | 0 | 2 | green; source frozen |
+| Item 3 | 1 | 1 | green; non-decisive-by-construction ruling durable |
+| Item 4 | 2 | 0 | green; accepted confidence reissue binds deployment identity |
+| Item 5 | 0 | 2 | green; prior terminals were pre-milestone non-receipts; one cold allowance spent on the passing run |
+
+`[P37: recomputed for the execution states and cold-run boundary; institutionally_supplied for the
+round and allowance accounting rules]`
+
+### Proxy removal and final two-direction falsifier
+
+The ignored child no longer uses Darwin `ps` text to decide admission. The inherited one-use file
+descriptor plus the authorization-bound per-launch nonce is the sole parentage predicate; the parent
+command is retained as one diagnostic row with `decisive=false`. Every one of the `15` decisive
+conjuncts and the one diagnostic records its expected value, observed value, match result,
+decisiveness and provenance in both success and refusal receipts. `[P37: recomputed over the complete
+15 + 1 admission denominator]`
+
+After the final authorization commit, the two-direction falsifier was rerun rather than carried from
+the superseded block. Its `16,118`-byte receipt is
+`.tmp/gy-defc-9/cold-n11/capability-falsifier-receipt.json`, SHA-256
+`048217478b07acc5741365d495d21c59c57321e0bea6dd8067df7a9690d34c76`, bound to authorization
+fingerprint `2a008360aa3043856dd9e082634628c09d64023dad3d4c4b39b8f1f4125d9d7e`.
+
+- A fresh child without the inherited capability refused with return `71`; all `15/15` decisive
+  conjuncts were recorded red.
+- A child with the real pipe transport but a wrong nonce refused with return `71`; exactly
+  `nonce_sha256` was red over the `15/15` decisive conjunct denominator.
+- The same transport with the correct nonce admitted with return `0` and all `15/15` decisive
+  conjuncts green while Darwin parent-command text was false and non-decisive.
+
+The complete ignored harness suite remained `9/9` green and bytecode compilation passed. Two
+independent read-only reviews returned GO with no Blocking or Important finding. The declared
+cooperative same-user residual remains: this scratch harness is not a privilege-separated security
+boundary, and no trusted supervisor exists in this lane. `[P37: recomputed for the falsifier, suite,
+compile and complete conjunct denominator; independently_reconciled for both review verdicts;
+institutionally_supplied for the bounded cooperative model]`
+
+### Launch preflight
+
+The counted launch began from clean attached head
+`69f3fa39ae4b6308323823682ca092752db258a5` on branch
+`codex/gy-defc-9-n11-suffix`, with the worktree interpreter and source, exact canonical catalog and
+L5 inputs, authorization fingerprint `2a008360…d9d7e`, exact `11` pins, exact `28` milestone names
+and the enforcement timer `4,693.118600` s all derived from the same committed block. Both relevant
+process censuses were empty. The recorded uptime pair was:
+
+1. `11:39  up 2 days, 17:10, 1 user, load averages: 3.11 3.37 3.46`
+2. `11:40  up 2 days, 17:10, 1 user, load averages: 2.76 3.25 3.41`
+
+The three authorized checks were green:
+
+| Check | Return/status | Issues/findings | Wrapper wall time |
+| --- | --- | --- | ---: |
+| N8 catalog provenance | `0` / `pass` | `ambient_findings=[]` | `12.631764` s |
+| N10a second-domain pack | `0` / `pass` | `issues=[]` | `15.106248` s |
+| confidence internal validation | `pass` | `issues=[]`; deployment `f05a816f…5983955f` | `8.080364` s |
+
+The preflight receipt is `9,860` bytes, SHA-256
+`ce97501d4a4306de275035d9f9b2333a3764090a856dfdb8bb4d8e97c7a5b78d`. `[P37: recomputed for
+branch attachment, tree state, authorization identity, complete process and check denominators,
+uptime values and preflight identity]`
+
+### Counted cold terminal
+
+The wrapper started the child and the allowance became spent when milestone 1,
+`confidence_registry_loaded`, was emitted. The child completed with return `0`, `status=pass`,
+`issue_count=0`, `issues=[]`; `validate_payload` returned `status=pass`, `issues=[]`. Cache clear,
+live build and validation were called exactly `1/1/1`. The live contract and governed contract were
+both `977,814` bytes with SHA-256
+`4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9`, and the governed bytes were
+byte-equal to the same live object; its embedded artifact content hash is
+`sha256:e6f0730d142dfe9576bdf6ac79b5eaa446fd1f2426875b047745607b8fca8b71`.
+`[P37: recomputed]`
+
+Child wall time was `1,019.478574` s. Wrapper wall time was `1,025.936140` s under the
+authorization-derived `4,693.118600` s ceiling. The wrapper recorded no timeout, no TERM, no KILL,
+and an absent process group after completion. Git identity and the complete pin denominator stayed
+stable. This is outcome 1: the cold live-contract validation returned zero issues. `[P37: recomputed
+for timings, timer comparison, cleanup, git and pin predicates; institutionally_supplied for the
+outcome taxonomy]`
+
+The complete milestone trace, enumerated rather than sampled, is:
+
+| Ordinal | Milestone | Elapsed seconds |
+| ---: | --- | ---: |
+| 1 | `confidence_registry_loaded` | `0.001184` |
+| 2 | `owner_pre_derivation_fence_started` | `1.420236` |
+| 3 | `owner_pre_derivation_fence_complete` | `11.422636` |
+| 4 | `n10_owner_recomputation_started` | `11.426706` |
+| 5 | `n10_owner_recomputation_complete` | `985.239852` |
+| 6 | `n13b_owner_recomputation_started` | `985.240287` |
+| 7 | `n13b_owner_recomputation_complete` | `988.554755` |
+| 8 | `n10_owner_projection_complete` | `988.555390` |
+| 9 | `n13b_owner_projection_complete` | `988.556716` |
+| 10 | `owner_post_derivation_fence_started` | `988.599450` |
+| 11 | `owner_post_derivation_fence_complete` | `1,001.936596` |
+| 12 | `owner_bundle_fence_validated` | `1,001.973308` |
+| 13 | `owner_bundle_loaded` | `1,001.974843` |
+| 14 | `n10_evidence_accounting_started` | `1,002.707265` |
+| 15 | `n10_evidence_accounting_complete` | `1,003.279734` |
+| 16 | `n13b_passport_accounting_started` | `1,003.279772` |
+| 17 | `n13b_passport_accounting_complete` | `1,003.279790` |
+| 18 | `real_ledger_receipt_validated` | `1,003.386173` |
+| 19 | `n9_live_projection_validated` | `1,003.569938` |
+| 20 | `n12_live_projection_validated` | `1,003.823932` |
+| 21 | `conformance_ledger_started` | `1,003.824301` |
+| 22 | `conformance_check_executed` | `1,004.408738` |
+| 23 | `conformance_ledger_receipt_validated` | `1,004.446803` |
+| 24 | `confidence_ledger_receipts_validated` | `1,005.029710` |
+| 25 | `real_semantic_projection_complete` | `1,005.106840` |
+| 26 | `conformance_semantic_projection_complete` | `1,005.125234` |
+| 27 | `frozen_consumer_projections_complete` | `1,005.135897` |
+| 28 | `frozen_contract_derived` | `1,005.235249` |
+
+The milestone validator records `expected_count=28`, `observed_count=28`,
+`ordinals_complete=true`, `sequence_exact=true` and `suffix_reached=true`. `[P37: recomputed over the
+complete 28/28 event denominator]`
+
+The complete `11/11` pin denominator was byte-identical before and after:
+
+| Pin | Bytes | SHA-256 |
+| --- | ---: | --- |
+| `architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json` | `977,814` | `4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9` |
+| `architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json` | `2,193,438` | `155f01a877d7327281531115fee88764b7615e411830c8ec6109f375aa5b615e` |
+| `architecture/policy_design_case/layer3_gy_second_domain_census.json` | `73,888` | `ba20cdb384eb3e00fb6f13b2fad0b6f679f6fd4debc1148e4fe39a567055e74c` |
+| `architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json` | `567,935` | `9b78cad2693a163debfe8f4f77f26a01c77b177d1777f83b6352bede58be67f7` |
+| `architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json` | `21,053` | `361434b07fcdad7b1965c1899335b99c1b441034e5b8752c4645544f4b1fd98f` |
+| `architecture/policy_design_case/layer3_gy_second_domain_pack.json` | `252,598` | `169df14ab4fbc8f853f937e08d1c218066682d6f8fd5945219d9866d07cda2e2` |
+| `architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json` | `4,665` | `688bd3d8c845ebe99495aecb3b2c10579dbf3f43dd5e8fe0a6686cc6e8b5f76d` |
+| `architecture/policy_design_case/layer3_gy_value_gate_contract.json` | `106,118` | `c3f131ce4f4729936eb3a639cfc81d5d65edb6545b2562d415f64998331bc303` |
+| `architecture/production_quality/confidence_ledger.toml` | `8,144` | `f337fc1ef5a40daec98f8970a64cd85721b55590b93f452503c4c5a7fa49942b` |
+| `production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json` | `2,112` | `90f341b2e71edb28b6208f580d8a920191d67240c240db9417ba18a225187aff` |
+| `production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb` | `1,320,693,760` | `4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7` |
+
+`[P37: recomputed over the complete pin denominator]`
+
+The preserved v3 output identities are:
+
+| Output | Bytes | SHA-256 |
+| --- | ---: | --- |
+| launch lock | `212` | `e4d4067c1b8616c9049f84a4159435b6b482669d8766730ffbd9aa566bf1c996` |
+| launcher meta | `1,817` | `83bc88f9ceac52ed0f8425fe0b26f34dda0f48d745368e2baf68f020354bde23` |
+| preflight | `9,860` | `ce97501d4a4306de275035d9f9b2333a3764090a856dfdb8bb4d8e97c7a5b78d` |
+| cold receipt | `26,047` | `d53184b800266080a83298f3fc64a291e838e59f2b90b0424e1944358484eb86` |
+| stderr | `316` | `bf1d2fce6889f66796d5842c9bb9d424d92fc8380022ed050b46ac264053513f` |
+| stdout | `152,626` | `f8b8ca271ba19af307b2d8e1a7be271057b0ab5fc971c7fc29606acbb3344a88` |
+| timing | `596` | `507bcffef0c58c82329248a849006f9934f11c081e0b96ad5d4681d73b2c6200` |
+| runtime temp directory | empty | directory, not a file identity |
+
+Stderr contains only two informational database-connection records. `[P37: recomputed over all 8/8
+authorized outputs]`
+
+### Closure and claim boundary
+
+The `GY-DEFC-9` P30 objective is met: a cold N11 live-contract validation returned zero issues. The
+N11 suffix is closed and the `GY-DEF15` null-versus-absent projection owner has now been exercised
+successfully cold. `GY-N11` may claim the exact authorized fresh-process derivation, byte-equal
+governed/live validation, complete `28/28` trace and zero-issue suffix result at head `69f3fa39a`
+against the recorded input set. `[P37: recomputed for the run predicates; institutionally_supplied
+for the registered objective and claim boundary]`
+
+This does **not** assert blanket completion of the broader GY-N11 cold closeout, universality outside
+the bound environment/head/input set, privilege-separated launcher provenance, publication or
+deployment, or any result for `GY-N12`, `GY-N13a/b`, `GY-GAP1`–`GY-GAP4` or `GY-INFRA-3`. Those
+claims remain governed by their own acceptance records. `[P37: not_established for every excluded
+objective]`
+
+The protected GY plan frontmatter line 7 remained byte-identical to base and the run head at SHA-256
+`ed8e63cabd6b5e84c075e0b771d7355af4d5c0e74454683a113309afd11fa71a`; no `Rev` entry was written.
+This final hand-back changes only the permitted standing paragraphs and this journal. Committing it
+retires the one-shot v3 authorization rather than authorizing another launch. `[P37: recomputed for
+the line identity and changed-path set; institutionally_supplied for the no-relaunch rule]`

@@ -6,7 +6,13 @@ import re
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import AwareDatetime, Field, model_validator
+from pydantic import (
+    AwareDatetime,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.core.security.identity import PolicyOSRole  # noqa: TC001 - Pydantic runtime type
 from polisyos.pdc import AuthorityBoundary, GovernanceDecisionClass, Layer2ReadinessModel
@@ -18,6 +24,9 @@ if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
 LAYER2_S7_DELEGATION_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s7_delegation.v1"
+LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer2_s7_delegation.v2"
+)
 
 DelegationInteractionMode = Literal[
     "ai_follow",
@@ -228,7 +237,10 @@ class DelegatedActionEnvelope(Layer2ReadinessModel):
 class DelegationContract(Layer2ReadinessModel):
     """Mandate-bounded S7 delegation contract for one policy-design case."""
 
-    schema_version: str = LAYER2_S7_DELEGATION_SCHEMA_VERSION
+    schema_version: Literal[
+        "policyos.policy_design_case.layer2_s7_delegation.v1",
+        "policyos.policy_design_case.layer2_s7_delegation.v2",
+    ] = LAYER2_S7_DELEGATION_SCHEMA_VERSION
     contract_id: str = Field(..., min_length=1, max_length=120)
     contract_ref: str = Field(..., min_length=1, max_length=300)
     case_id: str = Field(..., min_length=1, max_length=200)
@@ -262,6 +274,17 @@ class DelegationContract(Layer2ReadinessModel):
 
     @model_validator(mode="after")
     def _validate_action_envelope_ownership(self) -> DelegationContract:
+        has_agent_action_extension = self.mandate_owner_ref is not None or bool(
+            self.action_envelopes
+        )
+        if has_agent_action_extension and (
+            self.schema_version != LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION
+        ):
+            raise ValueError("envelope-bearing delegation contract requires v2")
+        if not has_agent_action_extension and (
+            self.schema_version != LAYER2_S7_DELEGATION_SCHEMA_VERSION
+        ):
+            raise ValueError("legacy delegation contract without agent envelopes requires v1")
         if not self.action_envelopes:
             return self
         if self.mandate_owner_ref is None:
@@ -277,6 +300,19 @@ class DelegationContract(Layer2ReadinessModel):
             if envelope.rule_version_ref != self.rule_version_ref:
                 raise ValueError("action envelope rule version must match delegation contract")
         return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_versioned_contract(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> object:
+        """Keep legacy v1 bytes free of fields introduced only by the v2 reader."""
+
+        payload = handler(self)
+        if self.schema_version == LAYER2_S7_DELEGATION_SCHEMA_VERSION and isinstance(payload, dict):
+            payload.pop("mandate_owner_ref", None)
+            payload.pop("action_envelopes", None)
+        return payload
 
 
 class DecisionOption(Layer2ReadinessModel):

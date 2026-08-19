@@ -300,3 +300,32 @@ transport. This is DS4/DS5 debt and was reported without repair. `[P35: complete
 No frontend surface was built. The GY-DEF4 overlap file
 `src/polisyos/runtime/quality/authority.py` is not in the PA2 diff. Line 7 of the GY plan was not
 changed.
+
+## Final audit stop — append-only correction
+
+The final independent audit returned **NO-GO** with one **NEW Blocking P38/P33 class**. Memory
+admission is a fixed-key proxy: `memory_influence_claim_evidence_issues()` examines the declared
+`CLAIM_EVIDENCE_SLOT_KEYS`, while `AgentActionAdmissionBundle.memory_claim_payload` accepts a generic
+dictionary. The gate applies no generic candidate firewall to the remaining memory payload before
+allow.
+
+The exact final-HEAD falsifier signed an otherwise-valid bundle containing
+`{"policy_fact_ref": "memory-influence:prior-policy-fact"}`. Dispatch printed
+`dispatch_result='search' effects=['search']`; its required `effects == []` assertion failed, exit
+`1`, in 10.25 s. This violates the binding deliverable “a memory record masquerading as a policy
+fact does not pass the gate.” It is not the earlier caller-authority, persistence/effect-receipt, or
+schema-identity class; it is a new proxy-key/generalization class. Rounds were already 2/2, so P40
+requires stop/report rather than a third-round instance repair. No mechanism code changed after the
+finding. The earlier statements that all memory refusals produce zero effects and that the local
+guarded adapter's required reds pass are superseded. The producer remains present, but GY-PA2 is not
+admissible for completion. `[P33/P38/P40: falsified, NEW Blocking, stop]`
+
+Smallest class-level repair: replace the fixed evidence-slot key proxy with a generic governed
+memory-admission boundary over the full payload grammar, then add generated novel-key, synonym,
+nested, and present-but-fake variants plus the remove-the-property mutation. That repair is not
+attempted after the P40 stop.
+
+Minor factual correction: the earlier mechanism paragraph says v2 requires both a mandate owner and
+envelope data. The model actually requires the v2 mandate owner but permits an empty envelope tuple;
+dispatch then fails closed with `unknown_action_kind`. This claim/model mismatch is recorded and was
+not repaired because it is not the Blocking stop class.

@@ -2491,6 +2491,14 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   P40 rounds ended **2/2**; this same-class P38 residual is recorded, not hidden or instance-patched.
   All six governed S7/readiness artifacts remained byte-identical, no frontend surface was built,
   and `runtime/quality/authority.py` was not touched.
+  **STANDING CORRECTION (final audit, append-only):** GY-PA2 is **NO-GO**, not complete. A new
+  Blocking P38/P33 class was reproduced after rounds reached 2/2: memory admission examines a fixed
+  list of evidence-slot keys, so a signed `policy_fact_ref=memory-influence:prior-policy-fact`
+  payload passes and reaches the search effect. The required generic memory-masquerading refusal is
+  therefore false; the earlier zero-effect memory statement is superseded. Under P40 this finding
+  stops the slice and is reported without a third-round instance patch. The smallest repair must
+  replace fixed-key inspection with generic governed memory admission whose remove-the-property
+  falsifier covers novel keys and nested variants.
 - **GY-PA3 — Compression-loss ledger producer (orchestration authority-delta; M38 / CPA-R23).**
   build-new producer closing the named G6 gap (G6 emits prompt/tool/search/orchestration/replay
   ledgers but **no compression ledger**). Every load-bearing orchestration choice

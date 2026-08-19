@@ -23,7 +23,6 @@ from polisyos.pdc import (
     AuthorityDerivationTrace,
     GyComparisonAdmission,
     PromotionObligationClass,
-    PromotionObligationRecord,
     PromotionObligationStatus,
     PromotionRiskSpendRecord,
     SearchTerminalKind,
@@ -123,6 +122,173 @@ def test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow() -> None:
         PromotionObligationStatus.SCOPE_INSUFFICIENT
     )
     assert validate_canonical_promotion_receipt(receipt) == ()
+
+
+def test_n9_emits_additive_decisive_instances_with_deterministic_identity() -> None:
+    promotion_input = _promotion_input()
+    receipt = _run(promotion_input)
+
+    class_gate_rows = [
+        row for row in receipt.obligations if row.obligation_role == "class_gate"
+    ]
+    decisive_rows = [
+        row for row in receipt.obligations if row.obligation_role == "decisive_predicate"
+    ]
+    slot_rows = [
+        row
+        for row in receipt.obligations
+        if row.obligation_class == PromotionObligationClass.SLOT
+        and row.gate_id.value == "n8_transport"
+    ]
+
+    assert tuple(row.obligation_class for row in class_gate_rows) == tuple(
+        PromotionObligationClass
+    )
+    assert [row.source_obligation_ref for row in decisive_rows] == [
+        (
+            "polisyos.runtime.quality.generation_cycle.ValueGateReceipt#"
+            "transport_wmr_hash_equals_receipt_wmr_hash"
+        ),
+        (
+            "polisyos.runtime.quality.generation_cycle.ValueGateReceipt#"
+            "outer_set_wmr_ref_equals_receipt_wmr_hash"
+        ),
+    ]
+    assert len(slot_rows) == 3
+    assert len(receipt.obligations) == 17
+    assert len({row.obligation_instance_id for row in receipt.obligations}) == 17
+    assert {row.identity_provenance for row in receipt.obligations} == {"recomputed"}
+
+    expected_scope_hash = gy_content_hash(
+        {
+            "rule_version": "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1",
+            "promotion_rule_version": promotion_input.schema_version,
+            "design_problem_id": promotion_input.design_problem_binding.design_problem_id,
+            "problem_content_hash": (
+                promotion_input.design_problem_binding.problem_content_hash
+            ),
+            "candidate_id": promotion_input.candidate_summary.candidate_id,
+            "candidate_content_hash": promotion_input.candidate_summary.content_hash,
+            "operation_invocation_id": promotion_input.operation_invocation_id,
+        }
+    )
+    assert {row.instance_scope_content_hash for row in receipt.obligations} == {
+        expected_scope_hash
+    }
+
+
+def test_decisive_obligation_omission_keeps_class_totality_and_turns_authority_red() -> None:
+    receipt = _run(_promotion_input())
+    target = next(
+        row
+        for row in receipt.obligations
+        if row.obligation_role == "decisive_predicate"
+        and row.source_obligation_ref.endswith(
+            "#transport_wmr_hash_equals_receipt_wmr_hash"
+        )
+    )
+    obligations = tuple(
+        row for row in receipt.obligations if row.obligation_instance_id != target.obligation_instance_id
+    )
+    class_gate_rows = tuple(
+        row for row in obligations if row.obligation_role == "class_gate"
+    )
+    edited = receipt.model_copy(
+        update={
+            "obligations": obligations,
+            "gate_outcome_hash": _gate_outcome_hash(obligations),
+        }
+    )
+
+    assert tuple(row.obligation_class for row in class_gate_rows) == tuple(
+        PromotionObligationClass
+    )
+    assert validate_canonical_promotion_receipt(edited) == (
+        {
+            "code": "decisive_obligation_omitted",
+            "obligation_instance_id": target.obligation_instance_id,
+        },
+    )
+
+
+def test_n9_obligation_identity_replay_rejects_tamper_duplicate_and_substitution() -> None:
+    promotion_input = _promotion_input()
+    receipt = _run(promotion_input)
+    replay = _run(promotion_input)
+    assert [row.obligation_instance_id for row in replay.obligations] == [
+        row.obligation_instance_id for row in receipt.obligations
+    ]
+    target = next(
+        row for row in receipt.obligations if row.obligation_role == "decisive_predicate"
+    )
+
+    tampered = target.model_copy(
+        update={"source_obligation_content_hash": _hash("f")}
+    )
+    tampered_rows = tuple(
+        tampered if row.obligation_instance_id == target.obligation_instance_id else row
+        for row in receipt.obligations
+    )
+    tampered_receipt = receipt.model_copy(
+        update={
+            "obligations": tampered_rows,
+            "gate_outcome_hash": _gate_outcome_hash(tampered_rows),
+        }
+    )
+    assert {issue["code"] for issue in validate_canonical_promotion_receipt(tampered_receipt)} == {
+        "obligation_instance_identity_mismatch",
+        "decisive_obligation_substituted",
+    }
+
+    duplicate_rows = (*receipt.obligations, target)
+    duplicate_receipt = receipt.model_copy(
+        update={
+            "obligations": duplicate_rows,
+            "gate_outcome_hash": _gate_outcome_hash(duplicate_rows),
+        }
+    )
+    assert validate_canonical_promotion_receipt(duplicate_receipt) == (
+        {
+            "code": "duplicate_obligation_instance_id",
+            "obligation_instance_id": target.obligation_instance_id,
+        },
+    )
+
+    forged_source_ref = f"{target.source_obligation_ref}.forged"
+    forged_id = gy_content_hash(
+        {
+            "rule_version": (
+                "polisyos.policy_design_case.layer3_gy."
+                "n9_obligation_instance_identity.v1"
+            ),
+            "obligation_role": target.obligation_role,
+            "obligation_class": target.obligation_class.value,
+            "gate_id": target.gate_id.value,
+            "source_obligation_ref": forged_source_ref,
+            "source_obligation_content_hash": target.source_obligation_content_hash,
+            "instance_scope_content_hash": target.instance_scope_content_hash,
+        }
+    )
+    forged = target.model_copy(
+        update={
+            "source_obligation_ref": forged_source_ref,
+            "obligation_instance_id": forged_id,
+        }
+    )
+    forged_rows = tuple(
+        forged if row.obligation_instance_id == target.obligation_instance_id else row
+        for row in receipt.obligations
+    )
+    forged_receipt = receipt.model_copy(
+        update={
+            "obligations": forged_rows,
+            "gate_outcome_hash": _gate_outcome_hash(forged_rows),
+        }
+    )
+    assert {issue["code"] for issue in validate_canonical_promotion_receipt(forged_receipt)} == {
+        "decisive_obligation_omitted",
+        "unexpected_decisive_obligation_instance",
+    }
 
 
 def test_non_calibration_probabilistic_offer_is_ledger_accounted_and_refused() -> None:
@@ -847,15 +1013,12 @@ def test_scope_insufficient_obligation_does_not_vacuously_pass() -> None:
     effect = _obligation(receipt, PromotionObligationClass.EFFECT)
     assert effect.status == PromotionObligationStatus.SCOPE_INSUFFICIENT
     assert effect.semantic_scope == "scope_insufficient"
-    vacuous_value = PromotionObligationRecord.model_construct(
-        obligation_class=effect.obligation_class,
-        gate_id=effect.gate_id,
-        status=PromotionObligationStatus.SATISFIED,
-        reason=None,
-        owner_ref=effect.owner_ref,
-        detail=effect.detail,
-        evidence_refs=effect.evidence_refs,
-        semantic_scope="scope_insufficient",
+    vacuous_value = effect.model_copy(
+        update={
+            "status": PromotionObligationStatus.SATISFIED,
+            "reason": None,
+            "semantic_scope": "scope_insufficient",
+        }
     )
     obligations = tuple(
         vacuous_value if item.obligation_class == PromotionObligationClass.EFFECT else item
@@ -2031,6 +2194,53 @@ def test_promotion_comparison_migrates_legacy_only_through_live_owner_proof() ->
         plan.preserve_admitted_blocks(forged_legacy, current)
 
 
+def test_promotion_comparison_migrates_v2_class_rows_without_admitting_them() -> None:
+    promotion_input = _promotion_input()
+    session = _verification_ledger_session(
+        binding=promotion_input.design_problem_binding
+    )
+    receipt = promotion_sequence_module._run_canonical_promotion_sequence_for_verification(
+        promotion_input,
+        confidence_ledger_session=session,
+    )
+    proof = promotion_sequence_module.prove_canonical_promotion_receipt_for_comparison(
+        receipt,
+        repo_root=REPO_ROOT,
+        confidence_ledger_session=session,
+    )
+    admission = promotion_sequence_module.canonical_promotion_comparison_admission_from_proof(
+        proof
+    )
+    current = {"receipt": receipt.model_dump(mode="json")}
+    legacy = deepcopy(current)
+    legacy_receipt = legacy["receipt"]
+    legacy_receipt["schema_version"] = (
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+    )
+    identity_fields = {
+        "obligation_role",
+        "source_obligation_ref",
+        "source_obligation_content_hash",
+        "instance_scope_content_hash",
+        "identity_provenance",
+        "obligation_instance_id",
+    }
+    legacy_receipt["obligations"] = [
+        {key: value for key, value in row.items() if key not in identity_fields}
+        for row in legacy_receipt["obligations"]
+        if row["obligation_role"] == "class_gate"
+    ]
+    plan = build_gy_comparison_projection_plan(current, admissions=(admission,))
+
+    migrated = plan.preserve_admitted_blocks(legacy, current)
+
+    assert migrated["receipt"] == current["receipt"]
+    forged_legacy = deepcopy(legacy)
+    forged_legacy["receipt"]["obligations"][0]["detail"] = "forged legacy result"
+    with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
+        plan.preserve_admitted_blocks(forged_legacy, current)
+
+
 def _ledger_session(
     *,
     run_ref: str = "ledger-run:n9-promotion-test",
@@ -2044,7 +2254,7 @@ def _ledger_session(
         owner_projection_hash=owner_binding.problem_content_hash,
         epoch_ref=None,
         model_ref=owner_binding.model_spec_ref,
-        rule_ref="policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+        rule_ref=promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
         schema_ref=owner_binding.problem_schema_version,
     )
     return ConfidenceLedgerSession.from_repo(
@@ -2069,7 +2279,7 @@ def _verification_ledger_session(
         owner_projection_hash=owner_binding.problem_content_hash,
         epoch_ref=None,
         model_ref=owner_binding.model_spec_ref,
-        rule_ref="policyos.policy_design_case.layer3_gy.n9_promotion.v2",
+        rule_ref=promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION,
         schema_ref=owner_binding.problem_schema_version,
     )
     return ConfidenceLedgerSession._for_verification(
@@ -2307,7 +2517,7 @@ def _boundary(*, grade: str = "decision_admissible") -> AuthorityBoundary:
         may_not_use_for=["production_deployment"],
         source_authority="deterministic_producer",
         posture="governed",
-        rule_version_refs=["policyos.policy_design_case.layer3_gy.n9_promotion.v2"],
+        rule_version_refs=[promotion_sequence_module.GY_PROMOTION_SEQUENCE_SCHEMA_VERSION],
         evidence_kind="measurement",
         decision_grade=grade,  # type: ignore[arg-type]
     )
@@ -2379,7 +2589,12 @@ def _s8_posture() -> Layer2S8ValuePostureInput:
 
 
 def _obligation(receipt: object, obligation_class: PromotionObligationClass):
-    return next(item for item in receipt.obligations if item.obligation_class == obligation_class)
+    return next(
+        item
+        for item in receipt.obligations
+        if item.obligation_role == "class_gate"
+        and item.obligation_class == obligation_class
+    )
 
 
 def _credal_reference() -> CredalReference:

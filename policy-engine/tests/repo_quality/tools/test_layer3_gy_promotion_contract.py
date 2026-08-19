@@ -41,6 +41,24 @@ def test_rederived_n9_contract_accounts_fixed_time_refusal_through_n11() -> None
     assert checker.validate_payload(payload) == {"status": "pass", "issues": []}
 
 
+def test_n9_contract_persists_live_om01_authority_witness() -> None:
+    payload = checker.build_payload(POLICY_ENGINE_ROOT)
+
+    witness = payload["obligation_instance_mutation_witness"]
+
+    assert witness["mutation_id"] == "om_01_decisive_obligation_omission"
+    assert witness["removed_obligation_role"] == "decisive_predicate"
+    assert witness["removed_source_obligation_ref"].endswith(
+        "#transport_wmr_hash_equals_receipt_wmr_hash"
+    )
+    assert witness["removed_instance_count"] == 1
+    assert witness["class_denominator_status"] == "green"
+    assert witness["class_denominator_count"] == 15
+    assert witness["authority_status"] == "red"
+    assert witness["authority_issue_codes"] == ["decisive_obligation_omitted"]
+    assert witness["verification_session_provenance"] == "verification"
+
+
 def test_n9_contract_writer_is_byte_stable_without_canonical_ledger_namespace(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

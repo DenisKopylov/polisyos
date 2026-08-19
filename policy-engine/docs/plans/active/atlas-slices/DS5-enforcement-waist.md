@@ -850,6 +850,26 @@ samples:
 | Atlas checker/corruption | `95.03` | `156.60` | `314 s` |
 | full Atlas module | `543.14` | `1338.89` | `2678 s` |
 
+The C15b-R1 source and writer freeze used the same declared local shared-host
+regime. Behavioral/static REDs, unlabeled reviewer durations and tooling
+nonreceipts remain journal-only and are excluded from successful samples:
+
+| Lane | New successful samples (seconds) | recomputed p95 | binding ceiling |
+| --- | ---: | ---: | ---: |
+| focused dashboard/component tests | `1.85, 1.85, 1.87, 2.11` | `82.27` | `165 s` |
+| dashboard typecheck | `19.58, 19.62` | `78.40` | `157 s` |
+| scoped dashboard ESLint | `30.69, 30.90` | `86.84` | `174 s` |
+| dashboard production build | `28.41` | `57.45` | `115 s` |
+| dashboard architecture/dependency cruise | `6.87` | `9.20` | `19 s` |
+| canonical report writer | `60.30, 60.66` | `86.97` | `174 s` |
+| focused status-membership reconciliation | `19.92` | `19.92` | `40 s` |
+| full frontend module | `242.27` | `373.94` | `748 s` |
+| disposition corruption battery | `158.38` | `276.89` | `554 s` |
+| status-retirement module | `76.09` | `168.65` | `338 s` |
+| status checker/corruption | `20.27, 27.11` | `42.54` | `86 s` |
+| Atlas checker/corruption | `94.21` | `156.60` | `314 s` |
+| full Atlas module | `544.98` | `1338.89` | `2678 s` |
+
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
 full-suite ceiling. Killed overruns remain censored non-receipts and never enter
@@ -979,7 +999,7 @@ first continuously numbered `-R1` successor.
 | C13a-R3 | 23 | 23 | FIT | C13a-R3 / 23 (execution successor) |
 | C13b | 9 | 10 | no-fit | C13b-R1 / 10 |
 | C14b | 7 | 8 | absorbed/discharged | C13b-R7 / 11; no separate implementation |
-| C15b | 5 | 6 | no-fit | C15b-R1 / 6 |
+| C15b | 5 | 7 total (3 mechanism + 4 companions) | P39 mechanism fit | C15b-R1 / mechanism cap 6; total 7 |
 | C16a | 5 | 7 | no-fit | C16a-R1 / 7 |
 | C16b | 7 | 10 | stopped structural re-cut | C16b-R2 / 10 |
 | C17a | 9 | 10 | no-fit | C17a-R2 / 15 |
@@ -1489,7 +1509,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C09b-R1 | mode/run default deny | C08b-R2's raw fail-closed owner is landed, but C09b's written acceptance consumes C09a-R2's branded decision API, cross-surface test and bounded syntax gate | `edb8e045f`; stopped C09a candidate `f240db1b7`; C09b acceptance below | blocked-on-another-cluster; supplied independence is falsified by the reverted API/gate and C09b's cap excludes them | C09a-R2 |
 | C10-R1 | weakest-boundary presentation | no routed complete G4 producer; C05b implementation debt also remains | `docs/reference/frontend/atlas-frontend-disposition-register.md:221`; C05b-D2 above | blocked-on-another-plan | `team-runtime-quality` G4 projection owner plan |
 | C11a | cache-posture observation | the packet supplies `as_of`; live TanStack query lifecycle supplies data/fetch state | `c8c7a291c`; `apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103-119`; `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:399,453` | landed | none |
-| C11b-R1 | visible cache posture | C11a's typed `CachePosture` artifact is landed and C11b carries its runtime-issued observation to the run surface | `c8c7a291c`; `DS5-C11b-R1` acceptance; 55/55 focused and governed closeout receipts | landed by this plan-bearing commit; register family released after branch readback | none |
+| C11b-R1 | visible cache posture | C11a's typed `CachePosture` artifact is landed and C11b carries its runtime-issued observation to the run surface | `c8c7a291c`; `DS5-C11b-R1` acceptance; 55/55 focused and governed closeout receipts | landed at `4edcf96be`; register family free | none |
 | C12a | query construction/producer census | 42 current query producers are real census subjects; the register is the new enforcement artifact | `15c89d241`; complete census: `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\bqueryFn\\s*:' apps/runtime-dashboard/src` (42); `DS5-C12a` measured denominator | landed | none |
 | C12b-R1 | governed query wrapper/policy | consumes C12a's source-bound register and policy classification | `53fe8a84c`; C12a table row; `DS5-C12b-R1` acceptance | landed | none |
 | C13a | delete authority replay | landed: provider/queued hook deleted; live decision and composer-only persistence remain | `653f12d08`; `apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.ts:16-45`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16` | landed | none |
@@ -1500,31 +1520,29 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C15a | raw Clerk run-status partition | SSE writes `messages[].runStatus`; the landed strict codec excludes it from persisted authority | `96a7e6dff`; `apps/runtime-dashboard/src/features/clerk/hooks/useClerkNlRun.ts:80-101`; `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | landed | none |
 | C15a | structured verdict/status-chip partition | no live structured producer exists; DS1 records it as dormant producer-missing substrate | `docs/reference/frontend/atlas-live-application-audit.md:623,868,896` | blocked-on-another-plan | structured verdict/status-chip producer owner plan |
 | C15a | identity hydration API | verified identity and envelope prerequisites are landed | `96a7e6dff`; C08b-R2 and C14a table rows | landed | none |
-| C15b-R1 | mounted Clerk identity bridge | C15a codec and C08b-R2 verified identity are landed | `96a7e6dff`; `edb8e045f`; `DS5-C15b-R1` acceptance | executable and unentered; both predecessors discharged | none |
+| C15b-R1 | mounted Clerk identity bridge | C15a codec and C08b-R2 verified identity are landed | `96a7e6dff`; `edb8e045f`; `DS5-C15b-R1` acceptance; focused and governed closeout receipts | landed by this plan-bearing commit after branch readback; register family released | none |
 | C16a-R1 | causal-draft partition | scoped, authority-free candidate persistence is landed; DS8 semantics remain untouched | `72522acd9`; focused causal consumer witness | landed; register family free | none |
 | C16b-R1/R2 | dispute-interaction partition | R1 measured an omitted complete-scope remount fixture; R2 closes the scoped topology-only consumer while DS9 semantics remain untouched | `78ea7c3d7`; final verification `a1e6ebcdc`; focused domain/panel witnesses | landed; register family free | none |
 | C17a-R2 | storage-family partition | four typed families use one scope-bound, expiring canonical owner | `5e868da0c`; `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts`; `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` | landed; register family free | none |
 | C17a-R1 | root disposition transition | DS14 plan versus DS9 register ownership conflict remains | `DS5-C17a-R1` acceptance; `docs/reference/frontend/atlas-frontend-disposition-register.md:536,539-542` | blocked-on-another-plan | DS14/DS9 owner-resolution plan |
-| C17b-R1/R2/R3 | persistence construction census | R3 admits the complete 574-source / 36-site direct resolver set and explicitly refuses the disproved per-site causal owner binding | candidate `ca1400c55`; revert `eb97981c4`; P40 falsifier and final governed wave | landed by this plan-bearing commit after branch readback; register family free | none |
+| C17b-R1/R2/R3 | persistence construction census | R3 admits the complete 574-source / 36-site direct resolver set and explicitly refuses the disproved per-site causal owner binding | candidate `ca1400c55`; revert `eb97981c4`; P40 falsifier and final governed wave | landed at `9e389a17a`; register family free | none |
 | C18a | strict exposure registry | one strict twelve-key registry emits typed `FeatureFlags`; live-source binding remains C18b-R2 | `94e2c8ca0`; `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | landed | none |
 | C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
 | C19-R1/R2 | three flag gates and collaboration retirement | R2 restores R1's reviewed gates and repairs the governed C21 census consumer to replay the ratified hybrid relocation rule with multiplicity | candidate `9b87f0e09`; forward revert `33ea792b5`; C19-R2 route/bootstrap/C21 witnesses and governed wave | landed; register family free | none |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; C07a's new owner block needs prerequisite-versus-carried-debt reconciliation | `DS5-C20` acceptance; complete standing census below; C07a and C09a 2026-08-19 entry/round-breaker stops | blocked-on-another-cluster; C07a opening effect not_established | C09a-R2, C09b-R1, C15b-R1; architect ruling for C07a |
+| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; C07a's new owner block needs prerequisite-versus-carried-debt reconciliation | `DS5-C20` acceptance; complete standing census below; C07a and C09a 2026-08-19 entry/round-breaker stops | blocked-on-another-cluster; C07a opening effect not_established | C09a-R2, C09b-R1; architect ruling for C07a |
 
-**Entry standing census (recomputed and independently reconciled at
-`324996652`, structurally refreshed through C17b-R2 revert `eb97981c4`):**
+**Standing census (entry denominator recomputed and independently reconciled at
+`324996652`, structurally refreshed through the containing C15b commit):**
 the complete walk covered all `25` cap-table records (`23/23` audited writer
 rows plus the two stopped C13a predecessor records), `31/31` execution-plane
 rows, all `28` C07–C20 status-heading occurrences collapsing to `24` base
 cluster groups, `48/48` expected-commit rows, branch ancestry, and every
-cluster status paragraph. In the commissioned chain, C18b-R2 and C19-R2
-landed, C17b-R2 stopped for the same-cap R3 mechanism re-cut, and this
-plan-bearing commit lands C17b-R3's narrowed direct census once branch
-attachment/readback succeeds. Outside that chain, the
-executable-and-unentered set is exactly `C15b-R1`; C11b-R1 lands in this
-plan-bearing commit. C09a-R1 is
-stopped with the same-cap C09a-R2 successor unentered; C09b-R1 is now blocked
+cluster status paragraph. In the commissioned chain, C18b-R2, C19-R2 and
+C17b-R3 landed, while C17b-R2 stopped for the same-cap R3 mechanism re-cut.
+Outside that chain, C11b-R1 and C15b-R1 land in
+their plan-bearing commits. The executable-and-unentered set is now exactly
+the same-cap `C09a-R2` successor; C09a-R1 is stopped and C09b-R1 is blocked
 on that real API/gate dependency rather than weakening its acceptance. C07a is now
 `blocked_on_another_owner` by the registered `runtime-dashboard-api-types`
 owner tuple; C07b records the same unresolved single-owner migration debt but
@@ -2314,18 +2332,31 @@ identity hydration bridge consumed next.
 
 ### DS5-C15b-R1 — mount the Clerk identity bridge
 
-**Measured set:** exactly 5 implementation/governed paths plus journal = 6;
-cap 6: `ClerkChatPage.tsx` + new focused test, frontend disposition register +
-generated report, `architecture/atlas_surfaces/status-retirement-inventory.json`,
-and journal.
+**P39 measured cut:** mechanism cap 6; the exact changed set is 3 mechanism
+paths (`ClerkChatPage.tsx`, one new focused test, and the surgical
+`cache-clerk-sessions` register rationale) plus 4 mandatory companions (this
+plan, the DS5 journal, the canonical generated report, and the status
+inventory's exact DS19 register hash pin), 7 changed paths total. The status
+inventory adds only the scanner-derived `ClerkChatPage.tsx:17` consumer of the
+existing Authz status plus the exact DS19 register hash pin. Its semantic
+definitions, spans and denominators remain byte-identical because this bridge
+creates no status vocabulary and the register row remains pending.
 
 **Red first:** `test_clerk_page_binds_current_identity_before_hydration` covers
-absent, changed tenant, changed user and expired bytes; no page render observes
-prior in-memory sessions.
+absent/error scope, changed tenant, changed user, delimiter-colliding identities
+and expired bytes; no page render observes prior in-memory sessions, and every
+chat render follows the current identity bridge.
 
 **Acceptance:** the page is the single identity/scope bridge and calls the
 C15a API before hydration. The `cache-clerk-sessions` domain row
 remains DS14 `rebind_pending`; DS5 attaches isolation evidence only.
+
+**Outcome:** landed by the containing commit after one mechanism round. The
+complete focused witness is `4 / 4`; the full frontend, disposition, status,
+Atlas, build and architecture lanes are green on the final seven-path freeze.
+The scanner-derived Authz membership is owned inside the status companion;
+C21 requires zero Clerk re-anchors, and no DS8, DS9 or DS14 semantic closure is
+claimed. The register family is released only after committed branch readback.
 
 **Expected commit:** `DS5-C15b-R1 mount Clerk identity hydration`.
 
@@ -2578,8 +2609,8 @@ their owning implementation/regeneration clusters, never as a C20 tail. All
 JSON edits are surgical and idempotent.
 
 **Opening ruling:** C20 closes over executable DS5 clusters, not planes owned
-by another plan. It remains unopened while `C09a-R2`, `C09b-R1`, or
-`C15b-R1` remains unclosed as a local DS5 prerequisite. C07a's 2026-08-19
+by another plan. It remains unopened while `C09a-R2` or `C09b-R1` remains
+unclosed as a local DS5 prerequisite. C07a's 2026-08-19
 entry stop reclassifies it from executable to `blocked_on_another_owner`
 against the registered `runtime-dashboard-api-types` owner tuple; C07b is the
 blocked DS5 debt record rather than the executable owner. The
@@ -2655,7 +2686,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C14a | `DS5-C14a own nominal local state envelope` | 3 |
 | C21d | `DS5-C21d repair line-free TypeScript identity moves` | 4 |
 | C15a | `DS5-C15a partition Clerk session codec` | 3 |
-| C15b-R1 | `DS5-C15b-R1 mount Clerk identity hydration` | 6 |
+| C15b-R1 | `DS5-C15b-R1 mount Clerk identity hydration` | mechanism cap `6`; total `7` |
 | C16a-R1 | `DS5-C16a-R1 partition causal draft state` | 6 |
 | C16b-R1/R2 | R1 stopped on omitted scope fixture; R2 landed at `78ea7c3d7` with final verification `a1e6ebcdc` | 10 |
 | C17a-R2 | `DS5-C17a-R2 partition operator craft local state` | 15 |

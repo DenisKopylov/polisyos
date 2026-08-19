@@ -4849,3 +4849,204 @@
   and zero untracked. `git diff --check` is green. **Terminal classification:
   `landed`** once the explicit-path commit and branch readback complete; the
   register family remains held until that readback, then becomes free.
+## 2026-08-19 — DS5-C15b-R1 declared identity-bridge delta
+
+- **Entry and provenance:** recomputed on attached
+  `codex/atlas-ds5-enforcement-waist` at `4edcf96bee5918e1a0fb6d3047196fdf1e9febeb`,
+  `106` commits ahead of `main`, with a clean tree and the register family free.
+  `96a7e6dff` (C15a) and `edb8e045f` (C08b-R2) are branch ancestors, so the
+  typed hydration owner and settled verified-identity projection are
+  independently reconciled rather than inferred from the standing prose.
+- **P39 cut (corrected by the owner validator before writer):** 3 mechanism
+  paths — `ClerkChatPage.tsx`, its new focused test, and the
+  `cache-clerk-sessions` register rationale — plus 4 mandatory changed
+  companions — this plan, this journal, the canonical report, and the status
+  inventory's DS19 source-hash pin — is the exact seven-path landing set. The
+  status validator hashes the register path byte-for-byte, so the earlier
+  six-path declaration incorrectly treated a forced owner receipt as unchanged.
+  The overrun is P39 arithmetic; mechanism remains 3 under cap 6.
+- **Parsed governed allowlist before implementation:** only the rationale of
+  register entry `cache-clerk-sessions` may change. Its
+  `rebind_pending/pending`, `team-design` / `DS14`, seed rule, evidence link and
+  empty DS2 adoption set remain exact. No successor, census, disposition,
+  strangle, owner or DS14 semantic claim is authorized. Root/disposition/
+  strangle counts remain `261`, `19/184/25/17/16`, and `58/149/54`. The
+  36-site / 15-file persistence census (`26` Web Storage / `5` Zustand / `5`
+  IndexedDB) remains exact, including Clerk's four scoped sites in
+  `useChatStore.ts`. Baseline, readiness and all C23 rows/constants are excluded.
+- **C21/status declaration:** a complete entry decode finds zero stored C21
+  references in the Clerk page/store family, so the predicted re-anchor is zero
+  and the post-freeze owner check decides it. The status inventory has no Clerk
+  definition span, but the scanner may derive complete membership from the
+  frozen page; every definition/span/denominator stays byte-identical.
+- **P40 buckets before action:** a page rendering chat before current-identity
+  binding is the first C15b mechanism class (`NEW CLASS`, round 1). Tenant-only,
+  user-only and delimiter-collision variants are the same identity-discrimination
+  class one level deeper; the tagged positional JSON binding addresses the
+  required quantity in the same mechanism. An async owner rehydrate that could
+  overwrite a later identity would be a C15a owner finding; the current
+  localStorage adapter's rehydrate path is synchronously completed before its
+  API returns, and C15b does not recut that owner.
+- **Declared regime/ceilings:** local macOS shared host, installed dependencies,
+  one Vitest worker; focused dashboard `165 s`, typecheck `157 s`, scoped ESLint
+  `174 s`, production build `115 s`, architecture/dependency cruise `19 s`,
+  report writer `174 s`, full frontend `748 s`, disposition corruption `554 s`,
+  status module `338 s`, status corruption `86 s`, Atlas corruption `314 s`,
+  and full Atlas `2,678 s`. Every terminal sample will be appended to the plan;
+  killed/lost/tooling runs are nonreceipts and never timing samples.
+
+### C15b red-first bridge and source freeze
+
+- The real unrepaired page mounted `ChatContainer` directly. The focused
+  StrictMode RED was `0 / 2`, exit `1`, `2.11 s / 165 s`: both absent identity
+  and a hostile identity getter rendered the child twice before any C15a bridge
+  call. This is the declared round-1 `NEW CLASS`, not a marker failure.
+- The repair snapshots the settled Authz identity once under containment,
+  rejects missing/blank/throwing identity data, builds an injective tagged JSON
+  tuple, remounts a small boundary per identity, clears/hydrates in layout phase,
+  and withholds `ChatContainer` until that call returns. The actual C15a store
+  supplies expired-envelope rejection and synchronous localStorage hydration;
+  no owner or Authz source changed.
+- The first GREEN attempt proved all ready-scope transitions but ended `1 / 2`
+  in `1.86 s / 165 s` because the final error-state assertion inspected the
+  mock's whole-test call count instead of the cleared phase-local event log.
+  P40 class: test-receipt bookkeeping, no mechanism finding or round. The
+  corrected focused suite is `2 / 2`, exit `0`, `1.85 s / 165 s`, after format.
+  It behaviorally covers expired bytes, absent/error with retained prior user,
+  tenant-only and user-only changes, hostile getters, and the NUL-delimiter
+  collision pair; every ready render follows a matching bridge and observes no
+  prior session.
+- Source-phase static receipts are green: dashboard typecheck exit `0` in
+  `19.58 s / 157 s`; exact two-file ESLint exit `0` in `30.90 s / 174 s`;
+  Prettier wrote only the two declared source/test paths; `git diff --check` is
+  green. Frozen SHA-256 values are page `194facfce65510b79b3ab04115dfe668b626af41a11afb7e31a0cf92d9f0f5e0`
+  and focused test `ccc31e3207bfcb247cda78fdebcc71427057913eec51e042c76f6325ff8653c9`.
+  Exact source-phase porcelain is those two app paths plus plan and journal;
+  no register, status, report, C23, baseline or readiness byte has moved.
+
+### C15b witness-quantity widening and refreeze
+
+- Independent source/governed review returned GO, but the witness adversary
+  found one Blocking `NEW CLASS` in proof design: the mock observed only
+  `sessions`, while the real `ChatContainer` directly consumes `messages` and
+  `isStreaming`. P40 classification is P29/P38 witness-proxy, not a mechanism
+  escape; test additions consume no mechanism round. The same review's expiry
+  completion and both-field getter requests are one-level-deeper examples of
+  that proof class, so the witness quantity was widened once rather than
+  patching cases.
+- The refrozen test observes the complete store slice at every child render,
+  first proves a valid envelope is restored after a microtask boundary, then
+  proves the same bytes at exact expiry remain empty. It adds throwing tenant
+  and user getters and a StrictMode changing-getter receipt that requires one
+  read per field per render and only the final coherent tuple at the bridge.
+  Focused GREEN is `4 / 4`, exit `0`, `1.87 s / 165 s`; the next exact lint
+  correctly RED on two unnecessary `act` wrappers in `30.38 s`, a static
+  test-harness finding rather than product evidence. Moving rerender outside
+  the microtask flush produced final focused `4 / 4`, exit `0`,
+  `2.11 s / 165 s`, and exact two-file ESLint exit `0`,
+  `30.69 s / 174 s`. Typecheck remained exit `0`, `19.62 s / 157 s`.
+- Final app hashes after this review-only witness widening are page
+  `194facfce65510b79b3ab04115dfe668b626af41a11afb7e31a0cf92d9f0f5e0`
+  and test `07a4c1d8dcbd8b6374c8e1b78b69a12a3fb2bb9f2872daeecd68db2cebf1477d`.
+  The page mechanism is byte-identical to the independently reviewed freeze;
+  only its focused witness moved. The unlabelled reviewer-reported `1.22 s`
+  Vitest duration is consumer-asserted corroboration, not an admitted timing
+  sample because it lacks the declared `/usr/bin/time`/uptime regime receipt.
+
+### C15b governed writer and idempotence freeze
+
+- Root claimed the free register family only after all source and witness
+  reviews completed. The first uniquely intended precondition used an
+  over-escaped jq literal and exited before `apply_patch`; zero bytes changed.
+  The next generic one-line patch matched the identical rationale on
+  `route-welcome` rather than `cache-clerk-sessions`. Immediate unit readback
+  caught it before any status/report writer; one unit-anchored patch restored
+  `route-welcome` exactly and changed only the Clerk row. This is a governed
+  editing nonreceipt and a worked P38 example, not admitted artifact movement.
+- Parsed allowlists after correction are empty outside the Clerk row and the
+  status DS19 hash plus scanner-derived Authz consumer: deleting
+  `cache-clerk-sessions` from both register views produces no diff; masking
+  `sources.ds19.sha256` and the `status-inline-authz-provider` consumer list in
+  both status views produces no diff. The final row remains `rebind_pending/pending`,
+  `team-design` / `DS14`, with its seed and evidence link exact; only the
+  reviewed isolation rationale moved. Counts remain `261` roots, `10` reference
+  censuses, dispositions `19/184/25/17/16`, and strangle `58/149/54`.
+- The canonical report writer, explicit repository `.venv/bin/python`, local
+  shared-host regime, ran exit `0` in `60.66 s / 174 s` and again in
+  `60.30 s / 174 s`. Both projected 261 roots, 10 censuses, 61 supplemental
+  findings, 574 production sources, and 36 sites / 15 files / 22 benign + 14
+  scoped; the second report SHA-256 is byte-identical to the first.
+- Pre-membership governed freeze hashes: register
+  `274a290a936d3a63fab1222162f13173b815f2eb50e272b723e3343c4aa32929`;
+  report `d641a321d39c3fd47fad3267763552e6281c53d054adf496a7bcb4ad22d0bdf0`;
+  status `8103d9fff6788dbc42ecd4106a6fd192d1b3fd6c30ae2285d97e34c41b58b0a3`;
+  baseline `cec094bc53549c2c9e36c7b86bd4b0a41db4d742c90615d40f07215c1a9de828`;
+  readiness `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+  Status pins `sha256:274a290a…`; its definitions, spans and denominators remain
+  byte-stable while the frozen page's exact scanner-derived consumer is added.
+  Exact porcelain is the declared seven paths with the new focused test as the
+  sole declared untracked path before staging and no undeclared path;
+  `git diff --check` is green. The register family remains held through the
+  serialized governed wave and committed-range review.
+
+### C15b final governed wave and landing freeze
+
+- The first final-wave frontend owner module was `101 / 101` GREEN in
+  `242.27 s / 748 s`; its deliberate nested corruption children emitted their
+  expected errors while the outer owner exited zero. Disposition register,
+  baseline and corruption validation then passed in `158.38 s / 554 s`.
+- The first full status module was an honest governed RED, `37 / 38`, exit `1`,
+  in `76.21 s / 338 s`: `status_consumers_drift:status-inline-authz-provider`.
+  The frozen page introduced one real `authz.status` use, so this is the known
+  induced-membership/declaration-completeness class, not a new C15b mechanism
+  escape and not a P40 round. The failed terminal is excluded from successful
+  timing samples.
+- A no-write TypeChecker reconciliation completed in `19.92 s / 40 s` and
+  derived exactly one add and zero removals: `{path:
+  apps/runtime-dashboard/src/features/clerk/routes/ClerkChatPage.tsx, line: 17,
+  kind: prop}`. Root inserted that exact member into
+  `status-inline-authz-provider`; independent parsed review returned GO and
+  proved all other 46 status entries, spans, literals, owners, classifications
+  and denominators exact. The final status SHA-256 is
+  `30355e1238462db1048b03747db17efa037ec0262eecc827e637bbe8a8c3a0b1`.
+- Tooling nonreceipts during this record-only reconciliation changed no bytes:
+  one read-only `rg` expression placed Markdown backticks inside a quoted zsh
+  command and attempted them as shell commands before a safe rerun; one atomic
+  multi-hunk `apply_patch` found a stale context and rejected the whole patch.
+  Independent final receipt review also first addressed `git show` with an
+  incorrect nested worktree object path; its safe root-relative rerun supplied
+  the receipt. None of those outputs is product evidence.
+- On the final artifact freeze, the no-write status check passed in
+  `20.27 s / 86 s`; the full status module was `38 / 38` GREEN in
+  `76.09 s / 338 s`; status corruption passed in `27.11 s / 86 s` with 12
+  authored statuses, 56 semantic exemptions and zero retirement debt. Atlas
+  checker/corruption passed in `94.21 s / 314 s` over 1,031 modules and 4,211
+  dependency edges with zero live violations; full Atlas was `35 / 35` GREEN
+  in `544.98 s / 2,678 s`.
+- Dashboard production build passed in `28.41 s / 115 s` with only the existing
+  chunk-size advisory. Architecture/dependency cruise passed in
+  `6.87 s / 19 s`, again 1,031 modules / 4,211 dependencies / zero violations.
+  Every successful terminal duration is admitted in the plan; every
+  nearest-rank p95 and `ceil(2*p95)` ceiling remains unchanged except the new
+  focused status-membership lane, whose first sample binds `40 s`.
+- Final hashes are register
+  `274a290a936d3a63fab1222162f13173b815f2eb50e272b723e3343c4aa32929`,
+  report `d641a321d39c3fd47fad3267763552e6281c53d054adf496a7bcb4ad22d0bdf0`,
+  status `30355e1238462db1048b03747db17efa037ec0262eecc827e637bbe8a8c3a0b1`,
+  page `194facfce65510b79b3ab04115dfe668b626af41a11afb7e31a0cf92d9f0f5e0`,
+  and focused test
+  `07a4c1d8dcbd8b6374c8e1b78b69a12a3fb2bb9f2872daeecd68db2cebf1477d`.
+  Baseline and readiness remain byte-identical at their declared hashes; C21
+  has zero Clerk refs, C23 is exact, and no DS8, DS9 or DS14 semantic closure is
+  claimed.
+- The exact landing fence is seven paths: three mechanism paths (page, focused
+  test, Clerk register rationale) and four mandatory companions (plan, journal,
+  report, status inventory). The containing commit plus attached-branch
+  readback is the `landed` transition; the register family remains held until
+  committed-range review returns clean.
+- After that transition the only executable-and-unentered local successor is
+  `C09a-R2`; `C09b-R1` is blocked on its reverted decision API and gate. C20
+  therefore remains unopened for those two local prerequisites plus the
+  architect's C07a opening ruling. `C07b`, `C10-R1`, C15a's structured
+  verdict/status-chip plane and `C17a-R1` remain named external-plan debt, not
+  opportunistic work for this cluster.

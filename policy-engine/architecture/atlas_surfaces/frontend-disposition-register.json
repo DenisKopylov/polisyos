@@ -5295,7 +5295,7 @@
       "owner_slice": "DS14",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "rationale": "C15b mounts the landed C15a identity bridge at the Clerk page: only settled C08b-R2 tenant/user identity reaches hydration, an injective remount binding clears prior in-memory sessions before chat can render, and expired or cross-identity bytes fail closed; DS14 server, epoch, rule-version, and operator semantics remain unclaimed."
     },
     {
       "unit_id": "cache-whatif-scenarios",

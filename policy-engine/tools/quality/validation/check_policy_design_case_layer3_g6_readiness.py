@@ -677,6 +677,21 @@ def _manifest_runtime_drift_issues(drift_keys: Sequence[str]) -> list[dict[str, 
 def _registration_statuses(repo_root: Path) -> dict[str, str]:
     generated_text = _read_text_or_empty(repo_root, GENERATED_ARTIFACTS_TOML_PATH)
     inventory_text = _read_text_or_empty(repo_root, INVENTORY_PATH)
+    try:
+        inventory_rows = _sequence(
+            _read_json(_resolve_repo_path(repo_root, INVENTORY_PATH)).get("artifacts")
+        )
+    except (OSError, json.JSONDecodeError):
+        inventory_rows = []
+    public_export_registration = next(
+        (
+            row
+            for row in inventory_rows
+            if isinstance(row, Mapping)
+            and row.get("id") == "layer3_g6_public_export_projection_refs"
+        ),
+        {},
+    )
     docs_checks = (
         (GENERATED_ARTIFACTS_DOC_PATH, "layer3_g6_readiness_manifest.json"),
         (DOCS_SURFACE_PATH, g6.G6_SURFACE_ID),
@@ -688,6 +703,10 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
         (DOCUMENTATION_INVENTORY_PATH, "policy-design-case-layer3-bounded-agent.md"),
         (REFERENCE_INDEX_PATH, "policy-design-case-layer3-bounded-agent.md"),
         (PUBLIC_SURFACE_DOC_PATH, g6.G6_SURFACE_ID),
+        (
+            PUBLIC_SURFACE_DOC_PATH,
+            "owner-recomputed safe summary or governed refusal",
+        ),
     )
     return {
         "generated_artifacts": (
@@ -698,7 +717,20 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
             and "drift_gate = \"automated\"" in generated_text
             else "fail"
         ),
-        "inventory": "pass" if g6.G6_SURFACE_ID in inventory_text else "fail",
+        "inventory": (
+            "pass"
+            if g6.G6_SURFACE_ID in inventory_text
+            and public_export_registration.get("projection_mode") == "projection_only"
+            and public_export_registration.get("public_export_hook_status")
+            == "authority_preserving_public_export"
+            and public_export_registration.get(
+                "public_export_bundle_route_registered"
+            )
+            is True
+            and "public_export_bundle"
+            not in _sequence(public_export_registration.get("may_not_use_for"))
+            else "fail"
+        ),
         "docs": (
             "pass"
             if all(needle in _read_text_or_empty(repo_root, path) for path, needle in docs_checks)

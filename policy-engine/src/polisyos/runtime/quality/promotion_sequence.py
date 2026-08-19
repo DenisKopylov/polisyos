@@ -34,6 +34,7 @@ from polisyos.pdc import (
     PromotionFailClosedReason,
     PromotionGateId,
     PromotionObligationClass,
+    PromotionObligationDraft,
     PromotionObligationRecord,
     PromotionObligationStatus,
     PromotionRiskSpendRecord,
@@ -45,9 +46,6 @@ from polisyos.pdc import (
     gy_content_hash,
     gy_recorded_content_hash,
     is_gy_declared_non_authority_block,
-)
-from polisyos.pdc._impl.gy_waist import (
-    PromotionObligationDraft,
     promotion_obligation_instance_id,
 )
 from polisyos.pdc._impl.layer2_design_search import (  # noqa: TC001

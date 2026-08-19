@@ -20,6 +20,7 @@ from polisyos.runtime.quality.authority import (
     assert_runtime_emitted,
     assert_same_input_closure,
     authority_envelope_json_schema,
+    authority_surface_decision,
     classify_authority_role,
     deserialize_authority_envelope,
     seal_consumed_input_set,
@@ -35,6 +36,12 @@ SCHEMA_PATH = (
     REPO_ROOT
     / "schemas/runtime_quality/evidence_authority_envelope_v1.schema.json"
 )
+_TIME_SOURCE_PROJECTION_KIND = "time_source_consistency_audit_projection"
+_TIME_SOURCE_PRODUCER_REF = (
+    "polisyos.runtime.http.services.temporal."
+    "build_time_source_consistency_audit_projection"
+)
+_TIME_SOURCE_PROJECTION_SCOPE = "catalog_source_runtime_time_role_consistency"
 
 
 def _valid_payload() -> dict[str, object]:
@@ -50,6 +57,139 @@ def _closed_input_closure() -> SameInputClosure:
         tenant_id="tenant-1",
         closure_sha256="a" * 64,
     )
+
+
+def _surface_authority_payload() -> dict[str, object]:
+    return {
+        "authority_result": "authority",
+        "legacy_path_disposition": "authority_path",
+        "authority_boundary": {
+            "boundary_id": "boundary://runtime-quality/time-source-test",
+            "source_authority": "runtime_quality",
+            "posture": "authority",
+            "authoritative_for": ["runtime_closeout_authority", "publication"],
+            "may_not_use_for": ["scorecard_authority"],
+            "rule_version_refs": ["rule://runtime-quality/time-source-test"],
+        },
+    }
+
+
+def _time_source_projection(
+    disposition: str,
+    *,
+    projection_kind: str = _TIME_SOURCE_PROJECTION_KIND,
+    producer_ref: str = _TIME_SOURCE_PRODUCER_REF,
+    projection_scope: str = _TIME_SOURCE_PROJECTION_SCOPE,
+) -> dict[str, str]:
+    return {
+        "projection_kind": projection_kind,
+        "producer_ref": producer_ref,
+        "projection_scope": projection_scope,
+        "mismatch_disposition": disposition,
+    }
+
+
+def _time_source_decision(payload: dict[str, object]):
+    return authority_surface_decision(
+        payload,
+        surface="artifact",
+        enforce_s12=False,
+        enforce_candidate_firewall=False,
+    )
+
+
+def test_declared_time_source_consistency_is_the_only_projection_pass() -> None:
+    payload = {
+        **_surface_authority_payload(),
+        "time_source_projection": _time_source_projection("consistent"),
+    }
+
+    decision = _time_source_decision(payload)
+
+    assert decision.status == "allowed"
+    assert decision.time_source_dispositions == ["consistent"]
+
+
+def test_foreign_nested_legacy_disposition_contributes_no_time_source_pass() -> None:
+    payload = {
+        **_surface_authority_payload(),
+        "foreign_payload": {
+            "nested": {
+                "mismatch_disposition": "admitted",
+            }
+        },
+    }
+
+    decision = _time_source_decision(payload)
+
+    assert decision.status == "allowed"
+    assert decision.time_source_dispositions == []
+
+
+@pytest.mark.parametrize("disposition", ["admitted", "renamed_consistent"])
+def test_declared_projection_rejects_legacy_or_unknown_disposition(
+    disposition: str,
+) -> None:
+    payload = {
+        **_surface_authority_payload(),
+        "time_source_projection": _time_source_projection(disposition),
+    }
+
+    decision = _time_source_decision(payload)
+
+    assert decision.status == "downgraded"
+    assert decision.visible_downgrade is True
+    assert decision.reason == "time_source_envelope_obligation"
+
+
+def test_legacy_time_source_model_name_is_not_an_accepted_alias() -> None:
+    payload = {
+        **_surface_authority_payload(),
+        "time_source_projection": _time_source_projection(
+            "admitted",
+            projection_kind="TimeSourceEnvelopeAudit",
+        ),
+    }
+
+    decision = _time_source_decision(payload)
+
+    assert decision.status == "allowed"
+    assert decision.time_source_dispositions == []
+
+
+@pytest.mark.parametrize(
+    ("producer_ref", "projection_scope", "expected_disposition"),
+    [
+        (
+            "foreign.runtime.temporal",
+            _TIME_SOURCE_PROJECTION_SCOPE,
+            "invalid:time_source_consistency_producer_undeclared",
+        ),
+        (
+            _TIME_SOURCE_PRODUCER_REF,
+            "foreign_scope",
+            "invalid:time_source_consistency_scope_undeclared",
+        ),
+    ],
+)
+def test_consistency_projection_requires_declared_producer_and_scope(
+    producer_ref: str,
+    projection_scope: str,
+    expected_disposition: str,
+) -> None:
+    payload = {
+        **_surface_authority_payload(),
+        "time_source_projection": _time_source_projection(
+            "consistent",
+            producer_ref=producer_ref,
+            projection_scope=projection_scope,
+        ),
+    }
+
+    decision = _time_source_decision(payload)
+
+    assert decision.status == "downgraded"
+    assert decision.time_source_dispositions == [expected_disposition]
 
 
 def _consumed_member(

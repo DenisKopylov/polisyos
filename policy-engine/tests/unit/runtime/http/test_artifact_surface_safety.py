@@ -86,13 +86,23 @@ def test_raw_and_manifest_artifact_surfaces_block_secret_pii(tmp_path) -> None:
     assert FIXTURE_EMAIL not in manifest.text
 
 
-def test_composed_gate_blocks_time_source_bypass_on_raw_and_export(tmp_path) -> None:
+def test_composed_gate_blocks_declared_inconsistent_time_source_on_raw_and_export(
+    tmp_path,
+) -> None:
     ref, app = _app_with_surface_payload(
         tmp_path,
         {
             **_authority_payload(),
             "fixture": "stale-watermark-bypass",
-            "mismatch_disposition": "block:catalog_watermark_stale_for_source",
+            "time_source_projection": {
+                "projection_kind": "time_source_consistency_audit_projection",
+                "producer_ref": (
+                    "polisyos.runtime.http.services.temporal."
+                    "build_time_source_consistency_audit_projection"
+                ),
+                "projection_scope": "catalog_source_runtime_time_role_consistency",
+                "mismatch_disposition": "inconsistent",
+            },
         },
     )
 

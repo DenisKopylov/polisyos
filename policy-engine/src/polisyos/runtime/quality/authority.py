@@ -5,7 +5,7 @@ from __future__ import annotations
 import json
 from collections.abc import Iterable, Mapping
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Final, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
@@ -61,6 +61,20 @@ PredicateProvenanceClass = Literal[
     "institutionally_supplied",
     "not_established",
 ]
+TimeSourceConsistencyDisposition = Literal[
+    "consistent",
+    "inconsistent",
+    "insufficient_evidence",
+    "blocked_for_owner_review",
+]
+TimeSourceConsistencyProducerRef = Literal[
+    "polisyos.runtime.http.services.temporal."
+    "build_time_source_consistency_audit_projection"
+]
+TimeSourceConsistencyProjectionKind = Literal["time_source_consistency_audit_projection"]
+TimeSourceConsistencyProjectionScope = Literal[
+    "catalog_source_runtime_time_role_consistency"
+]
 ValidationStatus = Literal["pass", "fail", "blocked", "not_applicable"]
 BlockingStatus = Literal["non_blocking", "blocking", "non_overridable"]
 AuthorityRootCauseClass = Literal[
@@ -87,6 +101,27 @@ DEFAULT_AUTHORITY_ENVELOPE_SCHEMA_PATH = (
     Path(__file__).resolve().parents[4]
     / "schemas/runtime_quality/evidence_authority_envelope_v1.schema.json"
 )
+TIME_SOURCE_CONSISTENCY_PRODUCER_REF: Final[TimeSourceConsistencyProducerRef] = (
+    "polisyos.runtime.http.services.temporal."
+    "build_time_source_consistency_audit_projection"
+)
+TIME_SOURCE_CONSISTENCY_PROJECTION_KIND: Final[TimeSourceConsistencyProjectionKind] = (
+    "time_source_consistency_audit_projection"
+)
+TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE: Final[TimeSourceConsistencyProjectionScope] = (
+    "catalog_source_runtime_time_role_consistency"
+)
+TIME_SOURCE_CONSISTENT_DISPOSITION: Final[TimeSourceConsistencyDisposition] = "consistent"
+TIME_SOURCE_INCONSISTENT_DISPOSITION: Final[TimeSourceConsistencyDisposition] = "inconsistent"
+TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION: Final[TimeSourceConsistencyDisposition] = (
+    "insufficient_evidence"
+)
+TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION: Final[
+    TimeSourceConsistencyDisposition
+] = "blocked_for_owner_review"
+_TIME_SOURCE_PRODUCER_UNDECLARED = "invalid:time_source_consistency_producer_undeclared"
+_TIME_SOURCE_SCOPE_UNDECLARED = "invalid:time_source_consistency_scope_undeclared"
+_TIME_SOURCE_DISPOSITION_MISSING = "invalid:time_source_consistency_disposition_missing"
 
 SERIOUS_EXECUTION_PROFILES = frozenset({"governed", "production", "research"})
 _AUTHORITY_ROLES = frozenset({"producer_authority", "runtime_blocker"})
@@ -1063,11 +1098,12 @@ def authority_surface_decision(
         time_dispositions = _time_source_dispositions(payload)
         for disposition in time_dispositions:
             normalized = disposition.strip().casefold()
-            if normalized.startswith("block:"):
+            if normalized in {
+                TIME_SOURCE_INCONSISTENT_DISPOSITION,
+                TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION,
+            }:
                 blocking_reasons.append("time_source_envelope_blocked")
-            elif normalized.startswith("obligation:") or (
-                normalized and normalized != "admitted"
-            ):
+            elif normalized and normalized != TIME_SOURCE_CONSISTENT_DISPOSITION:
                 downgrade_reasons.append("time_source_envelope_obligation")
 
     if enforce_s12:
@@ -1776,9 +1812,19 @@ def _collect_time_source_dispositions(value: object, dispositions: list[str]) ->
     if isinstance(value, str):
         return
     if isinstance(value, Mapping):
-        disposition = value.get("mismatch_disposition")
-        if isinstance(disposition, str) and disposition.strip():
-            dispositions.append(disposition.strip())
+        if value.get("projection_kind") == TIME_SOURCE_CONSISTENCY_PROJECTION_KIND:
+            if value.get("producer_ref") != TIME_SOURCE_CONSISTENCY_PRODUCER_REF:
+                dispositions.append(_TIME_SOURCE_PRODUCER_UNDECLARED)
+                return
+            if value.get("projection_scope") != TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE:
+                dispositions.append(_TIME_SOURCE_SCOPE_UNDECLARED)
+                return
+            disposition = value.get("mismatch_disposition")
+            if isinstance(disposition, str) and disposition.strip():
+                dispositions.append(disposition.strip())
+            else:
+                dispositions.append(_TIME_SOURCE_DISPOSITION_MISSING)
+            return
         for item in value.values():
             _collect_time_source_dispositions(item, dispositions)
         return
@@ -2171,6 +2217,13 @@ __all__ = [
     "DEFAULT_AUTHORITY_ENVELOPE_SCHEMA_PATH",
     "EVIDENCE_AUTHORITY_ENVELOPE_SCHEMA_ID",
     "SERIOUS_EXECUTION_PROFILES",
+    "TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION",
+    "TIME_SOURCE_CONSISTENCY_PRODUCER_REF",
+    "TIME_SOURCE_CONSISTENCY_PROJECTION_KIND",
+    "TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE",
+    "TIME_SOURCE_CONSISTENT_DISPOSITION",
+    "TIME_SOURCE_INCONSISTENT_DISPOSITION",
+    "TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION",
     "AuthorityEnvelopeError",
     "AuthorityEnvelopeViolation",
     "AuthorityFailureClassification",
@@ -2192,6 +2245,10 @@ __all__ = [
     "SameInputClosure",
     "SameInputClosureStatus",
     "SealedConsumedInputSet",
+    "TimeSourceConsistencyDisposition",
+    "TimeSourceConsistencyProducerRef",
+    "TimeSourceConsistencyProjectionKind",
+    "TimeSourceConsistencyProjectionScope",
     "ValidationStatus",
     "assert_authority_bearing",
     "assert_authority_purpose_allowed",

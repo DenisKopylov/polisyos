@@ -1,0 +1,240 @@
+{
+  "acceptance_predicates": [
+    "writer_declared_outputs_equal_public_family_outputs",
+    "observed_output_bytes_equal_expected_bytes",
+    "observed_changed_leaf_set_equals_declared_changed_leaf_set",
+    "unchanged_family_output_remains_byte_identical",
+    "all_outputs_outside_declared_family_remain_byte_identical",
+    "pointer_bound_inbound_targets_remain_byte_identical",
+    "gy_gap1_declared_artifact_intersection_remains_empty",
+    "plan_line_7_remains_byte_identical"
+  ],
+  "base_head": "bedd4750331846257d412e41d478c0b33321094a",
+  "branch": "codex/gy-def4-time-source-authority",
+  "declared_before_writer": true,
+  "family_id": "policy-design-case-layer3-time-source-authority",
+  "gy_gap1_disjointness": {
+    "current_head_before_gy_def4_write": "9ba6935d0",
+    "declared_artifact_intersection": [],
+    "declared_artifact_outputs": [
+      "architecture/policy_design_case/layer3_gy_promotion_contract.json",
+      "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json",
+      "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json",
+      "architecture/policy_design_case/layer3_gy_second_domain_pack.json",
+      "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json",
+      "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+    ],
+    "declared_mechanism_paths": [
+      "src/polisyos/pdc/_impl/gy_waist.py",
+      "src/polisyos/pdc/_impl/layer2_design_search.py",
+      "src/polisyos/runtime/quality/generation_cycle.py",
+      "src/polisyos/runtime/quality/promotion_sequence.py",
+      "tools/quality/validation/check_layer3_gy_promotion_contract.py"
+    ],
+    "measurement": "exact_path_set_intersection",
+    "source": "docs/superpowers/journals/2026-08-19-gy-gap1-artifact-transition-declaration.json"
+  },
+  "inbound_reference_census": {
+    "content_hash_pinned": [],
+    "file_type_denominator": {
+      ".blob": 11,
+      ".cfg": 1,
+      ".cjs": 9,
+      ".css": 17,
+      ".csv": 15,
+      ".cypher": 2,
+      ".duckdb": 4,
+      ".example": 3,
+      ".html": 3,
+      ".ini": 11,
+      ".js": 5,
+      ".json": 1171,
+      ".jsonc": 1,
+      ".jsonl": 3,
+      ".lock": 1,
+      ".md": 1451,
+      ".mdc": 1,
+      ".mjs": 31,
+      ".pkl": 2,
+      ".png": 18,
+      ".py": 5563,
+      ".pyi": 5,
+      ".rego": 23,
+      ".reproducible": 1,
+      ".sh": 44,
+      ".sql": 6,
+      ".svg": 18,
+      ".tf": 1,
+      ".tmpl": 7,
+      ".toml": 197,
+      ".tpl": 1,
+      ".ts": 432,
+      ".tsx": 636,
+      ".txt": 5,
+      ".typed": 2,
+      ".yaml": 85,
+      ".yml": 69,
+      ".zip": 1,
+      "<none>": 18
+    },
+    "inbound_records": [
+      {
+        "cells": [
+          {
+            "json_pointer": "$/artifacts/42/path",
+            "target": "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
+          },
+          {
+            "json_pointer": "$/artifacts/91/path",
+            "target": "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
+          }
+        ],
+        "classification": "path_only",
+        "path": "architecture/policy_design_case/inventory.json"
+      },
+      {
+        "cells": [
+          {
+            "json_pointer": "$/excluded_candidate_records/389",
+            "target_pointer": "$/s12_ref_dereference/g5_real_ref_evidence"
+          }
+        ],
+        "classification": "pointer_bound",
+        "path": "architecture/policy_design_case/layer3_gx_reports/tourism_local_development_ceiling_probe/layer3_gx_positive_status_provenance.json"
+      },
+      {
+        "cells": [
+          {
+            "json_pointer": "$/excluded_candidate_records/390",
+            "target_pointer": "$/s12_ref_dereference/g5_real_ref_evidence"
+          }
+        ],
+        "classification": "pointer_bound",
+        "path": "architecture/policy_design_case/layer3_gx_reports/ua-msme-affordable-loans-2022/layer3_gx_positive_status_provenance.json"
+      },
+      {
+        "cells": [
+          {
+            "json_pointer": "$/gy_artifact_inventory/family_ids/17",
+            "target": "policy-design-case-layer3-time-source-authority"
+          },
+          {
+            "json_pointer": "$/gy_artifact_inventory/output_root_files/77",
+            "target": "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
+          },
+          {
+            "json_pointer": "$/gy_artifact_inventory/output_root_files/138",
+            "target": "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
+          },
+          {
+            "json_pointer": "$/gy_artifact_inventory/paths/77",
+            "target": "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
+          },
+          {
+            "json_pointer": "$/gy_artifact_inventory/paths/138",
+            "target": "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
+          },
+          {
+            "json_pointer": "$/gy_artifact_inventory/producer_declared_outputs/50",
+            "target": "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
+          },
+          {
+            "json_pointer": "$/gy_artifact_inventory/producer_declared_outputs/68",
+            "target": "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
+          },
+          {
+            "json_pointer": "$/summary/gy_generated_family_ids/17",
+            "target": "policy-design-case-layer3-time-source-authority"
+          },
+          {
+            "json_pointer": "$/summary/registered_layer3_family_ids/26",
+            "target": "policy-design-case-layer3-time-source-authority"
+          }
+        ],
+        "classification": "path_only",
+        "path": "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_generated_public_lifecycle_audit.json"
+      }
+    ],
+    "non_inbound_target_bearing_paths": [
+      "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json",
+      "architecture/public_surface/contract.toml",
+      "architecture/public_surface/inventory.json",
+      "docs/plans/active/layer3-slices/GY-engine-subordination.md",
+      "docs/research/policy-operations/audits/pao-r0/pao-r0-independent-audit.md",
+      "docs/research/policy-operations/ops-r4-temporal-semantics-for-policy-custody.md",
+      "docs/superpowers/journals/2026-08-19-gy-def1-def4.md",
+      "docs/system-design-decisions/README.md",
+      "docs/system-design-decisions/policy-design-custody-time-model.md",
+      "src/polisyos/runtime/http/services/temporal.py",
+      "tests/repo_quality/architecture/test_layer3_gy_artifact_lifecycle.py",
+      "tools/quality/validation/check_layer3_time_source_authority.py"
+    ],
+    "path_denominator": {
+      "binary_paths": 21,
+      "read_errors": 0,
+      "tracked_paths": 9874,
+      "utf8_paths": 9853
+    },
+    "pointer_target_proof": {
+      "candidate_sha256": "sha256:cfe38a2ef0050dbdc448d30a357e6b71a1b66c3d8f145ff660388f117d4dc195",
+      "committed_sha256": "sha256:cfe38a2ef0050dbdc448d30a357e6b71a1b66c3d8f145ff660388f117d4dc195",
+      "json_pointer": "$/s12_ref_dereference/g5_real_ref_evidence",
+      "status": "pass"
+    },
+    "target_bearing_path_count": 16,
+    "target_bearing_path_methods": [
+      "python_utf8_complete_walk",
+      "git_grep_fixed_string_union"
+    ]
+  },
+  "line_7_guard": {
+    "bytes_including_newline": 66714,
+    "path": "docs/plans/active/layer3-slices/GY-engine-subordination.md",
+    "sha256": "sha256:a9c7345ff6c45bea81f4c3e3bd842e9439ef15e0f83c1ffe17501c96ce3181d6"
+  },
+  "outputs": [
+    {
+      "before_bytes": 7048,
+      "before_sha256": "sha256:185e57267a69f6de542e0cbc1491779649897da4001cd4bacd120e6436203574",
+      "changed_leaf_count": 17,
+      "changed_leaves": [
+        "/audit_model",
+        "/audits/0/mismatch_disposition",
+        "/audits/0/producer_ref",
+        "/audits/0/projection_kind",
+        "/audits/0/projection_scope",
+        "/audits/1/mismatch_disposition",
+        "/audits/1/producer_ref",
+        "/audits/1/projection_kind",
+        "/audits/1/projection_scope",
+        "/audits/2/mismatch_disposition",
+        "/audits/2/producer_ref",
+        "/audits/2/projection_kind",
+        "/audits/2/projection_scope",
+        "/negative_fixtures/legal_valid_time_outside_as_of_replay",
+        "/negative_fixtures/stale_watermark_fresh_source",
+        "/proof_source",
+        "/schema_version"
+      ],
+      "expected_bytes": 7752,
+      "expected_sha256": "sha256:f3c14f1111f9dbb56a908a4cf779bf853b573d19966169105d3a5f7a01b40a67",
+      "output": "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
+    },
+    {
+      "before_bytes": 309222,
+      "before_sha256": "sha256:a97da7b54d0c2f075fe79ec732073476b0fafac06c7a366ec0fecb533fbc2f57",
+      "changed_leaf_count": 0,
+      "changed_leaves": [],
+      "expected_bytes": 309222,
+      "expected_sha256": "sha256:a97da7b54d0c2f075fe79ec732073476b0fafac06c7a366ec0fecb533fbc2f57",
+      "output": "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
+    }
+  ],
+  "rollback": {
+    "action": "reverse_only_the_two_declared_output_diffs_to_the_recorded_before_sha256_values",
+    "trigger": "any_observed_byte_hash_or_changed_leaf_set_mismatch",
+    "verify": "both_outputs_match_before_bytes_and_before_sha256_after_reverse"
+  },
+  "schema_version": "policyos.gy.def4.time_source_authority_transition_declaration.v1",
+  "writer": "tools/quality/validation/check_layer3_time_source_authority.py"
+}

@@ -759,8 +759,10 @@ The required conflicting-parameter falsifier supplied outer ceiling `999999` and
 command. The wrapper returned `64` before `Popen`; the unauthorized marker was absent. Two additional
 behavioral probes prove that an arbitrary command with the dedicated worktree as cwd is detected
 without an issue-code/process-name allowlist and that TERM followed by KILL removes a surviving
-descendant after its leader exits. All three tests passed in `0.515` s; the retained falsifier receipt
-hashes to `68ff86a2d9270406487861a2496738de265a8bd7ca0ef0cbd1811c804edf87c9`.
+descendant after its leader exits. Two boundary probes also reject a changed retained-receipt hash
+and an authorization history that omits the plan companion. All five tests passed in `0.612` s; the
+deterministic retained falsifier receipt hashes to
+`66d478262ce330b19ff2a5c138cbc36528ddd1261bc7c356d3b9b55ac992737b`.
 Ruff and bytecode compilation pass for all three ignored files. `[P37: recomputed]`
 
 Independent terra/luna review closed the ordinary same-user workflow boundary. A hostile same-user
@@ -775,12 +777,17 @@ capability absence; not_established for hostile-same-user provenance; institutio
 the cooperative execution boundary and continue ruling]`
 
 The ignored wrapper and child hash to
-`cb55d0b64acfe449260c6196daad552954d21aca73621ff65542ae07721b49af` and
-`a81589d28694feda98e7690aa6d14e2580b89b41c07cacf10222b4631599aee4`.
+`71a1dd53996cb6681792b24b9769b7ee0bf9c7f4258aaa84c5fd4593c0fcb5a5` and
+`f21d8d2605d2b87b70f1bd5cf7f85c4a11bccf8e64e865136207f347f559ff44`.
 The first committed v2 admission failed closed before preflight because its product-relative journal
 path did not equal Git's worktree-root-relative diff path. This same-class coordinate example consumed
-no round and no allowance. The corrected block names the full Git path and declares the first v2
-admission commit as its direct parent, preserving append-only history. `[P37: recomputed]`
+no round and no allowance. The corrected v2 admission then passed its local transition while dropping
+the retained preflight from that transition. The v3 widening restores the exact `fbbe2b4f…` receipt,
+requires its `11/11` pins to equal the launch pins, and enumerates every single-parent commit from the
+receipt's `1a16ecef7…` source through the observed launch head. The complete per-commit path union must
+remain exactly the journal plus the mandatory GY plan companion, while the current authorization
+commit itself remains journal-only. This folds the retained-basis example into the same P40 class
+without rewriting either correction. `[P37: recomputed]`
 The block below authorizes exactly one launch only when committed as this journal's sole direct child
 of the named basis. Before that commit, the cold result remains `not_established` and no allowance is
 spent. `[P37: recomputed]`
@@ -793,7 +800,7 @@ spent. `[P37: recomputed]`
       "policy-engine/docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md"
     ],
     "direct_parent": true,
-    "head": "4c1079373b28bf6b69ca21610f21f933f8f7a8e2"
+    "head": "a35c5cb68abc6e5c344f6afcbb414078c89f57f8"
   },
   "branch": "codex/gy-defc-9-n11-suffix",
   "checks": [
@@ -856,7 +863,7 @@ spent. `[P37: recomputed]`
     "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
     "interpreter": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
     "path": ".tmp/gy-defc-9/single_cold_n11.py",
-    "sha256": "a81589d28694feda98e7690aa6d14e2580b89b41c07cacf10222b4631599aee4"
+    "sha256": "f21d8d2605d2b87b70f1bd5cf7f85c4a11bccf8e64e865136207f347f559ff44"
   },
   "environment": {
     "mode": "exact",
@@ -899,6 +906,10 @@ spent. `[P37: recomputed]`
       "USER": "deniskopylov"
     }
   },
+  "history_path_union": [
+    "policy-engine/docs/plans/active/layer3-slices/GY-engine-subordination.md",
+    "policy-engine/docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md"
+  ],
   "inputs": {
     "catalog": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
     "dependency_site_packages": "/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
@@ -920,7 +931,7 @@ spent. `[P37: recomputed]`
     "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
     "interpreter": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
     "path": ".tmp/gy-defc-9/run_with_ceiling.py",
-    "sha256": "cb55d0b64acfe449260c6196daad552954d21aca73621ff65542ae07721b49af"
+    "sha256": "71a1dd53996cb6681792b24b9769b7ee0bf9c7f4258aaa84c5fd4593c0fcb5a5"
   },
   "milestones": [
     "confidence_registry_loaded",
@@ -1021,7 +1032,12 @@ spent. `[P37: recomputed]`
     "scope": "cwd_within_repo_root"
   },
   "repo_root": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
-  "schema_version": "policyos.gy_defc_9.cold_n11_authorization.v2",
+  "retained_preflight": {
+    "git_head": "1a16ecef7c130ec509e101d520b02f8b48318b7c",
+    "path": ".tmp/gy-defc-9/cold-n11/preflight-receipt.json",
+    "sha256": "fbbe2b4ff4dbd35512f2b466e7781e42864f2dbbd3a531e0e8b71545cc3afede"
+  },
+  "schema_version": "policyos.gy_defc_9.cold_n11_authorization.v3",
   "status": "authorized",
   "timer": {
     "ceiling_seconds": 4693.1186,

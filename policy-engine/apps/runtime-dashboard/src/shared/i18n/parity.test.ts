@@ -1043,31 +1043,23 @@ describe("locale catalogs", () => {
     ).toBe(LEGACY_CONTINUITY_RU_KEY_SET_SHA256);
     expect(ruKeys).toHaveLength(LEGACY_CONTINUITY_RU_KEY_COUNT);
     expect(
-      crypto
-        .createHash("sha256")
-        .update(JSON.stringify(ruLeaves))
-        .digest("hex"),
+      crypto.createHash("sha256").update(JSON.stringify(ruLeaves)).digest("hex"),
     ).toBe(LEGACY_CONTINUITY_RU_LEAF_VALUE_SHA256);
   });
 
   it("justifies exactly every active non-ICU count-message identity", () => {
-    const activeNonIcuCountPaths = [
-      ...new Set(
-        [en, uk]
-          .flatMap((catalog) => collectCountMessages(catalog))
-          .filter(([, message]) => !isPluralMessage(message))
-          .map(([path]) => path),
-      ),
-    ].sort(comparePaths);
+    const activeNonIcuCountPaths = [...new Set(
+      [en, uk]
+        .flatMap((catalog) => collectCountMessages(catalog))
+        .filter(([, message]) => !isPluralMessage(message))
+        .map(([path]) => path),
+    )].sort(comparePaths);
 
     expect([...COUNT_MESSAGE_ALLOWLIST.keys()].sort(comparePaths)).toEqual(
       activeNonIcuCountPaths,
     );
     for (const [path, reason] of COUNT_MESSAGE_ALLOWLIST) {
-      expect(
-        reason.trim(),
-        `${path} needs a non-empty exemption reason`,
-      ).not.toBe("");
+      expect(reason.trim(), `${path} needs a non-empty exemption reason`).not.toBe("");
     }
   });
 

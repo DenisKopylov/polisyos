@@ -6037,3 +6037,207 @@
   outside every D4-A1 hunk (plan lines 248/2242/2517/2570 and journal lines
   4851–4852). They are not promoted to a D4-A1 result or repaired outside this
   cut. `git diff --check` over the full 29-path freeze remains green.
+
+## 2026-08-19 — post-main reconciliation and executable C21 handoff
+
+### Entry and merge ownership
+
+- Entry was independently read back before the first command: worktree
+  `/Users/deniskopylov/polisyos/.worktrees/atlas-ds5`, attached branch
+  `codex/atlas-ds5-enforcement-waist`, clean HEAD `bcba9db6c`, and `main`
+  `bedd47503`. The root checkout was never used for state or mutation.
+- `git merge --no-edit main` produced exactly the two predicted conflicts:
+  `apps/runtime-dashboard/src/shared/i18n/parity.test.ts` and
+  `docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md`.
+  The append-only merge commit is `88d1f70cf` with parents `bcba9db6c` and
+  `bedd47503`; no rebase, stash, force operation, push, or DS5-to-main merge
+  occurred.
+- The parity conflict is a recorded cross-fence edit. DS6 owns
+  `shared/i18n`; D4-A1 is the architect decision DS5 must carry across that
+  boundary. The final file keeps DS6's quantitative-use, ICU plural/count,
+  frozen-Russian key-set and value-digest gates byte-shaped as on `main`, and
+  adds only the `PRIMARY_LOCALE` import, authored-primary catalog derivation,
+  exact `en` assertion and `uk`-equals-authored assertion. Against `main` the
+  final semantic delta is 7 insertions / 2 deletions. DS6's own parity suite
+  passes 34/34 in `1.76 s`, explicit exit 0, under a contended host; no clean
+  ceiling moves.
+- The master-plan conflict takes `main`'s line 7 byte-for-byte; both current
+  and `main` line hashes are
+  `1fbef4fe2d95e5db52ccd7c555f80058502f756620048004384cbeb69a033ed9`.
+  The only file delta versus `main` is the three-line D4-A1 amendment in DS5's
+  own locale ruling. This is P40 a worked ownership-reconciliation example,
+  not a new mechanism round.
+
+### Component denominator and verification-oracle reconciliation
+
+- P37 `independently_reconciled`: the intermediate 1,049 population equals the
+  prior 1,048 plus `respects ordered browser preferences before the authored
+  default`. Eight cache-specific cases then exit the generic
+  `TimeSemanticsLabel.test.tsx`:
+  1. `renders the issued live posture with owner as_of`;
+  2. `renders the issued cached posture with owner as_of`;
+  3. `renders the issued stale posture with owner as_of`;
+  4. `fails a malformed or novel cache observation closed` for valid time plus
+     `offline_queued`;
+  5. the same parameterized title for null time plus `cached`;
+  6. the same title for invalid time plus `live`;
+  7. `rejects a frozen structural lookalike that the cache owner did not
+     issue`;
+  8. `contains hostile observation getters without re-reading them`.
+- Three cases enter at the correct owners:
+  `renders caller-owned temporal entries inside the semantic list`,
+  `projects only owner-issued observations into presentation data`, and
+  `restores the implicit analyst default only after identity becomes
+  verified`. Arithmetic is therefore `1049 - 8 + 3 = 1044`, not five deleted
+  tests. The exited properties remain covered at the cache owner and
+  RunExplainabilityPanel consumer.
+- Complete diff checks find zero deleted or added test files; no `.skip`,
+  `.todo`, `.only`, `skipIf`, `runIf`, quarantine, collection filter,
+  package/Vitest config, timeout, threshold, or snapshot change. The temporary
+  intermediate/final JSON name lists were not retained, so direct identity-set
+  comparison is P37 `not_established`; source identities, arithmetic and
+  Vitest's one-case-per-parameter-row behavior are independently reconciled.
+- Review found a separate `/unknown/u -> /unknown/iu` text-oracle widening.
+  P40 class is NEW verification-oracle tolerance, outside C20 mechanism
+  rounds. The append-only correction requires exact authored `Unknown`; the
+  focused governed projection suite passes 10/10 in `3.35 s`.
+
+### Run-deck fixed-environment classification
+
+- Three first launches used a nonmatching title expression and returned `No
+  tests found`; they are tooling nonreceipts and supply neither a result nor a
+  duration. `playwright --list` established the exact title, then the same
+  fixed-port, `CI=1`, retry-zero command ran serially three times without an
+  update writer:
+
+  ```sh
+  CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm exec playwright test \
+    --config=playwright.visual.config.ts --project=chromium \
+    --grep 'run deck content slide'
+  ```
+
+- P37 `recomputed`: all three terminal captures exit 1 on the same declared
+  1094×820-to-1094×821 delta, 4,178 pixels / 1%, in `13.96`, `13.72`, and
+  `14.76 s`. The three actual PNGs are byte-identical at SHA-256
+  `823fffa7f72433bdb8c1a141c9f38b1b2da7d8bbd28652755dada8abdfa3053f`
+  and decoded-RGBA-identical at
+  `ab8965b51b7a89e82540f49d2a3511634998181190b04e10881e3f1e5934fcc8`.
+  The three diff images are likewise identical (PNG
+  `23565bd42d230c89f0b7c1ef56dfe9b872806cb7ae60f8f38d15d91ca8405215`,
+  RGBA `ce9e4e024ea7e7ac4375f5ec16795b1c2891ef309ec175b6274126bbb3b7614e`).
+  The complete fixed replay denominator is 10 images: one baseline plus three
+  each expected, actual and diff. No snapshot moves.
+- Outcome: stable layout delta, not nondeterministic rendering. Introducer
+  remains P37 `not_established`. Owner remains `team-frontend` /
+  `@frontend-owners`; registered successor remains
+  `dashboard-run-deck-visual-determinism-reconciliation`. Its executable
+  signal is to adjudicate the rendered border-box height of
+  `run-deck-slide-evidence` / `.atlas-deck-slide` in `AtlasRunDeck.tsx` and
+  `styles.css`, restore the fixed fixture to the governed 1094×820 image, then
+  require three consecutive decoded-pixel baseline matches and a full visual
+  run with only DS8 A4 red. Path count and duration remain `not_established`.
+
+### Post-merge governed boundary
+
+- The frontend owner remains green over 261 roots, 61 supplemental findings,
+  574 storage production sources and 36 sites in 15 files (`46.54 s`, explicit
+  exit 0). Register, report, status inventory, baseline manifest and readiness
+  ledger remain byte-unchanged.
+- The status owner intentionally exits 1 in `24.21 s` after the merge. Its
+  16-line stderr SHA-256 is
+  `0f79f3dac7072bd1a45dc69bd4db81e525085db9786e2312c8453bbc223f09f4`:
+  one `live_status_denominator_drift`, four unregistered status definitions,
+  and eight unregistered semantic definitions. A separate canonical scan in
+  `34.71 s` enumerates 599 dashboard definition sources, 22 current status
+  definitions and 45 semantic candidates; its retained JSON SHA-256 is
+  `02064592e5bff976601564edb6554f3e4111cd3579eb0cc5bc73b34c8a75f6c6`.
+- The four definitions are `RouteAssertionStatus`,
+  `OpaqueBackgroundContrastClassification.status`,
+  `ManualAtMaturityResult.evidence_status`, and
+  `HonestyComprehensionInterpretation.observation_status`. The eight semantic
+  candidates are `ATLAS_AUTOMATED_RUNNER_PROFILES`, four
+  `ATLAS_EVIDENCE_*` constants, and three `ATLAS_*READINESS*_SCHEMA`
+  constants. All are in DS6-owned `src/test/evidence/**` or
+  `src/test/a11y/**` source merged from `main`.
+- P40/P41 classification: existing governed-artifact release/lifecycle class,
+  external to DS5, with no mechanism round. The current inventory remains 47
+  entries (23 named / 24 inline DS1 rows), 18 live (8 named / 10 inline), 28
+  retired, one deleted and 56 semantic exemptions. Source-shape arithmetic
+  would project 9 named / 13 inline / 22 live, but that is P37
+  `not_established` until DS6's canonical owner operation. Hand-authored rows
+  would be P27/P32 owner bypass.
+- Executable closure signal: after the C21 release becomes effective, DS6
+  (`team-frontend`, approval `team-architecture` / `@architecture-owners`)
+  reruns the canonical scanner, adjudicates/registers or retires all 12 facts,
+  regenerates any induced register/report/status family through its producers,
+  and makes the status owner green. C09/C12 do not acquire a disposition-row
+  transition merely because their test contracts exist.
+
+- The merged DS6 parity owner makes all 34 parity cases green; the historical
+  three `panels.agentPipeline.overBudget` component reds are no longer a live
+  failure set. Their baseline/register lifecycle row is intentionally unchanged
+  until DS6 C03 executes after the effective release.
+- A different main-owned component red is exact and repeatable: DS6 C11's
+  `atlasHealthMetrics.test.ts` passes 21/22 and fails only because clean-tree
+  replay returns `non_revision_paths=[]` while the assertion expects
+  `pyproject.toml` and `uv.lock`. The focused run fails identically in
+  `16.57 s`. The fixture does not exist at slice base
+  (`git cat-file -e` exit 128), so its P41 replay outcome is
+  `not_established`; commit `dec77a050` (`DS6-C11 instrument Atlas health
+  metrics`) is on `main` and not the pre-merge DS5 branch. Owner is DS6 /
+  `team-frontend`. The executable signal is to assert the clean committed
+  `revision_resolvable` / empty-path result exactly while retaining the
+  existing absent- and changed-path degradation tests. DS5 does not edit the
+  DS6-owned test or persistence producer.
+
+### C21 release declaration
+
+- C21 completion alone is falsified as a release predicate by later DS5
+  writers. This handoff issues the C21 register-family release declaration and
+  DS5 relinquishes its exclusive writer lock; there is no later DS5 release
+  task. The declaration is effective for DS6 only when the architect merges
+  this accepted C20/DS5 branch to `main`, after which DS6 must reread current
+  owners and all hashes before C03/C04/C06. Current state is
+  `C21 release_declaration: issued`, `C21 writer_lock: relinquished`,
+  `DS6 activation_status: pending_merge_to_main`.
+
+### Final post-merge source-freeze receipts
+
+- The final parity owner is frozen at exactly 7 insertions / 2 deletions
+  against `main`; all differences are D4-A1 semantics. Its DS6 suite passes
+  34/34 in `1.76 s`, explicit exit 0. Changed-path ESLint over that file and
+  the exact `Unknown` governed-projection oracle passes in `17.60 s`.
+- Storybook passes 45/45 files and 98/98 tests in `14.28 s`. Accessibility
+  passes 85/85 component and 21/21 page checks in `102.03 s`. Visual finishes
+  17/19 in `70.32 s`, with exactly the external DS8 A4 and the stable DS5
+  run-deck height residual; no snapshot writer ran.
+- The final source-frozen full component command starts at
+  `2026-08-19T19:16:00Z` and finishes at `2026-08-19T19:22:16Z`, explicit
+  child exit 1, under the four-lane contended regime. It collects 669 suites
+  and 1,189 tests: 1,188 pass, one fails, no pending/todo case. The sole failed
+  assertion is DS6-C11 `src/test/evidence/atlasHealthMetrics.test.ts`, which
+  expects `pyproject.toml` and `uv.lock` in an empty clean-tree
+  `non_revision_paths` list. Retained JSON SHA-256 is
+  `0294c81d75bf45869f95d5a439f47bc3bd2dd20610c32e8fe04c98353d76e41d`;
+  `/usr/bin/time` reports `376.05 s`. A preceding full run was still active
+  when the final parity formatting-only reconciliation landed; even though it
+  showed the same external failure, it crossed a source freeze and is a
+  process nonreceipt. Its output and `447.89 s` wall are not used.
+- The current status-owner RED remains external DS6 lifecycle work: exact
+  16-line stderr SHA-256
+  `0f79f3dac7072bd1a45dc69bd4db81e525085db9786e2312c8453bbc223f09f4`,
+  four status definitions plus eight semantic candidates. The frontend owner
+  remains green over 261 roots / 61 findings / 574 storage sources / 36 sites
+  in 15 files. No register, report, status inventory, baseline manifest,
+  readiness ledger, C23, or snapshot byte changes in the reconciliation.
+- P40 closeout remains 0/2 mechanism rounds. The DS6 cross-fence merge,
+  component-population accounting, exact-oracle correction, run-deck signal,
+  and post-release governed vocabulary are recorded ownership/measurement
+  findings, not new C20 mechanism escapes.
+- Targeted Markdown lint over plan, journal and closure exits 1 in `3.56 s`
+  with the same 15 historical findings: plan lines 250, 2244, 2519 and 2572,
+  plus journal lines 4851–4852. A zero-context hunk walk proves none intersects
+  this closeout's plan ranges (87, 3086–3172), journal append (6040 onward),
+  or closure ranges. The lint red is retained as a scoped historical receipt,
+  not promoted to a green result or used to enlarge a ceiling. Final
+  `git diff --check` is green.

@@ -84,9 +84,11 @@ architecture guardrails.
   for the DS5 HTTP/schema contract, in the same commits as HTTP models,
   generated clients and governed re-anchors. Any hand-authored or other
   `schemas/**` diff or any other backend-test path remains a STOP.
-- No merge, push, rebase onto `main`, CI edit, baseline suppression, skip,
-  quarantine, timeout increase, or tolerance widening. Closure is an
-  architect-review handoff.
+- Historical entry fence: no merge, push, rebase onto `main`, CI edit,
+  baseline suppression, skip, quarantine, timeout increase, or tolerance
+  widening. The 2026-08-19 closure ruling later authorizes exactly one
+  `main`-into-DS5 merge to reconcile the handoff; push, rebase and DS5-to-main
+  merge remain architect-owned.
 - One scoped commit per cluster after red-first evidence and independent review.
   No partial family, unpaired register transition, or uncommitted tail crosses
   a cluster boundary.
@@ -3081,8 +3083,14 @@ slice base and reproducibly differs now by one pixel in height (expected
 1094×820, observed 1094×821; 4,178 pixels / 1%). No named intended product
 delta or introducing cluster was established, so no snapshot is re-anchored.
 DS5 carries this one residual under `team-frontend` / `@frontend-owners`,
-successor `dashboard-run-deck-visual-determinism-reconciliation`; repair cost
-remains `not_established` until rendering/fixture determinism is identified.
+successor `dashboard-run-deck-visual-determinism-reconciliation`. Three serial
+fixed-environment captures are byte- and pixel-identical at 1094×821, so this
+is a stable layout delta rather than nondeterminism. Its executable closure
+signal is to adjudicate and restore the `run-deck-slide-evidence` /
+`.atlas-deck-slide` border-box height to the governed 1094×820 baseline, then
+obtain three consecutive no-update decoded-pixel matches and a full visual run
+with only DS8 A4 red. Introducer, repair path count and duration remain
+`not_established`; no snapshot is re-anchored.
 
 **Pre-writer allowlist:** five storage census rows plus `rows_sha256`; the
 `semantic-supported-locales.type_expression`; the C06/C07 whole-source
@@ -3090,8 +3098,9 @@ content binding for RunExplainabilityPanel; canonical supplemental identities;
 the generated report; and the final status `ds19` register hash. No other
 governed leaf may move.
 
-**Final outcome:** landed by this section's containing commit at 0/2 mechanism
-rounds, with 16 mechanism paths plus 13 mandatory companions (29 total).
+**D4-A1 pre-main freeze outcome:** landed by this section's containing commit
+at 0/2 mechanism rounds, with 16 mechanism paths plus 13 mandatory companions
+(29 total).
 English is the sole authored-primary decision; Ukrainian is its active
 translation; Russian remains a byte-frozen continuity catalog. C05a-R1 is
 cleared as the correct implementation of the former ratified ruling. Full
@@ -3099,34 +3108,68 @@ components return to 1,041/1,044 with only the three external DS6 identities;
 Storybook is 97/97; accessibility is 85/85 component plus 21/21 page; visual
 is 16/18 without any snapshot re-anchor. Storybook provider composition,
 route-transition liveness, and the temporal reverse dependency are repaired.
-The sole DS5-owned residual is run-deck visual determinism, owned by
+The sole DS5-owned residual is the stable run-deck layout delta, owned by
 `team-frontend` / `@frontend-owners`, successor
-`dashboard-run-deck-visual-determinism-reconciliation`, with introducer and
-repair cost `not_established`. The closure battery and governed hashes are
-recorded in the journal and closure artifact. Release remains accepted C20
-plus merge to `main`; current value is `not_released`.
+`dashboard-run-deck-visual-determinism-reconciliation`, with introducer
+`not_established` and the exact executable closure signal recorded above. The
+closure battery and governed hashes are recorded in the journal and closure
+artifact. This handoff issues the C21 release declaration and relinquishes the
+DS5 writer lock; it becomes effective for DS6 only after accepted C20 is merged
+to `main`, so activation is currently `pending_merge_to_main`.
+
+**Post-main reconciliation freeze:** `main` was merged into this branch at
+`88d1f70cf`, with DS5 not merged to `main`. The DS6-owned parity file keeps all
+of main's quantitative-use/plural/count gates and applies only D4-A1's 7-line
+insertion / 2-line deletion semantic delta; its owner suite is 34/34 green in
+`1.76 s`. The full final component denominator is 1,189 with 1,188 green; the
+sole red is the external DS6-C11 clean-tree health-metric oracle, JSON SHA-256
+`0294c81d75bf45869f95d5a439f47bc3bd2dd20610c32e8fe04c98353d76e41d`,
+in `376.05 s` under the contended regime. Storybook is 98/98, accessibility is
+85/85 component plus 21/21 page, and visual is 17/19 with only DS8 A4 and the
+DS5 run-deck identity. A full component run that crossed the final parity
+source edit is a process nonreceipt and supplies no budget sample. The merged
+DS6 vocabulary also leaves the status owner red on 12 unadmitted DS6 facts;
+that external governed-write debt has its post-release executable signal in
+the closure record. No governed-family, readiness, C23, or snapshot byte
+moves in this reconciliation.
+
+**Component-population reconciliation:** the intermediate 1,049 population is
+the prior 1,048 plus one LocaleProvider browser-preference case. The temporal
+owner-boundary repair exits eight cache-specific shared-component cases and
+enters one generic shared-component case, one cache-owner case and one
+verified-mode case: `1049 - 8 + 3 = 1044`. No test file, skip, quarantine,
+collection filter, timeout, threshold, package/Vitest config or snapshot was
+removed or weakened. The exited properties remain at their producer and
+RunExplainabilityPanel consumer. A review found one unrelated `/unknown/iu`
+tolerance widening; the appended correction requires exact authored `Unknown`
+and passes 10/10. P40 classifies the population accounting and oracle repair as
+record/test classes, not C20 mechanism rounds.
 
 ## Explicit Not yet
 
-- C20 and every executable local DS5 mechanism land in the containing commit,
-  but shared owners are not released until an accepted C20 is later merged to
-  `main`; current `DS6 release_status` is `not_released`. The carried set is
+- C20 and every executable local DS5 mechanism land in the containing commit.
+  The C21 release declaration is issued here and DS5 relinquishes its writer
+  lock, but DS6 activation remains `pending_merge_to_main`. The carried set is
   C07a, C07b, C10-R1, C15a's structured verdict/status-chip producer plane,
   C17a-R1, the registered eight-owner duplication finding, C17b-R3's declared
   owner-flow residual, and external architecture deep-import,
-  import-policy/exception and ABI schema-catalog debt, the three external DS6
-  component identities, and the external DS8 A4 identity. D4-A1 closes the
+  import-policy/exception and ABI schema-catalog debt, the deferred DS6 C03
+  i18n lifecycle, the DS6 C11 clean-replay oracle, the post-merge DS6 status-
+  vocabulary admission, and the external DS8 A4 identity. D4-A1 closes the
   locale, Storybook, accessibility, and temporal classes without snapshot
   re-anchor. DS5 additionally carries only the run-deck one-pixel visual
   residual under `team-frontend` / `@frontend-owners`, with introducing cluster
-  and repair cost `not_established` and a registered successor.
+  `not_established`, a registered successor, and the executable border-box
+  closure signal above.
 - No C23/DS16 reconciliation. The four roots, `C23_SUCCESSOR_REFS`, and
   `C23_RATIONALE` remain unchanged. The literal transition yields four
   `c23_containment_root_drift` plus four `successor_on_non_rebound`; the
   minimal successor-ref variant yields four `rebound_consumer_missing`
   because `apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts`
   is absent. That is post-merge DS16 work.
-- No merge, push, rebase, CI change, deployment claim, or backend-engine work.
+- No DS5-to-main merge, push, rebase, CI change, deployment claim, or
+  backend-engine work. The authorized `main`-into-DS5 reconciliation is
+  separately recorded.
 - No claim that arbitrary TypeScript behavior has been completely analyzed.
   DS5 claims compile-time branded-slot assignability, the bounded syntactic
   escape/construction rules named above, and issuer runtime novelty only.

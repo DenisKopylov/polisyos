@@ -39,9 +39,11 @@ the observed locale failures were the predicted mechanical verification
 follow-up, not a C05a defect or scope overrun. D4-A1 plus the bounded Storybook,
 authority-transition, and temporal-boundary repairs close those frontend
 classes. Only the separately measured run-deck one-pixel residual remains as
-DS5-owned debt. The C20 mechanism remains landed at 0/2 rounds. This is a
-closure and architect handoff, not a deployment, publication, merge, release,
-or claim that the whole repository is green.
+DS5-owned debt. The C20 mechanism remains landed at 0/2 rounds. Main was merged
+into this branch at `88d1f70cf` solely to reconcile the final handoff; DS5 was
+not merged into `main`. This is a closure and architect handoff, not a
+deployment, publication, effective owner release, or claim that the whole
+repository is green.
 
 ## Architecture guardrail inherited-debt proof
 
@@ -227,6 +229,25 @@ Raw JSON SHA-256 is
 the governed comparator accepts that exact disposition. No locale-driven
 component debt remains with DS5.
 
+The apparent 1,049-to-1,044 denominator shrink is independently reconciled;
+it is not five hidden deletions. The English-owner intermediate added one
+LocaleProvider browser-preference case. The temporal owner-boundary repair
+then moved eight cache-specific cases out of the generic
+`TimeSemanticsLabel.test.tsx`, added one caller-owned shared-component case,
+and added one cache-owner plus one verified-mode owner case: `-8 + 3 = -5`.
+The eight exited properties remain covered at the cache producer and
+RunExplainabilityPanel consumer. No test file, `.skip`, `.todo`, `.only`,
+quarantine, collection filter, package/Vitest config, timeout, threshold, or
+snapshot changed. Direct intermediate/final JSON name-set comparison is P37
+`not_established` because those temporary files were not retained; the source
+diff, test-run arithmetic and one-case-per-row Vitest semantics are
+`independently_reconciled`.
+
+Review also found one widened text oracle, `/unknown/u -> /unknown/iu`, in the
+governed RunExplainabilityPanel test. P40 classifies it as a new verification-
+oracle tolerance class, not a C20 mechanism round. The append-only correction
+now asserts authored `Unknown` exactly, and its focused suite passes 10/10.
+
 ### Accessibility and verified-mode transition — repaired
 
 The slice-base command
@@ -269,15 +290,26 @@ re-anchored.
 The inherited DS8 A4 identity remains expected 724×2113 versus observed
 770×13269. The other residual is DS5-owned by P41 because it is green at slice
 base and reproducibly red now: `run deck content slide` expects 1094×820,
-observes 1094×821, and differs by 4,178 pixels / 1%. The focused replay repeats
-that identity. Its introducing cluster and intended product delta are
-`not_established`, so a snapshot re-anchor would be a proxy repair and is not
-authorized. DS5 carries it under `team-frontend` / `@frontend-owners`, with
-registered successor
-`dashboard-run-deck-visual-determinism-reconciliation`. The smallest closing
-work must identify the rendering/fixture-determinism property first; path count
-and implementation duration remain `not_established`. No snapshot byte
-changes in this landing.
+observes 1094×821, and differs by 4,178 pixels / 1%. Three serial captures in
+the same fixed environment are byte- and decoded-pixel-identical: each actual
+is 1094×821, PNG SHA-256
+`823fffa7f72433bdb8c1a141c9f38b1b2da7d8bbd28652755dada8abdfa3053f`,
+RGBA SHA-256
+`ab8965b51b7a89e82540f49d2a3511634998181190b04e10881e3f1e5934fcc8`,
+with the same 4,178-pixel delta. This is a stable layout delta, not rendering
+nondeterminism. Its introducing cluster remains `not_established`, so a
+snapshot re-anchor would still be a proxy repair and is not authorized.
+
+DS5 carries it under `team-frontend` / `@frontend-owners`, with registered
+successor `dashboard-run-deck-visual-determinism-reconciliation`. The
+executable closure signal is now exact: adjudicate the rendered border-box
+height of `run-deck-slide-evidence` / `.atlas-deck-slide` in
+`AtlasRunDeck.tsx` and `styles.css`, restore the fixed-fixture capture from
+1094×821 to the governed 1094×820 baseline without a snapshot writer, then
+require three consecutive no-update captures whose decoded RGBA equals the
+baseline and a full visual run containing only the external DS8 A4 red. The
+repair path count and duration remain `not_established`; the successor can
+start from this measured property. No snapshot byte changes in this landing.
 
 ### Import policy / exception lifecycle — `reproduces_at_slice_base`
 
@@ -319,9 +351,11 @@ These remain debt rather than C20 prerequisites:
 | Deep-import generated baseline | `team-architecture` / `@architecture-owners`; eight exact edge deltas; successor `architecture-deep-import-baseline-reconciliation`. |
 | Import policy / exception lifecycle | External: `team-architecture` / `@architecture-owners`; the slice-base and C20 owner commands have the same 90 semantic violations despite 34/2,567 intersecting inputs; successor `architecture-import-policy-exception-reconciliation`. |
 | ABI schema reference catalog | registered `abi-schema-snapshots` owner/approval/version owner `team-polisyos`; clean entry and resumed tree both report `docs/reference/ir/schema-catalog.md` stale; successor `abi-schema-reference-catalog-reconciliation`. |
-| Three component parity identities | External DS6 catalog-test debt: the exact `panels.agentPipeline.overBudget` identity in English, Ukrainian, and frozen Russian existed at the slice base and remains byte-identical; owner is the DS6 catalog-verification plan. |
+| DS6 C03 i18n baseline lifecycle | The three historical `panels.agentPipeline.overBudget` reds are now green under DS6's merged parity gate. The baseline/register debt row remains open only because its canonical lifecycle transition is deferred until the C21 release becomes effective; owner is DS6 C03, not DS5. |
+| DS6 C11 health-metric replay oracle | External main-owned component red: the clean committed tree returns `revision_resolvable` with an empty `non_revision_paths`, while the DS6 test still expects `pyproject.toml` and `uv.lock` to be dirty/non-revision. The fixture does not exist at slice base, so P41 outcome is `not_established`; Git attributes the source/test to DS6-C11 `dec77a050`. Owner `team-frontend`; executable signal is to make the clean-tree assertion exact while retaining the existing changed/absent-path degradation witnesses. |
+| Post-merge DS6 status vocabulary | External DS6 governed-write debt exposed by the `main` merge: four live status definitions and eight semantic candidates under DS6 `src/test/evidence/**` and `src/test/a11y/**`; owner `team-frontend`, approval `team-architecture` / `@architecture-owners`. DS5 does not hand-author rows. After the effective C21 release, DS6 must run the canonical status scanner, adjudicate/register or retire the 12 source-bound facts, regenerate any induced register/report/status family bytes through their owners, and make the status checker green. |
 | Run-detail A4 visual identity | External DS8 visual debt; expected 724×2113 versus observed 770×13269 on the final freeze; DS5 does not re-anchor it. |
-| Run-deck visual determinism | **DS5-owned** under `team-frontend` / `@frontend-owners`; expected 1094×820 versus observed 1094×821, 4,178 pixels / 1%; introducing cluster and repair cost are `not_established`; registered successor `dashboard-run-deck-visual-determinism-reconciliation`. |
+| Run-deck stable layout delta | **DS5-owned** under `team-frontend` / `@frontend-owners`; expected 1094×820 versus three byte/pixel-identical 1094×821 captures, 4,178 pixels / 1%; introducing cluster remains `not_established`; registered successor `dashboard-run-deck-visual-determinism-reconciliation`; executable signal is the exact border-box-height restoration and three stable baseline-equal captures described above. |
 
 The C17b residual's smallest closing capability is whole-program
 interprocedural data/control flow with reaching definitions, dominance, and
@@ -344,22 +378,27 @@ does not exist on this branch. This remains a post-merge DS16 reconciliation.
 
 ## Release condition
 
-C21 completion is not the release condition: C21 landed before later DS5
-writers while DS6 still waited. C20 is an architect-handoff prerequisite, but
-handoff alone does not place these bytes in other main-based worktrees. Shared
-owner release occurs only after an accepted C20 handoff and a later DS5 merge
-to `main`; DS6 must then reread current owners and hashes before C03/C04/C06.
+C21 completion is not by itself the release condition: C21 landed before later
+DS5 writers while DS6 still waited. This handoff issues the C21 register-family
+release declaration; DS5 has finished writing and relinquishes its exclusive
+writer lock. The declaration becomes effective for DS6 only after the accepted
+C20 handoff is merged to `main`, because a handoff or a `main`-into-DS5 merge
+does not place these bytes in other main-based worktrees. DS6 must then reread
+current owners and hashes before C03/C04/C06.
 
 P37 provenance is `independently_reconciled`: branch ancestry proves C21d is
 an ancestor of later C09a/C09b/C20 owner work, so C21-only is a falsified
 release predicate. The DS6 active-plan contract is
 `institutionally_supplied`: it holds the contended resource until DS5 merges
 and requires a fresh owner/hash read before its deferred C03/C04/C06 writes.
-That active DS6 plan is not present in this frozen DS5 tree, so C20 records the
-ratified predicate rather than inventing a local path citation.
+The active DS6 plan is now present through the merge and states that the
+contended resource remains with DS5 "until it merges", then requires a fresh
+owner/hash read before the deferred writes.
 
-This branch therefore records `DS6 release_status: not_released`. No merge is
-authorized or claimed.
+This branch therefore records `C21 release_declaration: issued`,
+`C21 writer_lock: relinquished`, and `DS6 activation_status:
+pending_merge_to_main`. No DS5-to-main merge is authorized or claimed here;
+the release is not yet effective in `main`.
 
 ## Closure battery and receipts
 
@@ -390,14 +429,18 @@ proved byte-idempotent.
 | CI parity | Inherited RED in `27.72 s`; the unchanged ABI schema catalog is stale; prior isolated entry/current output identity remains the attribution proof. |
 | Runtime API client | Final PASS: typecheck `3.72 s`, lint `5.46 s`, tests `4/4` in `1.44 s`, format `3.30 s`, architecture `1.34 s`. |
 | Runtime dashboard core | Final PASS: lint `12.60 s`, enforcement `39.85 s`, architecture `4.40 s` with 1,032 modules / 4,224 dependencies / zero violations, typecheck `12.53 s`, build `18.17 s` with 108 PWA entries. |
-| Dashboard component JSON + governed comparator | Final 1,044-test census: 1,041 pass and exactly three external DS6 parity identities fail; raw JSON SHA-256 `31abca4caf6f7c0a66971cd5e40c38228ba9875f3e05a21a25975f07d95716bf`; comparator PASS in `38.43 s`. |
-| Dashboard Storybook | Final PASS: 44/44 files and 97/97 stories in `11.28 s`; one global decorator repair, no baseline. |
-| Dashboard accessibility | Final PASS: 85/85 component and 21/21 page checks in `85.45 s`; no accessibility snapshot changed. |
-| Dashboard visual | Bounded RED: 16/18 pass in `51.95 s`; only external DS8 A4 and DS5-owned run-deck one-pixel residual remain. No snapshot changed. |
+| DS6-owned i18n parity after merge | PASS, 34/34 in `1.76 s`, explicit exit 0. The merged file retains every DS6 quantitative-use/plural/count gate and adds only the 7-insertion/2-deletion D4-A1 semantic reconciliation. |
+| Dashboard component JSON after merge | Bounded external RED: 1,188/1,189 pass in `376.05 s` under the declared contended regime; retained JSON SHA-256 `0294c81d75bf45869f95d5a439f47bc3bd2dd20610c32e8fe04c98353d76e41d`. The sole failed assertion is DS6-C11 `atlasHealthMetrics.test.ts`; all three former locale-parity reds are green. A prior full run crossed the parity source-freeze edit and is a process nonreceipt, not a duration sample. |
+| Dashboard Storybook after merge | Final PASS: 45/45 files and 98/98 stories in `14.28 s`; the global provider-composition repair remains green, with no baseline. |
+| Dashboard accessibility after merge | Final PASS: 85/85 component and 21/21 page checks in `102.03 s`; no accessibility snapshot changed. |
+| Dashboard visual after merge | Bounded RED: 17/19 pass in `70.32 s`; only external DS8 A4 and DS5-owned run-deck one-pixel residual remain. No snapshot changed. |
+| Changed-path lint after merge | PASS in `17.60 s` over the reconciled DS6 parity file and exact `Unknown` governed-projection oracle. |
+| Post-merge status owner | External governed-write RED: one denominator drift plus four status and eight semantic candidates, exact 16-line stderr SHA-256 `0f79f3dac7072bd1a45dc69bd4db81e525085db9786e2312c8453bbc223f09f4`; DS6 executable signal and release dependency are recorded above. |
 | Atlas UI | Final PASS under the executor-declared lane: lint `13.73 s`, architecture `2.44 s` over 36 sources, typecheck `10.85 s`, tests `85/85` in `13.08 s`. |
 
-The architecture deep-import, import-policy/exception, ABI catalog, three DS6
-locale-parity identities, and DS8 A4 identity remain externally owned debt.
+The architecture deep-import, import-policy/exception, ABI catalog, deferred
+DS6 i18n lifecycle, DS6 C11 clean-replay oracle, and DS8 A4 identity remain
+externally owned debt.
 The locale-driven component/accessibility/visual classes, Storybook provider
 composition, route transition, and temporal reverse dependency are closed.
 Only the run-deck pixel residual remains DS5-owned. This D4-A1 work is new at
@@ -439,19 +482,23 @@ snapshot remain byte-identical.
   results.
 - Every remaining repository red is classified against the slice base.
   External debts retain their named owners. DS5 retains exactly one own
-  frontend debt: the run-deck one-pixel visual residual, with introducing
-  cluster and repair cost `not_established` and a registered successor.
-- The release predicate is accepted C20 plus DS5 merge to `main`; its current
-  value is `not_released` because no merge is authorized here.
+  frontend debt: the stable run-deck one-pixel layout delta, with an executable
+  border-box closure signal, introducing cluster `not_established`, and a
+  registered successor.
+- The C21 release declaration is issued and DS5's writer lock is relinquished.
+  Its activation predicate is accepted C20 plus DS5 merge to `main`; current
+  activation is `pending_merge_to_main` because no such merge is authorized
+  here.
 
 ## What is not claimed
 
 - No claim that the repository-wide architecture, import-policy, schema,
-  component, or visual gates are wholly green: component retains only three
-  external DS6 identities, and visual retains the external DS8 A4 plus the
-  named DS5 run-deck residual. Storybook and accessibility are green.
-- No DS6 release, main merge, deployment, push, CI change, or rebaseline; the
-  current release value remains `not_released`.
+  component, status, or visual gates are wholly green: component retains the
+  one external DS6-C11 clean-replay oracle, status awaits the DS6-owned
+  12-fact canonical admission, and visual retains the external DS8 A4 plus the
+  named DS5 run-deck residual. Parity, Storybook, and accessibility are green.
+- No effective DS6 activation, DS5-to-main merge, deployment, push, CI change,
+  or rebaseline; the issued C21 release becomes effective only on that merge.
 - No C23/DS16 reconciliation.
 - No DS8, DS9, or DS14 semantic change.
 - No arbitrary whole-program TypeScript or storage-owner flow theorem.

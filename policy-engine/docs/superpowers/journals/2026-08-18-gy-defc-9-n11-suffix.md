@@ -125,7 +125,7 @@ initial path census]`
 | Items 1+2 | 0 | 2 | green; source frozen |
 | Item 3 | 1 | 1 | green after typed rederive-report correction; source frozen |
 | Item 4 | 2 | 0 | both pre-writer findings closed; accepted writer green |
-| Item 5 | 3 | 0 | stopped before cold on the classified third finding; allowance unspent |
+| Item 5 | 0 | 2 | P40 launch-boundary widening authorized; cold allowance unspent |
 
 ## Execution receipts
 
@@ -551,7 +551,13 @@ occurred. The single Item 5 cold N11 allowance remains unspent; the confidence w
 deployment reissue, not the registered N11 live-contract run. `[P37: recomputed for commit/readback
 and allowance use; institutionally_supplied for item classification]`
 
-## Item 5 cold authorization review — stopped before launch
+## Superseded Item 5 stop record — historical non-receipt
+
+The stop below is preserved as the exact historical record at `cb868c901…`, but its accounting and
+current disposition are superseded by the architect's 2026-08-19 ruling recorded after it. Findings
+1 and 2 were one batched review round, not two; Item 5's ignored one-shot harness is not a product
+mechanism; and all three findings belong to one P40 launch-spec boundary class. `[P37:
+institutionally_supplied]`
 
 The post-Item-4 N8 catalog check exited `0` with `status=pass`; N10a exited `0` with
 `status=pass, issues=[]`; and the confidence artifact's internal validator returned
@@ -590,7 +596,7 @@ admission and has `status=stopped_third_finding`, which the harness refuses. The
 allowance and round rule; recomputed for the rejected status and run absence; not_established for the
 cold outcome]`
 
-<!-- GY-DEFC-9-COLD-AUTHORIZATION-BEGIN -->
+<!-- GY-DEFC-9-REJECTED-COLD-AUTHORIZATION-BEGIN -->
 ```json
 {
   "basis_preflight_path": ".tmp/gy-defc-9/cold-n11/preflight-receipt.json",
@@ -692,7 +698,7 @@ cold outcome]`
   "wrapper_sha256": "86d111fa98ff96bcc8aef32218dab70a186d9bb65af0b5f8e7b64f44759ee2bc"
 }
 ```
-<!-- GY-DEFC-9-COLD-AUTHORIZATION-END -->
+<!-- GY-DEFC-9-REJECTED-COLD-AUTHORIZATION-END -->
 
 ### Mandatory third-finding stop
 
@@ -731,3 +737,297 @@ byte-identical to task-base `main` at `3fde27f0d`; no `Rev` text or line 7 byte 
 The moving `main` ref is now `68bb34762` and its architect-owned Rev-45 line hashes differently, so
 the branch does not copy it or merge mid-task. `[P37: recomputed for both hashes, the three-hunk
 denominator, branch diff, and current main ref; institutionally_supplied for the no-merge rule]`
+
+## Item 5 P40 widening and cold launch authorization
+
+The architect's 2026-08-19 ruling restarts Item 5 with two fresh rounds and leaves the cold allowance
+unspent. The prior path/HEAD, milestone, and ceiling findings are one class: the committed
+authorization named only part of the launch specification while other deciding values remained
+caller-supplied. The ignored measurement harness is not a product mechanism, so its iterative
+hardening does not consume the product-mechanism round budget. `[P37: institutionally_supplied]`
+
+The widened launcher accepts zero arguments. Before importing ignored child code it reads the
+authorization from committed `HEAD`, proves a clean attached branch and the single journal-only
+transition from `cb868c90123d64d536e5ecb772bc773c346ea6f4`, and content-binds both ignored scripts.
+The one block owns the isolated worktree interpreter, source/dependency roots, canonical catalog and
+L5 paths, complete `11/11` pin map, exact N8/N10a/internal-confidence checks, exact child command and
+environment (including all 19 owner controls), symlink-safe exclusive output paths, dedicated-
+worktree process census, one-shot launch lock, inherited child capability, `28/28` milestone order,
+and the `4,693.118600` s timer that the wrapper itself enforces. `[P37: recomputed]`
+
+The required conflicting-parameter falsifier supplied outer ceiling `999999` and an alternate child
+command. The wrapper returned `64` before `Popen`; the unauthorized marker was absent. Two additional
+behavioral probes prove that an arbitrary command with the dedicated worktree as cwd is detected
+without an issue-code/process-name allowlist and that TERM followed by KILL removes a surviving
+descendant after its leader exits. All three tests passed in `0.529` s; the retained falsifier receipt
+hashes to `de4eade63a0d7047c5b28e8724605cf14554c4685c6d19ffb0ea84595b6aaea8`.
+Ruff and bytecode compilation pass for all three ignored files. `[P37: recomputed]`
+
+Independent terra/luna review closed the ordinary same-user workflow boundary. A hostile same-user
+process can still forge any local file/pipe/argv protocol because this lane has no privilege-separated
+supervisor or signing principal. That adversarial provenance is `not_established`; the bounded model
+is the repository's cooperative local-git workflow, strengthened here by `-I` launcher isolation,
+`-S` child/check isolation, a per-launch random nonce, an inherited FD, exact live parent command,
+and exclusive outputs. The smallest capability that would remove the residual is an external trusted
+supervisor; it does not exist in this task. Per the P40 ruling, this is a declared bound on the same
+class, not another ladder repair or a stop. `[P37: independently_reconciled for the falsifier and
+capability absence; not_established for hostile-same-user provenance; institutionally_supplied for
+the cooperative execution boundary and continue ruling]`
+
+The ignored wrapper and child hash to
+`1b14e7024ec78f6c514f2a4cea73ae821e191d5897bd571e9c4a06f1fca46ff2` and
+`f1cf208a96e08394b445ef248c52fe3d61d99911cec7e7ce42037f9a012eb19e`.
+The block below authorizes exactly one launch only when committed as this journal's sole direct child
+of the named basis. Before that commit, the cold result remains `not_established` and no allowance is
+spent. `[P37: recomputed]`
+
+<!-- GY-DEFC-9-COLD-AUTHORIZATION-BEGIN -->
+```json
+{
+  "authorization_basis": {
+    "delta_paths": [
+      "docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md"
+    ],
+    "direct_parent": true,
+    "head": "cb868c90123d64d536e5ecb772bc773c346ea6f4"
+  },
+  "branch": "codex/gy-defc-9-n11-suffix",
+  "checks": [
+    {
+      "command": [
+        "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
+        "-S",
+        "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+        "--check-catalog-provenance",
+        "--output-format",
+        "json"
+      ],
+      "expected": {
+        "returncode": 0,
+        "scope": "catalog_provenance",
+        "status": "pass"
+      },
+      "name": "n8_catalog_provenance",
+      "timeout_seconds": 120
+    },
+    {
+      "command": [
+        "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
+        "-S",
+        "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/tools/quality/validation/check_layer3_gy_second_domain_pack.py",
+        "--repo-root",
+        "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
+        "--check",
+        "--output-format",
+        "json"
+      ],
+      "expected": {
+        "issues": [],
+        "returncode": 0,
+        "status": "pass"
+      },
+      "name": "n10a_second_domain_pack",
+      "timeout_seconds": 120
+    },
+    {
+      "artifact_path": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+      "expected": {
+        "deployment_identity": "policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f",
+        "issues": [],
+        "status": "pass"
+      },
+      "name": "confidence_internal_validation"
+    }
+  ],
+  "child": {
+    "capability": {
+      "environment_variable": "POLISYOS_GY_DEFC9_LAUNCH_FD",
+      "token_schema": "policyos.gy_defc_9.inherited_launch_capability.v1"
+    },
+    "command": [
+      "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
+      "-S",
+      "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/single_cold_n11.py"
+    ],
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
+    "interpreter": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
+    "path": ".tmp/gy-defc-9/single_cold_n11.py",
+    "sha256": "f1cf208a96e08394b445ef248c52fe3d61d99911cec7e7ce42037f9a012eb19e"
+  },
+  "environment": {
+    "mode": "exact",
+    "runtime_bindings": {
+      "POLISYOS_GY_DEFC9_LAUNCH_FD": "inherited_pipe_fd"
+    },
+    "variables": {
+      "HOME": "/Users/deniskopylov",
+      "JAX_PLATFORMS": "cpu",
+      "LANG": "C.UTF-8",
+      "LC_ALL": "C.UTF-8",
+      "LOGNAME": "deniskopylov",
+      "PATH": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin:/opt/homebrew/bin:/usr/bin:/bin:/usr/sbin:/sbin",
+      "POLISYOS_CRITIC_LLM_RETRIES": "5",
+      "POLISYOS_CRITIC_LLM_TIMEOUT_S": "300",
+      "POLISYOS_DRAFTER_PASS_RETRY_COUNT": "3",
+      "POLISYOS_DRAFTER_PASS_TIMEOUT_S": "300",
+      "POLISYOS_FORMALIZER_LLM_RETRIES": "5",
+      "POLISYOS_FORMALIZER_LLM_TIMEOUT_S": "300",
+      "POLISYOS_FORMALIZER_SCHEMA_HEALING_MODE": "audit",
+      "POLISYOS_GY_N4_LEVER_SLICE_MAX_CHARS": "3000",
+      "POLISYOS_GY_N4_LEVER_SLICE_TOP_K": "20",
+      "POLISYOS_LLM_CACHE_MAXSIZE": "128",
+      "POLISYOS_LLM_CACHE_TTL_S": "300",
+      "POLISYOS_LLM_GATEWAY_MAX_RETRIES": "3",
+      "POLISYOS_LLM_GATEWAY_TIMEOUT_S": "300",
+      "POLISYOS_N4_PREWARM_CG1_INDEX": "1",
+      "POLISYOS_N4_TERMINAL_SALVAGE_BACKOFF_BASE_S": "10",
+      "POLISYOS_N4_TERMINAL_SALVAGE_RETRIES": "2",
+      "POLISYOS_RETRIEVAL_EXPLORE_ENABLED": "true",
+      "POLISYOS_RETRIEVAL_FASTLANE_ENABLED": "true",
+      "POLISYOS_TOOLS_TIMING_LOG": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-timing.jsonl",
+      "POLISYOS_TOOLS_TIMING_REGIME": "contended",
+      "POLISYOS_TOOLS_TIMING_RETENTION": "2000",
+      "PYTHONDONTWRITEBYTECODE": "1",
+      "PYTHONHASHSEED": "0",
+      "PYTHONNOUSERSITE": "1",
+      "PYTHONPATH": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/src:/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine:/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+      "TMPDIR": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/cold-n11/authorized-20260819-runtime-tmp",
+      "USER": "deniskopylov"
+    }
+  },
+  "inputs": {
+    "catalog": "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb",
+    "dependency_site_packages": "/Users/deniskopylov/polisyos/policy-engine/.venv/lib/python3.14/site-packages",
+    "governed_contract": "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json",
+    "l5_registry": "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json",
+    "source_root": "src"
+  },
+  "invocation_counts": {
+    "build_live_contract": 1,
+    "clear_owner_bundle_cache": 1,
+    "validate_payload": 1
+  },
+  "launcher": {
+    "command": [
+      "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
+      "-I",
+      "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.tmp/gy-defc-9/run_with_ceiling.py"
+    ],
+    "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
+    "interpreter": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
+    "path": ".tmp/gy-defc-9/run_with_ceiling.py",
+    "sha256": "1b14e7024ec78f6c514f2a4cea73ae821e191d5897bd571e9c4a06f1fca46ff2"
+  },
+  "milestones": [
+    "confidence_registry_loaded",
+    "owner_pre_derivation_fence_started",
+    "owner_pre_derivation_fence_complete",
+    "n10_owner_recomputation_started",
+    "n10_owner_recomputation_complete",
+    "n13b_owner_recomputation_started",
+    "n13b_owner_recomputation_complete",
+    "n10_owner_projection_complete",
+    "n13b_owner_projection_complete",
+    "owner_post_derivation_fence_started",
+    "owner_post_derivation_fence_complete",
+    "owner_bundle_fence_validated",
+    "owner_bundle_loaded",
+    "n10_evidence_accounting_started",
+    "n10_evidence_accounting_complete",
+    "n13b_passport_accounting_started",
+    "n13b_passport_accounting_complete",
+    "real_ledger_receipt_validated",
+    "n9_live_projection_validated",
+    "n12_live_projection_validated",
+    "conformance_ledger_started",
+    "conformance_check_executed",
+    "conformance_ledger_receipt_validated",
+    "confidence_ledger_receipts_validated",
+    "real_semantic_projection_complete",
+    "conformance_semantic_projection_complete",
+    "frozen_consumer_projections_complete",
+    "frozen_contract_derived"
+  ],
+  "outputs": {
+    "cold_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-receipt.json",
+    "launch_lock": ".tmp/gy-defc-9/cold-n11/authorized-20260819-launch-lock.json",
+    "meta": ".tmp/gy-defc-9/cold-n11/authorized-20260819-meta.json",
+    "preflight_receipt": ".tmp/gy-defc-9/cold-n11/authorized-20260819-preflight.json",
+    "runtime_tmp": ".tmp/gy-defc-9/cold-n11/authorized-20260819-runtime-tmp",
+    "stderr": ".tmp/gy-defc-9/cold-n11/authorized-20260819-stderr.log",
+    "stdout": ".tmp/gy-defc-9/cold-n11/authorized-20260819-stdout.jsonl",
+    "timing_log": ".tmp/gy-defc-9/cold-n11/authorized-20260819-timing.jsonl"
+  },
+  "pin_denominator": 11,
+  "pins": {
+    "architecture/policy_design_case/layer3_gy_confidence_ledger_contract.json": {
+      "bytes": 977814,
+      "sha256": "4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9"
+    },
+    "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json": {
+      "bytes": 2193438,
+      "sha256": "155f01a877d7327281531115fee88764b7615e411830c8ec6109f375aa5b615e"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_census.json": {
+      "bytes": 73888,
+      "sha256": "ba20cdb384eb3e00fb6f13b2fad0b6f679f6fd4debc1148e4fe39a567055e74c"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json": {
+      "bytes": 567935,
+      "sha256": "9b78cad2693a163debfe8f4f77f26a01c77b177d1777f83b6352bede58be67f7"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json": {
+      "bytes": 21053,
+      "sha256": "361434b07fcdad7b1965c1899335b99c1b441034e5b8752c4645544f4b1fd98f"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_pack.json": {
+      "bytes": 252598,
+      "sha256": "169df14ab4fbc8f853f937e08d1c218066682d6f8fd5945219d9866d07cda2e2"
+    },
+    "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json": {
+      "bytes": 4665,
+      "sha256": "688bd3d8c845ebe99495aecb3b2c10579dbf3f43dd5e8fe0a6686cc6e8b5f76d"
+    },
+    "architecture/policy_design_case/layer3_gy_value_gate_contract.json": {
+      "bytes": 106118,
+      "sha256": "c3f131ce4f4729936eb3a639cfc81d5d65edb6545b2562d415f64998331bc303"
+    },
+    "architecture/production_quality/confidence_ledger.toml": {
+      "bytes": 8144,
+      "sha256": "f337fc1ef5a40daec98f8970a64cd85721b55590b93f452503c4c5a7fa49942b"
+    },
+    "production_data/canonical/local_data_20260501/ukraine_server_support_20260410/runtime_calibration_internals/calibration/d2/measurement_registry.json": {
+      "bytes": 2112,
+      "sha256": "90f341b2e71edb28b6208f580d8a920191d67240c240db9417ba18a225187aff"
+    },
+    "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb": {
+      "bytes": 1320693760,
+      "sha256": "4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7"
+    }
+  },
+  "process_admission": {
+    "command": [
+      "/usr/sbin/lsof",
+      "-a",
+      "-d",
+      "cwd",
+      "-Fpcn"
+    ],
+    "exclude": "launcher_and_ancestors",
+    "scope": "cwd_within_repo_root"
+  },
+  "repo_root": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
+  "schema_version": "policyos.gy_defc_9.cold_n11_authorization.v2",
+  "status": "authorized",
+  "timer": {
+    "ceiling_seconds": 4693.1186,
+    "heartbeat_seconds": 55,
+    "kill_grace_seconds": 10,
+    "poll_seconds": 5,
+    "preflight_freshness_seconds": 300,
+    "start_new_session": true,
+    "term_grace_seconds": 10
+  }
+}
+```
+<!-- GY-DEFC-9-COLD-AUTHORIZATION-END -->

@@ -64,6 +64,12 @@ ADMISSION_PRODUCER_IDENTITY = "service://runtime/agent-action-admission"
 DIGEST = "sha256:" + "a" * 64
 
 
+@pytest.fixture(autouse=True)
+def _freeze_agent_action_live_clock(monkeypatch: pytest.MonkeyPatch) -> None:
+    authority = _authority_module()
+    monkeypatch.setattr(authority, "_utcnow", lambda: NOW)
+
+
 def _authority_module() -> Any:
     return importlib.import_module("polisyos.runtime.quality.agent_action_authority")
 
@@ -424,6 +430,7 @@ def _admission_bundle(
     invocation: OperationInvocationRecord,
     intent: object,
     binding: object,
+    bound_permission: object,
     memory_claim_payload: dict[str, object] | None = None,
     authority_input_payload: dict[str, object] | None = None,
     tool_ledger: object | None = None,
@@ -435,6 +442,7 @@ def _admission_bundle(
         invocation_content_hash=authority.agent_action_content_hash(invocation),
         operation_content_hash=authority.agent_action_content_hash(operation),
         intent_content_hash=authority.agent_action_content_hash(intent),
+        permission_proof_hash=authority.agent_action_permission_hash(bound_permission),
         bound_resource_digest=DIGEST,
         delegation_contract_ref=contract_ref,
         effect_binding_digest=binding.binding_digest,
@@ -468,8 +476,10 @@ def _prepare_gateway(
     contract_signer: Ed25519Signer | None = None,
     admission_signer: Ed25519Signer | None = None,
     human_decision_refs: dict[str, str] | None = None,
+    bound_permission: object | None = None,
 ) -> tuple[object, str, str | None]:
     authority = _authority_module()
+    owner_proof = bound_permission or _proof()
     contract_ref = contract_ref_override or _persist_signed(
         harness,
         contract,
@@ -495,6 +505,7 @@ def _prepare_gateway(
             invocation=invocation,
             intent=intent,
             binding=selected_binding,
+            bound_permission=owner_proof,
             memory_claim_payload=memory_claim_payload,
             authority_input_payload=authority_input_payload,
             tool_ledger=tool_ledger,
@@ -514,6 +525,7 @@ def _prepare_gateway(
         event_log=harness.event_log,
         idempotency_store=harness.idempotency_store,
         artifact_verifier=harness.verifier,
+        bound_permission=owner_proof,
         admission_producer_identity=ADMISSION_PRODUCER_IDENTITY,
         write_context=_write_context(),
         contract_refs_by_resource_digest={DIGEST: contract_ref},
@@ -534,13 +546,13 @@ def _dispatch(
     now: datetime = NOW,
 ) -> object:
     authority = _authority_module()
+    del now  # Live dispatch time is owned by the producer, never by the caller.
     with authority.agent_action_authority_scope(gateway):
         return authority.dispatch_agent_external_action(
-            bound_permission=proof or _proof(),
+            bound_permission=proof or gateway.bound_permission,
             operation=operation,
             invocation=invocation,
             intent=intent,
-            now=now,
         )
 
 
@@ -554,11 +566,10 @@ def _produce(
     authority = _authority_module()
     with authority.agent_action_authority_scope(gateway):
         return authority.produce_agent_action_authority_decision(
-            bound_permission=_proof(),
+            bound_permission=gateway.bound_permission,
             operation=operation,
             invocation=invocation,
             intent=intent,
-            now=NOW,
         )
 
 
@@ -920,6 +931,45 @@ def test_caller_clock_cannot_revive_an_expired_envelope(tmp_path: Path) -> None:
     )
 
 
+def test_envelope_expiring_after_decision_is_rechecked_before_effect(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    authority = _authority_module()
+    clock_values = iter((NOW - timedelta(hours=2), NOW))
+    monkeypatch.setattr(authority, "_utcnow", lambda: next(clock_values))
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    binding = _binding(operation, effects)
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(
+            _envelope(
+                valid_from=NOW - timedelta(hours=3),
+                valid_until=NOW - timedelta(hours=1),
+            )
+        ),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+    )
+    with pytest.raises(
+        authority.AgentActionAuthorityRecordingError,
+        match="envelope is no longer live",
+    ):
+        _dispatch(
+            gateway=gateway,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+        )
+    assert effects == []
+
+
 def test_well_typed_caller_minted_ds20_proof_is_not_owner_bound(tmp_path: Path) -> None:
     harness = _harness(tmp_path)
     owner_proof = _proof(RuntimePermission.KNOWLEDGE_SEARCH)
@@ -938,8 +988,8 @@ def test_well_typed_caller_minted_ds20_proof_is_not_owner_bound(tmp_path: Path) 
         invocation=invocation,
         intent=intent,
         bindings=(binding,),
+        bound_permission=owner_proof,
     )
-    setattr(gateway, "_bound_permission", owner_proof)
     _assert_refused_with_zero_effect(
         harness,
         gateway=gateway,
@@ -1187,6 +1237,7 @@ def test_new_action_row_and_binding_free_grow_without_action_kind_code_change(
     operation = _operation("agent.counterfactual-probe")
     invocation = _invocation(operation)
     intent = _intent(action_kind)
+    proof = _proof(RuntimePermission.ANALYSIS_EXECUTE)
     effects: list[str] = []
     binding = _binding(operation, effects, action_kind=action_kind)
     gateway, _, _ = _prepare_gateway(
@@ -1202,10 +1253,11 @@ def test_new_action_row_and_binding_free_grow_without_action_kind_code_change(
         invocation=invocation,
         intent=intent,
         bindings=(binding,),
+        bound_permission=proof,
     )
     result = _dispatch(
         gateway=gateway,
-        proof=_proof(RuntimePermission.ANALYSIS_EXECUTE),
+        proof=proof,
         operation=operation,
         invocation=invocation,
         intent=intent,

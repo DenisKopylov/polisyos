@@ -141,6 +141,7 @@ class AgentActionAdmissionBundle(Layer2ReadinessModel):
     invocation_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     operation_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     intent_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    permission_proof_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     bound_resource_digest: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     delegation_contract_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     effect_binding_digest: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
@@ -382,6 +383,7 @@ class AgentActionAuthorityGateway:
         event_log: RuntimeDiagnosticEventLog,
         idempotency_store: RuntimeIdempotencyStore,
         artifact_verifier: Ed25519Verifier,
+        bound_permission: BoundActionPermissionVerification,
         admission_producer_identity: str,
         write_context: AgentActionAuthorityWriteContext,
         contract_refs_by_resource_digest: Mapping[str, str],
@@ -397,12 +399,20 @@ class AgentActionAuthorityGateway:
             raise TypeError("agent action authority requires the server idempotency owner")
         if type(artifact_verifier) is not Ed25519Verifier:
             raise TypeError("agent action authority requires the trusted signature verifier")
+        try:
+            bound_permission_hash = agent_action_permission_hash(bound_permission)
+        except (TypeError, ValueError) as exc:
+            raise TypeError(
+                "agent action authority requires the exact DS20 request-state proof"
+            ) from exc
         if not admission_producer_identity.strip():
             raise ValueError("admission producer identity must be non-empty")
         self._artifact_store = artifact_store
         self._event_log = event_log
         self._idempotency_store = idempotency_store
         self._artifact_verifier = artifact_verifier
+        self._bound_permission = bound_permission
+        self._bound_permission_hash = bound_permission_hash
         self._admission_producer_identity = admission_producer_identity
         self._write_context = write_context
         self._contract_refs = _frozen_ref_mapping(contract_refs_by_resource_digest)
@@ -422,6 +432,22 @@ class AgentActionAuthorityGateway:
         """Return the immutable runtime write identity."""
 
         return self._write_context
+
+    @property
+    def bound_permission(self) -> BoundActionPermissionVerification:
+        """Return the exact request-scoped DS20 proof installed by the composition root."""
+
+        return self._bound_permission
+
+    def owns_bound_permission(self, candidate: object) -> bool:
+        """Check identity and frozen content against the request-scoped DS20 intake."""
+
+        if candidate is not self._bound_permission:
+            return False
+        try:
+            return agent_action_permission_hash(candidate) == self._bound_permission_hash
+        except (TypeError, ValueError):
+            return False
 
     def resolve_effect_binding(
         self,
@@ -646,7 +672,6 @@ class AgentActionAuthorityGateway:
         invocation: OperationInvocationRecord,
         intent: AgentActionIntent,
         persisted: PersistedAgentActionDecision,
-        now: datetime,
     ) -> object:
         """Revalidate owner inputs and execute only the sealed, exact adapter binding."""
 
@@ -678,7 +703,7 @@ class AgentActionAuthorityGateway:
             ),
             None,
         )
-        instant = _aware_utc(now)
+        instant = _utcnow()
         if (
             envelope is None
             or envelope.status != "active"
@@ -854,7 +879,6 @@ def produce_agent_action_authority_decision(
     operation: OperationContract,
     invocation: OperationInvocationRecord,
     intent: AgentActionIntent,
-    now: datetime,
 ) -> AgentActionAuthorityDecision:
     """Recompute the five conjuncts from the active owner gateway without an effect."""
 
@@ -865,7 +889,6 @@ def produce_agent_action_authority_decision(
         operation=operation,
         invocation=invocation,
         intent=intent,
-        now=now,
         reservation_issue=None,
     )
 
@@ -876,13 +899,25 @@ def agent_action_content_hash(value: object) -> str:
     return _exact_hash(value)
 
 
+def agent_action_permission_hash(bound_permission: object) -> str:
+    """Hash one structurally valid exact DS20 proof for owner/admission binding."""
+
+    reasons: list[str] = []
+    snapshot, _, identity_ok, permission_ok = _consume_ds20_floor(
+        bound_permission,
+        reasons,
+    )
+    if snapshot is None or not identity_ok or not permission_ok or reasons:
+        raise ValueError("DS20 permission proof is not valid and granted")
+    return _exact_hash(snapshot)
+
+
 def dispatch_agent_external_action(
     *,
     bound_permission: BoundActionPermissionVerification,
     operation: OperationContract,
     invocation: OperationInvocationRecord,
     intent: AgentActionIntent,
-    now: datetime,
 ) -> object:
     """Persist one decision, durably consume an allow, then run its sealed adapter."""
 
@@ -900,7 +935,6 @@ def dispatch_agent_external_action(
             operation=operation,
             invocation=invocation,
             intent=intent,
-            now=now,
             reservation_issue=reservation_issue,
         )
         persisted = gateway.persist_decision(decision)
@@ -915,7 +949,6 @@ def dispatch_agent_external_action(
             invocation=invocation,
             intent=intent,
             persisted=persisted,
-            now=now,
         )
     except AgentActionAuthorityRefused:
         raise
@@ -932,10 +965,9 @@ def _produce_decision(
     operation: OperationContract,
     invocation: OperationInvocationRecord,
     intent: AgentActionIntent,
-    now: datetime,
     reservation_issue: str | None,
 ) -> AgentActionAuthorityDecision:
-    instant = _aware_utc(now)
+    instant = _utcnow()
     operation_hash = _exact_hash(operation)
     invocation_hash = _exact_hash(invocation)
     intent_hash = _exact_hash(intent)
@@ -945,6 +977,10 @@ def _produce_decision(
         bound_permission,
         reasons,
     )
+    if not gateway.owns_bound_permission(bound_permission):
+        reasons.append("verified_identity_proof_not_owner_bound")
+        identity_ok = False
+        permission_ok = False
     satisfied["verified_identity"] = identity_ok
     satisfied["explicit_permission"] = permission_ok
     if reservation_issue is not None:
@@ -993,10 +1029,18 @@ def _produce_decision(
         reasons.append(exc.code)
 
     if admission is not None:
+        try:
+            permission_proof_hash = agent_action_permission_hash(bound_permission)
+        except (TypeError, ValueError):
+            permission_proof_hash = None
         admission_mismatches = {
             "admission_invocation_mismatch": admission.invocation_content_hash != invocation_hash,
             "admission_operation_mismatch": admission.operation_content_hash != operation_hash,
             "admission_intent_mismatch": admission.intent_content_hash != intent_hash,
+            "admission_permission_proof_mismatch": (
+                permission_proof_hash is None
+                or admission.permission_proof_hash != permission_proof_hash
+            ),
             "admission_resource_mismatch": (
                 bound_resource is None
                 or admission.bound_resource_digest != bound_resource.resource_digest
@@ -1073,12 +1117,14 @@ def _produce_decision(
         "delegation_contract_invalid",
         "delegation_contract_owner_signature_mismatch",
         "authority_gateway_tenant_mismatch",
+        "verified_identity_proof_not_owner_bound",
         "governed_admission_bundle_missing",
         "governed_admission_bundle_authority_unverified",
         "governed_admission_bundle_invalid",
         "admission_invocation_mismatch",
         "admission_operation_mismatch",
         "admission_intent_mismatch",
+        "admission_permission_proof_mismatch",
         "admission_resource_mismatch",
         "admission_contract_mismatch",
         "admission_effect_binding_mismatch",
@@ -1683,6 +1729,12 @@ def _aware_utc(value: datetime) -> datetime:
     return value.astimezone(UTC)
 
 
+def _utcnow() -> datetime:
+    """Read the producer-owned live clock for protected action decisions."""
+
+    return datetime.now(UTC)
+
+
 __all__ = [
     "AGENT_ACTION_ADMISSION_ARTIFACT_KIND",
     "AGENT_ACTION_ADMISSION_SCHEMA_VERSION",
@@ -1706,6 +1758,7 @@ __all__ = [
     "ResolvedDelegationContract",
     "agent_action_authority_scope",
     "agent_action_content_hash",
+    "agent_action_permission_hash",
     "dispatch_agent_external_action",
     "produce_agent_action_authority_decision",
 ]

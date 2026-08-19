@@ -16,7 +16,12 @@ import {
   type MessageValues,
 } from "./messages/icu-messages";
 import type { ProductLocale } from "./locale";
-import { isProductLocale, persistLocale, resolveLocale } from "./locale";
+import {
+  isProductLocale,
+  persistLocale,
+  PRIMARY_LOCALE,
+  resolveLocale,
+} from "./locale";
 import en from "./locales/en.json";
 import uk from "./locales/uk.json";
 import {
@@ -26,6 +31,7 @@ import {
 } from "./typography/typography";
 
 const catalogs = { en, uk } as const;
+const authoredCatalog = catalogs[PRIMARY_LOCALE];
 
 type LabelMapName = keyof typeof en.labels;
 
@@ -83,7 +89,7 @@ function createI18nContextValue(
     t: (path, vars, options) => {
       const translated =
         readPathValue(catalog, path) ??
-        readPathValue(catalogs.en, path) ??
+        readPathValue(authoredCatalog, path) ??
         path;
       return applyLocaleTypography(
         formatIcuMessage(translated, locale, vars),
@@ -94,7 +100,7 @@ function createI18nContextValue(
     rich: (path, vars, options) => {
       const translated =
         readPathValue(catalog, path) ??
-        readPathValue(catalogs.en, path) ??
+        readPathValue(authoredCatalog, path) ??
         path;
       return applyTypographyToReactNode(
         formatIcuRichMessage(translated, locale, vars) as ReactNode,
@@ -108,7 +114,7 @@ function createI18nContextValue(
       }
       const direct =
         readPathValue(catalog.labels[mapName], value) ??
-        readPathValue(catalogs.en.labels[mapName], value);
+        readPathValue(authoredCatalog.labels[mapName], value);
       if (direct) {
         return applyLocaleTypography(direct, locale);
       }

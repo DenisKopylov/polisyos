@@ -5678,9 +5678,10 @@
   `QueryClientProvider` around the existing decorator tree in the sole path
   `apps/runtime-dashboard/.storybook/preview.tsx`; 97/97 then pass in `65 s`.
   The cut is one path, no governed artifact/baseline re-anchor, with focused
-  verification measured at `65 s`. No repair was applied.
+  verification measured at `65 s`. D4-A1 later applies this exact one-path
+  repair and verifies 97/97 green.
 
-### Component locale baseline — DS5-owned
+### Pre-amendment locale mismatch — C05a cleared by D4-A1
 
 - Base command:
   `corepack pnpm --dir apps/runtime-dashboard exec vitest run --reporter=json
@@ -5701,13 +5702,18 @@
   as three DS6, 56 DS5 default-locale, and two DS5-era non-locale failures.
 - C05a-R1 `3976c79aa3baac30da93cc26540066a4d300903b` changes
   `DEFAULT_LOCALE` from `en` to `uk` and is the first exact replay that
-  reproduces the locale class. The 56 locale failures are therefore
-  `ds5_own / C05a-R1`. The two additional failures in
+  reproduces the locale class. Atlas Revision 3.19 later rules that this is
+  the correctly implemented former D4 posture meeting verification written
+  against the prior English default. The 56 locale failures are therefore a
+  predicted mechanical follow-up, not C05a-owned defect or scope overrun. The
+  two additional failures in
   `features/runs/routes/useRunDetailSummary.test.tsx` and
   `shared/ui/temporal/temporalArchitecture.test.ts` are DS5-era by the green
   slice-base denominator, but their exact introducer/repair is
   `not_established`.
-- Repair-cost frontier: at least 12 test paths. The shared harness
+- The pre-amendment estimate was at least 12 test paths. D4-A1 supersedes that
+  estimate by changing the single locale decision owner instead; no 12-path
+  assertion rewrite is performed. The measured historical frontier was the shared harness
   `apps/runtime-dashboard/src/test/render.tsx` covers only 45 of the 52
   harness/provider failures. Seven direct-provider tests do not import it:
   `PublicSectorReadinessPanel.test.tsx`, `ScientificDepthPanel.test.tsx`,
@@ -5720,10 +5726,10 @@
   `features/artifacts/reading-view/MonographLayout.test.tsx`. A product-provider
   API disposition could change this cut and is not selected. The two non-locale
   frontier paths need a separate diagnosis. There is no snapshot or governed-
-  artifact re-anchor; full verification is measured at `728.49 s`, while
-  implementation duration is `not_established`. No repair was applied.
+  artifact re-anchor. D4-A1's final component run returns to only the three
+  external DS6 identities.
 
-### Accessibility — DS5-owned
+### Pre-amendment accessibility — locale class cleared; route class repaired
 
 - Base command:
   `CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --dir apps/runtime-dashboard run
@@ -5737,7 +5743,8 @@
   The three failures are the keyboard journey and the two English
   screen-reader expectations; raw SHA-256 is
   `a8f65d5e53e0200f2f308caa9ed2aa3be288299d7f4b339d1fe967d0859be7de`.
-  Those three are `ds5_own / C05a-R1`. The corrected exact C09a-R2
+  Those three are the same mechanical D4 verification follow-up, not a C05a
+  defect. The corrected exact C09a-R2
   `6002d1eab` retry passes 85/85 components and fails the same four page
   identities in `348.44 s`, exit 1; raw SHA-256 is
   `0c74a334ae56bdc1b9731ab05ac5ed2fffc590cc4b0a3d75093c357cadf21722`.
@@ -5753,9 +5760,11 @@
   definition path, 17 tracked files total, and require a separate recut.
   No snapshot/governed re-anchor is established; full verification is measured
   at `383.54 s`, while implementation duration and final repair paths are
-  `not_established`. No repair was applied.
+  `not_established` in this historical measurement. D4-A1 later clears the
+  locale class and repairs the separate route transition; final accessibility
+  is 85/85 component plus 21/21 page green.
 
-### Visual baselines — 16 DS5-owned; one inherited DS8 identity
+### Pre-amendment visual baseline — superseded by D4-A1 measurement
 
 - Base command:
   `corepack pnpm --dir apps/runtime-dashboard run test:visual`. Exact base
@@ -5764,13 +5773,13 @@
   `f6b37f9ef217440e8b4a1c52f173a5d08a2993a3b2e8a6f5e128baf9c3077066`.
   C20 passed 1/18 and failed 17 in `218.61 s`; raw SHA-256 is
   `ada7bae917a6f6d83e433b2b9199e9ff936efecfb9c383c69238718affa24131`.
-  Therefore the delta is exactly 16 DS5-owned identities plus one inherited
-  DS8 identity.
+  Therefore the pre-amendment delta was 16 DS5-era identities plus one
+  inherited DS8 identity; it did not prove that C05a was defective.
 - The narrow identity denominator is 23 spec/snapshot/config paths and has
   zero DS5 intersection, proving that identity-file intersection is a P38
   proxy for rendered behavior. The conservative executable-input denominator
-  is 6,872 paths, 134 of which intersect DS5. C05a-R1 is the locale
-  contributor, C18b-R2 is the three-Storybook-identity provider contributor,
+  is 6,872 paths, 134 of which intersect DS5. C05a-R1 identifies the correctly
+  implemented former locale ruling, C18b-R2 is the three-Storybook-identity provider contributor,
   and C09b-R1 `700e3aa14` is the verified-authz/mode contributor. Residual
   per-identity geometric attribution is `not_established` without additional
   intermediate replays.
@@ -5792,7 +5801,9 @@
   a reviewed re-anchor of exactly 16 `golden_snapshot` PNGs, excluding the DS8
   A4 identity. No register/status/readiness/C23 byte moves. Verification is
   measured at `184 s` base / `218.61 s` C20; implementation duration is
-  `not_established`. No disposition was selected.
+  `not_established`. D4-A1 later returns 14 of those 16 identities to green
+  without re-anchor; the final residuals are the external DS8 A4 and one
+  DS5-owned run-deck pixel identity.
 
 ### Import policy / exception lifecycle — genuinely inherited
 
@@ -5842,14 +5853,187 @@
   C17b-R3's owner-flow residual, architecture deep-import, the 90-row import-
   policy/exception lifecycle, ABI schema catalog, three DS6 locale-parity
   identities, and the DS8 A4 visual identity, each with the owner recorded in
-  the closure artifact. DS5 now carries as its own: C18b Storybook composition;
-  C05a's 56 component-locale failures and three accessibility failures;
-  C09a-R2's route-readiness accessibility failure; two component failures
-  with exact introducer `not_established`; and 16 visual identities with the
-  proven contributor set plus residual per-identity attribution stated above.
+  the closure artifact. D4-A1 closes Storybook, the locale mechanical follow-
+  up, route readiness, and the temporal reverse dependency. DS5 now carries as
+  its own only the run-deck one-pixel visual residual, with introducer and
+  repair cost `not_established` and registered successor
+  `dashboard-run-deck-visual-determinism-reconciliation`.
 - The C23/DS16 non-claim is unchanged: four
   `c23_containment_root_drift`, four `successor_on_non_rebound`, and four
   `rebound_consumer_missing`; no C23 byte moved. The release ruling is also
   unchanged: C21 is insufficient, accepted C20 is prerequisite, and owners
   release to DS6 only after DS5 merges to `main`. Current value remains
   `DS6 release_status: not_released`.
+
+## DS5-D4-A1 — source freeze and pre-writer declaration
+
+- Entry is clean `0f6a01b5b` on the attached DS5 branch. The
+  institutionally-supplied ruling is Atlas Revision 3.19 (`bedd47503`): English
+  authored primary, Ukrainian translation, Russian frozen continuity. C05a-R1
+  implemented the prior ratification correctly; its locale fallout is the
+  mechanical follow-up D4 predicted, not a C05a defect.
+- Full-denominator census before edit: from the outer worktree,
+  `git ls-tree -r --name-only 0f6a01b5b -- policy-engine | wc -l` = 9,589.
+  The exact raw discovery command was:
+
+  ```sh
+  git grep -n -I -E -i \
+    'default_locale|supported_locales|SUPPORTED_LOCALES|DEFAULT_LOCALE|ProductLocale|LegacyContinuityLocale|locale[^[:alnum:]]*(primary|baseline|fallback|frozen|active)|(primary|baseline|fallback|frozen|active)[^[:alnum:]]*locale' \
+    0f6a01b5b -- policy-engine > /tmp/d4a1_raw.txt
+  wc -l /tmp/d4a1_raw.txt
+  cut -d: -f2 /tmp/d4a1_raw.txt | sort -u | wc -l
+  ```
+
+  Shell `wc`/`cut` and an independent Python `Counter` over the saved rows
+  both returned 134 lines / 38 paths. The complete raw partition is
+  decision/runtime 6 paths / 44 lines, governed writer/artifacts 3/4,
+  semantic tests 3/7, generated mirrors 4/12, governing/reference documents
+  8/34, and non-decision consumers/fixtures/incidental matches 14/33.
+- The separately declared decision scope was reproduced with:
+
+  ```sh
+  git grep -n -I -E -i \
+    'default_locale|supported_locales|SUPPORTED_LOCALES|DEFAULT_LOCALE|ProductLocale|LegacyContinuityLocale|locale[^[:alnum:]]*(primary|baseline|fallback|frozen|active)|(primary|baseline|fallback|frozen|active)[^[:alnum:]]*locale' \
+    0f6a01b5b -- \
+    policy-engine/apps/runtime-dashboard/src \
+    policy-engine/packages/runtime-api-client \
+    policy-engine/src/polisyos/core/contracts/control.py \
+    policy-engine/src/polisyos/runtime/http/openapi_contract.py \
+    policy-engine/src/polisyos/runtime/http/services/control/capabilities.py \
+    policy-engine/schemas/runtime_api_v1.openapi.json \
+    policy-engine/architecture/atlas_surfaces/status-retirement-inventory.json \
+    policy-engine/docs/brand/ATLAS_SOURCE_OF_TRUTH.md \
+    policy-engine/docs/reference/frontend \
+    policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md \
+    policy-engine/docs/plans/active/atlas-slices/DS0-source-of-truth-freeze-and-governing-decisions.md \
+    policy-engine/docs/plans/active/atlas-slices/DS5-enforcement-waist.md \
+    policy-engine/docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md \
+    policy-engine/docs/plans/active/atlas-slices/DS5-enforcement-waist-closure.md \
+    | tee /tmp/d4a1_scope.txt >/dev/null
+  wc -l /tmp/d4a1_scope.txt
+  cut -d: -f2 /tmp/d4a1_scope.txt | sort -u | wc -l
+  ```
+
+  It returned 125 lines / 32 paths. `comm` over the two path lists proves
+  scope-minus-raw empty and raw-minus-scope exactly six paths containing all
+  nine removed lines: `scripts/tokenProjectionParity.test.ts`, the disposition
+  checker and register, both DS4 closure records, and
+  `tests/unit/runtime/http/test_control_api.py`. The former 125/38 count mixed
+  excluded rows with the raw path inventory and is P37 `not_established`.
+  The parity rule is separately owned by `shared/i18n/parity.test.ts`, which
+  has no token hit. The exact uppercase walk returns 24 lines / 10 paths; the
+  snake-plus-uppercase walk returns 61/24, superseding the unsupported 37/15.
+  Catalog walks using `jq '[paths(scalars)] | length'` return 2,449 for both
+  active entry catalogs. All valid counts are P37 `recomputed`; the D4-A1
+  meaning is `institutionally_supplied`.
+- Hypothesis receipts on the source freeze: locale RED 9/12; final focused
+  locale 8/8 green; component 1,045/1,049 before the temporal repair; Storybook
+  97/97 RED without QueryClient and 97/97 green after its one-path global
+  decorator repair; accessibility 85/85 + 20/21 before mode recovery and
+  85/85 + 21/21 after it; visual 9/18 before recovery and 16/18 after it.
+  The remaining identities are the inherited DS8 A4 print image and the
+  DS5-owned run-deck one-pixel residual. Focused run-deck replay repeats
+  expected 1094×820 versus actual 1094×821, 4,178 pixels / 1%, in 16.21 s.
+- P41: route readiness is DS5-own, first execution-observed at C09a-R2; the
+  product repair preserves fail-closed authority while recovering only an
+  implicit analyst preference after verified identity returns. The shared
+  temporal reverse dependency is DS5-own, introduced by C11b-R1; presentation
+  issuance moved to the API owner and the shared temporal component is again
+  API-free. `run-deck-content-slide` is DS5-own by the slice-base replay but
+  its introducer is `not_established`; it is carried, not re-anchored.
+- P39 entry estimate was 13 mechanism paths plus 13 mandatory companions. The
+  hardcoded-label lint RED correctly widened the owner quantity by two active
+  catalogs plus the governed projection witness: final fence is 16 mechanism
+  paths plus 13 mandatory companions = 29 paths.
+  Pre-writer allowlist is exactly five storage rows + aggregate digest; one
+  semantic locale expression; two C06/C07 source-content hashes; canonical
+  supplemental identities/report; and the final status register SHA. C23,
+  readiness, frozen Russian catalog and visual snapshots are forbidden zero-
+  delta members. The active English/Ukrainian catalogs are exact mechanism
+  paths. No P40 mechanism round is consumed; three independent source reviews
+  are GO.
+- Tooling nonreceipts: the first storage receipt used a nonexistent
+  `DISPOSITION_REGISTER_PATH`; one frontend scanner wrapper lost its terminal
+  after the child completed. Neither output was admitted; corrected owner-path
+  and captured-terminal runs govern.
+
+## DS5-D4-A1 — final freeze, closure battery, and landing declaration
+
+- Final mechanism is 16 paths and final mandatory companion set is 13 paths,
+  exactly 29 changed paths. The full diff is whitespace-clean. Independent
+  final source review and governed artifact review both return GO with zero
+  Critical/Important/Minor findings. P40 has no independent material finding;
+  the cluster remains 0/2 mechanism rounds.
+- The late full-lint RED was behavioral, not a nonreceipt: two hardcoded cache
+  labels crossed the i18n emission boundary. The owner quantity widened to the
+  two active catalogs plus the governed projection witness. The focused final
+  wave then passed 31/31 in `5.16 s`; full dashboard lint passed in `12.60 s`;
+  typecheck passed in `12.53 s`; production build passed in `18.17 s`; and
+  architecture passed in `4.40 s` over 1,032 modules / 4,224 dependencies.
+  Enforcement passed in `39.85 s` over 955 dashboard sources, 1,032 dependency
+  modules, 66 query constructions, and zero live violations.
+- The D4-A1 hypothesis is confirmed. On the English-owner intermediate freeze,
+  components were 1,045/1,049 green, accessibility 85/85 component plus 20/21
+  page, and visual 9/18. Thus all 56 locale component identities and the three
+  locale accessibility identities returned to green without assertion edits.
+  The remaining classes were then independently repaired or carried.
+- Final component JSON enumerates 1,044 tests: 1,041 pass and exactly the three
+  external DS6 `panels.agentPipeline.overBudget` identities fail. Raw JSON
+  SHA-256 is
+  `31abca4caf6f7c0a66971cd5e40c38228ba9875f3e05a21a25975f07d95716bf`;
+  the governed comparator passes in `38.43 s`. Storybook passes 44/44 files and
+  97/97 stories in `11.28 s`. Accessibility passes 85/85 component and 21/21
+  page checks in `85.45 s`. Visual passes 16/18 in `51.95 s`; the only reds are
+  external DS8 A4 and the DS5-owned run-deck 1-pixel residual. No snapshot is
+  re-anchored.
+- The final governed corruption owners pass separately: status `17.90 s`
+  (12 authored, 56 exemptions, zero retirement debt); Atlas `59.92 s`; and
+  frontend `98.40 s` (261 roots, 61 findings, 574 production sources, 36
+  storage sites in 15 files). The four owner unittest modules pass 207/207 in
+  `936.65 s`; nested two-error/one-test transcripts are deliberate child
+  corruption witnesses and parent exit is 0. Supplemental/report writer passes
+  in `38.78 s`; report-only replay passes in `39.38 s` and is byte-idempotent.
+- Backend-owned final receipts: focused runtime HTTP passes with one declared
+  read-only-service skip in `102.39 s`; scoped Ruff passes in `0.11 s`; runtime
+  contract passes in `11.20 s`. Runtime API client type/lint/test/format/
+  architecture all pass (`3.72, 5.46, 1.44, 3.30, 1.34 s`; tests 4/4).
+  Atlas UI lint/architecture/typecheck/test all pass (`13.73, 2.44, 10.85,
+  13.08 s`; tests 85/85). These concurrent observations are contended evidence
+  and do not change clean ceilings.
+- Inherited reds reproduce rather than move: architecture guardrail exits 1 in
+  `23.86 s` with the same 93-line stdout and exact SHA-256
+  `73b53d0a9278bcb2acffbac62e925e6ca30ce40caeb0b3588ce5323dfd1559fb`;
+  backend verify exits 1 in `4.71 s` on the established 90-row import-policy
+  debt; CI parity exits 1 in `27.72 s` on the unchanged ABI schema catalog.
+  No owner artifact is regenerated.
+- Final hashes (P37 `recomputed`): register
+  `8de4da1e7fe6b46146a83371c37391295c78852cde823c4f847dfa0d8d934a65`;
+  report `699c3b0938807b7a84fc107efcf56652426cad2a8e3545258c8e656b04d4ab72`;
+  status `7021051344444a1cc6c50ca91bc935c84ee2f9db9f6e8a33f12d8e95151572b5`;
+  baseline `08ae63cbd6c31bd582a5b12a5bd45edfe9078425f7102c33dbfddb0c26865d0d`;
+  readiness unchanged
+  `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`;
+  Russian raw file unchanged
+  `578a454329989fe3e6feddd3ec2e612b6e8954a72251717f1aba9b135e456b35`.
+- Final attribution: C05a-R1 is cleared and described only as the correct
+  implementation of the former ratified D4 posture. Storybook/C18b, route/
+  C09a, and temporal/C11b defects are repaired. DS5 carries only run-deck
+  visual determinism under `team-frontend` / `@frontend-owners`, successor
+  `dashboard-run-deck-visual-determinism-reconciliation`, introducer and repair
+  cost `not_established`. External carried debt, C23/DS16 nonclaim, and the
+  release ruling remain as recorded: accepted C20 plus merge to `main`; current
+  `DS6 release_status: not_released`.
+- New tooling nonreceipts supply no evidence: an overbroad historical
+  `git grep` included generic `source of truth` prose and was interrupted after
+  a partial 2,097-line file; a colon-field path count used the wrong parser and
+  returned zero. The corrected frozen-ref census and independent classified
+  count govern. The final enforcement command's owner-writer mode produced
+  zero additional changed bytes.
+- The narrow Markdown check first ran from the outer worktree without the
+  nested pre-commit config, then retried with `--config` in the wrong option
+  position; both launcher errors are tooling nonreceipts. The corrected
+  `pre-commit run --config policy-engine/.pre-commit-config.yaml
+  markdownlint-cli2 --files ...` executed and reported 15 historical findings
+  outside every D4-A1 hunk (plan lines 248/2242/2517/2570 and journal lines
+  4851–4852). They are not promoted to a D4-A1 result or repaired outside this
+  cut. `git diff --check` over the full 29-path freeze remains green.

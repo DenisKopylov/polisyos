@@ -1,10 +1,12 @@
-export const SUPPORTED_LOCALES = ["uk", "en"] as const;
+export const SUPPORTED_LOCALES = ["en", "uk"] as const;
+export const [PRIMARY_LOCALE, ...TRANSLATED_LOCALES] = SUPPORTED_LOCALES;
+export const LEGACY_CONTINUITY_LOCALE = "ru" as const;
 
 export type ProductLocale = (typeof SUPPORTED_LOCALES)[number];
-export type LegacyContinuityLocale = "ru";
+export type LegacyContinuityLocale = typeof LEGACY_CONTINUITY_LOCALE;
 export type Locale = ProductLocale | LegacyContinuityLocale;
 
-export const DEFAULT_LOCALE: ProductLocale = "uk";
+export const DEFAULT_LOCALE: ProductLocale = PRIMARY_LOCALE;
 export const LOCALE_STORAGE_KEY = "polisyos.runtime.locale";
 
 const INTL_LOCALE_BY_LOCALE: Record<Locale, string> = {
@@ -73,8 +75,8 @@ export function resolveLocale(explicit?: string | null): ProductLocale {
 
     for (const preferred of preferredLocales) {
       const preferredLocale = normalizeProductLocale(preferred);
-      if (preferredLocale === "uk") {
-        return "uk";
+      if (preferredLocale) {
+        return preferredLocale;
       }
     }
   }

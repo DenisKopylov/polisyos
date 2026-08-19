@@ -232,7 +232,7 @@ describe("RunExplainabilityPanel governed projection", () => {
     ).toHaveTextContent(/unrecognized/u);
     expect(
       screen.getByTestId("time-semantics-cache-owner-as-of"),
-    ).toHaveTextContent(/unknown/u);
+    ).toHaveTextContent(/unknown/iu);
     expect(screen.getByTestId("governed-depth-projection")).toHaveAttribute(
       "data-authority-posture",
       "unavailable",

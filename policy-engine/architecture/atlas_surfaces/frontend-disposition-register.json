@@ -687,7 +687,7 @@
     "authority_flow_falsifier": "const storage = provider(); storage.setItem(...) preserves a resolved Storage.setItem site while changing the unproved owner-instance flow",
     "authority_flow_required_capability": "sound whole-program interprocedural data/control-flow with reaching definitions and owner-instance identity",
     "authority_flow_capability_status": "absent/unallocated",
-    "rows_sha256": "sha256:4a6e514ff066e9fd1f472d8f4c0e22a4fe4056d4f215c7ef0add3c312fcdc527",
+    "rows_sha256": "sha256:02a847be0f6ade865c7791cfdbe29763c8cf30bc27c0ffad716e363b7e4235ae",
     "sites": [
       {
         "site_id": "storage-site-82510a28616480aab3bb2b282ff9e6b7d0a82a8e1c48b63e1c2a15a44de2df2b",
@@ -779,7 +779,7 @@
         "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
         "operation": "getItem",
         "store_owner": "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
-        "source_fingerprint": "sha256:eca12f9d8aa37c40bb3e5942ce737459c8d6bf10ba2a7436438ae051d70bd882",
+        "source_fingerprint": "sha256:e9b75f8537ba715f92b6796b219d4219dead7ec3cd2f36219011d3e3e369b28f",
         "site_fingerprint": "sha256:0fe71b65d6fa5d433e5499b80eaf4599e48cc4e60b1c076f30385530de965f88",
         "classification": "interaction_benign",
         "benign_reason": "ui_preference"
@@ -790,8 +790,8 @@
         "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
         "operation": "setItem",
         "store_owner": "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx",
-        "source_fingerprint": "sha256:eca12f9d8aa37c40bb3e5942ce737459c8d6bf10ba2a7436438ae051d70bd882",
-        "site_fingerprint": "sha256:3db64878e593688e5b514e58192b4a9917e065387f9c6a3c54d484b04fe8d812",
+        "source_fingerprint": "sha256:e9b75f8537ba715f92b6796b219d4219dead7ec3cd2f36219011d3e3e369b28f",
+        "site_fingerprint": "sha256:c3d419e3d41ccdbfafbc58420d0330554dbf0df0eda6ee5901647a3dddc53683",
         "classification": "interaction_benign",
         "benign_reason": "ui_preference"
       },
@@ -1028,7 +1028,7 @@
         "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
         "operation": "getItem",
         "store_owner": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
-        "source_fingerprint": "sha256:0ec043f6b8b16b8ae2935161c13acdd0c191ad9ea30d0fc7b69faec8f2d03a39",
+        "source_fingerprint": "sha256:aab3839c516631360f74104e6335836a5262ce185cd6da8f18cfaa5345427322",
         "site_fingerprint": "sha256:eede4f6d129deb044692ae11b84401ecee0af05d39c4f1fa9ef2991e65165e19",
         "classification": "interaction_benign",
         "benign_reason": "locale"
@@ -1039,7 +1039,7 @@
         "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.setItem",
         "operation": "setItem",
         "store_owner": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
-        "source_fingerprint": "sha256:0ec043f6b8b16b8ae2935161c13acdd0c191ad9ea30d0fc7b69faec8f2d03a39",
+        "source_fingerprint": "sha256:aab3839c516631360f74104e6335836a5262ce185cd6da8f18cfaa5345427322",
         "site_fingerprint": "sha256:901accda25fcdb2b7724b6928c51f172c75a1a2fa8c11996f67c05840664f552",
         "classification": "interaction_benign",
         "benign_reason": "locale"
@@ -1050,7 +1050,7 @@
         "resolved_api_declaration": "typescript/lib/lib.dom.d.ts::Storage.getItem",
         "operation": "getItem",
         "store_owner": "apps/runtime-dashboard/src/shared/i18n/locale.ts",
-        "source_fingerprint": "sha256:0ec043f6b8b16b8ae2935161c13acdd0c191ad9ea30d0fc7b69faec8f2d03a39",
+        "source_fingerprint": "sha256:aab3839c516631360f74104e6335836a5262ce185cd6da8f18cfaa5345427322",
         "site_fingerprint": "sha256:eede4f6d129deb044692ae11b84401ecee0af05d39c4f1fa9ef2991e65165e19",
         "classification": "interaction_benign",
         "benign_reason": "locale"
@@ -6525,8 +6525,8 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjM4Y2QwY2RhYzcxZDM1OGFmOWEzZjIwM2IzMjkyOTZiZmFmNGQzMzhlYjZlYjUyZjliZGUyYTMyMjU0YzM0ZmIiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiSWZTdGF0ZW1lbnQ6NSIsIkJsb2NrOjEiLCJSZXR1cm5TdGF0ZW1lbnQ6MiIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjIiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjM4Y2QwY2RhYzcxZDM1OGFmOWEzZjIwM2IzMjkyOTZiZmFmNGQzMzhlYjZlYjUyZjliZGUyYTMyMjU0YzM0ZmIiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjciLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoyIiwiSnN4RWxlbWVudDo0IiwiSnN4RWxlbWVudDoyIiwiSnN4T3BlbmluZ0VsZW1lbnQ6MCJdLCJ2ZXJzaW9uIjoxfQ"
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjM4Y2QwY2RhYzcxZDM1OGFmOWEzZjIwM2IzMjkyOTZiZmFmNGQzMzhlYjZlYjUyZjliZGUyYTMyMjU0YzM0ZmIiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiSWZTdGF0ZW1lbnQ6NyIsIkJsb2NrOjEiLCJSZXR1cm5TdGF0ZW1lbnQ6MiIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjIiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjM4Y2QwY2RhYzcxZDM1OGFmOWEzZjIwM2IzMjkyOTZiZmFmNGQzMzhlYjZlYjUyZjliZGUyYTMyMjU0YzM0ZmIiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjkiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoyIiwiSnN4RWxlbWVudDo0IiwiSnN4RWxlbWVudDoyIiwiSnN4T3BlbmluZ0VsZW1lbnQ6MCJdLCJ2ZXJzaW9uIjoxfQ"
       ],
       "owner_slice": "DS7",
       "decision_date": "2026-08-02",
@@ -6551,13 +6551,13 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 383,
+            "line": 407,
             "site_sha256": "sha256:bf37ebab87157fb90efd1270600474e5a772645b88152e887ec4340142a10790"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 418,
+            "line": 442,
             "site_sha256": "sha256:bf37ebab87157fb90efd1270600474e5a772645b88152e887ec4340142a10790"
           }
         ]
@@ -6571,7 +6571,7 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjhjOTc1MTc3ZmYzNDgwZmQwZWE3NjY2MjBmNjE3ZTc1ZDdiMzJlYzRkY2Q2MDM1N2FmNGZjYTI3NTc1YzJkMzYiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjciLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjo2IiwiQ29uZGl0aW9uYWxFeHByZXNzaW9uOjAiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDo0IiwiSnN4RXhwcmVzc2lvbjoyIiwiQ2FsbEV4cHJlc3Npb246MCIsIkFycm93RnVuY3Rpb246MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hFbGVtZW50OjAiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9"
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjhjOTc1MTc3ZmYzNDgwZmQwZWE3NjY2MjBmNjE3ZTc1ZDdiMzJlYzRkY2Q2MDM1N2FmNGZjYTI3NTc1YzJkMzYiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjkiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjo2IiwiQ29uZGl0aW9uYWxFeHByZXNzaW9uOjAiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDo0IiwiSnN4RXhwcmVzc2lvbjoyIiwiQ2FsbEV4cHJlc3Npb246MCIsIkFycm93RnVuY3Rpb246MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hFbGVtZW50OjAiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9"
       ],
       "owner_slice": "DS5",
       "decision_date": "2026-08-02",
@@ -6596,7 +6596,7 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 439,
+            "line": 463,
             "site_sha256": "sha256:f5b0d2b865fba3d2bb9804e1a0e97a3e6b3591fa5e2ce8713746678f5ee6a66c"
           }
         ]
@@ -6610,7 +6610,7 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjliYjRhMjlmM2FlODNkOTA5OWJlMjhlYzE5MDBkNjRjMzcxZTE4NGY2NWZkOGE3MGNmMWQ3OTY4NzY5M2Y2ODkiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjciLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoxMCIsIkpzeEVsZW1lbnQ6NiIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0"
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjliYjRhMjlmM2FlODNkOTA5OWJlMjhlYzE5MDBkNjRjMzcxZTE4NGY2NWZkOGE3MGNmMWQ3OTY4NzY5M2Y2ODkiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjkiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoxMCIsIkpzeEVsZW1lbnQ6NiIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0"
       ],
       "owner_slice": "DS7",
       "decision_date": "2026-08-02",
@@ -6635,7 +6635,7 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 462,
+            "line": 488,
             "site_sha256": "sha256:8f89134fa6975051cab6f6c84f8aa1a818f427708df999bb629a9502d9bb3902"
           }
         ]
@@ -7343,8 +7343,8 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpEYXRhRnJlc2huZXNzQmFkZ2UiLCJzeW1ib2w6RGF0YUZyZXNobmVzc0JhZGdlIiwicmVzb2x2ZWQ6RGF0YUZyZXNobmVzc0JhZGdlIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL2NvbXBvdW5kcy9EYXRhRnJlc2huZXNzQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkRhdGFGcmVzaG5lc3NCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImQ3NTdhNTA1ZGRkZTg1NTJiNjU2NTY4NDU2NWI5OWMxN2FkNzZjOTY0N2YwZjVjOTZiNzQ1NzUxNDgzY2UzNTAiLCJyb2xlIjoibmFtZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS9jb21wb3VuZHMvRGF0YUZyZXNobmVzc0JhZGdlLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6W10sInZlcnNpb24iOjF9",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRhdGFGcmVzaG5lc3NCYWRnZTpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJJZlN0YXRlbWVudDo1IiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDo2IiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRhdGFGcmVzaG5lc3NCYWRnZTpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6NyIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6NCIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9"
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRhdGFGcmVzaG5lc3NCYWRnZTpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJJZlN0YXRlbWVudDo3IiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDo2IiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRhdGFGcmVzaG5lc3NCYWRnZTpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6OSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6NCIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9"
       ],
       "owner_slice": "DS18",
       "decision_date": "2026-08-02",
@@ -7376,13 +7376,13 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 396,
+            "line": 418,
             "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 419,
+            "line": 443,
             "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
           }
         ]
@@ -7707,9 +7707,9 @@
       "status": "open_debt",
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
-        "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpUaW1lU2VtYW50aWNzTGFiZWwiLCJzeW1ib2w6VGltZVNlbWFudGljc0xhYmVsIiwicmVzb2x2ZWQ6VGltZVNlbWFudGljc0xhYmVsIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiVGltZVNlbWFudGljc0xhYmVsIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiODg3YTJiNzA0ZGVhYWNjODZlYmZmODhkM2U1NmE2NDQ0NGFhNzBhZDVmZTQwODJkNDEzMjllZWI3NTdiZGMzMSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJJZlN0YXRlbWVudDo1IiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDo4IiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjEiXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6NyIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6OCIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZToxIl0sInZlcnNpb24iOjF9"
+        "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpUaW1lU2VtYW50aWNzTGFiZWwiLCJzeW1ib2w6VGltZVNlbWFudGljc0xhYmVsIiwicmVzb2x2ZWQ6VGltZVNlbWFudGljc0xhYmVsIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiVGltZVNlbWFudGljc0xhYmVsIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiOGNkYWY4OTk2OTE4NWZlNjE4OGU2ODI4NjFmMjAzODk1OTcwYjlmY2FiOGRiZjQwMTJlZTc2NGYxMjAzYjQ3NSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJJZlN0YXRlbWVudDo3IiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6OCIsIkpzeE9wZW5pbmdFbGVtZW50OjAiLCJKc3hBdHRyaWJ1dGVzOjEiLCJKc3hBdHRyaWJ1dGU6MCJdLCJ2ZXJzaW9uIjoxfQ",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6OSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjgiLCJKc3hPcGVuaW5nRWxlbWVudDowIiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0"
       ],
       "owner_slice": "DS18",
       "decision_date": "2026-08-02",
@@ -7727,13 +7727,13 @@
         "component_declaration": {
           "role": "component_declaration",
           "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-          "line": 57,
-          "content_sha256": "sha256:b932c88aa10f756fea7c9b71ee38e9d14986b487fc8b07de23478f365f313714"
+          "line": 18,
+          "content_sha256": "sha256:8eb384f2a8d2be39683bb7927ad5b3f1edc13abefaa0fbba5d11f1f7f05ff389"
         },
         "prop_declaration": {
           "role": "prop_declaration",
           "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-          "line": 16,
+          "line": 12,
           "content_sha256": "sha256:424363795b3744b3ad009ba7d8cd6c5ea3945398df29a2935e5372ef99852e04"
         },
         "consumer_count": 2,
@@ -7741,13 +7741,13 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 399,
+            "line": 420,
             "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 454,
+            "line": 476,
             "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
           }
         ]

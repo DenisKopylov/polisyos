@@ -199,7 +199,7 @@ and subordination, not greenfield building.**
 | Publication | `publicationPacket.ts` (~1.4k lines): Toulmin maps and projection normalization; three run-detail builders produce a packet and exactly one link emits a payload + public-salt 32-bit FNV hash in the URL; browser recomputation alone renders `Verified` | forgeable by construction; structural validator does not bind packet hash; private-data scan is not on the builder path; no server signing/verifier/public-record producer or persisted public dependency | DS1, DS12 |
 | Authz | `/api/v1/auth/me` with 12 server permission keys; client has 15 and workspace/tab gating; selected handlers enforce tenant ownership; coarse path/role OPA is optional | **29/29 POST operations have no action-permission or step-up dependency**; resource is bound after OPA reads it; client-only collaboration permission delta ×3; fixture identity and 11-permission UI placeholder fail open; production approval accepts self-asserted reviewer/signature | DS5, DS9 |
 | Offline | Workbox precaches static assets and denies API caching; IndexedDB has exactly composer drafts + promotion queue; approve/reject is the only queued mutation class and is optimistically finalized/replayed | no live state/permission/step-up/tenant/epoch revalidation; six authority-looking local caches lack tenant+user+expiry+epoch binding; cache freshness rendering absent | DS1, DS5 |
-| i18n | `en`/`uk`/`ru` catalogs have structural parity; DS0 measured 2,449 string leaves each, while 80.16% of `ru` equals English; runtime capability contracts admit `en`/`uk` | **D4 RATIFIED 2026-07-16** (`7b6933770`): `uk` primary + `en` baseline + **`ru` = `legacy_continuity_frozen`, not used, not deleted**. The gate is discharged — DS5's locale/semantic-ID lint and DS12's locale claims may proceed against the ratified posture, and no slice may loosen it. Open work is mechanical, not decisional: `parity.test.ts` still enforces full en/ru/uk key parity and must move to the frozen-set rule (**DS6**, with the 3 inherited `overBudget` failures) | DS5, DS6, DS12 |
+| i18n | `en`/`uk`/`ru` catalogs have structural parity; DS0 measured 2,449 string leaves each, while 80.16% of `ru` equals English; runtime capability contracts admit `en`/`uk` | **D4 RATIFIED 2026-07-16** (`7b6933770`): `uk` primary + `en` baseline + **`ru` = `legacy_continuity_frozen`, not used, not deleted**. **D4-A1 AMENDED 2026-08-19** (Atlas Revision 3.19, `bedd47503`) and reverses only the primary/translation relation: `en` is the primary locale and authored source of truth; `uk` is its translation, however accurate; `ru` is unchanged. C05a-R1 correctly implemented the prior ratification and is not at fault; the locale verification fallout is D4's predicted mechanical follow-up. | DS5, DS6, DS12 |
 | Tokens / design system | `shared/ui/tokens/designTokens.ts` + `AtlasV4Reference.stories` — a living, coded v4; theming `light`/`dark`/`system` + density preferences | DS0 selects future one-way DTCG generation and sunsets hand-maintained TS authority; v15 values/modes remain unadmitted until DS2 and no migration occurs before DS4 | DS2, DS4 |
 | Agent surface | `features/clerk` is an app-level interface mode over `POST /control/runs/nl`; live path launches a run and consumes SSE status only; persisted store/renderers contain structured verdict/confidence/diff and `AIDiffView` | structured response and diff have no live producer (`producer_missing`) and would launder candidates if wired as-is; duplicate direct `/` index route is redundant; G6 contracts and storage partition absent | DS1, DS14 |
 | Realtime & off-contract endpoints | two real `include_in_schema=False` SSE routes; real review WS hub with three channels; collaboration client declares four REST pairs + four WS channels | review WS browser-auth bridge is absent/undocumented; collaboration server producers are absent, but the whole feature is orphaned so current live UX does not call them; every admitted channel lacks one governed registry | DS1, DS3, DS5 |
@@ -614,12 +614,12 @@ Canonical governing record:
 `codex/atlas-ds0-source-of-truth` and awaits architect review. **D4 was
 RATIFIED the same day** (`7b6933770`, owner `@DenisKopylov`; recorded
 `ratified` in `docs/brand/ATLAS_SOURCE_OF_TRUTH.md` §D4 and pinned in the
-disposition register's DS0 source block, `decision_date: 2026-07-16`): `uk`
-primary Ukraine-facing, `en` baseline/fallback, **`ru` UI catalog
-`legacy_continuity_frozen` — not used, not deleted** (retained in-tree,
-excluded from active locale exposure and from any public locale-support
-claim). The 2026-06-11 DS0 draft's "frozen-but-served" wording is superseded.
-Loosening the ratified posture is out of scope for every slice.
+disposition register's DS0 source block, `decision_date: 2026-07-16`).
+**D4-A1 amended that decision on 2026-08-19** (Atlas Revision 3.19,
+`bedd47503`): `en` is the authored primary, `uk` is its translation, and
+**`ru` UI catalog remains `legacy_continuity_frozen` — not used, not
+deleted**. The 2026-06-11 draft and the original primary/baseline relation are
+superseded; no slice may loosen the amended posture.
 
 - **Goal:** one canonical design source of truth and the governing decisions
   every later slice references.
@@ -813,9 +813,9 @@ Loosening the ratified posture is out of scope for every slice.
   enforcement anchor on **canonical semantic IDs, never string comparison**; a translation
   that upgrades a status's semantic strength (`limited` → "confirmed with caveat",
   `may_not_use_for` → optional recommendation) is the red-first negative of the locale
-  lint. **D4 is ratified (2026-07-16, `7b6933770`)**, so this lint is unblocked and
-  anchors on the ratified posture: `uk` primary, `en` baseline/fallback, `ru`
-  `legacy_continuity_frozen` — a lint or exemption that re-exposes `ru` as an active
+  lint. **D4 is ratified and D4-A1 amended it on 2026-08-19**, so this lint is
+  unblocked and anchors on the amended posture: `en` authored primary, `uk`
+  translation, `ru` `legacy_continuity_frozen` — a lint or exemption that re-exposes `ru` as an active
   product locale is itself a red-first negative.
 - **Not yet:** enforcement covers the waist and existing strangled panels;
   un-migrated legacy features carry honest lint-debt entries in the ledger.

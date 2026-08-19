@@ -4,6 +4,7 @@ import {
   type CacheObservation,
   isIssuedCacheObservation,
   observeCachePosture,
+  presentCacheObservation,
 } from "./cacheDiscipline";
 
 describe("cache discipline", () => {
@@ -32,6 +33,48 @@ describe("cache discipline", () => {
     expect(isIssuedCacheObservation(issued)).toBe(true);
     expect(isIssuedCacheObservation(Object.freeze({ ...issued }))).toBe(false);
     expect(isIssuedCacheObservation(new Proxy(issued, {}))).toBe(false);
+  });
+
+  it("projects only owner-issued observations into presentation data", () => {
+    const issued = observeCachePosture(
+      {
+        data: {},
+        fetchStatus: "idle",
+        isFetchedAfterMount: true,
+        isStale: false,
+      },
+      "2026-08-09T10:00:00Z",
+    );
+    const structuralLookalike = Object.freeze({
+      asOf: "2026-08-09T10:00:00Z",
+      posture: "live",
+    });
+    let postureReads = 0;
+    const hostile = Object.defineProperty(
+      { asOf: "2026-08-09T10:00:00Z" },
+      "posture",
+      {
+        enumerable: true,
+        get() {
+          postureReads += 1;
+          throw new Error("hostile posture getter");
+        },
+      },
+    );
+
+    expect(presentCacheObservation(issued)).toEqual({
+      ownerAsOf: "2026-08-09T10:00:00Z",
+      posture: "live",
+    });
+    expect(presentCacheObservation(structuralLookalike)).toEqual({
+      ownerAsOf: null,
+      posture: "unrecognized",
+    });
+    expect(presentCacheObservation(hostile)).toEqual({
+      ownerAsOf: null,
+      posture: "unrecognized",
+    });
+    expect(postureReads).toBe(0);
   });
 
   it("returns unrecognized for a novel observer lifecycle or absent owner as_of", () => {

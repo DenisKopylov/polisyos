@@ -101,10 +101,10 @@ architecture guardrails.
    governing master closure note and the DS4 closure report record DS4 closed
    and merged. DS5 consumes the realized 27 package / 41 rebind / 18 use-as-is /
    3 retire split, not the superseded pre-ruling split.
-3. The execution base also predates the synchronized D4 line in the master.
-   The authoritative ruling and ratification at `7b6933770` control: `uk`
-   primary, `en` baseline and fallback, `ru` `legacy_continuity_frozen`—not
-   active, not deleted.
+3. The execution base also predates both the synchronized D4 line and D4-A1.
+   The original ratification at `7b6933770` governed C05a correctly. The
+   2026-08-19 architect amendment now controls: `en` authored primary, `uk`
+   translation, `ru` `legacy_continuity_frozen`—not active, not deleted.
 4. Six narrow cache rows in the older disposition seed name DS14, DS8, or DS9
    as owner, while the higher master and this mission assign tenant/user/expiry
    cache discipline to DS5. DS5 owns only that cross-cutting storage-discipline
@@ -199,7 +199,7 @@ byte-unmodified. Any new identity is red.
 | governed projection audiences | accepted live denominator: 13 definitions, 5 EXPERT and 8 MACHINE, 0 PUBLIC, 0 REVIEWER | C06 did not add G4; `g4-complete-audience-projection-contract` remains typed producer debt. After the generated-client owner conflict closes, C07a must enforce all four classes without relabeling the 13 emitted definitions; G4 waits on its owner plan |
 | N010 client exposure | 11 default-allow expressions across 6 production consumers | no fixture/previous-user authority while loading or failed |
 | capability discovery | 14 hardcoded fallback feature records | 43 fixed-chrome surfaces and 19 nonempty capability gates are benign controls |
-| locales | 2 ratified active locales but 3 currently exposed; 2,449 leaves in each en/uk/ru catalog | C05a-R1 removes active `ru` exposure without touching catalogs/parity; C05b-D2 records the deferred semantic-copy issuer/panel consumer without claiming human review complete |
+| locales | Historical entry measurement, superseded first by C05a-R1 and then by D4-A1: two ratified active locales were exposed through an `en/uk/ru` list with 2,449 leaves in each catalog | C05a-R1 correctly removed active `ru` exposure under the then-ratified D4 posture; D4-A1 now makes `en` the authored primary, `uk` its translation, and retains `ru` as frozen continuity |
 | query cache | 66 `useQuery`/`queryOptions` syntax sites in 40 production files; 42 `queryFn` definitions / 39 files | only 1 producer carries owner `as_of`; C11a-C11b-R1 prove that consumer, C12a-C12b-R1 register/enforce the remaining policy without inventing source time |
 | IndexedDB | 1 DB / 1 live store; the deleted queue survives only as an upgrade tombstone | composer drafts enveloped; promotion queue barred |
 | authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b-R3 migrate the live units plus composer |
@@ -238,7 +238,7 @@ commands and their receipts are in the baseline table above.
 | 11 N010 expressions / 6 production consumers | literal `authority_and_store_census` command below; its per-path output is 1/2/1/1/2/4 |
 | 14 fallback capability records | `sed -n '/features: \\[/,/^  \\],/p' apps/runtime-dashboard/src/shared/lib/capabilities.ts \| rg -c '^      key:'`; `rg -n 'FALLBACK_CAPABILITY_MANIFEST\|capabilitiesQuery.isLoading'` locates the two production bypass consumers |
 | 43 fixed surfaces / 19 nonempty capability requirements | literal TypeScript-AST `surface_census` command below; recorded components are workspace 6/4, run 8/4, panel 29/11 |
-| 2 ratified active of 3 currently exposed locales; 2,449 leaves each | `jq '[paths(scalars)] \| length' apps/runtime-dashboard/src/shared/i18n/locales/{en,uk,ru}.json`; `rg -n 'SUPPORTED_LOCALES\|DEFAULT_LOCALE' apps/runtime-dashboard/src/shared/i18n/locale.ts` records the current `en/uk/ru` + `en` default drift C05a-R1 must close |
+| Historical entry: two ratified active locales in an `en/uk/ru` exposure list; 2,449 leaves each | `jq '[paths(scalars)] \| length' apps/runtime-dashboard/src/shared/i18n/locales/{en,uk,ru}.json`; `rg -n 'SUPPORTED_LOCALES\|DEFAULT_LOCALE' apps/runtime-dashboard/src/shared/i18n/locale.ts`; superseded by C05a-R1 and D4-A1. Current posture is `en` authored primary, `uk` translation, `ru` frozen continuity, with 2,451/2,451/2,449 leaves |
 | 18 explicit frozen-compatible locale functions / 9 modules | literal installed-TypeScript `frozen_locale_compatibility_census` command below; product persistence/resolution functions are excluded from this compatibility denominator |
 | 1 `may_not_use_for` production consumer / 0 semantic-review receipt owners | `rg -l 'packet\.may_not_use_for' apps/runtime-dashboard/src --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/test/**'` returns exactly `RunExplainabilityPanel.tsx`; a separate `rg -l 'AuthoritySemanticCopy\|authority-semantic-copy\|semantic_review_receipt\|competent_reviewer' apps/runtime-dashboard/src packages/atlas-ui/src architecture/atlas_surfaces` returns exit 1 with no output, recorded honestly as the zero entry census rather than piped through a success exit |
 | 66 query syntax / 40 files; 42 producers / 39 files | `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\b(useQuery\|queryOptions)(<[^>]+>)?\\s*\\(' apps/runtime-dashboard/src`; repeat with `rg -l`; repeat both for `\\bqueryFn\\s*:` |
@@ -962,6 +962,25 @@ not clean p95 samples:
 | visual at `c1a89b6cf` / current C20 | `184, 218.61` | `17/18` with DS8-only RED / `1/18` | fixed-port serialized; excluded from clean p95 |
 | direct import-policy owner at `c1a89b6cf` / current C20 | `115, 96` | identical 90-row semantic RED | attribution receipt; no clean local lane budget established |
 
+The D4-A1 amendment ran concurrently with other lanes. Every observation below
+is admitted as a terminal command receipt but excluded from clean p95/ceiling
+recomputation because the host load was contended. Established ceilings remain
+binding.
+
+| D4-A1 final-freeze lane | Terminal observation (seconds) | result |
+| --- | ---: | --- |
+| focused mechanism / dashboard lint / typecheck / build | `5.16, 12.60, 12.53, 18.17` | PASS (`31/31` focused) |
+| dashboard enforcement / architecture | `39.85, 4.40` | PASS; 955 dashboard sources, 1,032 dependency modules, 4,224 live dependencies |
+| supplemental+report / report-only writer | `38.78, 39.38` | PASS / byte-idempotent |
+| status / Atlas / frontend corruption owners | `17.90, 59.92, 98.40` | PASS |
+| four owner unittest modules | `936.65` | PASS, `207/207` |
+| component JSON / comparator | `288.29, 38.43` | exactly three external DS6 identities / PASS |
+| Storybook / accessibility / visual | `11.28, 85.45, 51.95` | `97/97` PASS / `85+21` PASS / bounded `16/18` |
+| runtime HTTP / Ruff / runtime contract | `102.39, 0.11, 11.20` | PASS; one declared HTTP skip |
+| runtime API client five lanes | `3.72, 5.46, 1.44, 3.30, 1.34` | PASS; tests `4/4` |
+| Atlas UI four lanes | `13.73, 2.44, 10.85, 13.08` | PASS; tests `85/85` |
+| guardrail / backend verify / CI parity | `23.86, 4.71, 27.72` | inherited REDs, excluded from successful sample sets |
+
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
 full-suite ceiling. Killed overruns remain censored non-receipts and never enter
@@ -1465,6 +1484,14 @@ row and helper are removed with the landed mechanism.
 
 ### DS5-C05a-R1 — D4 active-locale and frozen-continuity boundary
 
+**Historical acceptance, superseded only in its primary/translation
+relation:** C05a-R1 correctly implemented D4 as ratified on 2026-07-16. D4-A1
+reversed that relation on 2026-08-19; the 56 component failures, three
+accessibility failures, and locale-driven visual identities were the ratified
+posture meeting verification written against the prior default, not a C05a
+scope overrun. The implementation below remains the historical landing
+contract; the D4-A1 closeout later in this plan owns the amendment.
+
 **Measured set:** exactly 10 implementation/governed paths plus journal = 11;
 cap 11: `locale.ts`, `LocaleProvider.tsx` + test; typography `typography.ts` +
 test, `quoteMarks.ts`, `nonBreakingSpaces.ts`; frontend disposition register +
@@ -1494,8 +1521,9 @@ may format caller-supplied continuity text but cannot enter `LocaleProvider`,
 storage, active catalog selection or default resolution. This is a finite
 compatibility classification, not a claim that `ru` is an active locale.
 
-**Acceptance:** active locales are exactly `uk` and `en`; `uk` is primary and
-default, `en` explicit baseline/fallback; the `ru` catalog, parity test and
+**Historical acceptance at landing:** active locales were exactly `uk` and
+`en`; `uk` was primary/default and `en` baseline/fallback. D4-A1 supersedes
+that relation; the `ru` catalog, parity test and
 formatting expectation remain byte-unmodified; all 18 compatibility entry
 points remain explicit-input-only and the disposition/report record
 `legacy_continuity_frozen`, never active support. The three DS6 parity failures
@@ -2840,17 +2868,19 @@ attribution is replayed at the slice's own base
 
 The slice-base replays leave deep-import, import-policy/exception, and ABI
 catalog debt with their external owners, plus the three DS6 locale-parity and
-one DS8 A4 identities. They reclassify Storybook provider composition, 58
-component-test failures, four accessibility failures, and 16 visual failures
-as DS5-owned closure debt. First execution-observed DS5 candidate transitions
-are C18b-R2 for Storybook, C05a-R1 for 56 locale and three accessibility failures, C09a-R2 for the
-fourth route-readiness failure, and C05a-R1, C18b-R2, and C09b-R1 for
-identified visual classes; the two non-locale component failures and residual
-geometric visual identities retain `not_established` per-cluster attribution. The
-closure record contains commands, output identities, denominators,
-intersections, and repair-cost frontiers. This P35/P37/P38 record correction
-does not change the landed C20 mechanism, consume a P40 mechanism round, or
-authorize a repair/rebaseline.
+one DS8 A4 identities. They first exposed frontend verification that did not
+follow the then-ratified D4 posture, the C18b Storybook composition defect,
+the C09a route-transition defect, and the C11b temporal reverse dependency.
+Atlas Revision 3.19 then amended D4 in D4-A1. C05a-R1 is cleared: it correctly
+implemented the former ruling, so the 56 locale expectations, three locale-
+driven accessibility checks, and locale-driven visual identities are not a
+C05a overrun. D4-A1 closes those mechanical follow-ups, the Storybook global
+provider composition, the route transition, and the temporal edge. The only
+remaining DS5-owned frontend debt is the run-deck one-pixel residual, with
+introducer and repair cost `not_established` and registered successor
+`dashboard-run-deck-visual-determinism-reconciliation`. This record correction
+and new closeout work do not change the landed C20 mechanism or re-anchor a
+snapshot.
 
 **Acceptance:** established for DS5. The restored test is byte-identical to
 stopped candidate `4c20818c3` and retains its reviewed 1/1 real-owner
@@ -2916,6 +2946,7 @@ evidence.
 | C18b-R1/R2 | landed: `DS5-C18b-R2 bind flag sources to strict registry` | 12 |
 | C19-R1/R2 | R1 candidate `9b87f0e09` stopped at the round breaker and was forward-reverted; R2 landed as `DS5-C19-R2 wire and retire D5 flags` | 14 |
 | C20 | containing commit: `DS5-C20 close enforcement waist for architect handoff`; preserves candidate/revert/stop history and carries `architecture-deep-import-baseline-reconciliation` as external-owner debt | cap `6`; actual changed paths `5` |
+| D4-A1 | `DS5-D4-A1 restore authored English primary and close slice honestly` | 16 mechanism + 13 mandatory companions = 29 total |
 | C21a | `DS5-C21a establish TypeScript reference identity` | 4 |
 | C21b-R1 | `DS5-C21b-R1 migrate gated TypeScript references` | 8 |
 | C21c | `DS5-C21c bind gated JSON and TOML references` | 7 |
@@ -2979,6 +3010,102 @@ additional identity. Missing/timed-out JSON remains a nonreceipt.
 `test_auth_api.py` is read-only shared authorization coverage, not a sixth
 editable backend test path.
 
+## D4-A1 amended-locale and verified-closeout cluster
+
+**Ruling and entry:** Atlas Revision 3.19 (`bedd47503`, 2026-08-19) reverses
+only D4's primary/translation relation: `en` is the primary locale and
+authored source of truth; `uk` is its translation; `ru` remains
+`legacy_continuity_frozen`. C05a-R1 implemented the 2026-07-16 ruling as
+ratified and is cleared. This cluster begins at `0f6a01b5b` with fresh 0/2
+mechanism rounds.
+
+**Complete blast-radius census before edit:** P37 provenance for the D4-A1
+meaning is `institutionally_supplied`; every count below is `recomputed`. From
+the outer worktree, the denominator command
+`git ls-tree -r --name-only 0f6a01b5b -- policy-engine | wc -l` returns 9,589
+tracked paths. This full semantic-discovery command is independently counted
+both with shell `wc`/`cut` and a Python `Counter` over the same rows:
+
+```sh
+git grep -n -I -E -i \
+  'default_locale|supported_locales|SUPPORTED_LOCALES|DEFAULT_LOCALE|ProductLocale|LegacyContinuityLocale|locale[^[:alnum:]]*(primary|baseline|fallback|frozen|active)|(primary|baseline|fallback|frozen|active)[^[:alnum:]]*locale' \
+  0f6a01b5b -- policy-engine > /tmp/d4a1_raw.txt
+wc -l /tmp/d4a1_raw.txt
+cut -d: -f2 /tmp/d4a1_raw.txt | sort -u | wc -l
+```
+
+It returns 134 lines / 38 paths. The raw population partitions exactly into
+decision/runtime sources 6/44, governed writer/artifacts 3/4, semantic tests
+3/7, generated mirrors 4/12, governing/reference documents 8/34, and
+consumers/fixtures/incidental matches 14/33 (paths/lines). The independent
+declared semantic-scope command is retained in the journal and closure; it
+returns 125 lines / 32 paths. Raw minus scope is exactly six paths carrying
+all nine removed lines: the CSS-token projection test, the disposition
+checker and register, both DS4 closure records, and the backend control API
+test. Scope minus raw is empty. The old combined `125/38` claim is therefore
+P37 `not_established`, not a receipt.
+
+The parity rule is separately owned by
+`apps/runtime-dashboard/src/shared/i18n/parity.test.ts`, which contains no
+locale-token match and cannot be inferred from grep. The exact uppercase walk
+`git grep -n -I -E 'SUPPORTED_LOCALES|DEFAULT_LOCALE' 0f6a01b5b -- policy-engine`
+returns 24 lines / 10 paths; adding the snake-case spellings returns 61/24.
+The former 37/15 claim is likewise `not_established`. Entry catalog leaf walks
+remain 2,449/2,449/2,449; the frozen Russian catalog remains byte-unmodified.
+
+**Mechanism and P39 companions:** 16 mechanism paths: six locale
+owner/provider/catalog/test paths, the one Storybook decorator, two interface-
+mode transition paths, six cache/temporal/panel paths, and the TypeScript-
+identity checker. Thirteen mandatory companions are outside that mechanism count: four
+governed artifacts (register, generated report, status inventory, baseline
+manifest), six decision/reference records, and plan/journal/closure. Exact
+landing fence is 29 paths. Readiness, C23, the frozen Russian catalog, visual
+snapshots, and status entries outside the declared induced leaves are zero-
+delta.
+
+**Red first and source acceptance:** restoring the English owner initially
+turned the locale-focused suite RED (9 failed / 3 passed). The final owner is
+`shared/i18n/locale.ts`: `PRIMARY_LOCALE` derives from the first literal
+`SUPPORTED_LOCALES` member, `DEFAULT_LOCALE` derives from it, Ukrainian is the
+translated member, and Russian is a separate frozen constant. LocaleProvider
+falls back through that owner. The Storybook decorator supplies the canonical
+QueryClient above FeatureFlagProvider. The route transition preserves an
+explicit clerk choice while treating an unsettled default-deny clerk mode as
+provisional; current verified analyst authority recovers. Cache presentation
+is issued by the API owner and rendered through an API-free shared temporal
+component. Independent mechanism reviews returned GO; no P40 mechanism round
+was consumed.
+
+**P41 residual:** `run-deck-content-slide-chromium-darwin.png` is green at the
+slice base and reproducibly differs now by one pixel in height (expected
+1094×820, observed 1094×821; 4,178 pixels / 1%). No named intended product
+delta or introducing cluster was established, so no snapshot is re-anchored.
+DS5 carries this one residual under `team-frontend` / `@frontend-owners`,
+successor `dashboard-run-deck-visual-determinism-reconciliation`; repair cost
+remains `not_established` until rendering/fixture determinism is identified.
+
+**Pre-writer allowlist:** five storage census rows plus `rows_sha256`; the
+`semantic-supported-locales.type_expression`; the C06/C07 whole-source
+content binding for RunExplainabilityPanel; canonical supplemental identities;
+the generated report; and the final status `ds19` register hash. No other
+governed leaf may move.
+
+**Final outcome:** landed by this section's containing commit at 0/2 mechanism
+rounds, with 16 mechanism paths plus 13 mandatory companions (29 total).
+English is the sole authored-primary decision; Ukrainian is its active
+translation; Russian remains a byte-frozen continuity catalog. C05a-R1 is
+cleared as the correct implementation of the former ratified ruling. Full
+components return to 1,041/1,044 with only the three external DS6 identities;
+Storybook is 97/97; accessibility is 85/85 component plus 21/21 page; visual
+is 16/18 without any snapshot re-anchor. Storybook provider composition,
+route-transition liveness, and the temporal reverse dependency are repaired.
+The sole DS5-owned residual is run-deck visual determinism, owned by
+`team-frontend` / `@frontend-owners`, successor
+`dashboard-run-deck-visual-determinism-reconciliation`, with introducer and
+repair cost `not_established`. The closure battery and governed hashes are
+recorded in the journal and closure artifact. Release remains accepted C20
+plus merge to `main`; current value is `not_released`.
+
 ## Explicit Not yet
 
 - C20 and every executable local DS5 mechanism land in the containing commit,
@@ -2987,11 +3114,12 @@ editable backend test path.
   C07a, C07b, C10-R1, C15a's structured verdict/status-chip producer plane,
   C17a-R1, the registered eight-owner duplication finding, C17b-R3's declared
   owner-flow residual, and external architecture deep-import,
-  import-policy/exception and ABI schema-catalog debt. DS5 additionally carries
-  its own measured component-locale, Storybook-provider, accessibility and
-  16-identity visual debt pending architect disposition; the closure artifact
-  enumerates their first execution-observed DS5 candidates, residual unknowns,
-  owners and repair costs.
+  import-policy/exception and ABI schema-catalog debt, the three external DS6
+  component identities, and the external DS8 A4 identity. D4-A1 closes the
+  locale, Storybook, accessibility, and temporal classes without snapshot
+  re-anchor. DS5 additionally carries only the run-deck one-pixel visual
+  residual under `team-frontend` / `@frontend-owners`, with introducing cluster
+  and repair cost `not_established` and a registered successor.
 - No C23/DS16 reconciliation. The four roots, `C23_SUCCESSOR_REFS`, and
   `C23_RATIONALE` remain unchanged. The literal transition yields four
   `c23_containment_root_drift` plus four `successor_on_non_rebound`; the

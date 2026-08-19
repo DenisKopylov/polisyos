@@ -1728,6 +1728,10 @@
         "fullAnalysis": "Повний аналіз",
         "collapse": "Згорнути"
       },
+      "timeSemantics": {
+        "cachePosture": "Стан кешу",
+        "cacheOwnerAsOf": "Власник кешу станом на"
+      },
       "counterfactual": {
         "workbench": "Scenario workbench",
         "workbenchSubtitle": "Compare actual runtime values with a named scenario manifest.",

@@ -3781,10 +3781,10 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:aa5d8636a6ddd55d5769c91044d5507611af9c9e013fc18078e2a48926f9f0ff"
+    "sha256:407d0c0f1c2cd3b39e315591a6cb6196dcb36ca0bfe62b04f7d82f409aec8b28"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
-    "sha256:44c3d98edae504b3c10fa5b9c30b0084e04263167b7c94972464c31bcad1e979"
+    "sha256:267db0ff1a795a6992810b415f257c0502ad733899abe44e53c58ebad79ce89f"
 )
 
 
@@ -4318,7 +4318,7 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '1e01bb02aa403bfae75475c5ffe5346af68c654fc554bf1c544535e82bae724c': (
         'debt:badge-public-packet-authority-framing'
     ),
-    '1e5efb80b85a26f8549c7d5a8ca3052496ff1ed8767b8cb8d12485b4704aeb7b': (
+    'a0b5fb9183dad72b89c998f4817fe67911c5cc088204b6872de391c080c41a42': (
         'debt:badge-governed-projection-availability'
     ),
     '22c2a2e7b9b3c9c07fcff8e313559f5e18f31abf5fef96c074ed58da84765c75': (
@@ -4495,7 +4495,7 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '89b13db33efc33ad01d076818b832f51aed4a1a2dc5bc3465376b8ff1cc42dae': (
         'debt:badge-control-approval-quality'
     ),
-    '8cb41cd36e24b70818f36d6f19392fd3c04f326382d61cbc631e03ff15a544dc': (
+    '27bd4c02bcf144b52fdebc88ab9ca03bd8b35522f94ace154d373d2a1bd57cc8': (
         'debt:badge-governed-projection-availability'
     ),
     '8d1d1b0a3f1bd470d97feec2780c3f3ecace0182e30b9dc4ab6fe918eea698de': (
@@ -4818,7 +4818,7 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'prop_declaration',
         },
     ],
-    '29d0fb4a9758c4cacc733fa47028dd641f098c1df02b1711b214edbc52912d05': [
+    '1c7bcc568eb6d0de6ce70be64ac1c95b1fef451ad22feb88e19f0954f3acffb2': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-data-freshness',
@@ -5014,7 +5014,7 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
-    '23f90f744643d0354785323f638e0ee0c92b10aa7594b64257bbc64d65897284': [
+    '8ca5bce9456d9cca63c0b849a155f81bb76f1a574036af53229a7d7821ebac88': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-time-semantics-freshness',
@@ -5035,7 +5035,7 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
-    'a0f28b1b52ff75f30a27d6f75cfe34c2fc1d9ab9a4c0d0230d431aa73aa6fbe4': [
+    '703faaedd976bad47dd750f4d8070e4165856bf928a548de3b935503010d0187': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-data-freshness',
@@ -5105,7 +5105,7 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    '742cf0f2d8958674236aacaaa8571994c8d7c6f9c020c06e225b5c9c2495c53a': [
+    '4e70f64ec87d614c63aec73be716f44afb13834c62e9158ce5e671d1d5481738': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-time-semantics-freshness',
@@ -5217,7 +5217,7 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    'c6acaba3850d2894164ff4d0592f10a21da9b30c082afe0edcd4f30424c8e3da': [
+    '6282429660a99493402eadcb5de2ce7f580de3b660c9014b8a60be742ffac6b3': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-time-semantics-freshness',

@@ -32,7 +32,10 @@ import {
 } from "@/shared/ui/compounds/ReasoningChainDisplay";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
 import type { DepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
-import type { CacheObservation } from "@/api/cacheDiscipline";
+import {
+  presentCacheObservation,
+  type CacheObservation,
+} from "@/api/cacheDiscipline";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { LocalizedJsonPreview } from "@/shared/ui/LocalizedJsonPreview";
 import { BlockerCard } from "@/shared/ui/compounds/BlockerCard";
@@ -370,6 +373,31 @@ function GovernedDepthProjection({
   }
 
   const { packet, payload } = projection;
+  const cachePosture = presentCacheObservation(cacheObservation ?? null);
+  const cachePostureEntries = (
+    <>
+      <div
+        className="flex flex-wrap gap-1"
+        data-testid="time-semantics-cache-posture"
+      >
+        <dt className="font-semibold">
+          {t("shared.ui.timeSemantics.cachePosture")}:
+        </dt>
+        <dd className="font-mono">{cachePosture.posture}</dd>
+      </div>
+      <div
+        className="flex flex-wrap gap-1"
+        data-testid="time-semantics-cache-owner-as-of"
+      >
+        <dt className="font-semibold">
+          {t("shared.ui.timeSemantics.cacheOwnerAsOf")}:
+        </dt>
+        <dd className="font-mono">
+          {cachePosture.ownerAsOf || t("common.unknown")}
+        </dd>
+      </div>
+    </>
+  );
   if (packet.availability !== "available" || !payload) {
     const fixtureAuthority =
       "fixture_only" satisfies LegacyProvingGroundPayload["fixture_authority"];
@@ -395,10 +423,11 @@ function GovernedDepthProjection({
         <p className="text-muted-foreground text-sm">{packet.absence_reason}</p>
         <DataFreshnessBadge freshness={packet.freshness} />
         <TimeSemanticsLabel
-          cacheObservation={cacheObservation ?? null}
           freshness={packet.freshness}
           payloadAsOf={packet.as_of}
-        />
+        >
+          {cachePostureEntries}
+        </TimeSemanticsLabel>
       </Card>
     );
   }
@@ -450,10 +479,11 @@ function GovernedDepthProjection({
       ) : null}
 
       <TimeSemanticsLabel
-        cacheObservation={cacheObservation ?? null}
         freshness={packet.freshness}
         payloadAsOf={packet.as_of}
-      />
+      >
+        {cachePostureEntries}
+      </TimeSemanticsLabel>
 
       <div className="space-y-2">
         <p className="text-xs font-semibold">{t("common.sourceText")}</p>

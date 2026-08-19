@@ -262,6 +262,93 @@ describe("current verified Authz decision across application chrome", () => {
     vi.clearAllMocks();
   });
 
+  it("restores the implicit analyst default only after identity becomes verified", () => {
+    useAuthMeMock.mockReturnValue({
+      data: undefined,
+      isError: false,
+      isFetching: true,
+      isLoading: true,
+      isSuccess: false,
+    });
+    const view = render(tree(true));
+
+    expectProtectedChromeDenied();
+    expect(window.localStorage.getItem("polisyos.runtime.interface-mode")).toBe(
+      null,
+    );
+
+    useAuthMeMock.mockReturnValue({
+      data: allowedPrincipal,
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+      isSuccess: true,
+    });
+    view.rerender(tree(true));
+
+    expect(screen.getByTestId("current-interface-mode")).toHaveTextContent(
+      "analyst",
+    );
+    expect(screen.getByTestId("protected-workspace")).toBeInTheDocument();
+    expect(window.localStorage.getItem("polisyos.runtime.interface-mode")).toBe(
+      null,
+    );
+
+    useAuthMeMock.mockReturnValue({
+      data: allowedPrincipal,
+      isError: false,
+      isFetching: true,
+      isLoading: false,
+      isSuccess: true,
+    });
+    view.rerender(tree(true));
+    expectProtectedChromeDenied();
+    expect(window.localStorage.getItem("polisyos.runtime.interface-mode")).toBe(
+      null,
+    );
+
+    useAuthMeMock.mockReturnValue({
+      data: allowedPrincipal,
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+      isSuccess: true,
+    });
+    view.rerender(tree(true));
+    expect(screen.getByTestId("current-interface-mode")).toHaveTextContent(
+      "analyst",
+    );
+    view.unmount();
+
+    window.localStorage.setItem("polisyos.runtime.interface-mode", "clerk");
+    const explicitClerk = render(tree(true));
+    expect(screen.getByTestId("current-interface-mode")).toHaveTextContent(
+      "clerk",
+    );
+    useAuthMeMock.mockReturnValue({
+      data: allowedPrincipal,
+      isError: false,
+      isFetching: true,
+      isLoading: false,
+      isSuccess: true,
+    });
+    explicitClerk.rerender(tree(true));
+    useAuthMeMock.mockReturnValue({
+      data: allowedPrincipal,
+      isError: false,
+      isFetching: false,
+      isLoading: false,
+      isSuccess: true,
+    });
+    explicitClerk.rerender(tree(true));
+    expect(screen.getByTestId("current-interface-mode")).toHaveTextContent(
+      "clerk",
+    );
+    expect(window.localStorage.getItem("polisyos.runtime.interface-mode")).toBe(
+      "clerk",
+    );
+  });
+
   it("test_unknown_authz_decision_never_defaults_authority_surface_to_allow", () => {
     const states = [
       {

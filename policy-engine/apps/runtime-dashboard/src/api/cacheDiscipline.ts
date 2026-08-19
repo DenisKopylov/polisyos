@@ -15,6 +15,11 @@ export type CacheObservation =
       readonly [cacheObservationBrand]: true;
     });
 
+export type CachePosturePresentation = Readonly<{
+  ownerAsOf: string | null;
+  posture: CacheObservation["posture"];
+}>;
+
 type QueryObserverLifecycle = Readonly<{
   data: unknown;
   isFetchedAfterMount: boolean;
@@ -23,6 +28,11 @@ type QueryObserverLifecycle = Readonly<{
 }>;
 
 const issuedCacheObservations = new WeakSet();
+
+const UNRECOGNIZED_CACHE_POSTURE: CachePosturePresentation = Object.freeze({
+  ownerAsOf: null,
+  posture: "unrecognized",
+});
 
 const OWNER_AS_OF_PATTERN =
   /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/u;
@@ -102,6 +112,32 @@ export function isIssuedCacheObservation(
     value !== null &&
     issuedCacheObservations.has(value)
   );
+}
+
+/** Project only an owner-issued cache observation into display data. */
+export function presentCacheObservation(
+  value: unknown,
+): CachePosturePresentation {
+  if (!isIssuedCacheObservation(value)) {
+    return UNRECOGNIZED_CACHE_POSTURE;
+  }
+
+  try {
+    const { asOf, posture } = value;
+    if (posture === "unrecognized" && asOf === null) {
+      return UNRECOGNIZED_CACHE_POSTURE;
+    }
+    if (
+      (posture === "live" || posture === "cached" || posture === "stale") &&
+      hasOwnerAsOf(asOf)
+    ) {
+      return Object.freeze({ ownerAsOf: asOf, posture });
+    }
+  } catch {
+    return UNRECOGNIZED_CACHE_POSTURE;
+  }
+
+  return UNRECOGNIZED_CACHE_POSTURE;
 }
 
 /**

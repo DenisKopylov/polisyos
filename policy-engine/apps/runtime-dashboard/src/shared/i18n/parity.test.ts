@@ -1,6 +1,9 @@
+import { createHash } from "node:crypto";
+
 import en from "./locales/en.json";
 import ru from "./locales/ru.json";
 import uk from "./locales/uk.json";
+import { PRIMARY_LOCALE } from "./locale";
 
 function collectPaths(value: unknown, prefix = ""): string[] {
   if (typeof value !== "object" || value == null || Array.isArray(value)) {
@@ -62,13 +65,19 @@ function collectCountMessages(
 }
 
 describe("locale catalogs", () => {
-  it("keep English, Ukrainian, and Russian message keys in sync", () => {
-    const enKeys = collectPaths(en).sort();
+  it("keeps the active translation aligned and frozen continuity content locked", () => {
+    const productCatalogs = { en, uk } as const;
+    const authoredKeys = collectPaths(productCatalogs[PRIMARY_LOCALE]).sort();
     const ukKeys = collectPaths(uk).sort();
-    const ruKeys = collectPaths(ru).sort();
+    const frozenRuCatalogSha256 = createHash("sha256")
+      .update(JSON.stringify(ru))
+      .digest("hex");
 
-    expect(ukKeys).toEqual(enKeys);
-    expect(ruKeys).toEqual(enKeys);
+    expect(PRIMARY_LOCALE).toBe("en");
+    expect(ukKeys).toEqual(authoredKeys);
+    expect(frozenRuCatalogSha256).toBe(
+      "4cb6c3014a14b9aa8a882cd16694ef3f6a9a29f3f971919c83a2e0a473c4449f",
+    );
   });
 
   it.each([

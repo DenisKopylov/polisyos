@@ -26,7 +26,6 @@ from polisyos.runtime.quality.prompt_tool_ledger import (
     load_orchestration_choice_policies,
     validate_orchestration_authority_delta_completeness,
 )
-from polisyos.runtime.quality.public_export import build_public_export_bundle
 from tests._helpers.hds_quality import sha
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -232,6 +231,8 @@ def test_compression_dropping_retained_limitation_fails_closed() -> None:
     assert receipt.emitted_summary is None
     assert receipt.terminal_result is not None
     assert receipt.terminal_result.result_kind == "governed_refusal"
+    assert "Candidate-only result." in receipt.terminal_result.retained_limitations
+    assert "claim_authority" in receipt.terminal_result.retained_denied_uses
 
 
 def test_low_effective_independence_cannot_be_presented_as_broad_consensus() -> None:
@@ -306,6 +307,104 @@ def test_framing_narrowing_governance_burden_without_delta_fails_closed() -> Non
         in receipt.issue_codes
     )
     assert receipt.emitted_summary is None
+
+
+@pytest.mark.parametrize(
+    ("claim_kind", "expected_issue"),
+    (
+        ("negative_terminal", "compression_hidden_negative_terminal"),
+        ("constitutive_step", "compression_missing_constitutive_step"),
+    ),
+)
+def test_full_record_link_does_not_repair_categorical_omission(
+    claim_kind: str,
+    expected_issue: str,
+) -> None:
+    protected_claim = CompressionClaimItem(
+        item_id=f"claim:{claim_kind}",
+        content=f"Protected {claim_kind} result.",
+        claim_kind=claim_kind,
+    )
+    full_record_link = _item(
+        "limitation:full-record-link",
+        "Full record: layer3-g6://run/categorical-omission",
+    )
+    source = _baseline_material(
+        claims=(protected_claim,),
+        limitations=(
+            _item("limitation:candidate-only", "Candidate-only result."),
+            full_record_link,
+        ),
+    )
+    candidate = _baseline_material(
+        limitations=(
+            _item("limitation:candidate-only", "Candidate-only result."),
+            full_record_link,
+        )
+    )
+
+    receipt = build_compression_loss_receipt(
+        receipt_id=f"compression-loss:{claim_kind}-omission",
+        source_ref="layer3-g6://run/categorical-omission",
+        summary_ref="layer3-g6://summary/categorical-omission",
+        source_material=source,
+        candidate_summary=candidate,
+    )
+
+    assert receipt.status == "blocked"
+    assert expected_issue in receipt.issue_codes
+    assert receipt.emitted_summary is None
+
+
+def test_bare_delta_blocks_summary_even_when_other_material_is_retained() -> None:
+    candidate = _baseline_material(
+        claims=(
+            CompressionClaimItem(
+                item_id="claim:bare-delta",
+                content="Approval changed from blocked to pass.",
+                claim_kind="delta",
+            ),
+        )
+    )
+
+    receipt = build_compression_loss_receipt(
+        receipt_id="compression-loss:bare-delta",
+        source_ref="layer3-g6://run/bare-delta",
+        summary_ref="layer3-g6://summary/bare-delta",
+        source_material=_baseline_material(),
+        candidate_summary=candidate,
+    )
+
+    assert receipt.status == "blocked"
+    assert "compression_bare_delta" in receipt.issue_codes
+
+
+def test_procedural_binding_survives_conservative_claim_reduction() -> None:
+    procedural = CompressionClaimItem(
+        item_id="claim:procedure",
+        content="Owner review remains binding before publication.",
+        claim_kind="procedural_binding",
+    )
+    ordinary = CompressionClaimItem(
+        item_id="claim:ordinary",
+        content="One non-constitutive explanatory claim.",
+    )
+    source = _baseline_material(claims=(procedural, ordinary))
+    candidate = _baseline_material(claims=(procedural,))
+
+    receipt = build_compression_loss_receipt(
+        receipt_id="compression-loss:procedural-binding",
+        source_ref="layer3-g6://run/procedural-binding",
+        summary_ref="layer3-g6://summary/procedural-binding",
+        source_material=source,
+        candidate_summary=candidate,
+    )
+
+    assert receipt.status == "pass"
+    assert receipt.disposition == "lossy_but_safe"
+    assert receipt.summary_reconstruction == "proved_conservative"
+    assert receipt.emitted_summary is not None
+    assert receipt.emitted_summary.claims == (procedural,)
 
 
 def test_authority_delta_completeness_walks_the_full_owner_population() -> None:
@@ -409,12 +508,16 @@ def test_completeness_contract_rejects_owner_validation_bypass() -> None:
     contexts = _choice_contexts()
     valid = build_orchestration_authority_deltas(contexts)
     forged = valid.deltas[0].model_copy(
-        update={"choice_kind": "fake-owner-validation-bypass"}
+        update={
+            "decision_policy_ref": (
+                "policyos://orchestration-choice-policy/attacker-supplied/v1"
+            )
+        }
     )
 
     validation = validate_orchestration_authority_delta_completeness(
         contexts=contexts,
-        deltas=(*valid.deltas, forged),
+        deltas=(forged, *valid.deltas[1:]),
     )
 
     assert valid.completeness.status == "pass"
@@ -424,6 +527,26 @@ def test_completeness_contract_rejects_owner_validation_bypass() -> None:
         in validation.issue_codes
     )
     assert isinstance(forged, OrchestrationAuthorityDelta)
+
+
+def test_compression_rejects_detached_completeness_receipt() -> None:
+    derivation = build_orchestration_authority_deltas(_choice_contexts())
+    detached = derivation.completeness.model_copy(
+        update={"emitted_delta_count": 0}
+    )
+
+    receipt = build_compression_loss_receipt(
+        receipt_id="compression-loss:detached-completeness",
+        source_ref="layer3-g6://run/detached-completeness",
+        summary_ref="layer3-g6://summary/detached-completeness",
+        source_material=_baseline_material(),
+        candidate_summary=_baseline_material(),
+        authority_deltas=derivation.deltas,
+        authority_delta_completeness=detached,
+    )
+
+    assert receipt.status == "blocked"
+    assert "compression_authority_delta_completeness_failed" in receipt.issue_codes
 
 
 def test_g6_run_record_produces_and_bridges_compression_receipt() -> None:
@@ -465,9 +588,8 @@ def test_g6_public_export_emits_refusal_not_clean_summary_for_tampered_receipt()
     )
 
     surface = g6.build_g6_agent_audit_surface(tampered_record)
-    bundle = build_public_export_bundle(
-        run_id="run-compression-public-refusal",
-        artifacts={"g6_summary_authority_preservation": surface.PUBLIC},
+    bundle = g6.build_g6_authority_preserving_public_export(
+        tampered_record,
         generated_at=datetime(2026, 8, 19, 12, 0, tzinfo=UTC),
     )
 
@@ -487,13 +609,17 @@ def test_g6_consumer_rejects_owner_validation_bypass() -> None:
     projection = record.prompt_tool_ledger_projection
     ledger = projection.prompt_tool_ledger
     forged = ledger.orchestration_authority_deltas[0].model_copy(
-        update={"choice_kind": "fake-owner-validation-bypass"}
+        update={
+            "decision_policy_ref": (
+                "policyos://orchestration-choice-policy/attacker-supplied/v1"
+            )
+        }
     )
     bypassed_ledger = ledger.model_copy(
         update={
             "orchestration_authority_deltas": (
-                *ledger.orchestration_authority_deltas,
                 forged,
+                *ledger.orchestration_authority_deltas[1:],
             )
         }
     )
@@ -504,9 +630,11 @@ def test_g6_consumer_rejects_owner_validation_bypass() -> None:
         update={"prompt_tool_ledger_projection": bypassed_projection}
     )
 
+    clean_verification = g6.verify_g6_summary_authority_preservation(record)
     verification = g6.verify_g6_summary_authority_preservation(bypassed_record)
     surface = g6.build_g6_agent_audit_surface(bypassed_record)
 
+    assert clean_verification.status == "pass"
     assert verification.status == "fail"
     assert (
         "layer3_g6_authority_delta_owner_validation_failed"
@@ -540,6 +668,7 @@ async def test_g6_bounded_loop_emits_compression_and_choice_receipts() -> None:
     assert ledger.authority_delta_completeness_receipts[0].status == "pass"
     assert result.orchestration_choice_audit.authority_delta_completeness is not None
     assert result.orchestration_choice_audit.authority_delta_completeness.status == "pass"
+    assert g6.verify_g6_loop_summary_authority_preservation(result).status == "pass"
 
 
 @pytest.mark.asyncio
@@ -565,3 +694,4 @@ async def test_g6_blocked_loop_emits_governed_compression_receipt(
     assert ledger.compression_loss_receipts[0].status == "pass"
     assert ledger.compression_loss_receipts[0].authoritative_for == ()
     assert ledger.authority_delta_completeness_receipts[0].status == "pass"
+    assert g6.verify_g6_loop_summary_authority_preservation(result).status == "pass"

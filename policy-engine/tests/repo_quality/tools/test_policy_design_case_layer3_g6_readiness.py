@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +54,10 @@ EXPECTED_MANIFEST_DRIFT_KEYS = {
     "g6_g5_bridge_status",
     "g6_g5_may_not_use_for_boundary_status",
     "g6_orchestration_choice_audit_status",
+    "g6_compression_loss_receipt_status",
+    "g6_authority_delta_completeness_status",
+    "g6_summary_authority_preservation_status",
+    "g6_authority_preserving_public_export_status",
     "g6_orchestration_continuity_status",
     "g6_replay_manifest_status",
     "g6_replay_drift_status",
@@ -108,6 +113,12 @@ def test_layer3_g6_readiness_passes_for_persisted_runtime_bundle() -> None:
     assert validation["summary"]["g6_search_ledger_status"] == "pass"
     assert validation["summary"]["g6_search_ledger_authority_boundary_status"] == "pass"
     assert validation["summary"]["g6_orchestration_choice_audit_status"] == "pass"
+    assert validation["summary"]["g6_compression_loss_receipt_status"] == "pass"
+    assert validation["summary"]["g6_authority_delta_completeness_status"] == "pass"
+    assert validation["summary"]["g6_summary_authority_preservation_status"] == "pass"
+    assert validation["summary"]["g6_authority_preserving_public_export_status"] == (
+        "pass"
+    )
     assert validation["summary"]["g6_orchestration_continuity_status"] == "pass"
     assert validation["summary"]["g6_replay_manifest_status"] == "pass"
     assert validation["summary"]["g6_runtime_import_boundary_status"] == "pass"
@@ -174,4 +185,28 @@ def test_layer3_g6_write_path_must_include_every_expected_artifact(
     assert validation["status"] == "fail"
     assert "layer3_g6_persisted_artifact_missing" in {
         issue["code"] for issue in validation["issues"]
+    }
+
+
+def test_layer3_g6_persisted_compression_tamper_fails_closed(
+    tmp_path: Path,
+) -> None:
+    validator = _validator()
+    bundle = validator._build_runtime_bundle(REPO_ROOT)
+    validator._write_artifacts(tmp_path, bundle)
+    run_records_path = tmp_path / validator.AGENT_RUN_RECORDS_PATH
+    payload = json.loads(run_records_path.read_text(encoding="utf-8"))
+    receipt = payload["agent_run_records"][0]["prompt_tool_ledger_projection"][
+        "prompt_tool_ledger"
+    ]["compression_loss_receipts"][0]
+    receipt["retained_limitations"] = []
+    run_records_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    issues = validator._validate_persisted_artifacts(tmp_path)
+
+    assert "layer3_g6_compression_loss_receipt_blocked" in {
+        issue["code"] for issue in issues
     }

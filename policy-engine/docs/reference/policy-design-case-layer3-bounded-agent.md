@@ -126,9 +126,11 @@ widening attempt remains a G6 blocker rather than a recommendation.
 
 ## Public Projection Boundary
 
-`layer3_g6_public_export_projection_refs.json` is projection-only. Its
-`public_export_hook_status` is `out_of_scope_reference_only`, and
-`public_export_bundle_route_registered` is false.
+`layer3_g6_public_export_projection_refs.json` remains projection-only. Its
+`public_export_hook_status` is `authority_preserving_public_export`, and the
+registered bundle route emits only the owner-recomputed compression summary or
+the premise-relative governed refusal. This backend audit export is not an
+Atlas/frontend surface.
 
 The public projection must preserve denied uses such as `claim_authority`,
 `legal_authority`, `policy_recommendation`, `runtime_closeout_authority`,

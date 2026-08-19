@@ -248,6 +248,8 @@ class OrchestrationAuthorityDeltaCompletenessReceipt(BaseModel):
     emitted_choice_kinds: tuple[str, ...] = Field(default=())
     owner_policy_catalog_ref: str = Field(min_length=1)
     owner_policy_catalog_fingerprint: str = Field(min_length=1)
+    observed_choice_population_fingerprint: str = Field(min_length=1)
+    emitted_delta_population_fingerprint: str = Field(min_length=1)
     predicate_provenance: Literal["independently_reconciled"] = (
         "independently_reconciled"
     )
@@ -627,25 +629,19 @@ def build_compression_loss_receipt(
         else CompressionMaterialSet.model_validate(candidate_summary)
     )
     delta_rows, delta_parse_issues = _coerce_authority_deltas(authority_deltas)
-    completeness = (
-        None
-        if authority_delta_completeness is None
-        else authority_delta_completeness
-        if isinstance(
-            authority_delta_completeness,
-            OrchestrationAuthorityDeltaCompletenessReceipt,
-        )
-        else OrchestrationAuthorityDeltaCompletenessReceipt.model_validate(
-            authority_delta_completeness
-        )
+    completeness = _coerce_authority_delta_completeness(
+        authority_delta_completeness
     )
-    policy_by_kind = {
-        policy.choice_kind: policy for policy in load_orchestration_choice_policies()
-    }
+    policies = load_orchestration_choice_policies()
+    policy_by_kind = {policy.choice_kind: policy for policy in policies}
     issues = list(delta_parse_issues)
     if delta_rows and completeness is None:
         issues.append("compression_authority_delta_completeness_missing")
-    elif completeness is not None and completeness.status != "pass":
+    elif completeness is not None and not _completeness_matches_deltas(
+        completeness,
+        deltas=delta_rows,
+        policies=policies,
+    ):
         issues.append("compression_authority_delta_completeness_failed")
     for delta in delta_rows:
         if _authority_delta_owner_issue(delta, policy_by_kind) is not None:
@@ -757,12 +753,8 @@ def build_compression_loss_receipt(
     else:
         disposition = "exact"
         reconstruction = "exact"
-    all_source_limitations = tuple(
-        _compression_item_ref(item) for item in source.limitations
-    )
-    all_source_denied_uses = tuple(
-        _compression_item_ref(item) for item in source.denied_uses
-    )
+    all_source_limitations = tuple(item.content for item in source.limitations)
+    all_source_denied_uses = tuple(item.content for item in source.denied_uses)
     terminal = (
         CompressionTerminalResult(
             issue_codes=issue_codes,
@@ -872,6 +864,16 @@ def _coerce_authority_deltas(
     return tuple(rows), tuple(dict.fromkeys(issues))
 
 
+def _coerce_authority_delta_completeness(
+    value: OrchestrationAuthorityDeltaCompletenessReceipt | Mapping[str, Any] | None,
+) -> OrchestrationAuthorityDeltaCompletenessReceipt | None:
+    if value is None:
+        return None
+    if isinstance(value, OrchestrationAuthorityDeltaCompletenessReceipt):
+        return value
+    return OrchestrationAuthorityDeltaCompletenessReceipt.model_validate(value)
+
+
 def _authority_delta_completeness_receipt(
     *,
     contexts: tuple[OrchestrationChoiceContext, ...],
@@ -921,11 +923,18 @@ def _authority_delta_completeness_receipt(
     ):
         issues.append("orchestration_authority_delta_population_incomplete")
     issue_codes = tuple(dict.fromkeys(issues))
-    catalog_fingerprint = _fingerprint(
-        [policy.model_dump(mode="json") for policy in policies]
+    catalog_fingerprint = _owner_policy_catalog_fingerprint(policies)
+    observed_fingerprint = _choice_population_fingerprint(contexts)
+    emitted_fingerprint = _delta_population_fingerprint(deltas)
+    receipt_fingerprint = _fingerprint(
+        {
+            "owner_policy_catalog_fingerprint": catalog_fingerprint,
+            "observed_choice_population_fingerprint": observed_fingerprint,
+            "emitted_delta_population_fingerprint": emitted_fingerprint,
+        }
     )
     return OrchestrationAuthorityDeltaCompletenessReceipt(
-        receipt_id=f"orchestration-authority-delta-completeness:{catalog_fingerprint}",
+        receipt_id=f"orchestration-authority-delta-completeness:{receipt_fingerprint}",
         status="fail" if issue_codes else "pass",
         owner_policy_count=len(policies),
         observed_choice_count=len(contexts),
@@ -937,8 +946,51 @@ def _authority_delta_completeness_receipt(
             f"repo://{_ORCHESTRATION_CHOICE_POLICY_RELATIVE_PATH.as_posix()}"
         ),
         owner_policy_catalog_fingerprint=catalog_fingerprint,
+        observed_choice_population_fingerprint=observed_fingerprint,
+        emitted_delta_population_fingerprint=emitted_fingerprint,
         issue_codes=issue_codes,
     )
+
+
+def _completeness_matches_deltas(
+    completeness: OrchestrationAuthorityDeltaCompletenessReceipt,
+    *,
+    deltas: tuple[OrchestrationAuthorityDelta, ...],
+    policies: tuple[OrchestrationChoicePolicy, ...],
+) -> bool:
+    owner_kinds = tuple(policy.choice_kind for policy in policies)
+    emitted_kinds = tuple(delta.choice_kind for delta in deltas)
+    return (
+        completeness.status == "pass"
+        and completeness.owner_policy_count == len(policies)
+        and completeness.emitted_delta_count == len(deltas)
+        and completeness.owner_choice_kinds == owner_kinds
+        and completeness.emitted_choice_kinds == emitted_kinds
+        and completeness.owner_policy_catalog_ref
+        == f"repo://{_ORCHESTRATION_CHOICE_POLICY_RELATIVE_PATH.as_posix()}"
+        and completeness.owner_policy_catalog_fingerprint
+        == _owner_policy_catalog_fingerprint(policies)
+        and completeness.emitted_delta_population_fingerprint
+        == _delta_population_fingerprint(deltas)
+    )
+
+
+def _owner_policy_catalog_fingerprint(
+    policies: tuple[OrchestrationChoicePolicy, ...],
+) -> str:
+    return _fingerprint([policy.model_dump(mode="json") for policy in policies])
+
+
+def _choice_population_fingerprint(
+    contexts: tuple[OrchestrationChoiceContext, ...],
+) -> str:
+    return _fingerprint([context.model_dump(mode="json") for context in contexts])
+
+
+def _delta_population_fingerprint(
+    deltas: tuple[OrchestrationAuthorityDelta, ...],
+) -> str:
+    return _fingerprint([delta.model_dump(mode="json") for delta in deltas])
 
 
 def _authority_delta_owner_issue(
@@ -2106,6 +2158,9 @@ def _coerce_ledger(
 
 __all__ = [
     "AUTHORITY_SCOPES",
+    "COMPRESSION_LOSS_SCHEMA_VERSION",
+    "ORCHESTRATION_AUTHORITY_DELTA_SCHEMA_VERSION",
+    "ORCHESTRATION_CHOICE_POLICY_CATALOG_SCHEMA_VERSION",
     "PROMPT_TOOL_LEDGER_FILENAME",
     "PROMPT_TOOL_LEDGER_KIND",
     "PROMPT_TOOL_LEDGER_REF_KEY",
@@ -2113,8 +2168,20 @@ __all__ = [
     "REPAIR_FMEA_SURFACE_SCHEMA_VERSION",
     "SCHEMA_VERSION",
     "AuthorityHandoffRef",
+    "CompressionClaimItem",
+    "CompressionDroppedItemDisposition",
+    "CompressionEvidenceIndependenceBasis",
+    "CompressionLossReceipt",
+    "CompressionMaterialItem",
+    "CompressionMaterialSet",
+    "CompressionTerminalResult",
     "ModelAssistedStepLedger",
     "ModelProviderConfig",
+    "OrchestrationAuthorityDelta",
+    "OrchestrationAuthorityDeltaCompletenessReceipt",
+    "OrchestrationAuthorityDeltaDerivation",
+    "OrchestrationChoiceContext",
+    "OrchestrationChoicePolicy",
     "ParserContract",
     "PromptTemplateRecord",
     "PromptToolLedgerError",
@@ -2126,11 +2193,16 @@ __all__ = [
     "ToolCallRecord",
     "ToolSchemaRecord",
     "ValidationRef",
+    "build_compression_loss_receipt",
+    "build_orchestration_authority_deltas",
     "build_prompt_tool_ledger_from_model_variant",
+    "load_orchestration_choice_policies",
     "persist_prompt_tool_ledger",
     "persist_runtime_quality_json_artifact",
     "prompt_tool_repair_fmea_closeout_record",
     "prompt_tool_repair_machinery_failures",
     "serialize_prompt_tool_ledger",
+    "validate_compression_loss_receipt",
+    "validate_orchestration_authority_delta_completeness",
     "validate_prompt_tool_parser_authority",
 ]

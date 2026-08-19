@@ -56,6 +56,7 @@ from polisyos.runtime.quality.prompt_tool_ledger import (
     validate_orchestration_authority_delta_completeness,
 )
 from polisyos.runtime.quality.proving_ground import proving_ground_conversion as g5
+from polisyos.runtime.quality.public_export import build_public_export_bundle
 from polisyos.runtime.quality.replay import (
     build_replay_manifest,
     explain_replay_drift,
@@ -1289,7 +1290,54 @@ def verify_g6_summary_authority_preservation(
         source_material=source_material,
         candidate_summary=candidate_summary,
     )
-    ledger = record.prompt_tool_ledger_projection.prompt_tool_ledger
+    return _verify_g6_summary_authority_derivation(
+        verification_id=(
+            f"layer3-g6://summary-authority-preservation-verification/"
+            f"{record.request_id}"
+        ),
+        expected=expected,
+        prompt_tool_ledger=record.prompt_tool_ledger_projection,
+        audit=record.orchestration_choice_audit,
+    )
+
+
+def verify_g6_loop_summary_authority_preservation(
+    result: Layer3G6BoundedAgentLoopResult,
+) -> Layer3G6SummaryAuthorityPreservationVerification:
+    """Recompute receipt and choice completeness from a bounded-loop result."""
+
+    source_material, candidate_summary = _g6_loop_compression_materials(
+        request_id=result.request_id,
+        candidate=result.grammar_expansion_candidate,
+        trace=result.agent_loop_trace,
+        audit=result.orchestration_choice_audit,
+    )
+    expected = _derive_g6_summary_authority_preservation(
+        request_id=result.request_id,
+        search_ledger=result.search_ledger,
+        audit=result.orchestration_choice_audit,
+        source_material=source_material,
+        candidate_summary=candidate_summary,
+    )
+    return _verify_g6_summary_authority_derivation(
+        verification_id=(
+            f"layer3-g6://summary-authority-preservation-verification/"
+            f"{result.request_id}/bounded-loop"
+        ),
+        expected=expected,
+        prompt_tool_ledger=result.prompt_tool_ledger_projection,
+        audit=result.orchestration_choice_audit,
+    )
+
+
+def _verify_g6_summary_authority_derivation(
+    *,
+    verification_id: str,
+    expected: _G6SummaryAuthorityDerivation,
+    prompt_tool_ledger: Layer3G6PromptToolLedgerProjection,
+    audit: Layer3G6OrchestrationChoiceAudit,
+) -> Layer3G6SummaryAuthorityPreservationVerification:
+    ledger = prompt_tool_ledger.prompt_tool_ledger
     issues: list[str] = []
     actual_receipt = (
         ledger.compression_loss_receipts[0]
@@ -1324,23 +1372,23 @@ def verify_g6_summary_authority_preservation(
         != expected.completeness.model_dump(mode="json")
         or tuple(ledger.orchestration_authority_deltas)
         != expected.authority_deltas
-        or tuple(record.orchestration_choice_audit.authority_deltas)
-        != expected.authority_deltas
+        or tuple(audit.authority_deltas) != expected.authority_deltas
     ):
         issues.append("layer3_g6_authority_delta_owner_validation_failed")
     if (
-        record.orchestration_choice_audit.authority_delta_completeness is None
-        or record.orchestration_choice_audit.authority_delta_completeness.model_dump(
-            mode="json"
-        )
+        audit.authority_delta_completeness is None
+        or audit.authority_delta_completeness.model_dump(mode="json")
         != expected.completeness.model_dump(mode="json")
     ):
         issues.append("layer3_g6_authority_delta_completeness_failed")
+    if (
+        audit.compression_loss_receipt_ref
+        != expected.compression_loss_receipt.receipt_id
+    ):
+        issues.append("layer3_g6_compression_loss_receipt_blocked")
     issue_codes = tuple(dict.fromkeys(issues))
     return Layer3G6SummaryAuthorityPreservationVerification(
-        verification_id=(
-            f"layer3-g6://summary-authority-preservation-verification/{record.request_id}"
-        ),
+        verification_id=verification_id,
         status="fail" if issue_codes else "pass",
         compression_loss_receipt_ref=(
             actual_receipt.receipt_id if actual_receipt is not None else None
@@ -2677,6 +2725,62 @@ def build_g6_agent_audit_surface(
         ),
         issue_codes=issue_codes,
     )
+
+
+def build_g6_authority_preserving_public_export(
+    record: Layer3G6AgentRunRecord,
+    *,
+    generated_at: datetime | None = None,
+) -> dict[str, object]:
+    """Export only a recomputed G6 summary or its governed refusal."""
+
+    surface = build_g6_agent_audit_surface(record)
+    bundle = build_public_export_bundle(
+        run_id=record.run_record_id,
+        artifacts={"g6_summary_authority_preservation": surface.PUBLIC},
+        generated_at=(
+            generated_at
+            or record.prompt_tool_ledger_projection.prompt_tool_ledger.generated_at
+        ),
+    )
+    artifacts = bundle.get("artifacts")
+    exported = (
+        artifacts.get("g6_summary_authority_preservation")
+        if isinstance(artifacts, Mapping)
+        else None
+    )
+    compression_result = (
+        exported.get("compression_result")
+        if isinstance(exported, Mapping)
+        else None
+    )
+    verification = surface.summary_authority_preservation_verification
+    verification_pass = verification.get("status") == "pass"
+    if verification_pass:
+        export_safe = (
+            isinstance(compression_result, Mapping)
+            and compression_result.get("status") == "pass"
+            and isinstance(compression_result.get("summary"), Mapping)
+        )
+    else:
+        terminal = (
+            compression_result.get("terminal_result")
+            if isinstance(compression_result, Mapping)
+            else None
+        )
+        export_safe = (
+            isinstance(compression_result, Mapping)
+            and compression_result.get("status") == "blocked"
+            and "summary" not in compression_result
+            and isinstance(terminal, Mapping)
+            and terminal.get("result_kind") == "governed_refusal"
+        )
+    if not export_safe:
+        raise PromptToolLedgerError(
+            "layer3_g6_public_projection_contract_failed",
+            "G6 public export did not preserve the recomputed compression result.",
+        )
+    return bundle
 
 
 def build_g6_demand_pull_vs_abstention_delta(

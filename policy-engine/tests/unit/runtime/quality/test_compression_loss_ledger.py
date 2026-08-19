@@ -513,3 +513,55 @@ def test_g6_consumer_rejects_owner_validation_bypass() -> None:
         in verification.issue_codes
     )
     assert surface.status == "fail"
+
+
+@pytest.mark.asyncio
+async def test_g6_bounded_loop_emits_compression_and_choice_receipts() -> None:
+    from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
+
+    result = await g6.run_layer3_g6_bounded_agent_loop(
+        repo_root=REPO_ROOT,
+        raw_request="Can Ukraine improve affordable loans for wartime MSMEs?",
+        request_id="req-compression-bounded-loop",
+        policy_grammar_projection=_policy_grammar_projection(
+            "req-compression-bounded-loop"
+        ),
+        client=g6.FakeG6ToolCallingClient(
+            tool_sequence=(
+                "layer3_g6_classify_request",
+                "layer3_g6_build_g5_bundle",
+            )
+        ),
+        max_iterations=3,
+    )
+
+    ledger = result.prompt_tool_ledger_projection.prompt_tool_ledger
+    assert ledger.compression_loss_receipts[0].status == "pass"
+    assert ledger.authority_delta_completeness_receipts[0].status == "pass"
+    assert result.orchestration_choice_audit.authority_delta_completeness is not None
+    assert result.orchestration_choice_audit.authority_delta_completeness.status == "pass"
+
+
+@pytest.mark.asyncio
+async def test_g6_blocked_loop_emits_governed_compression_receipt(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
+
+    monkeypatch.setattr(g6, "create_traced_gateway_client", lambda **_: None)
+    result = await g6.run_layer3_g6_bounded_agent_loop(
+        repo_root=REPO_ROOT,
+        raw_request="Can Ukraine improve affordable loans for wartime MSMEs?",
+        request_id="req-compression-blocked-loop",
+        policy_grammar_projection=_policy_grammar_projection(
+            "req-compression-blocked-loop"
+        ),
+        client=None,
+        max_iterations=3,
+    )
+
+    ledger = result.prompt_tool_ledger_projection.prompt_tool_ledger
+    assert result.status == "blocked"
+    assert ledger.compression_loss_receipts[0].status == "pass"
+    assert ledger.compression_loss_receipts[0].authoritative_for == ()
+    assert ledger.authority_delta_completeness_receipts[0].status == "pass"

@@ -441,6 +441,9 @@ class CompressionLossReceipt(BaseModel):
     )
     evidence_independence_status_by_claim: dict[str, str] = Field(default_factory=dict)
     authority_deltas: tuple[OrchestrationAuthorityDelta, ...] = Field(default=())
+    authority_delta_completeness: (
+        OrchestrationAuthorityDeltaCompletenessReceipt | None
+    ) = None
     issue_codes: tuple[str, ...] = Field(default=())
     authoritative_for: tuple[str, ...] = Field(default=())
     may_not_use_for: tuple[str, ...] = _COMPRESSION_MAY_NOT_USE_FOR
@@ -602,6 +605,9 @@ def build_compression_loss_receipt(
     source_material: CompressionMaterialSet | Mapping[str, Any],
     candidate_summary: CompressionMaterialSet | Mapping[str, Any],
     authority_deltas: Iterable[OrchestrationAuthorityDelta | Mapping[str, Any]] = (),
+    authority_delta_completeness: (
+        OrchestrationAuthorityDeltaCompletenessReceipt | Mapping[str, Any] | None
+    ) = None,
     evidence_independence_bases: Mapping[
         str,
         CompressionEvidenceIndependenceBasis | Mapping[str, Any],
@@ -621,10 +627,26 @@ def build_compression_loss_receipt(
         else CompressionMaterialSet.model_validate(candidate_summary)
     )
     delta_rows, delta_parse_issues = _coerce_authority_deltas(authority_deltas)
+    completeness = (
+        None
+        if authority_delta_completeness is None
+        else authority_delta_completeness
+        if isinstance(
+            authority_delta_completeness,
+            OrchestrationAuthorityDeltaCompletenessReceipt,
+        )
+        else OrchestrationAuthorityDeltaCompletenessReceipt.model_validate(
+            authority_delta_completeness
+        )
+    )
     policy_by_kind = {
         policy.choice_kind: policy for policy in load_orchestration_choice_policies()
     }
     issues = list(delta_parse_issues)
+    if delta_rows and completeness is None:
+        issues.append("compression_authority_delta_completeness_missing")
+    elif completeness is not None and completeness.status != "pass":
+        issues.append("compression_authority_delta_completeness_failed")
     for delta in delta_rows:
         if _authority_delta_owner_issue(delta, policy_by_kind) is not None:
             issues.append("orchestration_authority_delta_owner_validation_failed")
@@ -775,6 +797,7 @@ def build_compression_loss_receipt(
         dropped_item_dispositions=dropped_dispositions,
         evidence_independence_status_by_claim=independence_status_by_claim,
         authority_deltas=delta_rows,
+        authority_delta_completeness=completeness,
         issue_codes=issue_codes,
     )
 
@@ -807,6 +830,7 @@ def validate_compression_loss_receipt(
         source_material=parsed.source_material,
         candidate_summary=parsed.candidate_summary,
         authority_deltas=parsed.authority_deltas,
+        authority_delta_completeness=parsed.authority_delta_completeness,
         evidence_independence_bases=evidence_independence_bases,
     )
     if recomputed.model_dump(mode="json") != parsed.model_dump(mode="json"):

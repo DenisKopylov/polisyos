@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import hashlib
 import json
+import tomllib
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
 from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any, Literal
 
 from pydantic import (
@@ -21,6 +23,11 @@ from pydantic import (
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec
+from polisyos.runtime.quality.evidence_independence import (
+    EvidenceIndependenceError,
+    build_evidence_independence_map,
+    validate_evidence_independence_map_record,
+)
 
 SCHEMA_VERSION = "policyos.prompt_tool_parser_authority_ledger.v1"
 PROMPT_TOOL_LEDGER_KIND = "runtime.prompt_tool_parser_authority_ledger"
@@ -29,6 +36,29 @@ PROMPT_TOOL_LEDGER_REPORT_KEY = "prompt_tool_ledger"
 PROMPT_TOOL_LEDGER_REF_KEY = "prompt_tool_ledger_ref"
 PROMPT_TOOL_LEDGER_FILENAME = "prompt_tool_ledger.json"
 REPAIR_FMEA_SURFACE_SCHEMA_VERSION = "policyos.runtime.prompt_tool_repair_fmea_surface.v1"
+COMPRESSION_LOSS_SCHEMA_VERSION = "policyos.runtime.compression_loss_receipt.v1"
+ORCHESTRATION_CHOICE_POLICY_CATALOG_SCHEMA_VERSION = (
+    "policyos.runtime.orchestration_choice_policy_catalog.v1"
+)
+ORCHESTRATION_AUTHORITY_DELTA_SCHEMA_VERSION = (
+    "policyos.runtime.orchestration_authority_delta.v1"
+)
+_POLICY_ENGINE_ROOT = Path(__file__).resolve().parents[4]
+_ORCHESTRATION_CHOICE_POLICY_RELATIVE_PATH = Path(
+    "architecture/production_quality/orchestration_choice_policies.toml"
+)
+_ORCHESTRATION_CHOICE_POLICY_PATH = (
+    _POLICY_ENGINE_ROOT / _ORCHESTRATION_CHOICE_POLICY_RELATIVE_PATH
+)
+_ORCHESTRATION_CHOICE_POLICY_OWNER = "team-runtime-quality"
+_COMPRESSION_MAY_NOT_USE_FOR = (
+    "claim_authority",
+    "evidence_authority",
+    "policy_recommendation",
+    "publication_authority",
+    "scorecard_authority",
+    "closeout_authority",
+)
 
 AuthorityScope = Literal["evidence", "claims", "scorecard", "approval"]
 ValidationStatus = Literal["pass", "fail", "warn", "blocked", "not_applicable"]
@@ -58,6 +88,1039 @@ class PromptToolLedgerError(ValueError):
     def __init__(self, code: str, message: str | None = None) -> None:
         self.code = code
         super().__init__(message or code)
+
+
+class OrchestrationChoicePolicy(BaseModel):
+    """Owner policy for one data-declared orchestration choice kind."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    choice_kind: str = Field(min_length=1)
+    decision_policy_ref: str = Field(min_length=1)
+    authority_effect: str = Field(min_length=1)
+    governance_burden_change_allowed: bool = False
+    policy_owner: str = _ORCHESTRATION_CHOICE_POLICY_OWNER
+    approval_owner: str = _ORCHESTRATION_CHOICE_POLICY_OWNER
+    policy_fingerprint: str | None = None
+    authoritative_for: tuple[str, ...] = Field(default=())
+
+    @field_validator(
+        "choice_kind",
+        "decision_policy_ref",
+        "authority_effect",
+        "policy_owner",
+        "approval_owner",
+    )
+    @classmethod
+    def _clean_text_field(cls, value: str) -> str:
+        return _non_empty(value)
+
+    @model_validator(mode="after")
+    def _bind_owner_policy(self) -> OrchestrationChoicePolicy:
+        if self.policy_owner != _ORCHESTRATION_CHOICE_POLICY_OWNER:
+            raise ValueError("orchestration choice policy owner is not canonical")
+        if self.approval_owner != _ORCHESTRATION_CHOICE_POLICY_OWNER:
+            raise ValueError("orchestration choice approval owner is not canonical")
+        if self.authoritative_for:
+            raise ValueError("orchestration choice policies cannot grant authority")
+        expected = _fingerprint(
+            {
+                "choice_kind": self.choice_kind,
+                "decision_policy_ref": self.decision_policy_ref,
+                "authority_effect": self.authority_effect,
+                "governance_burden_change_allowed": (
+                    self.governance_burden_change_allowed
+                ),
+                "policy_owner": self.policy_owner,
+                "approval_owner": self.approval_owner,
+                "authoritative_for": [],
+            }
+        )
+        if self.policy_fingerprint is not None and self.policy_fingerprint != expected:
+            raise ValueError("orchestration choice policy fingerprint mismatch")
+        self.policy_fingerprint = expected
+        return self
+
+
+class OrchestrationChoiceContext(BaseModel):
+    """Runtime-derived candidate partition for one orchestration choice."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    choice_id: str = Field(min_length=1)
+    choice_kind: str = Field(min_length=1)
+    candidate_universe: tuple[str, ...]
+    selected: tuple[str, ...] = Field(default=())
+    rejected: tuple[str, ...] = Field(default=())
+    governance_burden_before: tuple[str, ...] = Field(default=())
+    governance_burden_after: tuple[str, ...] = Field(default=())
+    source_refs: tuple[str, ...] = Field(default=())
+
+    @field_validator("choice_id", "choice_kind")
+    @classmethod
+    def _clean_text_field(cls, value: str) -> str:
+        return _non_empty(value)
+
+    @field_validator(
+        "candidate_universe",
+        "selected",
+        "rejected",
+        "governance_burden_before",
+        "governance_burden_after",
+        "source_refs",
+    )
+    @classmethod
+    def _validate_identity_tuple(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        return _unique_identity_tuple(values)
+
+
+class OrchestrationAuthorityDelta(BaseModel):
+    """Typed non-authoritative effect of one owner-validated choice."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = ORCHESTRATION_AUTHORITY_DELTA_SCHEMA_VERSION
+    delta_id: str = Field(min_length=1)
+    choice_id: str = Field(min_length=1)
+    choice_kind: str = Field(min_length=1)
+    candidate_universe: tuple[str, ...]
+    selected: tuple[str, ...] = Field(default=())
+    rejected: tuple[str, ...] = Field(default=())
+    decision_policy_ref: str = Field(min_length=1)
+    decision_policy_owner: str = _ORCHESTRATION_CHOICE_POLICY_OWNER
+    owner_policy_fingerprint: str = Field(min_length=1)
+    decision_context_fingerprint: str = Field(min_length=1)
+    authority_effect: str = Field(min_length=1)
+    governance_burden_before: tuple[str, ...] = Field(default=())
+    governance_burden_after: tuple[str, ...] = Field(default=())
+    governance_burden_change_allowed: bool = False
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    authoritative_for: tuple[str, ...] = Field(default=())
+
+    @field_validator(
+        "delta_id",
+        "choice_id",
+        "choice_kind",
+        "decision_policy_ref",
+        "decision_policy_owner",
+        "owner_policy_fingerprint",
+        "decision_context_fingerprint",
+        "authority_effect",
+    )
+    @classmethod
+    def _clean_text_field(cls, value: str) -> str:
+        return _non_empty(value)
+
+    @field_validator(
+        "candidate_universe",
+        "selected",
+        "rejected",
+        "governance_burden_before",
+        "governance_burden_after",
+    )
+    @classmethod
+    def _validate_identity_tuple(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        return _unique_identity_tuple(values)
+
+    @model_validator(mode="after")
+    def _validate_non_authoritative_partition(self) -> OrchestrationAuthorityDelta:
+        if self.schema_version != ORCHESTRATION_AUTHORITY_DELTA_SCHEMA_VERSION:
+            raise ValueError("unsupported orchestration authority-delta schema")
+        if _choice_partition_issue(self) is not None:
+            raise ValueError("orchestration choice candidate partition is invalid")
+        if self.authoritative_for:
+            raise ValueError("orchestration authority deltas cannot grant authority")
+        return self
+
+
+class OrchestrationAuthorityDeltaCompletenessReceipt(BaseModel):
+    """Owner-reconciled full-denominator authority-delta completeness result."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    receipt_id: str = Field(min_length=1)
+    status: Literal["pass", "fail"]
+    owner_policy_count: int = Field(ge=0)
+    observed_choice_count: int = Field(ge=0)
+    emitted_delta_count: int = Field(ge=0)
+    owner_choice_kinds: tuple[str, ...] = Field(default=())
+    observed_choice_kinds: tuple[str, ...] = Field(default=())
+    emitted_choice_kinds: tuple[str, ...] = Field(default=())
+    owner_policy_catalog_ref: str = Field(min_length=1)
+    owner_policy_catalog_fingerprint: str = Field(min_length=1)
+    predicate_provenance: Literal["independently_reconciled"] = (
+        "independently_reconciled"
+    )
+    decisive_property: Literal[
+        "owner_validated_full_choice_population_and_exact_candidate_partition"
+    ] = "owner_validated_full_choice_population_and_exact_candidate_partition"
+    issue_codes: tuple[str, ...] = Field(default=())
+    authoritative_for: tuple[str, ...] = Field(default=())
+
+    @model_validator(mode="after")
+    def _validate_receipt_boundary(self) -> OrchestrationAuthorityDeltaCompletenessReceipt:
+        if self.authoritative_for:
+            raise ValueError("authority-delta completeness cannot grant authority")
+        if self.status == "pass" and self.issue_codes:
+            raise ValueError("passing authority-delta completeness cannot carry issues")
+        if self.status == "fail" and not self.issue_codes:
+            raise ValueError("failing authority-delta completeness requires issues")
+        return self
+
+
+class OrchestrationAuthorityDeltaDerivation(BaseModel):
+    """Owner derivation of deltas plus its full-denominator receipt."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    deltas: tuple[OrchestrationAuthorityDelta, ...] = Field(default=())
+    completeness: OrchestrationAuthorityDeltaCompletenessReceipt
+
+
+class CompressionMaterialItem(BaseModel):
+    """Content-bound semantic item considered by compression."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    item_id: str = Field(min_length=1)
+    content: str = Field(min_length=1)
+    source_refs: tuple[str, ...] = Field(default=())
+    item_fingerprint: str | None = None
+
+    @field_validator("item_id", "content")
+    @classmethod
+    def _clean_text_field(cls, value: str) -> str:
+        return _non_empty(value)
+
+    @field_validator("source_refs")
+    @classmethod
+    def _clean_source_refs(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        return _unique_identity_tuple(values)
+
+    @model_validator(mode="after")
+    def _bind_item_content(self) -> CompressionMaterialItem:
+        expected = _fingerprint(self.model_dump(exclude={"item_fingerprint"}))
+        if self.item_fingerprint is not None and self.item_fingerprint != expected:
+            raise ValueError("compression material fingerprint mismatch")
+        self.item_fingerprint = expected
+        return self
+
+
+class CompressionClaimItem(CompressionMaterialItem):
+    """Claim item with use-relative presentation semantics."""
+
+    claim_kind: Literal[
+        "substantive",
+        "procedural_binding",
+        "negative_terminal",
+        "constitutive_step",
+        "delta",
+    ] = "substantive"
+    presentation_scope: Literal["bounded", "broad_consensus"] = "bounded"
+    evidence_independence_ref: str | None = None
+    basis_refs: tuple[str, ...] = Field(default=())
+
+    @field_validator("evidence_independence_ref")
+    @classmethod
+    def _clean_optional_ref(cls, value: str | None) -> str | None:
+        return _optional_text(value)
+
+    @field_validator("basis_refs")
+    @classmethod
+    def _clean_basis_refs(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        return _unique_identity_tuple(values)
+
+
+class CompressionMaterialSet(BaseModel):
+    """Structured source or candidate-summary semantics for compression."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claims: tuple[CompressionClaimItem, ...] = Field(default=())
+    limitations: tuple[CompressionMaterialItem, ...] = Field(default=())
+    denied_uses: tuple[CompressionMaterialItem, ...] = Field(default=())
+    counterevidence: tuple[CompressionMaterialItem, ...] = Field(default=())
+    governance_burden_refs: tuple[str, ...] = Field(default=())
+    framing_refs: tuple[str, ...] = Field(default=())
+    material_fingerprint: str | None = None
+
+    @field_validator("governance_burden_refs", "framing_refs")
+    @classmethod
+    def _clean_semantic_refs(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        return _unique_identity_tuple(values)
+
+    @model_validator(mode="after")
+    def _bind_material_content(self) -> CompressionMaterialSet:
+        item_ids = [
+            item.item_id
+            for items in (
+                self.claims,
+                self.limitations,
+                self.denied_uses,
+                self.counterevidence,
+            )
+            for item in items
+        ]
+        if len(item_ids) != len(set(item_ids)):
+            raise ValueError("compression material item ids must be unique")
+        expected = _fingerprint(self.model_dump(exclude={"material_fingerprint"}))
+        if self.material_fingerprint is not None and self.material_fingerprint != expected:
+            raise ValueError("compression material-set fingerprint mismatch")
+        self.material_fingerprint = expected
+        return self
+
+
+class CompressionEvidenceIndependenceBasis(BaseModel):
+    """Pinned inputs used to rebuild one evidence-independence map exactly."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    independence_map: dict[str, Any]
+    evidence_lines: tuple[dict[str, Any], ...]
+    portfolio_designs: tuple[dict[str, Any], ...]
+    method_consensus_reports: tuple[dict[str, Any], ...] = Field(default=())
+    method_equivalence_reports: tuple[dict[str, Any], ...] = Field(default=())
+    feature_flags: dict[str, bool] | None = None
+    graded_independence_config: dict[str, Any] | None = None
+    rare_domain_context: dict[str, Any] | None = None
+    producer_execution_started_at: str | datetime
+
+
+class CompressionDroppedItemDisposition(BaseModel):
+    """Canonical authority effect for one dropped source item."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    item_ref: str = Field(min_length=1)
+    category: Literal["claims", "limitations", "denied_uses", "counterevidence"]
+    reason_code: str = Field(min_length=1)
+    authority_effect: Literal["authority_reduced", "material_omission_blocks_summary"]
+
+
+class CompressionTerminalResult(BaseModel):
+    """Completed governed refusal emitted instead of an unsafe clean summary."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    result_kind: Literal["governed_refusal"] = "governed_refusal"
+    refusal_scope: Literal["premise_relative"] = "premise_relative"
+    issue_codes: tuple[str, ...]
+    retained_limitations: tuple[str, ...] = Field(default=())
+    retained_denied_uses: tuple[str, ...] = Field(default=())
+
+
+class CompressionLossReceipt(BaseModel):
+    """Typed retained-versus-dropped semantics for one compression act."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = COMPRESSION_LOSS_SCHEMA_VERSION
+    receipt_id: str = Field(min_length=1)
+    source_ref: str = Field(min_length=1)
+    summary_ref: str = Field(min_length=1)
+    source_material: CompressionMaterialSet
+    candidate_summary: CompressionMaterialSet
+    source_fingerprint: str = Field(min_length=1)
+    candidate_summary_fingerprint: str = Field(min_length=1)
+    status: Literal["pass", "blocked"]
+    disposition: Literal["exact", "lossy_but_safe", "blocked_material_omission"]
+    summary_reconstruction: Literal["exact", "proved_conservative", "not_established"]
+    emitted_summary: CompressionMaterialSet | None = None
+    terminal_result: CompressionTerminalResult | None = None
+    retained_claims: tuple[str, ...] = Field(default=())
+    dropped_claims: tuple[str, ...] = Field(default=())
+    retained_limitations: tuple[str, ...] = Field(default=())
+    dropped_limitations: tuple[str, ...] = Field(default=())
+    retained_denied_uses: tuple[str, ...] = Field(default=())
+    dropped_denied_uses: tuple[str, ...] = Field(default=())
+    retained_counterevidence: tuple[str, ...] = Field(default=())
+    dropped_counterevidence: tuple[str, ...] = Field(default=())
+    introduced_summary_items: tuple[str, ...] = Field(default=())
+    dropped_item_dispositions: tuple[CompressionDroppedItemDisposition, ...] = (
+        Field(default=())
+    )
+    evidence_independence_status_by_claim: dict[str, str] = Field(default_factory=dict)
+    authority_deltas: tuple[OrchestrationAuthorityDelta, ...] = Field(default=())
+    issue_codes: tuple[str, ...] = Field(default=())
+    authoritative_for: tuple[str, ...] = Field(default=())
+    may_not_use_for: tuple[str, ...] = _COMPRESSION_MAY_NOT_USE_FOR
+
+    @model_validator(mode="after")
+    def _validate_receipt_semantics(self) -> CompressionLossReceipt:
+        if self.schema_version != COMPRESSION_LOSS_SCHEMA_VERSION:
+            raise ValueError("unsupported compression-loss receipt schema")
+        if self.authoritative_for:
+            raise ValueError("compression-loss receipts cannot grant authority")
+        if self.source_fingerprint != self.source_material.material_fingerprint:
+            raise ValueError("compression source fingerprint mismatch")
+        if (
+            self.candidate_summary_fingerprint
+            != self.candidate_summary.material_fingerprint
+        ):
+            raise ValueError("compression candidate-summary fingerprint mismatch")
+        if self.status == "pass":
+            if self.issue_codes or self.emitted_summary is None or self.terminal_result:
+                raise ValueError("passing compression receipt must emit only a clean summary")
+        elif self.emitted_summary is not None or self.terminal_result is None:
+            raise ValueError("blocked compression receipt must emit a governed refusal")
+        return self
+
+
+def load_orchestration_choice_policies() -> tuple[OrchestrationChoicePolicy, ...]:
+    """Load the fixed owner policy catalog for orchestration choices."""
+
+    try:
+        document = tomllib.loads(
+            _ORCHESTRATION_CHOICE_POLICY_PATH.read_text(encoding="utf-8")
+        )
+    except (OSError, tomllib.TOMLDecodeError) as exc:
+        raise PromptToolLedgerError(
+            "orchestration_choice_owner_policy_unavailable",
+            "The canonical orchestration-choice policy catalog is unavailable.",
+        ) from exc
+    if document.get("schema_version") != ORCHESTRATION_CHOICE_POLICY_CATALOG_SCHEMA_VERSION:
+        raise PromptToolLedgerError(
+            "orchestration_choice_owner_policy_invalid",
+            "The orchestration-choice policy catalog schema is not supported.",
+        )
+    owner = _optional_text(document.get("owner"))
+    approval_owner = _optional_text(document.get("approval_owner"))
+    if (
+        owner != _ORCHESTRATION_CHOICE_POLICY_OWNER
+        or approval_owner != _ORCHESTRATION_CHOICE_POLICY_OWNER
+    ):
+        raise PromptToolLedgerError(
+            "orchestration_choice_owner_policy_invalid",
+            "The orchestration-choice policy catalog is not owner-bound.",
+        )
+    raw_rows = document.get("choice_policy")
+    if not isinstance(raw_rows, list) or not raw_rows:
+        raise PromptToolLedgerError(
+            "orchestration_choice_owner_policy_invalid",
+            "The orchestration-choice policy catalog has no choice population.",
+        )
+    try:
+        policies = tuple(
+            OrchestrationChoicePolicy.model_validate(
+                {
+                    **dict(row),
+                    "policy_owner": owner,
+                    "approval_owner": approval_owner,
+                }
+            )
+            for row in raw_rows
+            if isinstance(row, Mapping)
+        )
+    except ValidationError as exc:
+        raise PromptToolLedgerError(
+            "orchestration_choice_owner_policy_invalid",
+            "The orchestration-choice policy catalog contains an invalid row.",
+        ) from exc
+    kinds = [policy.choice_kind for policy in policies]
+    if len(policies) != len(raw_rows) or len(kinds) != len(set(kinds)):
+        raise PromptToolLedgerError(
+            "orchestration_choice_owner_policy_invalid",
+            "The orchestration-choice policy population must be complete and unique.",
+        )
+    return policies
+
+
+def build_orchestration_authority_deltas(
+    contexts: Iterable[OrchestrationChoiceContext | Mapping[str, Any]],
+) -> OrchestrationAuthorityDeltaDerivation:
+    """Derive non-authoritative deltas over the complete owner choice population."""
+
+    context_rows, parse_issues = _coerce_choice_contexts(contexts)
+    policies = load_orchestration_choice_policies()
+    policy_by_kind = {policy.choice_kind: policy for policy in policies}
+    duplicate_kinds = _duplicates(context.choice_kind for context in context_rows)
+    duplicate_ids = _duplicates(context.choice_id for context in context_rows)
+    deltas: list[OrchestrationAuthorityDelta] = []
+    for context in context_rows:
+        policy = policy_by_kind.get(context.choice_kind)
+        if (
+            policy is None
+            or context.choice_kind in duplicate_kinds
+            or context.choice_id in duplicate_ids
+            or _choice_partition_issue(context) is not None
+        ):
+            continue
+        deltas.append(
+            OrchestrationAuthorityDelta(
+                delta_id=f"orchestration-authority-delta:{context.choice_id}",
+                choice_id=context.choice_id,
+                choice_kind=context.choice_kind,
+                candidate_universe=context.candidate_universe,
+                selected=context.selected,
+                rejected=context.rejected,
+                decision_policy_ref=policy.decision_policy_ref,
+                decision_policy_owner=policy.policy_owner,
+                owner_policy_fingerprint=str(policy.policy_fingerprint),
+                decision_context_fingerprint=_choice_context_fingerprint(context),
+                authority_effect=policy.authority_effect,
+                governance_burden_before=context.governance_burden_before,
+                governance_burden_after=context.governance_burden_after,
+                governance_burden_change_allowed=(
+                    policy.governance_burden_change_allowed
+                ),
+            )
+        )
+    completeness = _authority_delta_completeness_receipt(
+        contexts=context_rows,
+        deltas=tuple(deltas),
+        policies=policies,
+        extra_issue_codes=parse_issues,
+    )
+    return OrchestrationAuthorityDeltaDerivation(
+        deltas=tuple(deltas),
+        completeness=completeness,
+    )
+
+
+def validate_orchestration_authority_delta_completeness(
+    *,
+    contexts: Iterable[OrchestrationChoiceContext | Mapping[str, Any]],
+    deltas: Iterable[OrchestrationAuthorityDelta | Mapping[str, Any]],
+) -> OrchestrationAuthorityDeltaCompletenessReceipt:
+    """Recompute the owner predicate over contexts and emitted deltas."""
+
+    context_rows, context_issues = _coerce_choice_contexts(contexts)
+    delta_rows, delta_issues = _coerce_authority_deltas(deltas)
+    return _authority_delta_completeness_receipt(
+        contexts=context_rows,
+        deltas=delta_rows,
+        policies=load_orchestration_choice_policies(),
+        extra_issue_codes=(*context_issues, *delta_issues),
+    )
+
+
+def build_compression_loss_receipt(
+    *,
+    receipt_id: str,
+    source_ref: str,
+    summary_ref: str,
+    source_material: CompressionMaterialSet | Mapping[str, Any],
+    candidate_summary: CompressionMaterialSet | Mapping[str, Any],
+    authority_deltas: Iterable[OrchestrationAuthorityDelta | Mapping[str, Any]] = (),
+    evidence_independence_bases: Mapping[
+        str,
+        CompressionEvidenceIndependenceBasis | Mapping[str, Any],
+    ]
+    | None = None,
+) -> CompressionLossReceipt:
+    """Recompute a use-relative conservative compression-loss receipt."""
+
+    source = (
+        source_material
+        if isinstance(source_material, CompressionMaterialSet)
+        else CompressionMaterialSet.model_validate(source_material)
+    )
+    summary = (
+        candidate_summary
+        if isinstance(candidate_summary, CompressionMaterialSet)
+        else CompressionMaterialSet.model_validate(candidate_summary)
+    )
+    delta_rows, delta_parse_issues = _coerce_authority_deltas(authority_deltas)
+    policy_by_kind = {
+        policy.choice_kind: policy for policy in load_orchestration_choice_policies()
+    }
+    issues = list(delta_parse_issues)
+    for delta in delta_rows:
+        if _authority_delta_owner_issue(delta, policy_by_kind) is not None:
+            issues.append("orchestration_authority_delta_owner_validation_failed")
+
+    partitions = {
+        category: _compression_partition(
+            getattr(source, category),
+            getattr(summary, category),
+        )
+        for category in ("claims", "limitations", "denied_uses", "counterevidence")
+    }
+    retained_claims, dropped_claims, introduced_claims = partitions["claims"]
+    retained_limitations, dropped_limitations, introduced_limitations = partitions[
+        "limitations"
+    ]
+    retained_denied_uses, dropped_denied_uses, introduced_denied_uses = partitions[
+        "denied_uses"
+    ]
+    (
+        retained_counterevidence,
+        dropped_counterevidence,
+        introduced_counterevidence,
+    ) = partitions["counterevidence"]
+    introduced = (
+        *introduced_claims,
+        *introduced_limitations,
+        *introduced_denied_uses,
+        *introduced_counterevidence,
+    )
+    if dropped_limitations:
+        issues.append("compression_retained_limitation_dropped")
+    if dropped_denied_uses:
+        issues.append("compression_denied_use_dropped")
+    if dropped_counterevidence:
+        issues.append("compression_counterevidence_dropped")
+    if introduced:
+        issues.append("compression_summary_authority_amplified")
+
+    dropped_claim_refs = set(dropped_claims)
+    for claim in source.claims:
+        item_ref = _compression_item_ref(claim)
+        if item_ref not in dropped_claim_refs:
+            continue
+        if claim.claim_kind == "negative_terminal":
+            issues.append("compression_hidden_negative_terminal")
+        elif claim.claim_kind == "constitutive_step":
+            issues.append("compression_missing_constitutive_step")
+    for claim in summary.claims:
+        if claim.claim_kind == "delta" and not claim.basis_refs:
+            issues.append("compression_bare_delta")
+
+    independence_status_by_claim: dict[str, str] = {}
+    bases = evidence_independence_bases or {}
+    for claim in summary.claims:
+        if claim.presentation_scope != "broad_consensus":
+            continue
+        basis_value = bases.get(str(claim.evidence_independence_ref or ""))
+        try:
+            status = _recomputed_independence_status(basis_value)
+        except (EvidenceIndependenceError, PromptToolLedgerError, ValidationError):
+            status = "not_established"
+        independence_status_by_claim[claim.item_id] = status
+        if status != "sufficient":
+            issues.append("compression_broad_consensus_not_supported")
+
+    burden_narrowed = bool(
+        set(source.governance_burden_refs) - set(summary.governance_burden_refs)
+    )
+    if burden_narrowed and not any(
+        _delta_records_governance_change(
+            delta,
+            source=source,
+            summary=summary,
+            policy_by_kind=policy_by_kind,
+        )
+        for delta in delta_rows
+    ):
+        issues.append("compression_governance_burden_narrowed_without_delta")
+
+    issue_codes = tuple(dict.fromkeys(issues))
+    dropped_dispositions = _dropped_item_dispositions(
+        source=source,
+        dropped_by_category={
+            "claims": dropped_claims,
+            "limitations": dropped_limitations,
+            "denied_uses": dropped_denied_uses,
+            "counterevidence": dropped_counterevidence,
+        },
+    )
+    has_any_drop = any(
+        (
+            dropped_claims,
+            dropped_limitations,
+            dropped_denied_uses,
+            dropped_counterevidence,
+        )
+    )
+    status: Literal["pass", "blocked"] = "blocked" if issue_codes else "pass"
+    disposition: Literal["exact", "lossy_but_safe", "blocked_material_omission"]
+    if status == "blocked":
+        disposition = "blocked_material_omission"
+        reconstruction: Literal["exact", "proved_conservative", "not_established"] = (
+            "not_established"
+        )
+    elif has_any_drop:
+        disposition = "lossy_but_safe"
+        reconstruction = "proved_conservative"
+    else:
+        disposition = "exact"
+        reconstruction = "exact"
+    all_source_limitations = tuple(
+        _compression_item_ref(item) for item in source.limitations
+    )
+    all_source_denied_uses = tuple(
+        _compression_item_ref(item) for item in source.denied_uses
+    )
+    terminal = (
+        CompressionTerminalResult(
+            issue_codes=issue_codes,
+            retained_limitations=all_source_limitations,
+            retained_denied_uses=all_source_denied_uses,
+        )
+        if status == "blocked"
+        else None
+    )
+    return CompressionLossReceipt(
+        receipt_id=receipt_id,
+        source_ref=source_ref,
+        summary_ref=summary_ref,
+        source_material=source,
+        candidate_summary=summary,
+        source_fingerprint=str(source.material_fingerprint),
+        candidate_summary_fingerprint=str(summary.material_fingerprint),
+        status=status,
+        disposition=disposition,
+        summary_reconstruction=reconstruction,
+        emitted_summary=summary if status == "pass" else None,
+        terminal_result=terminal,
+        retained_claims=retained_claims,
+        dropped_claims=dropped_claims,
+        retained_limitations=retained_limitations,
+        dropped_limitations=dropped_limitations,
+        retained_denied_uses=retained_denied_uses,
+        dropped_denied_uses=dropped_denied_uses,
+        retained_counterevidence=retained_counterevidence,
+        dropped_counterevidence=dropped_counterevidence,
+        introduced_summary_items=introduced,
+        dropped_item_dispositions=dropped_dispositions,
+        evidence_independence_status_by_claim=independence_status_by_claim,
+        authority_deltas=delta_rows,
+        issue_codes=issue_codes,
+    )
+
+
+def validate_compression_loss_receipt(
+    receipt: CompressionLossReceipt | Mapping[str, Any],
+    *,
+    evidence_independence_bases: Mapping[
+        str,
+        CompressionEvidenceIndependenceBasis | Mapping[str, Any],
+    ]
+    | None = None,
+) -> CompressionLossReceipt:
+    """Recompute a receipt and reject any caller-authored disposition or status."""
+
+    try:
+        parsed = (
+            receipt
+            if isinstance(receipt, CompressionLossReceipt)
+            else CompressionLossReceipt.model_validate(receipt)
+        )
+    except ValidationError as exc:
+        raise PromptToolLedgerError(
+            "compression_loss_receipt_owner_validation_failed"
+        ) from exc
+    recomputed = build_compression_loss_receipt(
+        receipt_id=parsed.receipt_id,
+        source_ref=parsed.source_ref,
+        summary_ref=parsed.summary_ref,
+        source_material=parsed.source_material,
+        candidate_summary=parsed.candidate_summary,
+        authority_deltas=parsed.authority_deltas,
+        evidence_independence_bases=evidence_independence_bases,
+    )
+    if recomputed.model_dump(mode="json") != parsed.model_dump(mode="json"):
+        raise PromptToolLedgerError("compression_loss_receipt_owner_validation_failed")
+    return recomputed
+
+
+def _coerce_choice_contexts(
+    values: Iterable[OrchestrationChoiceContext | Mapping[str, Any]],
+) -> tuple[tuple[OrchestrationChoiceContext, ...], tuple[str, ...]]:
+    rows: list[OrchestrationChoiceContext] = []
+    issues: list[str] = []
+    for value in values:
+        try:
+            rows.append(
+                value
+                if isinstance(value, OrchestrationChoiceContext)
+                else OrchestrationChoiceContext.model_validate(value)
+            )
+        except ValidationError:
+            issues.append("orchestration_choice_context_invalid")
+    return tuple(rows), tuple(dict.fromkeys(issues))
+
+
+def _coerce_authority_deltas(
+    values: Iterable[OrchestrationAuthorityDelta | Mapping[str, Any]],
+) -> tuple[tuple[OrchestrationAuthorityDelta, ...], tuple[str, ...]]:
+    rows: list[OrchestrationAuthorityDelta] = []
+    issues: list[str] = []
+    for value in values:
+        try:
+            rows.append(
+                value
+                if isinstance(value, OrchestrationAuthorityDelta)
+                else OrchestrationAuthorityDelta.model_validate(value)
+            )
+        except ValidationError:
+            issues.append("orchestration_authority_delta_owner_validation_failed")
+    return tuple(rows), tuple(dict.fromkeys(issues))
+
+
+def _authority_delta_completeness_receipt(
+    *,
+    contexts: tuple[OrchestrationChoiceContext, ...],
+    deltas: tuple[OrchestrationAuthorityDelta, ...],
+    policies: tuple[OrchestrationChoicePolicy, ...],
+    extra_issue_codes: Iterable[str] = (),
+) -> OrchestrationAuthorityDeltaCompletenessReceipt:
+    issues = list(extra_issue_codes)
+    policy_by_kind = {policy.choice_kind: policy for policy in policies}
+    context_by_id = {context.choice_id: context for context in contexts}
+    owner_kinds = tuple(policy.choice_kind for policy in policies)
+    observed_kinds = tuple(context.choice_kind for context in contexts)
+    emitted_kinds = tuple(delta.choice_kind for delta in deltas)
+    if _duplicates(observed_kinds) or _duplicates(context.choice_id for context in contexts):
+        issues.append("orchestration_choice_population_duplicate")
+    if set(observed_kinds) - set(owner_kinds):
+        issues.append("orchestration_choice_kind_unowned")
+    if set(owner_kinds) - set(observed_kinds):
+        issues.append("orchestration_choice_owner_population_incomplete")
+    if any(_choice_partition_issue(context) is not None for context in contexts):
+        issues.append("orchestration_choice_candidate_partition_invalid")
+    if _duplicates(delta.delta_id for delta in deltas) or _duplicates(
+        delta.choice_id for delta in deltas
+    ):
+        issues.append("orchestration_authority_delta_population_duplicate")
+    for delta in deltas:
+        policy_issue = _authority_delta_owner_issue(delta, policy_by_kind)
+        context = context_by_id.get(delta.choice_id)
+        context_mismatch = (
+            context is None
+            or delta.choice_kind != context.choice_kind
+            or delta.candidate_universe != context.candidate_universe
+            or delta.selected != context.selected
+            or delta.rejected != context.rejected
+            or delta.governance_burden_before != context.governance_burden_before
+            or delta.governance_burden_after != context.governance_burden_after
+            or delta.decision_context_fingerprint
+            != _choice_context_fingerprint(context)
+        )
+        if policy_issue is not None or context_mismatch:
+            issues.append("orchestration_authority_delta_owner_validation_failed")
+    if (
+        len(deltas) != len(policies)
+        or len(contexts) != len(policies)
+        or set(emitted_kinds) != set(owner_kinds)
+        or {delta.choice_id for delta in deltas} != set(context_by_id)
+    ):
+        issues.append("orchestration_authority_delta_population_incomplete")
+    issue_codes = tuple(dict.fromkeys(issues))
+    catalog_fingerprint = _fingerprint(
+        [policy.model_dump(mode="json") for policy in policies]
+    )
+    return OrchestrationAuthorityDeltaCompletenessReceipt(
+        receipt_id=f"orchestration-authority-delta-completeness:{catalog_fingerprint}",
+        status="fail" if issue_codes else "pass",
+        owner_policy_count=len(policies),
+        observed_choice_count=len(contexts),
+        emitted_delta_count=len(deltas),
+        owner_choice_kinds=owner_kinds,
+        observed_choice_kinds=observed_kinds,
+        emitted_choice_kinds=emitted_kinds,
+        owner_policy_catalog_ref=(
+            f"repo://{_ORCHESTRATION_CHOICE_POLICY_RELATIVE_PATH.as_posix()}"
+        ),
+        owner_policy_catalog_fingerprint=catalog_fingerprint,
+        issue_codes=issue_codes,
+    )
+
+
+def _authority_delta_owner_issue(
+    delta: OrchestrationAuthorityDelta,
+    policy_by_kind: Mapping[str, OrchestrationChoicePolicy],
+) -> str | None:
+    policy = policy_by_kind.get(delta.choice_kind)
+    if policy is None:
+        return "orchestration_choice_kind_unowned"
+    if (
+        delta.schema_version != ORCHESTRATION_AUTHORITY_DELTA_SCHEMA_VERSION
+        or delta.decision_policy_ref != policy.decision_policy_ref
+        or delta.decision_policy_owner != policy.policy_owner
+        or delta.owner_policy_fingerprint != policy.policy_fingerprint
+        or delta.authority_effect != policy.authority_effect
+        or delta.governance_burden_change_allowed
+        != policy.governance_burden_change_allowed
+        or delta.predicate_provenance != "recomputed"
+        or delta.authoritative_for
+        or _choice_partition_issue(delta) is not None
+    ):
+        return "orchestration_authority_delta_owner_validation_failed"
+    return None
+
+
+def _choice_context_fingerprint(context: OrchestrationChoiceContext) -> str:
+    return _fingerprint(context.model_dump(mode="json"))
+
+
+def _choice_partition_issue(
+    value: OrchestrationChoiceContext | OrchestrationAuthorityDelta,
+) -> str | None:
+    universe = value.candidate_universe
+    selected = value.selected
+    rejected = value.rejected
+    if not universe:
+        return "candidate_universe_empty"
+    if (
+        len(universe) != len(set(universe))
+        or len(selected) != len(set(selected))
+        or len(rejected) != len(set(rejected))
+    ):
+        return "candidate_identity_duplicate"
+    if set(selected) & set(rejected):
+        return "selected_rejected_overlap"
+    if set(universe) != set(selected) | set(rejected):
+        return "candidate_partition_incomplete"
+    return None
+
+
+def _compression_partition(
+    source_items: Sequence[CompressionMaterialItem],
+    summary_items: Sequence[CompressionMaterialItem],
+) -> tuple[tuple[str, ...], tuple[str, ...], tuple[str, ...]]:
+    source_by_fingerprint = {
+        str(item.item_fingerprint): item for item in source_items
+    }
+    summary_by_fingerprint = {
+        str(item.item_fingerprint): item for item in summary_items
+    }
+    retained_fingerprints = set(source_by_fingerprint) & set(summary_by_fingerprint)
+    dropped_fingerprints = set(source_by_fingerprint) - set(summary_by_fingerprint)
+    introduced_fingerprints = set(summary_by_fingerprint) - set(source_by_fingerprint)
+    return (
+        tuple(
+            _compression_item_ref(item)
+            for fingerprint, item in source_by_fingerprint.items()
+            if fingerprint in retained_fingerprints
+        ),
+        tuple(
+            _compression_item_ref(item)
+            for fingerprint, item in source_by_fingerprint.items()
+            if fingerprint in dropped_fingerprints
+        ),
+        tuple(
+            _compression_item_ref(item)
+            for fingerprint, item in summary_by_fingerprint.items()
+            if fingerprint in introduced_fingerprints
+        ),
+    )
+
+
+def _compression_item_ref(item: CompressionMaterialItem) -> str:
+    return f"{item.item_id}@{item.item_fingerprint}"
+
+
+def _dropped_item_dispositions(
+    *,
+    source: CompressionMaterialSet,
+    dropped_by_category: Mapping[str, tuple[str, ...]],
+) -> tuple[CompressionDroppedItemDisposition, ...]:
+    dispositions: list[CompressionDroppedItemDisposition] = []
+    for category in ("claims", "limitations", "denied_uses", "counterevidence"):
+        dropped = set(dropped_by_category[category])
+        for item in getattr(source, category):
+            item_ref = _compression_item_ref(item)
+            if item_ref not in dropped:
+                continue
+            protected_claim = isinstance(item, CompressionClaimItem) and item.claim_kind in {
+                "negative_terminal",
+                "constitutive_step",
+            }
+            blocks = category != "claims" or protected_claim
+            dispositions.append(
+                CompressionDroppedItemDisposition(
+                    item_ref=item_ref,
+                    category=category,
+                    reason_code=(
+                        "material_omission_blocks_public_summary"
+                        if blocks
+                        else "claim_omitted_authority_reduced"
+                    ),
+                    authority_effect=(
+                        "material_omission_blocks_summary"
+                        if blocks
+                        else "authority_reduced"
+                    ),
+                )
+            )
+    return tuple(dispositions)
+
+
+def _recomputed_independence_status(
+    value: CompressionEvidenceIndependenceBasis | Mapping[str, Any] | None,
+) -> str:
+    if value is None:
+        raise PromptToolLedgerError("compression_independence_basis_missing")
+    basis = (
+        value
+        if isinstance(value, CompressionEvidenceIndependenceBasis)
+        else CompressionEvidenceIndependenceBasis.model_validate(value)
+    )
+    if not basis.evidence_lines or not basis.portfolio_designs:
+        raise PromptToolLedgerError("compression_independence_basis_missing")
+    source_map = dict(basis.independence_map)
+    map_id = _optional_text(source_map.get("map_id"))
+    if map_id is None:
+        raise PromptToolLedgerError("compression_independence_basis_missing")
+    rebuilt = build_evidence_independence_map(
+        basis.evidence_lines,
+        portfolio_designs=basis.portfolio_designs,
+        method_consensus_reports=basis.method_consensus_reports,
+        method_equivalence_reports=basis.method_equivalence_reports,
+        feature_flags=basis.feature_flags,
+        graded_independence_config=basis.graded_independence_config,
+        rare_domain_context=basis.rare_domain_context,
+        map_id=map_id,
+        producer_execution_started_at=basis.producer_execution_started_at,
+        evidence_ref=_optional_text(source_map.get("evidence_ref")),
+        runtime_event_ref=_optional_text(source_map.get("runtime_event_ref")),
+    )
+    normalized_source = validate_evidence_independence_map_record(
+        source_map,
+        evidence_lines=basis.evidence_lines,
+        portfolio_designs=basis.portfolio_designs,
+        producer_execution_started_at=basis.producer_execution_started_at,
+    )
+    normalized_rebuilt = validate_evidence_independence_map_record(
+        rebuilt,
+        evidence_lines=basis.evidence_lines,
+        portfolio_designs=basis.portfolio_designs,
+        producer_execution_started_at=basis.producer_execution_started_at,
+    )
+    if _fingerprint(normalized_source) != _fingerprint(normalized_rebuilt):
+        raise PromptToolLedgerError("compression_independence_reconstruction_mismatch")
+    effective_mass = normalized_rebuilt.get("effective_mass_report")
+    if not isinstance(effective_mass, Mapping):
+        raise PromptToolLedgerError("compression_independence_basis_missing")
+    return str(effective_mass.get("independence_status") or "not_established")
+
+
+def _delta_records_governance_change(
+    delta: OrchestrationAuthorityDelta,
+    *,
+    source: CompressionMaterialSet,
+    summary: CompressionMaterialSet,
+    policy_by_kind: Mapping[str, OrchestrationChoicePolicy],
+) -> bool:
+    return (
+        _authority_delta_owner_issue(delta, policy_by_kind) is None
+        and delta.governance_burden_change_allowed
+        and delta.governance_burden_before == source.governance_burden_refs
+        and delta.governance_burden_after == summary.governance_burden_refs
+    )
+
+
+def _duplicates(values: Iterable[str]) -> set[str]:
+    seen: set[str] = set()
+    duplicates: set[str] = set()
+    for value in values:
+        if value in seen:
+            duplicates.add(value)
+        seen.add(value)
+    return duplicates
+
+
+def _unique_identity_tuple(values: Iterable[Any]) -> tuple[str, ...]:
+    result: list[str] = []
+    for value in values:
+        text = _optional_text(value)
+        if text is None:
+            raise ValueError("identity values must be non-empty text")
+        if text in result:
+            raise ValueError("identity values must be unique")
+        result.append(text)
+    return tuple(result)
 
 
 class PromptTemplateRecord(BaseModel):
@@ -405,6 +1468,13 @@ class PromptToolParserAuthorityLedger(BaseModel):
     model_variant_id: str | None = None
     prompt_tool_ledger_ref: str | None = None
     steps: tuple[ModelAssistedStepLedger, ...]
+    orchestration_authority_deltas: tuple[OrchestrationAuthorityDelta, ...] = Field(
+        default=()
+    )
+    authority_delta_completeness_receipts: tuple[
+        OrchestrationAuthorityDeltaCompletenessReceipt, ...
+    ] = Field(default=())
+    compression_loss_receipts: tuple[CompressionLossReceipt, ...] = Field(default=())
     findings: tuple[PromptToolLedgerFinding, ...] = Field(default=())
     summary: dict[str, Any] = Field(default_factory=dict)
 
@@ -476,6 +1546,17 @@ class PromptToolParserAuthorityLedger(BaseModel):
                 if decision.status != "not_applicable"
                 and decision.fmea_annotation is not None
             ),
+            "orchestration_authority_delta_count": len(
+                self.orchestration_authority_deltas
+            ),
+            "authority_delta_completeness_receipt_count": len(
+                self.authority_delta_completeness_receipts
+            ),
+            "compression_loss_receipt_count": len(self.compression_loss_receipts),
+            "blocked_compression_loss_receipt_count": sum(
+                receipt.status == "blocked"
+                for receipt in self.compression_loss_receipts
+            ),
             "finding_count": len(self.findings),
             "upstream_spine_blocker_refs": sorted(
                 {
@@ -486,6 +1567,19 @@ class PromptToolParserAuthorityLedger(BaseModel):
             ),
         }
         if unannotated_repairs:
+            self.summary["status"] = "fail"
+        if self.orchestration_authority_deltas and (
+            not self.authority_delta_completeness_receipts
+            or any(
+                receipt.status != "pass"
+                for receipt in self.authority_delta_completeness_receipts
+            )
+        ):
+            self.summary["status"] = "fail"
+        if self.compression_loss_receipts and (
+            not self.orchestration_authority_deltas
+            or any(receipt.status != "pass" for receipt in self.compression_loss_receipts)
+        ):
             self.summary["status"] = "fail"
         return self
 

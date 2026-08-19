@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 # ruff: noqa: S101
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -25,7 +26,10 @@ from polisyos.runtime.quality.prompt_tool_ledger import (
     load_orchestration_choice_policies,
     validate_orchestration_authority_delta_completeness,
 )
+from polisyos.runtime.quality.public_export import build_public_export_bundle
 from tests._helpers.hds_quality import sha
+
+REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _portfolio_design() -> dict[str, object]:
@@ -165,6 +169,47 @@ def _baseline_material(
     )
 
 
+def _policy_grammar_projection(request_id: str) -> dict[str, object]:
+    return {
+        "projection_id": f"layer3-g6-policy-grammar:{request_id}",
+        "request_id": request_id,
+        "intent_ref": f"policy-grammar-intent://layer3-g6/{request_id}",
+        "compiled_case_ref": "universal-policy-design-case:layer3-g6:ua-msme",
+        "compiled_case_status": "compiled",
+        "status": "pass",
+        "authority_state": "compilation_facets_only",
+        "facet_summary": {
+            "jurisdiction": "UA",
+            "policy_family": "ua_msme_support",
+            "instrument": "concessional_credit",
+        },
+        "concept_spine_refs": {
+            "concept_spine_ref": f"cas://concept-spine/layer3-g6/{request_id}",
+            "jurisdiction_spine_ref": (
+                f"cas://jurisdiction-spine/layer3-g6/{request_id}"
+            ),
+        },
+        "issue_codes": (),
+        "authoritative_for": ("layer3_g6_policy_grammar_routing_facets",),
+        "may_not_use_for": (
+            "legal_authority",
+            "claim_authority",
+            "closeout_authority",
+        ),
+    }
+
+
+def _g6_record(request_id: str) -> Any:
+    from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
+
+    return g6.build_layer3_g6_agent_run_record(
+        repo_root=REPO_ROOT,
+        raw_request="Can Ukraine improve affordable loans for wartime MSMEs?",
+        request_id=request_id,
+        policy_grammar_projection=_policy_grammar_projection(request_id),
+    )
+
+
 def test_compression_dropping_retained_limitation_fails_closed() -> None:
     source = _baseline_material(
         limitations=(
@@ -203,8 +248,11 @@ def test_low_effective_independence_cannot_be_presented_as_broad_consensus() -> 
         presentation_scope="bounded",
         evidence_independence_ref=independence_map["map_id"],
     )
-    summary_claim = source_claim.model_copy(
-        update={"presentation_scope": "broad_consensus"}
+    summary_claim = CompressionClaimItem.model_validate(
+        {
+            **source_claim.model_dump(exclude={"item_fingerprint"}),
+            "presentation_scope": "broad_consensus",
+        }
     )
 
     receipt = build_compression_loss_receipt(
@@ -376,3 +424,92 @@ def test_completeness_contract_rejects_owner_validation_bypass() -> None:
         in validation.issue_codes
     )
     assert isinstance(forged, OrchestrationAuthorityDelta)
+
+
+def test_g6_run_record_produces_and_bridges_compression_receipt() -> None:
+    from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
+
+    record = _g6_record("req-compression-ledger-green")
+    ledger = record.prompt_tool_ledger_projection.prompt_tool_ledger
+
+    assert len(ledger.compression_loss_receipts) == 1
+    assert ledger.compression_loss_receipts[0].status == "pass"
+    assert ledger.compression_loss_receipts[0].authoritative_for == ()
+    assert ledger.orchestration_authority_deltas
+    assert all(not delta.authoritative_for for delta in ledger.orchestration_authority_deltas)
+    assert ledger.authority_delta_completeness_receipts[0].status == "pass"
+    assert record.orchestration_choice_audit.authority_delta_completeness.status == "pass"
+    assert (
+        record.orchestration_choice_audit.compression_loss_receipt_ref
+        == ledger.compression_loss_receipts[0].receipt_id
+    )
+    assert g6.verify_g6_summary_authority_preservation(record).status == "pass"
+
+
+def test_g6_public_export_emits_refusal_not_clean_summary_for_tampered_receipt() -> None:
+    from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
+
+    record = _g6_record("req-compression-public-refusal")
+    projection = record.prompt_tool_ledger_projection
+    ledger = projection.prompt_tool_ledger
+    receipt = ledger.compression_loss_receipts[0]
+    tampered = receipt.model_copy(update={"retained_limitations": ()})
+    tampered_ledger = ledger.model_copy(
+        update={"compression_loss_receipts": (tampered,)}
+    )
+    tampered_projection = projection.model_copy(
+        update={"prompt_tool_ledger": tampered_ledger}
+    )
+    tampered_record = record.model_copy(
+        update={"prompt_tool_ledger_projection": tampered_projection}
+    )
+
+    surface = g6.build_g6_agent_audit_surface(tampered_record)
+    bundle = build_public_export_bundle(
+        run_id="run-compression-public-refusal",
+        artifacts={"g6_summary_authority_preservation": surface.PUBLIC},
+        generated_at=datetime(2026, 8, 19, 12, 0, tzinfo=UTC),
+    )
+
+    assert surface.status == "fail"
+    assert surface.PUBLIC["compression_result"]["status"] == "blocked"
+    assert "summary" not in surface.PUBLIC["compression_result"]
+    exported = bundle["artifacts"]["g6_summary_authority_preservation"]
+    assert exported["compression_result"]["terminal_result"]["result_kind"] == (
+        "governed_refusal"
+    )
+
+
+def test_g6_consumer_rejects_owner_validation_bypass() -> None:
+    from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
+
+    record = _g6_record("req-compression-owner-bypass")
+    projection = record.prompt_tool_ledger_projection
+    ledger = projection.prompt_tool_ledger
+    forged = ledger.orchestration_authority_deltas[0].model_copy(
+        update={"choice_kind": "fake-owner-validation-bypass"}
+    )
+    bypassed_ledger = ledger.model_copy(
+        update={
+            "orchestration_authority_deltas": (
+                *ledger.orchestration_authority_deltas,
+                forged,
+            )
+        }
+    )
+    bypassed_projection = projection.model_copy(
+        update={"prompt_tool_ledger": bypassed_ledger}
+    )
+    bypassed_record = record.model_copy(
+        update={"prompt_tool_ledger_projection": bypassed_projection}
+    )
+
+    verification = g6.verify_g6_summary_authority_preservation(bypassed_record)
+    surface = g6.build_g6_agent_audit_surface(bypassed_record)
+
+    assert verification.status == "fail"
+    assert (
+        "layer3_g6_authority_delta_owner_validation_failed"
+        in verification.issue_codes
+    )
+    assert surface.status == "fail"

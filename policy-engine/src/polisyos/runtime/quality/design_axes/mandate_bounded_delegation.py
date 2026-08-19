@@ -14,10 +14,12 @@ from pydantic import (
     model_validator,
 )
 
-from polisyos.core.security.identity import PolicyOSRole  # noqa: TC001 - Pydantic runtime type
 from polisyos.pdc import AuthorityBoundary, GovernanceDecisionClass, Layer2ReadinessModel
 from polisyos.runtime.http.permissions import (  # noqa: TC001 - canonical Pydantic enum
     RuntimePermission,
+)
+from polisyos.runtime.http.security import (  # noqa: TC001 - Pydantic runtime type
+    PolicyOSRole,
 )
 
 if TYPE_CHECKING:

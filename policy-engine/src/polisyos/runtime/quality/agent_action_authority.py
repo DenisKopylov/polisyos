@@ -13,18 +13,7 @@ from typing import TYPE_CHECKING, Literal, final
 
 from pydantic import AwareDatetime, Field, model_validator
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import (
-    ArtifactGovernanceInfo,
-    InputRef,
-    ProducerInfo,
-    SchemaInfo,
-)
-from polisyos.core.artifacts.signing import Ed25519Verifier
-from polisyos.core.artifacts.store import FileSystemCAS
-from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec, content_hash, from_canonical_bytes, to_canonical_bytes
-from polisyos.core.security.identity import PolicyOSRole
+from polisyos.core import artifacts, canon
 from polisyos.pdc import (
     AuthorityBoundary,
     Layer2ReadinessModel,
@@ -33,6 +22,7 @@ from polisyos.pdc import (
 )
 from polisyos.runtime.http.mutation_policy import RuntimeIdempotencyStore
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.security import PolicyOSRole
 from polisyos.runtime.http.services.control.artifacts import (
     AuthorityArtifactWriteResult,
     write_runtime_authority_artifact,
@@ -379,10 +369,10 @@ class AgentActionAuthorityGateway:
     def __init__(
         self,
         *,
-        artifact_store: FileSystemCAS,
+        artifact_store: artifacts.FileSystemCAS,
         event_log: RuntimeDiagnosticEventLog,
         idempotency_store: RuntimeIdempotencyStore,
-        artifact_verifier: Ed25519Verifier,
+        artifact_verifier: artifacts.Ed25519Verifier,
         bound_permission: BoundActionPermissionVerification,
         admission_producer_identity: str,
         write_context: AgentActionAuthorityWriteContext,
@@ -391,13 +381,13 @@ class AgentActionAuthorityGateway:
         effect_bindings: tuple[AgentActionEffectBinding, ...],
         human_decision_refs_by_request_ref: Mapping[str, str] | None = None,
     ) -> None:
-        if type(artifact_store) is not FileSystemCAS:
+        if type(artifact_store) is not artifacts.FileSystemCAS:
             raise TypeError("agent action authority requires the concrete server CAS")
         if type(event_log) is not RuntimeDiagnosticEventLog:
             raise TypeError("agent action authority requires the durable runtime event log")
         if type(idempotency_store) is not RuntimeIdempotencyStore:
             raise TypeError("agent action authority requires the server idempotency owner")
-        if type(artifact_verifier) is not Ed25519Verifier:
+        if type(artifact_verifier) is not artifacts.Ed25519Verifier:
             raise TypeError("agent action authority requires the trusted signature verifier")
         try:
             bound_permission_hash = agent_action_permission_hash(bound_permission)
@@ -606,8 +596,8 @@ class AgentActionAuthorityGateway:
         """Persist and independently reconcile the exact decision bytes."""
 
         payload = decision.model_dump(mode="json")
-        canon_spec = CanonSpec()
-        expected_sha = content_hash(to_canonical_bytes(payload, canon_spec))
+        canon_spec = canon.CanonSpec()
+        expected_sha = canon.content_hash(canon.to_canonical_bytes(payload, canon_spec))
         expected_ref = f"sha256:{expected_sha}"
         input_refs = tuple(
             ref
@@ -640,7 +630,7 @@ class AgentActionAuthorityGateway:
                 expected_job_id=self._write_context.job_id,
             )
             loaded = AgentActionAuthorityDecision.model_validate(
-                from_canonical_bytes(self._artifact_store.get_bytes(expected_ref))
+                canon.from_canonical_bytes(self._artifact_store.get_bytes(expected_ref))
             )
             if loaded != decision:
                 raise ValueError("persisted decision content mismatch")
@@ -738,7 +728,7 @@ class AgentActionAuthorityGateway:
         expect_current_run: bool,
     ) -> tuple[object, str, str]:
         try:
-            artifact_id = ArtifactID.model_validate(ref)
+            artifact_id = artifacts.ArtifactID.model_validate(ref)
             report = reconcile_authority_ref(
                 artifact_store=self._artifact_store,
                 event_log=self._event_log,
@@ -771,7 +761,7 @@ class AgentActionAuthorityGateway:
                 raise ValueError("artifact signer identity mismatch")
             if report.durable_event_id is None:
                 raise ValueError("artifact has no durable event")
-            payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+            payload = canon.from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
         except Exception as exc:
             raise AgentActionAuthorityOwnerResolutionError(
                 f"{failure_prefix}_authority_unverified"
@@ -783,7 +773,7 @@ class AgentActionAuthorityGateway:
         *,
         decision: AgentActionAuthorityDecision,
         input_refs: tuple[str, ...],
-        canon_spec: CanonSpec,
+        canon_spec: canon.CanonSpec,
     ) -> dict[str, object]:
         context = self._write_context
         closure_hash = _exact_hash(
@@ -1669,21 +1659,26 @@ def _decision_authority_boundary() -> AuthorityBoundary:
     )
 
 
-def _decision_write_options(input_refs: tuple[str, ...]) -> ArtifactWriteOptions:
-    return ArtifactWriteOptions(
+def _decision_write_options(
+    input_refs: tuple[str, ...],
+) -> artifacts.ArtifactWriteOptions:
+    return artifacts.ArtifactWriteOptions(
         kind=AGENT_ACTION_DECISION_ARTIFACT_KIND,
         media_type="application/json",
-        schema=SchemaInfo(
+        schema=artifacts.SchemaInfo(
             name="polisyos.runtime.AgentActionAuthorityDecision",
             version=AGENT_ACTION_AUTHORITY_SCHEMA_VERSION,
         ),
-        producer=ProducerInfo(
+        producer=artifacts.ProducerInfo(
             component="polisyos.runtime.quality.agent_action_authority",
             version="2026.08.19+gy-pa2",
         ),
-        governance=ArtifactGovernanceInfo(classification="internal"),
+        governance=artifacts.ArtifactGovernanceInfo(classification="internal"),
         inputs=[
-            InputRef(artifact_id=ArtifactID.model_validate(ref), role="authority_input")
+            artifacts.InputRef(
+                artifact_id=artifacts.ArtifactID.model_validate(ref),
+                role="authority_input",
+            )
             for ref in input_refs
         ],
     )
@@ -1716,7 +1711,11 @@ def _dispatch_binding_hash(
 
 def _exact_hash(value: object) -> str:
     payload = value.model_dump(mode="json") if hasattr(value, "model_dump") else value
-    return f"sha256:{content_hash(to_canonical_bytes(payload, CanonSpec(forbid_floats=False)))}"
+    canonical = canon.to_canonical_bytes(
+        payload,
+        canon.CanonSpec(forbid_floats=False),
+    )
+    return f"sha256:{canon.content_hash(canonical)}"
 
 
 def _is_sha256(value: str) -> bool:

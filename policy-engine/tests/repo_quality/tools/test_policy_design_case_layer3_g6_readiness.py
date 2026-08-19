@@ -210,3 +210,27 @@ def test_layer3_g6_persisted_compression_tamper_fails_closed(
     assert "layer3_g6_compression_loss_receipt_blocked" in {
         issue["code"] for issue in issues
     }
+
+
+def test_layer3_g6_persisted_public_export_tamper_fails_closed(
+    tmp_path: Path,
+) -> None:
+    validator = _validator()
+    bundle = validator._build_runtime_bundle(REPO_ROOT)
+    validator._write_artifacts(tmp_path, bundle)
+    public_export_path = tmp_path / validator.PUBLIC_EXPORT_PROJECTION_REFS_PATH
+    payload = json.loads(public_export_path.read_text(encoding="utf-8"))
+    compression_result = payload["public_export_bundle"]["artifacts"][
+        "g6_summary_authority_preservation"
+    ]["compression_result"]
+    compression_result["summary"]["limitations"] = []
+    public_export_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    issues = validator._validate_persisted_artifacts(tmp_path)
+
+    assert "layer3_g6_public_projection_contract_failed" in {
+        issue["code"] for issue in issues
+    }

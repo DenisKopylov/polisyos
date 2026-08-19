@@ -21,9 +21,11 @@ from polisyos.runtime.quality.prompt_tool_ledger import (
     CompressionMaterialSet,
     OrchestrationAuthorityDelta,
     OrchestrationChoiceContext,
+    PromptToolLedgerError,
     build_compression_loss_receipt,
     build_orchestration_authority_deltas,
     load_orchestration_choice_policies,
+    validate_compression_loss_receipt,
     validate_orchestration_authority_delta_completeness,
 )
 from tests._helpers.hds_quality import sha
@@ -198,7 +200,11 @@ def _policy_grammar_projection(request_id: str) -> dict[str, object]:
     }
 
 
-def _g6_record(request_id: str) -> Any:
+def _g6_record(
+    request_id: str,
+    *,
+    additional_load_bearing_choices: tuple[OrchestrationChoiceContext, ...] = (),
+) -> Any:
     from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
 
     return g6.build_layer3_g6_agent_run_record(
@@ -206,6 +212,7 @@ def _g6_record(request_id: str) -> Any:
         raw_request="Can Ukraine improve affordable loans for wartime MSMEs?",
         request_id=request_id,
         policy_grammar_projection=_policy_grammar_projection(request_id),
+        additional_load_bearing_choices=additional_load_bearing_choices,
     )
 
 
@@ -476,14 +483,29 @@ governance_burden_change_allowed = false
         target_catalog,
     )
 
+    novel_choice = OrchestrationChoiceContext(
+        choice_id="layer3-g6:req-data-only-growth:data-only-novel-choice",
+        choice_kind="data-only-novel-choice",
+        candidate_universe=(
+            "data-only-novel-choice:candidate:selected",
+            "data-only-novel-choice:candidate:rejected",
+        ),
+        selected=("data-only-novel-choice:candidate:selected",),
+        rejected=("data-only-novel-choice:candidate:rejected",),
+        source_refs=("runtime-event://g6/data-only-novel-choice",),
+    )
+    record = _g6_record(
+        "req-data-only-growth",
+        additional_load_bearing_choices=(novel_choice,),
+    )
     policies = load_orchestration_choice_policies()
-    contexts = _choice_contexts()
-    derivation = build_orchestration_authority_deltas(contexts)
+    ledger = record.prompt_tool_ledger_projection.prompt_tool_ledger
+    completeness = ledger.authority_delta_completeness_receipts[0]
 
-    assert derivation.completeness.status == "pass"
-    assert derivation.completeness.owner_policy_count == len(policies)
-    assert derivation.completeness.observed_choice_count == len(contexts)
-    assert {delta.choice_kind for delta in derivation.deltas} == {
+    assert completeness.status == "pass"
+    assert completeness.owner_policy_count == len(policies)
+    assert completeness.observed_choice_count == len(policies)
+    assert {delta.choice_kind for delta in ledger.orchestration_authority_deltas} == {
         policy.choice_kind for policy in policies
     }
 
@@ -530,7 +552,8 @@ def test_completeness_contract_rejects_owner_validation_bypass() -> None:
 
 
 def test_compression_rejects_detached_completeness_receipt() -> None:
-    derivation = build_orchestration_authority_deltas(_choice_contexts())
+    contexts = _choice_contexts()
+    derivation = build_orchestration_authority_deltas(contexts)
     detached = derivation.completeness.model_copy(
         update={"emitted_delta_count": 0}
     )
@@ -543,10 +566,107 @@ def test_compression_rejects_detached_completeness_receipt() -> None:
         candidate_summary=_baseline_material(),
         authority_deltas=derivation.deltas,
         authority_delta_completeness=detached,
+        orchestration_choice_contexts=contexts,
     )
 
     assert receipt.status == "blocked"
     assert "compression_authority_delta_completeness_failed" in receipt.issue_codes
+
+
+def test_compression_rejects_forged_observed_choice_population() -> None:
+    contexts = _choice_contexts()
+    derivation = build_orchestration_authority_deltas(contexts)
+    forged = derivation.completeness.model_copy(
+        update={
+            "observed_choice_count": len(contexts) + 1,
+            "observed_choice_kinds": (
+                *derivation.completeness.observed_choice_kinds,
+                "forged-observed-choice",
+            ),
+            "observed_choice_population_fingerprint": "sha256:" + "0" * 64,
+        }
+    )
+
+    receipt = build_compression_loss_receipt(
+        receipt_id="compression-loss:forged-observed-population",
+        source_ref="layer3-g6://run/forged-observed-population",
+        summary_ref="layer3-g6://summary/forged-observed-population",
+        source_material=_baseline_material(),
+        candidate_summary=_baseline_material(),
+        authority_deltas=derivation.deltas,
+        authority_delta_completeness=forged,
+        orchestration_choice_contexts=contexts,
+    )
+
+    assert receipt.status == "blocked"
+    assert "compression_authority_delta_completeness_failed" in receipt.issue_codes
+
+
+@pytest.mark.parametrize(
+    "category",
+    ("claims", "limitations", "denied_uses", "counterevidence"),
+)
+def test_typed_material_copy_cannot_reuse_stale_content_fingerprint(
+    category: str,
+) -> None:
+    negative_terminal = CompressionClaimItem(
+        item_id="claim:negative-terminal",
+        content="The governed result is an abstention.",
+        claim_kind="negative_terminal",
+    )
+    source = _baseline_material(claims=(negative_terminal,))
+    valid = build_compression_loss_receipt(
+        receipt_id=f"compression-loss:typed-copy:{category}",
+        source_ref=f"layer3-g6://run/typed-copy/{category}",
+        summary_ref=f"layer3-g6://summary/typed-copy/{category}",
+        source_material=source,
+        candidate_summary=source,
+    )
+    items = getattr(source, category)
+    tampered_item = items[0].model_copy(
+        update={"content": f"{items[0].content} attacker-authored"}
+    )
+    tampered_source = source.model_copy(
+        update={category: (tampered_item, *items[1:])}
+    )
+
+    with pytest.raises(PromptToolLedgerError):
+        build_compression_loss_receipt(
+            receipt_id=f"compression-loss:typed-copy-build:{category}",
+            source_ref=f"layer3-g6://run/typed-copy-build/{category}",
+            summary_ref=f"layer3-g6://summary/typed-copy-build/{category}",
+            source_material=tampered_source,
+            candidate_summary=source,
+        )
+    forged_receipt = valid.model_copy(update={"source_material": tampered_source})
+    with pytest.raises(PromptToolLedgerError):
+        validate_compression_loss_receipt(forged_receipt)
+
+
+def test_governed_refusal_preserves_all_public_safe_protected_material() -> None:
+    negative_terminal = CompressionClaimItem(
+        item_id="claim:negative-terminal",
+        content="The governed result is an abstention.",
+        claim_kind="negative_terminal",
+    )
+    source = _baseline_material(claims=(negative_terminal,))
+    candidate = _baseline_material()
+
+    receipt = build_compression_loss_receipt(
+        receipt_id="compression-loss:protected-terminal-material",
+        source_ref="layer3-g6://run/protected-terminal-material",
+        summary_ref="layer3-g6://summary/protected-terminal-material",
+        source_material=source,
+        candidate_summary=candidate,
+    )
+
+    assert receipt.status == "blocked"
+    assert receipt.terminal_result is not None
+    protected = receipt.terminal_result.protected_material
+    assert protected.claims == (negative_terminal,)
+    assert protected.limitations == source.limitations
+    assert protected.denied_uses == source.denied_uses
+    assert protected.counterevidence == source.counterevidence
 
 
 def test_g6_run_record_produces_and_bridges_compression_receipt() -> None:
@@ -600,6 +720,12 @@ def test_g6_public_export_emits_refusal_not_clean_summary_for_tampered_receipt()
     assert exported["compression_result"]["terminal_result"]["result_kind"] == (
         "governed_refusal"
     )
+    protected = exported["compression_result"]["terminal_result"][
+        "protected_material"
+    ]
+    assert protected["counterevidence"]
+    assert protected["limitations"]
+    assert protected["denied_uses"]
 
 
 def test_g6_consumer_rejects_owner_validation_bypass() -> None:

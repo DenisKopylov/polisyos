@@ -2632,11 +2632,14 @@ being written here. Fixing them is a separate decision.
   presents the enum as the set of obligations that exist in the world, and the confidence
   ledger's totality check keeps its current meaning unchanged.
 
-  **STANDING RECORDED (Rev 46, transcribed from the revision history): open, and narrowed to a
-  docstring.** Registered in Rev 23. The INT-R1 research read the enum itself as a Rule-12
-  capability-gating defect; its independent audit **narrowed** that to the word `Universal`
-  (`INT-R1-G-001`), and Rev 25 confirmed the narrowed disposition against the ratified `K01`. It
-  remains a docstring fix. No repair attempt has been made.
+  **STANDING EXECUTED (2026-08-19, GY-DEF5): closed as a claim-only correction at implementation
+  round 0/2.** The docstring now denominates the declared N9 obligation language at its promotion
+  rule version. The 15-member enum, its ordering, the confidence-ledger totality predicate, and all
+  runtime behavior remain unchanged. A complete tracked-text census found no other live repository
+  assertion that this enum exhausts the obligations that exist in the world; historical findings
+  and explicit negative controls remain as custody evidence. P37: declared-language totality is
+  `recomputed`; world completeness remains `not_established`. P40: no mechanism finding and no
+  repair round consumed.
 
 - **GY-DEF6 — the N8 method denominator is a function of the ENVIRONMENT, not the repository
   (found by GY-INFRA-3 Step 0, quantified by the architect 2026-08-08).** Owner: **Foundry

@@ -1272,7 +1272,7 @@ class SearchTerminalKind(StrEnum):
 
 
 class PromotionObligationClass(StrEnum):
-    """Universal N9 obligation-class denominator."""
+    """Declared N9 obligation-class denominator at this promotion rule version."""
 
     SYNTAX = "syntax"
     TYPE = "type"

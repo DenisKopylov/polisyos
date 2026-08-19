@@ -2230,6 +2230,18 @@ def test_promotion_comparison_migrates_v2_class_rows_without_admitting_them() ->
         for row in legacy_receipt["obligations"]
         if row["obligation_role"] == "class_gate"
     ]
+    legacy_receipt["confidence_ledger_semantic_projection"] = None
+    legacy_certificate = legacy_receipt["confidence_ledger_projection"]
+    legacy_certificate["risk_scope"]["rule_ref"] = (
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+    )
+    legacy_certificate["projection_hash"] = confidence_ledger_module._content_hash(
+        {
+            key: value
+            for key, value in legacy_certificate.items()
+            if key != "projection_hash"
+        }
+    )
     plan = build_gy_comparison_projection_plan(current, admissions=(admission,))
 
     migrated = plan.preserve_admitted_blocks(legacy, current)
@@ -2239,6 +2251,28 @@ def test_promotion_comparison_migrates_v2_class_rows_without_admitting_them() ->
     forged_legacy["receipt"]["obligations"][0]["detail"] = "forged legacy result"
     with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
         plan.preserve_admitted_blocks(forged_legacy, current)
+
+    hybrid_scope = deepcopy(legacy)
+    hybrid_certificate = hybrid_scope["receipt"]["confidence_ledger_projection"]
+    hybrid_certificate["risk_scope"]["rule_ref"] = (
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v3"
+    )
+    hybrid_certificate["projection_hash"] = confidence_ledger_module._content_hash(
+        {
+            key: value
+            for key, value in hybrid_certificate.items()
+            if key != "projection_hash"
+        }
+    )
+    with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
+        plan.preserve_admitted_blocks(hybrid_scope, current)
+
+    unknown_alias = deepcopy(legacy)
+    unknown_alias["receipt"]["computed_authority_boundary"]["rule_version_refs"] = [
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v4"
+    ]
+    with pytest.raises(ValueError, match="promotion_legacy_comparison_semantic_mismatch"):
+        plan.preserve_admitted_blocks(unknown_alias, current)
 
 
 def _ledger_session(

@@ -296,6 +296,8 @@ class CanonicalPromotionReceipt(_StrictModel):
     def _promoted_requires_trace(self) -> CanonicalPromotionReceipt:
         expected_scope = confidence_risk_scope_for_problem(
             self.owner_projection.design_problem_binding
+        ).model_copy(
+            update={"rule_ref": self.schema_version}
         )
         if (
             self.owner_projection.candidate_summary.candidate_id != self.candidate_id
@@ -402,6 +404,11 @@ class _LegacyCanonicalPromotionReceiptV2(CanonicalPromotionReceipt):
         "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
     )
     obligations: tuple[PromotionObligationDraft, ...]
+
+
+_LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+)
 
 
 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE = (
@@ -568,6 +575,45 @@ def _project_promotion_receipt_payload(
     return projected
 
 
+def _normalize_legacy_promotion_rule_aliases(
+    projected: dict[str, Any],
+) -> dict[str, Any]:
+    """Normalize only typed v2/v3 rule aliases after both raw receipts validate."""
+
+    normalized = copy.deepcopy(projected)
+
+    def alias(value: object) -> object:
+        if value == GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+            return _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION
+        return value
+
+    normalized["schema_version"] = alias(normalized["schema_version"])
+    certificate = normalized["confidence_ledger_projection"]
+    certificate["risk_scope"]["rule_ref"] = alias(
+        certificate["risk_scope"]["rule_ref"]
+    )
+
+    boundaries: list[dict[str, Any]] = [normalized["computed_authority_boundary"]]
+    owner_projection = normalized["owner_projection"]
+    for posture_name in ("s7_delegation_posture", "s8_value_posture"):
+        posture = owner_projection.get(posture_name)
+        if isinstance(posture, dict):
+            boundary = posture.get("authority_boundary")
+            if isinstance(boundary, dict):
+                boundaries.append(boundary)
+    for boundary in boundaries:
+        boundary["rule_version_refs"] = [
+            alias(value) for value in boundary["rule_version_refs"]
+        ]
+
+    trace = normalized.get("authority_derivation_trace")
+    if isinstance(trace, dict):
+        output_ref = trace.get("output_artifact_ref")
+        if isinstance(output_ref, dict):
+            output_ref["schema_ref"] = alias(output_ref.get("schema_ref"))
+    return normalized
+
+
 def _canonical_promotion_receipt_legacy_semantic_projection(
     value: Mapping[str, object],
 ) -> dict[str, Any]:
@@ -575,8 +621,8 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
 
     schema_version = value.get("schema_version")
     if schema_version == GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
-        current = CanonicalPromotionReceipt.model_validate(value)
-        full_payload = current.model_dump(mode="json")
+        receipt = CanonicalPromotionReceipt.model_validate(value)
+        full_payload = receipt.model_dump(mode="json")
         class_rows = [
             _project_typed_fields(
                 row,
@@ -591,27 +637,27 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
             item.value for item in PromotionObligationClass
         ):
             raise ValueError("promotion_legacy_class_denominator_mismatch")
-        full_payload["schema_version"] = (
-            "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
-        )
         full_payload["obligations"] = class_rows
-        receipt = _LegacyCanonicalPromotionReceiptV2.model_validate(full_payload)
-    elif schema_version == "policyos.policy_design_case.layer3_gy.n9_promotion.v2":
+        model_type: type[BaseModel] = CanonicalPromotionReceipt
+    elif schema_version == _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
         receipt = _LegacyCanonicalPromotionReceiptV2.model_validate(value)
         full_payload = receipt.model_dump(mode="json")
+        model_type = _LegacyCanonicalPromotionReceiptV2
     else:
         raise ValueError("promotion_legacy_comparison_schema_invalid")
     if not is_gy_declared_non_authority_block(
         receipt.confidence_ledger_projection.model_dump(mode="json")
     ):
         raise ValueError("promotion_comparison_requires_verification_receipt")
-    return _project_promotion_receipt_payload(
-        full_payload,
-        model_type=_LegacyCanonicalPromotionReceiptV2,
-        receipt_lineage_fields=(
-            _PROMOTION_RECEIPT_LINEAGE_FIELDS
-            | frozenset({"confidence_ledger_semantic_projection"})
-        ),
+    return _normalize_legacy_promotion_rule_aliases(
+        _project_promotion_receipt_payload(
+            full_payload,
+            model_type=model_type,
+            receipt_lineage_fields=(
+                _PROMOTION_RECEIPT_LINEAGE_FIELDS
+                | frozenset({"confidence_ledger_semantic_projection"})
+            ),
+        )
     )
 
 
@@ -1883,7 +1929,7 @@ def admit_canonical_promotion_receipt_for_comparison(
                 ):
                     raise ValueError("migrated_semantic_projection_drift")
                 return migrated_payload
-            if previous_schema != "policyos.policy_design_case.layer3_gy.n9_promotion.v2":
+            if previous_schema != _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
                 raise ValueError("legacy_schema_not_admitted")
             _LegacyCanonicalPromotionReceiptV2.model_validate(previous)
             previous_projection = _canonical_promotion_receipt_legacy_semantic_projection(

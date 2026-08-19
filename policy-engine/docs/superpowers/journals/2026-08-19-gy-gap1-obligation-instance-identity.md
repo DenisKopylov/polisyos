@@ -116,6 +116,18 @@ it does not make the fifteen singleton class-gate obligations instance-granular.
   seam was the identity-propagation class one level deeper, not a new round; the mechanism widened by
   finalizing only after every class mutation.
 
+The first non-persisting artifact candidate then exposed the second finding of that same legacy
+comparison-isolation class, one level deeper: the private v2 type inherited a current-v3 risk-scope
+rule check. It stopped after 35.28 s with all governed bytes unchanged. P40 therefore permits no
+local patch or third round; it requires widening the existing boundary to the quantity the property
+needs. Raw v2 and v3 receipts now each validate under their own literal schema/risk-scope rule before
+one private comparison projector normalizes only the finite typed v2/v3 aliases. Certificate,
+semantic-ledger, owner-projection, and trace hashes remain raw and validated; no normalized copy is
+persisted or admitted to a decision path. The permanent witness rejects a content-valid hybrid v2
+receipt carrying a v3 risk scope and an unknown v4 boundary alias. The authentic frozen-v2 candidate
+derivation then succeeded in 29.23 s under the recorded 2.40→2.76 load regime, again without moving a
+governed byte. This is the mandated same-class widening, not implementation round 3.
+
 ### Declared source-authenticity residual and falsifier
 
 The smallest missing capability is one generation-cycle owner/resolver that jointly receives the

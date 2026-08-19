@@ -572,6 +572,7 @@ def _assert_refused_with_zero_effect(
     effects: list[str],
     expected_reason: str,
     proof: object | None = None,
+    now: datetime = NOW,
 ) -> object:
     authority = _authority_module()
     effect_count_before = len(effects)
@@ -582,6 +583,7 @@ def _assert_refused_with_zero_effect(
             operation=operation,
             invocation=invocation,
             intent=intent,
+            now=now,
         )
     assert len(effects) == effect_count_before
     decision = exc_info.value.decision
@@ -882,6 +884,71 @@ def test_click_after_envelope_ttl_is_persisted_and_never_fires_effect(tmp_path: 
         intent=intent,
         effects=effects,
         expected_reason="delegation_envelope_expired",
+    )
+
+
+def test_caller_clock_cannot_revive_an_expired_envelope(tmp_path: Path) -> None:
+    harness = _harness(tmp_path)
+    contract = _contract(
+        _envelope(
+            valid_from=NOW - timedelta(hours=3),
+            valid_until=NOW - timedelta(hours=1),
+        )
+    )
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    binding = _binding(operation, effects)
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=contract,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+    )
+    _assert_refused_with_zero_effect(
+        harness,
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        effects=effects,
+        expected_reason="delegation_envelope_expired",
+        now=NOW - timedelta(hours=2),
+    )
+
+
+def test_well_typed_caller_minted_ds20_proof_is_not_owner_bound(tmp_path: Path) -> None:
+    harness = _harness(tmp_path)
+    owner_proof = _proof(RuntimePermission.KNOWLEDGE_SEARCH)
+    fabricated_proof = _proof(RuntimePermission.ANALYSIS_EXECUTE)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    binding = _binding(operation, effects)
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(
+            _envelope(permission=RuntimePermission.ANALYSIS_EXECUTE)
+        ),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+    )
+    setattr(gateway, "_bound_permission", owner_proof)
+    _assert_refused_with_zero_effect(
+        harness,
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        effects=effects,
+        expected_reason="verified_identity_proof_not_owner_bound",
+        proof=fabricated_proof,
     )
 
 

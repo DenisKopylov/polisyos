@@ -2633,6 +2633,23 @@ being written here. Fixing them is a separate decision.
   unknown values fall into the obligation branch — but the collector accepts the `admitted` key from
   any nested `Mapping`, and the two modules are coupled only by a duplicated literal. It should not
   be prioritized as an unsafe grant; the defect is the coupling, not the direction.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 07f5fd6ab): stopped.** The lane stopped
+  before a mechanism edit because the adopted repair necessarily moves a governed artifact, which
+  this task explicitly forbids. Static witness terminal `witness_exit=0`: the canonical owner
+  imports `TimeSourceEnvelopeAudit`, serializes all three projections, emits
+  `TimeSourceEnvelopeAudit.__name__`, and checks the clean token `admitted`; the committed governed
+  artifact has SHA-256 `185e57267a69f6de542e0cbc1491779649897da4001cd4bacd120e6436203574`
+  and contains exactly those old model/token values. A compliant rename to
+  `TimeSourceConsistencyAuditProjection` plus `consistent` therefore cannot leave its bytes fixed;
+  retaining an alias or legacy token would retain the defect. Independent terra review confirmed
+  the stop as a P40 **new class** at mechanism round 0 and independently confirmed that the current
+  recursive collector admits a foreign nested `mismatch_disposition: admitted`. No repair, test,
+  governed writer/validator, confidence check/reissue, or architecture byte ran or moved. The only
+  changed paths are this standing and the shared journal; the canonical confidence owner resolved
+  `120` modules / `120` unique paths, equal to its frozen tuple, and neither companion is in the
+  authority import closure. This verdict authorizes only the recorded stop; GY-DEF4 remains open and
+  the stop blocks none of GY-DEF1, GY-DEF2, or GY-DEF3.
 - **GY-DEF5 — the obligation enum claims the world in its docstring (found by the INT-R1 audit,
   verified 2026-08-03).** Owner: **pdc waist**. `pdc/_impl/gy_waist.py:219` reads
   `"""Universal N9 obligation-class denominator."""`. The INT-R1 research first read the enum as

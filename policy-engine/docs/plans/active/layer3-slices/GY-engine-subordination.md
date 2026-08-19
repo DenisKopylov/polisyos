@@ -3200,6 +3200,13 @@ and cold closeout remain unproved.
   recomputed for the mechanism, complete comparison-path census, two-environment witness, negative
   control, and artifact identity]`
 
+  **GY-DEFC-9 cold hand-back (2026-08-19).** The final launch preflight re-ran this member's
+  canonical consumer: N8 returned `0`, `status=pass`, `scope=catalog_provenance`, and
+  `ambient_findings=[]` in `11.349281` s. The cold child then stopped in its measurement-harness
+  capability gate before milestone 1 and before any owner build. That terminal neither exercises nor
+  reopens this closed member; the frozen N8 artifact remains one of the `11/11` byte-stable pins.
+  `[P37: recomputed]`
+
 - **GY-DEF15 — canonical identity has no owner for null-versus-absent representation (measured
   2026-08-14 and 2026-08-16).** Owner: **the N11 confidence-ledger artifact projection**, extending
   the shared PDC identity boundary rather than adding another validator-local normalizer.
@@ -3492,6 +3499,12 @@ and cold closeout remain unproved.
   byte-identical. `[P37: recomputed for the typed consumer, behavioral witnesses, and complete
   five-artifact denominator]`
 
+  **GY-DEFC-9 cold hand-back (2026-08-19).** The final launch preflight re-ran N10a over the complete
+  pack and returned `0`, `status=pass`, `issues=[]` in `14.158655` wrapper seconds. The later cold
+  terminal occurred before milestone 1 in the measurement-harness capability gate, so it does not
+  reopen this typed-consumer closure; all five frozen N10a artifacts remain byte-identical.
+  `[P37: recomputed]`
+
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
   then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry
   catalog/discovery boundary as co-owner of items 1 and 2.
@@ -3567,6 +3580,34 @@ and cold closeout remain unproved.
   receipts and the three-finding ledger are in the execution journal. `[P37:
   independently_reconciled for the third finding; recomputed for Items 1–4, cold-run absence, and
   allowance non-use; not_established for the cold objective]`
+
+  **Superseding Item 5 standing (2026-08-19): COLD ALLOWANCE SPENT, OBJECTIVE NOT ESTABLISHED.** The
+  P40 widening bound the retained preflight, exact six-commit history, zero-argument launcher,
+  worktree interpreter/source, canonical inputs, complete `11/11` pins, command/environment, and the
+  outer timer. Its required conflicting-parameter falsifier and six companion behavioral probes are
+  green. Two invocations refused before `Popen` and are preflight non-receipts: first the N10a
+  multiline-JSON parser proxy, then Python-mode strict parsing in place of the confidence owner's
+  JSON path. Both were corrected append-only; neither consumed the cold allowance. `[P37:
+  recomputed]`
+
+  At clean attached head `0f6c88add`, the final preflight was green for N8, N10a, confidence internal
+  validation, both idle-process censuses, and all `11/11` pins. The authorized child then started and
+  returned `1` after `5.017609` s, without timeout or process leak, on
+  `cold_n11_launch_capability_invalid`. Its complete milestone trace is `[]` over `28/28` authorized
+  names and its clear/build/validate counts are `0/0/0`; it terminated before ordinal 1,
+  `confidence_registry_loaded`. The allowance is spent, and no repair or relaunch is authorized.
+  `[P37: recomputed]`
+
+  Terminal classification is the new harness class `cold_launch_parent_identity_proxy` (`P38`). The
+  gate uses literal Darwin `ps` command text as a proxy for authorized parent provenance; a separate
+  probe proves an authorized venv interpreter is rendered as the framework executable path. The cold
+  receipt does not retain the observed parent text or a per-conjunct mismatch, so the exact terminal
+  conjunct remains `not_established`; the probe demonstrates the class without supplying causal
+  attribution. Items 1–4 stay closed and deployment identity remains `f05a816f…5983955f`, but the
+  N11 suffix is **not closed**, `GY-DEF15` is still unexercised cold, zero-issue cold live validation
+  is `not_established`, and cold closeout is incomplete. Full terminal receipts and the complete pin
+  denominator are in the execution journal. `[P37: recomputed for the proxy divergence, terminal,
+  and Items 1–4; not_established for the exact conjunct and every cold-validation claim]`
 
 - **GY-DI2 — the timing catalog omits most lanes it already has data for, and nothing surfaces the
   omission (measured by the architect 2026-08-11 while adjudicating `GY-DEFC-3`).** Owner:

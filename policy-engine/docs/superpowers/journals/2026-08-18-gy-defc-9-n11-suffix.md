@@ -125,7 +125,7 @@ initial path census]`
 | Items 1+2 | 0 | 2 | green; source frozen |
 | Item 3 | 1 | 1 | green after typed rederive-report correction; source frozen |
 | Item 4 | 2 | 0 | both pre-writer findings closed; accepted writer green |
-| Item 5 | 0 | 2 | P40 launch-boundary widening authorized; cold allowance unspent |
+| Item 5 | 0 | 2 | cold allowance spent; child red at the capability gate before milestone 1; no relaunch |
 
 ## Execution receipts
 
@@ -1076,3 +1076,99 @@ spent. `[P37: recomputed]`
 }
 ```
 <!-- GY-DEFC-9-COLD-AUTHORIZATION-END -->
+
+## Item 5 cold terminal — allowance spent, objective not established
+
+The final launch preflight consumed authorization SHA-256
+`f36fa6785df90a3ffcd582c66ecfbe6026993f8f9611472b70d86b5f9cce208c` at clean attached head
+`0f6c88addb2fc3250e2cda5ae5be33e97a097c13`. Its complete six-commit retained history hashes to
+`3572466a764b0c0c767dd066f123e51870b6528805913088f9d14f328c2f2b06`; both process censuses were
+empty. The recorded uptime pair was:
+
+1. `10:59  up 2 days, 16:29, 1 user, load averages: 2.67 2.66 2.60`
+2. `11:00  up 2 days, 16:30, 1 user, load averages: 2.91 2.71 2.62`
+
+All three short checks were green before the cold child started:
+
+| Complete check denominator (3/3) | Wrapper wall time (s) | Observed terminal |
+| --- | ---: | --- |
+| N8 catalog provenance | `11.349281` | return `0`; `status=pass`; `scope=catalog_provenance`; `ambient_findings=[]` |
+| N10a second-domain pack | `14.158655` | return `0`; `status=pass`; `issues=[]` |
+| Confidence internal validation | `6.690034` | `status=pass`; `issues=[]`; deployment `f05a816f…5983955f` |
+
+The preflight receipt is `9,003` bytes, SHA-256
+`283c16e0dd272cd1ae0858e835cc9b6136bf273429b1ceafa220d2ed5f3e40d8`. `[P37: recomputed for
+branch/head, complete history, both process censuses, uptime pair, three-check denominator, checks,
+durations, and receipt identity]`
+
+The wrapper then started child PID `38531`, spending the one cold allowance. It returned `1` after
+`5.017609` s against the enforced `4,693.118600` s ceiling; `timed_out=false`, no TERM/KILL was
+needed, and the process group was absent at cleanup. The child receipt itself records `2.039791` s,
+`status=fail`, and exactly two issues: primary `cold_n11_execution_failed` with
+`cold_n11_launch_capability_invalid`, followed by derived `cold_n11_invocation_counts_invalid` for
+observed clear/build/validate counts `0/0/0` against `1/1/1`. `[P37: recomputed]`
+
+The complete milestone trace over the authorized `28/28` denominator is `[]`: `0/28` milestones
+emitted, terminating before ordinal 1, `confidence_registry_loaded`. Therefore no cache clear, live
+contract build, `GY-DEF15` projection exercise, or live validation occurred. This is a spent red
+terminal, not a timeout-with-zero-bytes non-receipt; the P30 objective remains `not_established`.
+[P37: recomputed for the complete trace and invocation counts; not_established for cold live-contract
+validation]
+
+The terminal files are preserved byte-for-byte:
+
+| File | Bytes | SHA-256 |
+| --- | ---: | --- |
+| launch lock | `212` | `186564154d1fbda15cfb14250a5086136dc1d767fbe975b0f74a9a21d52cf5db` |
+| launcher meta | `1,679` | `a52cb9af7d83b2bd47e849c97ab7f671ad3b1d80689f9fdbe27d69cabb697fde` |
+| launch preflight | `9,003` | `283c16e0dd272cd1ae0858e835cc9b6136bf273429b1ceafa220d2ed5f3e40d8` |
+| cold child receipt | `15,942` | `08cee4ba4c571edf584ce0e622508b60fefd1688ceff364a490b9ed86a937f88` |
+| child stdout | `12,690` | `a0873a5ba6c3b97753947ec1b3afd1d4f953fe1864753ef02093dfad57380077` |
+| child stderr | `0` | `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` |
+| timing log | `596` | `852eed313005899705a7188194368927338cee02f74d50897bef84fbd32e70fe` |
+
+All `11/11` authorized pins are byte-identical before and after:
+
+| Pin | Bytes | SHA-256 | State |
+| --- | ---: | --- | --- |
+| confidence-ledger contract | `977,814` | `4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9` | stable |
+| Depth-N universality contract | `2,193,438` | `155f01a877d7327281531115fee88764b7615e411830c8ec6109f375aa5b615e` | stable |
+| second-domain census | `73,888` | `ba20cdb384eb3e00fb6f13b2fad0b6f679f6fd4debc1148e4fe39a567055e74c` | stable |
+| second-domain cycle trace | `567,935` | `9b78cad2693a163debfe8f4f77f26a01c77b177d1777f83b6352bede58be67f7` | stable |
+| second-domain free-grow gaps | `21,053` | `361434b07fcdad7b1965c1899335b99c1b441034e5b8752c4645544f4b1fd98f` | stable |
+| second-domain pack | `252,598` | `169df14ab4fbc8f853f937e08d1c218066682d6f8fd5945219d9866d07cda2e2` | stable |
+| second-domain smoke problem | `4,665` | `688bd3d8c845ebe99495aecb3b2c10579dbf3f43dd5e8fe0a6686cc6e8b5f76d` | stable |
+| N8 value-gate contract | `106,118` | `c3f131ce4f4729936eb3a639cfc81d5d65edb6545b2562d415f64998331bc303` | stable |
+| confidence-ledger TOML | `8,144` | `f337fc1ef5a40daec98f8970a64cd85721b55590b93f452503c4c5a7fa49942b` | stable |
+| L5 measurement registry | `2,112` | `90f341b2e71edb28b6208f580d8a920191d67240c240db9417ba18a225187aff` | stable |
+| catalog DuckDB | `1,320,693,760` | `4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7` | stable |
+
+`[P37: recomputed over the complete 11-member before/after denominator]`
+
+### Terminal classification and stop
+
+Classified before closeout as the new harness class `cold_launch_parent_identity_proxy` (`P38`), not
+as a product regression and not as another independently supplied launch parameter. The registered
+capability gate combines public-token equality, nonce type/length/hash, and literal equality between
+Darwin `ps -ww -o command=` text and the authorization's invoked `.venv/bin/python` command. The cold
+receipt retains only the generic error and token hash, not the token/nonce bytes, observed parent
+command, or per-conjunct mismatch. The exact conjunct that rejected this cold child is therefore
+`not_established` and is not guessed. `[P37: recomputed for the combined gate and retained evidence;
+not_established for the exact terminal conjunct]`
+
+A separate non-cold probe establishes the divergent case: a child of the exact worktree venv
+interpreter observes its parent through Darwin `ps` as
+`/opt/homebrew/Cellar/python@3.14/3.14.0_1/Frameworks/Python.framework/Versions/3.14/Resources/Python.app/Contents/MacOS/Python`,
+not the invoked `.venv/bin/python` path. Thus literal process-table text is not the property “the
+child originated from the authorized launcher.” This probe establishes the new class but does not
+retroactively identify the cold terminal's failed conjunct. The smallest missing capability is stable
+OS-level parent/argv attestation (or a trusted supervisor), with per-conjunct evidence needed even for
+diagnosis. `[P37: recomputed for the Darwin divergence; not_established for causal attribution to the
+cold terminal]`
+
+Per the spent-allowance rule there is no repair and no relaunch. Items 1–4 remain green: N8, N10a,
+and the committed confidence artifact all passed immediately before launch, and deployment identity
+remains `policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f`.
+`GY-N11` may claim those warm/identity closures only; it may not claim the N11 suffix closed, a cold
+zero-issue live validation, a cold exercise of `GY-DEF15`, or cold closeout completion. `[P37:
+recomputed for Items 1–4 and the warm checks; not_established for every cold claim]`

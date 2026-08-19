@@ -795,6 +795,24 @@ def gy_artifact_self_identity_projection(value: object) -> dict[str, Any]:
     return projected
 
 
+def overlay_gy_shared_operational_leaves(previous: object, current: object) -> object:
+    """Overlay shared operational leaves while preserving the current payload shape.
+
+    This writer operation is deliberately distinct from strict comparison
+    reconciliation: governing changes and current-only branches remain live,
+    and a previous-only field or sequence member is never manufactured.
+
+    Args:
+        previous: Previously persisted payload supplying admitted operational values.
+        current: Live writer payload supplying shape and governing content.
+
+    Returns:
+        The current-shaped payload with shared canonically operational fields overlaid.
+    """
+
+    return _overlay_gy_shared_operational_leaves(previous, current)
+
+
 def reconcile_gy_operational_leaves(
     previous: object,
     current: object,
@@ -837,7 +855,7 @@ def reconcile_gy_operational_leaves(
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
-    return _reconcile_gy_operational_leaves(previous, current)
+    return overlay_gy_shared_operational_leaves(previous, current)
 
 
 def reconcile_gy_comparison_projection(
@@ -1131,28 +1149,34 @@ def _gy_payload_shape_matches(
     return type(previous) is type(current)
 
 
-def _reconcile_gy_operational_leaves(
+def _overlay_gy_shared_operational_leaves(
     previous: object,
     current: object,
 ) -> object:
-    if isinstance(previous, dict) and isinstance(current, dict):
+    if isinstance(previous, Mapping) and isinstance(current, Mapping):
         return {
             key: (
                 previous[key]
                 if is_gy_content_hash_excluded_field(str(key)) and key in previous
-                else _reconcile_gy_operational_leaves(previous[key], value)
+                else _overlay_gy_shared_operational_leaves(previous[key], value)
+                if key in previous
+                else value
             )
             for key, value in current.items()
         }
     if isinstance(previous, list) and isinstance(current, list):
         return [
-            _reconcile_gy_operational_leaves(left, right)
-            for left, right in zip(previous, current, strict=True)
+            _overlay_gy_shared_operational_leaves(previous[index], value)
+            if index < len(previous)
+            else value
+            for index, value in enumerate(current)
         ]
     if isinstance(previous, tuple) and isinstance(current, tuple):
         return tuple(
-            _reconcile_gy_operational_leaves(left, right)
-            for left, right in zip(previous, current, strict=True)
+            _overlay_gy_shared_operational_leaves(previous[index], value)
+            if index < len(previous)
+            else value
+            for index, value in enumerate(current)
         )
     return current
 

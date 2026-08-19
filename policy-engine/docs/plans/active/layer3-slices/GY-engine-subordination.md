@@ -3668,6 +3668,21 @@ and cold closeout remain unproved.
   re-hashing over locally projected bytes; rebaselining the declared GAP1 delta; or treating
   exact-base symptom absence as component-ownership evidence.
 
+  **STANDING EXECUTED (2026-08-19, GY-DEF17): closed at shared implementation round 0/2.** The
+  writer now overlays shared canonically operational leaves unconditionally before transition
+  comparison, constructs the live shape, and derives its complete member set from
+  `_ARTIFACT_WRITE_SPECS`. The strict audit reconciler remains strict; no `generated_at` special
+  case, field allowlist, local artifact tuple, “close enough” guard, or post-overlay rehash was
+  introduced. Two distinct fresh processes holding the declared GAP1 semantic transition fixed
+  produced the identical five-member manifest
+  `sha256:2d9a1b19235b6a1df29d033da865ecc785630d619725ba6c389163fd444449bd`;
+  the positive witness exercises the previously omitted `pack`, and an independent governing pack
+  mutation changes the manifest. `GY-DEF7` remains closed for its original `--rederive-audit`
+  consumer. P37: operational classification and the output denominator are `recomputed`; sequence
+  element provenance retains the declared source-authenticity residual. P40: the strict-audit versus
+  live-shaped-writer distinction was the same P38 class one level deeper and was widened once; no
+  Blocking or Important new-class finding landed against DEF17.
+
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
   then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry
   catalog/discovery boundary as co-owner of items 1 and 2.
@@ -4089,6 +4104,40 @@ nothing.
   re-enters artifact freeze with a fresh shared **0/2** implementation-round budget covering new
   mechanism findings against GY-GAP1 or GY-DEF17. Its earlier zero-file / zero-leaf hand-back remains
   an accurate receipt of that stopped attempt, not the final disposition of this lane.
+
+  **STANDING EXECUTED (2026-08-19, GY-GAP1; supersedes the stopped disposition above): closed at
+  implementation round 1/2.** The baseline census walked all `1,171` tracked JSON files and found
+  `26` owner receipts / `390` obligation records, distribution `{15: 26}`, maximum class-gate
+  multiplicity `1`, and zero repeated `(obligation_class, gate_id)` pairs. The narrower `19 / 285`
+  count was the current-v2 owner-bound scope; the remaining seven receipts / 105 rows were historical
+  v1 Depth recordings. This proves why a field on the existing row alone would be vacuous.
+
+  The mechanism adds an **additive** `decisive_predicate` row kind whose identity is re-derived from
+  governed predicate content and the bound N9 run scope. It does **not** make the fifteen
+  `class_gate` obligations instance-granular: that producer still emits one row per pair. The closure
+  signal is the ratified acceptance test, and it passes plainly: **one decisive obligation instance
+  removed, class denominator total and green, authority-band result red.** The live-session OM-01
+  witness persists that result and the replay path rejects omission, identity tamper, duplication,
+  and substitution.
+
+  GY-DEF17 then closed the separately owned N10a writer blocker. P41's exact-base result remains
+  measured: two fresh processes at `068aab9df` produced the same zero-transition manifest. Base
+  stability did not settle component ownership because GAP1 supplied a legitimate later semantic
+  input while the defective equality predicate already existed in another owner. The guarded
+  artifact wave subsequently matched the committed declaration exactly: six outputs, `3,441 / 3,441`
+  canonical leaves, and all `908` protected preimages unchanged. The confidence ledger is
+  deliberately stale at
+  `sha256:4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9`
+  for the later joint reissue.
+
+  One post-freeze architecture review found a runtime deep import of the PDC owner. P40 classified
+  that as a **new public-boundary mechanism class**, consuming round 1/2; the repair exports the draft
+  and identity derivation through `polisyos.pdc`, and independent review returned GO. Its import-only
+  source move produced zero frozen-output delta: promotion, generation and Depth rederived green, and
+  N10a measured zero changed leaves across its complete five-output denominator at source manifest
+  `sha256:a4c101f8cbb350efa8433d45cf05e69dbd0707f2b0c826d5170488f7316c8aec`.
+  No second mechanism finding landed. This closes GY-GAP1 only; it makes no claim about `GY-N12`,
+  `GY-N13`, `GY-GAP2`, `GY-GAP3`, cold closeout, publication, or a first governed promotion.
 - **GY-GAP2 — the confidence ledger has no cross-scope composition.** Owner: **runtime/quality
   (confidence ledger / the N11 lane)**. `promotion_sequence.confidence_risk_scope_for_problem`
   keys the budget on `owner_scope_key = f"design-problem:{binding.design_problem_id}"` and its

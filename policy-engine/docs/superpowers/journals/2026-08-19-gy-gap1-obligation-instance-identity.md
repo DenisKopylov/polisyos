@@ -586,3 +586,88 @@ P40 classifies the three equalized trace leaves as a worked example of GY-DEF17'
 the redeclaration as the mandatory P39 custody companion. No GY-GAP1/GY-DEF17 mechanism round is
 consumed. Acceptance remains `not_established` until the guarded six-file promotion verifies every
 declared candidate byte/pointer and all `908` protected preimages.
+
+## Guarded artifact acceptance
+
+The guarded delivery ran from attached branch
+`codex/gy-gap1-obligation-instance-identity` at declaration head
+`5774eba7c30a7e5928b6bb6890a916d0b86a9a0b`. Two setup attempts are non-receipts: one shell guard
+carried a hand-completed, incorrect HEAD string and terminated before Python or any write; the next
+preserved neither porcelain's leading XY column nor the workspace-root path coordinate and stopped
+before snapshot creation. P40 classifies both as P38 harness companions, first prefix-as-identity and
+then status-framing; neither is a GAP1/DEF17 mechanism round. The harness was widened to read the full
+HEAD, preserve raw XY status, derive Git's product-root prefix, and verify exact branch plus HEAD
+immediately before and after every promotion or rollback write. Independent delta review returned GO.
+
+The accepted run created snapshot
+`/private/tmp/polisyos-gy-gap1-914-preimage.dq22ls4p`, verified the complete `914`-file /
+`47,112,213`-byte denominator, promoted only the six declared paths, and read every result back. The
+observed rows are exactly:
+
+| Governed output | Declared / observed leaves | Bytes | Observed SHA-256 |
+| --- | ---: | ---: | --- |
+| promotion contract | `525 / 525` | 183,066 | `ba71198ef9b9227d6ba8094e68d15a3a68721709f4ff87ceb1f94304ce78a484` |
+| generation-cycle contract | `304 / 304` | 183,254 | `695fd482dc525ec11a15921c93cebbc9349a2b38af1789c87cb24828bfc4f59e` |
+| second-domain cycle trace | `767 / 767` | 603,647 | `c0917aebdef8e1ee44f07ce4bc6b84ccc93ca04becb63a1307ebb171a56013b7` |
+| second-domain pack | `3 / 3` | 252,598 | `40d31d5b158083e216f079e09d195dbf2cd6a5190dc4326cb5c16256cdfabf34` |
+| second-domain free-grow gaps | `5 / 5` | 21,053 | `89725acfd1da0ef7533c94c493e75df1ec4c3545dd0eb8fe4f5d7638ba0d95d7` |
+| depth-N universality contract | `1,837 / 1,837` | 2,268,318 | `4126ab96594433343249af6a493b192817b2ae04995852ea8a90b46e99e02173` |
+
+The total is **`3,441 / 3,441`** with zero undeclared pointers. All `908` protected preimages stayed
+exact, including the N10a census and smoke problem. The confidence ledger stayed exactly `977,814`
+bytes at
+`sha256:4a0fdf065b0d1a3c283f2f0f8bef55b5d8e485d59634646d165d7ea663f3adc9`.
+Plan line 7 stayed at
+`f88d113f34f339f14d333cdd3fe6459cf0e73d449ec3bb5f026567276a14aa37`.
+The indivisible six-output receipt landed at `4b21458d050f4a7673308e40abee5ea659b2c236`.
+
+## Targeted verification and implementation round 1
+
+The retained semantic wave passed `14/14` focused GAP1, v2-custody, OM-01 and DEF17 tests in
+`62.89` s under the literal `uptime` pair `2.60 / 2.29 / 3.27` ->
+`2.79 / 2.40 / 3.24`; the stricter frozen-v2 non-admission witness passed separately in `16.05` s.
+All four governed validators returned `status=pass`. Their corruption modes each rejected their
+mutation with the owner-declared healthy terminal `exit 1`; Depth's 18-case wave returned every case
+red. Every duration in this window is contended regime evidence only. In particular, Depth `--check`
+completed in `206.03` s under its existing `208.820` s contended allowance, and that duration is not
+promoted to a clean p95. Ruff passed on all 12 changed Python paths and `git diff --check` passed.
+
+Architecture guardrails then reported one lane-owned edge,
+`polisyos.runtime.quality.promotion_sequence -> polisyos.pdc._impl.gy_waist`, plus five runtime/http
+baseline drifts. P40 classified the lane edge as a **new public-boundary mechanism class**, consuming
+GAP1 implementation round 1/2. The repair at
+`cacb5d1548ebcc9f343b243bf20bc7476a6ce83c` exports `PromotionObligationDraft` and
+`promotion_obligation_instance_id` through the existing `polisyos.pdc` facade. The strict runtime
+path now imports only that facade; focused acceptance/public-facade tests passed `5/5`, Ruff passed,
+the lane edge disappeared from guardrails, and an independent read-only review returned GO with no
+second finding.
+
+P41 replayed the exact guardrail command at slice base
+`068aab9df41f2aeebf7b83a80c7939b02d196a5d` in branch-attached scratch
+`/private/tmp/polisyos-gy-gap1-p41.hL5cdV/repo`. It reproduced exactly the same five runtime/http
+drifts that remain after the GAP1 edge was removed. Their complete path set intersects this lane's
+changed paths at zero, so they are inherited and owned outside this task. P37: base head, issue set,
+and path intersection are `recomputed`.
+
+The round-1 import repair changes source identity but no governed artifact identity. The complete
+source/tool closure remains `3,286` files and moves to
+`sha256:a8f7491598c970f5c39644b2ebcc92411831068a3e72513d3acd44f75fc57822`.
+Promotion and generation rederived byte-equal; N10a's non-persisting writer returned zero changed
+leaves for each of census, pack, smoke problem, cycle trace, and gaps, binding source head `cacb5d154`
+in manifest
+`sha256:a4c101f8cbb350efa8433d45cf05e69dbd0707f2b0c826d5170488f7316c8aec`;
+Depth returned `status=pass` in `137.75` s under the recorded contended pair
+`4.00 / 3.74 / 3.29` -> `2.51 / 3.27 / 3.17`. Therefore no second artifact writer or declaration is
+needed. The E12 authority import closure remains `120` members: `gy_waist.py`,
+`layer2_design_search.py`, and the newly changed `pdc/__init__.py` are members;
+`generation_cycle.py` and `promotion_sequence.py` are not. The `2,562`-file deployment baseline
+contains all five changed source files, so the confidence artifact remains deliberately stale for the
+later joint reissue.
+
+Final disposition: GY-DEF5 is closed at 0/2, GY-DEF17 is closed at 0/2, and GY-GAP1 is closed at
+1/2. The baseline census remains reconciled at `1,171` tracked JSON files, `26` receipts / `390`
+records, distribution `{15: 26}`, maximum multiplicity `1`, with `19 / 285` current-v2 owner-bound
+receipts and seven / `105` historical-v1 Depth recordings. The mechanism adds an additive
+`decisive_predicate` row kind and does not make the fifteen `class_gate` obligations instance-granular.
+The closure sentence is literal: **one decisive obligation instance removed, class denominator total
+and green, authority-band result red.**

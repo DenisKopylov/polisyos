@@ -4,6 +4,7 @@ import {
   type WorkspaceKey,
 } from "@/app/workspaces";
 import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
+import type { FeatureFlagKey } from "@/shared/lib/featureFlags";
 
 export type SurfacePlacement = "panel" | "sidebar" | "workspace-tab";
 export type SurfaceKind = "panel" | "run-tab" | "workspace";
@@ -42,6 +43,7 @@ export type SurfaceRegistryEntry = {
     shortcut?: string;
   };
   descriptionKey: string;
+  featureFlag?: FeatureFlagKey;
   glyph: GlyphName;
   id: SurfaceId;
   kind: SurfaceKind;
@@ -123,6 +125,7 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     aliases: ["causal", "graph"],
     command: { enabled: true, group: "runSurfaces", requiresContext: "runId" },
     descriptionKey: "surfaceRegistry.run.causal.description",
+    featureFlag: "enableCausalGraph",
     glyph: "identifiability",
     id: "runs.causal",
     kind: "run-tab",
@@ -319,6 +322,7 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     aliases: ["causal atlas", "dag", "identification"],
     command: { enabled: true, group: "runSurfaces", requiresContext: "runId" },
     descriptionKey: "surfaceRegistry.panels.causalAtlas.description",
+    featureFlag: "enableCausalGraph",
     glyph: "identifiability",
     id: "runs.causalAtlas",
     kind: "panel",
@@ -339,6 +343,7 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     aliases: ["identifiability", "identified set", "bounds", "manski"],
     command: { enabled: true, group: "runSurfaces", requiresContext: "runId" },
     descriptionKey: "surfaceRegistry.panels.identifiabilitySurface.description",
+    featureFlag: "enableCausalGraph",
     glyph: "identifiability",
     id: "runs.identifiabilitySurface",
     kind: "panel",
@@ -894,6 +899,7 @@ export function getCommandPaletteSurfaceEntries(
   context: SurfaceHrefContext & {
     canAccessPermission?: (permission: SurfacePermissionKey) => boolean;
     hasCapability?: (capability: string) => boolean;
+    isFeatureEnabled?: (featureFlag: FeatureFlagKey) => boolean;
     isWorkspaceAllowed?: (workspaceKey: WorkspaceKey) => boolean;
     isWorkspaceEnabled?: (workspaceKey: WorkspaceKey) => boolean;
   } = {},
@@ -904,6 +910,13 @@ export function getCommandPaletteSurfaceEntries(
     }
 
     if (context.isWorkspaceEnabled?.(surface.workspaceKey) === false) {
+      return [];
+    }
+
+    if (
+      surface.featureFlag &&
+      context.isFeatureEnabled?.(surface.featureFlag) === false
+    ) {
       return [];
     }
 

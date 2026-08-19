@@ -1108,9 +1108,9 @@ Loosening the ratified posture is out of scope for every slice.
   enforcement anchor on **canonical semantic IDs, never string comparison**; a translation
   that upgrades a status's semantic strength (`limited` → "confirmed with caveat",
   `may_not_use_for` → optional recommendation) is the red-first negative of the locale
-  lint. **D4 is ratified (2026-07-16, `7b6933770`)**, so this lint is unblocked and
-  anchors on the ratified posture: `uk` primary, `en` baseline/fallback, `ru`
-  `legacy_continuity_frozen` — a lint or exemption that re-exposes `ru` as an active
+  lint. **D4 is ratified and D4-A1 amended it on 2026-08-19**, so this lint is
+  unblocked and anchors on the amended posture: `en` authored primary, `uk`
+  translation, `ru` `legacy_continuity_frozen` — a lint or exemption that re-exposes `ru` as an active
   product locale is itself a red-first negative.
 - **Not yet:** enforcement covers the waist and existing strangled panels;
   un-migrated legacy features carry honest lint-debt entries in the ledger.

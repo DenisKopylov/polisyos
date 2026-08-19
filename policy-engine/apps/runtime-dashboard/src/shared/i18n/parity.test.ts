@@ -5,6 +5,7 @@ import { formatIcuMessage, isPluralMessage } from "./messages/icu-messages";
 import en from "./locales/en.json";
 import ru from "./locales/ru.json";
 import uk from "./locales/uk.json";
+import { PRIMARY_LOCALE } from "./locale";
 
 type Catalog = Record<string, unknown>;
 
@@ -1025,14 +1026,18 @@ function collectNumericUseDeclarationFailures(
 
 describe("locale catalogs", () => {
   it("keeps the legacy-continuity Russian key set frozen", () => {
-    const enKeys = collectPaths(en).sort(comparePaths);
+    const productCatalogs = { en, uk } as const;
+    const authoredKeys = collectPaths(productCatalogs[PRIMARY_LOCALE]).sort(
+      comparePaths,
+    );
     const ukKeys = collectPaths(uk).sort(comparePaths);
     const ruKeys = collectPaths(ru).sort(comparePaths);
     const ruLeaves = collectLeafPairs(ru).sort(([left], [right]) =>
       comparePaths(left, right),
     );
 
-    expect(ukKeys).toEqual(enKeys);
+    expect(PRIMARY_LOCALE).toBe("en");
+    expect(ukKeys).toEqual(authoredKeys);
     expect(
       crypto.createHash("sha256").update(JSON.stringify(ruKeys)).digest("hex"),
     ).toBe(LEGACY_CONTINUITY_RU_KEY_SET_SHA256);

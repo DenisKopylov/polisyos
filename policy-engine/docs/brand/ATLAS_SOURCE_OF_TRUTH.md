@@ -4,7 +4,7 @@ status: active
 decision_status: accepted_and_ratified
 owner: team-design
 created: 2026-07-16
-last_reviewed: 2026-07-16
+last_reviewed: 2026-08-19
 authoritative_for:
   - Atlas design-source dispositions
   - Atlas token-pipeline direction
@@ -20,6 +20,7 @@ surface_constitution: ../system-design-decisions/policyos-atlas-surface-constitu
 ds0_plan: ../plans/active/atlas-slices/DS0-source-of-truth-freeze-and-governing-decisions.md
 ratified_by_owner:
   - D4-locale-and-i18n-posture (2026-07-16, @DenisKopylov — ru frozen: not used, not deleted)
+  - D4-A1-locale-primary-amendment (2026-08-19, Atlas Revision 3.19 — en authored primary; uk translation; ru unchanged)
 ---
 
 # Atlas Source-Of-Truth And Governing Decisions
@@ -50,7 +51,7 @@ reviewed rather than locally patched around it.
 | D1 | Canonical source, supersession, and docs lifecycle | `accepted` | `team-design` | 2026-07-16 |
 | D2 | Token pipeline | `accepted` | `team-design` | 2026-07-16 |
 | D3 | Package home, versioning, and Figma | `accepted` | `team-design` + `team-frontend` | 2026-07-16 |
-| D4 | Locale and i18n posture | `ratified` (2026-07-16) | `team-design` product owner; implementation `@frontend-owners` | effective — ru frozen, not used, not deleted |
+| D4 | Locale and i18n posture | `ratified`, amended by `D4-A1` (2026-08-19) | `team-design` product owner; implementation `@frontend-owners` | effective — en authored primary, uk translation, ru frozen/not used/not deleted |
 | D5 | Feature-flag governance | `accepted` | `@architecture-owners`; implementation `@frontend-owners` | 2026-07-16 |
 | D6 | Non-web surface dispositions | `accepted` | owners per row | 2026-07-16 |
 
@@ -261,16 +262,16 @@ conflict-resolution owner; otherwise it remains a projection.
 
 ## D4 - Locale And i18n Posture
 
-**Status: `ratified` (2026-07-16, product owner `@DenisKopylov`).** The owner
-ratified the recommendation as proposed: `uk` primary Ukraine-facing locale;
-`en` baseline/fallback; **`ru` UI catalog `legacy_continuity_frozen` — not
-used, not deleted** (retained in-tree, excluded from active locale exposure
-and from any public locale-support claim); Russian **source-content
-rendering** (reading Russian-language source documents) remains a separate
-read-only capability; RTL honestly `not_supported`. DS5 implements the
-enforcement mechanics; DS12 may publish exactly this posture and nothing
-stronger. Revisit triggers unchanged (usage evidence, funded translation
-ownership, runtime admission, jurisdictional change).
+**Status: `ratified`, amended by D4-A1 on 2026-08-19 (Atlas Revision 3.19).**
+The original 2026-07-16 ruling made `uk` primary and `en` its baseline. D4-A1
+reverses that relation: **`en` is the primary locale and authored source of
+truth; `uk` is a translation of it, however accurate.** The **`ru` UI catalog
+remains `legacy_continuity_frozen` — not used, not deleted** (retained
+in-tree, excluded from active locale exposure and from any public
+locale-support claim). Russian **source-content rendering** remains a
+separate read-only capability; RTL remains honestly `not_supported`. DS5
+implements the amended mechanics; DS12 may publish exactly this posture and
+nothing stronger. Revisit triggers are unchanged.
 
 The 2026-06-11 DS0 draft described `ru` as frozen-but-served, but that text
 predated the current constitution's jurisdictional-surface posture and was not
@@ -293,17 +294,17 @@ locales; missing messages fall back to English. The runtime capability
 contract and frontend capability validator admit only `en`/`uk`, while a
 selected `ru` UI locale currently crosses into run requests as
 `locale_preference`. The surface constitution starts Ukraine-facing public
-coverage with `uk`/`en`. [TYPOGRAPHY_UA_RU.md](./TYPOGRAPHY_UA_RU.md) says
-Ukrainian is primary, Russian is a read-only source-content target with no
-default Russian writing UI, and English is fallback.
+coverage with `uk`/`en`. D4-A1 makes English the authored primary and
+Ukrainian its product translation; Russian remains a read-only source-content
+target with no default Russian writing UI.
 
 No UI direction contract, `document.dir` management, or RTL visual/a11y test
 was found. The honest RTL status is `not_supported`, not ready.
 
-### Recommendation For Owner Ratification
+### Amended Decision
 
-- Supported public/product UI locales: Ukrainian primary for Ukraine-facing
-  contexts; English baseline and fallback.
+- Supported public/product UI locales: English is the authored primary and
+  fallback; Ukrainian is its Ukraine-facing product translation.
 - Classify the existing Russian UI catalog as `legacy_continuity_frozen`, not
   a supported/public translation promise. Preserve it for existing
   authenticated users during a measured transition, remove it from public
@@ -453,11 +454,8 @@ an explicit `surface_out_of_scope` record.
 
 ## Pending Owner Ratification
 
-| Decision | Recommendation | Ratification owner | Blocking effect |
-| --- | --- | --- | --- |
-| D4 `ru` UI retention | `uk` primary + `en` baseline; `ru` UI `legacy_continuity_frozen`; Russian source-content rendering retained | `team-design` product owner (`@DenisKopylov`) | DS5 may prepare mechanics but must not choose the policy; DS12 cannot publish locale support claims |
-
-No other DS0 decision is pending owner ratification.
+No DS0 decision is pending owner ratification. D4 was ratified on 2026-07-16
+and D4-A1 amended its primary/translation relation on 2026-08-19.
 
 ## Pattern Pass And Capability Truth
 
@@ -467,8 +465,8 @@ No other DS0 decision is pending owner ratification.
   runtime/accessibility authority by themselves.
 - **P13:** one decision record replaces separate memos; email stays honestly
   out of scope rather than creating a producer-less slice obligation.
-- **P26:** D4 stays pending; evidence and recommendation do not become human
-  sign-off.
+- **P26:** D4 and D4-A1 are explicit owner decisions; evidence and a draft
+  recommendation never substitute for that sign-off.
 - **P29:** schema examples prove shape only. DS6 owns behavioral readiness
   recomputation and CI validation.
 

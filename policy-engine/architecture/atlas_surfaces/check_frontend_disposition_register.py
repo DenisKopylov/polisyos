@@ -9,17 +9,22 @@ rebound claim.  Stored counts and empty arrays are never accepted as proof.
 from __future__ import annotations
 
 import argparse
+import base64
+import binascii
 import copy
 import hashlib
+import importlib.util
+import io
 import json
 import posixpath
 import re
 import subprocess
 import sys
+import tomllib
+import unittest
 from collections import Counter, defaultdict
-from datetime import date, datetime
 from functools import lru_cache
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 from typing import Any, Iterable, Mapping, Sequence
 
 try:
@@ -41,6 +46,15 @@ BASELINE_PATH = ATLAS_DIR / "frontend-baseline-debt-manifest.json"
 BASELINE_SCHEMA_PATH = ATLAS_DIR / "frontend-baseline-debt.schema.json"
 REPORT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-frontend-disposition-register.md"
 AUDIT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-live-application-audit.md"
+STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
+
+_STATUS_SPEC = importlib.util.spec_from_file_location(
+    "frontend_disposition_status_checker", STATUS_CHECKER_PATH
+)
+if _STATUS_SPEC is None or _STATUS_SPEC.loader is None:  # pragma: no cover
+    raise RuntimeError(f"Unable to import status checker from {STATUS_CHECKER_PATH}")
+status_checker = importlib.util.module_from_spec(_STATUS_SPEC)
+_STATUS_SPEC.loader.exec_module(status_checker)
 
 LINT_ORIGIN_COUNT = 75
 LINT_ORIGIN_FILE_COUNT = 22
@@ -467,13 +481,28 @@ C17_RATIONALE = (
 )
 
 _TS_MODULE_FACTS_SCRIPT = r"""
+import path from "node:path";
 import ts from "typescript";
 
 let raw = "";
 for await (const chunk of process.stdin) raw += chunk;
 const sources = JSON.parse(raw);
+const dashboardRoot = process.cwd();
+const repoRoot = path.resolve(dashboardRoot, "../..");
+const config = ts.readConfigFile(
+  path.join(dashboardRoot, "tsconfig.app.json"),
+  ts.sys.readFile,
+);
+if (config.error) {
+  throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, "\n"));
+}
+const parsedConfig = ts.parseJsonConfigFileContent(config.config, ts.sys, dashboardRoot);
+if (parsedConfig.errors.length > 0) {
+  throw new Error(ts.flattenDiagnosticMessageText(parsedConfig.errors[0].messageText, "\n"));
+}
 const facts = [];
 const compilerOptions = {
+  ...parsedConfig.options,
   jsx: ts.JsxEmit.Preserve,
   module: ts.ModuleKind.ESNext,
   noLib: true,
@@ -506,6 +535,18 @@ const program = ts.createProgram({
   host,
 });
 const checker = program.getTypeChecker();
+
+function resolvedModulePath(relativePath, specifier) {
+  const resolved = ts.resolveModuleName(
+    specifier,
+    path.resolve(repoRoot, relativePath),
+    compilerOptions,
+    host,
+  ).resolvedModule?.resolvedFileName;
+  return resolved
+    ? path.relative(repoRoot, path.resolve(resolved)).split(path.sep).join("/")
+    : null;
+}
 
 for (const [path] of Object.entries(sources)) {
   const file = program.getSourceFile(path);
@@ -781,6 +822,17 @@ for (const [path] of Object.entries(sources)) {
     }
     if (ts.isImportDeclaration(node) && ts.isStringLiteral(node.moduleSpecifier)) {
       const clause = node.importClause;
+      facts.push({
+        path,
+        kind: "import_declaration",
+        module: node.moduleSpecifier.text,
+        resolved_module: resolvedModulePath(path, node.moduleSpecifier.text),
+        names: [],
+        exported_names: [],
+        namespace_usages: [],
+        value_binding_used: false,
+        line: line(node),
+      });
       if (clause && !clause.isTypeOnly) {
         const names = [];
         const usedNames = [];
@@ -872,6 +924,418 @@ process.stdout.write(JSON.stringify(facts));
 
 _TS_MODULE_FACTS_CACHE: dict[str, list[dict[str, Any]]] = {}
 
+_TYPESCRIPT_REFERENCE_ROLES = frozenset(
+    {
+        "exported_declaration",
+        "named_declaration",
+        "variable_declaration",
+        "type_property",
+        "object_property",
+        "call_expression",
+        "string_literal",
+        "import_binding",
+        "jsx_opening",
+        "jsx_attribute",
+    }
+)
+
+_TS_REFERENCE_CONSTRUCT_SCRIPT = r"""
+import { createHash } from "node:crypto";
+import path from "node:path";
+import ts from "typescript";
+
+let raw = "";
+for await (const chunk of process.stdin) raw += chunk;
+const input = JSON.parse(raw);
+const { sources } = input;
+const requests = input.requests ?? [{
+  sourcePath: input.sourcePath,
+  role: input.role,
+  discriminator: input.discriminator,
+}];
+const dashboardRoot = process.cwd();
+const repoRoot = path.resolve(dashboardRoot, "../..");
+let requestedSourcePath;
+let sourcePath;
+let role;
+let discriminator;
+let sourceFile;
+const config = ts.readConfigFile(
+  path.join(dashboardRoot, "tsconfig.app.json"),
+  ts.sys.readFile,
+);
+if (config.error) {
+  throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, "\n"));
+}
+const parsedConfig = ts.parseJsonConfigFileContent(config.config, ts.sys, dashboardRoot);
+if (parsedConfig.errors.length > 0) {
+  throw new Error(ts.flattenDiagnosticMessageText(parsedConfig.errors[0].messageText, "\n"));
+}
+const compilerOptions = {
+  ...parsedConfig.options,
+  jsx: ts.JsxEmit.Preserve,
+  module: ts.ModuleKind.ESNext,
+  noLib: true,
+  target: ts.ScriptTarget.Latest,
+};
+const virtualSources = new Map(
+  Object.entries(sources).map(([relativePath, source]) => [path.resolve(repoRoot, relativePath), source]),
+);
+const host = ts.createCompilerHost(compilerOptions, true);
+const defaultFileExists = host.fileExists.bind(host);
+const defaultReadFile = host.readFile.bind(host);
+const defaultGetSourceFile = host.getSourceFile.bind(host);
+host.getCurrentDirectory = () => repoRoot;
+function virtualSource(fileName) {
+  return virtualSources.get(path.resolve(repoRoot, fileName));
+}
+host.fileExists = (fileName) => virtualSource(fileName) !== undefined || defaultFileExists(fileName);
+host.readFile = (fileName) => virtualSource(fileName) ?? defaultReadFile(fileName);
+host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
+  const source = virtualSource(fileName);
+  if (source !== undefined) {
+    const kind = fileName.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+    return ts.createSourceFile(fileName, source, languageVersion, true, kind);
+  }
+  return defaultGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile);
+};
+host.resolveModuleNames = (moduleNames, containingFile) => moduleNames.map((specifier) => {
+  const resolved = ts.resolveModuleName(
+    specifier,
+    path.resolve(repoRoot, containingFile),
+    compilerOptions,
+    host,
+  ).resolvedModule;
+  if (resolved) return resolved;
+  if (!specifier.startsWith(".")) return undefined;
+  const base = path.resolve(path.dirname(path.resolve(repoRoot, containingFile)), specifier);
+  for (const extension of [".ts", ".tsx", ".mts", ".cts"]) {
+    const candidate = base + extension;
+    if (virtualSource(candidate) !== undefined) {
+      return { resolvedFileName: candidate, extension: ts.Extension.Ts, isExternalLibraryImport: false };
+    }
+  }
+  return undefined;
+});
+let programCreateCount = 0;
+const program = ts.createProgram({
+  rootNames: [...virtualSources.keys()],
+  options: compilerOptions,
+  host,
+});
+programCreateCount += 1;
+const checker = program.getTypeChecker();
+function isExported(node) {
+  return Boolean(node.modifiers?.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword));
+}
+
+function resolvedModulePath(specifier) {
+  const resolved = ts.resolveModuleName(
+    specifier,
+    path.resolve(repoRoot, sourcePath),
+    compilerOptions,
+    host,
+  ).resolvedModule?.resolvedFileName;
+  return resolved
+    ? path.relative(repoRoot, path.resolve(resolved)).split(path.sep).join("/")
+    : "unresolved";
+}
+
+function importedBinding(name) {
+  let result = null;
+  function scan(node) {
+    if (result) return;
+    if (ts.isImportDeclaration(node) && node.importClause && ts.isStringLiteral(node.moduleSpecifier)) {
+      const clause = node.importClause;
+      if (clause.name?.text === name) {
+        result = { module: node.moduleSpecifier.text, imported: "default" };
+        return;
+      }
+      const bindings = clause.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) {
+        for (const element of bindings.elements) {
+          if (element.name.text === name) {
+            result = { module: node.moduleSpecifier.text, imported: (element.propertyName ?? element.name).text };
+            return;
+          }
+        }
+      } else if (bindings && ts.isNamespaceImport(bindings) && bindings.name.text === name) {
+        result = { module: node.moduleSpecifier.text, imported: "*" };
+      }
+    }
+    ts.forEachChild(node, scan);
+  }
+  scan(sourceFile);
+  return result;
+}
+
+function declarationName(node) {
+  return node.name && ts.isIdentifier(node.name) ? node.name.text : null;
+}
+
+function nearest(node, predicate) {
+  let current = node.parent;
+  while (current) {
+    if (predicate(current)) return current;
+    current = current.parent;
+  }
+  return null;
+}
+
+function declarationChain(nameNode, prefix) {
+  const symbol = checker.getSymbolAtLocation(nameNode);
+  const resolved = symbol && (symbol.flags & ts.SymbolFlags.Alias)
+    ? checker.getAliasedSymbol(symbol)
+    : symbol;
+  const declaration = resolved?.declarations?.[0] ?? symbol?.declarations?.[0];
+  const declarationPath = declaration
+    ? path.relative(
+      repoRoot,
+      path.resolve(repoRoot, declaration.getSourceFile().fileName),
+    ).split(path.sep).join("/")
+    : null;
+  return [
+    prefix,
+    `symbol:${symbol?.getName() ?? "unresolved"}`,
+    `resolved:${resolved?.getName() ?? "unresolved"}`,
+    `declaration:${declarationPath ?? "unresolved"}:${declaration ? ts.SyntaxKind[declaration.kind] : "unresolved"}`,
+  ];
+}
+
+function namedEnclosingChain(node) {
+  const names = [];
+  let current = node.parent;
+  while (current && !ts.isSourceFile(current)) {
+    if (
+      (namedDeclarationKinds(current) || ts.isVariableDeclaration(current)) &&
+      current.name &&
+      ts.isIdentifier(current.name)
+    ) {
+      names.push(current.name.text);
+    }
+    current = current.parent;
+  }
+  return names.reverse();
+}
+
+function qualifiedPropertyName(node) {
+  return [...namedEnclosingChain(node), node.name.getText(sourceFile)].join(".");
+}
+
+function normalizedTokenSha256(node) {
+  function semanticValue(current) {
+    if (ts.isIdentifier(current)) return ["identifier", current.text];
+    if (ts.isStringLiteral(current) || ts.isNoSubstitutionTemplateLiteral(current)) {
+      return ["string", current.text];
+    }
+    if (ts.isNumericLiteral(current)) return ["number", Number(current.text)];
+    return null;
+  }
+  function fingerprint(current) {
+    const children = [];
+    ts.forEachChild(current, (child) => {
+      children.push(fingerprint(child));
+    });
+    return [ts.SyntaxKind[current.kind], semanticValue(current), children];
+  }
+  return createHash("sha256").update(JSON.stringify(fingerprint(node))).digest("hex");
+}
+
+function importBindingChain(node) {
+  const importDeclaration = nearest(node, ts.isImportDeclaration);
+  const module = importDeclaration && ts.isStringLiteral(importDeclaration.moduleSpecifier)
+    ? importDeclaration.moduleSpecifier.text
+    : "unresolved";
+  if (ts.isImportSpecifier(node)) {
+    const imported = (node.propertyName ?? node.name).text;
+    return declarationChain(
+      node.name,
+      `import:${module}:${resolvedModulePath(module)}:${imported}:${node.name.text}`,
+    );
+  }
+  return declarationChain(
+    node.name,
+    `import:${module}:${resolvedModulePath(module)}:default_or_namespace:${node.name.text}`,
+  );
+}
+
+function jsxOpeningChain(node) {
+  const tag = node.tagName.getText(sourceFile);
+  const enclosing = namedEnclosingChain(node).join(".") || "module";
+  if (ts.isIdentifier(node.tagName)) {
+    const binding = importedBinding(tag);
+    const importPart = binding
+      ? `:import:${binding.module}:${resolvedModulePath(binding.module)}:${binding.imported}`
+      : "";
+    return declarationChain(node.tagName, `jsx_opening:${tag}:enclosing:${enclosing}${importPart}`);
+  }
+  return [`jsx_opening:${tag}`, `symbol:unresolved`, `resolved:unresolved`, `declaration:unresolved:unresolved`];
+}
+
+function jsxAttributeChain(node) {
+  const opening = nearest(
+    node,
+    (candidate) => ts.isJsxOpeningElement(candidate) || ts.isJsxSelfClosingElement(candidate),
+  );
+  const tag = opening ? opening.tagName.getText(sourceFile) : "unresolved";
+  const enclosing = namedEnclosingChain(node).join(".") || "module";
+  return [`jsx_attribute:${tag}:${node.name.text}:enclosing:${enclosing}`, `symbol:${node.name.text}`, `resolved:${node.name.text}`, `declaration:${requestedSourcePath}:JsxAttribute`];
+}
+
+function namedDeclarationKinds(node) {
+  return (
+    ts.isFunctionDeclaration(node) ||
+    ts.isClassDeclaration(node) ||
+    ts.isEnumDeclaration(node) ||
+    ts.isInterfaceDeclaration(node) ||
+    ts.isTypeAliasDeclaration(node)
+  );
+}
+
+function objectPropertyChain(node) {
+  return declarationChain(node.name, `object_property:${qualifiedPropertyName(node)}`);
+}
+
+function callExpressionChain(node) {
+  const callee = node.expression.getText(sourceFile);
+  const enclosing = namedEnclosingChain(node).join(".") || "module";
+  if (ts.isIdentifier(node.expression)) {
+    return declarationChain(node.expression, `call:${callee}:enclosing:${enclosing}`);
+  }
+  return [`call:${callee}:enclosing:${enclosing}`, "symbol:unresolved", "resolved:unresolved", "declaration:unresolved:unresolved"];
+}
+
+function stringLiteralChain(node) {
+  const enclosing = namedEnclosingChain(node).join(".") || "module";
+  return [`string_literal:${node.text}:enclosing:${enclosing}`, `symbol:${node.text}`, `resolved:${node.text}`, `declaration:${requestedSourcePath}:StringLiteral`];
+}
+
+function nodeDiscriminator(node) {
+  if ((namedDeclarationKinds(node) || ts.isVariableDeclaration(node)) && node.name && ts.isIdentifier(node.name)) return node.name.text;
+  if ((ts.isPropertySignature(node) || ts.isPropertyAssignment(node)) && node.name) return qualifiedPropertyName(node);
+  if (ts.isCallExpression(node)) return node.expression.getText(sourceFile);
+  if (ts.isStringLiteral(node)) return node.text;
+  if ((ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || ts.isImportClause(node)) && node.name) return node.name.text;
+  if (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) return node.tagName.getText(sourceFile);
+  if (ts.isJsxAttribute(node)) return node.name.text;
+  return "unresolved";
+}
+
+function matchesDiscriminator(node) {
+  return discriminator === "__creation_anchor__" || nodeDiscriminator(node) === discriminator;
+}
+
+let matches = [];
+function visit(node, structuralPath = []) {
+  if (
+    role === "exported_declaration" &&
+    isExported(node) &&
+    namedDeclarationKinds(node) &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: declarationChain(node.name, `export:${discriminator}`), structuralPath });
+  } else if (
+    role === "named_declaration" &&
+    namedDeclarationKinds(node) &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: declarationChain(node.name, `declaration:${discriminator}`), structuralPath });
+  } else if (
+    role === "variable_declaration" &&
+    ts.isVariableDeclaration(node) &&
+    ts.isIdentifier(node.name) &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: declarationChain(node.name, `variable:${discriminator}`), structuralPath });
+  } else if (
+    role === "type_property" &&
+    ts.isPropertySignature(node) &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: declarationChain(node.name, `type_property:${discriminator}`), structuralPath });
+  } else if (
+    role === "object_property" &&
+    ts.isPropertyAssignment(node) &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: objectPropertyChain(node), structuralPath });
+  } else if (
+    role === "call_expression" &&
+    ts.isCallExpression(node) &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: callExpressionChain(node), structuralPath });
+  } else if (
+    role === "string_literal" &&
+    ts.isStringLiteral(node) &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: stringLiteralChain(node), structuralPath });
+  } else if (
+    role === "import_binding" &&
+    (ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || ts.isImportClause(node)) &&
+    node.name &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: importBindingChain(node), structuralPath });
+  } else if (
+    role === "jsx_opening" &&
+    (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: jsxOpeningChain(node), structuralPath });
+  } else if (
+    role === "jsx_attribute" &&
+    ts.isJsxAttribute(node) &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({ node, declarationChain: jsxAttributeChain(node), structuralPath });
+  }
+  const children = [];
+  ts.forEachChild(node, (child) => { children.push(child); });
+  children.forEach((child, ordinal) =>
+    visit(
+      child,
+      namedDeclarationKinds(child)
+        ? []
+        : [...structuralPath, `${ts.SyntaxKind[child.kind]}:${ordinal}`],
+    ),
+  );
+}
+const results = [];
+for (const request of requests) {
+  requestedSourcePath = request.sourcePath;
+  sourcePath = path.resolve(repoRoot, requestedSourcePath);
+  role = request.role;
+  discriminator = request.discriminator;
+  sourceFile = program.getSourceFiles().find(
+    (file) => path.resolve(repoRoot, file.fileName) === sourcePath,
+  );
+  if (!sourceFile) {
+    results.push({ sourceMissing: true, matches: [] });
+    continue;
+  }
+  matches = [];
+  visit(sourceFile);
+  results.push({
+    sourceMissing: false,
+    matches: matches.map((match) => ({
+      discriminator: nodeDiscriminator(match.node),
+      structuralPath: match.structuralPath,
+      declarationChain: match.declarationChain,
+      normalizedTokensSha256: normalizedTokenSha256(match.node),
+      startLine: sourceFile.getLineAndCharacterOfPosition(match.node.getStart(sourceFile)).line + 1,
+      fullStartLine: sourceFile.getLineAndCharacterOfPosition(match.node.getFullStart()).line + 1,
+      endLine: sourceFile.getLineAndCharacterOfPosition(match.node.getEnd()).line + 1,
+    })),
+  });
+}
+const countedResults = results.map((result) => ({ ...result, programCreateCount }));
+process.stdout.write(JSON.stringify(input.requests ? { results: countedResults } : countedResults[0]));
+"""
+
+_TS_REFERENCE_CONSTRUCT_CACHE: dict[str, dict[str, Any]] = {}
+
 
 def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]:
     """Parse TypeScript modules with the installed compiler, never text markers."""
@@ -905,6 +1369,704 @@ def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]
     return parsed
 
 
+def _typescript_reference_construct_facts_batch(
+    sources: Mapping[str, str], requests: Sequence[Mapping[str, str]]
+) -> list[dict[str, Any]]:
+    """Resolve many direct-syntax constructs through one TypeScript program."""
+    for request in requests:
+        role = request.get("role")
+        if role not in _TYPESCRIPT_REFERENCE_ROLES:
+            raise ValueError(f"typescript_reference_role_invalid:{role}")
+    cache_key = hashlib.sha256(
+        json.dumps(
+            {
+                "sources": sources,
+                "requests": requests,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    cached = _TS_REFERENCE_CONSTRUCT_CACHE.get(cache_key)
+    if cached is not None:
+        return cached["results"]
+    completed = subprocess.run(
+        ["node", "--input-type=module", "-e", _TS_REFERENCE_CONSTRUCT_SCRIPT],
+        cwd=REPO_ROOT / "apps/runtime-dashboard",
+        input=json.dumps(
+            {
+                "sources": sources,
+                "requests": requests,
+            }
+        ),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "TypeScript reference identity parser failed: " + completed.stderr.strip()
+        )
+    parsed = json.loads(completed.stdout)
+    results = parsed.get("results") if isinstance(parsed, dict) else None
+    if not isinstance(results, list) or len(results) != len(requests):
+        raise RuntimeError("TypeScript reference identity parser returned an invalid payload")
+    if any(not isinstance(result, dict) or not isinstance(result.get("matches"), list) for result in results):
+        raise RuntimeError("TypeScript reference identity parser returned an invalid payload")
+    _TS_REFERENCE_CONSTRUCT_CACHE[cache_key] = {"results": results}
+    return results
+
+
+def _typescript_reference_construct_facts(
+    sources: Mapping[str, str],
+    *,
+    source_path: str,
+    role: str,
+    discriminator: str,
+) -> dict[str, Any]:
+    """Resolve one canonical construct through the batch TypeScript program."""
+    return _typescript_reference_construct_facts_batch(
+        sources,
+        [
+            {
+                "sourcePath": source_path,
+                "role": role,
+                "discriminator": discriminator,
+            }
+        ],
+    )[0]
+
+
+def _typescript_reference_identity(
+    sources: Mapping[str, str],
+    *,
+    source_path: str,
+    role: str,
+    discriminator: str,
+    navigation_hint: int | None = None,
+) -> dict[str, str]:
+    """Encode a stable TypeScript construct identity without source line navigation.
+
+    ``navigation_hint`` is creation-only migration assistance. It selects a current
+    AST candidate but is deliberately excluded from the encoded path reference.
+    """
+    facts = _typescript_reference_construct_facts(
+        sources,
+        source_path=source_path,
+        role=role,
+        discriminator=discriminator,
+    )
+    matches = facts["matches"]
+    if navigation_hint is not None:
+        matches = [
+            match
+            for match in matches
+            if match.get("fullStartLine", 0) <= navigation_hint <= match.get("endLine", -1)
+        ]
+    if facts.get("sourceMissing") or len(matches) == 0:
+        raise ValueError("typescript_reference_binding_missing_or_renamed")
+    if len(matches) > 1:
+        raise ValueError("typescript_reference_binding_ambiguous")
+    match = matches[0]
+    payload = {
+        "version": 1,
+        "source_path": source_path,
+        "role": role,
+        "discriminator": discriminator,
+        "declaration_chain": match["declarationChain"],
+        "structural_path": match["structuralPath"],
+        "normalized_tokens_sha256": match["normalizedTokensSha256"],
+    }
+    encoded_payload = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    encoded_identity = (
+        source_path
+        + "#ts-identity="
+        + base64.urlsafe_b64encode(encoded_payload).decode("ascii").rstrip("=")
+    )
+    return {
+        "source_path": source_path,
+        "role": role,
+        "discriminator": discriminator,
+        "declaration_chain": json.dumps(match["declarationChain"], separators=(",", ":")),
+        "structural_path": json.dumps(match["structuralPath"], separators=(",", ":")),
+        "normalized_tokens_sha256": match["normalizedTokensSha256"],
+        "encoded_identity": encoded_identity,
+    }
+
+
+def _typescript_reference_identity_record(encoded_identity: str) -> dict[str, str]:
+    """Decode one internally minted identity into the relocation-key input shape."""
+    source_path, marker, encoded_payload = encoded_identity.partition("#ts-identity=")
+    if not source_path or not marker:
+        raise ValueError("typescript_reference_identity_invalid")
+    payload = json.loads(
+        base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
+    )
+    return {
+        "source_path": str(payload["source_path"]),
+        "role": str(payload["role"]),
+        "discriminator": str(payload["discriminator"]),
+        "declaration_chain": json.dumps(payload["declaration_chain"], separators=(",", ":")),
+        "structural_path": json.dumps(payload["structural_path"], separators=(",", ":")),
+        "normalized_tokens_sha256": str(payload["normalized_tokens_sha256"]),
+        "encoded_identity": encoded_identity,
+    }
+
+
+def _typescript_reference_relocation_family(identity: Mapping[str, str]) -> str:
+    """Hash the binding/content pair that may relocate without structural authority."""
+    family = {
+        "source_path": identity["source_path"],
+        "role": identity["role"],
+        "discriminator": identity["discriminator"],
+        "declaration_chain": json.loads(identity["declaration_chain"]),
+        "normalized_tokens_sha256": identity["normalized_tokens_sha256"],
+    }
+    return hashlib.sha256(
+        b"c21d-relocation-family\0"
+        + json.dumps(
+            family,
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+
+
+def _typescript_reference_hybrid_keys(
+    identities: Sequence[Mapping[str, str]],
+) -> list[str]:
+    """Use relocation identity only for a unique declaration/content family."""
+    families = [_typescript_reference_relocation_family(identity) for identity in identities]
+    family_counts = Counter(families)
+    return [
+        family
+        if family_counts[family] == 1
+        else hashlib.sha256(identity["encoded_identity"].encode("utf-8")).hexdigest()
+        for identity, family in zip(identities, families, strict=True)
+    ]
+
+
+def _typescript_reference_identities_from_anchors(
+    anchors: Sequence[Mapping[str, Any]],
+) -> list[dict[str, str]]:
+    """Create stable identities from explicit navigation-only migration anchors.
+
+    The anchor is deliberately a creation aid: the returned identity never encodes
+    its line and validation later resolves only the direct-syntax binding.
+    """
+    sources = {
+        str(anchor["path"]): (REPO_ROOT / str(anchor["path"])).read_text(encoding="utf-8")
+        for anchor in anchors
+    }
+    requests = [
+        {
+            "sourcePath": str(anchor["path"]),
+            "role": str(anchor["role"]),
+            "discriminator": str(anchor.get("discriminator", "__creation_anchor__")),
+        }
+        for anchor in anchors
+    ]
+    facts_by_anchor = _typescript_reference_construct_facts_batch(sources, requests)
+    anchor_errors: list[str] = []
+    for anchor, facts in zip(anchors, facts_by_anchor, strict=True):
+        matches = _typescript_reference_anchor_matches(facts, anchor)
+        diagnostic = (
+            f"{anchor['path']}:{anchor['line']}:{anchor['role']}:"
+            + str(anchor.get("descriptor_id", "unlabeled"))
+        )
+        if facts.get("sourceMissing") or not matches:
+            anchor_errors.append("typescript_reference_binding_missing_or_renamed:" + diagnostic)
+        elif len(matches) != 1:
+            anchor_errors.append("typescript_reference_binding_ambiguous:" + diagnostic)
+    if anchor_errors:
+        raise ValueError(";".join(anchor_errors))
+    identities: list[dict[str, str]] = []
+    for anchor, facts in zip(anchors, facts_by_anchor, strict=True):
+        matches = _typescript_reference_anchor_matches(facts, anchor)
+        if facts.get("sourceMissing") or not matches:
+            raise ValueError(
+                "typescript_reference_binding_missing_or_renamed:"
+                + f"{anchor['path']}:{anchor['line']}:{anchor['role']}:"
+                + str(anchor.get("descriptor_id", "unlabeled"))
+            )
+        if len(matches) != 1:
+            raise ValueError(
+                "typescript_reference_binding_ambiguous:"
+                + f"{anchor['path']}:{anchor['line']}:{anchor['role']}:"
+                + str(anchor.get("descriptor_id", "unlabeled"))
+            )
+        match = matches[0]
+        discriminator = str(match["discriminator"])
+        source_path = str(anchor["path"])
+        role = str(anchor["role"])
+        declaration_chain = [
+            str(part).replace("__creation_anchor__", discriminator)
+            for part in match["declarationChain"]
+        ]
+        payload = {
+            "version": 1,
+            "source_path": source_path,
+            "role": role,
+            "discriminator": discriminator,
+            "declaration_chain": declaration_chain,
+            "structural_path": match["structuralPath"],
+            "normalized_tokens_sha256": match["normalizedTokensSha256"],
+        }
+        encoded_payload = json.dumps(payload, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        identities.append(
+            {
+                "source_path": source_path,
+                "role": role,
+                "discriminator": discriminator,
+                "declaration_chain": json.dumps(declaration_chain, separators=(",", ":")),
+                "structural_path": json.dumps(match["structuralPath"], separators=(",", ":")),
+                "normalized_tokens_sha256": match["normalizedTokensSha256"],
+                "encoded_identity": source_path
+                + "#ts-identity="
+                + base64.urlsafe_b64encode(encoded_payload).decode("ascii").rstrip("="),
+            }
+        )
+    return identities
+
+
+def _typescript_reference_anchor_matches(
+    facts: Mapping[str, Any], anchor: Mapping[str, Any]
+) -> list[Mapping[str, Any]]:
+    """Select an AST construct by syntax start, then navigation-only containment."""
+    matches = facts["matches"]
+    exact_start_matches = [
+            match for match in facts["matches"] if int(match.get("startLine", 0)) == int(anchor["line"])
+        ]
+    matches = exact_start_matches or [
+            match
+            for match in facts["matches"]
+            if int(match.get("fullStartLine", 0)) <= int(anchor["line"]) <= int(match.get("endLine", -1))
+        ]
+    if not matches and anchor.get("discriminator"):
+        matches = facts["matches"]
+    return matches
+
+
+def _typescript_reference_match_error(
+    payload: Mapping[str, Any], facts: Mapping[str, Any]
+) -> str | None:
+    """Classify one parsed identity against facts from either parser path."""
+    if facts.get("sourceMissing"):
+        return "typescript_reference_source_missing"
+    matches = facts["matches"]
+    if not matches:
+        return "typescript_reference_binding_missing_or_renamed"
+
+    binding_matches = [
+        match
+        for match in matches
+        if match["declarationChain"] == payload["declaration_chain"]
+        and match["structuralPath"] == payload["structural_path"]
+    ]
+    if len(binding_matches) > 1:
+        return "typescript_reference_binding_ambiguous"
+    if binding_matches:
+        if (
+            binding_matches[0]["normalizedTokensSha256"]
+            != payload["normalized_tokens_sha256"]
+        ):
+            return "typescript_reference_content_drift"
+        return None
+
+    declaration_matches = [
+        match
+        for match in matches
+        if match["declarationChain"] == payload["declaration_chain"]
+    ]
+    relocation_matches = [
+        match
+        for match in declaration_matches
+        if match["normalizedTokensSha256"] == payload["normalized_tokens_sha256"]
+    ]
+    if len(relocation_matches) > 1:
+        return "typescript_reference_binding_ambiguous"
+    if relocation_matches:
+        return None
+    if declaration_matches:
+        return "typescript_reference_content_drift"
+    return "typescript_reference_binding_missing_or_renamed"
+
+
+def _validate_typescript_reference_identity(
+    reference: Mapping[str, str],
+    sources: Mapping[str, str],
+) -> list[str]:
+    """Fail closed when a canonical construct binding is absent, ambiguous, or stale."""
+    try:
+        encoded_identity = reference["encoded_identity"]
+        if not isinstance(encoded_identity, str):
+            raise ValueError
+        path_prefix, fragment, encoded_payload = encoded_identity.partition("#ts-identity=")
+        if not fragment or not path_prefix or "#" in encoded_payload:
+            raise ValueError
+        payload = json.loads(
+            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
+        )
+        version = payload["version"]
+        source_path = payload["source_path"]
+        role = payload["role"]
+        discriminator = payload["discriminator"]
+        expected_chain = payload["declaration_chain"]
+        expected_structural_path = payload["structural_path"]
+        expected_tokens_sha256 = payload["normalized_tokens_sha256"]
+    except (
+        KeyError,
+        TypeError,
+        ValueError,
+        UnicodeDecodeError,
+        binascii.Error,
+        json.JSONDecodeError,
+    ):
+        return ["typescript_reference_identity_invalid"]
+    if (
+        version != 1
+        or not isinstance(source_path, str)
+        or not isinstance(role, str)
+        or not isinstance(discriminator, str)
+        or not isinstance(expected_chain, list)
+        or not isinstance(expected_structural_path, list)
+        or not isinstance(expected_tokens_sha256, str)
+        or path_prefix != source_path
+        or role not in _TYPESCRIPT_REFERENCE_ROLES
+    ):
+        return ["typescript_reference_identity_invalid"]
+    facts = _typescript_reference_construct_facts(
+        sources,
+        source_path=source_path,
+        role=role,
+        discriminator=discriminator,
+    )
+    error = _typescript_reference_match_error(
+        {
+            "declaration_chain": expected_chain,
+            "structural_path": expected_structural_path,
+            "normalized_tokens_sha256": expected_tokens_sha256,
+        },
+        facts,
+    )
+    return [error] if error is not None else []
+
+
+_STRUCTURED_REFERENCE_FORMATS = frozenset({"json", "toml"})
+_STRUCTURED_KEYED_SELECTOR_RE = re.compile(
+    r"^(?P<collection>[^\[\]]+)\[(?P<key>[^=\[\]]+)=(?P<value>[^\[\]]+)\]$"
+)
+
+
+class _StructuredSelectorMissing(ValueError):
+    """The stable selector did not resolve in the structured document."""
+
+
+class _StructuredSelectorAmbiguous(ValueError):
+    """A keyed selector resolved more than one structured document member."""
+
+
+class _StructuredDuplicateKey(ValueError):
+    """A JSON object repeated a key and therefore has no unique binding."""
+
+
+def _reject_duplicate_json_keys(
+    pairs: Sequence[tuple[str, object]],
+) -> dict[str, object]:
+    """Build a JSON object while rejecting Python's last-key-wins behavior."""
+    result: dict[str, object] = {}
+    for key, value in pairs:
+        if key in result:
+            raise _StructuredDuplicateKey(key)
+        result[key] = value
+    return result
+
+
+def _structured_source_value(source: str, format_adapter: str) -> object:
+    """Parse a governed JSON or TOML document through its declared adapter."""
+    if format_adapter == "json":
+        return json.loads(source, object_pairs_hook=_reject_duplicate_json_keys)
+    if format_adapter == "toml":
+        return tomllib.loads(source)
+    raise ValueError("structured_reference_format_unsupported")
+
+
+def _structured_selector_value(document: object, selector: str) -> object:
+    """Resolve a JSON-Pointer-like selector with optional keyed-list segments."""
+    if not isinstance(selector, str) or not selector.startswith("/") or selector == "/":
+        raise ValueError("structured_reference_selector_invalid")
+    current = document
+    for raw_segment in selector.removeprefix("/").split("/"):
+        if not raw_segment:
+            raise ValueError("structured_reference_selector_invalid")
+        segment = raw_segment.replace("~1", "/").replace("~0", "~")
+        keyed = _STRUCTURED_KEYED_SELECTOR_RE.fullmatch(segment)
+        if keyed is not None:
+            if not isinstance(current, Mapping):
+                raise _StructuredSelectorMissing
+            collection = current.get(keyed.group("collection"))
+            if not isinstance(collection, list):
+                raise _StructuredSelectorMissing
+            key = keyed.group("key")
+            expected = keyed.group("value")
+            matches = [
+                item
+                for item in collection
+                if isinstance(item, Mapping)
+                and key in item
+                and isinstance(item[key], str)
+                and item[key] == expected
+            ]
+            if not matches:
+                raise _StructuredSelectorMissing
+            if len(matches) > 1:
+                raise _StructuredSelectorAmbiguous
+            current = matches[0]
+            continue
+        if "[" in segment or "]" in segment:
+            raise ValueError("structured_reference_selector_invalid")
+        if not isinstance(current, Mapping) or segment not in current:
+            raise _StructuredSelectorMissing
+        current = current[segment]
+    return current
+
+
+def _normalized_structured_value_sha256(value: object) -> str:
+    """Hash semantic structured content independently of source formatting/order."""
+    canonical = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(canonical).hexdigest()
+
+
+def _is_canonical_repo_relative_source_path(source_path: str) -> bool:
+    """Reject address payloads that can resolve outside the governed checkout."""
+    if not source_path or "\\" in source_path:
+        return False
+    candidate = PurePosixPath(source_path)
+    if (
+        candidate.is_absolute()
+        or candidate.as_posix() != source_path
+        or any(part in {"", ".", ".."} for part in candidate.parts)
+    ):
+        return False
+    try:
+        (REPO_ROOT / source_path).resolve().relative_to(REPO_ROOT.resolve())
+    except (OSError, ValueError):
+        return False
+    return True
+
+
+def _encoded_structured_reference_identity(
+    *,
+    source_path: str,
+    format_adapter: str,
+    selector: str,
+    normalized_value_sha256: str,
+) -> str:
+    """Encode an already content-bound structured selector payload."""
+    if not _is_canonical_repo_relative_source_path(source_path):
+        raise ValueError("structured_reference_source_path_invalid")
+    payload = {
+        "version": 1,
+        "source_path": source_path,
+        "format_adapter": format_adapter,
+        "selector": selector,
+        "normalized_value_sha256": normalized_value_sha256,
+    }
+    encoded_payload = json.dumps(
+        payload, sort_keys=True, separators=(",", ":")
+    ).encode("utf-8")
+    return (
+        source_path
+        + "#structured-identity="
+        + base64.urlsafe_b64encode(encoded_payload).decode("ascii").rstrip("=")
+    )
+
+
+def _structured_adapter_matches_path(source_path: str, format_adapter: str) -> bool:
+    """Bind each structured adapter to the source format it actually parses."""
+    return (format_adapter, Path(source_path).suffix.lower()) in {
+        ("json", ".json"),
+        ("toml", ".toml"),
+    }
+
+
+def _structured_reference_identity(
+    sources: Mapping[str, str],
+    *,
+    source_path: str,
+    format_adapter: str,
+    selector: str,
+) -> dict[str, str]:
+    """Encode a stable structured selector plus its normalized selected value."""
+    if not _is_canonical_repo_relative_source_path(source_path):
+        raise ValueError("structured_reference_source_path_invalid")
+    if format_adapter not in _STRUCTURED_REFERENCE_FORMATS:
+        raise ValueError("structured_reference_format_unsupported")
+    if not _structured_adapter_matches_path(source_path, format_adapter):
+        raise ValueError("structured_reference_format_path_mismatch")
+    if source_path not in sources:
+        raise ValueError("structured_reference_source_missing")
+    try:
+        document = _structured_source_value(sources[source_path], format_adapter)
+        selected = _structured_selector_value(document, selector)
+        value_sha256 = _normalized_structured_value_sha256(selected)
+    except _StructuredSelectorMissing as exc:
+        raise ValueError("structured_reference_selector_missing_or_renamed") from exc
+    except _StructuredSelectorAmbiguous as exc:
+        raise ValueError("structured_reference_selector_ambiguous") from exc
+    except (
+        json.JSONDecodeError,
+        tomllib.TOMLDecodeError,
+        _StructuredDuplicateKey,
+        TypeError,
+    ) as exc:
+        raise ValueError("structured_reference_source_invalid") from exc
+    encoded_identity = _encoded_structured_reference_identity(
+        source_path=source_path,
+        format_adapter=format_adapter,
+        selector=selector,
+        normalized_value_sha256=value_sha256,
+    )
+    return {
+        "source_path": source_path,
+        "format_adapter": format_adapter,
+        "selector": selector,
+        "normalized_value_sha256": value_sha256,
+        "encoded_identity": encoded_identity,
+    }
+
+
+def _validate_structured_reference_identity(
+    reference: Mapping[str, str], sources: Mapping[str, str]
+) -> list[str]:
+    """Fail closed on malformed, missing, ambiguous, or stale structured bindings."""
+    try:
+        encoded_identity = reference["encoded_identity"]
+        if not isinstance(encoded_identity, str):
+            raise ValueError
+        path_prefix, fragment, encoded_payload = encoded_identity.partition(
+            "#structured-identity="
+        )
+        if not fragment or not path_prefix or "#" in encoded_payload:
+            raise ValueError
+        payload = json.loads(
+            base64.urlsafe_b64decode(
+                encoded_payload + "=" * (-len(encoded_payload) % 4)
+            ),
+            object_pairs_hook=_reject_duplicate_json_keys,
+        )
+        version = payload["version"]
+        source_path = payload["source_path"]
+        format_adapter = payload["format_adapter"]
+        selector = payload["selector"]
+        expected_value_sha256 = payload["normalized_value_sha256"]
+    except (
+        KeyError,
+        TypeError,
+        ValueError,
+        UnicodeDecodeError,
+        binascii.Error,
+        json.JSONDecodeError,
+    ):
+        return ["structured_reference_identity_invalid"]
+    if (
+        not isinstance(payload, dict)
+        or set(payload)
+        != {
+            "version",
+            "source_path",
+            "format_adapter",
+            "selector",
+            "normalized_value_sha256",
+        }
+        or version != 1
+        or not isinstance(source_path, str)
+        or not isinstance(format_adapter, str)
+        or not isinstance(selector, str)
+        or not isinstance(expected_value_sha256, str)
+        or re.fullmatch(r"[0-9a-f]{64}", expected_value_sha256) is None
+        or path_prefix != source_path
+    ):
+        return ["structured_reference_identity_invalid"]
+    if format_adapter not in _STRUCTURED_REFERENCE_FORMATS:
+        return ["structured_reference_format_unsupported"]
+    if not _is_canonical_repo_relative_source_path(source_path):
+        return ["structured_reference_source_path_invalid"]
+    if not _structured_adapter_matches_path(source_path, format_adapter):
+        return ["structured_reference_format_path_mismatch"]
+    source = sources.get(source_path)
+    if source is None:
+        return ["structured_reference_source_missing"]
+    try:
+        document = _structured_source_value(source, format_adapter)
+        selected = _structured_selector_value(document, selector)
+        live_value_sha256 = _normalized_structured_value_sha256(selected)
+    except _StructuredSelectorMissing:
+        return ["structured_reference_selector_missing_or_renamed"]
+    except _StructuredSelectorAmbiguous:
+        return ["structured_reference_selector_ambiguous"]
+    except ValueError as exc:
+        if str(exc) == "structured_reference_selector_invalid":
+            return ["structured_reference_selector_invalid"]
+        return ["structured_reference_source_invalid"]
+    except (json.JSONDecodeError, tomllib.TOMLDecodeError, TypeError):
+        return ["structured_reference_source_invalid"]
+    if live_value_sha256 != expected_value_sha256:
+        return ["structured_reference_content_drift"]
+    return []
+
+
+_C21C_STRUCTURED_HINTS = {
+    "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
+        "json",
+        "/entries[debt_id=ds4-waist-cgf-disposition]",
+        "d333a5ad21d1303613a7a8a9ca08280afec38ed3437b56511e20c55bd66ab613",
+    ),
+    "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
+        "json",
+        "/entries[debt_id=ds4-waist-decision-grade]",
+        "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe",
+    ),
+    "schemas/runtime_api_v1.openapi.json:2221": (
+        "json",
+        "/components/schemas/AuthMeResponse",
+        "7983a50e47d9c0a6e7785de9367614512ce2be27a3e183ac7d844cb4dba6bd3f",
+    ),
+    "architecture/generated_artifacts.toml:764": (
+        "toml",
+        "/family[id=runtime-dashboard-api-types]/outputs",
+        "39d976d308c9d0ddd92032f6fafb308091469c06adc631e380e5f08606bc07fa",
+    ),
+    "apps/runtime-dashboard/package.json:166": (
+        "json",
+        "/devDependencies/openapi-typescript",
+        "1a900c57304920020c1211fba15c4ad49d05cecc62e94b5e13ca67d9e79c7b56",
+    ),
+}
+
+_C21C_FROZEN_STRUCTURED_IDENTITIES = {
+    reference: _encoded_structured_reference_identity(
+        source_path=reference.rsplit(":", 1)[0],
+        format_adapter=format_adapter,
+        selector=selector,
+        normalized_value_sha256=value_sha256,
+    )
+    for reference, (
+        format_adapter,
+        selector,
+        value_sha256,
+    ) in _C21C_STRUCTURED_HINTS.items()
+}
+
+
 def _typescript_production_sources(scan_roots: Sequence[str]) -> dict[str, str]:
     """Load TypeScript production modules while excluding tests, stories, and output."""
     sources: dict[str, str] = {}
@@ -918,6 +2080,195 @@ def _typescript_production_sources(scan_roots: Sequence[str]) -> dict[str, str]:
             continue
         sources[relative] = path.read_text(encoding="utf-8")
     return sources
+
+
+RAW_TRANSPORT_SCAN_ROOTS = ("apps/runtime-dashboard/src",)
+RAW_TRANSPORT_DRIFT_FINDING_ID = "raw-transport-denominator-drift"
+RAW_TRANSPORT_DRIFT_DECISION_DATE = "2026-08-08"
+RAW_TRANSPORT_OWNER_TEST_ABSENT_EXIT = 3
+RAW_TRANSPORT_DRIFT_TEST_ABSENT_EXIT = 4
+RAW_TRANSPORT_OWNER_TEST_METHOD = (
+    "test_direct_authority_transport_requires_typed_purpose_factory"
+)
+RAW_TRANSPORT_DRIFT_TEST_METHOD = (
+    "test_raw_transport_drift_row_binds_historical_and_live_census"
+)
+RAW_TRANSPORT_CLOSURE_SIGNAL = (
+    "python3 -c 'import importlib; from architecture.atlas_surfaces import "
+    "check_frontend_disposition_register as checker; owner_module=importlib.import_module("
+    "\"architecture.atlas_surfaces.test_atlas_enforcement\"); drift_module=importlib.import_module("
+    "\"architecture.atlas_surfaces.test_frontend_disposition_register\"); raise SystemExit("
+    "checker._raw_transport_debt_closure_exit_code(getattr(owner_module, "
+    "\"AtlasEnforcementTests\", None), "
+    "\"test_direct_authority_transport_requires_typed_purpose_factory\", "
+    "getattr(drift_module, \"RawTransportDriftTests\", None), "
+    "\"test_raw_transport_drift_row_binds_historical_and_live_census\"))' "
+    "# exits 0 only when both exact C03b tests execute and pass with the live 7/5 census; "
+    "3 means owner "
+    "test absent, 4 means drift test absent, and 1 means either test failed; all are exit nonzero."
+)
+RAW_TRANSPORT_HISTORICAL_AUDIT_REF = (
+    "docs/reference/frontend/atlas-live-application-audit.md"
+    "#hand-written-fetches-audited-9-of-9-production-calls"
+)
+RAW_TRANSPORT_C03B_FREEZE_REF = (
+    "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md"
+    "#ds5-c03b-r2-freeze-and-c03b-d1-deferral-checkpoint-54fec7ae9a7282f414da8dc727fa5aa01a17b232-forward-revert-1d0ff1f539790294d508f97b3e4e4bfe3139f594"
+)
+RAW_TRANSPORT_C03B_REJECTED_CHECKPOINT = "54fec7ae9a7282f414da8dc727fa5aa01a17b232"
+RAW_TRANSPORT_C03B_FORWARD_REVERT = "1d0ff1f539790294d508f97b3e4e4bfe3139f594"
+RAW_TRANSPORT_DS19_DELETION_REF = (
+    "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md"
+    "#2026-07-17---collaboration-cluster-verification"
+)
+_DIRECT_TRANSPORT_CENSUS_SCRIPT = r"""
+import ts from "typescript";
+
+let raw = "";
+for await (const chunk of process.stdin) raw += chunk;
+const sources = JSON.parse(raw);
+const facts = [];
+
+for (const [path, source] of Object.entries(sources)) {
+  const kind = path.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+  const file = ts.createSourceFile(path, source, ts.ScriptTarget.Latest, true, kind);
+  const line = (node) => file.getLineAndCharacterOfPosition(node.getStart(file)).line + 1;
+  const visit = (node) => {
+    if (
+      ts.isCallExpression(node)
+      && ts.isIdentifier(node.expression)
+      && node.expression.text === "fetch"
+    ) {
+      facts.push({path, line: line(node), kind: "fetch"});
+    }
+    if (
+      ts.isNewExpression(node)
+      && ts.isIdentifier(node.expression)
+      && (node.expression.text === "EventSource" || node.expression.text === "WebSocket")
+    ) {
+      facts.push({path, line: line(node), kind: node.expression.text});
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(file);
+}
+
+process.stdout.write(JSON.stringify(facts));
+"""
+
+
+def _direct_transport_census_from_sources(
+    sources: Mapping[str, str],
+) -> dict[str, Any]:
+    """Count direct raw transport syntax without following data or call flow."""
+    completed = subprocess.run(
+        ["node", "--input-type=module", "-e", _DIRECT_TRANSPORT_CENSUS_SCRIPT],
+        cwd=REPO_ROOT / "apps/runtime-dashboard",
+        input=json.dumps(sources),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "direct transport syntax census failed: " + completed.stderr.strip()
+        )
+    facts = json.loads(completed.stdout)
+    if not isinstance(facts, list) or any(not isinstance(fact, dict) for fact in facts):
+        raise RuntimeError("direct transport syntax census returned invalid facts")
+    kinds = ("fetch", "EventSource", "WebSocket")
+    kind_counts = {kind: sum(fact.get("kind") == kind for fact in facts) for kind in kinds}
+    fetch_paths = {
+        str(fact["path"])
+        for fact in facts
+        if fact.get("kind") == "fetch"
+    }
+    return {
+        "direct_constructor_count": len(facts),
+        "production_file_count": len({str(fact["path"]) for fact in facts}),
+        "fetch_production_file_count": len(fetch_paths),
+        "kind_counts": kind_counts,
+    }
+
+
+def _direct_transport_census(
+    sources: Mapping[str, str] | None = None,
+) -> dict[str, Any]:
+    """Recompute the bounded dashboard direct-constructor denominator."""
+    if sources is None:
+        sources = _typescript_production_sources(RAW_TRANSPORT_SCAN_ROOTS)
+    return _direct_transport_census_from_sources(sources)
+
+
+def _raw_transport_debt_closure_exit_code(
+    owner_test_class: type[unittest.TestCase] | None,
+    owner_test_method: str,
+    drift_test_class: type[unittest.TestCase] | None,
+    drift_test_method: str,
+) -> int:
+    """Run the two resolved C03b closure tests without evaluating register text."""
+    if owner_test_class is None or not callable(
+        getattr(owner_test_class, owner_test_method, None)
+    ):
+        return RAW_TRANSPORT_OWNER_TEST_ABSENT_EXIT
+    if drift_test_class is None or not callable(
+        getattr(drift_test_class, drift_test_method, None)
+    ):
+        return RAW_TRANSPORT_DRIFT_TEST_ABSENT_EXIT
+    suite = unittest.TestSuite(
+        (
+            owner_test_class(owner_test_method),
+            drift_test_class(drift_test_method),
+        )
+    )
+    runner = unittest.TextTestRunner(stream=io.StringIO(), verbosity=0)
+    return 0 if runner.run(suite).wasSuccessful() else 1
+
+
+def _raw_transport_drift_descriptor() -> dict[str, Any]:
+    """Return the typed historical/live denominator distinction for C03b-R1."""
+    return {
+        "finding_id": RAW_TRANSPORT_DRIFT_FINDING_ID,
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "decision_date": RAW_TRANSPORT_DRIFT_DECISION_DATE,
+        "capability_states": [
+            "contract_only",
+            "consumer_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            RAW_TRANSPORT_HISTORICAL_AUDIT_REF,
+            RAW_TRANSPORT_DS19_DELETION_REF,
+            RAW_TRANSPORT_C03B_FREEZE_REF,
+        ],
+        "raw_transport_receipt": {
+            "historical_ds1": {
+                "raw_fetch_calls": 9,
+                "production_file_count": 5,
+                "audit_evidence_ref": RAW_TRANSPORT_HISTORICAL_AUDIT_REF,
+            },
+            "live_direct_constructor_census": {
+                "fetch_calls": 5,
+                "fetch_production_file_count": 3,
+                "direct_constructor_count": 7,
+                "direct_constructor_production_file_count": 5,
+                "kind_counts": {"fetch": 5, "EventSource": 1, "WebSocket": 1},
+            },
+            "ds19_collaboration_deletion_evidence_ref": RAW_TRANSPORT_DS19_DELETION_REF,
+        },
+        "rationale": (
+            "The DS1 audit recorded four collaboration fetches that DS19 later "
+            "deleted; historical audit coverage is evidence, not the live C03b "
+            "direct-call denominator. C03b-R2 exhausted its two-fix-round cap at "
+            f"{RAW_TRANSPORT_C03B_REJECTED_CHECKPOINT} and was forward-reverted by "
+            f"{RAW_TRANSPORT_C03B_FORWARD_REVERT}; the remaining corruption "
+            "`raw_transport_live_direct_constructor_census_drift` is deferred."
+        ),
+        "closure_signal": RAW_TRANSPORT_CLOSURE_SIGNAL,
+    }
 
 
 def _owner_exports(path: str, source: str, module_prefix: str) -> set[str]:
@@ -1405,6 +2756,15 @@ CLUSTER_PROOFS = {
             "polisyos.runtime.whatif",
         ],
     },
+    "review-attention": {
+        "unit_ids": {"cache-review-attention"},
+        "paths": [
+            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+        ],
+        "targets": [
+            "apps/runtime-dashboard/src/features/runs/domain/publicSectorReadiness.ts"
+        ],
+    },
 }
 
 BASE_EXPECTED_FINDING_IDS = {
@@ -1422,6 +2782,303 @@ BASE_EXPECTED_FINDING_IDS = {
 }
 
 PRODUCER_BINDING_DEBT_DESCRIPTORS = {
+    "authority-issuer-generated-semantic-id-coverage": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "artifact_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "architecture/atlas_surfaces/status_retirement_scan.mjs",
+            "architecture/atlas_surfaces/check_atlas_enforcement.py",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#review-fix-round-2",
+            "packages/runtime-api-client/types.ts",
+        ],
+        "rationale": (
+            "C01c review proved the scanner protects projection-state IDs but "
+            "does not yet derive runtime-authority and fixture IDs from every "
+            "closed generated union consumed by the issuer family."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces."
+            "test_atlas_enforcement.AtlasEnforcementTests."
+            "test_authority_issuer_exported_vocabulary_covers_all_consumed_owner_unions "
+            "exits 0 after runtime_authority and fixture_only export corruptions "
+            "fail while the unrelated-constant witness remains green"
+        ),
+        "decision_date": "2026-08-02",
+    },
+    "authority-issuer-parity-operand-binding": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "artifact_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+            "architecture/atlas_surfaces/status_retirement_scan.mjs",
+            "architecture/atlas_surfaces/check_atlas_enforcement.py",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#review-fix-round-2",
+        ],
+        "rationale": (
+            "C01c review proved the equality predicate and never branches are "
+            "bound, but a generated Operator/Run operand can still be replaced "
+            "by a self-comparison without invalidating the fact packet."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces."
+            "test_atlas_enforcement.AtlasEnforcementTests."
+            "test_authority_issuer_parity_operands_are_exact_generated_pairs "
+            "exits 0 after state and authority self-comparison corruptions fail"
+        ),
+        "decision_date": "2026-08-02",
+    },
+    "semantic-copy-issuer-panel-consumer-deferral": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts",
+            "architecture/atlas_surfaces/authority-semantic-copy-registry.json",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c05b-r3",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist-journal.md#ds5-c05b-r3",
+        ],
+        "rationale": (
+            "C05b-R3 landed the private semantic-copy issuer and generated "
+            "AvailableGovernedProjectionPacket.may_not_use_for guard. The live "
+            "RunExplainabilityPanel/direct-Badge census transition remains panel-only "
+            "debt, and DS6 accepted human semantic-review receipts remain 0."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces."
+            "test_frontend_disposition_register.AuthorityPresentationCensusTests."
+            "test_semantic_copy_panel_consumer_rebinds_direct_badge_census_transition "
+            "exits 0 after the live RunExplainabilityPanel consumer rebinds the "
+            "direct-Badge census transition"
+        ),
+    },
+    "c07b-dashboard-generated-client-single-owner-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            (
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
+                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMucGV"
+                "ybWlzc2lvbnMiLCJzeW1ib2w6cGVybWlzc2lvbnMiLCJyZXNvbHZlZDpwZ"
+                "XJtaXNzaW9ucyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXB"
+                "pLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjc"
+                "mltaW5hdG9yIjoiY29tcG9uZW50cy5wZXJtaXNzaW9ucyIsIm5vcm1hbGl"
+                "6ZWRfdG9rZW5zX3NoYTI1NiI6IjJiNGFhNzA4MzcyY2RkNmNjYWYzYTVhY"
+                "mI2ZjgwOTBiNTYxNTRjM2U0MmVkMmRjNGFkMWRhYjIwZTNlZGFkMzUiLCJ"
+                "yb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZ"
+                "XMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9"
+                "wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxI"
+                "iwiUHJvcGVydHlTaWduYXR1cmU6NDAiLCJUeXBlTGl0ZXJhbDoxIiwiUHJ"
+                "vcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ"
+            ),
+            (
+                "apps/runtime-dashboard/src/api/types.ts#ts-identity=eyJkZW"
+                "NsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMu"
+                "cGVybWlzc2lvbnMiLCJzeW1ib2w6cGVybWlzc2lvbnMiLCJyZXNvbHZlZD"
+                "pwZXJtaXNzaW9ucyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNo"
+                "Ym9hcmQvc3JjL2FwaS90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLC"
+                "JkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5wZXJtaXNzaW9ucyIsIm5v"
+                "cm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjBjYWQ3NjY3ZjcyN2Q3MjE1ND"
+                "k2YmZmNGM0MGExNDc2NmZkZWZkZjA5ZWIxOTQzODhjMzU4ZDU1MzEzYTY3"
+                "OGMiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoiYX"
+                "Bwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3R5cGVzLnRzIiwic3Ry"
+                "dWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTG"
+                "l0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzciLCJUeXBlTGl0ZXJh"
+                "bDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ"
+            ),
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "architecture/generated_artifacts.toml:764"
+            ],
+            "docs/reference/frontend/workspace-contract.md:37",
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "apps/runtime-dashboard/package.json:166"
+            ],
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c07b",
+        ],
+        "rationale": (
+            "Canonical package client exists, but the dashboard keeps a divergent local "
+            "generated artifact; this row records the single-owner strangle without a "
+            "comparator or dashboard change."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register."
+            "ProducerBindingDebtTests.test_c07b_dashboard_generated_client_has_one_"
+            "canonical_owner exits 0 after manifest/reference/package cleanup, deletion of "
+            "apps/runtime-dashboard/src/api/types.ts, and all compiler-resolved dashboard "
+            "imports directly use @polisyos/runtime-api-client."
+        ),
+    },
+    "c08b-auth-session-revision-producer-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "src/polisyos/runtime/http/routes/auth.py:36",
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "schemas/runtime_api_v1.openapi.json:2221"
+            ],
+            (
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
+                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuQXV"
+                "0aE1lUmVzcG9uc2UiLCJzeW1ib2w6QXV0aE1lUmVzcG9uc2UiLCJyZXNvb"
+                "HZlZDpBdXRoTWVSZXNwb25zZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J"
+                "1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZ"
+                "SJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5BdXRoTWVSZXNwb25"
+                "zZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImE5MWQ2NGU4OTdlY"
+                "WYyMTQ0ZDI1MmZhMDA1NDI4YTFjOTU1ZTcxNjg5YzFhYjllMTMzMzY1YzY"
+                "wZGE1MmUwMmUiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wY"
+                "XRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiw"
+                "ic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUe"
+                "XBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NDAiXSwidmVyc2l"
+                "vbiI6MX0"
+            ),
+            (
+                "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts#ts-ident"
+                "ity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpmZXRjaE"
+                "F1dGhNZSIsInN5bWJvbDpmZXRjaEF1dGhNZSIsInJlc29sdmVkOmZldGNo"
+                "QXV0aE1lIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC"
+                "9zcmMvYXBpL2hvb2tzL3VzZUF1dGhNZS50czpGdW5jdGlvbkRlY2xhcmF0"
+                "aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJmZXRjaEF1dGhNZSIsIm5vcm1hbG"
+                "l6ZWRfdG9rZW5zX3NoYTI1NiI6IjZkMjU2OWQyZTNjMjA2NjAxODY4YzU5"
+                "ZWE3MGE1ZjAxMTMwNGNmMWJlNmEyNjdiYjU1MGJhNzk2ZDg5NTExYWQiLC"
+                "Jyb2xlIjoibmFtZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFw"
+                "cHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS9ob29rcy91c2VBdXRoTW"
+                "UudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ"
+            ),
+            (
+                "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJh"
+                "dGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlz"
+                "IiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRh"
+                "c2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0s"
+                "ImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEy"
+                "NTYiOiI3NmU4ZDRlOGQ1NzdkZGNhNGI2MDgzOTY2OWZlM2VjNmM0NGEwOGVmZTk0OWYw"
+                "YTllODVjZjhjZTFiNjA3NGQ5Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwi"
+                "c291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlL"
+                "ZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJp"
+                "YWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZl"
+                "cnNpb24iOjF9"
+            ),
+        ],
+        "rationale": (
+            "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, "
+            "useAuthMe, and queryKeys all lack auth_session_revision. This is the "
+            "missing client-bound producer contract, not ownership of server identity."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces."
+            "test_atlas_enforcement.AtlasEnforcementTests."
+            "test_auth_me_query_key_partitions_tenant_user_and_revision "
+            "tests.unit.runtime.http.test_auth_api.AuthApiTests."
+            "test_auth_me_publishes_auth_session_revision "
+            "exits 0 after /auth/me and generated AuthMeResponse publish a "
+            "server-issued auth_session_revision and queryKeys binds it; "
+            "tenant/user-switch corruption fails"
+        ),
+    },
+    "c06-cgf-public-vocabulary-producer-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "surface_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "architecture/atlas_surfaces/ds4-waist-debt-register.json:16"
+            ],
+            "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py:34",
+            "src/polisyos/runtime/http/services/governed_projections.py:200",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06",
+        ],
+        "rationale": (
+            "C06 cannot project CGF disposition: a private validator set exists and "
+            "runtime owners remain opaque JsonObjectTuple values, but no public typed "
+            "owner exists. C06 may not publish or invent that contract; the DS4 "
+            "bridge/surface row remains open as a distinct plane."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
+            "AtlasEnforcementTests.test_generated_cgf_disposition_union_tracks_"
+            "generation_cycle_owner_contract exits 0 after the canonical generation-cycle "
+            "owner publishes a public typed owner contract through the runtime schema"
+        ),
+    },
+    "c06-decision-grade-generated-contract-debt": {
+        "finding_kind": "producer_binding_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "capability_states": [
+            "producer_missing",
+            "artifact_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "verification_missing",
+            "surface_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            _C21C_FROZEN_STRUCTURED_IDENTITIES[
+                "architecture/atlas_surfaces/ds4-waist-debt-register.json:37"
+            ],
+            "src/polisyos/pdc/_impl/layer2_readiness.py:39",
+            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06",
+        ],
+        "rationale": (
+            "DecisionGrade has a PDC owner but no OpenAPI or generated-client export; "
+            "the DS4 waist row assigns its singular swap point to C14. C06 records "
+            "the missing generated producer contract and does not pre-empt C14."
+        ),
+        "closure_signal": (
+            "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
+            "AtlasEnforcementTests.test_generated_decision_grade_union_tracks_pdc_owner "
+            "exits 0 after C14 publishes the generated DecisionGrade contract from "
+            "the PDC owner"
+        ),
+    },
     "producer-binding-readiness-scientific-depth": {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",
@@ -1449,10 +3106,64 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         "owner_slice": "DS3",
         "capability_states": ["producer_missing", "surface_missing"],
         "evidence_refs": [
-            "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865",
-            "packages/runtime-api-client/types.ts:9240",
-            "packages/runtime-api-client/types.ts:9258",
-            "packages/runtime-api-client/types.ts:9284",
+            (
+                "packages/runtime-api-client/canonicalRuntimeApiClient.ts#t"
+                "s-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6UnVuU3V"
+                "tbWFyeSIsInN5bWJvbDpSdW5TdW1tYXJ5IiwicmVzb2x2ZWQ6UnVuU3Vtb"
+                "WFyeSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWV"
+                "udC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY"
+                "2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJSdW5TdW1tYXJ5Iiwibm9"
+                "ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZjZjZWUwZjdmMGY0ZDBkODI1N"
+                "jMyMDc3YWU1MDFhYTM1OWI4NjIxZWE0ZjExN2ZjMWRlOTcwNDMyYTQ5OTF"
+                "kOSIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wY"
+                "XRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L2Nhbm9uaWNhbFJ"
+                "1bnRpbWVBcGlDbGllbnQudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2Z"
+                "XJzaW9uIjoxfQ"
+            ),
+            (
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
+                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuUnV"
+                "uU3VtbWFyeSIsInN5bWJvbDpSdW5TdW1tYXJ5IiwicmVzb2x2ZWQ6UnVuU"
+                "3VtbWFyeSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWN"
+                "saWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmlta"
+                "W5hdG9yIjoiY29tcG9uZW50cy5SdW5TdW1tYXJ5Iiwibm9ybWFsaXplZF9"
+                "0b2tlbnNfc2hhMjU2IjoiNzE0Zjk1ZTEyMWFmYzU1OGI5MjQ3NDFjMDk0O"
+                "DIyZjExMDA1NTEwY2Y4MjM4ZWI1ODBjZGIzNmFjZmMzYWZmYyIsInJvbGU"
+                "iOiJ0eXBlX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9yd"
+                "W50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGg"
+                "iOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQc"
+                "m9wZXJ0eVNpZ25hdHVyZToyOTQiXSwidmVyc2lvbiI6MX0"
+            ),
+            (
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
+                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuZml"
+                "uaXNoZWRfYXQiLCJzeW1ib2w6ZmluaXNoZWRfYXQiLCJyZXNvbHZlZDpma"
+                "W5pc2hlZF9hdCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXB"
+                "pLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjc"
+                "mltaW5hdG9yIjoiY29tcG9uZW50cy5maW5pc2hlZF9hdCIsIm5vcm1hbGl"
+                "6ZWRfdG9rZW5zX3NoYTI1NiI6IjQxOTY2ZjRkZTYwODFiNmQ2OGFmZmZjY"
+                "jJiZWRlNTQ2OGY5NjljNzg5NzI3ZWVkNjg3ZTc4MGNlNzE2MDY4YjIiLCJ"
+                "yb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZ"
+                "XMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9"
+                "wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxI"
+                "iwiUHJvcGVydHlTaWduYXR1cmU6Mjk0IiwiVHlwZUxpdGVyYWw6MSIsIlB"
+                "yb3BlcnR5U2lnbmF0dXJlOjgiXSwidmVyc2lvbiI6MX0"
+            ),
+            (
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
+                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3R"
+                "hdHVzIiwic3ltYm9sOnN0YXR1cyIsInJlc29sdmVkOnN0YXR1cyIsImRlY"
+                "2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy5"
+                "0czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tc"
+                "G9uZW50cy5zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI"
+                "xN2U2NzM1NGM0ZWI2OWU5MzA1MGM0ZWI3MzJjZWU0ZDU0MWU5OWU2OTJiN"
+                "TE1NGE5NDBhNTI2NGViODllODlmIiwicm9sZSI6InR5cGVfcHJvcGVydHk"
+                "iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVud"
+                "C90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVNpZ25"
+                "hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlO"
+                "jI5NCIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNSJ"
+                "dLCJ2ZXJzaW9uIjoxfQ"
+            ),
             "src/polisyos/runtime/http/routes/runs.py:179",
             "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602",
         ],
@@ -1469,8 +3180,2429 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "novel status labels remain opaque; the C22 semantic negatives and "
             "DS5 ownership lint remain green."
         ),
+    },
+    RAW_TRANSPORT_DRIFT_FINDING_ID: _raw_transport_drift_descriptor(),
+}
+
+INTEGRATE_DEBT_DESCRIPTORS = {
+    "g4-complete-audience-projection-contract": {
+        "finding_id": "g4-complete-audience-projection-contract",
+        "finding_kind": "integrate_contract_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "owner_slice": "DS5",
+        "owner_team": "team-runtime-quality",
+        "capability_states": [
+            "implemented_but_not_orchestrated",
+            "bridge_missing",
+            "consumer_missing",
+            "surface_missing",
+            "semantic_test_missing",
+        ],
+        "evidence_refs": [
+            "architecture/policy_design_case/"
+            "layer3_g4_weakest_boundary_composition.json",
+            "architecture/policy_design_case/"
+            "layer3_g4_public_export_projection_refs.json",
+            "architecture/policy_design_case/layer3_g4_readiness_manifest.json",
+            "architecture/generated_artifacts.toml",
+        ],
+        "integrate_contract": {
+            "canonical_projection_id": "policy-design-case-layer3-g4-weakest-boundary",
+            "registered_route_posture": "registered_atomically_with_authorization",
+            "authorized_audiences": ["EXPERT"],
+            "required_permissions": ["mode.analyst"],
+            "exact_field_set": [
+                "blocker_refs",
+                "issue_codes",
+                "limitation_refs",
+                "produced_by",
+                "promotion_scope",
+                "promotion_state",
+                "status",
+                "weakest_boundary_reason",
+            ],
+            "authoritative_for": [
+                "presenting the owner-composed weakest-boundary result and veto "
+                "reasons for the current run attempt"
+            ],
+            "may_not_use_for": [
+                "client-side recomposition, averaging, ranking, authorization, "
+                "promotion execution, or publication"
+            ],
+            "provenance_fields": [
+                "produced_by.reducer_id",
+                "produced_by.reducer_version",
+                "produced_by.rule_version",
+                "produced_by.vocabulary_status_id",
+            ],
+            "validator_refs": [
+                "tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py"
+            ],
+            "hash_fields": [
+                "produced_by.input_hashes",
+                "produced_by.output_hash",
+            ],
+            "time_semantics": (
+                "owner projection supplies an owner as_of or epoch bound to the "
+                "current run attempt; filesystem mtime is observation time only"
+            ),
+            "runtime_novelty_behavior": (
+                "novel owner status or projection values fail closed as explicit "
+                "unrecognized"
+            ),
+            "executable_owner_side_closure_signal": (
+                "uv run python tools/quality/validation/"
+                "check_policy_design_case_layer3_g4_readiness.py --repo-root . "
+                "--output-format json exits 0 after owner corruptions prove the "
+                "canonical projection ID and exact fields, "
+                "public_export_bundle_route_registered=true, an implemented "
+                "non-reference-only hook, atomic EXPERT mode.analyst denial, "
+                "content hashes, owner time, and runtime novelty behavior"
+            ),
+        },
+        "rationale": (
+            "The G4 owner publishes only reduced reference projections; DS5 may "
+            "not invent or route the complete eight-field audience projection."
+        ),
+        "closure_signal": (
+            "uv run python tools/quality/validation/"
+            "check_policy_design_case_layer3_g4_readiness.py --repo-root . "
+            "--output-format json exits 0 after owner corruptions prove the "
+            "canonical projection ID and exact fields, "
+            "public_export_bundle_route_registered=true, an implemented "
+            "non-reference-only hook, atomic EXPERT mode.analyst denial, "
+            "content hashes, owner time, and runtime novelty behavior"
+        ),
+        "decision_date": "2026-08-02",
     }
 }
+
+DS5_C01A_DECISION_DATE = "2026-08-02"
+AUTHORITY_PRESENTATION_PLAN_REF = (
+    "docs/plans/active/atlas-slices/"
+    "DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary"
+)
+
+
+def _authority_closure(signal: str) -> str:
+    return (
+        "python3 architecture/atlas_surfaces/"
+        "check_frontend_disposition_register.py --check --corruption-probes "
+        "exits 0 after "
+        + signal
+    )
+
+
+AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
+    "prop-review-presence-status": {
+        "classification": "benign:interaction_state",
+        "component": "ReviewPresenceSummary",
+        "component_declaration_path": "apps/runtime-dashboard/src/app/realtime/ReviewCollaborationIndicators.tsx",
+        "prop": "status",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/tabs/GovernanceTab.tsx",
+        ],
+    },
+    "prop-control-approval-readiness": {
+        "classification": "debt",
+        "component": "ControlApprovalPanel",
+        "component_declaration_path": "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+        "prop": "readiness",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx"
+        ],
+        "owner_slice": "DS14",
+        "capability_states": [
+            "producer_missing",
+            "bridge_missing",
+            "consumer_missing",
+            "semantic_test_missing",
+        ],
+        "closure_signal": _authority_closure(
+            "a generated approval-readiness issuer owns clothing and mixed deny/unknown cases remain non-positive"
+        ),
+    },
+    "prop-form-section-tone": {
+        "classification": "benign:layout_accent",
+        "component": "AtlasFormSection",
+        "component_declaration_path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+        "prop": "tone",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+            "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+        ],
+    },
+    "prop-composer-summary-tone": {
+        "classification": "benign:layout_accent",
+        "component": "ComposerSummaryMetric",
+        "component_declaration_path": "apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx",
+        "prop": "tone",
+        "consumer_paths": ["apps/runtime-dashboard/src/features/composer/routes/LaunchRunPage.tsx"],
+    },
+    "prop-decision-grade-presentation": {
+        "classification": "debt",
+        "component": "DecisionGradeBadge",
+        "component_declaration_path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+        "prop": "presentation",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+        ],
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "surface_missing"],
+        "closure_signal": _authority_closure(
+            "C06 supplies DecisionGrade through the generated client and a private exhaustive issuer replaces this structural presentation"
+        ),
+    },
+    "prop-authored-text-confidence": {
+        "classification": "benign:captured_quantity",
+        "component": "AuthoredText",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/authored-text/AuthoredText.tsx",
+        "prop": "confidence",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx",
+            "apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.tsx",
+        ],
+    },
+    "prop-data-freshness": {
+        "classification": "debt",
+        "component": "DataFreshnessBadge",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
+        "prop": "freshness",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+        ],
+        "owner_slice": "DS18",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "ProjectionFreshness enters a private exhaustive issuer and runtime-novel states render unrecognized without cache-age inference"
+        ),
+    },
+    "prop-decision-card-verdict": {
+        "classification": "debt",
+        "component": "DecisionCard",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+        "prop": "verdict",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/compounds/CandidateFrame.tsx",
+            "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+        ],
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "surface_missing"],
+        "closure_signal": _authority_closure(
+            "C06 generated DecisionGrade and a private issuer replace the raw verdict boundary with novelty tests"
+        ),
+    },
+    "prop-decision-card-confidence": {
+        "classification": "debt",
+        "component": "DecisionCard",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+        "prop": "confidence",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx"
+        ],
+        "owner_slice": "DS17",
+        "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence and rejects structural lookalikes"
+        ),
+    },
+    "prop-explainability-verdict": {
+        "classification": "debt",
+        "component": "ExplainabilityCard",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+        "prop": "verdict",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx"
+        ],
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "surface_missing"],
+        "closure_signal": _authority_closure(
+            "C06 generated DecisionGrade and a private issuer replace the nested raw verdict path"
+        ),
+    },
+    "prop-counterfactual-status": {
+        "classification": "debt",
+        "component": "CounterfactualBadge",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/counterfactual/CounterfactualBadge.tsx",
+        "prop": "status",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/quantity/CounterfactualQuantity.tsx",
+            "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioManifestPanel.tsx",
+            "apps/runtime-dashboard/src/shared/ui/counterfactual/ScenarioPicker.tsx",
+        ],
+        "owner_slice": "DS8",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated scenario-status issuer owns icon, tone, and label while novel values fail closed"
+        ),
+    },
+    "prop-verification-status-cue": {
+        "classification": "debt",
+        "component": "StatusCue",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+        "prop": "status",
+        "consumer_paths": ["apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx"],
+        "owner_slice": "DS16",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a private verification-status issuer owns cue clothing and runtime novelty is explicit"
+        ),
+    },
+    "prop-lineage-freshness-cue": {
+        "classification": "debt",
+        "component": "FreshnessCue",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx",
+        "prop": "freshness",
+        "consumer_paths": ["apps/runtime-dashboard/src/shared/ui/quantity/Quantity.tsx"],
+        "owner_slice": "DS16",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a source-owned lineage freshness issuer owns the cue and absence cannot be upgraded"
+        ),
+    },
+    "prop-time-semantics-freshness": {
+        "classification": "debt",
+        "component": "TimeSemanticsLabel",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
+        "prop": "freshness",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+        ],
+        "owner_slice": "DS18",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "the generated owner freshness value enters an issued temporal presentation with explicit unknown behavior"
+        ),
+    },
+    "prop-dispute-status": {
+        "classification": "debt",
+        "component": "DisputeBadge",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+        "prop": "status",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+        ],
+        "owner_slice": "DS11",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a private exhaustive dispute issuer owns clothing and runtime-novel dispute states render unrecognized"
+        ),
+    },
+    "prop-verification-status-icon-tone": {
+        "classification": "debt",
+        "component": "StatusIcon",
+        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+        "prop": "tone",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx"
+        ],
+        "owner_slice": "DS11",
+        "capability_states": ["verification_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "the open string tone carrier is replaced by a private issued trust presentation and structural forgery is rejected"
+        ),
+    },
+    "prop-authority-badge-presentation": {
+        "classification": "branded:authority_presentation",
+        "component": "AuthorityBadge",
+        "component_declaration_path": "packages/atlas-ui/src/primitives/AuthorityBadge.tsx",
+        "prop": "presentation",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
+            "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
+            "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+        ],
+    },
+    "prop-envelope-authority-purpose": {
+        "classification": "branded:governed_authority_purpose",
+        "component": "EnvelopeChip",
+        "component_declaration_path": "packages/atlas-ui/src/primitives/EnvelopeChip.tsx",
+        "prop": "authorityPurpose",
+        "consumer_paths": [
+            "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+        ],
+    },
+    "prop-segmented-control-tone": {
+        "classification": "benign:responsive_layout",
+        "component": "SegmentedControl",
+        "component_declaration_path": "packages/atlas-ui/src/primitives/SegmentedControl.tsx",
+        "prop": "tone",
+        "consumer_paths": ["apps/runtime-dashboard/src/app/layout/Sidebar.tsx"],
+    },
+}
+
+AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
+    "badge-review-required-aggregate": {
+        "owner_slice": "DS9",
+        "capability_states": ["consumer_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated review-required fact enters a private issuer and missing or denied inputs cannot present positive"
+        ),
+    },
+    "badge-bureaucratic-legal-review": {
+        "owner_slice": "DS9",
+        "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated legal-review union enters an exhaustive issuer and runtime novelty renders unrecognized"
+        ),
+    },
+    "badge-preflight-readiness": {
+        "owner_slice": "DS7",
+        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "typed preflight and diagnostic DTOs use mixed fail/warn veto tests and raw preview clothing is absent"
+        ),
+    },
+    "badge-artifact-pipeline-decision-grade": {
+        "owner_slice": "DS5",
+        "capability_states": ["producer_missing", "consumer_missing", "verification_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "C06 exports DecisionGrade through the generated client and a private exhaustive issuer handles runtime novelty"
+        ),
+    },
+    "badge-control-approval-quality": {
+        "owner_slice": "DS9",
+        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "generated approval, calibration, and gate DTOs use weakest-boundary mixed-outcome tests"
+        ),
+    },
+    "badge-promotion-candidate-status": {
+        "owner_slice": "DS15",
+        "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated promotion union enters a private issuer and novel values render unrecognized"
+        ),
+    },
+    "badge-evidence-source-freshness": {
+        "owner_slice": "DS8",
+        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "owner source_as_of and freshness fields enforce oldest-input veto without local SLA authority"
+        ),
+    },
+    "badge-comparability": {
+        "owner_slice": "DS16",
+        "capability_states": ["consumer_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated comparability union uses an incomparable veto and runtime-novelty tests"
+        ),
+    },
+    "badge-provenance-drift": {
+        "owner_slice": "DS16",
+        "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a private invalidation-posture issuer vetoes on every load-bearing provenance change"
+        ),
+    },
+    "badge-run-deck-authority-summary": {
+        "owner_slice": "DS7",
+        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a live typed run-deck contract rejects fixture_only and prevents local authority synthesis"
+        ),
+    },
+    "badge-compound-decision-grade": {
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "surface_missing"],
+        "closure_signal": _authority_closure(
+            "C06 generated DecisionGrade and a private exhaustive issuer make raw grade assignment fail typecheck"
+        ),
+    },
+    "badge-governance-issue-severity": {
+        "owner_slice": "DS9",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated owner severity field enters a branded issuer with runtime novelty"
+        ),
+    },
+    "badge-public-packet-authority-framing": {
+        "owner_slice": "DS12",
+        "capability_states": ["producer_missing", "artifact_missing", "bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "generated packet authority, confidence, and rights fields retain a rights-bar mixed-veto test"
+        ),
+    },
+    "badge-governed-projection-availability": {
+        "owner_slice": "DS7",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated availability union enters an exhaustive issuer and novel values render unrecognized"
+        ),
+    },
+    "badge-governed-projection-rights-bar": {
+        "owner_slice": "DS5",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated may_not_use_for item enters a branded veto presentation"
+        ),
+    },
+    "badge-governed-source-validation": {
+        "owner_slice": "DS7",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "generated source validation status enters an exhaustive issuer with novelty tests"
+        ),
+    },
+    "badge-uncertainty-dispute": {
+        "owner_slice": "DS16",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "an owner uncertainty artifact keeps disputed as a mixed-case veto or warning"
+        ),
+    },
+    "badge-operator-blocker-overridability": {
+        "owner_slice": "DS14",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated decision or boolean issuer owns clothing and raw slot assignment fails typecheck"
+        ),
+    },
+    "badge-candidate-declared-authority-purpose": {
+        "owner_slice": "DS8",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a candidate-purpose issuer cannot grant governed authority"
+        ),
+    },
+    "badge-projection-source-freshness": {
+        "owner_slice": "DS18",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "ProjectionFreshness state enters an exhaustive issuer with explicit absence and novelty behavior"
+        ),
+    },
+    "badge-decision-confidence": {
+        "owner_slice": "DS16",
+        "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence"
+        ),
+    },
+    "badge-explainability-governance-counts": {
+        "owner_slice": "DS9",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a typed governance summary proves counts cannot synthesize composed authority"
+        ),
+    },
+    "badge-negative-certificate-blocker": {
+        "owner_slice": "DS8",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a generated blocker issuer prevents non-blockers from occupying the slot"
+        ),
+    },
+    "badge-public-integrity-result": {
+        "owner_slice": "DS12",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a verifier-private integrity presentation remains explicitly outside closeout authority"
+        ),
+    },
+    "badge-public-anti-authority-role": {
+        "owner_slice": "DS12",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a branded refusal from packet authorityRole cannot be upgraded to authority"
+        ),
+    },
+    "badge-threshold-unavailable": {
+        "owner_slice": "DS16",
+        "capability_states": ["artifact_missing", "bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "a typed unavailable or refusal artifact replaces the static caller-owned threshold token"
+        ),
+    },
+    "badge-candidate-refusal-markers": {
+        "owner_slice": "DS8",
+        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "closure_signal": _authority_closure(
+            "typed candidate and refusal postures cannot be presented as governed output"
+        ),
+    },
+}
+
+BENIGN_BADGE_BASES = (
+    "interaction_or_editor_state",
+    "transport_or_runtime_health",
+    "workflow_or_lifecycle_display_without_terminality_inference",
+    "layout_or_counts",
+    "opaque_metadata_or_taxonomy",
+)
+
+BENIGN_BADGE_CLASS_COUNTS: dict[str, int] = {
+    "interaction_or_editor_state": 13,
+    "transport_or_runtime_health": 20,
+    "workflow_or_lifecycle_display_without_terminality_inference": 24,
+    "layout_or_counts": 21,
+    "opaque_metadata_or_taxonomy": 25,
+}
+
+if set(BENIGN_BADGE_CLASS_COUNTS) != set(BENIGN_BADGE_BASES):
+    raise RuntimeError("benign Badge class vocabulary drift")
+if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 103:
+    raise RuntimeError("benign Badge class count drift")
+
+AUTHORITY_PRESENTATION_DEBT_SPECS = {
+    "authority-presentation-" + descriptor_id: spec
+    for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items()
+    if spec["classification"] == "debt"
+}
+AUTHORITY_PRESENTATION_DEBT_SPECS.update(
+    {
+        "authority-presentation-" + descriptor_id: spec
+        for descriptor_id, spec in AUTHORITY_BADGE_DEBT_SPECS.items()
+    }
+)
+
+AUTHORITY_PRESENTATION_COUNTS = {
+    "badge_total": 163,
+    "badge_branded": 2,
+    "badge_debt": 58,
+    "badge_benign": 103,
+    "prop_total": 19,
+    "prop_branded": 2,
+    "prop_debt": 12,
+    "prop_benign": 5,
+    "prop_use_total": 35,
+    "prop_use_branded": 6,
+    "prop_use_debt": 21,
+    "prop_use_benign": 8,
+}
+AUTHORITY_BADGE_PARTITION_SHA256 = (
+    "sha256:407d0c0f1c2cd3b39e315591a6cb6196dcb36ca0bfe62b04f7d82f409aec8b28"
+)
+AUTHORITY_PROP_PARTITION_SHA256 = (
+    "sha256:267db0ff1a795a6992810b415f257c0502ad733899abe44e53c58ebad79ce89f"
+)
+
+
+def _authority_prop_descriptors() -> list[dict[str, str]]:
+    """Project the finite, declaration-anchored prop census into the scanner."""
+    return [
+        {
+            "descriptorId": descriptor_id,
+            "component": str(spec["component"]),
+            "componentDeclarationPath": str(spec["component_declaration_path"]),
+            "prop": str(spec["prop"]),
+        }
+        for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items())
+    ]
+
+
+@lru_cache(maxsize=1)
+def _authority_presentation_scan() -> dict[str, Any]:
+    """Return the live finite sink census; no value-flow inference is performed."""
+    return status_checker._scan(
+        authority_prop_descriptors=_authority_prop_descriptors()
+    )
+
+
+def _site_location(site: Mapping[str, Any]) -> tuple[str, int]:
+    return (str(site.get("path", "")), int(site.get("line", 0)))
+
+
+def _badge_classification_errors(
+    scan: Mapping[str, Any],
+    classifications: Mapping[str, str] | None = None,
+) -> list[str]:
+    """Validate the exact 163-site Badge partition as a finite set property."""
+    errors: list[str] = []
+    sites = scan.get("badgeSites", [])
+    if not isinstance(sites, list):
+        return ["authority_badge_census_invalid"]
+    frozen_badges, _frozen_props = _frozen_authority_identity_config()
+    classifications = classifications or frozen_badges
+    live_locations = {
+        _site_location(site)
+        for site in sites
+        if isinstance(site, Mapping)
+    }
+    live_identity_by_location = _authority_badge_live_identity_by_location(sites)
+    live_identity_rows = [
+        _typescript_reference_identity_record(identity)
+        for identity in live_identity_by_location.values()
+    ]
+    live_key_by_location = dict(
+        zip(
+            live_identity_by_location,
+            _typescript_reference_hybrid_keys(live_identity_rows),
+            strict=True,
+        )
+    )
+    locations_by_key: defaultdict[str, list[tuple[str, int]]] = defaultdict(list)
+    for location, key in live_key_by_location.items():
+        locations_by_key[key].append(location)
+    for key, locations in sorted(locations_by_key.items()):
+        if len(locations) > 1:
+            errors.append(
+                "typescript_reference_binding_ambiguous:"
+                + key
+                + ":"
+                + ",".join(f"{path}:{line}" for path, line in sorted(locations))
+            )
+    live_identities = set(live_key_by_location.values())
+    configured_identities = set(classifications)
+    for path, line in sorted(live_locations):
+        if live_key_by_location[(path, line)] not in configured_identities:
+            errors.append(f"authority_badge_unclassified:{path}:{line}")
+    for identity in sorted(configured_identities - live_identities):
+        errors.append(f"authority_badge_stale_classification:{identity}")
+    for identity in sorted(configured_identities & set(frozen_badges)):
+        observed = classifications[identity]
+        expected = frozen_badges[identity]
+        if observed != expected:
+            errors.append(
+                "authority_badge_reclassification:"
+                + f"{identity}:{expected}:{observed}"
+            )
+
+    categories = Counter(
+        "debt"
+        if value.startswith("debt:")
+        else "branded"
+        if value.startswith("branded:")
+        else "benign"
+        if value.startswith("benign:")
+        else "invalid"
+        for identity, value in classifications.items()
+        if identity in live_identities
+    )
+    exact_classifications = Counter(
+        value
+        for identity, value in classifications.items()
+        if identity in live_identities
+    )
+    expected_counts = {
+        "branded": AUTHORITY_PRESENTATION_COUNTS["badge_branded"],
+        "debt": AUTHORITY_PRESENTATION_COUNTS["badge_debt"],
+        "benign": AUTHORITY_PRESENTATION_COUNTS["badge_benign"],
+    }
+    if len(live_locations) != AUTHORITY_PRESENTATION_COUNTS["badge_total"]:
+        errors.append(
+            "authority_badge_count_drift:"
+            + f"expected={AUTHORITY_PRESENTATION_COUNTS['badge_total']}:"
+            + f"actual={len(live_locations)}"
+        )
+    for category, expected_count in expected_counts.items():
+        if categories[category] != expected_count:
+            errors.append(
+                f"authority_badge_{category}_count_drift:"
+                + f"expected={expected_count}:actual={categories[category]}"
+            )
+    if categories["invalid"]:
+        errors.append(
+            f"authority_badge_invalid_classification:{categories['invalid']}"
+        )
+    for benign_class, expected_count in sorted(BENIGN_BADGE_CLASS_COUNTS.items()):
+        observed_count = exact_classifications[f"benign:{benign_class}"]
+        if observed_count != expected_count:
+            errors.append(
+                f"authority_badge_benign_class_count_drift:{benign_class}:"
+                + f"expected={expected_count}:actual={observed_count}"
+            )
+    debt_sites_by_group = _authority_badge_sites_by_debt_group(
+        {"badgeSites": sites},
+        classifications=classifications,
+        live_key_by_location=live_key_by_location,
+    )
+    for group_id in sorted(AUTHORITY_BADGE_DEBT_SPECS):
+        expected_identities = {
+            identity
+            for identity, classification in frozen_badges.items()
+            if classification == f"debt:{group_id}"
+        }
+        observed_identities = {
+            live_key_by_location[_site_location(site)]
+            for site in debt_sites_by_group[group_id]
+        }
+        if observed_identities != expected_identities:
+            errors.append(f"authority_badge_group_drift:{group_id}")
+    if live_identities <= configured_identities:
+        partition_rows = sorted(
+            [
+                {
+                    "identity": live_key_by_location[_site_location(site)],
+                    "site_sha256": str(site.get("siteSha256", "")),
+                    "classification": classifications[live_key_by_location[_site_location(site)]],
+                }
+                for site in sites
+                if isinstance(site, Mapping)
+            ],
+            key=lambda row: (row["identity"], row["site_sha256"]),
+        )
+        partition_sha256 = "sha256:" + hashlib.sha256(
+            json.dumps(
+                partition_rows,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode("utf-8")
+        ).hexdigest()
+        if partition_sha256 != AUTHORITY_BADGE_PARTITION_SHA256:
+            errors.append(
+                "authority_badge_partition_hash_drift:"
+                + f"expected={AUTHORITY_BADGE_PARTITION_SHA256}:"
+                + f"actual={partition_sha256}"
+            )
+    return errors
+
+
+def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
+    """Validate the exact declaration/use identity of all 19 prop groups."""
+    errors: list[str] = []
+    facts = scan.get("authorityPropCensus", [])
+    if not isinstance(facts, list):
+        return ["authority_prop_census_invalid"]
+    by_id = {
+        str(fact.get("descriptorId")): fact
+        for fact in facts
+        if isinstance(fact, Mapping)
+    }
+    _frozen_badges, frozen_props = _frozen_authority_identity_config()
+    live_anchors: list[dict[str, Any]] = []
+    live_records: list[dict[str, str]] = []
+    live_identity_by_record: defaultdict[tuple[str, str], list[str]] = defaultdict(
+        list
+    )
+    live_identity_ready = False
+    for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items():
+        fact = by_id.get(descriptor_id)
+        if not isinstance(fact, Mapping):
+            continue
+        live_anchors.extend(
+            [
+                {"path": fact["componentDeclarationPath"], "line": fact["componentDeclarationLine"], "role": "named_declaration", "discriminator": fact["component"], "descriptor_id": descriptor_id},
+                {"path": fact["propDeclarationPath"], "line": fact["propDeclarationLine"], "role": "type_property", "descriptor_id": descriptor_id},
+            ]
+        )
+        live_records.extend(
+            [
+                {"descriptor_id": descriptor_id, "classification": str(spec["classification"]), "role": "component_declaration"},
+                {"descriptor_id": descriptor_id, "classification": str(spec["classification"]), "role": "prop_declaration"},
+            ]
+        )
+        for site in fact.get("consumerSites", []):
+            if not isinstance(site, Mapping):
+                continue
+            live_anchors.append({"path": site["path"], "line": site["line"], "role": "jsx_attribute", "discriminator": fact["prop"], "descriptor_id": descriptor_id})
+            live_records.append({"descriptor_id": descriptor_id, "classification": str(spec["classification"]), "role": "consumer"})
+    try:
+        live_identities = _typescript_reference_identities_from_anchors(live_anchors)
+    except ValueError as exc:
+        errors.append(str(exc))
+    else:
+        live_identity_ready = True
+        live_props: dict[str, list[dict[str, str]]] = {}
+        live_keys = _typescript_reference_hybrid_keys(live_identities)
+        for _identity, key, record in zip(
+            live_identities, live_keys, live_records, strict=True
+        ):
+            live_identity_by_record[(record["descriptor_id"], record["role"])].append(
+                key
+            )
+            live_props.setdefault(key, []).append(record)
+        if {
+            digest: sorted(records, key=lambda record: (record["descriptor_id"], record["role"]))
+            for digest, records in live_props.items()
+        } != {
+            digest: sorted(records, key=lambda record: (record["descriptor_id"], record["role"]))
+            for digest, records in frozen_props.items()
+        }:
+            errors.append("authority_prop_frozen_identity_drift")
+    if set(by_id) != set(AUTHORITY_PROP_CLASSIFICATIONS):
+        errors.append(
+            "authority_prop_descriptor_drift:missing="
+            + str(sorted(set(AUTHORITY_PROP_CLASSIFICATIONS) - set(by_id)))
+            + ":extra="
+            + str(sorted(set(by_id) - set(AUTHORITY_PROP_CLASSIFICATIONS)))
+        )
+    observed_counts: Counter[str] = Counter()
+    observed_use_counts: Counter[str] = Counter()
+    for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items()):
+        fact = by_id.get(descriptor_id)
+        if fact is None:
+            continue
+        classification = str(spec["classification"]).split(":", 1)[0]
+        observed_counts[classification] += 1
+        consumer_sites = fact.get("consumerSites", [])
+        observed_use_counts[classification] += (
+            len(consumer_sites) if isinstance(consumer_sites, list) else 0
+        )
+        expected_identity = {
+            "component": spec["component"],
+            "componentDeclarationPath": spec["component_declaration_path"],
+            "prop": spec["prop"],
+            "propDeclarationPath": spec["component_declaration_path"],
+        }
+        for field, expected_value in expected_identity.items():
+            if fact.get(field) != expected_value:
+                errors.append(f"authority_prop_identity_drift:{descriptor_id}:{field}")
+        expected_uses = sorted(spec["consumer_paths"])
+        observed_uses = sorted(
+            str(site.get("path"))
+            for site in consumer_sites
+            if isinstance(site, Mapping)
+        )
+        if observed_uses != expected_uses:
+            errors.append(f"authority_prop_consumer_drift:{descriptor_id}")
+        for hash_field in (
+            "componentDeclarationSha256",
+            "propDeclarationSha256",
+        ):
+            value = fact.get(hash_field)
+            if not isinstance(value, str) or not re.fullmatch(
+                r"sha256:[a-f0-9]{64}", value
+            ):
+                errors.append(f"authority_prop_fingerprint_missing:{descriptor_id}:{hash_field}")
+        for site in consumer_sites if isinstance(consumer_sites, list) else []:
+            value = site.get("siteSha256") if isinstance(site, Mapping) else None
+            if not isinstance(value, str) or not re.fullmatch(
+                r"sha256:[a-f0-9]{64}", value
+            ):
+                errors.append(f"authority_prop_site_fingerprint_missing:{descriptor_id}")
+
+    expected_counts = {
+        "branded": AUTHORITY_PRESENTATION_COUNTS["prop_branded"],
+        "debt": AUTHORITY_PRESENTATION_COUNTS["prop_debt"],
+        "benign": AUTHORITY_PRESENTATION_COUNTS["prop_benign"],
+    }
+    expected_use_counts = {
+        "branded": AUTHORITY_PRESENTATION_COUNTS["prop_use_branded"],
+        "debt": AUTHORITY_PRESENTATION_COUNTS["prop_use_debt"],
+        "benign": AUTHORITY_PRESENTATION_COUNTS["prop_use_benign"],
+    }
+    for category, expected_count in expected_counts.items():
+        if observed_counts[category] != expected_count:
+            errors.append(f"authority_prop_{category}_count_drift")
+        if observed_use_counts[category] != expected_use_counts[category]:
+            errors.append(f"authority_prop_{category}_use_count_drift")
+    if len(by_id) != AUTHORITY_PRESENTATION_COUNTS["prop_total"]:
+        errors.append("authority_prop_total_count_drift")
+    if sum(observed_use_counts.values()) != AUTHORITY_PRESENTATION_COUNTS["prop_use_total"]:
+        errors.append("authority_prop_use_total_count_drift")
+    if live_identity_ready and set(by_id) == set(AUTHORITY_PROP_CLASSIFICATIONS):
+        partition_rows = []
+        for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items()):
+            fact = by_id[descriptor_id]
+            consumer_sites = fact.get("consumerSites", [])
+            partition_rows.append(
+                {
+                    "descriptor_id": descriptor_id,
+                    "classification": spec["classification"],
+                    "component": fact.get("component"),
+                    "component_declaration_identity": live_identity_by_record[(descriptor_id, "component_declaration")][0],
+                    "component_declaration_sha256": fact.get(
+                        "componentDeclarationSha256"
+                    ),
+                    "prop": fact.get("prop"),
+                    "prop_declaration_identity": live_identity_by_record[(descriptor_id, "prop_declaration")][0],
+                    "prop_declaration_sha256": fact.get(
+                        "propDeclarationSha256"
+                    ),
+                    "consumer_sites": sorted(
+                        [
+                            {
+                                "identity": live_identity_by_record[(descriptor_id, "consumer")][index],
+                                "site_sha256": site.get("siteSha256"),
+                            }
+                            for index, site in enumerate(consumer_sites)
+                            if isinstance(site, Mapping)
+                        ],
+                        key=lambda row: (
+                            str(row["identity"]),
+                            str(row["site_sha256"]),
+                        ),
+                    ),
+                }
+            )
+        partition_sha256 = "sha256:" + hashlib.sha256(
+            json.dumps(
+                partition_rows,
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+            ).encode("utf-8")
+        ).hexdigest()
+        if partition_sha256 != AUTHORITY_PROP_PARTITION_SHA256:
+            errors.append(
+                "authority_prop_partition_hash_drift:"
+                + f"expected={AUTHORITY_PROP_PARTITION_SHA256}:"
+                + f"actual={partition_sha256}"
+            )
+    return errors
+
+
+def _source_receipt(
+    *, role: str, path: str, line: int, sha256: str, site: bool = False
+) -> dict[str, Any]:
+    receipt: dict[str, Any] = {"role": role, "path": path, "line": line}
+    receipt["site_sha256" if site else "content_sha256"] = sha256
+    return receipt
+
+
+def _authority_evidence_identities(scan: Mapping[str, Any]) -> dict[tuple[str, int, str], str]:
+    """Create all authority evidence identities through one source snapshot/program."""
+    anchors: list[dict[str, Any]] = []
+    for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items():
+        if spec["classification"] != "debt":
+            continue
+        fact = next(
+            item for item in scan["authorityPropCensus"] if item["descriptorId"] == descriptor_id
+        )
+        anchors.append(
+            {"path": fact["componentDeclarationPath"], "line": fact["componentDeclarationLine"], "role": "named_declaration", "discriminator": fact["component"]}
+        )
+        anchors.extend(
+            {"path": site["path"], "line": site["line"], "role": "jsx_attribute", "discriminator": fact["prop"]}
+            for site in fact["consumerSites"]
+        )
+    debt_sites_by_group = _authority_badge_sites_by_debt_group(scan)
+    for group_id in AUTHORITY_BADGE_DEBT_SPECS:
+        sites = debt_sites_by_group[group_id]
+        first = sites[0]
+        anchors.append(
+            {"path": first["componentDeclarationPath"], "line": first["componentDeclarationLine"], "role": "named_declaration", "discriminator": first["component"]}
+        )
+        anchors.extend(
+            {"path": site["path"], "line": site["line"], "role": "jsx_opening", "discriminator": "Badge"}
+            for site in sites
+        )
+    identities = _typescript_reference_identities_from_anchors(anchors)
+    return {
+        (str(anchor["path"]), int(anchor["line"]), str(anchor["role"])): identity["encoded_identity"]
+        for anchor, identity in zip(anchors, identities, strict=True)
+    }
+
+
+def _authority_badge_live_identity_by_location(
+    sites: Sequence[Mapping[str, Any]],
+) -> dict[tuple[str, int], str]:
+    """Resolve current direct Badge syntax to its stable classification identity."""
+    anchors = [
+        {"path": site["path"], "line": site["line"], "role": "jsx_opening", "discriminator": "Badge"}
+        for site in sites
+    ]
+    identities = _typescript_reference_identities_from_anchors(anchors)
+    return {
+        _site_location(site): identity["encoded_identity"]
+        for site, identity in zip(sites, identities, strict=True)
+    }
+
+
+def _authority_badge_sites_by_debt_group(
+    scan: Mapping[str, Any],
+    *,
+    classifications: Mapping[str, str] | None = None,
+    live_key_by_location: Mapping[tuple[str, int], str] | None = None,
+) -> dict[str, list[Mapping[str, Any]]]:
+    """Group live debt sites by their line-free frozen classification identity."""
+    sites = [site for site in scan.get("badgeSites", []) if isinstance(site, Mapping)]
+    frozen_badges, _frozen_props = _frozen_authority_identity_config()
+    classifications = classifications or frozen_badges
+    if live_key_by_location is None:
+        live_identities = _authority_badge_live_identity_by_location(sites)
+        identity_rows = [
+            _typescript_reference_identity_record(identity)
+            for identity in live_identities.values()
+        ]
+        live_key_by_location = dict(
+            zip(
+                live_identities,
+                _typescript_reference_hybrid_keys(identity_rows),
+                strict=True,
+            )
+        )
+    grouped = {group_id: [] for group_id in AUTHORITY_BADGE_DEBT_SPECS}
+    for site in sites:
+        classification = classifications.get(
+            live_key_by_location[_site_location(site)], ""
+        )
+        if classification.startswith("debt:"):
+            group_id = classification.removeprefix("debt:")
+            if group_id in grouped:
+                grouped[group_id].append(site)
+    return grouped
+
+
+# C21B_FROZEN_AUTHORITY_IDENTITIES_BEGIN
+# Frozen from the root-owned no-write C21d hybrid-key receipt. Unique
+# declaration/content families relocate; genuine collisions retain structural identity.
+FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
+    '0124de230c2013b547c6c7e4c94944afc801d7f3da751ba6067806e49ae3437f': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '0132d8d97b3f44fbca967c039540f8bb1e61ad9934ad6e53dced7f37fcdf660c': (
+        'benign:transport_or_runtime_health'
+    ),
+    '062c1fe3f9e5ecaa59f778b965257dbc63be53dd48f0750430b4cf02631e73e3': (
+        'benign:layout_or_counts'
+    ),
+    '078599fe50e49c45b6b69803352191205b7409a7e9f382d25019887b1e56fab1': (
+        'benign:transport_or_runtime_health'
+    ),
+    '0963299bc8c2f44481a04d9a53aa44b6d0cd19eb5b738dcfae62517cadc7f1db': (
+        'debt:badge-governed-source-validation'
+    ),
+    '0975deb3026c856f342cdb39c794dfa4ba8330e71504c957f9925437544cf9fa': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '0ad59fd60f80e424424dc14ad83b160cb48394ad294ad3844d8455bf3544e9de': (
+        'debt:badge-provenance-drift'
+    ),
+    '0b4ac8ba80f99e7e9d1bff295a1829fc21accba56ddf0fee804568f642dbcebe': (
+        'benign:layout_or_counts'
+    ),
+    '0cbe26958fdbe6d578d16890500e7a353575b48fe8c8c6bf5515b444dca99164': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '0ccc46a2e3c1cfab2522bc4f4dbc22bdfbfc9f6f22351287a7053a6c8450f2aa': (
+        'benign:transport_or_runtime_health'
+    ),
+    '0d01fe86a863e406d0bfb676b74f4637a2102952207f1721aa1be40a332cf55e': (
+        'debt:badge-control-approval-quality'
+    ),
+    '0d02be3c6130a3b628b630687a44aa17c3758ffda106bf5ff46a74baadcc7ec4': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '0ef26827e7122cfff8edb79967bce02979742d84ad52825be64b530b0853935e': (
+        'debt:badge-run-deck-authority-summary'
+    ),
+    '116aa85ec7f5abe277667d64833a6bf469453309f2ce3e891188e21ce410bb3b': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '128486fc6ce4ef95c9ce2410f03c0d79b82a7aeccbfe9735a36c8b611b87b49c': (
+        'debt:badge-projection-source-freshness'
+    ),
+    '12d25f70a1e4d12752533d44a2ff623892cf8a0324712949d2fd9a114372e264': (
+        'debt:badge-public-integrity-result'
+    ),
+    '135b70bf4ba02dd4cbf39d810beaaeca8c7472f93bd90c790c7662801b1a76cf': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '14a3b807641e72cf79ecaaa83dd98249a6fa5ecebfbdb8434de52e93f9ee239d': (
+        'benign:layout_or_counts'
+    ),
+    '14fbd20acffc634f412e1e4619831144afdf0698b8c60afa76a91ef16251f12f': (
+        'debt:badge-explainability-governance-counts'
+    ),
+    '168d23a2e7bbd0b65d5239812cf87afad12e77f4c5ab14c8a58ec9d1d276b415': (
+        'debt:badge-control-approval-quality'
+    ),
+    '16950ecbf6fed6faf6a6d058a4e03dfc850ac9326c49df23b1ac67ec33efeb0d': (
+        'benign:layout_or_counts'
+    ),
+    '188038e809c5f6b4bcfdc8744185e9b9ea4f5841e2f2aa45c057a5e86f064946': (
+        'benign:interaction_or_editor_state'
+    ),
+    '18c241f1f9f5ca3a237baf71f0cb7509c6f95113bc983fa3863a0d51cdf41cac': (
+        'debt:badge-promotion-candidate-status'
+    ),
+    '19705539d0d15dbd5f66bf771c2ac39d62871075d237f115ebc145d372548e8d': (
+        'benign:interaction_or_editor_state'
+    ),
+    '1de29932d949fb40855f0a72b9792efdc7323a920d54e721dd9138ab44fa5ae6': (
+        'benign:transport_or_runtime_health'
+    ),
+    '1e01bb02aa403bfae75475c5ffe5346af68c654fc554bf1c544535e82bae724c': (
+        'debt:badge-public-packet-authority-framing'
+    ),
+    'a0b5fb9183dad72b89c998f4817fe67911c5cc088204b6872de391c080c41a42': (
+        'debt:badge-governed-projection-availability'
+    ),
+    '22c2a2e7b9b3c9c07fcff8e313559f5e18f31abf5fef96c074ed58da84765c75': (
+        'debt:badge-run-deck-authority-summary'
+    ),
+    '2353ac212cdc4f28d6919059be719db9a21c2f357a9ff81637d034bde30e96d0': (
+        'debt:badge-public-packet-authority-framing'
+    ),
+    '24e1864e260b849cc456c772ce930bd535053d95129542d9c531cd0d66bbad9a': (
+        'benign:layout_or_counts'
+    ),
+    '258dd4eb0f8640e78aa80cbe6085a6b731e6e7ff33dd20e39776d6c097a73866': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '2700e01e38e8458ef1fc6de7f9038c32b31d58ecfeb83cce399d212079b3fb10': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '28b2c47947ef00f03eeb3b569db7c89488ac9e22712e5c72373d19033aa4fd24': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '2af60ce47149ca4c1cb7f29627a16695c047f44fd87ac1de932ec2b63d0d25fe': (
+        'debt:badge-threshold-unavailable'
+    ),
+    '32cab7325fba8b2f585fc0214ccf345bbf32b0ed4dafab55e94022336f809cba': (
+        'debt:badge-preflight-readiness'
+    ),
+    '346b26c59bc4ca63a09e51cea968753acd54f1a407b731b89bc5b11a5e02d599': (
+        'benign:transport_or_runtime_health'
+    ),
+    '34c659f2601b1ddfbeab58c9d8140b87f71dd33297e81ee79a5d20d69f97d8be': (
+        'debt:badge-compound-decision-grade'
+    ),
+    '377c1bb5561cd4fef5e2d91c14a12376aac3958f9d8aedaabbacfd4ae8bfec94': (
+        'debt:badge-decision-confidence'
+    ),
+    '3823875dc79983dac784b51fe1932918d182d7b8546e1dca9db7c9809f8b435c': (
+        'debt:badge-explainability-governance-counts'
+    ),
+    '3d35cd0642bc6151a02491b8f39576e526b9bdbc32b954f715d12f2490b47ff3': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '3da0a4081081e0d98676b5857cc23316a01eb91b4ad3042e154ff6bf73edf38f': (
+        'debt:badge-evidence-source-freshness'
+    ),
+    '3e2dac1a9f9315caf321dc572ef4cd24810ae15b17ba138e6ced1afcd4a58fd6': (
+        'debt:badge-compound-decision-grade'
+    ),
+    '406d88d51302590ea467bc8a6f1d36422bb080b18c1cb794b88c2bbd3d17ba6d': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '41847e62e0cb802532dad96b457939401e6e772a59acf0a343dc86da0873ffe5': (
+        'benign:layout_or_counts'
+    ),
+    '435f0224f0d2a9d5eba9f709f777adacf65dd28d1c36d39f4f702e5509a64452': (
+        'debt:badge-compound-decision-grade'
+    ),
+    '45655bebe9f1cc0ac150c68901386e1c8feb554108e278612654a4eff4b23fe5': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '4681f7d7a6a1febf2badb65da22df140fae88ba3beef9313d8240b532c161b6e': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '47e551b9d6e8882de20bfd67eb14f852149d20872aa5d9d6834060afc2a25866': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '4824d5e19c44105391522152d9bd9febfe0327fd34e6c9485f4d215c99e5c394': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '489584ca817c00d7766e9d474efd1ee37d3ae7335b1a19f41f2918042e5cfb69': (
+        'debt:badge-control-approval-quality'
+    ),
+    '4966df28f2ae3778e52ac1226bded6b2b94a35c845a6b5e0dd729106e5f09acb': (
+        'debt:badge-control-approval-quality'
+    ),
+    '4a079c0100a0b88e5a4cff84538e1fe187b266b842a7600660ea8cd692f86bda': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '4b0ca289239f6cb5cca22029afb268c85bf71eb90f73dae0f4a70ed2b8394cb1': (
+        'benign:interaction_or_editor_state'
+    ),
+    '4b6cc6e1e45662b2e66cdbaacb3dcb3913ba2eac1ca4931d3847fac9a88c3e65': (
+        'debt:badge-artifact-pipeline-decision-grade'
+    ),
+    '4d4cb2de5e3b09fe879fe2fabf09e233f9885dcfdaad158796ac4726109c5151': (
+        'benign:layout_or_counts'
+    ),
+    '5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '575992477f68b27fab1317f1688153b5afaced24c268c22dd2fd2b6f8c49ec76': (
+        'debt:badge-evidence-source-freshness'
+    ),
+    '5796af5c0c00e3724ae4e0f5a21ae84464d4c8f8c8e85dc3fb9afdd03536fbc6': (
+        'debt:badge-operator-blocker-overridability'
+    ),
+    '59b6a960611036630340cfdbdeb67c09a0b0bc2fe0d1670fe9be49d0ac386054': (
+        'benign:interaction_or_editor_state'
+    ),
+    '5a3bada810ad2a1c0b65fe6b458bfeadf3e8a641046b873a86c26b8d89cad2ef': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '5d069598ed2432ba1300d23dbf64545fdcdb1b00db025ba683c40b395882c7e9': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '5eccfc73c26b6c85df52cff3c0843e498d1c2a0b924204804c5aad9de3196ba1': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '60b71e5d2856a03dc8e9d8873e20f86b0cfcf623f4c9bcaacdb45c8048c0364c': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '614a98dc9a95cdaed03c5dfba1b519e12b58af700bf5a812e0a1aa7f582871cb': (
+        'benign:layout_or_counts'
+    ),
+    '662b0fc3606167f10f68500739758dd6e7b7ecb8f96db7859b9e1f8d0c0546d1': (
+        'benign:interaction_or_editor_state'
+    ),
+    '66a00026342faf1877fa8ddb5128cd33a7b369884dfe64ae18ee237560899b15': (
+        'benign:layout_or_counts'
+    ),
+    '6ac80574002dfaad6ad5d921827e753111611f66ea6a0b7a7cce0c1b7ba96216': (
+        'benign:layout_or_counts'
+    ),
+    '71ad7ea43a1e8dc3e3df4f67f00cc4fad983b2b6b7a0acdfc6db3daaccd8aa28': (
+        'debt:badge-control-approval-quality'
+    ),
+    '743515ddee3a1654cf2284926e6abbd7797ef5b3ae505e2f94006d3e9ffed683': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '775183902635829ee7a634e09e77c411ad11cbe0cfff43ee743cebaf17288e25': (
+        'debt:badge-preflight-readiness'
+    ),
+    '7752dd623b2b966fc992e43150813ae337e1667dcb2a75f1ae7e52d294655317': (
+        'debt:badge-uncertainty-dispute'
+    ),
+    '77d4937a8a4ae3861a3d7ca0d409f1dcb5357b59fed592b6f1da55998c74415d': (
+        'debt:badge-control-approval-quality'
+    ),
+    '782d91933a21abe282a0b2eec316c9e5a01250ae6dd1be645f0564300544c721': (
+        'benign:transport_or_runtime_health'
+    ),
+    '790d822d3220078d0202ff5acf18234e4989dddaa8f0763460945f568889a957': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '7cab4e047bfad3eeba1fa62f6541f93ca94f7288e36da8ad9fce0b9f9fd075a8': (
+        'debt:badge-compound-decision-grade'
+    ),
+    '7cbd142395b58dc08a0e2bb7aae5dddee45eae6beef62c24f0fb8b4b8fae67b7': (
+        'benign:layout_or_counts'
+    ),
+    '7d026294d7ab9b024d15f64c520125bf1a56d8546bbcc0a4c3889d11381e2e80': (
+        'benign:transport_or_runtime_health'
+    ),
+    '7dc80a2bca0f52eabe4056572779e0d61350184ebb303f8635de3a9b462b3d6f': (
+        'debt:badge-candidate-refusal-markers'
+    ),
+    '7df766a591cd08759ab97ce6fbf3c93b1d83d01e5e6e403886ede521aef97004': (
+        'benign:transport_or_runtime_health'
+    ),
+    '7e370a0c39a64ebb37b0b55f2a0121ab95430348581ba3f8e30cf90887a8722c': (
+        'benign:transport_or_runtime_health'
+    ),
+    '7f61ef5fd73fcfd0d116ed59338de06d623e58f5634b4c74151527c06a902bd6': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '89146b2b5fbfd278d218aeadc24ad53693a77af147e1086cea5b51a2511659c6': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '892350aac1cb253283d156a1952c835fc1d2a8d73327b0feea81fce21d67ad24': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '89b13db33efc33ad01d076818b832f51aed4a1a2dc5bc3465376b8ff1cc42dae': (
+        'debt:badge-control-approval-quality'
+    ),
+    '27bd4c02bcf144b52fdebc88ab9ca03bd8b35522f94ace154d373d2a1bd57cc8': (
+        'debt:badge-governed-projection-availability'
+    ),
+    '8d1d1b0a3f1bd470d97feec2780c3f3ecace0182e30b9dc4ab6fe918eea698de': (
+        'benign:layout_or_counts'
+    ),
+    '901d277be8ac2a458d2d05c65b606307b3c6dc64f1cf48c080f57af4b6f27500': (
+        'debt:badge-public-packet-authority-framing'
+    ),
+    '9068a4cd4f2597a561b3ee5e9cb81493c299d6a9ac44a7c39f05f4c336cf42b0': (
+        'benign:transport_or_runtime_health'
+    ),
+    '9356fe6a3c0dee6467263ab8bf82f01253fb3629c7090a4e14277418cfc96fe6': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '9374faf00f67a0c3d645b9171576544ef88904aee1f831147de0b1f1e0572e55': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '94f7d09333cadd11a89176ef32d1646677e0070113e346a24bcf0e2f21e29d20': (
+        'benign:layout_or_counts'
+    ),
+    '95a566e23d8a67c3342e70696b8299ce11282524dcc512ef8f1b38a542166bb9': (
+        'branded:governed_authority_purpose'
+    ),
+    '95aea9c66d7babdca5ee9911a0db61b65d7d62614effac90dbf4478aa4b77bff': (
+        'debt:badge-projection-source-freshness'
+    ),
+    '98ca189a06de16043ec40ca09c3d74f2b63a524ff10299c3561539dbea882f56': (
+        'debt:badge-governed-projection-rights-bar'
+    ),
+    '997f7c5ee2d23388fecbe89b4b0248095e86078fb8902768f3ee8f2b647fa2bb': (
+        'benign:transport_or_runtime_health'
+    ),
+    '999dfc41d8905bc8fb950ce74afe4ff73d2caa9e9d1144401dd7adc0e488e37a': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '9b58b688994af67d93522e5dadaef6b0f2df21b8efc7ff8633e86db147099413': (
+        'debt:badge-control-approval-quality'
+    ),
+    '9e5c541d557ae597994e067895ef46cc5c8106605e12517533c1ef4277c4db42': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    '9f1248b9bc7ee9c7a669e91b3ab6a03a428cc9e442163b832d7daa0fd1a700e7': (
+        'debt:badge-artifact-pipeline-decision-grade'
+    ),
+    'a178781eec2205bb210feae1963866ddbebbc903e5b167439d795f47a47cd1ef': (
+        'debt:badge-negative-certificate-blocker'
+    ),
+    'a39decd55a70a0982f1206d37466ed416d440f2fae951c3f6026add2f89ddfd8': (
+        'benign:transport_or_runtime_health'
+    ),
+    'a42bc462f389e95b1711b2bd8c2d65c7efe1d62adecff77803629d81ae2c7c72': (
+        'debt:badge-preflight-readiness'
+    ),
+    'a4a0f209ac5afc0587dbeec512266e6543cc61ba7e05f95e5b88ad141c01f9ed': (
+        'debt:badge-evidence-source-freshness'
+    ),
+    'a608cbead8d75af67ec3a67b1bffcafec43289a959882c3f7ff1f08b943a4ef2': (
+        'benign:layout_or_counts'
+    ),
+    'a707876130fc42b9006569b81f1f191de061ba6c2d9e00218e130c5688e3588e': (
+        'benign:interaction_or_editor_state'
+    ),
+    'b002b5f620661bc50ef765de2a66149010e584f39eb810139e8d2441898eaacb': (
+        'benign:interaction_or_editor_state'
+    ),
+    'b22524f2bb0c743cad0ba903c0913378f1755770798e5296e1eb2fd290a44a96': (
+        'debt:badge-bureaucratic-legal-review'
+    ),
+    'b4ca75d2e9ab64059d514160e709e532f1c9033afba163d5e387bdb902d205a6': (
+        'benign:transport_or_runtime_health'
+    ),
+    'b6ed98bcceca5eb3659f89e979641aaedbedbc1a7d48462b820c2ecb4b6911ec': (
+        'debt:badge-candidate-refusal-markers'
+    ),
+    'b849a709f7783feecf45e635476c00aae9859d9a207c6cfa611a5113ce5b785a': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'b8956759f3667ee4a2aab6f14ff3f9633530ce94bad4c5741758dbf1872f4131': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'b8a7958e5eadceb9bb9ed7b720e1a4efb9a20bd8bced7dfdea519b92eaf82dca': (
+        'debt:badge-explainability-governance-counts'
+    ),
+    'ba194a850616423573ab6ded36d2839fc80ae0470c30f57438a447f4232a4d41': (
+        'benign:layout_or_counts'
+    ),
+    'ba344f7d265fd1539ac0fb5435a9f53d1caf848e8f1d452f54f90fb31097ef66': (
+        'benign:layout_or_counts'
+    ),
+    'bbfc4140d1b606629556acde90334230a32a304f848211c89f60b73c6bd19947': (
+        'debt:badge-governance-issue-severity'
+    ),
+    'bdf81e235a4ca11b7864dc6ecdd2284cbe034374693508f633cb85a9761eb6df': (
+        'benign:transport_or_runtime_health'
+    ),
+    'bee1d8b47272f2e55577d8bd97988f38cee5f6857811e69b12d4c06d7545457a': (
+        'debt:badge-public-anti-authority-role'
+    ),
+    'c189d4abe2d873e07f6be8e26b018f8d6d89469e72303dfceb0257e6e81fbf1a': (
+        'debt:badge-run-deck-authority-summary'
+    ),
+    'c1c1c5396f7e6e331fd35de27613fac55a01597ec02e48a0c0fe7d37b229e047': (
+        'benign:transport_or_runtime_health'
+    ),
+    'c21834b2fafddae48203bb9f1d73a8bffd39ccb98d63b23da53ba610eec8131c': (
+        'debt:badge-comparability'
+    ),
+    'c240d2feaa07748f063fcff49d11df7617c812f95f3341136ca14d54f644c66b': (
+        'benign:transport_or_runtime_health'
+    ),
+    'c46e2809d8f349d9518a86fe0f8c33df00e393dc7cd50f048fc7d9455a95eeba': (
+        'benign:transport_or_runtime_health'
+    ),
+    'c614d3390a9d679fbe9253314cbd5f1a18b0613411afdb5e3d550db91252b5c6': (
+        'branded:authority_presentation'
+    ),
+    'c7112bfb817734b2a54a7d55cdb9ad540842a4befcd49b49e8c12863a66047e8': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'c81aad6b01055c35286a42a8bfdc07cf2223a8c47721aa6a1eaeaaf5b52bbb28': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'cba8b385d57d853f1a0aeed9b9fd8731925269cb37a52aeb62005831353f482c': (
+        'benign:layout_or_counts'
+    ),
+    'cc2bd39aaf90f8648705a1f6490ebf6cf38639a5a6096b1d5466a6e3e6d1f3d8': (
+        'debt:badge-control-approval-quality'
+    ),
+    'ce1071346d9f93620cad1b88481b396016a563d8ccad39f58d2853be27d960ea': (
+        'benign:layout_or_counts'
+    ),
+    'cef8147b083b7868c257481362ce5759966736f14fe65cd9f764ddee809e95ea': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'cf40b1db383289a0e350568c515e85540ceef41a10c87b9c6b03a38c1ddd1657': (
+        'debt:badge-public-integrity-result'
+    ),
+    'd1cf53e72c35bc04a947b651a2afae3efbb7d3d0261dff7aa63aa0ad705bd622': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'd3597f124b355ae0df1aba078fe15dcbfc1eb5273d91497ee5dac0c3a10fa36e': (
+        'benign:interaction_or_editor_state'
+    ),
+    'd5175929f2fea0f9bf06ab5951a76e03d416363447a01b1449ff1c0f04fd5d69': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'd55790cad1c256c2c84508b5044b318ce50a87c809a16153b95de4aa1006075f': (
+        'benign:transport_or_runtime_health'
+    ),
+    'd6e518e4dcafece66b74ce39b0d7cffb9ef46e95722e93ca7a37047f5b2f903a': (
+        'debt:badge-governance-issue-severity'
+    ),
+    'd95f9d9d1dfd718118166a3d0a1fef3cfcefa60c5483c6d303ba303a61ac7659': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'dbe9710ceb60817af97733abdfa27ca081c78b89a98e2242ffc4f6166567e256': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71': (
+        'benign:layout_or_counts'
+    ),
+    'e1dc361da1a68012e234580fa349e121cdbf5dc50539f79e6c5e163a3ec62b50': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'e207cfa4958f3074a81ab79b4964b8590be8beef112d00da0cd7955daa5f053a': (
+        'benign:layout_or_counts'
+    ),
+    'e3555ae77473368474ac2aecf962494ce2e015bb56abaf84ad068b5adc37068a': (
+        'benign:interaction_or_editor_state'
+    ),
+    'e4dd773e764fec196875160e57f6b310dbf2813075a33e9265eeb980262ef55d': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'e8cf63710e8b312c6a9698070215a3d80fd58936593857124775f944ee4b4f27': (
+        'benign:interaction_or_editor_state'
+    ),
+    'ec040ce3c17b4c38911f63c37a44188fa51e1415c9063352a3a46dc2f8cd734d': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'eda6e6440c411b1ff4b59c9dd5597e500cd4426a31eddae9b46cc21f0eb636f8': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'ee0b13c84383978509b3e3ec3504eb334945728b1ccee816e9ba13615ba68dd6': (
+        'debt:badge-candidate-declared-authority-purpose'
+    ),
+    'eeab67da3dac0589720725a171123edeb49c68d05982622c9c36c9b06cc7c4a7': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'eef12bc2ad51233243467d1e006c5a973e0fa138838dffc80cfe3e533ce7afc5': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'ef1118d17b97434338471b627d65ba07d0091fe9f064ecb5a5b5c04b71c5a714': (
+        'benign:interaction_or_editor_state'
+    ),
+    'f0d793a57b01628de090845cb7c5822c23e9f3eccae704bc732c2d5644b22433': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    'f429bd648712b69892f15f0815570e349ba93123e3c1689fcc7e8e21b1a39e47': (
+        'benign:interaction_or_editor_state'
+    ),
+    'f46d2b5c605e3c5ab6acab65873537121df8cacb43228f16e53a000c97ec0684': (
+        'benign:transport_or_runtime_health'
+    ),
+    'f4d4f3e59310e146c58a0ca3952caab54ef348745db6044d0097138675dd94ba': (
+        'debt:badge-control-approval-quality'
+    ),
+    'f83591094c3b0059152f1882dc77da6851a0463478b16aa4748d05face2ec690': (
+        'benign:transport_or_runtime_health'
+    ),
+    'f932043880d8e07b0d22732d16690d159f803a03ed23d24b9543ad412f443f8f': (
+        'debt:badge-public-integrity-result'
+    ),
+    'f9376c6dc6670e77368e91b72ef7de90fd69f4b5290e4352c4a7dbea5d9a00dc': (
+        'debt:badge-review-required-aggregate'
+    ),
+    'f99e0acb8cfd2e2cb117f0f4822ca0c0dde856f03f1f4d629959614e86bf9889': (
+        'debt:badge-run-deck-authority-summary'
+    ),
+    'fb60590aea23ce4d4a823d3cf19aea558f5b666e86029388d52469f5f5739641': (
+        'benign:interaction_or_editor_state'
+    ),
+    'fbb881aadd093a5e283964b7d4b4c1d233d7e1017887fb875d1622ecd2026235': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'fc595d1619d1ed3590dcdf87d110fe2e4dc88a0193f018555f9eb3148bde68e2': (
+        'benign:layout_or_counts'
+    ),
+    'feae06fefd2cab14a9599492d36ddf16213e3999dacbfa716ebeec97085618fb': (
+        'benign:workflow_or_lifecycle_display_without_terminality_inference'
+    ),
+    'ff08cad30b4d331f3ba7cfb3757d527f2763dff5608e03f2230e6f4e3c1440b4': (
+        'debt:badge-control-approval-quality'
+    ),
+}
+
+FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
+    str, list[dict[str, str]]
+] = {
+    '06aa52447c49bbdd19d77123ae8a5a3313abd7a0a8226976da55a52915b8fe49': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-card-verdict',
+            'role': 'consumer',
+        },
+    ],
+    '090221c80046c9557a9424e0098ed8c01eaa9621b0a6f99f41d47e6f292da42a': [
+        {
+            'classification': 'benign:interaction_state',
+            'descriptor_id': 'prop-review-presence-status',
+            'role': 'consumer',
+        },
+    ],
+    '0a9923c0cfd7cb57b27f5bacf64bac468e5862621c904335b290a17e61aa6547': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-counterfactual-status',
+            'role': 'consumer',
+        },
+    ],
+    '0e44a93350c9b74533e5905e633c97892b6e4db719cb24df3aef7ea2bbce2964': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-lineage-freshness-cue',
+            'role': 'consumer',
+        },
+    ],
+    '1288071d7e0ac163c12ce6aa1a20c20f589cbea5e2c433c37011760c01801a4a': [
+        {
+            'classification': 'branded:governed_authority_purpose',
+            'descriptor_id': 'prop-envelope-authority-purpose',
+            'role': 'consumer',
+        },
+    ],
+    '161ada920d42be7ec2d8a0dfd475ae9abd0de9bb4c611601f93afbf43bd5616b': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-time-semantics-freshness',
+            'role': 'prop_declaration',
+        },
+    ],
+    '16eb7fca7159f7309d9753a11f1b620f29fcd51b9b4301c8dfbb25a239079ab6': [
+        {
+            'classification': 'branded:authority_presentation',
+            'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'component_declaration',
+        },
+    ],
+    '1908e4138916f64036152bf0f1aad44c6a3b305019545811e2fd330d6abfcc41': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-explainability-verdict',
+            'role': 'consumer',
+        },
+    ],
+    '19ba562d4caaa193b36eb258135bc8eedefa22de9a825e1230b7e397b9bc777a': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-verification-status-cue',
+            'role': 'consumer',
+        },
+    ],
+    '22ce2429b6954c1461643264ddeb56ea9b906a4b4c7baa61513d0db4818a9d5c': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-dispute-status',
+            'role': 'consumer',
+        },
+    ],
+    '2539f0dd770d4d81ed7eac41b8659198913e28f7433f2a126d07908aa3f41a55': [
+        {
+            'classification': 'benign:interaction_state',
+            'descriptor_id': 'prop-review-presence-status',
+            'role': 'prop_declaration',
+        },
+    ],
+    '28451c7385b5593edfd0ac17602ed328120a4949c1a6410d9cb31a3367a773bb': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-data-freshness',
+            'role': 'prop_declaration',
+        },
+    ],
+    '1c7bcc568eb6d0de6ce70be64ac1c95b1fef451ad22feb88e19f0954f3acffb2': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-data-freshness',
+            'role': 'consumer',
+        },
+    ],
+    '2d62ca48a2d4a778b23e7a62ae53dee274c480cacff2cde588352a70e5c46d1c': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-composer-summary-tone',
+            'role': 'component_declaration',
+        },
+    ],
+    '3235dc9058cd679aab28663d8ef6e40fd690dba5931c4222d3c750e895090fdc': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-control-approval-readiness',
+            'role': 'prop_declaration',
+        },
+    ],
+    '345048647f2c38a7b4c40150a4f6cf8a157750e34a2313939da45a3bcc3fc03b': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-counterfactual-status',
+            'role': 'component_declaration',
+        },
+    ],
+    '3508cd57a8aa6a4eed2f965c15224b54f17b739fa262e5e96c3247b3de0aee5f': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-composer-summary-tone',
+            'role': 'consumer',
+        },
+    ],
+    '39f8c143570efef26b5c310b1bf429389358d39fe5bf936a40c19ee6c7211c79': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-explainability-verdict',
+            'role': 'component_declaration',
+        },
+    ],
+    '45fb2442e80045b23fdac4889b002440759292449e536cd2995b84bf67fa5893': [
+        {
+            'classification': 'benign:captured_quantity',
+            'descriptor_id': 'prop-authored-text-confidence',
+            'role': 'component_declaration',
+        },
+    ],
+    '4626948f8965be6e9d6feb132e399319d02a9ab5c07ff4eb2e04fb977cdf9fa2': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-form-section-tone',
+            'role': 'component_declaration',
+        },
+    ],
+    '463bfc23955e33fcf61719c3b4510aa516bcae5e1d025ad74596bff687bc2d37': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-verification-status-icon-tone',
+            'role': 'component_declaration',
+        },
+    ],
+    '47120da814a4f5702cf969d1779626ce434e42c7ae8d22ed96c2da483f867590': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-explainability-verdict',
+            'role': 'prop_declaration',
+        },
+    ],
+    '60f1705ce16da1d211d4bd2c9291a0770773e0295f67b15aa375f9113022247e': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-grade-presentation',
+            'role': 'component_declaration',
+        },
+    ],
+    '6396aaba2a2937fd48c9bc99e4834eaa06c4122dd0e0162a9f9ba31af4e2d6a8': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-control-approval-readiness',
+            'role': 'consumer',
+        },
+    ],
+    '68ad2101e3f8b279cb6d41f7fb1ae93e5767fecf714e9db9e427b226d8454f6f': [
+        {
+            'classification': 'benign:responsive_layout',
+            'descriptor_id': 'prop-segmented-control-tone',
+            'role': 'prop_declaration',
+        },
+    ],
+    '712710c5c423a0ffc5e2f1567cf5332bb8fcae73a1e15f0495d3312d0a1eb5de': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-grade-presentation',
+            'role': 'consumer',
+        },
+    ],
+    '71a80646a121675e49570c8c85fa30ffdd40bdf3846ffb245aa265071b73f1c5': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-data-freshness',
+            'role': 'component_declaration',
+        },
+    ],
+    '73ac833708a0af8050ac16602ceb7cea2c0fc956868ac75bb17143960f24eec4': [
+        {
+            'classification': 'branded:governed_authority_purpose',
+            'descriptor_id': 'prop-envelope-authority-purpose',
+            'role': 'consumer',
+        },
+    ],
+    '73cf45800d9bbc0e5781565dbbc6ee5de54c0c6b48682c33666e50e8686f8c7b': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-grade-presentation',
+            'role': 'prop_declaration',
+        },
+    ],
+    '76a74cb838945515d42022bddecafeb70cc1adc5f2e9334adddb61eb208352ca': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-grade-presentation',
+            'role': 'consumer',
+        },
+    ],
+    '782ed9f3d4c893ff5e9640b2c420cb48a2d08cf8e28d60740bd0c63f3039e462': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-form-section-tone',
+            'role': 'consumer',
+        },
+    ],
+    '785fc2a4aeab96bd67704104f7dbc63d5693438f9d48a63afe9d1ba50477256d': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-grade-presentation',
+            'role': 'consumer',
+        },
+    ],
+    '7967b768451295aab7bb93830edce43a8605903a6e00fdae468919ccb340c211': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-form-section-tone',
+            'role': 'consumer',
+        },
+    ],
+    '7a76b59f3a814dc6f6b1f9f887eb4b69416f0878a7af3c735f552d937fdb6823': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-verification-status-cue',
+            'role': 'prop_declaration',
+        },
+    ],
+    '831ce02647e1042330f85888d1569f0325a235e7e9ce138a03cbfa58f85e8fe7': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-composer-summary-tone',
+            'role': 'prop_declaration',
+        },
+    ],
+    '88061a949593f884d5bef7b9384c644d2c5c7d5d953e04413936be6c0f3a18a8': [
+        {
+            'classification': 'branded:authority_presentation',
+            'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'consumer',
+        },
+    ],
+    '89f4504a2816c5af91a874a64d8117379b47e931e6313d226171a70f1f953413': [
+        {
+            'classification': 'benign:responsive_layout',
+            'descriptor_id': 'prop-segmented-control-tone',
+            'role': 'component_declaration',
+        },
+    ],
+    '8a560a599792148ea45043a3e13200ca36ab8f47756a677eb1eaa2ef899a7d19': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-card-confidence',
+            'role': 'prop_declaration',
+        },
+    ],
+    '8bc040f4b701b7f4945431070d65f56529c55eb6f832d094bf116f2083689c5f': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-verification-status-cue',
+            'role': 'component_declaration',
+        },
+    ],
+    '9156023f5437ed35cbd33f0b0cf42bcd52ba029088f23fd0b05e0e24d5d445ef': [
+        {
+            'classification': 'branded:authority_presentation',
+            'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'consumer',
+        },
+    ],
+    '8ca5bce9456d9cca63c0b849a155f81bb76f1a574036af53229a7d7821ebac88': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-time-semantics-freshness',
+            'role': 'component_declaration',
+        },
+    ],
+    '9b0285075c32d8b904ad899c523bfd5dddde9eaa78876dec98ba96b57be00dbd': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-dispute-status',
+            'role': 'prop_declaration',
+        },
+    ],
+    'a07acb5b94cfdd350caf61f450240bda7f814c1faa029785290c9c58b47056d6': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-counterfactual-status',
+            'role': 'consumer',
+        },
+    ],
+    '703faaedd976bad47dd750f4d8070e4165856bf928a548de3b935503010d0187': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-data-freshness',
+            'role': 'consumer',
+        },
+    ],
+    'a21ca9ee9373c8c076d703502dcb653879d7a6ce910e3f0e3dff896d217eafd8': [
+        {
+            'classification': 'benign:responsive_layout',
+            'descriptor_id': 'prop-segmented-control-tone',
+            'role': 'consumer',
+        },
+    ],
+    'a87cba5c1e6540ca2bc33b6ee9a169a8fcd8fad7bf460f81d813944814ecbe84': [
+        {
+            'classification': 'branded:authority_presentation',
+            'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'consumer',
+        },
+    ],
+    'a9a606e66e7adf776835a8a41bf8968446e341b88dfd3bed962660e5519f0b0e': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-card-verdict',
+            'role': 'prop_declaration',
+        },
+    ],
+    'b0f22a17ed4d8431f2c8e16579664f17c226202b1a9cf742a3de4fa981a440eb': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-dispute-status',
+            'role': 'component_declaration',
+        },
+    ],
+    'b1a02625d2fd21109e548cac22c0714690f5803eb15cc7b7be91e7db1f792048': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-verification-status-icon-tone',
+            'role': 'consumer',
+        },
+    ],
+    'b1e30068cb924fa281fed1ac8005603790672b75c00733847d74c8ca637a704f': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-card-verdict',
+            'role': 'consumer',
+        },
+    ],
+    'b6a1ef787665b777d6a4a7e18fdca654b493d6a8a43473a4d33756514a1e64f1': [
+        {
+            'classification': 'benign:layout_accent',
+            'descriptor_id': 'prop-form-section-tone',
+            'role': 'prop_declaration',
+        },
+    ],
+    'b7b31de2e1cae02214b759a148df24f4a5357909c096c7ee9dab89cd3cc31ec4': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-grade-presentation',
+            'role': 'consumer',
+        },
+    ],
+    'bba89136665934edc4fb94e1e2c0becd1a0560553b6ed11486d00a5ae512e931': [
+        {
+            'classification': 'benign:interaction_state',
+            'descriptor_id': 'prop-review-presence-status',
+            'role': 'component_declaration',
+        },
+    ],
+    '4e70f64ec87d614c63aec73be716f44afb13834c62e9158ce5e671d1d5481738': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-time-semantics-freshness',
+            'role': 'consumer',
+        },
+    ],
+    'c4695dc59b4f9cbfc62344f12d91f50ab9c0042557aed065d345f054c4bf44e0': [
+        {
+            'classification': 'benign:captured_quantity',
+            'descriptor_id': 'prop-authored-text-confidence',
+            'role': 'consumer',
+        },
+    ],
+    'c8ea08d12ba9b28b1cdfb0f1ed2d1aa2f87913b558025eb8e3448f41dd5888fa': [
+        {
+            'classification': 'branded:governed_authority_purpose',
+            'descriptor_id': 'prop-envelope-authority-purpose',
+            'role': 'component_declaration',
+        },
+    ],
+    'cba019c47cf0748e39a681763c7d228872e1f3e33726c182359faad876a740ff': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-dispute-status',
+            'role': 'consumer',
+        },
+    ],
+    'd13b77727ec6e59051fd01de3d2595381d08ab8a5753470173f4dca54e913f6b': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-lineage-freshness-cue',
+            'role': 'prop_declaration',
+        },
+    ],
+    'd488da2243cfb0c12b495bfb8becb25dbaf50f1d03f853aaddf9e7530a52495a': [
+        {
+            'classification': 'branded:governed_authority_purpose',
+            'descriptor_id': 'prop-envelope-authority-purpose',
+            'role': 'prop_declaration',
+        },
+    ],
+    'd6903156024e582887e0992f164d9fa191eb57d44ccb412655aec1a050ca05b8': [
+        {
+            'classification': 'benign:interaction_state',
+            'descriptor_id': 'prop-review-presence-status',
+            'role': 'consumer',
+        },
+    ],
+    'd76cf4788345fad84023b91ef225308c43aecf68e6b58f9eb2569fdbd07e9a77': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-lineage-freshness-cue',
+            'role': 'component_declaration',
+        },
+    ],
+    'd9f1be34765232337b7e2075e012450b6474312bd313b4e3609de5ddf4488e89': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-card-confidence',
+            'role': 'consumer',
+        },
+    ],
+    'daa7db05ca9b71c307935c4f074b1d12df0dc02856ca5292b60bd1824a094230': [
+        {
+            'classification': 'branded:authority_presentation',
+            'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'prop_declaration',
+        },
+    ],
+    'ddb70bb5bc1bb2dc30cac27c2428930e5c95c973fc5064de6c01ecb061ed1950': [
+        {
+            'classification': 'benign:captured_quantity',
+            'descriptor_id': 'prop-authored-text-confidence',
+            'role': 'consumer',
+        },
+    ],
+    'e5cc3356ae2208fb98c4b1cdfa1d0d37f11c7e933666dc45e0098666561e14d3': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-counterfactual-status',
+            'role': 'consumer',
+        },
+    ],
+    'ea3c053f9dddfa174cd58f96f0b08967fe93e3465d82fef26c146a11f246ff9d': [
+        {
+            'classification': 'branded:authority_presentation',
+            'descriptor_id': 'prop-authority-badge-presentation',
+            'role': 'consumer',
+        },
+    ],
+    'ead85722c60492a096a673bb40f117a9798ac462c647086ce7990f60e339f65e': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-verification-status-icon-tone',
+            'role': 'prop_declaration',
+        },
+    ],
+    'ed68a06d959bbc1db946cb34228ca88a11a8bb2a44658dbf19506ed94e5804d9': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-counterfactual-status',
+            'role': 'prop_declaration',
+        },
+    ],
+    'ef2b25e842386c37d954cb282e8d2a14cb69b22cdb689c4a273de5cd35d80911': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-control-approval-readiness',
+            'role': 'component_declaration',
+        },
+    ],
+    '6282429660a99493402eadcb5de2ce7f580de3b660c9014b8a60be742ffac6b3': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-time-semantics-freshness',
+            'role': 'consumer',
+        },
+    ],
+    'fb7a63d86c79d996df5f71c0611b6b7bf44848a6fc0838fb96e7dd371c28e3b2': [
+        {
+            'classification': 'benign:captured_quantity',
+            'descriptor_id': 'prop-authored-text-confidence',
+            'role': 'prop_declaration',
+        },
+    ],
+    'fe5c1e593fa09b93ff37f01f2789d2197faa2f053ac2fc01b68493c20b29bd40': [
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-card-verdict',
+            'role': 'component_declaration',
+        },
+        {
+            'classification': 'debt',
+            'descriptor_id': 'prop-decision-card-confidence',
+            'role': 'component_declaration',
+        },
+    ],
+}
+# C21B_FROZEN_AUTHORITY_IDENTITIES_END
+
+AUTHORITY_BADGE_CLASSIFICATIONS = FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
+
+
+def _frozen_authority_identity_config() -> tuple[dict[str, str], dict[str, list[dict[str, str]]]]:
+    """Return the committed C21b authority keys; creation receipts cannot authorize."""
+    if not FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS or not FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS:
+        raise RuntimeError("c21b_frozen_authority_identity_literals_missing")
+    return (
+        FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS,
+        FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
+    )
+
+AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS = FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
+
+
+def _authority_row_semantic_value(row: Mapping[str, Any]) -> dict[str, Any]:
+    """Compare authority rows without treating navigation-only nested lines as identity."""
+    value = copy.deepcopy(dict(row))
+    sink = value.get("authority_sink")
+    if isinstance(sink, dict):
+        for receipt in [sink.get("component_declaration"), sink.get("prop_declaration")]:
+            if isinstance(receipt, dict):
+                receipt.pop("line", None)
+        for receipt in sink.get("consumer_sites", []):
+            if isinstance(receipt, dict):
+                receipt.pop("line", None)
+        consumer_sites = sink.get("consumer_sites")
+        if isinstance(consumer_sites, list):
+            consumer_sites.sort(
+                key=lambda receipt: json.dumps(
+                    receipt,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                )
+            )
+    return value
+
+
+def _authority_presentation_rows(
+    scan: Mapping[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    """Build the 39 typed debt rows from the live finite census."""
+    scan = scan or _authority_presentation_scan()
+    census_errors = [
+        *_badge_classification_errors(scan),
+        *_authority_prop_classification_errors(scan),
+    ]
+    if census_errors:
+        raise RuntimeError(
+            "authority presentation census invalid: " + ", ".join(census_errors)
+        )
+    prop_by_id = {
+        fact["descriptorId"]: fact for fact in scan["authorityPropCensus"]
+    }
+    debt_badge_sites_by_group = _authority_badge_sites_by_debt_group(scan)
+    rows: list[dict[str, Any]] = []
+    evidence_identities = _authority_evidence_identities(scan)
+
+    for descriptor_id, spec in sorted(AUTHORITY_PROP_CLASSIFICATIONS.items()):
+        if spec["classification"] != "debt":
+            continue
+        fact = prop_by_id[descriptor_id]
+        consumer_sites = [
+            _source_receipt(
+                role="consumer",
+                path=str(site["path"]),
+                line=int(site["line"]),
+                sha256=str(site["siteSha256"]),
+                site=True,
+            )
+            for site in fact["consumerSites"]
+        ]
+        finding_id = "authority-presentation-" + descriptor_id
+        rows.append(
+            {
+                "finding_id": finding_id,
+                "finding_kind": "authority_presentation_debt",
+                "disposition": "rebind_pending",
+                "status": "open_debt",
+                "evidence_refs": [
+                    AUTHORITY_PRESENTATION_PLAN_REF,
+                    evidence_identities[(str(fact["componentDeclarationPath"]), int(fact["componentDeclarationLine"]), "named_declaration")],
+                    *sorted(
+                        {
+                            evidence_identities[(str(site["path"]), int(site["line"]), "jsx_attribute")]
+                            for site in fact["consumerSites"]
+                        }
+                    ),
+                ],
+                "owner_slice": spec["owner_slice"],
+                "decision_date": DS5_C01A_DECISION_DATE,
+                "rationale": (
+                    "C01a classifies this authority-bearing prop boundary as "
+                    "unbranded typed debt; its owner must replace structural "
+                    "clothing with the existing private-issuer brand pattern."
+                ),
+                "capability_states": spec["capability_states"],
+                "closure_signal": spec["closure_signal"],
+                "authority_sink": {
+                    "sink_kind": "prop_boundary",
+                    "descriptor_id": descriptor_id,
+                    "component": fact["component"],
+                    "prop": fact["prop"],
+                    "component_declaration": _source_receipt(
+                        role="component_declaration",
+                        path=str(fact["componentDeclarationPath"]),
+                        line=int(fact["componentDeclarationLine"]),
+                        sha256=str(fact["componentDeclarationSha256"]),
+                    ),
+                    "prop_declaration": _source_receipt(
+                        role="prop_declaration",
+                        path=str(fact["propDeclarationPath"]),
+                        line=int(fact["propDeclarationLine"]),
+                        sha256=str(fact["propDeclarationSha256"]),
+                    ),
+                    "consumer_count": len(consumer_sites),
+                    "consumer_sites": consumer_sites,
+                },
+            }
+        )
+
+    for group_id, spec in sorted(AUTHORITY_BADGE_DEBT_SPECS.items()):
+        badge_sites = debt_badge_sites_by_group[group_id]
+        first = badge_sites[0]
+        component_identity = (
+            first["component"],
+            first["componentDeclarationPath"],
+            first["componentDeclarationLine"],
+            first["componentDeclarationSha256"],
+        )
+        if any(
+            (
+                site["component"],
+                site["componentDeclarationPath"],
+                site["componentDeclarationLine"],
+                site["componentDeclarationSha256"],
+            )
+            != component_identity
+            for site in badge_sites
+        ):
+            raise RuntimeError(f"Badge declaration identity drift: {group_id}")
+        consumer_sites = [
+            _source_receipt(
+                role="consumer",
+                path=str(site["path"]),
+                line=int(site["line"]),
+                sha256=str(site["siteSha256"]),
+                site=True,
+            )
+            for site in badge_sites
+        ]
+        finding_id = "authority-presentation-" + group_id
+        rows.append(
+            {
+                "finding_id": finding_id,
+                "finding_kind": "authority_presentation_debt",
+                "disposition": "rebind_pending",
+                "status": "open_debt",
+                "evidence_refs": [
+                    AUTHORITY_PRESENTATION_PLAN_REF,
+                    evidence_identities[(str(first["componentDeclarationPath"]), int(first["componentDeclarationLine"]), "named_declaration")],
+                    *sorted(
+                        {
+                            evidence_identities[(str(site["path"]), int(site["line"]), "jsx_opening")]
+                            for site in badge_sites
+                        }
+                    ),
+                ],
+                "owner_slice": spec["owner_slice"],
+                "decision_date": DS5_C01A_DECISION_DATE,
+                "rationale": (
+                    "C01a classifies this direct authority-bearing Badge group "
+                    "as unbranded typed debt; its owner must replace caller-chosen "
+                    "clothing with the existing private-issuer brand pattern."
+                ),
+                "capability_states": spec["capability_states"],
+                "closure_signal": spec["closure_signal"],
+                "authority_sink": {
+                    "sink_kind": "direct_badge_group",
+                    "descriptor_id": group_id,
+                    "component": first["component"],
+                    "component_declaration": _source_receipt(
+                        role="component_declaration",
+                        path=str(first["componentDeclarationPath"]),
+                        line=int(first["componentDeclarationLine"]),
+                        sha256=str(first["componentDeclarationSha256"]),
+                    ),
+                    "consumer_count": len(consumer_sites),
+                    "consumer_sites": consumer_sites,
+                },
+            }
+        )
+    return sorted(rows, key=lambda row: row["finding_id"])
+
+
+def _authority_presentation_errors(
+    data: Mapping[str, Any], *, live_probes: bool = True,
+    scan: Mapping[str, Any] | None = None,
+) -> list[str]:
+    """Bind every authority debt row byte-for-byte to its finite live census."""
+    errors: list[str] = []
+    stored_rows = data.get("supplemental_findings", [])
+    if not isinstance(stored_rows, list):
+        return ["authority_presentation_debt_invalid_container"]
+    authority_scan = scan or _authority_presentation_scan()
+    try:
+        expected_rows = _authority_presentation_rows(authority_scan)
+    except RuntimeError as exc:
+        return [str(exc)]
+    expected_by_id = {row["finding_id"]: row for row in expected_rows}
+    stored_by_id = {
+        str(row.get("finding_id")): row
+        for row in stored_rows
+        if isinstance(row, Mapping)
+    }
+    for finding_id, expected in expected_by_id.items():
+        row = stored_by_id.get(finding_id)
+        if row is None:
+            errors.append(
+                f"authority_presentation_debt_drift:{finding_id}:finding_id"
+            )
+            continue
+        expected_value = _authority_row_semantic_value(expected)
+        stored_value = _authority_row_semantic_value(row)
+        for field, field_value in expected_value.items():
+            if stored_value.get(field) != field_value:
+                errors.append(
+                    f"authority_presentation_debt_drift:{finding_id}:{field}"
+                )
+    for row in stored_rows:
+        if not isinstance(row, Mapping):
+            continue
+        if row.get("finding_kind") == "authority_presentation_debt":
+            finding_id = str(row.get("finding_id", "unknown"))
+            if finding_id not in expected_by_id:
+                errors.append(
+                    "authority_presentation_debt_descriptor_missing:" + finding_id
+                )
+    if live_probes:
+        errors.extend(_badge_classification_errors(authority_scan))
+        errors.extend(_authority_prop_classification_errors(authority_scan))
+    return errors
+
+GOVERNED_DEBT_DESCRIPTORS = {
+    finding_id: {
+        "finding_id": finding_id,
+        **copy.deepcopy(descriptor),
+        "decision_date": descriptor.get("decision_date", DECISION_DATE),
+    }
+    for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items()
+}
+GOVERNED_DEBT_DESCRIPTORS.update(copy.deepcopy(INTEGRATE_DEBT_DESCRIPTORS))
+
+C11B_QUERY_MEMORY_ROOT_ID = "cache-query-memory"
+C11B_QUERY_MEMORY_SUCCESSOR_ID = "dashboard-governed-query-cache-posture"
+C11B_QUERY_MEMORY_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
+    "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
+    "apps/runtime-dashboard/src/api/cacheDiscipline.ts",
+    "apps/runtime-dashboard/src/api/cacheDiscipline.test.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
+    "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+]
+C11B_QUERY_MEMORY_PENDING_RATIONALE = (
+    "DS1 does not record this narrow unit as implemented; C04a-R1 removes the "
+    "local capability fallback and query placeholder from its CommandPalette "
+    "discovery consumer, while cache-policy transition remains owned by C11/C12 "
+    "without creating a parallel owner."
+)
+C11B_QUERY_MEMORY_RATIONALE = (
+    "C11a/C11b and C12b strangle the generic query-memory root only through the "
+    "governed-query option issuer, source-derived policy debt ratchet, owner-as_of "
+    "cache observation, and one visible run consumer; the remaining 65 constructions "
+    "and 41 producers remain explicitly adjudicated debt, and no DS8, DS9, or DS14 "
+    "semantics are claimed."
+)
+
+
+def _json_entry_object_span(
+    text: str, unit_id: str
+) -> tuple[int, int, Mapping[str, Any]]:
+    """Locate one root-entry object without normalizing adjacent JSON bytes."""
+    needle = f'"unit_id": {json.dumps(unit_id, ensure_ascii=False)}'
+    positions = [match.start() for match in re.finditer(re.escape(needle), text)]
+    if len(positions) != 1:
+        raise ValueError(f"root_entry_span_ambiguous:{unit_id}")
+    line_start = text.rfind("    {", 0, positions[0])
+    if line_start < 0:
+        raise ValueError(f"root_entry_span_missing:{unit_id}")
+    start = line_start + 4
+    row, relative_end = json.JSONDecoder().raw_decode(text[start:])
+    if not isinstance(row, Mapping) or row.get("unit_id") != unit_id:
+        raise ValueError(f"root_entry_span_mismatch:{unit_id}")
+    return start, start + relative_end, row
+
+
+def _c11b_query_memory_transition_text(text: str) -> str:
+    """Surgically produce C11b's exact owner-bound query-memory transition."""
+    start, end, source = _json_entry_object_span(
+        text, C11B_QUERY_MEMORY_ROOT_ID
+    )
+    successor = source.get("successor")
+    if (
+        source.get("strangle_status") == "strangled"
+        and source.get("rationale") == C11B_QUERY_MEMORY_RATIONALE
+        and isinstance(successor, Mapping)
+        and successor.get("unit_id") == C11B_QUERY_MEMORY_SUCCESSOR_ID
+        and successor.get("consumer_refs") == C11B_QUERY_MEMORY_SUCCESSOR_REFS
+    ):
+        errors: list[str] = []
+        _validate_c11b_query_memory_root(
+            {C11B_QUERY_MEMORY_ROOT_ID: source}, errors
+        )
+        if errors:
+            raise ValueError(";".join(errors))
+        return text
+
+    pending_fields = {
+        "disposition": "rebind_pending",
+        "strangle_status": "pending",
+        "owner": "team-architecture",
+        "owner_slice": "DS5",
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": C11B_QUERY_MEMORY_PENDING_RATIONALE,
+    }
+    if any(source.get(field) != expected for field, expected in pending_fields.items()):
+        raise ValueError("c11b_query_memory_transition_source_drift")
+    if "successor" in source:
+        raise ValueError("c11b_query_memory_transition_source_successor")
+
+    transitioned: dict[str, Any] = {}
+    for field, value in source.items():
+        if field == "strangle_status":
+            value = "strangled"
+        if field == "rationale":
+            transitioned["successor"] = {
+                "unit_id": C11B_QUERY_MEMORY_SUCCESSOR_ID,
+                "consumer_refs": C11B_QUERY_MEMORY_SUCCESSOR_REFS,
+            }
+            value = C11B_QUERY_MEMORY_RATIONALE
+        transitioned[field] = value
+    errors = []
+    _validate_c11b_query_memory_root(
+        {C11B_QUERY_MEMORY_ROOT_ID: transitioned}, errors
+    )
+    if errors:
+        raise ValueError(";".join(errors))
+    replacement = json.dumps(transitioned, indent=2, ensure_ascii=False).replace(
+        "\n", "\n    "
+    )
+    return text[:start] + replacement + text[end:]
 
 C23_ROOT_IDS = frozenset(
     {
@@ -1491,8 +5623,69 @@ C23_RATIONALE = (
     "emit unavailable until DS16 provides producer-signed fields or registered typed refusal."
 )
 
+C17B_SCOPED_ENVELOPE_OWNER = (
+    "apps/runtime-dashboard/src/app/offline/authorityLocalState.ts"
+)
+C17B_REGISTERED_CODEC_BY_OWNER = {
+    C17B_SCOPED_ENVELOPE_OWNER: "authority-local-state-envelope-v1",
+    "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts": (
+        "composer-draft-v1"
+    ),
+    "apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts": (
+        "clerk-chat-sessions-v1"
+    ),
+    "apps/runtime-dashboard/src/features/runs/domain/disputes.ts": (
+        "dispute-topology-v1"
+    ),
+    "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts": (
+        "operator-craft-family-codecs-v1"
+    ),
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx": (
+        "causal-draft-v1"
+    ),
+}
+C17B_BENIGN_REASON_BY_OWNER = {
+    "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx": "ui_preference",
+    "apps/runtime-dashboard/src/app/providers/ThemeProvider.tsx": "theme",
+    "apps/runtime-dashboard/src/app/providers/TrustViewProvider.tsx": "ui_preference",
+    "apps/runtime-dashboard/src/app/state/usePreferencesStore.ts": "ui_preference",
+    "apps/runtime-dashboard/src/app/state/useRunsLivePreferenceStore.ts": "ui_preference",
+    "apps/runtime-dashboard/src/features/dashboard/state/useDashboardLayoutStore.ts": (
+        "ui_preference"
+    ),
+    "apps/runtime-dashboard/src/shared/i18n/locale.ts": "locale",
+    "apps/runtime-dashboard/src/shared/lib/featureFlags.ts": (
+        "rollout_exposure_control"
+    ),
+}
+C17B_STORAGE_CLASS_COUNTS = {
+    "interaction_benign": 22,
+    "rollout_cache_pending": 0,
+    "scoped_authority": 14,
+}
+C17B_AUTHORITY_FLOW_LIMITATION = {
+    "direct_construction_provenance": "recomputed",
+    "semantic_class_provenance": "institutionally_supplied",
+    "authority_flow_provenance": "not_established",
+    "authority_flow_scope": (
+        "site-to-owner-instance provider, receiver, key, and payload value flow is "
+        "outside the declaration-resolved direct-construction census"
+    ),
+    "authority_flow_falsifier": (
+        "const storage = provider(); storage.setItem(...) preserves a resolved "
+        "Storage.setItem site while changing the unproved owner-instance flow"
+    ),
+    "authority_flow_required_capability": (
+        "sound whole-program interprocedural data/control-flow with reaching "
+        "definitions and owner-instance identity"
+    ),
+    "authority_flow_capability_status": "absent/unallocated",
+}
+
 EXPECTED_FINDING_IDS = (
-    BASE_EXPECTED_FINDING_IDS | set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
+    BASE_EXPECTED_FINDING_IDS
+    | set(GOVERNED_DEBT_DESCRIPTORS)
+    | set(AUTHORITY_PRESENTATION_DEBT_SPECS)
 )
 
 REPORT_PROJECTION_START = "<!-- BEGIN DS19 REGISTER PROJECTION -->"
@@ -1527,6 +5720,349 @@ def _reference_resolution_error(value: str) -> str | None:
         if line_number < 1 or line_number > line_count:
             return f"reference_line_out_of_bounds:{value}:{line_count}"
     return None
+
+
+def _typescript_identity_reference_errors(references: Sequence[str]) -> list[str]:
+    """Batch-validate every stored C21a identity against one source snapshot."""
+    parsed: list[tuple[str, dict[str, Any]]] = []
+    for reference in references:
+        if "#ts-identity=" not in reference:
+            continue
+        try:
+            path, payload_text = reference.split("#ts-identity=", 1)
+            payload = json.loads(
+                base64.urlsafe_b64decode(payload_text + "=" * (-len(payload_text) % 4))
+            )
+            if (
+                payload["version"] != 1
+                or payload["source_path"] != path
+                or payload["role"] not in _TYPESCRIPT_REFERENCE_ROLES
+            ):
+                raise ValueError
+        except (KeyError, ValueError, UnicodeDecodeError, binascii.Error, json.JSONDecodeError):
+            return ["typescript_reference_identity_invalid"]
+        parsed.append((reference, payload))
+    if not parsed:
+        return []
+    sources = {
+        str(payload["source_path"]): (REPO_ROOT / str(payload["source_path"])).read_text(encoding="utf-8")
+        for _reference, payload in parsed
+    }
+    requests = [
+        {
+            "sourcePath": payload["source_path"],
+            "role": payload["role"],
+            "discriminator": payload["discriminator"],
+        }
+        for _reference, payload in parsed
+    ]
+    errors: list[str] = []
+    for reference, payload, facts in zip(
+        (reference for reference, _payload in parsed),
+        (payload for _reference, payload in parsed),
+        _typescript_reference_construct_facts_batch(sources, requests),
+        strict=True,
+    ):
+        error = _typescript_reference_match_error(payload, facts)
+        if error is not None:
+            errors.append(f"{error}:{reference}")
+    return errors
+
+
+def _structured_identity_reference_errors(references: Sequence[str]) -> list[str]:
+    """Validate every stored C21c selector identity against its live document."""
+    errors: list[str] = []
+    for reference in references:
+        if "#structured-identity=" not in reference:
+            continue
+        path_prefix = reference.split("#structured-identity=", 1)[0]
+        if not _is_canonical_repo_relative_source_path(path_prefix):
+            errors.append(f"structured_reference_source_path_invalid:{reference}")
+            continue
+        path = REPO_ROOT / path_prefix
+        sources = (
+            {path_prefix: path.read_text(encoding="utf-8")}
+            if path.is_file()
+            else {}
+        )
+        errors.extend(
+            f"{error}:{reference}"
+            for error in _validate_structured_reference_identity(
+                {"encoded_identity": reference}, sources
+            )
+        )
+    return errors
+
+
+_C21B_DESCRIPTOR_HINTS = {
+    "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865": ("exported_declaration", "RunSummary"),
+    "packages/runtime-api-client/types.ts:9240": ("type_property", "components.RunSummary"),
+    "packages/runtime-api-client/types.ts:9258": ("type_property", "components.finished_at"),
+    "packages/runtime-api-client/types.ts:9284": ("type_property", "components.status"),
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103": ("exported_declaration", "depthNCycleBoardProjectionQueryOptions"),
+    "packages/runtime-api-client/types.ts:2411": ("type_property", "components.AuthMeResponse"),
+    "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42": ("named_declaration", "fetchAuthMe"),
+    "apps/runtime-dashboard/src/api/queryKeys.ts:11": ("variable_declaration", "queryKeys"),
+    "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15": ("exported_declaration", "ComposerDraftRecord"),
+    "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts:13": (
+        "exported_declaration",
+        "deleteComposerDraftRecord",
+    ),
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301": ("named_declaration", "writeStoredCausalDraft"),
+    "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109": ("exported_declaration", "writeStoredDisputes"),
+    "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444": ("exported_declaration", "setReviewerThreshold"),
+    "packages/runtime-api-client/types.ts:2430": ("type_property", "components.permissions"),
+    "apps/runtime-dashboard/src/api/types.ts:2323": ("type_property", "components.permissions"),
+}
+
+
+def _c21c_structured_identity_literals() -> dict[str, str]:
+    """Return the five live C21c identities; line hints are migration-only."""
+    identities: dict[str, str] = {}
+    for reference, (
+        format_adapter,
+        selector,
+        _value_sha256,
+    ) in _C21C_STRUCTURED_HINTS.items():
+        source_path, _line = reference.rsplit(":", 1)
+        source = (REPO_ROOT / source_path).read_text(encoding="utf-8")
+        identity = _structured_reference_identity(
+            {source_path: source},
+            source_path=source_path,
+            format_adapter=format_adapter,
+            selector=selector,
+        )
+        if identity["encoded_identity"] != _C21C_FROZEN_STRUCTURED_IDENTITIES[reference]:
+            raise ValueError(f"c21c_structured_source_drift:{reference}")
+        identities[reference] = identity["encoded_identity"]
+    return identities
+
+
+def _c21b_descriptor_identity_literals() -> dict[str, str]:
+    """Return the 15 static descriptor identities; line hints are creation-only."""
+    anchors = []
+    for reference, (role, discriminator) in _C21B_DESCRIPTOR_HINTS.items():
+        path, line = reference.rsplit(":", 1)
+        anchors.append({"path": path, "line": int(line), "role": role, "discriminator": discriminator})
+    identities = _typescript_reference_identities_from_anchors(anchors)
+    return {reference: identity["encoded_identity"] for reference, identity in zip(_C21B_DESCRIPTOR_HINTS, identities, strict=True)}
+
+
+def _c21b_identity_anchor(reference: str) -> dict[str, Any] | None:
+    """Return the explicit direct-syntax role for a gated TypeScript reference."""
+    if reference in _C21B_DESCRIPTOR_HINTS:
+        role, discriminator = _C21B_DESCRIPTOR_HINTS[reference]
+        path, line = reference.rsplit(":", 1)
+        return {"path": path, "line": int(line), "role": role, "discriminator": discriminator}
+    match = re.match(r"^(.*?):(\d+)$", reference)
+    if not match or Path(match.group(1)).suffix not in {".ts", ".tsx"}:
+        return None
+    source_line = (REPO_ROOT / match.group(1)).read_text(encoding="utf-8").splitlines()[
+        int(match.group(2)) - 1
+    ]
+    route_match = re.search(
+        r'["\'](/?public/decisions/:signedId)["\']', source_line
+    )
+    if route_match:
+        role, discriminator = "string_literal", route_match.group(1)
+    elif re.search(r"\bexport\s+(?:async\s+)?function\s+(?:build|verify)SignedPublicDecisionPacket\b", source_line):
+        role, discriminator = "exported_declaration", re.search(r"(?:build|verify)SignedPublicDecisionPacket", source_line).group(0)
+    elif "buildSignedPublicDecisionPacket" in source_line:
+        role, discriminator = "call_expression", "buildSignedPublicDecisionPacket"
+    elif "verifySignedPublicDecisionPacket" in source_line:
+        role, discriminator = "call_expression", "verifySignedPublicDecisionPacket"
+    else:
+        return None
+    return {"path": match.group(1), "line": int(match.group(2)), "role": role, "discriminator": discriminator}
+
+
+def _c21b_surgical_identity_text(text: str) -> str:
+    """Replace only gated observed/evidence reference string spans, backwards."""
+    data = json.loads(text)
+    identity_counts_before = (
+        sum(
+            "#ts-identity=" in ref
+            for census in data["reference_censuses"]
+            for probe in census["probes"]
+            for ref in probe["observed_refs"]
+        ),
+        sum(
+            "#ts-identity=" in ref
+            for finding in data["supplemental_findings"]
+            if "authority_sink" in finding
+            for ref in finding["evidence_refs"]
+        ),
+        sum(
+            "#ts-identity=" in ref
+            for finding in data["supplemental_findings"]
+            if "authority_sink" not in finding
+            for ref in finding["evidence_refs"]
+        ),
+    )
+    migration_counts = [0, 0, 0]
+    anchors: list[dict[str, Any]] = []
+    references: list[str] = []
+    for census in data["reference_censuses"]:
+        for probe in census["probes"]:
+            for reference in probe["observed_refs"]:
+                anchor = _c21b_identity_anchor(reference)
+                if anchor:
+                    anchors.append(anchor)
+                    references.append(reference)
+                    migration_counts[0] += 1
+    for finding in data["supplemental_findings"]:
+        if "authority_sink" in finding:
+            sink = finding["authority_sink"]
+            component = sink["component_declaration"]
+            authority_anchors = {
+                f"{component['path']}:{component['line']}": {
+                    "path": component["path"], "line": component["line"], "role": "named_declaration", "discriminator": sink["component"]
+                }
+            }
+            consumer_role = "jsx_attribute" if sink["sink_kind"] == "prop_boundary" else "jsx_opening"
+            for site in sink["consumer_sites"]:
+                authority_anchors[f"{site['path']}:{site['line']}"] = {
+                    "path": site["path"], "line": site["line"], "role": consumer_role,
+                    "discriminator": sink.get("prop", "Badge") if consumer_role == "jsx_attribute" else "Badge",
+                }
+            for reference in finding["evidence_refs"]:
+                anchor = authority_anchors.get(reference)
+                if anchor:
+                    anchors.append(anchor)
+                    references.append(reference)
+                    migration_counts[1] += 1
+            continue
+        for reference in finding["evidence_refs"]:
+            anchor = _c21b_identity_anchor(reference)
+            if anchor:
+                anchors.append(anchor)
+                references.append(reference)
+                migration_counts[2] += 1
+    identities = _typescript_reference_identities_from_anchors(anchors)
+    replacements = {
+        reference: identity["encoded_identity"]
+        for reference, identity in zip(references, identities, strict=True)
+    }
+    expected_occurrences = Counter(references)
+    replacements_at: list[tuple[int, int, str]] = []
+    for reference, identity in replacements.items():
+        needle = json.dumps(reference, ensure_ascii=False)
+        positions = [match.start() for match in re.finditer(re.escape(needle), text)]
+        if len(positions) != expected_occurrences[reference]:
+            raise ValueError(f"c21b_surgical_reference_span_ambiguous:{reference}")
+        replacements_at.extend(
+            (position, position + len(needle), json.dumps(identity, ensure_ascii=False))
+            for position in positions
+        )
+    migrated = text
+    for start, end, replacement in sorted(replacements_at, reverse=True):
+        migrated = migrated[:start] + replacement + migrated[end:]
+    migrated_data = json.loads(migrated)
+    observed = [
+        ref
+        for census in migrated_data["reference_censuses"]
+        for probe in census["probes"]
+        for ref in probe["observed_refs"]
+        if "#ts-identity=" in ref
+    ]
+    authority = [
+        ref
+        for finding in migrated_data["supplemental_findings"]
+        if "authority_sink" in finding
+        for ref in finding["evidence_refs"]
+        if "#ts-identity=" in ref
+    ]
+    descriptors = [
+        ref
+        for finding in migrated_data["supplemental_findings"]
+        if "authority_sink" not in finding
+        for ref in finding["evidence_refs"]
+        if "#ts-identity=" in ref
+    ]
+    expected_partition = tuple(
+        existing + migrated
+        for existing, migrated in zip(
+            identity_counts_before, migration_counts, strict=True
+        )
+    )
+    if (len(observed), len(authority), len(descriptors)) != expected_partition:
+        raise ValueError("c21b_identity_partition_drift")
+    return migrated
+
+
+def _c21c_surgical_identity_text(text: str) -> str:
+    """Refresh only governed descriptors and prove the C21c residual partition."""
+    if _c21c_structured_identity_literals() != _C21C_FROZEN_STRUCTURED_IDENTITIES:
+        raise ValueError("c21c_frozen_structured_identity_drift")
+    migrated = _refresh_supplemental_findings_text(text)
+    data = json.loads(migrated)
+    references = [
+        reference
+        for finding in data["supplemental_findings"]
+        for reference in finding["evidence_refs"]
+    ]
+    references.extend(
+        reference
+        for census in data["reference_censuses"]
+        for probe in census["probes"]
+        for reference in probe["observed_refs"]
+    )
+    structured = [
+        reference
+        for reference in references
+        if "#structured-identity=" in reference
+    ]
+    if len(structured) != 5 or set(structured) != set(
+        _C21C_FROZEN_STRUCTURED_IDENTITIES.values()
+    ):
+        raise ValueError("c21c_structured_identity_partition_drift")
+    if any(reference in references for reference in _C21C_STRUCTURED_HINTS):
+        raise ValueError("c21c_legacy_structured_line_reference")
+    line_reference_re = re.compile(r"^(.*?):\d+(?::\d+)?$")
+    line_references = [
+        reference for reference in references if line_reference_re.match(reference)
+    ]
+    if len(line_references) != 14 or len(
+        {
+            line_reference_re.match(reference).group(1)
+            for reference in line_references
+        }
+    ) != 11:
+        raise ValueError("c21c_navigation_residual_drift")
+    if any(
+        Path(line_reference_re.match(reference).group(1)).suffix
+        in {".json", ".toml"}
+        for reference in line_references
+    ):
+        raise ValueError("c21c_structured_line_reference_residual")
+    return migrated
+
+
+def _probe_observation_matches_stored_mode(
+    stored: Sequence[str], observed: Sequence[str]
+) -> tuple[bool | None, str | None]:
+    """Compare a live probe with its committed legacy or C21d identity mode."""
+    identity_flags = ["#ts-identity=" in reference for reference in stored]
+    if not any(identity_flags):
+        return list(observed) == list(stored), None
+    if not all(identity_flags):
+        return None, "census_identity_mode_mixed"
+    anchors = []
+    for reference in observed:
+        anchor = _c21b_identity_anchor(reference)
+        if anchor is None:
+            return None, f"census_identity_observation_unmappable:{reference}"
+        anchors.append(anchor)
+    try:
+        stored_identities = [
+            _typescript_reference_identity_record(reference) for reference in stored
+        ]
+        observed_identities = _typescript_reference_identities_from_anchors(anchors)
+    except ValueError as exc:
+        return None, str(exc)
+    stored_keys = Counter(_typescript_reference_hybrid_keys(stored_identities))
+    observed_keys = Counter(_typescript_reference_hybrid_keys(observed_identities))
+    return observed_keys == stored_keys, None
 
 
 def _ds2_links(
@@ -1600,6 +6136,63 @@ def _reference_matches(targets: Sequence[str], scan_roots: Sequence[str]) -> lis
     return sorted(matches)
 
 
+def _typescript_import_matches(
+    targets: Sequence[str],
+    scan_roots: Sequence[str],
+    *,
+    sources: Mapping[str, str] | None = None,
+) -> list[str]:
+    """Return AST imports/re-exports whose module resolves or spells a target."""
+    if sources is None:
+        sources = {}
+        for path in _iter_scan_files(scan_roots):
+            if path.suffix not in {".cts", ".mts", ".ts", ".tsx"}:
+                continue
+            try:
+                sources[path.relative_to(REPO_ROOT).as_posix()] = path.read_text(
+                    encoding="utf-8"
+                )
+            except (UnicodeDecodeError, OSError):
+                continue
+    def module_stem(value: str) -> str:
+        normalized = posixpath.normpath(value.replace("\\", "/"))
+        return re.sub(r"\.(?:d\.)?[cm]?[jt]sx?$", "", normalized)
+
+    target_forms: set[str] = set()
+    for target in targets:
+        without_suffix = module_stem(target)
+        target_forms.add(without_suffix)
+        dashboard_prefix = "apps/runtime-dashboard/src/"
+        if without_suffix.startswith(dashboard_prefix):
+            target_forms.add(without_suffix[len(dashboard_prefix) :])
+
+    matches: set[str] = set()
+    for fact in _typescript_module_facts(sources):
+        if fact.get("kind") not in {"dynamic", "export", "import_declaration"}:
+            continue
+        module = str(fact.get("module", "")).replace("\\", "/")
+        importer = str(fact.get("path", "")).replace("\\", "/")
+        resolved = fact.get("resolved_module")
+        candidates: set[str] = set()
+        if isinstance(resolved, str) and resolved:
+            candidates.add(module_stem(resolved))
+        if module.startswith("@/"):
+            candidates.add(
+                module_stem(
+                    "apps/runtime-dashboard/src/" + module.removeprefix("@/")
+                )
+            )
+        elif module.startswith("."):
+            candidates.add(
+                module_stem(
+                    posixpath.join(posixpath.dirname(importer), module)
+                )
+            )
+        if candidates & target_forms:
+            matches.add(f"{fact['path']}:{fact['line']}")
+    return sorted(matches)
+
+
 def _recompute_probe(probe: Mapping[str, Any]) -> list[str]:
     if probe["kind"] == "path_absent":
         return sorted(target for target in probe["targets"] if (REPO_ROOT / target).exists())
@@ -1608,6 +6201,8 @@ def _recompute_probe(probe: Mapping[str, Any]) -> list[str]:
     if probe["kind"] == "typescript_symbol_consumer_census":
         sources = _typescript_production_sources(probe["scan_roots"])
         return _ui_primitive_consumers_from_sources(sources)
+    if probe["kind"] == "typescript_import_census":
+        return _typescript_import_matches(probe["targets"], probe["scan_roots"])
     return _reference_matches(probe["targets"], probe["scan_roots"])
 
 
@@ -1832,15 +6427,10 @@ def _supplemental_findings() -> list[dict[str, Any]]:
         }
     )
     findings.extend(
-        {
-            "finding_id": finding_id,
-            **copy.deepcopy(descriptor),
-            "decision_date": DECISION_DATE,
-        }
-        for finding_id, descriptor in sorted(
-            PRODUCER_BINDING_DEBT_DESCRIPTORS.items()
-        )
+        copy.deepcopy(descriptor)
+        for _finding_id, descriptor in sorted(GOVERNED_DEBT_DESCRIPTORS.items())
     )
+    findings.extend(copy.deepcopy(row) for row in _authority_presentation_rows())
     return findings
 
 
@@ -1918,6 +6508,38 @@ def _supplemental_section(
     )
 
 
+def _surgical_supplemental_finding_ids(text: str) -> set[str]:
+    """Return descriptor rows and unsupported producer rows owned by refresh."""
+    descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS) | set(
+        AUTHORITY_PRESENTATION_DEBT_SPECS
+    )
+    _start, _end, spans = _supplemental_section_spans(text)
+    for finding_id, object_start, object_end in spans:
+        row = json.loads(text[object_start : object_end + 1])
+        if (
+            row.get("finding_kind") == "producer_binding_debt"
+            and finding_id not in descriptor_ids
+        ):
+            descriptor_ids.add(finding_id)
+    return descriptor_ids
+
+
+def _remove_supplemental_finding_text(text: str, finding_id: str) -> str:
+    """Remove one refresh-owned supplemental object without rewriting neighbors."""
+    _start, _end, spans = _supplemental_section_spans(text)
+    for index, (candidate_id, object_start, object_end) in enumerate(spans):
+        if candidate_id != finding_id:
+            continue
+        if index + 1 < len(spans):
+            next_start = spans[index + 1][1]
+            return text[:object_start] + text[next_start:]
+        if index:
+            previous_end = spans[index - 1][2]
+            return text[: previous_end + 1] + text[object_end + 1 :]
+        return text[:object_start] + text[object_end + 1 :]
+    return text
+
+
 def _render_supplemental_finding(row: Mapping[str, Any]) -> str:
     rendered = json.dumps(row, indent=2, ensure_ascii=False)
     lines = rendered.splitlines()
@@ -1926,18 +6548,29 @@ def _render_supplemental_finding(row: Mapping[str, Any]) -> str:
 
 def _refresh_supplemental_findings_text(text: str) -> str:
     """Upsert descriptor rows while preserving every other register byte."""
-    descriptor_ids = set(PRODUCER_BINDING_DEBT_DESCRIPTORS)
+    descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS) | set(AUTHORITY_PRESENTATION_DEBT_SPECS)
     generated = {
         row["finding_id"]: row
         for row in _supplemental_findings()
         if row["finding_id"] in descriptor_ids
     }
-    _start, _end, spans = _supplemental_section_spans(text)
-    seen: set[str] = set()
+    refresh_owned_ids = _surgical_supplemental_finding_ids(text)
     refreshed = text
+    for finding_id in sorted(refresh_owned_ids - descriptor_ids):
+        refreshed = _remove_supplemental_finding_text(refreshed, finding_id)
+
+    _start, _end, spans = _supplemental_section_spans(refreshed)
+    seen: set[str] = set()
     for finding_id, object_start, object_end in reversed(spans):
         if finding_id not in generated:
             continue
+        if finding_id in AUTHORITY_PRESENTATION_DEBT_SPECS:
+            stored = json.loads(refreshed[object_start : object_end + 1])
+            if _authority_row_semantic_value(stored) == _authority_row_semantic_value(
+                generated[finding_id]
+            ):
+                seen.add(finding_id)
+                continue
         replacement = _render_supplemental_finding(generated[finding_id])
         refreshed = (
             refreshed[:object_start]
@@ -1965,6 +6598,32 @@ def _refresh_supplemental_findings_text(text: str) -> str:
     if insertion_at > end:
         raise ValueError("supplemental insertion escaped its array")
     return refreshed[:insertion_at] + insertion + refreshed[insertion_at:]
+
+
+def _raw_transport_writer_preservation_errors(
+    original_text: str, candidate_text: str
+) -> list[str]:
+    """Return byte-preservation failures for the surgical supplemental writer."""
+    original_start, original_end, original_rows = _supplemental_section(original_text)
+    candidate_start, candidate_end, candidate_rows = _supplemental_section(candidate_text)
+    errors: list[str] = []
+    if original_text[: original_start + 1] != candidate_text[: candidate_start + 1]:
+        errors.append("raw_transport_writer_prefix_drift")
+    if original_text[original_end:] != candidate_text[candidate_end:]:
+        errors.append("raw_transport_writer_suffix_drift")
+    descriptor_ids = _surgical_supplemental_finding_ids(original_text)
+    original_accepted = [
+        text for finding_id, text in original_rows if finding_id not in descriptor_ids
+    ]
+    candidate_descriptor_ids = _surgical_supplemental_finding_ids(candidate_text)
+    candidate_accepted = [
+        text
+        for finding_id, text in candidate_rows
+        if finding_id not in candidate_descriptor_ids
+    ]
+    if original_accepted != candidate_accepted:
+        errors.append("raw_transport_writer_accepted_row_drift")
+    return errors
 
 
 def _seeded_negatives() -> list[dict[str, Any]]:
@@ -1995,9 +6654,14 @@ def _seeded_negatives() -> list[dict[str, Any]]:
 
 
 def build_seed_register() -> dict[str, Any]:
-    """Build the deterministic DS19 seed from the two source ledgers."""
+    """Build the DS19 seed while preserving explicit storage adjudications."""
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
+    if not REGISTER_PATH.exists():
+        raise ValueError("storage_construction_census_missing")
+    storage_census = _load_json(REGISTER_PATH).get("storage_construction_census")
+    if not isinstance(storage_census, Mapping):
+        raise ValueError("storage_construction_census_missing")
     ds1_ids = {entry["surface_id"] for entry in ds1["entries"]}
     mapped, unbound, mapping_errors = _ds2_links(ds1_ids, ds2)
     if mapping_errors:
@@ -2058,6 +6722,7 @@ def build_seed_register() -> dict[str, Any]:
         "baseline_debt_manifest_ref": "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json",
         "ds2_unbound_adoption_ids": unbound,
         "reference_censuses": [_protected_signing_census()],
+        "storage_construction_census": copy.deepcopy(storage_census),
         "entries": entries,
         "subunits": [
             {
@@ -3377,7 +8042,7 @@ def _validate_producer_binding_debt_findings(
         expected = {
             "finding_id": finding_id,
             **descriptor,
-            "decision_date": DECISION_DATE,
+            "decision_date": descriptor.get("decision_date", DECISION_DATE),
         }
         for field, expected_value in expected.items():
             if row.get(field) != expected_value:
@@ -3390,6 +8055,84 @@ def _validate_producer_binding_debt_findings(
         if finding_id not in descriptor_ids:
             errors.append(
                 "producer_binding_debt_descriptor_missing:" + finding_id
+            )
+
+
+def _validate_raw_transport_drift(
+    data: Mapping[str, Any],
+    errors: list[str],
+    *,
+    sources: Mapping[str, str] | None = None,
+) -> None:
+    """Compare the typed C03a receipt with the bounded live syntax census."""
+    rows = data.get("supplemental_findings", [])
+    if not isinstance(rows, list):
+        return
+    row = next(
+        (
+            item
+            for item in rows
+            if isinstance(item, Mapping)
+            and item.get("finding_id") == RAW_TRANSPORT_DRIFT_FINDING_ID
+        ),
+        None,
+    )
+    if row is None:
+        return
+    receipt = row.get("raw_transport_receipt")
+    if not isinstance(receipt, Mapping):
+        return
+    live_receipt = receipt.get("live_direct_constructor_census")
+    if not isinstance(live_receipt, Mapping):
+        return
+    observed = _direct_transport_census(sources)
+    expected = {
+        "fetch_calls": observed["kind_counts"]["fetch"],
+        "fetch_production_file_count": observed["fetch_production_file_count"],
+        "direct_constructor_count": observed["direct_constructor_count"],
+        "direct_constructor_production_file_count": observed["production_file_count"],
+        "kind_counts": observed["kind_counts"],
+    }
+    if live_receipt != expected:
+        errors.append("raw_transport_live_direct_constructor_census_drift")
+
+
+def _validate_integrate_contract_debt_findings(
+    data: Mapping[str, Any], errors: list[str]
+) -> None:
+    """Bind external-owner integrate debt byte-for-byte to its typed contract."""
+    rows = data.get("supplemental_findings", [])
+    if not isinstance(rows, list):
+        return
+    by_id = {
+        str(row.get("finding_id")): row
+        for row in rows
+        if isinstance(row, Mapping)
+    }
+    integrate_rows = [
+        row
+        for row in rows
+        if isinstance(row, Mapping)
+        and row.get("finding_kind") == "integrate_contract_debt"
+    ]
+    for finding_id, descriptor in INTEGRATE_DEBT_DESCRIPTORS.items():
+        row = by_id.get(finding_id)
+        if row is None:
+            errors.append(
+                f"integrate_contract_debt_drift:{finding_id}:finding_id"
+            )
+            continue
+        for field, expected_value in descriptor.items():
+            if row.get(field) != expected_value:
+                errors.append(
+                    f"integrate_contract_debt_drift:{finding_id}:{field}"
+                )
+    descriptor_ids = set(INTEGRATE_DEBT_DESCRIPTORS)
+    for row in integrate_rows:
+        finding_id = str(row.get("finding_id", "unknown"))
+        if finding_id not in descriptor_ids:
+            errors.append(
+                "integrate_contract_debt_descriptor_missing:" + finding_id
             )
 
 
@@ -3412,20 +8155,194 @@ def _validate_c23_containment_roots(
             errors.append(f"c23_containment_root_drift:{unit_id}")
 
 
+def _validate_c11b_query_memory_root(
+    entries: Mapping[str, Mapping[str, Any]], errors: list[str]
+) -> None:
+    """Bind the generic query root to C12b's owner and C11b's sole live consumer."""
+    entry = entries.get(C11B_QUERY_MEMORY_ROOT_ID, {})
+    expected_fields = {
+        "disposition": "rebind_pending",
+        "strangle_status": "strangled",
+        "owner": "team-architecture",
+        "owner_slice": "DS5",
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": C11B_QUERY_MEMORY_RATIONALE,
+    }
+    for field, expected in expected_fields.items():
+        if entry.get(field) != expected:
+            errors.append(f"c11b_query_memory_root_drift:{field}")
+    successor = entry.get("successor")
+    if not isinstance(successor, Mapping):
+        errors.append("c11b_query_memory_root_drift:successor")
+        return
+    if successor.get("unit_id") != C11B_QUERY_MEMORY_SUCCESSOR_ID:
+        errors.append("c11b_query_memory_root_drift:successor.unit_id")
+    if successor.get("consumer_refs") != C11B_QUERY_MEMORY_SUCCESSOR_REFS:
+        errors.append("c11b_query_memory_root_drift:successor.consumer_refs")
+
+
+def _validate_storage_construction_census(
+    data: Mapping[str, Any], errors: list[str]
+) -> None:
+    """Bind every explicit persistence class to its finite owner contract."""
+    census = data.get("storage_construction_census")
+    if not isinstance(census, Mapping):
+        errors.append("storage_construction_census_missing")
+        return
+    sites = census.get("sites")
+    if not isinstance(sites, list):
+        errors.append("storage_construction_sites_invalid")
+        return
+    if census.get("rows_sha256") != "sha256:" + _canonical_sha256(sites):
+        errors.append("storage_construction_rows_digest_drift")
+    for field, expected in C17B_AUTHORITY_FLOW_LIMITATION.items():
+        if census.get(field) != expected:
+            errors.append(f"storage_construction_authority_flow_limit_drift:{field}")
+    factory_receipts = census.get("authority_factory_receipts")
+    if not isinstance(factory_receipts, list):
+        errors.append("storage_construction_factory_receipts_invalid")
+        factory_receipts = []
+    if census.get("authority_factory_count") != len(factory_receipts):
+        errors.append("storage_construction_factory_count_drift")
+    if census.get("authority_factory_receipts_sha256") != (
+        "sha256:" + _canonical_sha256(factory_receipts)
+    ):
+        errors.append("storage_construction_factory_receipts_digest_drift")
+    factory_ids: list[str] = []
+    for raw_receipt in factory_receipts:
+        if not isinstance(raw_receipt, Mapping):
+            errors.append("storage_construction_factory_receipt_invalid")
+            continue
+        receipt_id = str(raw_receipt.get("factory_site_id", "unknown"))
+        factory_ids.append(receipt_id)
+        factory_path = _path_from_ref(str(raw_receipt.get("path", "")))
+        if not factory_path.is_file():
+            errors.append(f"storage_construction_factory_source_missing:{receipt_id}")
+        elif raw_receipt.get("source_fingerprint") != _sha256(factory_path):
+            errors.append(
+                f"storage_construction_factory_source_fingerprint_drift:{receipt_id}"
+            )
+    duplicate_factory_ids = sorted(
+        receipt_id
+        for receipt_id, count in Counter(factory_ids).items()
+        if count > 1
+    )
+    errors.extend(
+        f"storage_construction_duplicate_factory_id:{receipt_id}"
+        for receipt_id in duplicate_factory_ids
+    )
+    site_ids: list[str] = []
+    classes: Counter[str] = Counter()
+    for raw_row in sites:
+        if not isinstance(raw_row, Mapping):
+            errors.append("storage_construction_row_invalid")
+            continue
+        row = raw_row
+        site_id = str(row.get("site_id", "unknown"))
+        site_ids.append(site_id)
+        classification = str(row.get("classification", "unknown"))
+        classes[classification] += 1
+        path = str(row.get("path", ""))
+        store_owner = str(row.get("store_owner", ""))
+        source_path = _path_from_ref(path)
+        if not source_path.is_file():
+            errors.append(f"storage_construction_source_missing:{site_id}")
+        elif row.get("source_fingerprint") != _sha256(source_path):
+            errors.append(f"storage_construction_source_fingerprint_drift:{site_id}")
+        if not _path_from_ref(store_owner).is_file():
+            errors.append(f"storage_construction_store_owner_missing:{site_id}")
+        if "authority_binding" in row:
+            errors.append(f"storage_construction_retired_authority_binding:{site_id}")
+
+        if classification == "scoped_authority":
+            if row.get("scoped_envelope_owner") != C17B_SCOPED_ENVELOPE_OWNER:
+                errors.append(f"storage_construction_scoped_owner_drift:{site_id}")
+            expected_codec = C17B_REGISTERED_CODEC_BY_OWNER.get(store_owner)
+            if expected_codec is None or row.get("registered_codec_id") != expected_codec:
+                errors.append(f"storage_construction_codec_owner_drift:{site_id}")
+        elif classification == "interaction_benign":
+            expected_reason = C17B_BENIGN_REASON_BY_OWNER.get(store_owner)
+            if store_owner != path or row.get("benign_reason") != expected_reason:
+                errors.append(f"storage_construction_benign_owner_drift:{site_id}")
+            for field in (
+                "capability_states",
+                "closure_signal",
+                "owner_slice",
+                "registered_codec_id",
+                "scoped_envelope_owner",
+            ):
+                if field in row:
+                    errors.append(
+                        f"storage_construction_benign_debt_field:{site_id}:{field}"
+                    )
+        elif classification == "rollout_cache_pending":
+            pass
+        else:
+            errors.append(f"storage_construction_class_invalid:{site_id}")
+
+    duplicates = sorted(
+        site_id for site_id, count in Counter(site_ids).items() if count > 1
+    )
+    errors.extend(
+        f"storage_construction_duplicate_site_id:{site_id}" for site_id in duplicates
+    )
+    observed_class_counts = {
+        classification: classes.get(classification, 0)
+        for classification in C17B_STORAGE_CLASS_COUNTS
+    }
+    if (
+        observed_class_counts != C17B_STORAGE_CLASS_COUNTS
+        or set(classes) - set(C17B_STORAGE_CLASS_COUNTS)
+    ):
+        errors.append("storage_construction_class_distribution_drift")
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
     live_probes: bool = True,
     schema: bool = True,
     report_parity: bool = True,
+    direct_transport_sources: Mapping[str, str] | None = None,
 ) -> list[str]:
     """Return all schema, parity, composition, and live-census failures."""
     errors: list[str] = []
     _validate_producer_binding_debt_findings(data, errors)
+    if live_probes or direct_transport_sources is not None:
+        _validate_raw_transport_drift(
+            data,
+            errors,
+            sources=direct_transport_sources,
+        )
+    _validate_integrate_contract_debt_findings(data, errors)
+    errors.extend(
+        _authority_presentation_errors(data, live_probes=live_probes)
+    )
+    supplemental_rows = data.get("supplemental_findings", [])
+    if isinstance(supplemental_rows, list):
+        supplemental_ids = [
+            str(row.get("finding_id"))
+            for row in supplemental_rows
+            if isinstance(row, Mapping)
+        ]
+        if len(supplemental_ids) != len(set(supplemental_ids)):
+            errors.append("duplicate_supplemental_finding_id")
+        expected_dates = {
+            row["finding_id"]: row["decision_date"]
+            for row in _supplemental_findings()
+        }
+        for row in supplemental_rows:
+            if not isinstance(row, Mapping):
+                continue
+            finding_id = str(row.get("finding_id", "unknown"))
+            expected_date = expected_dates.get(finding_id)
+            if expected_date is not None and row.get("decision_date") != expected_date:
+                errors.append(f"supplemental_decision_date_drift:{finding_id}")
     if schema:
         errors.extend(_schema_errors(data, SCHEMA_PATH))
         if any(error.startswith("schema:") for error in errors):
             return errors
+    _validate_storage_construction_census(data, errors)
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
     ds1_ids = [entry["surface_id"] for entry in ds1["entries"]]
@@ -3535,6 +8452,7 @@ def validate_register(
         errors,
         live_probes=live_probes,
     )
+    _validate_c11b_query_memory_root(entry_by_id, errors)
     _validate_c23_containment_roots(entry_by_id, errors)
     for unit in [*entries, *data["subunits"]]:
         _validate_composition(unit, censuses, errors)
@@ -3543,7 +8461,14 @@ def validate_register(
         for census in data["reference_censuses"]:
             for probe in census["probes"]:
                 observed = _recompute_probe(probe)
-                if observed != probe["observed_refs"]:
+                observation_matches, mode_error = _probe_observation_matches_stored_mode(
+                    probe["observed_refs"], observed
+                )
+                if mode_error:
+                    errors.append(
+                        f"{mode_error}:{census['census_id']}:{probe['kind']}"
+                    )
+                elif not observation_matches:
                     errors.append(f"census_observation_drift:{census['census_id']}:{probe['kind']}")
                 if len(observed) != probe["expected_count"]:
                     errors.append(f"census_expected_count_drift:{census['census_id']}:{probe['kind']}")
@@ -3576,7 +8501,7 @@ def validate_register(
         stored_targets = {
             target
             for probe in probes
-            if probe["kind"] == "reference_count"
+            if probe["kind"] in {"reference_count", "typescript_import_census"}
             for target in probe["targets"]
         }
         if not set(proof["paths"]) <= stored_paths:
@@ -3674,6 +8599,12 @@ def validate_register(
         for finding in data["supplemental_findings"]
         for ref in finding["evidence_refs"]
     )
+    references.extend(
+        ref
+        for census in data["reference_censuses"]
+        for probe in census["probes"]
+        for ref in probe["observed_refs"]
+    )
     references.extend(row["source_ref"] for row in data["seeded_negative_lifecycle"])
     references.extend(
         ref
@@ -3684,6 +8615,8 @@ def validate_register(
         issue = _reference_resolution_error(reference)
         if issue:
             errors.append(issue)
+    errors.extend(_typescript_identity_reference_errors(references))
+    errors.extend(_structured_identity_reference_errors(references))
     if report_parity:
         errors.extend(_report_projection_errors(data))
     return errors
@@ -3897,6 +8830,13 @@ def _baseline_corruption_probes(baseline: Mapping[str, Any]) -> list[str]:
 def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     probes: list[tuple[str, dict[str, Any]]] = []
 
+    def corrupt_value(value: Any) -> Any:
+        if isinstance(value, list):
+            return list(reversed(value)) if len(value) > 1 else []
+        if isinstance(value, dict):
+            return {"corrupt": True}
+        return str(value) + "-corrupt"
+
     missing_root = copy.deepcopy(data)
     missing_root["entries"].pop()
     probes.append(("missing-root", missing_root))
@@ -3984,6 +8924,26 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     responsive["rationale"] = "C17 proves responsive readiness."
     probes.append(("ui-responsive-use-as-is-rationale-drift", c17_rationale_drift))
 
+    storage_fingerprint_drift = copy.deepcopy(data)
+    storage_fingerprint_drift["storage_construction_census"]["sites"][0][
+        "source_fingerprint"
+    ] = "sha256:" + "0" * 64
+    probes.append(
+        ("storage-construction-source-fingerprint-drift", storage_fingerprint_drift)
+    )
+
+    storage_class_drift = copy.deepcopy(data)
+    storage_site = next(
+        row
+        for row in storage_class_drift["storage_construction_census"]["sites"]
+        if row["classification"] == "scoped_authority"
+    )
+    storage_site["classification"] = "interaction_benign"
+    storage_site["benign_reason"] = "ui_preference"
+    storage_site.pop("scoped_envelope_owner")
+    storage_site.pop("registered_codec_id")
+    probes.append(("storage-construction-class-retag", storage_class_drift))
+
     for finding_id, descriptor in PRODUCER_BINDING_DEBT_DESCRIPTORS.items():
         governed_fields = ("finding_id", *descriptor)
         for field in governed_fields:
@@ -3994,18 +8954,146 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
                 if item["finding_id"] == finding_id
             )
             value = row[field]
-            if isinstance(value, list):
-                row[field] = list(reversed(value))
-            else:
-                row[field] = str(value) + "-corrupt"
+            row[field] = corrupt_value(value)
             probes.append(
                 (f"producer-binding-debt-{finding_id}-{field}", mutation)
             )
 
-    failures = []
+    failures: list[str] = []
+    direct_sources = _typescript_production_sources(RAW_TRANSPORT_SCAN_ROOTS)
+    benign_sources = {
+        **direct_sources,
+        "apps/runtime-dashboard/src/shared/lib/directTransportControl.ts": (
+            "const control = { fetch: () => undefined };\nvoid control.fetch();\n"
+        ),
+    }
+    if validate_register(
+        data,
+        live_probes=False,
+        report_parity=False,
+        direct_transport_sources=benign_sources,
+    ):
+        failures.append("raw-transport-benign-member-call-counted")
+    for name, sources in (
+        (
+            "raw-transport-direct-constructor-added",
+            {
+                **direct_sources,
+                "apps/runtime-dashboard/src/shared/lib/directTransportAdded.ts": (
+                    'void fetch("/probe");\n'
+                ),
+            },
+        ),
+        (
+            "raw-transport-direct-constructor-removed",
+            {
+                path: source.replace(
+                    "void fetch(TELEMETRY_ENDPOINT, {", "void send(TELEMETRY_ENDPOINT, {"
+                )
+                if path == "apps/runtime-dashboard/src/shared/telemetry/pipeline.ts"
+                else source
+                for path, source in direct_sources.items()
+            },
+        ),
+        (
+            "raw-transport-direct-constructor-reclassified",
+            {
+                path: source.replace("new EventSource(", "new WebSocket(")
+                if path == "apps/runtime-dashboard/src/app/realtime/sseTransport.ts"
+                else source
+                for path, source in direct_sources.items()
+            },
+        ),
+    ):
+        if not validate_register(
+            data,
+            live_probes=False,
+            report_parity=False,
+            direct_transport_sources=sources,
+        ):
+            failures.append(name)
+
+    for finding_id, descriptor in INTEGRATE_DEBT_DESCRIPTORS.items():
+        for field in descriptor:
+            mutation = copy.deepcopy(data)
+            row = next(
+                item
+                for item in mutation["supplemental_findings"]
+                if item["finding_id"] == finding_id
+            )
+            value = row[field]
+            row[field] = corrupt_value(value)
+            probes.append(
+                (f"integrate-contract-debt-{finding_id}-{field}", mutation)
+            )
+
+    authority_id = "authority-presentation-prop-control-approval-readiness"
+    missing_authority = copy.deepcopy(data)
+    missing_authority["supplemental_findings"] = [
+        row
+        for row in missing_authority["supplemental_findings"]
+        if row["finding_id"] != authority_id
+    ]
+    probes.append(("authority-presentation-row-removal", missing_authority))
+    for field in ("owner_slice", "capability_states", "closure_signal"):
+        mutation = copy.deepcopy(data)
+        row = next(
+            item
+            for item in mutation["supplemental_findings"]
+            if item["finding_id"] == authority_id
+        )
+        row[field] = corrupt_value(row[field])
+        probes.append((f"authority-presentation-{field}-drift", mutation))
+    moved_authority_site = copy.deepcopy(data)
+    row = next(
+        item
+        for item in moved_authority_site["supplemental_findings"]
+        if item["finding_id"] == authority_id
+    )
+    row["authority_sink"]["consumer_sites"][0]["site_sha256"] = (
+        "sha256:" + "0" * 64
+    )
+    probes.append(("authority-presentation-site-hash-drift", moved_authority_site))
+
+    duplicate_finding = copy.deepcopy(data)
+    duplicate_finding["supplemental_findings"].append(
+        copy.deepcopy(duplicate_finding["supplemental_findings"][0])
+    )
+    probes.append(("duplicate-supplemental-finding", duplicate_finding))
+
+    old_row_restamp = copy.deepcopy(data)
+    old_row_restamp["supplemental_findings"][0]["decision_date"] = (
+        DS5_C01A_DECISION_DATE
+    )
+    probes.append(("accepted-history-decision-date-restamp", old_row_restamp))
+
+    new_row_backdate = copy.deepcopy(data)
+    row = next(
+        item
+        for item in new_row_backdate["supplemental_findings"]
+        if item["finding_id"] == authority_id
+    )
+    row["decision_date"] = DECISION_DATE
+    probes.append(("authority-presentation-decision-date-backdate", new_row_backdate))
+
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
             failures.append(name)
+
+    authority_scan = _authority_presentation_scan()
+    reclassified = dict(AUTHORITY_BADGE_CLASSIFICATIONS)
+    debt_location = next(
+        location
+        for location, classification in reclassified.items()
+        if classification.startswith("debt:")
+    )
+    reclassified[debt_location] = "benign:interaction_state"
+    if not _badge_classification_errors(authority_scan, reclassified):
+        failures.append("authority-badge-reclassification")
+    unclassified = dict(AUTHORITY_BADGE_CLASSIFICATIONS)
+    unclassified.pop(next(iter(unclassified)))
+    if not _badge_classification_errors(authority_scan, unclassified):
+        failures.append("authority-badge-unclassified-site")
 
     retained = {
         name
@@ -4280,12 +9368,76 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             f"| `{unit_id}` | `{row['disposition']}` | `{row['decision_detail']['consumer_slice']}` | {row['decision_detail']['rationale']} |"
         )
 
+    persistence_census = data["storage_construction_census"]
+    persistence_sites = persistence_census["sites"]
+    persistence_counts = Counter(row["classification"] for row in persistence_sites)
+    lines.extend(
+        [
+            "",
+            "### Persistence construction census",
+            "",
+            (
+                f"Declaration-resolved production denominator: "
+                f"**{persistence_census['production_source_count']} TS/TSX sources**, "
+                f"**{persistence_census['site_count']} sites / "
+                f"{persistence_census['production_file_count']} files**. "
+                f"Classes: **{persistence_counts['scoped_authority']} scoped authority**, "
+                f"**{persistence_counts['interaction_benign']} interaction benign**, "
+                f"**{persistence_counts['rollout_cache_pending']} rollout cache pending**; "
+                f"**{persistence_census['authority_factory_count']} independently "
+                "content-bound authority factory declarations**. Direct construction "
+                f"facts are `{persistence_census['direct_construction_provenance']}`; "
+                "semantic classes are "
+                f"`{persistence_census['semantic_class_provenance']}`; exact "
+                "site-to-owner-instance flow is "
+                f"`{persistence_census['authority_flow_provenance']}`."
+            ),
+            "",
+            (
+                "Declared bounded residual: "
+                f"{persistence_census['authority_flow_scope']}. Falsifier: "
+                f"`{persistence_census['authority_flow_falsifier']}`. Closing it "
+                "requires "
+                f"{persistence_census['authority_flow_required_capability']}; "
+                "repository capability status: "
+                f"`{persistence_census['authority_flow_capability_status']}`."
+            ),
+            "",
+            "| Site | Declared adjudication | Resolved API / operation | Store owner | Source | Fingerprints | Posture |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for row in persistence_sites:
+        if row["classification"] == "scoped_authority":
+            posture = (
+                f"`{row['scoped_envelope_owner']}` / "
+                f"`{row['registered_codec_id']}`; "
+                "authority flow `not_established`"
+            )
+        elif row["classification"] == "interaction_benign":
+            posture = f"`{row['benign_reason']}`"
+        else:
+            states = ", ".join(
+                f"`{state}`" for state in row["capability_states"]
+            )
+            posture = (
+                f"`{row['owner_slice']}`; {states}; {row['closure_signal']}"
+            )
+        lines.append(
+            f"| `{row['site_id']}` | `{row['classification']}` | "
+            f"`{row['resolved_api_declaration']}` / `{row['operation']}` | "
+            f"`{row['store_owner']}` | `{row['path']}` | "
+            f"`{row['source_fingerprint'][7:19]}` / "
+            f"`{row['site_fingerprint'][7:19]}` | {posture} |"
+        )
+
     lines.extend(
         [
             "",
             "### Subunits and structural findings",
             "",
-            "| ID | Kind | Disposition | Owner slice | Capability states | Closure signal | State/reason |",
+            "| ID | Kind | Disposition | Owner slice/team | Capability states | "
+            "Closure signal | State/reason |",
             "| --- | --- | --- | --- | --- | --- | --- |",
         ]
     )
@@ -4301,8 +9453,12 @@ def _report_projection(data: Mapping[str, Any]) -> str:
             else "—"
         )
         closure_projection = row.get("closure_signal", "—")
+        owner_projection = row.get("owner_team", row["owner_slice"])
         lines.append(
-            f"| `{row['finding_id']}` | `{row['finding_kind']}` | `{row['disposition']}` | `{row['owner_slice']}` | {capability_projection} | {closure_projection} | `{row['status']}` — {row['rationale']} |"
+            f"| `{row['finding_id']}` | `{row['finding_kind']}` | "
+            f"`{row['disposition']}` | `{owner_projection}` | "
+            f"{capability_projection} | {closure_projection} | "
+            f"`{row['status']}` — {row['rationale']} |"
         )
 
     lines.extend(
@@ -4391,6 +9547,7 @@ def render_report(data: Mapping[str, Any]) -> str:
     baseline = _load_json(BASELINE_PATH)
     added, deleted, deleted_files = _application_reduction()
     projection = _report_projection(data)
+    census_count = len(data["reference_censuses"])
     commit_lines = "\n".join(f"- `{line}`" for line in _recent_commits())
     return f"""# Atlas DS19 Frontend Disposition Register and Strangle-Wave Report
 
@@ -4472,7 +9629,7 @@ Vitest receipt SHA-256:
 | Vitest | 228 files / 664 tests in 236.92 s; 225 files / 659 tests passed; inherited 3 files / 5 tests failed | failed identity/signature baseline subset PASS |
 | Dashboard architecture | 36 inherited violations; 0 violation files changed since `d01eaa572` | baseline-red, no regression; no fence expansion |
 | Repository guardrails | PASS, 27.05 s under `uv run --isolated` | default worktree `.venv` is invalid; isolated run installed 116 ephemeral packages and changed no repository file |
-| Register/check | schema, 261 DS1 roots, 233 DS2 edges, seven live censuses, report parity, links, source hashes, and corruption probes PASS | disposition authority current |
+| Register/check | schema, 261 DS1 roots, 233 DS2 edges, {census_count} live censuses, report parity, links, source hashes, and corruption probes PASS | disposition authority current |
 | Fence | 55 paths, 0 violations against `main...HEAD`; `git diff --check` PASS | DS19 fence only |
 
 Closure ESLint receipt SHA-256:
@@ -4513,6 +9670,7 @@ def _report_projection_errors(data: Mapping[str, Any]) -> list[str]:
 
 
 def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
+    persistence = data["storage_construction_census"]
     return {
         "root_entries": len(data["entries"]),
         "root_dispositions": dict(sorted(Counter(entry["disposition"] for entry in data["entries"]).items())),
@@ -4520,6 +9678,12 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
         "censuses": len(data["reference_censuses"]),
         "supplemental_findings": len(data["supplemental_findings"]),
         "seeded_negatives": len(data["seeded_negative_lifecycle"]),
+        "storage_construction_classes": dict(
+            sorted(Counter(row["classification"] for row in persistence["sites"]).items())
+        ),
+        "storage_construction_files": persistence["production_file_count"],
+        "storage_construction_sites": persistence["site_count"],
+        "storage_production_sources": persistence["production_source_count"],
     }
 
 
@@ -4531,6 +9695,36 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--write-supplemental",
         action="store_true",
         help="refresh only descriptor-derived supplemental findings in the evolved register",
+    )
+    parser.add_argument(
+        "--write-c11b-query-memory-root",
+        action="store_true",
+        help="surgically produce the exact C11b query-memory root transition",
+    )
+    parser.add_argument(
+        "--migrate-c21b",
+        action="store_true",
+        help="surgically migrate gated TypeScript reference strings to C21a identities",
+    )
+    parser.add_argument(
+        "--migrate-c21c",
+        action="store_true",
+        help="surgically migrate gated JSON/TOML lines to selector identities",
+    )
+    parser.add_argument(
+        "--print-c21b-authority-partition-hashes",
+        action="store_true",
+        help="print live C21b authority partition-hash derivations without writing",
+    )
+    parser.add_argument(
+        "--print-c21b-authority-identity-literals",
+        action="store_true",
+        help="print no-write C21b authority identity maps for static freezing",
+    )
+    parser.add_argument(
+        "--print-c21b-descriptor-identities",
+        action="store_true",
+        help="print no-write full C21a literals for the 15 descriptor bindings",
     )
     parser.add_argument("--write-report", action="store_true", help="regenerate the report projection")
     parser.add_argument("--corruption-probes", action="store_true", help="prove decisive mutations are rejected")
@@ -4556,6 +9750,25 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.print_c21b_authority_partition_hashes:
+        scan = _authority_presentation_scan()
+        for error in [
+            *_badge_classification_errors(scan),
+            *_authority_prop_classification_errors(scan),
+        ]:
+            if "partition_hash_drift:" in error:
+                print(error)
+        return 0
+    if args.print_c21b_authority_identity_literals:
+        print(json.dumps({
+            "badge": AUTHORITY_BADGE_CLASSIFICATIONS,
+            "prop": AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS,
+        }, indent=2, sort_keys=True))
+        return 0
+    if args.print_c21b_descriptor_identities:
+        print(json.dumps(_c21b_descriptor_identity_literals(), indent=2, sort_keys=True))
+        return 0
+
     if args.write_seed:
         seed = build_seed_register()
         REGISTER_PATH.write_text(json.dumps(seed, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
@@ -4565,6 +9778,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"missing register: {REGISTER_PATH}", file=sys.stderr)
         return 1
     register_text = REGISTER_PATH.read_text(encoding="utf-8")
+    if args.write_c11b_query_memory_root:
+        register_text = _c11b_query_memory_transition_text(register_text)
+        REGISTER_PATH.write_text(register_text, encoding="utf-8")
+        print("transitioned cache-query-memory through the C11b owner writer")
     if args.write_supplemental:
         register_text = _refresh_supplemental_findings_text(register_text)
         REGISTER_PATH.write_text(register_text, encoding="utf-8")
@@ -4573,6 +9790,15 @@ def main(argv: Sequence[str] | None = None) -> int:
             + str(REGISTER_PATH.relative_to(REPO_ROOT))
             + " supplemental_findings"
         )
+    if args.migrate_c21b:
+        register_text = _refresh_supplemental_findings_text(register_text)
+        register_text = _c21b_surgical_identity_text(register_text)
+        REGISTER_PATH.write_text(register_text, encoding="utf-8")
+        print("migrated gated TypeScript references to C21a identities")
+    if args.migrate_c21c:
+        register_text = _c21c_surgical_identity_text(register_text)
+        REGISTER_PATH.write_text(register_text, encoding="utf-8")
+        print("migrated gated JSON/TOML references to C21c identities")
     data = json.loads(register_text)
     if args.write_report:
         REPORT_PATH.write_text(render_report(data), encoding="utf-8")

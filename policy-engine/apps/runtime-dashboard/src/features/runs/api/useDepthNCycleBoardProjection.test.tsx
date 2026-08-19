@@ -4,12 +4,16 @@ import type {
   InvalidGovernedProjectionPacket,
   ProjectionSourceIdentity,
 } from "@polisyos/runtime-api-client";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { renderHook, waitFor } from "@testing-library/react";
+import type { ReactNode } from "react";
 
 import { queryKeys } from "@/api/queryKeys";
 
 import {
   depthNCycleBoardProjectionQueryOptions,
   narrowDepthNCycleBoardProjection,
+  useDepthNCycleBoardProjection,
 } from "./useDepthNCycleBoardProjection";
 
 const SOURCE: ProjectionSourceIdentity = {
@@ -181,6 +185,51 @@ describe("depth-N Cycle Board governed projection adapter", () => {
     ]);
     expect(getGovernedProjection).toHaveBeenCalledWith({
       projection_id: "depth-n-cycle-board",
+    });
+  });
+
+  it("emits a live cache observation after fetching an owner packet", async () => {
+    const getGovernedProjection = vi.fn().mockResolvedValue(availablePacket());
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { gcTime: Infinity, retry: false, staleTime: Infinity } },
+    });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(
+      () => useDepthNCycleBoardProjection({ getGovernedProjection }),
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.cacheObservation).toEqual({
+        asOf: "2026-07-29T10:00:00Z",
+        posture: "live",
+      });
+    });
+  });
+
+  it("retains only packets carrying an explicit owner as_of", async () => {
+    const packet = availablePacket();
+    const getGovernedProjection = vi.fn().mockResolvedValue({
+      ...packet,
+      as_of: undefined,
+      freshness: { ...packet.freshness, observed_at: "2026-08-10T10:00:00Z" },
+      source: { ...packet.source, generated_at: "2026-08-10T10:00:00Z" },
+    } as unknown as AvailableGovernedProjectionPacket);
+    const queryClient = new QueryClient({
+      defaultOptions: { queries: { gcTime: Infinity, retry: false } },
+    });
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+    );
+    const { result } = renderHook(
+      () => useDepthNCycleBoardProjection({ getGovernedProjection }),
+      { wrapper },
+    );
+
+    await waitFor(() => {
+      expect(result.current.isError).toBe(true);
     });
   });
 });

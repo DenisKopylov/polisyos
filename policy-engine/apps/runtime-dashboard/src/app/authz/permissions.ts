@@ -1,10 +1,9 @@
+import type { RuntimePermission } from "@polisyos/runtime-api-client";
+
 import type { WorkspaceKey } from "@/app/workspaces";
 import { RUN_DETAIL_TAB_REGISTRY, type RunDetailTab } from "@/features/runs";
 
 export const PERMISSION_KEYS = [
-  "collaboration.comment",
-  "collaboration.share",
-  "collaboration.view",
   "dashboard.view",
   "evidence.promotions.approve",
   "evidence.promotions.reject",
@@ -17,9 +16,9 @@ export const PERMISSION_KEYS = [
   "runs.launch",
   "runs.review",
   "runs.view",
-] as const;
+] as const satisfies readonly RuntimePermission[];
 
-export type PermissionKey = (typeof PERMISSION_KEYS)[number];
+export type PermissionKey = RuntimePermission;
 
 export const WORKSPACE_PERMISSIONS: Partial<
   Record<WorkspaceKey, PermissionKey>

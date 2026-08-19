@@ -8,6 +8,7 @@ import type {
 import {
   AuthorityBadge,
   createOpaqueAuthorityPresentation,
+  createOperatorBlockingCausePresentation,
   createOperatorProjectionPresentation,
 } from "../src/index";
 
@@ -127,17 +128,22 @@ describe("AuthorityBadge", () => {
     expect(badge).toHaveAttribute("data-authority-state", "novel_state");
   });
 
-  it("does not expose caller-selected authority clothing", () => {
-    const presentation = createOpaqueAuthorityPresentation("owner_extension");
-    const compileOnly = () => (
-      <>
-        {/* @ts-expect-error Authority clothing cannot be supplied by class. */}
-        <AuthorityBadge className="text-red-500" presentation={presentation} />
-        {/* @ts-expect-error Authority clothing cannot be supplied by style. */}
-        <AuthorityBadge presentation={presentation} style={{ color: "red" }} />
-      </>
+  it("freezes every issued presentation and derives blocker clothing", () => {
+    const opaque = createOpaqueAuthorityPresentation("owner_extension");
+    const blocker = createOperatorBlockingCausePresentation(DIAGNOSTIC);
+    const projection = createOperatorProjectionPresentation(
+      DIAGNOSTIC,
+      REJECTED_LABEL,
     );
 
-    expect(compileOnly).toBeTypeOf("function");
+    expect(Object.isFrozen(opaque)).toBe(true);
+    expect(Object.isFrozen(blocker)).toBe(true);
+    expect(Object.isFrozen(projection)).toBe(true);
+
+    render(<AuthorityBadge presentation={blocker} />);
+    expect(screen.getByText("grounding_missing")).toHaveAttribute(
+      "data-presentation-tone",
+      "fail",
+    );
   });
 });

@@ -3,7 +3,7 @@ title: Atlas Phase-A Synthesis
 status: complete-on-branch - architect review pending
 owner: team-design
 created: 2026-07-16
-last_reviewed: 2026-07-16
+last_reviewed: 2026-08-19
 master_plan: ../../plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 surface_constitution: ../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 ds0_record: ../../brand/ATLAS_SOURCE_OF_TRUTH.md
@@ -25,7 +25,10 @@ measured application reality, and the fully adjudicated v15 archive. It does
 not modify the Revision-2 DAG, activate Phase B, admit archive code into
 production, or override the GY activation gates.
 
-The underlying artifacts remain canonical for detail:
+This Phase-A snapshot is retained as historical evidence. D4 was later
+ratified and then amended by D4-A1 on 2026-08-19: `en` is the authored
+primary, `uk` its translation, and `ru` remains frozen continuity. The
+underlying artifacts remain canonical for detail:
 
 - [DS0 source-of-truth record](../../brand/ATLAS_SOURCE_OF_TRUTH.md) owns D1-D6
   and the sole pending owner ratification.
@@ -67,7 +70,7 @@ and strangle every duplicate owner**.
 | D1 source hierarchy | Confirmed. Constitution and active master own law/execution; living code is the production baseline; v15 is retained material after DS2. | Link DS2 item ledger instead of describing v15 as pending adjudication. Never reactivate v4/v7/v15 as parallel design authorities. |
 | D2 DTCG token source | **Confirmed with named gaps.** DS2 result is `parity_achievable_with_named_gaps`; the revisit condition does not fire. | DS4 keeps one-way DTCG generation, but must explicitly close warm-dark, z-index, post-reference aliases, density/runtime controls, breakpoint projection, mode-provider, forced-color, motion, and print gaps before migration. |
 | D3 package/Figma | Confirmed and strengthened. Wholesale v15 import and compiled mirrors are rejected; all 56 synthetic Figma mappings remain unaudited. | Build only under private `@polisyos/atlas-ui@0.1.x`; code is source, Figma is a versioned projection, and DS4/DS6 own parity. |
-| D4 locale posture | Still `pending_owner_ratification`; DS1 confirmed structural `en`/`uk`/`ru` parity but 80.16% of `ru` equals English. | DS5 may prepare locale enforcement, but DS12 cannot publish locale-support claims until the product owner ratifies retention/removal and ownership. |
+| D4 locale posture | Ratified 2026-07-16 and amended by D4-A1 on 2026-08-19: `en` authored primary, `uk` translation, `ru` unchanged as frozen continuity. DS1's structural parity measurement remains evidence, not semantic authority. | DS5 implements the amended decision; DS12 may claim only the ratified posture and its evidence. |
 | D5 feature flags | DS1 confirms exactly four canonical flags are consumer-missing and auth permission is a thirteenth pseudo-source. | DS5 implements one strict exposure registry, wire-or-retire for four flags, unknown-key rejection, and a hard separation between rollout and authorization. |
 | D6 non-web surfaces | DS1 existence-checks print/export and CLI material; DS2 defers archive landing/assets/fonts/UI kits without inventing work. | Preserve the named owning slices; email remains `surface_out_of_scope` until a typed notification/privacy/delivery slice exists. |
 
@@ -375,12 +378,10 @@ client timestamps as runtime epoch semantics.
 
 ## Pending Owner Ratification
 
-There is exactly one Phase-A owner item: DS0 D4, the Ukraine-facing `ru`
-locale retention/removal decision. Phase A recommends Ukrainian primary,
-English baseline, and frozen legacy Russian continuity only if the product
-owner explicitly accepts the political/public consequence and names an owner.
-Until ratified, the current structural catalog is evidence, not a public
-support claim, and DS12 remains barred from publishing that claim.
+The Phase-A snapshot originally carried D4 as pending. That gate is now
+closed: D4 was ratified and D4-A1 later amended the primary/translation
+relation. Structural catalog parity remains evidence rather than a public
+support claim; DS12 is limited to the ratified amended posture.
 
 ## Phase-A Closure Signal
 

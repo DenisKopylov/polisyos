@@ -68,8 +68,9 @@ repository architecture guardrails, `rg`, and Git.
 - Preserve the live review WebSocket, Operator Craft onboarding, real
   `app/layout` owner, PWA service worker, Clerk `ModeAwareHome`, and API-backed
   Scenario Workbench.
-- Preserve the ratified D4 posture: Ukrainian is primary, English is baseline,
-  and the Russian UI catalog remains in-tree, frozen, and unexposed. DS19 does
+- Preserve the amended D4-A1 posture: English is the authored primary,
+  Ukrainian is its translation, and the Russian UI catalog remains in-tree,
+  frozen, and unexposed. DS19 does
   not edit any locale catalog; dead-copy adjudication belongs to a later owner.
 - A deletion is rejected unless the executor records a fresh census of tracked
   paths, static and dynamic imports, route registrations, identifier strings,

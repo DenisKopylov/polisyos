@@ -7,17 +7,65 @@ import { renderWithProviders } from "@/test/render";
 import { DecisionCard } from "./DecisionCard";
 
 const GOVERNED_PACKET = {
+  absence_reason: null,
+  as_of: "2026-08-02T00:00:00.000Z",
   authoritative_for: ["publication_review"],
   availability: "available",
-  payload: {},
-} as unknown as AvailableGovernedProjectionPacket;
+  export_replay_contract: "policyos.runtime.export_replay_binding.v1",
+  freshness: {
+    basis: "source_timestamp",
+    observed_at: "2026-08-02T00:00:01.000Z",
+    source_as_of: "2026-08-02T00:00:00.000Z",
+    state: "observed",
+  },
+  intended_audience: "REVIEWER",
+  may_not_use_for: [],
+  packet_schema_version: "policyos.runtime.governed_projection_packet.v1",
+  payload: {
+    authority: {},
+    controlled_vocabulary_source: "fixture://surface-readiness/vocabulary",
+    entries: [],
+    ledger_id: "fixture-surface-readiness",
+  },
+  projection_hash: "sha256:governed-projection",
+  projection_id: "surface-readiness",
+  projection_rule_version: "policyos.runtime.governed_projection.v1",
+  replay_address: "fixture://surface-readiness/replay",
+  source: {
+    artifact_content_hash: "sha256:governed-source",
+    declared_content_hash: "sha256:governed-source",
+    related_artifact_bindings: [],
+    relative_path: "fixture://surface-readiness",
+    validation: {
+      bound_artifact_content_hash: "sha256:governed-source",
+      bound_dependency_aggregate_identity: "sha256:dependencies",
+      bound_dependency_count: 0,
+      issue_codes: [],
+      status: "passed",
+      validator_id: "fixture-validator",
+      validator_version: "1",
+    },
+  },
+  source_dependency_hash: "sha256:dependencies",
+  source_rule_version: "fixture.source.v1",
+  source_schema_version: "fixture.schema.v1",
+  stable_address: "fixture://surface-readiness",
+} satisfies AvailableGovernedProjectionPacket;
 
 const FIXTURE_PACKET = {
+  ...GOVERNED_PACKET,
   authoritative_for: ["publication_review"],
-  availability: "available",
-  payload: { fixture_authority: "fixture_only" },
+  payload: {
+    fixture_authority: "fixture_only",
+    fixture_identities: [],
+    fixture_records: [],
+    runtime_outcomes: {
+      availability: "artifact_missing",
+      reason: "fixture carries no producer-signed runtime outcome",
+    },
+  },
   projection_id: "legacy-proving-ground",
-} as unknown as AvailableGovernedProjectionPacket;
+} satisfies AvailableGovernedProjectionPacket;
 
 describe("DecisionCard", () => {
   it("keeps candidate and authority postures visually distinct for the same copy", () => {

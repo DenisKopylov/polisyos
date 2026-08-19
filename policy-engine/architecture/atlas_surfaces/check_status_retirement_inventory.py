@@ -110,6 +110,30 @@ def _scan_json(request_json: str) -> dict[str, Any]:
     result = json.loads(completed.stdout)
     if not isinstance(result, dict):
         raise RuntimeError("status TypeScript scan returned a non-object")
+    for finding_key in (
+        "authorityCandidates",
+        "definitions",
+        "interactionLeaks",
+        "protectedRevivals",
+        "authoritySinkDeclarations",
+        "badgeSites",
+        "authorityPropCensus",
+    ):
+        if not isinstance(result.get(finding_key), list):
+            raise RuntimeError(
+                f"status TypeScript scan returned invalid {finding_key} findings"
+            )
+    request = json.loads(request_json)
+    if request.get("validateOverrideDiagnostics") is True and not isinstance(
+        result.get("overrideDiagnostics"), list
+    ):
+        raise RuntimeError(
+            "status TypeScript scan returned invalid overrideDiagnostics findings"
+        )
+    if "sourceOverrides" not in request and not isinstance(
+        result.get("sourceDenominators"), dict
+    ):
+        raise RuntimeError("status TypeScript scan returned invalid source denominators")
     return result
 
 
@@ -133,14 +157,31 @@ def _scan(
     source_overrides: Mapping[str, str] | None = None,
     *,
     inventory: Mapping[str, Any] | None = None,
+    validate_override_diagnostics: bool = False,
+    authority_prop_descriptors: Sequence[Mapping[str, str]] = (),
 ) -> dict[str, Any]:
     request = (
         {"sourceOverrides": dict(sorted(source_overrides.items()))}
         if source_overrides is not None
         else {}
     )
+    if source_overrides is not None and validate_override_diagnostics:
+        request["validateOverrideDiagnostics"] = True
+    if authority_prop_descriptors:
+        request["authorityPropDescriptors"] = [
+            dict(sorted(descriptor.items()))
+            for descriptor in authority_prop_descriptors
+        ]
     if inventory is not None:
         request["protectedDefinitions"] = _protected_semantic_definitions(inventory)
+        generated = inventory.get("sources", {}).get("generated_client", {})
+        request["generatedDefinitionPaths"] = sorted(
+            {
+                str(generated[key])
+                for key in ("canonical_path", "types_path")
+                if generated.get(key)
+            }
+        )
     return _scan_json(json.dumps(request, sort_keys=True, separators=(",", ":")))
 
 

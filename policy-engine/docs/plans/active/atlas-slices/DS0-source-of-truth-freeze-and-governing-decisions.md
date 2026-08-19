@@ -2,10 +2,10 @@
 plan_id: atlas-ds0-source-of-truth-freeze-and-governing-decisions
 title: "DS0 - Source-Of-Truth Freeze & Governing Decisions"
 type: slice-plan
-status: complete-on-branch - architect review pending; D4 pending_owner_ratification recorded
+status: complete-on-branch; D4 ratified 2026-07-16 and amended by D4-A1 2026-08-19
 created: 2026-06-11
-revised: 2026-07-16
-last_verified: 2026-07-16
+revised: 2026-08-19
+last_verified: 2026-08-19
 stability: review-ready
 closed_at: 2026-07-16
 slice: DS0
@@ -184,7 +184,13 @@ whether it is private or published, the version and release policy, and whether
 Figma is a source or a projection. Name the owner and acceptance signal for
 code/Figma parity. DS0 creates no package.
 
-### D4 - Locale and i18n posture (`pending_owner_ratification`)
+### D4 - Locale and i18n posture (`ratified`, later amended)
+
+**Supersession notice:** this section is the 2026-07-16 decision-preparation
+contract. The owner subsequently ratified D4 and Atlas Revision 3.19 amended
+it as D4-A1 on 2026-08-19: `en` is the authored primary, `uk` is its
+translation, and `ru` remains `legacy_continuity_frozen`. The historical
+preparation requirements below are retained as evidence, not current posture.
 
 Prepare, but do not ratify, the product decision for existing `en`, `uk`, and
 `ru` locales. Evidence must cover current key parity, fallback behavior,
@@ -198,7 +204,7 @@ obligation, and public-surface consequences. Include at least:
 - RTL posture and trigger;
 - named product owner and explicit ratification field.
 
-The recorded status stays `pending_owner_ratification` until that owner acts.
+The owner acted; no D4 owner-ratification gate remains open.
 
 ### D5 - Feature-flag governance
 
@@ -273,7 +279,7 @@ the behavioral CI validation owned by DS6.
 | P06 | v4/v7/v15 and G/GY documents compete as canonical owners | one D1 record names canonical, retained, superseded, and pending-adjudication roles |
 | P10 | archive reports are mistaken for runtime/accessibility evidence | archive evidence cannot by itself support `stable` in the adoption schema |
 | P13 | DS0 grows a bespoke validator/governance subsystem | only two schemas, two examples, one decision record, and lifecycle dispositions ship |
-| P26 | an agent silently settles a politically sensitive locale question | D4 remains `pending_owner_ratification` with alternatives and an explicit owner field |
+| P26 | an agent silently settles a politically sensitive locale question | D4/D4-A1 remain explicit owner decisions with alternatives and a named owner; agents implement but do not choose them |
 | P29 | examples self-attest to readiness | self-validation proves shape only; DS6 owns behavioral recomputation and claim checking |
 
 Missing capability labels at DS0 close are intentional and precise: schemas

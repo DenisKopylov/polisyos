@@ -1,34 +1,70 @@
 import {
-  FALLBACK_CAPABILITY_MANIFEST,
   getCapability,
   isCapabilityEnabled,
   readNumericConstraint,
 } from "@/shared/lib/capabilities";
+import {
+  type CapabilityDiscovery,
+  isIssuedCapabilityDiscovery,
+} from "@/api/hooks/useCapabilities";
+import type { CapabilityManifestPayload } from "@/api/validators";
+
+const ownerManifest: CapabilityManifestPayload = {
+  meta: {
+    request_id: "owner-capability-manifest",
+    generated_at: "2026-08-09T00:00:00Z",
+    source_kinds: ["core_run"],
+  },
+  runtime_api_version: "2.0.0",
+  shell_flavor: "atlas",
+  default_execution_profile: "dev",
+  default_locale: "en",
+  supported_execution_profiles: ["dev"],
+  supported_locales: ["en"],
+  state_store_backend: "sqlite",
+  worker_backend: "embedded",
+  workspaces: [],
+  features: [
+    {
+      key: "workflow_runs",
+      label: "Workflow runs",
+      description: "Owner-issued feature.",
+      category: "runs",
+      enabled: true,
+      stage: "active",
+    },
+  ],
+  constraints: {},
+};
 
 describe("capabilities helpers", () => {
-  it("reads features from the fallback manifest", () => {
-    expect(
-      isCapabilityEnabled(FALLBACK_CAPABILITY_MANIFEST, "workflow_runs"),
-    ).toBe(true);
-    expect(
-      isCapabilityEnabled(FALLBACK_CAPABILITY_MANIFEST, "security_admin_layer"),
-    ).toBe(false);
+  it("test_capability_discovery_accepts_only_issued_owner_manifest", () => {
+    expectTypeOf(ownerManifest).not.toExtend<CapabilityDiscovery>();
+    expect(isIssuedCapabilityDiscovery(ownerManifest)).toBe(false);
+  });
+
+  it("reads features from an owner manifest", () => {
+    expect(isCapabilityEnabled(ownerManifest, "workflow_runs")).toBe(true);
+    expect(isCapabilityEnabled(ownerManifest, "security_admin_layer")).toBe(
+      false,
+    );
     expect(isCapabilityEnabled(undefined, "workflow_runs")).toBe(false);
 
-    expect(
-      getCapability(FALLBACK_CAPABILITY_MANIFEST, "transport_summary"),
-    ).toMatchObject({
-      category: "governance",
+    expect(getCapability(ownerManifest, "workflow_runs")).toMatchObject({
+      category: "runs",
       enabled: true,
-      key: "transport_summary",
+      key: "workflow_runs",
     });
-    expect(getCapability(undefined, "transport_summary")).toBeNull();
+    expect(getCapability(undefined, "workflow_runs")).toBeNull();
   });
 
   it("reads numeric constraints with fallback behavior", () => {
     expect(
       readNumericConstraint(
-        FALLBACK_CAPABILITY_MANIFEST,
+        {
+          ...ownerManifest,
+          constraints: { max_parallel_models: 16 },
+        },
         "max_parallel_models",
         2,
       ),
@@ -36,11 +72,10 @@ describe("capabilities helpers", () => {
     expect(
       readNumericConstraint(
         {
-          ...FALLBACK_CAPABILITY_MANIFEST,
           constraints: {
-            ...FALLBACK_CAPABILITY_MANIFEST.constraints,
             max_parallel_models: Number.POSITIVE_INFINITY,
           },
+          ...ownerManifest,
         },
         "max_parallel_models",
         3,

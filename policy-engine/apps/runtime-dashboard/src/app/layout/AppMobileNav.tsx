@@ -1,24 +1,58 @@
 import { BarChart3, FileText, Home, Layers, MessageSquare } from "lucide-react";
 import { useLocation } from "react-router-dom";
 
+import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
 import { PrefetchNavLink } from "@/app/routes/PrefetchNavLink";
+import type { WorkspaceKey } from "@/app/workspaces";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { MobileNav, type MobileNavItem } from "@/shared/ui/responsive";
 
-type AppMobileNavItem = Omit<MobileNavItem, "active">;
+type AppMobileNavItem = Omit<MobileNavItem, "active"> & {
+  workspaceKey: WorkspaceKey;
+};
 
 const ANALYST_NAV: readonly AppMobileNavItem[] = [
-  { Icon: Home, label: "mobile.nav.home", path: "/" },
-  { Icon: FileText, label: "mobile.nav.runs", path: "/runs" },
-  { Icon: Layers, label: "mobile.nav.evidence", path: "/evidence" },
-  { Icon: BarChart3, label: "mobile.nav.compose", path: "/compose" },
+  {
+    Icon: Home,
+    label: "mobile.nav.home",
+    path: "/",
+    workspaceKey: "commandCenter",
+  },
+  {
+    Icon: FileText,
+    label: "mobile.nav.runs",
+    path: "/runs",
+    workspaceKey: "runsDecisions",
+  },
+  {
+    Icon: Layers,
+    label: "mobile.nav.evidence",
+    path: "/evidence",
+    workspaceKey: "evidenceFabric",
+  },
+  {
+    Icon: BarChart3,
+    label: "mobile.nav.compose",
+    path: "/compose",
+    workspaceKey: "scenarioComposer",
+  },
 ];
 
 const CLERK_NAV: readonly AppMobileNavItem[] = [
-  { Icon: MessageSquare, label: "mobile.nav.chat", path: "/" },
-  { Icon: FileText, label: "mobile.nav.runs", path: "/runs" },
+  {
+    Icon: MessageSquare,
+    label: "mobile.nav.chat",
+    path: "/",
+    workspaceKey: "commandCenter",
+  },
+  {
+    Icon: FileText,
+    label: "mobile.nav.runs",
+    path: "/runs",
+    workspaceKey: "runsDecisions",
+  },
 ];
 
 function isActive(itemPath: string, currentPath: string): boolean {
@@ -34,12 +68,19 @@ export function AppMobileNav() {
   const location = useLocation();
   const { flags } = useFeatureFlags();
   const { isClerk } = useInterfaceMode();
+  const authzDecision = useAuthzDecision();
 
-  const items = (isClerk ? CLERK_NAV : ANALYST_NAV).map((item) => ({
-    ...item,
-    active: isActive(item.path, location.pathname),
-    label: t(item.label),
-  }));
+  const items = (isClerk ? CLERK_NAV : ANALYST_NAV)
+    .filter(
+      (item) =>
+        authzDecision.kind === "verified" &&
+        authzDecision.isWorkspaceAllowed(item.workspaceKey),
+    )
+    .map((item) => ({
+      ...item,
+      active: isActive(item.path, location.pathname),
+      label: t(item.label),
+    }));
 
   return (
     <MobileNav

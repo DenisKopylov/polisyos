@@ -1,16 +1,28 @@
-import type { ReactNode } from "react";
+import { Suspense, type ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
-import { FALLBACK_CAPABILITY_MANIFEST } from "@/shared/lib/capabilities";
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
+import { observeCachePosture } from "@/api/cacheDiscipline";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import { buildFeatureFlags } from "@/test/featureFlags";
+
+const ownerCapabilityManifest = {
+  features: [
+    { key: "evaluator_reports", enabled: true },
+    { key: "promotion_lane", enabled: true },
+    { key: "unified_dag", enabled: true },
+    { key: "natural_language_runs", enabled: true },
+    { key: "source_profiles", enabled: true },
+  ],
+};
 
 const {
   renderArtifactViewerMock,
   useArtifactContentMock,
+  useAuthzDecisionMock,
   useAuthzMock,
   useCapabilitiesMock,
   useCompareCandidatesMock,
@@ -37,6 +49,7 @@ const {
 } = vi.hoisted(() => ({
   renderArtifactViewerMock: vi.fn(),
   useArtifactContentMock: vi.fn(),
+  useAuthzDecisionMock: vi.fn(),
   useAuthzMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
   useCompareCandidatesMock: vi.fn(),
@@ -79,11 +92,13 @@ vi.mock("@/app/providers/TelemetryProvider", () => ({
 }));
 
 vi.mock("@/app/providers/FeatureFlagProvider", () => ({
+  useFeatureFlag: (key: string) => Boolean(useFeatureFlagsMock().flags[key]),
   useFeatureFlags: (...args: unknown[]) => useFeatureFlagsMock(...args),
 }));
 
 vi.mock("@/app/authz/AuthzProvider", () => ({
   AuthzProvider: ({ children }: { children: React.ReactNode }) => children,
+  useAuthzDecision: () => useAuthzDecisionMock(),
   useAuthz: () => useAuthzMock(),
   useMaybeAuthz: () => useAuthzMock(),
   usePermission: (...args: unknown[]) => usePermissionMock(...args),
@@ -288,6 +303,7 @@ vi.mock("@/features/runs/routes/useRunDetailSummary", async () => {
 });
 
 import RunComparePage from "@/features/runs/routes/RunComparePage";
+import { runsRoutes } from "@/features/runs/route";
 import RunDeckPage from "@/features/runs/routes/RunDeckPage";
 import RunDetailLayout from "@/features/runs/routes/RunDetailLayout";
 import RunReportPage from "@/features/runs/routes/RunReportPage";
@@ -530,13 +546,10 @@ describe("run detail surfaces", () => {
 
     window.localStorage.clear();
     useTelemetryReadyMarkMock.mockReset();
+    useFeatureFlagsMock.mockReset();
     useFeatureFlagsMock.mockReturnValue({
-      flags: {
-        atlasCommandPalette: true,
-        atlasNestedSurfaces: true,
-      },
-      isEnabled: (key: string) =>
-        key === "atlasCommandPalette" || key === "atlasNestedSurfaces",
+      flags: buildFeatureFlags(),
+      isEnabled: () => true,
       source: "props",
       status: "ready",
     });
@@ -547,12 +560,21 @@ describe("run detail surfaces", () => {
       permissions: new Set<string>(),
       roles: new Set<string>(),
       status: "ready",
-      user: { feature_overrides: { enableReviewCollaboration: false } },
+      user: {
+        feature_overrides: { enableReviewCollaboration: false },
+        tenant_id: "tenant-a",
+        user_id: "reviewer-a",
+      },
+    });
+    useAuthzDecisionMock.mockReturnValue({
+      can: () => true,
+      isWorkspaceAllowed: () => true,
+      kind: "verified",
     });
     usePermissionMock.mockReturnValue(true);
     useReviewCollaborationEnabledMock.mockReturnValue(false);
     useCapabilitiesMock.mockReturnValue({
-      data: FALLBACK_CAPABILITY_MANIFEST,
+      data: ownerCapabilityManifest,
     });
     useCompareCandidatesMock.mockReturnValue({
       data: { candidates: [] },
@@ -773,6 +795,46 @@ describe("run detail surfaces", () => {
     expect(screen.getByTestId("run-tab-link-overview")).toBeInTheDocument();
   });
 
+  it("removes the causal tab entry when its rollout flag is false", async () => {
+    const flags = buildFeatureFlags({ enableCausalGraph: false });
+    useFeatureFlagsMock.mockReturnValue({
+      diagnostic: null,
+      flags,
+      isEnabled: (key: keyof typeof flags) => flags[key],
+      source: "props",
+      status: { label: "ready" },
+    });
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(await screen.findByTestId("outlet-overview")).toBeInTheDocument();
+    expect(screen.queryByTestId("run-tab-link-causal")).not.toBeInTheDocument();
+  });
+
+  it("removes the causal tab entry from bootstrap navigation when its flag is false", async () => {
+    const flags = buildFeatureFlags({ enableCausalGraph: false });
+    useFeatureFlagsMock.mockReturnValue({
+      diagnostic: null,
+      flags,
+      isEnabled: (key: keyof typeof flags) => flags[key],
+      source: "props",
+      status: { label: "ready" },
+    });
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        run: null,
+        runBootstrapPending: true,
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const navigation = await screen.findByTestId("run-tab-nav");
+    expect(
+      within(navigation).queryByText("pages.runs.tabs.causal"),
+    ).not.toBeInTheDocument();
+  });
+
   it("renders required-state and action branches in RunDetailLayout", async () => {
     renderNestedRunDetail("/runs");
     expect(screen.getByText("pages.runs.requiredRunId")).toBeInTheDocument();
@@ -788,6 +850,76 @@ describe("run detail surfaces", () => {
     renderNestedRunDetail("/runs/run-1/overview");
 
     expect(await screen.findByTestId("run-replan-link")).toBeInTheDocument();
+  });
+
+  it("denies protected run controls while keeping permission-free run chrome", async () => {
+    useAuthzMock.mockReturnValue(null);
+    useAuthzDecisionMock.mockReturnValue({ kind: "unknown" });
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        pipeline: {
+          evaluator: { scores: { total_score: 0.5 }, verdict: "REPLAN_NEEDED" },
+          preflight: { diagnostics: [{}], ready_to_run: false },
+        },
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    expect(
+      await screen.findByTestId("run-tab-link-overview"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("run-tab-link-causal")).toBeInTheDocument();
+    expect(screen.getByTestId("run-tab-link-artifacts")).toBeInTheDocument();
+    expect(
+      screen.queryByTestId("run-tab-link-governance"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("run-tab-link-evidence"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("link", { name: "pages.runs.openEvidence" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "pages.runs.openEvidence" }),
+    ).toBeDisabled();
+    expect(screen.getByTestId("run-replan-link")).toBeDisabled();
+    expect(
+      screen.getByRole("link", { name: "pages.runs.auditReport" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: "pages.runs.openDeck" }),
+    ).toBeInTheDocument();
+  });
+
+  it("denies protected bootstrap tabs while keeping fixed bootstrap tabs", async () => {
+    useAuthzMock.mockReturnValue(null);
+    useAuthzDecisionMock.mockReturnValue({ kind: "unknown" });
+    useRunInspectorMock.mockReturnValue(
+      createSummary({
+        run: null,
+        runBootstrapPending: true,
+      }),
+    );
+
+    renderNestedRunDetail("/runs/run-1/overview");
+
+    const navigation = await screen.findByTestId("run-tab-nav");
+    expect(
+      within(navigation).getByText("pages.runs.tabs.overview"),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).getByText("pages.runs.tabs.causal"),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).getByText("pages.runs.tabs.artifacts"),
+    ).toBeInTheDocument();
+    expect(
+      within(navigation).queryByText("pages.runs.tabs.governance"),
+    ).not.toBeInTheDocument();
+    expect(
+      within(navigation).queryByText("pages.runs.tabs.evidence"),
+    ).not.toBeInTheDocument();
   });
 
   it("keeps novel owner grades neutral and does not infer replanning from their labels", async () => {
@@ -1114,6 +1246,68 @@ describe("run detail surfaces", () => {
     expect(useDepthNCycleBoardProjectionMock).toHaveBeenCalledWith();
   });
 
+  it.each([
+    {
+      fetchStatus: "idle",
+      isFetchedAfterMount: true,
+      isStale: false,
+      posture: "live",
+    },
+    {
+      fetchStatus: "idle",
+      isFetchedAfterMount: false,
+      isStale: false,
+      posture: "cached",
+    },
+    {
+      fetchStatus: "fetching",
+      isFetchedAfterMount: true,
+      isStale: true,
+      posture: "stale",
+    },
+  ])(
+    "bridges owner-issued $posture cache posture into Overview",
+    (lifecycle) => {
+      const asOf = "2026-08-19T09:30:00Z";
+      useDepthNCycleBoardProjectionMock.mockReturnValue({
+        cacheObservation: observeCachePosture({ data: {}, ...lifecycle }, asOf),
+        data: {
+          packet: {
+            absence_reason: "owner artifact is not present",
+            as_of: asOf,
+            authoritative_for: [],
+            availability: "artifact_missing",
+            freshness: {
+              basis: "request_observation",
+              observed_at: "2026-08-19T09:31:00Z",
+              state: "artifact_missing",
+            },
+            intended_audience: "EXPERT",
+            may_not_use_for: ["authority"],
+            projection_id: "depth-n-cycle-board",
+          },
+          payload: null,
+        },
+        error: null,
+        isError: false,
+        isLoading: false,
+      });
+
+      renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
+
+      expect(
+        screen.getByTestId("time-semantics-cache-posture"),
+      ).toHaveTextContent(lifecycle.posture);
+      expect(
+        screen.getByTestId("time-semantics-cache-owner-as-of"),
+      ).toHaveTextContent(asOf);
+      expect(screen.getByTestId("governed-depth-projection")).toHaveAttribute(
+        "data-authority-posture",
+        "unavailable",
+      );
+    },
+  );
+
   it("keeps novel and missing governance severity labels opaque and neutral", () => {
     const summary = createSummary();
     useGovernanceDebugMock.mockReturnValue({
@@ -1250,6 +1444,70 @@ describe("run detail surfaces", () => {
     expect(await screen.findByTestId("causal-graph-canvas")).toHaveTextContent(
       "3:1:0",
     );
+  });
+
+  it("blocks a causal deep link when the rollout flag is false and restores it when true", async () => {
+    const runDetailRoute = runsRoutes.find(
+      (route) => route.path === "runs/:runId",
+    );
+    const causalRoute = runDetailRoute?.children?.find(
+      (route) => route.path === "causal",
+    );
+    if (!causalRoute?.element) {
+      throw new Error("causal route element missing");
+    }
+
+    const renderGate = () => {
+      const queryClient = new QueryClient({
+        defaultOptions: { queries: { retry: false } },
+      });
+      return render(
+        <QueryClientProvider client={queryClient}>
+          <MemoryRouter initialEntries={["/runs/run-1/causal"]}>
+            <Suspense fallback={<div>loading</div>}>
+              <Routes>
+                <Route
+                  path="/runs/:runId/causal"
+                  element={causalRoute.element}
+                />
+                <Route
+                  path="/runs/:runId/overview"
+                  element={<div data-testid="causal-rollout-unavailable" />}
+                />
+              </Routes>
+            </Suspense>
+          </MemoryRouter>
+        </QueryClientProvider>,
+      );
+    };
+
+    useFeatureFlagsMock.mockReturnValue({
+      flags: buildFeatureFlags({ enableCausalGraph: false }),
+    });
+    const blocked = renderGate();
+    expect(
+      await screen.findByTestId("causal-rollout-unavailable"),
+    ).toBeInTheDocument();
+    expect(screen.queryByTestId("causal-atlas-editor")).not.toBeInTheDocument();
+    blocked.unmount();
+
+    useFeatureFlagsMock.mockReturnValue({ flags: buildFeatureFlags() });
+    renderGate();
+    expect(
+      await screen.findByTestId("causal-atlas-editor"),
+    ).toBeInTheDocument();
+  });
+
+  it("removes the overview what-if workbench when its rollout flag is false", () => {
+    useFeatureFlagsMock.mockReturnValue({
+      flags: buildFeatureFlags({ enableWhatIfAnalysis: false }),
+    });
+
+    renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
+
+    expect(
+      screen.queryByTestId("overview-scenario-workbench"),
+    ).not.toBeInTheDocument();
   });
 
   it("renders AgentsTab and GovernanceTab through lazy panels", async () => {

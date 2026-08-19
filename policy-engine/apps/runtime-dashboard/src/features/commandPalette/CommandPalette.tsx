@@ -20,8 +20,11 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
-import { useCapabilities } from "@/api/hooks/useCapabilities";
-import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
+import {
+  isDiscoveryCapabilityEnabled,
+  useCapabilityDiscovery,
+} from "@/api/hooks/useCapabilities";
+import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import {
   CommandDialog,
   CommandEmpty,
@@ -41,7 +44,6 @@ import {
   type SurfaceId,
 } from "@/app/surfaces/surfaceRegistry";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { isCapabilityEnabled } from "@/shared/lib/capabilities";
 import { useGlobalShortcut } from "@/shared/lib/hooks";
 import { WORKSPACES, type WorkspaceKey } from "@/app/workspaces";
 
@@ -105,19 +107,20 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const authz = useMaybeAuthz();
-  const capabilitiesQuery = useCapabilities();
+  const authzDecision = useAuthzDecision();
+  const capabilityDiscovery = useCapabilityDiscovery();
   const { flags } = useFeatureFlags();
   const { t } = useI18n();
   const { resolvedTheme, toggleTheme } = useTheme();
   const { cycleDensity, density } = useDensity();
+  const commandPaletteEnabled = flags.enableCommandPalette;
 
   useGlobalShortcut(
     "command-palette",
     { key: "k", meta: true },
     "Open command palette",
     () => setOpen((o) => !o),
-    { group: "Global" },
+    { enabled: commandPaletteEnabled, group: "Global" },
   );
 
   useEffect(() => {
@@ -145,26 +148,20 @@ export function CommandPalette() {
     () =>
       getCommandPaletteSurfaceEntries({
         canAccessPermission: (permission) =>
-          authz ? authz.can(permission) : true,
+          authzDecision.kind === "verified" && authzDecision.can(permission),
         hasCapability: (capability) =>
-          capabilitiesQuery.isLoading
-            ? true
-            : isCapabilityEnabled(capabilitiesQuery.data, capability),
+          isDiscoveryCapabilityEnabled(capabilityDiscovery, capability),
         isWorkspaceAllowed: (workspaceKey) =>
-          authz ? authz.isWorkspaceAllowed(workspaceKey) : true,
+          authzDecision.kind === "verified" &&
+          authzDecision.isWorkspaceAllowed(workspaceKey),
+        isFeatureEnabled: (featureFlag) => flags[featureFlag],
         isWorkspaceEnabled: (workspaceKey: WorkspaceKey) => {
           const workspace = WORKSPACES[workspaceKey];
           return workspace.featureFlag ? flags[workspace.featureFlag] : true;
         },
         runId: currentRunId,
       }),
-    [
-      authz,
-      capabilitiesQuery.data,
-      capabilitiesQuery.isLoading,
-      currentRunId,
-      flags,
-    ],
+    [authzDecision, capabilityDiscovery, currentRunId, flags],
   );
   const navigationItems = surfaceEntries.filter(
     (surface) => surface.command.group === "navigation",
@@ -175,6 +172,10 @@ export function CommandPalette() {
   const workspaceSurfaceItems = surfaceEntries.filter(
     (surface) => surface.command.group === "workspaceSurfaces",
   );
+
+  if (!commandPaletteEnabled) {
+    return null;
+  }
 
   return (
     <CommandDialog

@@ -1,7 +1,9 @@
 import type { PropsWithChildren } from "react";
 import type { Preview } from "@storybook/react";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { MemoryRouter } from "react-router-dom";
 
+import { queryClient } from "@/api/queryClient";
 import { AlertDialogProvider } from "@/app/providers/AlertDialogProvider";
 import { DensityProvider } from "@/app/providers/DensityProvider";
 import { FeatureFlagProvider } from "@/app/providers/FeatureFlagProvider";
@@ -49,41 +51,43 @@ function StorybookAppearanceBoundary({
 const preview: Preview = {
   decorators: [
     (Story, context) => (
-      <MemoryRouter>
-        <LocaleProvider>
-          <TelemetryProvider>
-            <HighContrastProvider>
-              <ReducedMotionProvider>
-                <LiveAnnouncerProvider>
-                  <ToastProvider>
-                    <AlertDialogProvider>
-                      <FeatureFlagProvider>
-                        <StorybookAppearanceBoundary
-                          key={`${context.globals.theme}-${context.globals.density}`}
-                          density={context.globals.density}
-                          theme={context.globals.theme}
-                        >
-                          <DensityProvider>
-                            <ThemeProvider>
-                              <AuthorshipProvider highlightMode="subtle">
-                                <div className="text-text min-h-screen bg-[radial-gradient(circle_at_top,var(--page-glow-teal),transparent_38%),linear-gradient(180deg,var(--page-gradient-start)_0%,var(--page-gradient-end)_100%)] p-6">
-                                  <div className="mx-auto max-w-6xl">
-                                    <Story />
+      <QueryClientProvider client={queryClient}>
+        <MemoryRouter>
+          <LocaleProvider>
+            <TelemetryProvider>
+              <HighContrastProvider>
+                <ReducedMotionProvider>
+                  <LiveAnnouncerProvider>
+                    <ToastProvider>
+                      <AlertDialogProvider>
+                        <FeatureFlagProvider>
+                          <StorybookAppearanceBoundary
+                            key={`${context.globals.theme}-${context.globals.density}`}
+                            density={context.globals.density}
+                            theme={context.globals.theme}
+                          >
+                            <DensityProvider>
+                              <ThemeProvider>
+                                <AuthorshipProvider highlightMode="subtle">
+                                  <div className="text-text min-h-screen bg-[radial-gradient(circle_at_top,var(--page-glow-teal),transparent_38%),linear-gradient(180deg,var(--page-gradient-start)_0%,var(--page-gradient-end)_100%)] p-6">
+                                    <div className="mx-auto max-w-6xl">
+                                      <Story />
+                                    </div>
                                   </div>
-                                </div>
-                              </AuthorshipProvider>
-                            </ThemeProvider>
-                          </DensityProvider>
-                        </StorybookAppearanceBoundary>
-                      </FeatureFlagProvider>
-                    </AlertDialogProvider>
-                  </ToastProvider>
-                </LiveAnnouncerProvider>
-              </ReducedMotionProvider>
-            </HighContrastProvider>
-          </TelemetryProvider>
-        </LocaleProvider>
-      </MemoryRouter>
+                                </AuthorshipProvider>
+                              </ThemeProvider>
+                            </DensityProvider>
+                          </StorybookAppearanceBoundary>
+                        </FeatureFlagProvider>
+                      </AlertDialogProvider>
+                    </ToastProvider>
+                  </LiveAnnouncerProvider>
+                </ReducedMotionProvider>
+              </HighContrastProvider>
+            </TelemetryProvider>
+          </LocaleProvider>
+        </MemoryRouter>
+      </QueryClientProvider>
     ),
   ],
   parameters: {

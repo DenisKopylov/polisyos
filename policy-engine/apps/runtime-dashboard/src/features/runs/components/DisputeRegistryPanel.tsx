@@ -1,6 +1,8 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 
 import type { GovernanceIssueView } from "@/shared/lib/domain/governance";
+import { useAuthz } from "@/app/authz/AuthzProvider";
+import type { AuthorityLocalScope } from "@/app/offline/authorityLocalState";
 import {
   buildDisputeRecords,
   createDisputeStatus,
@@ -18,31 +20,25 @@ function statusKind(status: DisputeRecord["status"]) {
   return "warn";
 }
 
-export function DisputeRegistryPanel({
+function DisputeRegistryPanel({
   issues,
   runId,
+  scope,
 }: {
   issues: GovernanceIssueView[];
   runId: string;
+  scope: AuthorityLocalScope | null;
 }) {
   const { t } = useI18n();
   const [draftTitle, setDraftTitle] = useState("");
   const [draftBasis, setDraftBasis] = useState("policy");
   const [localDisputes, setLocalDisputes] = useState<DisputeRecord[]>(() =>
-    readStoredDisputes(runId),
+    readStoredDisputes(scope, runId),
   );
   const disputes = buildDisputeRecords(issues, localDisputes);
   const openCount = disputes.filter(
     (dispute) => dispute.status.label === "open",
   ).length;
-
-  useEffect(() => {
-    setLocalDisputes(readStoredDisputes(runId));
-  }, [runId]);
-
-  useEffect(() => {
-    writeStoredDisputes(runId, localDisputes);
-  }, [localDisputes, runId]);
 
   return (
     <Card className="space-y-4" data-testid="dispute-registry-panel">
@@ -88,8 +84,13 @@ export function DisputeRegistryPanel({
             type="button"
             disabled={!draftTitle.trim()}
             onClick={() => {
-              const now = new Date().toISOString();
-              setLocalDisputes((current) => [
+              let now: string;
+              try {
+                now = new Date().toISOString();
+              } catch {
+                return;
+              }
+              const next = [
                 {
                   actor: "reviewer",
                   basis: draftBasis,
@@ -99,8 +100,12 @@ export function DisputeRegistryPanel({
                   target: "decision",
                   title: draftTitle.trim(),
                 },
-                ...current,
-              ]);
+                ...localDisputes,
+              ] satisfies DisputeRecord[];
+              if (!writeStoredDisputes(scope, runId, next)) {
+                return;
+              }
+              setLocalDisputes(next);
               setDraftTitle("");
             }}
             variant="primary"
@@ -144,3 +149,39 @@ export function DisputeRegistryPanel({
     </Card>
   );
 }
+
+function ScopedDisputeRegistryPanel({
+  issues,
+  runId,
+}: {
+  issues: GovernanceIssueView[];
+  runId: string;
+}) {
+  const authz = useAuthz();
+  const scope = useMemo<AuthorityLocalScope | null>(
+    () =>
+      authz.status === "ready" && authz.user?.tenant_id && authz.user.user_id
+        ? {
+            tenantId: authz.user.tenant_id,
+            userId: authz.user.user_id,
+          }
+        : null,
+    [authz.status, authz.user?.tenant_id, authz.user?.user_id],
+  );
+  const persistenceBinding = JSON.stringify(
+    scope
+      ? ["scoped", scope.tenantId, scope.userId, runId]
+      : ["unscoped", runId],
+  );
+
+  return (
+    <DisputeRegistryPanel
+      key={persistenceBinding}
+      issues={issues}
+      runId={runId}
+      scope={scope}
+    />
+  );
+}
+
+export { ScopedDisputeRegistryPanel as DisputeRegistryPanel };

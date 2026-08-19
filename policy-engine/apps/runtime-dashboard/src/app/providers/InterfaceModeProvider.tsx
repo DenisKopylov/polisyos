@@ -8,7 +8,7 @@ import {
   useState,
 } from "react";
 
-import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
+import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 
 export type InterfaceMode = "clerk" | "analyst";
@@ -42,38 +42,35 @@ function readStoredMode(): InterfaceMode | null {
 
 export function InterfaceModeProvider({ children }: PropsWithChildren) {
   const clerkModeEnabled = useFeatureFlag("enableClerkMode");
-  const authz = useMaybeAuthz();
-  const canUseAnalyst = authz?.can("mode.analyst") ?? true;
+  const authzDecision = useAuthzDecision();
+  const canUseAnalyst =
+    authzDecision.kind === "verified" && authzDecision.can("mode.analyst");
 
-  const [mode, setModeState] = useState<InterfaceMode>(() => {
-    if (!clerkModeEnabled) return "analyst";
-    const stored = readStoredMode();
-    if (stored)
-      return stored === "analyst" && !canUseAnalyst ? "clerk" : stored;
-    return canUseAnalyst ? "analyst" : "clerk";
-  });
+  const [preferredMode, setPreferredMode] =
+    useState<InterfaceMode | null>(readStoredMode);
+  const mode: InterfaceMode = !clerkModeEnabled
+    ? "analyst"
+    : preferredMode === "clerk"
+      ? "clerk"
+      : canUseAnalyst
+        ? "analyst"
+        : "clerk";
 
   const setMode = useCallback(
     (nextMode: InterfaceMode) => {
       if (!clerkModeEnabled) return;
       if (nextMode === "analyst" && !canUseAnalyst) return;
-      setModeState(nextMode);
+      setPreferredMode(nextMode);
     },
     [canUseAnalyst, clerkModeEnabled],
   );
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    window.localStorage.setItem(INTERFACE_MODE_STORAGE_KEY, mode);
-  }, [mode]);
-
-  useEffect(() => {
-    setModeState((prev) => {
-      if (!clerkModeEnabled) return "analyst";
-      if (prev === "analyst" && !canUseAnalyst) return "clerk";
-      return prev;
-    });
-  }, [canUseAnalyst, clerkModeEnabled]);
+    if (preferredMode) {
+      window.localStorage.setItem(INTERFACE_MODE_STORAGE_KEY, preferredMode);
+    }
+  }, [preferredMode]);
 
   const value = useMemo<InterfaceModeContextValue>(
     () => ({

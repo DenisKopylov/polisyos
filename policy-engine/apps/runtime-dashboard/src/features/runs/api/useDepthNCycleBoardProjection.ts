@@ -1,4 +1,3 @@
-import { useQuery } from "@tanstack/react-query";
 import {
   RuntimeApiClient,
   type DepthNCycleBoardPayload,
@@ -6,6 +5,8 @@ import {
 } from "@polisyos/runtime-api-client";
 
 import { queryKeys } from "@/api/queryKeys";
+import { observeCachePosture } from "@/api/cacheDiscipline";
+import { governedQueryOptions, useGovernedQuery } from "@/api/governedQueryPolicy";
 import { authAwareRuntimeFetch } from "@/app/auth/authSession";
 import { API_BASE_URL } from "@/shared/lib/constants";
 
@@ -114,7 +115,24 @@ export function depthNCycleBoardProjectionQueryOptions(
   };
 }
 
+/** Bind the feature producer to the wrapper's direct packet `as_of` rule. */
+export function depthNCycleBoardProjectionQueryPolicy() {
+  return { kind: "owner_as_of" } as const;
+}
+
 /** Read the global Cycle Board projection without correlating it to a route. */
-export function useDepthNCycleBoardProjection() {
-  return useQuery(depthNCycleBoardProjectionQueryOptions());
+export function useDepthNCycleBoardProjection(
+  client: GovernedProjectionClient = governedProjectionClient,
+) {
+  const query = useGovernedQuery(
+    governedQueryOptions(
+      depthNCycleBoardProjectionQueryOptions(client),
+      depthNCycleBoardProjectionQueryPolicy(),
+    ),
+  );
+
+  return {
+    ...query,
+    cacheObservation: observeCachePosture(query, query.data?.packet.as_of),
+  };
 }

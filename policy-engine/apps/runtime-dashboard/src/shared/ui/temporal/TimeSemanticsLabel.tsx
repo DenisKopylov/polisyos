@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ProjectionFreshness } from "@polisyos/runtime-api-client";
 
 import { cn } from "@/shared/lib/utils";
@@ -6,6 +7,7 @@ import { presentCacheAgeLabel } from "./cacheAgePresentation";
 
 type TimeSemanticsLabelProps = {
   cacheAgeLabel?: unknown;
+  children?: ReactNode;
   className?: string;
   freshness?: ProjectionFreshness | null;
   payloadAsOf?: string | null;
@@ -15,6 +17,7 @@ type TimeSemanticsLabelProps = {
 
 export function TimeSemanticsLabel({
   cacheAgeLabel,
+  children,
   className,
   freshness,
   payloadAsOf,
@@ -51,6 +54,7 @@ export function TimeSemanticsLabel({
         testId="source-state"
         value={freshness?.state}
       />
+      {children}
       <TimeEntry
         label="Cache age"
         testId="cache-age"

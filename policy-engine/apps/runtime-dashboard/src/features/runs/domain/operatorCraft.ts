@@ -3,15 +3,14 @@ import {
   parseReplayEventEnvelope,
   type ReplayEventEnvelope,
 } from "@/app/surfaces/replayEvents";
+import {
+  createAuthorityLocalStateFamily,
+  type AuthorityLocalScope,
+} from "@/app/offline/authorityLocalState";
 import type { SurfaceId } from "@/app/surfaces/surfaceRegistry";
 import type { SignedPublicDecisionPacket } from "@/features/runs/domain/publicationPacket";
 
 export const OPERATOR_CRAFT_CHANGED_EVENT = "polisyos:operator-craft-changed";
-
-const THRESHOLD_STORAGE_KEY = "polisyos.operatorCraft.threshold.v1";
-const ANNOTATION_STORAGE_PREFIX = "polisyos.operatorCraft.annotations.v1:";
-const EVIDENCE_WALLET_STORAGE_KEY = "polisyos.operatorCraft.wallet.v1";
-const ONBOARDING_STORAGE_PREFIX = "polisyos.operatorCraft.onboarding.v1:";
 
 const THRESHOLD_SCHEMA = "polisyos.operator_threshold.v1" as const;
 const ANNOTATION_SCHEMA = "polisyos.operator_annotation.v1" as const;
@@ -20,6 +19,8 @@ const ONBOARDING_SCHEMA = "polisyos.operator_reading_onboarding.v1" as const;
 
 const DEFAULT_THRESHOLD = 0.6;
 const FALLBACK_NOW = "1970-01-01T00:00:00.000Z";
+const OPERATOR_CRAFT_LOCAL_STATE_TTL_MS = 24 * 60 * 60 * 1_000;
+const OPERATOR_CRAFT_LOCAL_STATE_VERSION = 1;
 const SURFACE_QUERY_SLUGS: Record<string, string> = {
   "runs.annotationSurface": "annotation-surface",
   "runs.evidenceWallet": "evidence-wallet",
@@ -32,6 +33,8 @@ export type OperatorCraftChangeKind =
   | "onboarding"
   | "threshold"
   | "wallet";
+
+export type OperatorCraftScope = AuthorityLocalScope;
 
 export type ReviewerThresholdProfile = {
   auditEvent: ReplayEventEnvelope | null;
@@ -200,7 +203,7 @@ function nowIso(now?: string) {
   return now ?? new Date().toISOString();
 }
 
-function storage() {
+function operatorCraftStorage() {
   try {
     return globalThis.localStorage ?? null;
   } catch {
@@ -210,35 +213,6 @@ function storage() {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
-}
-
-function readJson<T>(
-  key: string,
-  guard: (value: unknown) => value is T,
-  fallback: T,
-) {
-  const store = storage();
-  if (!store) {
-    return fallback;
-  }
-  const raw = store.getItem(key);
-  if (!raw) {
-    return fallback;
-  }
-  try {
-    const parsed = JSON.parse(raw) as unknown;
-    return guard(parsed) ? parsed : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function writeJson(key: string, value: unknown) {
-  const store = storage();
-  if (!store) {
-    return;
-  }
-  store.setItem(key, JSON.stringify(value));
 }
 
 function emitOperatorCraftChanged(kind: OperatorCraftChangeKind) {
@@ -374,14 +348,6 @@ function isReadingOnboardingStepId(
   );
 }
 
-function annotationKey(runId: string) {
-  return `${ANNOTATION_STORAGE_PREFIX}${runId}`;
-}
-
-function onboardingKey(runId: string) {
-  return `${ONBOARDING_STORAGE_PREFIX}${runId}`;
-}
-
 function defaultReadingOnboardingState(runId: string): ReadingOnboardingState {
   return {
     auditEvents: [],
@@ -433,12 +399,67 @@ function normalizeReadingOnboardingState(
   };
 }
 
-export function readReviewerThresholdProfile() {
-  return readJson(
-    THRESHOLD_STORAGE_KEY,
-    isThresholdProfile,
-    defaultThresholdProfile(),
-  );
+const thresholdLocalState = createAuthorityLocalStateFamily({
+  clock: () => new Date(),
+  codec: {
+    decode: (value) => (isThresholdProfile(value) ? value : null),
+    encode: (value: ReviewerThresholdProfile) => value,
+  },
+  family: "operator-craft.threshold" as const,
+  storage: operatorCraftStorage,
+  ttlMs: OPERATOR_CRAFT_LOCAL_STATE_TTL_MS,
+  version: OPERATOR_CRAFT_LOCAL_STATE_VERSION,
+});
+
+const annotationsLocalState = createAuthorityLocalStateFamily({
+  clock: () => new Date(),
+  codec: {
+    decode: (value) => (isStoredAnnotations(value) ? value : null),
+    encode: (value: StoredAnnotations) => value,
+  },
+  family: "operator-craft.annotations" as const,
+  storage: operatorCraftStorage,
+  ttlMs: OPERATOR_CRAFT_LOCAL_STATE_TTL_MS,
+  version: OPERATOR_CRAFT_LOCAL_STATE_VERSION,
+});
+
+const walletLocalState = createAuthorityLocalStateFamily({
+  clock: () => new Date(),
+  codec: {
+    decode: (value) => (isStoredWallet(value) ? value : null),
+    encode: (value: StoredWallet) => value,
+  },
+  family: "operator-craft.evidence-wallet" as const,
+  storage: operatorCraftStorage,
+  ttlMs: OPERATOR_CRAFT_LOCAL_STATE_TTL_MS,
+  version: OPERATOR_CRAFT_LOCAL_STATE_VERSION,
+});
+
+const onboardingLocalState = createAuthorityLocalStateFamily({
+  clock: () => new Date(),
+  codec: {
+    decode: (value) => {
+      if (!isRecord(value) || typeof value.runId !== "string") {
+        return null;
+      }
+      return normalizeReadingOnboardingState(value, value.runId);
+    },
+    encode: (value: ReadingOnboardingState) => value,
+  },
+  family: "operator-craft.onboarding" as const,
+  storage: operatorCraftStorage,
+  ttlMs: OPERATOR_CRAFT_LOCAL_STATE_TTL_MS,
+  version: OPERATOR_CRAFT_LOCAL_STATE_VERSION,
+});
+
+export function readReviewerThresholdProfile(
+  scope?: AuthorityLocalScope | null,
+) {
+  return thresholdLocalState.read({
+    fallback: defaultThresholdProfile(),
+    scope,
+    slot: "profile",
+  });
 }
 
 export function setReviewerThreshold(input: {
@@ -448,15 +469,16 @@ export function setReviewerThreshold(input: {
   reviewerId?: string;
   runId?: string;
   sequence?: number;
+  scope?: AuthorityLocalScope | null;
 }) {
-  const previous = readReviewerThresholdProfile();
+  const previous = readReviewerThresholdProfile(input.scope);
   const nextThreshold = rounded(input.next);
   const occurredAt = nowIso(input.now);
   const runId = input.runId ?? input.packet?.decision.runId ?? "workspace";
   const route = routeForSurface(runId, "runs.globalTrustDial");
   const auditEvent = createReplayEventEnvelope({
     actor: {
-      id: input.reviewerId ?? "local-reviewer",
+      id: input.reviewerId ?? input.scope?.userId ?? "local-reviewer",
       lens: "operator",
       role: "reviewer",
     },
@@ -483,22 +505,32 @@ export function setReviewerThreshold(input: {
     schema: THRESHOLD_SCHEMA,
     threshold: nextThreshold,
     updatedAt: occurredAt,
-    updatedBy: input.reviewerId ?? "local-reviewer",
+    updatedBy: input.reviewerId ?? input.scope?.userId ?? "local-reviewer",
   } satisfies ReviewerThresholdProfile;
-  writeJson(THRESHOLD_STORAGE_KEY, profile);
-  emitOperatorCraftChanged("threshold");
+  if (
+    thresholdLocalState.write({
+      scope: input.scope,
+      slot: "profile",
+      value: profile,
+    })
+  ) {
+    emitOperatorCraftChanged("threshold");
+  }
   return profile;
 }
 
-export function readReviewerAnnotations(runId: string) {
-  return readJson<StoredAnnotations>(
-    annotationKey(runId),
-    isStoredAnnotations,
-    {
+export function readReviewerAnnotations(
+  runId: string,
+  scope?: AuthorityLocalScope | null,
+) {
+  return annotationsLocalState.read({
+    fallback: {
       records: [],
       schema: "polisyos.operator_annotations_store.v1",
     },
-  ).records;
+    scope,
+    slot: runId,
+  }).records;
 }
 
 export function createReviewerAnnotation(input: {
@@ -562,23 +594,37 @@ export function createReviewerAnnotation(input: {
   } satisfies ReviewerAnnotation;
 }
 
-export function saveReviewerAnnotation(annotation: ReviewerAnnotation) {
-  const current = readReviewerAnnotations(annotation.snapshot.runId);
+export function saveReviewerAnnotation(
+  annotation: ReviewerAnnotation,
+  scope?: AuthorityLocalScope | null,
+) {
+  const current = readReviewerAnnotations(annotation.snapshot.runId, scope);
   const next = current.some((record) => record.id === annotation.id)
     ? current
     : [...current, annotation];
-  writeJson(annotationKey(annotation.snapshot.runId), {
-    records: next,
-    schema: "polisyos.operator_annotations_store.v1",
-  } satisfies StoredAnnotations);
-  emitOperatorCraftChanged("annotation");
+  if (
+    annotationsLocalState.write({
+      scope,
+      slot: annotation.snapshot.runId,
+      value: {
+        records: next,
+        schema: "polisyos.operator_annotations_store.v1",
+      } satisfies StoredAnnotations,
+    })
+  ) {
+    emitOperatorCraftChanged("annotation");
+  }
   return next;
 }
 
-export function readEvidenceWallet() {
-  return readJson<StoredWallet>(EVIDENCE_WALLET_STORAGE_KEY, isStoredWallet, {
-    items: [],
-    schema: "polisyos.operator_wallet_store.v1",
+export function readEvidenceWallet(scope?: AuthorityLocalScope | null) {
+  return walletLocalState.read({
+    fallback: {
+      items: [],
+      schema: "polisyos.operator_wallet_store.v1",
+    },
+    scope,
+    slot: "wallet",
   }).items;
 }
 
@@ -644,41 +690,51 @@ export function createEvidenceWalletItem(input: {
   } satisfies EvidenceWalletItem;
 }
 
-export function saveEvidenceWalletItem(item: EvidenceWalletItem) {
-  const current = readEvidenceWallet();
+export function saveEvidenceWalletItem(
+  item: EvidenceWalletItem,
+  scope?: AuthorityLocalScope | null,
+) {
+  const current = readEvidenceWallet(scope);
   const next = current.some((record) => record.id === item.id)
     ? current
     : [...current, item];
-  writeJson(EVIDENCE_WALLET_STORAGE_KEY, {
-    items: next,
-    schema: "polisyos.operator_wallet_store.v1",
-  } satisfies StoredWallet);
-  emitOperatorCraftChanged("wallet");
+  if (
+    walletLocalState.write({
+      scope,
+      slot: "wallet",
+      value: {
+        items: next,
+        schema: "polisyos.operator_wallet_store.v1",
+      } satisfies StoredWallet,
+    })
+  ) {
+    emitOperatorCraftChanged("wallet");
+  }
   return next;
 }
 
-export function readReadingOnboardingState(runId: string) {
+export function readReadingOnboardingState(
+  runId: string,
+  scope?: AuthorityLocalScope | null,
+) {
   const fallback = defaultReadingOnboardingState(runId);
-  const store = storage();
-  if (!store) {
+  const hydrated = onboardingLocalState.read({
+    fallback,
+    scope,
+    slot: runId,
+  });
+  if (hydrated.runId !== runId) {
     return fallback;
   }
-  const raw = store.getItem(onboardingKey(runId));
-  if (!raw) {
-    return fallback;
-  }
-  try {
-    return (
-      normalizeReadingOnboardingState(JSON.parse(raw) as unknown, runId) ??
-      fallback
-    );
-  } catch {
-    return fallback;
-  }
+  return hydrated;
 }
 
-export function startReadingOnboarding(input: { now?: string; runId: string }) {
-  const current = readReadingOnboardingState(input.runId);
+export function startReadingOnboarding(input: {
+  now?: string;
+  runId: string;
+  scope?: AuthorityLocalScope | null;
+}) {
+  const current = readReadingOnboardingState(input.runId, input.scope);
   if (current.startedAt !== FALLBACK_NOW) {
     return current;
   }
@@ -686,8 +742,15 @@ export function startReadingOnboarding(input: { now?: string; runId: string }) {
     ...current,
     startedAt: nowIso(input.now),
   };
-  writeJson(onboardingKey(input.runId), next);
-  emitOperatorCraftChanged("onboarding");
+  if (
+    onboardingLocalState.write({
+      scope: input.scope,
+      slot: input.runId,
+      value: next,
+    })
+  ) {
+    emitOperatorCraftChanged("onboarding");
+  }
   return next;
 }
 
@@ -737,12 +800,14 @@ export function completeReadingOnboardingStep(input: {
   packet?: SignedPublicDecisionPacket;
   reviewerId?: string;
   runId: string;
+  scope?: AuthorityLocalScope | null;
   stepId: ReadingOnboardingStepId;
 }) {
   const occurredAt = nowIso(input.now);
   const current = startReadingOnboarding({
     now: occurredAt,
     runId: input.runId,
+    scope: input.scope,
   });
   if (
     input.stepId === "checklist_complete" &&
@@ -772,8 +837,15 @@ export function completeReadingOnboardingStep(input: {
     auditEvents,
     completedStepIds,
   };
-  writeJson(onboardingKey(input.runId), next);
-  emitOperatorCraftChanged("onboarding");
+  if (
+    onboardingLocalState.write({
+      scope: input.scope,
+      slot: input.runId,
+      value: next,
+    })
+  ) {
+    emitOperatorCraftChanged("onboarding");
+  }
   return next;
 }
 
@@ -782,11 +854,13 @@ export function completeReadingOnboardingRun(input: {
   packet?: SignedPublicDecisionPacket;
   reviewerId?: string;
   runId: string;
+  scope?: AuthorityLocalScope | null;
 }) {
   const occurredAt = nowIso(input.now);
   const current = startReadingOnboarding({
     now: occurredAt,
     runId: input.runId,
+    scope: input.scope,
   });
   if (!hasCompletedRequiredOnboardingSteps(current)) {
     return current;
@@ -796,6 +870,7 @@ export function completeReadingOnboardingRun(input: {
     packet: input.packet,
     reviewerId: input.reviewerId,
     runId: input.runId,
+    scope: input.scope,
     stepId: "checklist_complete",
   });
   const startedAt = Date.parse(withChecklistCompletion.startedAt);
@@ -811,8 +886,15 @@ export function completeReadingOnboardingRun(input: {
     timeToCompletionSeconds:
       withChecklistCompletion.timeToCompletionSeconds ?? seconds,
   } satisfies ReadingOnboardingState;
-  writeJson(onboardingKey(input.runId), next);
-  emitOperatorCraftChanged("onboarding");
+  if (
+    onboardingLocalState.write({
+      scope: input.scope,
+      slot: input.runId,
+      value: next,
+    })
+  ) {
+    emitOperatorCraftChanged("onboarding");
+  }
   return next;
 }
 

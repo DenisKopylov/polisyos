@@ -56,6 +56,32 @@ def _artifacts() -> tuple[dict[str, object], dict[str, object]]:
 class StatusRetirementInventoryTests(unittest.TestCase):
     """Prove the guard recomputes ownership rather than trusting markers."""
 
+    def test_shared_scan_adds_declaration_census_without_changing_ds4_estate(
+        self,
+    ) -> None:
+        inventory, debt = _artifacts()
+        scan = checker._scan()
+
+        self.assertEqual(36, scan["sourceDenominators"]["atlasUiProduction"])
+        self.assertNotIn("unauthorizedStatusOwners", scan)
+        self.assertNotIn("unauthorizedStatusSinks", scan)
+        self.assertIsInstance(scan["authoritySinkDeclarations"], list)
+        self.assertEqual(
+            {
+                "current_authored": 12,
+                "ds1_rows": 47,
+                "semantic_retirement_debt": 0,
+            },
+            {
+                key: checker._summary(inventory, debt)[key]
+                for key in (
+                    "current_authored",
+                    "ds1_rows",
+                    "semantic_retirement_debt",
+                )
+            },
+        )
+
     def test_rejects_a_renamed_local_authority_union(self) -> None:
         inventory, debt = _artifacts()
         errors = checker.validate_inventory(
@@ -216,7 +242,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 if row["candidate_id"] in C21_RETIRED_IDS
             )
         )
-        self.assertEqual(55, len(rows))
+        self.assertEqual(56, len(rows))
         self.assertEqual(47, inventory["denominators"]["ds1_rows"])
         live_c22_rows = {
             row["candidate_id"]

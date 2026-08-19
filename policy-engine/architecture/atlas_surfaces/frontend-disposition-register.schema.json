@@ -17,6 +17,7 @@
     "baseline_debt_manifest_ref",
     "ds2_unbound_adoption_ids",
     "reference_censuses",
+    "storage_construction_census",
     "entries",
     "subunits",
     "supplemental_findings",
@@ -107,6 +108,9 @@
       "items": {
         "$ref": "#/$defs/referenceCensus"
       }
+    },
+    "storage_construction_census": {
+      "$ref": "#/$defs/storageConstructionCensus"
     },
     "entries": {
       "type": "array",
@@ -593,6 +597,7 @@
             "path_absent",
             "reference_count",
             "protected_live_consumers",
+            "typescript_import_census",
             "typescript_symbol_consumer_census"
           ]
         },
@@ -699,6 +704,234 @@
         }
       }
     },
+    "storageConstructionCensus": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "schema_version",
+        "census_id",
+        "captured_at",
+        "scanner_rule_version",
+        "production_source_count",
+        "production_file_count",
+        "site_count",
+        "api_counts",
+        "authority_factory_count",
+        "authority_factory_receipts_sha256",
+        "authority_factory_receipts",
+        "direct_construction_provenance",
+        "semantic_class_provenance",
+        "authority_flow_provenance",
+        "authority_flow_scope",
+        "authority_flow_falsifier",
+        "authority_flow_required_capability",
+        "authority_flow_capability_status",
+        "rows_sha256",
+        "sites"
+      ],
+      "properties": {
+        "schema_version": { "const": "1.0" },
+        "census_id": { "const": "ds5-c17b-storage-construction" },
+        "captured_at": { "type": "string", "format": "date-time" },
+        "scanner_rule_version": { "const": "c17b-declaration-resolver-v3-direct-only" },
+        "production_source_count": { "const": 574 },
+        "production_file_count": { "const": 15 },
+        "site_count": { "const": 36 },
+        "api_counts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["indexed_db", "web_storage", "zustand"],
+          "properties": {
+            "indexed_db": { "const": 5 },
+            "web_storage": { "const": 26 },
+            "zustand": { "const": 5 }
+          }
+        },
+        "authority_factory_count": { "const": 9 },
+        "authority_factory_receipts_sha256": { "$ref": "#/$defs/sha256" },
+        "authority_factory_receipts": {
+          "type": "array",
+          "minItems": 9,
+          "maxItems": 9,
+          "items": { "$ref": "#/$defs/authorityFactoryReceipt" }
+        },
+        "direct_construction_provenance": { "const": "recomputed" },
+        "semantic_class_provenance": { "const": "institutionally_supplied" },
+        "authority_flow_provenance": { "const": "not_established" },
+        "authority_flow_scope": {
+          "const": "site-to-owner-instance provider, receiver, key, and payload value flow is outside the declaration-resolved direct-construction census"
+        },
+        "authority_flow_falsifier": {
+          "const": "const storage = provider(); storage.setItem(...) preserves a resolved Storage.setItem site while changing the unproved owner-instance flow"
+        },
+        "authority_flow_required_capability": {
+          "const": "sound whole-program interprocedural data/control-flow with reaching definitions and owner-instance identity"
+        },
+        "authority_flow_capability_status": { "const": "absent/unallocated" },
+        "rows_sha256": { "$ref": "#/$defs/sha256" },
+        "sites": {
+          "type": "array",
+          "minItems": 36,
+          "maxItems": 36,
+          "items": { "$ref": "#/$defs/storageConstructionSite" }
+        }
+      }
+    },
+    "authorityFactoryReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "factory_site_id",
+        "path",
+        "factory",
+        "declaration_chain",
+        "source_fingerprint",
+        "site_fingerprint"
+      ],
+      "properties": {
+        "factory_site_id": { "$ref": "#/$defs/id" },
+        "path": { "$ref": "#/$defs/pathRef" },
+        "factory": {
+          "enum": [
+            "createAuthorityLocalStateEnvelopeFamily",
+            "createAuthorityLocalStateFamily"
+          ]
+        },
+        "declaration_chain": { "$ref": "#/$defs/nonEmptyString" },
+        "source_fingerprint": { "$ref": "#/$defs/sha256" },
+        "site_fingerprint": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "storageConstructionSite": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "site_id",
+        "path",
+        "resolved_api_declaration",
+        "operation",
+        "store_owner",
+        "source_fingerprint",
+        "site_fingerprint",
+        "classification"
+      ],
+      "properties": {
+        "site_id": { "$ref": "#/$defs/id" },
+        "path": { "$ref": "#/$defs/pathRef" },
+        "resolved_api_declaration": { "$ref": "#/$defs/nonEmptyString" },
+        "operation": {
+          "enum": [
+            "acquire",
+            "clear",
+            "createJSONStorage",
+            "createObjectStore",
+            "delete",
+            "get",
+            "getItem",
+            "key",
+            "openDB",
+            "persist",
+            "put",
+            "removeItem",
+            "setItem"
+          ]
+        },
+        "store_owner": { "$ref": "#/$defs/pathRef" },
+        "source_fingerprint": { "$ref": "#/$defs/sha256" },
+        "site_fingerprint": { "$ref": "#/$defs/sha256" },
+        "classification": {
+          "enum": [
+            "scoped_authority",
+            "interaction_benign",
+            "rollout_cache_pending"
+          ]
+        },
+        "scoped_envelope_owner": { "$ref": "#/$defs/pathRef" },
+        "registered_codec_id": { "$ref": "#/$defs/id" },
+        "benign_reason": {
+          "enum": [
+            "locale",
+            "rollout_exposure_control",
+            "theme",
+            "ui_preference"
+          ]
+        },
+        "owner_slice": { "$ref": "#/$defs/ownerSlice" },
+        "capability_states": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": [
+              "contract_only",
+              "producer_missing",
+              "artifact_missing",
+              "bridge_missing",
+              "consumer_missing",
+              "verification_missing",
+              "implemented_but_not_orchestrated",
+              "surface_missing",
+              "surface_out_of_scope",
+              "semantic_test_missing"
+            ]
+          }
+        },
+        "closure_signal": { "$ref": "#/$defs/nonEmptyString" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": { "classification": { "const": "scoped_authority" } },
+            "required": ["classification"]
+          },
+          "then": {
+            "required": ["scoped_envelope_owner", "registered_codec_id"],
+            "not": {
+              "anyOf": [
+                { "required": ["benign_reason"] },
+                { "required": ["owner_slice"] },
+                { "required": ["capability_states"] },
+                { "required": ["closure_signal"] }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "classification": { "const": "interaction_benign" } },
+            "required": ["classification"]
+          },
+          "then": {
+            "required": ["benign_reason"],
+            "not": {
+              "anyOf": [
+                { "required": ["scoped_envelope_owner"] },
+                { "required": ["registered_codec_id"] },
+                { "required": ["owner_slice"] },
+                { "required": ["capability_states"] },
+                { "required": ["closure_signal"] }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": { "classification": { "const": "rollout_cache_pending" } },
+            "required": ["classification"]
+          },
+          "then": {
+            "required": ["owner_slice", "capability_states", "closure_signal"],
+            "not": {
+              "anyOf": [
+                { "required": ["scoped_envelope_owner"] },
+                { "required": ["registered_codec_id"] },
+                { "required": ["benign_reason"] }
+              ]
+            }
+          }
+        }
+      ]
+    },
     "continuityGuard": {
       "type": "object",
       "additionalProperties": false,
@@ -785,9 +1018,261 @@
         }
       }
     },
+    "integrateContract": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "canonical_projection_id",
+        "registered_route_posture",
+        "authorized_audiences",
+        "required_permissions",
+        "exact_field_set",
+        "authoritative_for",
+        "may_not_use_for",
+        "provenance_fields",
+        "validator_refs",
+        "hash_fields",
+        "time_semantics",
+        "runtime_novelty_behavior",
+        "executable_owner_side_closure_signal"
+      ],
+      "properties": {
+        "canonical_projection_id": {
+          "$ref": "#/$defs/id"
+        },
+        "registered_route_posture": {
+          "const": "registered_atomically_with_authorization"
+        },
+        "authorized_audiences": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "enum": ["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+          }
+        },
+        "required_permissions": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "exact_field_set": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "authoritative_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "may_not_use_for": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "provenance_fields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "validator_refs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/pathRef"
+          }
+        },
+        "hash_fields": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "$ref": "#/$defs/nonEmptyString"
+          }
+        },
+        "time_semantics": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "runtime_novelty_behavior": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "executable_owner_side_closure_signal": {
+          "$ref": "#/$defs/nonEmptyString"
+        }
+      }
+    },
+    "authoritySourceReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "path", "line"],
+      "properties": {
+        "role": {
+          "enum": ["component_declaration", "prop_declaration", "consumer"]
+        },
+        "path": {
+          "$ref": "#/$defs/pathRef"
+        },
+        "line": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "content_sha256": {
+          "$ref": "#/$defs/sha256"
+        },
+        "site_sha256": {
+          "$ref": "#/$defs/sha256"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"role": {"const": "consumer"}},
+            "required": ["role"]
+          },
+          "then": {
+            "required": ["site_sha256"],
+            "not": {"required": ["content_sha256"]}
+          },
+          "else": {
+            "required": ["content_sha256"],
+            "not": {"required": ["site_sha256"]}
+          }
+        }
+      ]
+    },
+    "authoritySinkDescriptor": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sink_kind",
+        "descriptor_id",
+        "component",
+        "component_declaration",
+        "consumer_count",
+        "consumer_sites"
+      ],
+      "properties": {
+        "sink_kind": {
+          "enum": ["prop_boundary", "direct_badge_group"]
+        },
+        "descriptor_id": {
+          "$ref": "#/$defs/id"
+        },
+        "component": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "prop": {
+          "$ref": "#/$defs/nonEmptyString"
+        },
+        "component_declaration": {
+          "$ref": "#/$defs/authoritySourceReceipt"
+        },
+        "prop_declaration": {
+          "$ref": "#/$defs/authoritySourceReceipt"
+        },
+        "consumer_count": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "consumer_sites": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "$ref": "#/$defs/authoritySourceReceipt"
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {"sink_kind": {"const": "prop_boundary"}},
+            "required": ["sink_kind"]
+          },
+          "then": {
+            "required": ["prop", "prop_declaration"]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                {"required": ["prop"]},
+                {"required": ["prop_declaration"]}
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "rawTransportDriftReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "historical_ds1",
+        "live_direct_constructor_census",
+        "ds19_collaboration_deletion_evidence_ref"
+      ],
+      "properties": {
+        "historical_ds1": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["raw_fetch_calls", "production_file_count", "audit_evidence_ref"],
+          "properties": {
+            "raw_fetch_calls": { "const": 9 },
+            "production_file_count": { "const": 5 },
+            "audit_evidence_ref": {
+              "const": "docs/reference/frontend/atlas-live-application-audit.md#hand-written-fetches-audited-9-of-9-production-calls"
+            }
+          }
+        },
+        "live_direct_constructor_census": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "fetch_calls",
+            "fetch_production_file_count",
+            "direct_constructor_count",
+            "direct_constructor_production_file_count",
+            "kind_counts"
+          ],
+          "properties": {
+            "fetch_calls": { "const": 5 },
+            "fetch_production_file_count": { "const": 3 },
+            "direct_constructor_count": { "const": 7 },
+            "direct_constructor_production_file_count": { "const": 5 },
+            "kind_counts": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["fetch", "EventSource", "WebSocket"],
+              "properties": {
+                "fetch": { "const": 5 },
+                "EventSource": { "const": 1 },
+                "WebSocket": { "const": 1 }
+              }
+            }
+          }
+        },
+        "ds19_collaboration_deletion_evidence_ref": {
+          "const": "docs/plans/active/atlas-slices/DS19-false-substrate-strangle-wave-journal.md#2026-07-17---collaboration-cluster-verification"
+        }
+      }
+    },
     "supplementalFinding": {
       "type": "object",
-      "description": "Supplemental debt is descriptor-derived; producer-binding debt remains open until a typed producer, artifact, bridge, and semantic closure exist.",
+      "description": "Supplemental debt is descriptor-derived; producer, integrate-contract, and authority-presentation debt remain open until their typed closure signals pass.",
       "additionalProperties": false,
       "required": [
         "finding_id",
@@ -810,7 +1295,9 @@
             "baseline_test_debt",
             "dependency_declaration",
             "fixture_contract_drift",
-            "producer_binding_debt"
+            "producer_binding_debt",
+            "integrate_contract_debt",
+            "authority_presentation_debt"
           ]
         },
         "disposition": {
@@ -832,6 +1319,10 @@
         },
         "owner_slice": {
           "$ref": "#/$defs/ownerSlice"
+        },
+        "owner_team": {
+          "type": "string",
+          "pattern": "^team-[a-z0-9-]+$"
         },
         "decision_date": {
           "$ref": "#/$defs/date"
@@ -863,6 +1354,15 @@
         "closure_signal": {
           "$ref": "#/$defs/nonEmptyString"
         },
+        "integrate_contract": {
+          "$ref": "#/$defs/integrateContract"
+        },
+        "authority_sink": {
+          "$ref": "#/$defs/authoritySinkDescriptor"
+        },
+        "raw_transport_receipt": {
+          "$ref": "#/$defs/rawTransportDriftReceipt"
+        },
         "rationale": {
           "$ref": "#/$defs/nonEmptyString"
         }
@@ -871,7 +1371,13 @@
         {
           "if": {
             "properties": {
-              "finding_kind": { "const": "producer_binding_debt" }
+              "finding_kind": {
+                "enum": [
+                  "producer_binding_debt",
+                  "integrate_contract_debt",
+                  "authority_presentation_debt"
+                ]
+              }
             },
             "required": ["finding_kind"]
           },
@@ -887,13 +1393,73 @@
             "not": {
               "anyOf": [
                 { "required": ["capability_states"] },
-                { "required": ["closure_signal"] }
+                { "required": ["closure_signal"] },
+                { "required": ["owner_team"] },
+                { "required": ["integrate_contract"] },
+                { "required": ["authority_sink"] }
               ]
             }
           }
+        },
+        {
+          "if": {
+            "properties": {
+              "finding_kind": { "const": "integrate_contract_debt" }
+            },
+            "required": ["finding_kind"]
+          },
+          "then": {
+            "required": ["owner_team", "integrate_contract"]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                { "required": ["owner_team"] },
+                { "required": ["integrate_contract"] }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "finding_kind": {"const": "authority_presentation_debt"}
+            },
+            "required": ["finding_kind"]
+          },
+          "then": {
+            "required": ["authority_sink"]
+          },
+          "else": {
+            "not": {"required": ["authority_sink"]}
         }
-      ]
-    },
+      },
+      {
+        "if": {
+          "allOf": [
+            {
+              "properties": {
+                "finding_id": { "const": "raw-transport-denominator-drift" }
+              },
+              "required": ["finding_id"]
+            },
+            {
+              "properties": {
+                "finding_kind": { "const": "producer_binding_debt" }
+              },
+              "required": ["finding_kind"]
+            }
+          ]
+        },
+        "then": {
+          "required": ["raw_transport_receipt"]
+        },
+        "else": {
+          "not": { "required": ["raw_transport_receipt"] }
+        }
+      }
+    ]
+  },
     "seededNegative": {
       "type": "object",
       "additionalProperties": false,

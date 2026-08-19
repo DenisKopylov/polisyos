@@ -11,12 +11,11 @@
 
 ## 1. Languages in scope
 
-- Ukrainian (`uk-UA`) — primary.
+- English (`en-US`) — primary and authored source of truth; defines fallback.
+- Ukrainian (`uk-UA`) — product translation of the English source.
 - Russian (`ru-RU`) — read-only target; no writing UI is produced in Russian
   by default, but content ingested from Russian sources must render
   correctly.
-
-- English (`en-US`) — baseline, defines fallback.
 
 Polish, Belarusian, Kazakh, and other Cyrillic languages are **out of scope**
 for Wave 1. They may share typography rules but will not be tested until

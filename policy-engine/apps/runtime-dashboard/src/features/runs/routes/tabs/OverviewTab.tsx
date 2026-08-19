@@ -6,6 +6,7 @@ import { useSuspenseGovernanceDebug } from "@/api/hooks/useGovernanceDebug";
 import { useSuspenseRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
 import { useSuspenseRunTimeline } from "@/api/hooks/useRunTimeline";
 import { buildArtifactHref } from "@/features/artifacts";
+import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
 import { MetricCard } from "@/features/runs/components/MetricCard";
 import { ScenarioWorkbench } from "@/features/whatif";
@@ -326,6 +327,7 @@ function TimelinePanelContent({ runId }: { runId: string }) {
 
 export default function OverviewTab() {
   const { t } = useI18n();
+  const whatIfEnabled = useFeatureFlag("enableWhatIfAnalysis");
   const { runId } = useParams();
   const summary = useRunInspector();
   const governedProjectionQuery = useDepthNCycleBoardProjection();
@@ -451,9 +453,11 @@ export default function OverviewTab() {
         </Card>
       </div>
 
-      <Card className="space-y-4" data-testid="overview-scenario-workbench">
-        <ScenarioWorkbench runId={runId} />
-      </Card>
+      {whatIfEnabled ? (
+        <Card className="space-y-4" data-testid="overview-scenario-workbench">
+          <ScenarioWorkbench runId={runId} />
+        </Card>
+      ) : null}
 
       {/* Explainability & Trust (XAI) */}
       <Card className="space-y-4">
@@ -464,6 +468,7 @@ export default function OverviewTab() {
           </div>
         </div>
         <RunExplainabilityPanel
+          cacheObservation={governedProjectionQuery.cacheObservation}
           governedProjection={governedProjectionQuery.data}
           level="summary"
           projectionError={governedProjectionQuery.isError}

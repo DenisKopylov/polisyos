@@ -141,6 +141,10 @@ def test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_proj
     raw_runtime_ref = sha("8")
     raw_scorecard_ref = "cas://sha256/" + "9" * 64
     raw_event_ref = sha("e")
+    nested_runtime_ref = sha("a")
+    nested_key_ref = sha("b")
+    top_level_key_ref = sha("c")
+    derived_decision_ref = sha("d")
     authority_envelope = authority_envelope_for(
         report_key="policy_grounding_matrix",
         ref_key="policy_grounding_matrix_ref",
@@ -156,8 +160,21 @@ def test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_proj
                     "policy_grounding_matrix_ref": raw_runtime_ref,
                 },
                 "lineage": {"descendant_ref": raw_scorecard_ref},
+                "future_extension": [
+                    {"opaque_value": nested_runtime_ref},
+                    {"opaque_mapping": {nested_key_ref: {"label": "public"}}},
+                ],
                 "public_source_refs": ["norm.ua.credit_eligibility"],
-            }
+                "authority_boundary": {
+                    "boundary_id": derived_decision_ref,
+                    "authoritative_for": ["publication"],
+                    "may_not_use_for": ["scorecard_authority"],
+                    "source_authority": "runtime_quality",
+                    "posture": "projection_only",
+                    "rule_version_refs": ["test-rule-v1"],
+                },
+            },
+            top_level_key_ref: {"summary": "Public summary"},
         },
         authority_envelopes=[authority_envelope],
     )
@@ -166,6 +183,10 @@ def test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_proj
     assert raw_runtime_ref not in rendered
     assert raw_scorecard_ref not in rendered
     assert raw_event_ref not in rendered
+    assert nested_runtime_ref not in rendered
+    assert nested_key_ref not in rendered
+    assert top_level_key_ref not in rendered
+    assert derived_decision_ref not in rendered
     assert "norm.ua.credit_eligibility" in rendered
 
     projection = public_bundle["semantic_audit"]["authority_projections"][0]
@@ -176,3 +197,8 @@ def test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_proj
     ]
     assert redacted_runtime_ref["redacted"] is True
     assert redacted_runtime_ref["reason"] == "tenant_private_ref"
+    redacted_nested_ref = public_bundle["artifacts"]["audit"]["future_extension"][0][
+        "opaque_value"
+    ]
+    assert redacted_nested_ref["redacted"] is True
+    assert redacted_nested_ref["reason"] == "tenant_private_ref"

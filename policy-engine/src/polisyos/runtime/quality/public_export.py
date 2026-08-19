@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import hashlib
+import re
 from collections.abc import Mapping, Sequence
 from datetime import UTC, datetime
 
@@ -43,6 +44,11 @@ from polisyos.runtime.quality.rule_evolution import (
 
 PUBLIC_EXPORT_SCHEMA_VERSION = "policyos.runtime.public_export_bundle.v1"
 PUBLIC_EXPORT_REDACTION_POLICY_REF = "redaction-policy/public-export-v1"
+
+_TENANT_PRIVATE_REF_PATTERNS = (
+    re.compile(r"^sha256:[0-9a-f]{64}$", re.IGNORECASE),
+    re.compile(r"^cas://sha256/[0-9a-f]{64}$", re.IGNORECASE),
+)
 
 _SCALAR_WELFARE_KEYS = frozenset(
     {
@@ -127,6 +133,7 @@ def build_public_export_bundle(
 ) -> dict[str, object]:
     """Build a redacted public projection that cannot satisfy authority gates."""
 
+    tenant_private_refs = _tenant_private_refs_in_payload(artifacts)
     recourse_pointer = None
     if policy_design_case is not None:
         try:
@@ -148,6 +155,10 @@ def build_public_export_bundle(
         sanitizer_strangle_receipt,
     ) = _scan_public_export_artifacts(run_id=run_id, artifacts=artifacts)
     authority_surface_decisions = _authority_surface_decisions_for_public_export(artifacts)
+    public_authority_surface_decisions = _public_authority_surface_decisions(
+        authority_surface_decisions,
+        redactions=redactions,
+    )
     blocking_decisions = [
         (artifact_key, decision)
         for artifact_key, decision in authority_surface_decisions
@@ -161,13 +172,7 @@ def build_public_export_bundle(
                 f"{artifact_key} cannot be exported for "
                 f"{decision.purpose}: {decision.reason}"
             ),
-            authority_surface_decisions=[
-                {
-                    "artifact_key": key,
-                    "decision": item.model_dump(mode="json"),
-                }
-                for key, item in authority_surface_decisions
-            ],
+            authority_surface_decisions=public_authority_surface_decisions,
         )
     rule_evolution_annotations = _iter_rule_evolution_annotations(sanitized_artifacts)
     public_revision_states = _iter_public_revision_states(sanitized_artifacts)
@@ -464,7 +469,7 @@ def build_public_export_bundle(
         "official_use_limits": dict(_OFFICIAL_USE_LIMITS),
         "artifacts": sanitized_artifacts,
         "semantic_audit": {
-            "artifact_keys": sorted(str(key) for key in artifacts),
+            "artifact_keys": sorted(str(key) for key in sanitized_artifacts),
             "authority_projection_count": len(authority_projections),
             "authority_projections": authority_projections,
             "runtime_orchestration_continuity": orchestration_continuity,
@@ -483,13 +488,7 @@ def build_public_export_bundle(
             "layer3_g3_analytics_search_projection_contract_verification": (
                 g3_verification
             ),
-            "authority_surface_decisions": [
-                {
-                    "artifact_key": artifact_key,
-                    "decision": decision.model_dump(mode="json"),
-                }
-                for artifact_key, decision in authority_surface_decisions
-            ],
+            "authority_surface_decisions": public_authority_surface_decisions,
             "omission_manifest": list(
                 projection_semantics.get("omission_manifest", [])
                 if projection_semantics is not None
@@ -522,6 +521,7 @@ def build_public_export_bundle(
     if projection_semantics is not None:
         bundle["projection_semantics"] = projection_semantics
     assert_public_export_official_use_limits(bundle)
+    _assert_no_tenant_private_ref_leak(bundle, tenant_private_refs)
     return bundle
 
 
@@ -544,6 +544,17 @@ def _scan_public_export_artifacts(
             "public_export_secret_scan_invalid_payload",
             "Canonical secret/PII scan did not preserve public export mapping shape.",
         )
+    private_ref_redactions: list[dict[str, str]] = []
+    sanitized_artifacts = _redact_tenant_private_refs(
+        scan.redacted_payload,
+        path="artifacts",
+        redactions=private_ref_redactions,
+    )
+    if not isinstance(sanitized_artifacts, Mapping):
+        raise PublicExportRedactionError(
+            "public_export_private_ref_scan_invalid_payload",
+            "Private-ref scan did not preserve public export mapping shape.",
+        )
     placeholder_map = sanitizer.placeholder_map()
     redactions = [
         {
@@ -552,12 +563,149 @@ def _scan_public_export_artifacts(
         }
         for index, placeholder in enumerate(sorted(placeholder_map), start=1)
     ]
+    redactions.extend(private_ref_redactions)
     return (
-        dict(scan.redacted_payload),
+        dict(sanitized_artifacts),
         [report.model_dump(mode="json") for report in scan.reports],
         redactions,
         _public_export_sanitizer_strangle_receipt(),
     )
+
+
+def _redact_tenant_private_refs(
+    value: object,
+    *,
+    path: str,
+    redactions: list[dict[str, str]],
+) -> object:
+    if isinstance(value, Mapping):
+        sanitized: dict[str, object] = {}
+        for key, item in value.items():
+            raw_key = str(key)
+            public_key = _public_mapping_key(raw_key)
+            if public_key != raw_key:
+                redactions.append(
+                    {
+                        "path": f"{path}.{public_key}",
+                        "reason": "tenant_private_ref",
+                    }
+                )
+            sanitized[public_key] = _redact_tenant_private_refs(
+                item,
+                path=f"{path}.{public_key}",
+                redactions=redactions,
+            )
+        return sanitized
+    if isinstance(value, Sequence) and not isinstance(value, (str, bytes, bytearray)):
+        return [
+            _redact_tenant_private_refs(
+                item,
+                path=f"{path}[{index}]",
+                redactions=redactions,
+            )
+            for index, item in enumerate(value)
+        ]
+    if isinstance(value, str) and _is_tenant_private_ref(value):
+        redactions.append({"path": path, "reason": "tenant_private_ref"})
+        return {
+            "redacted": True,
+            "reason": "tenant_private_ref",
+            "fingerprint": _fingerprint(value),
+        }
+    return value
+
+
+def _is_tenant_private_ref(value: str) -> bool:
+    text = value.strip()
+    return any(pattern.fullmatch(text) for pattern in _TENANT_PRIVATE_REF_PATTERNS)
+
+
+def _public_mapping_key(value: str) -> str:
+    if not _is_tenant_private_ref(value):
+        return value
+    digest = hashlib.sha256(value.strip().encode("utf-8")).hexdigest()[:16]
+    return f"[REDACTED_TENANT_PRIVATE_REF_KEY_{digest}]"
+
+
+def _tenant_private_refs_in_payload(value: object) -> frozenset[str]:
+    refs: set[str] = set()
+
+    def collect(item: object) -> None:
+        if isinstance(item, Mapping):
+            for key, nested in item.items():
+                collect(str(key))
+                collect(nested)
+            return
+        if isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
+            for nested in item:
+                collect(nested)
+            return
+        if isinstance(item, str) and _is_tenant_private_ref(item):
+            refs.add(item.strip())
+
+    collect(value)
+    return frozenset(refs)
+
+
+def _assert_no_tenant_private_ref_leak(
+    value: object,
+    tenant_private_refs: frozenset[str],
+) -> None:
+    if not tenant_private_refs:
+        return
+
+    def first_leak_path(item: object, *, path: str) -> str | None:
+        if isinstance(item, Mapping):
+            for key, nested in item.items():
+                key_text = str(key)
+                if any(ref in key_text for ref in tenant_private_refs):
+                    return f"{path}.<key>"
+                leak_path = first_leak_path(nested, path=f"{path}.{key_text}")
+                if leak_path is not None:
+                    return leak_path
+            return None
+        if isinstance(item, Sequence) and not isinstance(item, (str, bytes, bytearray)):
+            for index, nested in enumerate(item):
+                leak_path = first_leak_path(nested, path=f"{path}[{index}]")
+                if leak_path is not None:
+                    return leak_path
+            return None
+        if isinstance(item, str) and any(ref in item for ref in tenant_private_refs):
+            return path
+        return None
+
+    leak_path = first_leak_path(value, path="public_export")
+    if leak_path is not None:
+        raise PublicExportRedactionError(
+            "public_export_tenant_private_ref_leak",
+            f"Caller private-ref material survived at {leak_path}.",
+        )
+
+
+def _public_authority_surface_decisions(
+    decisions: Sequence[tuple[str, AuthoritySurfaceDecision]],
+    *,
+    redactions: list[dict[str, str]],
+) -> list[dict[str, object]]:
+    projection = _redact_tenant_private_refs(
+        [
+            {
+                "artifact_key": artifact_key,
+                "decision": decision.model_dump(mode="json"),
+            }
+            for artifact_key, decision in decisions
+        ],
+        path="semantic_audit.authority_surface_decisions",
+        redactions=redactions,
+    )
+    if not isinstance(projection, list) or not all(
+        isinstance(item, Mapping) for item in projection
+    ):
+        raise PublicExportRedactionError(
+            "public_export_authority_decision_scan_invalid_payload",
+            "Private-ref scan did not preserve authority decision projection shape.",
+        )
+    return [dict(item) for item in projection]
 
 
 def _canonical_redaction_reason(placeholder: str) -> str:

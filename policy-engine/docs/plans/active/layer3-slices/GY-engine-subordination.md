@@ -2571,6 +2571,23 @@ being written here. Fixing them is a separate decision.
   **public** boundary, its test **fails on `main` today**, and that test is neither skipped nor
   recorded in any baseline manifest — so the full-suite lane is not being triaged. No repair attempt
   has been made.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 068aab9df): closed.** The inherited
+  `test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_projection` first
+  terminated `FAILED` on the raw caller ref, then terminated `PASSED` (`1 passed in 4.81s`, exit
+  `0`) after one generic caller-ref scan and final public-emission invariant were wired. The witness
+  introduces ref shapes at a previously unseen nested value, nested mapping key, top-level artifact
+  key, and authority-boundary value that is copied into a derived decision; all are absent from the
+  full rendered bundle while the declared public source ref and authority-envelope fingerprints
+  remain. Two independent-review Important findings were both P40 `same class one level deeper`, so
+  consumed zero mechanism rounds; the mechanism was widened first from values to serialized keys
+  and then to every artifact-derived projection plus a generic fail-closed whole-bundle check. The
+  final terra delta review returned no finding. The canonical confidence owner freshly resolved
+  `120` modules / `120` unique paths, equal to its separately frozen import-time tuple; none of the
+  source, test, plan, or journal paths in this commit is in that authority import closure. This
+  verdict authorizes only GY-DEF2's caller-payload redaction closure in the public-export builder. It
+  does not repair the separately carried silent-red triage finding, reissue or check the confidence
+  artifact, authorize another public surface, or state full-suite health.
 - **GY-DEF3 — checkpoints carry no tenant/cell binding.** Owner: **control plane / security**,
   informs OPS-R1/OPS-R3. `scientist/orchestration/engine/checkpoint.py` `CheckpointMetadata`
   carries `run_id`, `workflow_id`, `workflow_fingerprint`, `fsm_phase`, `cache_entry_refs`,

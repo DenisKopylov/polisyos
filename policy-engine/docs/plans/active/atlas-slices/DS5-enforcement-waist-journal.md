@@ -5485,3 +5485,145 @@
   for release; a later accepted C20 handoff plus DS5 merge to `main` is the
   shared-owner release condition. This branch remains
   `DS6 release_status: not_released`.
+
+## 2026-08-19 — DS5-C20 resumed closure under inherited-debt ruling
+
+### Ruling, restore, and P39 fence
+
+- The architect superseded only the prior absolute-red interpretation: a
+  repository-wide gate already red at task entry, owned outside DS5, and
+  disjoint from C20's complete changed-path set is inherited debt. It must be
+  reproduced, owner-named, and recorded as a non-claim; it is never counted as
+  green. C20 remains cap 6 and 0/2 mechanism rounds.
+- Root did not cherry-pick candidate `4c20818c3` or revert forward revert
+  `7ee283762`, because either would overwrite the durable stop record at
+  `dc816548f`. It restored only
+  `architecture/atlas_surfaces/test_atlas_enforcement.py` from candidate blob
+  `06166703091fb212f46e2f60e8cdda88b69ebaa7`. The live file is byte-identical
+  to the reviewed candidate and has SHA-256
+  `d59189c67d939f61b51fd93a416f7c4a46d19c43e31562dc79cf740ce2b5b628`.
+  All three owner checkers and governed owner inputs are candidate-to-resume
+  byte-identical, so the reviewed `1/1` meta-sweep in `228.72 s` remains the
+  mechanism receipt and was not rerun. Only append-only Git history invalidated
+  the generated report.
+- P39 remains two mechanism paths (owner meta-test and closure artifact) plus
+  four companions (plan, journal, canonical report, frozen readiness ledger),
+  cap 6. The actual containing commit changes five paths because readiness is a
+  verified zero-delta member. No register, status, baseline, C23 or readiness
+  leaf is edited.
+
+### Architecture guardrail falsifiers
+
+- A complete clean archive of entry `700e3aa14` and the resumed tree each ran
+  the real guardrail and exited 1 on the same 93-line stdout. The output is
+  byte-identical at SHA-256
+  `73b53d0a9278bcb2acffbac62e925e6ca30ce40caeb0b3588ce5323dfd1559fb`;
+  terminal durations were `34.73 s` and `25.91 s` under the declared contended
+  regime. Both contain exactly three stale baseline edges and five live
+  unbaselined edges recorded in the closure artifact.
+- The direct deep-import edge-collector denominator is 2,561 paths: all 2,559
+  entry-tree `policy-engine/src/polisyos/**/*.py` paths plus the public-surface
+  contract and deep-import baseline. Candidate `4c20818c3` has exactly five
+  paths, and sorted set intersection with those 2,561 inputs is exactly zero.
+  A second `git diff --quiet` over the wider CLI input family—public/generated
+  inventories and references, exceptions, workflow, scanned sources, baseline
+  and guardrail implementation—is also empty from entry to candidate. That
+  enumerated wider family is the complete guardrail-CLI falsifier denominator;
+  P37 provenance for both set proofs is `independently_reconciled`.
+- P40 was stated before disposition: one NEW external-owner class, stale
+  generated deep-import baseline; the eight edge deltas are WORKED EXAMPLES.
+  Owner is `team-architecture` / `@architecture-owners`; successor is
+  `architecture-deep-import-baseline-reconciliation`. It consumes no C20
+  mechanism round.
+
+### Canonical owner and remaining closure battery
+
+- The canonical frontend report writer ran twice on resumed HEAD with explicit
+  child exit 0 in `98.62 s / 174 s` and `95.07 s / 174 s`. Both contended
+  observations are excluded from the clean p95. The second run changed no byte;
+  final report SHA-256 is
+  `465e0ecbbeb9cf63cf543ae7f1dbfc4fdbd979ea521277c742c992b2bc4d1cba`.
+- Preserved GREEN receipts remain status corruption `18.19 s`, Atlas
+  corruption `60.67 s`, frontend/baseline corruption `98.69 s`, four owner
+  modules `207/207` in `698.99 s`, focused runtime HTTP `85.79 s`, scoped Ruff
+  `0.04 s`, and runtime API contract `8.18 s`. The restored test and every
+  owner input are byte-identical, so only the history-derived report was
+  rerun.
+- Runtime API client was GREEN: typecheck `1.81 s`, lint `2.26 s`, tests `4/4`
+  in `0.62 s`, format `1.29 s`, architecture `0.43 s`, each under the declared
+  `300 s executor_declared` ceiling and contended regime.
+- Runtime dashboard core was GREEN: lint `124.24 s`, enforcement `80.49 s`,
+  architecture `10.65 s` (`1,032` modules / `4,223` dependencies / zero
+  violations), typecheck `24.36 s`, and build `44.74 s` (`3,886` modules,
+  `108` PWA entries, chunk advisory only).
+- Atlas UI corrected-ceiling reruns were GREEN under `300 s
+  executor_declared`: lint `4.74 s`, architecture `0.83 s` over 36 sources,
+  typecheck `3.07 s`, and tests `85/85` in `10.53 s`. The earlier green runs
+  without a lane-specific ceiling are timing nonreceipts and are not admitted.
+
+### Additional inherited full-battery debt
+
+- Backend verify exited 1 in `23.05 s`. A direct owner replay from clean entry
+  and current inputs reports the same normalized 100 import-policy/expired-
+  exception violations, SHA-256
+  `03ad3f6f5083d13ed9182169da2ea2dbdbc3fbf18feb8a97b67fc3a80de33b02`.
+  P40 class is NEW inherited import-policy/exception lifecycle; the 100 rows
+  are WORKED EXAMPLES. Owner is `team-architecture` /
+  `@architecture-owners`; successor
+  `architecture-import-policy-exception-reconciliation`.
+- CI parity exited 1 in `30.20 s` on stale
+  `docs/reference/ir/schema-catalog.md`. Isolated entry/current owner outputs
+  are byte-identical after root normalization at SHA-256
+  `b3e4aa4ab1c4ea2553f71edb997dcb21e583ce1fae8989efa56c9eec50eada62`.
+  P40 class is NEW inherited schema-catalog generated output. Registered owner
+  is `team-polisyos`; successor
+  `abi-schema-reference-catalog-reconciliation`.
+- The corrected component JSON run completed in `514.59 s / 748 s`: 321 files,
+  1,048 tests, 987 passed and 61 failed. Three are the named DS6 parity
+  identities; the governed comparator exited 1 in `60.57 s / 78 s` and
+  enumerated 58 additional failures. A clean-entry isolated test reproduces
+  the default-Ukrainian/English-expectation class. P40 class is NEW inherited
+  dashboard test-locale baseline; owner `team-frontend` /
+  `@frontend-owners`; successor
+  `dashboard-test-locale-default-reconciliation`.
+- Storybook exited 1 in `21.09 s / 748 s`: 97/97 stories hit the missing React
+  Query provider around the live FeatureFlag provider. P40 class is NEW
+  inherited provider-composition debt; owner `team-frontend`; successor
+  `dashboard-storybook-provider-reconciliation`.
+- Accessibility exited 1 in the captured rerun at `187.93 s / 748 s`: 17/21
+  Playwright checks pass and four fail—keyboard journey, dashboard route
+  readiness, and two English screen-reader snapshots. Component a11y itself is
+  GREEN `85/85`. P40 class is NEW inherited dashboard-a11y baseline/composition
+  debt; owner `team-frontend`; successor
+  `dashboard-a11y-baseline-reconciliation`.
+- Visual exited 1 in `218.61 s / 748 s`: 1/18 passes and 17 snapshot identities
+  are red, including the known DS8 A4 identity plus 16 additional unchanged-
+  input mismatches. P40 class is NEW inherited visual-baseline debt; owner
+  `team-frontend`; successor `dashboard-visual-baseline-reconciliation`.
+- For every class above, `git diff --quiet 700e3aa14..dc816548f` over its full
+  product/config input family is empty, and the C20 five-path cut has empty
+  intersection. Individual failures are WORKED EXAMPLES, not mechanism rounds.
+  No baseline is regenerated and no inherited red is called green.
+
+### Tooling nonreceipts and final handoff
+
+- A partial guardrail archive omitted repository-root `.github` inputs; a
+  wrapper initially imported a dataclass module without registering it; an
+  isolated schema replay initially resolved the active `.pth`; the first
+  component launcher mis-forwarded JSON flags; the first accessibility
+  terminal was lost after its child ran; and the archived Storybook replay put
+  symlinked modules outside Vite's root. Their output is discarded. A final
+  read-only stale-reference query repeated the known Markdown-backtick/zsh
+  trap and tried to execute `blocked_on_another_owner`; its output was
+  discarded and a safe literal rerun returned zero stale active C20 matches.
+- Final governed hashes are register `db6d7ed1…e7ae412`, report
+  `465e0ecb…d1cba`, status `499ffed5…1e3dfb`, baseline
+  `10b8dfe0…deb5d3`, readiness `4b64f092…e2ae13`. Register, status, baseline
+  and readiness remain byte-identical; only the generated Markdown report
+  moves for its append-only commit projection.
+- C20 lands in the containing commit at 0/2. Every executable local DS5
+  mechanism is closed; the complete carried-owner set, exact C23/DS16
+  non-claim and battery nonclaims live in the closure artifact. C21 alone is
+  insufficient for release. Accepted C20 is the handoff prerequisite, and
+  shared owners release only after a later DS5 merge to `main`. Current value:
+  `DS6 release_status: not_released`.

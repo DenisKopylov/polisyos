@@ -519,3 +519,70 @@ workspace timing log is also readable and had `38` JSON lines / `10,831` bytes a
 including an append after the reboot. The retained worktree row's regime is explicitly `unknown`;
 survival does not promote any sample from this timing window to budget-grade evidence. P37: boot
 time, mtimes, byte counts, line counts, and retained row content are `recomputed`.
+
+## GY-DEF17 source freeze and corrected pre-writer declaration
+
+The repair landed at `3eda73f89e0bc2a445fcf5eba57d2d277ad7e6e0`. The PDC owner now exposes a
+separate current-shaped operational overlay while retaining the strict comparison reconciler's
+semantic and shape preconditions. The N10a writer applies that overlay unconditionally over the
+member set derived from `_ARTIFACT_WRITE_SPECS`; it has no content-equality eligibility guard, no
+local output tuple, no field allowlist and no post-overlay rehash. Focused owner/writer tests pass
+`8/8`: all five declared outputs and a dynamically appended sixth member enter the denominator,
+live-only semantic shape survives, frozen-only shape is not manufactured, and a previously omitted
+`pack` member is exercised. A second governing pack mutation changes the manifest. Two independent
+read-only mechanism reviews returned GO with no Blocking or Important finding. P40: the strict
+audit-versus-writer-overlay distinction is the same P38 class one level deeper and was widened once;
+the five-member denominator is GY-DEF17 member B itself; neither consumes a round. The fresh shared
+budget remains `0/2`.
+
+Two repaired-head N10a measurements ran in distinct fresh processes with the GAP1 semantic delta
+present. They produced the same complete five-row transition manifest identity
+`sha256:2d9a1b19235b6a1df29d033da865ecc785630d619725ba6c389163fd444449bd`, the
+same source scope `sha256:79f9cbc0ee514c4d053614263afd994e0abe2506cb913ccbef7e746666ef331b`,
+and the same live artifact identities. Their contended durations and literal `uptime` pairs were
+`222.180080` s (`9.39 / 7.52 / 6.04` -> `5.58 / 6.44 / 5.91`) and `234.168272` s
+(`4.61 / 6.11 / 5.80` -> `5.97 / 6.18 / 5.89`). The transition counts over the full derived
+denominator are census `0`, pack `3`, smoke problem `0`, cycle trace `767`, and gaps `5`. The census
+and smoke bytes remain exactly `73,888` / `sha256:ba20cdb384eb3e00fb6f13b2fad0b6f679f6fd4debc1148e4fe39a567055e74c`
+and `4,665` / `sha256:688bd3d8c845ebe99495aecb3b2c10579dbf3f43dd5e8fe0a6686cc6e8b5f76d`.
+All five frozen legacy content identities are unchanged. This is the required frozen-identity
+measurement: DEF17 changes transition normalization and the source-scope binding, not a frozen
+artifact identity. The pack semantic-mutant witness changes its manifest while operational-time
+variants do not, so the normalization is shown rejecting in the opposite direction.
+
+The six candidates were then re-derived from this repaired source. Promotion and generation matched
+their complete declared pointer sets at `525/525` and `304/304`. A disposable branch-attached shadow
+commit `5a6cfd506def8a5e0c802ed57dc8a73a69176fc0`, whose parent is the mechanism head and whose delta is
+only the five explicit promotion/generation/N10a candidate paths, made Depth's upstream cleanliness
+predicate true without bypassing it. The canonical Depth writer completed with `status=pass`, zero
+issues and contract content hash
+`sha256:6bd38b6c64c3342e48b06d2d0175db075c94ac7a2c6fcf07dcacf7800cce3236`.
+Its contended duration was `2,266.98` s under the literal `uptime` pair
+`3.86 / 4.97 / 5.55` -> `3.84 / 5.41 / 5.91`; it is regime evidence only and is not promoted into
+a clean budget.
+
+Exact measurement corrects the supplied `3,444`-leaf count before any delivery artifact moves.
+DEF17 now preserves three canonically operational trace leaves, so the trace is `767 = 360 added +
+407 modified`, not `770`; there are zero observed-only pointers. Depth remains `1,837 = 900 added +
+937 modified`. The corrected declaration is therefore exactly six artifacts / `3,441` leaves:
+
+| Governed output | Leaves | Candidate bytes | Candidate SHA-256 |
+| --- | ---: | ---: | --- |
+| promotion contract | 525 | 183,066 | `ba71198ef9b9227d6ba8094e68d15a3a68721709f4ff87ceb1f94304ce78a484` |
+| generation-cycle contract | 304 | 183,254 | `695fd482dc525ec11a15921c93cebbc9349a2b38af1789c87cb24828bfc4f59e` |
+| second-domain cycle trace | 767 | 603,647 | `c0917aebdef8e1ee44f07ce4bc6b84ccc93ca04becb63a1307ebb171a56013b7` |
+| second-domain pack | 3 | 252,598 | `40d31d5b158083e216f079e09d195dbf2cd6a5190dc4326cb5c16256cdfabf34` |
+| second-domain free-grow gaps | 5 | 21,053 | `89725acfd1da0ef7533c94c493e75df1ec4c3545dd0eb8fe4f5d7638ba0d95d7` |
+| depth-N universality contract | 1,837 | 2,268,318 | `4126ab96594433343249af6a493b192817b2ae04995852ea8a90b46e99e02173` |
+
+The independently re-read preimage remains `914` files (`6` allowed + `908` protected) and
+`47,112,213` bytes at artifact-scope identity
+`sha256:66c51f365c3d8f4284cfca33f00059f05f3a7c959d4b4ab45b0d87d7e4e29d68`.
+The corrected declaration's canonical manifest identity is
+`sha256:371b2ec4201db00b30d0080af1ee3308c29fb4ee45146cea7e2ca44eebe9488b`;
+its raw `746,638` bytes have SHA-256
+`feb7e78def53a76731a53090d2446a431443c0671f10ee414e65c61d81edb560`.
+P40 classifies the three equalized trace leaves as a worked example of GY-DEF17's repaired class and
+the redeclaration as the mandatory P39 custody companion. No GY-GAP1/GY-DEF17 mechanism round is
+consumed. Acceptance remains `not_established` until the guarded six-file promotion verifies every
+declared candidate byte/pointer and all `908` protected preimages.

@@ -11,7 +11,7 @@
       "before_bytes": 149504,
       "before_file_sha256": "sha256:68e05dc393da83fd24b3c927d8a2bb5e985af7ca08228f5d5d9bd9a160f59577",
       "candidate_bytes": 183066,
-      "candidate_file_sha256": "sha256:27277bf5eb6db1c09154eff58b6b8a302d46625fc551cd3c2d679abdb4ef19e8",
+      "candidate_file_sha256": "sha256:ba71198ef9b9227d6ba8094e68d15a3a68721709f4ff87ceb1f94304ce78a484",
       "declared_changed_leaf_count": 525,
       "declared_changed_leaves": [
         "/comparison_content_hash",
@@ -551,7 +551,7 @@
       "before_bytes": 165398,
       "before_file_sha256": "sha256:7b80bf4373edc9fc809e9d5b92ec60b8d6a1f7e91117692896af7b5a306b8e30",
       "candidate_bytes": 183254,
-      "candidate_file_sha256": "sha256:80527a78bbbcefeef6b2eabaac965ec7fac392d6425ca1e2f33622d796166d14",
+      "candidate_file_sha256": "sha256:695fd482dc525ec11a15921c93cebbc9349a2b38af1789c87cb24828bfc4f59e",
       "declared_changed_leaf_count": 304,
       "declared_changed_leaves": [
         "/comparison_content_hash",
@@ -869,13 +869,12 @@
     {
       "before_bytes": 567935,
       "before_file_sha256": "sha256:9b78cad2693a163debfe8f4f77f26a01c77b177d1777f83b6352bede58be67f7",
-      "candidate_bytes": 603649,
-      "candidate_file_sha256": "sha256:8a2337e1b481a0afc129dd5a97e60ce4632687b81213f83c4b6d7c5d50c6aa3f",
-      "declared_changed_leaf_count": 770,
+      "candidate_bytes": 603647,
+      "candidate_file_sha256": "sha256:c0917aebdef8e1ee44f07ce4bc6b84ccc93ca04becb63a1307ebb171a56013b7",
+      "declared_changed_leaf_count": 767,
       "declared_changed_leaves": [
         "/comparison_content_hash",
         "/gap_triage/6/receipt_ref",
-        "/generation_cycle_run/cycles/0/acquisition_routing_report/generated_at",
         "/generation_cycle_run/promotion_port/receipts/0/computed_authority_boundary/rule_version_refs/0",
         "/generation_cycle_run/promotion_port/receipts/0/confidence_ledger_head_id",
         "/generation_cycle_run/promotion_port/receipts/0/confidence_ledger_head_ref",
@@ -1640,22 +1639,20 @@
         "/generation_cycle_run/promotion_port/receipts/3/risk_spend/spend_records/0/n11_confidence_ledger_ref",
         "/generation_cycle_run/promotion_port/receipts/3/risk_spend/spend_records/1/n11_confidence_ledger_ref",
         "/generation_cycle_run/promotion_port/receipts/3/schema_version",
-        "/runtime_metrics/aggregate_value_port_wall_time_ms",
-        "/runtime_metrics/cycle_value_port_wall_time_ms/0/value_port_wall_time_ms",
         "/trace_content_hash"
       ],
       "mode": "producer_comparison_reconciled",
       "output": "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json",
       "transition_counts": {
         "added": 360,
-        "modified": 410
+        "modified": 407
       }
     },
     {
       "before_bytes": 252598,
       "before_file_sha256": "sha256:169df14ab4fbc8f853f937e08d1c218066682d6f8fd5945219d9866d07cda2e2",
       "candidate_bytes": 252598,
-      "candidate_file_sha256": "sha256:74bb27a236edadc53d6522fcd2c28562d2e2bf79090a7516edb9a18ced39dea4",
+      "candidate_file_sha256": "sha256:40d31d5b158083e216f079e09d195dbf2cd6a5190dc4326cb5c16256cdfabf34",
       "declared_changed_leaf_count": 3,
       "declared_changed_leaves": [
         "/cycle_trace_content_hash",
@@ -1672,7 +1669,7 @@
       "before_bytes": 21053,
       "before_file_sha256": "sha256:361434b07fcdad7b1965c1899335b99c1b441034e5b8752c4645544f4b1fd98f",
       "candidate_bytes": 21053,
-      "candidate_file_sha256": "sha256:237873f8989f405bff266b7a87a33e6602f7f5813fa555cd111eeff316a7143c",
+      "candidate_file_sha256": "sha256:89725acfd1da0ef7533c94c493e75df1ec4c3545dd0eb8fe4f5d7638ba0d95d7",
       "declared_changed_leaf_count": 5,
       "declared_changed_leaves": [
         "/gap_report_content_hash",
@@ -1691,7 +1688,7 @@
       "before_bytes": 2193438,
       "before_file_sha256": "sha256:155f01a877d7327281531115fee88764b7615e411830c8ec6109f375aa5b615e",
       "candidate_bytes": 2268318,
-      "candidate_file_sha256": "sha256:280986fc48977b948bd95068e3554958fb6112470fe1d9de82eb9cce795edf64",
+      "candidate_file_sha256": "sha256:4126ab96594433343249af6a493b192817b2ae04995852ea8a90b46e99e02173",
       "declared_changed_leaf_count": 1837,
       "declared_changed_leaves": [
         "/comparison_content_hash",
@@ -5741,7 +5738,7 @@
   "artifact_scope_content_hash": "sha256:66c51f365c3d8f4284cfca33f00059f05f3a7c959d4b4ab45b0d87d7e4e29d68",
   "base_head": "068aab9df41f2aeebf7b83a80c7939b02d196a5d",
   "branch": "codex/gy-gap1-obligation-instance-identity",
-  "declared_changed_leaf_total": 3444,
+  "declared_changed_leaf_total": 3441,
   "hash_algorithms": {
     "artifact_scope_content_hash": {
       "id": "sha256_canonical_json_utf8_v1",
@@ -5771,8 +5768,8 @@
       "per_file_preimage": "uint64_be(path_utf8_length) || path_utf8 || uint64_be(file_byte_length) || file_bytes"
     }
   },
-  "manifest_content_hash": "sha256:1d3193bb0161f4f930edd6f415b6ecd77e5cf5fbde76875135ed6aa2afb7a67e",
-  "mechanism_source_head": "1de11b8bdd486556f05f3347988e0e1e6dcbf5d8",
+  "manifest_content_hash": "sha256:371b2ec4201db00b30d0080af1ee3308c29fb4ee45146cea7e2ca44eebe9488b",
+  "mechanism_source_head": "3eda73f89e0bc2a445fcf5eba57d2d277ad7e6e0",
   "named_byte_identity_controls": {
     "confidence_ledger_deferred": {
       "bytes": 977814,
@@ -10338,6 +10335,6 @@
     }
   ],
   "schema_version": "policyos.gy.gap1.artifact_transition_declaration.v1",
-  "source_scope_content_hash": "sha256:f37a518b34668cad3063a0e4cb1e9094e41e70f1903e7d91033398406741e516",
+  "source_scope_content_hash": "sha256:79f9cbc0ee514c4d053614263afd994e0abe2506cb913ccbef7e746666ef331b",
   "source_scope_file_count": 3286
 }

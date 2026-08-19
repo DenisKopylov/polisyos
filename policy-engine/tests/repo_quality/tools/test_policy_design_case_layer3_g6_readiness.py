@@ -165,6 +165,67 @@ def test_layer3_g6_registration_and_docs_fail_closed_when_markers_are_missing() 
     } <= {issue["code"] for issue in issues}
 
 
+def test_layer3_g6_registration_rejects_stale_public_export_inventory(
+    tmp_path: Path,
+) -> None:
+    validator = _validator()
+    source_path = REPO_ROOT / validator.INVENTORY_PATH
+    payload = json.loads(source_path.read_text(encoding="utf-8"))
+    row = next(
+        item
+        for item in payload["artifacts"]
+        if item.get("id") == "layer3_g6_public_export_projection_refs"
+    )
+    row["public_export_hook_status"] = "out_of_scope_reference_only"
+    row["public_export_bundle_route_registered"] = False
+    target_path = tmp_path / validator.INVENTORY_PATH
+    target_path.parent.mkdir(parents=True)
+    target_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    statuses = validator._registration_statuses(tmp_path)
+
+    assert statuses["inventory"] == "fail"
+
+
+def test_layer3_g6_registration_rejects_stale_public_surface_prose(
+    tmp_path: Path,
+) -> None:
+    validator = _validator()
+    copied_paths = (
+        validator.GENERATED_ARTIFACTS_TOML_PATH,
+        validator.GENERATED_ARTIFACTS_DOC_PATH,
+        validator.DOCS_SURFACE_PATH,
+        validator.DOCUMENTATION_INVENTORY_PATH,
+        validator.REFERENCE_INDEX_PATH,
+        validator.PUBLIC_SURFACE_DOC_PATH,
+    )
+    for path in copied_paths:
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            (REPO_ROOT / path).read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+    public_surface_path = tmp_path / validator.PUBLIC_SURFACE_DOC_PATH
+    public_surface_path.write_text(
+        public_surface_path.read_text(encoding="utf-8").replace(
+            "`authority_preserving_public_export`, registers a redacted "
+            "public-export bundle route, and emits only the owner-recomputed "
+            "safe summary or governed refusal.",
+            "`out_of_scope_reference_only` and does not register a "
+            "public-export bundle route.",
+        ),
+        encoding="utf-8",
+    )
+
+    statuses = validator._registration_statuses(tmp_path)
+
+    assert statuses["docs"] == "fail"
+
+
 def test_layer3_g6_write_path_must_include_every_expected_artifact(
     monkeypatch: Any,
 ) -> None:

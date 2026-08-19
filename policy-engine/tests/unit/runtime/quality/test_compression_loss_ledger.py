@@ -4,6 +4,9 @@ from __future__ import annotations
 from pathlib import Path
 from typing import Any
 
+import pytest
+
+from polisyos.runtime.quality import prompt_tool_ledger as ledger_owner
 from polisyos.runtime.quality.evidence_independence import (
     build_evidence_independence_map,
 )
@@ -12,13 +15,17 @@ from polisyos.runtime.quality.evidence_portfolio import (
 )
 from polisyos.runtime.quality.prompt_tool_ledger import (
     CompressionClaimItem,
+    CompressionEvidenceIndependenceBasis,
     CompressionMaterialItem,
     CompressionMaterialSet,
+    OrchestrationAuthorityDelta,
+    OrchestrationChoiceContext,
     build_compression_loss_receipt,
+    build_orchestration_authority_deltas,
+    load_orchestration_choice_policies,
+    validate_orchestration_authority_delta_completeness,
 )
 from tests._helpers.hds_quality import sha
-
-REPO_ROOT = Path(__file__).resolve().parents[4]
 
 
 def _portfolio_design() -> dict[str, object]:
@@ -114,6 +121,24 @@ def _item(item_id: str, content: str) -> CompressionMaterialItem:
     return CompressionMaterialItem(item_id=item_id, content=content)
 
 
+def _choice_contexts() -> tuple[OrchestrationChoiceContext, ...]:
+    return tuple(
+        OrchestrationChoiceContext(
+            choice_id=f"choice:{policy.choice_kind}",
+            choice_kind=policy.choice_kind,
+            candidate_universe=(
+                f"candidate:{policy.choice_kind}:selected",
+                f"candidate:{policy.choice_kind}:rejected",
+            ),
+            selected=(f"candidate:{policy.choice_kind}:selected",),
+            rejected=(f"candidate:{policy.choice_kind}:rejected",),
+            governance_burden_before=("burden:legal-review",),
+            governance_burden_after=("burden:legal-review",),
+        )
+        for policy in load_orchestration_choice_policies()
+    )
+
+
 def _baseline_material(
     *,
     claims: tuple[CompressionClaimItem, ...] = (),
@@ -155,7 +180,6 @@ def test_compression_dropping_retained_limitation_fails_closed() -> None:
         summary_ref="layer3-g6://summary/retained-limitation-red",
         source_material=source,
         candidate_summary=candidate_summary,
-        repo_root=REPO_ROOT,
     )
 
     assert receipt.status == "blocked"
@@ -189,8 +213,17 @@ def test_low_effective_independence_cannot_be_presented_as_broad_consensus() -> 
         summary_ref="layer3-g6://summary/consensus-red",
         source_material=_baseline_material(claims=(source_claim,)),
         candidate_summary=_baseline_material(claims=(summary_claim,)),
-        evidence_independence_maps={independence_map["map_id"]: independence_map},
-        repo_root=REPO_ROOT,
+        evidence_independence_bases={
+            independence_map["map_id"]: CompressionEvidenceIndependenceBasis(
+                independence_map=independence_map,
+                evidence_lines=(
+                    _dependent_evidence_line(1),
+                    _dependent_evidence_line(2),
+                ),
+                portfolio_designs=(_portfolio_design(),),
+                producer_execution_started_at="2026-08-19T09:00:00+00:00",
+            )
+        },
     )
 
     assert receipt.status == "blocked"
@@ -217,7 +250,6 @@ def test_framing_narrowing_governance_burden_without_delta_fails_closed() -> Non
         summary_ref="layer3-g6://summary/framing-red",
         source_material=source,
         candidate_summary=candidate_summary,
-        repo_root=REPO_ROOT,
     )
 
     assert receipt.status == "blocked"
@@ -226,3 +258,121 @@ def test_framing_narrowing_governance_burden_without_delta_fails_closed() -> Non
         in receipt.issue_codes
     )
     assert receipt.emitted_summary is None
+
+
+def test_authority_delta_completeness_walks_the_full_owner_population() -> None:
+    contexts = _choice_contexts()
+    policies = load_orchestration_choice_policies()
+
+    derivation = build_orchestration_authority_deltas(contexts)
+
+    assert derivation.completeness.status == "pass"
+    assert derivation.completeness.owner_policy_count == len(policies)
+    assert derivation.completeness.observed_choice_count == len(contexts)
+    assert derivation.completeness.emitted_delta_count == len(derivation.deltas)
+    assert set(derivation.completeness.owner_choice_kinds) == {
+        policy.choice_kind for policy in policies
+    }
+    assert set(derivation.completeness.observed_choice_kinds) == {
+        context.choice_kind for context in contexts
+    }
+    assert all(not delta.authoritative_for for delta in derivation.deltas)
+
+
+def test_fake_or_missing_choice_kind_fails_owner_validation() -> None:
+    contexts = _choice_contexts()
+    fake = OrchestrationChoiceContext(
+        choice_id="choice:fake-unowned",
+        choice_kind="fake-unowned",
+        candidate_universe=("candidate:fake:selected", "candidate:fake:rejected"),
+        selected=("candidate:fake:selected",),
+        rejected=("candidate:fake:rejected",),
+    )
+
+    with_fake = build_orchestration_authority_deltas((*contexts, fake))
+    with_missing = build_orchestration_authority_deltas(contexts[:-1])
+
+    assert with_fake.completeness.status == "fail"
+    assert "orchestration_choice_kind_unowned" in with_fake.completeness.issue_codes
+    assert with_missing.completeness.status == "fail"
+    assert (
+        "orchestration_choice_owner_population_incomplete"
+        in with_missing.completeness.issue_codes
+    )
+
+
+def test_choice_kind_catalog_grows_by_data_only(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    source_catalog = ledger_owner._ORCHESTRATION_CHOICE_POLICY_PATH
+    target_catalog = (
+        tmp_path
+        / "architecture/production_quality/orchestration_choice_policies.toml"
+    )
+    target_catalog.parent.mkdir(parents=True)
+    target_catalog.write_text(
+        source_catalog.read_text(encoding="utf-8")
+        + """
+
+[[choice_policy]]
+choice_kind = "data-only-novel-choice"
+decision_policy_ref = "policyos://orchestration-choice-policy/data-only-novel-choice/v1"
+authority_effect = "narrows a novel candidate universe without granting authority"
+governance_burden_change_allowed = false
+""",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        ledger_owner,
+        "_ORCHESTRATION_CHOICE_POLICY_PATH",
+        target_catalog,
+    )
+
+    policies = load_orchestration_choice_policies()
+    contexts = _choice_contexts()
+    derivation = build_orchestration_authority_deltas(contexts)
+
+    assert derivation.completeness.status == "pass"
+    assert derivation.completeness.owner_policy_count == len(policies)
+    assert derivation.completeness.observed_choice_count == len(contexts)
+    assert {delta.choice_kind for delta in derivation.deltas} == {
+        policy.choice_kind for policy in policies
+    }
+
+
+def test_candidate_partition_is_validated_before_delta_emission() -> None:
+    contexts = _choice_contexts()
+    first = contexts[0]
+    overlapping = first.model_copy(
+        update={"rejected": (*first.rejected, first.selected[0])}
+    )
+
+    derivation = build_orchestration_authority_deltas((overlapping, *contexts[1:]))
+
+    assert derivation.completeness.status == "fail"
+    assert (
+        "orchestration_choice_candidate_partition_invalid"
+        in derivation.completeness.issue_codes
+    )
+
+
+def test_completeness_contract_rejects_owner_validation_bypass() -> None:
+    contexts = _choice_contexts()
+    valid = build_orchestration_authority_deltas(contexts)
+    forged = valid.deltas[0].model_copy(
+        update={"choice_kind": "fake-owner-validation-bypass"}
+    )
+
+    validation = validate_orchestration_authority_delta_completeness(
+        contexts=contexts,
+        deltas=(*valid.deltas, forged),
+    )
+
+    assert valid.completeness.status == "pass"
+    assert validation.status == "fail"
+    assert (
+        "orchestration_authority_delta_owner_validation_failed"
+        in validation.issue_codes
+    )
+    assert isinstance(forged, OrchestrationAuthorityDelta)

@@ -14,7 +14,7 @@
   "declared_before_writer": true,
   "family_id": "policy-design-case-layer3-time-source-authority",
   "gy_gap1_disjointness": {
-    "current_head_before_gy_def4_write": "9ba6935d0",
+    "current_head_before_gy_def4_write": "04d6cb756e4b25126a5ca21b51a8dece37cb70b2",
     "declared_artifact_outputs": [
       "architecture/policy_design_case/layer3_gy_promotion_contract.json",
       "architecture/policy_design_case/layer3_gy_generation_cycle_contract.json",
@@ -33,6 +33,14 @@
     "gy_def4_declared_write_outputs": [
       "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json",
       "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
+    ],
+    "live_dirty_path_intersection_with_gy_def4_write_outputs": [],
+    "live_dirty_paths_at_measurement": [
+      "src/polisyos/pdc/__init__.py",
+      "src/polisyos/pdc/_impl/gy_waist.py",
+      "tests/unit/pdc/test_gy_waist_contracts.py",
+      "tests/unit/runtime/quality/test_second_domain_pack.py",
+      "tools/quality/validation/check_layer3_gy_second_domain_pack.py"
     ],
     "live_writer_output_intersection": [],
     "measurement": "exact_path_set_intersection",

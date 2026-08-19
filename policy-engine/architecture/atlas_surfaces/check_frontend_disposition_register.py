@@ -2035,11 +2035,6 @@ _C21C_STRUCTURED_HINTS = {
         "/entries[debt_id=ds4-waist-decision-grade]",
         "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe",
     ),
-    "architecture/atlas_surfaces/ds4-waist-debt-register.json:57": (
-        "json",
-        "/entries[debt_id=ds4-waist-cache-age]",
-        "a5c57117f529287416ffd2acd55848298955a6c2f13c3ef43f332f2ed1927c4b",
-    ),
     "schemas/runtime_api_v1.openapi.json:2221": (
         "json",
         "/components/schemas/AuthMeResponse",
@@ -3084,57 +3079,6 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             "the PDC owner"
         ),
     },
-    "c06-queryobserver-cache-posture-artifact-debt": {
-        "finding_kind": "producer_binding_debt",
-        "disposition": "rebind_pending",
-        "status": "open_debt",
-        "owner_slice": "DS5",
-        "capability_states": [
-            "artifact_missing",
-            "bridge_missing",
-            "consumer_missing",
-            "verification_missing",
-            "surface_missing",
-            "semantic_test_missing",
-        ],
-        "evidence_refs": [
-            "src/polisyos/runtime/http/services/governed_projections.py:121",
-            (
-                "apps/runtime-dashboard/src/features/runs/api/useDepthNCycl"
-                "eBoardProjection.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbi"
-                "I6WyJleHBvcnQ6ZGVwdGhOQ3ljbGVCb2FyZFByb2plY3Rpb25RdWVyeU9w"
-                "dGlvbnMiLCJzeW1ib2w6ZGVwdGhOQ3ljbGVCb2FyZFByb2plY3Rpb25RdW"
-                "VyeU9wdGlvbnMiLCJyZXNvbHZlZDpkZXB0aE5DeWNsZUJvYXJkUHJvamVj"
-                "dGlvblF1ZXJ5T3B0aW9ucyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS"
-                "1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvYXBpL3VzZURlcHRoTkN5"
-                "Y2xlQm9hcmRQcm9qZWN0aW9uLnRzOkZ1bmN0aW9uRGVjbGFyYXRpb24iXS"
-                "wiZGlzY3JpbWluYXRvciI6ImRlcHRoTkN5Y2xlQm9hcmRQcm9qZWN0aW9u"
-                "UXVlcnlPcHRpb25zIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZT"
-                "ZkYWZmZjEwY2VhMGYwNDkzMTNhZmM5ZGMxMTNlNjQ2YzQwYTdkNzU1MmJj"
-                "Yzc4NmFkZGRlZGNhOTk4NWI4YiIsInJvbGUiOiJleHBvcnRlZF9kZWNsYX"
-                "JhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2Fy"
-                "ZC9zcmMvZmVhdHVyZXMvcnVucy9hcGkvdXNlRGVwdGhOQ3ljbGVCb2FyZF"
-                "Byb2plY3Rpb24udHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9u"
-                "IjoxfQ"
-            ),
-            _C21C_FROZEN_STRUCTURED_IDENTITIES[
-                "architecture/atlas_surfaces/ds4-waist-debt-register.json:57"
-            ],
-            "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c11a",
-        ],
-        "rationale": (
-            "QueryObserver emits lifecycle signals today, but no typed CachePosture "
-            "artifact exists. ProjectionFreshness records source observation and is "
-            "orthogonal to cached-copy posture; C11a/C11b own the client artifact, "
-            "bridge, and surface."
-        ),
-        "closure_signal": (
-            "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement."
-            "AtlasEnforcementTests.test_queryobserver_cache_posture_keeps_source_"
-            "freshness_orthogonal exits 0 after C11a/C11b publish the typed "
-            "QueryObserver cache-posture artifact without reclassifying source freshness"
-        ),
-    },
     "producer-binding-readiness-scientific-depth": {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",
@@ -3840,7 +3784,7 @@ AUTHORITY_BADGE_PARTITION_SHA256 = (
     "sha256:aa5d8636a6ddd55d5769c91044d5507611af9c9e013fc18078e2a48926f9f0ff"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
-    "sha256:c8873b4644cee24a3bb33fdd539644c2dadfdbf56b5e4d5617ed40d78409cfe1"
+    "sha256:44c3d98edae504b3c10fa5b9c30b0084e04263167b7c94972464c31bcad1e979"
 )
 
 
@@ -5070,7 +5014,7 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'consumer',
         },
     ],
-    '94527927d03d160ca987ac01d71d4894b66f35ade816cbf1324a114e7084b373': [
+    '23f90f744643d0354785323f638e0ee0c92b10aa7594b64257bbc64d65897284': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-time-semantics-freshness',
@@ -5161,7 +5105,7 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    'bbba02809125cc44d061c07208227cfd0a110963de7e507daeb434db0efa9644': [
+    '742cf0f2d8958674236aacaaa8571994c8d7c6f9c020c06e225b5c9c2495c53a': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-time-semantics-freshness',
@@ -5273,7 +5217,7 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    'f1663c94e21b16352db7368cd12538ef545d06fbb71e6b717d9624cd8e36f163': [
+    'c6acaba3850d2894164ff4d0592f10a21da9b30c082afe0edcd4f30424c8e3da': [
         {
             'classification': 'debt',
             'descriptor_id': 'prop-time-semantics-freshness',
@@ -5555,6 +5499,111 @@ GOVERNED_DEBT_DESCRIPTORS = {
 }
 GOVERNED_DEBT_DESCRIPTORS.update(copy.deepcopy(INTEGRATE_DEBT_DESCRIPTORS))
 
+C11B_QUERY_MEMORY_ROOT_ID = "cache-query-memory"
+C11B_QUERY_MEMORY_SUCCESSOR_ID = "dashboard-governed-query-cache-posture"
+C11B_QUERY_MEMORY_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
+    "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
+    "apps/runtime-dashboard/src/api/cacheDiscipline.ts",
+    "apps/runtime-dashboard/src/api/cacheDiscipline.test.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+    "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
+    "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+]
+C11B_QUERY_MEMORY_PENDING_RATIONALE = (
+    "DS1 does not record this narrow unit as implemented; C04a-R1 removes the "
+    "local capability fallback and query placeholder from its CommandPalette "
+    "discovery consumer, while cache-policy transition remains owned by C11/C12 "
+    "without creating a parallel owner."
+)
+C11B_QUERY_MEMORY_RATIONALE = (
+    "C11a/C11b and C12b strangle the generic query-memory root only through the "
+    "governed-query option issuer, source-derived policy debt ratchet, owner-as_of "
+    "cache observation, and one visible run consumer; the remaining 65 constructions "
+    "and 41 producers remain explicitly adjudicated debt, and no DS8, DS9, or DS14 "
+    "semantics are claimed."
+)
+
+
+def _json_entry_object_span(
+    text: str, unit_id: str
+) -> tuple[int, int, Mapping[str, Any]]:
+    """Locate one root-entry object without normalizing adjacent JSON bytes."""
+    needle = f'"unit_id": {json.dumps(unit_id, ensure_ascii=False)}'
+    positions = [match.start() for match in re.finditer(re.escape(needle), text)]
+    if len(positions) != 1:
+        raise ValueError(f"root_entry_span_ambiguous:{unit_id}")
+    line_start = text.rfind("    {", 0, positions[0])
+    if line_start < 0:
+        raise ValueError(f"root_entry_span_missing:{unit_id}")
+    start = line_start + 4
+    row, relative_end = json.JSONDecoder().raw_decode(text[start:])
+    if not isinstance(row, Mapping) or row.get("unit_id") != unit_id:
+        raise ValueError(f"root_entry_span_mismatch:{unit_id}")
+    return start, start + relative_end, row
+
+
+def _c11b_query_memory_transition_text(text: str) -> str:
+    """Surgically produce C11b's exact owner-bound query-memory transition."""
+    start, end, source = _json_entry_object_span(
+        text, C11B_QUERY_MEMORY_ROOT_ID
+    )
+    successor = source.get("successor")
+    if (
+        source.get("strangle_status") == "strangled"
+        and source.get("rationale") == C11B_QUERY_MEMORY_RATIONALE
+        and isinstance(successor, Mapping)
+        and successor.get("unit_id") == C11B_QUERY_MEMORY_SUCCESSOR_ID
+        and successor.get("consumer_refs") == C11B_QUERY_MEMORY_SUCCESSOR_REFS
+    ):
+        errors: list[str] = []
+        _validate_c11b_query_memory_root(
+            {C11B_QUERY_MEMORY_ROOT_ID: source}, errors
+        )
+        if errors:
+            raise ValueError(";".join(errors))
+        return text
+
+    pending_fields = {
+        "disposition": "rebind_pending",
+        "strangle_status": "pending",
+        "owner": "team-architecture",
+        "owner_slice": "DS5",
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": C11B_QUERY_MEMORY_PENDING_RATIONALE,
+    }
+    if any(source.get(field) != expected for field, expected in pending_fields.items()):
+        raise ValueError("c11b_query_memory_transition_source_drift")
+    if "successor" in source:
+        raise ValueError("c11b_query_memory_transition_source_successor")
+
+    transitioned: dict[str, Any] = {}
+    for field, value in source.items():
+        if field == "strangle_status":
+            value = "strangled"
+        if field == "rationale":
+            transitioned["successor"] = {
+                "unit_id": C11B_QUERY_MEMORY_SUCCESSOR_ID,
+                "consumer_refs": C11B_QUERY_MEMORY_SUCCESSOR_REFS,
+            }
+            value = C11B_QUERY_MEMORY_RATIONALE
+        transitioned[field] = value
+    errors = []
+    _validate_c11b_query_memory_root(
+        {C11B_QUERY_MEMORY_ROOT_ID: transitioned}, errors
+    )
+    if errors:
+        raise ValueError(";".join(errors))
+    replacement = json.dumps(transitioned, indent=2, ensure_ascii=False).replace(
+        "\n", "\n    "
+    )
+    return text[:start] + replacement + text[end:]
+
 C23_ROOT_IDS = frozenset(
     {
         "status-stress-scene",
@@ -5768,7 +5817,7 @@ _C21B_DESCRIPTOR_HINTS = {
 
 
 def _c21c_structured_identity_literals() -> dict[str, str]:
-    """Return the six C21c identities; line hints are migration-only."""
+    """Return the five live C21c identities; line hints are migration-only."""
     identities: dict[str, str] = {}
     for reference, (
         format_adapter,
@@ -5963,7 +6012,7 @@ def _c21c_surgical_identity_text(text: str) -> str:
         for reference in references
         if "#structured-identity=" in reference
     ]
-    if len(structured) != 6 or set(structured) != set(
+    if len(structured) != 5 or set(structured) != set(
         _C21C_FROZEN_STRUCTURED_IDENTITIES.values()
     ):
         raise ValueError("c21c_structured_identity_partition_drift")
@@ -5973,7 +6022,7 @@ def _c21c_surgical_identity_text(text: str) -> str:
     line_references = [
         reference for reference in references if line_reference_re.match(reference)
     ]
-    if len(line_references) != 15 or len(
+    if len(line_references) != 14 or len(
         {
             line_reference_re.match(reference).group(1)
             for reference in line_references
@@ -8106,6 +8155,32 @@ def _validate_c23_containment_roots(
             errors.append(f"c23_containment_root_drift:{unit_id}")
 
 
+def _validate_c11b_query_memory_root(
+    entries: Mapping[str, Mapping[str, Any]], errors: list[str]
+) -> None:
+    """Bind the generic query root to C12b's owner and C11b's sole live consumer."""
+    entry = entries.get(C11B_QUERY_MEMORY_ROOT_ID, {})
+    expected_fields = {
+        "disposition": "rebind_pending",
+        "strangle_status": "strangled",
+        "owner": "team-architecture",
+        "owner_slice": "DS5",
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": C11B_QUERY_MEMORY_RATIONALE,
+    }
+    for field, expected in expected_fields.items():
+        if entry.get(field) != expected:
+            errors.append(f"c11b_query_memory_root_drift:{field}")
+    successor = entry.get("successor")
+    if not isinstance(successor, Mapping):
+        errors.append("c11b_query_memory_root_drift:successor")
+        return
+    if successor.get("unit_id") != C11B_QUERY_MEMORY_SUCCESSOR_ID:
+        errors.append("c11b_query_memory_root_drift:successor.unit_id")
+    if successor.get("consumer_refs") != C11B_QUERY_MEMORY_SUCCESSOR_REFS:
+        errors.append("c11b_query_memory_root_drift:successor.consumer_refs")
+
+
 def _validate_storage_construction_census(
     data: Mapping[str, Any], errors: list[str]
 ) -> None:
@@ -8377,6 +8452,7 @@ def validate_register(
         errors,
         live_probes=live_probes,
     )
+    _validate_c11b_query_memory_root(entry_by_id, errors)
     _validate_c23_containment_roots(entry_by_id, errors)
     for unit in [*entries, *data["subunits"]]:
         _validate_composition(unit, censuses, errors)
@@ -9621,6 +9697,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="refresh only descriptor-derived supplemental findings in the evolved register",
     )
     parser.add_argument(
+        "--write-c11b-query-memory-root",
+        action="store_true",
+        help="surgically produce the exact C11b query-memory root transition",
+    )
+    parser.add_argument(
         "--migrate-c21b",
         action="store_true",
         help="surgically migrate gated TypeScript reference strings to C21a identities",
@@ -9697,6 +9778,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"missing register: {REGISTER_PATH}", file=sys.stderr)
         return 1
     register_text = REGISTER_PATH.read_text(encoding="utf-8")
+    if args.write_c11b_query_memory_root:
+        register_text = _c11b_query_memory_transition_text(register_text)
+        REGISTER_PATH.write_text(register_text, encoding="utf-8")
+        print("transitioned cache-query-memory through the C11b owner writer")
     if args.write_supplemental:
         register_text = _refresh_supplemental_findings_text(register_text)
         REGISTER_PATH.write_text(register_text, encoding="utf-8")

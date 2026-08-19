@@ -4668,3 +4668,184 @@
   remain independent and executable. C20 remains unentered and requires
   C09a-R2, C09b-R1, C11b-R1 and C15b-R1, while C07a's
   prerequisite-versus-carried-debt ruling remains `not_established`.
+
+## 2026-08-19 — DS5-C11b-R1 entry remeasurement binds presentation and debt owner
+
+- Entry is attached `codex/atlas-ds5-enforcement-waist` at C09a stop record
+  `8f59d4c4c93c0d88a9baa6c02ebab7ed08f148ec`, 105 commits ahead of `main`,
+  clean, with the register family free. C11a `c8c7a291c` is an ancestor and
+  already issues a frozen nominal `CacheObservation` from QueryObserver
+  lifecycle plus validated owner `packet.as_of` (`P37: independently_reconciled`).
+- P39 remeasurement yields seven mechanism paths against cap 10: six named
+  UI/test paths plus `check_frontend_disposition_register.py`, which owns the
+  C06 cache-posture debt descriptor. Mandatory companions are its constant-
+  pinning test, register/report/status, plan and journal, for 13 total. The old
+  plan arithmetic counted governed records inside the mechanism cap and omitted
+  the descriptor owner/test relation; the property-based cut governs.
+- P40 round 1 is the new typed/runtime bridge class. `OverviewTab` currently
+  discards the hook's observation, both panel time labels receive no cache
+  input, and the shared label's raw `unknown` predecessor would present a valid
+  `live` string as unrecognized. The same class one level deeper is hostile
+  runtime input: only `live | cached | stale` paired with valid owner `asOf`
+  may render recognized; malformed, novel and `offline_queued` values must
+  render explicit unrecognized without cache owner time. The generic raw
+  cache-age predecessor remains bounded to unrelated tests/stories.
+- P40 round 2 is a distinct governed-descriptor lifecycle class. Supplemental
+  finding `c06-queryobserver-cache-posture-artifact-debt` still says no typed
+  artifact exists and carries six missing capability states, although C11a
+  landed the artifact and C11b owns its bridge/surface. The owner checker and
+  its canonical supplemental writer must remove that descriptor/row before the
+  `cache-query-memory` root can close. Both rounds are allocated; any later new
+  mechanism class stops C11b rather than opening a third repair.
+- Entry governed state is register
+  `373033ccdaa2324df8d1b61cfb49ca6d7f6223da20360167bcbc0f7a1e11b7c5`,
+  report `8fe67e8673a45ca2d009914cd38c7c38776ae5b58b15344470e20d41d706a1ea`,
+  and status inventory
+  `2ec8b1a8e2ffa8dc6b43c02fbe893d81449d3897e681b5d4b98f2e97140c86f2`.
+  The three edited production files hold 11 current C21 identities in total
+  (Overview 1, panel 9, temporal label 1); the post-freeze scanner, not a line
+  prediction, decides any re-anchor. C23, baseline, readiness, i18n, DS8, DS9
+  and DS14 remain excluded. No source/test/scanner/writer/staged/governed byte
+  moved at entry; the register family remains free.
+- Red-first source receipts under local macOS, installed dependencies and one
+  Vitest worker were `14` failed / `32` passed in `10.41 s` for the initial
+  route/panel presentation and `1` failed / `8` passed in `1.89 s` for the
+  frozen structural-lookalike issuer falsifier. The initial descriptor test
+  failed at the missing supplemental removal in `0.24 s`; the exact query-root
+  owner test then failed at the still-pending root in `0.26 s`. These are
+  property REDs, not admitted timing samples. Initial GREEN was `46/46` in
+  `10.11 s`; the issuer-focused pair is now `17/17` in `2.69 s`.
+- The first independent runtime review was GO on the presentation bridge. Its
+  adversarial fence review then found the same P40 typed/runtime class one level
+  deeper: TypeScript's nominal brand had no runtime issuer, so a frozen valid
+  lookalike rendered as `live`. The repository already has a WeakSet issuer
+  capability, making a residual dishonest; round 1 widened to
+  `cacheDiscipline.ts` + test and the label now accepts only owner-issued values.
+  The final mechanism set is therefore nine paths against cap 10. The writer's
+  later source-content gate induced the seventh P39 companion, so the measured
+  maximum is a 16-path landing.
+- The governed review found the round-2 descriptor/root class one level deeper:
+  generic composition accepted arbitrary `cache-query-memory` lifecycle shapes.
+  Round 2 widened without a new path to bind the exact owner/slice/seed,
+  residual-debt rationale and bounded C11/C12 successor. Both findings are
+  same-class depth within their already allocated rounds, not third classes.
+- Governed delta review then found the second instance of that same lifecycle
+  class: the exact validator could reject a bad root, but no owner-scoped
+  producer could create the accepted transition. P40 therefore required a
+  quantity decision. A surgical producer fits the existing checker path, so a
+  bounded residual would be dishonest; round 2 widened to that producer and a
+  byte-span/idempotence/real-validator witness. Its missing-producer RED was one
+  error in `0.21 s`; the implemented producer witness is GREEN in `0.23 s`.
+- Tooling non-receipt: an exact-file Ruff `format` invocation reformatted both
+  large Python owner files before its scope was recognized. The unrelated
+  formatting was reconstructed from HEAD plus the intended semantic hunks;
+  no formatter output is used as evidence. A pre-freeze descriptor aggregate
+  also reached the expected C21/source-partition drift after source movement;
+  it is a pre-reanchor non-receipt, not a product RED. No scanner, writer,
+  governed artifact, staging or commit has run; the register family remains
+  free.
+- Final widened source receipts under the same local installed-dependency
+  regime are `55/55` focused tests in `10.99 s`, dashboard typecheck in
+  `19.61 s`, and exact eight-file ESLint in `38.67 s`, all exit 0. The first
+  ESLint terminal crossed the tool's 30-second yield with no exit status and is
+  a zero-byte tooling non-receipt; a subsequent material lint RED on an
+  unnecessary default WeakSet type argument was repaired before these final
+  receipts.
+- The first combined owner writer produced the intended register/report bytes
+  but exited RED on the same changed `RunExplainabilityPanel.tsx` content hash
+  bound independently into the C06 and C07 baseline-resolution receipts. C19-R2
+  establishes the exact precedent: this is a surgical source-content re-anchor,
+  not a diagnostic rebaseline. P39 therefore adds
+  `frontend-baseline-debt-manifest.json` as the seventh mandatory companion;
+  only those two receipt hashes move to the recomputed file SHA-256
+  `d9005dfe3d6b2a8cd8d2774ea213ec4f766c21bc8cd0a0cc2c7a506bc975f297`.
+  The command's reported `real 1861.05 s` conflicts with the executor's roughly
+  61-second observation and its `user 94.63 s` / `sys 7.21 s`; that duration is
+  an anomalous timing non-receipt and does not enter the ceiling sample set.
+- The corrected first owner wave was GREEN and byte-idempotent: the combined
+  query-root/supplemental/C21b/report writer completed in `76.80 s` and
+  `74.95 s`, retaining register
+  `8252adb29d9e86af28565eb9f960b146c5c11f994374b57e16360aae9b0f3f92`
+  and report
+  `1e53f55637d41bbc259932de2dde698cb46beec254f204a84a6e42e1b3f37980`.
+  The final post-review replay completed in `78.47 s` and `74.02 s` and retained
+  the same bytes both times. The report is `115887` bytes and its static
+  projection equals the parsed register (`P37: recomputed`).
+- The no-write frozen-source C21 derivation found exactly three changed owner
+  identities among the 11 identities in the edited production files: the
+  `TimeSemanticsLabel` component declaration and two panel `freshness`
+  attributes. The canonical supplemental writer refreshed those three source-
+  derived keys inside `authority-presentation-prop-time-semantics-freshness`;
+  all ten reference censuses are byte-equal to entry, so C21 census re-anchors
+  are exactly zero. Independent source, governed and fence reviews returned GO.
+- Removing the completed C06 descriptor induced its complete owner-receipt
+  delta: one TypeScript identity, one structured identity, one Python
+  navigation ref and one plan anchor retired together. The recomputed live
+  denominator is `260` references = `155` TypeScript identities + `5`
+  structured identities + `14` navigation refs + the remaining non-line
+  evidence; the TypeScript set is `128` distinct identities / `107` relocation
+  families / `128` hybrid keys, partitioned `28` observed + `118` authority +
+  `9` descriptor identities. Navigation remains `14` refs / `11` files and
+  structured identity remains `5` refs / `4` files (`P37: recomputed`).
+- The first full frontend owner module correctly returned RED after artifact
+  production: seven failures plus one error in `291.27 s` were stale exact
+  receipts for the retired descriptor and the query root's
+  `pending -> strangled` transition. P40 classified the set as a WORKED EXAMPLE
+  of the governed descriptor-lifecycle class, not a third mechanism round.
+  The owner tests now pin strangle `58 / 149 / 54`, total refs `260`, C21
+  `155 / 128 / 107 / 128`, partition `28 / 118 / 9`, structured `5`, and
+  navigation `14`. Their behavioral movement/rename probe now targets the
+  surviving `fetchAuthMe` declaration rather than the retired descriptor.
+- The exact eight repaired owner receipts passed `8/8` in `62.79 s`; the final
+  full frontend module passed `101/101` in `305.91 s`. Its two nested error
+  transcripts are deliberate child negatives exercised by owning tests; the
+  module exit was 0. The disposition checker, baseline-source verification and
+  corruption probes passed in `158.21 s`; status retirement passed `38/38` in
+  `76.16 s`; status checker/corruption passed in `27.02 s`; Atlas
+  checker/corruption passed in `95.03 s`; and full Atlas passed `35/35` in
+  `543.14 s`. Every parent used the repository venv explicitly, one scanner-
+  heavy parent at a time, with shared-host uptime and captured exit; every
+  duration is below its predeclared ceiling.
+- Final app-side verification is GREEN: the production build (including
+  typecheck, Vite, postbuild security and Atlas Tailwind) completed in
+  `31.83 s`, transformed `3886` modules and produced `108` PWA entries; the
+  existing oversized-chunk advisory remains non-blocking. Architecture and
+  dependency cruise completed in `6.85 s`, covering `1030` modules / `4202`
+  dependencies with zero violations. Earlier final source receipts remain
+  `55/55` focused, typecheck `19.61 s`, and exact ESLint `38.67 s`.
+- Governed readback is exact: `cache-query-memory` remains
+  `rebind_pending`/team-architecture/DS5 but becomes `strangled` through the
+  surgical owner writer, with successor `dashboard-governed-query-cache-posture`
+  and 12 existing C11/C12 consumer refs. Its rationale preserves the 65 direct
+  constructions / 41 producer debts and explicitly claims no DS8, DS9 or DS14
+  semantics. Supplemental findings are `61`, censuses `10`, roots `261`, and
+  dispositions remain `19 / 184 / 25 / 17 / 16`; strangle is
+  `58 / 149 / 54`. Status inventory changes only its DS19 register hash and is
+  `2aa3a8e345fc23620a83feda70130c40fed50797f142a23f2471cc528e5c1dd8`.
+- Final artifact hashes are register
+  `8252adb29d9e86af28565eb9f960b146c5c11f994374b57e16360aae9b0f3f92`,
+  generated report
+  `1e53f55637d41bbc259932de2dde698cb46beec254f204a84a6e42e1b3f37980`,
+  and source-content manifest
+  `cec094bc53549c2c9e36c7b86bd4b0a41db4d742c90615d40f07215c1a9de828`.
+  Exactly its C06/C07 panel hashes change to the current source SHA; this is an
+  induced content re-anchor, not a diagnostic rebaseline. Readiness remains
+  byte-identical at
+  `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`,
+  and all four C23 rows are parsed-byte-equal to entry.
+- Tooling non-receipts retained at closeout: one no-write C21 wrapper appended
+  `uptime` after a failing child and therefore masked the child exit; its output
+  was discarded and the derivation rerun with explicit exit propagation. One
+  focused eight-test run completed after the orchestration layer failed to
+  retain its yielded session/output; it wrote zero bytes and was repeated for
+  the `62.79 s` receipt. A broad `rg` pattern containing unquoted Markdown
+  backticks invoked zsh command substitution and its output was discarded.
+  A later hash loop used zsh's special `path` variable, shadowed `PATH`, and
+  made `git`/`shasum` unavailable; the corrected `target_file` loop reproduced
+  the hashes above. None is product evidence or an admitted timing sample.
+- Duplication duty remains unchanged: the registered eight-owner module-path
+  replication is not widened into C11b. The exact landing fence is 9 mechanism
+  paths against cap 10 plus 7 mandatory P39 companions, 16 tracked paths total
+  and zero untracked. `git diff --check` is green. **Terminal classification:
+  `landed`** once the explicit-path commit and branch readback complete; the
+  register family remains held until that readback, then becomes free.

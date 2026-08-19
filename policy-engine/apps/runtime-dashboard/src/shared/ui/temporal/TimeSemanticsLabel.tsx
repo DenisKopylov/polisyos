@@ -1,11 +1,17 @@
 import type { ProjectionFreshness } from "@polisyos/runtime-api-client";
 
+import {
+  hasOwnerAsOf,
+  isIssuedCacheObservation,
+  type CacheObservation,
+} from "@/api/cacheDiscipline";
 import { cn } from "@/shared/lib/utils";
 
 import { presentCacheAgeLabel } from "./cacheAgePresentation";
 
 type TimeSemanticsLabelProps = {
   cacheAgeLabel?: unknown;
+  cacheObservation?: CacheObservation | null;
   className?: string;
   freshness?: ProjectionFreshness | null;
   payloadAsOf?: string | null;
@@ -13,8 +19,44 @@ type TimeSemanticsLabelProps = {
   validAt?: string | null;
 };
 
+type CachePosturePresentation = Readonly<{
+  asOf: string | null;
+  posture: CacheObservation["posture"];
+}>;
+
+const UNRECOGNIZED_CACHE_POSTURE: CachePosturePresentation = Object.freeze({
+  asOf: null,
+  posture: "unrecognized",
+});
+
+function presentCacheObservation(
+  value: CacheObservation | null,
+): CachePosturePresentation {
+  if (!isIssuedCacheObservation(value)) {
+    return UNRECOGNIZED_CACHE_POSTURE;
+  }
+
+  try {
+    const { asOf, posture } = value;
+    if (posture === "unrecognized" && asOf === null) {
+      return UNRECOGNIZED_CACHE_POSTURE;
+    }
+    if (
+      (posture === "live" || posture === "cached" || posture === "stale") &&
+      hasOwnerAsOf(asOf)
+    ) {
+      return Object.freeze({ asOf, posture });
+    }
+  } catch {
+    return UNRECOGNIZED_CACHE_POSTURE;
+  }
+
+  return UNRECOGNIZED_CACHE_POSTURE;
+}
+
 export function TimeSemanticsLabel({
   cacheAgeLabel,
+  cacheObservation,
   className,
   freshness,
   payloadAsOf,
@@ -23,11 +65,16 @@ export function TimeSemanticsLabel({
 }: TimeSemanticsLabelProps) {
   const cacheAge = presentCacheAgeLabel(cacheAgeLabel);
   const cacheAgeValue = cacheAge.ownerLabel ?? "unknown";
+  const cachePosture =
+    cacheObservation === undefined
+      ? null
+      : presentCacheObservation(cacheObservation);
 
   return (
     <dl
       className={cn("text-muted grid gap-1 text-xs", className)}
       data-cache-age-presentation={cacheAge.classification}
+      data-cache-posture-presentation={cachePosture?.posture}
     >
       <TimeEntry label="Policy valid at" testId="valid-at" value={validAt} />
       <TimeEntry label="Knowledge tx at" testId="tx-at" value={txAt} />
@@ -51,6 +98,20 @@ export function TimeSemanticsLabel({
         testId="source-state"
         value={freshness?.state}
       />
+      {cachePosture ? (
+        <>
+          <TimeEntry
+            label="Cache posture"
+            testId="cache-posture"
+            value={cachePosture.posture}
+          />
+          <TimeEntry
+            label="Cache owner as of"
+            testId="cache-owner-as-of"
+            value={cachePosture.asOf}
+          />
+        </>
+      ) : null}
       <TimeEntry
         label="Cache age"
         testId="cache-age"

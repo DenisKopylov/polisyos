@@ -5245,12 +5245,29 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-architecture",
       "owner_slice": "DS5",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; C04a-R1 removes the local capability fallback and query placeholder from its CommandPalette discovery consumer, while cache-policy transition remains owned by C11/C12 without creating a parallel owner."
+      "successor": {
+        "unit_id": "dashboard-governed-query-cache-posture",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
+          "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
+          "apps/runtime-dashboard/src/api/cacheDiscipline.ts",
+          "apps/runtime-dashboard/src/api/cacheDiscipline.test.ts",
+          "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+          "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
+          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx"
+        ]
+      },
+      "rationale": "C11a/C11b and C12b strangle the generic query-memory root only through the governed-query option issuer, source-derived policy debt ratchet, owner-as_of cache observation, and one visible run consumer; the remaining 65 constructions and 41 producers remain explicitly adjudicated debt, and no DS8, DS9, or DS14 semantics are claimed."
     },
     {
       "unit_id": "cache-local-storage-state",
@@ -7690,9 +7707,9 @@
       "status": "open_debt",
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
-        "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpUaW1lU2VtYW50aWNzTGFiZWwiLCJzeW1ib2w6VGltZVNlbWFudGljc0xhYmVsIiwicmVzb2x2ZWQ6VGltZVNlbWFudGljc0xhYmVsIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiVGltZVNlbWFudGljc0xhYmVsIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiMTQ0YjMzMjM1OWI3ZjQ1YjZiY2FkZjgyZjNhNmEyNzczMzVkNzQ0MzExOTFjYzQ3MzVhMjI4MDIyN2VkYmY2MCIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJJZlN0YXRlbWVudDo1IiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDo4IiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6NyIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6OCIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9"
+        "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpUaW1lU2VtYW50aWNzTGFiZWwiLCJzeW1ib2w6VGltZVNlbWFudGljc0xhYmVsIiwicmVzb2x2ZWQ6VGltZVNlbWFudGljc0xhYmVsIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiVGltZVNlbWFudGljc0xhYmVsIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiODg3YTJiNzA0ZGVhYWNjODZlYmZmODhkM2U1NmE2NDQ0NGFhNzBhZDVmZTQwODJkNDEzMjllZWI3NTdiZGMzMSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJJZlN0YXRlbWVudDo1IiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDo4IiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjEiXSwidmVyc2lvbiI6MX0",
+        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6NyIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6OCIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZToxIl0sInZlcnNpb24iOjF9"
       ],
       "owner_slice": "DS18",
       "decision_date": "2026-08-02",
@@ -7710,13 +7727,13 @@
         "component_declaration": {
           "role": "component_declaration",
           "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-          "line": 16,
-          "content_sha256": "sha256:fcce4805a97b36ce6799c026974fb7c514f9cc3d4d1270ef3023bd2da414e44c"
+          "line": 57,
+          "content_sha256": "sha256:b932c88aa10f756fea7c9b71ee38e9d14986b487fc8b07de23478f365f313714"
         },
         "prop_declaration": {
           "role": "prop_declaration",
           "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-          "line": 10,
+          "line": 16,
           "content_sha256": "sha256:424363795b3744b3ad009ba7d8cd6c5ea3945398df29a2935e5372ef99852e04"
         },
         "consumer_count": 2,
@@ -7724,13 +7741,13 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 398,
+            "line": 399,
             "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 452,
+            "line": 454,
             "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
           }
         ]
@@ -7978,30 +7995,6 @@
       ],
       "rationale": "DecisionGrade has a PDC owner but no OpenAPI or generated-client export; the DS4 waist row assigns its singular swap point to C14. C06 records the missing generated producer contract and does not pre-empt C14.",
       "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_generated_decision_grade_union_tracks_pdc_owner exits 0 after C14 publishes the generated DecisionGrade contract from the PDC owner",
-      "decision_date": "2026-07-17"
-    },
-    {
-      "finding_id": "c06-queryobserver-cache-posture-artifact-debt",
-      "finding_kind": "producer_binding_debt",
-      "disposition": "rebind_pending",
-      "status": "open_debt",
-      "owner_slice": "DS5",
-      "capability_states": [
-        "artifact_missing",
-        "bridge_missing",
-        "consumer_missing",
-        "verification_missing",
-        "surface_missing",
-        "semantic_test_missing"
-      ],
-      "evidence_refs": [
-        "src/polisyos/runtime/http/services/governed_projections.py:121",
-        "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6ZGVwdGhOQ3ljbGVCb2FyZFByb2plY3Rpb25RdWVyeU9wdGlvbnMiLCJzeW1ib2w6ZGVwdGhOQ3ljbGVCb2FyZFByb2plY3Rpb25RdWVyeU9wdGlvbnMiLCJyZXNvbHZlZDpkZXB0aE5DeWNsZUJvYXJkUHJvamVjdGlvblF1ZXJ5T3B0aW9ucyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvYXBpL3VzZURlcHRoTkN5Y2xlQm9hcmRQcm9qZWN0aW9uLnRzOkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6ImRlcHRoTkN5Y2xlQm9hcmRQcm9qZWN0aW9uUXVlcnlPcHRpb25zIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZTZkYWZmZjEwY2VhMGYwNDkzMTNhZmM5ZGMxMTNlNjQ2YzQwYTdkNzU1MmJjYzc4NmFkZGRlZGNhOTk4NWI4YiIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9hcGkvdXNlRGVwdGhOQ3ljbGVCb2FyZFByb2plY3Rpb24udHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
-        "architecture/atlas_surfaces/ds4-waist-debt-register.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6ImE1YzU3MTE3ZjUyOTI4NzQxNmZmZDJhY2Q1NTg0ODI5ODk1NWE2YzJmMTNjM2VmNDNmMzMyZjJlZDE5MjdjNGIiLCJzZWxlY3RvciI6Ii9lbnRyaWVzW2RlYnRfaWQ9ZHM0LXdhaXN0LWNhY2hlLWFnZV0iLCJzb3VyY2VfcGF0aCI6ImFyY2hpdGVjdHVyZS9hdGxhc19zdXJmYWNlcy9kczQtd2Fpc3QtZGVidC1yZWdpc3Rlci5qc29uIiwidmVyc2lvbiI6MX0",
-        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c11a"
-      ],
-      "rationale": "QueryObserver emits lifecycle signals today, but no typed CachePosture artifact exists. ProjectionFreshness records source observation and is orthogonal to cached-copy posture; C11a/C11b own the client artifact, bridge, and surface.",
-      "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_queryobserver_cache_posture_keeps_source_freshness_orthogonal exits 0 after C11a/C11b publish the typed QueryObserver cache-posture artifact without reclassifying source freshness",
       "decision_date": "2026-07-17"
     },
     {

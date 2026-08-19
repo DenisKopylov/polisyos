@@ -32,6 +32,7 @@ import {
 } from "@/shared/ui/compounds/ReasoningChainDisplay";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
 import type { DepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
+import type { CacheObservation } from "@/api/cacheDiscipline";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { LocalizedJsonPreview } from "@/shared/ui/LocalizedJsonPreview";
 import { BlockerCard } from "@/shared/ui/compounds/BlockerCard";
@@ -50,6 +51,7 @@ import {
 } from "@polisyos/atlas-ui";
 
 type RunExplainabilityPanelProps = {
+  cacheObservation?: CacheObservation | null;
   governedProjection?: DepthNCycleBoardProjection | null;
   summary: RunInspectorSummary;
   level?: ExplainabilityLevel;
@@ -328,10 +330,12 @@ function buildReasoningSteps(summary: RunInspectorSummary): ReasoningStep[] {
 }
 
 function GovernedDepthProjection({
+  cacheObservation,
   projection,
   projectionError = false,
   projectionLoading = false,
 }: {
+  cacheObservation?: CacheObservation | null;
   projection?: DepthNCycleBoardProjection | null;
   projectionError?: boolean;
   projectionLoading?: boolean;
@@ -357,9 +361,7 @@ function GovernedDepthProjection({
         data-interaction-state="loading"
         data-testid="governed-depth-projection-interaction"
       >
-        <p className="text-muted-foreground text-sm">
-          {t("common.loading")}
-        </p>
+        <p className="text-muted-foreground text-sm">{t("common.loading")}</p>
       </Card>
     );
   }
@@ -390,11 +392,10 @@ function GovernedDepthProjection({
             </span>
           ) : null}
         </div>
-        <p className="text-muted-foreground text-sm">
-          {packet.absence_reason}
-        </p>
+        <p className="text-muted-foreground text-sm">{packet.absence_reason}</p>
         <DataFreshnessBadge freshness={packet.freshness} />
         <TimeSemanticsLabel
+          cacheObservation={cacheObservation ?? null}
           freshness={packet.freshness}
           payloadAsOf={packet.as_of}
         />
@@ -449,6 +450,7 @@ function GovernedDepthProjection({
       ) : null}
 
       <TimeSemanticsLabel
+        cacheObservation={cacheObservation ?? null}
         freshness={packet.freshness}
         payloadAsOf={packet.as_of}
       />
@@ -516,6 +518,7 @@ function GovernedDepthProjection({
 }
 
 export function RunExplainabilityPanel({
+  cacheObservation,
   governedProjection,
   summary,
   level = "summary",
@@ -564,6 +567,7 @@ export function RunExplainabilityPanel({
         />
       ) : null}
       <GovernedDepthProjection
+        cacheObservation={cacheObservation}
         projection={governedProjection}
         projectionError={projectionError}
         projectionLoading={projectionLoading}

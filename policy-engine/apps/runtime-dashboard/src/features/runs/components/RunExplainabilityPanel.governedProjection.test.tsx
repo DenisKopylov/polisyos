@@ -7,6 +7,7 @@ import type {
 } from "@polisyos/runtime-api-client";
 import { screen, within } from "@testing-library/react";
 
+import { observeCachePosture } from "@/api/cacheDiscipline";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
 import { narrowDepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
@@ -143,6 +144,131 @@ function artifactMissingPacket(): ArtifactMissingGovernedProjectionPacket {
 }
 
 describe("RunExplainabilityPanel governed projection", () => {
+  it.each([
+    {
+      fetchStatus: "idle",
+      isFetchedAfterMount: true,
+      isStale: false,
+      posture: "live",
+    },
+    {
+      fetchStatus: "idle",
+      isFetchedAfterMount: false,
+      isStale: false,
+      posture: "cached",
+    },
+    {
+      fetchStatus: "fetching",
+      isFetchedAfterMount: true,
+      isStale: true,
+      posture: "stale",
+    },
+  ])(
+    "renders issued $posture cache posture without changing projection authority",
+    (lifecycle) => {
+      const packet = availablePacket();
+      renderWithProviders(
+        <RunExplainabilityPanel
+          cacheObservation={observeCachePosture(
+            { data: {}, ...lifecycle },
+            packet.as_of,
+          )}
+          governedProjection={narrowDepthNCycleBoardProjection(packet)}
+          level="summary"
+          summary={summaryFixture()}
+        />,
+      );
+
+      expect(screen.getByTestId("governed-depth-projection")).toHaveAttribute(
+        "data-authority-posture",
+        "producer-projection",
+      );
+      expect(
+        screen.getByTestId("time-semantics-cache-posture"),
+      ).toHaveTextContent(lifecycle.posture);
+      expect(
+        screen.getByTestId("time-semantics-cache-owner-as-of"),
+      ).toHaveTextContent(packet.as_of);
+    },
+  );
+
+  it("fails novel posture and missing owner time closed on both projection branches", () => {
+    const packet = availablePacket();
+    const { rerender } = renderWithProviders(
+      <RunExplainabilityPanel
+        cacheObservation={
+          {
+            asOf: packet.as_of,
+            posture: "offline_queued",
+          } as never
+        }
+        governedProjection={narrowDepthNCycleBoardProjection(packet)}
+        level="summary"
+        summary={summaryFixture()}
+      />,
+    );
+
+    expect(
+      screen.getByTestId("time-semantics-cache-posture"),
+    ).toHaveTextContent(/unrecognized/u);
+    expect(screen.queryByText(/offline_queued/u)).not.toBeInTheDocument();
+    expect(screen.getByTestId("governed-depth-projection")).toHaveAttribute(
+      "data-authority-posture",
+      "producer-projection",
+    );
+
+    rerender(
+      <RunExplainabilityPanel
+        cacheObservation={{ asOf: null, posture: "cached" } as never}
+        governedProjection={narrowDepthNCycleBoardProjection(
+          artifactMissingPacket(),
+        )}
+        level="summary"
+        summary={summaryFixture()}
+      />,
+    );
+    expect(
+      screen.getByTestId("time-semantics-cache-posture"),
+    ).toHaveTextContent(/unrecognized/u);
+    expect(
+      screen.getByTestId("time-semantics-cache-owner-as-of"),
+    ).toHaveTextContent(/unknown/u);
+    expect(screen.getByTestId("governed-depth-projection")).toHaveAttribute(
+      "data-authority-posture",
+      "unavailable",
+    );
+  });
+
+  it("keeps retained projection data hidden when refetch fails", () => {
+    renderWithProviders(
+      <RunExplainabilityPanel
+        cacheObservation={observeCachePosture(
+          {
+            data: {},
+            fetchStatus: "idle",
+            isFetchedAfterMount: true,
+            isStale: true,
+          },
+          "2026-07-29T10:00:00Z",
+        )}
+        governedProjection={narrowDepthNCycleBoardProjection(availablePacket())}
+        level="summary"
+        projectionError
+        summary={summaryFixture()}
+      />,
+    );
+
+    expect(
+      screen.getByTestId("governed-depth-projection-interaction"),
+    ).toHaveAttribute("data-interaction-state", "error");
+    expect(
+      screen.queryByTestId("governed-depth-projection"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("time-semantics-cache-posture"),
+    ).not.toBeInTheDocument();
+  });
+
   it("renders producer terminal evidence and as-of without local reclassification", () => {
     const packet = availablePacket();
     renderWithProviders(

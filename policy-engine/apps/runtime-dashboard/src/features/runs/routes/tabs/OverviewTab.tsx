@@ -468,6 +468,7 @@ export default function OverviewTab() {
           </div>
         </div>
         <RunExplainabilityPanel
+          cacheObservation={governedProjectionQuery.cacheObservation}
           governedProjection={governedProjectionQuery.data}
           level="summary"
           projectionError={governedProjectionQuery.isError}

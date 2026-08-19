@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 
 import {
   type CacheObservation,
+  isIssuedCacheObservation,
   observeCachePosture,
 } from "./cacheDiscipline";
 
@@ -14,6 +15,23 @@ describe("cache discipline", () => {
     };
 
     expect(structuralLookalike.posture).toBe("live");
+    expect(isIssuedCacheObservation(structuralLookalike)).toBe(false);
+  });
+
+  it("recognizes only cache observations issued by the lifecycle owner", () => {
+    const issued = observeCachePosture(
+      {
+        data: {},
+        fetchStatus: "idle",
+        isFetchedAfterMount: true,
+        isStale: false,
+      },
+      "2026-08-09T10:00:00Z",
+    );
+
+    expect(isIssuedCacheObservation(issued)).toBe(true);
+    expect(isIssuedCacheObservation(Object.freeze({ ...issued }))).toBe(false);
+    expect(isIssuedCacheObservation(new Proxy(issued, {}))).toBe(false);
   });
 
   it("returns unrecognized for a novel observer lifecycle or absent owner as_of", () => {
@@ -83,10 +101,7 @@ describe("cache discipline", () => {
   });
 
   it("accepts canonical UTC and offset owner timestamps", () => {
-    for (const asOf of [
-      "2026-08-09T10:00:00Z",
-      "2026-08-09T12:00:00+02:00",
-    ]) {
+    for (const asOf of ["2026-08-09T10:00:00Z", "2026-08-09T12:00:00+02:00"]) {
       expect(
         observeCachePosture(
           {

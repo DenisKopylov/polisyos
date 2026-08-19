@@ -651,10 +651,12 @@ gates. `contract_only` is not accepted: the register, authority projection,
 checker, report, and DS19 hash pin move together. Direct syntax only—this makes
 no flow-completeness claim.
 
-**Measured current corpus:** 156 C21a identities: 28 protected-live direct calls
+**C21b landing corpus:** 156 C21a identities: 28 protected-live direct calls
 or route literals, 118 authority-presentation evidence slots, and 10 explicit
-producer/integrate descriptor slots. The remaining line-address residual is 15
-(six TS navigation, six Python descriptor prose, and three Markdown navigation).
+producer/integrate descriptor slots. C11b later retires one completed descriptor,
+so the recomputed current corpus is 155 = 28 + 118 + 9. The current line-address
+residual is 14 (six TS navigation, five Python descriptor prose, and three
+Markdown navigation).
 A real governed-validator
 replay moves `deleteComposerDraftRecord` without a register edit and stays
 green; renaming the same construct is binding-missing red. C08 whole-file
@@ -662,7 +664,7 @@ baseline bytes remain unchanged.
 
 ### DS5-C21c — bind gated JSON and TOML references
 
-**Pattern pass:** P29/P31/P32/P33/P35/P37. Six descriptor bindings over four
+**Pattern pass:** P29/P31/P32/P33/P35/P37. At C21c landing, six descriptor bindings over four
 files migrate as one structured mechanism: a versioned repo-relative path,
 suffix-bound `json | toml` adapter, stable selector, and SHA-256 of the
 canonical selected value. JSON object keys must be unique; keyed-list selectors
@@ -672,10 +674,11 @@ adapter/path mismatch, missing or duplicate selectors, and selected-value drift
 fail closed with named codes.
 
 **Measured migration:** five JSON refs / three files and one TOML ref / one
-file become six `#structured-identity=` bindings. The post-C21c line-address
-residual is exactly 15 navigation-only refs / 11 files: six TypeScript / four
-files, six Python descriptor prose / five files, and three Markdown refs / two
-files. A real full-validator witness moves and reformats the selected DS4 debt
+file became six `#structured-identity=` bindings. C11b removes the completed
+cache-posture descriptor and its DS4 selector, leaving five structured identities
+over four files. The current line-address residual is exactly 14 navigation-only
+refs / 11 files: six TypeScript / four files, five Python descriptor prose / five
+files, and three Markdown refs / two files. A real full-validator witness moves and reformats the selected DS4 debt
 row without a register edit and stays green; selector rename and selected-row
 content rewrite are red. C21c changes evidence binding only and edits no
 product, package, schema, baseline, finding content, or disposition.
@@ -701,11 +704,14 @@ consumers retain the generic anchor resolver; they are not migration maps.
 when it fails may one unique declaration-chain/token candidate relocate; zero
 or multiple candidates retain named rename/content/ambiguity REDs. One shared
 classifier governs standalone and single-program batch paths. Hybrid frozen
-keys retain structural identity for the `14` collision families exposed when
-`129` identities collapse to `108` semantic keys. The exact seven-construct
+keys retain structural identity for the `14` collision families exposed at
+C21d landing when `129` identities collapsed to `108` semantic keys. C11b's
+completed-descriptor retirement leaves 128 distinct identities / 107 relocation
+families / 128 collision-safe hybrid keys. The exact seven-construct
 `f77850487 -> a3ad1e615` move is green through the governed batch gate while all
-three REDs remain; ordinary import runs no parser. The `156 / 15` register
-corpus and every governed artifact remain byte-identical.
+three REDs remain; ordinary import runs no parser. C21d's landing corpus was
+`156 / 15`; C11b's recomputed current corpus is `155 / 14` and changes only the
+completed descriptor's governed receipts.
 
 ### DS-INFRA-2 — Atlas timing evidence debt
 
@@ -822,6 +828,27 @@ are excluded from successful timing samples:
 | status checker/corruption | `27.03, 27.09` | `42.54` | `86 s` |
 | Atlas checker/corruption | `94.25, 94.28` | `156.60` | `314 s` |
 | full Atlas module | `542.64, 543.53` | `1338.89` | `2678 s` |
+
+The landed C11b-R1 successor used the same regime. Behavioral REDs and tooling
+non-receipts remain in the journal and are excluded from successful timing
+samples:
+
+| Lane | New successful samples (seconds) | recomputed p95 | binding ceiling |
+| --- | ---: | ---: | ---: |
+| focused C11b owner unit | `0.23` | `0.23` | `1 s` |
+| focused dashboard/component tests | `2.69, 10.11, 10.20, 10.99` | `82.27` | `165 s` |
+| dashboard typecheck | `19.61` | `78.40` | `157 s` |
+| scoped dashboard ESLint | `38.67` | `86.84` | `174 s` |
+| dashboard production build | `31.83` | `57.45` | `115 s` |
+| dashboard architecture/dependency cruise | `6.85` | `9.20` | `19 s` |
+| canonical report writer | `74.02, 74.95, 76.80, 78.47` | `86.97` | `174 s` |
+| focused frontend C21 owner receipt | `62.79` | `62.79` | `126 s` |
+| full frontend module | `305.91` | `373.94` | `748 s` |
+| disposition corruption battery | `158.21` | `276.89` | `554 s` |
+| status-retirement module | `76.16` | `168.65` | `338 s` |
+| status checker/corruption | `27.02` | `42.54` | `86 s` |
+| Atlas checker/corruption | `95.03` | `156.60` | `314 s` |
+| full Atlas module | `543.14` | `1338.89` | `2678 s` |
 
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
@@ -945,7 +972,7 @@ first continuously numbered `-R1` successor.
 | C09a | 10 | 11 | R1 stopped at the P40 round breaker | C09a-R2 / 11; candidate `f240db1b7`, revert `c64b03dea` |
 | C09b | 7 | 8 | no-fit | C09b-R1 / 8 |
 | C10 | 7 | 8 | no-fit | C10-R1 / 8 (DEFERRED) |
-| C11b | 9 | 10 | no-fit | C11b-R1 / 10 |
+| C11b | 9 | 10 | landed | C11b-R1 / 10; 9 mechanism + 7 mandatory companions under P39 |
 | C12b | 9 | 10 | landed | C12b-R1 / 10 at `53fe8a84c` |
 | C13a | 18 | 18 | stopped predecessor | C13a-R2 / 22 |
 | C13a-R2 | 22 | 22 | stopped predecessor | C13a-R3 / 23 |
@@ -1462,7 +1489,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C09b-R1 | mode/run default deny | C08b-R2's raw fail-closed owner is landed, but C09b's written acceptance consumes C09a-R2's branded decision API, cross-surface test and bounded syntax gate | `edb8e045f`; stopped C09a candidate `f240db1b7`; C09b acceptance below | blocked-on-another-cluster; supplied independence is falsified by the reverted API/gate and C09b's cap excludes them | C09a-R2 |
 | C10-R1 | weakest-boundary presentation | no routed complete G4 producer; C05b implementation debt also remains | `docs/reference/frontend/atlas-frontend-disposition-register.md:221`; C05b-D2 above | blocked-on-another-plan | `team-runtime-quality` G4 projection owner plan |
 | C11a | cache-posture observation | the packet supplies `as_of`; live TanStack query lifecycle supplies data/fetch state | `c8c7a291c`; `apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103-119`; `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx:399,453` | landed | none |
-| C11b-R1 | visible cache posture | C11a's typed `CachePosture` artifact is landed | `c8c7a291c`; `DS5-C11b-R1` acceptance | executable and unentered; predecessor discharged by C11a | none |
+| C11b-R1 | visible cache posture | C11a's typed `CachePosture` artifact is landed and C11b carries its runtime-issued observation to the run surface | `c8c7a291c`; `DS5-C11b-R1` acceptance; 55/55 focused and governed closeout receipts | landed by this plan-bearing commit; register family released after branch readback | none |
 | C12a | query construction/producer census | 42 current query producers are real census subjects; the register is the new enforcement artifact | `15c89d241`; complete census: `rg -n --glob '!**/*.test.*' --glob '!**/*.stories.*' --glob '!**/types.ts' '\\bqueryFn\\s*:' apps/runtime-dashboard/src` (42); `DS5-C12a` measured denominator | landed | none |
 | C12b-R1 | governed query wrapper/policy | consumes C12a's source-bound register and policy classification | `53fe8a84c`; C12a table row; `DS5-C12b-R1` acceptance | landed | none |
 | C13a | delete authority replay | landed: provider/queued hook deleted; live decision and composer-only persistence remain | `653f12d08`; `apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.ts:16-45`; `apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts:1-16` | landed | none |
@@ -1483,7 +1510,7 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
 | C19-R1/R2 | three flag gates and collaboration retirement | R2 restores R1's reviewed gates and repairs the governed C21 census consumer to replay the ratified hybrid relocation rule with multiplicity | candidate `9b87f0e09`; forward revert `33ea792b5`; C19-R2 route/bootstrap/C21 witnesses and governed wave | landed; register family free | none |
 | C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; C07a's new owner block needs prerequisite-versus-carried-debt reconciliation | `DS5-C20` acceptance; complete standing census below; C07a and C09a 2026-08-19 entry/round-breaker stops | blocked-on-another-cluster; C07a opening effect not_established | C09a-R2, C09b-R1, C11b-R1, C15b-R1; architect ruling for C07a |
+| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; C07a's new owner block needs prerequisite-versus-carried-debt reconciliation | `DS5-C20` acceptance; complete standing census below; C07a and C09a 2026-08-19 entry/round-breaker stops | blocked-on-another-cluster; C07a opening effect not_established | C09a-R2, C09b-R1, C15b-R1; architect ruling for C07a |
 
 **Entry standing census (recomputed and independently reconciled at
 `324996652`, structurally refreshed through C17b-R2 revert `eb97981c4`):**
@@ -1495,7 +1522,8 @@ cluster status paragraph. In the commissioned chain, C18b-R2 and C19-R2
 landed, C17b-R2 stopped for the same-cap R3 mechanism re-cut, and this
 plan-bearing commit lands C17b-R3's narrowed direct census once branch
 attachment/readback succeeds. Outside that chain, the
-executable-and-unentered set is exactly `C11b-R1` and `C15b-R1`. C09a-R1 is
+executable-and-unentered set is exactly `C15b-R1`; C11b-R1 lands in this
+plan-bearing commit. C09a-R1 is
 stopped with the same-cap C09a-R2 successor unentered; C09b-R1 is now blocked
 on that real API/gate dependency rather than weakening its acceptance. C07a is now
 `blocked_on_another_owner` by the registered `runtime-dashboard-api-types`
@@ -1986,24 +2014,48 @@ yet claim a visible presentation.
 
 ### DS5-C11b-R1 — render cache posture in the live run surface
 
-**Measured set:** exactly 9 implementation/governed paths plus journal = 10;
-cap 10: `TimeSemanticsLabel.tsx` + test, `RunExplainabilityPanel.tsx` + its
-governed-projection test, `OverviewTab.tsx` + `runDetailSurfaces.test.tsx`,
-frontend disposition register + generated report,
-`architecture/atlas_surfaces/status-retirement-inventory.json`, and journal.
-`TimeSemanticsLabel` currently renders twice and receives no `cacheAgeLabel`.
+**Entry remeasurement (2026-08-19):** nine mechanism paths fit cap 10:
+`cacheDiscipline.ts` + test, `TimeSemanticsLabel.tsx` + test,
+`RunExplainabilityPanel.tsx` + its governed-projection test, `OverviewTab.tsx`
++ `runDetailSurfaces.test.tsx`, and the descriptor owner
+`check_frontend_disposition_register.py`. Seven P39
+companions sit outside the mechanism cap: the frontend checker test that pins
+the descriptor set, register + generated report + status inventory, the
+source-content binding manifest, this plan, and journal (16 total).
+`TimeSemanticsLabel` currently renders twice and
+receives no governed cache observation.
+
+P40 allocates round 1 to the typed/runtime bridge class: a nominal
+`CacheObservation` must cross the route/panel boundary intact, while malformed
+or novel runtime values including `offline_queued` fail to explicit
+unrecognized. The same-class review falsifier requires a runtime-issued value,
+not a frozen structural lookalike. Round 2 closes the distinct governed-
+descriptor lifecycle class: C11a made the C06 claim “no typed CachePosture
+artifact exists” false, so C11b removes that descriptor and its canonical
+supplemental row through the owning checker/writer path; the root transition is
+bound to its exact owner, residual debt and live successor. A third new
+mechanism class stops the cluster.
 
 **Red first:** `test_migrated_governed_query_never_emits_offline_queued` plus live
 surface variants for preexisting cache, stale, missing-`as_of`, novel union and
 failed refetch.
 
 **Acceptance:** the real governed consumer visibly renders live/cached/stale
-with owner `as_of`; missing `as_of` is explicit unrecognized/blocked; novel
-union values stay unrecognized; the migrated governed consumer never renders
-`offline_queued`. Register/report transition only after `OverviewTab` passes the
-typed observation into the panel.
+with owner `as_of`; only the runtime owner can issue a recognized observation;
+missing `as_of` is explicit unrecognized/blocked; novel union values stay
+unrecognized; the migrated governed consumer never renders `offline_queued`.
+Register/report transition only after `OverviewTab` passes the typed
+observation into the panel and the root owner gate validates its exact bounded
+successor.
 
 **Expected commit:** `DS5-C11b-R1 render governed cache posture`.
+
+**Outcome (2026-08-19):** landed by this plan-bearing commit. The private
+runtime issuer and typed bridge render live/cached/stale with owner `as_of`,
+while forged, hostile, missing and novel observations remain unrecognized.
+The owner writer removed the completed C06 descriptor and transitioned only
+`cache-query-memory` to the exact bounded C11/C12 successor; 65 constructions
+and 41 producers remain declared debt, with no DS8, DS9 or DS14 claim.
 
 ### DS5-C12a — source-bind query constructions and producers
 
@@ -2526,8 +2578,8 @@ their owning implementation/regeneration clusters, never as a C20 tail. All
 JSON edits are surgical and idempotent.
 
 **Opening ruling:** C20 closes over executable DS5 clusters, not planes owned
-by another plan. It remains unopened while `C09a-R2`, `C09b-R1`, `C11b-R1`,
-or `C15b-R1` remains unclosed as a local DS5 prerequisite. C07a's 2026-08-19
+by another plan. It remains unopened while `C09a-R2`, `C09b-R1`, or
+`C15b-R1` remains unclosed as a local DS5 prerequisite. C07a's 2026-08-19
 entry stop reclassifies it from executable to `blocked_on_another_owner`
 against the registered `runtime-dashboard-api-types` owner tuple; C07b is the
 blocked DS5 debt record rather than the executable owner. The
@@ -2592,7 +2644,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C09b-R1 | `DS5-C09b-R1 default deny modes and run surfaces` | 8 |
 | C10-R1 | `DS5-C10-R1 present owner-composed weakest boundary` (DEFERRED) | 8 |
 | C11a | `DS5-C11a derive governed cache posture` | 5 |
-| C11b-R1 | `DS5-C11b-R1 render governed cache posture` | 10 |
+| C11b-R1 | lands in this plan-bearing commit: `DS5-C11b-R1 render governed cache posture` | 10 |
 | C12a | `DS5-C12a register query construction debt` | 7 |
 | C12b-R1 | landed at `53fe8a84c`: `DS5-C12b-R1 enforce governed query policy` | 10 |
 | C13a | stopped predecessor: `DS5-C13a delete authority mutation replay` | 18 |

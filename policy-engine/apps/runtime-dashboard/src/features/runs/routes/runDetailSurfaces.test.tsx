@@ -5,6 +5,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
+import { observeCachePosture } from "@/api/cacheDiscipline";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { buildFeatureFlags } from "@/test/featureFlags";
 
@@ -1166,6 +1167,68 @@ describe("run detail surfaces", () => {
     ).toBeInTheDocument();
     expect(useDepthNCycleBoardProjectionMock).toHaveBeenCalledWith();
   });
+
+  it.each([
+    {
+      fetchStatus: "idle",
+      isFetchedAfterMount: true,
+      isStale: false,
+      posture: "live",
+    },
+    {
+      fetchStatus: "idle",
+      isFetchedAfterMount: false,
+      isStale: false,
+      posture: "cached",
+    },
+    {
+      fetchStatus: "fetching",
+      isFetchedAfterMount: true,
+      isStale: true,
+      posture: "stale",
+    },
+  ])(
+    "bridges owner-issued $posture cache posture into Overview",
+    (lifecycle) => {
+      const asOf = "2026-08-19T09:30:00Z";
+      useDepthNCycleBoardProjectionMock.mockReturnValue({
+        cacheObservation: observeCachePosture({ data: {}, ...lifecycle }, asOf),
+        data: {
+          packet: {
+            absence_reason: "owner artifact is not present",
+            as_of: asOf,
+            authoritative_for: [],
+            availability: "artifact_missing",
+            freshness: {
+              basis: "request_observation",
+              observed_at: "2026-08-19T09:31:00Z",
+              state: "artifact_missing",
+            },
+            intended_audience: "EXPERT",
+            may_not_use_for: ["authority"],
+            projection_id: "depth-n-cycle-board",
+          },
+          payload: null,
+        },
+        error: null,
+        isError: false,
+        isLoading: false,
+      });
+
+      renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
+
+      expect(
+        screen.getByTestId("time-semantics-cache-posture"),
+      ).toHaveTextContent(lifecycle.posture);
+      expect(
+        screen.getByTestId("time-semantics-cache-owner-as-of"),
+      ).toHaveTextContent(asOf);
+      expect(screen.getByTestId("governed-depth-projection")).toHaveAttribute(
+        "data-authority-posture",
+        "unavailable",
+      );
+    },
+  );
 
   it("keeps novel and missing governance severity labels opaque and neutral", () => {
     const summary = createSummary();

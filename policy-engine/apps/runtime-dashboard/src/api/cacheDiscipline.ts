@@ -22,7 +22,10 @@ type QueryObserverLifecycle = Readonly<{
   fetchStatus: string;
 }>;
 
-const OWNER_AS_OF_PATTERN = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/u;
+const issuedCacheObservations = new WeakSet();
+
+const OWNER_AS_OF_PATTERN =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(Z|[+-]\d{2}:\d{2})$/u;
 
 /** Return whether a supplied owner `as_of` has valid calendar and offset fields. */
 export function hasOwnerAsOf(value: unknown): value is string {
@@ -35,8 +38,16 @@ export function hasOwnerAsOf(value: unknown): value is string {
     return false;
   }
 
-  const [, yearText, monthText, dayText, hourText, minuteText, secondText, zone] =
-    match;
+  const [
+    ,
+    yearText,
+    monthText,
+    dayText,
+    hourText,
+    minuteText,
+    secondText,
+    zone,
+  ] = match;
   const year = Number(yearText);
   const month = Number(monthText);
   const day = Number(dayText);
@@ -77,7 +88,20 @@ function issueCacheObservation(
     | Readonly<{ posture: "live" | "cached" | "stale"; asOf: string }>
     | Readonly<{ posture: "unrecognized"; asOf: null }>,
 ): CacheObservation {
-  return Object.freeze(observation) as CacheObservation;
+  const issued = Object.freeze(observation) as CacheObservation;
+  issuedCacheObservations.add(issued);
+  return issued;
+}
+
+/** Return whether a value was issued by the cache-observer lifecycle owner. */
+export function isIssuedCacheObservation(
+  value: unknown,
+): value is CacheObservation {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    issuedCacheObservations.has(value)
+  );
 }
 
 /**

@@ -305,7 +305,7 @@ class PersistenceConstructionCensusTests(unittest.TestCase):
             dict(Counter(row["disposition"] for row in data["entries"])),
         )
         self.assertEqual(
-            {"not_applicable": 58, "pending": 150, "strangled": 53},
+            {"not_applicable": 58, "pending": 149, "strangled": 54},
             dict(Counter(row["strangle_status"] for row in data["entries"])),
         )
         projection = checker._report_projection(data)
@@ -1157,7 +1157,6 @@ class ProducerBindingDebtTests(unittest.TestCase):
                 "semantic-copy-issuer-panel-consumer-deferral",
                 "c06-cgf-public-vocabulary-producer-debt",
                 "c06-decision-grade-generated-contract-debt",
-                "c06-queryobserver-cache-posture-artifact-debt",
                 "c08b-auth-session-revision-producer-debt",
                 "c07b-dashboard-generated-client-single-owner-debt",
             },
@@ -1332,12 +1331,11 @@ class ProducerBindingDebtTests(unittest.TestCase):
             checker.PRODUCER_BINDING_DEBT_DESCRIPTORS,
         )
 
-    def test_c06_waist_owner_debts_bind_three_independent_planes(self) -> None:
-        """Keep the three absent C06 producers independently descriptor-bound."""
+    def test_c06_waist_owner_debts_bind_remaining_independent_planes(self) -> None:
+        """Keep only the C06 producer planes whose owners remain absent."""
         expected = {
             "c06-cgf-public-vocabulary-producer-debt": "no public typed owner exists",
             "c06-decision-grade-generated-contract-debt": "C14",
-            "c06-queryobserver-cache-posture-artifact-debt": "C11a/C11b",
         }
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         descriptors = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS
@@ -1397,6 +1395,98 @@ class ProducerBindingDebtTests(unittest.TestCase):
             {key: expected[key] for key in descriptors[self.finding_id]},
             descriptors[self.finding_id],
         )
+
+    def test_c11b_cache_posture_debt_closes_after_typed_consumer(self) -> None:
+        """Retire the C06 debt once C11a/C11b issue and render cache posture."""
+        finding_id = "c06-queryobserver-cache-posture-artifact-debt"
+        self.assertNotIn(finding_id, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS)
+        refreshed = json.loads(
+            checker._refresh_supplemental_findings_text(
+                REGISTER_PATH.read_text(encoding="utf-8")
+            )
+        )
+        self.assertNotIn(
+            finding_id,
+            {str(row["finding_id"]) for row in refreshed["supplemental_findings"]},
+        )
+
+    def test_c11b_query_memory_root_binds_exact_bounded_successor(self) -> None:
+        """Reject a generic root flip that omits the owner, debt, or live consumer."""
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        entry = next(
+            row
+            for row in data["entries"]
+            if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
+        )
+        baseline_errors: list[str] = []
+        checker._validate_c11b_query_memory_root(
+            {checker.C11B_QUERY_MEMORY_ROOT_ID: entry}, baseline_errors
+        )
+        self.assertEqual([], baseline_errors)
+
+        mutations = {
+            "disposition": lambda row: row.__setitem__("disposition", "use_as_is"),
+            "strangle_status": lambda row: row.__setitem__("strangle_status", "pending"),
+            "owner": lambda row: row.__setitem__("owner", "team-design"),
+            "owner_slice": lambda row: row.__setitem__("owner_slice", "DS8"),
+            "seed_rule": lambda row: row.__setitem__("seed_rule", "generic_flip"),
+            "rationale": lambda row: row.__setitem__("rationale", "generic cache root"),
+            "successor": lambda row: row.pop("successor"),
+            "successor.unit_id": lambda row: row["successor"].__setitem__(
+                "unit_id", "unreviewed-query-successor"
+            ),
+            "successor.consumer_refs": lambda row: row["successor"].__setitem__(
+                "consumer_refs", row["successor"]["consumer_refs"][:-1]
+            ),
+        }
+        for field, mutate in mutations.items():
+            with self.subTest(field=field):
+                mutation = copy.deepcopy(data)
+                target = next(
+                    row
+                    for row in mutation["entries"]
+                    if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
+                )
+                mutate(target)
+                errors = checker.validate_register(
+                    mutation, live_probes=False, report_parity=False
+                )
+                self.assertIn(f"c11b_query_memory_root_drift:{field}", errors)
+
+    def test_c11b_query_memory_root_writer_is_surgical_and_idempotent(self) -> None:
+        """Produce the exact owner transition without rewriting adjacent bytes."""
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+
+        def entry_span(text: str) -> tuple[int, int]:
+            needle = f'"unit_id": "{checker.C11B_QUERY_MEMORY_ROOT_ID}"'
+            marker = text.index(needle)
+            start = text.rfind("    {", 0, marker) + 4
+            _, relative_end = json.JSONDecoder().raw_decode(text[start:])
+            return start, start + relative_end
+
+        transitioned = checker._c11b_query_memory_transition_text(original)
+        before_start, before_end = entry_span(original)
+        after_start, after_end = entry_span(transitioned)
+        self.assertEqual(original[:before_start], transitioned[:after_start])
+        self.assertEqual(original[before_end:], transitioned[after_end:])
+        self.assertEqual(
+            transitioned,
+            checker._c11b_query_memory_transition_text(transitioned),
+        )
+
+        data = json.loads(transitioned)
+        errors: list[str] = []
+        checker._validate_c11b_query_memory_root(
+            {
+                checker.C11B_QUERY_MEMORY_ROOT_ID: next(
+                    row
+                    for row in data["entries"]
+                    if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
+                )
+            },
+            errors,
+        )
+        self.assertEqual([], errors)
 
     def test_auth_session_revision_debt_binds_generated_auth_me_contract(self) -> None:
         """The missing identity revision stays a producer contract debt."""
@@ -3533,16 +3623,16 @@ it("second", () => {
         hybrid_keys = checker._typescript_reference_hybrid_keys(identities)
 
         self.assertEqual(  # noqa: PT009
-            156, len(identity_references), "ds5_c21d_identity_reference_drift"
+            155, len(identity_references), "ds5_c21d_identity_reference_drift"
         )
         self.assertEqual(  # noqa: PT009
-            129, len(distinct_references), "ds5_c21d_distinct_identity_drift"
+            128, len(distinct_references), "ds5_c21d_distinct_identity_drift"
         )
         self.assertEqual(  # noqa: PT009
-            108, len(relocation_families), "ds5_c21d_relocation_family_drift"
+            107, len(relocation_families), "ds5_c21d_relocation_family_drift"
         )
         self.assertEqual(  # noqa: PT009
-            129, len(set(hybrid_keys)), "ds5_c21d_hybrid_identity_merge"
+            128, len(set(hybrid_keys)), "ds5_c21d_hybrid_identity_merge"
         )
 
     def test_c21d_multi_site_authority_sink_ignores_navigation_only_changes(self) -> None:
@@ -3971,9 +4061,6 @@ id = "target"
             "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
                 "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe"
             ),
-            "architecture/atlas_surfaces/ds4-waist-debt-register.json:57": (
-                "a5c57117f529287416ffd2acd55848298955a6c2f13c3ef43f332f2ed1927c4b"
-            ),
             "schemas/runtime_api_v1.openapi.json:2221": (
                 "7983a50e47d9c0a6e7785de9367614512ce2be27a3e183ac7d844cb4dba6bd3f"
             ),
@@ -4009,7 +4096,7 @@ id = "target"
             set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()),
             set(descriptor_references),
         )
-        self.assertEqual(6, len(descriptor_references))
+        self.assertEqual(5, len(descriptor_references))
 
 
 class DS5LineAddressCensusTests(unittest.TestCase):
@@ -4053,15 +4140,15 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                 len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in extension_references}),
             )
 
-        self.assertEqual(264, len(references), "ds5_line_address_total_reference_drift")
-        self.assertEqual(15, len(line_references), "ds5_line_address_line_reference_drift")
+        self.assertEqual(260, len(references), "ds5_line_address_total_reference_drift")
+        self.assertEqual(14, len(line_references), "ds5_line_address_line_reference_drift")
         self.assertEqual(
             11,
             len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in line_references}),
             "ds5_line_address_line_file_drift",
         )
         self.assertEqual(
-            {"TSX": (0, 0), "TS": (6, 4), "PY": (6, 5), "JSON": (0, 0), "MD": (3, 2), "TOML": (0, 0)},
+            {"TSX": (0, 0), "TS": (6, 4), "PY": (5, 5), "JSON": (0, 0), "MD": (3, 2), "TOML": (0, 0)},
             extension_counts,
             "ds5_line_address_extension_partition_drift",
         )
@@ -4082,12 +4169,12 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             if "#structured-identity=" in reference
         ]
         self.assertEqual(
-            15,
+            14,
             len(navigation_references),
             "ds5_line_address_navigation_reference_drift",
         )
         self.assertEqual(
-            6,
+            5,
             len(c21c_structured_references),
             "ds5_line_address_c21c_structured_reference_drift",
         )
@@ -4130,12 +4217,12 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             "ds5_line_address_authority_evidence_line_drift",
         )
         self.assertEqual(
-            15,
+            14,
             len(descriptor_evidence_line_references),
             "ds5_line_address_descriptor_evidence_line_drift",
         )
         identity_references = [reference for reference in references if "#ts-identity=" in reference]
-        self.assertEqual(156, len(identity_references), "ds5_c21b_identity_reference_drift")
+        self.assertEqual(155, len(identity_references), "ds5_c21b_identity_reference_drift")
         identity_payloads = [
             json.loads(
                 base64.urlsafe_b64decode(
@@ -4148,7 +4235,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             )
         ]
         self.assertEqual(
-            156,
+            155,
             sum(
                 isinstance(payload.get("discriminator"), str)
                 and bool(payload["discriminator"])
@@ -4179,7 +4266,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         ]
         self.assertEqual(28, len(observed_identities), "ds5_c21b_observed_identity_drift")
         self.assertEqual(118, len(authority_identities), "ds5_c21b_authority_identity_drift")
-        self.assertEqual(10, len(descriptor_identities), "ds5_c21b_descriptor_identity_drift")
+        self.assertEqual(9, len(descriptor_identities), "ds5_c21b_descriptor_identity_drift")
         structured_descriptor_identities = [
             reference
             for finding in data["supplemental_findings"]
@@ -4188,7 +4275,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             if "#structured-identity=" in reference
         ]
         self.assertEqual(
-            6,
+            5,
             len(structured_descriptor_identities),
             "ds5_c21c_descriptor_identity_drift",
         )
@@ -4249,7 +4336,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                     f"ds5_c21b_observed_identity_duplicate:{census['census_id']}:{probe['kind']}",
                 )
         self.assertEqual(
-            (28, 118, 10),
+            (28, 118, 9),
             (
                 sum(
                     "#ts-identity=" in reference
@@ -4371,10 +4458,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
     def test_c21b_real_gate_ignores_moved_construct_and_rejects_rename(self) -> None:
         """The governed gate binds the migrated construct identity, never its line."""
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        source_path = (
-            "apps/runtime-dashboard/src/features/runs/api/"
-            "useDepthNCycleBoardProjection.ts"
-        )
+        source_path = "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts"
         stored_references = [
             reference
             for reference in self._live_references(data)
@@ -4385,27 +4469,37 @@ class DS5LineAddressCensusTests(unittest.TestCase):
 
         target_path = checker.REPO_ROOT / source_path
         original = target_path.read_text(encoding="utf-8")
-        block = """export function depthNCycleBoardProjectionQueryOptions(
-  client: GovernedProjectionClient = governedProjectionClient,
-) {
-  return {
-    queryKey: queryKeys.governedProjection("depth-n-cycle-board"),
-    queryFn: async () =>
-      narrowDepthNCycleBoardProjection(
-        await client.getGovernedProjection({
-          projection_id: "depth-n-cycle-board",
-        }),
-      ),
-  };
+        block = """async function fetchAuthMe(): Promise<AuthMePayload> {
+  const response = await authAwareRuntimeFetch(
+    new Request(buildRuntimeApiUrl("/api/v1/auth/me"), {
+      headers: {
+        accept: "application/json",
+      },
+    }),
+  );
+  const contentType = response.headers.get("content-type") ?? "";
+  const payload = contentType.includes("application/json")
+    ? await response.json()
+    : null;
+
+  if (!response.ok || !payload) {
+    throw createRuntimeApiError(
+      response,
+      payload,
+      "Failed to load auth principal",
+    );
+  }
+
+  return authMeSchema.parse(payload);
 }
 """
         self.assertEqual(1, original.count(block))
         without_block = original.replace(block, "", 1)
-        import_end = without_block.index("\n\n") + 2
-        moved = without_block[:import_end] + block + "\n" + without_block[import_end:]
+        insertion = without_block.index("export const FALLBACK_AUTH_ME")
+        moved = without_block[:insertion] + block + "\n" + without_block[insertion:]
         renamed = moved.replace(
-            "depthNCycleBoardProjectionQueryOptions",
-            "cycleBoardProjectionQueryOptions",
+            "fetchAuthMe",
+            "fetchCurrentAuthMe",
             1,
         )
         original_read_text = Path.read_text
@@ -4435,7 +4529,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         )
 
     def test_c21c_surgical_writer_is_idempotent_with_navigation_residual(self) -> None:
-        """The governed writer leaves only the 15 declared navigation lines."""
+        """The governed writer leaves only the 14 declared navigation lines."""
         original = REGISTER_PATH.read_text(encoding="utf-8")
         once = checker._c21c_surgical_identity_text(original)
         twice = checker._c21c_surgical_identity_text(once)
@@ -4457,8 +4551,8 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             set(checker._C21C_FROZEN_STRUCTURED_IDENTITIES.values()),
             set(structured),
         )
-        self.assertEqual(6, len(structured))
-        self.assertEqual(15, len(remaining_lines))
+        self.assertEqual(5, len(structured))
+        self.assertEqual(14, len(remaining_lines))
 
     def test_c21c_real_gate_ignores_json_move_but_rejects_rename_and_content(
         self,
@@ -4471,7 +4565,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             for reference in self._live_references(data)
             if reference.startswith(f"{source_path}#structured-identity=")
         ]
-        self.assertEqual(3, len(stored_references))
+        self.assertEqual(2, len(stored_references))
         selected_reference = next(
             reference
             for reference in stored_references

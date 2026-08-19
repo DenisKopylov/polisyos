@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **28085**
+- Application lines added: **28475**
 - Application lines deleted: **20001**
-- Net application LOC reduction: **-8084**
+- Net application LOC reduction: **-8474**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -310,7 +310,6 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `semantic-copy-issuer-panel-consumer-deferral` | `producer_binding_debt` | `rebind_pending` | `DS5` | `bridge_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register.AuthorityPresentationCensusTests.test_semantic_copy_panel_consumer_rebinds_direct_badge_census_transition exits 0 after the live RunExplainabilityPanel consumer rebinds the direct-Badge census transition | `open_debt` — C05b-R3 landed the private semantic-copy issuer and generated AvailableGovernedProjectionPacket.may_not_use_for guard. The live RunExplainabilityPanel/direct-Badge census transition remains panel-only debt, and DS6 accepted human semantic-review receipts remain 0. |
 | `c06-cgf-public-vocabulary-producer-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `surface_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_generated_cgf_disposition_union_tracks_generation_cycle_owner_contract exits 0 after the canonical generation-cycle owner publishes a public typed owner contract through the runtime schema | `open_debt` — C06 cannot project CGF disposition: a private validator set exists and runtime owners remain opaque JsonObjectTuple values, but no public typed owner exists. C06 may not publish or invent that contract; the DS4 bridge/surface row remains open as a distinct plane. |
 | `c06-decision-grade-generated-contract-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `surface_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_generated_decision_grade_union_tracks_pdc_owner exits 0 after C14 publishes the generated DecisionGrade contract from the PDC owner | `open_debt` — DecisionGrade has a PDC owner but no OpenAPI or generated-client export; the DS4 waist row assigns its singular swap point to C14. C06 records the missing generated producer contract and does not pre-empt C14. |
-| `c06-queryobserver-cache-posture-artifact-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `artifact_missing`, `bridge_missing`, `consumer_missing`, `verification_missing`, `surface_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_queryobserver_cache_posture_keeps_source_freshness_orthogonal exits 0 after C11a/C11b publish the typed QueryObserver cache-posture artifact without reclassifying source freshness | `open_debt` — QueryObserver emits lifecycle signals today, but no typed CachePosture artifact exists. ProjectionFreshness records source observation and is orthogonal to cached-copy posture; C11a/C11b own the client artifact, bridge, and surface. |
 | `c08b-auth-session-revision-producer-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `producer_missing`, `artifact_missing`, `bridge_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails | `open_debt` — The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity. |
 | `c07b-dashboard-generated-client-single-owner-debt` | `producer_binding_debt` | `rebind_pending` | `DS5` | `bridge_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 -m unittest architecture.atlas_surfaces.test_frontend_disposition_register.ProducerBindingDebtTests.test_c07b_dashboard_generated_client_has_one_canonical_owner exits 0 after manifest/reference/package cleanup, deletion of apps/runtime-dashboard/src/api/types.ts, and all compiler-resolved dashboard imports directly use @polisyos/runtime-api-client. | `open_debt` — Canonical package client exists, but the dashboard keeps a divergent local generated artifact; this row records the single-owner strangle without a comparator or dashboard change. |
 
@@ -582,7 +581,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `cache-service-worker-static` | `cache-service-worker-static` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `offline-queue-promotion-decision` | `offline-queue-promotion-decision` | 0 | `deleted` | `strangled` | `DS5` | `census-c13a-authority-replay-delete` |
 | `offline-draft-composer` | `offline-draft-composer` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
-| `cache-query-memory` | `cache-query-memory` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
+| `cache-query-memory` | `cache-query-memory` | 0 | `rebind_pending` | `strangled` | `DS5` | `dashboard-governed-query-cache-posture` |
 | `cache-local-storage-state` | `cache-local-storage-state` | 0 | `use_as_is` | `not_applicable` | `DS5` | `—` |
 | `cache-clerk-sessions` | `cache-clerk-sessions` | 0 | `rebind_pending` | `pending` | `DS14` | `—` |
 | `cache-whatif-scenarios` | `cache-whatif-scenarios` | 0 | `deleted` | `strangled` | `DS19` | `census-whatif-local-subgraph-delete` |
@@ -611,6 +610,11 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 
 ## Commits
 
+- `8f59d4c4c DS5 record C09a default-deny recut stop`
+- `c64b03dea Revert "DS5-C09a-R1 preserve stopped default-deny candidate"`
+- `f240db1b7 DS5-C09a-R1 preserve stopped default-deny candidate`
+- `a22cbb0be DS5 record C07a generated-family owner block`
+- `9e389a17a DS5-C17b-R3 govern persistence construction`
 - `c84b9262f DS5-C19-R2 wire and retire D5 flags`
 - `24cebe3ca DS5 record C19 flag-gate recut stop`
 - `33ea792b5 Revert "DS5-C19-R1 preserve stopped flag-gate candidate"`

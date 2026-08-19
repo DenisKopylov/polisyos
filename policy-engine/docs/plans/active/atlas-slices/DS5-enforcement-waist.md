@@ -205,7 +205,7 @@ byte-unmodified. Any new identity is red.
 | authority-like local state | historical 6 units; current 4 live | WhatIf deleted by DS19; review-attention source absent; lint prevents resurrection; C14a-C17b-R3 migrate the live units plus composer |
 | persisted status census | 5 direct write constructions / 4 modules / 4 families; 6 status field paths | C13a deletes two offline-queue writes; C15a excludes Clerk `runStatus`, `structured.verdict`, and `structured.statusChips[]`; C16a-R1 excludes causal `edges[].status`; C16b-R2 excludes stored dispute actor/status and rederives reviewer/open interaction state |
 | persistence API census | C17b-R3 declaration-resolved denominator: 36 direct sites / 15 production files over all 574 production TS/TSX (`26` Web Storage / `5` Zustand / `5` IndexedDB) | direct constructions are `recomputed`; semantic class is explicit `institutionally_supplied` adjudication; exact site-to-owner-instance provider/key/payload flow remains `not_established` under the declared P40 residual |
-| DS5 disposition ownership | 17 current roots | readiness ledger retains 21 historical DS5 rows; closure distinguishes them |
+| DS5 execution plane | 17 derived units = 13 nonterminal rows from the 21-row historical DS5 readiness set + 4 C19 flag rows; the full register separately has 26 top-level roots whose current `owner_slice` is DS5 | closure preserves the historical/current distinction rather than calling the derived set every DS5-owned root |
 
 The historical 9/5 fetch and six-store denominators remain provenance facts,
 not current implementation counts. DS5 does not relabel the 7/5 transport or
@@ -247,7 +247,7 @@ commands and their receipts are in the baseline table above.
 | 6 historical / 4 live authority-store units / 8 living physical families | literal `authority_and_store_census` and `physical_store_census` commands below; both names and existence are recorded |
 | 5 persisted-status writes / 4 modules / 6 field paths | `rg -n 'database\.put\(OFFLINE_MUTATION_QUEUE_STORE|localStorage\.setItem|persist\s*\(' apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx apps/runtime-dashboard/src/features/runs/domain/disputes.ts apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts`; bounded source inspection records queue `status`, causal `graph.edges[].status`, dispute `disputes[].status`, and Clerk `sessions[].messages[].{runStatus,structured.verdict,structured.statusChips[]}` |
 | current 35 persistence API calls / 14 files | the same installed-TypeScript census resolves 25 Web Storage, 5 Zustand, 5 IndexedDB sites; 41/14 is the historical predecessor receipt |
-| 261 roots / 17 current DS5 roots / 21 historical readiness rows | `jq '[.. \| objects \| select(.owner_slice? == "DS5")] \| length' architecture/atlas_surfaces/frontend-disposition-register.json`; `jq '[.entries[] \| select(.owning_slice == "DS5")] \| length' architecture/atlas_surfaces/live-application-readiness-ledger.json`; the disposition checker supplies the 261-root denominator |
+| 261 roots / 26 top-level DS5-owned roots / 17-unit DS5 execution plane / 21 historical readiness rows | `python3 -c 'import json; from pathlib import Path; r=json.loads(Path("architecture/atlas_surfaces/frontend-disposition-register.json").read_text()); l=json.loads(Path("architecture/atlas_surfaces/live-application-readiness-ledger.json").read_text()); h={x["surface_id"] for x in l["entries"] if x.get("owning_slice")=="DS5"}; t={x["unit_id"] for x in r["entries"] if x["unit_id"] in h and x.get("owner_slice")=="DS19" and x.get("strangle_status")=="strangled"}; f={"flag-enable-causal-graph","flag-enable-collaboration","flag-enable-command-palette","flag-enable-what-if-analysis"}; print(len(r["entries"]),sum(x.get("owner_slice")=="DS5" for x in r["entries"]),len((h-t)|f),len(h),len(t),len(f))'` prints `261 26 17 21 8 4`; the disposition checker supplies the 261-root denominator |
 
 `frozen_locale_compatibility_census` was run literally from the dashboard
 workspace:
@@ -912,6 +912,21 @@ journal-only and are excluded from successful samples:
 | Atlas checker/corruption | `60.46` | `156.60` | `314 s` |
 | full Atlas module | `415.63` | `1338.89` | `2678 s` |
 
+The C20 prewriter freeze uses the same shared-host regime. The missing-test RED
+is a behavioral receipt but not a successful timing sample:
+
+| Lane | New successful samples (seconds) | recomputed p95 | binding ceiling |
+| --- | ---: | ---: | ---: |
+| C20 owner-CLI corruption meta-sweep | `228.72` | `228.72` | `458 s` |
+| canonical report writer | `43.84, 54.04` | `86.97` | `174 s` |
+| status checker/corruption | `18.19` | `42.54` | `86 s` |
+| Atlas checker/corruption | `60.67` | `156.60` | `314 s` |
+| disposition corruption battery | `98.69` | `276.89` | `554 s` |
+| full Atlas owner module | `698.99` | `1338.89` | `2678 s` |
+| focused runtime HTTP tests | `85.79` | `85.79` | `172 s` |
+| scoped runtime HTTP Ruff | `0.04` | `0.04` | `1 s` |
+| runtime API contract | `8.18` | `8.18` | `17 s` |
+
 A ceiling recomputation covers every lane the slice runs, not only expensive
 lanes: a stale focused ceiling manufactures the same non-receipt as a stale
 full-suite ceiling. Killed overruns remain censored non-receipts and never enter
@@ -1086,7 +1101,7 @@ backend source was restored at the 2026-08-19 re-entry. The artifact records
 | `offline-queue-promotion-decision`, `cache-service-worker-static` | C13a-C13b-R1 | promotion row retired/strangled from the queue; SW remains use-as-is with behavioral no-API/authority-cache proof |
 | `cache-local-storage-state`, `offline-draft-composer`; six named cache units | C14a-C17b-R3 | composer + 4 live historic units enveloped; WhatIf deletion preserved; review-attention gets a fresh deletion census; domain feature ownership not claimed |
 | four flag disposition rows | C18a-C19-R2 | strict registry then provider wiring; R1 candidate proved the gates but stopped before governed admission; R2 closes the C21 consumer and flag rows together |
-| 21 historical DS5 readiness rows vs 17 live DS5 roots | C20 | update only supported chain fields; deleted/handoff rows stay honest; no denominator collapse |
+| 21 historical DS5 readiness rows vs the derived 17-unit DS5 execution plane | C20 | verify the content-bound DS1 snapshot byte-exact; derive 17 as 13 nonterminal historical rows plus 4 C19 flag rows, while separately reporting all 26 top-level DS5-owned register roots; deleted/handoff rows stay historical and no denominator collapses |
 
 ### Wave boundaries
 
@@ -1571,8 +1586,8 @@ cluster or external owner-plan that must move before a blocked row is reconsider
 | C18a | strict exposure registry | one strict twelve-key registry emits typed `FeatureFlags`; live-source binding remains C18b-R2 | `94e2c8ca0`; `apps/runtime-dashboard/src/shared/lib/featureFlags.ts` | landed | none |
 | C18b-R1/R2 | contextual flag source binding | R2 restores reviewed checkpoint `52ab21cf6` and closes the omitted owner receipts at `12/56` | provider/registry/HUD witnesses; full status and Atlas owner modules | landed; register family free | none |
 | C19-R1/R2 | three flag gates and collaboration retirement | R2 restores R1's reviewed gates and repairs the governed C21 census consumer to replay the ratified hybrid relocation rule with multiplicity | candidate `9b87f0e09`; forward revert `33ea792b5`; C19-R2 route/bootstrap/C21 witnesses and governed wave | landed; register family free | none |
-| C20 | generated frontend reference | registered frontend reference writer exists today | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md` | executable | none |
-| C20 | final ledger/corruption/architect receipt | closes only after executable DS5 clusters; C07a is carried owner debt under the architect ruling | `DS5-C20` acceptance; complete standing census below; C09a-R2/C09b-R1 receipts | executable after the containing C09b-R1 commit | none |
+| C20 | generated frontend reference | registered frontend reference writer exists today; its reviewed candidate projection is preserved but not landed | `architecture/atlas_surfaces/check_frontend_disposition_register.py:6656-6657`; `docs/reference/frontend/atlas-frontend-disposition-register.md`; C20 stop record | blocked_on_another_owner | `team-architecture` reconciliation of `architecture/baselines/imports/deep_import.json` against the live runtime graph |
+| C20 | final ledger/corruption/architect receipt | local DS5 mechanisms reached the closure battery, whose absolute architecture gate exposed inherited baseline drift | `DS5-C20` acceptance; C09a-R2/C09b-R1 receipts; eight-edge provenance below | blocked_on_another_owner at 0/2 mechanism rounds | `architecture-deep-import-baseline-reconciliation`, then retry the same cap-6 C20 cut |
 
 **Standing census (entry denominator recomputed and independently reconciled at
 `324996652`, structurally refreshed through the containing C15b commit):**
@@ -1584,7 +1599,10 @@ cluster status paragraph. In the commissioned chain, C18b-R2, C19-R2 and
 C17b-R3 landed, while C17b-R2 stopped for the same-cap R3 mechanism re-cut.
 Outside that chain, C11b-R1, C15b-R1, C09a-R2 and C09b-R1 land in
 their plan-bearing commits. The executable-and-unentered implementation set is
-empty after the containing C09b-R1 commit, so C20 may enter. C07a is
+empty after the containing C09b-R1 commit, so C20 entered. Its absolute
+architecture guardrail then exposed pre-existing generated-baseline drift and
+blocked closure; that owner stop does not reopen any landed DS5 mechanism.
+C07a is
 `blocked_on_another_owner` by the registered `runtime-dashboard-api-types`
 owner tuple; C07b records the same unresolved single-owner migration debt but
 is not its executable owner. `C10-R1`, C15a's structured verdict/status-chip plane, and `C17a-R1` remain
@@ -2722,12 +2740,16 @@ flag-gate candidate`, forward-reverted by `33ea792b5`.
 
 ### DS5-C20 — final ledgers, receipts, and architect handoff
 
-**Measured set:** exactly 6 files; cap 6: this plan, DS5 journal, new closure,
-`live-application-readiness-ledger.json`, the generated frontend disposition
-reference document, and
+**Measured set:** a declared six-path fence; cap 6: this plan, DS5 journal, new
+closure, `live-application-readiness-ledger.json`, the generated frontend
+disposition reference document, and
 `architecture/atlas_surfaces/test_atlas_enforcement.py`. Disposition/status/waist rows and hashes transition in
 their owning implementation/regeneration clusters, never as a C20 tail. All
-JSON edits are surgical and idempotent.
+JSON edits are surgical and idempotent. The readiness ledger is a frozen,
+content-bound DS1 snapshot, so its C20 allowlist is empty: it is a verified
+byte-identical member of the declared fence, not a padded mutation. The
+truthful commit therefore changes five paths unless the owner validator derives
+a real ledger delta.
 
 **Opening ruling:** C20 closes over executable DS5 clusters, not planes owned
 by another plan. The containing C09b-R1 commit closes the final local DS5
@@ -2741,6 +2763,17 @@ another-owner/another-plan blockers as debt. The architect's closing-pass
 ruling settles C07a as carried debt, not a C20 prerequisite. `C07b`, `C10-R1`, C15a's structured verdict/status-chip
 plane, and `C17a-R1` otherwise remain carried as named debt with their owning
 plans. This ruling does not narrow C20's corruption or non-claim battery.
+
+The C09b containing commit is `700e3aa14`; committed-range review over
+`6002d1eab..700e3aa14` returned GO on the clean attached branch with exactly
+15 paths (8 mechanism + 7 P39 companions), no C23 byte, and the reviewed
+governed hashes. That receipt releases the register family and opens C20.
+
+**Release ruling:** C21 completion is insufficient because later DS5 clusters
+continued to write the shared owner family. C20 is the architect-handoff
+prerequisite, but actual DS6 owner release occurs only when accepted DS5 bytes
+merge to `main`; DS6 then rereads the current owners/hashes before C03/C04/C06.
+This unmerged branch records `DS6 release_status: not_released`.
 
 **Red first:**
 `test_ds5_closure_corruption_sweep_covers_every_governed_property` executes the
@@ -2760,12 +2793,27 @@ flag, unbound/unscoped flag source, and flag/permission substitution must each
 fail while benign siblings pass. The meta-test imports and executes the real
 registered corruption witnesses; it does not merely search for their names.
 
-**Acceptance:** final clean-tree receipt table is complete; every touched row
-has evidence and truthful capability state; baseline debt has zero new
-identity; fence/lock/generated diffs are exact; independent review has no open
-Important/Critical finding; closure explicitly lists what is not claimed.
+**Terminal classification:** `blocked_on_another_owner`, with zero C20
+mechanism rounds consumed. The real architecture guardrail is absolute in this
+cluster and exited nonzero on eight pre-existing deep-import baseline deltas:
+three stale baseline edges and five live unbaselined edges. The same source,
+policy, guardrail and baseline bytes were already present at execution base
+`5e648230` and clean pre-C20 HEAD `700e3aa14`; no C20 path feeds that collector.
+P40 classifies the generated-baseline drift as one NEW external-owner class,
+and the eight edge deltas as WORKED EXAMPLES of it. Rebaselining is forbidden,
+while runtime source/package-policy repair is outside C20. The registered
+owner is `team-architecture` / `@architecture-owners`. The successor
+prerequisite is `architecture-deep-import-baseline-reconciliation`: adjudicate
+each edge, regenerate the baseline through its canonical owner, and make the
+guardrail green. C20 then retries this same cap-6 cut; no cap recut is needed.
 
-**Expected commit:** `DS5-C20 close enforcement waist for architect review`.
+**Acceptance:** not established. The reviewed candidate proves the local
+meta-corruption mechanism and records the bounded handoff, but the closure
+battery stopped at the first absolute red gate. It is preserved and
+forward-reverted; the containing stop record carries its exact hashes.
+
+**Stopped candidate subject:** `DS5-C20 preserve architecture-baseline-red
+closure candidate`.
 
 ## Expected cluster commits
 
@@ -2815,7 +2863,7 @@ Important/Critical finding; closure explicitly lists what is not claimed.
 | C18a | landed at `94e2c8ca0`: `DS5-C18a make flag exposure registry strict` | 3 |
 | C18b-R1/R2 | landed: `DS5-C18b-R2 bind flag sources to strict registry` | 12 |
 | C19-R1/R2 | R1 candidate `9b87f0e09` stopped at the round breaker and was forward-reverted; R2 landed as `DS5-C19-R2 wire and retire D5 flags` | 14 |
-| C20 | `DS5-C20 close enforcement waist for architect review` | 6 |
+| C20 | stopped `blocked_on_another_owner`; preserved candidate `DS5-C20 preserve architecture-baseline-red closure candidate`; retry after `architecture-deep-import-baseline-reconciliation` | same cap `6` |
 | C21a | `DS5-C21a establish TypeScript reference identity` | 4 |
 | C21b-R1 | `DS5-C21b-R1 migrate gated TypeScript references` | 8 |
 | C21c | `DS5-C21c bind gated JSON and TOML references` | 7 |
@@ -2832,7 +2880,7 @@ python3 architecture/atlas_surfaces/check_atlas_enforcement.py --check --corrupt
 python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --verify-baseline-source-bytes --corruption-probes
 python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement architecture.atlas_surfaces.test_frontend_baseline_debt_manifest architecture.atlas_surfaces.test_frontend_disposition_register architecture.atlas_surfaces.test_status_retirement_inventory
 uv run --extra runtime --extra ml pytest tests/unit/runtime/http/test_authorization_audience_denials.py tests/unit/runtime/http/test_runtime_permission_vocabulary.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py tests/unit/runtime/http/test_auth_api.py -q
-uv run ruff check src/polisyos/runtime/http/audience_permissions.py src/polisyos/runtime/http/authorization.py src/polisyos/runtime/http/routes/governed_projections.py src/polisyos/runtime/http/services/governed_projection_validation_worker.py src/polisyos/runtime/http/services/governed_projections.py tests/unit/runtime/http/test_authorization_audience_denials.py tests/unit/runtime/http/test_runtime_permission_vocabulary.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py
+uv run ruff check src/polisyos/runtime/http/authorization.py src/polisyos/runtime/http/routes/governed_projections.py src/polisyos/runtime/http/services/governed_projection_validation_worker.py src/polisyos/runtime/http/services/governed_projections.py tests/unit/runtime/http/test_authorization_audience_denials.py tests/unit/runtime/http/test_runtime_permission_vocabulary.py tests/unit/runtime/http/test_governed_projection_api.py tests/unit/runtime/http/test_governed_projection_service.py tests/unit/runtime/http/test_runtime_api_contract_hardening.py
 uv run --extra runtime --extra ml polisyos-tools runtime check-runtime-api-contract
 uv run polisyos-tools architecture guardrails check
 python3 -m tools.cli workspace verify --backend-only
@@ -2864,7 +2912,7 @@ corepack pnpm --dir packages/atlas-ui run test
 ```
 
 The production build, typecheck, DS5-owned/touched tests, generated-client
-contract and architecture gates are absolute green. Full component/visual gates
+contract and architecture gates must be absolute green for landing. Full component/visual gates
 are honest baseline-red only for the exact three DS6 parity identities and the
 one DS8 A4 print identity; no new failure or re-baseline is accepted.
 The JSON component command is therefore an expected nonzero receipt only when

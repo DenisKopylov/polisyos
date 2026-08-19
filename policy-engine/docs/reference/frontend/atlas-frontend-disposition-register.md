@@ -610,6 +610,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 
 ## Commits
 
+- `700e3aa14 DS5-C09b-R1 default deny modes and run surfaces`
 - `6002d1eab DS5-C09a-R2 default deny application chrome`
 - `91600981c DS5-C15b-R1 mount Clerk identity hydration`
 - `4edcf96be DS5-C11b-R1 render governed cache posture`

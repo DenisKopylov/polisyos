@@ -1,5 +1,5 @@
 {
-  "audit_model": "TimeSourceEnvelopeAudit",
+  "audit_model": "TimeSourceConsistencyAuditProjection",
   "audits": [
     {
       "as_of_time": "2026-06-16T12:06:13Z",
@@ -7,9 +7,12 @@
       "effective_time": "2026-01-15T10:00:00Z",
       "ingested_at": "2026-01-15T10:00:00Z",
       "legal_valid_time": "2026-01-15T10:00:00Z",
-      "mismatch_disposition": "admitted",
+      "mismatch_disposition": "consistent",
       "node_finished_at": "2026-06-16T12:06:13Z",
       "node_started_at": "2026-06-16T12:05:19Z",
+      "producer_ref": "polisyos.runtime.http.services.temporal.build_time_source_consistency_audit_projection",
+      "projection_kind": "time_source_consistency_audit_projection",
+      "projection_scope": "catalog_source_runtime_time_role_consistency",
       "replay_time": "2026-06-16T12:06:13Z",
       "retention_or_expiry": "2026-07-16T12:06:13Z",
       "run_finished_at": "2026-06-16T12:06:13Z",
@@ -25,9 +28,12 @@
       "effective_time": "2026-06-16T12:05:19Z",
       "ingested_at": "2026-06-16T12:05:19Z",
       "legal_valid_time": "2026-06-16T12:05:19Z",
-      "mismatch_disposition": "block:catalog_watermark_stale_for_source",
+      "mismatch_disposition": "inconsistent",
       "node_finished_at": "2026-06-16T12:06:13Z",
       "node_started_at": "2026-06-16T12:05:19Z",
+      "producer_ref": "polisyos.runtime.http.services.temporal.build_time_source_consistency_audit_projection",
+      "projection_kind": "time_source_consistency_audit_projection",
+      "projection_scope": "catalog_source_runtime_time_role_consistency",
       "replay_time": "2026-06-16T12:06:13Z",
       "retention_or_expiry": "2026-07-16T12:06:13Z",
       "run_finished_at": "2026-06-16T12:06:13Z",
@@ -43,9 +49,12 @@
       "effective_time": "2026-06-16T12:06:13Z",
       "ingested_at": "2026-06-16T12:06:13Z",
       "legal_valid_time": "2026-06-17T12:06:13Z",
-      "mismatch_disposition": "block:legal_valid_time_outside_as_of_replay",
+      "mismatch_disposition": "blocked_for_owner_review",
       "node_finished_at": "2026-06-16T12:06:13Z",
       "node_started_at": "2026-06-16T12:05:19Z",
+      "producer_ref": "polisyos.runtime.http.services.temporal.build_time_source_consistency_audit_projection",
+      "projection_kind": "time_source_consistency_audit_projection",
+      "projection_scope": "catalog_source_runtime_time_role_consistency",
       "replay_time": "2026-06-16T12:06:13Z",
       "retention_or_expiry": "2026-07-16T12:06:13Z",
       "run_finished_at": "2026-06-16T12:06:13Z",
@@ -63,11 +72,11 @@
     "source_dataset_id": "NY.GDP.MKTP.CD"
   },
   "negative_fixtures": {
-    "legal_valid_time_outside_as_of_replay": "block:legal_valid_time_outside_as_of_replay",
-    "stale_watermark_fresh_source": "block:catalog_watermark_stale_for_source"
+    "legal_valid_time_outside_as_of_replay": "blocked_for_owner_review",
+    "stale_watermark_fresh_source": "inconsistent"
   },
   "owner": "team-runtime-quality",
-  "proof_source": "catalog_temporal_lineage_s12_recompute",
+  "proof_source": "catalog_temporal_consistency_s12_recompute",
   "runtime_lifecycle_source": {
     "control_job_ref": "control-job:e50b8f90-e707-5b48-a79d-b52ea17db3f2",
     "node_finished_event": "NODE_FINISHED",
@@ -184,5 +193,5 @@
       }
     ]
   },
-  "schema_version": "policyos.policy_design_case.layer3_gy.time_source_envelope_audit.v1"
+  "schema_version": "policyos.policy_design_case.layer3_gy.time_source_consistency_audit_projection.v1"
 }

@@ -318,10 +318,10 @@ def test_framing_narrowing_governance_burden_without_delta_fails_closed() -> Non
 
 @pytest.mark.parametrize(
     ("claim_kind", "expected_issue"),
-    (
+    [
         ("negative_terminal", "compression_hidden_negative_terminal"),
         ("constitutive_step", "compression_missing_constitutive_step"),
-    ),
+    ],
 )
 def test_full_record_link_does_not_repair_categorical_omission(
     claim_kind: str,
@@ -604,7 +604,7 @@ def test_compression_rejects_forged_observed_choice_population() -> None:
 
 @pytest.mark.parametrize(
     "category",
-    ("claims", "limitations", "denied_uses", "counterevidence"),
+    ["claims", "limitations", "denied_uses", "counterevidence"],
 )
 def test_typed_material_copy_cannot_reuse_stale_content_fingerprint(
     category: str,

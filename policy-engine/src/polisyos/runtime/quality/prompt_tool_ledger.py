@@ -250,9 +250,7 @@ class OrchestrationAuthorityDeltaCompletenessReceipt(BaseModel):
     owner_policy_catalog_fingerprint: str = Field(min_length=1)
     observed_choice_population_fingerprint: str = Field(min_length=1)
     emitted_delta_population_fingerprint: str = Field(min_length=1)
-    predicate_provenance: Literal["independently_reconciled"] = (
-        "independently_reconciled"
-    )
+    predicate_provenance: Literal["recomputed"] = "recomputed"
     decisive_property: Literal[
         "owner_validated_full_choice_population_and_exact_candidate_partition"
     ] = "owner_validated_full_choice_population_and_exact_candidate_partition"
@@ -407,8 +405,39 @@ class CompressionTerminalResult(BaseModel):
     result_kind: Literal["governed_refusal"] = "governed_refusal"
     refusal_scope: Literal["premise_relative"] = "premise_relative"
     issue_codes: tuple[str, ...]
+    protected_material: CompressionMaterialSet
     retained_limitations: tuple[str, ...] = Field(default=())
     retained_denied_uses: tuple[str, ...] = Field(default=())
+
+    @field_validator("issue_codes")
+    @classmethod
+    def _validate_issue_codes(cls, values: tuple[str, ...]) -> tuple[str, ...]:
+        cleaned = _unique_identity_tuple(values)
+        if not cleaned:
+            raise ValueError("governed refusal requires an issue")
+        return cleaned
+
+    @model_validator(mode="after")
+    def _validate_protected_material(self) -> CompressionTerminalResult:
+        allowed_claim_kinds = {
+            "procedural_binding",
+            "negative_terminal",
+            "constitutive_step",
+        }
+        if any(
+            claim.claim_kind not in allowed_claim_kinds
+            for claim in self.protected_material.claims
+        ):
+            raise ValueError("governed refusal includes an unsafe claim kind")
+        if self.retained_limitations != tuple(
+            item.content for item in self.protected_material.limitations
+        ):
+            raise ValueError("governed refusal limitation projection mismatch")
+        if self.retained_denied_uses != tuple(
+            item.content for item in self.protected_material.denied_uses
+        ):
+            raise ValueError("governed refusal denied-use projection mismatch")
+        return self
 
 
 class CompressionLossReceipt(BaseModel):
@@ -442,6 +471,9 @@ class CompressionLossReceipt(BaseModel):
         Field(default=())
     )
     evidence_independence_status_by_claim: dict[str, str] = Field(default_factory=dict)
+    orchestration_choice_contexts: tuple[OrchestrationChoiceContext, ...] = Field(
+        default=()
+    )
     authority_deltas: tuple[OrchestrationAuthorityDelta, ...] = Field(default=())
     authority_delta_completeness: (
         OrchestrationAuthorityDeltaCompletenessReceipt | None
@@ -599,6 +631,39 @@ def validate_orchestration_authority_delta_completeness(
     )
 
 
+def build_compression_terminal_result(
+    *,
+    source_material: CompressionMaterialSet | Mapping[str, Any],
+    issue_codes: Iterable[str],
+) -> CompressionTerminalResult:
+    """Project all public-safe protected source material into a refusal."""
+
+    source = _canonical_compression_material(source_material)
+    protected_material = CompressionMaterialSet(
+        claims=tuple(
+            claim
+            for claim in source.claims
+            if claim.claim_kind
+            in {"procedural_binding", "negative_terminal", "constitutive_step"}
+        ),
+        limitations=source.limitations,
+        denied_uses=source.denied_uses,
+        counterevidence=source.counterevidence,
+        governance_burden_refs=source.governance_burden_refs,
+        framing_refs=source.framing_refs,
+    )
+    return CompressionTerminalResult(
+        issue_codes=tuple(issue_codes),
+        protected_material=protected_material,
+        retained_limitations=tuple(
+            item.content for item in protected_material.limitations
+        ),
+        retained_denied_uses=tuple(
+            item.content for item in protected_material.denied_uses
+        ),
+    )
+
+
 def build_compression_loss_receipt(
     *,
     receipt_id: str,
@@ -610,6 +675,9 @@ def build_compression_loss_receipt(
     authority_delta_completeness: (
         OrchestrationAuthorityDeltaCompletenessReceipt | Mapping[str, Any] | None
     ) = None,
+    orchestration_choice_contexts: Iterable[
+        OrchestrationChoiceContext | Mapping[str, Any]
+    ] = (),
     evidence_independence_bases: Mapping[
         str,
         CompressionEvidenceIndependenceBasis | Mapping[str, Any],
@@ -618,15 +686,10 @@ def build_compression_loss_receipt(
 ) -> CompressionLossReceipt:
     """Recompute a use-relative conservative compression-loss receipt."""
 
-    source = (
-        source_material
-        if isinstance(source_material, CompressionMaterialSet)
-        else CompressionMaterialSet.model_validate(source_material)
-    )
-    summary = (
-        candidate_summary
-        if isinstance(candidate_summary, CompressionMaterialSet)
-        else CompressionMaterialSet.model_validate(candidate_summary)
+    source = _canonical_compression_material(source_material)
+    summary = _canonical_compression_material(candidate_summary)
+    context_rows, context_parse_issues = _coerce_choice_contexts(
+        orchestration_choice_contexts
     )
     delta_rows, delta_parse_issues = _coerce_authority_deltas(authority_deltas)
     completeness = _coerce_authority_delta_completeness(
@@ -634,13 +697,21 @@ def build_compression_loss_receipt(
     )
     policies = load_orchestration_choice_policies()
     policy_by_kind = {policy.choice_kind: policy for policy in policies}
-    issues = list(delta_parse_issues)
-    if delta_rows and completeness is None:
+    issues = [*context_parse_issues, *delta_parse_issues]
+    authority_material_present = bool(
+        context_rows or delta_rows or completeness is not None
+    )
+    if authority_material_present and completeness is None:
         issues.append("compression_authority_delta_completeness_missing")
-    elif completeness is not None and not _completeness_matches_deltas(
-        completeness,
-        deltas=delta_rows,
-        policies=policies,
+    elif authority_material_present and (
+        not context_rows
+        or not delta_rows
+        or completeness is None
+        or not _completeness_matches_deltas(
+            completeness,
+            contexts=context_rows,
+            deltas=delta_rows,
+        )
     ):
         issues.append("compression_authority_delta_completeness_failed")
     for delta in delta_rows:
@@ -753,13 +824,10 @@ def build_compression_loss_receipt(
     else:
         disposition = "exact"
         reconstruction = "exact"
-    all_source_limitations = tuple(item.content for item in source.limitations)
-    all_source_denied_uses = tuple(item.content for item in source.denied_uses)
     terminal = (
-        CompressionTerminalResult(
+        build_compression_terminal_result(
+            source_material=source,
             issue_codes=issue_codes,
-            retained_limitations=all_source_limitations,
-            retained_denied_uses=all_source_denied_uses,
         )
         if status == "blocked"
         else None
@@ -788,6 +856,7 @@ def build_compression_loss_receipt(
         introduced_summary_items=introduced,
         dropped_item_dispositions=dropped_dispositions,
         evidence_independence_status_by_claim=independence_status_by_claim,
+        orchestration_choice_contexts=context_rows,
         authority_deltas=delta_rows,
         authority_delta_completeness=completeness,
         issue_codes=issue_codes,
@@ -806,10 +875,10 @@ def validate_compression_loss_receipt(
     """Recompute a receipt and reject any caller-authored disposition or status."""
 
     try:
-        parsed = (
-            receipt
+        parsed = CompressionLossReceipt.model_validate(
+            receipt.model_dump(mode="python")
             if isinstance(receipt, CompressionLossReceipt)
-            else CompressionLossReceipt.model_validate(receipt)
+            else receipt
         )
     except ValidationError as exc:
         raise PromptToolLedgerError(
@@ -823,6 +892,7 @@ def validate_compression_loss_receipt(
         candidate_summary=parsed.candidate_summary,
         authority_deltas=parsed.authority_deltas,
         authority_delta_completeness=parsed.authority_delta_completeness,
+        orchestration_choice_contexts=parsed.orchestration_choice_contexts,
         evidence_independence_bases=evidence_independence_bases,
     )
     if recomputed.model_dump(mode="json") != parsed.model_dump(mode="json"):
@@ -838,13 +908,30 @@ def _coerce_choice_contexts(
     for value in values:
         try:
             rows.append(
-                value
-                if isinstance(value, OrchestrationChoiceContext)
-                else OrchestrationChoiceContext.model_validate(value)
+                OrchestrationChoiceContext.model_validate(
+                    value.model_dump(mode="python")
+                    if isinstance(value, OrchestrationChoiceContext)
+                    else value
+                )
             )
         except ValidationError:
             issues.append("orchestration_choice_context_invalid")
     return tuple(rows), tuple(dict.fromkeys(issues))
+
+
+def _canonical_compression_material(
+    value: CompressionMaterialSet | Mapping[str, Any],
+) -> CompressionMaterialSet:
+    try:
+        return CompressionMaterialSet.model_validate(
+            value.model_dump(mode="python")
+            if isinstance(value, CompressionMaterialSet)
+            else value
+        )
+    except ValidationError as exc:
+        raise PromptToolLedgerError(
+            "compression_material_content_binding_failed"
+        ) from exc
 
 
 def _coerce_authority_deltas(
@@ -855,9 +942,11 @@ def _coerce_authority_deltas(
     for value in values:
         try:
             rows.append(
-                value
-                if isinstance(value, OrchestrationAuthorityDelta)
-                else OrchestrationAuthorityDelta.model_validate(value)
+                OrchestrationAuthorityDelta.model_validate(
+                    value.model_dump(mode="python")
+                    if isinstance(value, OrchestrationAuthorityDelta)
+                    else value
+                )
             )
         except ValidationError:
             issues.append("orchestration_authority_delta_owner_validation_failed")
@@ -869,9 +958,11 @@ def _coerce_authority_delta_completeness(
 ) -> OrchestrationAuthorityDeltaCompletenessReceipt | None:
     if value is None:
         return None
-    if isinstance(value, OrchestrationAuthorityDeltaCompletenessReceipt):
-        return value
-    return OrchestrationAuthorityDeltaCompletenessReceipt.model_validate(value)
+    return OrchestrationAuthorityDeltaCompletenessReceipt.model_validate(
+        value.model_dump(mode="python")
+        if isinstance(value, OrchestrationAuthorityDeltaCompletenessReceipt)
+        else value
+    )
 
 
 def _authority_delta_completeness_receipt(
@@ -955,23 +1046,17 @@ def _authority_delta_completeness_receipt(
 def _completeness_matches_deltas(
     completeness: OrchestrationAuthorityDeltaCompletenessReceipt,
     *,
+    contexts: tuple[OrchestrationChoiceContext, ...],
     deltas: tuple[OrchestrationAuthorityDelta, ...],
-    policies: tuple[OrchestrationChoicePolicy, ...],
 ) -> bool:
-    owner_kinds = tuple(policy.choice_kind for policy in policies)
-    emitted_kinds = tuple(delta.choice_kind for delta in deltas)
+    recomputed = validate_orchestration_authority_delta_completeness(
+        contexts=contexts,
+        deltas=deltas,
+    )
     return (
-        completeness.status == "pass"
-        and completeness.owner_policy_count == len(policies)
-        and completeness.emitted_delta_count == len(deltas)
-        and completeness.owner_choice_kinds == owner_kinds
-        and completeness.emitted_choice_kinds == emitted_kinds
-        and completeness.owner_policy_catalog_ref
-        == f"repo://{_ORCHESTRATION_CHOICE_POLICY_RELATIVE_PATH.as_posix()}"
-        and completeness.owner_policy_catalog_fingerprint
-        == _owner_policy_catalog_fingerprint(policies)
-        and completeness.emitted_delta_population_fingerprint
-        == _delta_population_fingerprint(deltas)
+        recomputed.status == "pass"
+        and recomputed.model_dump(mode="json")
+        == completeness.model_dump(mode="json")
     )
 
 
@@ -2194,6 +2279,7 @@ __all__ = [
     "ToolSchemaRecord",
     "ValidationRef",
     "build_compression_loss_receipt",
+    "build_compression_terminal_result",
     "build_orchestration_authority_deltas",
     "build_prompt_tool_ledger_from_model_variant",
     "load_orchestration_choice_policies",

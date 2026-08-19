@@ -532,6 +532,7 @@ def _validate_persisted_artifacts(repo_root: Path) -> list[dict[str, str]]:
         AGENT_RUN_RECORDS_PATH,
         PROMPT_TOOL_LEDGER_PROJECTION_PATH,
         ORCHESTRATION_CHOICE_AUDIT_PATH,
+        PUBLIC_EXPORT_PROJECTION_REFS_PATH,
     )
     if any(not _resolve_repo_path(repo_root, path).exists() for path in persisted_authority_paths):
         return issues
@@ -546,6 +547,9 @@ def _validate_persisted_artifacts(repo_root: Path) -> list[dict[str, str]]:
         )
         audit = g6.Layer3G6OrchestrationChoiceAudit.model_validate(
             _read_json(_resolve_repo_path(repo_root, ORCHESTRATION_CHOICE_AUDIT_PATH))
+        )
+        public_projection_refs = _read_json(
+            _resolve_repo_path(repo_root, PUBLIC_EXPORT_PROJECTION_REFS_PATH)
         )
     except (
         OSError,
@@ -577,6 +581,33 @@ def _validate_persisted_artifacts(repo_root: Path) -> list[dict[str, str]]:
                 (
                     "Persisted G6 compression and authority-delta artifacts must "
                     "recompute and agree across the existing G6 family."
+                ),
+            )
+        )
+    try:
+        expected_surface = g6.build_g6_agent_audit_surface(record)
+        expected_public_export = g6.build_g6_authority_preserving_public_export(
+            record
+        )
+        expected_public_projection_refs = _dump(
+            _public_export_projection_refs(
+                expected_surface,
+                public_export_bundle=expected_public_export,
+            )
+        )
+    except g6.PromptToolLedgerError:
+        expected_public_projection_refs = None
+    if (
+        expected_public_projection_refs is None
+        or public_projection_refs != expected_public_projection_refs
+    ):
+        issues.append(
+            _issue(
+                "layer3_g6_public_projection_contract_failed",
+                PUBLIC_EXPORT_PROJECTION_REFS_PATH.as_posix(),
+                (
+                    "Persisted G6 public export must exactly match the "
+                    "owner-recomputed summary or governed refusal."
                 ),
             )
         )

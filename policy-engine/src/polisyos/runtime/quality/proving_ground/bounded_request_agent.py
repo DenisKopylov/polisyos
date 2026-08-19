@@ -51,6 +51,7 @@ from polisyos.runtime.quality.prompt_tool_ledger import (
     PromptToolLedgerError,
     PromptToolParserAuthorityLedger,
     build_compression_loss_receipt,
+    build_compression_terminal_result,
     build_orchestration_authority_deltas,
     validate_compression_loss_receipt,
     validate_orchestration_authority_delta_completeness,
@@ -433,6 +434,9 @@ class Layer3G6OrchestrationChoiceAudit(_G6Model):
     rejected_branch_refs: tuple[str, ...] = Field(default=())
     framing_choices: tuple[str, ...] = Field(default=())
     counterexample_probe_refs: tuple[str, ...] = Field(default=())
+    additional_load_bearing_choices: tuple[OrchestrationChoiceContext, ...] = Field(
+        default=()
+    )
     prompt_tool_ledger_ref: str | None = None
     hypothesis_ledger_ref: str | None = None
     tool_contract_summary_ref: str | None = None
@@ -1029,7 +1033,7 @@ def _g6_choice_contexts(
         audit.audit_id,
         preliminary_receipt.source_ref,
     )
-    return (
+    standard_contexts = (
         OrchestrationChoiceContext(
             choice_id=f"layer3-g6:{request_id}:evidence-selection",
             choice_kind="evidence-selection",
@@ -1078,6 +1082,7 @@ def _g6_choice_contexts(
             source_refs=source_refs,
         ),
     )
+    return (*standard_contexts, *audit.additional_load_bearing_choices)
 
 
 def _tag_choice_refs(
@@ -1121,6 +1126,7 @@ def _derive_g6_summary_authority_preservation(
         candidate_summary=candidate_summary,
         authority_deltas=delta_derivation.deltas,
         authority_delta_completeness=delta_derivation.completeness,
+        orchestration_choice_contexts=contexts,
     )
     return _G6SummaryAuthorityDerivation(
         source_material=source_material,
@@ -1827,6 +1833,7 @@ def build_g6_orchestration_choice_audit(
     framing_choices: tuple[str, ...],
     budget_cutoff_reason: str | None,
     counterexample_probe_refs: tuple[str, ...] = (),
+    additional_load_bearing_choices: tuple[OrchestrationChoiceContext, ...] = (),
     prompt_tool_ledger_ref: str | None = None,
     hypothesis_ledger_ref: str | None = None,
     tool_contract_summary_ref: str | None = None,
@@ -1838,6 +1845,8 @@ def build_g6_orchestration_choice_audit(
         issue_codes.append("layer3_g6_orchestration_choice_audit_missing")
     if not rejected_branch_refs and not rejected_tool_names:
         issue_codes.append("layer3_g6_rejected_branch_memory_missing")
+    if any(not choice.source_refs for choice in additional_load_bearing_choices):
+        issue_codes.append("layer3_g6_orchestration_choice_source_missing")
     replay_payload = {
         "request_id": envelope.request_id,
         "raw_request_fingerprint": envelope.raw_request_fingerprint,
@@ -1847,6 +1856,10 @@ def build_g6_orchestration_choice_audit(
         "rejected_branch_refs": rejected_branch_refs,
         "framing_choices": framing_choices,
         "counterexample_probe_refs": counterexample_probe_refs,
+        "additional_load_bearing_choices": [
+            choice.model_dump(mode="json")
+            for choice in additional_load_bearing_choices
+        ],
         "prompt_tool_ledger_ref": prompt_tool_ledger_ref,
         "hypothesis_ledger_ref": hypothesis_ledger_ref,
         "tool_contract_summary_ref": tool_contract_summary_ref,
@@ -1864,6 +1877,7 @@ def build_g6_orchestration_choice_audit(
         rejected_branch_refs=tuple(dict.fromkeys(rejected_branch_refs)),
         framing_choices=tuple(dict.fromkeys(framing_choices)),
         counterexample_probe_refs=tuple(dict.fromkeys(counterexample_probe_refs)),
+        additional_load_bearing_choices=additional_load_bearing_choices,
         prompt_tool_ledger_ref=prompt_tool_ledger_ref,
         hypothesis_ledger_ref=hypothesis_ledger_ref,
         tool_contract_summary_ref=tool_contract_summary_ref,
@@ -2305,6 +2319,7 @@ def build_layer3_g6_agent_run_record(
     policy_grammar_projection: Layer3G6PolicyGrammarProjection | Mapping[str, Any],
     demand_signal_refs: tuple[str, ...] = (),
     search_health_refs: tuple[str, ...] = (),
+    additional_load_bearing_choices: tuple[OrchestrationChoiceContext, ...] = (),
 ) -> Layer3G6AgentRunRecord:
     """Build a G6 agent run record over the bounded G5 bridge."""
 
@@ -2387,6 +2402,7 @@ def build_layer3_g6_agent_run_record(
         counterexample_probe_refs=(
             f"candidate://g6/{request_id}/counterexample/legal-authority",
         ),
+        additional_load_bearing_choices=additional_load_bearing_choices,
         prompt_tool_ledger_ref=prompt_tool_ledger.prompt_tool_ledger_ref,
         hypothesis_ledger_ref=hypothesis_ledger.hypothesis_ledger_ref,
         tool_contract_summary_ref=tool_contract_summary.summary_id,
@@ -3303,21 +3319,15 @@ def _g6_public_projection(
     }
     if summary_verification.status != "pass":
         source_material, _ = _g6_run_compression_materials(record)
+        terminal = build_compression_terminal_result(
+            source_material=source_material,
+            issue_codes=summary_verification.issue_codes,
+        )
         return {
             **base,
             "compression_result": {
                 "status": "blocked",
-                "terminal_result": {
-                    "result_kind": "governed_refusal",
-                    "refusal_scope": "premise_relative",
-                    "issue_codes": list(summary_verification.issue_codes),
-                    "retained_limitations": [
-                        item.content for item in source_material.limitations
-                    ],
-                    "retained_denied_uses": [
-                        item.content for item in source_material.denied_uses
-                    ],
-                },
+                "terminal_result": terminal.model_dump(mode="json"),
             },
         }
     ledger = record.prompt_tool_ledger_projection.prompt_tool_ledger

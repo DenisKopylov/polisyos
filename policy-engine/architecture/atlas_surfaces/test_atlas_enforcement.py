@@ -75,6 +75,161 @@ AUTHORITY_ESCAPE_TYPES = ts_source(
 class AtlasEnforcementTests(unittest.TestCase):
     """Prove the retained checker states only decidable local guarantees."""
 
+    def test_unknown_authz_decision_never_defaults_authority_surface_to_allow(
+        self,
+    ) -> None:
+        """Bind the phased N010 default set to the real decision API imports."""
+        inventory = checker.status_checker._load_json(
+            checker.status_checker.INVENTORY_PATH
+        )
+        live_scan = checker._enforcement_scan(
+            None,
+            inventory=inventory,
+            validate_override_diagnostics=False,
+        )
+        self.assertEqual([], checker._authz_default_allow_errors(live_scan))
+        facts = live_scan["authzDecisionFacts"]
+        self.assertEqual(7, len(facts["defaultAllowSites"]))
+        self.assertEqual(
+            {
+                "apps/runtime-dashboard/src/app/providers/InterfaceModeProvider.tsx": 1,
+                "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx": 2,
+                "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": 4,
+            },
+            {
+                path: sum(
+                    site["path"] == path for site in facts["defaultAllowSites"]
+                )
+                for path in {site["path"] for site in facts["defaultAllowSites"]}
+            },
+        )
+
+        workspace_path = (
+            "apps/runtime-dashboard/src/app/routes/WorkspaceBoundary.tsx"
+        )
+        workspace_source = (
+            checker.status_checker.REPO_ROOT / workspace_path
+        ).read_text(
+            encoding="utf-8"
+        )
+        safe = (
+            'const workspaceAllowed =\n'
+            '    authzDecision.kind === "verified" &&\n'
+            "    authzDecision.isWorkspaceAllowed(workspaceKey);"
+        )
+        unsafe = (
+            'const workspaceAllowed =\n'
+            '    authzDecision.kind === "verified"\n'
+            "      ? authzDecision.isWorkspaceAllowed(workspaceKey)\n"
+            "      : true;"
+        )
+        self.assertIn(safe, workspace_source)
+        unsafe_scan = checker._enforcement_scan(
+            {workspace_path: workspace_source.replace(safe, unsafe, 1)},
+            inventory=inventory,
+            validate_override_diagnostics=True,
+            include_dashboard_program_roots=True,
+        )
+        self.assertTrue(
+            any(
+                error.startswith(
+                    "authz_default_allow_unclassified:"
+                    f"{workspace_path}:conditional_true:"
+                )
+                for error in checker._authz_default_allow_errors(unsafe_scan)
+            ),
+            checker._authz_default_allow_errors(unsafe_scan),
+        )
+
+        lookalike_path = (
+            "apps/runtime-dashboard/src/shared/lib/authzDecisionLookalike.ts"
+        )
+        lookalike_scan = checker._enforcement_scan(
+            {
+                lookalike_path: (
+                    "function useAuthzDecision() { return undefined; }\n"
+                    "const authz = useAuthzDecision();\n"
+                    "export const allowed = authz?.can('runs.launch') ?? true;\n"
+                )
+            },
+            inventory=inventory,
+            validate_override_diagnostics=True,
+            include_dashboard_program_roots=True,
+        )
+        self.assertFalse(
+            any(
+                site["path"] == lookalike_path
+                for site in lookalike_scan["authzDecisionFacts"][
+                    "defaultAllowSites"
+                ]
+            )
+        )
+
+        bounded_path = (
+            "apps/runtime-dashboard/src/shared/lib/authzDecisionBoundedSyntax.ts"
+        )
+        bounded_scan = checker._enforcement_scan(
+            {
+                bounded_path: (
+                    'import { useMaybeAuthz } from "@/app/authz/AuthzProvider";\n'
+                    'export const inline = useMaybeAuthz()?.can("runs.launch") ?? true;\n'
+                    "const direct = useMaybeAuthz();\n"
+                    "const aliased = direct;\n"
+                    'export const oneStepAlias = aliased?.can("runs.launch") ?? true;\n'
+                    "const propertySource = useMaybeAuthz();\n"
+                    "const can = propertySource?.can;\n"
+                    'export const propertyAlias = can?.("runs.launch") ?? true;\n'
+                    "const destructureSource = useMaybeAuthz();\n"
+                    "const { isWorkspaceAllowed } = destructureSource ?? {};\n"
+                    "export const destructured =\n"
+                    '  isWorkspaceAllowed?.("runsDecisions") ?? true;\n'
+                    "const conditional = useMaybeAuthz();\n"
+                    "export const trueConsequent = !conditional\n"
+                    "  ? true\n"
+                    '  : conditional.can("runs.launch");\n'
+                    "export const unrelatedReceiver =\n"
+                    "  ({ can: () => undefined, marker: useMaybeAuthz() }).can() ?? true;\n"
+                    "const safe = useMaybeAuthz();\n"
+                    'export const falseDefault = safe?.can("runs.launch") ?? false;\n'
+                    "export const explicitTruthTable = safe?.can(\"runs.launch\")\n"
+                    "  ? true\n"
+                    "  : false;\n"
+                    "const indirect = () => useMaybeAuthz()?.can(\"runs.launch\");\n"
+                    "export const declaredResidual = indirect() ?? true;\n"
+                )
+            },
+            inventory=inventory,
+            validate_override_diagnostics=True,
+            include_dashboard_program_roots=True,
+        )
+        bounded_sites = [
+            site
+            for site in bounded_scan["authzDecisionFacts"]["defaultAllowSites"]
+            if site["path"] == bounded_path
+        ]
+        self.assertEqual(
+            {"conditional_true": 1, "nullish_true": 4},
+            {
+                kind: sum(site["kind"] == kind for site in bounded_sites)
+                for kind in {site["kind"] for site in bounded_sites}
+            },
+        )
+        self.assertEqual(
+            checker.C09A_AUTHZ_DIRECT_SYNTAX_RESIDUAL,
+            bounded_scan["authzDecisionFacts"]["residual"],
+        )
+        bounded_errors = checker._authz_default_allow_errors(bounded_scan)
+        self.assertEqual(
+            5,
+            sum(
+                error.startswith(
+                    f"authz_default_allow_unclassified:{bounded_path}:"
+                )
+                for error in bounded_errors
+            ),
+            bounded_errors,
+        )
+
     def test_raw_local_state_envelope_cannot_be_issued_or_written(self) -> None:
         """Execute the scoped local-state runtime witness instead of grepping it."""
         self.assertEqual([], checker._authority_local_state_runtime_errors())

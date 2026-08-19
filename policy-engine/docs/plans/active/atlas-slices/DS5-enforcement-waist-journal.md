@@ -5050,3 +5050,142 @@
   architect's C07a opening ruling. `C07b`, `C10-R1`, C15a's structured
   verdict/status-chip plane and `C17a-R1` remain named external-plan debt, not
   opportunistic work for this cluster.
+
+## 2026-08-19 — C09a-R2 source freeze and governed declaration
+
+- Entry readback was attached `codex/atlas-ds5-enforcement-waist` at
+  `91600981c22ec4ae2012bb9088f99f6a5406206a`, 107 commits ahead of `main`,
+  clean, with the register family free. P39 prices 11 mechanism paths and five
+  mandatory record companions: register, generated report, status inventory,
+  plan and journal. No baseline, readiness, C23 or DS8/DS9/DS14 semantic path
+  is admitted.
+- A complete blob census proved the ten existing R1 mechanism files remained
+  byte-equal to candidate `f240db1b7`; the eleventh new cross-surface test was
+  absent. Root restored that exact candidate before changing the R2 mechanism.
+  Three atomic restoration attempts were tooling nonreceipts with zero changed
+  bytes: a doubly rooted pathspec generated an empty patch; unified hunk line
+  ranges were unsupported by the patch parser; and a redundant function-name
+  seek anchor was unsupported. The fourth uniquely addressed patch restored all
+  11 blobs. A later two-section patch against the same scanner file was rejected
+  atomically before a single-section correction. Exact formatting then changed
+  only the intended dashboard files; its scanner path used one surplus `..` and
+  exited 2, so that wrapper is a tooling nonreceipt. A corrected scanner-only
+  formatter was green. A broad read-only search also encountered a giant
+  one-line JSON and returned truncated output; none of that output is evidence.
+- Candidate re-verification under the declared shared-host regime was GREEN:
+  four dashboard suites `22/22`, exit 0, `5.68 s / 165 s`; the real
+  TypeChecker owner test `1/1`, exit 0, `32.60 s / 99 s`; dashboard typecheck
+  exit 0, `12.70 s / 157 s`; and exact eight-file ESLint exit 0,
+  `28.64 s / 174 s`.
+- R2 RED first was nonvacuous. Clerk-mode loading exposed
+  `shell-nav-clerk-chat` under the preserved candidate (`1` failure,
+  `2.05 s / 165 s`). The direct-syntax fixture expected four nullish and one
+  conditional unsafe site but the candidate found none (`43.52 s / 99 s`).
+  The implementation now gates command-center and runs clerk links with their
+  own current verified workspace decisions and extends the TypeChecker rule to
+  canonical inline calls, one-step decision aliases, predicate aliases, object
+  destructures and both conditional arms. Immediate GREENs were clerk `1/1`
+  in `2.03 s / 165 s` and scanner `1/1` in `41.99 s / 99 s`.
+- The post-format source freeze was four suites `22/22`, exit 0,
+  `5.02 s / 165 s`; typecheck exit 0, `12.50 s / 157 s`; exact ESLint exit 0,
+  `26.62 s / 174 s`; and scanner GREEN `1/1`, `41.78 s / 99 s`.
+  RED durations and formatter/tooling failures are excluded from successful
+  timing samples; admitted samples and nearest-rank ceilings are recorded in
+  the plan.
+- Three independent read-only lanes received the P40 bucket rule. Behavior and
+  fence reviews returned GO. Scanner review found one receiver-tree false
+  positive: `({can: () => undefined, marker: useMaybeAuthz()}).can() ?? true`
+  could borrow the canonical sibling marker. Before action it was classified
+  **same class one level deeper** in the already opened direct-syntax class;
+  the repository has the direct receiver-resolution capability, so declaring
+  it residual would have been dishonest. The exact witness RED found five
+  nullish sites instead of four (`42.34 s / 99 s`); requiring the property
+  receiver itself to resolve from the decision source restored GREEN `1/1` in
+  `41.34 s / 99 s`, and delta re-review returned GO. This consumes no fresh
+  new-class round; C09a-R2 is 0/2.
+- The declared bounded residual is exact: canonical inline calls and one-step
+  local decision aliases, predicate aliases or object destructures are covered;
+  arbitrary assignment, return, closure, callback, parameter and
+  interprocedural authorization value-flow remains `not_established`. Its
+  falsifier is an unsafe default hidden behind one of those flows. No
+  whole-program authorization value-flow engine exists in this repository, so
+  the indirect fixture remains a worked red residual rather than a safe
+  classification.
+- Source-freeze porcelain is exactly the 11 mechanism paths, with the new
+  cross-surface test the sole untracked path; `git diff --check` is green.
+  Complete C21 decode finds only Header's protected review `Badge`: line
+  `115 -> 117`, unchanged hybrid identity and content hash
+  `sha256:e9fa54bd2e4c415e2a4dab68a24c6fb2a4d558383f312fae503da2f6d95ba550`.
+  The status allowlist is source span `21 -> 22`, test consumer `45 -> 52`, and
+  provider consumers `31 -> 65`, `87 -> 133`; membership remains 16. DS1-N010
+  stays `still_required` with an empty affected-unit set. Register/report/status
+  movement outside those induced receipts is forbidden; baseline, readiness,
+  C23 and every other C21 identity remain byte-exact.
+
+### C09a-R2 governed writer, final wave, and landing fence
+
+- The stale-artifact frontend owner check was already GREEN under C21d's
+  ratified hybrid relocation in `38.62 s / 748 s`; the stale status owner was
+  the expected governed RED, exit 1, in `13.11 s / 86 s`, with exactly
+  `registered_status_definition_missing:status-inline-authz-provider` and
+  `unregistered_status_definition:AuthzProvider.tsx:status`. A read-only attempt
+  to ask `status_retirement_scan.mjs --help` instead ran its JSON scan and was
+  truncated by the output wrapper; it is a tooling nonreceipt and no byte or
+  claim depends on it. A later bounded scan independently emitted source span
+  22 and consumers 52/65/133 with the same 16-member set.
+- Root claimed the free register family only after the source, behavior,
+  scanner and fence reviews were GO. A uniquely anchored patch changed only
+  `authority-presentation-badge-review-required-aggregate`'s Header consumer
+  line `115 -> 117`, retaining identity and site hash
+  `e9fa54bd…ba550`. A separate unit-anchored status patch changed only the DS19
+  hash, Authz span `21 -> 22`, and consumer lines `45 -> 52`, `31 -> 65`,
+  `87 -> 133`; membership remains 16. Register SHA-256 is
+  `82a59ab2d4c2e130707e5992c3a7b5c6ebee485e06047a4f2d5cec1136024493`.
+- The canonical report writer ran with the repository venv and explicit child
+  exit in `38.88 s / 174 s` and `38.18 s / 174 s`. Both produced 261 roots,
+  10 censuses, 61 supplemental findings, 574 production sources and 36 storage
+  sites / 15 files / 22 benign + 14 scoped. The second SHA-256 is byte-identical
+  to the first at
+  `a3ea7bf0bb4237dcba188e8719d7aa9d079f3c7f9cb9f0f63349c90c67fad987`.
+  Final no-write status and frontend checks were GREEN in `13.42 s / 86 s`
+  and `38.95 s / 748 s`; status is 12 authored, 56 exemptions and zero
+  retirement debt.
+- Three independent final read-only reviews returned GO: source/package,
+  parsed artifact fence, and docs/timing. Parsed comparison proves the register
+  has one changed leaf, status has only the DS19/hash/span/consumer reanchors,
+  DS1-N010 is byte-identical and `still_required`, and the report's DS19
+  projection is unchanged. Its only generated movement is repository-derived
+  application statistics and the prior C15b commit line. One reviewer first
+  addressed `git show` without the required `policy-engine/` tree prefix; its
+  corrected read-only query supplied the receipt and the first output is a
+  tooling nonreceipt.
+- The serialized final wave is fully GREEN under the declared shared-host
+  regime: frontend owner `101/101`, `152.45 s / 748 s`; disposition/baseline
+  corruption PASS, `98.04 s / 554 s`; status `38/38`,
+  `49.18 s / 338 s`; status corruption PASS, `17.58 s / 86 s`; Atlas
+  checker/corruption PASS, `60.63 s / 314 s`, over 1,032 modules and 4,219
+  dependency edges with zero violations; full Atlas `36/36`,
+  `375.04 s / 2,678 s`. The two loader errors printed inside the frontend
+  module are its deliberate nested corruption children; the owning parent
+  exited 0.
+- Dashboard production build passed in `18.79 s / 115 s`, 3,886 transformed
+  modules and 108 PWA entries, with only the existing chunk-size advisory.
+  Architecture/dependency cruise passed in `5.02 s / 19 s`, again 1,032
+  modules / 4,219 dependencies / zero violations. Final focused dashboard
+  coverage remains `22/22`, `5.34 s / 165 s`. All successful terminal samples
+  are admitted in the plan; REDs and tooling nonreceipts are excluded.
+- Final governed hashes are register
+  `82a59ab2d4c2e130707e5992c3a7b5c6ebee485e06047a4f2d5cec1136024493`,
+  report `a3ea7bf0bb4237dcba188e8719d7aa9d079f3c7f9cb9f0f63349c90c67fad987`,
+  and status
+  `9bf01dcc25d91c1f62cf0202a09b836a6b290bc7e53ac43ccb0f384412596b1b`.
+  Baseline remains byte-exact at
+  `cec094bc53549c2c9e36c7b86bd4b0a41db4d742c90615d40f07215c1a9de828`;
+  readiness and all four C23 rows remain unchanged. The exact landing fence is
+  16 paths = 11 mechanisms + five P39 companions. The containing commit and
+  attached-branch readback classify C09a-R2 `landed`; committed-range review
+  then releases the register family and opens C09b-R1.
+- Explicit staging readback contains those 16 paths exactly, with no unstaged
+  or untracked path; staged `git diff --check` is green. The commit command
+  rechecks the attached branch in the same mutation before creating the
+  containing commit.

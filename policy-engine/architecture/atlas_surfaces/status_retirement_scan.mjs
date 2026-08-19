@@ -481,7 +481,6 @@ function isNestedPersistenceReceiver(node) {
   return false;
 }
 
-
 function collectPersistenceConstructionFacts(program, checker) {
   const productionSources = program
     .getSourceFiles()
@@ -633,6 +632,302 @@ function collectPersistenceConstructionFacts(program, checker) {
     residual:
       "direct declaration-resolved calls, acquisitions, and local destructured/bound aliases only; indirect storage value-flow remains not_established",
     sites,
+  };
+}
+
+const AUTHZ_PROVIDER_PATH =
+  "apps/runtime-dashboard/src/app/authz/AuthzProvider.tsx";
+const AUTHZ_DECISION_HOOKS = new Set(["useAuthzDecision", "useMaybeAuthz"]);
+const AUTHZ_DECISION_PREDICATES = new Set(["can", "isWorkspaceAllowed"]);
+const AUTHZ_DECISION_RESIDUAL =
+  "canonical inline calls and one-step local decision aliases, predicate aliases, or object destructures only; arbitrary assignment, return, closure, callback, parameter, and interprocedural authorization value-flow remains not_established";
+
+function canonicalAuthzDecisionHook(checker, expression) {
+  const symbol = resolvedSymbol(checker, expression);
+  for (const declaration of symbol?.declarations ?? []) {
+    if (
+      relativePath(declaration.getSourceFile().fileName) !== AUTHZ_PROVIDER_PATH
+    ) {
+      continue;
+    }
+    const name = propertyNameText(declaration.name);
+    if (name && AUTHZ_DECISION_HOOKS.has(name)) return name;
+  }
+  return null;
+}
+
+function nodeReferencesAuthzDecision(
+  checker,
+  node,
+  decisionSymbols,
+  predicateSymbols,
+) {
+  let found = false;
+  const visit = (current) => {
+    if (found) return;
+    if (
+      ts.isIdentifier(current) &&
+      (decisionSymbols.has(checker.getSymbolAtLocation(current)) ||
+        predicateSymbols.has(checker.getSymbolAtLocation(current)))
+    ) {
+      found = true;
+      return;
+    }
+    if (
+      ts.isCallExpression(current) &&
+      canonicalAuthzDecisionHook(checker, current.expression)
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(current, visit);
+  };
+  visit(node);
+  return found;
+}
+
+function directAuthzDecisionSource(checker, expression, decisionSymbols) {
+  const current = unwrapExpression(expression);
+  if (
+    ts.isIdentifier(current) &&
+    decisionSymbols.has(checker.getSymbolAtLocation(current))
+  ) {
+    return true;
+  }
+  if (
+    ts.isCallExpression(current) &&
+    canonicalAuthzDecisionHook(checker, current.expression)
+  ) {
+    return true;
+  }
+  return (
+    ts.isBinaryExpression(current) &&
+    current.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken &&
+    ts.isObjectLiteralExpression(unwrapExpression(current.right)) &&
+    directAuthzDecisionSource(checker, current.left, decisionSymbols)
+  );
+}
+
+function authzDecisionPredicateCall(
+  checker,
+  call,
+  decisionSymbols,
+  predicateSymbols,
+) {
+  const callee = unwrapExpression(call.expression);
+  if (
+    ts.isIdentifier(callee) &&
+    predicateSymbols.has(checker.getSymbolAtLocation(callee))
+  ) {
+    return true;
+  }
+  if (
+    !ts.isPropertyAccessExpression(callee) &&
+    !ts.isElementAccessExpression(callee)
+  ) {
+    return false;
+  }
+  const predicate = persistenceAccessName(callee)?.text ?? null;
+  return (
+    AUTHZ_DECISION_PREDICATES.has(predicate) &&
+    directAuthzDecisionSource(checker, callee.expression, decisionSymbols)
+  );
+}
+
+function expressionHasAuthzDecisionPredicate(
+  checker,
+  node,
+  decisionSymbols,
+  predicateSymbols,
+) {
+  let found = false;
+  const visit = (current) => {
+    if (found) return;
+    if (
+      ts.isCallExpression(current) &&
+      authzDecisionPredicateCall(
+        checker,
+        current,
+        decisionSymbols,
+        predicateSymbols,
+      )
+    ) {
+      found = true;
+      return;
+    }
+    ts.forEachChild(current, visit);
+  };
+  visit(node);
+  return found;
+}
+
+function collectAuthzDecisionFacts(program, checker) {
+  const sourceFiles = program
+    .getSourceFiles()
+    .filter((sourceFile) =>
+      isDashboardPersistenceProductionSource(sourceFile.fileName),
+    );
+  const hookCalls = [];
+  const defaultAllowSites = [];
+
+  for (const sourceFile of sourceFiles) {
+    const directDecisionSymbols = new Set();
+    const aliasedDecisionSymbols = new Set();
+    const predicateSymbols = new Set();
+    const path = relativePath(sourceFile.fileName);
+    const collectHooks = (node) => {
+      if (ts.isCallExpression(node)) {
+        const hook = canonicalAuthzDecisionHook(checker, node.expression);
+        if (hook) {
+          hookCalls.push({
+            hook,
+            line: lineOf(sourceFile, node),
+            path,
+          });
+        }
+      }
+      if (
+        ts.isVariableDeclaration(node) &&
+        ts.isIdentifier(node.name) &&
+        node.initializer
+      ) {
+        const initializer = unwrapExpression(node.initializer);
+        if (ts.isCallExpression(initializer)) {
+          const hook = canonicalAuthzDecisionHook(
+            checker,
+            initializer.expression,
+          );
+          if (hook) {
+            const symbol = checker.getSymbolAtLocation(node.name);
+            if (symbol) directDecisionSymbols.add(symbol);
+          }
+        }
+      }
+      ts.forEachChild(node, collectHooks);
+    };
+    collectHooks(sourceFile);
+
+    const collectAliases = (node) => {
+      if (!ts.isVariableDeclaration(node) || !node.initializer) {
+        ts.forEachChild(node, collectAliases);
+        return;
+      }
+      const initializer = unwrapExpression(node.initializer);
+      if (ts.isIdentifier(node.name)) {
+        const symbol = checker.getSymbolAtLocation(node.name);
+        if (
+          symbol &&
+          ts.isIdentifier(initializer) &&
+          directDecisionSymbols.has(checker.getSymbolAtLocation(initializer))
+        ) {
+          aliasedDecisionSymbols.add(symbol);
+        }
+        if (
+          symbol &&
+          (ts.isPropertyAccessExpression(initializer) ||
+            ts.isElementAccessExpression(initializer)) &&
+          AUTHZ_DECISION_PREDICATES.has(
+            persistenceAccessName(initializer)?.text ?? null,
+          ) &&
+          directAuthzDecisionSource(
+            checker,
+            initializer.expression,
+            directDecisionSymbols,
+          )
+        ) {
+          predicateSymbols.add(symbol);
+        }
+      } else if (
+        ts.isObjectBindingPattern(node.name) &&
+        directAuthzDecisionSource(checker, initializer, directDecisionSymbols)
+      ) {
+        for (const element of node.name.elements) {
+          const sourceName = propertyNameText(
+            element.propertyName ?? element.name,
+          );
+          if (!AUTHZ_DECISION_PREDICATES.has(sourceName)) continue;
+          for (const identifier of bindingNames(element.name)) {
+            const symbol = checker.getSymbolAtLocation(identifier);
+            if (symbol) predicateSymbols.add(symbol);
+          }
+        }
+      }
+      ts.forEachChild(node, collectAliases);
+    };
+    collectAliases(sourceFile);
+    const decisionSymbols = new Set([
+      ...directDecisionSymbols,
+      ...aliasedDecisionSymbols,
+    ]);
+
+    const collectDefaults = (node) => {
+      let kind = null;
+      if (
+        ts.isBinaryExpression(node) &&
+        node.operatorToken.kind === ts.SyntaxKind.QuestionQuestionToken &&
+        node.right.kind === ts.SyntaxKind.TrueKeyword &&
+        expressionHasAuthzDecisionPredicate(
+          checker,
+          node.left,
+          decisionSymbols,
+          predicateSymbols,
+        )
+      ) {
+        kind = "nullish_true";
+      } else if (
+        ts.isConditionalExpression(node) &&
+        ((node.whenFalse.kind === ts.SyntaxKind.TrueKeyword &&
+          expressionHasAuthzDecisionPredicate(
+            checker,
+            node.whenTrue,
+            decisionSymbols,
+            predicateSymbols,
+          )) ||
+          (node.whenTrue.kind === ts.SyntaxKind.TrueKeyword &&
+            expressionHasAuthzDecisionPredicate(
+              checker,
+              node.whenFalse,
+              decisionSymbols,
+              predicateSymbols,
+            ))) &&
+        nodeReferencesAuthzDecision(
+          checker,
+          node.condition,
+          decisionSymbols,
+          predicateSymbols,
+        ) &&
+        !expressionHasAuthzDecisionPredicate(
+          checker,
+          node.condition,
+          decisionSymbols,
+          predicateSymbols,
+        )
+      ) {
+        kind = "conditional_true";
+      }
+      if (kind) {
+        defaultAllowSites.push({
+          kind,
+          line: lineOf(sourceFile, node),
+          path,
+          siteFingerprint: textSha256(node.getText(sourceFile)),
+        });
+      }
+      ts.forEachChild(node, collectDefaults);
+    };
+    collectDefaults(sourceFile);
+  }
+
+  const key = (item) =>
+    `${item.path}:${String(item.line).padStart(8, "0")}:${item.hook ?? item.kind}`;
+  return {
+    defaultAllowSites: defaultAllowSites.sort((left, right) =>
+      key(left).localeCompare(key(right)),
+    ),
+    hookCalls: hookCalls.sort((left, right) =>
+      key(left).localeCompare(key(right)),
+    ),
+    residual: AUTHZ_DECISION_RESIDUAL,
   };
 }
 
@@ -5650,6 +5945,7 @@ function collectProgramFacts(
       program,
       checker,
     ),
+    authzDecisionFacts: collectAuthzDecisionFacts(program, checker),
     ...authorityEscapeFacts,
   };
 }
@@ -5809,6 +6105,11 @@ function collectOverrideFacts(
       productionFiles: 0,
       issuerCalls: [],
       featureLiterals: [],
+    },
+    authzDecisionFacts: {
+      defaultAllowSites: [],
+      hookCalls: [],
+      residual: AUTHZ_DECISION_RESIDUAL,
     },
   };
   const program = createOverrideProgram(
@@ -6007,6 +6308,7 @@ function collectOverrideFacts(
     program,
     checker,
   );
+  facts.authzDecisionFacts = collectAuthzDecisionFacts(program, checker);
   return facts;
 }
 

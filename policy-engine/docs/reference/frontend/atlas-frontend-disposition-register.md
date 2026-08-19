@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **28546**
-- Application lines deleted: **20002**
-- Net application LOC reduction: **-8544**
+- Application lines added: **29116**
+- Application lines deleted: **20046**
+- Net application LOC reduction: **-9070**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -610,6 +610,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 
 ## Commits
 
+- `91600981c DS5-C15b-R1 mount Clerk identity hydration`
 - `4edcf96be DS5-C11b-R1 render governed cache posture`
 - `8f59d4c4c DS5 record C09a default-deny recut stop`
 - `c64b03dea Revert "DS5-C09a-R1 preserve stopped default-deny candidate"`

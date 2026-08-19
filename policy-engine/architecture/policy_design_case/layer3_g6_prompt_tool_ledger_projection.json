@@ -27,10 +27,1426 @@
   ],
   "projection_id": "layer3-g6-prompt-tool-ledger-projection:layer3-g6-run:req-layer3-g6-readiness",
   "prompt_tool_ledger": {
+    "authority_delta_completeness_receipts": [
+      {
+        "authoritative_for": [],
+        "decisive_property": "owner_validated_full_choice_population_and_exact_candidate_partition",
+        "emitted_choice_kinds": [
+          "evidence-selection",
+          "tool-choice",
+          "framing",
+          "counterevidence-selection",
+          "compression"
+        ],
+        "emitted_delta_count": 5,
+        "emitted_delta_population_fingerprint": "sha256:2d3aa266772301c5ca63d191f63eda37b14f5f3169158a6d1777823c7b673832",
+        "issue_codes": [],
+        "observed_choice_count": 5,
+        "observed_choice_kinds": [
+          "evidence-selection",
+          "tool-choice",
+          "framing",
+          "counterevidence-selection",
+          "compression"
+        ],
+        "observed_choice_population_fingerprint": "sha256:8a625407514354e59c9d83458f88d0189f6691b1420a3a85de96473070196061",
+        "owner_choice_kinds": [
+          "evidence-selection",
+          "tool-choice",
+          "framing",
+          "counterevidence-selection",
+          "compression"
+        ],
+        "owner_policy_catalog_fingerprint": "sha256:593000e41c1e27d438e6ac7282f21d15a4ac2b743ba1fb5113460d9935975562",
+        "owner_policy_catalog_ref": "repo://architecture/production_quality/orchestration_choice_policies.toml",
+        "owner_policy_count": 5,
+        "predicate_provenance": "recomputed",
+        "receipt_id": "orchestration-authority-delta-completeness:sha256:e86bdf2bd3239951f4cff5f2b1be0703dd3c3aacc5fa4d62952c3c6d6d123816",
+        "status": "pass"
+      }
+    ],
+    "compression_loss_receipts": [
+      {
+        "authoritative_for": [],
+        "authority_delta_completeness": {
+          "authoritative_for": [],
+          "decisive_property": "owner_validated_full_choice_population_and_exact_candidate_partition",
+          "emitted_choice_kinds": [
+            "evidence-selection",
+            "tool-choice",
+            "framing",
+            "counterevidence-selection",
+            "compression"
+          ],
+          "emitted_delta_count": 5,
+          "emitted_delta_population_fingerprint": "sha256:2d3aa266772301c5ca63d191f63eda37b14f5f3169158a6d1777823c7b673832",
+          "issue_codes": [],
+          "observed_choice_count": 5,
+          "observed_choice_kinds": [
+            "evidence-selection",
+            "tool-choice",
+            "framing",
+            "counterevidence-selection",
+            "compression"
+          ],
+          "observed_choice_population_fingerprint": "sha256:8a625407514354e59c9d83458f88d0189f6691b1420a3a85de96473070196061",
+          "owner_choice_kinds": [
+            "evidence-selection",
+            "tool-choice",
+            "framing",
+            "counterevidence-selection",
+            "compression"
+          ],
+          "owner_policy_catalog_fingerprint": "sha256:593000e41c1e27d438e6ac7282f21d15a4ac2b743ba1fb5113460d9935975562",
+          "owner_policy_catalog_ref": "repo://architecture/production_quality/orchestration_choice_policies.toml",
+          "owner_policy_count": 5,
+          "predicate_provenance": "recomputed",
+          "receipt_id": "orchestration-authority-delta-completeness:sha256:e86bdf2bd3239951f4cff5f2b1be0703dd3c3aacc5fa4d62952c3c6d6d123816",
+          "status": "pass"
+        },
+        "authority_deltas": [
+          {
+            "authoritative_for": [],
+            "authority_effect": "narrows candidate evidence without creating claim authority",
+            "candidate_universe": [
+              "evidence-selection:repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+              "evidence-selection:layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+              "evidence-selection:repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json",
+              "evidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:evidence-selection",
+            "choice_kind": "evidence-selection",
+            "decision_context_fingerprint": "sha256:c0177320a4a88060f20629262169bf10564ac380ab6ff4f2ca649de24b8acad2",
+            "decision_policy_owner": "team-runtime-quality",
+            "decision_policy_ref": "policyos://orchestration-choice-policy/evidence-selection/v1",
+            "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:evidence-selection",
+            "governance_burden_after": [],
+            "governance_burden_before": [],
+            "governance_burden_change_allowed": false,
+            "owner_policy_fingerprint": "sha256:63a27df302d3788220d8ae440d25e3334a316d3a72d4881df0fe8284ff69dc36",
+            "predicate_provenance": "recomputed",
+            "rejected": [
+              "evidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+            "selected": [
+              "evidence-selection:repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+              "evidence-selection:layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+              "evidence-selection:repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+            ]
+          },
+          {
+            "authoritative_for": [],
+            "authority_effect": "narrows callable tools without creating execution authority",
+            "candidate_universe": [
+              "tool-choice:layer3_g6_build_g5_bundle",
+              "tool-choice:unbounded_web_search"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:tool-choice",
+            "choice_kind": "tool-choice",
+            "decision_context_fingerprint": "sha256:b307bd9678bb8d2ce2e2fa984f1427f907153ce4f08ca953395af55d524cf9b8",
+            "decision_policy_owner": "team-runtime-quality",
+            "decision_policy_ref": "policyos://orchestration-choice-policy/tool-choice/v1",
+            "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:tool-choice",
+            "governance_burden_after": [],
+            "governance_burden_before": [],
+            "governance_burden_change_allowed": false,
+            "owner_policy_fingerprint": "sha256:ae351052a9117a0f105541bd18edb5bc7252b2df2b39e43eb3e84742d6806419",
+            "predicate_provenance": "recomputed",
+            "rejected": [
+              "tool-choice:unbounded_web_search"
+            ],
+            "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+            "selected": [
+              "tool-choice:layer3_g6_build_g5_bundle"
+            ]
+          },
+          {
+            "authoritative_for": [],
+            "authority_effect": "records framing effects on governance burden without granting authority",
+            "candidate_universe": [
+              "framing:frame_as_g5_route_not_policy_recommendation",
+              "framing:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:framing",
+            "choice_kind": "framing",
+            "decision_context_fingerprint": "sha256:1c7af25ee9ef75079663ad9955a8716f92a141f7713741ee0078a2e132d61aec",
+            "decision_policy_owner": "team-runtime-quality",
+            "decision_policy_ref": "policyos://orchestration-choice-policy/framing/v1",
+            "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:framing",
+            "governance_burden_after": [
+              "burden:blocked_by_current_g5_unchanged_blocker",
+              "burden:owner-review"
+            ],
+            "governance_burden_before": [
+              "burden:blocked_by_current_g5_unchanged_blocker",
+              "burden:owner-review"
+            ],
+            "governance_burden_change_allowed": true,
+            "owner_policy_fingerprint": "sha256:2c1dc9fded6693148f75b6d1f3605484986208fd84956fa4725014fdf26cf985",
+            "predicate_provenance": "recomputed",
+            "rejected": [
+              "framing:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+            "selected": [
+              "framing:frame_as_g5_route_not_policy_recommendation"
+            ]
+          },
+          {
+            "authoritative_for": [],
+            "authority_effect": "preserves selected and rejected counterevidence branches as audit only",
+            "candidate_universe": [
+              "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority",
+              "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:counterevidence-selection",
+            "choice_kind": "counterevidence-selection",
+            "decision_context_fingerprint": "sha256:bd86d3d6347e15dac2bde9a04776042e0458243583d85af5832f429e58304255",
+            "decision_policy_owner": "team-runtime-quality",
+            "decision_policy_ref": "policyos://orchestration-choice-policy/counterevidence-selection/v1",
+            "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:counterevidence-selection",
+            "governance_burden_after": [],
+            "governance_burden_before": [],
+            "governance_burden_change_allowed": false,
+            "owner_policy_fingerprint": "sha256:1180e806a7567c6cfdee55fafbaf741e92e37045c969ef159170c885e1b58316",
+            "predicate_provenance": "recomputed",
+            "rejected": [
+              "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+            "selected": [
+              "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+            ]
+          },
+          {
+            "authoritative_for": [],
+            "authority_effect": "reduces presentation material while preserving or narrowing authority",
+            "candidate_universe": [
+              "claim:outcome@sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+              "claim:procedure-boundary@sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+              "claim:g5-conversion-outcome@sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9",
+              "limitation:candidate-only@sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+              "limitation:engineering-readiness@sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+              "limitation:grounded-value-closure@sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778",
+              "denied-use:production_authority@sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+              "denied-use:rollout_authority@sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+              "denied-use:publication_authority@sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+              "denied-use:approval_authority@sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+              "denied-use:scorecard_authority@sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+              "denied-use:closeout_authority@sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+              "denied-use:runtime_closeout_authority@sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+              "denied-use:public_recommendation@sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+              "denied-use:policy_recommendation@sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+              "denied-use:legal_advice@sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+              "denied-use:claim_authority@sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+              "denied-use:obligation_authority@sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+              "denied-use:causal_effect_authority@sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+              "denied-use:proof_authority@sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+              "denied-use:legal_authority@sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+              "denied-use:g5_conversion_authority_without_g5@sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+              "denied-use:g7_region_widening@sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+              "denied-use:recommendation_authority@sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8",
+              "counterevidence:1@sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+              "counterevidence:2@sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:compression",
+            "choice_kind": "compression",
+            "decision_context_fingerprint": "sha256:ad0734595f303028fca72bb3efdd362adbc15f73c60b4445754d16f71a078a54",
+            "decision_policy_owner": "team-runtime-quality",
+            "decision_policy_ref": "policyos://orchestration-choice-policy/compression/v1",
+            "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:compression",
+            "governance_burden_after": [
+              "burden:blocked_by_current_g5_unchanged_blocker",
+              "burden:owner-review"
+            ],
+            "governance_burden_before": [
+              "burden:blocked_by_current_g5_unchanged_blocker",
+              "burden:owner-review"
+            ],
+            "governance_burden_change_allowed": false,
+            "owner_policy_fingerprint": "sha256:4ed880839ff3f1ab1514f7e5ec8b84692e91a5671daf851aa9f687092927c384",
+            "predicate_provenance": "recomputed",
+            "rejected": [],
+            "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+            "selected": [
+              "claim:outcome@sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+              "claim:procedure-boundary@sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+              "claim:g5-conversion-outcome@sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9",
+              "limitation:candidate-only@sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+              "limitation:engineering-readiness@sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+              "limitation:grounded-value-closure@sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778",
+              "denied-use:production_authority@sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+              "denied-use:rollout_authority@sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+              "denied-use:publication_authority@sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+              "denied-use:approval_authority@sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+              "denied-use:scorecard_authority@sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+              "denied-use:closeout_authority@sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+              "denied-use:runtime_closeout_authority@sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+              "denied-use:public_recommendation@sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+              "denied-use:policy_recommendation@sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+              "denied-use:legal_advice@sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+              "denied-use:claim_authority@sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+              "denied-use:obligation_authority@sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+              "denied-use:causal_effect_authority@sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+              "denied-use:proof_authority@sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+              "denied-use:legal_authority@sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+              "denied-use:g5_conversion_authority_without_g5@sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+              "denied-use:g7_region_widening@sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+              "denied-use:recommendation_authority@sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8",
+              "counterevidence:1@sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+              "counterevidence:2@sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765"
+            ]
+          }
+        ],
+        "candidate_summary": {
+          "claims": [
+            {
+              "basis_refs": [],
+              "claim_kind": "negative_terminal",
+              "content": "g5_unchanged_blocker",
+              "evidence_independence_ref": null,
+              "item_fingerprint": "sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+              "item_id": "claim:outcome",
+              "presentation_scope": "bounded",
+              "source_refs": [
+                "layer3-g6://result-or-abstention/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "basis_refs": [],
+              "claim_kind": "procedural_binding",
+              "content": "G6 output remains a projection-only routing result.",
+              "evidence_independence_ref": null,
+              "item_fingerprint": "sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+              "item_id": "claim:procedure-boundary",
+              "presentation_scope": "bounded",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "basis_refs": [],
+              "claim_kind": "substantive",
+              "content": "unchanged_blocker",
+              "evidence_independence_ref": null,
+              "item_fingerprint": "sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9",
+              "item_id": "claim:g5-conversion-outcome",
+              "presentation_scope": "bounded",
+              "source_refs": [
+                "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+                "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+              ]
+            }
+          ],
+          "counterevidence": [
+            {
+              "content": "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer",
+              "item_fingerprint": "sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+              "item_id": "counterevidence:1",
+              "source_refs": [
+                "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+              ]
+            },
+            {
+              "content": "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority",
+              "item_fingerprint": "sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765",
+              "item_id": "counterevidence:2",
+              "source_refs": [
+                "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+              ]
+            }
+          ],
+          "denied_uses": [
+            {
+              "content": "production_authority",
+              "item_fingerprint": "sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+              "item_id": "denied-use:production_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "rollout_authority",
+              "item_fingerprint": "sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+              "item_id": "denied-use:rollout_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "publication_authority",
+              "item_fingerprint": "sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+              "item_id": "denied-use:publication_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "approval_authority",
+              "item_fingerprint": "sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+              "item_id": "denied-use:approval_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "scorecard_authority",
+              "item_fingerprint": "sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+              "item_id": "denied-use:scorecard_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "closeout_authority",
+              "item_fingerprint": "sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+              "item_id": "denied-use:closeout_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "runtime_closeout_authority",
+              "item_fingerprint": "sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+              "item_id": "denied-use:runtime_closeout_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "public_recommendation",
+              "item_fingerprint": "sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+              "item_id": "denied-use:public_recommendation",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "policy_recommendation",
+              "item_fingerprint": "sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+              "item_id": "denied-use:policy_recommendation",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "legal_advice",
+              "item_fingerprint": "sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+              "item_id": "denied-use:legal_advice",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "claim_authority",
+              "item_fingerprint": "sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+              "item_id": "denied-use:claim_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "obligation_authority",
+              "item_fingerprint": "sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+              "item_id": "denied-use:obligation_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "causal_effect_authority",
+              "item_fingerprint": "sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+              "item_id": "denied-use:causal_effect_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "proof_authority",
+              "item_fingerprint": "sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+              "item_id": "denied-use:proof_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "legal_authority",
+              "item_fingerprint": "sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+              "item_id": "denied-use:legal_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "g5_conversion_authority_without_g5",
+              "item_fingerprint": "sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+              "item_id": "denied-use:g5_conversion_authority_without_g5",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "g7_region_widening",
+              "item_fingerprint": "sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+              "item_id": "denied-use:g7_region_widening",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "recommendation_authority",
+              "item_fingerprint": "sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8",
+              "item_id": "denied-use:recommendation_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            }
+          ],
+          "framing_refs": [
+            "frame_as_g5_route_not_policy_recommendation"
+          ],
+          "governance_burden_refs": [
+            "burden:blocked_by_current_g5_unchanged_blocker",
+            "burden:owner-review"
+          ],
+          "limitations": [
+            {
+              "content": "Model and tool outputs remain candidate-only until grounded by G5.",
+              "item_fingerprint": "sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+              "item_id": "limitation:candidate-only",
+              "source_refs": [
+                "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4"
+              ]
+            },
+            {
+              "content": "engineering_readiness=pass",
+              "item_fingerprint": "sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+              "item_id": "limitation:engineering-readiness",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "grounded_value_closure=blocked_by_current_g5_unchanged_blocker",
+              "item_fingerprint": "sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778",
+              "item_id": "limitation:grounded-value-closure",
+              "source_refs": [
+                "layer3-g6://result-or-abstention/req-layer3-g6-readiness"
+              ]
+            }
+          ],
+          "material_fingerprint": "sha256:e1cd234ca1411b1ba9043425eb1d29b1d7f8759ced2ca815c90304dc60ec8fa8"
+        },
+        "candidate_summary_fingerprint": "sha256:e1cd234ca1411b1ba9043425eb1d29b1d7f8759ced2ca815c90304dc60ec8fa8",
+        "disposition": "exact",
+        "dropped_claims": [],
+        "dropped_counterevidence": [],
+        "dropped_denied_uses": [],
+        "dropped_item_dispositions": [],
+        "dropped_limitations": [],
+        "emitted_summary": {
+          "claims": [
+            {
+              "basis_refs": [],
+              "claim_kind": "negative_terminal",
+              "content": "g5_unchanged_blocker",
+              "evidence_independence_ref": null,
+              "item_fingerprint": "sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+              "item_id": "claim:outcome",
+              "presentation_scope": "bounded",
+              "source_refs": [
+                "layer3-g6://result-or-abstention/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "basis_refs": [],
+              "claim_kind": "procedural_binding",
+              "content": "G6 output remains a projection-only routing result.",
+              "evidence_independence_ref": null,
+              "item_fingerprint": "sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+              "item_id": "claim:procedure-boundary",
+              "presentation_scope": "bounded",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "basis_refs": [],
+              "claim_kind": "substantive",
+              "content": "unchanged_blocker",
+              "evidence_independence_ref": null,
+              "item_fingerprint": "sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9",
+              "item_id": "claim:g5-conversion-outcome",
+              "presentation_scope": "bounded",
+              "source_refs": [
+                "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+                "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+              ]
+            }
+          ],
+          "counterevidence": [
+            {
+              "content": "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer",
+              "item_fingerprint": "sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+              "item_id": "counterevidence:1",
+              "source_refs": [
+                "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+              ]
+            },
+            {
+              "content": "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority",
+              "item_fingerprint": "sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765",
+              "item_id": "counterevidence:2",
+              "source_refs": [
+                "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+              ]
+            }
+          ],
+          "denied_uses": [
+            {
+              "content": "production_authority",
+              "item_fingerprint": "sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+              "item_id": "denied-use:production_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "rollout_authority",
+              "item_fingerprint": "sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+              "item_id": "denied-use:rollout_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "publication_authority",
+              "item_fingerprint": "sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+              "item_id": "denied-use:publication_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "approval_authority",
+              "item_fingerprint": "sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+              "item_id": "denied-use:approval_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "scorecard_authority",
+              "item_fingerprint": "sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+              "item_id": "denied-use:scorecard_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "closeout_authority",
+              "item_fingerprint": "sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+              "item_id": "denied-use:closeout_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "runtime_closeout_authority",
+              "item_fingerprint": "sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+              "item_id": "denied-use:runtime_closeout_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "public_recommendation",
+              "item_fingerprint": "sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+              "item_id": "denied-use:public_recommendation",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "policy_recommendation",
+              "item_fingerprint": "sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+              "item_id": "denied-use:policy_recommendation",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "legal_advice",
+              "item_fingerprint": "sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+              "item_id": "denied-use:legal_advice",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "claim_authority",
+              "item_fingerprint": "sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+              "item_id": "denied-use:claim_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "obligation_authority",
+              "item_fingerprint": "sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+              "item_id": "denied-use:obligation_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "causal_effect_authority",
+              "item_fingerprint": "sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+              "item_id": "denied-use:causal_effect_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "proof_authority",
+              "item_fingerprint": "sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+              "item_id": "denied-use:proof_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "legal_authority",
+              "item_fingerprint": "sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+              "item_id": "denied-use:legal_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "g5_conversion_authority_without_g5",
+              "item_fingerprint": "sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+              "item_id": "denied-use:g5_conversion_authority_without_g5",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "g7_region_widening",
+              "item_fingerprint": "sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+              "item_id": "denied-use:g7_region_widening",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "recommendation_authority",
+              "item_fingerprint": "sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8",
+              "item_id": "denied-use:recommendation_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            }
+          ],
+          "framing_refs": [
+            "frame_as_g5_route_not_policy_recommendation"
+          ],
+          "governance_burden_refs": [
+            "burden:blocked_by_current_g5_unchanged_blocker",
+            "burden:owner-review"
+          ],
+          "limitations": [
+            {
+              "content": "Model and tool outputs remain candidate-only until grounded by G5.",
+              "item_fingerprint": "sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+              "item_id": "limitation:candidate-only",
+              "source_refs": [
+                "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4"
+              ]
+            },
+            {
+              "content": "engineering_readiness=pass",
+              "item_fingerprint": "sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+              "item_id": "limitation:engineering-readiness",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "grounded_value_closure=blocked_by_current_g5_unchanged_blocker",
+              "item_fingerprint": "sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778",
+              "item_id": "limitation:grounded-value-closure",
+              "source_refs": [
+                "layer3-g6://result-or-abstention/req-layer3-g6-readiness"
+              ]
+            }
+          ],
+          "material_fingerprint": "sha256:e1cd234ca1411b1ba9043425eb1d29b1d7f8759ced2ca815c90304dc60ec8fa8"
+        },
+        "evidence_independence_status_by_claim": {},
+        "introduced_summary_items": [],
+        "issue_codes": [],
+        "may_not_use_for": [
+          "claim_authority",
+          "evidence_authority",
+          "policy_recommendation",
+          "publication_authority",
+          "scorecard_authority",
+          "closeout_authority"
+        ],
+        "orchestration_choice_contexts": [
+          {
+            "candidate_universe": [
+              "evidence-selection:repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+              "evidence-selection:layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+              "evidence-selection:repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json",
+              "evidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:evidence-selection",
+            "choice_kind": "evidence-selection",
+            "governance_burden_after": [],
+            "governance_burden_before": [],
+            "rejected": [
+              "evidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "selected": [
+              "evidence-selection:repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+              "evidence-selection:layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+              "evidence-selection:repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+            ],
+            "source_refs": [
+              "layer3-g6://search-ledger/req-layer3-g6-readiness",
+              "layer3-g6://orchestration-choice-audit/req-layer3-g6-readiness",
+              "layer3-g6://summary-source/req-layer3-g6-readiness"
+            ]
+          },
+          {
+            "candidate_universe": [
+              "tool-choice:layer3_g6_build_g5_bundle",
+              "tool-choice:unbounded_web_search"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:tool-choice",
+            "choice_kind": "tool-choice",
+            "governance_burden_after": [],
+            "governance_burden_before": [],
+            "rejected": [
+              "tool-choice:unbounded_web_search"
+            ],
+            "selected": [
+              "tool-choice:layer3_g6_build_g5_bundle"
+            ],
+            "source_refs": [
+              "layer3-g6://search-ledger/req-layer3-g6-readiness",
+              "layer3-g6://orchestration-choice-audit/req-layer3-g6-readiness",
+              "layer3-g6://summary-source/req-layer3-g6-readiness"
+            ]
+          },
+          {
+            "candidate_universe": [
+              "framing:frame_as_g5_route_not_policy_recommendation",
+              "framing:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:framing",
+            "choice_kind": "framing",
+            "governance_burden_after": [
+              "burden:blocked_by_current_g5_unchanged_blocker",
+              "burden:owner-review"
+            ],
+            "governance_burden_before": [
+              "burden:blocked_by_current_g5_unchanged_blocker",
+              "burden:owner-review"
+            ],
+            "rejected": [
+              "framing:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "selected": [
+              "framing:frame_as_g5_route_not_policy_recommendation"
+            ],
+            "source_refs": [
+              "layer3-g6://search-ledger/req-layer3-g6-readiness",
+              "layer3-g6://orchestration-choice-audit/req-layer3-g6-readiness",
+              "layer3-g6://summary-source/req-layer3-g6-readiness"
+            ]
+          },
+          {
+            "candidate_universe": [
+              "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority",
+              "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:counterevidence-selection",
+            "choice_kind": "counterevidence-selection",
+            "governance_burden_after": [],
+            "governance_burden_before": [],
+            "rejected": [
+              "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+            ],
+            "selected": [
+              "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+            ],
+            "source_refs": [
+              "layer3-g6://search-ledger/req-layer3-g6-readiness",
+              "layer3-g6://orchestration-choice-audit/req-layer3-g6-readiness",
+              "layer3-g6://summary-source/req-layer3-g6-readiness"
+            ]
+          },
+          {
+            "candidate_universe": [
+              "claim:outcome@sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+              "claim:procedure-boundary@sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+              "claim:g5-conversion-outcome@sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9",
+              "limitation:candidate-only@sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+              "limitation:engineering-readiness@sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+              "limitation:grounded-value-closure@sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778",
+              "denied-use:production_authority@sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+              "denied-use:rollout_authority@sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+              "denied-use:publication_authority@sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+              "denied-use:approval_authority@sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+              "denied-use:scorecard_authority@sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+              "denied-use:closeout_authority@sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+              "denied-use:runtime_closeout_authority@sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+              "denied-use:public_recommendation@sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+              "denied-use:policy_recommendation@sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+              "denied-use:legal_advice@sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+              "denied-use:claim_authority@sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+              "denied-use:obligation_authority@sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+              "denied-use:causal_effect_authority@sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+              "denied-use:proof_authority@sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+              "denied-use:legal_authority@sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+              "denied-use:g5_conversion_authority_without_g5@sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+              "denied-use:g7_region_widening@sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+              "denied-use:recommendation_authority@sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8",
+              "counterevidence:1@sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+              "counterevidence:2@sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765"
+            ],
+            "choice_id": "layer3-g6:req-layer3-g6-readiness:compression",
+            "choice_kind": "compression",
+            "governance_burden_after": [
+              "burden:blocked_by_current_g5_unchanged_blocker",
+              "burden:owner-review"
+            ],
+            "governance_burden_before": [
+              "burden:blocked_by_current_g5_unchanged_blocker",
+              "burden:owner-review"
+            ],
+            "rejected": [],
+            "selected": [
+              "claim:outcome@sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+              "claim:procedure-boundary@sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+              "claim:g5-conversion-outcome@sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9",
+              "limitation:candidate-only@sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+              "limitation:engineering-readiness@sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+              "limitation:grounded-value-closure@sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778",
+              "denied-use:production_authority@sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+              "denied-use:rollout_authority@sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+              "denied-use:publication_authority@sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+              "denied-use:approval_authority@sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+              "denied-use:scorecard_authority@sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+              "denied-use:closeout_authority@sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+              "denied-use:runtime_closeout_authority@sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+              "denied-use:public_recommendation@sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+              "denied-use:policy_recommendation@sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+              "denied-use:legal_advice@sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+              "denied-use:claim_authority@sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+              "denied-use:obligation_authority@sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+              "denied-use:causal_effect_authority@sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+              "denied-use:proof_authority@sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+              "denied-use:legal_authority@sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+              "denied-use:g5_conversion_authority_without_g5@sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+              "denied-use:g7_region_widening@sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+              "denied-use:recommendation_authority@sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8",
+              "counterevidence:1@sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+              "counterevidence:2@sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765"
+            ],
+            "source_refs": [
+              "layer3-g6://search-ledger/req-layer3-g6-readiness",
+              "layer3-g6://orchestration-choice-audit/req-layer3-g6-readiness",
+              "layer3-g6://summary-source/req-layer3-g6-readiness"
+            ]
+          }
+        ],
+        "receipt_id": "layer3-g6://compression-loss-receipt/req-layer3-g6-readiness",
+        "retained_claims": [
+          "claim:outcome@sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+          "claim:procedure-boundary@sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+          "claim:g5-conversion-outcome@sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9"
+        ],
+        "retained_counterevidence": [
+          "counterevidence:1@sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+          "counterevidence:2@sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765"
+        ],
+        "retained_denied_uses": [
+          "denied-use:production_authority@sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+          "denied-use:rollout_authority@sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+          "denied-use:publication_authority@sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+          "denied-use:approval_authority@sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+          "denied-use:scorecard_authority@sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+          "denied-use:closeout_authority@sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+          "denied-use:runtime_closeout_authority@sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+          "denied-use:public_recommendation@sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+          "denied-use:policy_recommendation@sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+          "denied-use:legal_advice@sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+          "denied-use:claim_authority@sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+          "denied-use:obligation_authority@sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+          "denied-use:causal_effect_authority@sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+          "denied-use:proof_authority@sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+          "denied-use:legal_authority@sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+          "denied-use:g5_conversion_authority_without_g5@sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+          "denied-use:g7_region_widening@sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+          "denied-use:recommendation_authority@sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8"
+        ],
+        "retained_limitations": [
+          "limitation:candidate-only@sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+          "limitation:engineering-readiness@sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+          "limitation:grounded-value-closure@sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778"
+        ],
+        "schema_version": "policyos.runtime.compression_loss_receipt.v1",
+        "source_fingerprint": "sha256:e1cd234ca1411b1ba9043425eb1d29b1d7f8759ced2ca815c90304dc60ec8fa8",
+        "source_material": {
+          "claims": [
+            {
+              "basis_refs": [],
+              "claim_kind": "negative_terminal",
+              "content": "g5_unchanged_blocker",
+              "evidence_independence_ref": null,
+              "item_fingerprint": "sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+              "item_id": "claim:outcome",
+              "presentation_scope": "bounded",
+              "source_refs": [
+                "layer3-g6://result-or-abstention/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "basis_refs": [],
+              "claim_kind": "procedural_binding",
+              "content": "G6 output remains a projection-only routing result.",
+              "evidence_independence_ref": null,
+              "item_fingerprint": "sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+              "item_id": "claim:procedure-boundary",
+              "presentation_scope": "bounded",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "basis_refs": [],
+              "claim_kind": "substantive",
+              "content": "unchanged_blocker",
+              "evidence_independence_ref": null,
+              "item_fingerprint": "sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9",
+              "item_id": "claim:g5-conversion-outcome",
+              "presentation_scope": "bounded",
+              "source_refs": [
+                "layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+                "repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+              ]
+            }
+          ],
+          "counterevidence": [
+            {
+              "content": "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer",
+              "item_fingerprint": "sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+              "item_id": "counterevidence:1",
+              "source_refs": [
+                "candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+              ]
+            },
+            {
+              "content": "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority",
+              "item_fingerprint": "sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765",
+              "item_id": "counterevidence:2",
+              "source_refs": [
+                "candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+              ]
+            }
+          ],
+          "denied_uses": [
+            {
+              "content": "production_authority",
+              "item_fingerprint": "sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+              "item_id": "denied-use:production_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "rollout_authority",
+              "item_fingerprint": "sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+              "item_id": "denied-use:rollout_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "publication_authority",
+              "item_fingerprint": "sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+              "item_id": "denied-use:publication_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "approval_authority",
+              "item_fingerprint": "sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+              "item_id": "denied-use:approval_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "scorecard_authority",
+              "item_fingerprint": "sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+              "item_id": "denied-use:scorecard_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "closeout_authority",
+              "item_fingerprint": "sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+              "item_id": "denied-use:closeout_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "runtime_closeout_authority",
+              "item_fingerprint": "sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+              "item_id": "denied-use:runtime_closeout_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "public_recommendation",
+              "item_fingerprint": "sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+              "item_id": "denied-use:public_recommendation",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "policy_recommendation",
+              "item_fingerprint": "sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+              "item_id": "denied-use:policy_recommendation",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "legal_advice",
+              "item_fingerprint": "sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+              "item_id": "denied-use:legal_advice",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "claim_authority",
+              "item_fingerprint": "sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+              "item_id": "denied-use:claim_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "obligation_authority",
+              "item_fingerprint": "sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+              "item_id": "denied-use:obligation_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "causal_effect_authority",
+              "item_fingerprint": "sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+              "item_id": "denied-use:causal_effect_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "proof_authority",
+              "item_fingerprint": "sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+              "item_id": "denied-use:proof_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "legal_authority",
+              "item_fingerprint": "sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+              "item_id": "denied-use:legal_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "g5_conversion_authority_without_g5",
+              "item_fingerprint": "sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+              "item_id": "denied-use:g5_conversion_authority_without_g5",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "g7_region_widening",
+              "item_fingerprint": "sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+              "item_id": "denied-use:g7_region_widening",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "recommendation_authority",
+              "item_fingerprint": "sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8",
+              "item_id": "denied-use:recommendation_authority",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            }
+          ],
+          "framing_refs": [
+            "frame_as_g5_route_not_policy_recommendation"
+          ],
+          "governance_burden_refs": [
+            "burden:blocked_by_current_g5_unchanged_blocker",
+            "burden:owner-review"
+          ],
+          "limitations": [
+            {
+              "content": "Model and tool outputs remain candidate-only until grounded by G5.",
+              "item_fingerprint": "sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+              "item_id": "limitation:candidate-only",
+              "source_refs": [
+                "layer3-g6-grammar-candidate:req-layer3-g6-readiness:675b29bdbedad5c4"
+              ]
+            },
+            {
+              "content": "engineering_readiness=pass",
+              "item_fingerprint": "sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+              "item_id": "limitation:engineering-readiness",
+              "source_refs": [
+                "layer3-g6://agent-run-record/req-layer3-g6-readiness"
+              ]
+            },
+            {
+              "content": "grounded_value_closure=blocked_by_current_g5_unchanged_blocker",
+              "item_fingerprint": "sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778",
+              "item_id": "limitation:grounded-value-closure",
+              "source_refs": [
+                "layer3-g6://result-or-abstention/req-layer3-g6-readiness"
+              ]
+            }
+          ],
+          "material_fingerprint": "sha256:e1cd234ca1411b1ba9043425eb1d29b1d7f8759ced2ca815c90304dc60ec8fa8"
+        },
+        "source_ref": "layer3-g6://summary-source/req-layer3-g6-readiness",
+        "status": "pass",
+        "summary_reconstruction": "exact",
+        "summary_ref": "layer3-g6://public-summary/req-layer3-g6-readiness",
+        "terminal_result": null
+      }
+    ],
     "findings": [],
-    "generated_at": "2026-06-16T13:50:02.911647Z",
+    "generated_at": "2026-08-19T19:50:59.368406Z",
     "job_id": "layer3-g6-job:req-layer3-g6-readiness",
     "model_variant_id": "layer3-g6-bounded-agent-candidate",
+    "orchestration_authority_deltas": [
+      {
+        "authoritative_for": [],
+        "authority_effect": "narrows candidate evidence without creating claim authority",
+        "candidate_universe": [
+          "evidence-selection:repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+          "evidence-selection:layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+          "evidence-selection:repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json",
+          "evidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+        ],
+        "choice_id": "layer3-g6:req-layer3-g6-readiness:evidence-selection",
+        "choice_kind": "evidence-selection",
+        "decision_context_fingerprint": "sha256:c0177320a4a88060f20629262169bf10564ac380ab6ff4f2ca649de24b8acad2",
+        "decision_policy_owner": "team-runtime-quality",
+        "decision_policy_ref": "policyos://orchestration-choice-policy/evidence-selection/v1",
+        "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:evidence-selection",
+        "governance_burden_after": [],
+        "governance_burden_before": [],
+        "governance_burden_change_allowed": false,
+        "owner_policy_fingerprint": "sha256:63a27df302d3788220d8ae440d25e3334a316d3a72d4881df0fe8284ff69dc36",
+        "predicate_provenance": "recomputed",
+        "rejected": [
+          "evidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+        ],
+        "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+        "selected": [
+          "evidence-selection:repo://architecture/policy_design_case/layer3_g5_readiness_manifest.json",
+          "evidence-selection:layer3-g5-conversion-record:ua-msme-affordable-loans-2022:unchanged-blocker",
+          "evidence-selection:repo://architecture/policy_design_case/layer3_g5_w12d_consumer_gate.json"
+        ]
+      },
+      {
+        "authoritative_for": [],
+        "authority_effect": "narrows callable tools without creating execution authority",
+        "candidate_universe": [
+          "tool-choice:layer3_g6_build_g5_bundle",
+          "tool-choice:unbounded_web_search"
+        ],
+        "choice_id": "layer3-g6:req-layer3-g6-readiness:tool-choice",
+        "choice_kind": "tool-choice",
+        "decision_context_fingerprint": "sha256:b307bd9678bb8d2ce2e2fa984f1427f907153ce4f08ca953395af55d524cf9b8",
+        "decision_policy_owner": "team-runtime-quality",
+        "decision_policy_ref": "policyos://orchestration-choice-policy/tool-choice/v1",
+        "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:tool-choice",
+        "governance_burden_after": [],
+        "governance_burden_before": [],
+        "governance_burden_change_allowed": false,
+        "owner_policy_fingerprint": "sha256:ae351052a9117a0f105541bd18edb5bc7252b2df2b39e43eb3e84742d6806419",
+        "predicate_provenance": "recomputed",
+        "rejected": [
+          "tool-choice:unbounded_web_search"
+        ],
+        "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+        "selected": [
+          "tool-choice:layer3_g6_build_g5_bundle"
+        ]
+      },
+      {
+        "authoritative_for": [],
+        "authority_effect": "records framing effects on governance burden without granting authority",
+        "candidate_universe": [
+          "framing:frame_as_g5_route_not_policy_recommendation",
+          "framing:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+        ],
+        "choice_id": "layer3-g6:req-layer3-g6-readiness:framing",
+        "choice_kind": "framing",
+        "decision_context_fingerprint": "sha256:1c7af25ee9ef75079663ad9955a8716f92a141f7713741ee0078a2e132d61aec",
+        "decision_policy_owner": "team-runtime-quality",
+        "decision_policy_ref": "policyos://orchestration-choice-policy/framing/v1",
+        "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:framing",
+        "governance_burden_after": [
+          "burden:blocked_by_current_g5_unchanged_blocker",
+          "burden:owner-review"
+        ],
+        "governance_burden_before": [
+          "burden:blocked_by_current_g5_unchanged_blocker",
+          "burden:owner-review"
+        ],
+        "governance_burden_change_allowed": true,
+        "owner_policy_fingerprint": "sha256:2c1dc9fded6693148f75b6d1f3605484986208fd84956fa4725014fdf26cf985",
+        "predicate_provenance": "recomputed",
+        "rejected": [
+          "framing:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+        ],
+        "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+        "selected": [
+          "framing:frame_as_g5_route_not_policy_recommendation"
+        ]
+      },
+      {
+        "authoritative_for": [],
+        "authority_effect": "preserves selected and rejected counterevidence branches as audit only",
+        "candidate_universe": [
+          "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority",
+          "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+        ],
+        "choice_id": "layer3-g6:req-layer3-g6-readiness:counterevidence-selection",
+        "choice_kind": "counterevidence-selection",
+        "decision_context_fingerprint": "sha256:bd86d3d6347e15dac2bde9a04776042e0458243583d85af5832f429e58304255",
+        "decision_policy_owner": "team-runtime-quality",
+        "decision_policy_ref": "policyos://orchestration-choice-policy/counterevidence-selection/v1",
+        "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:counterevidence-selection",
+        "governance_burden_after": [],
+        "governance_burden_before": [],
+        "governance_burden_change_allowed": false,
+        "owner_policy_fingerprint": "sha256:1180e806a7567c6cfdee55fafbaf741e92e37045c969ef159170c885e1b58316",
+        "predicate_provenance": "recomputed",
+        "rejected": [
+          "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/rejected/legal-advice-answer"
+        ],
+        "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+        "selected": [
+          "counterevidence-selection:candidate://g6/req-layer3-g6-readiness/counterexample/legal-authority"
+        ]
+      },
+      {
+        "authoritative_for": [],
+        "authority_effect": "reduces presentation material while preserving or narrowing authority",
+        "candidate_universe": [
+          "claim:outcome@sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+          "claim:procedure-boundary@sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+          "claim:g5-conversion-outcome@sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9",
+          "limitation:candidate-only@sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+          "limitation:engineering-readiness@sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+          "limitation:grounded-value-closure@sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778",
+          "denied-use:production_authority@sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+          "denied-use:rollout_authority@sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+          "denied-use:publication_authority@sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+          "denied-use:approval_authority@sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+          "denied-use:scorecard_authority@sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+          "denied-use:closeout_authority@sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+          "denied-use:runtime_closeout_authority@sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+          "denied-use:public_recommendation@sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+          "denied-use:policy_recommendation@sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+          "denied-use:legal_advice@sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+          "denied-use:claim_authority@sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+          "denied-use:obligation_authority@sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+          "denied-use:causal_effect_authority@sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+          "denied-use:proof_authority@sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+          "denied-use:legal_authority@sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+          "denied-use:g5_conversion_authority_without_g5@sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+          "denied-use:g7_region_widening@sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+          "denied-use:recommendation_authority@sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8",
+          "counterevidence:1@sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+          "counterevidence:2@sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765"
+        ],
+        "choice_id": "layer3-g6:req-layer3-g6-readiness:compression",
+        "choice_kind": "compression",
+        "decision_context_fingerprint": "sha256:ad0734595f303028fca72bb3efdd362adbc15f73c60b4445754d16f71a078a54",
+        "decision_policy_owner": "team-runtime-quality",
+        "decision_policy_ref": "policyos://orchestration-choice-policy/compression/v1",
+        "delta_id": "orchestration-authority-delta:layer3-g6:req-layer3-g6-readiness:compression",
+        "governance_burden_after": [
+          "burden:blocked_by_current_g5_unchanged_blocker",
+          "burden:owner-review"
+        ],
+        "governance_burden_before": [
+          "burden:blocked_by_current_g5_unchanged_blocker",
+          "burden:owner-review"
+        ],
+        "governance_burden_change_allowed": false,
+        "owner_policy_fingerprint": "sha256:4ed880839ff3f1ab1514f7e5ec8b84692e91a5671daf851aa9f687092927c384",
+        "predicate_provenance": "recomputed",
+        "rejected": [],
+        "schema_version": "policyos.runtime.orchestration_authority_delta.v1",
+        "selected": [
+          "claim:outcome@sha256:b3ce5a3f3a7829f66a702c16b8502fd5c04b5c862d0d76ac7fe9c1c326c66f07",
+          "claim:procedure-boundary@sha256:d261e8c47378c3e959c941911f2da9d4c283ae4673f7137491f0c22e6a2e4d61",
+          "claim:g5-conversion-outcome@sha256:8565fa2daa621c269ab1f30a32911730666ece9bad745683e4262d07204fecf9",
+          "limitation:candidate-only@sha256:36dc1554c6ba6b6da575e4b65e73bd945d914afe05b731f4ef73101170dfaada",
+          "limitation:engineering-readiness@sha256:cd155f6e2cf5ed80ce37f6923b14ad75e03c59df6dc8a5f5a91b492de7fccaaf",
+          "limitation:grounded-value-closure@sha256:05623df01c659a328cc611c98d77dcc455b7f85f1624317f9abe2c1b64971778",
+          "denied-use:production_authority@sha256:2d572311285436a565655deaabd95c531d04e767e96f8031cf14334fe35afbbd",
+          "denied-use:rollout_authority@sha256:fde5362646521497dfa67ca3f9af0e8c237916e798f0f8be0c3dd0921c748dd1",
+          "denied-use:publication_authority@sha256:b020cc1141dc32f2cc14992b845e5f4d0537120a878d46029972bf38fcc0a09b",
+          "denied-use:approval_authority@sha256:a58f0ec8edeb0e2dfddcb8c9b655cecc572bfc56d024cb933f3816f3e3198a1d",
+          "denied-use:scorecard_authority@sha256:0bc631e7b6624a0cbf18f42a201a2ff33ceafbab802a88ec4c83c27413247ee3",
+          "denied-use:closeout_authority@sha256:1c51195281055471a5f8c97aed7e0178a68c8de2133d293d534ce3eae5ed6a3b",
+          "denied-use:runtime_closeout_authority@sha256:9b22477d0591cd321852526c9a8a7af9ae2fcf1326fc74b7760d8fe363e1cdb7",
+          "denied-use:public_recommendation@sha256:555d15111acdb3d331159f0110b0afcaa36e353f7c32492b77bae2257d557e63",
+          "denied-use:policy_recommendation@sha256:2dad2256ae1d509140e870d802d4e50d426f22d9064d2861c726755499913714",
+          "denied-use:legal_advice@sha256:ee307033865f9d875ad857bd2e3d00ba6394012251c03559b4c0d14b9cc8ecea",
+          "denied-use:claim_authority@sha256:8f69ee04edeca3b7b8f8d783c9591479591fb700c08e9f2fcfa23d00c22fcac2",
+          "denied-use:obligation_authority@sha256:6ef15d74cbc788d91afb959d4ebf79eaeb6914edc98b08a6f57e4aca86798c13",
+          "denied-use:causal_effect_authority@sha256:c12d5ee6b979041d96e5642406608510015114b50b49e5514b6e872f822e1157",
+          "denied-use:proof_authority@sha256:f16d4aa53eb9795a45c31bbf0c4280c6c55fb83585100fc2ad9570331e51a045",
+          "denied-use:legal_authority@sha256:c1db16097f65a2f387cb67403cf6f4b49de02ec4904af921e8408c9d964eab51",
+          "denied-use:g5_conversion_authority_without_g5@sha256:58a32524bc4bd907db170e43753c1fa000db09f61c955f3358981766048ab77e",
+          "denied-use:g7_region_widening@sha256:1a1f23f5aae78dcdf046b4d07fe43833752525f3b3ecd54f3f0b5c84695e3e75",
+          "denied-use:recommendation_authority@sha256:0761dbed1869d992366409905c56b31fa7d50214f25e45860435b3a1a24a7cc8",
+          "counterevidence:1@sha256:c88b17be487276c43a443bb268ce34863a8051f8e425540651b4e928a283c848",
+          "counterevidence:2@sha256:71e7b2881ccea54038087e5c0c8bae7ab627643d74cf4a8ed39d5f7a82e70765"
+        ]
+      }
+    ],
     "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
     "run_id": "layer3-g6-run:req-layer3-g6-readiness",
     "schema_version": "policyos.prompt_tool_parser_authority_ledger.v1",
@@ -69,7 +1485,7 @@
           "parser_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1"
         },
         "prompt": {
-          "prompt_fingerprint": "sha256:6a125f5184963fab0aea620abdde2bcf906aeb3fd1048643fadb7f175cd9ce75",
+          "prompt_fingerprint": "sha256:a08b4f67448a86f823146329c425dd79ac7c0e3866d7929edbdd8ea6ecb9076f",
           "rendered_input_refs": [
             "layer3-g6://request/req-layer3-g6-readiness/raw",
             "layer3-g6-policy-grammar:req-layer3-g6-readiness"
@@ -122,7 +1538,7 @@
               ],
               "type": "object"
             },
-            "schema_fingerprint": "sha256:b71072e8e7629e7f8dff6db7d31986c989e0860b300b14854c0e719b1659830a",
+            "schema_fingerprint": "sha256:b2220b7958964be593593c57b9589d7f44a1e0cc45054fd55510a36a151214d6",
             "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_classify_request",
             "tool_name": "layer3_g6_classify_request"
           },
@@ -139,7 +1555,7 @@
               ],
               "type": "object"
             },
-            "schema_fingerprint": "sha256:778e9d10e3a520aa7d02a116b9d0ad60e8ee6743e039e062d2b56fd96d3fcff1",
+            "schema_fingerprint": "sha256:0623f31f3aa013f2942732f500450dbd1b26b620f7cf568a09299456885b9e97",
             "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_build_g5_bundle",
             "tool_name": "layer3_g6_build_g5_bundle"
           },
@@ -156,7 +1572,7 @@
               ],
               "type": "object"
             },
-            "schema_fingerprint": "sha256:e4954e2e5405e403aa78d4a60939c0cfd1f0e03dedf45e6e8b2ff86f52434f1a",
+            "schema_fingerprint": "sha256:2d46c56f29d920564fe0d4327adaaed9af368a5484424fd8b5077c4e8a40854c",
             "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_read_g5_conversion",
             "tool_name": "layer3_g6_read_g5_conversion"
           },
@@ -173,7 +1589,7 @@
               ],
               "type": "object"
             },
-            "schema_fingerprint": "sha256:a7084113ee5e736b78dffca168640d9a8bba9e592e7c52510589a3c0fa1cd508",
+            "schema_fingerprint": "sha256:3c5420833909db12c5837bd7b71590687779f1ad1877d16211be817545d67c3c",
             "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_probe_counterexample",
             "tool_name": "layer3_g6_probe_counterexample"
           },
@@ -190,7 +1606,7 @@
               ],
               "type": "object"
             },
-            "schema_fingerprint": "sha256:f26eadec02ab5e91601ed5bc5930aebdb03a371ea2812520f3b69ce170bc6346",
+            "schema_fingerprint": "sha256:be7bc572f4bb1b4f9e3a32658f2ba438cf15cfe99d3bd0632a9c769a6dae0c78",
             "schema_ref": "repo://src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py#tool/layer3_g6_probe_envelope_match",
             "tool_name": "layer3_g6_probe_envelope_match"
           }
@@ -205,10 +1621,14 @@
       }
     ],
     "summary": {
+      "authority_delta_completeness_receipt_count": 1,
       "authority_scopes": [
         "claims"
       ],
+      "blocked_compression_loss_receipt_count": 0,
+      "compression_loss_receipt_count": 1,
       "finding_count": 0,
+      "orchestration_authority_delta_count": 5,
       "repair_decision_count": 1,
       "repair_fmea_annotation_count": 0,
       "repair_fmea_machinery_failure_count": 0,

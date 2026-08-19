@@ -748,7 +748,7 @@ hardening does not consume the product-mechanism round budget. `[P37: institutio
 
 The widened launcher accepts zero arguments. Before importing ignored child code it reads the
 authorization from committed `HEAD`, proves a clean attached branch and the single journal-only
-transition from `cb868c90123d64d536e5ecb772bc773c346ea6f4`, and content-binds both ignored scripts.
+transition from its declared direct parent, and content-binds both ignored scripts.
 The one block owns the isolated worktree interpreter, source/dependency roots, canonical catalog and
 L5 paths, complete `11/11` pin map, exact N8/N10a/internal-confidence checks, exact child command and
 environment (including all 19 owner controls), symlink-safe exclusive output paths, dedicated-
@@ -759,8 +759,8 @@ The required conflicting-parameter falsifier supplied outer ceiling `999999` and
 command. The wrapper returned `64` before `Popen`; the unauthorized marker was absent. Two additional
 behavioral probes prove that an arbitrary command with the dedicated worktree as cwd is detected
 without an issue-code/process-name allowlist and that TERM followed by KILL removes a surviving
-descendant after its leader exits. All three tests passed in `0.529` s; the retained falsifier receipt
-hashes to `de4eade63a0d7047c5b28e8724605cf14554c4685c6d19ffb0ea84595b6aaea8`.
+descendant after its leader exits. All three tests passed in `0.515` s; the retained falsifier receipt
+hashes to `68ff86a2d9270406487861a2496738de265a8bd7ca0ef0cbd1811c804edf87c9`.
 Ruff and bytecode compilation pass for all three ignored files. `[P37: recomputed]`
 
 Independent terra/luna review closed the ordinary same-user workflow boundary. A hostile same-user
@@ -775,8 +775,12 @@ capability absence; not_established for hostile-same-user provenance; institutio
 the cooperative execution boundary and continue ruling]`
 
 The ignored wrapper and child hash to
-`1b14e7024ec78f6c514f2a4cea73ae821e191d5897bd571e9c4a06f1fca46ff2` and
-`f1cf208a96e08394b445ef248c52fe3d61d99911cec7e7ce42037f9a012eb19e`.
+`cb55d0b64acfe449260c6196daad552954d21aca73621ff65542ae07721b49af` and
+`a81589d28694feda98e7690aa6d14e2580b89b41c07cacf10222b4631599aee4`.
+The first committed v2 admission failed closed before preflight because its product-relative journal
+path did not equal Git's worktree-root-relative diff path. This same-class coordinate example consumed
+no round and no allowance. The corrected block names the full Git path and declares the first v2
+admission commit as its direct parent, preserving append-only history. `[P37: recomputed]`
 The block below authorizes exactly one launch only when committed as this journal's sole direct child
 of the named basis. Before that commit, the cold result remains `not_established` and no allowance is
 spent. `[P37: recomputed]`
@@ -786,10 +790,10 @@ spent. `[P37: recomputed]`
 {
   "authorization_basis": {
     "delta_paths": [
-      "docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md"
+      "policy-engine/docs/superpowers/journals/2026-08-18-gy-defc-9-n11-suffix.md"
     ],
     "direct_parent": true,
-    "head": "cb868c90123d64d536e5ecb772bc773c346ea6f4"
+    "head": "4c1079373b28bf6b69ca21610f21f933f8f7a8e2"
   },
   "branch": "codex/gy-defc-9-n11-suffix",
   "checks": [
@@ -852,7 +856,7 @@ spent. `[P37: recomputed]`
     "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
     "interpreter": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
     "path": ".tmp/gy-defc-9/single_cold_n11.py",
-    "sha256": "f1cf208a96e08394b445ef248c52fe3d61d99911cec7e7ce42037f9a012eb19e"
+    "sha256": "a81589d28694feda98e7690aa6d14e2580b89b41c07cacf10222b4631599aee4"
   },
   "environment": {
     "mode": "exact",
@@ -916,7 +920,7 @@ spent. `[P37: recomputed]`
     "cwd": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine",
     "interpreter": "/Users/deniskopylov/polisyos/.worktrees/gy-defc-9/policy-engine/.venv/bin/python",
     "path": ".tmp/gy-defc-9/run_with_ceiling.py",
-    "sha256": "1b14e7024ec78f6c514f2a4cea73ae821e191d5897bd571e9c4a06f1fca46ff2"
+    "sha256": "cb55d0b64acfe449260c6196daad552954d21aca73621ff65542ae07721b49af"
   },
   "milestones": [
     "confidence_registry_loaded",

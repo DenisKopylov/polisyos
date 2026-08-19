@@ -38,6 +38,7 @@ __all__ = [
     "CheckpointMetadata",
     "CheckpointNotFoundError",
     "CheckpointPolicy",
+    "CheckpointScopeMismatchError",
     "CheckpointSnapshotMode",
     "CheckpointWriteResult",
     "CircuitBreaker",
@@ -141,6 +142,10 @@ _EXPORTS = {
     "CheckpointCorruptedError": (
         "polisyos.scientist.orchestration.engine.checkpoint",
         "CheckpointCorruptedError",
+    ),
+    "CheckpointScopeMismatchError": (
+        "polisyos.scientist.orchestration.engine.checkpoint",
+        "CheckpointScopeMismatchError",
     ),
     "WorkflowMismatchError": ("polisyos.scientist.orchestration.engine.checkpoint", "WorkflowMismatchError"),
     "RunLockError": ("polisyos.scientist.orchestration.engine.checkpoint", "RunLockError"),

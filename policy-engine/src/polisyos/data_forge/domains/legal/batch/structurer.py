@@ -11,6 +11,7 @@ import re
 from dataclasses import dataclass, replace
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.legal.batch.jurisdictions import normalize_jurisdiction_code
 from polisyos.data_forge.domains.legal.corpus.structure import (
     _POINT_RE_LIST,
     _SUBPOINT_RE,
@@ -1371,7 +1372,7 @@ def _apply_legal_unit_signals(
 def extract_provisions(
     text: str,
     *,
-    jurisdiction: str = "UA",
+    jurisdiction: str | None = "UA",
     doc_type: str | None = None,
     doc_name: str | None = None,
     publisher: str | None = None,
@@ -1386,6 +1387,7 @@ def extract_provisions(
     If no articles are detected, returns the whole text as a single
     ``full_text`` provision (so that every document yields at least one span).
     """
+    jurisdiction = normalize_jurisdiction_code(jurisdiction)
     if not text or not text.strip():
         return []
 

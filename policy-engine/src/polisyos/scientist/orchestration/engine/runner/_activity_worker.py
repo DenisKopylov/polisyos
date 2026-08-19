@@ -141,11 +141,13 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
     )
 
     try:
-        ctx = _build_worker_context(context_meta)
-
         from polisyos.scientist.orchestration.engine.checkpoint import (
             restore_checkpoint_hook_from_runtime_metadata,
         )
+        checkpoint_meta = payload.get("checkpoint_hook_meta")
+        checkpoint_hook = restore_checkpoint_hook_from_runtime_metadata(checkpoint_meta)
+        ctx = _build_worker_context(context_meta)
+
         from polisyos.scientist.orchestration.engine.registry import NodeRegistry, discover_nodes
         from polisyos.scientist.orchestration.engine.runner.distributed_tier import (
             merge_and_checkpoint_tier,
@@ -160,8 +162,6 @@ async def run_merge_checkpoint_tier_in_worker(payload: dict[str, Any]) -> dict[s
         registry = NodeRegistry()
         discover_nodes(registry)
 
-        checkpoint_meta = payload.get("checkpoint_hook_meta")
-        checkpoint_hook = restore_checkpoint_hook_from_runtime_metadata(checkpoint_meta)
         seed_refs = []
         if isinstance(checkpoint_meta, dict):
             from polisyos.core.artifacts.manifest import ArtifactRef
@@ -233,6 +233,17 @@ def _build_worker_context(meta: dict[str, Any]) -> Any:
     The worker creates its own artifact store, logger, and run context
     from the metadata shipped in the payload.
     """
+    from polisyos.scientist.orchestration.engine.checkpoint import (
+        _reconcile_checkpoint_scope,
+    )
+
+    _reconcile_checkpoint_scope(
+        meta.get("tenant_id"),
+        meta.get("cell_id"),
+        capture_active_when_unset=False,
+        operation="distributed worker",
+    )
+
     import logging as _logging
     from pathlib import Path
 

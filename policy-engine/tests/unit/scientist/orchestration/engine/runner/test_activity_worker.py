@@ -7,19 +7,31 @@ import hashlib
 from typing import TYPE_CHECKING
 
 import pytest
+
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
-from polisyos.scientist.orchestration.engine.checkpoint import CASCheckpointHook, resolve_latest_checkpoint
+from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.scientist.orchestration.engine.checkpoint import (
+    CASCheckpointHook,
+    CheckpointScopeMismatchError,
+    resolve_latest_checkpoint,
+)
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.runner import _activity_worker as activity_worker_module
+from polisyos.scientist.orchestration.engine.runner import (
+    _activity_worker as activity_worker_module,
+)
 from polisyos.scientist.orchestration.engine.runner._activity_worker import (
     _build_worker_context,
     _restore_parent_trace_context,
     run_merge_checkpoint_tier_in_worker,
+    run_node_in_worker,
 )
-from polisyos.scientist.orchestration.engine.runner.serialization import deserialize_state, serialize_state
+from polisyos.scientist.orchestration.engine.runner.serialization import (
+    deserialize_state,
+    serialize_state,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.engine.workflow_spec import NodeInvocation, WorkflowSpec
 
@@ -28,23 +40,24 @@ if TYPE_CHECKING:
 
 
 def test_build_worker_context_reconstructs_run_and_registry_bundle() -> None:
-    ctx = _build_worker_context(
-        {
-            "run_id": "worker-run-1",
-            "tenant_id": "tenant-1",
-            "cell_id": "cell-1",
-            "depth": 3,
-            "workflow_id": "scientist_default",
-            "runner_backend": "ray",
-            "trace_id": "0" * 32,
-            "span_id": "1" * 16,
-            "registry_bundle_ref": {
-                "artifact_id": "sha256:" + "c" * 64,
-                "kind": "core.registry_bundle",
-                "media_type": "application/json",
-            },
-        }
-    )
+    with tenant_scope(None, tenant_id="tenant-1", cell_id="cell-1"):
+        ctx = _build_worker_context(
+            {
+                "run_id": "worker-run-1",
+                "tenant_id": "tenant-1",
+                "cell_id": "cell-1",
+                "depth": 3,
+                "workflow_id": "scientist_default",
+                "runner_backend": "ray",
+                "trace_id": "0" * 32,
+                "span_id": "1" * 16,
+                "registry_bundle_ref": {
+                    "artifact_id": "sha256:" + "c" * 64,
+                    "kind": "core.registry_bundle",
+                    "media_type": "application/json",
+                },
+            }
+        )
 
     assert ctx.depth == 3
     assert ctx.run.run_manifest.run_id == "worker-run-1"
@@ -59,6 +72,63 @@ def test_build_worker_context_bootstraps_registry_bundle_when_missing() -> None:
     assert ctx.run.run_manifest.run_id == "worker-run-2"
     assert ctx.run.run_manifest.registry_bundle.kind == "core.registry_bundle"
     assert ctx.metrics is None or len(ctx.metrics.recent_trace_correlations()) == 1
+
+
+def test_node_worker_rejects_transported_scope_before_context_or_execution(
+    tmp_path: Path,
+    monkeypatch,
+) -> None:
+    store_build_calls = 0
+    node_discovery_calls = 0
+
+    def _protected_store_build(config):
+        del config
+        nonlocal store_build_calls
+        store_build_calls += 1
+        raise AssertionError("worker store construction reached")
+
+    def _protected_discovery(registry):
+        del registry
+        nonlocal node_discovery_calls
+        node_discovery_calls += 1
+        raise AssertionError("node discovery reached")
+
+    monkeypatch.setattr(
+        "polisyos.core.artifacts.backends.config.build_artifact_store",
+        _protected_store_build,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+        _protected_discovery,
+    )
+
+    state = ExperimentState(run_id="R_worker_node_scope")
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        pytest.raises(CheckpointScopeMismatchError, match="scope mismatch"),
+    ):
+        asyncio.run(
+            run_node_in_worker(
+                {
+                    "node_id": "scientist.node_policy_output@1.0.0",
+                    "alias": "policy",
+                    "params": {},
+                    "state_bytes": serialize_state(state),
+                    "context_meta": {
+                        "run_id": state.run_id,
+                        "tenant_id": "tenant-b",
+                        "cell_id": "cell-b",
+                        "store_config": {
+                            "backend": "filesystem",
+                            "root": str(tmp_path),
+                        },
+                    },
+                }
+            )
+        )
+
+    assert store_build_calls == 0
+    assert node_discovery_calls == 0
 
 
 def test_build_worker_context_records_degraded_path_for_invalid_registry_bundle(
@@ -239,3 +309,113 @@ def test_run_merge_checkpoint_tier_in_worker_restores_checkpoint_contract(
     assert result["checkpoint_hook_meta"]["sequence_start"] == 1
     resolved = resolve_latest_checkpoint(store, "R_worker_merge")
     assert resolved is not None
+
+
+@pytest.mark.parametrize(
+    (
+        "hook_tenant_id",
+        "runtime_tenant_id",
+        "context_tenant_id",
+        "malformed_store_config",
+    ),
+    [
+        ("tenant-b", "tenant-b", "tenant-b", False),
+        ("tenant-a", 17, "tenant-a", False),
+        ("tenant-b", "tenant-b", "tenant-a", True),
+    ],
+)
+def test_worker_rejects_invalid_or_colluding_scope_before_merge(
+    tmp_path: Path,
+    monkeypatch,
+    hook_tenant_id: str,
+    runtime_tenant_id: object,
+    context_tenant_id: str,
+    malformed_store_config: bool,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    with tenant_scope(None, tenant_id=hook_tenant_id, cell_id="cell-a"):
+        hook = CASCheckpointHook(
+            store=store,
+            run_dir=tmp_path / "runs" / "R_worker_scope",
+            checkpoint_policy="strict",
+            tenant_id=hook_tenant_id,
+            cell_id="cell-a",
+        )
+    checkpoint_meta = hook.export_runtime_metadata()
+    assert checkpoint_meta is not None
+    checkpoint_meta["tenant_id"] = runtime_tenant_id
+    if malformed_store_config:
+        checkpoint_meta["store_config"] = {"backend": 17}
+
+    workflow = WorkflowSpec(
+        workflow_id="wf_worker_scope",
+        required_binds=["run_id"],
+        error_policy="fail_fast",
+        nodes=[
+            NodeInvocation(
+                alias="policy",
+                node_id=ComponentId.parse("scientist.node_policy_output@1.0.0"),
+            )
+        ],
+    )
+    worker_store_build_calls = 0
+    protected_merge_calls = 0
+
+    def _protected_store_build(config):
+        del config
+        nonlocal worker_store_build_calls
+        worker_store_build_calls += 1
+        raise AssertionError("worker store construction reached")
+
+    def _protected_merge(**kwargs):
+        del kwargs
+        nonlocal protected_merge_calls
+        protected_merge_calls += 1
+        raise AssertionError("protected merge reached")
+
+    monkeypatch.setattr(
+        "polisyos.core.artifacts.backends.config.build_artifact_store",
+        _protected_store_build,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.registry.discover_nodes",
+        lambda registry: None,
+    )
+    monkeypatch.setattr(
+        "polisyos.scientist.orchestration.engine.runner.distributed_tier.merge_and_checkpoint_tier",
+        _protected_merge,
+    )
+
+    base_state = ExperimentState(run_id="R_worker_scope")
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        pytest.raises(CheckpointScopeMismatchError, match="scope mismatch"),
+    ):
+        asyncio.run(
+            run_merge_checkpoint_tier_in_worker(
+                {
+                    "workflow_spec_json": workflow.model_dump(mode="json"),
+                    "tier_aliases": ["policy"],
+                    "result_bytes_by_alias": {},
+                    "base_state_bytes": serialize_state(base_state),
+                    "context_meta": {
+                        "run_id": "R_worker_scope",
+                        "tenant_id": context_tenant_id,
+                        "cell_id": "cell-a",
+                        "workflow_id": workflow.workflow_id,
+                        "runner_backend": "temporal",
+                        "store_config": {
+                            "backend": "filesystem",
+                            "root": str(tmp_path),
+                        },
+                    },
+                    "workflow_fingerprint": "b" * 64,
+                    "completed_nodes": [],
+                    "merge_conflict_policy": "error",
+                    "checkpoint_hook_meta": checkpoint_meta,
+                }
+            )
+        )
+
+    assert worker_store_build_calls == 0
+    assert protected_merge_calls == 0

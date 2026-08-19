@@ -2551,6 +2551,26 @@ being written here. Fixing them is a separate decision.
   violation of the ratified `S0-K06`, with the silent-versus-declared distinction load-bearing: the
   defect is that the resolution is silent, not that a default exists. No repair attempt has been
   made.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 673e81706): closed.** The repair chose an
+  exception rather than a declared-unknown carrier because both production consumers immediately
+  require a concrete plugin and expose no limitation channel; the intentional UA defaults remain
+  explicit at configuration and function boundaries. The direct resolver witness first terminated
+  `FFF`, exit `1`, for `None`, whitespace, and `DE`; a real worker witness then independently
+  terminated `FFF`, exit `1`, for the same inputs, exposing an upstream `or "UA"` substitution and
+  a broad unsupported-ruleset fallback before registry validation. The final five named nodes
+  terminated `.........`, exit `0`, after one registry-owned normalizer was consumed by plugin
+  construction and by every structurer entry before fallback, while the worker passed the raw code.
+  Explicit `UA` and `EU` remained green. Both review findings were P40 `same class one level deeper`;
+  the second stopped instance repair and widened the mechanism to the shared boundary, so GY-DEF1
+  closes at mechanism round 0 with both rounds unused. A complete AST walk over all 56 Python files
+  in the legal-batch source tree found the two plugin-resolution calls and the one structurer call;
+  a complete textual walk reconciled the same calls plus their definitions. The canonical confidence
+  owner resolved `120` modules / `120` unique paths, exactly equal to its frozen tuple, and none of
+  the three source, two test, plan, or journal paths is in that authority import closure. This
+  verdict authorizes only fail-closed jurisdiction resolution on the legal-corpus route; it does not
+  remove declared UA defaults, adjudicate separate claim/postprocess metadata defaults, reissue or
+  check the confidence artifact, or state full-suite health.
 - **GY-DEF2 — a tenant-private CAS reference reaches the public export bundle.** Owner:
   **publication / runtime-quality**. `runtime/quality/public_export.py`
   sanitises what it *builds* (authority envelopes via `_fingerprint()`, `tenant_redacted: True`,
@@ -2571,6 +2591,23 @@ being written here. Fixing them is a separate decision.
   **public** boundary, its test **fails on `main` today**, and that test is neither skipped nor
   recorded in any baseline manifest — so the full-suite lane is not being triaged. No repair attempt
   has been made.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 068aab9df): closed.** The inherited
+  `test_public_export_redacts_tenant_private_runtime_refs_from_payload_and_projection` first
+  terminated `FAILED` on the raw caller ref, then terminated `PASSED` (`1 passed in 4.81s`, exit
+  `0`) after one generic caller-ref scan and final public-emission invariant were wired. The witness
+  introduces ref shapes at a previously unseen nested value, nested mapping key, top-level artifact
+  key, and authority-boundary value that is copied into a derived decision; all are absent from the
+  full rendered bundle while the declared public source ref and authority-envelope fingerprints
+  remain. Two independent-review Important findings were both P40 `same class one level deeper`, so
+  consumed zero mechanism rounds; the mechanism was widened first from values to serialized keys
+  and then to every artifact-derived projection plus a generic fail-closed whole-bundle check. The
+  final terra delta review returned no finding. The canonical confidence owner freshly resolved
+  `120` modules / `120` unique paths, equal to its separately frozen import-time tuple; none of the
+  source, test, plan, or journal paths in this commit is in that authority import closure. This
+  verdict authorizes only GY-DEF2's caller-payload redaction closure in the public-export builder. It
+  does not repair the separately carried silent-red triage finding, reissue or check the confidence
+  artifact, authorize another public surface, or state full-suite health.
 - **GY-DEF3 — checkpoints carry no tenant/cell binding.** Owner: **control plane / security**,
   informs OPS-R1/OPS-R3. `scientist/orchestration/engine/checkpoint.py` `CheckpointMetadata`
   carries `run_id`, `workflow_id`, `workflow_fingerprint`, `fsm_phase`, `cache_entry_refs`,
@@ -2585,6 +2622,27 @@ being written here. Fixing them is a separate decision.
   Registered in Rev 21: `CheckpointMetadata` carries no tenant/cell binding, blocking the
   `S0-K06`/`S0-K11` closure that H2 needs. Re-typed in Rev 22 as a violation of the ratified kernel
   rather than a bare finding. No repair attempt has been made.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 42957f826): closed.** Checkpoint schema
+  `1.2` carries tenant/cell scope, every sync/async producer and runtime restore reconciles it at one
+  shared ambient-scope intake, every incremental chain member is bound to that scope, and all five
+  workflow builders transport it. Resume validates the latest artifact before history repair,
+  materialization, context/event construction, or runner dispatch; both remote activity entrypoints
+  validate before store/`RunContext` construction, node discovery, node execution, or merge. The
+  final ten named pytest nodes printed `..............` (`14 passed`, exit `0`, `8.980387708` s):
+  tenant/cell mismatch preserved protected node counters and trace bytes, same-scope resume
+  succeeded, direct sync/async producers rejected asserted foreign scope, omitted scope was captured,
+  foreign incremental ancestry failed, and colluding, malformed, and parser-short-circuit worker
+  transports all reached zero protected effects. One independent-review P40 `new class` finding
+  consumed mechanism round 1; its producer, sibling-worker, malformed-input, and parser-order
+  sightings were the same class one level deeper and were folded into the shared-owner widening.
+  Terra's final complete production census returned commit-ready; round 2 remains unused. The
+  canonical confidence owner freshly resolved `120` modules / `120` unique paths, equal to its
+  separately frozen import-time tuple; none of this commit's seven mechanism paths or two record
+  companions is in that authority import closure. This verdict authorizes only GY-DEF3 checkpoint
+  scope closure at the exercised local and distributed boundaries. It does not establish a new
+  remote authentication carrier, full-suite health, confidence-artifact freshness beyond this
+  measured non-membership, publication, or any GY-DEF4 repair.
 
 - **GY-DEF4 — a temporal diagnostic mints the authority pass token (found by OPS-R4, verified
   2026-08-02).** Owner: **runtime/quality + runtime/http** (consumer and producer).
@@ -2616,6 +2674,23 @@ being written here. Fixing them is a separate decision.
   unknown values fall into the obligation branch — but the collector accepts the `admitted` key from
   any nested `Mapping`, and the two modules are coupled only by a duplicated literal. It should not
   be prioritized as an unsafe grant; the defect is the coupling, not the direction.
+
+  **STANDING RECORDED (Rev 48, measured 2026-08-19 at 07f5fd6ab): stopped.** The lane stopped
+  before a mechanism edit because the adopted repair necessarily moves a governed artifact, which
+  this task explicitly forbids. Static witness terminal `witness_exit=0`: the canonical owner
+  imports `TimeSourceEnvelopeAudit`, serializes all three projections, emits
+  `TimeSourceEnvelopeAudit.__name__`, and checks the clean token `admitted`; the committed governed
+  artifact has SHA-256 `185e57267a69f6de542e0cbc1491779649897da4001cd4bacd120e6436203574`
+  and contains exactly those old model/token values. A compliant rename to
+  `TimeSourceConsistencyAuditProjection` plus `consistent` therefore cannot leave its bytes fixed;
+  retaining an alias or legacy token would retain the defect. Independent terra review confirmed
+  the stop as a P40 **new class** at mechanism round 0 and independently confirmed that the current
+  recursive collector admits a foreign nested `mismatch_disposition: admitted`. No repair, test,
+  governed writer/validator, confidence check/reissue, or architecture byte ran or moved. The only
+  changed paths are this standing and the shared journal; the canonical confidence owner resolved
+  `120` modules / `120` unique paths, equal to its frozen tuple, and neither companion is in the
+  authority import closure. This verdict authorizes only the recorded stop; GY-DEF4 remains open and
+  the stop blocks none of GY-DEF1, GY-DEF2, or GY-DEF3.
 - **GY-DEF5 — the obligation enum claims the world in its docstring (found by the INT-R1 audit,
   verified 2026-08-03).** Owner: **pdc waist**. `pdc/_impl/gy_waist.py:219` reads
   `"""Universal N9 obligation-class denominator."""`. The INT-R1 research first read the enum as

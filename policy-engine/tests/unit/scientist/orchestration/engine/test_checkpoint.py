@@ -4,16 +4,20 @@ import asyncio
 from typing import TYPE_CHECKING
 
 import pytest
+
 from polisyos.common.async_tools import run_coro_sync
 from polisyos.core.artifacts.async_store import AsyncArtifactStoreAdapter
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
     CheckpointCorruptedError,
+    CheckpointError,
     CheckpointHistory,
     CheckpointHistoryEntry,
     CheckpointMetadataConflictError,
+    CheckpointScopeMismatchError,
     RunLockError,
     acquire_run_lock,
     compute_workflow_fingerprint,
@@ -128,6 +132,65 @@ def test_create_checkpoint_async_repeated_soak_smoke(tmp_path: Path) -> None:
     refs = run_coro_sync(_exercise())
     assert len(refs) == 24
     assert len(set(refs)) == 24
+
+
+@pytest.mark.parametrize("use_async_producer", [False, True])
+def test_checkpoint_producers_reject_caller_asserted_scope(
+    tmp_path: Path,
+    use_async_producer: bool,
+) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = ExperimentState(run_id="R_scope_intake")
+    kwargs = {
+        "run_id": state.run_id,
+        "state": state.model_dump(mode="python", by_alias=True, exclude_none=False),
+        "sequence_number": 0,
+        "completed_node_alias": "start",
+        "completed_node_id": "scientist.node_noop@1.0.0",
+        "completed_nodes": ["start"],
+        "workflow_id": "wf_checkpoint",
+        "workflow_fingerprint": "a" * 64,
+        "fsm_phase": "INTAKE",
+        "cache_entry_refs": [],
+        "tenant_id": "tenant-b",
+        "cell_id": "cell-b",
+    }
+
+    def _produce() -> None:
+        if use_async_producer:
+            run_coro_sync(create_checkpoint_async(AsyncArtifactStoreAdapter(store), **kwargs))
+        else:
+            create_checkpoint(store, **kwargs)
+
+    with (
+        tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"),
+        pytest.raises(CheckpointScopeMismatchError, match="scope mismatch"),
+    ):
+        _produce()
+
+
+def test_checkpoint_producer_captures_active_scope_when_omitted(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path)
+    state = ExperimentState(run_id="R_scope_capture")
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        created = create_checkpoint(
+            store,
+            run_id=state.run_id,
+            state=state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=0,
+            completed_node_alias="start",
+            completed_node_id="scientist.node_noop@1.0.0",
+            completed_nodes=["start"],
+            workflow_id="wf_checkpoint",
+            workflow_fingerprint="a" * 64,
+            fsm_phase="INTAKE",
+            cache_entry_refs=[],
+        )
+
+    checkpoint = load_checkpoint(store, created.checkpoint_ref)
+    assert checkpoint.metadata.tenant_id == "tenant-a"
+    assert checkpoint.metadata.cell_id == "cell-a"
 
 
 def test_checkpoint_hook_async_repeated_writes_soak_smoke(tmp_path: Path) -> None:
@@ -591,36 +654,46 @@ def test_checkpoint_hook_runtime_metadata_roundtrip_preserves_sequence(
     store = FileSystemCAS(tmp_path)
     run_id = "R_checkpoint_roundtrip"
     run_dir = tmp_path / "runs" / run_id
-    hook = CASCheckpointHook(
-        store=store,
-        run_dir=run_dir,
-        checkpoint_policy="strict",
-    )
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        hook = CASCheckpointHook(
+            store=store,
+            run_dir=run_dir,
+            checkpoint_policy="strict",
+        )
 
-    first = hook.on_node_complete(
-        state=ExperimentState(run_id=run_id, params={"phase": "PLAN", "step": 1}),
-        alias="step1",
-        node_id="scientist.node_step_one@1.0.0",
-        completed_nodes=["step1"],
-        workflow_id="wf_checkpoint",
-        workflow_fingerprint="f" * 64,
-        cache_entry_ref=None,
-    )
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        first = hook.on_node_complete(
+            state=ExperimentState(run_id=run_id, params={"phase": "PLAN", "step": 1}),
+            alias="step1",
+            node_id="scientist.node_step_one@1.0.0",
+            completed_nodes=["step1"],
+            workflow_id="wf_checkpoint",
+            workflow_fingerprint="f" * 64,
+            cache_entry_ref=None,
+        )
     metadata = serialize_checkpoint_hook_runtime_metadata(hook)
-    restored = restore_checkpoint_hook_from_runtime_metadata(metadata)
 
     assert metadata is not None
+    assert metadata["tenant_id"] == "tenant-a"
+    assert metadata["cell_id"] == "cell-a"
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        restored = restore_checkpoint_hook_from_runtime_metadata(metadata)
     assert restored is not None
 
-    second = restored.on_node_complete(
-        state=ExperimentState(run_id=run_id, params={"phase": "EXECUTE", "step": 2}),
-        alias="step2",
-        node_id="scientist.node_step_two@1.0.0",
-        completed_nodes=["step1", "step2"],
-        workflow_id="wf_checkpoint",
-        workflow_fingerprint="f" * 64,
-        cache_entry_ref=None,
-    )
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-a"):
+        with pytest.raises(CheckpointError, match="scope mismatch"):
+            restore_checkpoint_hook_from_runtime_metadata(metadata)
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        second = restored.on_node_complete(
+            state=ExperimentState(run_id=run_id, params={"phase": "EXECUTE", "step": 2}),
+            alias="step2",
+            node_id="scientist.node_step_two@1.0.0",
+            completed_nodes=["step1", "step2"],
+            workflow_id="wf_checkpoint",
+            workflow_fingerprint="f" * 64,
+            cache_entry_ref=None,
+        )
 
     assert first is not None
     assert second is not None
@@ -629,6 +702,8 @@ def test_checkpoint_hook_runtime_metadata_roundtrip_preserves_sequence(
     resolved = resolve_latest_checkpoint(store, run_id)
     assert resolved is not None
     assert resolved[0].sequence_number == 1
+    assert resolved[1].metadata.tenant_id == "tenant-a"
+    assert resolved[1].metadata.cell_id == "cell-a"
 
 
 def test_checkpoint_hook_runtime_metadata_serializes_store_config(
@@ -782,3 +857,50 @@ def test_incremental_checkpoint_materializes_full_state(tmp_path: Path) -> None:
     assert raw_incremental.state is None
     assert raw_incremental.base_checkpoint_ref == base.checkpoint_ref
     assert materialize_checkpoint_state(store, incremental.checkpoint_ref)["params"]["step2"] == 2
+
+
+def test_incremental_checkpoint_rejects_cross_tenant_base(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path)
+    base_state = ExperimentState(run_id="R_incremental_scope", params={"step": 1})
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        base = create_checkpoint(
+            store,
+            run_id=base_state.run_id,
+            state=base_state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=0,
+            completed_node_alias="step1",
+            completed_node_id="scientist.node_step_one@1.0.0",
+            completed_nodes=["step1"],
+            workflow_id="wf_checkpoint",
+            workflow_fingerprint="d" * 64,
+            fsm_phase="PLAN",
+            cache_entry_refs=[],
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+        )
+    next_state = base_state.model_copy(deep=True)
+    next_state.params["step"] = 2
+    with tenant_scope(None, tenant_id="tenant-b", cell_id="cell-a"):
+        incremental = create_checkpoint(
+            store,
+            run_id=next_state.run_id,
+            state=next_state.model_dump(mode="python", by_alias=True, exclude_none=False),
+            sequence_number=1,
+            completed_node_alias="step2",
+            completed_node_id="scientist.node_step_two@1.0.0",
+            completed_nodes=["step1", "step2"],
+            workflow_id="wf_checkpoint",
+            workflow_fingerprint="d" * 64,
+            fsm_phase="EXECUTE",
+            cache_entry_refs=[],
+            tenant_id="tenant-b",
+            cell_id="cell-a",
+            previous_state=base_state.model_dump(
+                mode="python", by_alias=True, exclude_none=False
+            ),
+            previous_checkpoint_ref=base.checkpoint_ref,
+            previous_chain_depth=base.chain_depth,
+        )
+
+    with pytest.raises(CheckpointCorruptedError, match="chain scope mismatch"):
+        materialize_checkpoint_state(store, incremental.checkpoint_ref)

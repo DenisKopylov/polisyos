@@ -1271,8 +1271,7 @@ Loosening the ratified posture is out of scope for every slice.
 - **Not yet:** REVIEWER/EXPERT only; the board does not go PUBLIC before
   DS12's gate; the movement row is honest-empty until N13b actually closes a
   route (no simulated motion).
-- **DS7 closeout record (2026-08-21; final record commit/read-back pending;
-  no plan revision assigned):** the static
+- **DS7 branch closure (2026-08-21; no plan revision assigned):** the static
   v2 board is the sole human renderer and its MACHINE download preserves the
   exact response bytes. The real rendered-DOM decoder closes the semantic
   parity test with dropped-row, duplicate-row, defaulted-absence,

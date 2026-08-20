@@ -449,5 +449,5 @@ claims, attached-branch read-back.
 - [x] Record exact GAP5/GAP6 ownership and closure signals, honest-empty movement, environment-scoped
   5/7/1 debt discharge, one human renderer, v2/MACHINE parity, realized DS4 `27/41/18/3`, locale
   posture, and no PUBLIC gate.
-- [ ] Commit closure, then read back HEAD, commit/file denominator, clean status, and branch
+- [x] Commit closure, then read back HEAD, commit/file denominator, clean status, and branch
   attachment. Confirm no push and no merge to `main` occurred.

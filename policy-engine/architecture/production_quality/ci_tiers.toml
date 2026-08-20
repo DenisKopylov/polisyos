@@ -821,6 +821,12 @@ owner = "team-runtime-quality"
 purpose = "Policy Design Case Layer 3 G6 bounded-agent coverage."
 
 [[tests]]
+path = "tests/unit/runtime/quality/test_compression_loss_ledger.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "G6 compression-loss receipt and orchestration authority-delta coverage."
+
+[[tests]]
 path = "tests/unit/runtime/quality/test_layer3_g7_region_widening.py"
 tier = "fast-pr"
 owner = "team-runtime-quality"

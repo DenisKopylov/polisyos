@@ -11,7 +11,7 @@ from collections.abc import Mapping, Sequence
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError
 
 from polisyos.runtime.quality.proving_ground import bounded_request_agent as g6
 from tools.lib.fs import atomic_write_text
@@ -136,6 +136,10 @@ EXPECTED_MANIFEST_DRIFT_KEYS: tuple[str, ...] = (
     "g6_g5_bridge_status",
     "g6_g5_may_not_use_for_boundary_status",
     "g6_orchestration_choice_audit_status",
+    "g6_compression_loss_receipt_status",
+    "g6_authority_delta_completeness_status",
+    "g6_summary_authority_preservation_status",
+    "g6_authority_preserving_public_export_status",
     "g6_orchestration_continuity_status",
     "g6_replay_manifest_status",
     "g6_replay_drift_status",
@@ -410,6 +414,7 @@ def _build_runtime_bundle(repo_root: Path) -> dict[str, Any]:
         accountable_principal_refs=("principal://runtime-quality-reviewer",),
     )
     audit_surface = g6.build_g6_agent_audit_surface(record)
+    public_export_bundle = g6.build_g6_authority_preserving_public_export(record)
     conformance = g6.build_g6_conformance_report(repo_root=repo_root)
     bundle: dict[str, Any] = {
         "dependency_readiness_snapshot": _dependency_readiness_snapshot(),
@@ -434,7 +439,11 @@ def _build_runtime_bundle(repo_root: Path) -> dict[str, Any]:
         "grounded_result_or_abstention": record.result_projection,
         "demand_pull_vs_abstention_delta": health_delta,
         "agent_audit_surface": audit_surface,
-        "public_export_projection_refs": _public_export_projection_refs(audit_surface),
+        "public_export_projection_refs": _public_export_projection_refs(
+            audit_surface,
+            public_export_bundle=public_export_bundle,
+        ),
+        "public_export_bundle": public_export_bundle,
         "conformance_report": conformance,
         "health_metric_delta": _health_metric_delta(health_delta),
         "agent_route_contract_registry": _agent_route_contract_registry(record),
@@ -510,7 +519,7 @@ def _write_artifacts(repo_root: Path, bundle: Mapping[str, Any]) -> list[str]:
 
 
 def _validate_persisted_artifacts(repo_root: Path) -> list[dict[str, str]]:
-    return [
+    issues = [
         _issue(
             "layer3_g6_persisted_artifact_missing",
             path.as_posix(),
@@ -519,6 +528,90 @@ def _validate_persisted_artifacts(repo_root: Path) -> list[dict[str, str]]:
         for path in EXPECTED_ARTIFACT_PATHS
         if not _resolve_repo_path(repo_root, path).exists()
     ]
+    persisted_authority_paths = (
+        AGENT_RUN_RECORDS_PATH,
+        PROMPT_TOOL_LEDGER_PROJECTION_PATH,
+        ORCHESTRATION_CHOICE_AUDIT_PATH,
+        PUBLIC_EXPORT_PROJECTION_REFS_PATH,
+    )
+    if any(not _resolve_repo_path(repo_root, path).exists() for path in persisted_authority_paths):
+        return issues
+    try:
+        records_payload = _read_json(_resolve_repo_path(repo_root, AGENT_RUN_RECORDS_PATH))
+        record_rows = _sequence(records_payload.get("agent_run_records"))
+        if len(record_rows) != 1:
+            raise ValueError("expected one persisted G6 run record")
+        record = g6.Layer3G6AgentRunRecord.model_validate(record_rows[0])
+        prompt_projection = g6.Layer3G6PromptToolLedgerProjection.model_validate(
+            _read_json(_resolve_repo_path(repo_root, PROMPT_TOOL_LEDGER_PROJECTION_PATH))
+        )
+        audit = g6.Layer3G6OrchestrationChoiceAudit.model_validate(
+            _read_json(_resolve_repo_path(repo_root, ORCHESTRATION_CHOICE_AUDIT_PATH))
+        )
+        public_projection_refs = _read_json(
+            _resolve_repo_path(repo_root, PUBLIC_EXPORT_PROJECTION_REFS_PATH)
+        )
+    except (
+        OSError,
+        json.JSONDecodeError,
+        ValidationError,
+        TypeError,
+        ValueError,
+    ):
+        issues.append(
+            _issue(
+                "layer3_g6_compression_loss_receipt_blocked",
+                AGENT_RUN_RECORDS_PATH.as_posix(),
+                "Persisted G6 summary-authority artifacts are unreadable or invalid.",
+            )
+        )
+        return issues
+    verification = g6.verify_g6_summary_authority_preservation(record)
+    if (
+        verification.status != "pass"
+        or prompt_projection.model_dump(mode="json")
+        != record.prompt_tool_ledger_projection.model_dump(mode="json")
+        or audit.model_dump(mode="json")
+        != record.orchestration_choice_audit.model_dump(mode="json")
+    ):
+        issues.append(
+            _issue(
+                "layer3_g6_compression_loss_receipt_blocked",
+                AGENT_RUN_RECORDS_PATH.as_posix(),
+                (
+                    "Persisted G6 compression and authority-delta artifacts must "
+                    "recompute and agree across the existing G6 family."
+                ),
+            )
+        )
+    try:
+        expected_surface = g6.build_g6_agent_audit_surface(record)
+        expected_public_export = g6.build_g6_authority_preserving_public_export(
+            record
+        )
+        expected_public_projection_refs = _dump(
+            _public_export_projection_refs(
+                expected_surface,
+                public_export_bundle=expected_public_export,
+            )
+        )
+    except g6.PromptToolLedgerError:
+        expected_public_projection_refs = None
+    if (
+        expected_public_projection_refs is None
+        or public_projection_refs != expected_public_projection_refs
+    ):
+        issues.append(
+            _issue(
+                "layer3_g6_public_projection_contract_failed",
+                PUBLIC_EXPORT_PROJECTION_REFS_PATH.as_posix(),
+                (
+                    "Persisted G6 public export must exactly match the "
+                    "owner-recomputed summary or governed refusal."
+                ),
+            )
+        )
+    return issues
 
 
 def _validate_written_artifact_set(written_paths: Sequence[str]) -> list[dict[str, str]]:
@@ -584,17 +677,36 @@ def _manifest_runtime_drift_issues(drift_keys: Sequence[str]) -> list[dict[str, 
 def _registration_statuses(repo_root: Path) -> dict[str, str]:
     generated_text = _read_text_or_empty(repo_root, GENERATED_ARTIFACTS_TOML_PATH)
     inventory_text = _read_text_or_empty(repo_root, INVENTORY_PATH)
+    try:
+        inventory_rows = _sequence(
+            _read_json(_resolve_repo_path(repo_root, INVENTORY_PATH)).get("artifacts")
+        )
+    except (OSError, json.JSONDecodeError):
+        inventory_rows = []
+    public_export_registration = next(
+        (
+            row
+            for row in inventory_rows
+            if isinstance(row, Mapping)
+            and row.get("id") == "layer3_g6_public_export_projection_refs"
+        ),
+        {},
+    )
     docs_checks = (
         (GENERATED_ARTIFACTS_DOC_PATH, "layer3_g6_readiness_manifest.json"),
         (DOCS_SURFACE_PATH, g6.G6_SURFACE_ID),
         (DOCS_SURFACE_PATH, "PUBLIC/REVIEWER/EXPERT/MACHINE"),
-        (DOCS_SURFACE_PATH, "out_of_scope_reference_only"),
+        (DOCS_SURFACE_PATH, "authority_preserving_public_export"),
         (DOCS_SURFACE_PATH, "polisyos.policy_grammar"),
         (DOCS_SURFACE_PATH, "authoritative_for = ()"),
         (DOCS_SURFACE_PATH, "g7_region_widening"),
         (DOCUMENTATION_INVENTORY_PATH, "policy-design-case-layer3-bounded-agent.md"),
         (REFERENCE_INDEX_PATH, "policy-design-case-layer3-bounded-agent.md"),
         (PUBLIC_SURFACE_DOC_PATH, g6.G6_SURFACE_ID),
+        (
+            PUBLIC_SURFACE_DOC_PATH,
+            "owner-recomputed safe summary or governed refusal",
+        ),
     )
     return {
         "generated_artifacts": (
@@ -605,7 +717,20 @@ def _registration_statuses(repo_root: Path) -> dict[str, str]:
             and "drift_gate = \"automated\"" in generated_text
             else "fail"
         ),
-        "inventory": "pass" if g6.G6_SURFACE_ID in inventory_text else "fail",
+        "inventory": (
+            "pass"
+            if g6.G6_SURFACE_ID in inventory_text
+            and public_export_registration.get("projection_mode") == "projection_only"
+            and public_export_registration.get("public_export_hook_status")
+            == "authority_preserving_public_export"
+            and public_export_registration.get(
+                "public_export_bundle_route_registered"
+            )
+            is True
+            and "public_export_bundle"
+            not in _sequence(public_export_registration.get("may_not_use_for"))
+            else "fail"
+        ),
         "docs": (
             "pass"
             if all(needle in _read_text_or_empty(repo_root, path) for path, needle in docs_checks)
@@ -655,6 +780,7 @@ def _validate_runtime_surfaces(bundle: Mapping[str, Any]) -> list[dict[str, str]
     replay_manifest = bundle["replay_manifest"]
     audit_surface = bundle["agent_audit_surface"]
     conformance = bundle["conformance_report"]
+    authority_statuses = _g6_summary_authority_statuses(bundle)
     checks = (
         (
             bundle["policy_grammar_projection"].status == "pass",
@@ -685,6 +811,26 @@ def _validate_runtime_surfaces(bundle: Mapping[str, Any]) -> list[dict[str, str]
             bundle["orchestration_choice_audit"].status == "pass",
             "layer3_g6_orchestration_choice_audit_missing",
             "G6 orchestration-choice audit must be present and replayable.",
+        ),
+        (
+            authority_statuses["g6_compression_loss_receipt_status"] == "pass",
+            "layer3_g6_compression_loss_receipt_blocked",
+            "G6 compression receipts must recompute before summary emission.",
+        ),
+        (
+            authority_statuses["g6_authority_delta_completeness_status"] == "pass",
+            "layer3_g6_authority_delta_completeness_failed",
+            "G6 authority deltas must cover the owner population exactly.",
+        ),
+        (
+            authority_statuses["g6_summary_authority_preservation_status"] == "pass",
+            "layer3_g6_authority_delta_owner_validation_failed",
+            "G6 summary consumers must recompute owner-bound deltas and receipts.",
+        ),
+        (
+            _g6_authority_preserving_public_export_status(bundle) == "pass",
+            "layer3_g6_public_projection_contract_failed",
+            "G6 must package the recomputed compression result through public export.",
         ),
         (
             continuity.status == "pass",
@@ -740,6 +886,7 @@ def _summary(
     conformance = bundle["conformance_report"]
     agent_loop = bundle["agent_loop_result"]
     audit_surface = bundle["agent_audit_surface"]
+    authority_statuses = _g6_summary_authority_statuses(bundle)
     return {
         "status": "pass",
         "schema_version": G6_SCHEMA_VERSION,
@@ -781,6 +928,10 @@ def _summary(
         "g6_orchestration_choice_audit_status": (
             record.orchestration_choice_audit.status
         ),
+        **authority_statuses,
+        "g6_authority_preserving_public_export_status": (
+            _g6_authority_preserving_public_export_status(bundle)
+        ),
         "g6_orchestration_continuity_status": bundle["orchestration_continuity"].status,
         "g6_replay_manifest_status": bundle["replay_manifest"].status,
         "g6_replay_drift_status": bundle["replay_drift"].status,
@@ -815,6 +966,77 @@ def _summary(
         ),
         "issue_codes": [],
     }
+
+
+def _g6_summary_authority_statuses(bundle: Mapping[str, Any]) -> dict[str, str]:
+    record = _sequence(bundle["agent_run_records"])[0]
+    agent_loop = bundle["agent_loop_result"]
+    run_verification = g6.verify_g6_summary_authority_preservation(record)
+    loop_verification = g6.verify_g6_loop_summary_authority_preservation(agent_loop)
+    verification_pass = (
+        run_verification.status == "pass" and loop_verification.status == "pass"
+    )
+    projections = (
+        record.prompt_tool_ledger_projection,
+        agent_loop.prompt_tool_ledger_projection,
+    )
+    receipt_pass = verification_pass
+    completeness_pass = verification_pass
+    for projection in projections:
+        ledger = projection.prompt_tool_ledger
+        receipt_pass = receipt_pass and (
+            len(ledger.compression_loss_receipts) == 1
+            and ledger.compression_loss_receipts[0].status == "pass"
+            and ledger.compression_loss_receipts[0].emitted_summary is not None
+            and not ledger.compression_loss_receipts[0].authoritative_for
+        )
+        completeness_pass = completeness_pass and (
+            len(ledger.authority_delta_completeness_receipts) == 1
+            and ledger.authority_delta_completeness_receipts[0].status == "pass"
+            and ledger.authority_delta_completeness_receipts[0].owner_policy_count
+            == ledger.authority_delta_completeness_receipts[0].observed_choice_count
+            == ledger.authority_delta_completeness_receipts[0].emitted_delta_count
+            == len(ledger.orchestration_authority_deltas)
+        )
+    return {
+        "g6_compression_loss_receipt_status": "pass" if receipt_pass else "fail",
+        "g6_authority_delta_completeness_status": (
+            "pass" if completeness_pass else "fail"
+        ),
+        "g6_summary_authority_preservation_status": (
+            "pass" if verification_pass else "fail"
+        ),
+    }
+
+
+def _g6_authority_preserving_public_export_status(
+    bundle: Mapping[str, Any],
+) -> str:
+    public_export_bundle = bundle.get("public_export_bundle")
+    artifacts = (
+        public_export_bundle.get("artifacts")
+        if isinstance(public_export_bundle, Mapping)
+        else None
+    )
+    exported = (
+        artifacts.get("g6_summary_authority_preservation")
+        if isinstance(artifacts, Mapping)
+        else None
+    )
+    compression_result = (
+        exported.get("compression_result")
+        if isinstance(exported, Mapping)
+        else None
+    )
+    return (
+        "pass"
+        if (
+            isinstance(compression_result, Mapping)
+            and compression_result.get("status") == "pass"
+            and isinstance(compression_result.get("summary"), Mapping)
+        )
+        else "fail"
+    )
 
 
 def _write_json(path: Path, payload: Any) -> None:
@@ -961,14 +1183,17 @@ def _g5_consumer_gate_projection(record: g6.Layer3G6AgentRunRecord) -> dict[str,
 
 def _public_export_projection_refs(
     surface: g6.Layer3G6AgentAuditSurface,
+    *,
+    public_export_bundle: Mapping[str, object],
 ) -> dict[str, Any]:
     return {
         "schema_version": G6_SCHEMA_VERSION,
         "rule_version": G6_RULE_VERSION,
         "surface_id": g6.G6_SURFACE_ID,
         "projection_mode": "projection_only",
-        "public_export_hook_status": "out_of_scope_reference_only",
-        "public_export_bundle_route_registered": False,
+        "public_export_hook_status": "authority_preserving_public_export",
+        "public_export_bundle_route_registered": True,
+        "public_export_bundle": public_export_bundle,
         "PUBLIC": surface.PUBLIC,
         "REVIEWER": surface.REVIEWER,
         "EXPERT": surface.EXPERT,

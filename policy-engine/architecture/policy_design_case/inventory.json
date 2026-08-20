@@ -1238,7 +1238,7 @@
         "MACHINE"
       ],
       "surface_audience_notes": {
-        "PUBLIC": "May see bounded request class, grounded-result-or-abstention status, denied uses, issue-code refs, and projection-only public refs without raw prompts.",
+        "PUBLIC": "May see bounded request class, grounded-result-or-abstention status, denied uses, and the owner-recomputed compression-safe summary or premise-relative governed refusal without raw prompts.",
         "REVIEWER": "May see agent-run refs, G5 invocation refs, search-ledger refs, orchestration-choice audit refs, continuity refs, replay refs, and candidate DesignRecord handoff refs.",
         "EXPERT": "May inspect policy-grammar projection refs, concept-spine refs, tool-contract summary, prompt/tool and hypothesis ledger refs, conformance, route registry, and health metric refs.",
         "MACHINE": "May consume persisted JSON/TOML artifacts for write-set completeness, manifest drift, replay continuity, G5 bridge checks, projection authority checks, and readiness validation."
@@ -1285,7 +1285,7 @@
         "policy_grammar_projection": "G6 consumes policy grammar projection and concept-spine refs without direct runtime import of polisyos.policy_grammar.",
         "search_ledger": "Search ledger is G0-shaped and replayable, but authoritative_for remains empty.",
         "g5_bridge": "G6 may invoke the pinned G5 bundle for same-class requests and must preserve G5 may_not_use_for without inheritance into G6 authority.",
-        "public_projection": "Projection refs only; public-export-bundle route is not registered.",
+        "public_projection": "Projection-only authority-preserving export emits the owner-recomputed safe summary or governed refusal.",
         "replay": "NL continuity and replay manifest carry prompt/tool, model, tool-schema, search, G5, and rule-version refs for drift detection."
       }
     },
@@ -1296,11 +1296,11 @@
       "schema_version": "policyos.policy_design_case.layer3_g6_bounded_agent.v1",
       "rule_version": "policyos.layer3.g6.bounded_agent.v1",
       "owner": "team-runtime-quality",
-      "status": "active_reference_only_surface",
+      "status": "active_projection_only_public_export_surface",
       "source_surface": "layer3_g6_bounded_agent_surface",
       "projection_mode": "projection_only",
-      "public_export_hook_status": "out_of_scope_reference_only",
-      "public_export_bundle_route_registered": false,
+      "public_export_hook_status": "authority_preserving_public_export",
+      "public_export_bundle_route_registered": true,
       "validator": "tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py",
       "projection_contract_verifier": "polisyos.runtime.quality.projection_semantics.assert_policy_design_projection_not_authority",
       "surface_audiences": [
@@ -1310,7 +1310,6 @@
         "MACHINE"
       ],
       "may_not_use_for": [
-        "public_export_bundle",
         "raw_upstream_payload_export",
         "claim_authority",
         "legal_authority",

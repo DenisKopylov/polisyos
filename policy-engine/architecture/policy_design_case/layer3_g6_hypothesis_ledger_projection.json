@@ -48,9 +48,9 @@
         "request_class": "ua_msme_support",
         "request_id": "req-layer3-g6-readiness"
       },
-      "emitted_at": "2026-06-16T13:50:02.911916Z",
+      "emitted_at": "2026-08-19T19:50:59.368901Z",
       "producer_validation_refs": [],
-      "prompt_fingerprint": "sha256:6a125f5184963fab0aea620abdde2bcf906aeb3fd1048643fadb7f175cd9ce75",
+      "prompt_fingerprint": "sha256:a08b4f67448a86f823146329c425dd79ac7c0e3866d7929edbdd8ea6ecb9076f",
       "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",
       "provenance": {
         "producer": "polisyos.runtime.quality.proving_ground.bounded_request_agent",
@@ -75,7 +75,7 @@
       ]
     }
   ],
-  "generated_at": "2026-06-16T13:50:02.911880Z",
+  "generated_at": "2026-08-19T19:50:59.368836Z",
   "hypothesis_ledger_ref": "layer3-g6://hypothesis-ledger/layer3-g6-run:req-layer3-g6-readiness",
   "job_id": "layer3-g6-job:req-layer3-g6-readiness",
   "prompt_tool_ledger_ref": "layer3-g6://prompt-tool-ledger/layer3-g6-run:req-layer3-g6-readiness",

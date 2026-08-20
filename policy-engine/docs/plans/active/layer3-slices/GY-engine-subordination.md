@@ -2499,6 +2499,33 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   stops the slice and is reported without a third-round instance patch. The smallest repair must
   replace fixed-key inspection with generic governed memory admission whose remove-the-property
   falsifier covers novel keys and nested variants.
+  **STANDING RECORDED (2026-08-20, append-only supersession):** GY-PA2 is complete for its declared
+  guarded-adapter boundary. The final-audit escape was measured as inherited: PA2 consumed the
+  existing memory-admission owner and its pre-finding diff touched neither `memory_influence` nor
+  `calibration_ledger`, so the architect restored the lane to 0/2 and the defect was registered as
+  `GY-DEF18` in pre-fix commit `42de52dc1`. The closed owner now traverses provenance-bearing values
+  over the complete canonical payload grammar, fails closed on unsupported or unordered carriers,
+  and admits markers only in positions declared by the canonical `MemoryInfluenceRecord` owner;
+  caller subclasses cannot extend that declaration. The calibration sibling imports the same
+  13-value compatibility projection and consumes the same traversal, leaving one vocabulary owner
+  and no independent loop. The exact `policy_fact_ref` escape and a nested key invented at runtime
+  both persist replay-linked refusals and produce zero external effects, while the legitimate
+  owner-declared influence record admits. All prior wrong-role/TTL, search↛data-request,
+  memory/tool/input, envelope-provenance, recorded-refusal, data-only-growth, and decisive-envelope
+  tests remain green. The fresh P40 ledger ended 2/2: owner-declared positive admission and accidental
+  public repair API exposure were the two new Important classes; unordered, caller-widened, and opaque
+  carrier escapes were same-class depth and widened the repair. `GY-PA2-COV-1` is corrected from
+  `bridge_missing` to **`absent/unallocated`**: `ToolRegistry` is the natural owner, but the repository
+  has no authenticated effect declaration capable of binding a registered callable to its declared
+  action kind, so universal external-effect coverage remains `not_established`. Executable closure
+  requires `ToolRegistry.execute()` and `aexecute()` to resolve and content-bind a versioned
+  owner-authenticated effect declaration before calling a handler, persist allow/refusal, fail closed
+  on missing/forged/stale/mismatched declarations, and prove through sync, async, and tool-loop
+  witnesses that a search-declared adapter attempting `data_request` produces zero effects, with the
+  static/runtime sink census reconciled. This absence blocks only the universal claim; the local
+  replay-linked producer, persisted governed result, DS20 floor bridge, and guarded consumer are
+  present. All six governed artifacts stayed byte-identical, readiness passed, no frontend surface or
+  `authority.py` edit was made, and line 7 remains outside this lane.
 - **GY-PA3 — Compression-loss ledger producer (orchestration authority-delta; M38 / CPA-R23).**
   build-new producer closing the named G6 gap (G6 emits prompt/tool/search/orchestration/replay
   ledgers but **no compression ledger**). Every load-bearing orchestration choice
@@ -3755,6 +3782,21 @@ and cold closeout remain unproved.
   sibling must pass the same novel-key discriminator, and the duplicated 13-member vocabulary must
   no longer have two owners. **Standing: registered/open; no source repair had begun at
   registration.**
+
+  **STANDING RECORDED (2026-08-20): CLOSED.** Registration landed alone in `42de52dc1`; behavioural
+  falsifiers landed before the mechanism, and the final repair is `7cc23675b` plus the public-surface
+  tightening in `2f6badff0`. `memory_influence` now owns value-provenance traversal across every
+  canonical mapping/list/tuple position, rejects memory markers outside owner-declared typed fields,
+  and fails closed on unordered or opaque carriers rather than silently skipping them. The declaration
+  is derived from the canonical `MemoryInfluenceRecord` fields, so a caller subclass cannot mint a new
+  admitted position. `calibration_ledger` imports the memory owner's compatibility tuple by identity
+  and consumes the same traversal; its second definition and independent loop are gone. The exact
+  `policy_fact_ref` escape, a nested key invented at test runtime, the calibration sibling, opaque
+  values, unordered containers, and caller-widened declarations all refuse; the PA2 witnesses assert
+  zero effects at the registered handler boundary and reconcile the durable refusal. A legitimate
+  owner-declared memory-influence record remains accepted. The two new Important review classes were
+  owner-declared positive admission and public API exposure; deeper container/subclass variants widened
+  those repairs. Final defect-repair rounds: **2/2**. `[P31/P37/P38/P40: recomputed and independently_reconciled]`
 
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
   then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry

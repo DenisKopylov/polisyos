@@ -359,3 +359,93 @@ a key-name proxy. Its closure is value-provenance traversal over the complete ad
 exceptions admitted only at typed positions declared by the destination contract owner. Adding a
 known escape key, lengthening either tuple, matching key names, or copying the vocabulary again is
 explicitly forbidden. No Python or test file had changed when this registration was frozen.
+
+## GY-DEF18 closure and P40 ledger
+
+The red-first history is preserved as separate commits: `8a3e0f763` exposed the exact PA2 and
+calibration escapes; `18d7e058d`, `17d5849ef`, and `c7c3206da` widened the falsifiers to nested
+runtime-invented keys, unordered/opaque carriers, and caller-widened owner declarations before the
+mechanism landed. The implementation is `7cc23675b`; `2f6badff0` restores the pre-existing public
+module surface after review. `[P29/P33: behavioural falsifiers precede their mechanism]`
+
+The decisive predicate is now value provenance, not a slot name. The memory owner recursively walks
+canonical mapping/list/tuple values; any `memory-influence:*`, `historical-prior-influence:*`, or
+`calibration-ledger:*` marker is refused outside the canonical record fields explicitly annotated by
+the contract owner. Sets/frozensets and unknown carriers such as bytes or opaque objects fail closed
+with typed path/type issues. The declaration is derived from `MemoryInfluenceRecord.model_fields`,
+not the runtime class, so a caller-created subclass cannot add an admitted position. The existing
+13-value compatibility projection remains owned once in `memory_influence`; `calibration_ledger`
+imports that exact tuple object and shares the traversal, removing its copied vocabulary and loop.
+`[P31/P37/P38: recomputed]`
+
+The three-way closure witness is behavioural in both directions. A signed PA2 payload carrying
+`policy_fact_ref=memory-influence:prior-policy-fact` persists a refusal and leaves the registered
+handler effect list empty. A nested key generated only at test runtime, absent from every declared
+list, carrying the same provenance does likewise. A valid `MemoryInfluenceRecord` retains its marker
+in owner-declared influence-only fields and passes its governing assertion. The calibration consumer
+also refuses a runtime-invented key, while opaque, unordered, and subclass-widened variants fail
+closed. This closes both registered members without adding a key, regex, naming convention, or third
+copy of the vocabulary.
+
+The fresh architect-authorized ledger ended **2/2**. Round 1 was a NEW Important P37 class: the first
+repair rejected markers generically but had no executable representation of a legitimate
+owner-declared accepting position. Round 2 was a NEW Important public-surface class: the shared
+traversal and error type accidentally expanded the module API. The positive owner declaration and
+private implementation boundary close those classes. Set/frozenset, caller-subclass, and bytes/opaque
+escapes were the same P37/P38 class one level deeper and widened the mechanism; they consumed no new
+round. Final independent provenance and blast-radius reviews returned GO with no new Blocking or
+Important finding. `[P40: independently_reconciled]`
+
+## Corrected GY-PA2-COV-1 registration
+
+The prior `bridge_missing` label is superseded. Dynamic `ToolRegistry` registration means the
+repository contains handlers and PA2 contains a bounded guarded adapter, but there is no admitted,
+owner-authenticated declaration that binds a callable's identity to the external effect it may
+perform. That capability is **`absent/unallocated`**, with `ToolRegistry` named as the natural owner;
+calling it unbridged would falsely imply an existing producer merely awaits wiring.
+
+Executable closure for `GY-PA2-COV-1` requires a versioned registry-owned effect declaration binding
+tool definition, implementation identity, permitted action kind/envelope, authority purpose,
+liveness/status, and the exact authorization receipt. `ToolRegistry.execute()` and `aexecute()` must
+resolve and content-bind it before handler invocation, persist allow or refusal, and fail closed on a
+missing, forged, stale, or mismatched declaration. Direct sync, direct async, and `run_tool_loop`
+witnesses must show that a search-declared handler attempting `data_request` produces zero effects;
+the complete static sink census and runtime registration census must reconcile. Until that exists,
+the universal statement “every agent external action passes PA2” and the semantic guarantee that a
+search-labelled arbitrary callable cannot perform `data_request` remain blocked. The bounded census
+receipt remains 2,561 tracked Python files, 49 AST direct-session sites against 50 textual candidates
+with one docstring-only difference; universal coverage remains `not_established`.
+
+The duplication/orphan measurement is unchanged and deliberately unrepaired: 12 dashboard permission
+literals duplicate DS20-owned values, while `collaboration.comment`, `.share`, and `.view` are
+`producer_missing` orphans against the live `/api/v1/review/live` transport. This is reported as
+DS4/DS5 debt, not absorbed into PA2.
+
+## Final targeted verification and standing
+
+Under the four-lane 1.6–2.0× contention regime, the longest bounded suite took 30.53 s; a 300 s replay
+ceiling retains more than 9× measured margin. The final PA2 file passed **34/34** in 24.01 s. Memory influence,
+calibration ledger, and Claim Registry passed **33/33** in 21.14 s. Scorecard, post-deployment
+accountability, and predictive-knowledge consumers passed **94/94** in 30.53 s. Mandate-bounded
+delegation plus the three server/OpenAPI/generated-client permission projections passed **17/17** in
+22.68 s. Ruff passed every changed Python/test path in 0.06 s. No full pytest run was performed.
+The corpus cases needing the absent untracked `production_data` remain a tooling non-receipt; no
+other lane's checkout or data was borrowed.
+
+The Layer-2 readiness owner returned `status=pass`, `issues=[]`, 13 S7 cases, precision/recall/
+responsibility-integrity 1.0, and all S7 false-clear counts zero in 12.64 s. All six governed
+artifacts re-read at 2,168 / 7,164 / 1,278 / 3,957 / 47,839 / 3,080 bytes with the exact pre-edit
+hashes frozen above. No governed byte moved. The architecture guardrail ran in 33.90 s and returned
+only the P41-inherited deep-import baseline delta already reproduced from `bedd47503`: six additions
+and three removals in unrelated files, with zero PA2 changed-path intersection. It remains red; no
+baseline sync or exception was made.
+
+**STANDING RECORDED (2026-08-20):** the inherited `GY-DEF18` P31/P38 class is closed for both memory
+and calibration consumers; the generic memory-masquerading done-when is true at the effect boundary;
+and the bounded PA2 producer is admissible. It reuses DS20's exact server-owned identity, permission,
+resource-bound verification and permission projection, plus existing operation/delegation/human-
+decision/candidate-firewall owners. It builds the replay-linked action/refusal record, mandate-owner
+envelope evaluator, signed admission, persisted single-use gateway, and guarded effect consumer.
+Universal ToolRegistry coverage remains honestly `not_established` because its authenticated effect
+declaration is `absent/unallocated`, as registered above. No frontend surface was built,
+`runtime/quality/authority.py` is absent from the diff, and GY plan line 7 remains untouched.

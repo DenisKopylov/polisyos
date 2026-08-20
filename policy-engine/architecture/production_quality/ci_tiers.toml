@@ -563,6 +563,12 @@ owner = "team-runtime-quality"
 purpose = "Runtime complexity governance coverage."
 
 [[tests]]
+path = "tests/unit/runtime/quality/test_confidence_ledger.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Confidence-ledger authority closure and durable accounting coverage."
+
+[[tests]]
 path = "tests/unit/runtime/quality/test_construct_registry.py"
 tier = "fast-pr"
 owner = "team-runtime-quality"

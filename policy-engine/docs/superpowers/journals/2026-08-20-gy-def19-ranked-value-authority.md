@@ -8,7 +8,7 @@ Slice base: 1360b1cb592be6a19c162a3ec3ddb5a2e87986c7
 
 Red-first commit: 288ca1d93
 
-Source freeze: 47d6d62c2
+Source freeze: a2a804bec4e275eebd1c83b06649f55720967184
 
 ## 1. Isolation and toolchain baseline
 
@@ -106,8 +106,9 @@ to `test_design_axes_value_choice_provenance.py`. Of the five stale S8-plan refe
 pytest commands were gate-bound and corrected; the expected-file inventory and historical create
 instruction are navigation prose and remain recorded history.
 
-Source and scoped companions froze at `47d6d62c2`. Mechanism review rounds remain 0 / 2 pending
-independent review; mandated-record findings do not consume them.
+The initial fail-closed mechanism and scoped companions froze at `47d6d62c2`. Independent review
+then found ordinary model-minting seams, each exposed red-first before its mechanism. The final
+source freeze is `a2a804bec4e275eebd1c83b06649f55720967184`.
 
 ## 7. Verification before review
 
@@ -119,5 +120,79 @@ independent review; mandated-record findings do not consume them.
 - Targeted Ruff over the four changed Python files: pass in 0.07 s after normalizing the two touched
   files' pre-existing long import statements.
 
-The non-persisting governed-artifact derivation, independent reviews, final targeted wave, and
-GY-DEF19 standing are recorded below after they occur. No governed output is written by this lane.
+## 8. P40 review ledger and bounded residual
+
+Round 1 / 2 was an Important **NEW CLASS** finding against the mechanism: the exported
+`ParetoArchive` constructor bypassed the builder-only guard. The direct-construction test failed
+behaviorally before the repair, and `ParetoArchive._validate_ranked_admission` then established the
+same fail-closed invariant at that model boundary.
+
+Round 2 / 2 was a Blocking **SAME CLASS, one level deeper** finding: Pydantic's supported trusted
+minting APIs bypass model validation. The complete Pydantic 2.12.5 surface measurement covered the
+6,182-file pinned set, identified 2,675 Pydantic subclasses and zero repository overrides of the
+relevant methods, and reduced six spellings to three independent primitives:
+
+- `model_construct`, with deprecated `construct` as its delegate;
+- `model_copy`, with `__replace__` and Python 3.14 `copy.replace` as delegates; and
+- deprecated `copy`, which independently calls Pydantic's copy internals.
+
+All six spellings minted a ranked archive before the terminating widening; the red run was six
+`DID NOT RAISE` failures in 18.73 seconds. `ParetoArchive` now revalidates the complete payload from
+all three primitives, so their delegates close by construction. Two independent delta reviews and
+the witness review returned GO with no new Blocking or Important mechanism finding. Final rounds:
+**2 / 2**.
+
+The post-budget residual audit found a **SAME CLASS worked example**, consuming no new round. An
+unbound low-level `BaseModel.model_construct.__func__` can deliberately forge an invalid ranked
+instance, and exported `persist_value_choice_provenance_bundle` accepts an arbitrary mapping without
+revalidating it. A non-writing capture-store falsifier proved that helper accepts the forged dump,
+even though normal `ParetoArchive.model_validate` refuses it. The complete production census was
+2,771 tracked `src` files / 2,561 Python / zero parse failures: it found zero production calls to
+either `build_pareto_archive` or `persist_value_choice_provenance_bundle`, and no governed
+realization through the helper.
+
+The bounded residual is therefore deliberately narrow: the generic persister is accepting but
+dormant and unorchestrated, not absent. The bound is falsified by any production caller or governed
+artifact passing through that unvalidated helper. The smallest closing capability is GY-GAP7's
+owner-backed producer, persistence and resolver plus one mandatory cut line at that persister or its
+replacement that revalidates the archive and owner-resolves and content-binds its schedule before
+persistence, promotion or surfacing. That capability does not exist in this deployment. P40 forbids
+another instance patch after round 2; the residual is recorded rather than hidden.
+
+## 9. Final targeted verification
+
+- Six supported/delegate minting seams: 6 passed; each ranked mutation refused and each safe unranked
+  operation remained admitted.
+- Complete touched S8 unit file plus the corrected resolver-absence repo witness: 23 passed in
+  10.35 seconds.
+- Independent witness review: 13 focused cases passed; mechanism reviews separately replayed eight
+  and seven focused cases, all green.
+- Layer 2 readiness S8 probe: issues `[]`; its refusal witness requires
+  `p20_value_schedule_resolver_absent`.
+- Targeted Ruff over the changed Python files and `git diff --check`: pass.
+- A broader targeted repo-quality invocation completed every data-independent case green but had
+  five fixture setup errors because worktrees carry no `production_data/manifest.json`; this is a
+  loud fixture non-receipt and supplies no mechanism evidence. No full pytest was run.
+- A file-wide mypy invocation is not used as closure evidence: after the new override diagnostics
+  were removed, it still reported seven diagnostics outside the added methods, and this lane makes
+  no provenance claim about them.
+
+## 10. Non-persisting governed derivation and stop
+
+The source was frozen and all reviews completed before the governed checks. Root alone launched the
+heavy read-only processes; there was no governed writer, database or fixed port, and GY-N12 retained
+ownership of the live artifact chain.
+
+The N9 promotion-contract check was current: status `pass`, issues `[]`, validator wall time
+63.57474 seconds and process wall time 80.99 seconds. The generation-cycle check then reported
+`generation_cycle_contract_canonical_bytes_drift`, with
+`actual_hash=sha256:848e4c2c63550f7b2ab6b86c6699fe9851403e1bbe2ca4f6f2a0f45ef0fb17bd` and
+`expected_hash=sha256:f1554159844babea49f1d4bf3413b8a5c8b798312994a59d3bd027683eede56e`.
+That is the commissioned stop condition. N11 was not run, no write mode was invoked, and a complete
+tracked-plus-untracked status read immediately afterward was empty. No governed output moved.
+
+Measured outcome: the substring authority defect is repaired at the source boundary by exact
+fail-closed resolver-absence semantics, with unranked behavior preserved; GY-GAP7 owns the missing
+positive-admission capability and the declared low-level/persistence residual. The governed
+freshness reissue is deliberately unpaid in this lane because the non-persisting generation-cycle
+candidate moved while GY-N12 owns the contended chain.

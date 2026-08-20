@@ -4025,9 +4025,35 @@ and cold closeout remain unproved.
   **Forbidden closures:** a longer substring list; a regex over names; a naming convention enforced
   by lint; an allowlist of known-good refs. Each is the same defect with more characters.
 
-  **Standing:** `open`. Registered from a probe, not from a repair attempt. It does **not** block
-  `GY-PA1`, whose blockers are `producer_missing` and institutional; it is an independent live
-  defect on a path that exists today.
+  **STANDING RECORDED (measured 2026-08-20): source repair complete; governed reissue stopped and
+  unwritten.** The complete 6,182-file owner census found no production schedule producer,
+  persistence owner or resolver, so `build_pareto_archive` no longer inspects reference text and
+  every `ranked_with_authorized_values` admission now fails closed with the distinct
+  `p20_value_schedule_resolver_absent` code; `p20_value_schedule_ref_unresolvable` remains reserved
+  for a real owner-backed lookup failure. Unranked frontier admission is unchanged. The four
+  original boundary reds discriminate `shadowless-2026`, `sh4dow-q3`, a neutral unresolved ref and
+  a shadow schedule whose name is invented at test time; the final suite refuses all four for owner
+  absence with the exact code. The readiness witness now proves resolver absence rather than falsely
+  inferring shadow kind, its stale CI path is corrected, and only the three gate-bound S8-plan test
+  commands moved; two navigation/history references remain.
+
+  Mechanism rounds finished **2/2** under P40: round 1 found the exported model constructor as a new
+  sibling-bypass class; round 2 found supported unvalidated Pydantic minting one level deeper. The
+  terminating widening revalidates the three independent primitives (`model_construct`,
+  `model_copy`, deprecated `copy`) and therefore their three delegates; independent delta reviews
+  returned GO. A bounded residual remains and is owned by GY-GAP7: a deliberate low-level forged
+  instance can be dumped to a mapping accepted by the exported generic persister, but the complete
+  2,771-source-file / 2,561-Python-file census found zero production callers and no governed
+  realization. Any production caller or governed artifact through that unvalidated helper falsifies
+  the bound; closure requires the missing owner chain plus a mandatory revalidate +
+  owner-resolve/content-bind cut line at the persister or its replacement.
+
+  The non-persisting N9 check stayed current (`pass`, no issues), but the generation-cycle check
+  reported `generation_cycle_contract_canonical_bytes_drift`
+  (`actual sha256:848e4c2c63550f7b2ab6b86c6699fe9851403e1bbe2ca4f6f2a0f45ef0fb17bd`,
+  `expected sha256:f1554159844babea49f1d4bf3413b8a5c8b798312994a59d3bd027683eede56e`). Per the
+  commissioned contention rule, this lane stopped before N11 and wrote no governed output while
+  GY-N12 owns the chain. `[P20/P31/P37/P38/P40: not_established -> fail closed; producer_missing]`
 
 - **GY-DEF22 — the frozen N8 record cannot discriminate the environment that produced it
   (measured by the architect 2026-08-20 while adjudicating the `GY-DI1` closeout; the FOURTH lane to
@@ -4733,11 +4759,14 @@ nothing.
 
   **Closure signal:** an authority-grade schedule is produced, persisted, and resolved by its owner;
   ranked admission resolves and content-binds through that owner; and a shadow or scenario schedule
-  is refused by its **resolved kind under any name**. An omitted, stale, tampered, substituted, or
-  genuinely unresolvable reference emits zero ranked recommendations and a typed
-  `NormativeDecisionRequest`, while frontier-only output remains available. Only after that owner
-  exists may `p20_value_schedule_ref_unresolvable` name a real per-reference resolution failure;
-  until then ranked admission reports `p20_value_schedule_resolver_absent`.
+  is refused by its **resolved kind under any name**. Every persistence, promotion and surface
+  boundary — including `persist_value_choice_provenance_bundle` or its replacement — revalidates the
+  archive and owner-resolves and content-binds the schedule before accepting a ranked payload. An
+  omitted, stale, tampered, substituted, or genuinely unresolvable reference emits zero ranked
+  recommendations and a typed `NormativeDecisionRequest`, while frontier-only output remains
+  available. Only after that owner exists may `p20_value_schedule_ref_unresolvable` name a real
+  per-reference resolution failure; until then ranked admission reports
+  `p20_value_schedule_resolver_absent`.
 
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 

@@ -1083,6 +1083,69 @@ def test_signed_untrusted_memory_and_input_surfaces_never_fire_effect(
     )
 
 
+def test_signed_policy_fact_ref_memory_payload_is_refused_before_effect(
+    tmp_path: Path,
+) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    binding = _binding(operation, effects)
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+        memory_claim_payload={
+            "policy_fact_ref": "memory-influence:prior-policy-fact",
+        },
+    )
+
+    _assert_refused_with_zero_effect(
+        harness,
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        effects=effects,
+        expected_reason="memory_not_admissible_as_policy_fact",
+    )
+
+
+def test_runtime_invented_memory_key_is_refused_before_effect(tmp_path: Path) -> None:
+    harness = _harness(tmp_path)
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    effects: list[str] = []
+    binding = _binding(operation, effects)
+    novel_key = f"runtime_invented_memory_position_{id(effects)}"
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+        memory_claim_payload={
+            novel_key: {"carrier": ["memory-influence:prior-policy-fact"]},
+        },
+    )
+
+    _assert_refused_with_zero_effect(
+        harness,
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        effects=effects,
+        expected_reason="memory_not_admissible_as_policy_fact",
+    )
+
+
 def test_unadmitted_tool_surface_never_fires_effect(tmp_path: Path) -> None:
     harness = _harness(tmp_path)
     operation = _operation("agent.tool-call")

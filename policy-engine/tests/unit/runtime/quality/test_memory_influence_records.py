@@ -11,6 +11,7 @@ from polisyos.runtime.quality.memory_influence import (
     MemoryInfluenceRecord,
     assert_memory_influence_not_claim_evidence,
     build_memory_influence_record,
+    is_memory_influence_ref,
 )
 from polisyos.scientist.orchestration.memory import (
     BalancedMemoryKind,
@@ -52,6 +53,7 @@ def test_success_memory_influence_guides_search_and_review_but_not_claim_evidenc
     assert record.influence_modes == ("guide_search", "guide_review")
     assert "future_search" in record.authoritative_for
     assert "future_review" in record.authoritative_for
+    assert is_memory_influence_ref(record.record_id)
     assert set(record.may_not_use_for) >= {
         "current_claim_evidence",
         "current_claim_closure",

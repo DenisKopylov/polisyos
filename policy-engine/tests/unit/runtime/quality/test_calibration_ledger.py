@@ -4,6 +4,7 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import pytest
 
@@ -288,6 +289,44 @@ def test_historical_prior_refs_fail_claim_registry_evidence_slots() -> None:
         issue["historical_prior_ref"]
         == "historical-prior-influence:run-future:msme-credit"
     )
+
+
+def test_runtime_invented_historical_prior_claim_slot_fails_closed() -> None:
+    novel_key = f"runtime_invented_prior_position_{uuid4().hex}"
+    registry = normalize_runtime_claim_registry(
+        {
+            "schema_version": "policyos.runtime.claim_registry.v1",
+            "claims": [
+                {
+                    "claim_id": "rec_credit_guarantee",
+                    "scenario_requirement_refs": ["scenario.req.credit_support"],
+                    "data_refs": ["source.msme_panel"],
+                    "selected_norm_refs": ["norm.ua.credit_guarantee"],
+                    "method_output_refs": ["foundry.did.msme_survival"],
+                    "portfolio_refs": ["portfolio.rec_credit_guarantee"],
+                    "argument_refs": ["argument.rec_credit_guarantee"],
+                    "warrant_refs": ["warrant.rec_credit_guarantee"],
+                    "rebuttal_refs": ["rebuttal.rec_credit_guarantee"],
+                    "counter_evidence_refs": ["counter.rec_credit_guarantee"],
+                    "limitation_refs": ["data-quality.recency.msme_panel"],
+                    "accepted_deficit_refs": ["deficit.recency.msme_panel"],
+                    novel_key: {
+                        "carrier": [
+                            "historical-prior-influence:run-future:msme-credit",
+                        ],
+                    },
+                }
+            ],
+        },
+    )
+
+    issue = next(
+        issue
+        for issue in registry["issues"]
+        if issue["code"] == "historical_prior_ref_not_admissible_as_claim_evidence"
+    )
+    assert registry["status"] == "fail"
+    assert issue["evidence_slot"] == novel_key
 
 
 def test_calibration_ledger_persistence_writes_cas_and_bundle_surface(

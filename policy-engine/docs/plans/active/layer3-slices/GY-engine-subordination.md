@@ -2489,6 +2489,38 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   absorb those missing N7/N8 producers. Measurement journal:
   `docs/superpowers/journals/2026-08-20-gy-pa1-foundability-probe.md`. Rounds remain `0 / 2`; no
   run exceeded 60 seconds and no revision number was assigned.
+
+  **EXECUTABILITY RE-MEASURED (architect, 2026-08-20, on `main` after `GY-DEF19` landed): still NOT
+  executable, and the reason sharpened rather than softened.** The foundability probe's decisive
+  finding was that nothing ranks in production, so the gate had nothing to block and could not
+  demonstrate its own negative (`P29`). `GY-DEF19` has since made **every** `ranked_with_authorized_values`
+  admission fail closed with `p20_value_schedule_resolver_absent`. That does not unblock `GY-PA1` — it
+  inverts the same obstruction: the door is now nailed shut **upstream** of where PA1's authorization
+  check would sit, so PA1's negative would pass for the wrong reason, refused by an absent resolver
+  rather than by an unauthorized schedule. `P29` from both sides.
+
+  **Three prerequisites, measured on `main`, in dependency order:**
+
+  1. **`GY-GAP7` — PA1's own first cluster** (see the routing correction on that entry). Without a
+     produced, persisted and owner-resolved authority-grade schedule, `resolver_absent` fires before
+     any authorization predicate is consulted.
+  2. **`NormativeDecisionRequest` does not exist.** Measured: **zero** files under `src`, `tests` and
+     `tools`. It is PA1's required refusal-path *output*, so the done-when's *"only frontier + a typed
+     `NormativeDecisionRequest`"* is unwritable, not merely unexercised. `NormativeAuthorizationRecord`
+     — PA1's own central record — likewise returns **zero**.
+  3. **No S8 ranked emitter exists.** `build_authorized_value_schedule` has no production caller;
+     only the `runtime/quality/__init__` re-export lines reference it. Causal HTE ranking exists
+     elsewhere in the repository and is **not** this path.
+
+  **And the root remains institutional and outside every lane:** an external rollout institution must
+  sign an owner-derived assignment, or the knowledge producer must emit a certified SKG identity
+  bridge. `GY-N7` owns typed admission and re-entry but not the institutional act; `GY-N8` owns
+  dispatch and persisted `ValueGateReceipt` production. `GY-PA1` must not absorb either.
+
+  **Consequence for scheduling:** items 1–3 are engineering that PA1's own lane would perform, so the
+  gating question is no longer *"is there work to do"* but *"does the authority to declare a value
+  schedule exist at all"*. That is a decision, not a task, and it is unanswered.
+
 - **GY-PA2 — D3 delegation gate producer (pre-action agent authority; M37 / CPA-R22·R24).**
   build-new producer closing the D3 `contract_only`/`producer_missing` gap. Before any agent
   external action (search / tool_call / draft / data_request / external_interaction) emit a
@@ -4786,6 +4818,16 @@ nothing.
   available. Only after that owner exists may `p20_value_schedule_ref_unresolvable` name a real
   per-reference resolution failure; until then ranked admission reports
   `p20_value_schedule_resolver_absent`.
+
+
+  **ROUTING CORRECTED (architect, 2026-08-20): `GY-GAP7` is not a gap *owned by* `GY-PA1`; it is
+  `GY-PA1`'s FIRST CLUSTER.** As registered, its owner line named the S8 value-authority lane
+  (`GY-PA1`) while `GY-PA1` itself stands `producer_missing` **because** this chain is absent. That
+  made each entry the other's blocker — a circular routing, and the same class this programme recorded
+  in Atlas Revision 3.22 for debts owned by closed slices. Nothing here is deleted: the capability, its
+  label and its closure signal are unchanged and still real. What changes is that it is read as work
+  `GY-PA1`'s lane performs first, not as an external gate `GY-PA1` waits behind. Whether that lane can
+  perform it is a separate question answered in the `GY-PA1` entry.
 
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 

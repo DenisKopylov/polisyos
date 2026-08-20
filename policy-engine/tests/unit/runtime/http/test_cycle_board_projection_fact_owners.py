@@ -19,6 +19,7 @@ from polisyos.runtime.http.services.governed_projections import (
 from tests.unit.runtime.http.test_cycle_board_projection_service import (
     N10_ORDER,
     REPO_ROOT,
+    _assert_composed_route_equals_owner,
     _component_packets,
     _service,
 )
@@ -85,14 +86,21 @@ def test_cycle_board_claims_equal_live_owner_recomputation_and_detect_corruption
             / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
         ).read_text(encoding="utf-8")
     )
-    packets = _component_packets(
-        depth=DepthNCycleBoardPayload.model_validate(_project_depth_n(source)),
-    )
+    owner_projection = DepthNCycleBoardPayload.model_validate(_project_depth_n(source))
+    packets = _component_packets(depth=owner_projection)
     service, _, _ = _service(packets=packets)
     packet = service.get()
     expected = _recomputed_owner_truth(source)
 
     _assert_rows_equal_owner(packet.payload.rows, expected)
+    for role in N10_ORDER:
+        row = next(item for item in packet.payload.rows if item.domain_role == role)
+        owner_run = owner_projection.domain_runs[role]
+        _assert_composed_route_equals_owner(
+            row,
+            owner_run.acquisition_route,
+            owner_run.acquisition_economics,
+        )
 
     rows = list(packet.payload.rows)
     target_index = next(i for i, row in enumerate(rows) if row.domain_role in expected)

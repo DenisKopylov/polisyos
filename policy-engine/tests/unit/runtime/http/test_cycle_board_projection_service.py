@@ -9,6 +9,8 @@ from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
 
+from polisyos.core.contracts.runtime import RunSummary
+from polisyos.core.trace.record import RunTerminality
 from polisyos.runtime.http.services.cycle_board_projection import (
     CycleBoardProjectionService,
     N13BGlobalMovementSignal,
@@ -16,14 +18,12 @@ from polisyos.runtime.http.services.cycle_board_projection import (
     load_historical_producer_availability,
     load_n13b_global_movement_signal,
 )
-
-from polisyos.core.contracts.runtime import RunSummary
-from polisyos.core.trace.record import RunTerminality
 from polisyos.runtime.http.services.governed_projections import (
     ArtifactMissingGovernedProjectionPacket,
     AudienceClass,
     AvailableGovernedProjectionPacket,
-    DepthNAcquisitionRouteProjection,
+    DepthNAcquisitionEconomicsProjection,
+    DepthNAcquisitionRouteReference,
     DepthNCycleBoardPayload,
     DepthNDomainRunProjection,
     InvalidGovernedProjectionPacket,
@@ -46,8 +46,7 @@ OBSERVED_AT = datetime(2026, 8, 20, 12, tzinfo=UTC)
 N10_ORDER = ("first_vertical", "education", "unseen")
 N10_SOURCE = json.loads(
     (
-        REPO_ROOT
-        / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+        REPO_ROOT / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
     ).read_text(encoding="utf-8")
 )
 
@@ -137,21 +136,35 @@ def _invalid(projection_id: ProjectionId, *, reason: str = "fixture invalid"):
     )
 
 
-def _route(role: str, *, cost: float | None = None, voi: float | None = None):
-    return DepthNAcquisitionRouteProjection(
-        owner="polisyos.runtime.quality.acquisition_planner",
-        route_kind="n7_requirement_gap",
-        planner_report_content_hash=_digest({"planner": role}),
-        planner_status="pass",
-        requirement_gap_id=f"requirement-gap:{role}",
-        missing_requirement_fields=(f"grounding_relation_or_owner_lever:{role}",),
-        recommended_strategy="production_snapshot_build",
+def _route_reference(role: str) -> DepthNAcquisitionRouteReference | None:
+    raw_reference = N10_SOURCE["domain_runs"][role]["evidence_witness"].get("acquisition_route")
+    if raw_reference is None:
+        return None
+    return DepthNAcquisitionRouteReference.model_validate(raw_reference)
+
+
+def _economics(
+    role: str,
+    *,
+    cost: float | None = None,
+    voi: float | None = None,
+) -> DepthNAcquisitionEconomicsProjection:
+    source_run = N10_SOURCE["domain_runs"][role]
+    report = source_run["terminal"]["costed_plan"]["canonical_planner_report"]
+    record = report["acquisition_records"][0]
+    return DepthNAcquisitionEconomicsProjection(
+        planner_report_content_hash=source_run["stage_trace"]["acquisition"][
+            "planner_report_content_hash"
+        ],
+        planner_status=report["status"],
+        missing_requirement_fields=tuple(record["missing_requirement_fields"]),
+        recommended_strategy=record["recommended_strategy"],
         expected_cost=cost,
         expected_voi=voi,
         voi_rank=1 if voi is not None else None,
-        decision_owner_ref="polisyos.runtime.quality.acquisition_planner",
-        producer_expected="data_forge.snapshot",
-        next_action="build_production_snapshot",
+        decision_owner_ref=record["decision_owner_ref"],
+        producer_expected=record["producer_expected"],
+        next_action=record["next_actions"][0]["action"],
     )
 
 
@@ -179,7 +192,8 @@ def _depth_payload() -> DepthNCycleBoardPayload:
                 evidence_class=evidence[role],
                 evidence_witness={"kind": evidence[role]},
                 weakest_links=(f"weakest-{role}-1", f"weakest-{role}-2"),
-                acquisition_route=_route(
+                acquisition_route=_route_reference(role),
+                acquisition_economics=_economics(
                     role,
                     cost=12.5 if role == "first_vertical" else None,
                     voi=4.0 if role == "first_vertical" else None,
@@ -364,24 +378,38 @@ def _row(packet: Any, role: str):
     return next(row for row in packet.payload.rows if row.domain_role == role)
 
 
-def _assert_composed_route_equals_owner(row: Any, owner_route: Any) -> None:
-    composed = row.acquisition_route.value
+def _assert_composed_route_equals_owner(
+    row: Any,
+    owner_route: DepthNAcquisitionRouteReference | None,
+    owner_economics: DepthNAcquisitionEconomicsProjection | None,
+) -> None:
+    if owner_route is None:
+        assert row.acquisition_route.availability == "not_established"
+        assert "value" not in row.acquisition_route.model_dump()
+    else:
+        assert row.acquisition_route.availability == "available"
+        assert row.acquisition_route.value == owner_route
+
+    if owner_economics is None:
+        assert row.acquisition_economics.availability == "not_established"
+        assert "value" not in row.acquisition_economics.model_dump()
+        return
+
+    assert row.acquisition_economics.availability == "available"
+    composed = row.acquisition_economics.value
     for field in (
-        "owner",
-        "route_kind",
         "planner_report_content_hash",
         "planner_status",
-        "requirement_gap_id",
         "missing_requirement_fields",
         "recommended_strategy",
         "decision_owner_ref",
         "producer_expected",
         "next_action",
     ):
-        assert getattr(composed, field) == getattr(owner_route, field)
+        assert getattr(composed, field) == getattr(owner_economics, field)
     for field in ("expected_cost", "expected_voi", "voi_rank"):
         fact = getattr(composed, field)
-        owner_value = getattr(owner_route, field)
+        owner_value = getattr(owner_economics, field)
         if owner_value is None:
             assert fact.availability == "not_established"
             assert "value" not in fact.model_dump()
@@ -400,7 +428,7 @@ def test_known_cohorts_are_owner_ordered_non_exhaustive_and_exclude_run_list_job
             "nl-shadow-terminal-job": _summary(
                 "nl-shadow-terminal-job", RunTerminality.TERMINAL, status="finished"
             )
-        }
+        },
     )
 
     packet = service.get()
@@ -417,7 +445,11 @@ def test_known_cohorts_are_owner_ordered_non_exhaustive_and_exclude_run_list_job
         owner_run = depth.domain_runs[role]
         assert row.design_problem.availability == "available"
         assert row.design_problem.value == owner_run.design_problem
-        _assert_composed_route_equals_owner(row, owner_run.acquisition_route)
+        _assert_composed_route_equals_owner(
+            row,
+            owner_run.acquisition_route,
+            owner_run.acquisition_economics,
+        )
     coverage = packet.payload.coverage
     assert coverage.capability_state == "absent/unallocated"
     assert coverage.deficits == ("artifact_missing", "bridge_missing")
@@ -463,6 +495,7 @@ def test_known_cohorts_are_owner_ordered_non_exhaustive_and_exclude_run_list_job
             row.weakest_links,
             row.missing_link,
             row.acquisition_route,
+            row.acquisition_economics,
             row.stage_trace_href,
         ):
             assert field.availability == "artifact_missing"
@@ -477,6 +510,7 @@ def _structural_region(packet: Any) -> list[dict[str, Any]]:
             "weakest": row.weakest_links.model_dump(mode="json"),
             "missing": row.missing_link.model_dump(mode="json"),
             "route": row.acquisition_route.model_dump(mode="json"),
+            "economics": row.acquisition_economics.model_dump(mode="json"),
             "movement": list(row.movement_records),
         }
         for row in packet.payload.rows[:3]
@@ -560,12 +594,15 @@ def test_adjacent_counts_and_n13b_control_plane_signal_cannot_mint_structural_pr
     assert gap.movement_records == ()
     assert gap.missing_link == "acquisition_reentry_deeper_terminal_binding"
     first = _row(baseline_packet, "first_vertical")
-    assert first.acquisition_route.value.expected_cost.value == 12.5
-    assert first.acquisition_route.value.expected_voi.value == 4.0
+    assert first.acquisition_economics.value.expected_cost.value == 12.5
+    assert first.acquisition_economics.value.expected_voi.value == 4.0
     education = _row(baseline_packet, "education")
-    assert education.acquisition_route.value.expected_cost.availability == "not_established"
-    assert "value" not in education.acquisition_route.value.expected_cost.model_dump()
-    assert education.acquisition_route.value.execution_status.availability == "not_established"
+    assert education.acquisition_route.availability == "not_established"
+    assert "value" not in education.acquisition_route.model_dump()
+    assert education.acquisition_economics.availability == "available"
+    assert education.acquisition_economics.value.expected_cost.availability == "not_established"
+    assert "value" not in education.acquisition_economics.value.expected_cost.model_dump()
+    assert education.acquisition_economics.value.execution_status.availability == "not_established"
 
 
 def test_component_absence_states_and_historical_environment_measurement_stay_separate() -> None:
@@ -622,9 +659,7 @@ def test_component_absence_states_and_historical_environment_measurement_stay_se
         assert entry.artifact_content_hash == (
             raw_packet.source.artifact_content_hash if raw_packet.source is not None else None
         )
-        assert entry.source_dependency_hash == getattr(
-            raw_packet, "source_dependency_hash", None
-        )
+        assert entry.source_dependency_hash == getattr(raw_packet, "source_dependency_hash", None)
         assert entry.as_of == raw_packet.as_of
         assert entry.freshness == raw_packet.freshness
     n13b_entry = manifest_by_id["n13b-global-deeper-terminal"]

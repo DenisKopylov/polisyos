@@ -11,7 +11,7 @@ from polisyos.runtime.http.services.cycle_board_contracts import (
     CYCLE_BOARD_STABLE_ADDRESS,
     AbsentFact,
     AvailableFact,
-    CycleBoardAcquisitionRoute,
+    CycleBoardAcquisitionEconomics,
     CycleBoardCompositionSource,
     CycleBoardCoverageGap,
     CycleBoardExportResponse,
@@ -39,7 +39,7 @@ from polisyos.runtime.http.services.export_replay import (
 )
 from polisyos.runtime.http.services.governed_projections import (
     AvailableGovernedProjectionPacket,
-    DepthNAcquisitionRouteProjection,
+    DepthNAcquisitionEconomicsProjection,
     DepthNDomainRunProjection,
     GovernedProjectionPacket,
     LegacyProvingGroundPayload,
@@ -141,45 +141,42 @@ def _fact_from_optional_number(
     return _available(value, source_ref=source_ref, source_as_of=source_as_of)
 
 
-def _compose_acquisition_route(
-    route: DepthNAcquisitionRouteProjection,
+def _compose_acquisition_economics(
+    economics: DepthNAcquisitionEconomicsProjection,
     *,
     source_ref: str,
     source_as_of: datetime | None,
-) -> CycleBoardAcquisitionRoute:
-    return CycleBoardAcquisitionRoute(
-        owner=route.owner,
-        route_kind=route.route_kind,
-        planner_report_content_hash=route.planner_report_content_hash,
-        planner_status=route.planner_status,
-        requirement_gap_id=route.requirement_gap_id,
-        missing_requirement_fields=route.missing_requirement_fields,
-        recommended_strategy=route.recommended_strategy,
+) -> CycleBoardAcquisitionEconomics:
+    return CycleBoardAcquisitionEconomics(
+        planner_report_content_hash=economics.planner_report_content_hash,
+        planner_status=economics.planner_status,
+        missing_requirement_fields=economics.missing_requirement_fields,
+        recommended_strategy=economics.recommended_strategy,
         expected_cost=_fact_from_optional_number(
-            route.expected_cost,
+            economics.expected_cost,
             source_ref=source_ref,
             source_as_of=source_as_of,
             field_name="expected cost",
         ),
         expected_voi=_fact_from_optional_number(
-            route.expected_voi,
+            economics.expected_voi,
             source_ref=source_ref,
             source_as_of=source_as_of,
             field_name="expected VOI",
         ),
         voi_rank=_fact_from_optional_number(
-            route.voi_rank,
+            economics.voi_rank,
             source_ref=source_ref,
             source_as_of=source_as_of,
             field_name="VOI rank",
         ),
-        decision_owner_ref=route.decision_owner_ref,
-        producer_expected=route.producer_expected,
-        next_action=route.next_action,
+        decision_owner_ref=economics.decision_owner_ref,
+        producer_expected=economics.producer_expected,
+        next_action=economics.next_action,
         execution_status=_absent(
             "not_established",
             reason="no admitted acquisition execution receipt is bound to this row",
-            owner_route=route.producer_expected,
+            owner_route=economics.producer_expected,
         ),
     )
 
@@ -360,6 +357,34 @@ def _capstone_rows(
                 reason="N13a did not bind a structural missing link for this row",
                 owner_route="GY-N13a acquisition route owner",
             )
+        if raw_run.acquisition_route is None:
+            acquisition_route = _absent(
+                "not_established",
+                reason="the owner witness carries no acquisition_route reference for this row",
+                owner_route="Depth-N evidence witness owner",
+            )
+        else:
+            acquisition_route = _available(
+                raw_run.acquisition_route,
+                source_ref=raw_run.acquisition_route.owner_content_hash,
+                source_as_of=source_as_of,
+            )
+        if raw_run.acquisition_economics is None:
+            acquisition_economics = _absent(
+                "not_established",
+                reason="the planner report pointer did not resolve to hash-bound economics",
+                owner_route="polisyos.runtime.quality.acquisition_planner",
+            )
+        else:
+            acquisition_economics = _available(
+                _compose_acquisition_economics(
+                    raw_run.acquisition_economics,
+                    source_ref=raw_run.acquisition_economics.planner_report_content_hash,
+                    source_as_of=source_as_of,
+                ),
+                source_ref=raw_run.acquisition_economics.planner_report_content_hash,
+                source_as_of=source_as_of,
+            )
         design_problem_id = raw_run.design_problem.design_problem_id
         rows.append(
             CycleBoardRow(
@@ -393,15 +418,8 @@ def _capstone_rows(
                     source_as_of=source_as_of,
                 ),
                 missing_link=missing_link,
-                acquisition_route=_available(
-                    _compose_acquisition_route(
-                        raw_run.acquisition_route,
-                        source_ref=source_ref,
-                        source_as_of=source_as_of,
-                    ),
-                    source_ref=source_ref,
-                    source_as_of=source_as_of,
-                ),
+                acquisition_route=acquisition_route,
+                acquisition_economics=acquisition_economics,
                 responsible_slices=("GY-N10", "GY-N13a", "DS7"),
                 stage_trace_href=_absent(
                     "not_established",
@@ -449,6 +467,7 @@ def _legacy_rows(
             weakest_links=runtime_absence("weakest links"),
             missing_link=runtime_absence("missing link"),
             acquisition_route=runtime_absence("acquisition route"),
+            acquisition_economics=runtime_absence("acquisition economics"),
             responsible_slices=("legacy-proving-ground", "DS7"),
             stage_trace_href=runtime_absence("DS8 stage trace"),
             surface_readiness=readiness,

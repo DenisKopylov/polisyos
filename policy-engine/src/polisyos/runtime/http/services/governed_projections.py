@@ -18,6 +18,7 @@ from typing import Annotated, Any, Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, WithJsonSchema, model_validator
 
 from polisyos.common import serialization
+from polisyos.pdc import gy_content_hash
 from polisyos.runtime.http.services.channel_contracts import (
     RUNS_CHANNEL_DATA_EVENT_CONTRACT,
     ReviewPresenceSnapshot,
@@ -165,14 +166,20 @@ JsonObject = dict[str, ProjectionJsonValue]
 JsonObjectTuple = tuple[JsonObject, ...]
 
 
-class DepthNAcquisitionRouteProjection(_StrictModel):
-    """Recorded N7 route and economics for one depth-N refusal."""
+class DepthNAcquisitionRouteReference(_StrictModel):
+    """Content-bound owner route reference carried by the depth-N artifact."""
 
-    owner: str
-    route_kind: str
+    owner_content_hash: str
+    owner_schema: str
+    planner_report_content_hash: str
+    requirement_gap_id: str
+
+
+class DepthNAcquisitionEconomicsProjection(_StrictModel):
+    """Hash-resolved N7 planner economics, separate from its route reference."""
+
     planner_report_content_hash: str
     planner_status: str
-    requirement_gap_id: str
     missing_requirement_fields: tuple[str, ...]
     recommended_strategy: str
     expected_cost: float | None
@@ -195,7 +202,8 @@ class DepthNDomainRunProjection(_StrictModel):
     evidence_class: str
     evidence_witness: JsonObject
     weakest_links: tuple[str, ...]
-    acquisition_route: DepthNAcquisitionRouteProjection
+    acquisition_route: DepthNAcquisitionRouteReference | None = None
+    acquisition_economics: DepthNAcquisitionEconomicsProjection | None = None
 
 
 class DepthNCycleBoardPayload(_StrictModel):
@@ -1412,6 +1420,97 @@ class GovernedProjectionService:
         )
 
 
+def _depth_n_route_reference(witness: dict[str, Any]) -> dict[str, Any] | None:
+    raw_reference = witness.get("acquisition_route")
+    if raw_reference is None:
+        return None
+    try:
+        reference = DepthNAcquisitionRouteReference.model_validate(raw_reference)
+    except ValueError as exc:
+        raise InvalidProjectionSourceError(f"acquisition_route invalid: {exc}") from exc
+    return reference.model_dump(mode="json")
+
+
+def _depth_n_acquisition_economics(
+    run: dict[str, Any],
+    *,
+    route_reference: dict[str, Any] | None,
+) -> dict[str, Any] | None:
+    """Resolve inline planner contents only when their producer hash matches."""
+
+    try:
+        stage_trace = _mapping(run.get("stage_trace"), "stage_trace")
+        acquisition = _mapping(stage_trace.get("acquisition"), "stage_trace.acquisition")
+        planner_report_content_hash = _required_string(
+            acquisition,
+            "planner_report_content_hash",
+        )
+        if (
+            route_reference is not None
+            and route_reference["planner_report_content_hash"] != planner_report_content_hash
+        ):
+            return None
+        terminal = _mapping(run.get("terminal"), "terminal")
+        costed_plan = _mapping(terminal.get("costed_plan"), "terminal.costed_plan")
+        planner_report = _mapping(
+            costed_plan.get("canonical_planner_report"),
+            "canonical_planner_report",
+        )
+        if gy_content_hash(planner_report) != planner_report_content_hash:
+            return None
+        acquisition_records = _required_list(planner_report, "acquisition_records")
+        if len(acquisition_records) != 1:
+            return None
+        acquisition_record = _mapping(
+            acquisition_records[0],
+            "canonical_planner_report.acquisition_records[0]",
+        )
+        if (
+            route_reference is not None
+            and _required_string(acquisition_record, "gap_id")
+            != route_reference["requirement_gap_id"]
+        ):
+            return None
+        recommended_strategy = _required_string(acquisition_record, "recommended_strategy")
+        strategy_records = [
+            _mapping(item, "acquisition_record.strategy_records[]")
+            for item in _required_list(acquisition_record, "strategy_records")
+        ]
+        matching_strategies = [
+            item for item in strategy_records if item.get("strategy") == recommended_strategy
+        ]
+        if len(matching_strategies) != 1:
+            return None
+        strategy_record = matching_strategies[0]
+        next_actions = [
+            _mapping(item, "acquisition_record.next_actions[]")
+            for item in _required_list(acquisition_record, "next_actions")
+        ]
+        if len(next_actions) != 1:
+            return None
+        next_action = next_actions[0]
+        economics = DepthNAcquisitionEconomicsProjection(
+            planner_report_content_hash=planner_report_content_hash,
+            planner_status=_required_string(planner_report, "status"),
+            missing_requirement_fields=tuple(
+                _required_non_empty_string_list(
+                    acquisition_record,
+                    "missing_requirement_fields",
+                )
+            ),
+            recommended_strategy=recommended_strategy,
+            expected_cost=_required_value(strategy_record, "voi_expected_cost"),
+            expected_voi=_required_value(strategy_record, "voi_expected_value"),
+            voi_rank=_required_value(strategy_record, "voi_rank"),
+            decision_owner_ref=_required_string(acquisition_record, "decision_owner_ref"),
+            producer_expected=_required_string(acquisition_record, "producer_expected"),
+            next_action=_required_string(next_action, "action"),
+        )
+    except (InvalidProjectionSourceError, ValueError, TypeError):
+        return None
+    return economics.model_dump(mode="json")
+
+
 def _project_depth_n(source: dict[str, Any]) -> dict[str, Any]:
     domain_runs = _required_mapping(source, "domain_runs")
     projected_runs: dict[str, Any] = {}
@@ -1422,48 +1521,15 @@ def _project_depth_n(source: dict[str, Any]) -> dict[str, Any]:
         terminal = _required_mapping(run, "terminal")
         weakest_links = _required_list(terminal, "blocking_obligations")
         terminal_distribution = _required_mapping(run, "terminal_distribution")
-        stage_trace = _required_mapping(run, "stage_trace")
-        acquisition = _required_mapping(stage_trace, "acquisition")
         try:
             design_problem = DesignProblem.model_validate(_required_mapping(run, "design_problem"))
         except ValueError as exc:
             raise InvalidProjectionSourceError(f"design_problem invalid: {exc}") from exc
-        costed_plan = _required_mapping(terminal, "costed_plan")
-        planner_report = _required_mapping(costed_plan, "canonical_planner_report")
-        acquisition_records = _required_list(planner_report, "acquisition_records")
-        if len(acquisition_records) != 1:
-            raise InvalidProjectionSourceError(
-                "canonical_planner_report.acquisition_records must contain exactly one route"
-            )
-        acquisition_record = _mapping(
-            acquisition_records[0],
-            "canonical_planner_report.acquisition_records[0]",
+        route_reference = _depth_n_route_reference(witness)
+        acquisition_economics = _depth_n_acquisition_economics(
+            run,
+            route_reference=route_reference,
         )
-        recommended_strategy = _required_string(
-            acquisition_record,
-            "recommended_strategy",
-        )
-        strategy_records = [
-            _mapping(item, "acquisition_record.strategy_records[]")
-            for item in _required_list(acquisition_record, "strategy_records")
-        ]
-        matching_strategies = [
-            item for item in strategy_records if item.get("strategy") == recommended_strategy
-        ]
-        if len(matching_strategies) != 1:
-            raise InvalidProjectionSourceError(
-                "recommended acquisition strategy must resolve exactly once"
-            )
-        strategy_record = matching_strategies[0]
-        next_actions = [
-            _mapping(item, "acquisition_record.next_actions[]")
-            for item in _required_list(acquisition_record, "next_actions")
-        ]
-        if len(next_actions) != 1:
-            raise InvalidProjectionSourceError(
-                "acquisition record must contain exactly one owner-recorded next action"
-            )
-        next_action = next_actions[0]
         projected_runs[str(domain)] = {
             "generation_cycle_run_id": _required_value(run, "generation_cycle_run_id"),
             "design_problem_ref": _required_value(run, "design_problem_ref"),
@@ -1474,33 +1540,8 @@ def _project_depth_n(source: dict[str, Any]) -> dict[str, Any]:
             "evidence_class": evidence_class,
             "evidence_witness": witness,
             "weakest_links": weakest_links,
-            "acquisition_route": {
-                "owner": _required_string(acquisition, "owner"),
-                "route_kind": _required_string(acquisition, "route_kind"),
-                "planner_report_content_hash": _required_string(
-                    acquisition,
-                    "planner_report_content_hash",
-                ),
-                "planner_status": _required_string(planner_report, "status"),
-                "requirement_gap_id": _required_string(acquisition_record, "gap_id"),
-                "missing_requirement_fields": _required_non_empty_string_list(
-                    acquisition_record,
-                    "missing_requirement_fields",
-                ),
-                "recommended_strategy": recommended_strategy,
-                "expected_cost": _required_value(strategy_record, "voi_expected_cost"),
-                "expected_voi": _required_value(strategy_record, "voi_expected_value"),
-                "voi_rank": _required_value(strategy_record, "voi_rank"),
-                "decision_owner_ref": _required_string(
-                    acquisition_record,
-                    "decision_owner_ref",
-                ),
-                "producer_expected": _required_string(
-                    acquisition_record,
-                    "producer_expected",
-                ),
-                "next_action": _required_string(next_action, "action"),
-            },
+            "acquisition_route": route_reference,
+            "acquisition_economics": acquisition_economics,
         }
     return {
         "depth_evidence": _required_mapping(source, "depth_evidence"),
@@ -1972,6 +2013,10 @@ __all__ = [
     "AudienceClass",
     "ChannelRegistryEntry",
     "ChannelRegistryResponse",
+    "DepthNAcquisitionEconomicsProjection",
+    "DepthNAcquisitionRouteReference",
+    "DepthNCycleBoardPayload",
+    "DepthNDomainRunProjection",
     "GovernedProjectionPacket",
     "GovernedProjectionService",
     "ProjectionAvailability",

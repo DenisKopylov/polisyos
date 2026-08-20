@@ -869,3 +869,66 @@ legacy replay tuple. That receipt remains an environment-scoped non-receipt;
 it is not relabelled green, and the owner is not mocked because doing so would
 weaken the independently owned source boundary. The missing producer state is
 exactly the board's typed environment-absence case, not artifact corruption.
+
+### Task 5 reopened — artifact-backed route reference and economics repair
+
+Task 6's changed-leaf gate stopped before the Atlas register lock on
+`DepthNDomainRunProjection.acquisition_route`. The stop exposed a stronger
+Task 5 defect rather than merely a client regeneration: a recursive census of
+the committed Depth-N owner artifact found eight `acquisition_route` objects,
+all with the identical four-key union and intersection
+`owner_content_hash / owner_schema / planner_report_content_hash /
+requirement_gap_id`. The prior 13-field DTO overlapped only the last two. Every
+one of the eight instances therefore had eleven missing model fields and two
+forbidden source fields. The gate caught a source-contract conflation through
+its generated-client symptom; that provenance is retained rather than
+attributed to Task 6.
+
+The production repair keeps `extra="forbid"` and separates two facts. A strict
+four-field `DepthNAcquisitionRouteReference` projects only the direct owner
+witness reference and is optional; the current owner population has two live
+route references (`first_vertical`, `unseen`) and one honest absence
+(`education`). No stage-trace route is substituted. A distinct planner
+economics projection resolves the embedded canonical report only when its raw
+content hash equals the owner stage pointer and, when a direct route exists,
+its requirement-gap identifier equals the sole planner record. Missing,
+malformed, hash-mismatched, or gap-mismatched contents preserve the route
+reference and render economics `not_established`; they never fabricate a
+route or turn the whole board into an error.
+
+The committed-artifact test walks all eight references generically, admits
+8/8 under the strict model, rejects every missing key and an extra key,
+validates the complete three-run raw payload, and independently derives every
+economics field from each hash-bound inline report. Missing report, changed
+hash, and changed requirement gap are behavioral negatives. The real owner
+payload is then passed through the compositor: route and economics facts are
+compared separately, and education proves economics can remain producer-backed
+while the direct route stays absent. This is independent of the self-authored
+composition fixtures.
+
+The frozen Task 4 basis and bucket rule were issued before all repair reviews.
+The route-model mismatch is the one charged Task 5 wrong-approach round
+(`1/2`). The requirement-gap binding was an on-basis pointer-target completion,
+not a new mechanism class. Production, compositor, artifact-test, and fixture
+reviews all returned GO; delta re-review of the widened binding returned GO.
+The first mechanism-touch Ruff companion normalized the previously recorded
+4a import/format debt in the touched test files; unrelated production reflows
+were removed.
+
+Post-review receipts, all under their fixed 90-second ceiling and none killed:
+
+| Receipt | Result | Duration |
+| --- | --- | --- |
+| route artifact + composition + terminality algebra | 14/14 passed | 15.74 s |
+| independent owner/economics composition | 2/2 passed | 30.87 s |
+| raw Depth-N projector | 7/7 passed | 15.71 s |
+| focused Ruff lint, format check, and bytecode compilation | passed | 0.37 s |
+| architecture guardrails | completed with the same six inherited non-DS7 deep-import identities and zero DS7 edge | 22.50 s |
+
+An earlier exploratory combined five-file invocation crossed sixty seconds
+without a true pre-run uptime pair and its controller output was not retained;
+it is excluded as a harness non-receipt and supplies neither a result nor a
+duration sample. The completed focused receipts above are the admitted wave.
+The raw-v1 API parity receipt remains the previously recorded environment
+non-receipt because the invalid-source packet cannot supply four replay pins;
+this repair neither relabels nor weakens it.

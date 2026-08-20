@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from polisyos.runtime.http.services.adapters import RunTerminality
 from polisyos.runtime.http.services.governed_projections import (
     AudienceClass,
+    DepthNAcquisitionRouteReference,
     GovernedProjectionPacket,
     ProjectionFreshness,
     ProjectionId,
@@ -73,14 +74,11 @@ ReadinessFact = Annotated[
 ]
 
 
-class CycleBoardAcquisitionRoute(_StrictModel):
-    """Owner-recorded N7 route with optional economics and execution kept typed."""
+class CycleBoardAcquisitionEconomics(_StrictModel):
+    """Hash-resolved N7 planner contents, distinct from the route reference."""
 
-    owner: str
-    route_kind: str
     planner_report_content_hash: str
     planner_status: str
-    requirement_gap_id: str
     missing_requirement_fields: tuple[str, ...]
     recommended_strategy: str
     expected_cost: FloatFact
@@ -93,7 +91,11 @@ class CycleBoardAcquisitionRoute(_StrictModel):
 
 
 AcquisitionRouteFact = Annotated[
-    AvailableFact[CycleBoardAcquisitionRoute] | AbsentFact,
+    AvailableFact[DepthNAcquisitionRouteReference] | AbsentFact,
+    Field(discriminator="availability"),
+]
+AcquisitionEconomicsFact = Annotated[
+    AvailableFact[CycleBoardAcquisitionEconomics] | AbsentFact,
     Field(discriminator="availability"),
 ]
 
@@ -112,6 +114,7 @@ class CycleBoardRow(_StrictModel):
     weakest_links: StringTupleFact
     missing_link: StringFact
     acquisition_route: AcquisitionRouteFact
+    acquisition_economics: AcquisitionEconomicsFact
     responsible_slices: tuple[str, ...]
     stage_trace_href: StringFact
     surface_readiness: ReadinessFact
@@ -259,6 +262,7 @@ __all__ = [
     "CYCLE_BOARD_STABLE_ADDRESS",
     "AbsentFact",
     "AvailableFact",
+    "CycleBoardAcquisitionEconomics",
     "CycleBoardCompositionSource",
     "CycleBoardCoverageGap",
     "CycleBoardExportResponse",

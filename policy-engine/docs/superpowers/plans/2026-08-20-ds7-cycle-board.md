@@ -309,7 +309,7 @@ composition manifest, and projection/dependency hashes.
   movement, realized DS4 `27/41/18/3`, and no fabricated future rows.
 - [x] Add the static authorized route before the dynamic sibling with operation ID
   `get_depth_n_cycle_board_projection` and owner-appropriate collection binding.
-- [ ] Rerun Task 4 focused tests to GREEN, then focused Ruff/type checks and architecture import
+- [x] Rerun Task 4 focused tests to GREEN, then focused Ruff/type checks and architecture import
   guardrails. Commit the server mechanism.
 
 ## Task 6 — Regenerate the v2 API/client seam under a fresh short lock

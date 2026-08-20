@@ -76,7 +76,7 @@ def test_unbound_lifecycle_ignores_every_depth_search_and_acquisition_proxy() ->
         original.model_copy(update={"weakest_links": ("run_finished",)}),
         original.model_copy(
             update={
-                "acquisition_route": original.acquisition_route.model_copy(
+                "acquisition_economics": original.acquisition_economics.model_copy(
                     update={
                         "planner_status": "complete",
                         "next_action": "none_finished",

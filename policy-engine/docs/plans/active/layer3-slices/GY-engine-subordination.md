@@ -4002,8 +4002,9 @@ and cold closeout remain unproved.
   **runtime/quality — the value-choice provenance lane**. Pattern: **`P38`**, and this is the
   purest instance the programme has measured.
 
-  `build_pareto_archive` (`src/polisyos/runtime/quality/design_axes/value_choice_provenance.py:443`)
-  admits a ranked Pareto archive under `ranking_mode == "ranked_with_authorized_values"` by testing
+  `build_pareto_archive` in
+  `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py` admits a ranked Pareto
+  archive under `ranking_mode == "ranked_with_authorized_values"` by testing
   `if "shadow" in value_schedule_ref or "scenario" in value_schedule_ref`. Authority is therefore
   decided by **substring containment in a reference name**, not by what the referenced schedule is.
   A legitimate schedule named `shadowless-2026` is refused; a genuinely shadow schedule named
@@ -4024,9 +4025,54 @@ and cold closeout remain unproved.
   **Forbidden closures:** a longer substring list; a regex over names; a naming convention enforced
   by lint; an allowlist of known-good refs. Each is the same defect with more characters.
 
-  **Standing:** `open`. Registered from a probe, not from a repair attempt. It does **not** block
-  `GY-PA1`, whose blockers are `producer_missing` and institutional; it is an independent live
-  defect on a path that exists today.
+  **STANDING RECORDED (measured 2026-08-20): the substring proxy is closed and cannot return;
+  closure clauses one, two and four are satisfied, while clause three is deferred to GY-GAP7.** The
+  complete 6,182-file owner census found no production schedule producer, persistence owner or
+  resolver. `build_pareto_archive` therefore no longer inspects reference text: every
+  `ranked_with_authorized_values` admission fails closed with the distinct
+  `p20_value_schedule_resolver_absent` code, while `p20_value_schedule_ref_unresolvable` remains
+  reserved for a real owner-backed lookup failure. This satisfies clause one at the substrate that
+  exists — no admission decision reads a reference-name proxy — and clauses two and four because
+  shadow, scenario, neutral, unresolved and runtime-invented names all refuse rather than grant.
+  Unranked frontier admission is unchanged.
+
+  Clause three — admitting a genuinely authorized schedule under a name containing `shadow` or
+  `scenario` — is structurally unsatisfiable in this deployment. It is explicitly deferred to
+  **GY-GAP7**, whose `producer_missing` owner chain must produce, persist, resolve, content-bind and
+  verify that schedule before any positive ranked admission is honest. This standing does not claim
+  four-of-four closure. The four original boundary reds still discriminate `shadowless-2026`,
+  `sh4dow-q3`, a neutral unresolved ref and a shadow schedule whose name is invented at test time;
+  the final suite refuses all four for owner absence with the exact code. The readiness witness now
+  proves resolver absence rather than falsely inferring shadow kind, its stale CI path is corrected,
+  and only the three gate-bound S8-plan test commands moved; two navigation/history references
+  remain.
+
+  Mechanism rounds finished **2/2** under P40: round 1 found the exported model constructor as a new
+  sibling-bypass class; round 2 found supported unvalidated Pydantic minting one level deeper. The
+  terminating widening revalidates the three independent primitives (`model_construct`,
+  `model_copy`, deprecated `copy`) and therefore their three delegates; independent delta reviews
+  returned GO. A bounded residual remains and is owned by GY-GAP7: a deliberate low-level forged
+  instance can be dumped to a mapping accepted by the exported generic persister, but the complete
+  2,771-source-file / 2,561-Python-file census found zero production callers and no governed
+  realization. Any production caller or governed artifact through that unvalidated helper falsifies
+  the bound; closure requires the missing owner chain plus a mandatory revalidate +
+  owner-resolve/content-bind cut line at the persister or its replacement.
+
+  The first non-persisting generation check was not admissible DEF19 evidence because the fresh
+  worktree lacked the admitted read-only `production_data` input. A controlled fixed-head
+  diagnostic localized its substantive divergence to `substrate_catalog_missing`. Under one fixed
+  content-bound environment, the exact `0fc36511d` replay base, immutable slice base `1360b1cb5`
+  and exact DEF19 replay head all pass the validator's rendered-canonical byte comparison even though
+  `value_choice_provenance.py` changes before the head. The receipts bind the same installed-package,
+  lockfile and production-manifest hashes. The generation artifact remains 183,254 bytes at
+  file-byte SHA-256
+  `2e931ccfcd07141178eb622ec03348a7db3d1f437cc396b5f909eba41ae7136a`; declared delta: zero bytes,
+  zero leaves, full JSON-pointer set `[]`. N9 was already current. N11 and the guarded writer were
+  correctly skipped because no DEF19-governed artifact moved. The recomputed 915-file aggregate
+  path-and-byte commitment remains
+  `sha256:077f9d2251bbfd545381800ab4f749d14630a35a1f4c6bbff11061f547d92ebc`; no per-file writer
+  snapshot receipt is claimed because no writer was admitted.
+  `[P20/P31/P37/P38/P40/P41: recomputed -> fail closed; producer_missing; clause 3 deferred]`
 
 - **GY-DEF22 — the frozen N8 record cannot discriminate the environment that produced it
   (measured by the architect 2026-08-20 while adjudicating the `GY-DI1` closeout; the FOURTH lane to
@@ -4718,6 +4764,28 @@ nothing.
   substituting any member breaks the chain. N13b's global `typed_deeper_terminal` result cannot be
   projected as per-row movement before that binding exists. This registration assigns no producer
   to Atlas, creates no second chronology, and authorizes no simulated motion.
+
+- **GY-GAP7 — the S8 authority-grade value-schedule production, persistence, and resolution chain
+  is missing (NEW, GY-DEF19 measurement; measured 2026-08-20).** Owner: **runtime/quality — the S8
+  value-authority lane (GY-PA1)**. `AuthorizedValueSchedule` and
+  `build_authorized_value_schedule` provide a typed contract and factory, but the complete pinned
+  `src` / `tests` / `tools` census found no production caller, no persisted authority owner, and no
+  resolver; Foundry resolves numerical weights, not normative schedule authority.
+  **Label: `producer_missing`; deficits: `artifact_missing + bridge_missing`.** The existing bare
+  `Layer2S8ValuePostureInput` references and constructor probes do not fill those deficits. This
+  blocks authority-grade S8 ranked admission and keeps GY-PA1's no-schedule-to-typed-request
+  negative non-executable; it does not absorb the separately owned N7 or N8 producers.
+
+  **Closure signal:** an authority-grade schedule is produced, persisted, and resolved by its owner;
+  ranked admission resolves and content-binds through that owner; and a shadow or scenario schedule
+  is refused by its **resolved kind under any name**. Every persistence, promotion and surface
+  boundary — including `persist_value_choice_provenance_bundle` or its replacement — revalidates the
+  archive and owner-resolves and content-binds the schedule before accepting a ranked payload. An
+  omitted, stale, tampered, substituted, or genuinely unresolvable reference emits zero ranked
+  recommendations and a typed `NormativeDecisionRequest`, while frontier-only output remains
+  available. Only after that owner exists may `p20_value_schedule_ref_unresolvable` name a real
+  per-reference resolution failure; until then ranked admission reports
+  `p20_value_schedule_resolver_absent`.
 
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 

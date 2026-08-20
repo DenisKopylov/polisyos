@@ -5,8 +5,9 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
+from collections.abc import Set as AbstractSet
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import Any, Literal, Self, cast
 
 from pydantic import AwareDatetime, Field, model_validator
 
@@ -224,6 +225,90 @@ class ParetoArchive(Layer2ReadinessModel):
     def _validate_ranked_admission(self) -> ParetoArchive:
         _require_ranked_value_schedule_resolver(self.ranking_mode)
         return self
+
+    @classmethod
+    def _revalidate_minted_archive(cls, archive: ParetoArchive) -> Self:
+        """Re-enter validation after a Pydantic API that trusts supplied data."""
+
+        return cls.model_validate(archive.model_dump(mode="python", round_trip=True))
+
+    def model_copy(
+        self,
+        *,
+        update: Mapping[str, Any] | None = None,
+        deep: bool = False,
+    ) -> Self:
+        """Return a copy only after validating its complete updated payload.
+
+        Args:
+            update: Field values to apply before validation.
+            deep: Whether to copy nested values deeply before validation.
+
+        Returns:
+            A fully validated archive copy.
+        """
+
+        copied = super().model_copy(update=update, deep=deep)
+        return type(self)._revalidate_minted_archive(copied)
+
+    @classmethod
+    def model_construct(  # type: ignore[override]
+        cls,
+        _fields_set: set[str] | None = None,
+        **values: object,
+    ) -> Self:
+        """Construct an archive only after validating its complete payload.
+
+        Args:
+            _fields_set: Fields explicitly supplied by the caller.
+            values: Candidate archive field values.
+
+        Returns:
+            A fully validated archive.
+        """
+
+        constructed = super().model_construct(_fields_set=_fields_set, **values)
+        return cls._revalidate_minted_archive(cast("ParetoArchive", constructed))
+
+    def copy(
+        self,
+        *,
+        include: (
+            AbstractSet[int]
+            | AbstractSet[str]
+            | Mapping[int, Any]
+            | Mapping[str, Any]
+            | None
+        ) = None,
+        exclude: (
+            AbstractSet[int]
+            | AbstractSet[str]
+            | Mapping[int, Any]
+            | Mapping[str, Any]
+            | None
+        ) = None,
+        update: dict[str, Any] | None = None,
+        deep: bool = False,
+    ) -> Self:
+        """Return a deprecated-style copy only after complete validation.
+
+        Args:
+            include: Fields to include in the candidate copy.
+            exclude: Fields to exclude from the candidate copy.
+            update: Field values to apply before validation.
+            deep: Whether to copy nested values deeply before validation.
+
+        Returns:
+            A fully validated archive copy.
+        """
+
+        copied = super().copy(
+            include=include,
+            exclude=exclude,
+            update=update,
+            deep=deep,
+        )
+        return type(self)._revalidate_minted_archive(copied)
 
 
 class ValueChoiceProvenanceRecord(Layer2ReadinessModel):

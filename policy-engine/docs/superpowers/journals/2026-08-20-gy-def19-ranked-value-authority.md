@@ -177,22 +177,97 @@ another instance patch after round 2; the residual is recorded rather than hidde
   were removed, it still reported seven diagnostics outside the added methods, and this lane makes
   no provenance claim about them.
 
-## 10. Non-persisting governed derivation and stop
+## 10. Artifact provenance replay and zero-delta disposition
 
-The source was frozen and all reviews completed before the governed checks. Root alone launched the
-heavy read-only processes; there was no governed writer, database or fixed port, and GY-N12 retained
-ownership of the live artifact chain.
-
-The N9 promotion-contract check was current: status `pass`, issues `[]`, validator wall time
-63.57474 seconds and process wall time 80.99 seconds. The generation-cycle check then reported
+The first non-persisting N9 check was current: status `pass`, issues `[]`, validator wall time
+63.57474 seconds and process wall time 80.99 seconds. The first generation-cycle check, in the fresh
+DEF19 worktree without the admitted read-only `production_data` dependency, reported
 `generation_cycle_contract_canonical_bytes_drift`, with
 `actual_hash=sha256:848e4c2c63550f7b2ab6b86c6699fe9851403e1bbe2ca4f6f2a0f45ef0fb17bd` and
 `expected_hash=sha256:f1554159844babea49f1d4bf3413b8a5c8b798312994a59d3bd027683eede56e`.
-That is the commissioned stop condition. N11 was not run, no write mode was invoked, and a complete
-tracked-plus-untracked status read immediately afterward was empty. No governed output moved.
+That observation was true but its attribution to DEF19 was not established.
+
+### Corrected artifact-custody guard
+
+The first replay harness incorrectly required the moving `main` tip to remain equal to the slice
+base. That tested a proxy for the real property: `main` advanced through unrelated DS6 commits while
+the DEF19 worktree, immutable merge base, replay base and all three protected artifacts remained
+unchanged. The guard stopped cleanly before a tracked or governed write; this is a replay-harness
+`P38` companion and consumes no artifact-custody round.
+
+The corrected guard admits a scratch mutation only when all of these facts hold before and after it:
+
+- the resolved worktree is the commissioned DEF19 worktree, attached to
+  `codex/gy-def19-ranked-value-authority` at the declared HEAD;
+- `git merge-base HEAD refs/heads/main` remains the immutable slice base
+  `1360b1cb592be6a19c162a3ec3ddb5a2e87986c7`;
+- the independent replay clone is at the declared replay source commit with a clean status; and
+- the raw SHA-256 values of generation cycle, N9 and N11 remain respectively
+  `2e931ccfcd07141178eb622ec03348a7db3d1f437cc396b5f909eba41ae7136a`,
+  `08877f171fb08424896d177dac5aa7f7801dcce4bdc2ce77f9faa3690cc2cd1e`, and
+  `dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391`.
+
+The current `main` tip value is deliberately neither compared nor hashed. The moving ref is
+consulted only to recompute the explicitly commissioned merge-base relation: ordinary descendant
+movement leaves that result unchanged, while a changed merge base is the relevant stop event.
+Branch/root constrain where the harness may operate; immutable commits, relative paths, rendered
+candidate bytes, pointer deltas and protected preimages constrain artifact meaning.
+
+### One-environment, two-source P41 replay
+
+The fixed clone environment initially omitted `production_data`. Base and head both completed red
+with the same derived content hash
+`sha256:cf4cb58319ab1c8b6618cdb7e507d795b11c8e64cc2529da39c5bc9f5d9f7d43`, so that pair was a
+GY-DEF22 worked example, not DEF19 evidence. Its one saved candidate was 183,490 bytes with raw
+SHA-256 `b99538981f8bac1dca1b13ef4a6c58b9cd56223a2fcba94a2b10a9747cd7c6c4`.
+The controlled diagnostic used the exact DEF19 head before the link was added. Its complete
+semantic diff was eight leaves: the two content hashes plus, in each generation cycle, the authority
+blocker, world-model error and world-model error code changed from
+`world_model_record_unresolved` to `substrate_catalog_missing`. Adding the catalog link was the only
+deliberate replay-environment change before the bound head pass, so the substantive divergence was
+localized to the missing production-data input rather than inferred from an absolute hash.
+
+The replay clone then received the read-only canonical `production_data` link recorded by GY-DI1.
+The final receipts content-bound Python 3.14.0, a 284-distribution profile at
+`sha256:b9f47e6f5d67f643bb69ae65bc1e4dd68f63448a58214341f646dd107481f385`,
+`pyproject.toml` at `sha256:f73570fc13cf6828407ed7e9b3df341728bf5cd1365655c7f97c39f0237a7d69`,
+`uv.lock` at `sha256:3f9dfe227ec3c49747027fefa5d73acba9c9e21ec691c44829fb1066a69b38d1`,
+and the production manifest at
+`sha256:9e0e0aa0acd3c91f0120a80a2570be358ff16a63218abcd998f4d6f0212b6105` before and after each
+run. The exact check returned:
+
+| Source state | `value_choice_provenance.py` SHA-256 | Result | Validator / process wall | Uptime load pair |
+| --- | --- | --- | --- | --- |
+| requested replay base `0fc36511d30805810ea6e1c3c62adcdf13166a6b` | `a1e0e8c788ca2f2e2c3914d57467d8b580a67ebec5686e848fc09cd60491ae51` | pass | 23.927406 s / 39.99 s | 2.78/2.97/3.05 -> 3.32/3.09/3.09 |
+| slice base `1360b1cb592be6a19c162a3ec3ddb5a2e87986c7` | `a1e0e8c788ca2f2e2c3914d57467d8b580a67ebec5686e848fc09cd60491ae51` | pass | 23.642345 s / 39.10 s | 2.97/3.02/3.09 -> 3.27/3.11/3.12 |
+| DEF19 head `0f99f740fa4dcb848808b78a502785cfd7b5f2af` | `16e25be0a8c4ce569b5edf259fe31407a9ec211cd3cb196f37039a3fa747566e` | pass | 25.18837 s / 39.68 s | 2.43/2.90/3.04 -> 3.12/3.01/3.07 |
+
+The replay-head source bytes equal the commissioned worktree's source bytes. All three passes
+exercise the validator's exact rendered-canonical-byte comparison against the same committed
+generation artifact. The requested replay verdict and the direct slice-base P41 verdict are both
+**base pass, head pass**: the original drift was an environment confound and is not DEF19's.
+
+### Artifact disposition
+
+The exact rendered-canonical generation-cycle delta is 183,254 bytes to 183,254 bytes, file-byte
+SHA-256
+`2e931ccfcd07141178eb622ec03348a7db3d1f437cc396b5f909eba41ae7136a` to the same value, zero
+changed leaves, and the complete JSON-pointer set is `[]`. Because attribution did not confirm and
+the admitted head candidate is byte-current, the condition for an N11 cold derivation was false.
+N11 was not spent, no transition declaration or guarded writer was admitted, and the artifact-phase
+custody ledger remains **0/2**. This is the valid-old-bytes versus zero-writer-delta distinction:
+there was no no-op writer invocation to accept.
+
+The complete governed denominator was independently recomputed at record freeze: 59 families / 441
+raw output specs / 6 explicit external scratch specs, 714 tracked registry outputs, 509 tracked PDC
+files, intersection 308, union 915 files / 47,586,550 bytes, with the same length-framed content
+SHA-256 `077f9d2251bbfd545381800ab4f749d14630a35a1f4c6bbff11061f547d92ebc` before and after the
+record edit. Under SHA-256 collision resistance this supplies one complete aggregate commitment to
+the governed path-and-byte sequence; it is not described as a per-file writer snapshot receipt.
+No rollback was armed or required because no governed writer was admitted.
 
 Measured outcome: the substring authority defect is repaired at the source boundary by exact
-fail-closed resolver-absence semantics, with unranked behavior preserved; GY-GAP7 owns the missing
-positive-admission capability and the declared low-level/persistence residual. The governed
-freshness reissue is deliberately unpaid in this lane because the non-persisting generation-cycle
-candidate moved while GY-N12 owns the contended chain.
+fail-closed resolver-absence semantics, with unranked behavior preserved. Clauses one, two and four
+of the registered closure signal are satisfied across the supported construction surface; positive
+admission under clause three is structurally deferred to GY-GAP7's missing owner chain. No governed
+artifact reissue is owed by DEF19.

@@ -4025,17 +4025,27 @@ and cold closeout remain unproved.
   **Forbidden closures:** a longer substring list; a regex over names; a naming convention enforced
   by lint; an allowlist of known-good refs. Each is the same defect with more characters.
 
-  **STANDING RECORDED (measured 2026-08-20): source repair complete; governed reissue stopped and
-  unwritten.** The complete 6,182-file owner census found no production schedule producer,
-  persistence owner or resolver, so `build_pareto_archive` no longer inspects reference text and
-  every `ranked_with_authorized_values` admission now fails closed with the distinct
-  `p20_value_schedule_resolver_absent` code; `p20_value_schedule_ref_unresolvable` remains reserved
-  for a real owner-backed lookup failure. Unranked frontier admission is unchanged. The four
-  original boundary reds discriminate `shadowless-2026`, `sh4dow-q3`, a neutral unresolved ref and
-  a shadow schedule whose name is invented at test time; the final suite refuses all four for owner
-  absence with the exact code. The readiness witness now proves resolver absence rather than falsely
-  inferring shadow kind, its stale CI path is corrected, and only the three gate-bound S8-plan test
-  commands moved; two navigation/history references remain.
+  **STANDING RECORDED (measured 2026-08-20): the substring proxy is closed and cannot return;
+  closure clauses one, two and four are satisfied, while clause three is deferred to GY-GAP7.** The
+  complete 6,182-file owner census found no production schedule producer, persistence owner or
+  resolver. `build_pareto_archive` therefore no longer inspects reference text: every
+  `ranked_with_authorized_values` admission fails closed with the distinct
+  `p20_value_schedule_resolver_absent` code, while `p20_value_schedule_ref_unresolvable` remains
+  reserved for a real owner-backed lookup failure. This satisfies clause one at the substrate that
+  exists — no admission decision reads a reference-name proxy — and clauses two and four because
+  shadow, scenario, neutral, unresolved and runtime-invented names all refuse rather than grant.
+  Unranked frontier admission is unchanged.
+
+  Clause three — admitting a genuinely authorized schedule under a name containing `shadow` or
+  `scenario` — is structurally unsatisfiable in this deployment. It is explicitly deferred to
+  **GY-GAP7**, whose `producer_missing` owner chain must produce, persist, resolve, content-bind and
+  verify that schedule before any positive ranked admission is honest. This standing does not claim
+  four-of-four closure. The four original boundary reds still discriminate `shadowless-2026`,
+  `sh4dow-q3`, a neutral unresolved ref and a shadow schedule whose name is invented at test time;
+  the final suite refuses all four for owner absence with the exact code. The readiness witness now
+  proves resolver absence rather than falsely inferring shadow kind, its stale CI path is corrected,
+  and only the three gate-bound S8-plan test commands moved; two navigation/history references
+  remain.
 
   Mechanism rounds finished **2/2** under P40: round 1 found the exported model constructor as a new
   sibling-bypass class; round 2 found supported unvalidated Pydantic minting one level deeper. The
@@ -4048,12 +4058,21 @@ and cold closeout remain unproved.
   the bound; closure requires the missing owner chain plus a mandatory revalidate +
   owner-resolve/content-bind cut line at the persister or its replacement.
 
-  The non-persisting N9 check stayed current (`pass`, no issues), but the generation-cycle check
-  reported `generation_cycle_contract_canonical_bytes_drift`
-  (`actual sha256:848e4c2c63550f7b2ab6b86c6699fe9851403e1bbe2ca4f6f2a0f45ef0fb17bd`,
-  `expected sha256:f1554159844babea49f1d4bf3413b8a5c8b798312994a59d3bd027683eede56e`). Per the
-  commissioned contention rule, this lane stopped before N11 and wrote no governed output while
-  GY-N12 owns the chain. `[P20/P31/P37/P38/P40: not_established -> fail closed; producer_missing]`
+  The first non-persisting generation check was not admissible DEF19 evidence because the fresh
+  worktree lacked the admitted read-only `production_data` input. A controlled fixed-head
+  diagnostic localized its substantive divergence to `substrate_catalog_missing`. Under one fixed
+  content-bound environment, the exact `0fc36511d` replay base, immutable slice base `1360b1cb5`
+  and exact DEF19 replay head all pass the validator's rendered-canonical byte comparison even though
+  `value_choice_provenance.py` changes before the head. The receipts bind the same installed-package,
+  lockfile and production-manifest hashes. The generation artifact remains 183,254 bytes at
+  file-byte SHA-256
+  `2e931ccfcd07141178eb622ec03348a7db3d1f437cc396b5f909eba41ae7136a`; declared delta: zero bytes,
+  zero leaves, full JSON-pointer set `[]`. N9 was already current. N11 and the guarded writer were
+  correctly skipped because no DEF19-governed artifact moved. The recomputed 915-file aggregate
+  path-and-byte commitment remains
+  `sha256:077f9d2251bbfd545381800ab4f749d14630a35a1f4c6bbff11061f547d92ebc`; no per-file writer
+  snapshot receipt is claimed because no writer was admitted.
+  `[P20/P31/P37/P38/P40/P41: recomputed -> fail closed; producer_missing; clause 3 deferred]`
 
 - **GY-DEF22 — the frozen N8 record cannot discriminate the environment that produced it
   (measured by the architect 2026-08-20 while adjudicating the `GY-DI1` closeout; the FOURTH lane to

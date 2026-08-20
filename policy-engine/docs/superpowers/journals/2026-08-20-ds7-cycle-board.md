@@ -689,3 +689,12 @@ closing page/adapter/raw-slot/download capability. Therefore `4C-DOM-05`
 remains the explicitly non-green `semantic_test_missing` residual with the
 Task 9 mutation falsifier frozen in the basis. No fabricated server parity
 claim replaces it.
+
+The reviewed 4c population was committed at
+`a2b2e113a97fb0cb5df13e08ab33396aab725019`. Read-back from the attached
+`codex/atlas-ds7-cycle-board` branch returned the same commit and exact
+three-path population: the loader test plus this plan and journal. The
+branch-read loader test hashes to
+`997ef1f225e66a0223f3b653fc2325bacaeac2190d81cf66a04a0130709d4260`.
+The worktree was otherwise clean at read-back. This pending plan/journal
+delivery record changes no mechanism or test outcome and consumes no 4c round.

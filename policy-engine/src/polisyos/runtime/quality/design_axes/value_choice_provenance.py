@@ -119,6 +119,15 @@ class P20NormativeChoiceError(ValueError):
         super().__init__(message)
 
 
+def _require_ranked_value_schedule_resolver(ranking_mode: str) -> None:
+    if ranking_mode == "ranked_with_authorized_values":
+        raise P20NormativeChoiceError(
+            f"{P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE}: P20 ranked Pareto archive requires "
+            "an owner-resolved authorized value schedule; the value schedule resolver is absent",
+            code=P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE,
+        )
+
+
 class AuthorizedValueSchedule(Layer2ReadinessModel):
     """Mandate-bounded value schedule that may authorize ranking when disposition passes."""
 
@@ -210,6 +219,11 @@ class ParetoArchive(Layer2ReadinessModel):
     may_not_use_for: list[str] = Field(default_factory=lambda: list(_S8_MAY_NOT_USE_FOR))
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
+
+    @model_validator(mode="after")
+    def _validate_ranked_admission(self) -> ParetoArchive:
+        _require_ranked_value_schedule_resolver(self.ranking_mode)
+        return self
 
 
 class ValueChoiceProvenanceRecord(Layer2ReadinessModel):
@@ -456,12 +470,7 @@ def build_pareto_archive(
 ) -> ParetoArchive:
     """Build a Pareto archive while blocking hidden ranked value choices."""
 
-    if ranking_mode == "ranked_with_authorized_values":
-        raise P20NormativeChoiceError(
-            "P20 ranked Pareto archive requires an owner-resolved authorized value schedule; "
-            "the value schedule resolver is absent",
-            code=P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE,
-        )
+    _require_ranked_value_schedule_resolver(ranking_mode)
     mapped = _frontier_payload(foundry_emission=foundry_emission, frontier_record=frontier_record)
     frontier_refs = list(frontier_refs) or mapped["frontier_refs"]
     nondominated_alternative_ids = (

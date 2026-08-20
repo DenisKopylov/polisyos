@@ -4002,8 +4002,9 @@ and cold closeout remain unproved.
   **runtime/quality — the value-choice provenance lane**. Pattern: **`P38`**, and this is the
   purest instance the programme has measured.
 
-  `build_pareto_archive` (`src/polisyos/runtime/quality/design_axes/value_choice_provenance.py:443`)
-  admits a ranked Pareto archive under `ranking_mode == "ranked_with_authorized_values"` by testing
+  `build_pareto_archive` in
+  `src/polisyos/runtime/quality/design_axes/value_choice_provenance.py` admits a ranked Pareto
+  archive under `ranking_mode == "ranked_with_authorized_values"` by testing
   `if "shadow" in value_schedule_ref or "scenario" in value_schedule_ref`. Authority is therefore
   decided by **substring containment in a reference name**, not by what the referenced schedule is.
   A legitimate schedule named `shadowless-2026` is refused; a genuinely shadow schedule named
@@ -4718,6 +4719,25 @@ nothing.
   substituting any member breaks the chain. N13b's global `typed_deeper_terminal` result cannot be
   projected as per-row movement before that binding exists. This registration assigns no producer
   to Atlas, creates no second chronology, and authorizes no simulated motion.
+
+- **GY-GAP7 — the S8 authority-grade value-schedule production, persistence, and resolution chain
+  is missing (NEW, GY-DEF19 measurement; measured 2026-08-20).** Owner: **runtime/quality — the S8
+  value-authority lane (GY-PA1)**. `AuthorizedValueSchedule` and
+  `build_authorized_value_schedule` provide a typed contract and factory, but the complete pinned
+  `src` / `tests` / `tools` census found no production caller, no persisted authority owner, and no
+  resolver; Foundry resolves numerical weights, not normative schedule authority.
+  **Label: `producer_missing`; deficits: `artifact_missing + bridge_missing`.** The existing bare
+  `Layer2S8ValuePostureInput` references and constructor probes do not fill those deficits. This
+  blocks authority-grade S8 ranked admission and keeps GY-PA1's no-schedule-to-typed-request
+  negative non-executable; it does not absorb the separately owned N7 or N8 producers.
+
+  **Closure signal:** an authority-grade schedule is produced, persisted, and resolved by its owner;
+  ranked admission resolves and content-binds through that owner; and a shadow or scenario schedule
+  is refused by its **resolved kind under any name**. An omitted, stale, tampered, substituted, or
+  genuinely unresolvable reference emits zero ranked recommendations and a typed
+  `NormativeDecisionRequest`, while frontier-only output remains available. Only after that owner
+  exists may `p20_value_schedule_ref_unresolvable` name a real per-reference resolution failure;
+  until then ranked admission reports `p20_value_schedule_resolver_absent`.
 
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 

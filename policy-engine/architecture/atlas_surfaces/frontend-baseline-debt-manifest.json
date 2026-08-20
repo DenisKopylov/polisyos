@@ -2394,20 +2394,20 @@
   },
   "vitest": {
     "owner_slice": "DS4",
-    "disposition": "rebind_pending",
-    "command": "corepack pnpm exec vitest run --reporter=json --outputFile=../../_build/apps/runtime-dashboard/ds4-c12-vitest-v2.json",
-    "wall_duration_seconds": 315.06,
-    "vitest_duration_seconds": 315.06,
-    "exit_code": 1,
+    "disposition": "resolved",
+    "command": "/usr/bin/time -p corepack pnpm exec vitest run --reporter=json --outputFile=../../_build/apps/runtime-dashboard/ds6-c16-vitest-final.json",
+    "wall_duration_seconds": 515.4,
+    "vitest_duration_seconds": 512.9371760253906,
+    "exit_code": 0,
     "test_files": {
-      "total": 263,
-      "passed": 262,
-      "failed": 1
+      "total": 317,
+      "passed": 317,
+      "failed": 0
     },
     "tests": {
-      "total": 766,
-      "passed": 763,
-      "failed": 3
+      "total": 983,
+      "passed": 983,
+      "failed": 0
     },
     "failure_set": {
       "hash_algorithm": "sha256",
@@ -2419,37 +2419,9 @@
         "assertion_line",
         "assertion_anchor"
       ],
-      "sha256": "533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd"
+      "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
     },
-    "debt_classes": [
-      {
-        "class_id": "i18n-count-message-parity",
-        "owner_slice": "DS6",
-        "disposition": "rebind_pending",
-        "rationale": "Three unchanged locale parity cases expose the same count-sensitive message without ICU plural syntax or an explicit allowlist entry; Ruling 2 assigns this class to DS6.",
-        "failure_count": 3,
-        "failures": [
-          {
-            "test_file": "apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
-            "test_name": "locale catalogs > marks all count-sensitive en messages with ICU plural syntax or an explicit allowlist entry",
-            "assertion_line": 88,
-            "assertion_anchor": "panels.agentPipeline.overBudget must use ICU plural syntax or be justified in COUNT_MESSAGE_ALLOWLIST: expected false to be true"
-          },
-          {
-            "test_file": "apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
-            "test_name": "locale catalogs > marks all count-sensitive uk messages with ICU plural syntax or an explicit allowlist entry",
-            "assertion_line": 88,
-            "assertion_anchor": "panels.agentPipeline.overBudget must use ICU plural syntax or be justified in COUNT_MESSAGE_ALLOWLIST: expected false to be true"
-          },
-          {
-            "test_file": "apps/runtime-dashboard/src/shared/i18n/parity.test.ts",
-            "test_name": "locale catalogs > marks all count-sensitive ru messages with ICU plural syntax or an explicit allowlist entry",
-            "assertion_line": 88,
-            "assertion_anchor": "panels.agentPipeline.overBudget must use ICU plural syntax or be justified in COUNT_MESSAGE_ALLOWLIST: expected false to be true"
-          }
-      ]
-    }
-    ],
+    "debt_classes": [],
     "parent_reproduction": {
       "revision": "0ef16da1b1a3efe1bce0345cf85163fe4971baaa",
       "command": "corepack pnpm exec vitest run src/shared/i18n/parity.test.ts src/shared/ui/A11yCoverage.a11y.test.tsx src/app/providers/TemporalCursorProvider.test.tsx",
@@ -2466,6 +2438,27 @@
         "failed": 4
       },
       "matches_full_run_failure_set": true
+    },
+    "receipt_provenance": {
+      "receipt_kind": "whole_suite_vitest_json",
+      "producer_revision": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c",
+      "entry_revision": "41a2020d5c2097c30c94807737ba6d3a80323d2e",
+      "source_delta_sha256": "800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a",
+      "raw_receipt_sha256": "0621a29ad48454fa57c232206f2eec26267e82ad5285879dacc02bf29ebe79ec",
+      "raw_receipt_bytes": 368353,
+      "predicate_provenance": "recomputed",
+      "authority_purpose": "c16_landed_whole_suite_release",
+      "raw_receipt_availability": "not_persisted_in_repository",
+      "source_refs": [
+        {
+          "path": "docs/plans/active/atlas-slices/DS6-evidence-workflow.md",
+          "content_sha256": "8339ef3b2a4c12220e0e205cb66fd5626fe1e81eebdf9cec3aafb7861c34cdad"
+        },
+        {
+          "path": "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md",
+          "content_sha256": "70bd0986b2b1c1d78e2e9e7e507d5f3f592ede12ccf15b27705d0da24a472eae"
+        }
+      ]
     }
   },
   "architecture": {

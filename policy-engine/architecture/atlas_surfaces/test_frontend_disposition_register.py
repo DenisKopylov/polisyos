@@ -1913,6 +1913,88 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self.assertIn("registered typed refusal", readiness_line)
 
 
+class DS6RegisterTransitionTests(unittest.TestCase):
+    """Prove DS6 register rows follow measured evidence lifecycles."""
+
+    def test_c03_repaired_i18n_row_is_bound_to_the_c16_receipt(self) -> None:
+        baseline = checker._load_json(checker.BASELINE_PATH)
+        baseline["vitest"] = {
+            **baseline["vitest"],
+            **copy.deepcopy(checker._c03_c16_receipt()),
+        }
+        original_load = checker._load_json
+
+        def load_with_resolved_baseline(path: Path) -> dict[str, object]:
+            if path == checker.BASELINE_PATH:
+                return copy.deepcopy(baseline)
+            return original_load(path)
+
+        with mock.patch.object(checker, "_load_json", side_effect=load_with_resolved_baseline):
+            row = next(
+                finding
+                for finding in checker._supplemental_findings()
+                if finding["finding_id"] == "baseline-test-i18n-count-debt"
+            )
+
+        expected = {
+                "finding_id": "baseline-test-i18n-count-debt",
+                "finding_kind": "baseline_test_debt",
+                "disposition": "rebind_pending",
+                "status": "repaired",
+                "evidence_refs": [
+                    "architecture/atlas_surfaces/"
+                    "frontend-baseline-debt-manifest.json#tests/i18n-count"
+                ],
+                "owner_slice": "DS6",
+                "decision_date": "2026-07-17",
+                "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c",
+                "rationale": (
+                    "The governed Vitest lifecycle admits exactly the three historical DS6 "
+                    "count-message identities while open or the C16 full-suite empty "
+                    "failure set when repaired."
+                ),
+            }
+        if row != expected:
+            raise AssertionError(f"C03 row drift: {row!r}")
+
+    def test_c03_stored_row_rejects_drift_in_every_governed_field(self) -> None:
+        validator = getattr(
+            checker, "_validate_ds6_register_transition_findings", None
+        )
+        if not callable(validator):
+            raise AssertionError("DS6 transition-row validator is missing")
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        stored = next(
+            row
+            for row in data["supplemental_findings"]
+            if row["finding_id"] == "baseline-test-i18n-count-debt"
+        )
+        corruptions = {
+            "finding_kind": "dependency_declaration",
+            "disposition": "use_as_is",
+            "status": "open_debt",
+            "evidence_refs": ["docs/fabricated.md"],
+            "owner_slice": "DS4",
+            "decision_date": "2026-08-20",
+            "repair_commit": "d01eaa572",
+            "rationale": "fabricated",
+        }
+        for field, value in corruptions.items():
+            with self.subTest(field=field):
+                mutation = copy.deepcopy(data)
+                row = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == stored["finding_id"]
+                )
+                row[field] = value
+                errors: list[str] = []
+                validator(mutation, errors)
+                _expect = f"ds6_register_transition_drift:{stored['finding_id']}"
+                if _expect not in errors:
+                    raise AssertionError(f"stored C03 {field} drift escaped: {errors}")
+
+
 class RawTransportDriftTests(unittest.TestCase):
     """Prove the historical DS1 receipt cannot become a live denominator."""
 

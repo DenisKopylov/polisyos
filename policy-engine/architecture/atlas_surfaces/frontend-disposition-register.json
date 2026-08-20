@@ -5694,13 +5694,14 @@
       "finding_id": "baseline-test-i18n-count-debt",
       "finding_kind": "baseline_test_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
         "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json#tests/i18n-count"
       ],
       "owner_slice": "DS6",
       "decision_date": "2026-07-17",
-      "rationale": "The active manifest retains exactly three count-sensitive locale parity identities owned by DS6."
+      "rationale": "The governed Vitest lifecycle admits exactly the three historical DS6 count-message identities while open or the C16 full-suite empty failure set when repaired.",
+      "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
     },
     {
       "finding_id": "baseline-test-a11y-coverage-debt",

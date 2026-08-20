@@ -252,7 +252,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `feature-whatif::legacy-local-whatif-subgraph` | `dead_subgraph` | `deleted` | `DS19` | — | — | Fresh DS19 census proved the seven-file local parameter/store branch and its optional workbench edge unreachable; it was deleted while the server-backed ScenarioWorkbench remained live. |
 | `route-app-layout::ru-ui-catalog` | `legacy_continuity` | `frozen_legacy_continuity` | `DS0` | — | — | Ratified D4 freezes the legacy ru UI catalog in place: not used, not deleted, and not an active-locale claim. C05a-R1 proves product resolution, storage, provider state, and catalog selection admit only uk/en while explicit ru formatting remains frozen continuity. |
 | `baseline-lint-quantity-debt` | `baseline_lint_debt` | `rebind_pending` | `DS4` | — | — | `repaired` — The quantity diagnostic class is derived from the active lint manifest; resolved means all 75 immutable-origin identities have content-bound C06-C08 resolutions. |
-| `baseline-test-i18n-count-debt` | `baseline_test_debt` | `rebind_pending` | `DS6` | — | — | `open_debt` — The active manifest retains exactly three count-sensitive locale parity identities owned by DS6. |
+| `baseline-test-i18n-count-debt` | `baseline_test_debt` | `rebind_pending` | `DS6` | — | — | `repaired` — The governed Vitest lifecycle admits exactly the three historical DS6 count-message identities while open or the C16 full-suite empty failure set when repaired. |
 | `baseline-test-a11y-coverage-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | — | — | `repaired` — The accessibility census state is derived from the active Vitest debt classes; C12 repairs the OperatorDiagnosticPanel companion without an allowlist suppression. |
 | `baseline-test-temporal-cursor-debt` | `baseline_test_debt` | `rebind_pending` | `DS4` | — | — | `repaired` — The temporal-cursor state is derived from the active Vitest debt classes; C09 closed the time-dependent identity with an injected clock. |
 | `dependency-axe-core` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
@@ -610,11 +610,19 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 
 ## Commits
 
+- `3c1e8201c merge(atlas): land DS7 Cluster 0 — GAP4 with regenerated clients, and the DS7 record boundary`
+- `f5fd5c66d docs(ds7): register cycle recording gaps`
+- `192774f24 docs(ds7): record inherited red provenance`
+- `d588b5a13 merge: update main before DS7 board`
+- `dc3e50a90 merge(ds7): land GAP4 with regenerated clients`
+- `11781974d plan: GY Rev 53 + Atlas Revision 3.21 — GY-PA1 not executable, GY-DEF19 registered, a refuted anchor corrected`
+- `0084fc1bf merge(gy): record the GY-PA1 foundability probe — producer_missing`
 - `40ef040bd merge current main into DS7 cycle board`
 - `e0b0dbe79 docs(superpowers): plan DS7 cycle board implementation`
 - `82474845a plan(gy): Rev 52 — GY-PA2 and the inherited GY-DEF18 closed; ownership is measured, not inferred from a stop`
 - `663f2d36a merge(gy): close GY-PA2 delegation gate and the inherited GY-DEF18 provenance defect`
 - `6c1a90c33 docs(gy): close PA2 inherited provenance defect`
+- `6104d7e17 docs(gy): record PA1 foundability probe`
 - `2f6badff0 fix(runtime): keep provenance traversal internal`
 - `7cc23675b fix(runtime): govern provenance by owner-declared values`
 - `c7c3206da test(runtime): fail closed on opaque provenance carriers`
@@ -813,14 +821,21 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 - `47f0680f4 docs(verification): add PAO-R36 amendment conformance verdict`
 - `d8ecdaaac docs(verification): add PAO-R36 amendment orientation ledger`
 - `0c7ab71aa audit(s0-gap-02): verify amendment conformance`
+- `4147384c8 docs(gy): withdraw the branch plan copy; GY-engine-subordination.md has one owner on main`
 - `708003630 plan(gy,atlas): P38, GY-DEF14 as a class, GY-DEFC-4..6, GY-GAP4 landed, DS5 line-address closure, DS-INFRA-2`
 - `94e2c8ca0 DS5-C18a make flag exposure registry strict`
 - `dec77a050 DS6-C11 instrument Atlas health metrics`
 - `a1e6ebcdc DS5-C16b-R2 record final verification`
 - `202930742 docs(gy): declare confidence transition`
+- `b662d8a81 docs(gy): record GY-GAP4 producer input`
+- `1b096b222 test(runtime): isolate terminality schema witness`
 - `0cfcf6690 DS5-C16b-R2 bind dispute scope snapshot`
+- `03e8fa83d fix(runtime): fail closed on recovery ambiguity`
 - `2789b49ea fix(gy): own N11 null representation`
+- `09f9e16dc fix(runtime): bind run terminality authority`
 - `78ea7c3d7 DS5-C16b-R2 partition dispute interaction state`
+- `1775cf8a5 fix(runtime): keep terminality behind the HTTP adapter`
+- `ec7228eff feat(runtime): publish producer-signed run terminality`
 - `1ac08391b docs(gy): record zero-move null census`
 - `3f9c817b2 docs(gy): register null representation defect`
 - `e5a190261 DS5-C16b-R1 record structural recut`

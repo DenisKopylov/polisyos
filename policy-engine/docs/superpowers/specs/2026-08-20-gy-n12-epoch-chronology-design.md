@@ -2,13 +2,17 @@
 
 ## Status
 
-Final research specification for user approval. All four research cycles are
-complete; the substantive Cycle-4 design delta and the superseding 128-property
-closure-basis packet returned clean. Freeze takes effect only when the final
-status/record delta over these exact bytes returns clean and the containing
-commit is read back. No production code, governed artifact, writer, deployment-
-bound artifact or generated surface is authorized by this document. User
-approval is required before implementation planning.
+Cycle-5 research and specification are complete for user decision. Cycles 1–4
+and the qualified unification direction are accepted and are not reopened.
+Cycle 5 fixes the v1 proof profile, names two owner-bridge prerequisites,
+sharpens the `epoch_ref` inference after an opposite-case review, recommends
+narrow delivery and frames the unresolved anchor-custody appointment. Three
+independent Wave-4 delta reviews returned clean with zero blocking and zero
+cosmetic findings. The frozen 128-property programme basis is unchanged. No
+production code, governed artifact, writer, deployment-bound artifact,
+generated surface, replay or implementation plan is authorized by this
+document. Implementation planning begins only after the user decides the
+anchor-custody question.
 
 ## Problem
 
@@ -94,7 +98,7 @@ The decisive classifications are:
   stale, invalid, superseded or withdrawn.
 - No proof of completeness against unknown external copies. Their existence
   limits the claim.
-- No implementation or governed artifact during the four research cycles.
+- No implementation or governed artifact during the research/decision cycles.
 
 ## Cycle 3 verdict — one protocol, split semantic authorities
 
@@ -173,22 +177,50 @@ family may claim whole-history authenticity until its competent consumer and
 writer-independent holder are separately appointed and implemented.
 
 The architecture inference specifies, within CTM's boundary, that an
-`epoch_ref` is a content-bound fixed-semantics replay selector at explicit
-native coordinates, not a third clock. Valid/effect time and transaction/
-knowledge time retain their meanings; the epoch selects the complete owner-
-admitted semantic-basis manifest defined below. Proof append order cannot
-select semantic applicability.
+`epoch_ref` is not a primitive temporal role or independently advancing clock.
+It is an explicit content-addressed semantic-version coordinate carried, for
+the epoch family, in the applicable member-admission and requested-query
+contexts and bound to purpose-scoped owner admission. It is **not derivable**
+from valid/effect and transaction/knowledge coordinates alone.
+Historical replay verifies the artifact-bound reference. Current resolution
+recomputes the owner-admitted applicable set at explicit scope, purpose and
+native coordinates: zero candidates yields `epoch_scope_unresolved`; multiple
+incomparable same-purpose candidates yields `contested`/`not_established`
+until the canonical owner adjudicates. No timestamp, transaction order,
+overlay counter or proof position selects one. This formulation survived the
+Cycle-5 opposite-case attack; the falsifier is two distinct complete manifests
+with the same scope, purpose, native coordinates and predecessor.
 
-The proof contract is algorithm-profiled rather than Merkle-specific.
-RFC-style membership and append-only consistency are behavioral properties.
-Because offline replay already carries the full native history, a full-prefix
-content hash chain is a bounded provisional candidate, not a settled scale
-claim. The implementation decision starts by measuring per-family cutoff-bound
-member counts, canonical bundle bytes, owner latency/storage ceilings and
-admitted selective-proof demand. If linear verification exceeds a ceiling or
-sublinear selective proof is required, the chosen authenticated profile must
-meet that measured property; a Merkle transparency tree is the currently
-evidenced candidate, not the unique possible structure.
+The proof contract is fixed to
+`full_prefix_canon_json_0_2_0_sha256_256_v1`. It streams the complete
+cutoff-bound native history with domain-separated SHA-256 predecessor
+commitments over `polisyos.canon.json@0.2.0` frames. Verification is
+`O(n)`/`O(B)` and requires the complete frozen native history; it supplies no
+selective proof. V1 admits at most 2,500,000 members, 4 GiB of complete
+canonical replay bytes, and 1,024 bytes per canonical proof frame. Exceeding a
+cap returns `proof_profile_capacity_exceeded`; there is no algorithm fallback.
+A profile review is triggered only by a cap crossing, an admitted consumer that
+cannot hold full history, or an appointed consumer SLO that measured
+full-prefix replay cannot meet. The first appointed consumer must publish that
+benchmark/SLO receipt before issuance. No admitted selective consumer or owner
+SLO exists today, so a Merkle transparency tree is unjustified v1 complexity,
+not a dormant implementation option.
+
+V1 has one byte-level encoding for every cardinality, including an honestly
+empty denominator. Every digest-bearing field is the canonical JSON string
+`sha256:` followed by exactly 64 lower-case hexadecimal characters. Genesis is
+SHA-256 over the fixed `polisyos.chronology.genesis.v1\0` prefix plus one
+exact canonical domain descriptor. Each member commitment is SHA-256 over
+`polisyos.chronology.member.v1\0` plus the exact canonical member frame, which
+contains the preceding commitment. Each `member_content_hash` is independently
+recomputed over the length-framed exact native bytes under
+`polisyos.chronology.native.v1\0`; a matching frame marker is insufficient.
+Records are framed only as `uint64_be(length) || bytes`; no newline or platform
+encoding participates. Member-admission basis/context is immutable in that
+frame. Requested cutoff, complete denominator and requested query context live
+in a separate canonical bundle header, so extending C1 to C2 never re-encodes
+an old C1 member. For zero members, `first_commitment` is canonical JSON
+`null` and `commitment_head` is genesis.
 
 Reuse-first means extending/consolidating `core.security.ChainVerifier`'s
 interior supplied-segment checks, N11's proven rollback/prefix behavior, Data
@@ -202,6 +234,238 @@ cross-family/scope replay and satisfy the same frozen closure basis.
 
 The complete argument, counterexamples and ownership matrix are in
 `docs/superpowers/journals/2026-08-20-gy-n12-cycle-3-unification-verdict.md`.
+
+## Cycle 5 decisions
+
+### Scale and artifact shape
+
+All four admitted proof-member counts are zero because the proof-family
+producers remain `absent/unallocated`. Production counts and canonical native
+member/aggregate bytes today and at the explicit 2030-12-31 horizon are
+`not_established`. The nearest complete tracked proxies do not change that:
+two Ukraine L5 regime declarations plus one changepoint are not complete
+epochs; 23 unreleased TOML fragments / 52,132 bytes are release-note inputs,
+not controlled releases; the source AST has one recursive compile definition
+and zero source calls; and the two-entry N13b live-fetch registry has no
+row/byte cap. No admitted consumer requests selective proof, and all specified
+offline consumers hold the complete native history.
+
+The immutable v1 member frame binds only `format`, `profile`,
+`proof_domain`, `family`, `scope_ref`, `authority_purpose`,
+`native_schema_profile`, `member_ordinal`, `member_ref`,
+`member_content_hash`, `member_admission_basis_ref`,
+`member_admission_context_ref` and `predecessor_commitment`. The referenced
+member-admission context is an immutable, opaque family-native record under
+`native_schema_profile`. It binds scope, authority purpose, the member's
+admission cutoff/basis, admission-policy/profile version, the P37 class and
+result for each member-admission predicate, and **only** the CTM/query
+relations that the family adapter declares applicable. The epoch adapter
+requires its explicit valid/effect and visibility/knowledge coordinates,
+`epoch_ref` and native predecessor/fork relation; a release, run or movement
+adapter does not fabricate those fields when its native schema lacks them.
+The common proof verifier treats the context as opaque and verifies its
+content binding/profile; the family authority adapter validates its declared
+native fields. Missing/wrong purpose, profile, required native field or P37
+class fails closed.
+
+A separate canonical bundle header has exactly `format`, `profile`,
+`proof_domain`, `family`, `scope_ref`, `authority_purpose`,
+`native_schema_profile`, `declared_denominator_ref`,
+`requested_cutoff_ref`, `requested_query_context_ref`, `member_count`,
+`native_bytes_total`, `first_commitment` and `commitment_head`. The opaque
+family-native requested-query context binds scope, authority purpose, cutoff,
+only the native coordinates applicable to that query, and the P37 class/result
+for denominator completeness. Currentness, terminality or native-head
+predicates appear only when the family adapter declares them applicable; no
+common placeholder is emitted for an inapplicable predicate. A later competent
+consumer receipt adds its own acceptance disposition. A requested-query
+context is never required to equal any member-admission context.
+
+The exact byte grammar is:
+
+1. `C(x)` is `to_canonical_bytes` over a freshly constructed raw mapping,
+   list or scalar only; a `BaseModel` or dataclass input is rejected at the
+   profile boundary. Its complete `CanonSpec` is
+   `name="polisyos.canon.json"`, `version="0.2.0"`,
+   `forbid_floats=True`, `forbid_nan_inf=True`,
+   `exclude_none=False`, `max_depth=128`, `sort_keys=True`,
+   `separators=(",", ":")` and `ensure_ascii=False`. Thus canonical `null`
+   is retained. `format` is the literal
+   `polisyos.chronology.full-prefix.v1` and `profile` is
+   `full_prefix_canon_json_0_2_0_sha256_256_v1`.
+2. The domain descriptor is `C` of an object with exactly `format`, `profile`,
+   `proof_domain`, `family`, `scope_ref` and `authority_purpose`. Genesis `G`
+   is `sha256:` plus lower-case hex of
+   `SHA256(UTF8("polisyos.chronology.genesis.v1\0") || descriptor)`.
+3. Let `N_i` be the exact native bytes and
+   `R_i = uint64_be(len(N_i)) || N_i`. The required
+   `member_content_hash` is `sha256:` plus lower-case hex of
+   `SHA256(UTF8("polisyos.chronology.native.v1\0") || R_i)`. The common
+   verifier recomputes it from `R_i`; the family adapter additionally proves
+   that opaque `member_ref` identifies those bytes in the declared native
+   denominator.
+4. `F_i = C(member_frame_i)`. `member_ordinal` is the zero-based integer;
+   `predecessor_commitment` is `G` at ordinal zero and `H_(i-1)` thereafter.
+   `H_i` is `sha256:` plus lower-case hex of
+   `SHA256(UTF8("polisyos.chronology.member.v1\0") || F_i)`.
+5. For `n > 0` the header has `first_commitment = H_0` and
+   `commitment_head = H_(n-1)`. For `n = 0` it has integer
+   `member_count = 0`, integer `native_bytes_total = 0`,
+   `first_commitment = null` and `commitment_head = G`. A zero header is
+   authority-eligible only when the native denominator predicate is
+   `recomputed` or `independently_reconciled` as empty; zero asserted by the
+   writer cannot conceal an omitted required member.
+6. Every serialized record is `uint64_be(byte_length) || bytes`. The bundle is
+   framed canonical header followed, for each ordinal, by framed `F_i` then
+   `R_i`. `native_bytes_total` is exactly `sum(len(N_i))`. The bundle content
+   hash is the same digest representation over
+   `UTF8("polisyos.chronology.bundle.v1\0")` plus the entire bundle.
+
+The profile defines no separate header hash: the verifier first recomputes the
+defined `bundle_content_hash` over the exact bundle, then parses and checks the
+canonical framed header it binds. No receipt may substitute a CAS-wrapper hash
+or independently chosen framed/unframed header digest.
+
+The zero-member conformance vector fixes the representation. For
+`proof_domain="conformance"`, `family="epoch"`,
+`authority_purpose="publication"`, a 64-zero `scope_ref` digest,
+`native_schema_profile="conformance.native@1"`, 64-one denominator digest,
+64-two cutoff digest and 64-three query-context digest, the descriptor genesis
+is
+`sha256:70b86458fbe5bda54106d0c684165bc7f6096c2ade34e95dbcb14e04e9031af8`.
+The canonical header is 773 bytes, its framing prefix is
+`0000000000000305`, the empty bundle is 781 bytes, and its
+`bundle_content_hash` is
+`sha256:48f4eed374a1155203437f296bf9f9f309233f7d8ba7c5fdc161c52df259390b`.
+The header contains an explicit `"first_commitment":null`. These values are a
+qualification vector, not an admitted family artifact.
+
+Each framed member is at most 1,024 bytes and the framed header at most 4,096
+bytes. At the 2,500,000-member cap, maximum frames plus header use
+2,560,004,096 bytes and leave 1,734,963,200 bytes inside 4 GiB for all framed
+native records. This is a qualification horizon, not a production forecast or
+owner SLO. Independent encoders must emit identical bytes, digests, heads and
+sizes at 0, 1 and 2 members; appending M2 at C2 preserves M1's C1 bytes. The
+falsifiers substitute native bytes while retaining the old frame, present an
+empty header against a non-empty reconciled denominator, and rebind M1's
+original member-admission context. Each fails.
+
+### Exact Cluster-4 owner prerequisites
+
+Decision Validity's generic dependency-event syntax cannot accept an
+authority-grade epoch trigger as-is. It copies caller-supplied trigger type,
+status, dependency keys, source ref and payload and has no epoch dependency,
+manifest/scope identity, explicit native coordinates, certificate/recipe
+bindings, signature or verifier provenance. The epoch producer remains
+`producer_missing`; a shaped event does not promote it.
+
+**C5-PREREQ-DV-EPOCH-ADMISSION** requires N12 to persist a content-bound
+epoch-transition/staleness artifact with old/new epoch and complete manifest,
+basis, explicit authority purpose, the `requested_query_context_ref`,
+`bundle_content_hash`, exact parsed header and commitment head, plus
+content-bound old/new epoch member refs whose immutable frames retain distinct
+`member_admission_context_ref` values. It also binds affected
+certificate/dependency refs, disposition, producer identity,
+schema/rule/proof profiles, signature and verifier provenance.
+
+Before mutation, Decision Validity verifies that artifact and prior state,
+rejects a wrong/missing purpose/context, resolves the complete affected packet
+denominator and computes every desired owner transition. Empty/unregistered
+targets leave no state. It derives event/dedupe identity from verified content,
+the requested-query context, sorted complete targets and owner rule/profile
+version; the caller cannot supply it. Before the first target mutation it
+persists a content-bound pending-batch freeze over the **complete** target
+denominator. Every Decision Validity authority/public read consults that index;
+while it is pending, an orthogonal content-bound `pending_revalidation`
+limitation makes every target unusable in a public result, including targets
+not yet physically updated. The underlying owner status/history is preserved;
+effective authority is the more restrictive composition. An `ACTIVE` target
+may therefore present `REVIEW_REQUIRED`, but `WITHDRAWN`, `REVOKED`, `STALE`
+or another stricter result remains that result plus the pending limitation and
+can never be reopened. Target writes are idempotent. Only after all are
+reconciled does one owner transaction write the completion receipt and switch
+the batch index from pending to complete. A crash leaves the freeze visible
+and retry resumes the same batch; a pending identity is never mistaken for
+completed dedupe. A fake pre-poisoning event leaves no dedupe or freeze state.
+The crash falsifier starts with one active and one withdrawn/revoked target,
+then observes the window after the first write: both remain authority-blocked
+and the terminal result remains terminal; retry reconciles both exactly once
+before completion.
+
+Claim Ledger's append-only action vocabulary fits the result, but its
+governance lifecycle bridge is still `implemented_but_not_orchestrated` and
+does not authenticate raw monitor metadata. **C5-PREREQ-CLAIM-DV-LIFECYCLE**
+therefore feeds a persisted verified Decision Validity transition—not a raw
+chronology or monitor event—into that bridge. More precisely it consumes the
+completed batch receipt and its verified transitions, binding decision lineage,
+affected claims, old/new ledger and run refs, epoch evidence, authority purpose
+and `requested_query_context_ref` plus the referenced old/new epoch member
+frames and their immutable member-admission contexts before Claim Ledger
+validates and appends the transition. It never requires the requested-query
+context to equal either historical member-admission context. Automatic recipe
+execution remains
+`absent/unallocated` with the artifact's canonical producer.
+
+### Delivery scope and anchor appointment
+
+The recommended delivery is narrow. GY-N12 consumes the Foundry-owned
+GY-DEF22 identity and delivers Clusters 1–4: the common protocol, one
+non-authoritative second-shape conformance witness, the epoch adapter and
+epoch/OpenWorldRisk/cascade plus owner bridges. The witness proves only generic
+protocol behavior relative to supplied native inputs and cannot mint a native
+head, denominator, acceptance, persistence owner or authority. GY-GAP3,
+GY-GAP5 and GY-GAP6 become separate tasks for Clusters 5–7 with GY-PA3,
+generation-cycle and N13b/N7/DS7 owners respectively. Their 9 + 11 + 11 family
+properties are explicitly deferred; a narrow delivery cannot claim 128/128.
+
+The non-overlapping 128-ID responsibility partition is:
+
+| responsibility | exact IDs | count | holder condition |
+| --- | --- | ---: | --- |
+| N12 common/profile | A01–A07; B01–B03, B05–B08, B10–B17; H01, H02, H04–H06, H10, H11, H14, H16, H17; J05 | 34 | supplied-head protocol under either decision; not accepted whole history without holder |
+| N12 epoch/OpenWorld/cascade | C00–C10A; D01–D13A; H03, H07, H18–H22; J01A | 40 | native owner results remain distinct from chronology authenticity |
+| N12 anchor-dependent | B04, B09, B09A; H08, H12, H15; J01, J06 | 8 | `not_established` without appointment; eligible, not automatically closed, with consumer+holder |
+| Foundry prerequisite | H09; I01–I06 | 9 | Foundry N8/N10a owner; N12 consumes |
+| GY-GAP3/GY-PA3 | E01–E09; J02 | 10 | deferred |
+| GY-GAP5/generation cycle | F01–F10; H13, H13A; J03 | 14 | deferred |
+| GY-GAP6/N13b-N7-DS7 | G00–G09; J04 | 12 | deferred |
+| programme capstone | J00 | 1 | all four native chains plus competent acceptance/retention |
+
+The counts sum to 128 and route responsibility only; they are not a closure
+score and do not imply 97/128 for GY-N12. Suffixed IDs within the printed
+ranges are included exactly once. The Cycle-5 journal carries the expanded
+no-holder/with-holder status.
+
+The wide alternative would prove genericity with multiple production adapters,
+but it couples three absent producer/denominator chains and their surfaces to
+epoch delivery while all remain blocked on anchor custody. The cost of narrow
+is a bounded residual: each later adapter must rerun common conformance plus
+its native basis. The cost of wide is the premature delivery and review of
+three sovereign capabilities before the shared institutional decision.
+
+No writer-independent accepted-anchor holder is evidenced. A competent family
+consumer must recompute or independently reconcile acceptance at the bound
+native query/cutoff and sign a content-bound receipt. A holder must retain that
+receipt and acceptance package outside the writer's overwrite, deletion,
+retention-policy and re-origin authority and support exact readback/challenge.
+Local CAS/Git/audit has no boundary; current GitHub rules/releases/actions and
+remote CAS/Sigstore paths have no tracked enforcement or custody receipt. The
+S3 Object Lock audit cold tier is the strongest reuse mechanism but has no
+evidenced bucket, separate principal or chronology intake. Its generic audit
+replication is implemented and conditionally orchestrated; chronology holder
+intake/receipt/readback/challenge remains `absent/unallocated` and deployment
+independence `not_established`.
+
+If one appointment is made, the recommendation is a cross-family neutral
+`Chronology Anchor Custodian`: a separately credentialed/accounted Object Lock
+holder that accepts only competent family-consumer-signed receipts and exports
+put/version/retention and readback receipts. It retains proof but mints no
+semantic authority. Without that appointment, supplied-head integrity and
+independently reconciled native denominators remain deliverable, but accepted
+whole-history authenticity, global/latest and PV-K07 issuance remain
+`not_established`. The user may instead appoint an epoch-only holder or
+deliberately accept that claim ceiling. The full decision brief is in the
+Cycle-5 journal.
 
 ## Family obligations
 
@@ -510,7 +774,12 @@ explicit timeout and uptime pair, then verify all consumers from that result.
 These are the current price inputs, not a promise that timings will remain
 constant.
 
-## Implementation cluster decomposition — no authorization
+## Delivery cluster decomposition — no authorization
+
+The eight clusters remain the programme decomposition, but Cycle 5 recommends
+that GY-N12 deliver only Clusters 1–4. Clusters 5–7 are separately routed
+consumer tasks, and Cluster 8 is sliced across the capability that owns each
+surface. This is a delivery decision, not implementation authorization.
 
 1. **Owner-preserving environment dependency:** the Foundry catalog/discovery
    owner closes GY-DEF22 with N8/N10a and exposes the admitted identity for N12.
@@ -519,31 +788,44 @@ constant.
    executable by a chronology-local substitute.
 2. **Policy-free proof profile:** extend/consolidate core canonical/CAS,
    `ChainVerifier`, N11 behavioral checks and Data Forge commitment primitives
-   into algorithm/profile/domain-bound membership and consistency verification.
-   Measure scale before selecting full-prefix or a sublinear profile. End in a
-   persisted family-native proof and offline result explicitly relative to a
-   supplied head. Current capability: `absent/unallocated`.
-3. **Anchor admission and retention:** for each family, wire a competent
-   consumer acceptance receipt and writer-independent holder, including
-   requested-coordinate anti-rollback. This is a separate review boundary from
-   proof production. All four family chains are currently
-   `absent/unallocated`; the table above names the known consumers/surfaces and
-   records that no holder is appointed. Whole-history claims and the full
-   family closures are blocked here until that external custody decision lands.
+   into the fixed
+   `full_prefix_canon_json_0_2_0_sha256_256_v1` profile. Enforce the
+   2,500,000-member, 4-GiB bundle and 1,024-byte frame caps; exceedance fails
+   closed. End in a persisted family-native proof and offline result explicitly
+   relative to a supplied head. Include one different-shape opaque
+   non-authoritative conformance witness that cannot become a GAP producer,
+   denominator or authority owner. Current capability: `absent/unallocated`.
+3. **Anchor admission and retention:** if the user appoints custody, wire the
+   epoch competent-consumer acceptance receipt and the appointed
+   writer-independent holder, including requested-coordinate anti-rollback.
+   The receipt binds authority purpose, `requested_query_context_ref`, the
+   defined `bundle_content_hash`, exact parsed header, commitment head, prior
+   accepted anchor and the immutable member refs/commitments it evaluated.
+   The holder
+   index keys the receipt's family/scope/purpose/query context and consumer,
+   not equality with every member-admission context. Exact-ref authenticity
+   alone cannot accept an old or cross-purpose anchor.
+   The recommended common holder may retain receipts for every family but
+   cannot accept native semantics. This is a separate review boundary from
+   proof production. With no appointment, skip the holder mechanism and retain
+   the explicit supplied-head/whole-history `not_established` claim ceiling.
 4. **Epoch producer and validity cascade:** generic boundary and full semantic-
    facet manifest resolution, unresolved scope, append-only epochs, exact N13b
    stamp/basis reconciliation, component-wise OpenWorldRisk, owner-adjudicated
    target vectors, missed-obligation reissue, promotion freeze and Decision
-   Validity/Claim Ledger bridges. N12 emits triggers; each derived artifact's
-   canonical producer executes its recipe. Missing producer links retain their
-   exact current labels. Current epoch/OpenWorld capability:
+   Validity/Claim Ledger bridges. Satisfy
+   C5-PREREQ-DV-EPOCH-ADMISSION and
+   C5-PREREQ-CLAIM-DV-LIFECYCLE; N12 emits content-bound evidence while
+   Decision Validity derives status and Claim Ledger appends history. Each
+   derived artifact's canonical producer executes its recipe. Missing producer
+   links retain their exact labels. Current epoch/OpenWorld capability:
    `absent/unallocated`; Decision-Validity trigger: `producer_missing`.
-5. **Controlled release adapter:** native release member/producer, immutable
+5. **Controlled release adapter — routed to GY-GAP3:** native release member/producer, immutable
    denominator, proof-only transcript head, verifier dispositions, denominator
    reconciliation and offline replay. GY-PA3 is the named downstream consumer,
    but PV-K07 remains blocked on Cluster 3's acceptance/holder chain. Current
    state: `absent/unallocated`.
-6. **Recursive-run adapter:** first establish the live production boundary,
+6. **Recursive-run adapter — routed to GY-GAP5:** first establish the live production boundary,
    then bind every family-native run event to exact problem/graph/cycle identity
    and add receipt-or-gap emission without changing producer terminality.
    Reconcile the complete event denominator, project terminals only from
@@ -553,20 +835,24 @@ constant.
    artifact remains
    `artifact_missing`; live boundary is `not_established`; enumeration is
    `absent/unallocated`. Full authenticity also depends on Cluster 3.
-7. **Movement composition:** reconcile the complete eligible N13b-row
+7. **Movement composition — routed to GY-GAP6:** reconcile the complete eligible N13b-row
    denominator to proved movement, owner-proved no movement or an explicit gap;
    persist exact row/passport/N7 re-entry/deeper-terminal relations through the
    common proof chain. Current state: `absent/unallocated`; full authenticity
    also depends on Cluster 3.
-8. **Surfaces and capstone verification:** audit/API/dashboard projections from
-   owner artifacts, the frozen negative/e2e basis, recomputing validators and
-   the single deployment replay. Surfaces consume owner results and cannot
-   close missing anchor custody or mint authority.
+8. **Surfaces and capstone verification — sliced by owner task:** audit/API/
+   dashboard projections from owner artifacts, the frozen negative/e2e basis,
+   recomputing validators and the single deployment replay. GY-N12 owns only
+   common-protocol and epoch surfaces; each GAP task owns its family surface.
+   Surfaces consume owner results and cannot close missing anchor custody or
+   mint authority.
 
 Each cluster is independently reviewable. It must end with a real
 producer/artifact/bridge/consumer/verifier/surface chain or retain its exact
 incomplete label and named prerequisite; “blocked” is a sequencing status, not
-a stronger capability label.
+a stronger capability label. The frozen basis is programme-wide and the
+clusters overlap cross-cutting H/J properties; cluster location cannot be used
+as a P38 coverage counter.
 
 ## Pattern pass
 
@@ -609,6 +895,19 @@ receipts are in the Cycle-4 journal; its terminal review receipt is detached to
 avoid a self-referential record. The containing commit freezes these bytes only
 after that final delta returns clean.
 
+Cycle 5 removes the profile fork: full-prefix streaming is fixed behind numeric
+member/bundle/frame caps, while a Merkle tree has a measured revisit trigger
+instead of speculative parity. It finds P37/P38 at Decision Validity's generic
+event intake and routes authority through a verified epoch artifact plus owner-
+derived status before Claim Ledger. The opposite-case epoch review deepens the
+time-seam class and sharpens `epoch_ref` into an explicit content-addressed
+semantic coordinate that is not derivable from native time coordinates but is
+also not an independently advancing clock. The delivery decision is narrow
+with a non-authoritative second-shape conformance witness. The custody inventory
+finds hosted/repository locations but no evidenced writer-independent holder;
+the bounded residual and falsifier remain explicit pending the user's
+institutional appointment.
+
 ## Research and revision log
 
 | cycle | input | result | spec action |
@@ -617,3 +916,4 @@ after that final delta returns clean.
 | 2 | transparency, bitemporal, immutable-history, revocation, provenance/recompute and scholarly-correction prior art | proof algebra fits admitted-prefix integrity; CTM reconciliation tentatively makes epoch a projection rather than a third clock; canonical denominator and authority heads stay native | rewritten with commitment/authority-head split, independently accepted anchors, GY-GAP5-attributed run receipt, recipe/profile closure and proposition/use denominators; three return reviews clean |
 | 3 | strongest conditional unification versus minimal semantic-owner split; repository head/membership/correction/anchor/run-gap counterexamples | one policy-free proof protocol is the supported direction for four domains; one semantic authority is refuted; hash-chain-first is provisional and N11 owner reuse forbidden | rewritten with protocol/authority split, explicit native-head limits, anchor custody, algorithm-choice measurement and reordered clusters; first and return reviews repaired same-class deeper findings, final delta clean |
 | 4 | content-bound adversarial record/design/method review under the written P40 bucket rule | 16 distinct blocking buckets after duplicate witnesses were folded; later findings stayed in those classes; no cosmetic-only finding | rewritten across design, basis and record; substantive design and superseding 128-property basis packets clean; final status/record delta freezes only on clean receipt plus commit readback |
+| 5 | cutoff-bound scale and consumer-demand measurement; live Decision Validity/Claim Ledger intake audit; strongest third-axis attack; narrow/wide and custody decision briefs | fixed full-prefix v1 with numeric fail-closed caps; two named Cluster-4 prerequisites; `epoch_ref` survives with sharpening; narrow scope recommended; neutral shared holder recommended but requires user appointment | spec revised without changing the frozen basis; no mechanism, artifact, writer, replay or implementation plan |

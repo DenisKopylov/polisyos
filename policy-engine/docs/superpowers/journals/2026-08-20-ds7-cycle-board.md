@@ -634,3 +634,12 @@ Both load pairs were `3.66/4.90/4.83 -> 4.59/5.02/4.87`; neither command was
 killed. These are collection-level REDs at the intended Task 5 production
 boundaries. Their behavioral predicates remain unexecuted until that mechanism
 exists; no fixture failure or timeout is promoted to a behavioral result.
+
+The reviewed 4b population was committed at
+`5b3d8b766ea3a3d975d481f64c6ee1bf724a783e`. Read-back from the attached
+`codex/atlas-ds7-cycle-board` branch returned the same commit and exact
+four-path population: two tests plus this plan and journal. The branch-read
+access/replay test hashes to
+`3dedb4f0a08763a48ae6dd891e68b686db4488e22e9a388d617109faafd38f83`.
+The worktree was otherwise clean at read-back. This pending plan/journal
+delivery record changes no mechanism or test outcome and consumes no 4b round.

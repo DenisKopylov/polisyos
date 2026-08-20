@@ -261,7 +261,7 @@ conflicts.
   adapter's call count unchanged.
 - [x] Exercise authorized HTTP 409 translation for a wrong complete raw tuple
   and partial/mixed generation tuples in addition to service-level conflicts.
-- [ ] Run the focused 4b files and witness failure at the missing static
+- [x] Run the focused 4b files and witness failure at the missing static
   operation/service, then freeze, issue the basis, review, and commit.
 
 ### Task 4c — Loading and parity boundary REDs

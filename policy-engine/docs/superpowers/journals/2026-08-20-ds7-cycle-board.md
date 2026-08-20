@@ -698,3 +698,25 @@ branch-read loader test hashes to
 `997ef1f225e66a0223f3b653fc2325bacaeac2190d81cf66a04a0130709d4260`.
 The worktree was otherwise clean at read-back. This pending plan/journal
 delivery record changes no mechanism or test outcome and consumes no 4c round.
+
+## Task 4 final static read-back
+
+At attached head `38654406fccb9de5e3e3b909f6589856c8846bb5`, the worktree was clean,
+the closure-basis SHA remained
+`a3747cd490157519406aaecbf15d843238bf6c167d4e517d563d49c7d0d23a4e`,
+and the Task 4 delta from the basis commit contained nine paths, all under
+`tests/` or `docs/`; the production-path count was zero. `git diff --check` and
+Ruff lint over all seven Task 4 test files passed.
+
+Host Ruff 0.15.0 format-check reported one post-freeze cosmetic diagnostic:
+it would reformat the governed-projection service test, core compositor test,
+and fact-owner test. The three files are reviewed 4a RED tests; no production,
+governed artifact, or test-outcome byte changed. The source-freeze rule makes
+this a recorded non-behavioral static diagnostic rather than authorization to
+rewrite reviewed REDs after their wave. It consumes no mechanism round and is
+not reported as format-green.
+
+Both held plan line-7 bytes are unchanged from Task 4 entry: the GY plan remains
+`32b88fc33f29e12b28aad432695b3f51abbdefe9e6fa7946bda834c719a8dbc3`
+and the Atlas master plan remains
+`bd39cd4831c0f9e1a6a05b9e54032c13587546c49526cc87a2918bd7e6f0dfac`.

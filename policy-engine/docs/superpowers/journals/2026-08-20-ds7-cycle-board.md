@@ -397,3 +397,68 @@ window. Its identities are:
 The atomic commit is the lock-release boundary. Relinquishment occurs only
 after these five identities are read back from the attached branch; no later
 register-family write is implied by this record.
+
+## Inherited-red provenance receipts — reds before board mechanism
+
+Task 2 replayed the exact owner commands at the slice base
+`4456bb885fbec62657e8ee55d3d35aac89c08713` and the attached pre-board head
+`d588b5a137627c2c1e4b5df8d29890d16cc93c42`. The base was materialized as an
+isolated detached clone at `/tmp/ds7-base4456.zIUBqQ/repo`, not as a worktree
+and without touching another lane. Its toolchain gate,
+`corepack pnpm install --frozen-lockfile`, completed in 9.691 s with pnpm
+10.33.2 and 1,211 packages before any TypeScript or browser result was admitted.
+
+The visual source/config/fixture censuses are navigation evidence, not complete
+behavioral denominators: DS8 has 10 direct paths and DS5 has 23 direct paths,
+all byte-unchanged from the slice base, while the full transitive Vite/runtime
+input graph is `not_established`. Exact-base replay proves that both visual
+reds predate DS7, and their registered owner dispositions remain unchanged; it
+does not establish DS7-to-red input disjointness or a complete P41 ownership
+proof. Playwright, Storybook, and their fixed ports were serialized; retries
+were zero; no snapshot writer or `--update-snapshots` was used.
+
+| Owner red | Exact-base receipt | Attached-head receipt | Fixed ceiling |
+| --- | --- | --- | ---: |
+| DS8 A4 print | exit 1, completed in 91.847 s; expected `724x2113`, actual `770x13269`, 692,128 differing pixels | exit 1, completed in 23.579 s; same dimensions, 692,156 differing pixels | 2,400 s |
+| DS5 run-deck | exit 1, completed in 13.624 s; expected `1094x820`, actual `1094x821`, 4,178 differing pixels | exit 1, completed in 13.373 s; same dimensions and 4,178 pixels | 90 s |
+| DS6-C11 focused component file | exit 1, 21/22 in 16.931 s; sole failure at `atlasHealthMetrics.test.ts:649` | exit 1, 21/22 in 15.261 s; the same sole failure | 90 s |
+| complete dashboard component population | exit 1, 1,188/1,189 in 534.067 s; sole failed identity `Atlas health metrics > persists the producer-observed report and snapshot through Core CAS` | exit 1, 1,188/1,189 in 550.594 s; the same sole failed identity | 1,800 s |
+
+The paired load receipts were:
+
+- DS8 base `3.35/3.57/3.61 -> 4.47/3.75/3.66`; attached
+  `3.56/3.63/3.62 -> 3.95/3.71/3.65`;
+- DS5 base `4.22/3.73/3.66 -> 4.18/3.75/3.66`; attached
+  `3.42/3.60/3.61 -> 3.35/3.57/3.60`;
+- DS6-C11 focused base `3.03/3.49/3.57 -> 3.45/3.55/3.59`; attached
+  `3.03/3.49/3.57 -> 3.32/3.53/3.58`;
+- full population base `3.11/3.43/3.54 -> 4.47/5.47/4.79`; attached
+  `3.11/3.43/3.54 -> 4.31/5.38/4.77`.
+
+The governed DS8 expectation is byte-identical at base and attached head,
+SHA-256 `a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`.
+Its actual images are not byte-identical
+(`8a43990c…dce0cf` versus `354ec311…0bbdc`), so the receipt claims the
+same inherited dimensional failure and not pixel determinism. The DS5
+expectation is byte-identical at
+`76ecd68a93dd843940212f73392f080704ae17dea87be5f8a358f337c15d9aaa`;
+both actual images are also byte-identical at
+`823fffa7f72433bdb8c1a141c9f38b1b2da7d8bbd28652755dada8abdfa3053f`.
+
+DS6-C11's complete dynamic owner-input denominator is 17 paths: six direct
+implementation inputs, ten validated source references, and the C12 protocol.
+Cluster 0 and its current-main merge intersect that set at zero. The full slice
+base-to-head diff intersects it only at
+`architecture/policy_design_case/inventory.json`, an inherited main movement
+before Cluster 0; the exact-base and attached full-population replays then
+produce the same sole assertion, `expected [] to deeply equal
+ArrayContaining{...}`. Thus DS6-C11 remains red and owner-attributed rather
+than being inferred from a static zero.
+
+All eight invocations — four command forms at two refs — completed. No kill is
+reported as a duration sample and no ceiling was enlarged. These receipts
+preserve the three inherited reds:
+DS8 A4, DS5's `1094x821` residual against `1094x820`, and DS6-C11.
+None is reported green. This journal-only P41 record changes no mechanism byte,
+governed expectation, or test outcome and consumes no mechanism round under
+the corrected P39 split.

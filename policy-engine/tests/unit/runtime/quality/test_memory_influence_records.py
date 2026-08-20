@@ -131,6 +131,7 @@ def test_memory_marker_in_unordered_container_fails_closed() -> None:
     )
 
     assert issues
+    assert issues[0]["code"] == "memory_influence_payload_provenance_unknown"
     assert issues[0]["evidence_slot"] == novel_key
 
 

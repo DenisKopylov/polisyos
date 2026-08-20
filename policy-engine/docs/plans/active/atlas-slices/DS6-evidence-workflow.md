@@ -1414,6 +1414,69 @@ two active `attr(href)` print emitters stay registered as DS8-owned duplicate
 debt rather than being changed here. The exact candidate remains six paths;
 the commit and post-commit branch readback are pending.
 
+### Task 19 — DS6-C19: widen the non-count plural-agreement rule
+
+**Status: CLOSED in mechanism commit
+`c552d5b5ccce077b24f5126deb699400263186e9`. Declared mechanism-path cap:
+5.** The mechanism is exactly three paths: the parity owner plus active `en`
+and `uk` catalogs. This plan, the DS6 journal, and the master-plan debt-row
+transition are mandatory P39 record companions and stay outside the count.
+
+C19 is the continuously numbered re-cut requested by the registered debt. It
+does not reopen C01: C01's `{count}` repair remains correct, while C19 closes
+the adjacent variable class that C01's literal-key collector never admitted.
+Before adjudication, two independent complete ICU-AST walks agreed on the
+active denominator: 2,451 string leaves per locale; 244 non-`{count}` message
+paths per locale (488 locale-message records); 360 path-variable points per
+locale (720 locale instances); 149 variable names; zero parse failures; and
+sorted point-set SHA-256
+`f463ac23dddb4b9fa743870f0081515fff8c1d23d16d3993340fe0d0ee10a362`.
+The owner declares 71 quantitative-capable and 78 nonquantitative variables;
+the disjoint 149-name union is fingerprinted and every undeclared future name
+fails closed.
+
+The exact quantitative-use denominator is 183 path-variable points in each
+active locale. Each was manually adjudicated against the words agreeing with
+that variable. Each locale audit classifies four points as requiring cardinal
+agreement and 179 as not requiring it. The four are
+`common.lineageGraph.threshold#{nodes}`,
+`pages.dashboard.narrativeAttentionBody#{blocked}`,
+`phase34.blockers.slowReview#{target}`, and
+`shared.charts.quantileDotplot.tailSummary#{bins}`. Exact point-use
+declarations retain a reason for every point. The repaired dashboard message
+now gives `blocked` its own cardinal plural without creating a count-by-blocked
+cross-product; English proves one/other and Ukrainian proves
+one/few/many/other plus their nonnumeric fallbacks. A message using an invented
+numeric variable fails `variable-kind-undeclared`; a number/plural node that
+contradicts a nonnumeric owner declaration fails `numeric-kind-conflict`; a
+genuine no-agreement message remains accepted; and all existing `{count}`
+coverage stays green.
+
+`panels.reviewCollaboration.reviewers` takes the permitted explicit outcome
+**`declared, unenforced`**: the present caller selects it only above one
+participant and uses `solo` for singular, but no behavioral witness binds that
+guard. The Russian catalog remains `legacy_continuity_frozen` and byte
+unchanged.
+
+P37/P40 bounds one residual rather than laundering declaration provenance into
+a recomputed fact. The 78-name nonnumeric classification is
+`institutionally_supplied`; no complete typed producer-to-message argument
+manifest or call graph exists. The worked mixed-use example is `target`, which
+is cardinal at `phase34.blockers.slowReview#{target}` but string/identifier
+elsewhere. Falsifier: wire bare `phase33.stress.diff#{diff}` to a formatted
+numeric delta without changing its declared name; the present gate cannot
+recompute that producer type. The missing typed manifest/call graph is the
+smallest capability that closes this residual.
+
+The red-first focused receipt had exactly the two intended failures—the live
+`blocked = 1` copy and the invented-variable omission—while the no-agreement
+and existing `{count}` cases remained green. The frozen mechanism then passes
+38/38 focused parity tests, targeted ESLint, and the dashboard app TypeScript
+check. No browser process or visual lane was needed. The debt row closes, but
+DS6 does not: C13 and C14 remain gated on the owed DS8 paper-semantics
+adjudication. DS7 Task 8 must make every new active `en`/`uk` message satisfy
+this widened declared-variable rule; no new variable is grandfathered.
+
 ## Expected cluster commits
 
 | Cluster | Expected subject | Max files |
@@ -1439,6 +1502,7 @@ the commit and post-commit branch readback are pending.
 | C16 | `DS6-C16 close deferred-lane diagnostics` | 7 |
 | C17 | `DS6-C17 reconcile C15-R1 visual baselines` | 5 |
 | C18 | `DS6-C18 fix visual fixture and re-anchor C15-R1 deltas` | 6 |
+| C19 | `DS6-C19 widen plural agreement gate` | 5 |
 
 ## Deferred execution package
 

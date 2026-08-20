@@ -5482,3 +5482,196 @@ Because no browser work was entered, there was no visual-lane acquisition to
 relinquish. The closing census reports zero DS6 Playwright, Vite, Storybook, or
 fixture-server processes and zero listeners on 5,173, 6,006, or 8,000. The
 visual lane remains explicitly free.
+
+## DS6-C19 — widen non-count plural agreement — 2026-08-20
+
+### Entry, integration, and toolchain gate
+
+The entry guard reread the exact worktree
+`/Users/deniskopylov/polisyos/.worktrees/atlas-ds6-closure`, attached branch
+`codex/atlas-ds6-closure`, clean status, and starting commit
+`c3413d7b78f88719905a9351b658dcc8563abd0a`. The only integration source was
+the pinned full commit `b20cae45b843fb6465d6385c0818345026003a44`.
+The resulting merge commit is
+`506de9baddf104b4434afe3e7527f801a9bdbfc5`; its immutable merge base and
+second parent are exactly the pinned commit, never a moving `main` tip.
+
+The TypeScript evidence gate ran from `policy-engine` before any scanner result
+was admitted: `corepack pnpm install --frozen-lockfile` completed exit 0 in
+1.04 s with pnpm 10.33.2. From
+`policy-engine/apps/runtime-dashboard`, the pre-mechanism focused command
+`corepack pnpm exec vitest run src/shared/i18n/parity.test.ts --maxWorkers=2
+--reporter=verbose` passed the then-current 34/34 tests.
+
+### Complete census published before adjudication
+
+Two independent commands ran from `apps/runtime-dashboard` as read-only
+`node --input-type=module` programs using `IntlMessageFormat.getAst()`. The
+primary recursively walked every own JSON-object entry, parsed every
+brace-bearing leaf, and collected unique non-count variables through argument,
+date, time, number, select, plural, and tag nodes. The independent program
+imported both JSON modules, traversed them with `Reflect.ownKeys`, maintained
+separate raw-occurrence and unique-point accumulators, and did not call the
+parity-test collector or use interpolation regexes. They agreed exactly:
+
+- 2,451 string leaves and 318 brace-bearing leaves per locale;
+- 74 `{count}`-only leaves excluded and 244 message paths retained per locale,
+  or 488 locale-message records;
+- 360 distinct path-variable points per locale, or 720 locale instances;
+- 149 distinct variable names, zero parse failures, and zero locale-set
+  mismatches; and
+- sorted point-set SHA-256
+  `f463ac23dddb4b9fa743870f0081515fff8c1d23d16d3993340fe0d0ee10a362`.
+
+The independent walker also reported 370 raw AST references in English and
+384 in Ukrainian; repeated occurrences within a message explain why those
+raw-reference totals differ while their distinct 360-point sets agree. The
+catalog blobs were unchanged from the pinned integration base. The inherited
+2,449-leaf active-catalog record was therefore stale by two leaves per locale,
+not a C19 product delta.
+
+The owner partition is an exact disjoint union of 71 quantitative-capable and
+78 nonquantitative names. Their fingerprints are respectively
+`c60120b6795593d5f5b84b83353e2c1d02c7ea568e8e48e146942aadbfdf3517`,
+`b5b3aa0106b331d5b639b53c929748417e2fc9fbe1932a4384df81047327c7d3`,
+and union SHA-256
+`c6e55dde50b11769f4babae1c8c2d835ce9b671340aa8afbd452fc70da4c1f70`.
+The 71-name population occupies exactly 183 path-variable points per active
+locale; its sorted-point SHA-256 is
+`4bc1fc6d6b2600cfbebd509630f3f5ad82276c47e88b38834ce6fa3d526ee858`.
+
+### Per-locale agreement adjudication
+
+Every one of the 183 quantitative points was manually adjudicated separately
+in both locales against the words agreeing with that variable. This linguistic
+classification is **`consumer_asserted`**, not an automated finding. Both
+locale reads conclude four `pluralized` and 179 no-agreement points. The
+complete exact declaration map in `parity.test.ts` is the durable record: it
+persists every point with its classification and reason. The only four
+agreement-bearing identities are:
+
+1. `common.lineageGraph.threshold#{nodes}`;
+2. `pages.dashboard.narrativeAttentionBody#{blocked}`;
+3. `phase34.blockers.slowReview#{target}`; and
+4. `shared.charts.quantileDotplot.tailSummary#{bins}`.
+
+The exact 71-name quantitative / 78-name nonquantitative partition is likewise
+owner-owned. The nonnumeric classification is explicitly
+**`institutionally_supplied`**: catalog syntax cannot prove producer type, and
+there is no retained typed producer-to-message manifest or complete typed call
+graph from which to recompute it. No complete caller-witness count is claimed.
+
+`panels.reviewCollaboration.reviewers` takes the task's permitted explicit
+outcome **`declared, unenforced`**. The current component caller selects the key
+only when `participants.length > 1` and uses `solo` for singular, but C19 adds
+no witness binding that guard; the exemption does not claim enforcement.
+
+### Red-first receipt and landed mechanism
+
+After adding only the four boundary tests, the same focused Vitest command
+completed with 35 tests: 33 passed and exactly two intended failures. The
+current `blocked = 1` message did not render the required singular form, and a
+test-time `{inventedAxis}` variable returned no diagnostic instead of failing
+closed. The accepting `Step {position} of {total}` no-agreement case passed,
+and all existing `{count}` cases stayed green. That is the required red at the
+behavioral gate boundary, not a source-marker test.
+
+Mechanism commit `c552d5b5ccce077b24f5126deb699400263186e9`
+(`DS6-C19 widen plural agreement gate`) changes exactly three mechanism paths:
+
+1. `apps/runtime-dashboard/src/shared/i18n/parity.test.ts`;
+2. `apps/runtime-dashboard/src/shared/i18n/locales/en.json`; and
+3. `apps/runtime-dashboard/src/shared/i18n/locales/uk.json`.
+
+The literal/name-regex proxy is gone. Every non-count ICU variable must belong
+to the exact owner-declared 149-name union; an unknown name fails
+`variable-kind-undeclared`, while number/plural syntax contradicting a
+nonnumeric declaration fails `numeric-kind-conflict`. Every quantitative use
+must also belong to the exact 183-point declaration map. `pluralized` uses must
+own every occurrence through a same-variable cardinal plural; `invariant`
+uses retain a non-empty adjudication reason.
+
+`pages.dashboard.narrativeAttentionBody` now gives `blocked` an independent
+plural, avoiding a 4×4 count-by-blocked branch product. English proves
+`1 blocked packet` and the other branch; Ukrainian proves
+`1 заблокований packet`, `2 заблоковані packet`, and
+`5 заблокованих packet`. Both locales pin an explicit nonnumeric fallback.
+Injecting the old active copy into a real catalog clone fails
+`plural_ownership_missing`. `ru.json` is byte-unchanged and remains
+`legacy_continuity_frozen`.
+
+### Review, P40 boundary, and verification
+
+The frozen initial mechanism packet was 26,937 bytes; the final three-path
+packet is 27,841 bytes, below the 28 KB review ceiling. Three independent
+read-only reviews found no Blocking/Important class in the runtime plural
+ownership mechanism. Their declaration-provenance probes did find one P37
+class one level deeper. Worked example one is mixed semantic use under a
+global name: `target` is cardinal at
+`phase34.blockers.slowReview#{target}` but string/identifier elsewhere. Worked
+example two is the falsifier: wire bare `phase33.stress.diff#{diff}` to a
+formatted numeric delta while retaining its declared name. The gate cannot
+recompute either producer type. P40 therefore takes the bounded-residual branch
+rather than a third proxy patch. The smallest closure capability is a typed
+producer-to-message argument manifest or complete typed call graph, and
+neither exists in this repository. The owner declarations are admitted as
+`institutionally_supplied`. A separate missing-fallback semantic witness was
+added in the single batched review repair. Final delta review was READY from
+all three reviewers. Accounting is one batched mechanism-review repair,
+**1/2**, followed by the P40 bounded residual for the twice-instantiated
+provenance class; record findings consume no round.
+
+Fresh targeted receipts on the frozen mechanism, all run from
+`policy-engine/apps/runtime-dashboard`, are:
+
+- `corepack pnpm exec vitest run src/shared/i18n/parity.test.ts
+  --maxWorkers=2 --reporter=verbose`: 38/38 GREEN in one file;
+- `corepack pnpm exec eslint src/shared/i18n/parity.test.ts
+  --max-warnings=0`: exit 0; and
+- `corepack pnpm exec tsc -p tsconfig.app.json --noEmit --pretty false`, run
+  with a fixed 120,000 ms ceiling: exit 0 in 19.729 s. The `uptime` pair moved
+  load from 3.43/3.69/3.33 to 3.40/3.66/3.33.
+
+No full Vitest, browser, Playwright, Storybook, Vite, or fixed-port process was
+entered. The visual lane was neither needed nor acquired.
+
+The inherited status gate was replayed from `policy-engine` with
+`python3 architecture/atlas_surfaces/check_status_retirement_inventory.py
+--check`. It completed exit 1 in 39.823 s with zero stdout, exactly 13 stderr
+diagnostics / 887 bytes, and stderr SHA-256
+`511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`.
+That is the exact inherited RED receipt and contains no current-only
+diagnostic. No visual replay was authorized or needed; byte readback keeps the
+DS8 run-detail PNG at
+`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`
+and the DS5 run-deck PNG at
+`76ecd68a93dd843940212f73392f080704ae17dea87be5f8a358f337c15d9aaa`.
+
+### Debt transition, lock, and slice standing
+
+Because this record closes a master debt row, DS6 explicitly acquired the
+Atlas register-family lock at clean attached mechanism commit `c552d5b5c`.
+Opening SHA-256 identities were register
+`c50bd2010437421a334a7db9a25726fce6ba11fc253bc4d10ee456c1c366c00a`,
+report `f5b80c7f33d5d280573da49c05ac9e927b690b84d946cc1d09d40dbf54bff4bc`,
+status inventory
+`25430ee8c9739aabc44220647181d4d148c73a14cc4ff7c7aaaf1be51a551d80`,
+baseline manifest
+`8c86ea3eb48585158de331a4e4c60f6b6520b2152dc39b527f6238d12bb0ff55`,
+and readiness ledger
+`4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+The debt is a master-plan record rather than a generated disposition row, so
+no family member requires regeneration. The closing reread returned the same
+five identities and a zero-byte family diff. The lock remains held through the
+uncommitted record packet. The clean attached record commit plus post-commit
+branch readback is its release boundary; DS6 explicitly relinquishes it only
+when that condition is met.
+
+P39 cap arithmetic is three mechanism paths against cap five. This plan, this
+journal, and the master debt row are the three mandatory record companions and
+stay outside the count. C19 closes only the plural-rule debt. **DS6 remains
+open**: C13 and C14 remain unentered and gated on the owed DS8 paper-semantics
+adjudication now recorded in the DS8 section. DS7 Task 8 is downstream of the
+widened rule: every new authored `en`/active `uk` message must declare its
+interpolation variables and satisfy exact point-use/cardinal-ownership checks;
+no new variable passes by omission.

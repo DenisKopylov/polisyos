@@ -6,14 +6,29 @@ import re
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
-from pydantic import AwareDatetime, Field, model_validator
+from pydantic import (
+    AwareDatetime,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 from polisyos.pdc import AuthorityBoundary, GovernanceDecisionClass, Layer2ReadinessModel
+from polisyos.runtime.http.permissions import (  # noqa: TC001 - canonical Pydantic enum
+    RuntimePermission,
+)
+from polisyos.runtime.http.security import (  # noqa: TC001 - Pydantic runtime type
+    PolicyOSRole,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
 LAYER2_S7_DELEGATION_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s7_delegation.v1"
+LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer2_s7_delegation.v2"
+)
 
 DelegationInteractionMode = Literal[
     "ai_follow",
@@ -68,6 +83,8 @@ FiveRightsDimension = Literal[
     "right_format_channel",
     "right_time",
 ]
+DraftExternality = Literal["internal", "external"]
+DelegatedActionEnvelopeStatus = Literal["active", "revoked"]
 
 _CREATED_AT = datetime(2026, 6, 1, tzinfo=UTC)
 _FIVE_RIGHTS: tuple[FiveRightsDimension, ...] = (
@@ -167,10 +184,65 @@ class DecisionRightsMatrix(Layer2ReadinessModel):
         raise KeyError(decision_class_id)
 
 
+class DraftActionScope(Layer2ReadinessModel):
+    """Audience and externality bounds for one draft action."""
+
+    audience: Literal["PUBLIC", "REVIEWER", "EXPERT", "MACHINE"]
+    externality: DraftExternality
+
+
+class DelegatedActionEnvelope(Layer2ReadinessModel):
+    """Mandate-owner declaration for one least-privilege agent action."""
+
+    envelope_id: str = Field(..., min_length=1, max_length=160)
+    envelope_ref: str = Field(..., min_length=1, max_length=300)
+    case_id: str = Field(..., min_length=1, max_length=200)
+    mandate_owner_ref: str = Field(..., min_length=1, max_length=300)
+    owner_role: Literal["mandate_owner"]
+    action_kind: str = Field(..., pattern=r"^[a-z][a-z0-9_.:-]*$", max_length=120)
+    operation_id: str = Field(..., pattern=r"^[a-z][a-z0-9_.-]*$")
+    operation_version: str = Field(..., min_length=1, max_length=80)
+    required_permission: RuntimePermission
+    authorized_subject: str = Field(..., min_length=1, max_length=300)
+    authorized_runtime_roles: tuple[PolicyOSRole, ...] = Field(..., min_length=1)
+    required_tenant_id: str = Field(..., min_length=1, max_length=200)
+    required_resource_digest: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    valid_from: AwareDatetime
+    valid_until: AwareDatetime
+    status: DelegatedActionEnvelopeStatus
+    issuance_decision_ref: str = Field(..., min_length=1, max_length=300)
+    draft_scope: DraftActionScope | None = None
+    provenance_refs: tuple[str, ...] = Field(..., min_length=1, max_length=40)
+    rule_version_ref: str = Field(..., min_length=1, max_length=300)
+    authority_boundary: AuthorityBoundary
+
+    @model_validator(mode="after")
+    def _validate_owner_declared_envelope(self) -> DelegatedActionEnvelope:
+        if self.valid_from >= self.valid_until:
+            raise ValueError("delegation envelope requires valid_from before valid_until")
+        if len(set(self.authorized_runtime_roles)) != len(self.authorized_runtime_roles):
+            raise ValueError("delegation envelope runtime roles must be unique")
+        if self.action_kind == "draft" and self.draft_scope is None:
+            raise ValueError("draft action envelope requires audience and externality")
+        if self.action_kind != "draft" and self.draft_scope is not None:
+            raise ValueError("draft scope is valid only for the draft action kind")
+        boundary = self.authority_boundary
+        if (
+            boundary.source_authority != "human_governance"
+            or boundary.posture not in {"governed", "production"}
+            or "agent_action_envelope" not in boundary.authoritative_for
+        ):
+            raise ValueError("delegation envelope requires mandate-owner authority provenance")
+        return self
+
+
 class DelegationContract(Layer2ReadinessModel):
     """Mandate-bounded S7 delegation contract for one policy-design case."""
 
-    schema_version: str = LAYER2_S7_DELEGATION_SCHEMA_VERSION
+    schema_version: Literal[
+        "policyos.policy_design_case.layer2_s7_delegation.v1",
+        "policyos.policy_design_case.layer2_s7_delegation.v2",
+    ] = LAYER2_S7_DELEGATION_SCHEMA_VERSION
     contract_id: str = Field(..., min_length=1, max_length=120)
     contract_ref: str = Field(..., min_length=1, max_length=300)
     case_id: str = Field(..., min_length=1, max_length=200)
@@ -199,6 +271,50 @@ class DelegationContract(Layer2ReadinessModel):
     provenance_refs: list[str] = Field(default_factory=list, max_length=40)
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
+    mandate_owner_ref: str | None = Field(default=None, min_length=1, max_length=300)
+    action_envelopes: tuple[DelegatedActionEnvelope, ...] = Field(default=(), max_length=200)
+
+    @model_validator(mode="after")
+    def _validate_action_envelope_ownership(self) -> DelegationContract:
+        has_agent_action_extension = self.mandate_owner_ref is not None or bool(
+            self.action_envelopes
+        )
+        if has_agent_action_extension and (
+            self.schema_version != LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION
+        ):
+            raise ValueError("envelope-bearing delegation contract requires v2")
+        if not has_agent_action_extension and (
+            self.schema_version != LAYER2_S7_DELEGATION_SCHEMA_VERSION
+        ):
+            raise ValueError("legacy delegation contract without agent envelopes requires v1")
+        if not self.action_envelopes:
+            return self
+        if self.mandate_owner_ref is None:
+            raise ValueError("action envelopes require a mandate owner")
+        envelope_ids = [envelope.envelope_id for envelope in self.action_envelopes]
+        if len(envelope_ids) != len(set(envelope_ids)):
+            raise ValueError("delegation contract action envelope IDs must be unique")
+        for envelope in self.action_envelopes:
+            if envelope.case_id != self.case_id:
+                raise ValueError("action envelope case must match delegation contract")
+            if envelope.mandate_owner_ref != self.mandate_owner_ref:
+                raise ValueError("action envelope owner must match delegation contract owner")
+            if envelope.rule_version_ref != self.rule_version_ref:
+                raise ValueError("action envelope rule version must match delegation contract")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_versioned_contract(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> object:
+        """Keep legacy v1 bytes free of fields introduced only by the v2 reader."""
+
+        payload = handler(self)
+        if self.schema_version == LAYER2_S7_DELEGATION_SCHEMA_VERSION and isinstance(payload, dict):
+            payload.pop("mandate_owner_ref", None)
+            payload.pop("action_envelopes", None)
+        return payload
 
 
 class DecisionOption(Layer2ReadinessModel):

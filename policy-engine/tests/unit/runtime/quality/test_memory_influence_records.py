@@ -4,13 +4,15 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from pydantic import ValidationError
+from pydantic import Field, ValidationError
 
 from polisyos.runtime.quality.claim_registry import normalize_runtime_claim_registry
 from polisyos.runtime.quality.memory_influence import (
     MemoryInfluenceRecord,
     assert_memory_influence_not_claim_evidence,
     build_memory_influence_record,
+    is_memory_influence_ref,
+    memory_influence_claim_evidence_issues,
 )
 from polisyos.scientist.orchestration.memory import (
     BalancedMemoryKind,
@@ -52,6 +54,7 @@ def test_success_memory_influence_guides_search_and_review_but_not_claim_evidenc
     assert record.influence_modes == ("guide_search", "guide_review")
     assert "future_search" in record.authoritative_for
     assert "future_review" in record.authoritative_for
+    assert is_memory_influence_ref(record.record_id)
     assert set(record.may_not_use_for) >= {
         "current_claim_evidence",
         "current_claim_closure",
@@ -81,6 +84,82 @@ def test_memory_influence_record_rejects_current_evidence_slots() -> None:
             scope={"visibility": "domain", "domain": "tax"},
             contamination_check_ref="quality_evidence/memory_contamination_pass.json",
             evidence_slot_refs=("claim-a:evidence-ref",),
+        )
+
+
+def test_undeclared_marker_inside_typed_memory_record_fails_closed() -> None:
+    record = build_memory_influence_record(
+        _success_memory(),
+        run_id="run-target",
+        context=MemoryApplicabilityContext(run_id="run-target", domain="tax"),
+        contamination_check_ref="quality_evidence/memory_contamination_pass.json",
+    ).model_copy(
+        update={
+            "metadata": {
+                "policy_fact_ref": "memory-influence:undeclared-position",
+            }
+        }
+    )
+
+    with pytest.raises(ValueError, match="outside owner-declared position"):
+        assert_memory_influence_not_claim_evidence(record)
+
+
+def test_caller_subclass_cannot_extend_declared_memory_positions() -> None:
+    class CallerWidenedMemoryRecord(MemoryInfluenceRecord):
+        caller_widened_position: str = Field(
+            default="memory-influence:caller-widened",
+            json_schema_extra={"memory_influence_bearing_position": True},
+        )
+
+    payload = build_memory_influence_record(
+        _success_memory(),
+        run_id="run-target",
+        context=MemoryApplicabilityContext(run_id="run-target", domain="tax"),
+        contamination_check_ref="quality_evidence/memory_contamination_pass.json",
+    ).model_dump(mode="python")
+
+    with pytest.raises(ValueError, match="outside owner-declared position"):
+        CallerWidenedMemoryRecord.model_validate(payload)
+
+
+def test_memory_marker_in_unordered_container_fails_closed() -> None:
+    novel_key = f"runtime_invented_unordered_position_{id(object())}"
+    issues = memory_influence_claim_evidence_issues(
+        {novel_key: {"memory-influence:prior-policy-fact"}},
+        claim_id="claim-unordered",
+    )
+
+    assert issues
+    assert issues[0]["code"] == "memory_influence_payload_provenance_unknown"
+    assert issues[0]["evidence_slot"] == novel_key
+
+
+@pytest.mark.parametrize(
+    "opaque_value",
+    [b"memory-influence:prior-policy-fact", object()],
+    ids=["bytes", "opaque-object"],
+)
+def test_unknown_memory_payload_value_fails_closed(opaque_value: object) -> None:
+    novel_key = f"runtime_invented_opaque_position_{id(opaque_value)}"
+    issues = memory_influence_claim_evidence_issues(
+        {novel_key: opaque_value},
+        claim_id="claim-opaque",
+    )
+
+    assert issues
+    assert issues[0]["code"] == "memory_influence_payload_provenance_unknown"
+    assert issues[0]["evidence_slot"] == novel_key
+
+
+def test_typed_memory_record_rejects_opaque_marker_carrier() -> None:
+    with pytest.raises(ValueError, match="unsupported provenance payload value"):
+        build_memory_influence_record(
+            _success_memory(),
+            run_id="run-target",
+            context=MemoryApplicabilityContext(run_id="run-target", domain="tax"),
+            contamination_check_ref="quality_evidence/memory_contamination_pass.json",
+            metadata={"opaque": b"memory-influence:prior-policy-fact"},
         )
 
 

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import ast
 import copy
 import importlib
 import inspect
@@ -11,6 +12,7 @@ import subprocess
 import sys
 import threading
 import time
+import types
 from collections.abc import Callable
 from fractions import Fraction
 from pathlib import Path
@@ -130,6 +132,8 @@ def _install_canonical_registry(repo_root: Path) -> None:
 def _install_loaded_deployment(repo_root: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     """Install all bytes used to identify a test-loaded policy-engine checkout."""
 
+    loaded_code_manifest = ledger_module._IMPORT_TIME_LOADED_CODE_MANIFEST
+    loaded_code_consistent = ledger_module._IMPORT_TIME_LOADED_CODE_CONSISTENT
     _install_canonical_registry(repo_root)
     shutil.copytree(REPO_ROOT / "src", repo_root / "src")
     for relative in (Path("pyproject.toml"), Path("uv.lock")):
@@ -137,6 +141,11 @@ def _install_loaded_deployment(repo_root: Path, monkeypatch: pytest.MonkeyPatch)
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_bytes((REPO_ROOT / relative).read_bytes())
     monkeypatch.setattr(ledger_module, "_loaded_policy_engine_root", lambda: repo_root)
+    monkeypatch.setattr(
+        ledger_module,
+        "_loaded_code_manifest",
+        lambda _repo_root, _closure: (loaded_code_manifest, loaded_code_consistent),
+    )
 
 
 def _prepare(
@@ -722,23 +731,41 @@ def test_canonical_session_fails_closed_when_loaded_deployment_bytes_change(
         session.observe_history()
 
 
-def test_deployment_identity_covers_every_python_module_addition_and_removal(
+def test_deployment_identity_changes_for_closure_member_but_ignores_unrelated_module(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     repo_root = tmp_path / "authority-repo"
     _install_loaded_deployment(repo_root, monkeypatch)
+    closure_paths = {
+        Path(relative_path)
+        for _module_name, relative_path in ledger_module._resolve_authority_import_closure(
+            repo_root,
+            ledger_module.__name__,
+        )
+    }
+    source_paths = sorted(
+        (
+            path.relative_to(repo_root)
+            for path in (repo_root / "src/polisyos").rglob("*.py")
+        ),
+        key=Path.as_posix,
+    )
+    inside = repo_root / next(
+        path
+        for path in source_paths
+        if path in closure_paths
+        and path != Path("src/polisyos/runtime/quality/confidence_ledger.py")
+    )
+    outside = repo_root / next(path for path in source_paths if path not in closure_paths)
+
     original = ledger_module._policy_engine_deployment_identity(repo_root)
-    kernel = repo_root / "src/polisyos/core/canon/canon_json.py"
-    kernel_bytes = kernel.read_bytes()
-    kernel.write_bytes(kernel_bytes + b"\n# imported kernel drift\n")
+    inside_bytes = inside.read_bytes()
+    inside.write_bytes(inside_bytes + b"\n# imported authority drift\n")
     assert ledger_module._policy_engine_deployment_identity(repo_root) != original
-    kernel.write_bytes(kernel_bytes)
-    added = repo_root / "src/polisyos/new_authority_kernel.py"
-    added.write_text("AUTHORITY = 'candidate'\n", encoding="utf-8")
-    with_addition = ledger_module._policy_engine_deployment_identity(repo_root)
-    assert with_addition != original
-    added.unlink()
+    inside.write_bytes(inside_bytes)
+
+    outside.write_bytes(outside.read_bytes() + b"\n# unrelated source drift\n")
     assert ledger_module._policy_engine_deployment_identity(repo_root) == original
 
 
@@ -837,15 +864,26 @@ def test_content_equal_metadata_churn_refreshes_quick_fence_once(
     assert full_recomputations == 1
 
 
-def test_canonical_session_is_invalidated_by_direct_kernel_or_module_set_drift(
+def test_canonical_session_rejects_closure_drift_but_ignores_unrelated_source(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     first_root = tmp_path / "kernel-authority-repo"
     _install_loaded_deployment(first_root, monkeypatch)
     first = ConfidenceLedgerSession.from_repo(first_root, risk_scope=_scope())
-    kernel = first_root / "src/polisyos/core/canon/canon_json.py"
-    kernel.write_bytes(kernel.read_bytes() + b"\n# imported kernel drift\n")
+    first_closure_paths = {
+        Path(relative_path)
+        for _module_name, relative_path in ledger_module._resolve_authority_import_closure(
+            first_root,
+            ledger_module.__name__,
+        )
+    }
+    inside = first_root / next(
+        path
+        for path in sorted(first_closure_paths, key=Path.as_posix)
+        if path != Path("src/polisyos/runtime/quality/confidence_ledger.py")
+    )
+    inside.write_bytes(inside.read_bytes() + b"\n# imported authority drift\n")
     with pytest.raises(ConfidenceLedgerError, match="canonical_deployment_identity_invalid"):
         first.observe_history()
 
@@ -855,10 +893,26 @@ def test_canonical_session_is_invalidated_by_direct_kernel_or_module_set_drift(
         second_root,
         risk_scope=_scope(owner_scope_key="design-problem:module-set-drift"),
     )
-    added = second_root / "src/polisyos/new_authority_kernel.py"
-    added.write_text("AUTHORITY = 'candidate'\n", encoding="utf-8")
-    with pytest.raises(ConfidenceLedgerError, match="canonical_deployment_identity_invalid"):
-        second.observe_history()
+    expected_history = second.observe_history()
+    second_closure_paths = {
+        Path(relative_path)
+        for _module_name, relative_path in ledger_module._resolve_authority_import_closure(
+            second_root,
+            ledger_module.__name__,
+        )
+    }
+    outside = next(
+        path
+        for path in sorted(
+            (second_root / "src/polisyos").rglob("*.py"),
+            key=lambda candidate: candidate.as_posix(),
+        )
+        if path.relative_to(second_root) not in second_closure_paths
+    )
+    outside.write_bytes(outside.read_bytes() + b"\n# unrelated source drift\n")
+
+    assert second.observe_history() == expected_history
+    assert second.receipt().events == ()
 
 
 def test_from_repo_rejects_disk_mutation_after_authority_dependency_was_imported(
@@ -1171,6 +1225,60 @@ print(json.dumps({
     assert payloads[0]["identity"] == payloads[1]["identity"]
 
 
+def test_authority_import_closure_includes_every_live_repository_import_binding() -> None:
+    """Executed repository import bindings cannot escape the derived closure."""
+
+    closure = dict(
+        ledger_module._resolve_authority_import_closure(
+            REPO_ROOT,
+            ledger_module.__name__,
+        )
+    )
+    source_root = REPO_ROOT / "src/polisyos"
+    providers: dict[str, str] = {}
+    for owner_name, relative_path in closure.items():
+        owner = sys.modules[owner_name]
+        tree = ast.parse(
+            (REPO_ROOT / relative_path).read_bytes(),
+            filename=relative_path,
+        )
+        bound_names: set[str] = set()
+        for node in tree.body:
+            if isinstance(node, ast.Import):
+                bound_names.update(
+                    alias.asname or alias.name.partition(".")[0]
+                    for alias in node.names
+                )
+            elif isinstance(node, ast.ImportFrom):
+                bound_names.update(
+                    alias.asname or alias.name
+                    for alias in node.names
+                    if alias.name != "*"
+                )
+        for bound_name in bound_names:
+            value = vars(owner).get(bound_name)
+            provider_name = (
+                value.__name__
+                if isinstance(value, types.ModuleType)
+                else getattr(value, "__module__", None)
+            )
+            if not isinstance(provider_name, str):
+                continue
+            provider = sys.modules.get(provider_name)
+            origin = getattr(provider, "__file__", None)
+            if not isinstance(origin, str):
+                continue
+            try:
+                provider_relative = Path(origin).resolve().relative_to(source_root)
+            except ValueError:
+                continue
+            providers[provider_name] = (
+                Path("src/polisyos") / provider_relative
+            ).as_posix()
+
+    assert providers.items() <= closure.items()
+
+
 def test_loaded_code_manifest_fails_closed_on_missing_declared_member(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
@@ -1189,6 +1297,69 @@ def test_loaded_code_manifest_fails_closed_on_missing_declared_member(
             REPO_ROOT,
             ((module_name, relative_path),),
         )
+
+
+def test_rehashed_closure_manifest_cannot_narrow_authority_admission(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A self-consistent substitute closure is not authority evidence."""
+
+    repo_root = tmp_path / "authority-repo"
+    _install_loaded_deployment(repo_root, monkeypatch)
+    resolved_closure = ledger_module._resolve_authority_import_closure(
+        repo_root,
+        ledger_module.__name__,
+    )
+    removed_module = next(
+        module_name
+        for module_name, _relative_path in reversed(resolved_closure)
+        if module_name != ledger_module.__name__
+    )
+    forged_closure = tuple(
+        row for row in resolved_closure if row[0] != removed_module
+    )
+    forged_manifest = json.loads(ledger_module._IMPORT_TIME_LOADED_CODE_MANIFEST)
+    del forged_manifest[removed_module]
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE",
+        forged_closure,
+    )
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LOADED_CODE_MANIFEST",
+        ledger_module._canonical_json(forged_manifest),
+    )
+    monkeypatch.setattr(ledger_module, "_IMPORT_TIME_LOADED_CODE_CONSISTENT", True)
+
+    with pytest.raises(
+        ConfidenceLedgerError,
+        match="canonical_loaded_runtime_mismatch",
+    ):
+        ConfidenceLedgerSession.from_repo(repo_root, risk_scope=_scope())
+
+
+def test_rehashed_loaded_code_manifest_cannot_replace_runtime_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A complete manifest with forged content is not runtime evidence."""
+
+    forged_manifest = json.loads(ledger_module._IMPORT_TIME_LOADED_CODE_MANIFEST)
+    module_name = min(forged_manifest)
+    forged_manifest[module_name]["source_hash"] = "sha256:" + "0" * 64
+    monkeypatch.setattr(
+        ledger_module,
+        "_IMPORT_TIME_LOADED_CODE_MANIFEST",
+        ledger_module._canonical_json(forged_manifest),
+    )
+    monkeypatch.setattr(ledger_module, "_IMPORT_TIME_LOADED_CODE_CONSISTENT", True)
+
+    with pytest.raises(
+        ConfidenceLedgerError,
+        match="canonical_loaded_runtime_mismatch",
+    ):
+        ledger_module._admit_loaded_runtime(REPO_ROOT)
 
 
 def test_mid_operation_deployment_drift_poison_is_irreversible(

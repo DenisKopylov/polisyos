@@ -4393,9 +4393,18 @@ def _assert_loaded_runtime_matches_import_baseline(
 ) -> None:
     """Reject authority if disk or runtime differs from the importing process."""
 
+    loaded_code_manifest, loaded_code_consistent = _loaded_code_manifest(
+        repo_root,
+        _derived_authority_import_closure(repo_root),
+    )
     if (
         deployment_baseline or _deployment_baseline(repo_root)
-    ) != _IMPORT_TIME_DEPLOYMENT_BASELINE or not _IMPORT_TIME_LOADED_CODE_CONSISTENT:
+    ) != _IMPORT_TIME_DEPLOYMENT_BASELINE or not (
+        _IMPORT_TIME_LOADED_CODE_CONSISTENT
+        and loaded_code_consistent
+        and _loaded_code_evidence_projection(loaded_code_manifest)
+        == _loaded_code_evidence_projection(_IMPORT_TIME_LOADED_CODE_MANIFEST)
+    ):
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
 
 
@@ -4452,7 +4461,9 @@ def _deployment_quick_fence(repo_root: Path) -> _DeploymentQuickFence:
     """Return a cheap path/inode/size/time fence for authority deployment files."""
 
     entries: list[_DeploymentFileFence] = []
-    for relative in _deployment_relative_paths(repo_root):
+    for relative in _deployment_relative_paths_from_closure(
+        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE
+    ):
         path = repo_root / relative
         try:
             stat = path.stat()
@@ -4474,16 +4485,19 @@ def _deployment_quick_fence(repo_root: Path) -> _DeploymentQuickFence:
 
 
 def _deployment_relative_paths(repo_root: Path) -> tuple[Path, ...]:
-    """Return the generic sorted deployment file set."""
+    """Return the deployment files derived from the authority import closure."""
 
-    source_root = repo_root / "src/polisyos"
-    try:
-        source_paths = sorted(
-            (path.relative_to(repo_root) for path in source_root.rglob("*.py")),
-            key=lambda path: path.as_posix(),
-        )
-    except OSError as exc:
-        raise ConfidenceLedgerError("canonical_deployment_identity_invalid") from exc
+    return _deployment_relative_paths_from_closure(
+        _derived_authority_import_closure(repo_root)
+    )
+
+
+def _deployment_relative_paths_from_closure(
+    closure: tuple[tuple[str, str], ...],
+) -> tuple[Path, ...]:
+    """Return deployment paths from one already admitted derived closure."""
+
+    source_paths = tuple(Path(relative_path) for _module_name, relative_path in closure)
     if not source_paths:
         raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
     return (Path("pyproject.toml"), Path("uv.lock"), *source_paths)
@@ -4564,6 +4578,23 @@ def _resolve_authority_import_closure(
                     candidate = f"{base}.{alias.name}"
                     if resolve_source(candidate) is not None:
                         discovered.add(candidate)
+                        continue
+                    provider = _literal_module_getattr_provider(
+                        repo_root,
+                        base,
+                        alias.name,
+                        directory_entries=directory_entries,
+                    )
+                    if (
+                        provider is not None
+                        and _repository_module_root(provider) in allowed_roots
+                    ):
+                        if resolve_source(provider) is None:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"unresolved repository import: {provider}",
+                            )
+                        discovered.add(provider)
             elif isinstance(node, ast.Call):
                 dynamic_ref = _literal_dynamic_import_ref(node)
                 if (
@@ -4587,6 +4618,97 @@ def _resolve_authority_import_closure(
     return tuple(
         (module_name, resolved[module_name].as_posix()) for module_name in sorted(resolved)
     )
+
+
+def _derived_authority_import_closure(repo_root: Path) -> tuple[tuple[str, str], ...]:
+    """Recompute and admit only the import-time authority closure."""
+
+    resolved = _resolve_authority_import_closure(repo_root, __name__)
+    if resolved != _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            "authority import closure differs from source",
+        )
+    return resolved
+
+
+def _literal_module_getattr_provider(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+) -> str | None:
+    """Resolve one literal PEP 562 re-export provider without importing it."""
+
+    relative = _repository_module_source(
+        repo_root,
+        module_name,
+        directory_entries=directory_entries,
+    )
+    if relative is None:
+        return None
+    try:
+        tree = ast.parse((repo_root / relative).read_bytes(), filename=relative.as_posix())
+    except (OSError, SyntaxError) as exc:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            relative.as_posix(),
+        ) from exc
+    mapping_names: set[str] = set()
+    for statement in tree.body:
+        if not (
+            isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and statement.name == "__getattr__"
+            and statement.args.args
+        ):
+            continue
+        parameter_name = statement.args.args[0].arg
+        for node in ast.walk(statement):
+            if (
+                isinstance(node, ast.Subscript)
+                and isinstance(node.value, ast.Name)
+                and isinstance(node.slice, ast.Name)
+                and node.slice.id == parameter_name
+            ):
+                mapping_names.add(node.value.id)
+    providers: set[str] = set()
+    for statement in tree.body:
+        target: ast.expr | None = None
+        value: ast.expr | None = None
+        if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
+            target = statement.targets[0]
+            value = statement.value
+        elif isinstance(statement, ast.AnnAssign):
+            target = statement.target
+            value = statement.value
+        if not (
+            isinstance(target, ast.Name)
+            and target.id in mapping_names
+            and isinstance(value, ast.Dict)
+        ):
+            continue
+        for key, provider_row in zip(value.keys, value.values, strict=True):
+            if not (
+                isinstance(key, ast.Constant)
+                and key.value == export_name
+                and isinstance(provider_row, (ast.Tuple, ast.List))
+                and provider_row.elts
+            ):
+                continue
+            provider = provider_row.elts[0]
+            if not (isinstance(provider, ast.Constant) and isinstance(provider.value, str)):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"non-literal repository re-export: {module_name}.{export_name}",
+                )
+            providers.add(provider.value)
+    if len(providers) > 1:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"ambiguous repository re-export: {module_name}.{export_name}",
+        )
+    return next(iter(providers), None)
 
 
 def _runtime_ast_nodes(node: ast.AST) -> Iterable[ast.AST]:
@@ -4994,7 +5116,10 @@ def _loader_owned_slot_function_matches(
         and Path(terminal.__code__.co_filename).resolve() == source_path
         and terminal_hash in expected_hashes
     )
-    expects_contextmanager = "contextmanager" in slot.decorators
+    expects_contextmanager = any(
+        decorator == "contextmanager" or decorator.endswith(".contextmanager")
+        for decorator in slot.decorators
+    )
     wrapper_matches = len(chain) == 1 and not expects_contextmanager
     if len(chain) > 1 and expects_contextmanager:
         expected_wrapper = contextmanager(terminal)
@@ -5235,6 +5360,39 @@ def _loaded_code_manifest(
             "live_loader_consistent": module_consistent,
         }
     return _canonical_json(manifest), all_consistent
+
+
+def _loaded_code_evidence_projection(manifest: str) -> str:
+    """Remove process-late non-local exports from stable runtime evidence."""
+
+    try:
+        payload = json.loads(manifest)
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch") from exc
+    if type(payload) is not dict:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    projection: dict[str, object] = {}
+    for module_name, module_row in payload.items():
+        if not (isinstance(module_name, str) and type(module_row) is dict):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        live_bindings = module_row.get("live_defined_code")
+        if type(live_bindings) is not dict:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        local_bindings: dict[str, object] = {}
+        for label, binding in live_bindings.items():
+            if not (
+                isinstance(label, str)
+                and type(binding) is dict
+                and type(binding.get("defined_locally")) is bool
+            ):
+                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+            if binding["defined_locally"]:
+                local_bindings[label] = binding
+        projection[module_name] = {
+            **module_row,
+            "live_defined_code": local_bindings,
+        }
+    return _canonical_json(projection)
 
 
 def _live_defined_code_manifest(

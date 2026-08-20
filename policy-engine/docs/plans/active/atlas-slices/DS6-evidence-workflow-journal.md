@@ -5186,3 +5186,157 @@ complete en/uk non-`{count}` interpolation census and per-message adjudication
 belong to a separately authorized successor cluster or re-cut, not this lane.
 `GY-DEF21` and the DS4 three canonical-waist vocabulary rows likewise remain
 untouched and unowned by this execution.
+
+## A4 expectation diagnostic stop — 2026-08-20
+
+This pass entered clean and attached at
+`4f5baa699cfa11c7f5bc680f92e78a8af240f98c` on
+`codex/atlas-ds6-closure`. The fresh-worktree toolchain gate ran before any
+TypeScript or browser evidence: `corepack pnpm install --frozen-lockfile`
+completed exit 0 in 1.0 s with pnpm 10.33.2 and left the tracked tree clean.
+This is diagnostic work only. No CSS, test, snapshot, governed artifact,
+register-family member, or plan byte changed.
+
+### Q1 — expectation provenance
+
+**`not_established` for byte derivation and environment.** Complete Git
+lineage recomputed with `git log --all --full-history -M --name-status`,
+`git rev-parse <commit>:<path>`, parent-by-parent diffs, and PNG hash/dimension
+readback establishes that `45f330235354943c2440393cbcee71a8eccbbefd`
+created the run-detail PNG on 2026-04-26. That commit changed 550 paths. It
+gave all five A4 snapshot names the same 231,141-byte Git blob
+`104ef3c896c3897de48252409494b867b0820f66`; this cannot establish five
+independently rendered surfaces. `fcafac435dc332280f4002c862076af52c37321b`
+later performed an `R100` path move and `f22f354270bcf71e265a3c20b87e850b1e609f91`
+transported that blob through a merge. The run-detail blob has never changed.
+Its current readback is 724×2,113, SHA-256
+`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`.
+
+The creation commit contains a runnable Playwright contract — 794×1,123
+viewport, print media, the exact
+`/runs/R_core_api_001/overview?trust=expanded` route, and the run-detail
+element locator — but no committed command receipt, trace, note, or
+content-binding attestation proves that this PNG came from that execution or
+records the actual host, browser version, and font environment. The config
+records the intended Desktop Chrome and fixture/Vite contract, not an actual
+execution. The commit subject is metadata, not derivation evidence. Later
+fixture, run-surface, and signed-target changes left the PNG byte-identical.
+No committed record evidences a re-derivation against the evolving surface,
+and the tracked PNG byte was never updated.
+
+### Q2 — the purported 724→770 width transition
+
+**`recomputed`: the 770-pixel rule predates the expectation.
+`not_established`: a historical 724→770 transition or introducing
+width-regression commit.** At the test viewport, the current
+`@media (max-width: 1280px)` rule remains active under print and computes
+`.atlas-shell-frame` as `100vw - 24px = 770px`; the print rules reset
+`.surface` and `.app-shell`, not that frame. `git blame`, `git log --follow`,
+and source diffs show that `3535d89fda95f9ae8d49a2400c1766939113c563`
+introduced the responsive 24-pixel gutter on 2026-03-10.
+`057ed6cbaa7ab17ccd4f8ce0afcdc24d464f03fc` added the print stylesheet on
+2026-04-24 without a frame override; `45f330235` added the test and PNG two
+days later at the same 794-pixel viewport. The 770-pixel frame therefore
+predates the expectation.
+
+The 24-pixel gutter is an extant responsive screen-layout rule. Its adequacy
+when inherited by print is **`not_established`**. The 724-pixel PNG width has
+no located CSS rule or provenance receipt and cannot establish a later
+770-pixel regression; the source or ratification of 724 as a required locator
+width is likewise **`not_established`**. Pseudo-content cannot change the
+selected element's CSS border-box/client width, though it can change paint,
+overflow, and height.
+
+### Q3 — height growth and mandatory stop
+
+The route parameter is **`recomputed` equal**: both the creation test and HEAD
+use `?trust=expanded`. A parameter mismatch is ruled out. Static history then
+found an actual product regression and triggered the task's mandatory stop
+before Q4.
+
+`3f7af28e59e34e547026c89ed6038ffc2be7d543` added and unconditionally mounted
+`OperatorCraftPanel` and `AmbientTelemetryHud` on 2026-05-01, after the PNG was
+created. `OperatorCraftPanel` is normal-flow content containing a slider,
+annotation form, evidence-wallet actions, onboarding actions, and buttons; its
+own source classifies it as “reviewer workflow chrome.” `AmbientTelemetryHud`
+is a fixed interactive telemetry/threshold control. Neither has
+`data-print-hidden`, and the print stylesheet hides navigation/shell chrome
+and `[data-print-hidden="true"]`, not these controls. Static history therefore
+establishes a post-baseline print-scope regression: reviewer workflow chrome
+is emitted in normal flow without print suppression. It is qualitatively
+height-contributing, but its pixel share of the 10,853-pixel post-repair excess
+is **`not_established`**. The fixed HUD is an independently established
+overlay risk; its height contribution is not established.
+
+The current residual height is a mixture: legitimate decision, publication,
+evidence, uncertainty, readiness, authorship, and expanded trust-metadata
+content has also been added or restructured since creation, notably in
+`e5730cf6`, `5e868da0c`, `4edcf96be`, and `700e3aa14`; `bc1d01001` instead
+contained readiness/scientific implementations behind unavailable stubs and
+may have reduced content. These commits are candidates, not established
+height causes, and their slice attribution is not recoverable from generic
+bulk-publish subjects. No static duplicate of the full publication packet was
+found. Exact pixel shares by section, and whether the old PNG represented an
+alternate effective surface, remain **`not_established`** because measurement
+stopped when the print-scope regression was found.
+
+The accepted no-writer measurement remains binding: the signed URL explains
+303 pixels of the pre-repair 11,156-pixel excess (about 2.7%), and cannot
+explain 46 pixels of width. Suppressing every link target still leaves
+770×12,918, with 12,893 pixels of main content. Thus the inherited statement
+that the URL caused the six-fold growth is refuted independently of this new
+scope-leak finding.
+
+### Q4 — deliberately not entered
+
+The instruction required an immediate stop on a Q2/Q3 product regression, so
+the requested content-growth falsifier and assertion-shape adjudication were
+not run. Before the Q3 finding arrived, one five-case governed no-update
+comparison had already completed exit 1 in 29.1 s under a 90 s per-test
+ceiling. Bureaucratic-document, decision-reading-view, policy-compare, and
+scenario passed at their governed dimensions; run-detail failed at
+724×2,113 expected versus 770×12,966 actual with 315,510 differing pixels.
+That receipt establishes current equality for the four passing fixed fixtures,
+not robustness under legitimate content addition. Q4's P38 verdict and its
+replacement-shape selection therefore remain **`not_established`**, rather
+than being inferred from the attractive hypothesis that locator height is
+unbounded.
+
+### Proposed record corrections (not landed here)
+
+For the `adjacent-print-export` row's `Measured` column:
+
+> The governed no-update command `CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm exec
+> playwright test --config=playwright.visual.config.ts --project=chromium
+> --grep='run detail A4 print$' --timeout=90000` measures 724×2,113 expected
+> versus 770×12,966 current. A no-writer in-memory Playwright diagnostic over
+> the complete 19-anchor/4-rendered-anchor set measured 770×13,269 with the
+> original cascade, 770×12,966 with only the 17,206-character signed target
+> suppressed, and 770×12,918 with all targets suppressed; main content is
+> 12,893 px. The signed target accounts for 303 px (about 2.7% of pre-repair
+> excess) and cannot cause the 46-pixel width difference. Git/source
+> reconciliation also finds print-visible reviewer workflow chrome introduced
+> by `3f7af28e59`; its exact pixel contribution is not established. The causes
+> of the remaining height and the 724-pixel expectation are not established.
+
+For the run-deck residual row's `Measured` column:
+
+> The governed no-update command `CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm exec
+> playwright test --config=playwright.visual.config.ts --project=chromium
+> --grep='run deck content slide$' --timeout=90000` measures 1,094×820 expected
+> versus 1,094×821 actual with 4,178 differing pixels. A no-writer in-memory
+> Playwright DOM/PNG diagnostic at viewport 1,440×1,200 and DPR 1 measures the
+> slide's CSS bounding and offset height as exactly 820 px, client/scroll
+> height 818 px, no direct-child overflow, fractional Y 3,920.75–4,740.75, and
+> a 1,094×821 locator PNG. The extra raster row is fractional clip
+> rasterization, not an established border-box-height defect.
+
+No debt row was edited: the architect requested proposed text and will decide
+and land any correction only after Q4.
+
+The visual lane was acquired only for the five-case comparison and explicitly
+relinquished at the unchanged attached HEAD. The closing census found no DS6
+Vite, Storybook, fixture-server, or Playwright test process and no listener on
+5,173, 6,006, or 8,000; pre-existing app-level Playwright MCP helpers were not
+part of this lane. C13 and C14 remain unentered, DS6 remains open, and the
+plural-rule successor debt remains registered and untouched.

@@ -328,6 +328,35 @@ def test_pareto_archive_model_cannot_bypass_ranked_admission_guard() -> None:
         )
 
 
+@pytest.mark.parametrize("minting_seam", ["model_copy", "model_construct"])
+def test_pareto_archive_unvalidated_minting_seams_revalidate(
+    minting_seam: str,
+) -> None:
+    archive_model = _s8("ParetoArchive")
+    unranked_payload = _pareto_archive_payload(
+        value_schedule_ref=None,
+        ranking_mode="unranked_frontier_only",
+        archive_status="frontier_only",
+    )
+    unranked = archive_model(**unranked_payload)
+    ranked_update = {
+        "ranking_mode": "ranked_with_authorized_values",
+        "value_schedule_ref": "pdc://layer2/s8/value-schedules/unvalidated-bypass",
+    }
+
+    with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+        if minting_seam == "model_copy":
+            unranked.model_copy(update=ranked_update)
+        else:
+            archive_model.model_construct(**{**unranked_payload, **ranked_update})
+
+    if minting_seam == "model_copy":
+        safe_copy = unranked.model_copy()
+    else:
+        safe_copy = archive_model.model_construct(**unranked_payload)
+    assert safe_copy.ranking_mode == "unranked_frontier_only"
+
+
 def test_p20_rejects_llm_or_corpus_derived_social_weights() -> None:
     probe = _fixture("llm_social_weight_probe.json")
     for social_weight_provenance in probe["social_weight_provenance_candidates"]:

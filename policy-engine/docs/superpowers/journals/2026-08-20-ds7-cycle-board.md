@@ -1044,3 +1044,11 @@ convergence, not a narrower proxy, minted authority, or owner-boundary change.
 The three inherited visual/component reds and the thirteen status diagnostics
 remain red. `4C-DOM-05` remains `semantic_test_missing` until Task 9 runs its
 frozen mutation falsifier.
+
+The atomic Task 6 mechanism commit is
+`fea50aadd93a7a124f070ef0c1547c1b5af27e34`. Root read it back from the
+attached `codex/atlas-ds7-cycle-board` branch with a clean worktree and
+recomputed all six closing identities from committed bytes; every identity
+matches the frozen closing table above. The whole Atlas register-family lock
+was then explicitly relinquished with no DS7 family write pending. Task 6 is
+closed at `0/2`.

@@ -324,9 +324,9 @@ legacy replay isolation.
   non-mechanical drift before acquiring the lock.
 - [x] RED then GREEN the package-client test proving the distinct static method and version
   discriminator. RED then GREEN the dashboard hook contract rejecting v1 on the hero path.
-- [ ] Announce and acquire the whole-family lock only for re-anchors, owner report generation,
+- [x] Announce and acquire the whole-family lock only for re-anchors, owner report generation,
   verification, commit read-back, and closing hashes; then explicitly relinquish.
-- [ ] Commit the generated seam, compatibility fragment update if required, and all induced receipts
+- [x] Commit the generated seam, compatibility fragment update if required, and all induced receipts
   atomically.
 
 ## Task 7 — Write dashboard REDs for the hero, strangle, authorization, and honest absence

@@ -2,7 +2,7 @@
 
 ## Status
 
-Draft after Cycle 1. This list is deliberately not frozen and cannot support a
+Draft after Cycle 2. This list is deliberately not frozen and cannot support a
 closure claim until Cycle 4 reviewers return a clean delta and the final basis
 is committed. Once frozen, implementation review uses the P40 bucket rule:
 every escape is classified as a new class or the same class one level deeper,
@@ -51,6 +51,18 @@ historical authenticity.
 - **CB-B08 — recorder non-interference:** failure to record or project a
   completed governed result reports a custody gap but cannot rewrite the
   underlying result into permission or success.
+- **CB-B09 — retained accepted anchor:** offline consistency is checked against
+  an earlier independently accepted head. The anchor freezes accepting owner,
+  proof-domain/log identity, signature, prior anchor, admission cutoff,
+  witness/consumer-receipt basis, verifier provenance and provenance class;
+  at least one holder is outside the writer's mutation authority. Without it,
+  whole-history authenticity is `not_established`, not silently re-originated.
+- **CB-B10 — admission is not completeness:** membership/inclusion proof covers
+  admitted members only. Each family owner independently reconciles them to
+  its immutable complete source denominator; an omitted required member fails.
+- **CB-B11 — two head predicates:** a commitment head proves prefix integrity;
+  a native authority head expresses owner-derived current state. Neither may
+  stand in for the other, and legitimate native multi-head state stays native.
 
 ## C. Epoch derivation and unresolved scope
 
@@ -80,6 +92,10 @@ historical authenticity.
 - **CB-C09 — annotation-only rename:** a renumbered rule with unchanged logic
   hash appends an annotation/correction relation without invalidating the
   epoch's semantics.
+- **CB-C10 — epoch is not a clock:** `epoch_ref` is a content-bound semantic
+  equivalence class resolved at explicit valid/effect and visibility
+  coordinates. Maximum timestamp, receipt order or commitment position cannot
+  select semantic applicability or the native epoch head.
 
 ## D. Certificate validity and perturbation
 
@@ -122,6 +138,14 @@ historical authenticity.
 - **CB-D10 — current-valid decision front:** revalidation removes stale or
   revalidation-required certificates from decision-front eligibility; only
   owner-established `current_valid` certificates remain.
+- **CB-D11 — freshness non-receipt:** an absent, unknown or expired current-
+  status proof becomes `not_established`/`revalidation_required`; it cannot
+  inherit the last observed green state. Historical issuance validity remains
+  a separate query.
+- **CB-D12 — complete executable recipe:** the derivation certificate binds the
+  actual input, tool, code and admitted environment-profile closure. Removing
+  an influential dependency while retaining a shaped recipe makes automatic
+  reuse/revalidation fail.
 
 ## E. Controlled release family
 
@@ -142,6 +166,9 @@ historical authenticity.
 - **CB-E06 — prefix issuance:** PV-K07 can issue only from a verified pinned
   prefix and append-only consistency proof; an unknown external copy limits
   the claim.
+- **CB-E07 — required-submission reconciliation:** adding a required release to
+  the immutable family denominator without admitting its leaf fails the
+  transcript even though every presented leaf has a valid inclusion proof.
 
 ## F. Production recursive-run enumeration
 
@@ -161,12 +188,20 @@ historical authenticity.
 - **CB-F07 — run deletion/narrowing:** deletion, substitution, reordering or a
   post-hoc narrowed production denominator fails offline verification.
 - **CB-F08 — recorder failure:** a recorder failure is an explicit custody gap
-  and does not alter the run's governed terminal.
+  and does not alter the run's governed terminal; complete chronology remains
+  `not_established` until the receipt is reconciled.
 - **CB-F09 — no unrecorded sibling producer:** a source-derived census of every
   live production recursive-run entry path proves all of them cross the single
-  recorder. Adding a sibling producer that returns a run without recording it
-  fails the behavioral strangle test even though no recorded member was later
-  deleted.
+  receipt-or-gap emission boundary. Adding a sibling producer that returns a
+  run without either outcome fails the behavioral strangle test even though no
+  recorded member was later deleted.
+- **CB-F10 — never-receipted run:** suppress the receipt for a run that reaches
+  a governed terminal. The producer-owned terminal remains unchanged under
+  GY-GAP5's additive/non-blocking rule; INT-K08 separately retains every
+  negative terminal as a completed member and forbids missing custody from
+  becoming green. Independent source-denominator reconciliation detects the
+  unreconciled production member and the owner cannot claim a complete run
+  chronology. A proof over all successfully recorded leaves is insufficient.
 
 ## G. Per-row movement composition
 
@@ -204,6 +239,15 @@ historical authenticity.
 - **CB-H07 — adjudication falsifier:** hold the supplied event and its declared
   action constant while changing canonical-owner admission/adjudication; the
   authority reaction follows the owner decision, not the event marker.
+- **CB-H08 — whole-history substitution:** retain valid-shaped members and a
+  self-consistent replacement head, and replace every anchor writable by the
+  transcript actor. Verification must still fail against an independently
+  held accepted anchor. If no independent anchor exists, the verifier returns
+  the declared `not_established` limitation; it cannot bless a new origin.
+- **CB-H09 — omitted-recipe-dependency falsifier:** hold recipe fields and the
+  declared dependency list constant while changing an actually influential
+  omitted tool/environment input. Reuse or revalidation must fail rather than
+  return a cache-like green result.
 
 ## I. GY-DEF22 and replay economics
 

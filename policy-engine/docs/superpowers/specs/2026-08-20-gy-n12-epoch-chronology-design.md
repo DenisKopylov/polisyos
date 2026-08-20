@@ -2,10 +2,11 @@
 
 ## Status
 
-Research specification, Cycle 1 revision. No production code, governed
-artifact, writer, deployment-bound artifact or generated surface is authorized
-by this document. Cycles 2–4 and their independent reviews remain open; the
-final specification requires user approval before implementation planning.
+Research specification, Cycle 2 revision, independently reviewed and delta-
+clean. No production code, governed artifact, writer, deployment-bound artifact
+or generated surface is authorized by this document. Cycles 3–4 and their
+independent reviews remain open; the final specification requires user approval
+before implementation planning.
 
 ## Problem
 
@@ -80,33 +81,56 @@ The decisive classifications are:
   limits the claim.
 - No implementation or governed artifact during the four research cycles.
 
-## Cycle 1 design hypothesis — not yet a verdict
+## Cycle 2 architecture candidate — Cycle 3 verdict pending
 
-The candidate shape is one reusable **chronology semantics and verification
-owner**, with family-native member records and persistence adapters. The common
-primitive would own only:
+The candidate shape remains one reusable **chronology proof semantics and
+verification owner**, with family-native member records, denominator resolvers
+and persistence adapters. Cycle 2 narrows the reusable primitive to:
 
 - scoped member identity as a content commitment to a native record;
 - predecessor/append relation and ordered sequence within that native scope;
-- scoped head derivation, including more than one explicitly valid head where
-  the family semantics allow it;
+- family-scoped commitment-head derivation and independently accepted anchor
+  reconciliation;
 - complete-basis declaration and unknown-external-copy limitation;
-- offline membership and prefix/consistency verification; and
+- offline Merkle-style membership and old-to-new consistency verification; and
 - detection of deletion, substitution, reordering and post-hoc basis
   narrowing.
 
-It would not own event payloads, temporal roles, validity decisions, release
-dispositions, recursive terminals, acquisition evidence or policy authority.
-Those remain family-owned and are recomputed before a member is admitted. In
-particular, Decision Validity remains the sole owner of packet currentness and
-lineage heads, while Claim Ledger remains the claim-history owner. Chronology
-can emit verified perturbation evidence to them; it cannot duplicate their
-state.
+The proof layer has a **commitment head**, never an authority head. It proves
+only the prefix admitted under a declared basis and accepted earlier head. It
+cannot establish that every required release or production run was admitted;
+each family owner must independently reconcile the committed set with its
+complete canonical denominator. Event payloads, temporal roles, semantic
+applicability, validity decisions, release dispositions, recursive terminals,
+acquisition evidence and native authority heads remain family-owned and are
+recomputed before admission or current projection. Decision Validity remains
+the sole owner of packet currentness and lineage heads, while Claim Ledger
+remains the claim-history owner. Chronology can emit verified perturbation
+evidence to them; it cannot duplicate their state.
+
+Acceptance is a separate P37 predicate, not a location or `accepted=true`
+field. Every anchor freezes the accepting owner, proof-domain/log identity,
+signature, prior anchor, admission cutoff, witness or consumer-receipt basis,
+verifier provenance and admission provenance class. At least one accepted
+anchor must cross a custody boundary the transcript writer cannot rewrite. If
+no such family capability is named and independently reconciled, the result is
+only consistency relative to a supplied head and whole-history authenticity is
+`not_established`. Cycle 3 must name the real anchor owner per family rather
+than assigning that authority to the shared proof layer.
+
+Reconciliation of external two-axis facts with the ratified Custody Time Model
+§3 yields a provisional PolicyOS inference: an epoch is a content-bound
+semantic projection at explicit native coordinates, not a third clock. Valid/
+effect time and transaction/knowledge time retain their meanings; `epoch_ref`
+selects the fixed admitted model/rule/schema/data/interpretation basis. Cycle 3
+must confirm or refute that inference; prior art does not ratify it.
 
 This is intentionally only a hypothesis. Cycle 3 must reject it if the common
-commitment becomes a universal envelope under another name, if one head or
-membership algebra cannot express all four families, or if family-native
-persistence makes “one owner” merely cosmetic.
+commitment becomes a universal envelope under another name, if one proof
+algebra cannot serve all four families, if family adapters carry so much policy
+that “one owner” is merely cosmetic, or if a production-boundary receipt cannot
+fit while preserving GY-GAP5's additive/non-blocking recorder rule and
+INT-K08's narrower negative-terminal semantics.
 
 ## Family obligations
 
@@ -126,6 +150,12 @@ Ukraine v1/prewar and v2/wartime is the first case, never an engine enum.
 No applicable regime/amendment basis yields `epoch_scope_unresolved`, not an
 assumed baseline. N13b passports must bind the resolved epoch identity and
 basis proof; a caller-supplied positive integer is insufficient.
+
+Resolution consumes owner-native valid/effect and visibility coordinates plus
+the authority context, and returns a discrete semantic reference with content
+and predecessor commitments. The reference is not an independent timestamp;
+maximum transaction time, receipt time or chronology position cannot select
+the epoch head.
 
 Every certificate binds its issuance epoch, model/rule/schema/data identities,
 inputs, derivation recipe, authority purpose and relevant native time
@@ -150,10 +180,14 @@ owner disposition can select `annotation_only`, `invalidate`, `reissue`,
 Each release member binds the native release record, model and rule versions,
 inputs, verifier identity/provenance and disposition. The declared family basis
 is immutable after admission except by an appended correction/supersession.
-Offline replay proves membership and consistency relative to a pinned head.
-Deleting, substituting, reordering or narrowing controlled history fails.
-Unknown external copies produce a typed limitation rather than a false complete
-claim.
+Offline replay proves membership and append-only consistency relative to an
+independently accepted head carrying the frozen anchor basis above. The family
+owner also reconciles that admitted prefix with the complete release
+denominator; Merkle
+membership cannot prove a release was required to be submitted. Deleting,
+substituting, reordering, whole-history replacement or narrowing controlled
+history fails. Unknown external copies or heads produce a typed limitation
+rather than a false globally complete/latest claim.
 
 ### Recursive-run family
 
@@ -162,7 +196,15 @@ cycle content identities, authority scope and owner-derived terminal. The
 family enumerates the complete production receipt denominator, orders admitted
 runs, derives current heads per existing root and projects resolved terminals.
 Recording/projection failure cannot change the completed run or terminal.
-Deletion, substitution and basis narrowing fail replay.
+Deletion, substitution and basis narrowing fail replay. A best-effort recorder
+cannot establish “all production runs”: every production path must cross a
+single content-binding receipt-or-gap emission boundary. Durable receipt
+failure leaves a run-bound custody gap that the independently complete source
+denominator must expose; chronology is incomplete/`not_established` until
+reconciled. GY-GAP5—not INT-K08—requires recorder failure never to change the
+producer-owned terminal. INT-K08 requires negative terminals to remain
+completed members and missing custody never to become permission or green;
+recorder success is not permission or terminality.
 
 ### Movement family
 
@@ -187,12 +229,19 @@ accepts only the first two. In particular:
 - claim lifecycle is appended by Claim Ledger/lifecycle bridge, never projected
   into authority by chronology;
 - release membership is recomputed from the immutable declared family basis;
-- run membership is emitted by the production recorder, not discovered later
-  by a dashboard census;
+- release/run completeness is independently reconciled against the family
+  owner's source denominator; proof of an admitted leaf is not completeness;
+- run membership or an explicit run-bound custody gap is emitted at the single
+  production boundary, not discovered later by a dashboard census;
 - terminal values are recomputed/validated by their existing owners;
 - movement identity is recomputed from exact row/passport/run/re-entry refs;
 - chronology consistency is verified from content commitments and predecessor
   relations, not timestamps, list position or an exit code.
+- a commitment head proves prefix integrity only; native authority heads are
+  recomputed by the applicable owner and cannot be inferred from it.
+- accepted-anchor provenance is independently reconciled by the named family
+  custody consumer; a writer-retained adjacent copy or self-attested witness
+  cannot establish whole-history authenticity.
 
 ## Completeness gates (§3.5.6 instantiation)
 
@@ -205,7 +254,10 @@ The eventual suite must include:
 1. **Full denominator:** enumerate every member from the family authority's
    source of truth and reconcile it with the chronology; no fixture list or
    sampled directory. The production-run case additionally derives every live
-   production entry path and proves all paths cross the single recorder.
+   production entry path and proves all paths cross the single receipt-or-gap
+   boundary. A run that completes while durable receipt is suppressed must
+   remain in the source denominator and make the complete-chronology claim fail
+   closed rather than disappear.
 2. **Fail closed on fake or novel input:** reject a valid-shaped member with a
    wrong content binding, fake verifier provenance, unknown relation, supplied
    epoch, sibling-scope substitution, or undeclared family basis.
@@ -229,7 +281,9 @@ mint or absorb it. One deployment-environment identity must serve that chain
 and chronology work. The owner record must name a reconstructible admitted
 dependency profile/root/distribution discriminant rather than only an observed
 package list. The validation owner compares the decisive profile identity
-before backend/package fingerprints.
+before backend/package fingerprints. The epoch derivation recipe binds that
+profile identity: omitting a tool/environment dependency from the declared
+recipe closure is a false-revalidation pass, not an irrelevant packaging gap.
 
 Required falsifiers are:
 
@@ -271,21 +325,23 @@ constant.
 
 ## Draft implementation clusters — no authorization
 
-1. **Owner-preserving environment dependency and chronology substrate:** close
+1. **Owner-preserving environment dependency and proof substrate:** close
    GY-DEF22 at its Foundry/N8/N10a owner boundary, consume that identity in N12,
-   define the shared chronology semantics/verification protocol, and prove no
-   universal envelope, second currentness owner or claim-history owner was
+   define canonical commitments, accepted commitment heads and offline
+   membership/consistency verification, and prove no universal envelope,
+   authority head, second currentness owner or claim-history owner was
    introduced.
 2. **Epoch producer and validity cascade:** generic regime/amendment/acquisition
    boundary resolution, unresolved scope, append-only epochs, current heads,
    N13b semantic stamp, owner-adjudicated perturbations, promotion freeze,
    certificate staleness and recipe recomputation.
-3. **Controlled release adapter:** native release member/producer, pinned basis,
-   verifier dispositions, offline membership/consistency replay and prefix
-   discipline.
-4. **Recursive-run adapter:** non-blocking production recorder, complete
-   enumeration, per-root heads/resolved terminals and deletion/narrowing
-   detection.
+3. **Controlled release adapter:** native release member/producer, immutable
+   denominator, retained accepted head, verifier dispositions, denominator
+   reconciliation, offline membership/consistency replay and prefix discipline.
+4. **Recursive-run adapter:** production-boundary content receipt and explicit
+   gap reconciliation while preserving GY-GAP5's non-blocking producer-owned
+   terminal, complete-denominator reconciliation, per-root native heads/
+   resolved terminals and deletion/narrowing detection.
 5. **Movement composition:** exact N13b row/passport to N7 re-entry/deeper
    terminal relation and consumer projection.
 6. **Surfaces and capstone verification:** audit/API/dashboard projection from
@@ -309,11 +365,19 @@ content-bound bridges, owner recomputation and external/audit surfaces. The
 current capability labels remain those in the measured-state section; no
 capability is promoted by this specification.
 
+Cycle 2 found two further P37/P38 traps: treating an inclusion proof as proof
+that every required member was submitted, and treating a declared derivation
+recipe as complete while an environment/tool dependency is omitted. It also
+confirms P27/P28 would be repeated by a universal event-sourcing log or a
+shared native authority head. The repair is independent denominator
+reconciliation plus a proof-only commitment head, and complete recipe/profile
+closure before automatic revalidation.
+
 ## Research and revision log
 
 | cycle | input | result | spec action |
 | --- | --- | --- | --- |
 | 1 | complete literal + CTM-owner census; independent architecture/census/basis reviews | proof owner absent; Decision Validity and Claim Ledger mandatory; five negative classes added | rewritten after blocking P38/label/basis findings; hypothesis only |
-| 2 | external state of the art | pending | rewrite after independent review |
+| 2 | transparency, bitemporal, immutable-history, revocation, provenance/recompute and scholarly-correction prior art | proof algebra fits admitted-prefix integrity; CTM reconciliation tentatively makes epoch a projection rather than a third clock; canonical denominator and authority heads stay native | rewritten with commitment/authority-head split, independently accepted anchors, GY-GAP5-attributed run receipt, recipe/profile closure and proposition/use denominators; three return reviews clean |
 | 3 | unification argued both ways | pending | verdict and architecture rewrite |
 | 4 | adversarial record/design/method review | pending | delta-review until clean; freeze basis |

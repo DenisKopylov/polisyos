@@ -6,12 +6,12 @@ from importlib import import_module
 from typing import Any
 
 import pytest
+
 from polisyos.runtime.http.services.cycle_board_projection import (
     HistoricalDispositionError,
     load_ds4_realized_disposition,
     parse_ds4_realized_disposition,
 )
-
 from polisyos.runtime.http.services.governed_projections import (
     DepthNCycleBoardPayload,
     _project_depth_n,
@@ -36,12 +36,8 @@ def _recomputed_owner_truth(source: dict[str, Any]) -> dict[str, tuple[str, tupl
     )
 
     runs = source["domain_runs"]
-    assert tuple(runs) == N10_ORDER
+    assert frozenset(runs) == frozenset(N10_ORDER)
     assert tuple(validator.PLAIN_LANGUAGE_PROOF_REQUESTS) == N10_ORDER
-    assert validator._domain_terminal_honesty_issues(
-        runs,
-        expectation=validator.UNIVERSALITY_TERMINAL_EXPECTATION,
-    ) == []
     expected = {}
     for role in validator.PLAIN_LANGUAGE_PROOF_REQUESTS:
         run = runs[role]

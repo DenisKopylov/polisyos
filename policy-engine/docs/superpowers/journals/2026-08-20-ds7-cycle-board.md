@@ -829,3 +829,43 @@ At this Task 5 boundary the post-merge GY plan line 7 hashes to
 and the Atlas master-plan line 7 remains
 `bd39cd4831c0f9e1a6a05b9e54032c13587546c49526cc87a2918bd7e6f0dfac`.
 Neither line has a Task 5 working-tree diff.
+
+### Task 5 solver continuation — owner closure and environment-scoped raw replay
+
+The frozen-lock solver provision was retried exactly as authorized. The
+offline command
+`uv sync --frozen --offline --extra test --extra solvers` completed with an
+unsatisfied-cache non-receipt for `ortools==9.15.6755`. The narrow online
+command `uv sync --frozen --extra test --extra solvers` then completed in
+2.367 s and installed the pinned `ortools==9.15.6755` and `pulp==3.3.0`; no
+`research` extra and no Torch profile was admitted. Because Ruff is owned by
+the separate frozen `lint` extra, the final isolated toolchain command was
+`uv sync --frozen --extra test --extra solvers --extra lint`; it completed in
+5.787 s and retained the solver provision while restoring Ruff 0.14.10.
+
+With the real owner path available, the fact-owner file first completed with
+one test failure: the source JSON object's serialized key order differs from
+the canonical presentation order. The convergence repair now verifies the
+three-role population as a set and verifies the canonical owner order from
+`PLAIN_LANGUAGE_PROOF_REQUESTS` independently. It also removes the unrelated
+full-artifact honesty preflight, whose known-vertical source-integrity branch
+requires environment-local `production_data`; the expected side still invokes
+the canonical `_domain_evidence_witness` for each owner role and both class and
+weakest-link-order corruption falsifiers remain. Independent delta review
+classified this as on-basis `4A-OWNER-04` / `4A-COHORT-05` convergence with no
+mechanism round. The final exact file passed 2/2 in 23.948 s, Ruff lint passed,
+Ruff format reported one file already formatted, and `git diff --check` passed.
+This is also the declared first-mechanism-touch Ruff companion for that frozen
+4a file; no separate cosmetic commit is introduced.
+
+The static API file then completed 8 passed / 1 failed in 72.137 s. The real
+unpinned composed-v2 request returned 200, but its direct raw-v1 owner read was
+honestly `invalid_source`: this worktree has no ignored
+`production_data/manifest.json`, so owner validation reports
+`known_vertical_owner_vocabulary_unavailable` with underlying
+`substrate_catalog_missing`. The raw invalid packet has no projection or
+dependency hash and therefore cannot supply the required complete four-pin
+legacy replay tuple. That receipt remains an environment-scoped non-receipt;
+it is not relabelled green, and the owner is not mocked because doing so would
+weaken the independently owned source boundary. The missing producer state is
+exactly the board's typed environment-absence case, not artifact corruption.

@@ -276,9 +276,9 @@ conflicts.
 typed optional-source failure; control-plane authority; DS8 typed absence;
 declared `semantic_test_missing` DOM/MACHINE residual.
 
-- [ ] Close `4C-N13B-01` through `4C-DS8-04`, including raw UTF-8 hash equality,
+- [x] Close `4C-N13B-01` through `4C-DS8-04`, including raw UTF-8 hash equality,
   substituted/malformed owner refusal, and no-value absences.
-- [ ] Run the recorded complete 971-file dashboard-source two-census falsifier for `4C-DOM-05`;
+- [x] Run the recorded complete 971-file dashboard-source two-census falsifier for `4C-DOM-05`;
   retain `semantic_test_missing` and its Task 9 mutation falsifier rather than
   fabricating a server DOM test.
 - [ ] Run the focused 4c file and witness failure at the missing loader/service,

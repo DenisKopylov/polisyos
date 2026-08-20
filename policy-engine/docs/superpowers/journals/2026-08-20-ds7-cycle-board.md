@@ -643,3 +643,49 @@ access/replay test hashes to
 `3dedb4f0a08763a48ae6dd891e68b686db4488e22e9a388d617109faafd38f83`.
 The worktree was otherwise clean at read-back. This pending plan/journal
 delivery record changes no mechanism or test outcome and consumes no 4b round.
+
+## Task 4c — loading and parity-boundary RED receipt
+
+Root issued the frozen basis commit
+`d585d2fa0783433f95f2fc4981ed337cf20fdecb`, basis SHA-256
+`a3747cd490157519406aaecbf15d843238bf6c167d4e517d563d49c7d0d23a4e`,
+and the `4C-*` bucket to all three read-only reviewers before the 4c wave. The
+reviewed mechanism population is the single 7,174-byte loading test; the
+rendered-DOM property remains a declared residual rather than a server test.
+
+Two reviewers found no gap. The third found one on-basis `4C-N13B-01`
+convergence escape: appended whitespace rejects JSON reserialization but does
+not reject universal-newline normalization. The repaired test writes a
+semantically identical CRLF corpus, proves its raw bytes differ, and requires
+the loader's hash to equal the CRLF byte SHA while schema, rule, producer, and
+demonstration status remain unchanged. That delta received GO re-review. No
+reviewer named an off-basis property or wrong production shape, so 4c remains
+`0/2`.
+
+The loader RED binds the exact owner-relative path and raw UTF-8 hash; exercises
+both appended-whitespace and CRLF-only changes; admits only the declared
+schema/rule/producer; and distinguishes missing/unreadable `artifact_missing`
+from malformed/substituted `invalid_source`. Every unavailable branch has no
+demonstration status or value, remains one typed control-plane manifest source,
+and still returns a renderable board. An admitted source is authoritative only
+for global demonstration status and denied for row movement, enumeration, and
+exhaustiveness. DS8 remains `not_established`/no-value for capstones and
+`artifact_missing`/no-value for legacy rows. Host Ruff 0.15.0 format/lint and
+`git diff --check` passed.
+
+After source freeze and all reviews, the focused loader command completed with
+exit 2 in 18.648 seconds under its fixed 60-second ceiling because
+`polisyos.runtime.http.services.cycle_board_projection` does not yet exist. Its
+load pair was `3.01/3.28/3.95 -> 3.55/3.39/3.97`; it was not killed. This is a
+collection-level RED at the intended Task 5 boundary, with its individual
+behavioral predicates unexecuted until that mechanism exists.
+
+The first same-wave DOM census attempt was a harness non-receipt: its
+`git ls-tree` path was double-prefixed and enumerated zero files. No source or
+test byte changed. The corrected read-only rerun independently derived the
+complete dashboard source population as `git ls-files = 971` and
+`git ls-tree = 971`; `rg` and `git grep` each found zero files containing the
+closing page/adapter/raw-slot/download capability. Therefore `4C-DOM-05`
+remains the explicitly non-green `semantic_test_missing` residual with the
+Task 9 mutation falsifier frozen in the basis. No fabricated server parity
+claim replaces it.

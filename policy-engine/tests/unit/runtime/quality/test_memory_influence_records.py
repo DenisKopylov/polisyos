@@ -12,6 +12,7 @@ from polisyos.runtime.quality.memory_influence import (
     assert_memory_influence_not_claim_evidence,
     build_memory_influence_record,
     is_memory_influence_ref,
+    memory_influence_claim_evidence_issues,
 )
 from polisyos.scientist.orchestration.memory import (
     BalancedMemoryKind,
@@ -84,6 +85,35 @@ def test_memory_influence_record_rejects_current_evidence_slots() -> None:
             contamination_check_ref="quality_evidence/memory_contamination_pass.json",
             evidence_slot_refs=("claim-a:evidence-ref",),
         )
+
+
+def test_undeclared_marker_inside_typed_memory_record_fails_closed() -> None:
+    record = build_memory_influence_record(
+        _success_memory(),
+        run_id="run-target",
+        context=MemoryApplicabilityContext(run_id="run-target", domain="tax"),
+        contamination_check_ref="quality_evidence/memory_contamination_pass.json",
+    ).model_copy(
+        update={
+            "metadata": {
+                "policy_fact_ref": "memory-influence:undeclared-position",
+            }
+        }
+    )
+
+    with pytest.raises(ValueError, match="outside owner-declared position"):
+        assert_memory_influence_not_claim_evidence(record)
+
+
+def test_memory_marker_in_unordered_container_fails_closed() -> None:
+    novel_key = f"runtime_invented_unordered_position_{id(object())}"
+    issues = memory_influence_claim_evidence_issues(
+        {novel_key: {"memory-influence:prior-policy-fact"}},
+        claim_id="claim-unordered",
+    )
+
+    assert issues
+    assert issues[0]["evidence_slot"] == novel_key
 
 
 def test_llm_candidate_memory_cannot_emit_active_influence_record() -> None:

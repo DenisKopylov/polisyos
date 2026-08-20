@@ -2718,6 +2718,62 @@ being written here. Fixing them is a separate decision.
   `120` modules / `120` unique paths, equal to its frozen tuple, and neither companion is in the
   authority import closure. This verdict authorizes only the recorded stop; GY-DEF4 remains open and
   the stop blocks none of GY-DEF1, GY-DEF2, or GY-DEF3.
+
+  **STANDING RECORDED (Rev 49, measured 2026-08-19): closed; this supersedes the Rev 48 stop without
+  rewriting it.** The re-routed lane supplied the governed-family authorization that Rev 48 lacked.
+  Runtime quality now owns the strict `TimeSourceConsistencyAuditProjection` contract, the exact
+  four-value disposition vocabulary, the one shared typed `consistent` constant, and the
+  recomputation predicate. The HTTP builder delegates to that owner. The collector recognizes the
+  declared projection kind, producer, and scope, validates the complete typed projection, parses
+  canonical time roles, and recomputes the claimed disposition before consumption; it no longer
+  turns on the field name `mismatch_disposition` or normalizes aliases into a pass. The four required
+  negatives are behavioural: a foreign nested `mismatch_disposition: admitted` contributes zero
+  dispositions; `admitted`, `renamed_consistent`, `CONSISTENT`, and whitespace-wrapped `consistent`
+  visibly downgrade; the old model/builder aliases do not exist and the old model/token are not live
+  accepted values; and a well-formed value with either an undeclared producer or undeclared scope
+  visibly downgrades. The widened P37/P38 falsifier also holds: an exact marker tuple whose time roles
+  contradict its claimed `consistent` value is rejected by authority-owned recomputation. The first
+  terra review returned two Blocking findings, both the same token-laundering class one level deeper,
+  so mechanism round 1 widened the intake; its delta review returned no Blocking or Important
+  finding. Round 2 is unused.
+
+  The family transition was declared before the writer in
+  `docs/superpowers/journals/2026-08-19-gy-def4-time-source-authority-declaration.json`, with rollback
+  armed and unused. The writer ran exactly once in `9.869171` s under load
+  `5.588/3.995/4.861 -> 6.502/4.211/4.932`. The primary artifact moved from `7,048` bytes / SHA-256
+  `185e57267a69f6de542e0cbc1491779649897da4001cd4bacd120e6436203574` to `7,752` bytes / SHA-256
+  `f3c14f1111f9dbb56a908a4cf779bf853b573d19966169105d3a5f7a01b40a67`, on exactly the declared
+  `17` leaves. The sibling authority-candidate inventory remained byte-identical at `309,222` bytes /
+  SHA-256 `a97da7b54d0c2f075fe79ec732073476b0fafac06c7a366ec0fecb533fbc2f57`; observed family delta was
+  therefore one changed output of two, and the writer changed no path outside the family. The
+  distinct S12 vocabulary was preserved: all three live real-ref results still say
+  `authority_admitted`.
+
+  The complete pre-write tree walk covered `9,874` tracked paths: `9,853` UTF-8, `21` binary, zero
+  unreadable. A Python UTF-8 walk and an independent fixed-string `git grep` both found the same `16`
+  target-bearing paths. Four are inbound records: `architecture/policy_design_case/inventory.json`
+  has two path-only cells; the tourism and UA-MSME GX provenance reports each have one pointer-bound
+  cell to `$/s12_ref_dereference/g5_real_ref_evidence`; and the generated-public-lifecycle audit has
+  nine path/family-only cells. There are zero content-hash-pinned and zero ambiguous hits. The other
+  twelve target-bearing paths are classified individually as non-inbound in the declaration. All
+  four inbound files stayed byte-identical, and the pointer-bound subtree stayed byte-identical at
+  `714` canonical bytes / SHA-256
+  `cfe38a2ef0050dbdc448d30a357e6b71a1b66c3d8f145ff660388f117d4dc195`, so no governed receipt was
+  invalidated and none was reissued.
+
+  GY-GAP1 was re-measured immediately before the write at head
+  `04d6cb756e4b25126a5ca21b51a8dece37cb70b2`, declaration SHA-256
+  `e00726953716e4d474b3f150912b8079b161b52806196f72a2682f0964db5a44`: five declared mechanism
+  paths, six declared writer outputs, and five live dirty paths; both its output intersection and
+  live-dirty intersection with this two-output write set were empty. Final targeted replay used
+  explicit `120` s ceilings: `22 passed` in `8.661313` s, the recomputing validator returned
+  `status=pass` with zero issues in `5.796879` s, and Ruff passed all seven changed Python paths in
+  `0.071897` s. The `300` s architecture guardrail replay removed this slice's one type-import
+  finding, then remained red in `17.153039` s on six deep-import findings across untouched source
+  paths; an exact `bedd47503` replay reproduced those same findings in `16.162556` s. No baseline was
+  synced. Line 7 remained exactly `66,714` bytes including newline / SHA-256
+  `a9c7345ff6c45bea81f4c3e3bd842e9439ef15e0f83c1ffe17501c96ce3181d6`. This verdict closes only
+  GY-DEF4; it claims neither a full-pytest result nor repository-wide architecture-guardrail health.
 - **GY-DEF5 — the obligation enum claims the world in its docstring (found by the INT-R1 audit,
   verified 2026-08-03).** Owner: **pdc waist**. `pdc/_impl/gy_waist.py:219` reads
   `"""Universal N9 obligation-class denominator."""`. The INT-R1 research first read the enum as

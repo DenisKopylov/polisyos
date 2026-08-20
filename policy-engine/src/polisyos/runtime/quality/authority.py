@@ -4,10 +4,18 @@ from __future__ import annotations
 
 import json
 from collections.abc import Iterable, Mapping
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, Literal
+from typing import Any, Final, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from polisyos.core import canon
 
@@ -61,6 +69,20 @@ PredicateProvenanceClass = Literal[
     "institutionally_supplied",
     "not_established",
 ]
+TimeSourceConsistencyDisposition = Literal[
+    "consistent",
+    "inconsistent",
+    "insufficient_evidence",
+    "blocked_for_owner_review",
+]
+TimeSourceConsistencyProducerRef = Literal[
+    "polisyos.runtime.http.services.temporal."
+    "build_time_source_consistency_audit_projection"
+]
+TimeSourceConsistencyProjectionKind = Literal["time_source_consistency_audit_projection"]
+TimeSourceConsistencyProjectionScope = Literal[
+    "catalog_source_runtime_time_role_consistency"
+]
 ValidationStatus = Literal["pass", "fail", "blocked", "not_applicable"]
 BlockingStatus = Literal["non_blocking", "blocking", "non_overridable"]
 AuthorityRootCauseClass = Literal[
@@ -87,6 +109,45 @@ DEFAULT_AUTHORITY_ENVELOPE_SCHEMA_PATH = (
     Path(__file__).resolve().parents[4]
     / "schemas/runtime_quality/evidence_authority_envelope_v1.schema.json"
 )
+TIME_SOURCE_CONSISTENCY_PRODUCER_REF: Final[TimeSourceConsistencyProducerRef] = (
+    "polisyos.runtime.http.services.temporal."
+    "build_time_source_consistency_audit_projection"
+)
+TIME_SOURCE_CONSISTENCY_PROJECTION_KIND: Final[TimeSourceConsistencyProjectionKind] = (
+    "time_source_consistency_audit_projection"
+)
+TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE: Final[TimeSourceConsistencyProjectionScope] = (
+    "catalog_source_runtime_time_role_consistency"
+)
+TIME_SOURCE_CONSISTENT_DISPOSITION: Final[TimeSourceConsistencyDisposition] = "consistent"
+TIME_SOURCE_INCONSISTENT_DISPOSITION: Final[TimeSourceConsistencyDisposition] = "inconsistent"
+TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION: Final[TimeSourceConsistencyDisposition] = (
+    "insufficient_evidence"
+)
+TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION: Final[
+    TimeSourceConsistencyDisposition
+] = "blocked_for_owner_review"
+TIME_SOURCE_CONSISTENCY_ROLE_FIELDS: Final[tuple[str, ...]] = (
+    "catalog_watermark",
+    "source_observed_at",
+    "source_published_at",
+    "source_updated_at",
+    "ingested_at",
+    "effective_time",
+    "legal_valid_time",
+    "transaction_time",
+    "as_of_time",
+    "replay_time",
+    "run_started_at",
+    "run_finished_at",
+    "node_started_at",
+    "node_finished_at",
+    "retention_or_expiry",
+)
+_TIME_SOURCE_PRODUCER_UNDECLARED = "invalid:time_source_consistency_producer_undeclared"
+_TIME_SOURCE_SCOPE_UNDECLARED = "invalid:time_source_consistency_scope_undeclared"
+_TIME_SOURCE_DISPOSITION_MISSING = "invalid:time_source_consistency_disposition_missing"
+_TIME_SOURCE_CONTRACT_INVALID = "invalid:time_source_consistency_contract_invalid"
 
 SERIOUS_EXECUTION_PROFILES = frozenset({"governed", "production", "research"})
 _AUTHORITY_ROLES = frozenset({"producer_authority", "runtime_blocker"})
@@ -109,6 +170,56 @@ _PROJECTION_PROVENANCE = frozenset(
         "runtime_projection",
     }
 )
+
+
+class _ArtifactSurfaceStore(Protocol):
+    def get_bytes(self, artifact_id: object) -> bytes: ...
+
+    def get_manifest(self, artifact_id: object) -> object: ...
+
+    def verify(self, artifact_id: object) -> object: ...
+
+
+class TimeSourceConsistencyAuditProjection(BaseModel):
+    """Authority-owned contract for one projection-only time-role consistency audit."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    projection_kind: TimeSourceConsistencyProjectionKind = (
+        TIME_SOURCE_CONSISTENCY_PROJECTION_KIND
+    )
+    producer_ref: TimeSourceConsistencyProducerRef = TIME_SOURCE_CONSISTENCY_PRODUCER_REF
+    projection_scope: TimeSourceConsistencyProjectionScope = (
+        TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE
+    )
+    catalog_watermark: str | None = None
+    source_observed_at: str | None = None
+    source_published_at: str | None = None
+    source_updated_at: str | None = None
+    ingested_at: str | None = None
+    effective_time: str | None = None
+    legal_valid_time: str | None = None
+    transaction_time: str | None = None
+    as_of_time: str | None = None
+    replay_time: str | None = None
+    run_started_at: str | None = None
+    run_finished_at: str | None = None
+    node_started_at: str | None = None
+    node_finished_at: str | None = None
+    retention_or_expiry: str | None = None
+    mismatch_disposition: TimeSourceConsistencyDisposition
+
+    @model_validator(mode="after")
+    def _require_recomputed_disposition(self) -> TimeSourceConsistencyAuditProjection:
+        role_values = {
+            field: getattr(self, field) for field in TIME_SOURCE_CONSISTENCY_ROLE_FIELDS
+        }
+        recomputed = resolve_time_source_consistency_disposition(role_values)
+        if self.mismatch_disposition != recomputed:
+            raise ValueError(
+                "time-source disposition does not match authority-owned recomputation"
+            )
+        return self
 
 
 class AuthorityEnvelopeError(ValueError):
@@ -967,8 +1078,8 @@ def authority_surface_decision(
     artifact_ref_or_route: str | None = None,
     secret_pii_scope: str | None = None,
     block_on_secret_findings: bool = True,
-    artifact_store: Any | None = None,
-    artifact_id: Any | None = None,
+    artifact_store: _ArtifactSurfaceStore | None = None,
+    artifact_id: object | None = None,
     require_cas_integrity: bool = False,
     enforce_time_source: bool = True,
     enforce_s12: bool = True,
@@ -1062,12 +1173,12 @@ def authority_surface_decision(
         gate_inputs.append("time_source_envelope")
         time_dispositions = _time_source_dispositions(payload)
         for disposition in time_dispositions:
-            normalized = disposition.strip().casefold()
-            if normalized.startswith("block:"):
+            if disposition in {
+                TIME_SOURCE_INCONSISTENT_DISPOSITION,
+                TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION,
+            }:
                 blocking_reasons.append("time_source_envelope_blocked")
-            elif normalized.startswith("obligation:") or (
-                normalized and normalized != "admitted"
-            ):
+            elif disposition != TIME_SOURCE_CONSISTENT_DISPOSITION:
                 downgrade_reasons.append("time_source_envelope_obligation")
 
     if enforce_s12:
@@ -1280,8 +1391,8 @@ def _authority_boundary_surface_decision(
 def _surface_authority_payload(
     payload: object,
     *,
-    artifact_store: Any | None,
-    artifact_id: Any | None,
+    artifact_store: _ArtifactSurfaceStore | None,
+    artifact_id: object | None,
 ) -> object:
     """Resolve the authority carrier for a surface without replacing scan bytes."""
 
@@ -1776,15 +1887,101 @@ def _collect_time_source_dispositions(value: object, dispositions: list[str]) ->
     if isinstance(value, str):
         return
     if isinstance(value, Mapping):
-        disposition = value.get("mismatch_disposition")
-        if isinstance(disposition, str) and disposition.strip():
-            dispositions.append(disposition.strip())
+        if value.get("projection_kind") == TIME_SOURCE_CONSISTENCY_PROJECTION_KIND:
+            if value.get("producer_ref") != TIME_SOURCE_CONSISTENCY_PRODUCER_REF:
+                dispositions.append(_TIME_SOURCE_PRODUCER_UNDECLARED)
+                return
+            if value.get("projection_scope") != TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE:
+                dispositions.append(_TIME_SOURCE_SCOPE_UNDECLARED)
+                return
+            disposition = value.get("mismatch_disposition")
+            if not isinstance(disposition, str) or not disposition:
+                dispositions.append(_TIME_SOURCE_DISPOSITION_MISSING)
+                return
+            try:
+                projection = TimeSourceConsistencyAuditProjection.model_validate(dict(value))
+            except ValidationError:
+                dispositions.append(_TIME_SOURCE_CONTRACT_INVALID)
+            else:
+                dispositions.append(projection.mismatch_disposition)
+            return
         for item in value.values():
             _collect_time_source_dispositions(item, dispositions)
         return
     if isinstance(value, Iterable):
         for item in value:
             _collect_time_source_dispositions(item, dispositions)
+
+
+def resolve_time_source_consistency_disposition(
+    times: Mapping[str, datetime | str | None],
+) -> TimeSourceConsistencyDisposition:
+    """Recompute the diagnostic disposition from sparse family-native time roles."""
+
+    resolved: dict[str, datetime | None] = {
+        field: _parse_time_source_datetime(times.get(field))
+        for field in TIME_SOURCE_CONSISTENCY_ROLE_FIELDS
+    }
+    catalog_watermark = resolved["catalog_watermark"]
+    source_times = (
+        resolved["source_observed_at"],
+        resolved["source_published_at"],
+        resolved["source_updated_at"],
+    )
+    if catalog_watermark is None or any(source_time is None for source_time in source_times):
+        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
+    if any(source_time > catalog_watermark for source_time in source_times if source_time):
+        return TIME_SOURCE_INCONSISTENT_DISPOSITION
+
+    legal_valid_time = resolved["legal_valid_time"]
+    as_of_time = resolved["as_of_time"]
+    replay_time = resolved["replay_time"]
+    if legal_valid_time is None or as_of_time is None or replay_time is None:
+        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
+    if legal_valid_time > as_of_time or legal_valid_time > replay_time:
+        return TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION
+
+    run_started_at = resolved["run_started_at"]
+    run_finished_at = resolved["run_finished_at"]
+    if run_started_at is None or run_finished_at is None:
+        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
+    if run_finished_at < run_started_at:
+        return TIME_SOURCE_INCONSISTENT_DISPOSITION
+
+    node_started_at = resolved["node_started_at"]
+    node_finished_at = resolved["node_finished_at"]
+    if node_started_at is None or node_finished_at is None:
+        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
+    if node_finished_at < node_started_at:
+        return TIME_SOURCE_INCONSISTENT_DISPOSITION
+
+    retention_or_expiry = resolved["retention_or_expiry"]
+    if retention_or_expiry is None:
+        return TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION
+    visibility_cutoff = max(as_of_time, replay_time, run_finished_at, node_finished_at)
+    if retention_or_expiry < visibility_cutoff:
+        return TIME_SOURCE_INCONSISTENT_DISPOSITION
+    return TIME_SOURCE_CONSISTENT_DISPOSITION
+
+
+def _parse_time_source_datetime(value: datetime | str | None) -> datetime | None:
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        parsed = value
+    elif isinstance(value, str):
+        if not value or value != value.strip():
+            raise ValueError("time-source role must be a non-empty canonical timestamp")
+        candidate = f"{value[:-1]}+00:00" if value.endswith("Z") else value
+        try:
+            parsed = datetime.fromisoformat(candidate)
+        except ValueError as exc:
+            raise ValueError("time-source role must be an ISO-8601 timestamp") from exc
+    else:
+        raise ValueError("time-source role must be a datetime, string, or null")
+    if parsed.tzinfo is None or parsed.utcoffset() is None:
+        raise ValueError("time-source role must include an explicit UTC offset")
+    return parsed.astimezone(UTC)
 
 
 def _s12_dereference_issue_codes(value: object) -> list[str]:
@@ -2171,6 +2368,14 @@ __all__ = [
     "DEFAULT_AUTHORITY_ENVELOPE_SCHEMA_PATH",
     "EVIDENCE_AUTHORITY_ENVELOPE_SCHEMA_ID",
     "SERIOUS_EXECUTION_PROFILES",
+    "TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION",
+    "TIME_SOURCE_CONSISTENCY_PRODUCER_REF",
+    "TIME_SOURCE_CONSISTENCY_PROJECTION_KIND",
+    "TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE",
+    "TIME_SOURCE_CONSISTENCY_ROLE_FIELDS",
+    "TIME_SOURCE_CONSISTENT_DISPOSITION",
+    "TIME_SOURCE_INCONSISTENT_DISPOSITION",
+    "TIME_SOURCE_INSUFFICIENT_EVIDENCE_DISPOSITION",
     "AuthorityEnvelopeError",
     "AuthorityEnvelopeViolation",
     "AuthorityFailureClassification",
@@ -2192,6 +2397,11 @@ __all__ = [
     "SameInputClosure",
     "SameInputClosureStatus",
     "SealedConsumedInputSet",
+    "TimeSourceConsistencyAuditProjection",
+    "TimeSourceConsistencyDisposition",
+    "TimeSourceConsistencyProducerRef",
+    "TimeSourceConsistencyProjectionKind",
+    "TimeSourceConsistencyProjectionScope",
     "ValidationStatus",
     "assert_authority_bearing",
     "assert_authority_purpose_allowed",
@@ -2208,6 +2418,7 @@ __all__ = [
     "classify_authority_failure",
     "classify_authority_role",
     "deserialize_authority_envelope",
+    "resolve_time_source_consistency_disposition",
     "seal_consumed_input_set",
     "serialize_authority_envelope",
     "write_authority_envelope_json_schema",

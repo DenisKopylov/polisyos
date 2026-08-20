@@ -485,3 +485,45 @@ SHA-256 `32b88fc33f29e12b28aad432695b3f51abbdefe9e6fa7946bda834c719a8dbc3`;
 the closeout rechecks that identity. This plan-and-journal registration is a
 mandated record, changes no mechanism, test outcome, or governed artifact, and
 consumes no mechanism round under the corrected P39 split.
+
+## Task 4 RED closure-basis freeze
+
+The architect refunded the prior Task 4 rounds because every finding was
+against a failing RED test while no production mechanism existed. Task 4 now
+has three independently reviewable seams, each starting `0/2`: 4a composition
+and fact algebra, 4b access and replay, and 4c loading and the parity boundary.
+
+Three read-only lanes independently derived their populations from the approved
+spec, implementation plan, current failing tests, and all earlier review waves.
+Root reconciled them into the complete frozen basis at
+`docs/superpowers/plans/2026-08-20-ds7-task4-red-closure-basis.md`. Every future
+Task 4 review request receives this rule before review:
+
+- an on-basis RED-strengthening finding is convergence and consumes no round;
+- an off-basis property is a new class, consumes one seam round, and amends the
+  basis once in the open;
+- a finding that changes the eventual owner boundary, projection identity,
+  fact algebra, or production shape is a mechanism finding; and
+- a negative without its smallest closing capability is a declared bounded
+  residual with a run falsifier, never a green claim.
+
+`4C-DOM-05` is the sole initial bounded residual. The smallest closing
+capability is `CycleBoardPage + packetToVisibleCycleBoard + stable raw semantic
+DOM slots + MACHINE download trigger`. Two independent tracked-file censuses
+both enumerated the complete 971 TypeScript/TSX source files under
+`apps/runtime-dashboard/src`; `rg` and `git grep` each found zero files
+containing the closing identifiers/slots. DOM/export parity is
+therefore `semantic_test_missing`, not server-testable and not green. Its Task 9
+behavioral falsifier is frozen in the basis.
+
+The three lanes then audited root's reconciled basis before freeze. Their
+record-only corrections narrowed the 971 denominator to dashboard source files,
+split missing N13b (`artifact_missing`) from malformed/substituted N13b
+(`invalid_source`), enumerated all four raw-v1 pins, and named the still-needed
+started-at/duration/mismatched-run, three-role denominator, and
+cohort/coverage mutation witnesses. Those changes alter no production design
+and consume no seam round.
+
+This freeze changes only mandated plan/journal records. It changes no test,
+production, generated, governed, line-7, or inherited-red byte and consumes no
+mechanism round.

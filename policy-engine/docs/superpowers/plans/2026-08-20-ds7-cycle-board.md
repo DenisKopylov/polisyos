@@ -211,41 +211,77 @@ acquisition_reentry_deeper_terminal_binding`.
   inside the registered-gaps block and does not touch line 7.
 - [ ] Commit the two disjoint registered gap rows and journal receipt.
 
-## Task 4 — Write server REDs for custody, composition, replay, and authorization
+## Task 4 — Freeze and land REDs by independently reviewable seam
+
+**Frozen basis:**
+`docs/superpowers/plans/2026-08-20-ds7-task4-red-closure-basis.md`
+
+During RED, an on-basis test-strengthening finding is convergence and consumes
+no mechanism round. Only a finding that changes the production design, or a
+genuinely new property absent from the frozen basis, consumes the seam's `0/2`
+budget. Each review request quotes this bucket before review begins.
+
+### Task 4a — Composition and fact algebra REDs
 
 **Files:**
 
 - Modify: `tests/unit/runtime/http/test_governed_projection_service.py`
-- Modify: `tests/unit/runtime/http/test_governed_projection_api.py`
 - Add: `tests/unit/runtime/http/test_cycle_board_projection_service.py`
-- Add or modify exact owner test discovered by the projection-semantics census for N10
-  recomputation equality
+- Add: `tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py`
 
-**Interfaces:** raw v1 adapter; composed v2 packet; `AvailableFact[T] | AbsentFact`; exact run binding;
-`RuntimePermission.RUNS_REVIEW`; static-route ordering; replay version tuple.
+**Interfaces:** strict fact algebra; exact run binding; canonical `DesignProblem`;
+owner-recomputed evidence/weakest links; exact 3+13 cohort; GAP5/GAP6; complete
+source ledger; historical DS4 disposition.
 
-- [ ] RED: mutate status, status substrings, `finished_at`, and timestamps while holding/removing
-  signed `run_terminality`; prove no proxy can create or alter lifecycle truth and absence remains an
-  absent branch, never false/default/producer `not_established`.
-- [ ] RED: mutate search `terminal_kind` and lifecycle terminality independently; prove neither
-  changes the other.
-- [ ] RED: invoke canonical N10 owner recomputation over the complete three-row set and compare its
-  evidence class plus ordered blocking obligations to the packet. Corrupt either packet field and
-  prove failure.
-- [ ] RED: increase adjacent observation/catalog counts while structural owner facts stay fixed;
-  prove evidence, weakest links, route status, and movement bytes remain unchanged.
-- [ ] RED: `/runs/nl` and any job without canonical recursive-cycle receipt do not increase the
-  explicitly non-exhaustive known-row denominator.
-- [ ] RED: the three capstone rows precede thirteen owner-manifest-order `fixture_only` rows; legacy
-  runtime fields are typed absences; global N13b state cannot populate per-row movement.
-- [ ] RED: component `invalid_source` remains distinct from `artifact_missing`; the historical
-  5/7/1 measurement is labeled environment-relative and cannot become current board state.
-- [ ] RED: raw complete v1 pins return byte-equivalent v1; unpinned returns v2; v2 pins bind the
-  composition manifest; partial/mixed pins return typed replay conflict.
-- [ ] RED: every raw or composed HTTP path requires `runs.review`; `runs.view`-only is denied; the
-  literal static path cannot fall through the dynamic projection route.
-- [ ] Run each focused test to witness the intended missing-mechanism failure before production code.
-  Commit RED tests without weakening assertions.
+- [ ] Close every `4A-*` basis row, including the composed DesignProblem/route/DS4
+  carries, complete per-source time fields, and behavioral N13b denial for row
+  membership, known count, exhaustiveness, and movement.
+- [ ] Keep terminality proxy coverage generic over status, time, raw search,
+  distribution, blocker, and acquisition classes; absence remains a branch with
+  no value.
+- [ ] Run the focused 4a files and witness failure because the compositor is
+  absent, not because a fixture/import is malformed.
+- [ ] Freeze, issue the 4a basis to reviewers, repair only on-basis convergence,
+  rerun the focused RED witness, and commit the reviewed 4a REDs.
+
+### Task 4b — Access and replay REDs
+
+**Files:**
+
+- Modify: `tests/unit/runtime/http/test_governed_projection_api.py`
+- Add: `tests/unit/runtime/http/test_cycle_board_projection_access_replay.py`
+
+**Interfaces:** one static route; direct `RUNS_REVIEW` gate; real unpinned v2;
+same-observation raw bytes; complete v1/v2 tuples; typed service and HTTP
+conflicts.
+
+- [ ] Close every `4B-*` basis row. Run the real unpinned v2 request before
+  installing the raw-only frozen adapter; prove viewer denial leaves the raw
+  adapter's call count unchanged.
+- [ ] Exercise authorized HTTP 409 translation for a wrong complete raw tuple
+  and partial/mixed generation tuples in addition to service-level conflicts.
+- [ ] Run the focused 4b files and witness failure at the missing static
+  operation/service, then freeze, issue the basis, review, and commit.
+
+### Task 4c — Loading and parity boundary REDs
+
+**Files:**
+
+- Add: `tests/unit/runtime/http/test_cycle_board_projection_loading.py`
+- Keep the rendered-DOM residual in the frozen closure-basis record until its
+  real Task 9 capability exists.
+
+**Interfaces:** raw-byte-bound N13b loader; schema/rule/producer validation;
+typed optional-source failure; control-plane authority; DS8 typed absence;
+declared `semantic_test_missing` DOM/MACHINE residual.
+
+- [ ] Close `4C-N13B-01` through `4C-DS8-04`, including raw UTF-8 hash equality,
+  substituted/malformed owner refusal, and no-value absences.
+- [ ] Run the recorded complete 971-file dashboard-source two-census falsifier for `4C-DOM-05`;
+  retain `semantic_test_missing` and its Task 9 mutation falsifier rather than
+  fabricating a server DOM test.
+- [ ] Run the focused 4c file and witness failure at the missing loader/service,
+  then freeze, issue the basis, review, and commit.
 
 ## Task 5 — Implement the minimal server compositor and static operation
 

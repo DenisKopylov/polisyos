@@ -22,7 +22,7 @@ Every committed generated artifact family must have a source of truth, a regener
 | `ABI schema snapshots` | `generated_committed` | `committed` | `automated` | `team-polisyos` | `schemas/snapshots/ir`<br/>`schemas/snapshots/fabric/edge_kind.schema.json`<br/>`schemas/snapshots/fabric/node_kind.schema.json`<br/>`schemas/snapshots/fabric/_manifest.json` |
 | `Fabric connector contract registry` | `generated_committed` | `committed` | `automated` | `team-polisyos` | `schemas/snapshots/fabric/connector_contract_registry.json`<br/>`schemas/snapshots/fabric/source_contracts_v2.json`<br/>`schemas/snapshots/fabric/source_scorecards.json` |
 | `Runtime OpenAPI snapshot` | `generated_committed` | `committed` | `automated` | `team-polisyos` | `schemas/runtime_api_v1.openapi.json` |
-| `Generated runtime API client` | `generated_committed` | `committed` | `automated` | `team-polisyos` | `packages/runtime-api-client/runtimeApiClient.ts`<br/>`packages/runtime-api-client/runtimeApiClient.js` |
+| `Generated runtime API client` | `generated_committed` | `committed` | `automated` | `team-polisyos` | `packages/runtime-api-client/types.ts`<br/>`packages/runtime-api-client/runtimeApiClient.ts`<br/>`packages/runtime-api-client/runtimeApiClient.js`<br/>`packages/runtime-api-client/canonicalRuntimeApiClient.ts`<br/>`packages/runtime-api-client/canonicalRuntimeApiClient.js` |
 | `Runtime dashboard generated API types` | `generated_committed` | `committed` | `automated` | `team-polisyos` | `apps/runtime-dashboard/src/api/types.ts` |
 | `Recorded connector fixtures` | `generated_committed` | `committed` | `manual_review` | `team-polisyos` | `tests/_data/fabric/connectors/sources` |
 | `Catalog relevant topics domain fixtures` | `generated_committed` | `committed` | `manual_review` | `team-data-forge` | `src/polisyos/data_forge/domains/catalog/fixtures/relevant_topics_domain_files` |
@@ -657,14 +657,19 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runt
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
+- Required in default freshness check: `true`
+- Generator-observed output probe: `corepack pnpm --filter @polisyos/runtime-api-client run generate -- --output-root '{output_root}'`
 - Outputs:
+  - `packages/runtime-api-client/types.ts`
   - `packages/runtime-api-client/runtimeApiClient.ts`
   - `packages/runtime-api-client/runtimeApiClient.js`
+  - `packages/runtime-api-client/canonicalRuntimeApiClient.ts`
+  - `packages/runtime-api-client/canonicalRuntimeApiClient.js`
 
 Canonical regeneration commands:
 
 ```bash
-PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js
+corepack pnpm --filter @polisyos/runtime-api-client run generate
 ```
 
 ## `Runtime dashboard generated API types`
@@ -682,6 +687,8 @@ PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runt
 - Owner: `team-polisyos`
 - Approval owner: `team-polisyos`
 - Related workflow/config: `ops/ci/templates/workflows/arch.yml`
+- Required in default freshness check: `true`
+- Generator-observed output probe: `corepack pnpm --filter @polisyos/runtime-dashboard run generate:api -- --output-root '{output_root}'`
 - Outputs:
   - `apps/runtime-dashboard/src/api/types.ts`
 

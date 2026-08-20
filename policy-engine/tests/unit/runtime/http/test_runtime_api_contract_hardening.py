@@ -256,15 +256,71 @@ def test_shared_client_generation_is_package_owned_and_version_pinned() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     client_root = repo_root / "packages" / "runtime-api-client"
     manifest = json.loads((client_root / "package.json").read_text(encoding="utf-8"))
+    generator = (client_root / "scripts/generate-runtime-api-client.sh").read_text(
+        encoding="utf-8"
+    )
     readme = (client_root / "README.md").read_text(encoding="utf-8")
     expected_invocation = f"npx --yes openapi-typescript@{OPENAPI_TYPESCRIPT_VERSION}"
 
     generate_command = manifest["scripts"]["generate"]
-    assert expected_invocation in generate_command
-    assert "apps/runtime-dashboard" not in generate_command
-    assert "--prefix" not in generate_command
+    assert generate_command == "bash ./scripts/generate-runtime-api-client.sh"
+    assert expected_invocation in generator
+    assert "apps/runtime-dashboard" not in generator
+    assert "--prefix" not in generator
+    assert "--output-root" in generator
     assert expected_invocation in readme
     assert "npx --prefix apps/runtime-dashboard" not in readme
+
+
+def test_client_package_entrypoints_generate_only_in_scratch(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    output_root = tmp_path / "generated"
+    package_outputs = {
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/runtimeApiClient.ts",
+        "packages/runtime-api-client/runtimeApiClient.js",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+    }
+    dashboard_output = "apps/runtime-dashboard/src/api/types.ts"
+    tracked_outputs = {
+        relative: (repo_root / relative).read_bytes()
+        for relative in package_outputs | {dashboard_output}
+    }
+
+    for package, script in (
+        ("@polisyos/runtime-api-client", "generate"),
+        ("@polisyos/runtime-dashboard", "generate:api"),
+    ):
+        result = subprocess.run(
+            [
+                "corepack",
+                "pnpm",
+                "--filter",
+                package,
+                "run",
+                script,
+                "--",
+                "--output-root",
+                str(output_root),
+            ],
+            cwd=repo_root,
+            env=os.environ.copy(),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr or result.stdout
+
+    observed = {
+        path.relative_to(output_root).as_posix()
+        for path in output_root.rglob("*")
+        if path.is_file()
+    }
+    assert observed == package_outputs | {dashboard_output}
+    assert {
+        relative: (repo_root / relative).read_bytes() for relative in tracked_outputs
+    } == tracked_outputs
 
 
 def test_openapi_typescript_output_matches_committed_shared_types(tmp_path: Path) -> None:

@@ -175,7 +175,7 @@
       "narrativeThroughput": "Throughput",
       "narrativeQueue": "Стан черги",
       "narrativeEvidence": "Концентрація evidence",
-      "narrativeAttentionBody": "{count, plural, one {{count} активний запуск уже вимагає review posture; заблоковані packet: {blocked}.} few {{count} активні запуски уже вимагають review posture; заблоковані packet: {blocked}.} many {{count} активних запусків уже вимагають review posture; заблоковані packet: {blocked}.} other {Активні запуски: {count}; заблоковані packet: {blocked}; уже потрібна review posture.}}",
+      "narrativeAttentionBody": "{count, plural, one {{count} активний запуск уже вимагає review posture} few {{count} активні запуски уже вимагають review posture} many {{count} активних запусків уже вимагають review posture} other {Активні запуски: {count}; уже потрібна review posture}}; {blocked, plural, one {{blocked} заблокований packet} few {{blocked} заблоковані packet} many {{blocked} заблокованих packet} other {Заблоковані packet: {blocked}}}.",
       "narrativeThroughputBody": "Поточна вибірка · успішні результати: {success} · усі запуски: {total}",
       "narrativeQueueBody": "{count, plural, one {{count} decision-bearing запуск уже готовий відкриватися з fleet.} few {{count} decision-bearing запуски вже готові відкриватися з fleet.} many {{count} decision-bearing запусків уже готові відкриватися з fleet.} other {Decision-bearing запуски, готові до відкриття з fleet: {count}.}}",
       "narrativeEvidenceBody": "Останній run · додані docs: {docs} · promotion candidates у lane: {promotions}",

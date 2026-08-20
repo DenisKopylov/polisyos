@@ -175,7 +175,7 @@
       "narrativeThroughput": "Throughput",
       "narrativeQueue": "Queue posture",
       "narrativeEvidence": "Evidence concentration",
-      "narrativeAttentionBody": "{count, plural, one {{count} active run needs immediate review posture; blocked packets: {blocked}.} other {{count} active runs need immediate review posture; blocked packets: {blocked}.}}",
+      "narrativeAttentionBody": "{count, plural, one {{count} active run needs immediate review posture} other {{count} active runs need immediate review posture}}; {blocked, plural, one {{blocked} blocked packet} other {blocked packets: {blocked}}}.",
       "narrativeThroughputBody": "Current sample · successful outcomes: {success} · total runs: {total}",
       "narrativeQueueBody": "{count, plural, one {{count} decision-bearing run is ready to open from the fleet.} other {{count} decision-bearing runs are ready to open from the fleet.}}",
       "narrativeEvidenceBody": "Last run · docs added: {docs} · promotion candidates remaining in lane: {promotions}",

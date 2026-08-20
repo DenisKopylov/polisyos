@@ -1916,6 +1916,360 @@ class ProducerBindingDebtTests(unittest.TestCase):
 class DS6RegisterTransitionTests(unittest.TestCase):
     """Prove DS6 register rows follow measured evidence lifecycles."""
 
+    def test_c04_open_rendered_contrast_row_covers_the_exact_typed_registry(
+        self,
+    ) -> None:
+        expected_sources = [
+            {
+                "sourceId": "badge-neutral",
+                "ownerCluster": "C01",
+                "component": "Badge",
+                "selector": '[data-opaque-contrast-source="badge-neutral"]',
+            },
+            {
+                "sourceId": "provenance-popover",
+                "ownerCluster": "C06",
+                "component": "ProvenancePopover",
+                "selector": '[data-opaque-contrast-source="provenance-popover"]',
+            },
+            {
+                "sourceId": "provenance-mini-graph",
+                "ownerCluster": "C06",
+                "component": "ProvenanceMiniGraph",
+                "selector": '[data-opaque-contrast-source="provenance-mini-graph"]',
+            },
+            {
+                "sourceId": "time-semantics-label",
+                "ownerCluster": "C09",
+                "component": "TimeSemanticsLabel",
+                "selector": '[data-opaque-contrast-source="time-semantics-label"]',
+            },
+            {
+                "sourceId": "candidate-frame",
+                "ownerCluster": "C14",
+                "component": "CandidateFrame",
+                "selector": '[data-opaque-contrast-source="candidate-frame"]',
+            },
+            {
+                "sourceId": "negative-certificate-card",
+                "ownerCluster": "C14",
+                "component": "NegativeCertificateCard",
+                "selector": '[data-opaque-contrast-source="negative-certificate-card"]',
+            },
+            {
+                "sourceId": "weakest-link-explainer",
+                "ownerCluster": "C14",
+                "component": "WeakestLinkExplainer",
+                "selector": '[data-opaque-contrast-source="weakest-link-explainer"]',
+            },
+        ]
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            checker.C04_RENDERED_CONTRAST_REGISTRY_SHA256,
+            checker._canonical_sha256(expected_sources),
+        )
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            "d455a84a63b3fbcb1e890d913d3dad87e6abe47a69a593b4d7575f0afc743eba",
+            checker.C04_RENDERED_CONTRAST_OWNER_AST_SHA256,
+        )
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            expected_sources,
+            checker._c04_rendered_contrast_source_rows(),
+        )
+
+        row = next(
+            finding
+            for finding in checker._supplemental_findings()
+            if finding["finding_id"]
+            == "baseline-test-a11y-rendered-contrast-incomplete-debt"
+        )
+        expected_row = {
+            "finding_id": "baseline-test-a11y-rendered-contrast-incomplete-debt",
+            "finding_kind": "baseline_test_debt",
+            "disposition": "rebind_pending",
+            "status": "open_debt",
+            "evidence_refs": [
+                "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.ts",
+                "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.test.ts",
+                "apps/runtime-dashboard/src/test/a11y/OpaqueBackgroundContrast.stories.tsx",
+            ],
+            "owner_slice": "DS6",
+            "decision_date": "2026-08-11",
+            "rationale": (
+                "C01/C06/C09/C14 comprise seven declared source identities. Axe "
+                "incomplete nodes are neither passes, source-attributed receipts, nor "
+                "denominator members; closure requires 7/7 numeric WCAG-AA receipts "
+                "on an opaque real-browser background."
+            ),
+        }
+        self.assertEqual(row, expected_row)  # noqa: PT009 - unittest suite
+
+    def test_c04_source_registry_rejects_semantic_drift_not_text_layout(
+        self,
+    ) -> None:
+        source = checker.C04_RENDERED_CONTRAST_SOURCE_PATH.read_text(
+            encoding="utf-8"
+        )
+        reformatted = source.replace(
+            'sourceId: "badge-neutral",',
+            'sourceId:\n      "badge-neutral",',
+            1,
+        )
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            checker._c04_rendered_contrast_source_rows(),
+            checker._c04_rendered_contrast_source_rows(reformatted),
+        )
+
+        first_start = source.index('  {\n    sourceId: "badge-neutral"')
+        second_start = source.index('  {\n    sourceId: "provenance-popover"')
+        third_start = source.index('  {\n    sourceId: "provenance-mini-graph"')
+        first_row = source[first_start:second_start]
+        second_row = source[second_start:third_start]
+        reordered = (
+            source[:first_start]
+            + second_row
+            + first_row
+            + source[third_start:]
+        )
+        namespace_wrapped = source.replace(
+            "export const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+            "export namespace Hidden {\nexport const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+            1,
+        ).replace("] as const;", "] as const;\n}", 1)
+        registry_start = source.index("[", source.index("OPAQUE_BACKGROUND"))
+        registry_end = source.index("] as const;", registry_start) + 1
+        registry_literal = source[registry_start:registry_end]
+
+        corruptions = {
+            "renamed": source.replace(
+                'sourceId: "badge-neutral"', 'sourceId: "badge"', 1
+            ),
+            "duplicate": source.replace(
+                'sourceId: "provenance-popover"',
+                'sourceId: "badge-neutral"',
+                1,
+            ),
+            "wrong-cluster": source.replace(
+                'ownerCluster: "C01"', 'ownerCluster: "C14"', 1
+            ),
+            "wrong-component": source.replace(
+                'component: "Badge"', 'component: "Text"', 1
+            ),
+            "wrong-selector": source.replace(
+                '[data-opaque-contrast-source="badge-neutral"]',
+                '[data-opaque-contrast-source="badge"]',
+                1,
+            ),
+            "extra-field": source.replace(
+                'component: "Badge",',
+                'component: "Badge",\n    invented: "authority",',
+                1,
+            ),
+            "unexported": source.replace(
+                "export const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                "const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                1,
+            ),
+            "mutable": source.replace(
+                "export const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                "export let OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                1,
+            ),
+            "spread": source.replace(
+                "] as const;",
+                "  ...inventedSources(),\n] as const;",
+                1,
+            ),
+            "eighth-source": source.replace(
+                "] as const;",
+                (
+                    '  { sourceId: "invented", ownerCluster: "C14", '
+                    'component: "Invented", selector: '
+                    "'[data-opaque-contrast-source=\"invented\"]' },\n"
+                    "] as const;"
+                ),
+                1,
+            ),
+            "duplicate-binding": (
+                source
+                + "\nexport const OPAQUE_BACKGROUND_CONTRAST_SOURCES = [] as const;\n"
+            ),
+            "missing-source": source[:first_start] + source[second_start:],
+            "reordered": reordered,
+            "computed-key": source.replace("sourceId:", '["sourceId"]:', 1),
+            "template-value": source.replace(
+                'sourceId: "badge-neutral"',
+                "sourceId: `badge-neutral`",
+                1,
+            ),
+            "missing-const-assertion": source.replace("] as const;", "];", 1),
+            "namespace-owned": namespace_wrapped,
+            "ambient": source.replace(
+                "export const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                "export declare const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                1,
+            ),
+            "runtime-mutation": (
+                source
+                + "\n;(OPAQUE_BACKGROUND_CONTRAST_SOURCES as unknown as "
+                "Array<unknown>).pop();\n"
+            ),
+            "esm-only-runtime-mutation": (
+                source
+                + '\nif (!("module" in globalThis)) {\n'
+                "  ;(OPAQUE_BACKGROUND_CONTRAST_SOURCES as unknown as "
+                "Array<unknown>).pop();\n}\n"
+            ),
+            "conflicting-export-alias": (
+                source
+                + "\nconst forgedRegistry = OPAQUE_BACKGROUND_CONTRAST_SOURCES;\n"
+                "export { forgedRegistry as OPAQUE_BACKGROUND_CONTRAST_SOURCES };\n"
+            ),
+            "alternate-export-alias": (
+                source
+                + "\nexport { OPAQUE_BACKGROUND_CONTRAST_SOURCES as SECOND_NAME };\n"
+            ),
+            "default-export-alias": (
+                source
+                + "\nexport { OPAQUE_BACKGROUND_CONTRAST_SOURCES as default };\n"
+            ),
+            "unused-dynamic-import": (
+                source
+                + '\nexport async function unused() { return import("./invented"); }\n'
+            ),
+            "commonjs-export-forgery": (
+                source
+                + "\ndeclare const exports: Record<string, unknown>;\n"
+                + ";(OPAQUE_BACKGROUND_CONTRAST_SOURCES as unknown as "
+                "Array<unknown>).pop();\n"
+                + "exports.OPAQUE_BACKGROUND_CONTRAST_SOURCES = "
+                + registry_literal
+                + ";\n"
+            ),
+            "transitive-map-mutation": (
+                source
+                + '\n;(SOURCE_BY_ID.get("badge-neutral") as any).sourceId = "forged";\n'
+            ),
+            "return-line-terminator": source.replace(
+                "return false;",
+                "return\nfalse;",
+                1,
+            ),
+            "declaration-any": source.replace(
+                "OPAQUE_BACKGROUND_CONTRAST_SOURCES = [",
+                "OPAQUE_BACKGROUND_CONTRAST_SOURCES: any = [",
+                1,
+            ),
+            "property-any": source.replace(
+                'sourceId: "badge-neutral"',
+                'sourceId: ("badge-neutral" as any)',
+                1,
+            ),
+            "row-any": source.replace(
+                '  },\n  {\n    sourceId: "provenance-popover"',
+                '  } as any,\n  {\n    sourceId: "provenance-popover"',
+                1,
+            ),
+            "array-any": source.replace(
+                "] as const;",
+                "] as any as const;",
+                1,
+            ),
+        }
+        for name, mutation in corruptions.items():
+            with (
+                self.subTest(name=name),
+                self.assertRaisesRegex(  # noqa: PT027 - unittest suite
+                    ValueError,
+                    "c04_rendered_contrast_source_registry_drift",
+                ),
+            ):
+                checker._c04_rendered_contrast_finding(source_text=mutation)
+
+    def test_c04_stored_open_row_rejects_drift_in_every_governed_field(self) -> None:
+        finding_id = "baseline-test-a11y-rendered-contrast-incomplete-debt"
+        validator = getattr(
+            checker,
+            "_validate_ds6_register_transition_findings",
+            None,
+        )
+        if not callable(validator):
+            raise AssertionError("DS6 transition-row validator is missing")
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        stored = [
+            row
+            for row in data["supplemental_findings"]
+            if row["finding_id"] == finding_id
+        ]
+        self.assertEqual(1, len(stored))  # noqa: PT009 - unittest suite
+        corruptions = {
+            "finding_id": finding_id + "-drift",
+            "finding_kind": "dependency_declaration",
+            "disposition": "use_as_is",
+            "status": "repaired",
+            "evidence_refs": ["docs/fabricated.md"],
+            "owner_slice": "DS4",
+            "decision_date": "2026-08-20",
+            "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c",
+            "closure_signal": "fabricated but schema-valid optional field",
+            "rationale": "fabricated",
+        }
+        for field, value in corruptions.items():
+            with self.subTest(field=field):
+                mutation = copy.deepcopy(data)
+                row = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == finding_id
+                )
+                row[field] = value
+                errors: list[str] = []
+                validator(mutation, errors)
+                self.assertIn(  # noqa: PT009 - this module is a unittest suite
+                    f"ds6_register_transition_drift:{finding_id}", errors
+                )
+
+        for population, mutation in {
+            "missing": {
+                **data,
+                "supplemental_findings": [
+                    row
+                    for row in data["supplemental_findings"]
+                    if row["finding_id"] != finding_id
+                ],
+            },
+            "duplicate": {
+                **data,
+                "supplemental_findings": [
+                    *data["supplemental_findings"],
+                    copy.deepcopy(stored[0]),
+                ],
+            },
+        }.items():
+            with self.subTest(population=population):
+                errors = []
+                validator(mutation, errors)
+                self.assertIn(  # noqa: PT009 - this module is a unittest suite
+                    f"ds6_register_transition_drift:{finding_id}", errors
+                )
+
+    def test_c04_surgical_writer_is_idempotent_and_owns_only_its_row(self) -> None:
+        finding_id = "baseline-test-a11y-rendered-contrast-incomplete-debt"
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            original,
+            checker._refresh_supplemental_findings_text(original),
+        )
+
+        without_c04 = checker._remove_supplemental_finding_text(original, finding_id)
+        self.assertNotEqual(  # noqa: PT009 - this module is a unittest suite
+            original,
+            without_c04,
+        )
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            original,
+            checker._refresh_supplemental_findings_text(without_c04),
+        )
+
     def test_c03_repaired_i18n_row_is_bound_to_the_c16_receipt(self) -> None:
         baseline = checker._load_json(checker.BASELINE_PATH)
         baseline["vitest"] = {

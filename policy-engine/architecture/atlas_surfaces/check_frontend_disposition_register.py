@@ -114,6 +114,27 @@ C03_RECEIPT_SOURCE_SHA256 = {
         "70bd0986b2b1c1d78e2e9e7e507d5f3f592ede12ccf15b27705d0da24a472eae"
     ),
 }
+C04_RENDERED_CONTRAST_SOURCE_REF = (
+    "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.ts"
+)
+C04_RENDERED_CONTRAST_SOURCE_PATH = REPO_ROOT / C04_RENDERED_CONTRAST_SOURCE_REF
+C04_RENDERED_CONTRAST_EVIDENCE_REFS = [
+    C04_RENDERED_CONTRAST_SOURCE_REF,
+    "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.test.ts",
+    "apps/runtime-dashboard/src/test/a11y/OpaqueBackgroundContrast.stories.tsx",
+]
+C04_RENDERED_CONTRAST_REGISTRY_SHA256 = (
+    "5f69573f7c1cbb27665d0e7696901f194a51a16ca55f6a827095fd691d761177"
+)
+C04_RENDERED_CONTRAST_OWNER_AST_SHA256 = (
+    "d455a84a63b3fbcb1e890d913d3dad87e6abe47a69a593b4d7575f0afc743eba"
+)
+C04_RENDERED_CONTRAST_CLUSTER_COUNTS = {
+    "C01": 1,
+    "C06": 2,
+    "C09": 1,
+    "C14": 3,
+}
 V4_COUNTERPART_RE = re.compile(r"\[v4_counterpart=([^;\]]+)")
 NEGATIVE_ID_RE = re.compile(r"`(DS1-N0(?:0[1-9]|1[0-9]|2[0-3]))`")
 
@@ -938,6 +959,264 @@ process.stdout.write(JSON.stringify(facts));
 """
 
 _TS_MODULE_FACTS_CACHE: dict[str, list[dict[str, Any]]] = {}
+
+_TS_LITERAL_OBJECT_ARRAY_SCRIPT = r"""
+import { createHash } from "node:crypto";
+import ts from "typescript";
+
+let raw = "";
+for await (const chunk of process.stdin) raw += chunk;
+const input = JSON.parse(raw);
+const sourceFile = ts.createSourceFile(
+  input.sourcePath,
+  input.source,
+  ts.ScriptTarget.Latest,
+  true,
+  input.sourcePath.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+);
+
+function ownerAstSha256() {
+  const canonical = ts
+    .createPrinter({
+      newLine: ts.NewLineKind.LineFeed,
+      removeComments: false,
+    })
+    .printFile(sourceFile);
+  return createHash("sha256").update(canonical).digest("hex");
+}
+
+function unwrapParentheses(expression) {
+  let current = expression;
+  while (ts.isParenthesizedExpression(current)) {
+    current = current.expression;
+  }
+  return current;
+}
+
+function propertyName(name) {
+  if (ts.isIdentifier(name) || ts.isStringLiteral(name)) return name.text;
+  return null;
+}
+
+function objectRows(initializer, errors) {
+  const array = unwrapParentheses(initializer);
+  if (!ts.isArrayLiteralExpression(array)) {
+    errors.push("initializer_not_literal_array");
+    return [];
+  }
+  return array.elements.map((element, index) => {
+    const object = unwrapParentheses(element);
+    if (!ts.isObjectLiteralExpression(object)) {
+      errors.push(`element_not_literal_object:${index}`);
+      return {};
+    }
+    const row = {};
+    for (const property of object.properties) {
+      if (!ts.isPropertyAssignment(property)) {
+        errors.push(`property_not_assignment:${index}`);
+        continue;
+      }
+      const name = propertyName(property.name);
+      const value = unwrapParentheses(property.initializer);
+      if (name === null || !ts.isStringLiteral(value)) {
+        errors.push(`property_not_string_literal:${index}`);
+        continue;
+      }
+      if (Object.prototype.hasOwnProperty.call(row, name)) {
+        errors.push(`duplicate_property:${index}:${name}`);
+        continue;
+      }
+      row[name] = value.text;
+    }
+    return row;
+  });
+}
+
+const matches = [];
+const errors = sourceFile.parseDiagnostics.map((diagnostic) =>
+  ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
+);
+
+function hasModifier(node, kind) {
+  return Boolean(node.modifiers?.some((modifier) => modifier.kind === kind));
+}
+
+function visit(node) {
+  if (
+    ts.isImportDeclaration(node) ||
+    ts.isImportEqualsDeclaration(node) ||
+    ts.isImportTypeNode(node) ||
+    (ts.isCallExpression(node) &&
+      node.expression.kind === ts.SyntaxKind.ImportKeyword)
+  ) {
+    errors.push("runtime_owner_not_import_free");
+  }
+  if (ts.isExportAssignment(node)) {
+    errors.push("runtime_owner_alternate_export");
+  }
+  if (
+    ts.isIdentifier(node) &&
+    ["exports", "module", "require"].includes(node.text)
+  ) {
+    errors.push("runtime_owner_commonjs_escape");
+  }
+  if (hasModifier(node, ts.SyntaxKind.DeclareKeyword)) {
+    errors.push("runtime_owner_ambient_declaration");
+  }
+  if (
+    ts.isVariableDeclaration(node) &&
+    ts.isIdentifier(node.name) &&
+    node.name.text === input.binding
+  ) {
+    const declarationList = node.parent;
+    const statement = declarationList.parent;
+    let assertedInitializer = node.initializer;
+    while (assertedInitializer && ts.isParenthesizedExpression(assertedInitializer)) {
+      assertedInitializer = assertedInitializer.expression;
+    }
+    const isDirectExportedConst =
+      ts.isVariableDeclarationList(declarationList) &&
+      declarationList.declarations.length === 1 &&
+      Boolean(declarationList.flags & ts.NodeFlags.Const) &&
+      ts.isVariableStatement(statement) &&
+      statement.parent === sourceFile &&
+      hasModifier(statement, ts.SyntaxKind.ExportKeyword) &&
+      !hasModifier(statement, ts.SyntaxKind.DeclareKeyword) &&
+      node.type === undefined;
+    if (!isDirectExportedConst) errors.push("binding_not_direct_exported_const");
+    const isConstAssertion = Boolean(
+      assertedInitializer &&
+        ts.isAsExpression(assertedInitializer) &&
+        assertedInitializer.type.getText(sourceFile) === "const"
+    );
+    if (!isConstAssertion) {
+      errors.push("binding_not_const_asserted");
+    }
+    if (!node.initializer) {
+      errors.push("initializer_missing");
+      matches.push([]);
+    } else {
+      matches.push(
+        objectRows(
+          isConstAssertion ? assertedInitializer.expression : node.initializer,
+          errors,
+        ),
+      );
+    }
+  }
+  ts.forEachChild(node, visit);
+}
+visit(sourceFile);
+
+for (const statement of sourceFile.statements) {
+  if (ts.isImportDeclaration(statement) || ts.isImportEqualsDeclaration(statement)) {
+    errors.push("runtime_owner_not_import_free");
+  }
+  if (ts.isExportDeclaration(statement)) {
+    if (!statement.exportClause) {
+      errors.push("runtime_owner_export_star_ambiguous");
+    } else if (
+      ts.isNamedExports(statement.exportClause) &&
+      statement.exportClause.elements.some(
+        (element) =>
+          element.name.text === input.binding ||
+          element.propertyName?.text === input.binding,
+      )
+    ) {
+      errors.push("runtime_owner_alternate_export");
+    }
+  }
+  if (
+    (ts.isFunctionDeclaration(statement) ||
+      ts.isClassDeclaration(statement) ||
+      ts.isEnumDeclaration(statement) ||
+      ts.isModuleDeclaration(statement)) &&
+    statement.name &&
+    ts.isIdentifier(statement.name) &&
+    statement.name.text === input.binding
+  ) {
+    errors.push("runtime_owner_conflicting_value_declaration");
+  }
+}
+
+process.stdout.write(
+  JSON.stringify({ matches, ownerAstSha256: ownerAstSha256(), errors }),
+);
+"""
+
+_TS_LITERAL_OBJECT_ARRAY_CACHE: dict[str, list[dict[str, str]]] = {}
+
+
+def _typescript_literal_object_array(
+    *,
+    source_path: str,
+    source: str,
+    binding: str,
+    owner_ast_sha256: str,
+) -> list[dict[str, str]]:
+    """Parse one content-bound TypeScript object-array owner through its AST."""
+    cache_key = hashlib.sha256(
+        json.dumps(
+            {
+                "source_path": source_path,
+                "source": source,
+                "binding": binding,
+                "owner_ast_sha256": owner_ast_sha256,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+        ).encode("utf-8")
+    ).hexdigest()
+    cached = _TS_LITERAL_OBJECT_ARRAY_CACHE.get(cache_key)
+    if cached is not None:
+        return copy.deepcopy(cached)
+    completed = subprocess.run(  # noqa: S603 - fixed parser argument vector
+        [  # noqa: S607 - repository toolchain resolves the bootstrapped Node binary
+            "node",
+            "--input-type=module",
+            "-e",
+            _TS_LITERAL_OBJECT_ARRAY_SCRIPT,
+        ],
+        cwd=REPO_ROOT / "apps/runtime-dashboard",
+        input=json.dumps(
+            {
+                "sourcePath": source_path,
+                "source": source,
+                "binding": binding,
+            }
+        ),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "TypeScript literal-array parser failed: " + completed.stderr.strip()
+        )
+    parsed = json.loads(completed.stdout)
+    matches = parsed.get("matches") if isinstance(parsed, dict) else None
+    owner_ast = (
+        parsed.get("ownerAstSha256") if isinstance(parsed, dict) else None
+    )
+    errors = parsed.get("errors") if isinstance(parsed, dict) else None
+    if (
+        not isinstance(matches, list)
+        or len(matches) != 1
+        or not isinstance(matches[0], list)
+        or owner_ast != owner_ast_sha256
+        or not isinstance(errors, list)
+        or errors
+        or any(not isinstance(row, dict) for row in matches[0])
+        or any(
+            not isinstance(key, str) or not isinstance(value, str)
+            for row in matches[0]
+            for key, value in row.items()
+        )
+    ):
+        raise ValueError("typescript_literal_object_array_invalid")
+    rows = matches[0]
+    _TS_LITERAL_OBJECT_ARRAY_CACHE[cache_key] = copy.deepcopy(rows)
+    return copy.deepcopy(rows)
 
 _TYPESCRIPT_REFERENCE_ROLES = frozenset(
     {
@@ -2785,6 +3064,7 @@ CLUSTER_PROOFS = {
 BASE_EXPECTED_FINDING_IDS = {
     "baseline-lint-quantity-debt",
     "baseline-test-i18n-count-debt",
+    "baseline-test-a11y-rendered-contrast-incomplete-debt",
     "baseline-test-a11y-coverage-debt",
     "baseline-test-temporal-cursor-debt",
     "dependency-axe-core",
@@ -2797,6 +3077,7 @@ BASE_EXPECTED_FINDING_IDS = {
 }
 DS6_REGISTER_TRANSITION_FINDING_IDS = {
     "baseline-test-i18n-count-debt",
+    "baseline-test-a11y-rendered-contrast-incomplete-debt",
 }
 
 PRODUCER_BINDING_DEBT_DESCRIPTORS = {
@@ -6338,6 +6619,69 @@ def _seed_entry(
     return entry
 
 
+def _c04_rendered_contrast_source_rows(
+    source_text: str | None = None,
+) -> list[dict[str, str]]:
+    """Return the exact seven-source C04 registry or fail closed on drift."""
+    if source_text is None:
+        source_text = C04_RENDERED_CONTRAST_SOURCE_PATH.read_text(encoding="utf-8")
+    try:
+        observed = _typescript_literal_object_array(
+            source_path=C04_RENDERED_CONTRAST_SOURCE_REF,
+            source=source_text,
+            binding="OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+            owner_ast_sha256=C04_RENDERED_CONTRAST_OWNER_AST_SHA256,
+        )
+    except (RuntimeError, ValueError) as exc:
+        raise ValueError(
+            "c04_rendered_contrast_source_registry_drift:parser"
+        ) from exc
+    required_fields = {"sourceId", "ownerCluster", "component", "selector"}
+    source_ids = [row.get("sourceId") for row in observed]
+    if (
+        len(observed) != 7
+        or len(set(source_ids)) != 7
+        or any(set(row) != required_fields for row in observed)
+        or Counter(row.get("ownerCluster") for row in observed)
+        != C04_RENDERED_CONTRAST_CLUSTER_COUNTS
+        or any(
+            row.get("selector")
+            != f'[data-opaque-contrast-source="{row.get("sourceId")}"]'
+            for row in observed
+        )
+        or _canonical_sha256(observed) != C04_RENDERED_CONTRAST_REGISTRY_SHA256
+    ):
+        raise ValueError("c04_rendered_contrast_source_registry_drift:identities")
+    return observed
+
+
+def _c04_rendered_contrast_finding(
+    source_text: str | None = None,
+) -> dict[str, Any]:
+    """Produce the typed C04 debt without admitting the later C06 repair."""
+    _c04_rendered_contrast_source_rows(source_text)
+    for reference in C04_RENDERED_CONTRAST_EVIDENCE_REFS:
+        if not (REPO_ROOT / reference).is_file():
+            raise ValueError(
+                f"c04_rendered_contrast_source_registry_drift:missing:{reference}"
+            )
+    return {
+        "finding_id": "baseline-test-a11y-rendered-contrast-incomplete-debt",
+        "finding_kind": "baseline_test_debt",
+        "disposition": "rebind_pending",
+        "status": "open_debt",
+        "evidence_refs": list(C04_RENDERED_CONTRAST_EVIDENCE_REFS),
+        "owner_slice": "DS6",
+        "decision_date": "2026-08-11",
+        "rationale": (
+            "C01/C06/C09/C14 comprise seven declared source identities. Axe "
+            "incomplete nodes are neither passes, source-attributed receipts, nor "
+            "denominator members; closure requires 7/7 numeric WCAG-AA receipts "
+            "on an opaque real-browser background."
+        ),
+    }
+
+
 def _supplemental_findings() -> list[dict[str, Any]]:
     baseline_ref = "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json"
     baseline = _load_json(BASELINE_PATH)
@@ -6407,6 +6751,7 @@ def _supplemental_findings() -> list[dict[str, Any]]:
         if finding_id == "baseline-test-i18n-count-debt" and not is_open:
             finding["repair_commit"] = C03_REPAIR_COMMIT
         findings.append(finding)
+    findings.append(_c04_rendered_contrast_finding())
     dependencies = {
         "dependency-axe-core": "apps/runtime-dashboard/src/shared/lib/a11yAudit.ts:71",
         "dependency-intl-messageformat": "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts:1",

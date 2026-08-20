@@ -4514,7 +4514,8 @@ def _resolve_authority_import_closure(
     Runtime mode follows repository-local static imports outside typing-only
     arms plus source-declared PEP 562 re-exports. Literal dynamic targets are
     source-owner inputs, not runtime modules, unless reached through a static
-    edge; owner/tool mode sees every static arm and literal dynamic import.
+    edge; owner/tool mode additionally sees literal dynamic imports and tools.
+    Both modes exclude typing-only arms.
     """
 
     resolved: dict[str, Path] = {}
@@ -4551,7 +4552,7 @@ def _resolve_authority_import_closure(
                 relative.as_posix(),
             ) from exc
         discovered: set[str] = set()
-        nodes = ast.walk(tree) if include_tools else _runtime_ast_nodes(tree)
+        nodes = _runtime_ast_nodes(tree)
         for node in nodes:
             if isinstance(node, ast.Import):
                 for alias in node.names:

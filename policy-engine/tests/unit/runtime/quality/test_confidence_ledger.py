@@ -1394,6 +1394,55 @@ def test_authority_import_closure_tracks_nested_runtime_but_not_type_only_import
     assert type_only_target not in with_type_only
 
 
+def test_owner_closure_adds_literal_dynamic_but_not_type_only_imports(
+    tmp_path: Path,
+) -> None:
+    """Owner mode widens import kinds without widening into typing-only arms."""
+
+    repo_root = tmp_path / "owner-closure-repo"
+    package_root = repo_root / "src/polisyos"
+    package_root.mkdir(parents=True)
+    (package_root / "__init__.py").write_text("", encoding="utf-8")
+    for module_name in ("runtime_dep", "type_dep", "dynamic_dep"):
+        (package_root / f"{module_name}.py").write_text("", encoding="utf-8")
+    (package_root / "entry.py").write_text(
+        """
+import importlib
+from typing import TYPE_CHECKING
+
+import polisyos.runtime_dep
+
+if TYPE_CHECKING:
+    import polisyos.type_dep
+
+def load_dynamic() -> object:
+    return importlib.import_module("polisyos.dynamic_dep")
+""",
+        encoding="utf-8",
+    )
+
+    runtime_closure = dict(
+        ledger_module._resolve_authority_import_closure(
+            repo_root,
+            "polisyos.entry",
+        )
+    )
+    owner_closure = dict(
+        ledger_module._resolve_authority_import_closure(
+            repo_root,
+            "polisyos.entry",
+            include_tools=True,
+        )
+    )
+
+    assert "polisyos.runtime_dep" in runtime_closure
+    assert "polisyos.dynamic_dep" not in runtime_closure
+    assert "polisyos.type_dep" not in runtime_closure
+    assert "polisyos.runtime_dep" in owner_closure
+    assert "polisyos.dynamic_dep" in owner_closure
+    assert "polisyos.type_dep" not in owner_closure
+
+
 def test_authority_session_paths_do_not_invoke_unadmitted_literal_dynamic_imports(
 ) -> None:
     """A derived dynamic target may stay outside only while the real path is dormant."""
@@ -1430,11 +1479,15 @@ for relative_path in closure.values():
             literal_dynamic_refs.add(dynamic_ref)
 unadmitted = literal_dynamic_refs - closure.keys()
 assert unadmitted
+deployment_identity = ledger._policy_engine_deployment_identity(repo_root)
 
 scope = ledger.ConfidenceRiskBudgetScope(
     scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
     authority_purpose="n9_promotion",
-    owner_scope_key="design-problem:dynamic-import-residual",
+    owner_scope_key=(
+        "design-problem:dynamic-import-residual:"
+        + deployment_identity.rpartition(":")[2]
+    ),
     owner_projection_hash="sha256:" + "1" * 64,
     epoch_ref=None,
     model_ref=None,

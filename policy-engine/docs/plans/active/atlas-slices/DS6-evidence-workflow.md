@@ -767,6 +767,23 @@ owner counts, not a composed readiness result.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
 
+**Revision 3.22 closure repair status: the P38 test repair candidate is
+implemented and the focused suite is GREEN 22/22. Its release remains
+`not_established` until the containing commit's attached-branch readback.**
+
+The measured closure cut is one mechanism path plus this plan and the journal
+as mandatory record companions. On a clean attached revision, red-first was
+21/22: the sole failure expected `pyproject.toml` and `uv.lock` in
+`replay.non_revision_paths`, although both files exist in `HEAD` and their
+current bytes match it. The producer defines the authoritative six-file
+`HEALTH_IMPLEMENTATION_PATHS` tuple, and this governed test already asserts
+that exact persisted tuple directly. The repair removes only the transient
+revision-state expectation. It does not assert an empty replay set or weaken
+replay semantics: the absent-path witness, clean-versus-absent exact result,
+and inconsistent status/path-set rejection remain exercised. P40 is **0/2**;
+P39 subtracts the two record companions and leaves one mechanism path, within
+C11's declared cap of 12.
+
 **Status: review repair implemented and verified 2026-08-16; not orchestrated.
 Exact declared repair path set: ten paths, below the declared cap of 12.**
 

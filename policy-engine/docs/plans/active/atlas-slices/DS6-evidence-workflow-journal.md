@@ -5046,3 +5046,38 @@ Subtracting the companions leaves two mechanism paths, within C13's cap of
 six. No register, report, status inventory, baseline manifest, readiness
 ledger, snapshot PNG, master-plan line 7, GY-DEF21, DS4 waist vocabulary, or
 plural-debt byte changed.
+
+## DS6-C11 closure repair — 2026-08-20
+
+C11 entered after the print-repair commit/readback on the same clean attached
+branch. The focused command used the previously measured 90 s per-test/hook
+ceiling and completed RED in 16.759 s: 21/22 tests passed and the sole failure
+at `atlasHealthMetrics.test.ts:649` expected `pyproject.toml` and `uv.lock` in
+`replay.non_revision_paths`, while the observed exact set was `[]`. Both files
+are tracked in the tested `HEAD`.
+
+The production comparator establishes why this is P38, not a nonreceipt. It
+walks the implementation/source-ref path set and adds a path only when its
+current bytes are absent from or differ from the recorded revision. The
+authoritative implementation quantity is separately owned by the producer's
+exact six-file `HEALTH_IMPLEMENTATION_PATHS` tuple, including
+`pyproject.toml` and `uv.lock`; the governed persistence test already asserts
+that exact emitted tuple. The failing assertion therefore tested transient
+working-tree state as a proxy for implementation ownership.
+
+The repair deletes only that proxy assertion. It does not replace it with an
+empty-set or status assertion. The replay mechanism remains behaviorally
+exercised by the absent-path degradation witness, the exact clean-versus-absent
+comparison, and the inconsistent `revision_resolvable`/nonempty-path rejection.
+The same focused suite then completed GREEN in 15.857 s: 22/22 tests in one
+file. Prettier also exposed two pre-existing style-only hunks elsewhere in the
+same governed file; its exact normalization changed no assertion, and the
+post-format focused rerun remained GREEN 22/22 in 14.145 s. This is a
+completed current focused receipt, not a whole-suite claim.
+
+P40 remains **0/2** for this piece: no Blocking or Important mechanism finding
+has been returned. P39 arithmetic is **one mechanism path plus two mandatory
+record companions**. The governed test is the repaired mechanism; this plan
+and journal are companions outside the count. Subtracting them leaves one path,
+within C11's cap of 12. No producer, implementation tuple, `pyproject.toml`,
+`uv.lock`, report, register, snapshot, or product byte changed.

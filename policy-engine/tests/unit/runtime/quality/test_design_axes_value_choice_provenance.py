@@ -252,19 +252,21 @@ def test_pareto_archive_cannot_rank_without_authorized_value_schedule() -> None:
         )
 
 
-def test_shadowless_name_does_not_override_authorized_schedule_kind() -> None:
+def test_shadowless_name_cannot_mint_authority_while_resolver_is_absent() -> None:
     schedule = _s8("build_authorized_value_schedule")(
         **_authorized_schedule_payload(
             schedule_ref="pdc://layer2/s8/value-schedules/shadowless-2026",
         )
     )
 
-    archive = _s8("build_pareto_archive")(
-        **_pareto_archive_payload(value_schedule_ref=schedule.schedule_ref)
-    )
+    assert schedule.disposition == "authorized"
+    assert "shadow" in schedule.schedule_ref
+    with pytest.raises(_s8("P20NormativeChoiceError")) as exc_info:
+        _s8("build_pareto_archive")(
+            **_pareto_archive_payload(value_schedule_ref=schedule.schedule_ref)
+        )
 
-    assert archive.value_schedule_ref == schedule.schedule_ref
-    assert archive.ranking_mode == "ranked_with_authorized_values"
+    assert exc_info.value.code == "p20_value_schedule_resolver_absent"
 
 
 def test_shadow_kind_is_refused_under_sh4dow_q3_name() -> None:
@@ -362,13 +364,15 @@ def test_shadow_scenario_value_schedule_is_visible_but_not_authority() -> None:
     assert scenario.disposition == "shadow_scenario_only"
     assert "ranked_recommendation_authority" in scenario.may_not_use_for
 
-    with pytest.raises(_s8("P20NormativeChoiceError"), match="shadow_scenario"):
+    with pytest.raises(_s8("P20NormativeChoiceError")) as exc_info:
         _s8("build_pareto_archive")(
             **_pareto_archive_payload(
                 value_schedule_ref=scenario.schedule_ref,
                 ranking_mode="ranked_with_authorized_values",
             )
         )
+
+    assert exc_info.value.code == "p20_value_schedule_resolver_absent"
 
 
 def test_multi_principal_conflict_is_contested_not_silent_average() -> None:

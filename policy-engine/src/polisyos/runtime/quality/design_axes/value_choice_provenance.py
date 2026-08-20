@@ -12,13 +12,20 @@ from pydantic import AwareDatetime, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
-from polisyos.runtime.quality.design_axes.blind_spot_firewalls import P22MandateLegitimacyError
-from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import P26ResponsibilityIntegrityError
+from polisyos.runtime.quality.design_axes.blind_spot_firewalls import (
+    P22MandateLegitimacyError,
+)
+from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+    P26ResponsibilityIntegrityError,
+)
 
 LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s8_value_choice.v1"
 LAYER2_S8_VALUE_CHOICE_RULE_VERSION = "policyos.layer2.s8.value_choice.v1"
 S8_VALUE_CHOICE_CELL_REF = "ACTOR.value_choice_provenance"
 S8_VALUE_CHOICE_FLOOR_ID = "s8_value_provenance"
+P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE = "p20_value_schedule_resolver_absent"
+# Reserved for a future owner-backed resolver's per-reference failure.
+P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE = "p20_value_schedule_ref_unresolvable"
 
 ValueSourceClass = Literal[
     "authorized_governance_schedule",
@@ -101,6 +108,15 @@ _S8_MAY_NOT_USE_FOR = [
 
 class P20NormativeChoiceError(ValueError):
     """Raised when S8 detects value-choice or scalar-ranking laundering."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str = "p20_normative_choice_error",
+    ) -> None:
+        self.code = code
+        super().__init__(message)
 
 
 class AuthorizedValueSchedule(Layer2ReadinessModel):
@@ -441,14 +457,11 @@ def build_pareto_archive(
     """Build a Pareto archive while blocking hidden ranked value choices."""
 
     if ranking_mode == "ranked_with_authorized_values":
-        if not value_schedule_ref:
-            raise P20NormativeChoiceError(
-                "P20 ranked Pareto archive requires an authorized value schedule"
-            )
-        if "shadow" in value_schedule_ref or "scenario" in value_schedule_ref:
-            raise P20NormativeChoiceError(
-                "P20 shadow_scenario schedule cannot satisfy authorized ranking"
-            )
+        raise P20NormativeChoiceError(
+            "P20 ranked Pareto archive requires an owner-resolved authorized value schedule; "
+            "the value schedule resolver is absent",
+            code=P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE,
+        )
     mapped = _frontier_payload(foundry_emission=foundry_emission, frontier_record=frontier_record)
     frontier_refs = list(frontier_refs) or mapped["frontier_refs"]
     nondominated_alternative_ids = (

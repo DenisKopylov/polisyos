@@ -592,3 +592,45 @@ Apart from this pending plan/journal delivery record, only the pre-existing 4b
 API edit and 4b access/replay test remain outside that commit. This read-back
 record is mandated delivery evidence; it changes no
 mechanism/test outcome and consumes no 4a round.
+
+## Task 4b — access and replay RED receipt
+
+Before the 4b review wave, root re-issued the frozen basis commit
+`d585d2fa0783433f95f2fc4981ed337cf20fdecb`, basis SHA-256
+`a3747cd490157519406aaecbf15d843238bf6c167d4e517d563d49c7d0d23a4e`,
+and the bucket rule to all three read-only reviewers. The reviewed population
+is exactly the modified governed-projection API test and the new access/replay
+service test; both files remain individually below 28 KiB.
+
+Two reviewers returned GO across all six frozen `4B-*` rows. The third found
+one on-basis `4B-V2PIN-05` convergence gap: changed v2 identities were compared,
+but the old complete tuple was not submitted to the changed service. The delta
+now requires `CycleBoardReplayConflictError` from that stale four-pin replay
+and received GO re-review. No reviewer named an off-basis property, wrong
+production shape, or bounded residual, so 4b remains `0/2`.
+
+The final RED contract requires exactly one static operation before the dynamic
+sibling; a direct executable `RUNS_REVIEW` tenant-collection gate; real
+unpinned v2 before any override; one same-observation raw-v1 byte response over
+all four legacy pins; complete v2 replay identity; and service plus authorized
+HTTP conflict coverage. The authorized HTTP loop covers wrong-complete-raw,
+untargeted, partial raw, partial v2, and mixed-generation requests; the
+service-level `4B-V2PIN-05` witness separately rejects a stale complete-v2
+tuple. Viewer requests leave the frozen service call census unchanged.
+
+The first Ruff attempt through the worktree `.venv` was a tooling non-receipt:
+that interpreter does not contain the Ruff module and no formatting ran. The
+available repository host module, `python3 -m ruff` version `0.15.0`, then
+formatted the exact two files and passed both format and lint checks; the final
+sizes were 14,553 and 3,848 bytes. `git diff --check` also passed.
+
+After source freeze and all reviews, both focused commands ran in parallel
+under fixed 60-second ceilings. The API command completed with exit 2 in
+26.139 seconds because the static route factory
+`_get_cycle_board_projection_service` does not yet exist. The service command
+completed with exit 2 in 26.082 seconds because
+`polisyos.runtime.http.services.cycle_board_projection` does not yet exist.
+Both load pairs were `3.66/4.90/4.83 -> 4.59/5.02/4.87`; neither command was
+killed. These are collection-level REDs at the intended Task 5 production
+boundaries. Their behavioral predicates remain unexecuted until that mechanism
+exists; no fixture failure or timeout is promoted to a behavioral result.

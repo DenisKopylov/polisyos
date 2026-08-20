@@ -256,10 +256,10 @@ source ledger; historical DS4 disposition.
 same-observation raw bytes; complete v1/v2 tuples; typed service and HTTP
 conflicts.
 
-- [ ] Close every `4B-*` basis row. Run the real unpinned v2 request before
+- [x] Close every `4B-*` basis row. Run the real unpinned v2 request before
   installing the raw-only frozen adapter; prove viewer denial leaves the raw
   adapter's call count unchanged.
-- [ ] Exercise authorized HTTP 409 translation for a wrong complete raw tuple
+- [x] Exercise authorized HTTP 409 translation for a wrong complete raw tuple
   and partial/mixed generation tuples in addition to service-level conflicts.
 - [ ] Run the focused 4b files and witness failure at the missing static
   operation/service, then freeze, issue the basis, review, and commit.

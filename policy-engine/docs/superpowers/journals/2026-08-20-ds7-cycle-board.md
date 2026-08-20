@@ -581,3 +581,14 @@ are collection-level REDs at the intended missing-compositor boundary; their
 individual behavioral predicates remain unexecuted until Task 5 supplies that
 mechanism. None fails because of malformed fixture data or an exhausted
 timeout. No bounded residual is needed in 4a.
+
+The reviewed 4a population was then committed at
+`e36fec44e1a46e3736ef305c3bf034a5ec169382`. Read-back from the attached
+`codex/atlas-ds7-cycle-board` branch returned that same commit and the expected
+six-path population: four test files plus this plan and journal. The fact
+algebra byte read from the branch hashes to
+`cd354fc1c88fe22c4a4708c8427ef3b17c6a92634ebf478c7ea6aeb7a696f48d`.
+Apart from this pending plan/journal delivery record, only the pre-existing 4b
+API edit and 4b access/replay test remain outside that commit. This read-back
+record is mandated delivery evidence; it changes no
+mechanism/test outcome and consumes no 4a round.

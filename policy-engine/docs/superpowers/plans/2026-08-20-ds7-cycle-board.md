@@ -242,7 +242,7 @@ source ledger; historical DS4 disposition.
   no value.
 - [x] Run the focused 4a files and witness failure because the compositor is
   absent, not because a fixture/import is malformed.
-- [ ] Freeze, issue the 4a basis to reviewers, repair only on-basis convergence,
+- [x] Freeze, issue the 4a basis to reviewers, repair only on-basis convergence,
   rerun the focused RED witness, and commit the reviewed 4a REDs.
 
 ### Task 4b — Access and replay REDs

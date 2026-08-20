@@ -30,6 +30,7 @@ from polisyos.runtime.http.services.export_replay import (
 from polisyos.runtime.http.services.governed_projection_dependencies import (
     dependency_manifest_matches,
 )
+from polisyos.runtime.quality.design_problem import DesignProblem
 
 _PROJECTION_BASE_PATH = "/api/v1/exports/governed-projections"
 
@@ -164,17 +165,37 @@ JsonObject = dict[str, ProjectionJsonValue]
 JsonObjectTuple = tuple[JsonObject, ...]
 
 
+class DepthNAcquisitionRouteProjection(_StrictModel):
+    """Recorded N7 route and economics for one depth-N refusal."""
+
+    owner: str
+    route_kind: str
+    planner_report_content_hash: str
+    planner_status: str
+    requirement_gap_id: str
+    missing_requirement_fields: tuple[str, ...]
+    recommended_strategy: str
+    expected_cost: float | None
+    expected_voi: float | None
+    voi_rank: int | None
+    decision_owner_ref: str
+    producer_expected: str
+    next_action: str
+
+
 class DepthNDomainRunProjection(_StrictModel):
     """Narrow recorded fields for one depth-N domain run."""
 
     generation_cycle_run_id: str
     design_problem_ref: str
+    design_problem: DesignProblem
     domain_role: str
+    search_terminal_kind: str
     terminal_distribution: JsonObject
     evidence_class: str
     evidence_witness: JsonObject
     weakest_links: tuple[str, ...]
-    acquisition_route: JsonObject
+    acquisition_route: DepthNAcquisitionRouteProjection
 
 
 class DepthNCycleBoardPayload(_StrictModel):
@@ -1402,16 +1423,84 @@ def _project_depth_n(source: dict[str, Any]) -> dict[str, Any]:
         weakest_links = _required_list(terminal, "blocking_obligations")
         terminal_distribution = _required_mapping(run, "terminal_distribution")
         stage_trace = _required_mapping(run, "stage_trace")
-        acquisition = _required_value(stage_trace, "acquisition")
+        acquisition = _required_mapping(stage_trace, "acquisition")
+        try:
+            design_problem = DesignProblem.model_validate(_required_mapping(run, "design_problem"))
+        except ValueError as exc:
+            raise InvalidProjectionSourceError(f"design_problem invalid: {exc}") from exc
+        costed_plan = _required_mapping(terminal, "costed_plan")
+        planner_report = _required_mapping(costed_plan, "canonical_planner_report")
+        acquisition_records = _required_list(planner_report, "acquisition_records")
+        if len(acquisition_records) != 1:
+            raise InvalidProjectionSourceError(
+                "canonical_planner_report.acquisition_records must contain exactly one route"
+            )
+        acquisition_record = _mapping(
+            acquisition_records[0],
+            "canonical_planner_report.acquisition_records[0]",
+        )
+        recommended_strategy = _required_string(
+            acquisition_record,
+            "recommended_strategy",
+        )
+        strategy_records = [
+            _mapping(item, "acquisition_record.strategy_records[]")
+            for item in _required_list(acquisition_record, "strategy_records")
+        ]
+        matching_strategies = [
+            item for item in strategy_records if item.get("strategy") == recommended_strategy
+        ]
+        if len(matching_strategies) != 1:
+            raise InvalidProjectionSourceError(
+                "recommended acquisition strategy must resolve exactly once"
+            )
+        strategy_record = matching_strategies[0]
+        next_actions = [
+            _mapping(item, "acquisition_record.next_actions[]")
+            for item in _required_list(acquisition_record, "next_actions")
+        ]
+        if len(next_actions) != 1:
+            raise InvalidProjectionSourceError(
+                "acquisition record must contain exactly one owner-recorded next action"
+            )
+        next_action = next_actions[0]
         projected_runs[str(domain)] = {
             "generation_cycle_run_id": _required_value(run, "generation_cycle_run_id"),
             "design_problem_ref": _required_value(run, "design_problem_ref"),
+            "design_problem": design_problem,
             "domain_role": _required_value(run, "domain_role"),
+            "search_terminal_kind": _required_string(terminal, "kind"),
             "terminal_distribution": terminal_distribution,
             "evidence_class": evidence_class,
             "evidence_witness": witness,
             "weakest_links": weakest_links,
-            "acquisition_route": acquisition,
+            "acquisition_route": {
+                "owner": _required_string(acquisition, "owner"),
+                "route_kind": _required_string(acquisition, "route_kind"),
+                "planner_report_content_hash": _required_string(
+                    acquisition,
+                    "planner_report_content_hash",
+                ),
+                "planner_status": _required_string(planner_report, "status"),
+                "requirement_gap_id": _required_string(acquisition_record, "gap_id"),
+                "missing_requirement_fields": _required_non_empty_string_list(
+                    acquisition_record,
+                    "missing_requirement_fields",
+                ),
+                "recommended_strategy": recommended_strategy,
+                "expected_cost": _required_value(strategy_record, "voi_expected_cost"),
+                "expected_voi": _required_value(strategy_record, "voi_expected_value"),
+                "voi_rank": _required_value(strategy_record, "voi_rank"),
+                "decision_owner_ref": _required_string(
+                    acquisition_record,
+                    "decision_owner_ref",
+                ),
+                "producer_expected": _required_string(
+                    acquisition_record,
+                    "producer_expected",
+                ),
+                "next_action": _required_string(next_action, "action"),
+            },
         }
     return {
         "depth_evidence": _required_mapping(source, "depth_evidence"),

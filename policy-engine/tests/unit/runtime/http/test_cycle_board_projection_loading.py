@@ -112,6 +112,8 @@ def test_n13b_loader_binds_exact_raw_bytes_and_declared_owner_identity(tmp_path:
     [
         ("missing", "artifact_missing"),
         ("malformed_json", "invalid_source"),
+        ("valid_array", "invalid_source"),
+        ("valid_null", "invalid_source"),
         ("schema_version", "invalid_source"),
         ("rule_version", "invalid_source"),
         ("producer", "invalid_source"),
@@ -126,6 +128,10 @@ def test_n13b_loader_types_optional_source_failures_without_failing_the_board(
     written_bytes: bytes | None = None
     if mutation == "malformed_json":
         written_bytes = b'{"schema_version":'
+    elif mutation == "valid_array":
+        written_bytes = b"[]"
+    elif mutation == "valid_null":
+        written_bytes = b"null"
     elif mutation != "missing":
         raw_payload[mutation] = f"substituted:{mutation}"
         written_bytes = json.dumps(raw_payload, sort_keys=True, separators=(",", ":")).encode()

@@ -299,15 +299,15 @@ declared `semantic_test_missing` DOM/MACHINE residual.
 `policyos.runtime.cycle_board_packet.v1`, `policyos.runtime.depth_n_cycle_board.v2`, ordered source
 composition manifest, and projection/dependency hashes.
 
-- [ ] Define strict discriminated available/absent facts and `CycleBoardRow`/source/coverage/movement
+- [x] Define strict discriminated available/absent facts and `CycleBoardRow`/source/coverage/movement
   DTOs. Cost/VOI `None` becomes `not_established`, never zero.
-- [ ] Implement one internal raw call and compose only after it returns. Bind exact signed lifecycle
+- [x] Implement one internal raw call and compose only after it returns. Bind exact signed lifecycle
   facts; leave unbound rows absent. Never inspect status or timestamps for terminality.
-- [ ] Carry full source packet states and per-source `as_of`/freshness. Use transaction time only as
+- [x] Carry full source packet states and per-source `as_of`/freshness. Use transaction time only as
   `projection_observed_at`; emit no aggregate currentness.
-- [ ] Compose three capstones, thirteen fixture-only legacy cases, board-level GAP5, empty GAP6
+- [x] Compose three capstones, thirteen fixture-only legacy cases, board-level GAP5, empty GAP6
   movement, realized DS4 `27/41/18/3`, and no fabricated future rows.
-- [ ] Add the static authorized route before the dynamic sibling with operation ID
+- [x] Add the static authorized route before the dynamic sibling with operation ID
   `get_depth_n_cycle_board_projection` and owner-appropriate collection binding.
 - [ ] Rerun Task 4 focused tests to GREEN, then focused Ruff/type checks and architecture import
   guardrails. Commit the server mechanism.

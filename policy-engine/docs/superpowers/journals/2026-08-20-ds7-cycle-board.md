@@ -720,3 +720,112 @@ Both held plan line-7 bytes are unchanged from Task 4 entry: the GY plan remains
 `32b88fc33f29e12b28aad432695b3f51abbdefe9e6fa7946bda834c719a8dbc3`
 and the Atlas master plan remains
 `bd39cd4831c0f9e1a6a05b9e54032c13587546c49526cc87a2918bd7e6f0dfac`.
+
+## Task 5 — minimal server compositor production receipt
+
+Task 5 began from attached merge head
+`80127b654b628bcedb45c102475f91a308edcd40`, whose second parent is the exact
+guard-read `main` tip `1360b1cb592be6a19c162a3ec3ddb5a2e87986c7`. The merge introduced
+no conflict. The Atlas register family was neither needed nor acquired, so
+there is no lock window to close and DS6 remains unblocked.
+
+The production mechanism is five files: strict cycle-board DTOs, optional
+source loaders, the server compositor, the extended raw Depth-N owner
+projection, and one static authorized route before the existing dynamic
+sibling. It performs exactly one read of each governed component and never
+enumerates `/runs` or `/runs/nl`. The composed payload orders the three N10
+roles before thirteen manifest-owned legacy fixtures, labels the known count
+non-exhaustive, and fabricates no future row.
+
+`GY-GAP5` and `GY-GAP6` are payload facts rather than manifest prose. They
+render respectively as
+`production_recursive_cycle_run_enumeration` and
+`acquisition_reentry_deeper_terminal_binding`, each with
+`capability_state=absent/unallocated`, typed deficits, owner route, known and
+unknown scope, and `execution_status=not_established`. Every movement record is
+empty. The available N13b artifact is admitted only as control-plane evidence;
+its manifest entry explicitly denies per-row movement, enumeration, and
+exhaustiveness authority, and mutating that global signal cannot change rows,
+known count, or movement.
+
+Lifecycle terminality is a separate fact from design-search
+`search_terminal_kind`. The compositor consults only an exact
+DesignProblem/run-bound `RunSummary.run_terminality`; it never reads status,
+start/finish timestamps, duration, search distribution, blockers, or route as
+a lifecycle proxy. An unbound lifecycle fact is `not_established` with no
+`value`, while a producer-signed `NOT_ESTABLISHED` is an available value. The
+raw Depth-N projection validates and carries the canonical `DesignProblem`,
+recorded evidence class, ordered blockers, and the owner-recorded N7 route and
+economics. It does not import or call the evidence-class owner recomputation.
+
+### Independent semantic closure
+
+The comparison sides are deliberately independent. The production side
+consumes the already owner-validated governed projection and projects its
+recorded evidence class and ordered weakest links without recomputation. The
+expected side in
+`test_cycle_board_projection_fact_owners.py` reads the canonical N10 source
+artifact directly, constructs the owner's typed grounding/value/terminal and
+planner inputs, and invokes the canonical owner
+`_domain_evidence_witness`. It never calls the compositor's mapper. The same
+equality helper rejects a dynamically substituted evidence class and a
+reordered multi-link terminal, so the assertion is not a copied fixture or a
+tautology.
+
+The frozen Task 4 basis
+`a3747cd490157519406aaecbf15d843238bf6c167d4e517d563d49c7d0d23a4e`
+was issued before all three production reviews. Package reviews found no
+wrong approach, proxy, minted authority, owner re-derivation, or off-basis
+property. One on-basis `4C-N13B-02` convergence gap was repaired: valid
+non-object JSON (`[]` and `null`) now preserves its exact byte hash, becomes
+`invalid_source`, and remains renderable through the composed board. Delta
+re-review returned GO. Five unrelated host-Ruff-only reflows were removed from
+the extended raw projection before its GO delta review. Task 5 therefore
+remains `0/2`.
+
+### Frozen-wave receipts and explicit non-receipts
+
+After the last delta review, the non-contended wave ran in parallel under
+fixed ceilings; no Playwright, Storybook, fixed-port server, or governed Atlas
+artifact was touched.
+
+| Receipt | Result | Duration / fixed ceiling |
+| --- | --- | --- |
+| composition, fact algebra, loading, and replay | 20/20 passed | 17.225 s / 90 s |
+| raw Depth-N projection | 7/7 passed | 16.927 s / 90 s |
+| independently recomputed owner file | 1 passed; owner-equality test stopped at canonical preflight because `ortools_cp_sat` is absent | 17.262 s / 90 s; completed, not killed; tooling non-receipt for owner equality |
+| governed projection API | 8 passed; static cycle-board test reached real v2, then the direct raw owner packet was `invalid_source` for the same missing solver | 22.291 s / 90 s; completed, not killed; tooling non-receipt for raw-v1 byte parity |
+| production Ruff lint | exit 0 | completed |
+| focused format check over the route, three new services, and touched loading test | 5 files already formatted | completed |
+| production bytecode compilation | exit 0 | completed |
+| architecture guardrails | exact entry-base six-edge red; zero DS7 edge | 26.158 s / 90 s; completed, not killed |
+| status-retirement checker | exact 13 inherited diagnostics; SHA-256 `511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9` | 32.734 s / 90 s; completed, not killed |
+
+The repository venv and system Python both lack OR-Tools, the frozen offline
+sync cannot resolve its wheel from the local cache, and no cached OR-Tools
+artifact exists. This is a toolchain non-receipt rather than a test finding;
+the last Task 5 plan checkbox remains open. Neither the owner test nor the
+static raw-v1 API parity is reported green. The smallest closing capability is
+an isolation-local environment provisioned from the frozen lock with the
+`solvers` extra; weakening the canonical preflight or mocking the owner would
+destroy the independence property.
+
+The focused quality harness initially stopped after one `I001` on the loading
+test. Replaying the exact Task 5 entry byte through the same host Ruff 0.15
+reported the identical import-order diagnostic, while the production-only
+lint, focused format check, and compile commands passed. No test outcome,
+mechanism, or governed byte changed, so the entry-identical cosmetic result is
+recorded rather than rewritten after source freeze.
+
+The exact-base architecture replay and current wave both return the same six
+non-DS7 deep-import additions; Task 5's two initial deep-core imports were
+removed through the stable runtime adapter before freeze. The three inherited
+visual/component reds and the thirteen status diagnostics remain red.
+`4C-DOM-05` remains `semantic_test_missing`; Task 5 makes no MACHINE/DOM parity
+claim.
+
+At this Task 5 boundary the post-merge GY plan line 7 hashes to
+`432e664ec3e5fc8c70688b41084d292b7fa606868a0425501a9d345cc769449f`
+and the Atlas master-plan line 7 remains
+`bd39cd4831c0f9e1a6a05b9e54032c13587546c49526cc87a2918bd7e6f0dfac`.
+Neither line has a Task 5 working-tree diff.

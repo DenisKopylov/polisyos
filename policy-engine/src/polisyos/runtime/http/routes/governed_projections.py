@@ -6,10 +6,22 @@ import os
 from datetime import datetime  # noqa: TC003 - FastAPI resolves this annotation at runtime
 from functools import lru_cache
 from pathlib import Path
-from typing import TYPE_CHECKING, Annotated, Any, cast
+from typing import TYPE_CHECKING, Annotated, Any, Literal, cast
 
-from polisyos.runtime.http.dependencies import set_authz_resource
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    ResourceBindingSpec,
+    require_action_permission,
+)
+from polisyos.runtime.http.dependencies import get_runtime_api_context, set_authz_resource
 from polisyos.runtime.http.errors import conflict
+from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.cycle_board_projection import (
+    CycleBoardExportResponse,
+    CycleBoardProjectionPacket,
+    CycleBoardProjectionService,
+    CycleBoardReplayConflictError,
+)
 from polisyos.runtime.http.services.governed_projections import (
     CHANNEL_REGISTRY,
     ChannelRegistryResponse,
@@ -21,14 +33,16 @@ from polisyos.runtime.http.services.governed_projections import (
 )
 
 if TYPE_CHECKING:
-    from fastapi import APIRouter, Query, Request
+    from fastapi import APIRouter, Depends, Query, Request, Response
 else:
     try:  # pragma: no cover - optional runtime dependency
-        from fastapi import APIRouter, Query, Request
+        from fastapi import APIRouter, Depends, Query, Request, Response
     except ModuleNotFoundError:  # pragma: no cover
         APIRouter = cast("Any", None)
+        Depends = cast("Any", None)
         Query = cast("Any", None)
         Request = cast("Any", Any)
+        Response = cast("Any", Any)
 
 
 def _build_router() -> APIRouter | None:
@@ -40,16 +54,36 @@ def _build_router() -> APIRouter | None:
 router = _build_router()
 
 
+def _repository_root() -> Path:
+    configured_root = os.getenv("POLISYOS_GOVERNED_ARTIFACT_ROOT")
+    return Path(configured_root) if configured_root else Path(__file__).resolve().parents[5]
+
+
 @lru_cache(maxsize=1)
 def _get_projection_service() -> GovernedProjectionService:
-    configured_root = os.getenv("POLISYOS_GOVERNED_ARTIFACT_ROOT")
-    repository_root = (
-        Path(configured_root) if configured_root else Path(__file__).resolve().parents[5]
+    return GovernedProjectionService(_repository_root())
+
+
+def _get_cycle_board_projection_service(request: Request) -> CycleBoardProjectionService:
+    context = get_runtime_api_context(request)
+    return CycleBoardProjectionService(
+        projection_service=_get_projection_service(),
+        run_index=context.run_index,
+        repository_root=_repository_root(),
     )
-    return GovernedProjectionService(repository_root)
+
+
+_CYCLE_BOARD_EXPORT_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.governed_projection.depth_n_cycle_board",
+    ),
+)
 
 
 if router is not None:
+    _CYCLE_BOARD_SERVICE_DEPENDENCY = Depends(_get_cycle_board_projection_service)
 
     @router.get(
         "/governed-projections",
@@ -64,6 +98,43 @@ if router is not None:
             kind="runtime.governed_projection_catalog",
         )
         return ProjectionCatalogResponse(projections=_get_projection_service().catalog())
+
+    @router.get(
+        "/governed-projections/depth-n-cycle-board",
+        response_model=CycleBoardExportResponse,
+        operation_id="get_depth_n_cycle_board_projection",
+        summary="Get the reviewer Cycle Board or replay its raw owner packet",
+        dependencies=[Depends(_CYCLE_BOARD_EXPORT_AUTHZ)],
+    )
+    def get_depth_n_cycle_board_projection(
+        request: Request,
+        replay_target: Literal["raw_v1", "composed_v2"] | None = Query(default=None),
+        artifact_content_hash: str | None = Query(default=None, max_length=128),
+        projection_hash: str | None = Query(default=None, max_length=128),
+        source_dependency_hash: str | None = Query(default=None, max_length=128),
+        source_as_of: Annotated[datetime | None, Query()] = None,
+        projection_rule_version: str | None = Query(default=None, max_length=128),
+        composition_manifest_hash: str | None = Query(default=None, max_length=128),
+        service: CycleBoardProjectionService = _CYCLE_BOARD_SERVICE_DEPENDENCY,
+    ) -> CycleBoardExportResponse | Response:
+        try:
+            result = service.get(
+                replay_target=replay_target,
+                artifact_content_hash=artifact_content_hash,
+                projection_hash=projection_hash,
+                source_dependency_hash=source_dependency_hash,
+                source_as_of=source_as_of,
+                projection_rule_version=projection_rule_version,
+                composition_manifest_hash=composition_manifest_hash,
+            )
+        except CycleBoardReplayConflictError as exc:
+            raise conflict(str(exc), code="cycle_board_replay_conflict") from exc
+        if isinstance(result, CycleBoardProjectionPacket):
+            return result
+        return Response(
+            content=result.model_dump_json().encode("utf-8"),
+            media_type="application/json",
+        )
 
     @router.get(
         "/governed-projections/{projection_id}",

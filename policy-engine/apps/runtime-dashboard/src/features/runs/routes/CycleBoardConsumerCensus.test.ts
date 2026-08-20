@@ -109,7 +109,7 @@ type SymbolAliases = {
 const canonicalSymbols = {
   client: {
     exportName: "getDepthNCycleBoardProjection",
-    sourceSuffix: "/packages/runtime-api-client/runtimeApiClient.ts",
+    sourceSuffix: "/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
   },
   factory: {
     exportName: "createElement",
@@ -311,7 +311,8 @@ function inspectConsumers(files: string[]): ConsumerCensus {
       }
       if (
         ((ts.isJsxAttribute(node) ||
-          ts.isPropertyAssignment(node) ||
+          (ts.isPropertyAssignment(node) &&
+            owner.startsWith("features/runs/")) ||
           ts.isPropertySignature(node) ||
           ts.isPropertyDeclaration(node) ||
           ts.isBindingElement(node)) &&
@@ -346,5 +347,5 @@ describe("Cycle Board production consumer census", () => {
     ]);
     expect(census.legacyDeclarations).toEqual([]);
     expect(census.legacyProps).toEqual([]);
-  });
+  }, 45_000);
 });

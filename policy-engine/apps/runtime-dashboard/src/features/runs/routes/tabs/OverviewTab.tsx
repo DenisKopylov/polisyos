@@ -5,6 +5,7 @@ import { useSuspenseArtifactContent } from "@/api/hooks/useArtifactContent";
 import { useSuspenseGovernanceDebug } from "@/api/hooks/useGovernanceDebug";
 import { useSuspenseRunEvidenceContext } from "@/api/hooks/useRunEvidenceContext";
 import { useSuspenseRunTimeline } from "@/api/hooks/useRunTimeline";
+import { usePermission } from "@/app/authz/AuthzProvider";
 import { buildArtifactHref } from "@/features/artifacts";
 import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 import { useRunInspector } from "@/features/runs/context/RunInspectorContext";
@@ -34,7 +35,6 @@ import { AuthoredText } from "@/shared/ui/authored-text";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
-import { useDepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
 
 function DecisionPanelContent({ artifactId }: { artifactId: string }) {
   const { t, label } = useI18n();
@@ -328,9 +328,9 @@ function TimelinePanelContent({ runId }: { runId: string }) {
 export default function OverviewTab() {
   const { t } = useI18n();
   const whatIfEnabled = useFeatureFlag("enableWhatIfAnalysis");
+  const canReviewCycleBoard = usePermission("runs.review");
   const { runId } = useParams();
   const summary = useRunInspector();
-  const governedProjectionQuery = useDepthNCycleBoardProjection();
 
   if (!summary.run || !runId) {
     return null;
@@ -466,15 +466,16 @@ export default function OverviewTab() {
             <p className="eyebrow">{t("pages.runs.sections.explainability")}</p>
             <h4>{t("pages.runs.explainabilitySubtitle")}</h4>
           </div>
+          {canReviewCycleBoard ? (
+            <Link
+              className="text-accent text-xs font-semibold underline"
+              to="/runs/cycle-board"
+            >
+              {t("pages.cycleBoard.globalCohortLink")}
+            </Link>
+          ) : null}
         </div>
-        <RunExplainabilityPanel
-          cacheObservation={governedProjectionQuery.cacheObservation}
-          governedProjection={governedProjectionQuery.data}
-          level="summary"
-          projectionError={governedProjectionQuery.isError}
-          projectionLoading={governedProjectionQuery.isLoading}
-          summary={summary}
-        />
+        <RunExplainabilityPanel level="summary" summary={summary} />
       </Card>
     </div>
   );

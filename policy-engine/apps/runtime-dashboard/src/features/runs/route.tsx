@@ -33,6 +33,9 @@ const RunsListPage = lazy(() => import("@/features/runs/routes/RunsListPage"));
 const RunComparePage = lazy(
   () => import("@/features/runs/routes/RunComparePage"),
 );
+const CycleBoardPage = lazy(
+  () => import("@/features/runs/routes/CycleBoardPage"),
+);
 const RunInspectorLayout = lazy(
   () => import("@/features/runs/routes/RunDetailLayout"),
 );
@@ -106,6 +109,14 @@ export const runsCompareRouteHandle = {
   workspaceKey: "runsDecisions",
 } satisfies AppRouteModule<RunCompareSearchParams>["handle"];
 
+export const cycleBoardRouteHandle = {
+  buildHref: () => "/runs/cycle-board",
+  parseSearch: () => ({}),
+  prefetch: ["capabilities"],
+  routeId: "runs.cycleBoard",
+  workspaceKey: "runsDecisions",
+} satisfies AppRouteModule<Record<string, never>>["handle"];
+
 export const runReportRouteHandle = {
   buildHref: (input) => buildRunReportHref(input?.runId ?? ""),
   parseSearch: () => ({}),
@@ -149,6 +160,10 @@ export const runsListLoader = createWorkspaceLoader(
 export const runsCompareLoader = createWorkspaceLoader(
   runsCompareRouteHandle.routeId,
   runsCompareRouteHandle.prefetch,
+);
+export const cycleBoardLoader = createWorkspaceLoader(
+  cycleBoardRouteHandle.routeId,
+  cycleBoardRouteHandle.prefetch,
 );
 export const runReportLoader = createRunDetailLoader(
   runReportRouteHandle.routeId,
@@ -214,6 +229,16 @@ export const runsRoutes: RouteObject[] = [
     element: (
       <WorkspaceBoundary workspaceKey="runsDecisions">
         <RunComparePage />
+      </WorkspaceBoundary>
+    ),
+  },
+  {
+    path: "runs/cycle-board",
+    loader: cycleBoardLoader,
+    handle: cycleBoardRouteHandle,
+    element: (
+      <WorkspaceBoundary workspaceKey="runsDecisions">
+        <CycleBoardPage />
       </WorkspaceBoundary>
     ),
   },

@@ -127,6 +127,7 @@
     "routes": {
       "commandCenterEyebrow": "Runtime control plane",
       "commandCenterTitle": "Interventions across data, evidence, and governance",
+      "cycleBoardEyebrow": "Design-cycle evidence",
       "runAnalysisEyebrow": "Run analysis",
       "runAnalysisTitle": "Decision workspace turns artifacts into one operating view",
       "evidenceEyebrow": "Data + provenance",
@@ -385,6 +386,41 @@
       "continue": "Continue to sign in",
       "retry": "Retry session",
       "backHome": "Back to command center"
+    },
+    "cycleBoard": {
+      "eyebrow": "Reviewer evidence surface",
+      "title": "Cycle Board",
+      "subtitle": "The known design-cycle cohort, its producer-owned facts, and the exact capabilities still absent.",
+      "projectionObservedAt": "Projection transaction observed at",
+      "accessUnsettledTitle": "Checking review access",
+      "accessUnsettledBody": "The board will not request its evidence until reviewer authorization is settled.",
+      "accessDeniedTitle": "Review access required",
+      "accessDeniedBody": "Cycle Board evidence is available only to reviewer and expert audiences.",
+      "loadErrorTitle": "Cycle Board unavailable",
+      "loadErrorBody": "The composed owner projection could not be loaded. No adjacent run state is used as a substitute.",
+      "coverageGap": "Known-row coverage gap",
+      "movementGap": "Acquisition movement gap",
+      "historicalDs4": "Historical DS4 component disposition",
+      "historicalAvailability": "Historical environment-relative producer availability",
+      "sources": "Board source ledger",
+      "rows": "Known design problems",
+      "stageTrace": "Stage trace",
+      "openStageTrace": "Open owner stage trace",
+      "globalCohortLink": "Open Cycle Board global cohort — not this run",
+      "columns": {
+        "searchTerminal": "Design-search terminal kind",
+        "lifecycleTerminality": "Lifecycle terminality",
+        "evidenceClass": "Structural evidence class",
+        "weakestLinks": "Weakest links",
+        "missingLink": "Weakest missing link",
+        "acquisitionRoute": "Owner acquisition route reference",
+        "acquisitionEconomics": "Resolved acquisition economics",
+        "runId": "Generation-cycle run",
+        "designProblem": "Design problem",
+        "surfaceReadiness": "Surface readiness",
+        "stageTrace": "Stage-trace binding",
+        "explanation": "Owner explanation"
+      }
     },
     "runs": {
       "title": "Runs & Decisions",
@@ -2059,6 +2095,10 @@
   },
   "surfaceRegistry": {
     "run": {
+      "cycleBoard": {
+        "label": "Cycle Board",
+        "description": "Global reviewer cohort of design-cycle facts, typed absences, source staleness, and honest-empty movement."
+      },
       "overview": {
         "description": "Decision summary, confidence signals, and first-pass operator review."
       },

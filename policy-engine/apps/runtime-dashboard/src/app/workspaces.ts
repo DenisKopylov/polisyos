@@ -121,15 +121,22 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     layout: "master-detail",
     modeVisibility: ["clerk", "analyst"],
     requiredCapabilities: ["workflow_runs"],
-    resolveHeader: (pathname) => ({
-      eyebrowKey: pathname.startsWith("/runs/")
-        ? "shell.routes.runAnalysisEyebrow"
-        : "pages.runs.title",
-      titleKey: pathname.startsWith("/runs/")
-        ? "shell.routes.runAnalysisTitle"
-        : "pages.runs.explorerTitle",
-      subtitleKey: "pages.runs.subtitle",
-    }),
+    resolveHeader: (pathname) =>
+      pathname === "/runs/cycle-board"
+        ? {
+            eyebrowKey: "shell.routes.cycleBoardEyebrow",
+            subtitleKey: "pages.cycleBoard.subtitle",
+            titleKey: "pages.cycleBoard.title",
+          }
+        : {
+            eyebrowKey: pathname.startsWith("/runs/")
+              ? "shell.routes.runAnalysisEyebrow"
+              : "pages.runs.title",
+            titleKey: pathname.startsWith("/runs/")
+              ? "shell.routes.runAnalysisTitle"
+              : "pages.runs.explorerTitle",
+            subtitleKey: "pages.runs.subtitle",
+          },
   },
   evidenceFabric: {
     key: "evidenceFabric",

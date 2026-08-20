@@ -81,7 +81,10 @@ vi.mock("@/shared/i18n/LocaleProvider", () => ({
       value: string | null | undefined,
       fallback: string,
     ) => fallback ?? value ?? "",
-    t: (key: string) => key,
+    t: (key: string) =>
+      key === "pages.cycleBoard.globalCohortLink"
+        ? "Cycle Board global cohort — not this run"
+        : key,
   }),
 }));
 

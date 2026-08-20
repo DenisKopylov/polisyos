@@ -127,6 +127,7 @@
     "routes": {
       "commandCenterEyebrow": "Runtime control plane",
       "commandCenterTitle": "Інтервенції через дані, evidence та governance",
+      "cycleBoardEyebrow": "Evidence циклу дизайну",
       "runAnalysisEyebrow": "Аналіз запуску",
       "runAnalysisTitle": "Decision workspace зводить артефакти в єдину операційну картину",
       "evidenceEyebrow": "Дані + provenance",
@@ -385,6 +386,41 @@
       "continue": "Перейти до входу",
       "retry": "Спробувати сесію знову",
       "backHome": "До командного центру"
+    },
+    "cycleBoard": {
+      "eyebrow": "Evidence surface для reviewer",
+      "title": "Cycle Board",
+      "subtitle": "Відомий cohort циклу дизайну, факти його producers і точні capabilities, яких досі бракує.",
+      "projectionObservedAt": "Транзакцію projection зафіксовано о",
+      "accessUnsettledTitle": "Перевірка review-доступу",
+      "accessUnsettledBody": "Board не запитує evidence, доки reviewer authorization не визначена.",
+      "accessDeniedTitle": "Потрібен review-доступ",
+      "accessDeniedBody": "Evidence Cycle Board доступні лише аудиторіям reviewer та expert.",
+      "loadErrorTitle": "Cycle Board недоступна",
+      "loadErrorBody": "Composed owner projection не завантажилась. Суміжний стан run не використовується як заміна.",
+      "coverageGap": "Прогалина покриття відомих рядків",
+      "movementGap": "Прогалина руху acquisition",
+      "historicalDs4": "Історичний disposition компонентів DS4",
+      "historicalAvailability": "Історична environment-relative доступність producers",
+      "sources": "Ledger джерел board",
+      "rows": "Відомі design problems",
+      "stageTrace": "Stage trace",
+      "openStageTrace": "Відкрити owner stage trace",
+      "globalCohortLink": "Відкрити глобальний cohort Cycle Board — не цей run",
+      "columns": {
+        "searchTerminal": "Terminal kind пошуку дизайну",
+        "lifecycleTerminality": "Lifecycle terminality",
+        "evidenceClass": "Structural evidence class",
+        "weakestLinks": "Найслабші ланки",
+        "missingLink": "Найслабша відсутня ланка",
+        "acquisitionRoute": "Посилання на owner acquisition route",
+        "acquisitionEconomics": "Resolved acquisition economics",
+        "runId": "Generation-cycle run",
+        "designProblem": "Design problem",
+        "surfaceReadiness": "Готовність surface",
+        "stageTrace": "Stage-trace binding",
+        "explanation": "Пояснення owner"
+      }
     },
     "runs": {
       "title": "Запуски та рішення",
@@ -2059,6 +2095,10 @@
   },
   "surfaceRegistry": {
     "run": {
+      "cycleBoard": {
+        "label": "Cycle Board",
+        "description": "Глобальний reviewer cohort фактів design cycle, typed absences, staleness джерел та чесно порожнього movement."
+      },
       "overview": {
         "description": "Підсумок рішення, сигнали впевненості та перше операторське ревʼю."
       },

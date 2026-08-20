@@ -384,17 +384,17 @@ provide. Task 7 records and runs that capability falsifier instead of adding per
 **Interfaces:** `packetToVisibleCycleBoard`; source/fact exhaustive issuers; refusal-with-path rows;
 coverage and movement typed absences; DS8 drill-down links.
 
-- [ ] Add the static route before `/runs/:runId`, permission boundary before data hook, route/prefetch
+- [x] Add the static route before `/runs/:runId`, permission boundary before data hook, route/prefetch
   manifest entry, and `permissionKey: "runs.review"` surface entry.
-- [ ] Reuse the hook with the distinct generated static client method and accept only unpinned v2.
-- [ ] Implement one pure packet-to-visible projection that formats but never derives owner facts.
+- [x] Reuse the hook with the distinct generated static client method and accept only unpinned v2.
+- [x] Implement one pure packet-to-visible projection that formats but never derives owner facts.
   Expose stable raw typed data in DOM semantic regions next to localized labels.
-- [ ] Render coverage/movement gaps first, the ordered cohorts, terminal facts, recomputed evidence,
+- [x] Render coverage/movement gaps first, the ordered cohorts, terminal facts, recomputed evidence,
   full weakest-link sequence, costed route and execution state, slices, DS8 link, readiness absence,
   public-safe explanation, source ledger, and realized `27/41/18/3` disposition.
-- [ ] Remove the Overview hook call and governed projection prop/rendering from
+- [x] Remove the Overview hook call and governed projection prop/rendering from
   RunExplainabilityPanel. Retain only the scoped permission-filtered navigation link.
-- [ ] Rerun Task 7 GREEN, dashboard typecheck, focused ESLint, architecture checks, and complete
+- [x] Rerun Task 7 GREEN, dashboard typecheck, focused ESLint, architecture checks, and complete
   TS/TSX consumer census. Commit hero and strangle together.
 
 ## Task 9 — Add the MACHINE twin and rendered-DOM parity proof

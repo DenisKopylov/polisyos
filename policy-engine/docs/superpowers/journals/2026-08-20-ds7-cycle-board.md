@@ -1109,3 +1109,84 @@ No Atlas register-family write or lock was needed. GY plan line 7 remains byte-i
 line 7 is untouched by Task 7 and hashes to
 `7855f9209333c06be639d343a7dd2f2e981e1b21ef9c4c01252b473525a43d6d`.
 The inherited DS8 A4, DS5 run-deck, and DS6-C11 reds plus the thirteen status diagnostics remain red.
+
+### Task 8 — authorized hero and complete in-panel strangle
+
+Task 8 landed the dashboard hero and strangle atomically at
+`5ef38f34ecbaad60d95ed01a3a3fe083bbd3fd47`: 19 dashboard paths,
+`+710/-769`. Root read that commit back from the attached
+`codex/atlas-ds7-cycle-board` branch with a clean worktree before updating this
+record. No Atlas register-family write or lock was needed.
+
+The static `/runs/cycle-board` route is ordered before the dynamic run route,
+is exposed as the global `runs.cycleBoard` workspace surface, and admits only
+settled `runs.review` principals before mounting the query. AppShell and the
+command palette reserve `cycle-board` as a static segment, so the page cannot
+inherit a fabricated run ID, temporal scrubber, counterfactual rail, or
+run-context command. The authored English and active Ukrainian locale trees
+move together; the frozen Russian resource is byte-untouched.
+
+The existing hook now has exactly one representation: an unpinned call to the
+generated static v2 operation, a representation-specific query key, strict
+packet/rule/projection discrimination, and `never_cache_authority`. Overview
+no longer fetches or renders the projection. It retains only a review-filtered
+link whose copy says the board is the global cohort rather than the current
+run. `RunExplainabilityPanel` no longer accepts or renders governed projection
+props, and its stale in-panel suite was deleted rather than retained as a
+fixture.
+
+`packetToVisibleCycleBoard` copies the owner packet without sorting,
+defaulting, deriving currentness, or reclassifying facts. The hero renders
+GAP5 coverage and GAP6 honest-empty movement first, then the ordered three
+capstone and thirteen legacy rows, separate search and signed-lifecycle facts,
+the exact evidence class and weakest-link order, direct route references and
+separately resolved economics, the source ledger, DS4's historical
+`27/41/18/3`, and the environment-relative producer record. Stable raw DOM
+regions use locale-independent field IDs; `projection_observed_at` is labelled
+as transaction observation time and never as aggregate source time.
+
+The complete consumer gate independently reconciles 577 production TS/TSX
+files from the filesystem with the same 577 files from the Git index before
+building a TypeScript program. It resolves imports, aliases, assignments,
+destructuring, JSX, and React factories. Its final census is exactly one hook
+call and one `CycleBoard` renderer, both owned by `CycleBoardPage.tsx`; exactly
+one generated static-client call, owned by the hook; and zero legacy
+`GovernedDepthProjection` declarations or `governedProjection` props. The
+Task 7 higher-order/dynamic provenance residual and its absent-analyzer
+falsifier remain unchanged; no marker rule was added to conceal it.
+
+The frozen basis
+`a3747cd490157519406aaecbf15d843238bf6c167d4e517d563d49c7d0d23a4e`
+and bucket rule were issued before each route/access, hero/presentation, and
+strangle review. Findings were on-basis convergence only: stable semantic DOM
+keys, unique cohort regions, explicit transaction-time copy, removal of the
+last stale fixture, complete TS+TSX legacy-prop inspection, and separation of
+the legacy/raw and static/v2 cache keys. Delta reviews returned GO. Task 8
+therefore closes at `0/2`.
+
+The first frozen verification attempt completed with two harness-level
+companions: the AST census exceeded its 15-second per-test ceiling under the
+parallel regime while the remaining 118 assertions passed, and ESLint found
+one localized hard-coded `null` display token. The test property was unchanged
+while its measured ceiling moved to 45 seconds; the token now renders through
+the same typed value path. Both delta reviews returned GO, repricing the full
+wave. The admitted rerun was:
+
+| Receipt | Result | Duration / fixed ceiling |
+| --- | --- | --- |
+| Task 8 focused Vitest | 13/13 files; 119/119 passed | 28.965 s / 120 s |
+| dashboard typecheck | passed | 50.129 s / 120 s |
+| exact Task 8 ESLint write set | passed | 82.684 s / 180 s; uptime load `3.71/3.86/3.39 -> 5.78/4.93/3.88` |
+| exact Task 8 Prettier check | passed | 5.586 s / 90 s |
+| architecture guardrails | completed with the same six added and three removed inherited deep-import identities established in Task 6; no dashboard/DS7 identity | 26.598 s / 90 s |
+| `git diff --check` | passed | completed |
+
+No receipt was killed and no ceiling was widened mid-run. The architecture
+baseline was not changed. `4C-DOM-05` is still `semantic_test_missing`: Task 8
+created the stable rendered regions, but only Task 9's exact rendered-DOM
+decoder and frozen mutation falsifier may close it. The inherited DS8 A4, DS5
+run-deck, and DS6-C11 reds and the thirteen status diagnostics remain red.
+GY plan line 7 remains
+`432e664ec3e5fc8c70688b41084d292b7fa606868a0425501a9d345cc769449f`,
+and Atlas master-plan line 7 remains
+`7855f9209333c06be639d343a7dd2f2e981e1b21ef9c4c01252b473525a43d6d`.

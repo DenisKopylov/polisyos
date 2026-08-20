@@ -2544,6 +2544,31 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   **Do not read this row as "GY-N11 replayed unnecessarily":** its `polisyos/fabric/__init__.py` edit
   *was* inside the 120-module closure, and that replay was legitimate. `P29`/`P32`; §3.5.7 E12.
 
+  **STANDING RECORDED (measured 2026-08-20): closed.** The complete reviewed census now binds
+  **96** deployment paths — the derived **94-module** executable authority closure plus
+  pyproject.toml and uv.lock — rather than **2,562** generic paths, a **26.6875×** reduction.
+  The registered 120 / 21.4× figure was the pre-review resolver proxy; the final derivation excludes
+  type-only and dormant-dynamic edges. Behavioral admission turns red for in-closure drift, leaves
+  identity/session unchanged for a generically selected outside witness, makes the real N9 and
+  generation candidates byte-identical under that mutation, and binds the real N11 candidate's
+  deployment-identity fields to the same live admission; full outside-mutation N11 byte equality is
+  not claimed. Missing/forged/rehashed closure and loaded-code manifests fail closed, and every live
+  repository import binding is reconciled. Source froze at 59e4b7c7b; all mechanism and transition
+  reviews were taken before replay. P40 ended at **2 / 2** because both Important mechanism findings
+  consumed one round; both were the same over-binding class one level deeper, so the second invoked
+  the breaker, widened the derivation, and declared a dynamic-callgraph residual with its real-path
+  falsifier. Non-persisting measurement proved all three artifacts moved: N9 **67** leaves to
+  sha256:08877f171fb08424896d177dac5aa7f7801dcce4bdc2ce77f9faa3690cc2cd1e,
+  generation-cycle **43** leaves to
+  sha256:2e931ccfcd07141178eb622ec03348a7db3d1f437cc396b5f909eba41ae7136a,
+  and N11 **5,277** leaves / **980,647** bytes to
+  sha256:dd8f4be3afc8deefade824cb4bb4de0cce0d051fa262abb0c427c157ea770391.
+  The guarded batch protected **911 / 914** preimages; its first harness-coordinate attempt restored
+  exact bytes with 25 attachment checks and rollback_error=null, and the reviewed retry accepted the
+  declared **5,387** leaves with 13 checks and rollback armed but unused. This repairs conservative
+  false withdrawal and replay cost, not a security hole. No revision number is assigned here; the
+  architect assigns the revision.
+
 #### Registered defects — surfaced by the Stage-0 research audits (NEW, Rev 21; verified 2026-08-02)
 
 **Outside the main sequence. This block records; it schedules nothing.** These are live

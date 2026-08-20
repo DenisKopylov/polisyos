@@ -1295,6 +1295,67 @@ Loosening the ratified posture is out of scope for every slice.
   owns independent verification. Closure signal: no generated link URL overlaps
   the report **and** two consecutive no-update real-browser A4 captures are
   stable.
+- **ENTRY QUESTION FOR DS8, with a starting hypothesis and NOT a decision (recorded
+  2026-08-20 after the DS6 diagnostic).** The `adjacent-print-export` cause recorded in
+  the bullet above is **measured false** and is superseded here rather than rewritten.
+  Three things were established by no-writer measurement and DS8 should not re-derive
+  them:
+
+  1. **The signed URL is not the cause.** Suppressing only the 17,206-character signed
+     target moves the capture from `770×13269` to `770×12966`; suppressing *every* link
+     target reaches `770×12918`. It contributes ~303 px of roughly 10,850 excess, and it
+     cannot explain the width at all — pseudo-content cannot change an element's border-box
+     width. DS6 landed the narrow signed-target exclusion; ordinary printed destinations
+     are preserved.
+  2. **The `724×2113` expectation was never a capture of this surface.** All five A4
+     snapshot names were assigned the same 231,141-byte blob in bulk commit `45f330235`;
+     four have since been re-derived to distinct dimensions and pass, while `run-detail`
+     still holds that original blob. Independently: `.atlas-shell-frame` computed
+     `100vw − 24px = 770px` from `3535d89f` on 2026-03-10, six weeks *before* the snapshot,
+     so a 724-wide PNG cannot be a capture of a 770-wide element. Deriving a replacement is
+     therefore a **first derivation**, not a re-baseline.
+  3. **The real regression is print-visible interactive chrome.** `3f7af28e59` (2026-05-01)
+     introduced `OperatorCraftPanel` — its own source calls it *reviewer workflow chrome* —
+     and `AmbientTelemetryHud`, mounted at `RunDetailLayout.tsx:793`, neither print-hidden,
+     although `print.css` already defines a chrome-exclusion boundary. A printed decision
+     report containing forms, sliders, buttons and wallet actions is wrong on its own terms,
+     independent of any pixel count.
+
+  **The question DS8 must answer:** *what does a printed decision report contain from a
+  mixed-content panel?* `OperatorCraftPanel` is not affordance-only. A complete source
+  census found seven control sites **plus** persisted reviewer annotations, threshold state
+  and impact values, saved evidence references, and onboarding audit state. And
+  `AmbientTelemetryHud` is not separable overlay chrome: it holds
+  `operatorCraftVersion`/`refreshOperatorCraft` and therefore *mounts* the panel, and it
+  builds the signed public decision packet. Excluding it takes the panel with it.
+
+  **Three answers, with their costs.** Exclude the panel wholesale — cheap, and it discards
+  real report and audit content from paper. Leave it as-is — prints affordances, wrong by
+  construction. Split it, so persisted state prints and affordances do not — more work,
+  because it requires marking inside the panel what is state and what is control.
+
+  **Starting hypothesis, explicitly not a ruling: the split.** It is where the architect
+  would begin, for two reasons: printing values while suppressing the buttons that set them
+  is ordinary print practice, and this codebase **already encodes that principle** — the
+  `print.css` chrome-exclusion boundary lists `nav`, `aside.dashboard-shell`,
+  `.app-sidebar`, `[data-a11y-overlay]`, `[data-print-hidden]`, and the two panels were
+  simply never brought under it.
+
+  **This is a base for the search, not its conclusion.** DS8 is expected to test it and may
+  well find better. Reasons it could fail: some of the panel's state may be browser-local
+  and genuinely out of scope for paper, which the DS6 census deliberately did **not**
+  classify; the split may require a boundary the panel's structure cannot express without
+  restructuring; or the honest answer may be that the run-detail print surface needs a
+  distinct paper projection rather than a filtered screen tree. If a fourth answer fits the
+  evidence better, take it and record why the split lost.
+
+  **Also unresolved and DS8-adjacent:** whether a full-element raster of an unbounded-height
+  surface is a valid governed expectation at all, or a `P38` gate that cannot distinguish a
+  regression from legitimate growth. It failed for six weeks while pointing at the wrong
+  cause. DS6 was stopped before adjudicating it; the candidates recorded are a paginated PDF
+  under `@page size: A4` asserting page count and geometry, a bounded-region capture,
+  semantic DOM invariants, or dimensions with a declared tolerance and growth policy.
+
 - **Negative controls:** closed-case views pin versions (law 7) and a mutation
   attempt fails; P15 negatives land on any engine-output panel the audit
   flagged.

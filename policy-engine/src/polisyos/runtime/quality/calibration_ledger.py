@@ -20,6 +20,13 @@ from polisyos.core.artifacts import (
     PutOptions as ArtifactWriteOptions,
 )
 from polisyos.core.canon import CanonSpec
+from polisyos.runtime.quality.memory_influence import (
+    CLAIM_EVIDENCE_SLOT_KEYS as CLAIM_EVIDENCE_SLOT_KEYS,
+)
+from polisyos.runtime.quality.memory_influence import (
+    _payload_provenance_values,
+    _ProvenancePayloadError,
+)
 
 CALIBRATION_LEDGER_SCHEMA_VERSION = "policyos.runtime.calibration_ledger.v1"
 HISTORICAL_PRIOR_INFLUENCE_SCHEMA_VERSION = (
@@ -58,23 +65,6 @@ HISTORICAL_PRIOR_FORBIDDEN_EFFECTS = (
     "minting_participation_authority",
     "hiding_current_run_deficits",
 )
-CLAIM_EVIDENCE_SLOT_KEYS = (
-    "scenario_requirement_refs",
-    "data_refs",
-    "selected_norm_refs",
-    "rejected_norm_refs",
-    "method_output_refs",
-    "portfolio_refs",
-    "argument_refs",
-    "warrant_refs",
-    "rebuttal_refs",
-    "counter_evidence_refs",
-    "limitation_refs",
-    "accepted_deficit_refs",
-    "blocker_refs",
-)
-
-
 class CalibrationLedgerContractError(ValueError):
     """Raised when calibration ledger evidence violates its authority boundary."""
 
@@ -752,35 +742,60 @@ def historical_prior_claim_evidence_issues(
     *,
     claim_id: str | None = None,
 ) -> list[dict[str, Any]]:
-    """Return claim-registry issues for historical-prior refs in evidence slots."""
+    """Return claim-registry issues for historical provenance anywhere in a claim."""
+
+    try:
+        provenance_values = _payload_provenance_values(row)
+    except _ProvenancePayloadError as exc:
+        return [
+            {
+                "code": "historical_prior_payload_provenance_unknown",
+                "severity": "fail",
+                "layer": "runtime_quality",
+                "phase": "historical_priors_firewall",
+                "claim_id": claim_id,
+                "evidence_slot": exc.path[0] if exc.path else "$",
+                "payload_path": _payload_path(exc.path) if exc.path else "$",
+                "unsupported_value_type": exc.value_type,
+                "message": (
+                    "Historical-prior admission cannot classify a non-canonical "
+                    "payload value and therefore fails closed."
+                ),
+                "next_action": (
+                    "Resolve the value through the destination contract's canonical "
+                    "payload grammar before claim-evidence admission."
+                ),
+                "authority_boundary": _authority_boundary(),
+            }
+        ]
 
     issues: list[dict[str, Any]] = []
-    for slot in CLAIM_EVIDENCE_SLOT_KEYS:
-        for ref in _refs_from(row.get(slot)):
-            if not is_historical_prior_ref(ref):
-                continue
-            issues.append(
-                {
-                    "code": "historical_prior_ref_not_admissible_as_claim_evidence",
-                    "severity": "fail",
-                    "layer": "runtime_quality",
-                    "phase": "historical_priors_firewall",
-                    "claim_id": claim_id,
-                    "evidence_slot": slot,
-                    "historical_prior_ref": ref,
-                    "message": (
-                        "Historical calibration and prior influence records may adjust "
-                        "future routing, review, uncertainty, and authority caps, but "
-                        "they cannot satisfy or refute current-run claim evidence."
-                    ),
-                    "next_action": (
-                        "Move the historical prior ref to an influence surface and bind "
-                        "the claim to current-run producer evidence, typed blockers, "
-                        "limitations, or accepted deficits."
-                    ),
-                    "authority_boundary": _authority_boundary(),
-                }
-            )
+    for path, ref in provenance_values:
+        if not is_historical_prior_ref(ref):
+            continue
+        issues.append(
+            {
+                "code": "historical_prior_ref_not_admissible_as_claim_evidence",
+                "severity": "fail",
+                "layer": "runtime_quality",
+                "phase": "historical_priors_firewall",
+                "claim_id": claim_id,
+                "evidence_slot": path[0],
+                "payload_path": _payload_path(path),
+                "historical_prior_ref": ref,
+                "message": (
+                    "Historical calibration and prior influence records may adjust "
+                    "future routing, review, uncertainty, and authority caps, but "
+                    "they cannot satisfy or refute current-run claim evidence."
+                ),
+                "next_action": (
+                    "Move the historical prior ref to an influence surface and bind "
+                    "the claim to current-run producer evidence, typed blockers, "
+                    "limitations, or accepted deficits."
+                ),
+                "authority_boundary": _authority_boundary(),
+            }
+        )
     return issues
 
 
@@ -1674,21 +1689,11 @@ def _text_tuple(values: object) -> tuple[str, ...]:
     return ()
 
 
-def _refs_from(value: object) -> list[str]:
-    if isinstance(value, str):
-        text = value.strip()
-        return [text] if text else []
-    if isinstance(value, Mapping):
-        refs: list[str] = []
-        for key in ("evidence_ref", "artifact_ref", "ref", "id"):
-            refs.extend(_refs_from(value.get(key)))
-        return list(dict.fromkeys(refs))
-    if isinstance(value, Sequence) and not isinstance(value, str | bytes | bytearray):
-        refs: list[str] = []
-        for item in value:
-            refs.extend(_refs_from(item))
-        return list(dict.fromkeys(refs))
-    return []
+def _payload_path(path: tuple[str, ...]) -> str:
+    output = path[0]
+    for part in path[1:]:
+        output += part if part.startswith("[") else f".{part}"
+    return output
 
 
 def _mapping_rows(value: object) -> list[dict[str, Any]]:

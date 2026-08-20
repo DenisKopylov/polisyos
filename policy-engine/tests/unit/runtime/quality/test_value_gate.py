@@ -3019,6 +3019,66 @@ def test_value_receipt_rejects_world_version_laundering() -> None:
         ValueGateReceipt.model_validate(payload)
 
 
+def test_value_receipt_exposes_each_decisive_consistency_predicate() -> None:
+    world = _world_record("1")
+    receipt = _receipt(world)
+
+    predicates = receipt.decisive_consistency_predicates()
+
+    assert [
+        predicate.model_dump(mode="json", exclude={"content_hash"})
+        for predicate in predicates
+    ] == [
+        {
+            "rule_version": "polisyos.runtime.value_receipt_consistency.v1",
+            "predicate_id": "transport_wmr_hash_equals_receipt_wmr_hash",
+            "source_basis": "receipt_internal_consistency",
+            "candidate_id": "candidate_value_gate",
+            "observed_ref": world.content_hash,
+            "expected_ref": world.content_hash,
+            "satisfied": True,
+            "predicate_provenance": "recomputed",
+        },
+        {
+            "rule_version": "polisyos.runtime.value_receipt_consistency.v1",
+            "predicate_id": "outer_set_wmr_ref_equals_receipt_wmr_hash",
+            "source_basis": "receipt_internal_consistency",
+            "candidate_id": "candidate_value_gate",
+            "observed_ref": world.content_hash,
+            "expected_ref": world.content_hash,
+            "satisfied": True,
+            "predicate_provenance": "recomputed",
+        },
+    ]
+    assert len({predicate.content_hash for predicate in predicates}) == 2
+
+
+def test_value_receipt_transport_hash_predicate_fails_independently() -> None:
+    receipt = _receipt(_world_record("1"))
+    payload = receipt.model_dump(mode="python")
+    payload["value_outer_set"] = receipt.value_outer_set
+    payload["transport_receipt"] = receipt.transport_receipt.model_copy(
+        update={"world_model_record_content_hash": _hash("4")}
+    )
+    payload["calibration_receipt"] = receipt.calibration_receipt
+
+    with pytest.raises(ValueError, match="transport_wmr_hash_mismatch"):
+        ValueGateReceipt.model_validate(payload)
+
+
+def test_value_receipt_outer_set_ref_predicate_fails_independently() -> None:
+    receipt = _receipt(_world_record("1"))
+    payload = receipt.model_dump(mode="python")
+    payload["value_outer_set"] = receipt.value_outer_set.model_copy(
+        update={"world_model_record_ref": _hash("4")}
+    )
+    payload["transport_receipt"] = receipt.transport_receipt
+    payload["calibration_receipt"] = receipt.calibration_receipt
+
+    with pytest.raises(ValueError, match="outer_set_wmr_ref_mismatch"):
+        ValueGateReceipt.model_validate(payload)
+
+
 def test_value_ready_observation_requires_owner_selection_receipt() -> None:
     with pytest.raises(ValueError, match="value_ready_requires_owner_receipts"):
         ValuePortObservation(

@@ -341,7 +341,7 @@ generator = "Layer 3 G6 readiness validator write mode"
 verifier = "Layer 3 G6 readiness validator and architecture guardrails"
 promotion_target = "registered Policy Design Case G6 bounded-agent audit surface artifacts"
 stale_output_behavior = "fail"
-source_of_truth = "src/polisyos/runtime/quality/layer3_bounded_agent.py and tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
+source_of_truth = "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py, src/polisyos/runtime/quality/prompt_tool_ledger.py, architecture/production_quality/orchestration_choice_policies.toml, and tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
 outputs = [
   "architecture/policy_design_case/layer3_g6_dependency_readiness_snapshot.json",
   "architecture/policy_design_case/layer3_g6_request_envelope.json",
@@ -376,7 +376,7 @@ regenerate_commands = [
   "uv run python tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py --repo-root . --write --output-format json",
 ]
 commit_policy = "committed_after_task10_write"
-freshness_rule = "Regenerate and commit whenever the Layer 3 G6 bounded-agent runtime builder, validator, route registry, public projection refs, G5 bridge, or orchestration-choice audit rules change."
+freshness_rule = "Regenerate and commit whenever the Layer 3 G6 bounded-agent runtime builder, prompt/tool/compression ledger owner policy, validator, route registry, public projection refs, G5 bridge, or orchestration-choice audit rules change."
 drift_gate = "automated"
 workflow = "tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
 check_cwd = "."

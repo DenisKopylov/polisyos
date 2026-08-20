@@ -25,7 +25,7 @@ from .layer2_readiness import (
 )
 
 GY_WAIST_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_waist.v1"
-GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v3"
 
 GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION = "policyos.gy.comparison_projection.v1"
 GY_COMPARISON_PROJECTION_SCHEMA_VERSION = "policyos.gy.comparison_projection.v2"
@@ -795,6 +795,24 @@ def gy_artifact_self_identity_projection(value: object) -> dict[str, Any]:
     return projected
 
 
+def overlay_gy_shared_operational_leaves(previous: object, current: object) -> object:
+    """Overlay shared operational leaves while preserving the current payload shape.
+
+    This writer operation is deliberately distinct from strict comparison
+    reconciliation: governing changes and current-only branches remain live,
+    and a previous-only field or sequence member is never manufactured.
+
+    Args:
+        previous: Previously persisted payload supplying admitted operational values.
+        current: Live writer payload supplying shape and governing content.
+
+    Returns:
+        The current-shaped payload with shared canonically operational fields overlaid.
+    """
+
+    return _overlay_gy_shared_operational_leaves(previous, current)
+
+
 def reconcile_gy_operational_leaves(
     previous: object,
     current: object,
@@ -837,7 +855,7 @@ def reconcile_gy_operational_leaves(
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
-    return _reconcile_gy_operational_leaves(previous, current)
+    return overlay_gy_shared_operational_leaves(previous, current)
 
 
 def reconcile_gy_comparison_projection(
@@ -1131,28 +1149,34 @@ def _gy_payload_shape_matches(
     return type(previous) is type(current)
 
 
-def _reconcile_gy_operational_leaves(
+def _overlay_gy_shared_operational_leaves(
     previous: object,
     current: object,
 ) -> object:
-    if isinstance(previous, dict) and isinstance(current, dict):
+    if isinstance(previous, Mapping) and isinstance(current, Mapping):
         return {
             key: (
                 previous[key]
                 if is_gy_content_hash_excluded_field(str(key)) and key in previous
-                else _reconcile_gy_operational_leaves(previous[key], value)
+                else _overlay_gy_shared_operational_leaves(previous[key], value)
+                if key in previous
+                else value
             )
             for key, value in current.items()
         }
     if isinstance(previous, list) and isinstance(current, list):
         return [
-            _reconcile_gy_operational_leaves(left, right)
-            for left, right in zip(previous, current, strict=True)
+            _overlay_gy_shared_operational_leaves(previous[index], value)
+            if index < len(previous)
+            else value
+            for index, value in enumerate(current)
         ]
     if isinstance(previous, tuple) and isinstance(current, tuple):
         return tuple(
-            _reconcile_gy_operational_leaves(left, right)
-            for left, right in zip(previous, current, strict=True)
+            _overlay_gy_shared_operational_leaves(previous[index], value)
+            if index < len(previous)
+            else value
+            for index, value in enumerate(current)
         )
     return current
 
@@ -1272,7 +1296,7 @@ class SearchTerminalKind(StrEnum):
 
 
 class PromotionObligationClass(StrEnum):
-    """Universal N9 obligation-class denominator."""
+    """Declared N9 obligation-class denominator at this promotion rule version."""
 
     SYNTAX = "syntax"
     TYPE = "type"
@@ -1309,6 +1333,14 @@ class PromotionObligationStatus(StrEnum):
     UNKNOWN = "unknown"
     SCOPE_INSUFFICIENT = "scope_insufficient"
     NOT_APPLICABLE_DATA_ONLY = "not_applicable_data_only"
+
+
+type PromotionObligationRole = Literal["class_gate", "decisive_predicate"]
+type PromotionObligationIdentityProvenance = Literal["recomputed"]
+
+PROMOTION_OBLIGATION_IDENTITY_RULE_VERSION = (
+    "polisyos.policy_design_case.layer3_gy.n9_obligation_instance_identity.v1"
+)
 
 
 class PromotionGateId(StrEnum):
@@ -1395,8 +1427,8 @@ class PromotionRiskSpendSummary(GyWaistModel):
         return self
 
 
-class PromotionObligationRecord(GyWaistModel):
-    """One compiled N9 obligation result bound to its real owner or honest scope gap."""
+class PromotionObligationDraft(GyWaistModel):
+    """One owner-produced N9 class result before run-scoped identity finalization."""
 
     obligation_class: PromotionObligationClass
     gate_id: PromotionGateId
@@ -1411,7 +1443,7 @@ class PromotionObligationRecord(GyWaistModel):
     )
 
     @model_validator(mode="after")
-    def _fail_closed_reason_matches_status(self) -> PromotionObligationRecord:
+    def _fail_closed_reason_matches_status(self) -> PromotionObligationDraft:
         if (
             self.status
             in {
@@ -1427,6 +1459,85 @@ class PromotionObligationRecord(GyWaistModel):
             and self.semantic_scope == "scope_insufficient"
         ):
             raise ValueError("obligation_class_vacuously_passed")
+        return self
+
+
+def promotion_obligation_instance_id(
+    *,
+    obligation_role: PromotionObligationRole,
+    obligation_class: PromotionObligationClass,
+    gate_id: PromotionGateId,
+    source_obligation_ref: str,
+    source_obligation_content_hash: str,
+    instance_scope_content_hash: str,
+) -> str:
+    """Derive one obligation identity from its governed source and run scope."""
+
+    return gy_content_hash(
+        {
+            "rule_version": PROMOTION_OBLIGATION_IDENTITY_RULE_VERSION,
+            "obligation_role": obligation_role,
+            "obligation_class": obligation_class.value,
+            "gate_id": gate_id.value,
+            "source_obligation_ref": source_obligation_ref,
+            "source_obligation_content_hash": source_obligation_content_hash,
+            "instance_scope_content_hash": instance_scope_content_hash,
+        }
+    )
+
+
+class PromotionObligationRecord(PromotionObligationDraft):
+    """Canonical N9 row with deterministic identity over governed source content."""
+
+    obligation_role: PromotionObligationRole
+    source_obligation_ref: str = Field(..., min_length=1, max_length=500)
+    source_obligation_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    instance_scope_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    identity_provenance: PromotionObligationIdentityProvenance
+    obligation_instance_id: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @classmethod
+    def from_draft(
+        cls,
+        draft: PromotionObligationDraft,
+        *,
+        obligation_role: PromotionObligationRole,
+        source_obligation_ref: str,
+        source_obligation_content_hash: str,
+        instance_scope_content_hash: str,
+    ) -> PromotionObligationRecord:
+        """Finalize an owner outcome after all class-level mutations are complete."""
+
+        identity = promotion_obligation_instance_id(
+            obligation_role=obligation_role,
+            obligation_class=draft.obligation_class,
+            gate_id=draft.gate_id,
+            source_obligation_ref=source_obligation_ref,
+            source_obligation_content_hash=source_obligation_content_hash,
+            instance_scope_content_hash=instance_scope_content_hash,
+        )
+        return cls(
+            **draft.model_dump(mode="python"),
+            obligation_role=obligation_role,
+            source_obligation_ref=source_obligation_ref,
+            source_obligation_content_hash=source_obligation_content_hash,
+            instance_scope_content_hash=instance_scope_content_hash,
+            identity_provenance="recomputed",
+            obligation_instance_id=identity,
+        )
+
+    @model_validator(mode="after")
+    def _identity_is_recomputed_from_governing_content(self) -> PromotionObligationRecord:
+        expected = promotion_obligation_instance_id(
+            obligation_role=self.obligation_role,
+            obligation_class=self.obligation_class,
+            gate_id=self.gate_id,
+            source_obligation_ref=self.source_obligation_ref,
+            source_obligation_content_hash=self.source_obligation_content_hash,
+            instance_scope_content_hash=self.instance_scope_content_hash,
+        )
+        if self.obligation_instance_id != expected:
+            raise ValueError("promotion_obligation_instance_identity_mismatch")
         return self
 
 

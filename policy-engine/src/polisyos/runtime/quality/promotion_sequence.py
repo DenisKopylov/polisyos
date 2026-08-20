@@ -34,6 +34,7 @@ from polisyos.pdc import (
     PromotionFailClosedReason,
     PromotionGateId,
     PromotionObligationClass,
+    PromotionObligationDraft,
     PromotionObligationRecord,
     PromotionObligationStatus,
     PromotionRiskSpendRecord,
@@ -45,6 +46,7 @@ from polisyos.pdc import (
     gy_content_hash,
     gy_recorded_content_hash,
     is_gy_declared_non_authority_block,
+    promotion_obligation_instance_id,
 )
 from polisyos.pdc._impl.layer2_design_search import (  # noqa: TC001
     Layer2S6BlindSpotPostureInput,
@@ -111,6 +113,12 @@ _G4_PROMOTION_RECORDS_PATH = Path(
     "architecture/policy_design_case/layer3_g4_promotion_records.json"
 )
 _VERIFICATION_NON_PROMOTABLE_REASON = "verification_only_replay"
+_PROMOTION_OBLIGATION_SCOPE_RULE_VERSION = (
+    "polisyos.policy_design_case.layer3_gy.n9_obligation_scope.v1"
+)
+_PROMOTION_CLASS_GATE_SOURCE_RULE_VERSION = (
+    "polisyos.policy_design_case.layer3_gy.n9_class_gate_source.v1"
+)
 
 
 @dataclass(frozen=True)
@@ -158,7 +166,7 @@ class CredalReferencePromotabilityProjection(_StrictModel):
 class CanonicalPromotionInput(_StrictModel):
     """Complete input to one canonical N9 promotion attempt."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v2"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v3"] = (
         GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     design_problem_binding: N9DesignProblemBinding
@@ -251,7 +259,7 @@ class CanonicalPromotionOwnerProjection(_StrictModel):
 class CanonicalPromotionReceipt(_StrictModel):
     """Replay-visible result of the canonical N9 sequence."""
 
-    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v2"] = (
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v3"] = (
         GY_PROMOTION_SEQUENCE_SCHEMA_VERSION
     )
     owner_projection: CanonicalPromotionOwnerProjection
@@ -286,6 +294,8 @@ class CanonicalPromotionReceipt(_StrictModel):
     def _promoted_requires_trace(self) -> CanonicalPromotionReceipt:
         expected_scope = confidence_risk_scope_for_problem(
             self.owner_projection.design_problem_binding
+        ).model_copy(
+            update={"rule_ref": self.schema_version}
         )
         if (
             self.owner_projection.candidate_summary.candidate_id != self.candidate_id
@@ -385,6 +395,20 @@ class CanonicalPromotionReceipt(_StrictModel):
         return self
 
 
+class _LegacyCanonicalPromotionReceiptV2(CanonicalPromotionReceipt):
+    """Strict v2 custody shape admitted only by the comparison migrator."""
+
+    schema_version: Literal["policyos.policy_design_case.layer3_gy.n9_promotion.v2"] = (
+        "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+    )
+    obligations: tuple[PromotionObligationDraft, ...]
+
+
+_LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION = (
+    "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+)
+
+
 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE = (
     "polisyos.runtime.quality.promotion_sequence."
     "canonical_promotion_receipt_verification_projection.v1"
@@ -428,6 +452,16 @@ _PROMOTION_LEDGER_ROW_LINEAGE_FIELDS = frozenset(
     }
 )
 _PROMOTION_RISK_SPEND_LINEAGE_FIELDS = frozenset({"n11_confidence_ledger_ref"})
+_PROMOTION_OBLIGATION_IDENTITY_FIELDS = frozenset(
+    {
+        "obligation_role",
+        "source_obligation_ref",
+        "source_obligation_content_hash",
+        "instance_scope_content_hash",
+        "identity_provenance",
+        "obligation_instance_id",
+    }
+)
 _PROMOTION_TRACE_LINEAGE_FIELDS = frozenset(
     {
         "applicability_result_ref",
@@ -458,29 +492,18 @@ def _project_typed_fields(
     return {str(key): item for key, item in payload.items() if key not in lineage_fields}
 
 
-def _canonical_promotion_receipt_legacy_semantic_projection(
-    value: Mapping[str, object],
+def _project_promotion_receipt_payload(
+    full_payload: dict[str, Any],
+    *,
+    model_type: type[BaseModel],
+    receipt_lineage_fields: frozenset[str],
 ) -> dict[str, Any]:
-    """Reproduce the v1 projection solely for an owner-bound legacy migration.
+    """Project one already-validated receipt through its typed lineage partitions."""
 
-    This projector is not registered for new manifests or admissions.  Its
-    only caller compares all legacy governing fields before the live producer
-    may attach the new semantic ledger lineage.
-    """
-
-    receipt = CanonicalPromotionReceipt.model_validate(value)
-    if not is_gy_declared_non_authority_block(
-        receipt.confidence_ledger_projection.model_dump(mode="json")
-    ):
-        raise ValueError("promotion_comparison_requires_verification_receipt")
-    full_payload = receipt.model_dump(mode="json")
     projected = _project_typed_fields(
         full_payload,
-        model_type=CanonicalPromotionReceipt,
-        lineage_fields=(
-            _PROMOTION_RECEIPT_LINEAGE_FIELDS
-            | frozenset({"confidence_ledger_semantic_projection"})
-        ),
+        model_type=model_type,
+        lineage_fields=receipt_lineage_fields,
         context="promotion_receipt",
     )
     projected["owner_projection"] = _project_typed_fields(
@@ -550,10 +573,96 @@ def _canonical_promotion_receipt_legacy_semantic_projection(
     return projected
 
 
+def _normalize_legacy_promotion_rule_aliases(
+    projected: dict[str, Any],
+) -> dict[str, Any]:
+    """Normalize only typed v2/v3 rule aliases after both raw receipts validate."""
+
+    normalized = copy.deepcopy(projected)
+
+    def alias(value: object) -> object:
+        if value == GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+            return _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION
+        return value
+
+    normalized["schema_version"] = alias(normalized["schema_version"])
+    certificate = normalized["confidence_ledger_projection"]
+    certificate["risk_scope"]["rule_ref"] = alias(
+        certificate["risk_scope"]["rule_ref"]
+    )
+
+    boundaries: list[dict[str, Any]] = [normalized["computed_authority_boundary"]]
+    owner_projection = normalized["owner_projection"]
+    for posture_name in ("s7_delegation_posture", "s8_value_posture"):
+        posture = owner_projection.get(posture_name)
+        if isinstance(posture, dict):
+            boundary = posture.get("authority_boundary")
+            if isinstance(boundary, dict):
+                boundaries.append(boundary)
+    for boundary in boundaries:
+        boundary["rule_version_refs"] = [
+            alias(value) for value in boundary["rule_version_refs"]
+        ]
+
+    trace = normalized.get("authority_derivation_trace")
+    if isinstance(trace, dict):
+        output_ref = trace.get("output_artifact_ref")
+        if isinstance(output_ref, dict):
+            output_ref["schema_ref"] = alias(output_ref.get("schema_ref"))
+    return normalized
+
+
+def _canonical_promotion_receipt_legacy_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Down-project strict v2 or v3 custody solely for the v2-to-v3 migration."""
+
+    schema_version = value.get("schema_version")
+    if schema_version == GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+        receipt = CanonicalPromotionReceipt.model_validate(value)
+        full_payload = receipt.model_dump(mode="json")
+        class_rows = [
+            _project_typed_fields(
+                row,
+                model_type=PromotionObligationRecord,
+                lineage_fields=_PROMOTION_OBLIGATION_IDENTITY_FIELDS,
+                context="promotion_obligation_v2_migration",
+            )
+            for row in full_payload["obligations"]
+            if row.get("obligation_role") == "class_gate"
+        ]
+        if tuple(row["obligation_class"] for row in class_rows) != tuple(
+            item.value for item in PromotionObligationClass
+        ):
+            raise ValueError("promotion_legacy_class_denominator_mismatch")
+        full_payload["obligations"] = class_rows
+        model_type: type[BaseModel] = CanonicalPromotionReceipt
+    elif schema_version == _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+        receipt = _LegacyCanonicalPromotionReceiptV2.model_validate(value)
+        full_payload = receipt.model_dump(mode="json")
+        model_type = _LegacyCanonicalPromotionReceiptV2
+    else:
+        raise ValueError("promotion_legacy_comparison_schema_invalid")
+    if not is_gy_declared_non_authority_block(
+        receipt.confidence_ledger_projection.model_dump(mode="json")
+    ):
+        raise ValueError("promotion_comparison_requires_verification_receipt")
+    return _normalize_legacy_promotion_rule_aliases(
+        _project_promotion_receipt_payload(
+            full_payload,
+            model_type=model_type,
+            receipt_lineage_fields=(
+                _PROMOTION_RECEIPT_LINEAGE_FIELDS
+                | frozenset({"confidence_ledger_semantic_projection"})
+            ),
+        )
+    )
+
+
 def canonical_promotion_receipt_semantic_projection(
     value: Mapping[str, object],
 ) -> dict[str, Any]:
-    """Project a verified receipt onto its v2 producer-owned semantics.
+    """Project a verified receipt onto its v3 producer-owned semantics.
 
     The complete raw receipt remains the custody record. Physical ledger
     locators are non-decisive only when the confidence-ledger producer's full
@@ -564,9 +673,15 @@ def canonical_promotion_receipt_semantic_projection(
     semantic = receipt.confidence_ledger_semantic_projection
     if semantic is None:
         raise ValueError("promotion_comparison_semantic_ledger_missing")
-    projected = _canonical_promotion_receipt_legacy_semantic_projection(value)
-    projected["confidence_ledger_semantic_projection"] = semantic.model_dump(mode="json")
-    return projected
+    if not is_gy_declared_non_authority_block(
+        receipt.confidence_ledger_projection.model_dump(mode="json")
+    ):
+        raise ValueError("promotion_comparison_requires_verification_receipt")
+    return _project_promotion_receipt_payload(
+        receipt.model_dump(mode="json"),
+        model_type=CanonicalPromotionReceipt,
+        receipt_lineage_fields=_PROMOTION_RECEIPT_LINEAGE_FIELDS,
+    )
 
 
 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE = GyComparisonOwnerRule(
@@ -1323,7 +1438,7 @@ def _check_binds_compiled_obligation(
     promotion_input: CanonicalPromotionInput,
     *,
     registry: ConfidenceLedgerRegistry,
-    obligation: PromotionObligationRecord,
+    obligation: PromotionObligationDraft,
     check: ConfidenceLedgerCheck,
     offers_by_class: Mapping[str, PromotionCertificateOffer],
 ) -> bool:
@@ -1356,11 +1471,11 @@ def _check_binds_compiled_obligation(
 def _bind_certificate_checks_to_obligations(
     promotion_input: CanonicalPromotionInput,
     registry: ConfidenceLedgerRegistry,
-    obligations: Sequence[PromotionObligationRecord],
+    obligations: Sequence[PromotionObligationDraft],
     checks: Sequence[ConfidenceLedgerCheck],
     *,
     risk_spend: PromotionRiskSpendSummary,
-) -> tuple[PromotionObligationRecord, ...]:
+) -> tuple[PromotionObligationDraft, ...]:
     """Apply every typed certificate offer through one obligation-class chokepoint."""
 
     checks_by_class: dict[PromotionObligationClass, list[ConfidenceLedgerCheck]] = {}
@@ -1373,7 +1488,7 @@ def _bind_certificate_checks_to_obligations(
             registry=registry,
         )
     }
-    bound: list[PromotionObligationRecord] = []
+    bound: list[PromotionObligationDraft] = []
     for obligation in obligations:
         class_checks = checks_by_class.get(obligation.obligation_class, [])
         if not class_checks or obligation.status != PromotionObligationStatus.SATISFIED:
@@ -1440,7 +1555,7 @@ def _build_promotion_receipt_from_owners(
     ledger_projection: N9PromotionCertificateProjection,
     ledger_semantic_projection: N9PromotionSemanticLedgerProjection,
     cg2_attempt: _CG2OwnerPromotabilityAttempt | None = None,
-    base_obligations: tuple[PromotionObligationRecord, ...] | None = None,
+    base_obligations: tuple[PromotionObligationDraft, ...] | None = None,
 ) -> CanonicalPromotionReceipt:
     attempt = cg2_attempt or _resolve_cg2_owner_promotability(promotion_input)
     obligations = base_obligations or _compile_obligations(
@@ -1455,13 +1570,14 @@ def _build_promotion_receipt_from_owners(
         ),
     )
     risk_spend = _risk_spend_summary(expected_checks, ledger_projection)
-    obligations = _bind_certificate_checks_to_obligations(
+    class_obligations = _bind_certificate_checks_to_obligations(
         promotion_input,
         registry,
         obligations,
         expected_checks,
         risk_spend=risk_spend,
     )
+    obligations = _finalize_obligations(promotion_input, class_obligations)
     promotion_lane = _promotion_lane(attempt)
     gate_hash = _gate_outcome_hash(obligations)
     boundary = _computed_authority_boundary(promotion_input)
@@ -1780,33 +1896,53 @@ def admit_canonical_promotion_receipt_for_comparison(
         previous: Mapping[str, object],
         current: Mapping[str, object],
     ) -> Mapping[str, object]:
-        """Attach only this live proof's semantic lineage to legacy custody."""
+        """Admit only the exact v2-to-v3 identity migration proven by this live run."""
 
         try:
             current_receipt = CanonicalPromotionReceipt.model_validate(current)
             if current_receipt != parsed:
                 raise ValueError("live_receipt_drift")
-            previous_receipt = CanonicalPromotionReceipt.model_validate(previous)
-            if previous_receipt.confidence_ledger_semantic_projection is not None:
-                return previous
-            if (
-                _canonical_promotion_receipt_legacy_semantic_projection(previous)
-                != _canonical_promotion_receipt_legacy_semantic_projection(current)
-            ):
+            previous_schema = previous.get("schema_version")
+            if previous_schema == GY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+                previous_receipt = CanonicalPromotionReceipt.model_validate(previous)
+                if previous_receipt.confidence_ledger_semantic_projection is not None:
+                    if (
+                        canonical_promotion_receipt_semantic_projection(previous)
+                        != canonical_promotion_receipt_semantic_projection(current)
+                    ):
+                        raise ValueError("current_governing_projection_drift")
+                    return previous
+                migrated = {str(key): copy.deepcopy(item) for key, item in previous.items()}
+                semantic = current_receipt.confidence_ledger_semantic_projection
+                if semantic is None:
+                    raise ValueError("semantic_projection_missing")
+                migrated["confidence_ledger_semantic_projection"] = semantic.model_dump(
+                    mode="json"
+                )
+                migrated_receipt = CanonicalPromotionReceipt.model_validate(migrated)
+                migrated_payload = migrated_receipt.model_dump(mode="json")
+                if (
+                    canonical_promotion_receipt_semantic_projection(migrated_payload)
+                    != canonical_promotion_receipt_semantic_projection(current)
+                ):
+                    raise ValueError("migrated_semantic_projection_drift")
+                return migrated_payload
+            if previous_schema != _LEGACY_PROMOTION_SEQUENCE_SCHEMA_VERSION:
+                raise ValueError("legacy_schema_not_admitted")
+            _LegacyCanonicalPromotionReceiptV2.model_validate(previous)
+            previous_projection = _canonical_promotion_receipt_legacy_semantic_projection(
+                previous
+            )
+            current_projection = _canonical_promotion_receipt_legacy_semantic_projection(
+                current
+            )
+            if previous_projection != current_projection:
                 raise ValueError("legacy_governing_projection_drift")
-            semantic = parsed.confidence_ledger_semantic_projection
-            if semantic is None:  # pragma: no cover - v2 projector above owns this guard.
-                raise ValueError("semantic_projection_missing")
-            migrated = {str(key): copy.deepcopy(item) for key, item in previous.items()}
-            migrated["confidence_ledger_semantic_projection"] = semantic.model_dump(mode="json")
+            migrated = {str(key): copy.deepcopy(item) for key, item in current.items()}
             migrated_receipt = CanonicalPromotionReceipt.model_validate(migrated)
-            migrated_payload = migrated_receipt.model_dump(mode="json")
-            if (
-                canonical_promotion_receipt_semantic_projection(migrated_payload)
-                != canonical_promotion_receipt_semantic_projection(current)
-            ):
+            if migrated_receipt != current_receipt:
                 raise ValueError("migrated_semantic_projection_drift")
-            return migrated_payload
+            return migrated_receipt.model_dump(mode="json")
         except (TypeError, ValueError) as exc:
             raise ValueError("promotion_legacy_comparison_semantic_mismatch") from exc
 
@@ -1926,6 +2062,12 @@ def _validate_promotion_receipt_with_bound_session(
         replay_input,
         cg2_attempt=replay_cg2_attempt,
     )
+    issues.extend(
+        _obligation_instance_issues(
+            receipt.obligations,
+            replay_input=replay_input,
+        )
+    )
     expected_scope = confidence_risk_scope_for_problem(replay_input.design_problem_binding)
     if receipt.confidence_ledger_projection.risk_scope != expected_scope:
         issues.append({"code": "confidence_ledger_scope_binding_mismatch"})
@@ -2020,7 +2162,8 @@ def _validate_promotion_receipt_with_bound_session(
             }
             for check in expected_checks:
                 expected_checks_by_class.setdefault(check.obligation_class, []).append(check)
-    classes = tuple(item.obligation_class for item in receipt.obligations)
+    class_gate_obligations = _class_gate_obligations(receipt.obligations)
+    classes = tuple(item.obligation_class for item in class_gate_obligations)
     expected = tuple(PromotionObligationClass)
     denominator_complete = classes == expected
     if not denominator_complete:
@@ -2031,7 +2174,7 @@ def _validate_promotion_receipt_with_bound_session(
                 "actual": [item.value for item in classes],
             }
         )
-    for obligation in receipt.obligations:
+    for obligation in class_gate_obligations:
         spend = obligation.risk_spend
         if spend is not None:
             check_ref = spend.n11_confidence_ledger_ref
@@ -2396,7 +2539,7 @@ def _compile_obligations(
     promotion_input: CanonicalPromotionInput,
     *,
     cg2_attempt: _CG2OwnerPromotabilityAttempt,
-) -> tuple[PromotionObligationRecord, ...]:
+) -> tuple[PromotionObligationDraft, ...]:
     receipt = promotion_input.value_receipt
     summary = promotion_input.candidate_summary
     obligations = [
@@ -2424,7 +2567,207 @@ def _compile_obligations(
     return tuple(obligations)
 
 
-def _syntax_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObligationRecord:
+def _obligation_instance_scope_content_hash(
+    promotion_input: CanonicalPromotionInput,
+) -> str:
+    binding = promotion_input.design_problem_binding
+    summary = promotion_input.candidate_summary
+    return gy_content_hash(
+        {
+            "rule_version": _PROMOTION_OBLIGATION_SCOPE_RULE_VERSION,
+            "promotion_rule_version": promotion_input.schema_version,
+            "design_problem_id": binding.design_problem_id,
+            "problem_content_hash": binding.problem_content_hash,
+            "candidate_id": summary.candidate_id,
+            "candidate_content_hash": summary.content_hash,
+            "operation_invocation_id": promotion_input.operation_invocation_id,
+        }
+    )
+
+
+def _class_gate_source(
+    draft: PromotionObligationDraft,
+) -> tuple[str, str]:
+    source_ref = (
+        f"{PROMOTION_SEQUENCE_REF}#class_gate/{draft.obligation_class.value}"
+    )
+    source_content_hash = gy_content_hash(
+        {
+            "rule_version": _PROMOTION_CLASS_GATE_SOURCE_RULE_VERSION,
+            "source_obligation_ref": source_ref,
+            "obligation_class": draft.obligation_class.value,
+            "gate_id": draft.gate_id.value,
+            "owner_ref": draft.owner_ref,
+        }
+    )
+    return source_ref, source_content_hash
+
+
+def _decisive_predicate_obligations(
+    promotion_input: CanonicalPromotionInput,
+    *,
+    instance_scope_content_hash: str,
+) -> tuple[PromotionObligationRecord, ...]:
+    receipt = promotion_input.value_receipt
+    if receipt is None:
+        return ()
+    records: list[PromotionObligationRecord] = []
+    for predicate in receipt.decisive_consistency_predicates():
+        if not predicate.satisfied:
+            raise ValueError("decisive_value_receipt_predicate_not_satisfied")
+        source_ref = (
+            "polisyos.runtime.quality.generation_cycle.ValueGateReceipt#"
+            f"{predicate.predicate_id}"
+        )
+        draft = PromotionObligationDraft(
+            obligation_class=PromotionObligationClass.SLOT,
+            gate_id=PromotionGateId.N8_TRANSPORT,
+            status=PromotionObligationStatus.SATISFIED,
+            owner_ref=(
+                "polisyos.runtime.quality.generation_cycle."
+                "ValueGateReceipt.decisive_consistency_predicates"
+            ),
+            detail=(
+                f"Generation owner recomputed {predicate.predicate_id}; this establishes "
+                "receipt-internal consistency only."
+            ),
+            evidence_refs=list(
+                dict.fromkeys(
+                    (
+                        predicate.content_hash,
+                        predicate.observed_ref,
+                        predicate.expected_ref,
+                    )
+                )
+            ),
+        )
+        records.append(
+            PromotionObligationRecord.from_draft(
+                draft,
+                obligation_role="decisive_predicate",
+                source_obligation_ref=source_ref,
+                source_obligation_content_hash=predicate.content_hash,
+                instance_scope_content_hash=instance_scope_content_hash,
+            )
+        )
+    return tuple(records)
+
+
+def _finalize_obligations(
+    promotion_input: CanonicalPromotionInput,
+    class_obligations: Sequence[PromotionObligationDraft],
+) -> tuple[PromotionObligationRecord, ...]:
+    """Add run-scoped identity only after all class-level owner mutations."""
+
+    if tuple(item.obligation_class for item in class_obligations) != tuple(
+        PromotionObligationClass
+    ):
+        raise ValueError("promotion_obligation_denominator_not_total")
+    scope_hash = _obligation_instance_scope_content_hash(promotion_input)
+    finalized: list[PromotionObligationRecord] = []
+    for draft in class_obligations:
+        source_ref, source_content_hash = _class_gate_source(draft)
+        finalized.append(
+            PromotionObligationRecord.from_draft(
+                draft,
+                obligation_role="class_gate",
+                source_obligation_ref=source_ref,
+                source_obligation_content_hash=source_content_hash,
+                instance_scope_content_hash=scope_hash,
+            )
+        )
+    finalized.extend(
+        _decisive_predicate_obligations(
+            promotion_input,
+            instance_scope_content_hash=scope_hash,
+        )
+    )
+    instance_ids = [item.obligation_instance_id for item in finalized]
+    if len(instance_ids) != len(set(instance_ids)):
+        raise ValueError("promotion_obligation_instance_identity_collision")
+    return tuple(finalized)
+
+
+def _class_gate_obligations(
+    obligations: Sequence[PromotionObligationRecord],
+) -> tuple[PromotionObligationRecord, ...]:
+    return tuple(item for item in obligations if item.obligation_role == "class_gate")
+
+
+def _decisive_obligations(
+    obligations: Sequence[PromotionObligationRecord],
+) -> tuple[PromotionObligationRecord, ...]:
+    return tuple(
+        item for item in obligations if item.obligation_role == "decisive_predicate"
+    )
+
+
+def _obligation_instance_issues(
+    obligations: Sequence[PromotionObligationRecord],
+    *,
+    replay_input: CanonicalPromotionInput,
+) -> tuple[dict[str, Any], ...]:
+    issues: list[dict[str, Any]] = []
+    ids = [item.obligation_instance_id for item in obligations]
+    duplicate_ids = sorted({item for item in ids if ids.count(item) > 1})
+    for instance_id in duplicate_ids:
+        issues.append(
+            {
+                "code": "duplicate_obligation_instance_id",
+                "obligation_instance_id": instance_id,
+            }
+        )
+    for obligation in obligations:
+        expected_id = promotion_obligation_instance_id(
+            obligation_role=obligation.obligation_role,
+            obligation_class=obligation.obligation_class,
+            gate_id=obligation.gate_id,
+            source_obligation_ref=obligation.source_obligation_ref,
+            source_obligation_content_hash=obligation.source_obligation_content_hash,
+            instance_scope_content_hash=obligation.instance_scope_content_hash,
+        )
+        if obligation.obligation_instance_id != expected_id:
+            issues.append(
+                {
+                    "code": "obligation_instance_identity_mismatch",
+                    "obligation_instance_id": obligation.obligation_instance_id,
+                }
+            )
+
+    scope_hash = _obligation_instance_scope_content_hash(replay_input)
+    expected_decisive = _decisive_predicate_obligations(
+        replay_input,
+        instance_scope_content_hash=scope_hash,
+    )
+    expected_by_id = {item.obligation_instance_id: item for item in expected_decisive}
+    actual_decisive = _decisive_obligations(obligations)
+    actual_by_id = {item.obligation_instance_id: item for item in actual_decisive}
+    for instance_id in expected_by_id.keys() - actual_by_id.keys():
+        issues.append(
+            {
+                "code": "decisive_obligation_omitted",
+                "obligation_instance_id": instance_id,
+            }
+        )
+    for instance_id in actual_by_id.keys() - expected_by_id.keys():
+        issues.append(
+            {
+                "code": "unexpected_decisive_obligation_instance",
+                "obligation_instance_id": instance_id,
+            }
+        )
+    for instance_id in expected_by_id.keys() & actual_by_id.keys():
+        if actual_by_id[instance_id] != expected_by_id[instance_id]:
+            issues.append(
+                {
+                    "code": "decisive_obligation_substituted",
+                    "obligation_instance_id": instance_id,
+                }
+            )
+    return tuple(issues)
+
+
+def _syntax_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObligationDraft:
     roots = {item.strip().lower() for item in promotion_input.producer_root_classes}
     if roots & _SELF_PROMOTION_ROOTS:
         return _failed_obligation(
@@ -2441,7 +2784,7 @@ def _syntax_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObl
     )
 
 
-def _type_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRecord:
+def _type_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationDraft:
     if receipt is None:
         return _failed_obligation(
             obligation_class=PromotionObligationClass.TYPE,
@@ -2459,7 +2802,7 @@ def _type_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRec
     )
 
 
-def _slot_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObligationRecord:
+def _slot_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObligationDraft:
     receipt = promotion_input.value_receipt
     world = promotion_input.world_model_record
     if receipt is None:
@@ -2495,7 +2838,7 @@ def _slot_obligation(promotion_input: CanonicalPromotionInput) -> PromotionOblig
     )
 
 
-def _param_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObligationRecord:
+def _param_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObligationDraft:
     if promotion_input.declared_authority_transform.get("force_promote") is True:
         return _failed_obligation(
             obligation_class=PromotionObligationClass.PARAM,
@@ -2534,7 +2877,7 @@ def _param_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObli
     )
 
 
-def _coupling_obligation(summary: CandidateSummary) -> PromotionObligationRecord:
+def _coupling_obligation(summary: CandidateSummary) -> PromotionObligationDraft:
     blockers = set(summary.value_blockers)
     if "n5_coupling_blocked" in blockers or "joint_obligation_inconsistency" in blockers:
         return _failed_obligation(
@@ -2554,9 +2897,9 @@ def _coupling_obligation(summary: CandidateSummary) -> PromotionObligationRecord
 
 def _effect_obligation(
     promotion_input: CanonicalPromotionInput,
-) -> PromotionObligationRecord:
+) -> PromotionObligationDraft:
     if promotion_input.force_proof_timeout:
-        return PromotionObligationRecord(
+        return PromotionObligationDraft(
             obligation_class=PromotionObligationClass.EFFECT,
             gate_id=PromotionGateId.GYK_ENTAILMENT,
             status=PromotionObligationStatus.UNKNOWN,
@@ -2579,7 +2922,7 @@ def _identification_obligation(
     promotion_input: CanonicalPromotionInput,
     *,
     cg2_attempt: _CG2OwnerPromotabilityAttempt,
-) -> PromotionObligationRecord:
+) -> PromotionObligationDraft:
     summary = promotion_input.candidate_summary
     if not summary.current_valid or summary.grounding_status != "current_valid":
         return _failed_obligation(
@@ -2629,7 +2972,7 @@ def _identification_obligation(
     )
 
 
-def _calibration_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRecord:
+def _calibration_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationDraft:
     if receipt is None:
         return _failed_obligation(
             obligation_class=PromotionObligationClass.CALIBRATION,
@@ -2660,7 +3003,7 @@ def _calibration_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
     )
 
 
-def _measurement_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRecord:
+def _measurement_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationDraft:
     del receipt
     return _scope_insufficient_obligation(
         obligation_class=PromotionObligationClass.MEASUREMENT,
@@ -2673,7 +3016,7 @@ def _measurement_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
     )
 
 
-def _data_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRecord:
+def _data_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationDraft:
     if receipt is None:
         return _failed_obligation(
             obligation_class=PromotionObligationClass.DATA,
@@ -2700,7 +3043,7 @@ def _data_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRec
 
 def _implementation_obligation(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
-) -> PromotionObligationRecord:
+) -> PromotionObligationDraft:
     return evaluate_s6_blind_spot_promotion_gate(blind_spot_posture)
 
 
@@ -2729,7 +3072,7 @@ def _resolve_g4_governed_promotion_record(
     return None, "governed_promotion_record_not_found"
 
 
-def _equilibrium_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRecord:
+def _equilibrium_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationDraft:
     if receipt is not None and receipt.value_outer_set.assumption_status == "violated":
         return _failed_obligation(
             obligation_class=PromotionObligationClass.EQUILIBRIUM,
@@ -2745,7 +3088,7 @@ def _equilibrium_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
     )
 
 
-def _eval_safety_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationRecord:
+def _eval_safety_obligation(receipt: ValueGateReceipt | None) -> PromotionObligationDraft:
     mode = receipt.evaluation_mode if receipt is not None else None
     if mode in {"sandbox_pilot", "field_pilot", "deployment"}:
         return _scope_insufficient_obligation(
@@ -2754,7 +3097,7 @@ def _eval_safety_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
             owner_ref="GY-O0 eval-safety gate",
             detail="GY-O0 eval-safety owner is not implemented for pilot/deployment promotion.",
         )
-    return PromotionObligationRecord(
+    return PromotionObligationDraft(
         obligation_class=PromotionObligationClass.EVAL_SAFETY,
         gate_id=PromotionGateId.GY_O0_EVAL_SAFETY,
         status=PromotionObligationStatus.NOT_APPLICABLE_DATA_ONLY,
@@ -2767,7 +3110,7 @@ def _eval_safety_obligation(receipt: ValueGateReceipt | None) -> PromotionObliga
     )
 
 
-def _value_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObligationRecord:
+def _value_obligation(promotion_input: CanonicalPromotionInput) -> PromotionObligationDraft:
     receipt = promotion_input.value_receipt
     if receipt is None:
         return _failed_obligation(
@@ -2803,8 +3146,8 @@ def _satisfied_obligation(
     owner_ref: str,
     detail: str,
     evidence_refs: Sequence[str] = (),
-) -> PromotionObligationRecord:
-    return PromotionObligationRecord(
+) -> PromotionObligationDraft:
+    return PromotionObligationDraft(
         obligation_class=obligation_class,
         gate_id=gate_id,
         status=PromotionObligationStatus.SATISFIED,
@@ -2821,8 +3164,8 @@ def _failed_obligation(
     owner_ref: str,
     detail: str,
     reason: PromotionFailClosedReason = PromotionFailClosedReason.SINGLE_OBLIGATION_FAIL,
-) -> PromotionObligationRecord:
-    return PromotionObligationRecord(
+) -> PromotionObligationDraft:
+    return PromotionObligationDraft(
         obligation_class=obligation_class,
         gate_id=gate_id,
         status=PromotionObligationStatus.FAILED,
@@ -2838,8 +3181,8 @@ def _scope_insufficient_obligation(
     gate_id: PromotionGateId,
     owner_ref: str,
     detail: str,
-) -> PromotionObligationRecord:
-    return PromotionObligationRecord(
+) -> PromotionObligationDraft:
+    return PromotionObligationDraft(
         obligation_class=obligation_class,
         gate_id=gate_id,
         status=PromotionObligationStatus.SCOPE_INSUFFICIENT,
@@ -2980,7 +3323,8 @@ def _authority_derivation_trace(
         calibration_refs=[
             ref
             for obligation in obligations
-            if obligation.obligation_class == PromotionObligationClass.CALIBRATION
+            if obligation.obligation_role == "class_gate"
+            and obligation.obligation_class == PromotionObligationClass.CALIBRATION
             for ref in obligation.evidence_refs
         ],
         counterexamples_closed=[],

@@ -1,0 +1,33 @@
+schema_version = "policyos.runtime.orchestration_choice_policy_catalog.v1"
+owner = "team-runtime-quality"
+approval_owner = "team-runtime-quality"
+
+[[choice_policy]]
+choice_kind = "evidence-selection"
+decision_policy_ref = "policyos://orchestration-choice-policy/evidence-selection/v1"
+authority_effect = "narrows candidate evidence without creating claim authority"
+governance_burden_change_allowed = false
+
+[[choice_policy]]
+choice_kind = "tool-choice"
+decision_policy_ref = "policyos://orchestration-choice-policy/tool-choice/v1"
+authority_effect = "narrows callable tools without creating execution authority"
+governance_burden_change_allowed = false
+
+[[choice_policy]]
+choice_kind = "framing"
+decision_policy_ref = "policyos://orchestration-choice-policy/framing/v1"
+authority_effect = "records framing effects on governance burden without granting authority"
+governance_burden_change_allowed = true
+
+[[choice_policy]]
+choice_kind = "counterevidence-selection"
+decision_policy_ref = "policyos://orchestration-choice-policy/counterevidence-selection/v1"
+authority_effect = "preserves selected and rejected counterevidence branches as audit only"
+governance_burden_change_allowed = false
+
+[[choice_policy]]
+choice_kind = "compression"
+decision_policy_ref = "policyos://orchestration-choice-policy/compression/v1"
+authority_effect = "reduces presentation material while preserving or narrowing authority"
+governance_burden_change_allowed = false

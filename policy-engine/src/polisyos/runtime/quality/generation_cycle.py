@@ -370,6 +370,58 @@ class ValueDataProfile(_StrictModel):
         return self
 
 
+class ValueReceiptConsistencyPredicate(_StrictModel):
+    """One generation-owner recomputation over a value receipt's internal refs."""
+
+    rule_version: Literal["polisyos.runtime.value_receipt_consistency.v1"] = (
+        "polisyos.runtime.value_receipt_consistency.v1"
+    )
+    predicate_id: Literal[
+        "transport_wmr_hash_equals_receipt_wmr_hash",
+        "outer_set_wmr_ref_equals_receipt_wmr_hash",
+    ]
+    source_basis: Literal["receipt_internal_consistency"] = "receipt_internal_consistency"
+    candidate_id: str = Field(..., min_length=1)
+    observed_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    expected_ref: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    satisfied: bool
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @classmethod
+    def recompute(
+        cls,
+        *,
+        predicate_id: Literal[
+            "transport_wmr_hash_equals_receipt_wmr_hash",
+            "outer_set_wmr_ref_equals_receipt_wmr_hash",
+        ],
+        candidate_id: str,
+        observed_ref: str,
+        expected_ref: str,
+    ) -> ValueReceiptConsistencyPredicate:
+        """Recompute and content-bind one exact receipt-consistency predicate."""
+
+        payload = {
+            "rule_version": "polisyos.runtime.value_receipt_consistency.v1",
+            "predicate_id": predicate_id,
+            "source_basis": "receipt_internal_consistency",
+            "candidate_id": candidate_id,
+            "observed_ref": observed_ref,
+            "expected_ref": expected_ref,
+            "satisfied": observed_ref == expected_ref,
+            "predicate_provenance": "recomputed",
+        }
+        return cls(**payload, content_hash=gy_content_hash(payload))
+
+    @model_validator(mode="after")
+    def _verify_content_hash(self) -> ValueReceiptConsistencyPredicate:
+        payload = self.model_dump(mode="json", exclude={"content_hash"})
+        if self.content_hash != gy_content_hash(payload):
+            raise ValueError("value_receipt_predicate_content_hash_mismatch")
+        return self
+
+
 class ValueGateReceipt(_StrictModel):
     """Replay-visible value receipt emitted only after live owner gates pass."""
 
@@ -390,18 +442,42 @@ class ValueGateReceipt(_StrictModel):
     k_world_ref_before: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
     k_world_ref_after: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
 
+    def decisive_consistency_predicates(
+        self,
+    ) -> tuple[ValueReceiptConsistencyPredicate, ...]:
+        """Return the two decisive, owner-recomputed internal consistency checks."""
+
+        expected = self.world_model_record_content_hash
+        return (
+            ValueReceiptConsistencyPredicate.recompute(
+                predicate_id="transport_wmr_hash_equals_receipt_wmr_hash",
+                candidate_id=self.candidate_id,
+                observed_ref=self.transport_receipt.world_model_record_content_hash,
+                expected_ref=expected,
+            ),
+            ValueReceiptConsistencyPredicate.recompute(
+                predicate_id="outer_set_wmr_ref_equals_receipt_wmr_hash",
+                candidate_id=self.candidate_id,
+                observed_ref=self.value_outer_set.world_model_record_ref,
+                expected_ref=expected,
+            ),
+        )
+
     @model_validator(mode="after")
     def _simulate_only_does_not_shrink_k_world(self) -> ValueGateReceipt:
         if self.evaluation_mode == "simulate_only" and (
             self.k_world_ref_before != self.k_world_ref_after
         ):
             raise ValueError("simulate_only_shrank_k_world")
-        if self.transport_receipt.world_model_record_content_hash != (
-            self.world_model_record_content_hash
-        ):
-            raise ValueError("value_world_version_laundered")
-        if self.value_outer_set.world_model_record_ref != self.world_model_record_content_hash:
-            raise ValueError("value_world_version_laundered")
+        error_codes = {
+            "transport_wmr_hash_equals_receipt_wmr_hash": ("transport_wmr_hash_mismatch"),
+            "outer_set_wmr_ref_equals_receipt_wmr_hash": ("outer_set_wmr_ref_mismatch"),
+        }
+        for predicate in self.decisive_consistency_predicates():
+            if not predicate.satisfied:
+                raise ValueError(
+                    f"value_world_version_laundered:{error_codes[predicate.predicate_id]}"
+                )
         return self
 
 

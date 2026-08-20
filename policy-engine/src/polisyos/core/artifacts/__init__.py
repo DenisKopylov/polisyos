@@ -23,6 +23,7 @@ from .graph import (
 )
 from .ids import ArtifactID
 from .manifest import (
+    ArtifactGovernanceInfo,
     ArtifactManifest,
     ArtifactRef,
     CanonInfo,
@@ -55,8 +56,10 @@ from .signing import (
     ensure_private_key_permissions,
 )
 from .store import FileSystemCAS, PutOptions
+from .write_contract import ArtifactWriteOptions
 
 __all__ = [
+    "ArtifactGovernanceInfo",
     "ArtifactID",
     "ArtifactManifest",
     "ArtifactOwnershipError",
@@ -66,6 +69,7 @@ __all__ = [
     "ArtifactSigningResult",
     "ArtifactStore",
     "ArtifactVerifier",
+    "ArtifactWriteOptions",
     "AsyncArtifactStore",
     "AsyncArtifactStoreAdapter",
     "AsyncFileSystemArtifactStore",

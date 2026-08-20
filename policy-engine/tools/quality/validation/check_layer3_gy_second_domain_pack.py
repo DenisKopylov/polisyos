@@ -69,7 +69,7 @@ from polisyos.pdc import (
     gy_comparison_content_hash,
     gy_content_hash,
     is_gy_content_hash_excluded_field,
-    reconcile_gy_operational_leaves,
+    overlay_gy_shared_operational_leaves,
 )
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionReceipt,
@@ -6912,21 +6912,15 @@ def _content_bound_canonical_json(payload: Mapping[str, Any]) -> str:
 
 
 def _preserve_frozen_operational_metrics(bundle: dict[str, Any], root: Path) -> None:
-    """Reconcile through the artifact-owned projection when content is unchanged."""
+    """Overlay shared operational leaves across the declared output denominator."""
 
-    artifacts = (
-        ("census", CENSUS_OUTPUT, "census_content_hash"),
-        ("cycle_trace", CYCLE_TRACE_OUTPUT, "trace_content_hash"),
-    )
-    for bundle_key, relative_path, hash_field in artifacts:
+    for relative_path, bundle_key, _hash_field, _mode in _ARTIFACT_WRITE_SPECS:
         path = root / relative_path
         if not path.is_file():
             continue
         frozen = _read_json(path)
         artifact = _mapping(bundle.get(bundle_key))
-        if frozen.get(hash_field) != artifact.get(hash_field):
-            continue
-        reconciled = reconcile_gy_operational_leaves(frozen, artifact)
+        reconciled = overlay_gy_shared_operational_leaves(frozen, artifact)
         if not isinstance(reconciled, dict):  # pragma: no cover - artifacts are mappings
             raise ValueError("gy_operational_reconciliation_mapping_required")
         bundle[bundle_key] = reconciled

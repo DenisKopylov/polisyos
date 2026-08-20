@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -53,6 +54,10 @@ EXPECTED_MANIFEST_DRIFT_KEYS = {
     "g6_g5_bridge_status",
     "g6_g5_may_not_use_for_boundary_status",
     "g6_orchestration_choice_audit_status",
+    "g6_compression_loss_receipt_status",
+    "g6_authority_delta_completeness_status",
+    "g6_summary_authority_preservation_status",
+    "g6_authority_preserving_public_export_status",
     "g6_orchestration_continuity_status",
     "g6_replay_manifest_status",
     "g6_replay_drift_status",
@@ -108,6 +113,12 @@ def test_layer3_g6_readiness_passes_for_persisted_runtime_bundle() -> None:
     assert validation["summary"]["g6_search_ledger_status"] == "pass"
     assert validation["summary"]["g6_search_ledger_authority_boundary_status"] == "pass"
     assert validation["summary"]["g6_orchestration_choice_audit_status"] == "pass"
+    assert validation["summary"]["g6_compression_loss_receipt_status"] == "pass"
+    assert validation["summary"]["g6_authority_delta_completeness_status"] == "pass"
+    assert validation["summary"]["g6_summary_authority_preservation_status"] == "pass"
+    assert validation["summary"]["g6_authority_preserving_public_export_status"] == (
+        "pass"
+    )
     assert validation["summary"]["g6_orchestration_continuity_status"] == "pass"
     assert validation["summary"]["g6_replay_manifest_status"] == "pass"
     assert validation["summary"]["g6_runtime_import_boundary_status"] == "pass"
@@ -154,6 +165,68 @@ def test_layer3_g6_registration_and_docs_fail_closed_when_markers_are_missing() 
     } <= {issue["code"] for issue in issues}
 
 
+def test_layer3_g6_registration_rejects_stale_public_export_inventory(
+    tmp_path: Path,
+) -> None:
+    validator = _validator()
+    source_path = REPO_ROOT / validator.INVENTORY_PATH
+    payload = json.loads(source_path.read_text(encoding="utf-8"))
+    row = next(
+        item
+        for item in payload["artifacts"]
+        if item.get("id") == "layer3_g6_public_export_projection_refs"
+    )
+    row["public_export_hook_status"] = "out_of_scope_reference_only"
+    row["public_export_bundle_route_registered"] = False
+    target_path = tmp_path / validator.INVENTORY_PATH
+    target_path.parent.mkdir(parents=True)
+    target_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    statuses = validator._registration_statuses(tmp_path)
+
+    assert statuses["inventory"] == "fail"
+
+
+def test_layer3_g6_registration_rejects_stale_public_surface_prose(
+    tmp_path: Path,
+) -> None:
+    validator = _validator()
+    copied_paths = (
+        validator.GENERATED_ARTIFACTS_TOML_PATH,
+        validator.GENERATED_ARTIFACTS_DOC_PATH,
+        validator.DOCS_SURFACE_PATH,
+        validator.DOCUMENTATION_INVENTORY_PATH,
+        validator.REFERENCE_INDEX_PATH,
+        validator.PUBLIC_SURFACE_DOC_PATH,
+    )
+    for path in copied_paths:
+        target = tmp_path / path
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(
+            (REPO_ROOT / path).read_text(encoding="utf-8"),
+            encoding="utf-8",
+        )
+    public_surface_path = tmp_path / validator.PUBLIC_SURFACE_DOC_PATH
+    public_surface_text = public_surface_path.read_text(encoding="utf-8")
+    safe_projection_marker = "owner-recomputed safe summary or governed refusal"
+    assert safe_projection_marker in public_surface_text
+    public_surface_path.write_text(
+        public_surface_text.replace(
+            safe_projection_marker,
+            "caller-supplied clean summary",
+            1,
+        ),
+        encoding="utf-8",
+    )
+
+    statuses = validator._registration_statuses(tmp_path)
+
+    assert statuses["docs"] == "fail"
+
+
 def test_layer3_g6_write_path_must_include_every_expected_artifact(
     monkeypatch: Any,
 ) -> None:
@@ -174,4 +247,52 @@ def test_layer3_g6_write_path_must_include_every_expected_artifact(
     assert validation["status"] == "fail"
     assert "layer3_g6_persisted_artifact_missing" in {
         issue["code"] for issue in validation["issues"]
+    }
+
+
+def test_layer3_g6_persisted_compression_tamper_fails_closed(
+    tmp_path: Path,
+) -> None:
+    validator = _validator()
+    bundle = validator._build_runtime_bundle(REPO_ROOT)
+    validator._write_artifacts(tmp_path, bundle)
+    run_records_path = tmp_path / validator.AGENT_RUN_RECORDS_PATH
+    payload = json.loads(run_records_path.read_text(encoding="utf-8"))
+    receipt = payload["agent_run_records"][0]["prompt_tool_ledger_projection"][
+        "prompt_tool_ledger"
+    ]["compression_loss_receipts"][0]
+    receipt["retained_limitations"] = []
+    run_records_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    issues = validator._validate_persisted_artifacts(tmp_path)
+
+    assert "layer3_g6_compression_loss_receipt_blocked" in {
+        issue["code"] for issue in issues
+    }
+
+
+def test_layer3_g6_persisted_public_export_tamper_fails_closed(
+    tmp_path: Path,
+) -> None:
+    validator = _validator()
+    bundle = validator._build_runtime_bundle(REPO_ROOT)
+    validator._write_artifacts(tmp_path, bundle)
+    public_export_path = tmp_path / validator.PUBLIC_EXPORT_PROJECTION_REFS_PATH
+    payload = json.loads(public_export_path.read_text(encoding="utf-8"))
+    compression_result = payload["public_export_bundle"]["artifacts"][
+        "g6_summary_authority_preservation"
+    ]["compression_result"]
+    compression_result["summary"]["limitations"] = []
+    public_export_path.write_text(
+        json.dumps(payload, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+
+    issues = validator._validate_persisted_artifacts(tmp_path)
+
+    assert "layer3_g6_public_projection_contract_failed" in {
+        issue["code"] for issue in issues
     }

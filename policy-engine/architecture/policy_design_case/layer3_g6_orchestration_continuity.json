@@ -43,10 +43,10 @@
     "carrier_ref": "evidence-spine:g6:req-layer3-g6-readiness",
     "claim_refs": [],
     "concept_spine_ref": "cas://concept-spine/layer3-g6/req-layer3-g6-readiness",
-    "continuity_fingerprint": "sha256:351cf287d2e2d630b7593faaf23dcdd7ed04965ff1fb87922414d68ad262a9aa",
+    "continuity_fingerprint": "sha256:6d9b2a58a057361233a0e39b5bd0e5cc250b9eb1b39ee101eb5479a64b4718ba",
     "continuity_ref": "quality_evidence/runtime_orchestration_continuity.json",
     "findings": [],
-    "generated_at": "2026-06-16T13:50:02+00:00",
+    "generated_at": "2026-08-19T19:50:59+00:00",
     "handoff_refs": [
       "producer-handshake-ledger://layer3-g6/req-layer3-g6-readiness",
       "quality_evidence/runtime_orchestration_continuity.json"

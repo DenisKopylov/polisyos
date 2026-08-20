@@ -4,6 +4,7 @@ import contextlib
 import json
 import re
 import tomllib
+from copy import deepcopy
 from pathlib import Path
 
 import pytest
@@ -2045,11 +2046,48 @@ def test_layer3_time_source_authority_validator_recomputes_proofs() -> None:
     inventory = live_payloads[
         "architecture/policy_design_case/layer3_gy_authority_candidate_inventory.json"
     ]
+    consistency = live_payloads[
+        "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
+    ]
     assert inventory["row_count"] == 406
     assert inventory["reconciliation"]["gx_positive_status_count"] == 0
+    assert consistency["audit_model"] == "TimeSourceConsistencyAuditProjection"
+    assert {
+        audit["mismatch_disposition"] for audit in consistency["audits"]
+    } <= {
+        "consistent",
+        "inconsistent",
+        "insufficient_evidence",
+        "blocked_for_owner_review",
+    }
+    assert "consistent" in {
+        audit["mismatch_disposition"] for audit in consistency["audits"]
+    }
+    assert all(
+        row["disposition"] == "authority_admitted"
+        for row in consistency["s12_ref_dereference"]["real_ref_results"]
+    )
     for relative_path, live_payload in live_payloads.items():
         committed = json.loads((REPO_ROOT / relative_path).read_text(encoding="utf-8"))
         assert committed == live_payload
+
+
+def test_layer3_time_source_authority_validator_rejects_legacy_model_and_token() -> None:
+    payload = deepcopy(
+        check_layer3_time_source_authority.build_live_proof_payloads(REPO_ROOT)[
+            "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
+        ]
+    )
+    payload["audit_model"] = "TimeSourceEnvelopeAudit"
+    payload["audits"][0]["mismatch_disposition"] = "admitted"
+    issues: list[dict[str, str]] = []
+
+    check_layer3_time_source_authority._validate_time_source_audit(payload, issues)
+
+    assert {issue["code"] for issue in issues} >= {
+        "time_source_audit_model_mismatch",
+        "time_source_disposition_unknown",
+    }
 
 
 def test_layer3_workflow_failure_authority_validator_recomputes_proofs() -> None:

@@ -1190,3 +1190,67 @@ GY plan line 7 remains
 `432e664ec3e5fc8c70688b41084d292b7fa606868a0425501a9d345cc769449f`,
 and Atlas master-plan line 7 remains
 `7855f9209333c06be639d343a7dd2f2e981e1b21ef9c4c01252b473525a43d6d`.
+
+### Task 9 — rendered-DOM parity and exact MACHINE bytes
+
+Task 9 landed at
+`eb45c76c6226abe8748488214873288f6c5fe663`: nine dashboard paths,
+`+589/-36`. Root read the commit back from the attached
+`codex/atlas-ds7-cycle-board` branch with a clean worktree before updating this
+record. The first `ls-tree` read-back used an already-prefixed path from inside
+`policy-engine` and enumerated zero; it is a harness non-receipt. The admitted
+read-back first derived `policy-engine/` with `git rev-parse --show-prefix`,
+then resolved all three new paths and their committed bytes. No governed Atlas
+artifact moved and no register-family lock was needed.
+
+The existing generated static-v2 call now has per-invocation raw-byte custody.
+Its feature-local transport waits for the final response returned by
+`authAwareRuntimeFetch`, clones that same response before the generated client
+consumes it, and returns the parsed packet together with the captured
+`Uint8Array`. There is one request, no global recorder, no second fetch, and no
+generated-client edit. The authorized page's MACHINE download creates its
+Blob directly from those bytes; it never serializes the packet, the localized
+state, or the DOM.
+
+The real-page parity test uses real providers, auth, MSW transport, hook, page,
+mapper, and renderer. Its independent decoder reads the rendered raw regions
+for packet metadata, both gaps, DS4 and historical summaries, ordered sources,
+cohort transitions, ordered rows, eleven typed row facts, explanations,
+stage-trace links, and honest-empty movement. It compares structural JSON
+semantics while preserving array order; only the separate MACHINE assertion
+is byte/order sensitive. The frozen mutation falsifier rejects a dropped row,
+a duplicated row, a defaulted absent lifecycle fact, an omitted source,
+fabricated movement, and localized text substituted into a raw slot. The
+export witness serves deliberately noncanonical JSON bytes, observes exactly
+one static request before and after download, and compares every downloaded
+byte with that response.
+
+The frozen basis
+`a3747cd490157519406aaecbf15d843238bf6c167d4e517d563d49c7d0d23a4e`
+and bucket rule were issued before the DOM, byte-custody, and independent
+full-basis reviews. All three returned GO. The only semantic-test refinement
+was the on-basis correction that stopped treating JSON object insertion order
+as authority while retaining ordered arrays and exact wire bytes. The first
+exact lint invocation then found two harness-only diagnostics: intentional
+post-render DOM mutation and an unnecessary return-only generic. Both were
+repaired without changing a tested property, delta review returned GO, and
+the admitted wave was rerun. Task 9 closes at `0/2`.
+
+| Receipt | Result | Duration / fixed ceiling |
+| --- | --- | --- |
+| Task 9 focused parity/consumer/locale Vitest | 7/7 files; 56/56 passed | 11.55 s / 120 s |
+| dashboard typecheck | passed | 20.25 s / 120 s |
+| exact Task 9 ESLint write set | passed | 22.30 s / 180 s; uptime load `2.75/2.50/2.60 -> 3.02/2.58/2.63` |
+| exact Task 9 Prettier check | passed | 1.07 s / 90 s |
+| architecture guardrails | completed with the same six added and three removed inherited deep-import identities established in Task 6; no Task 9/dashboard identity | 26.63 s / 90 s |
+| `git diff --check` | passed | completed |
+
+No receipt was killed and no ceiling was widened mid-run. `4C-DOM-05` is now
+closed by the real-page decoder and frozen mutation falsifier; it is no longer
+`semantic_test_missing`. Authored English and active Ukrainian gained the
+download label together; frozen Russian is byte-untouched. The inherited DS8
+A4, DS5 run-deck, and DS6-C11 reds and the thirteen status diagnostics remain
+red. GY plan line 7 remains
+`432e664ec3e5fc8c70688b41084d292b7fa606868a0425501a9d345cc769449f`,
+and Atlas master-plan line 7 remains
+`7855f9209333c06be639d343a7dd2f2e981e1b21ef9c4c01252b473525a43d6d`.

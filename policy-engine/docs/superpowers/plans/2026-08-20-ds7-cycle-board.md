@@ -408,14 +408,14 @@ coverage and movement typed absences; DS8 drill-down links.
 **Interfaces:** server packet bytes; `packetToVisibleCycleBoard`; raw typed DOM encoding; export
 download bytes.
 
-- [ ] Reuse the DS16 rendered-DOM decoding precedent. RED against the real page: decode every stable
+- [x] Reuse the DS16 rendered-DOM decoding precedent. RED against the real page: decode every stable
   semantic region and compare the complete value to `packetToVisibleCycleBoard(packet)`.
-- [ ] Include coverage gap, movement gap/empty denominator, DS4 disposition, all sources, cohorts,
+- [x] Include coverage gap, movement gap/empty denominator, DS4 disposition, all sources, cohorts,
   rows, both terminal facts, evidence, weakest links, routes, readiness, and explanations. Add
   dropped-row, duplicate-row, defaulted-absence, omitted-source, and fabricated-movement negatives.
-- [ ] RED then GREEN an export assertion that downloaded bytes equal the exact request packet bytes;
+- [x] RED then GREEN an export assertion that downloaded bytes equal the exact request packet bytes;
   never reconstruct JSON from DOM/localized state.
-- [ ] Run focused parity/Vitest and typecheck. Commit MACHINE parity.
+- [x] Run focused parity/Vitest and typecheck. Commit MACHINE parity.
 
 ## Task 10 — Freeze, review, run the verification wave once, and close
 

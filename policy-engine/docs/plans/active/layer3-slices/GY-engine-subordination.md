@@ -4622,6 +4622,41 @@ nothing.
   **an uncommitted plan edit is not a plan** — it forces an executor to reconstruct what already
   exists.
 
+- **GY-GAP5 — production recursive-cycle run enumeration is absent/unallocated (NEW, DS7
+  registration; measured 2026-08-20).** Owner: **runtime/quality — the GY-N12 lane**, the existing
+  append-only epoch, current-head and reissue owner. The repository cannot currently reproduce
+  complete membership or chronology for every production recursive-cycle `DesignProblem` run.
+  **Label: `absent/unallocated`; deficits: `artifact_missing + bridge_missing`.** The known scope
+  is the N10 capstone plus the legacy fixture cohort; future production membership remains unknown.
+  The board must render `production_recursive_cycle_run_enumeration` as its own typed absence,
+  must not fabricate future rows, and must never label the known count exhaustive.
+
+  **Permitted producer path, not a new gate:** the generation-cycle producer may add content-bound
+  `started` / `resolved` diagnostic events to the existing CAS and diagnostic-event log when
+  available. Recording is additive and non-blocking: **recorder failure never changes the cycle's
+  terminal**. This registration creates no second chronology owner and authorizes no cycle
+  admission, completion, or refusal boundary.
+
+  **Closure signal:** from live production source, the N12 owner reproduces complete recursive-cycle
+  membership and chronology; binds every event to its `DesignProblem` and cycle-content identity;
+  projects current heads and resolved terminal references; and makes deletion or post-hoc narrowing
+  fail through the existing append-only chronology. Until then, execution status is
+  `not_established`.
+
+- **GY-GAP6 — per-row acquisition re-entry and deeper-terminal movement binding is
+  absent/unallocated (NEW, DS7 registration; measured 2026-08-20).** Owner: **GY-N13b** for the
+  admitted acquisition and same-cycle re-entry receipt; **GY-N12** for the existing append-only
+  chronological composition. **Label: `absent/unallocated`; deficits: `artifact_missing +
+  bridge_missing`.** The board must render
+  `acquisition_reentry_deeper_terminal_binding` as a typed absence with execution status
+  `not_established`, and its movement records remain honestly empty.
+
+  **Closure signal:** one exact row content-binds its admitted acquisition receipt and date, the
+  same `DesignProblem` / cycle re-entry, and a deeper producer-owned terminal; deleting or
+  substituting any member breaks the chain. N13b's global `typed_deeper_terminal` result cannot be
+  projected as per-row movement before that binding exists. This registration assigns no producer
+  to Atlas, creates no second chronology, and authorizes no simulated motion.
+
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 
 The cycle (Phase 5) produces a grounded-or-honestly-limited design. The north-star's product

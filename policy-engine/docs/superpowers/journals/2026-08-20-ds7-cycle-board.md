@@ -462,3 +462,26 @@ DS8 A4, DS5's `1094x821` residual against `1094x820`, and DS6-C11.
 None is reported green. This journal-only P41 record changes no mechanism byte,
 governed expectation, or test outcome and consumes no mechanism round under
 the corrected P39 split.
+
+## GY-GAP5 / GY-GAP6 registration receipt
+
+Immediately before the write, local `main` remained
+`11781974dfaf6cf86be15af0221cb92d327f4ce8` and was an ancestor of the
+attached branch. A complete tracked search found no `GY-GAP5` or `GY-GAP6`
+registration on `main`; the branch mentions existed only in the approved DS7
+spec and implementation plan. The two rows were appended after GY-GAP4 and
+before Phase 6, wholly inside the GY plan's registered-gaps block.
+
+GY-GAP5 is `absent/unallocated`, owned by runtime/quality GY-N12, and renders
+`production_recursive_cycle_run_enumeration` as the board's own typed
+absence. Its permitted recording route is additive and non-blocking; recorder
+failure never changes cycle terminality. GY-GAP6 is `absent/unallocated`,
+routes acquisition/re-entry production to GY-N13b and chronological composition
+to GY-N12, and leaves movement honestly empty until one row binds the admitted
+acquisition, same-cycle re-entry, and deeper producer terminal.
+
+No plan revision was assigned. Line 7 remained outside scope with pre-write
+SHA-256 `32b88fc33f29e12b28aad432695b3f51abbdefe9e6fa7946bda834c719a8dbc3`;
+the closeout rechecks that identity. This plan-and-journal registration is a
+mandated record, changes no mechanism, test outcome, or governed artifact, and
+consumes no mechanism round under the corrected P39 split.

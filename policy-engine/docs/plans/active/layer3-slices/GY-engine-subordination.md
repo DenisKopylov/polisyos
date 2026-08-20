@@ -2462,6 +2462,33 @@ duals are DS16/DS9/DS14 augments (Atlas plan §6.5).*
   typed `NormativeDecisionRequest`); an authority-lane mismatch (legal competence but wrong
   decision-rights role) returns `blocked`; a fixture injecting a **silent equal-weight /
   historical-prior / proxy-as-priority default goes red**. `P05`/`P15`.
+  **STANDING RECORDED (GY-PA1 foundability probe, 2026-08-20; `producer_missing`):** The
+  sequencing block is clear, but PA1 is not foundable as an ordinary producer slice. An entry-pin
+  P35 tracked-tree census (`9,901` files; `9,879` under `policy-engine`; `5,566` Python) found two
+  direct `ValueOuterSet(...)` calls and 27 `ValueOuterSet.interval_box(...)` calls. Six factory
+  calls are production source and the household and academic paths construct non-empty numeric
+  coordinates/bounds, so the inherited statement that the empty Foundry placeholder is the only
+  construction is false. The seven textual source `.compare(` occurrences reduce to five
+  executable AST calls, all schema-evolution calls; the MethodSandbox and one schema-evolution
+  occurrence are documentation examples. `ValueOuterSet.compare` has no production consumer, but
+  it is executable against real non-empty sets in tests, so its scoped label is `consumer_missing`,
+  not “nothing exists to compare.” The exact PA1 chain is still missing producers: N8's furthest
+  owner-resolved live branch stops at `treatment_assignment_not_owner_derived`, its outer-set
+  helper has only its definition plus one test call, and production source constructs no
+  `ValueGateReceipt`. S8's
+  `build_authorized_value_schedule` has no production caller and checks caller-declared refs/status;
+  `NormativeDecisionRequest` occurs in three documents and zero source/test/tool files; no live
+  ranked-recommendation emitter is present to demonstrate the negative. `participation_requirement`
+  is independently live (compiler, evaluator, persistence, producer-pipeline consumer, projection),
+  not declarative. Therefore the silent-default and authority-lane negatives are writable only
+  against S8 placeholders, while the exact no-schedule → frontier + typed request negative is not
+  writable/exercisable today. N7's acquisition owner must admit either an institution-signed
+  rollout assignment or a certified SKG identity bridge; GY-N8 then owns the live persisted value
+  receipt/set producer. PA1's `runtime.quality` S8 value-authority lane owns the subsequently
+  resolved/content-bound authorization record, request, and ranked-consumer bridge; PA1 must not
+  absorb those missing N7/N8 producers. Measurement journal:
+  `docs/superpowers/journals/2026-08-20-gy-pa1-foundability-probe.md`. Rounds remain `0 / 2`; no
+  run exceeded 60 seconds and no revision number was assigned.
 - **GY-PA2 — D3 delegation gate producer (pre-action agent authority; M37 / CPA-R22·R24).**
   build-new producer closing the D3 `contract_only`/`producer_missing` gap. Before any agent
   external action (search / tool_call / draft / data_request / external_interaction) emit a

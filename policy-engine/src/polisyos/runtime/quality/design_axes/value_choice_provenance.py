@@ -5,20 +5,28 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Mapping, Sequence
+from collections.abc import Set as AbstractSet
 from datetime import UTC, datetime
-from typing import Any, Literal
+from typing import Any, Literal, Self, cast
 
 from pydantic import AwareDatetime, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
-from polisyos.runtime.quality.design_axes.blind_spot_firewalls import P22MandateLegitimacyError
-from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import P26ResponsibilityIntegrityError
+from polisyos.runtime.quality.design_axes.blind_spot_firewalls import (
+    P22MandateLegitimacyError,
+)
+from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+    P26ResponsibilityIntegrityError,
+)
 
 LAYER2_S8_VALUE_CHOICE_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s8_value_choice.v1"
 LAYER2_S8_VALUE_CHOICE_RULE_VERSION = "policyos.layer2.s8.value_choice.v1"
 S8_VALUE_CHOICE_CELL_REF = "ACTOR.value_choice_provenance"
 S8_VALUE_CHOICE_FLOOR_ID = "s8_value_provenance"
+P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE = "p20_value_schedule_resolver_absent"
+# Reserved for a future owner-backed resolver's per-reference failure.
+P20_VALUE_SCHEDULE_REF_UNRESOLVABLE_CODE = "p20_value_schedule_ref_unresolvable"
 
 ValueSourceClass = Literal[
     "authorized_governance_schedule",
@@ -101,6 +109,24 @@ _S8_MAY_NOT_USE_FOR = [
 
 class P20NormativeChoiceError(ValueError):
     """Raised when S8 detects value-choice or scalar-ranking laundering."""
+
+    def __init__(
+        self,
+        message: str,
+        *,
+        code: str = "p20_normative_choice_error",
+    ) -> None:
+        self.code = code
+        super().__init__(message)
+
+
+def _require_ranked_value_schedule_resolver(ranking_mode: str) -> None:
+    if ranking_mode == "ranked_with_authorized_values":
+        raise P20NormativeChoiceError(
+            f"{P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE}: P20 ranked Pareto archive requires "
+            "an owner-resolved authorized value schedule; the value schedule resolver is absent",
+            code=P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE,
+        )
 
 
 class AuthorizedValueSchedule(Layer2ReadinessModel):
@@ -194,6 +220,95 @@ class ParetoArchive(Layer2ReadinessModel):
     may_not_use_for: list[str] = Field(default_factory=lambda: list(_S8_MAY_NOT_USE_FOR))
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
+
+    @model_validator(mode="after")
+    def _validate_ranked_admission(self) -> ParetoArchive:
+        _require_ranked_value_schedule_resolver(self.ranking_mode)
+        return self
+
+    @classmethod
+    def _revalidate_minted_archive(cls, archive: ParetoArchive) -> Self:
+        """Re-enter validation after a Pydantic API that trusts supplied data."""
+
+        return cls.model_validate(archive.model_dump(mode="python", round_trip=True))
+
+    def model_copy(
+        self,
+        *,
+        update: Mapping[str, Any] | None = None,
+        deep: bool = False,
+    ) -> Self:
+        """Return a copy only after validating its complete updated payload.
+
+        Args:
+            update: Field values to apply before validation.
+            deep: Whether to copy nested values deeply before validation.
+
+        Returns:
+            A fully validated archive copy.
+        """
+
+        copied = super().model_copy(update=update, deep=deep)
+        return type(self)._revalidate_minted_archive(copied)
+
+    @classmethod
+    def model_construct(  # type: ignore[override]
+        cls,
+        _fields_set: set[str] | None = None,
+        **values: object,
+    ) -> Self:
+        """Construct an archive only after validating its complete payload.
+
+        Args:
+            _fields_set: Fields explicitly supplied by the caller.
+            values: Candidate archive field values.
+
+        Returns:
+            A fully validated archive.
+        """
+
+        constructed = super().model_construct(_fields_set=_fields_set, **values)
+        return cls._revalidate_minted_archive(cast("ParetoArchive", constructed))
+
+    def copy(
+        self,
+        *,
+        include: (
+            AbstractSet[int]
+            | AbstractSet[str]
+            | Mapping[int, Any]
+            | Mapping[str, Any]
+            | None
+        ) = None,
+        exclude: (
+            AbstractSet[int]
+            | AbstractSet[str]
+            | Mapping[int, Any]
+            | Mapping[str, Any]
+            | None
+        ) = None,
+        update: dict[str, Any] | None = None,
+        deep: bool = False,
+    ) -> Self:
+        """Return a deprecated-style copy only after complete validation.
+
+        Args:
+            include: Fields to include in the candidate copy.
+            exclude: Fields to exclude from the candidate copy.
+            update: Field values to apply before validation.
+            deep: Whether to copy nested values deeply before validation.
+
+        Returns:
+            A fully validated archive copy.
+        """
+
+        copied = super().copy(
+            include=include,
+            exclude=exclude,
+            update=update,
+            deep=deep,
+        )
+        return type(self)._revalidate_minted_archive(copied)
 
 
 class ValueChoiceProvenanceRecord(Layer2ReadinessModel):
@@ -440,15 +555,7 @@ def build_pareto_archive(
 ) -> ParetoArchive:
     """Build a Pareto archive while blocking hidden ranked value choices."""
 
-    if ranking_mode == "ranked_with_authorized_values":
-        if not value_schedule_ref:
-            raise P20NormativeChoiceError(
-                "P20 ranked Pareto archive requires an authorized value schedule"
-            )
-        if "shadow" in value_schedule_ref or "scenario" in value_schedule_ref:
-            raise P20NormativeChoiceError(
-                "P20 shadow_scenario schedule cannot satisfy authorized ranking"
-            )
+    _require_ranked_value_schedule_resolver(ranking_mode)
     mapped = _frontier_payload(foundry_emission=foundry_emission, frontier_record=frontier_record)
     frontier_refs = list(frontier_refs) or mapped["frontier_refs"]
     nondominated_alternative_ids = (

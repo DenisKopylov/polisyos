@@ -79,7 +79,7 @@ _LLM_SOURCE_KINDS = frozenset({"llm_candidate", "llm_critic", "llm_drafter"})
 _MEMORY_INFLUENCE_POSITION_FLAG = "memory_influence_bearing_position"
 
 
-class ProvenancePayloadError(ValueError):
+class _ProvenancePayloadError(ValueError):
     """Raised when provenance traversal reaches a non-canonical payload value."""
 
     def __init__(self, *, path: tuple[str, ...], value: object) -> None:
@@ -425,8 +425,8 @@ def memory_influence_claim_evidence_issues(
     """Return claim-registry issues for memory provenance anywhere in a claim."""
 
     try:
-        provenance_values = payload_provenance_values(row)
-    except ProvenancePayloadError as exc:
+        provenance_values = _payload_provenance_values(row)
+    except _ProvenancePayloadError as exc:
         return [
             {
                 "code": "memory_influence_payload_provenance_unknown",
@@ -487,7 +487,7 @@ def memory_influence_claim_evidence_issues(
     return issues
 
 
-def payload_provenance_values(
+def _payload_provenance_values(
     value: object,
 ) -> list[tuple[tuple[str, ...], str]]:
     """Return every non-empty string value with its structural payload path.
@@ -496,10 +496,10 @@ def payload_provenance_values(
     complete value set. Callers cannot supply an allowlist or select paths.
     """
 
-    return _payload_provenance_values(value, path=())
+    return _collect_payload_provenance_values(value, path=())
 
 
-def _payload_provenance_values(
+def _collect_payload_provenance_values(
     value: object,
     *,
     path: tuple[str, ...],
@@ -513,19 +513,19 @@ def _payload_provenance_values(
         values: list[tuple[tuple[str, ...], str]] = []
         for key, item in value.items():
             if not isinstance(key, str):
-                raise ProvenancePayloadError(path=(*path, "<mapping-key>"), value=key)
+                raise _ProvenancePayloadError(path=(*path, "<mapping-key>"), value=key)
             values.extend(
-                _payload_provenance_values(item, path=(*path, key))
+                _collect_payload_provenance_values(item, path=(*path, key))
             )
         return values
     if isinstance(value, list | tuple):
         values = []
         for index, item in enumerate(value):
             values.extend(
-                _payload_provenance_values(item, path=(*path, f"[{index}]"))
+                _collect_payload_provenance_values(item, path=(*path, f"[{index}]"))
             )
         return values
-    raise ProvenancePayloadError(path=path, value=value)
+    raise _ProvenancePayloadError(path=path, value=value)
 
 
 def _payload_path(path: tuple[str, ...]) -> str:
@@ -544,7 +544,7 @@ def _assert_markers_in_owner_declared_positions(record: MemoryInfluenceRecord) -
     }
     undeclared_paths = [
         path
-        for path, ref in payload_provenance_values(record.model_dump(mode="python"))
+        for path, ref in _payload_provenance_values(record.model_dump(mode="python"))
         if is_memory_influence_ref(ref) and path not in declared_paths
     ]
     if undeclared_paths:
@@ -565,10 +565,8 @@ __all__ = [
     "MEMORY_INFLUENCE_REF_PREFIXES",
     "MEMORY_INFLUENCE_SCHEMA_VERSION",
     "MemoryInfluenceRecord",
-    "ProvenancePayloadError",
     "assert_memory_influence_not_claim_evidence",
     "build_memory_influence_record",
     "is_memory_influence_ref",
     "memory_influence_claim_evidence_issues",
-    "payload_provenance_values",
 ]

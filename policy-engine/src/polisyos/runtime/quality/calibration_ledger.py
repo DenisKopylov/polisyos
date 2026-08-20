@@ -24,8 +24,8 @@ from polisyos.runtime.quality.memory_influence import (
     CLAIM_EVIDENCE_SLOT_KEYS as CLAIM_EVIDENCE_SLOT_KEYS,
 )
 from polisyos.runtime.quality.memory_influence import (
-    ProvenancePayloadError,
-    payload_provenance_values,
+    _payload_provenance_values,
+    _ProvenancePayloadError,
 )
 
 CALIBRATION_LEDGER_SCHEMA_VERSION = "policyos.runtime.calibration_ledger.v1"
@@ -745,8 +745,8 @@ def historical_prior_claim_evidence_issues(
     """Return claim-registry issues for historical provenance anywhere in a claim."""
 
     try:
-        provenance_values = payload_provenance_values(row)
-    except ProvenancePayloadError as exc:
+        provenance_values = _payload_provenance_values(row)
+    except _ProvenancePayloadError as exc:
         return [
             {
                 "code": "historical_prior_payload_provenance_unknown",

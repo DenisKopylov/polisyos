@@ -328,7 +328,7 @@ def test_pareto_archive_model_cannot_bypass_ranked_admission_guard() -> None:
         )
 
 
-@pytest.mark.parametrize("minting_seam", ["model_copy", "model_construct"])
+@pytest.mark.parametrize("minting_seam", ["model_copy", "model_construct", "copy"])
 def test_pareto_archive_unvalidated_minting_seams_revalidate(
     minting_seam: str,
 ) -> None:
@@ -344,16 +344,22 @@ def test_pareto_archive_unvalidated_minting_seams_revalidate(
         "value_schedule_ref": "pdc://layer2/s8/value-schedules/unvalidated-bypass",
     }
 
-    with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
-        if minting_seam == "model_copy":
+    if minting_seam == "model_copy":
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
             unranked.model_copy(update=ranked_update)
-        else:
+    elif minting_seam == "model_construct":
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
             archive_model.model_construct(**{**unranked_payload, **ranked_update})
+    else:
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            unranked.copy(update=ranked_update)
 
     if minting_seam == "model_copy":
         safe_copy = unranked.model_copy()
-    else:
+    elif minting_seam == "model_construct":
         safe_copy = archive_model.model_construct(**unranked_payload)
+    else:
+        safe_copy = unranked.copy()
     assert safe_copy.ranking_mode == "unranked_frontier_only"
 
 

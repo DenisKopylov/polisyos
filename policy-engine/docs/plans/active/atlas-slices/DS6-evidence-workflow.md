@@ -937,12 +937,12 @@ explicitly relinquished after the stopped measurement.
 
 ### Task 13 — DS6-C13: independently verify DS8 adjacent print export
 
-**Revision 3.22 execution status: a scoped product-repair candidate is
-implemented and its narrow current-surface semantic guard is observed GREEN.
-The repair release remains `not_established` until the containing commit's
-attached-branch readback, DS8/`team-design` design adjudication remains owed,
-and the governed A4 comparison is RED. The C13 governed transition therefore
-remains blocked and C14 remains gated.**
+**Revision 3.22 execution status: the scoped product repair is released at
+`1fc07ed01a3cd3d5cfd9dc4a04b1ad89d0d141cd` after attached-branch
+readback, and its narrow current-surface semantic guard is GREEN. DS8/
+`team-design` design adjudication remains owed, and the governed A4 comparison
+is RED. The C13 governed transition therefore remains blocked, C14 is not
+executable, and DS6 remains open.**
 
 **Current measured path set:**
 
@@ -961,7 +961,7 @@ plan and the journal are companions outside the mechanism count. Two mechanism
 paths fit the cap.
 
 The complete current rendered link set under the print surface contains one
-17,206-byte `/public/decisions/` target. The candidate scoped rule suppresses
+17,206-byte `/public/decisions/` target. The landed scoped rule suppresses
 only that target's pseudo-content and preserves every current rendered
 ordinary printed destination. Its independent Chromium guard is GREEN. For
 this measured surface, the sole generated signed-target string is absent and
@@ -976,16 +976,27 @@ hidden to fit it.
 
 C13 requires all three conjuncts: a content-bound scoped repair release,
 independently established semantic non-overlap, and two consecutive GREEN
-no-update A4 captures. The repair-release predicate is `not_established` until
-the containing commit's attached-branch readback. The narrow current-surface
-signed-target predicate is `recomputed`: the complete rendered denominator has
-one generated signed target and its pseudo-content is absent. The capture
-predicate is false. Therefore no register, readiness-ledger, report, or status
+no-update A4 captures. The repair-release predicate is `recomputed` and true
+at the commit above. The narrow current-surface signed-target predicate is
+`recomputed` and true: the complete rendered denominator has one generated
+signed target and its pseudo-content is absent. The capture predicate is
+`recomputed` and false: the first no-update comparison is RED, so no second
+capture is run. Therefore no register, readiness-ledger, report, or status
 transition is authorized, the register family remains released, and the
 capability remains `consumer_missing`/`surface_missing`. C14 cannot close DS6
 while this remains true.
 
+The closing owner reread is unchanged: disposition register
+`c50bd201…c00a`, report `f5b80c7f…f4bc`, status inventory
+`25430ee8…d80`, baseline manifest `8c86ea3e…ff55`, and readiness ledger
+`4b64f092…ae13`. C13 did not acquire the family lock because its capture gate
+was already false.
+
 ### Task 14 — DS6-C14: close the evidence workflow slice
+
+**Revision 3.22 status: not executable. C13's capture conjunct is false, so no
+closure battery, family write, or slice-close claim is authorized. DS6 remains
+open.**
 
 **Declared path cap: 6.** Run the full serialized closure battery, corruption
 probes, readiness reconciliation, duplication census, and independent review;

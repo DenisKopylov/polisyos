@@ -5120,3 +5120,69 @@ Vite, Storybook, fixture-server, or Playwright test process and no listener on
 5,173/6,006/8,000. DS6 explicitly relinquished the visual lane at attached
 `da1ff039870b13de3697be9ce14050f5bfcd2d5d`; the later record-only write does
 not reacquire it.
+
+## C13/C14 closure adjudication — 2026-08-20
+
+The final readback began clean and attached at
+`ae24c478a60073545cfd00a00bf0402f07a401a4`. The five governed family
+identities independently match the prior C06 closing values:
+
+- disposition register
+  `c50bd2010437421a334a7db9a25726fce6ba11fc253bc4d10ee456c1c366c00a`;
+- generated report
+  `f5b80c7f33d5d280573da49c05ac9e927b690b84d946cc1d09d40dbf54bff4bc`;
+- status inventory
+  `25430ee8c9739aabc44220647181d4d148c73a14cc4ff7c7aaaf1be51a551d80`;
+- baseline manifest
+  `8c86ea3eb48585158de331a4e4c60f6b6520b2152dc39b527f6238d12bb0ff55`;
+  and
+- readiness ledger
+  `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+
+No discrepancy exists. The family was released at entry and was not acquired:
+the C13 capture gate was already false, so no governed transition could run.
+Its closing identities are the same five hashes and it remains explicitly
+released; there is no acquisition/relinquish event to manufacture.
+
+C13's three conjuncts were adjudicated independently rather than collapsed:
+
+| Predicate | P37 provenance | Result |
+| --- | --- | --- |
+| content-bound scoped repair release | `recomputed` by attached-branch readback of `1fc07ed01a3cd3d5cfd9dc4a04b1ad89d0d141cd` | true |
+| no current generated signed-target pseudo-content overlaps the report | `recomputed` by the complete rendered-link Chromium guard | true, bounded to the current surface |
+| two consecutive stable no-update A4 captures | `recomputed` by the governed comparator | false; the first is 724×2,113 expected versus 770×12,966 actual |
+
+The conjunction is false. C13 writes no register, report, status inventory,
+baseline manifest, or readiness row. C14 is consequently not executable and
+writes no closure projection. P39 arithmetic for each stopped governed
+transition is zero mechanism paths plus the plan and journal as mandatory
+record companions; both fit the declared cap of six. P40 remains **0/2** for
+C13's transition and C14 because neither mechanism was entered. **DS6 is not
+closed.** DS8/`team-design` still owes design adjudication of the landed print
+semantics; execution did not waive or transfer that correctness obligation.
+
+Closing snapshot readback proves no writer ran. `run-detail-a4-print` remains
+724×2,113 at SHA-256
+`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`;
+`run-deck-content-slide` remains 1,094×820 at SHA-256
+`76ecd68a93dd843940212f73392f080704ae17dea87be5f8a358f337c15d9aaa`.
+The run-deck comparator remains RED for the separately recorded fractional
+clip and is not a C13 closure claim. The committed C11 repair re-ran GREEN
+22/22 in 16.134 s. The status checker remains the exact inherited RED: exit 1,
+zero stdout, 13 stderr diagnostics, 887 bytes, and SHA-256
+`511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`.
+This is zero new status debt.
+
+The visual lane opened at `0b721454e2f246e89bd084d5e19039c6a1e3d4c5`
+and was explicitly relinquished at
+`da1ff039870b13de3697be9ce14050f5bfcd2d5d` after print and run-deck work;
+the closing process/port census was empty. The register family remained
+released throughout C13/C14 adjudication. No push, merge, rebase, snapshot
+update, master-plan line 7 edit, or new revision number occurred.
+
+The registered successor debt
+`i18n-plural-rule-covers-only-{count}` remains open and byte-untouched. Its
+complete en/uk non-`{count}` interpolation census and per-message adjudication
+belong to a separately authorized successor cluster or re-cut, not this lane.
+`GY-DEF21` and the DS4 three canonical-waist vocabulary rows likewise remain
+untouched and unowned by this execution.

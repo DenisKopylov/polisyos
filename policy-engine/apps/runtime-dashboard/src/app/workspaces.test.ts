@@ -178,6 +178,13 @@ describe("workspace registry", () => {
       subtitleKey: "pages.runs.subtitle",
       titleKey: "pages.runs.explorerTitle",
     });
+    expect(WORKSPACES.runsDecisions.resolveHeader("/runs/cycle-board")).toEqual(
+      {
+        eyebrowKey: "shell.routes.cycleBoardEyebrow",
+        subtitleKey: "pages.cycleBoard.subtitle",
+        titleKey: "pages.cycleBoard.title",
+      },
+    );
     expect(
       WORKSPACES.runsDecisions.resolveHeader("/runs/run-1/overview"),
     ).toEqual({

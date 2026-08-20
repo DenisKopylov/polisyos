@@ -392,6 +392,7 @@
       "title": "Cycle Board",
       "subtitle": "Відомий cohort циклу дизайну, факти його producers і точні capabilities, яких досі бракує.",
       "projectionObservedAt": "Транзакцію projection зафіксовано о",
+      "exportPacket": "Експортувати packet Cycle Board",
       "accessUnsettledTitle": "Перевірка review-доступу",
       "accessUnsettledBody": "Board не запитує evidence, доки reviewer authorization не визначена.",
       "accessDeniedTitle": "Потрібен review-доступ",

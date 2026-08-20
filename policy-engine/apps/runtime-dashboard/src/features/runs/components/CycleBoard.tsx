@@ -3,8 +3,9 @@ import type { ReactNode } from "react";
 import type { DepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { DataFreshnessBadge } from "@/shared/ui/compounds/DataFreshnessBadge";
-import { Badge, Card } from "@polisyos/atlas-ui";
+import { Badge, Button, Card } from "@polisyos/atlas-ui";
 
+import { downloadCycleBoardPacket } from "./cycleBoardExport";
 import {
   packetToVisibleCycleBoard,
   type VisibleCycleBoard,
@@ -262,9 +263,18 @@ export function CycleBoard({
     >
       <header className="space-y-2">
         <p className="eyebrow">{t("pages.cycleBoard.eyebrow")}</p>
-        <h1 className="text-2xl font-semibold">
-          {t("pages.cycleBoard.title")}
-        </h1>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <h1 className="text-2xl font-semibold">
+            {t("pages.cycleBoard.title")}
+          </h1>
+          <Button
+            onClick={() => downloadCycleBoardPacket(projection.rawPacketBytes)}
+            type="button"
+            variant="ghost"
+          >
+            {t("pages.cycleBoard.exportPacket")}
+          </Button>
+        </div>
         <p className="text-muted-foreground">
           {t("pages.cycleBoard.subtitle")}
         </p>

@@ -10,11 +10,21 @@ vi.mock("@/shared/i18n/LocaleProvider", () => ({
   }),
 }));
 
+function projectionFixture() {
+  const packet = cycleBoardProjectionPacketFixture();
+  return {
+    packet,
+    payload: packet.payload,
+    rawPacketBytes: new TextEncoder().encode(JSON.stringify(packet)),
+  };
+}
+
 describe("CycleBoard honest hero rendering", () => {
   it("renders all known rows and the board's own two typed absences", () => {
-    const packet = cycleBoardProjectionPacketFixture();
+    const projection = projectionFixture();
+    const { packet } = projection;
 
-    render(<CycleBoard projection={{ packet, payload: packet.payload }} />);
+    render(<CycleBoard projection={projection} />);
 
     const board = screen.getByTestId("cycle-board");
     expect(board).toHaveAttribute("data-audiences", "REVIEWER,EXPERT");
@@ -55,9 +65,9 @@ describe("CycleBoard honest hero rendering", () => {
   });
 
   it("renders owner route references and separately resolved economics", () => {
-    const packet = cycleBoardProjectionPacketFixture();
+    const projection = projectionFixture();
 
-    render(<CycleBoard projection={{ packet, payload: packet.payload }} />);
+    render(<CycleBoard projection={projection} />);
 
     const firstRow = screen.getAllByTestId("cycle-board-row")[0];
     const educationRow = screen.getAllByTestId("cycle-board-row")[1];
@@ -84,9 +94,9 @@ describe("CycleBoard honest hero rendering", () => {
   });
 
   it("renders absent lifecycle terminality as absent, never false", () => {
-    const packet = cycleBoardProjectionPacketFixture();
+    const projection = projectionFixture();
 
-    render(<CycleBoard projection={{ packet, payload: packet.payload }} />);
+    render(<CycleBoard projection={projection} />);
 
     const firstRow = screen.getAllByTestId("cycle-board-row")[0];
     if (!firstRow) {
@@ -105,9 +115,10 @@ describe("CycleBoard honest hero rendering", () => {
   });
 
   it("renders every source's own state and never invents board-global freshness", () => {
-    const packet = cycleBoardProjectionPacketFixture();
+    const projection = projectionFixture();
+    const { packet } = projection;
 
-    render(<CycleBoard projection={{ packet, payload: packet.payload }} />);
+    render(<CycleBoard projection={projection} />);
 
     const sources = screen.getAllByTestId("cycle-board-source");
     expect(sources).toHaveLength(packet.composition_manifest.length);

@@ -16,14 +16,21 @@ type CycleBoardExportPacket = Awaited<
   ReturnType<RuntimeApiClient["getDepthNCycleBoardProjection"]>
 >;
 
-type CycleBoardHeroClient = Pick<
-  RuntimeApiClient,
-  "getDepthNCycleBoardProjection"
->;
+type CapturedCycleBoardExport = Readonly<{
+  packet: CycleBoardExportPacket;
+  rawPacketBytes: Uint8Array;
+}>;
+
+type CycleBoardHeroClient = Readonly<{
+  getDepthNCycleBoardProjection: (
+    params: Record<string, never>,
+  ) => Promise<CapturedCycleBoardExport>;
+}>;
 
 export type DepthNCycleBoardProjection = Readonly<{
   packet: CycleBoardProjectionPacket;
   payload: DepthNCycleBoardPayloadV2;
+  rawPacketBytes: Uint8Array;
 }>;
 
 export type DepthNCycleBoardHeroProjection = DepthNCycleBoardProjection;
@@ -36,14 +43,31 @@ function runtimeApiBaseUrl(): string {
     : applicationOrigin;
 }
 
-const cycleBoardProjectionClient = new RuntimeApiClient({
-  baseUrl: runtimeApiBaseUrl(),
-  fetchImpl: (input, init) => authAwareRuntimeFetch(new Request(input, init)),
-});
+const cycleBoardProjectionClient: CycleBoardHeroClient = {
+  async getDepthNCycleBoardProjection(params) {
+    let rawPacketBytes: Uint8Array | null = null;
+    const client = new RuntimeApiClient({
+      baseUrl: runtimeApiBaseUrl(),
+      fetchImpl: async (input, init) => {
+        const response = await authAwareRuntimeFetch(new Request(input, init));
+        rawPacketBytes = new Uint8Array(await response.clone().arrayBuffer());
+        return response;
+      },
+    });
+    const packet = await client.getDepthNCycleBoardProjection(params);
+    if (rawPacketBytes === null) {
+      throw new TypeError(
+        "contract_error: Cycle Board response bytes were not captured",
+      );
+    }
+    return Object.freeze({ packet, rawPacketBytes });
+  },
+};
 
 /** Narrow only the generated composed-v2 packet intended for the hero surface. */
 export function narrowDepthNCycleBoardHeroProjection(
   packet: CycleBoardExportPacket,
+  rawPacketBytes: Uint8Array,
 ): DepthNCycleBoardProjection {
   if (
     packet.packet_schema_version !== "policyos.runtime.cycle_board_packet.v1" ||
@@ -55,7 +79,11 @@ export function narrowDepthNCycleBoardHeroProjection(
       "contract_error: Cycle Board hero requires the composed-v2 packet version",
     );
   }
-  return Object.freeze({ packet, payload: packet.payload });
+  return Object.freeze({
+    packet,
+    payload: packet.payload,
+    rawPacketBytes,
+  });
 }
 
 /** Prepare the hero query against the distinct static composed-v2 operation. */
@@ -64,10 +92,13 @@ export function depthNCycleBoardHeroProjectionQueryOptions(
 ) {
   return {
     queryKey: queryKeys.cycleBoardProjection(),
-    queryFn: async () =>
-      narrowDepthNCycleBoardHeroProjection(
-        await client.getDepthNCycleBoardProjection({}),
-      ),
+    queryFn: async () => {
+      const response = await client.getDepthNCycleBoardProjection({});
+      return narrowDepthNCycleBoardHeroProjection(
+        response.packet,
+        response.rawPacketBytes,
+      );
+    },
   };
 }
 

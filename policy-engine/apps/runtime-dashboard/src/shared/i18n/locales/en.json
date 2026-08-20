@@ -392,6 +392,7 @@
       "title": "Cycle Board",
       "subtitle": "The known design-cycle cohort, its producer-owned facts, and the exact capabilities still absent.",
       "projectionObservedAt": "Projection transaction observed at",
+      "exportPacket": "Export Cycle Board packet",
       "accessUnsettledTitle": "Checking review access",
       "accessUnsettledBody": "The board will not request its evidence until reviewer authorization is settled.",
       "accessDeniedTitle": "Review access required",

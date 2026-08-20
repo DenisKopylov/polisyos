@@ -18,13 +18,34 @@ from polisyos.runtime.quality.calibration_ledger import (
     calibration_behavior_deficit_records,
     calibration_behavior_scorecard_gates,
     calibration_influence_for_scope,
+    historical_prior_claim_evidence_issues,
     persist_calibration_ledger,
 )
+from polisyos.runtime.quality.calibration_ledger import (
+    CLAIM_EVIDENCE_SLOT_KEYS as CALIBRATION_CLAIM_EVIDENCE_SLOT_KEYS,
+)
 from polisyos.runtime.quality.claim_registry import normalize_runtime_claim_registry
+from polisyos.runtime.quality.memory_influence import (
+    CLAIM_EVIDENCE_SLOT_KEYS as MEMORY_CLAIM_EVIDENCE_SLOT_KEYS,
+)
 
 
 def _sha(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def test_claim_evidence_slot_projection_has_one_owner() -> None:
+    assert CALIBRATION_CLAIM_EVIDENCE_SLOT_KEYS is MEMORY_CLAIM_EVIDENCE_SLOT_KEYS
+
+
+def test_unknown_historical_prior_payload_value_fails_closed() -> None:
+    issues = historical_prior_claim_evidence_issues(
+        {"runtime_invented_opaque_position": b"historical-prior-influence:opaque"},
+        claim_id="claim-opaque",
+    )
+
+    assert issues
+    assert issues[0]["code"] == "historical_prior_payload_provenance_unknown"
 
 
 def _scope(**overrides: str) -> dict[str, str]:

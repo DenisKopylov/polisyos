@@ -134,6 +134,34 @@ def test_memory_marker_in_unordered_container_fails_closed() -> None:
     assert issues[0]["evidence_slot"] == novel_key
 
 
+@pytest.mark.parametrize(
+    "opaque_value",
+    [b"memory-influence:prior-policy-fact", object()],
+    ids=["bytes", "opaque-object"],
+)
+def test_unknown_memory_payload_value_fails_closed(opaque_value: object) -> None:
+    novel_key = f"runtime_invented_opaque_position_{id(opaque_value)}"
+    issues = memory_influence_claim_evidence_issues(
+        {novel_key: opaque_value},
+        claim_id="claim-opaque",
+    )
+
+    assert issues
+    assert issues[0]["code"] == "memory_influence_payload_provenance_unknown"
+    assert issues[0]["evidence_slot"] == novel_key
+
+
+def test_typed_memory_record_rejects_opaque_marker_carrier() -> None:
+    with pytest.raises(ValueError, match="unsupported provenance payload value"):
+        build_memory_influence_record(
+            _success_memory(),
+            run_id="run-target",
+            context=MemoryApplicabilityContext(run_id="run-target", domain="tax"),
+            contamination_check_ref="quality_evidence/memory_contamination_pass.json",
+            metadata={"opaque": b"memory-influence:prior-policy-fact"},
+        )
+
+
 def test_llm_candidate_memory_cannot_emit_active_influence_record() -> None:
     memory = build_balanced_memory_record(
         kind=BalancedMemoryKind.OPPORTUNITY,

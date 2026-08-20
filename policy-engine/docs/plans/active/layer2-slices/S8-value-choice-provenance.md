@@ -331,7 +331,7 @@ Expected failing command before implementation:
 ```bash
 uv run pytest \
   tests/unit/runtime/quality/test_layer2_s7_delegation.py \
-  tests/unit/runtime/quality/test_layer2_s8_value_choice.py \
+  tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py \
   tests/unit/pdc/test_layer2_s2_design_search.py \
   tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py \
   -q
@@ -524,7 +524,7 @@ Run:
 ```bash
 uv run pytest \
   tests/unit/runtime/quality/test_layer2_s7_delegation.py \
-  tests/unit/runtime/quality/test_layer2_s8_value_choice.py \
+  tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py \
   -q
 ```
 
@@ -1046,7 +1046,7 @@ Run focused checks:
 ```bash
 uv run pytest \
   tests/unit/runtime/quality/test_layer2_s7_delegation.py \
-  tests/unit/runtime/quality/test_layer2_s8_value_choice.py \
+  tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py \
   tests/unit/pdc/test_layer2_s2_design_search.py \
   tests/repo_quality/tools/test_w12d_universal_outcome_corpus_run.py \
   tests/repo_quality/tools/test_policy_design_case_layer2_s8_value_choice.py \

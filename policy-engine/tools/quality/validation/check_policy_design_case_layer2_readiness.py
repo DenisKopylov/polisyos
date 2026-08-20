@@ -15,7 +15,9 @@ from tools.quality.validation import check_policy_design_case_cluster_ownership_
 
 REPO_ROOT, _SRC_ROOT = ensure_repo_import_roots(__file__)
 
-from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import load_layer3_gx_data_home  # noqa: E402
+from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (  # noqa: E402
+    load_layer3_gx_data_home,
+)
 
 DEFAULT_READINESS_MANIFEST_PATH = Path(
     "architecture/policy_design_case/layer2_readiness_manifest.json"
@@ -5256,10 +5258,10 @@ def _validate_s8_s7_value_authorization_support(
 def _validate_s8_runtime_negative_firewalls(issues: list[dict[str, str]]) -> None:
     try:
         from polisyos.runtime.quality.design_axes.value_choice_provenance import (
+            P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE,
             P20NormativeChoiceError,
             build_authorized_value_schedule,
             build_pareto_archive,
-            build_shadow_scenario_value_schedule,
             build_value_choice_provenance_record,
         )
 
@@ -5298,32 +5300,30 @@ def _validate_s8_runtime_negative_firewalls(issues: list[dict[str, str]]) -> Non
                     "S8 must accept S7 value_authorization refs only as mandate-bounded value authorization.",
                 )
             )
-        shadow_schedule = build_shadow_scenario_value_schedule(
-            schedule_ref="pdc://layer2/s8/shadow-scenario/readiness-probe",
-            case_id="layer2-s8-readiness-probe",
-            principal_refs=["principal://readiness"],
-            social_weight_provenance_refs=["pdc://layer2/s8/readiness/social-weight"],
-            scenario_label="readiness shadow scenario",
-            rule_version_ref=rule_version_ref,
-        )
         try:
             build_pareto_archive(
-                archive_id="layer2.s8.readiness.shadow",
-                archive_ref="pdc://layer2/s8/readiness/shadow-pareto",
+                archive_id="layer2.s8.readiness.resolver-absent",
+                archive_ref="pdc://layer2/s8/readiness/resolver-absent-pareto",
                 case_id="layer2-s8-readiness-probe",
                 ranking_mode="ranked_with_authorized_values",
                 archive_status="probe",
-                value_schedule_ref=shadow_schedule.schedule_ref,
+                value_schedule_ref=authorized_schedule.schedule_ref,
                 authority_boundary=authority_boundary,
                 rule_version_ref=rule_version_ref,
             )
-        except P20NormativeChoiceError:
-            pass
+        except P20NormativeChoiceError as exc:
+            if exc.code != P20_VALUE_SCHEDULE_RESOLVER_ABSENT_CODE:
+                issues.append(
+                    _issue(
+                        "layer2_s8_value_schedule_resolver_absence_code_mismatch",
+                        "S8 ranked admission must name the absent schedule resolver honestly.",
+                    )
+                )
         else:
             issues.append(
                 _issue(
-                    "layer2_s8_shadow_scenario_negative_control_failed",
-                    "S8 must block shadow_scenario schedules from satisfying authorized ranking.",
+                    "layer2_s8_value_schedule_resolver_absence_firewall_failed",
+                    "S8 must refuse ranked admission while no value-schedule resolver exists.",
                 )
             )
         try:

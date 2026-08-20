@@ -221,14 +221,19 @@ enumeration `absent/unallocated`
 `RecursiveGenerationCycleRun` and
 `CompiledRecursiveGenerationCycleRun` bind a run and each leaf to exact
 `DesignProblem` content, graph content, cycle content and owner-derived
-terminal. The single-run contract and producer logic exist, but the production
-front door returns an in-memory value and does not persist it. The precise
-capability label is **`artifact_missing`**.
+terminal. The single-run contract and producer logic exist, but the only
+source-defined helper returns an in-memory value and does not persist it. The
+precise single-return-artifact label is **`artifact_missing`**; this does not
+establish that the helper is a production boundary.
 
-The only production caller is the plain-language control service, which
-returns the value directly. No production persistence owner, append-only run
-membership, chronology, current-head/resolved-terminal projection, consistency
-proof, or deletion/post-hoc-narrowing detector exists. GY-GAP5 is therefore
+The source-defined plain-language control helper returns the value directly,
+but its name and location do not establish a production boundary. A later
+complete source-only AST census (recorded and independently checked in Cycles 3
+and 4) finds the helper definition and one unit-test call, with no production
+caller. The live ingress/emission predicate is therefore `not_established`.
+No production persistence owner, append-only run membership, chronology,
+current-head/resolved-terminal projection, consistency proof, or
+deletion/post-hoc-narrowing detector exists. GY-GAP5 is therefore
 **`absent/unallocated`**, not `bridge_missing`: a complete enumeration producer
 has not been allocated.
 
@@ -238,6 +243,36 @@ Both complete walkers returned zero source and test files for the four supplied
 release/transcript predicates. Existing frozen artifacts and rule registries
 can be inputs, but there is no controlled release-family membership,
 chronology, head, verifier-disposition or offline-consistency owner. GY-GAP3 is
+**`absent/unallocated`**.
+
+### Native integrity primitives — mixed native maturity; generic chronology
+proof still `absent/unallocated`
+
+Three native components change the reuse posture without promoting the target
+capability:
+
+- N11 has a scope-local CAS/hash-chain/WAL with rollback, fork and prefix
+  checks. Its behavior is reusable, but INT-K05 forbids reusing its confidence
+  scope, head or private ledger as a chronology owner.
+- `core/security/audit_verifier.py::ChainVerifier` verifies supplied chained-
+  segment hashes and interior continuity/gaps. A complete AST census over all
+  2,561 source Python files finds zero constructor calls; only tests instantiate
+  it, so it is **`implemented_but_not_orchestrated`**, not `implemented`. It
+  trusts the supplied first sequence/hash unless it is genesis and has no
+  expected tail/denominator, so interior deletion can fail while prefix/tail
+  narrowing can still verify.
+- `data_forge/kernel/snapshot/merkle.py::merkle_root` deterministically commits
+  a sorted supplied-ref set. It is **`implemented`** for that deterministic
+  identity, but not for completeness: the finalizer can omit a declared
+  artifact whose path is missing before computing the root. It exposes no
+  membership or append-only consistency proof and owns no chronology.
+
+The reuse decision is therefore **extend/consolidate behavior, reject owner
+reuse**: consolidate canonical hashing and segment verification where the
+eventual profile can preserve their native contracts; extend the common
+verifier with profile/domain binding, accepted-anchor and consistency
+properties; reject both existing stores as the generic chronology owner. The
+common proof protocol and accepted-anchor chain remain
 **`absent/unallocated`**.
 
 ## Capability table
@@ -260,6 +295,10 @@ chronology, head, verifier-disposition or offline-consistency owner. GY-GAP3 is
 | single recursive run/content terminal | `artifact_missing` | non-blocking production persistence |
 | GY-GAP5 run enumeration | `absent/unallocated` | append-only membership/chronology owner and projection |
 | GY-GAP3 release transcript | `absent/unallocated` | family-native transcript producer, verifier and replay surface |
+| N11 scope-local chain/WAL | `implemented` | reuse behavior only; reject confidence-scope/head/storage ownership |
+| core chained-audit segment verifier | `implemented_but_not_orchestrated` | wire only after adding start/tail anchor and family denominator; reuse interior continuity behavior |
+| Data Forge snapshot Merkle root | `implemented` | reuse supplied-ref set commitment only; no completeness/inclusion/consistency or chronology claim |
+| common chronology-proof protocol and accepted anchors | `absent/unallocated` | typed profile/domain contract + producer + native proof artifact + verifier + competent consumer/holder chain |
 
 ## Pattern pass
 

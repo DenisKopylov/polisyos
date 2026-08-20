@@ -62,7 +62,7 @@ the actual divergence points:
   `not_established`, not inferred from the function's name or location.
   Two independent complete walkers agree: exact call-pattern text search
   returns those same two locations, while a dependency-free AST walk parsed
-  all 4,954 tracked Python files under `src` and `tests` (zero unreadable),
+  all 4,955 tracked Python files under `src` and `tests` (zero unreadable),
   finding one definition and one call, the latter in the unit test. These
   source-only scanners are admissible under the declared toolchain gate because
   they import no repository/runtime dependency; they make no runtime claim.
@@ -72,17 +72,30 @@ the actual divergence points:
   Its tests delete witnessed events, rewrite or shrink a cached prefix and
   present an old valid prefix after the head advances; every case fails closed
   (`test_confidence_ledger.py:495-527,581-620,3205-3221`).
-- Core security also has a generic chained audit entry and optional replica
-  backends, but no family-accepted signed anchor contract or full denominator
-  reconciliation
-  (`core/security/audit_models.py:60-112`,
-  `core/security/audit_sink.py:24-212`).
+- Core security also has a public `ChainVerifier` that checks supplied-segment
+  hashes, missing interior sequence numbers and continuity, plus chained audit
+  entries and optional replica backends
+  (`core/security/audit_verifier.py:34-76`,
+  `core/security/audit_models.py:60-112`,
+  `core/security/audit_sink.py:24-212`; interior-deletion behavior in
+  `tests/unit/core/security/test_audit_chain.py:74-111`). All 2,561 source
+  Python files contain zero constructor call; only tests instantiate it, so its
+  state is `implemented_but_not_orchestrated`. It has no family-accepted
+  starting anchor, expected tail or full denominator reconciliation, and cannot
+  detect prefix/tail narrowing by itself.
+- Data Forge has a deterministic sorted-set snapshot Merkle-root producer
+  (`data_forge/kernel/snapshot/merkle.py:11-25`). It commits the supplied refs,
+  not snapshot completeness—the finalizer skips missing declared paths before
+  hashing—and supplies neither member/consistency proofs nor chronology.
 
-Those last two are reuse evidence, not evidence that a generic chronology
-capability exists. N11's chain is owned by its non-resettable confidence-risk
-scope under INT-K05. Core audit's optional fanout is neither family admission
-nor writer-independent acceptance. The shared chronology protocol and accepted
-anchor capability therefore remain `absent/unallocated`.
+Those are reuse evidence, not evidence that a generic chronology capability
+exists. N11's chain is owned by its non-resettable confidence-risk scope under
+INT-K05. Core audit's verifier/fanout is neither family admission nor
+writer-independent acceptance. The Data Forge root is a set identity, not an
+append-only proof. The explicit decision is extend/consolidate their hashing
+and verification behavior where compatible, while rejecting every existing
+scope, head and store as the common owner. The shared chronology protocol and
+accepted-anchor capability therefore remain `absent/unallocated`.
 
 Two independent reviewers were briefed to argue opposite conclusions. The
 affirmative reviewer had to construct the strongest possible shared owner; the
@@ -271,16 +284,19 @@ A hash-chain profile pays (O(n)) offline verification and carries the full
 prefix. Before implementation chooses the profile, measure each family's
 cutoff-bound member cardinality, canonical bundle bytes, owner latency/storage
 ceiling and whether any admitted consumer requires selective proof without the
-full transcript. A Merkle profile becomes required if full replay exceeds an
-owner ceiling or an admitted consumer requires sublinear selective membership/
-consistency proofs. Both profiles must satisfy the same behavioral closure
-basis; an algorithm name, root field or successful exit code is never the
-property.
+full transcript. If full replay exceeds an owner ceiling or a consumer requires
+sublinear selective membership/consistency proofs, the selected profile must
+provide that measured property. A Merkle transparency tree is the presently
+evidenced candidate (`C2-E01`/`C2-U14`), not the only possible authenticated
+structure. Every profile must satisfy the same behavioral closure basis; an
+algorithm name, root field or successful exit code is never the property.
 
 This is reuse of proven predicates, not reuse of N11's private owner. The first
-implementation cluster must extract or build the smallest generic proof
-surface over `core.canon`, CAS and audit verification without importing
-epoch/release/run/movement state into the confidence ledger.
+implementation cluster must extend/consolidate the smallest compatible generic
+proof surface over `core.canon`, CAS, `ChainVerifier` and snapshot commitment
+behavior without importing epoch/release/run/movement state into the confidence
+ledger. Build-new is permitted only for the still-missing profile/domain,
+anchor and consistency properties that cannot preserve an existing contract.
 
 ## Unification falsifiers
 
@@ -324,7 +340,7 @@ state split is:
 | --- | --- | --- |
 | single returned `RecursiveGenerationCycleRun` artifact | real constructor returns the content-bound value; no persistence | `artifact_missing` |
 | live production ingress/emission boundary | complete source census finds a definition and unit-test call but no production caller | execution/predicate status `not_established` |
-| cross-run chronology/enumeration | no admitted chain; GY-GAP5 registration | `absent/unallocated`; deficits `artifact_missing + bridge_missing` |
+| cross-run chronology/enumeration | no admitted chain or allocated enumeration producer; GY-GAP5 registration | `absent/unallocated`; missing links are described without promoting the capability to a stronger maturity label |
 
 Retaining only the source-defined function and unit-test call cannot promote
 the boundary row or change the enumeration row. N13b remains
@@ -388,12 +404,18 @@ Return review then closed clean:
 
 - the basis reviewer found both denominator/anchor-order findings closed and
   no adjacent escape;
-- the method/record reviewer reproduced the dual 4,954-file source census,
+- the method/record reviewer recorded the dual source census as 4,954 files,
   accepted the inference/algorithm falsifiers, found the remaining three-state
   summary escape, and returned clean after the inventory repair; and
 - the architecture reviewer independently found the same state escape, then
   returned clean after the same repair and found no remaining collapse across
   the journal, design or closure basis.
 
-Cycle 3 is complete and delta-clean. The closure basis remains deliberately
-unfrozen until Cycle 4.
+At the Cycle-3 boundary this was recorded as complete and delta-clean. Cycle 4
+reopened that record: the Python denominator was 4,955, not 4,954; the
+enumeration row still collapsed absence into stronger deficit labels; reusable
+proof primitives were omitted; and the review receipt did not bind reviewer
+identity or exact reviewed bytes. The Cycle-4 journal preserves the correction
+and content-binds the new review wave. The architecture inference survives;
+the earlier clean receipt does not carry authority. The closure basis remains
+unfrozen until Cycle 4 returns clean.

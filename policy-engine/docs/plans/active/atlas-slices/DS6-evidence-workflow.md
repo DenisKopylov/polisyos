@@ -897,27 +897,53 @@ Capability truth is `contract_only` with `producer_missing`,
 
 ### Task 13 — DS6-C13: independently verify DS8 adjacent print export
 
-**Owner-discovered path set declared before the browser lane:**
+**Revision 3.22 execution status: a scoped product-repair candidate is
+implemented and its narrow current-surface semantic guard is observed GREEN.
+The repair release remains `not_established` until the containing commit's
+attached-branch readback, DS8/`team-design` design adjudication remains owed,
+and the governed A4 comparison is RED. The C13 governed transition therefore
+remains blocked and C14 remains gated.**
 
-1. this plan
-2. the DS6 journal
+**Current measured path set:**
 
-**Declared path cap: 6; measured candidate set: 2.** Consume DS8's shipped
-surface without editing it. The unique real-browser owner is the filtered
-`run detail A4 print` case in `e2e/runtime-dashboard.visual.spec.ts`; the
-static snapshot checker proves only markers and image shape, not link/report
-non-overlap. Run the real Chromium comparison once under the supplied 2,400 s
-ceiling. If it is RED, preserve expected/actual/diff evidence and stop: the
-closure conjunction is already falsified. If it is GREEN, a second no-update
-capture is required for repeatability and semantic non-overlap still needs an
-independent verifier.
+1. `apps/runtime-dashboard/src/styles/print.css`
+2. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`
+3. this plan
+4. the DS6 journal
 
-The current readiness-ledger and disposition-register owners are contended and
-therefore unavailable. Ignored Playwright output plus this reviewed record are
-the strongest honest result in C13; no governed readiness/audit transition is
-written. Failure returns evidence to DS8 and does not authorize a DS6 product
-repair. The capability remains `consumer_missing`/`surface_missing` until the
-serialized owner family is released and C10/C14 reconcile the evidence.
+**Declared path cap: 6.** Revision 3.22's debt-row execution rule supersedes
+the older no-product-edit fence for this registered co-owned row: DS6 may
+execute its independently verifiable closure signal while DS8/`team-design`
+retains correctness ownership and still owes design adjudication. P39
+arithmetic is two mechanism paths plus two mandatory record companions. The
+CSS repair and its generic real-browser semantic verifier are mechanism; this
+plan and the journal are companions outside the mechanism count. Two mechanism
+paths fit the cap.
+
+The complete current rendered link set under the print surface contains one
+17,206-byte `/public/decisions/` target. The candidate scoped rule suppresses
+only that target's pseudo-content and preserves every current rendered
+ordinary printed destination. Its independent Chromium guard is GREEN. For
+this measured surface, the sole generated signed-target string is absent and
+therefore cannot overlap the report; this is not an unbounded claim about
+future target patterns or direct URL text in report content. Measurement
+nevertheless falsified the prior claim that this target caused the whole
+13,269-pixel height: suppressing it yields 12,966 pixels, and even suppressing
+every link target yields 12,918. The governed expected image remains 724×2,113,
+so the first post-repair no-update capture is a completed RED receipt and no
+second capture is run. The snapshot is not rewritten and no report content is
+hidden to fit it.
+
+C13 requires all three conjuncts: a content-bound scoped repair release,
+independently established semantic non-overlap, and two consecutive GREEN
+no-update A4 captures. The repair-release predicate is `not_established` until
+the containing commit's attached-branch readback. The narrow current-surface
+signed-target predicate is `recomputed`: the complete rendered denominator has
+one generated signed target and its pseudo-content is absent. The capture
+predicate is false. Therefore no register, readiness-ledger, report, or status
+transition is authorized, the register family remains released, and the
+capability remains `consumer_missing`/`surface_missing`. C14 cannot close DS6
+while this remains true.
 
 ### Task 14 — DS6-C14: close the evidence workflow slice
 

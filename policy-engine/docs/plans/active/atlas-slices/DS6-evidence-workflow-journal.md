@@ -4950,3 +4950,99 @@ DS6 then explicitly relinquishes the family at the five closing identities
 above. C13/C14 remain gated on the DS8 print repair, independently established
 semantic non-overlap, and two consecutive stable no-update captures. **DS6 is
 not closed.**
+
+## DS6 closure print execution — 2026-08-20
+
+Revision 3.22's debt-row execution rule authorizes the live DS6 co-owner to
+execute the registered `adjacent-print-export` closure signal without waiting
+for DS8's ladder. It does not transfer correctness ownership: DS8/
+`team-design` still owes design adjudication of the chosen print semantics,
+and that obligation is recorded rather than waived. The register family was
+not needed or acquired for this product repair.
+
+Entry was clean and attached at
+`0b721454e2f246e89bd084d5e19039c6a1e3d4c5` on
+`codex/atlas-ds6-closure`. The fresh-worktree gate completed before any
+TypeScript/browser result: `corepack pnpm install --frozen-lockfile` exited 0
+in 15.49 s with pnpm 10.33.2 and 1,211 packages. A process/port census found no
+active repository Vite, Storybook, fixture-server, or Playwright test process
+and no listener on 5,173/6,006/8,000, so DS6 acquired the visual lane. The
+opening governed expectations were print SHA-256
+`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`
+at 724×2,113 and run-deck SHA-256
+`76ecd68a93dd843940212f73392f080704ae17dea87be5f8a358f337c15d9aaa`
+at 1,094×820. The lane remains held through the run-deck piece.
+
+An initially over-anchored grep selected zero tests after provisioning the
+fresh Python fixture environment. Its exit 1 after 88.888 s is a setup
+nonreceipt, not a product finding. The corrected no-update Chromium command
+selected exactly `run detail A4 print`, used zero retries, and completed exit 1
+in 18.431 s: 724×2,113 expected, 770×13,269 actual, and 692,175 differing
+pixels. No snapshot-update flag was used.
+
+The complete runtime denominator under `[data-testid="run-detail-page"]` was
+19 anchors, four rendered in print. Exactly one rendered anchor began
+`/public/decisions/`; its 17,206-byte href had SHA-256
+`181575220da0ac4b3a60775f9e618d7db862d4fe357581e55f049a6e66c72983`
+and its pseudo-content overflow measured 1,831 px. An ignored, no-writer
+Playwright measurement enumerated the set and measured four in-memory PNGs:
+
+| Candidate | PNG dimensions |
+| --- | ---: |
+| current two-emitter cascade | 770×13,269 |
+| suppress only the signed target | 770×12,966 |
+| suppress all packet-panel targets | 770×12,966 |
+| suppress every run-detail target | 770×12,918 |
+
+Thus the inherited causal statement that the generated URL alone explains the
+six-fold height is falsified. After removing every link-target contribution,
+12,918 px remain. The complete rendered structure independently measured a
+12,893 px main-content column, including a 7,528 px decision packet, a 4,501 px
+publication packet, and a 4,829 px overview. Hiding those product surfaces or
+rewriting the governed snapshot would exceed the narrow repair and fit the
+implementation to the test.
+
+Red-first added a real-browser semantic guard before the CSS exception. It
+failed because the signed pseudo-content was the full generated URL. The
+candidate adds one higher-specificity exception under the existing global
+`attr(href)` rule: only a `/public/decisions/` target inside the run-detail
+surface receives `content: none`. This defeats the later duplicate emitter in
+`styles.css` without deleting either archival rule. The final guard enumerates
+every current visible ordinary link, proves every exact href remains in its
+pseudo-content, proves the sole signed link and its long href remain present,
+and proves that signed pseudo-content is absent. It passed 1/1 in 13.535 s.
+Together with the complete measured signed-target denominator, that recomputes
+the bounded current-surface property: no generated signed-target
+pseudo-content exists to overlap this report. It does not claim future target
+patterns or direct URL text in report content are absent, and it does not infer
+the property from pixels.
+
+The first post-candidate governed A4 comparison completed exit 1 in 16.837 s:
+724×2,113 expected, 770×12,966 actual, and 315,577 differing pixels. Because
+the first required capture is RED, no second capture is run and no pair of
+consecutive stable no-update GREEN captures exists. The content-bound repair
+release remains `not_established` until the containing commit is read back
+from the attached branch, DS8/`team-design` adjudication remains owed, and the
+capture conjunct is false. The C13 governed transition therefore does not run,
+C14 remains gated, and DS6 is not closed.
+
+The first delta review returned one Important finding, classified before
+repair as the NEW verification-denominator class
+`print-semantic-visible-link-denominator`: the guard sampled one ordinary link
+rather than proving preservation over the complete rendered set. This consumed
+print mechanism round **1/2**. The widened verifier enumerates every visible
+ordinary anchor and proves each exact href remains in its computed
+pseudo-content. Delta re-review found no further Blocking or Important
+mechanism issue. ESLint on the governed visual test, the static print checker,
+and `git diff --check` passed. A whole-record formatter touched unrelated
+narrative and was reverse-applied exactly before this surgical record was
+restored; no mechanism byte or test outcome changed, so that record-only
+finding consumes no round.
+
+P39 arithmetic is **two mechanism paths plus two mandatory record companions**.
+The CSS repair and its generic real-browser semantic verifier are mechanism;
+this plan and this journal are companions outside the mechanism cap.
+Subtracting the companions leaves two mechanism paths, within C13's cap of
+six. No register, report, status inventory, baseline manifest, readiness
+ledger, snapshot PNG, master-plan line 7, GY-DEF21, DS4 waist vocabulary, or
+plural-debt byte changed.

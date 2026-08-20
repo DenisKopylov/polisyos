@@ -6,8 +6,8 @@
         "certificate_class": "estimand_binding_refusal",
         "certificate_ref": "n10-route://education",
         "certificate_role": "refusal",
-        "check_projection_hash": "sha256:09498759ce8f1360b1f2fd1a8b38cf5ed78659aea51a68bcff63fb85d2d09057",
-        "claim_execution_projection_hash": "sha256:b1d3306abcfe72b11ad42b49fd1e9c9fe698847d700d2ccd0237e993e06dc16f",
+        "check_projection_hash": "sha256:92eac3f7357832b24750aed3a6a71d67145f1d2ef503f29e4b46cd07192bb3d4",
+        "claim_execution_projection_hash": "sha256:fc77a6c9227ae4affb07f49524346272ae016806e5b5e88589357bcf5441b8a8",
         "claim_polarity": "confident_wrong_refusal",
         "deterministic_proof": true,
         "eligible_for_promotion": false,
@@ -24,8 +24,8 @@
         "certificate_class": "owner_acquisition_route",
         "certificate_ref": "n10-route://first_vertical",
         "certificate_role": "acquisition",
-        "check_projection_hash": "sha256:382c61dd08cda4ffbb5fa4040101a5973d010007eccc55116d55ca9e4ae75dd3",
-        "claim_execution_projection_hash": "sha256:43f7cfc28f01a520de353758f0f08572f56d00c7c390677b654f5e07669b71ae",
+        "check_projection_hash": "sha256:9310d9819cc7d6ed4668aeb635127e90330e93e501e83b511c99da7a736442f7",
+        "claim_execution_projection_hash": "sha256:7d8ff8d1baeccd927cde41696f86e6a5d676c3a1fe2a1abef5434b1b9013f367",
         "claim_polarity": "confident_wrong_refusal",
         "deterministic_proof": true,
         "eligible_for_promotion": false,
@@ -42,8 +42,8 @@
         "certificate_class": "owner_acquisition_route",
         "certificate_ref": "n10-route://unseen",
         "certificate_role": "acquisition",
-        "check_projection_hash": "sha256:0e003978b33019045f7629de7cb8279fa3f3805e8e809f6fa145b57a57c83591",
-        "claim_execution_projection_hash": "sha256:eebdc69b6275a61e0b6d8806b53ec13eb5d25c926567e21e1070759060536f58",
+        "check_projection_hash": "sha256:72f5a1eac3e156e269e4a0c4f85c19b3fc6ba08f0671418e18c6eb873416aee2",
+        "claim_execution_projection_hash": "sha256:3e135b9951dd0a94e59a2a97b077ee803e3456c56a6689a3890cdf0e347aee46",
         "claim_polarity": "confident_wrong_refusal",
         "deterministic_proof": true,
         "eligible_for_promotion": false,
@@ -64,12 +64,12 @@
     "n13b_raw_response_count": 2,
     "owner_acquisition_route_count": 2,
     "owner_data_gap_count": 0,
-    "projection_hash": "sha256:eab273b73e25f65d96c3c3a480aafd233992dfc0d4822baab80f7c5cf26b9ae3",
+    "projection_hash": "sha256:0877e2c8c72507619367724655c55d98c4eb4ab8059b31e7043087a1bd132fba",
     "total_spend_decimal": "0",
     "total_spend_denominator": 1,
     "total_spend_numerator": 0
   },
-  "artifact_content_hash": "sha256:e6f0730d142dfe9576bdf6ac79b5eaa446fd1f2426875b047745607b8fca8b71",
+  "artifact_content_hash": "sha256:e971664fcdad74569735873c4a65f33922f2b4cd9e09d91fa39c1beba3cdb2a4",
   "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
   "conformance_ledger_projection": {
     "authority_provenance": "verification",
@@ -85,8 +85,8 @@
         "certificate_ref": "construction://constant-unit-e-process/n11-frozen",
         "certificate_role": "promotion_conformance",
         "certificate_route_hash": null,
-        "check_projection_hash": "sha256:b993accfa5969e602e05c91d3277f21f26410276065c3eaad8e54e14320c225c",
-        "claim_execution_projection_hash": "sha256:86368e7bb32fc8831de2c26536bd56ba18e1f8a651ac4e35f71a1fbd19823f9d",
+        "check_projection_hash": "sha256:6ba44a81464d533274d7836cc3d106b2a9c7c25f7016e04e0fe6cbb8d333d157",
+        "claim_execution_projection_hash": "sha256:33d6fe1eca190e0441b6bb3d71156f59f6668d449ea1908e56ad338cb79a66e1",
         "claim_polarity": "conformance_only",
         "claim_ref": "n11://claim/constant-unit-e-process-crosses",
         "claim_scope_ref": "n11://conformance/closed-construction",
@@ -96,7 +96,7 @@
         "execution_id": "confidence-execution:sha256:8e6f860aac2e8ad8880202639d0620449fe389ae86487f5d728d64aaa5670188",
         "execution_ordinal": 0,
         "execution_status": "executed",
-        "filtration_projection_hash": "sha256:85637b984eaa5f5a0e9592cc8faba9987163c00e2285e9abc6fb22bad74c3b6b",
+        "filtration_projection_hash": "sha256:67d26f758d9c27a0266a1caad1e3caf249781b28b9fddfbcc18fc2a6ebf2a7e9",
         "good_event_id": "confidence-good-event:sha256:2e24e6202dd77dd8d4001434559caac4d545947915cb5c20a8b9071f1ff4b799",
         "instrument_definition_hash": "sha256:99e86406f0b0dc28a6b19953591405668d34843614fd504364aea106a2a45731",
         "instrument_family": "e_process",
@@ -125,7 +125,7 @@
       }
     ],
     "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-    "deployment_identity": "policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f",
+    "deployment_identity": "policy-engine-deployment:sha256:53618d6b3dba9590997d9bea42713f878dc6bcbca777f26d6db65fe8d9e3db03",
     "events": [
       {
         "check": {
@@ -134,8 +134,8 @@
           "certificate_ref": "construction://constant-unit-e-process/n11-frozen",
           "certificate_role": "promotion_conformance",
           "certificate_route_hash": null,
-          "check_projection_hash": "sha256:05b73e843941e18f5db1dd479ac08ea502dde31797f155b5dd998844016e5eca",
-          "claim_execution_projection_hash": "sha256:7f13a036a5d22cbc2498a3c50a2f51c3c70bef1836f644c49c54a482592f16c2",
+          "check_projection_hash": "sha256:d8e4dcc9f3a1becb1f785a7e8269c35307af271271690ca69ea92d6a94f04da7",
+          "claim_execution_projection_hash": "sha256:1f18212a533f95de39edf9d55e19ff84fbcffff24e8f72bdfbfa6a03cf3da9bb",
           "claim_polarity": "conformance_only",
           "claim_ref": "n11://claim/constant-unit-e-process-crosses",
           "claim_scope_ref": "n11://conformance/closed-construction",
@@ -145,7 +145,7 @@
           "execution_id": null,
           "execution_ordinal": null,
           "execution_status": "prepared",
-          "filtration_projection_hash": "sha256:85637b984eaa5f5a0e9592cc8faba9987163c00e2285e9abc6fb22bad74c3b6b",
+          "filtration_projection_hash": "sha256:67d26f758d9c27a0266a1caad1e3caf249781b28b9fddfbcc18fc2a6ebf2a7e9",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:99e86406f0b0dc28a6b19953591405668d34843614fd504364aea106a2a45731",
           "instrument_family": "e_process",
@@ -172,9 +172,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:de88681cb23f9257aa948b40973de0f380e1c9c71a35a30ab3ce8ee3691f50a9",
+        "event_projection_hash": "sha256:cae2356a3c5ed9f1e2be88b638cb47690eb486a5943d980edcbbf790978a8675",
         "event_type": "prepared",
-        "parent_event_projection_hash": "sha256:85637b984eaa5f5a0e9592cc8faba9987163c00e2285e9abc6fb22bad74c3b6b",
+        "parent_event_projection_hash": "sha256:67d26f758d9c27a0266a1caad1e3caf249781b28b9fddfbcc18fc2a6ebf2a7e9",
         "revision": 1
       },
       {
@@ -184,8 +184,8 @@
           "certificate_ref": "construction://constant-unit-e-process/n11-frozen",
           "certificate_role": "promotion_conformance",
           "certificate_route_hash": null,
-          "check_projection_hash": "sha256:648667a651571c8f9d3383b6fd1844e778bdfc1afb66de00297bf8a7e544fdbc",
-          "claim_execution_projection_hash": "sha256:86368e7bb32fc8831de2c26536bd56ba18e1f8a651ac4e35f71a1fbd19823f9d",
+          "check_projection_hash": "sha256:0f25180485631fec466642f5afeedfc31ade858e84f03337badd7f733d6d6216",
+          "claim_execution_projection_hash": "sha256:33d6fe1eca190e0441b6bb3d71156f59f6668d449ea1908e56ad338cb79a66e1",
           "claim_polarity": "conformance_only",
           "claim_ref": "n11://claim/constant-unit-e-process-crosses",
           "claim_scope_ref": "n11://conformance/closed-construction",
@@ -195,7 +195,7 @@
           "execution_id": "confidence-execution:sha256:8e6f860aac2e8ad8880202639d0620449fe389ae86487f5d728d64aaa5670188",
           "execution_ordinal": 0,
           "execution_status": "started",
-          "filtration_projection_hash": "sha256:85637b984eaa5f5a0e9592cc8faba9987163c00e2285e9abc6fb22bad74c3b6b",
+          "filtration_projection_hash": "sha256:67d26f758d9c27a0266a1caad1e3caf249781b28b9fddfbcc18fc2a6ebf2a7e9",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:99e86406f0b0dc28a6b19953591405668d34843614fd504364aea106a2a45731",
           "instrument_family": "e_process",
@@ -222,9 +222,9 @@
           "spend_decimal": "0.000303963499305693314818488395159690537591747669",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:789f9f6a595b368a803fb124d712b6532d6d122991bb411f195643de097cf20e",
+        "event_projection_hash": "sha256:a863fccc63f47fbeecdb86e757b08885ff5a16efdb9d8cd6daeb247f78b2adbb",
         "event_type": "started",
-        "parent_event_projection_hash": "sha256:de88681cb23f9257aa948b40973de0f380e1c9c71a35a30ab3ce8ee3691f50a9",
+        "parent_event_projection_hash": "sha256:cae2356a3c5ed9f1e2be88b638cb47690eb486a5943d980edcbbf790978a8675",
         "revision": 2
       },
       {
@@ -234,8 +234,8 @@
           "certificate_ref": "construction://constant-unit-e-process/n11-frozen",
           "certificate_role": "promotion_conformance",
           "certificate_route_hash": null,
-          "check_projection_hash": "sha256:705e55e9086419bad94afd6f9715c02cecd319db6ab25b7dacf840e90f8080a5",
-          "claim_execution_projection_hash": "sha256:86368e7bb32fc8831de2c26536bd56ba18e1f8a651ac4e35f71a1fbd19823f9d",
+          "check_projection_hash": "sha256:6e4970d1ffcd1a884a768e41cfff6ab6da3ee9fa8834ad678387411109c0f587",
+          "claim_execution_projection_hash": "sha256:33d6fe1eca190e0441b6bb3d71156f59f6668d449ea1908e56ad338cb79a66e1",
           "claim_polarity": "conformance_only",
           "claim_ref": "n11://claim/constant-unit-e-process-crosses",
           "claim_scope_ref": "n11://conformance/closed-construction",
@@ -245,7 +245,7 @@
           "execution_id": "confidence-execution:sha256:8e6f860aac2e8ad8880202639d0620449fe389ae86487f5d728d64aaa5670188",
           "execution_ordinal": 0,
           "execution_status": "started",
-          "filtration_projection_hash": "sha256:85637b984eaa5f5a0e9592cc8faba9987163c00e2285e9abc6fb22bad74c3b6b",
+          "filtration_projection_hash": "sha256:67d26f758d9c27a0266a1caad1e3caf249781b28b9fddfbcc18fc2a6ebf2a7e9",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:99e86406f0b0dc28a6b19953591405668d34843614fd504364aea106a2a45731",
           "instrument_family": "e_process",
@@ -272,9 +272,9 @@
           "spend_decimal": "0.000303963499305693314818488395159690537591747669",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:b15c64be02ad2b1f70fe57eac88eeee870b217c137313707259941f5f0d133f2",
+        "event_projection_hash": "sha256:b79aba32290c3c8beb835bf4d8395c6fbcc688f0ab01bce74ca1ebc410b09b66",
         "event_type": "started",
-        "parent_event_projection_hash": "sha256:789f9f6a595b368a803fb124d712b6532d6d122991bb411f195643de097cf20e",
+        "parent_event_projection_hash": "sha256:a863fccc63f47fbeecdb86e757b08885ff5a16efdb9d8cd6daeb247f78b2adbb",
         "revision": 3
       },
       {
@@ -284,8 +284,8 @@
           "certificate_ref": "construction://constant-unit-e-process/n11-frozen",
           "certificate_role": "promotion_conformance",
           "certificate_route_hash": null,
-          "check_projection_hash": "sha256:b993accfa5969e602e05c91d3277f21f26410276065c3eaad8e54e14320c225c",
-          "claim_execution_projection_hash": "sha256:86368e7bb32fc8831de2c26536bd56ba18e1f8a651ac4e35f71a1fbd19823f9d",
+          "check_projection_hash": "sha256:6ba44a81464d533274d7836cc3d106b2a9c7c25f7016e04e0fe6cbb8d333d157",
+          "claim_execution_projection_hash": "sha256:33d6fe1eca190e0441b6bb3d71156f59f6668d449ea1908e56ad338cb79a66e1",
           "claim_polarity": "conformance_only",
           "claim_ref": "n11://claim/constant-unit-e-process-crosses",
           "claim_scope_ref": "n11://conformance/closed-construction",
@@ -295,7 +295,7 @@
           "execution_id": "confidence-execution:sha256:8e6f860aac2e8ad8880202639d0620449fe389ae86487f5d728d64aaa5670188",
           "execution_ordinal": 0,
           "execution_status": "executed",
-          "filtration_projection_hash": "sha256:85637b984eaa5f5a0e9592cc8faba9987163c00e2285e9abc6fb22bad74c3b6b",
+          "filtration_projection_hash": "sha256:67d26f758d9c27a0266a1caad1e3caf249781b28b9fddfbcc18fc2a6ebf2a7e9",
           "good_event_id": "confidence-good-event:sha256:2e24e6202dd77dd8d4001434559caac4d545947915cb5c20a8b9071f1ff4b799",
           "instrument_definition_hash": "sha256:99e86406f0b0dc28a6b19953591405668d34843614fd504364aea106a2a45731",
           "instrument_family": "e_process",
@@ -322,19 +322,19 @@
           "spend_decimal": "0.000303963499305693314818488395159690537591747669",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:b4bbbcd87885713222a737efb1611f4b00e742b2ef290ed52c361f3b0ea22bfe",
+        "event_projection_hash": "sha256:2eb833b43079c49ca4671d07180fa2dc0162f59d62c2f055564e2fd6fd86b9cd",
         "event_type": "completed",
-        "parent_event_projection_hash": "sha256:b15c64be02ad2b1f70fe57eac88eeee870b217c137313707259941f5f0d133f2",
+        "parent_event_projection_hash": "sha256:b79aba32290c3c8beb835bf4d8395c6fbcc688f0ab01bce74ca1ebc410b09b66",
         "revision": 4
       }
     ],
     "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
-    "head_event_projection_hash": "sha256:b4bbbcd87885713222a737efb1611f4b00e742b2ef290ed52c361f3b0ea22bfe",
+    "head_event_projection_hash": "sha256:2eb833b43079c49ca4671d07180fa2dc0162f59d62c2f055564e2fd6fd86b9cd",
     "maintained_assumptions": [
       "obligation_completeness",
       "validator_soundness"
     ],
-    "projection_hash": "sha256:c30a2d9de8e57191ee18461a2de85a75fe8aa566e4a4d537a4e85749c09e43db",
+    "projection_hash": "sha256:2d7dc7a2d7d555166eddad1b70f8aaabd34b0d36a070c79a8835aba20659e1e6",
     "projection_scope": "n11_conformance_append_lineage",
     "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
     "risk_scope": {
@@ -347,7 +347,7 @@
       "schema_ref": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
       "scope_owner_ref": "polisyos.runtime.quality.confidence_ledger.closed_constant_unit_e_process_v1"
     },
-    "root_projection_hash": "sha256:85637b984eaa5f5a0e9592cc8faba9987163c00e2285e9abc6fb22bad74c3b6b",
+    "root_projection_hash": "sha256:67d26f758d9c27a0266a1caad1e3caf249781b28b9fddfbcc18fc2a6ebf2a7e9",
     "schedule_profile_hash": "sha256:4fb4463caee1e68ac66ba73b2ede29f77b31025b22627556b5ece51094df9120",
     "schedule_profile_id": "default_basel_square",
     "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",
@@ -364,8 +364,8 @@
   "conformance_run": {
     "anytime_valid": true,
     "certificate_role": "promotion_conformance",
-    "check_projection_hash": "sha256:b993accfa5969e602e05c91d3277f21f26410276065c3eaad8e54e14320c225c",
-    "claim_execution_projection_hash": "sha256:86368e7bb32fc8831de2c26536bd56ba18e1f8a651ac4e35f71a1fbd19823f9d",
+    "check_projection_hash": "sha256:6ba44a81464d533274d7836cc3d106b2a9c7c25f7016e04e0fe6cbb8d333d157",
+    "claim_execution_projection_hash": "sha256:33d6fe1eca190e0441b6bb3d71156f59f6668d449ea1908e56ad338cb79a66e1",
     "claim_polarity": "conformance_only",
     "eligible_for_promotion": false,
     "execution_ordinal": 0,
@@ -383,21 +383,21 @@
   "n12_epoch_reference_projection": {
     "authority_provenance": "verification",
     "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-    "deployment_identity": "policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f",
+    "deployment_identity": "policy-engine-deployment:sha256:53618d6b3dba9590997d9bea42713f878dc6bcbca777f26d6db65fe8d9e3db03",
     "epoch_ref": null,
-    "ledger_projection_hash": "sha256:d7c8c3982582da88a4e0cb59fe7d3947bf1ee4c6923080b233f1ed6c7e855451",
+    "ledger_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
     "maintained_assumptions": [
       "obligation_completeness",
       "validator_soundness"
     ],
     "model_ref": "sha256:4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7",
-    "projection_hash": "sha256:558e2419af336c56c54b9cd84347c5d814ac46129cc5bca670b4248062d016f7",
+    "projection_hash": "sha256:216f6b102e11de5ee0ce361246791c1ecd3d3f6452f0d43ea0ae31dbc3726293",
     "projection_scope": "n12_epoch_reference",
     "risk_scope": {
       "authority_purpose": "n11_real_n10_n13b_accounting",
       "epoch_ref": null,
       "model_ref": "sha256:4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7",
-      "owner_projection_hash": "sha256:c67e42434eec292c73e6a91239e2ec3ba78d8be817609a659da4402a568842b1",
+      "owner_projection_hash": "sha256:38b436d4a931798b88cdf92c8b84852762a7a91851600cc98de36c9a10baa774",
       "owner_scope_key": "frozen-owner-bundle:n10+n13b",
       "rule_ref": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
       "schema_ref": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
@@ -418,14 +418,14 @@
     },
     "budget_delta_decimal": "0.01",
     "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-    "deployment_identity": "policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f",
+    "deployment_identity": "policy-engine-deployment:sha256:53618d6b3dba9590997d9bea42713f878dc6bcbca777f26d6db65fe8d9e3db03",
     "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
-    "ledger_projection_hash": "sha256:d7c8c3982582da88a4e0cb59fe7d3947bf1ee4c6923080b233f1ed6c7e855451",
+    "ledger_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
     "maintained_assumptions": [
       "obligation_completeness",
       "validator_soundness"
     ],
-    "projection_hash": "sha256:70e05ecfe942cd90a607065adaa68f7faee6208f5523ab1f8154585be36500a1",
+    "projection_hash": "sha256:8c589bd270d0fc1119cf8bdd90922bf8551c6f560e40660ded45569b584bb08a",
     "projection_scope": "n9_promotion_certificate",
     "promotion_rows": [],
     "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
@@ -433,7 +433,7 @@
       "authority_purpose": "n11_real_n10_n13b_accounting",
       "epoch_ref": null,
       "model_ref": "sha256:4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7",
-      "owner_projection_hash": "sha256:c67e42434eec292c73e6a91239e2ec3ba78d8be817609a659da4402a568842b1",
+      "owner_projection_hash": "sha256:38b436d4a931798b88cdf92c8b84852762a7a91851600cc98de36c9a10baa774",
       "owner_scope_key": "frozen-owner-bundle:n10+n13b",
       "rule_ref": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
       "schema_ref": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
@@ -456,11 +456,11 @@
       "members": [
         {
           "decisive": true,
-          "declared_identity": "sha256:1aae7b3743959c2b10b4da0d0e722a783227f653e7a385d9c7f055083b276a8f",
+          "declared_identity": "sha256:57658332db4b7bb27c357e4a35dfc756151adf5558ee5b3ca75be85419659e54",
           "member_id": "owner-record:architecture/generated_artifacts.toml",
           "member_kind": "artifact",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:1aae7b3743959c2b10b4da0d0e722a783227f653e7a385d9c7f055083b276a8f"
+          "resolved_identity": "sha256:57658332db4b7bb27c357e4a35dfc756151adf5558ee5b3ca75be85419659e54"
         },
         {
           "decisive": true,
@@ -472,11 +472,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:ecd788f41117cb6c9178a85bf35a8c46e6d6158bfcdce1ba6046b892396db953",
+          "declared_identity": "sha256:3d5078670c4bbb02da4270c511f29c3d66444b3f66360c58d6146e25d145cba4",
           "member_id": "owner-record:architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json",
           "member_kind": "artifact",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:ecd788f41117cb6c9178a85bf35a8c46e6d6158bfcdce1ba6046b892396db953"
+          "resolved_identity": "sha256:3d5078670c4bbb02da4270c511f29c3d66444b3f66360c58d6146e25d145cba4"
         },
         {
           "decisive": true,
@@ -1032,11 +1032,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f",
+          "declared_identity": "policy-engine-deployment:sha256:53618d6b3dba9590997d9bea42713f878dc6bcbca777f26d6db65fe8d9e3db03",
           "member_id": "confidence-ledger-loaded-runtime",
           "member_kind": "loader_binding",
           "predicate_class": "recomputed",
-          "resolved_identity": "policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f"
+          "resolved_identity": "policy-engine-deployment:sha256:53618d6b3dba9590997d9bea42713f878dc6bcbca777f26d6db65fe8d9e3db03"
         },
         {
           "decisive": true,
@@ -3560,6 +3560,14 @@
         },
         {
           "decisive": true,
+          "declared_identity": "sha256:87efa1dbc0d11569bc8238228cdbb29dab037a2283a6f6124f298f8dbe8f214a",
+          "member_id": "module:polisyos.fabric.api",
+          "member_kind": "source",
+          "predicate_class": "recomputed",
+          "resolved_identity": "sha256:87efa1dbc0d11569bc8238228cdbb29dab037a2283a6f6124f298f8dbe8f214a"
+        },
+        {
+          "decisive": true,
           "declared_identity": "sha256:6b5a4026af2dded174eaf750fe4566062847e30100b30334c10e789a5667e516",
           "member_id": "module:polisyos.fabric.catalog",
           "member_kind": "source",
@@ -5045,6 +5053,14 @@
           "member_kind": "source",
           "predicate_class": "recomputed",
           "resolved_identity": "sha256:20d0b7e030548f79d23ee7627d25c4250402386c67535a3d1da871f4da3a4458"
+        },
+        {
+          "decisive": true,
+          "declared_identity": "sha256:dfe97a650b67d10543f81405008714d9dffbc3e2299a1778c002b11302205a1d",
+          "member_id": "module:polisyos.fabric.data_plane.semantic_diff",
+          "member_kind": "source",
+          "predicate_class": "recomputed",
+          "resolved_identity": "sha256:dfe97a650b67d10543f81405008714d9dffbc3e2299a1778c002b11302205a1d"
         },
         {
           "decisive": true,
@@ -11488,11 +11504,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:4975c7562380ecde7a44cdbb855f09c3ef0d5f1db6ebac213bedb2bdb97510fc",
+          "declared_identity": "sha256:3cfeec61578560626b5b9e15e0cbec03639e2a308056c45ef1f030443d8fbf50",
           "member_id": "module:polisyos.pdc",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:4975c7562380ecde7a44cdbb855f09c3ef0d5f1db6ebac213bedb2bdb97510fc"
+          "resolved_identity": "sha256:3cfeec61578560626b5b9e15e0cbec03639e2a308056c45ef1f030443d8fbf50"
         },
         {
           "decisive": true,
@@ -11512,19 +11528,19 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:a893796f4c7039e065d3d29521c8dc9c45111e4b5d7f4b77d1629e93e15cde4a",
+          "declared_identity": "sha256:f28a7596abdac8713f7eb1e5b187200fe973aad9ab642082ea2a63aca5de4e8b",
           "member_id": "module:polisyos.pdc._impl.gy_waist",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:a893796f4c7039e065d3d29521c8dc9c45111e4b5d7f4b77d1629e93e15cde4a"
+          "resolved_identity": "sha256:f28a7596abdac8713f7eb1e5b187200fe973aad9ab642082ea2a63aca5de4e8b"
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:4bf04021a58e42d0a48d3c867dcc1f8546d8ce5edba83208d779039801797a2d",
+          "declared_identity": "sha256:be274b46f6c6d46fa59f28dd64dca8a43cf993041b7dd821a6603dd7f2087ff5",
           "member_id": "module:polisyos.pdc._impl.layer2_design_search",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:4bf04021a58e42d0a48d3c867dcc1f8546d8ce5edba83208d779039801797a2d"
+          "resolved_identity": "sha256:be274b46f6c6d46fa59f28dd64dca8a43cf993041b7dd821a6603dd7f2087ff5"
         },
         {
           "decisive": true,
@@ -11904,11 +11920,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:e045680ec794c3f94d9607e1042def1792b99d236c1af67565901f75c2e670ea",
+          "declared_identity": "sha256:157f7c1c12261208a44261b188609638fd8269d5a8c0f86b071fbd8fd6ce9d81",
           "member_id": "module:polisyos.runtime.quality.authority",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:e045680ec794c3f94d9607e1042def1792b99d236c1af67565901f75c2e670ea"
+          "resolved_identity": "sha256:157f7c1c12261208a44261b188609638fd8269d5a8c0f86b071fbd8fd6ce9d81"
         },
         {
           "decisive": true,
@@ -12064,11 +12080,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:a8bfdfd82cc077035cc90516dc2e9dc71f3ced4ed81aa568a48a3e91333f1de0",
+          "declared_identity": "sha256:faccf58d11a4a6fd1138cfec84cfc303ec6b1afb78d7276287537cb29f98c56b",
           "member_id": "module:polisyos.runtime.quality.confidence_ledger",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:a8bfdfd82cc077035cc90516dc2e9dc71f3ced4ed81aa568a48a3e91333f1de0"
+          "resolved_identity": "sha256:faccf58d11a4a6fd1138cfec84cfc303ec6b1afb78d7276287537cb29f98c56b"
         },
         {
           "decisive": true,
@@ -12424,11 +12440,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:c79f15af2f705b2cf8dc02a3da83ef563fa0cc66538743ce6de86420f829be87",
+          "declared_identity": "sha256:8e362e54088916ff26e66b4544dd62bdee9a7bb3c4da70a0f6ba716715bb2743",
           "member_id": "module:polisyos.runtime.quality.generation_cycle",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:c79f15af2f705b2cf8dc02a3da83ef563fa0cc66538743ce6de86420f829be87"
+          "resolved_identity": "sha256:8e362e54088916ff26e66b4544dd62bdee9a7bb3c4da70a0f6ba716715bb2743"
         },
         {
           "decisive": true,
@@ -12656,19 +12672,19 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:d50d37810ad30046e9756934315e9329c6918d0eba3b203ada5534653a459ee3",
+          "declared_identity": "sha256:9760eb00ac2c885e8ee27d3699a74af3e809b90873e6a2b0e161592f7de849ed",
           "member_id": "module:polisyos.runtime.quality.promotion_sequence",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:d50d37810ad30046e9756934315e9329c6918d0eba3b203ada5534653a459ee3"
+          "resolved_identity": "sha256:9760eb00ac2c885e8ee27d3699a74af3e809b90873e6a2b0e161592f7de849ed"
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:45002e6f84356349fed3b7852387ec79553e190c9d9a12cb5aec5f89b920e380",
+          "declared_identity": "sha256:12dfa1729675298fcacb9485f0fd515fba76272d1ed6716d71c3ad7aa3302b2f",
           "member_id": "module:polisyos.runtime.quality.prompt_tool_ledger",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:45002e6f84356349fed3b7852387ec79553e190c9d9a12cb5aec5f89b920e380"
+          "resolved_identity": "sha256:12dfa1729675298fcacb9485f0fd515fba76272d1ed6716d71c3ad7aa3302b2f"
         },
         {
           "decisive": true,
@@ -12680,11 +12696,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:b49cc8df82c502c09fa0fb43cf8a8179156bec99c94d2c92484fab8a648530f9",
+          "declared_identity": "sha256:0675e4d0398c532e744af931816cbfcb91fb41b06cacd6af2eff8d3605cd82d1",
           "member_id": "module:polisyos.runtime.quality.proving_ground.bounded_request_agent",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:b49cc8df82c502c09fa0fb43cf8a8179156bec99c94d2c92484fab8a648530f9"
+          "resolved_identity": "sha256:0675e4d0398c532e744af931816cbfcb91fb41b06cacd6af2eff8d3605cd82d1"
         },
         {
           "decisive": true,
@@ -12744,11 +12760,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:080566310d9f6528313ca2ea29f23d843b13a1680a79a5955289f511cddfc428",
+          "declared_identity": "sha256:5002db32c28839e681cfbfb1f4063dcfc7e6dfc5351f5b4876bf8c1cf8edad3a",
           "member_id": "module:polisyos.runtime.quality.public_export",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:080566310d9f6528313ca2ea29f23d843b13a1680a79a5955289f511cddfc428"
+          "resolved_identity": "sha256:5002db32c28839e681cfbfb1f4063dcfc7e6dfc5351f5b4876bf8c1cf8edad3a"
         },
         {
           "decisive": true,
@@ -12997,6 +13013,30 @@
           "member_kind": "source",
           "predicate_class": "recomputed",
           "resolved_identity": "sha256:dfbfec2e4f6b3926b40b1533aebf88a47b663ac0dfed710cbbf00415873ed1c3"
+        },
+        {
+          "decisive": true,
+          "declared_identity": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+          "member_id": "module:polisyos.scholar._impl",
+          "member_kind": "source",
+          "predicate_class": "recomputed",
+          "resolved_identity": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "decisive": true,
+          "declared_identity": "sha256:180ecfe5f550678a9c0cc3d10ddf652bf96f59740fbf9037b8474a3e25c7c666",
+          "member_id": "module:polisyos.scholar._impl.evidence",
+          "member_kind": "source",
+          "predicate_class": "recomputed",
+          "resolved_identity": "sha256:180ecfe5f550678a9c0cc3d10ddf652bf96f59740fbf9037b8474a3e25c7c666"
+        },
+        {
+          "decisive": true,
+          "declared_identity": "sha256:a73e6cbc1506926f30ccd3cd31035f6b652936d49e47f5e88484800985b389ef",
+          "member_id": "module:polisyos.scholar._impl.spine",
+          "member_kind": "source",
+          "predicate_class": "recomputed",
+          "resolved_identity": "sha256:a73e6cbc1506926f30ccd3cd31035f6b652936d49e47f5e88484800985b389ef"
         },
         {
           "decisive": true,
@@ -13461,6 +13501,14 @@
           "member_kind": "source",
           "predicate_class": "recomputed",
           "resolved_identity": "sha256:478d2078da3db4862da4f33f61de7c1951eef71844e43c5f7a47b67bbe77d1cd"
+        },
+        {
+          "decisive": true,
+          "declared_identity": "sha256:525c1e098db4128bad5c0bf6ea82fa600f0030daa07a5da3887ff28d00a07715",
+          "member_id": "module:polisyos.scientist.agent.tool_contracts",
+          "member_kind": "source",
+          "predicate_class": "recomputed",
+          "resolved_identity": "sha256:525c1e098db4128bad5c0bf6ea82fa600f0030daa07a5da3887ff28d00a07715"
         },
         {
           "decisive": true,
@@ -15736,11 +15784,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:11238f408154b5d7eeeb8772a90693343cb40ae0788971eae07903653306bbde",
+          "declared_identity": "sha256:eee88ed605d4298976f76112b2d54ac3bb1fb2f4bd057c5b165af97b2e6a9e10",
           "member_id": "module:polisyos.scientist.orchestration.engine",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:11238f408154b5d7eeeb8772a90693343cb40ae0788971eae07903653306bbde"
+          "resolved_identity": "sha256:eee88ed605d4298976f76112b2d54ac3bb1fb2f4bd057c5b165af97b2e6a9e10"
         },
         {
           "decisive": true,
@@ -15792,11 +15840,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:742413129920efd7fe40ea2febef4ded4e8df888a7f644f35d2d8ad42ad1da98",
+          "declared_identity": "sha256:4ffbb1d637895faf66bfa108090b0508f96931b3ed14ac3f5317e59ca50d3a40",
           "member_id": "module:polisyos.scientist.orchestration.engine.checkpoint",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:742413129920efd7fe40ea2febef4ded4e8df888a7f644f35d2d8ad42ad1da98"
+          "resolved_identity": "sha256:4ffbb1d637895faf66bfa108090b0508f96931b3ed14ac3f5317e59ca50d3a40"
         },
         {
           "decisive": true,
@@ -15944,11 +15992,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:58f37f695f4584342b674b481e88bfd237c26b7c813a27200f56bad14cd1ca3f",
+          "declared_identity": "sha256:a674e736b63c5c52915c4116fe1d77d82f2df8bc79c1917fc262e7e49975660a",
           "member_id": "module:polisyos.scientist.orchestration.engine.runner._activity_worker",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:58f37f695f4584342b674b481e88bfd237c26b7c813a27200f56bad14cd1ca3f"
+          "resolved_identity": "sha256:a674e736b63c5c52915c4116fe1d77d82f2df8bc79c1917fc262e7e49975660a"
         },
         {
           "decisive": true,
@@ -16240,6 +16288,14 @@
         },
         {
           "decisive": true,
+          "declared_identity": "sha256:d82821dc5d3f09f46988bbeb6825c4ab8c62ed46ee2c4108e2f2f7c2a72bb202",
+          "member_id": "module:polisyos.scientist.orchestration.llm.traced_client",
+          "member_kind": "source",
+          "predicate_class": "recomputed",
+          "resolved_identity": "sha256:d82821dc5d3f09f46988bbeb6825c4ab8c62ed46ee2c4108e2f2f7c2a72bb202"
+        },
+        {
+          "decisive": true,
           "declared_identity": "sha256:a1068fddc031fba726548bffc74bab509b4b4bf183bc9f419a77046c3145f5f3",
           "member_id": "module:polisyos.scientist.orchestration.memory",
           "member_kind": "source",
@@ -16320,11 +16376,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:b39d5c2b5477e1ea87bafff665ad86c2800e481f65b6985741a9b20cc4536664",
+          "declared_identity": "sha256:e12021113a85c697f057908f03befcc0a1f366d3e23b1c61a525ed6d56709cda",
           "member_id": "module:polisyos.scientist.orchestration.workflows.builder",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:b39d5c2b5477e1ea87bafff665ad86c2800e481f65b6985741a9b20cc4536664"
+          "resolved_identity": "sha256:e12021113a85c697f057908f03befcc0a1f366d3e23b1c61a525ed6d56709cda"
         },
         {
           "decisive": true,
@@ -16904,11 +16960,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:cc4a01fdb22cb000ec7936f77590ed116a451d86c59710dd6a2b612e3e955159",
+          "declared_identity": "sha256:b130cb7c0839bb348d955baccfa13b8c01275e47e2de2ee81435e26d051e8ff5",
           "member_id": "module:tools.quality.validation.check_layer3_gy_second_domain_pack",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:cc4a01fdb22cb000ec7936f77590ed116a451d86c59710dd6a2b612e3e955159"
+          "resolved_identity": "sha256:b130cb7c0839bb348d955baccfa13b8c01275e47e2de2ee81435e26d051e8ff5"
         },
         {
           "decisive": true,
@@ -17040,11 +17096,11 @@
         },
         {
           "decisive": true,
-          "declared_identity": "sha256:3f9f1804c6efb6b73efebce5be927eccd8062795b1040b760f3348dbac973bbc",
+          "declared_identity": "sha256:388d19981ab775185cfeec58d35793903b48c955c07793af625bf53177c33508",
           "member_id": "owner-record:n10_source_ref:n10a_cycle_trace",
           "member_kind": "source",
           "predicate_class": "recomputed",
-          "resolved_identity": "sha256:3f9f1804c6efb6b73efebce5be927eccd8062795b1040b760f3348dbac973bbc"
+          "resolved_identity": "sha256:388d19981ab775185cfeec58d35793903b48c955c07793af625bf53177c33508"
         },
         {
           "decisive": true,
@@ -17159,7 +17215,7 @@
           "resolved_identity": "sha256:b18395cf89ca8ab2b25387baf5b062fcf0242af18885c5be693d3fd9a7e7db3a"
         }
       ],
-      "membership_sha256": "sha256:89cd1a6ca61085f5b9c118a7846dc06bc3f7d5de1d1ca72591a958247bd3a784",
+      "membership_sha256": "sha256:b49be3f36664d98916f2a57e957177d43918ea527827b5cae46bd6a6c376c4f0",
       "same_input_closure": {
         "cell_id": null,
         "closure_id": "gy-n11-owner-inputs",
@@ -17427,11 +17483,11 @@
       "world_growth_status": "no_growth",
       "world_growth_target_variable": "government.balance"
     },
-    "projection_sha256": "sha256:c67e42434eec292c73e6a91239e2ec3ba78d8be817609a659da4402a568842b1"
+    "projection_sha256": "sha256:38b436d4a931798b88cdf92c8b84852762a7a91851600cc98de36c9a10baa774"
   },
   "projection_edges": [
     {
-      "consumer_projection_hash": "sha256:d7c8c3982582da88a4e0cb59fe7d3947bf1ee4c6923080b233f1ed6c7e855451",
+      "consumer_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
       "consumer_projection_ref": "n11://append-lineage/real-accounting",
       "consumer_scope": "n11_real_accounting_append_lineage",
       "producer_projection_hash": "sha256:9c433f8759c80c194a25b8a3746f4a832973e694de589be830d04ff28c8c913c",
@@ -17439,7 +17495,7 @@
       "producer_scope": "capstone_acquisition_routes"
     },
     {
-      "consumer_projection_hash": "sha256:d7c8c3982582da88a4e0cb59fe7d3947bf1ee4c6923080b233f1ed6c7e855451",
+      "consumer_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
       "consumer_projection_ref": "n11://append-lineage/real-accounting",
       "consumer_scope": "n11_real_accounting_append_lineage",
       "producer_projection_hash": "sha256:eb5b736e3c662b37098d89d0d4ea3919b2ae333f8a814363112cba12d72bfd7e",
@@ -17447,26 +17503,26 @@
       "producer_scope": "n13b_confidence_accounting"
     },
     {
-      "consumer_projection_hash": "sha256:eab273b73e25f65d96c3c3a480aafd233992dfc0d4822baab80f7c5cf26b9ae3",
+      "consumer_projection_hash": "sha256:0877e2c8c72507619367724655c55d98c4eb4ab8059b31e7043087a1bd132fba",
       "consumer_projection_ref": "n11://accounted-run",
       "consumer_scope": "n11_accounted_run",
-      "producer_projection_hash": "sha256:d7c8c3982582da88a4e0cb59fe7d3947bf1ee4c6923080b233f1ed6c7e855451",
+      "producer_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
       "producer_projection_ref": "n11://append-lineage/real-accounting",
       "producer_scope": "n11_real_accounting_append_lineage"
     },
     {
-      "consumer_projection_hash": "sha256:70e05ecfe942cd90a607065adaa68f7faee6208f5523ab1f8154585be36500a1",
+      "consumer_projection_hash": "sha256:8c589bd270d0fc1119cf8bdd90922bf8551c6f560e40660ded45569b584bb08a",
       "consumer_projection_ref": "n11://projection/n9-promotion-certificate",
       "consumer_scope": "n9_promotion_certificate",
-      "producer_projection_hash": "sha256:d7c8c3982582da88a4e0cb59fe7d3947bf1ee4c6923080b233f1ed6c7e855451",
+      "producer_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
       "producer_projection_ref": "n11://append-lineage/real-accounting",
       "producer_scope": "n11_real_accounting_append_lineage"
     },
     {
-      "consumer_projection_hash": "sha256:558e2419af336c56c54b9cd84347c5d814ac46129cc5bca670b4248062d016f7",
+      "consumer_projection_hash": "sha256:216f6b102e11de5ee0ce361246791c1ecd3d3f6452f0d43ea0ae31dbc3726293",
       "consumer_projection_ref": "n11://projection/n12-epoch-reference",
       "consumer_scope": "n12_epoch_reference",
-      "producer_projection_hash": "sha256:d7c8c3982582da88a4e0cb59fe7d3947bf1ee4c6923080b233f1ed6c7e855451",
+      "producer_projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
       "producer_projection_ref": "n11://append-lineage/real-accounting",
       "producer_scope": "n11_real_accounting_append_lineage"
     }
@@ -17485,8 +17541,8 @@
         "certificate_ref": "n10-route://education",
         "certificate_role": "refusal",
         "certificate_route_hash": "sha256:8d80daa2d351e9d9145f0131ec8697a91045f25a6c37bc253dde4c88111c94ae",
-        "check_projection_hash": "sha256:09498759ce8f1360b1f2fd1a8b38cf5ed78659aea51a68bcff63fb85d2d09057",
-        "claim_execution_projection_hash": "sha256:b1d3306abcfe72b11ad42b49fd1e9c9fe698847d700d2ccd0237e993e06dc16f",
+        "check_projection_hash": "sha256:92eac3f7357832b24750aed3a6a71d67145f1d2ef503f29e4b46cd07192bb3d4",
+        "claim_execution_projection_hash": "sha256:fc77a6c9227ae4affb07f49524346272ae016806e5b5e88589357bcf5441b8a8",
         "claim_polarity": "confident_wrong_refusal",
         "claim_ref": "n10://claim/education/certificate-is-correct",
         "claim_scope_ref": "n10://route/sha256:eb67d5d2da80874024af2e426d49b41d685728d99ce1db40c0bea6ca340188ca",
@@ -17496,7 +17552,7 @@
         "execution_id": "confidence-execution:sha256:f52daf5811a0c6fc968bafcd521e17b5ee307f8c59e0eea38d124124d189df5d",
         "execution_ordinal": 0,
         "execution_status": "executed",
-        "filtration_projection_hash": "sha256:71676be7176a01962902dbfea5d137c1e2350c896f850c40a97d2307f853ad92",
+        "filtration_projection_hash": "sha256:096c1f0da18f3da2135693e9a0b009af053934a72915271e41104986be1362cc",
         "good_event_id": null,
         "instrument_definition_hash": "sha256:2f618d25cec3adad12fc0a7d9ca28a657b45737c3acf7c3ca2a3fc3cef582112",
         "instrument_family": "proof_carrying_refusal_certificate",
@@ -17538,8 +17594,8 @@
         "certificate_ref": "n10-route://first_vertical",
         "certificate_role": "acquisition",
         "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-        "check_projection_hash": "sha256:382c61dd08cda4ffbb5fa4040101a5973d010007eccc55116d55ca9e4ae75dd3",
-        "claim_execution_projection_hash": "sha256:43f7cfc28f01a520de353758f0f08572f56d00c7c390677b654f5e07669b71ae",
+        "check_projection_hash": "sha256:9310d9819cc7d6ed4668aeb635127e90330e93e501e83b511c99da7a736442f7",
+        "claim_execution_projection_hash": "sha256:7d8ff8d1baeccd927cde41696f86e6a5d676c3a1fe2a1abef5434b1b9013f367",
         "claim_polarity": "confident_wrong_refusal",
         "claim_ref": "n10://claim/first_vertical/certificate-is-correct",
         "claim_scope_ref": "n10://route/sha256:5f0daf586dd1fc5bc96f1cf59317d49ead7e1c64884ce793037255c5f46e5f1e",
@@ -17549,7 +17605,7 @@
         "execution_id": "confidence-execution:sha256:0ea5ea7c0c37cd48c4c259f450ad19f8b70992d4c5418edf832789c1a1b94fb4",
         "execution_ordinal": 1,
         "execution_status": "executed",
-        "filtration_projection_hash": "sha256:92e613b93ac1744102ff88891ea0b9a73e02b58923e5304fc44062f41fa1d6e5",
+        "filtration_projection_hash": "sha256:9b076ca1ea70e4af1140656f87a87a41d2a3f114465654fa9a1f3efa2a8a86d9",
         "good_event_id": null,
         "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
         "instrument_family": "deterministic_proof",
@@ -17591,8 +17647,8 @@
         "certificate_ref": "n10-route://unseen",
         "certificate_role": "acquisition",
         "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-        "check_projection_hash": "sha256:0e003978b33019045f7629de7cb8279fa3f3805e8e809f6fa145b57a57c83591",
-        "claim_execution_projection_hash": "sha256:eebdc69b6275a61e0b6d8806b53ec13eb5d25c926567e21e1070759060536f58",
+        "check_projection_hash": "sha256:72f5a1eac3e156e269e4a0c4f85c19b3fc6ba08f0671418e18c6eb873416aee2",
+        "claim_execution_projection_hash": "sha256:3e135b9951dd0a94e59a2a97b077ee803e3456c56a6689a3890cdf0e347aee46",
         "claim_polarity": "confident_wrong_refusal",
         "claim_ref": "n10://claim/unseen/certificate-is-correct",
         "claim_scope_ref": "n10://route/sha256:0a2253ff81d1a2e5e77bc5041447ca4a33a2e982942e3f0777ade92480a5fd3e",
@@ -17602,7 +17658,7 @@
         "execution_id": "confidence-execution:sha256:30262e26a2a883392b9b595c3fc6b1ef585a4a661bf19fc9877b22a742eab3d1",
         "execution_ordinal": 2,
         "execution_status": "executed",
-        "filtration_projection_hash": "sha256:3bf2d5246d04b7a5c88a2d6b85e6156aba76fa4c7fcefdbd50d12cc21f011abe",
+        "filtration_projection_hash": "sha256:e483998549bd527f4c3121217cd1010e62601c9e603033d23a2cd8d5774bebd3",
         "good_event_id": null,
         "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
         "instrument_family": "deterministic_proof",
@@ -17640,7 +17696,7 @@
       }
     ],
     "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-    "deployment_identity": "policy-engine-deployment:sha256:f05a816fbf7e9cc2ba08d6c0bf61fa40b5698a8d76ac5e35c2e9e10d5983955f",
+    "deployment_identity": "policy-engine-deployment:sha256:53618d6b3dba9590997d9bea42713f878dc6bcbca777f26d6db65fe8d9e3db03",
     "events": [
       {
         "check": {
@@ -17649,8 +17705,8 @@
           "certificate_ref": "n10-route://education",
           "certificate_role": "refusal",
           "certificate_route_hash": "sha256:8d80daa2d351e9d9145f0131ec8697a91045f25a6c37bc253dde4c88111c94ae",
-          "check_projection_hash": "sha256:b180d8b83d6d3761dfb1fa308f2dac31fd6ce5eb0897f631732424487a7860d1",
-          "claim_execution_projection_hash": "sha256:8abca5c7e7decf02dbfd53594180c90bbbad3be6c2957f17acf7826afa4caa09",
+          "check_projection_hash": "sha256:dc024d07cc146e4fe44b98892aba167bd54237ff43a5cdbae9b147c939d1f327",
+          "claim_execution_projection_hash": "sha256:7430a71b3c60cbfc51644e034572e89b3a1d6bc1c514d04b026c673eaac3a456",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/education/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:eb67d5d2da80874024af2e426d49b41d685728d99ce1db40c0bea6ca340188ca",
@@ -17660,7 +17716,7 @@
           "execution_id": null,
           "execution_ordinal": null,
           "execution_status": "prepared",
-          "filtration_projection_hash": "sha256:71676be7176a01962902dbfea5d137c1e2350c896f850c40a97d2307f853ad92",
+          "filtration_projection_hash": "sha256:096c1f0da18f3da2135693e9a0b009af053934a72915271e41104986be1362cc",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:2f618d25cec3adad12fc0a7d9ca28a657b45737c3acf7c3ca2a3fc3cef582112",
           "instrument_family": "proof_carrying_refusal_certificate",
@@ -17687,9 +17743,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:b5286ff2d76371434f8445391a4adfd3e58ab37a494a61aa459ef7549fbbaa10",
+        "event_projection_hash": "sha256:0984618cc5d6ebc49d631268175c147fd977506e479b37f7753eef52ac71d182",
         "event_type": "prepared",
-        "parent_event_projection_hash": "sha256:71676be7176a01962902dbfea5d137c1e2350c896f850c40a97d2307f853ad92",
+        "parent_event_projection_hash": "sha256:096c1f0da18f3da2135693e9a0b009af053934a72915271e41104986be1362cc",
         "revision": 1
       },
       {
@@ -17699,8 +17755,8 @@
           "certificate_ref": "n10-route://education",
           "certificate_role": "refusal",
           "certificate_route_hash": "sha256:8d80daa2d351e9d9145f0131ec8697a91045f25a6c37bc253dde4c88111c94ae",
-          "check_projection_hash": "sha256:d3db0d692107bfc70a88afae2b3928969743f2710b99dd249892f7f9fa205cba",
-          "claim_execution_projection_hash": "sha256:b1d3306abcfe72b11ad42b49fd1e9c9fe698847d700d2ccd0237e993e06dc16f",
+          "check_projection_hash": "sha256:f053a50dd9c44fd933ada30221cc343374997aa8ce3840a8ac845c7662b12d58",
+          "claim_execution_projection_hash": "sha256:fc77a6c9227ae4affb07f49524346272ae016806e5b5e88589357bcf5441b8a8",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/education/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:eb67d5d2da80874024af2e426d49b41d685728d99ce1db40c0bea6ca340188ca",
@@ -17710,7 +17766,7 @@
           "execution_id": "confidence-execution:sha256:f52daf5811a0c6fc968bafcd521e17b5ee307f8c59e0eea38d124124d189df5d",
           "execution_ordinal": 0,
           "execution_status": "started",
-          "filtration_projection_hash": "sha256:71676be7176a01962902dbfea5d137c1e2350c896f850c40a97d2307f853ad92",
+          "filtration_projection_hash": "sha256:096c1f0da18f3da2135693e9a0b009af053934a72915271e41104986be1362cc",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:2f618d25cec3adad12fc0a7d9ca28a657b45737c3acf7c3ca2a3fc3cef582112",
           "instrument_family": "proof_carrying_refusal_certificate",
@@ -17737,9 +17793,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:d16b57b33e16dbc4dc794cde9a0212c762b6f94fff7fc577058c87101aead250",
+        "event_projection_hash": "sha256:df95026c287c7cf6cb49516747b2da44e88f496c908d1c14f543399ca05a39cc",
         "event_type": "started",
-        "parent_event_projection_hash": "sha256:b5286ff2d76371434f8445391a4adfd3e58ab37a494a61aa459ef7549fbbaa10",
+        "parent_event_projection_hash": "sha256:0984618cc5d6ebc49d631268175c147fd977506e479b37f7753eef52ac71d182",
         "revision": 2
       },
       {
@@ -17749,8 +17805,8 @@
           "certificate_ref": "n10-route://education",
           "certificate_role": "refusal",
           "certificate_route_hash": "sha256:8d80daa2d351e9d9145f0131ec8697a91045f25a6c37bc253dde4c88111c94ae",
-          "check_projection_hash": "sha256:3f4b8cd565c668e90d1db39e8e7b762b2955ff24d450f9ca548f512eae52cdfb",
-          "claim_execution_projection_hash": "sha256:b1d3306abcfe72b11ad42b49fd1e9c9fe698847d700d2ccd0237e993e06dc16f",
+          "check_projection_hash": "sha256:0029a6f3f82136e2e2ef3c12e0fc26af1531193d720a246861cd4f60b92cef9b",
+          "claim_execution_projection_hash": "sha256:fc77a6c9227ae4affb07f49524346272ae016806e5b5e88589357bcf5441b8a8",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/education/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:eb67d5d2da80874024af2e426d49b41d685728d99ce1db40c0bea6ca340188ca",
@@ -17760,7 +17816,7 @@
           "execution_id": "confidence-execution:sha256:f52daf5811a0c6fc968bafcd521e17b5ee307f8c59e0eea38d124124d189df5d",
           "execution_ordinal": 0,
           "execution_status": "started",
-          "filtration_projection_hash": "sha256:71676be7176a01962902dbfea5d137c1e2350c896f850c40a97d2307f853ad92",
+          "filtration_projection_hash": "sha256:096c1f0da18f3da2135693e9a0b009af053934a72915271e41104986be1362cc",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:2f618d25cec3adad12fc0a7d9ca28a657b45737c3acf7c3ca2a3fc3cef582112",
           "instrument_family": "proof_carrying_refusal_certificate",
@@ -17787,9 +17843,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:ca94eeaf0e9a29c0414800f63f1b500e3f7a3a9f979b5a4939add450ee2f0072",
+        "event_projection_hash": "sha256:aa69834761d1b0796fea2cbd132a7e06586b5c3e9a084fb4a6fb9a9ab0971330",
         "event_type": "started",
-        "parent_event_projection_hash": "sha256:d16b57b33e16dbc4dc794cde9a0212c762b6f94fff7fc577058c87101aead250",
+        "parent_event_projection_hash": "sha256:df95026c287c7cf6cb49516747b2da44e88f496c908d1c14f543399ca05a39cc",
         "revision": 3
       },
       {
@@ -17799,8 +17855,8 @@
           "certificate_ref": "n10-route://education",
           "certificate_role": "refusal",
           "certificate_route_hash": "sha256:8d80daa2d351e9d9145f0131ec8697a91045f25a6c37bc253dde4c88111c94ae",
-          "check_projection_hash": "sha256:09498759ce8f1360b1f2fd1a8b38cf5ed78659aea51a68bcff63fb85d2d09057",
-          "claim_execution_projection_hash": "sha256:b1d3306abcfe72b11ad42b49fd1e9c9fe698847d700d2ccd0237e993e06dc16f",
+          "check_projection_hash": "sha256:92eac3f7357832b24750aed3a6a71d67145f1d2ef503f29e4b46cd07192bb3d4",
+          "claim_execution_projection_hash": "sha256:fc77a6c9227ae4affb07f49524346272ae016806e5b5e88589357bcf5441b8a8",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/education/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:eb67d5d2da80874024af2e426d49b41d685728d99ce1db40c0bea6ca340188ca",
@@ -17810,7 +17866,7 @@
           "execution_id": "confidence-execution:sha256:f52daf5811a0c6fc968bafcd521e17b5ee307f8c59e0eea38d124124d189df5d",
           "execution_ordinal": 0,
           "execution_status": "executed",
-          "filtration_projection_hash": "sha256:71676be7176a01962902dbfea5d137c1e2350c896f850c40a97d2307f853ad92",
+          "filtration_projection_hash": "sha256:096c1f0da18f3da2135693e9a0b009af053934a72915271e41104986be1362cc",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:2f618d25cec3adad12fc0a7d9ca28a657b45737c3acf7c3ca2a3fc3cef582112",
           "instrument_family": "proof_carrying_refusal_certificate",
@@ -17846,9 +17902,9 @@
           "spend_decimal": "0",
           "supports_obligation": true
         },
-        "event_projection_hash": "sha256:92e613b93ac1744102ff88891ea0b9a73e02b58923e5304fc44062f41fa1d6e5",
+        "event_projection_hash": "sha256:9b076ca1ea70e4af1140656f87a87a41d2a3f114465654fa9a1f3efa2a8a86d9",
         "event_type": "completed",
-        "parent_event_projection_hash": "sha256:ca94eeaf0e9a29c0414800f63f1b500e3f7a3a9f979b5a4939add450ee2f0072",
+        "parent_event_projection_hash": "sha256:aa69834761d1b0796fea2cbd132a7e06586b5c3e9a084fb4a6fb9a9ab0971330",
         "revision": 4
       },
       {
@@ -17858,8 +17914,8 @@
           "certificate_ref": "n10-route://first_vertical",
           "certificate_role": "acquisition",
           "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-          "check_projection_hash": "sha256:73b4246077969721ffa391263ad94a3831b7b52cab10b64b3b720e10233de23b",
-          "claim_execution_projection_hash": "sha256:9f2d4321e3fb1b5ce34d3f119db2091c97c5dfdd022808fd07917b1ff7cbad17",
+          "check_projection_hash": "sha256:0370bd79b0500fa0fb3a44bff015117392ec3118d33ae3851c09232ef2da34af",
+          "claim_execution_projection_hash": "sha256:822ea268edff2889667d186ca2a85dca6383416d528c3afea48b20eaf6485393",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/first_vertical/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:5f0daf586dd1fc5bc96f1cf59317d49ead7e1c64884ce793037255c5f46e5f1e",
@@ -17869,7 +17925,7 @@
           "execution_id": null,
           "execution_ordinal": null,
           "execution_status": "prepared",
-          "filtration_projection_hash": "sha256:92e613b93ac1744102ff88891ea0b9a73e02b58923e5304fc44062f41fa1d6e5",
+          "filtration_projection_hash": "sha256:9b076ca1ea70e4af1140656f87a87a41d2a3f114465654fa9a1f3efa2a8a86d9",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
           "instrument_family": "deterministic_proof",
@@ -17896,9 +17952,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:a5e588d2d1f6158c0880810d27e79278d2db1788da7a8ecdc5a043825e53dd60",
+        "event_projection_hash": "sha256:0bff3330d62c6607a7e983548020aeb9ef58442fca928179d807132f2d699648",
         "event_type": "prepared",
-        "parent_event_projection_hash": "sha256:92e613b93ac1744102ff88891ea0b9a73e02b58923e5304fc44062f41fa1d6e5",
+        "parent_event_projection_hash": "sha256:9b076ca1ea70e4af1140656f87a87a41d2a3f114465654fa9a1f3efa2a8a86d9",
         "revision": 5
       },
       {
@@ -17908,8 +17964,8 @@
           "certificate_ref": "n10-route://first_vertical",
           "certificate_role": "acquisition",
           "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-          "check_projection_hash": "sha256:014b8d26ad22b0ae0c97891f682f1b73b3e4aba6ee3b7d4e7d03df04fefd8382",
-          "claim_execution_projection_hash": "sha256:43f7cfc28f01a520de353758f0f08572f56d00c7c390677b654f5e07669b71ae",
+          "check_projection_hash": "sha256:a2587890c211e14a0c70788191ffc7e63480b875c2caecef3ffa81b0e449bbfc",
+          "claim_execution_projection_hash": "sha256:7d8ff8d1baeccd927cde41696f86e6a5d676c3a1fe2a1abef5434b1b9013f367",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/first_vertical/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:5f0daf586dd1fc5bc96f1cf59317d49ead7e1c64884ce793037255c5f46e5f1e",
@@ -17919,7 +17975,7 @@
           "execution_id": "confidence-execution:sha256:0ea5ea7c0c37cd48c4c259f450ad19f8b70992d4c5418edf832789c1a1b94fb4",
           "execution_ordinal": 1,
           "execution_status": "started",
-          "filtration_projection_hash": "sha256:92e613b93ac1744102ff88891ea0b9a73e02b58923e5304fc44062f41fa1d6e5",
+          "filtration_projection_hash": "sha256:9b076ca1ea70e4af1140656f87a87a41d2a3f114465654fa9a1f3efa2a8a86d9",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
           "instrument_family": "deterministic_proof",
@@ -17946,9 +18002,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:0c3832aa3576af8708767a045d49cfad0a41abe8e10ed1b480d6aab331977f28",
+        "event_projection_hash": "sha256:3e86e6336530524ceb7f165fdb000db391aaad0fea446685ef00a66c833a8181",
         "event_type": "started",
-        "parent_event_projection_hash": "sha256:a5e588d2d1f6158c0880810d27e79278d2db1788da7a8ecdc5a043825e53dd60",
+        "parent_event_projection_hash": "sha256:0bff3330d62c6607a7e983548020aeb9ef58442fca928179d807132f2d699648",
         "revision": 6
       },
       {
@@ -17958,8 +18014,8 @@
           "certificate_ref": "n10-route://first_vertical",
           "certificate_role": "acquisition",
           "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-          "check_projection_hash": "sha256:7c37d0d4a7a5782fb5a3ff51168fbad4674a01d2ffbf06d84ac3d1a9984fd2b7",
-          "claim_execution_projection_hash": "sha256:43f7cfc28f01a520de353758f0f08572f56d00c7c390677b654f5e07669b71ae",
+          "check_projection_hash": "sha256:fb9e1f8d4ad269920e8ea4740a5dbbf5cfc573fe95f6bedfeaf197e26158a894",
+          "claim_execution_projection_hash": "sha256:7d8ff8d1baeccd927cde41696f86e6a5d676c3a1fe2a1abef5434b1b9013f367",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/first_vertical/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:5f0daf586dd1fc5bc96f1cf59317d49ead7e1c64884ce793037255c5f46e5f1e",
@@ -17969,7 +18025,7 @@
           "execution_id": "confidence-execution:sha256:0ea5ea7c0c37cd48c4c259f450ad19f8b70992d4c5418edf832789c1a1b94fb4",
           "execution_ordinal": 1,
           "execution_status": "started",
-          "filtration_projection_hash": "sha256:92e613b93ac1744102ff88891ea0b9a73e02b58923e5304fc44062f41fa1d6e5",
+          "filtration_projection_hash": "sha256:9b076ca1ea70e4af1140656f87a87a41d2a3f114465654fa9a1f3efa2a8a86d9",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
           "instrument_family": "deterministic_proof",
@@ -17996,9 +18052,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:3f4c66fc4cf52690867cef9303582746d42ffbfec2a58ee3689d04f42d6298ff",
+        "event_projection_hash": "sha256:898f74c485092312df3dd08cd96741724db9db491f616679bce6d571e4560091",
         "event_type": "started",
-        "parent_event_projection_hash": "sha256:0c3832aa3576af8708767a045d49cfad0a41abe8e10ed1b480d6aab331977f28",
+        "parent_event_projection_hash": "sha256:3e86e6336530524ceb7f165fdb000db391aaad0fea446685ef00a66c833a8181",
         "revision": 7
       },
       {
@@ -18008,8 +18064,8 @@
           "certificate_ref": "n10-route://first_vertical",
           "certificate_role": "acquisition",
           "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-          "check_projection_hash": "sha256:382c61dd08cda4ffbb5fa4040101a5973d010007eccc55116d55ca9e4ae75dd3",
-          "claim_execution_projection_hash": "sha256:43f7cfc28f01a520de353758f0f08572f56d00c7c390677b654f5e07669b71ae",
+          "check_projection_hash": "sha256:9310d9819cc7d6ed4668aeb635127e90330e93e501e83b511c99da7a736442f7",
+          "claim_execution_projection_hash": "sha256:7d8ff8d1baeccd927cde41696f86e6a5d676c3a1fe2a1abef5434b1b9013f367",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/first_vertical/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:5f0daf586dd1fc5bc96f1cf59317d49ead7e1c64884ce793037255c5f46e5f1e",
@@ -18019,7 +18075,7 @@
           "execution_id": "confidence-execution:sha256:0ea5ea7c0c37cd48c4c259f450ad19f8b70992d4c5418edf832789c1a1b94fb4",
           "execution_ordinal": 1,
           "execution_status": "executed",
-          "filtration_projection_hash": "sha256:92e613b93ac1744102ff88891ea0b9a73e02b58923e5304fc44062f41fa1d6e5",
+          "filtration_projection_hash": "sha256:9b076ca1ea70e4af1140656f87a87a41d2a3f114465654fa9a1f3efa2a8a86d9",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
           "instrument_family": "deterministic_proof",
@@ -18055,9 +18111,9 @@
           "spend_decimal": "0",
           "supports_obligation": true
         },
-        "event_projection_hash": "sha256:3bf2d5246d04b7a5c88a2d6b85e6156aba76fa4c7fcefdbd50d12cc21f011abe",
+        "event_projection_hash": "sha256:e483998549bd527f4c3121217cd1010e62601c9e603033d23a2cd8d5774bebd3",
         "event_type": "completed",
-        "parent_event_projection_hash": "sha256:3f4c66fc4cf52690867cef9303582746d42ffbfec2a58ee3689d04f42d6298ff",
+        "parent_event_projection_hash": "sha256:898f74c485092312df3dd08cd96741724db9db491f616679bce6d571e4560091",
         "revision": 8
       },
       {
@@ -18067,8 +18123,8 @@
           "certificate_ref": "n10-route://unseen",
           "certificate_role": "acquisition",
           "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-          "check_projection_hash": "sha256:eb5da422a5741abf257771f5a390f3d327715a5700cb8a5a1cd40677a4709087",
-          "claim_execution_projection_hash": "sha256:b977d4faa04defef6e1cb48d5547105d169f44b7041a1db84957d59ce0ff83c5",
+          "check_projection_hash": "sha256:905cde28df5c1ac5e9c15b890eee4e297e8bce615b8bce7bdaad1b7fe7e5ab9b",
+          "claim_execution_projection_hash": "sha256:bef4b287839c25185da19a88d0b354088a11f9a01020b39d8d102c894922ae9b",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/unseen/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:0a2253ff81d1a2e5e77bc5041447ca4a33a2e982942e3f0777ade92480a5fd3e",
@@ -18078,7 +18134,7 @@
           "execution_id": null,
           "execution_ordinal": null,
           "execution_status": "prepared",
-          "filtration_projection_hash": "sha256:3bf2d5246d04b7a5c88a2d6b85e6156aba76fa4c7fcefdbd50d12cc21f011abe",
+          "filtration_projection_hash": "sha256:e483998549bd527f4c3121217cd1010e62601c9e603033d23a2cd8d5774bebd3",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
           "instrument_family": "deterministic_proof",
@@ -18105,9 +18161,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:f3972cbd35623118f58ef84b674bbaf79c911a3b93214ba3d0da992c43e392e4",
+        "event_projection_hash": "sha256:a03174166f33bca26e947405ba439292d7280721ba088f6e0fc49bbf72f5d05e",
         "event_type": "prepared",
-        "parent_event_projection_hash": "sha256:3bf2d5246d04b7a5c88a2d6b85e6156aba76fa4c7fcefdbd50d12cc21f011abe",
+        "parent_event_projection_hash": "sha256:e483998549bd527f4c3121217cd1010e62601c9e603033d23a2cd8d5774bebd3",
         "revision": 9
       },
       {
@@ -18117,8 +18173,8 @@
           "certificate_ref": "n10-route://unseen",
           "certificate_role": "acquisition",
           "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-          "check_projection_hash": "sha256:05507476a3e04d190bd48fe9b61b44de0fa9d23a5dc57286259fdbe3ab2cf136",
-          "claim_execution_projection_hash": "sha256:eebdc69b6275a61e0b6d8806b53ec13eb5d25c926567e21e1070759060536f58",
+          "check_projection_hash": "sha256:438d2f94279da11ab2f70d3bce802574cc58a2291e8d94087795a533778e76e5",
+          "claim_execution_projection_hash": "sha256:3e135b9951dd0a94e59a2a97b077ee803e3456c56a6689a3890cdf0e347aee46",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/unseen/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:0a2253ff81d1a2e5e77bc5041447ca4a33a2e982942e3f0777ade92480a5fd3e",
@@ -18128,7 +18184,7 @@
           "execution_id": "confidence-execution:sha256:30262e26a2a883392b9b595c3fc6b1ef585a4a661bf19fc9877b22a742eab3d1",
           "execution_ordinal": 2,
           "execution_status": "started",
-          "filtration_projection_hash": "sha256:3bf2d5246d04b7a5c88a2d6b85e6156aba76fa4c7fcefdbd50d12cc21f011abe",
+          "filtration_projection_hash": "sha256:e483998549bd527f4c3121217cd1010e62601c9e603033d23a2cd8d5774bebd3",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
           "instrument_family": "deterministic_proof",
@@ -18155,9 +18211,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:aabc551fb3694a5199ccdca1ce176bd3f67d5e6846adc75c0f9043a7df5858e4",
+        "event_projection_hash": "sha256:49c9c3528d404ba4c06394a2be6058837e3c49b3be60029a0fe7465f32787bcc",
         "event_type": "started",
-        "parent_event_projection_hash": "sha256:f3972cbd35623118f58ef84b674bbaf79c911a3b93214ba3d0da992c43e392e4",
+        "parent_event_projection_hash": "sha256:a03174166f33bca26e947405ba439292d7280721ba088f6e0fc49bbf72f5d05e",
         "revision": 10
       },
       {
@@ -18167,8 +18223,8 @@
           "certificate_ref": "n10-route://unseen",
           "certificate_role": "acquisition",
           "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-          "check_projection_hash": "sha256:be0835c56353aa515798a699368888a5da1a7d9617ed8d5531d6d8c68d9b274c",
-          "claim_execution_projection_hash": "sha256:eebdc69b6275a61e0b6d8806b53ec13eb5d25c926567e21e1070759060536f58",
+          "check_projection_hash": "sha256:c91c265253bab18b45840f076d091f999a42f9d8b7ede54549e554711b40de7d",
+          "claim_execution_projection_hash": "sha256:3e135b9951dd0a94e59a2a97b077ee803e3456c56a6689a3890cdf0e347aee46",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/unseen/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:0a2253ff81d1a2e5e77bc5041447ca4a33a2e982942e3f0777ade92480a5fd3e",
@@ -18178,7 +18234,7 @@
           "execution_id": "confidence-execution:sha256:30262e26a2a883392b9b595c3fc6b1ef585a4a661bf19fc9877b22a742eab3d1",
           "execution_ordinal": 2,
           "execution_status": "started",
-          "filtration_projection_hash": "sha256:3bf2d5246d04b7a5c88a2d6b85e6156aba76fa4c7fcefdbd50d12cc21f011abe",
+          "filtration_projection_hash": "sha256:e483998549bd527f4c3121217cd1010e62601c9e603033d23a2cd8d5774bebd3",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
           "instrument_family": "deterministic_proof",
@@ -18205,9 +18261,9 @@
           "spend_decimal": "0",
           "supports_obligation": false
         },
-        "event_projection_hash": "sha256:d9cbbf0ec34637df8f5f9835947ef0dc8556efdf844f5432fe08013901e156c9",
+        "event_projection_hash": "sha256:ef88acf612237460cf4a2038a04e66cb39aaa92cf15e659b4cd27c4e09f22651",
         "event_type": "started",
-        "parent_event_projection_hash": "sha256:aabc551fb3694a5199ccdca1ce176bd3f67d5e6846adc75c0f9043a7df5858e4",
+        "parent_event_projection_hash": "sha256:49c9c3528d404ba4c06394a2be6058837e3c49b3be60029a0fe7465f32787bcc",
         "revision": 11
       },
       {
@@ -18217,8 +18273,8 @@
           "certificate_ref": "n10-route://unseen",
           "certificate_role": "acquisition",
           "certificate_route_hash": "sha256:ce2998bb93c42e42456ac389663a7ebcbe0489c9026cddaad884106c8ee5d639",
-          "check_projection_hash": "sha256:0e003978b33019045f7629de7cb8279fa3f3805e8e809f6fa145b57a57c83591",
-          "claim_execution_projection_hash": "sha256:eebdc69b6275a61e0b6d8806b53ec13eb5d25c926567e21e1070759060536f58",
+          "check_projection_hash": "sha256:72f5a1eac3e156e269e4a0c4f85c19b3fc6ba08f0671418e18c6eb873416aee2",
+          "claim_execution_projection_hash": "sha256:3e135b9951dd0a94e59a2a97b077ee803e3456c56a6689a3890cdf0e347aee46",
           "claim_polarity": "confident_wrong_refusal",
           "claim_ref": "n10://claim/unseen/certificate-is-correct",
           "claim_scope_ref": "n10://route/sha256:0a2253ff81d1a2e5e77bc5041447ca4a33a2e982942e3f0777ade92480a5fd3e",
@@ -18228,7 +18284,7 @@
           "execution_id": "confidence-execution:sha256:30262e26a2a883392b9b595c3fc6b1ef585a4a661bf19fc9877b22a742eab3d1",
           "execution_ordinal": 2,
           "execution_status": "executed",
-          "filtration_projection_hash": "sha256:3bf2d5246d04b7a5c88a2d6b85e6156aba76fa4c7fcefdbd50d12cc21f011abe",
+          "filtration_projection_hash": "sha256:e483998549bd527f4c3121217cd1010e62601c9e603033d23a2cd8d5774bebd3",
           "good_event_id": null,
           "instrument_definition_hash": "sha256:67edba7173c33168df754e9cdc4ea96c7be9042cdbbe69226ab006f887719d69",
           "instrument_family": "deterministic_proof",
@@ -18264,32 +18320,32 @@
           "spend_decimal": "0",
           "supports_obligation": true
         },
-        "event_projection_hash": "sha256:205121b641a55328f2f4d2e408637946f91d4310459e5c58a549750b42b1dfe2",
+        "event_projection_hash": "sha256:97e7490e640679ea0a1d84420326b124f9711cc1623cb93556b2105c5175c35d",
         "event_type": "completed",
-        "parent_event_projection_hash": "sha256:d9cbbf0ec34637df8f5f9835947ef0dc8556efdf844f5432fe08013901e156c9",
+        "parent_event_projection_hash": "sha256:ef88acf612237460cf4a2038a04e66cb39aaa92cf15e659b4cd27c4e09f22651",
         "revision": 12
       }
     ],
     "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
-    "head_event_projection_hash": "sha256:205121b641a55328f2f4d2e408637946f91d4310459e5c58a549750b42b1dfe2",
+    "head_event_projection_hash": "sha256:97e7490e640679ea0a1d84420326b124f9711cc1623cb93556b2105c5175c35d",
     "maintained_assumptions": [
       "obligation_completeness",
       "validator_soundness"
     ],
-    "projection_hash": "sha256:d7c8c3982582da88a4e0cb59fe7d3947bf1ee4c6923080b233f1ed6c7e855451",
+    "projection_hash": "sha256:e6654c2933d488f698b9271f4070f90accc93bb8e42a4d6170d1489dff2b171d",
     "projection_scope": "n11_real_accounting_append_lineage",
     "registry_content_hash": "sha256:484459bca9c553f5f0e9c0e81e36ac77c0de788201a843b103eb2d55a02d1ab0",
     "risk_scope": {
       "authority_purpose": "n11_real_n10_n13b_accounting",
       "epoch_ref": null,
       "model_ref": "sha256:4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7",
-      "owner_projection_hash": "sha256:c67e42434eec292c73e6a91239e2ec3ba78d8be817609a659da4402a568842b1",
+      "owner_projection_hash": "sha256:38b436d4a931798b88cdf92c8b84852762a7a91851600cc98de36c9a10baa774",
       "owner_scope_key": "frozen-owner-bundle:n10+n13b",
       "rule_ref": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
       "schema_ref": "policyos.policy_design_case.layer3_gy.n11_confidence_ledger.v1",
       "scope_owner_ref": "tools.quality.validation.check_layer3_gy_confidence_ledger.build_live_contract"
     },
-    "root_projection_hash": "sha256:71676be7176a01962902dbfea5d137c1e2350c896f850c40a97d2307f853ad92",
+    "root_projection_hash": "sha256:096c1f0da18f3da2135693e9a0b009af053934a72915271e41104986be1362cc",
     "schedule_profile_hash": "sha256:4fb4463caee1e68ac66ba73b2ede29f77b31025b22627556b5ece51094df9120",
     "schedule_profile_id": "default_basel_square",
     "schedule_projection_hash": "sha256:2820979917dd8a2a7f6a701c6eeb7499d9a9de0126e529545fb30c78423f9d52",

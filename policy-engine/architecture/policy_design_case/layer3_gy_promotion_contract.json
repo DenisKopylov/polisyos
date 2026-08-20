@@ -80,7 +80,7 @@
     "routine_check": "canonical_owner_recomputation_and_exact_byte_comparison",
     "wall_time_recorded_by_validator": true
   },
-  "contract_content_hash": "sha256:99c4f064be16975ccf7c38697a294bbdae54e278adccbafe391ff94f31c4a910",
+  "contract_content_hash": "sha256:05023a5e16a81c1b79840b02ee6c908d2b33e2444f76d56c06cf0349a22d2bb8",
   "contract_id": "policyos.runtime.quality.canonical_n9_promotion_sequence",
   "contract_lane_anytime_refusal": {
     "authority_derivation_trace": null,
@@ -114,8 +114,8 @@
       ],
       "source_authority": "deterministic_producer"
     },
-    "confidence_ledger_head_id": "confidence-event:sha256:fef4020e9d228d23141439cb2225eaef212062193ccaf29ae3f8782d2967785b",
-    "confidence_ledger_head_ref": "sha256:4a30507ed90cfe0f451787991c06602ab1d9f7c8f57cf196764900c110a6a3d3",
+    "confidence_ledger_head_id": "confidence-event:sha256:dfc429516bda319c2c6bc0d626771c4e86c8170d5db49aabab4be57ca62e06b2",
+    "confidence_ledger_head_ref": "sha256:d1b39e8aee36f39d46faa2f2c8bde8f4f6cc28b37b860ca3e5872ba880763a45",
     "confidence_ledger_projection": {
       "authority_provenance": "verification",
       "budget_delta": {
@@ -124,27 +124,27 @@
       },
       "budget_delta_decimal": "0.01",
       "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-      "deployment_identity": "policy-engine-deployment:sha256:618b4ce27cfa77961d3497af19344cc6b53131bac9f1980798ae360d0ca51b9e",
+      "deployment_identity": "policy-engine-deployment:sha256:53618d6b3dba9590997d9bea42713f878dc6bcbca777f26d6db65fe8d9e3db03",
       "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
-      "head_event_id": "confidence-event:sha256:fef4020e9d228d23141439cb2225eaef212062193ccaf29ae3f8782d2967785b",
-      "head_event_ref": "sha256:4a30507ed90cfe0f451787991c06602ab1d9f7c8f57cf196764900c110a6a3d3",
-      "ledger_receipt_id": "confidence-ledger:sha256:d0ad71b179e1518b6ea3fdd0f933d1be1f526a29d69fa6ac72b386cbff1d2f5c",
-      "ledger_receipt_ref": "sha256:f73cb5cf09e68e099c6a01e7f26312fb227fc66a914ed358761d67ca7019c529",
-      "ledger_root_id": "confidence-ledger-root:sha256:b406ce6ecda98d271f2a801f1349d1bed223f740c8d1676c95978c1b6fa0fd17",
-      "ledger_root_ref": "sha256:8fb83e337fe0e192bf1d8722748b001d0ca64d2afa80c838fbd20ec39054b038",
+      "head_event_id": "confidence-event:sha256:dfc429516bda319c2c6bc0d626771c4e86c8170d5db49aabab4be57ca62e06b2",
+      "head_event_ref": "sha256:d1b39e8aee36f39d46faa2f2c8bde8f4f6cc28b37b860ca3e5872ba880763a45",
+      "ledger_receipt_id": "confidence-ledger:sha256:5c8a9cbe527b2d9bc297aa1e8c144a0e80a13fe87353a43356d912891adbe856",
+      "ledger_receipt_ref": "sha256:ee4e18fb65f8f9f2e429a9d98f6cf780c5cc66fb1b8a94d61282b2aa28e46e38",
+      "ledger_root_id": "confidence-ledger-root:sha256:7e1b3df988f811b22cd0875e72bf4cdd25a787de5409e656f9e029e3eafce3ef",
+      "ledger_root_ref": "sha256:4245cc43ef6d310caea66e0e2e89a34c3625ec174c84f7eac261355d85c79c38",
       "maintained_assumptions": [
         "obligation_completeness",
         "validator_soundness"
       ],
-      "projection_hash": "sha256:f62cbd2b1b8b1269584f9a13096079756b7f102cd7e7283ef602a9991e46ef20",
+      "projection_hash": "sha256:7420a4e36511125947eadc19332172c4ce83d7f2efe116d0194a9c66e8f3c619",
       "projection_scope": "n9_promotion_certificate",
       "promotion_rows": [
         {
           "anytime_valid": false,
           "certificate_ref": "s10://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6",
-          "claim_execution_binding_hash": "sha256:3b402d42f7429b29af6684489b9f02b971a1f527c19c7700e420663daf6bb11f",
+          "check_id": "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d",
+          "claim_execution_binding_hash": "sha256:09f06c8d07854718256224327fb150c0ae1c398be692a8ab92666b7d079cdc18",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -165,8 +165,8 @@
           "anytime_valid": false,
           "certificate_ref": "data-trust://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19",
-          "claim_execution_binding_hash": "sha256:33af8fec6ba4fcdb6803767d865a2d75ab1675c7eb8c63b707f04f51263e5e26",
+          "check_id": "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02",
+          "claim_execution_binding_hash": "sha256:96abec8a5b27e62ba0ceba4aab39d23bd7081776ae299ebb6cdcd6e273ef0bf7",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -206,7 +206,7 @@
       "total_spend_decimal": "0",
       "within_budget": true
     },
-    "confidence_ledger_receipt_id": "confidence-ledger:sha256:d0ad71b179e1518b6ea3fdd0f933d1be1f526a29d69fa6ac72b386cbff1d2f5c",
+    "confidence_ledger_receipt_id": "confidence-ledger:sha256:5c8a9cbe527b2d9bc297aa1e8c144a0e80a13fe87353a43356d912891adbe856",
     "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:b7e7a179a30f7e35b0e6b33a288cba61a39fc9e1cb57caad1b0d3e19e0b4bfb9",
     "confidence_ledger_semantic_projection": {
       "authority_provenance": "verification",
@@ -442,7 +442,7 @@
       "within_budget": true
     },
     "consumer_promotable": false,
-    "gate_outcome_hash": "sha256:67c8764729c6eb70619b9ac7f4cf7ce7358cb5fe397f5d3f733a8c479a20826f",
+    "gate_outcome_hash": "sha256:887160c683c4df00b76d63209236cfba4b534864769a2ff21fc006a49a6e3a61",
     "non_promotable_reason": "verification_only_replay",
     "obligations": [
       {
@@ -575,7 +575,7 @@
       {
         "detail": "calibration cannot support promotion: confidence ledger refusal or owner-claim binding failure non_anytime_valid; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6"
+          "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d"
         ],
         "gate_id": "n8_calibration",
         "identity_provenance": "recomputed",
@@ -592,7 +592,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d",
           "obligation_class": "calibration"
         },
         "semantic_scope": "real_semantics",
@@ -620,7 +620,7 @@
       {
         "detail": "data cannot support promotion: confidence ledger refusal or owner-claim binding failure owner_theorem_unavailable; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19"
+          "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02"
         ],
         "gate_id": "n8_value",
         "identity_provenance": "recomputed",
@@ -637,7 +637,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02",
           "obligation_class": "data"
         },
         "semantic_scope": "real_semantics",
@@ -1293,7 +1293,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d",
           "obligation_class": "calibration"
         },
         {
@@ -1303,7 +1303,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02",
           "obligation_class": "data"
         }
       ],
@@ -1351,8 +1351,8 @@
       ],
       "source_authority": "deterministic_producer"
     },
-    "confidence_ledger_head_id": "confidence-event:sha256:fef4020e9d228d23141439cb2225eaef212062193ccaf29ae3f8782d2967785b",
-    "confidence_ledger_head_ref": "sha256:4a30507ed90cfe0f451787991c06602ab1d9f7c8f57cf196764900c110a6a3d3",
+    "confidence_ledger_head_id": "confidence-event:sha256:dfc429516bda319c2c6bc0d626771c4e86c8170d5db49aabab4be57ca62e06b2",
+    "confidence_ledger_head_ref": "sha256:d1b39e8aee36f39d46faa2f2c8bde8f4f6cc28b37b860ca3e5872ba880763a45",
     "confidence_ledger_projection": {
       "authority_provenance": "verification",
       "budget_delta": {
@@ -1361,27 +1361,27 @@
       },
       "budget_delta_decimal": "0.01",
       "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-      "deployment_identity": "policy-engine-deployment:sha256:618b4ce27cfa77961d3497af19344cc6b53131bac9f1980798ae360d0ca51b9e",
+      "deployment_identity": "policy-engine-deployment:sha256:53618d6b3dba9590997d9bea42713f878dc6bcbca777f26d6db65fe8d9e3db03",
       "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
-      "head_event_id": "confidence-event:sha256:fef4020e9d228d23141439cb2225eaef212062193ccaf29ae3f8782d2967785b",
-      "head_event_ref": "sha256:4a30507ed90cfe0f451787991c06602ab1d9f7c8f57cf196764900c110a6a3d3",
-      "ledger_receipt_id": "confidence-ledger:sha256:d0ad71b179e1518b6ea3fdd0f933d1be1f526a29d69fa6ac72b386cbff1d2f5c",
-      "ledger_receipt_ref": "sha256:f73cb5cf09e68e099c6a01e7f26312fb227fc66a914ed358761d67ca7019c529",
-      "ledger_root_id": "confidence-ledger-root:sha256:b406ce6ecda98d271f2a801f1349d1bed223f740c8d1676c95978c1b6fa0fd17",
-      "ledger_root_ref": "sha256:8fb83e337fe0e192bf1d8722748b001d0ca64d2afa80c838fbd20ec39054b038",
+      "head_event_id": "confidence-event:sha256:dfc429516bda319c2c6bc0d626771c4e86c8170d5db49aabab4be57ca62e06b2",
+      "head_event_ref": "sha256:d1b39e8aee36f39d46faa2f2c8bde8f4f6cc28b37b860ca3e5872ba880763a45",
+      "ledger_receipt_id": "confidence-ledger:sha256:5c8a9cbe527b2d9bc297aa1e8c144a0e80a13fe87353a43356d912891adbe856",
+      "ledger_receipt_ref": "sha256:ee4e18fb65f8f9f2e429a9d98f6cf780c5cc66fb1b8a94d61282b2aa28e46e38",
+      "ledger_root_id": "confidence-ledger-root:sha256:7e1b3df988f811b22cd0875e72bf4cdd25a787de5409e656f9e029e3eafce3ef",
+      "ledger_root_ref": "sha256:4245cc43ef6d310caea66e0e2e89a34c3625ec174c84f7eac261355d85c79c38",
       "maintained_assumptions": [
         "obligation_completeness",
         "validator_soundness"
       ],
-      "projection_hash": "sha256:f62cbd2b1b8b1269584f9a13096079756b7f102cd7e7283ef602a9991e46ef20",
+      "projection_hash": "sha256:7420a4e36511125947eadc19332172c4ce83d7f2efe116d0194a9c66e8f3c619",
       "projection_scope": "n9_promotion_certificate",
       "promotion_rows": [
         {
           "anytime_valid": false,
           "certificate_ref": "s10://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6",
-          "claim_execution_binding_hash": "sha256:3b402d42f7429b29af6684489b9f02b971a1f527c19c7700e420663daf6bb11f",
+          "check_id": "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d",
+          "claim_execution_binding_hash": "sha256:09f06c8d07854718256224327fb150c0ae1c398be692a8ab92666b7d079cdc18",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -1402,8 +1402,8 @@
           "anytime_valid": false,
           "certificate_ref": "data-trust://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19",
-          "claim_execution_binding_hash": "sha256:33af8fec6ba4fcdb6803767d865a2d75ab1675c7eb8c63b707f04f51263e5e26",
+          "check_id": "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02",
+          "claim_execution_binding_hash": "sha256:96abec8a5b27e62ba0ceba4aab39d23bd7081776ae299ebb6cdcd6e273ef0bf7",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -1443,7 +1443,7 @@
       "total_spend_decimal": "0",
       "within_budget": true
     },
-    "confidence_ledger_receipt_id": "confidence-ledger:sha256:d0ad71b179e1518b6ea3fdd0f933d1be1f526a29d69fa6ac72b386cbff1d2f5c",
+    "confidence_ledger_receipt_id": "confidence-ledger:sha256:5c8a9cbe527b2d9bc297aa1e8c144a0e80a13fe87353a43356d912891adbe856",
     "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:b7e7a179a30f7e35b0e6b33a288cba61a39fc9e1cb57caad1b0d3e19e0b4bfb9",
     "confidence_ledger_semantic_projection": {
       "authority_provenance": "verification",
@@ -1679,7 +1679,7 @@
       "within_budget": true
     },
     "consumer_promotable": false,
-    "gate_outcome_hash": "sha256:67c8764729c6eb70619b9ac7f4cf7ce7358cb5fe397f5d3f733a8c479a20826f",
+    "gate_outcome_hash": "sha256:887160c683c4df00b76d63209236cfba4b534864769a2ff21fc006a49a6e3a61",
     "non_promotable_reason": "verification_only_replay",
     "obligations": [
       {
@@ -1812,7 +1812,7 @@
       {
         "detail": "calibration cannot support promotion: confidence ledger refusal or owner-claim binding failure non_anytime_valid; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6"
+          "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d"
         ],
         "gate_id": "n8_calibration",
         "identity_provenance": "recomputed",
@@ -1829,7 +1829,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d",
           "obligation_class": "calibration"
         },
         "semantic_scope": "real_semantics",
@@ -1857,7 +1857,7 @@
       {
         "detail": "data cannot support promotion: confidence ledger refusal or owner-claim binding failure owner_theorem_unavailable; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19"
+          "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02"
         ],
         "gate_id": "n8_value",
         "identity_provenance": "recomputed",
@@ -1874,7 +1874,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02",
           "obligation_class": "data"
         },
         "semantic_scope": "real_semantics",
@@ -2530,7 +2530,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d",
           "obligation_class": "calibration"
         },
         {
@@ -2540,7 +2540,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02",
           "obligation_class": "data"
         }
       ],
@@ -2715,8 +2715,8 @@
       ],
       "source_authority": "deterministic_producer"
     },
-    "confidence_ledger_head_id": "confidence-event:sha256:fef4020e9d228d23141439cb2225eaef212062193ccaf29ae3f8782d2967785b",
-    "confidence_ledger_head_ref": "sha256:4a30507ed90cfe0f451787991c06602ab1d9f7c8f57cf196764900c110a6a3d3",
+    "confidence_ledger_head_id": "confidence-event:sha256:dfc429516bda319c2c6bc0d626771c4e86c8170d5db49aabab4be57ca62e06b2",
+    "confidence_ledger_head_ref": "sha256:d1b39e8aee36f39d46faa2f2c8bde8f4f6cc28b37b860ca3e5872ba880763a45",
     "confidence_ledger_projection": {
       "authority_provenance": "verification",
       "budget_delta": {
@@ -2725,27 +2725,27 @@
       },
       "budget_delta_decimal": "0.01",
       "conditionality_clause": "P(false promotion | maintained assumptions) <= delta is conditional on obligation completeness + validator soundness (the spec's A4 = our open P29).",
-      "deployment_identity": "policy-engine-deployment:sha256:618b4ce27cfa77961d3497af19344cc6b53131bac9f1980798ae360d0ca51b9e",
+      "deployment_identity": "policy-engine-deployment:sha256:53618d6b3dba9590997d9bea42713f878dc6bcbca777f26d6db65fe8d9e3db03",
       "good_event_clause": "Omega_delta is the intersection of the good events for executed probabilistic checks; the union bound is used without an independence claim.",
-      "head_event_id": "confidence-event:sha256:fef4020e9d228d23141439cb2225eaef212062193ccaf29ae3f8782d2967785b",
-      "head_event_ref": "sha256:4a30507ed90cfe0f451787991c06602ab1d9f7c8f57cf196764900c110a6a3d3",
-      "ledger_receipt_id": "confidence-ledger:sha256:d0ad71b179e1518b6ea3fdd0f933d1be1f526a29d69fa6ac72b386cbff1d2f5c",
-      "ledger_receipt_ref": "sha256:f73cb5cf09e68e099c6a01e7f26312fb227fc66a914ed358761d67ca7019c529",
-      "ledger_root_id": "confidence-ledger-root:sha256:b406ce6ecda98d271f2a801f1349d1bed223f740c8d1676c95978c1b6fa0fd17",
-      "ledger_root_ref": "sha256:8fb83e337fe0e192bf1d8722748b001d0ca64d2afa80c838fbd20ec39054b038",
+      "head_event_id": "confidence-event:sha256:dfc429516bda319c2c6bc0d626771c4e86c8170d5db49aabab4be57ca62e06b2",
+      "head_event_ref": "sha256:d1b39e8aee36f39d46faa2f2c8bde8f4f6cc28b37b860ca3e5872ba880763a45",
+      "ledger_receipt_id": "confidence-ledger:sha256:5c8a9cbe527b2d9bc297aa1e8c144a0e80a13fe87353a43356d912891adbe856",
+      "ledger_receipt_ref": "sha256:ee4e18fb65f8f9f2e429a9d98f6cf780c5cc66fb1b8a94d61282b2aa28e46e38",
+      "ledger_root_id": "confidence-ledger-root:sha256:7e1b3df988f811b22cd0875e72bf4cdd25a787de5409e656f9e029e3eafce3ef",
+      "ledger_root_ref": "sha256:4245cc43ef6d310caea66e0e2e89a34c3625ec174c84f7eac261355d85c79c38",
       "maintained_assumptions": [
         "obligation_completeness",
         "validator_soundness"
       ],
-      "projection_hash": "sha256:f62cbd2b1b8b1269584f9a13096079756b7f102cd7e7283ef602a9991e46ef20",
+      "projection_hash": "sha256:7420a4e36511125947eadc19332172c4ce83d7f2efe116d0194a9c66e8f3c619",
       "projection_scope": "n9_promotion_certificate",
       "promotion_rows": [
         {
           "anytime_valid": false,
           "certificate_ref": "s10://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6",
-          "claim_execution_binding_hash": "sha256:3b402d42f7429b29af6684489b9f02b971a1f527c19c7700e420663daf6bb11f",
+          "check_id": "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d",
+          "claim_execution_binding_hash": "sha256:09f06c8d07854718256224327fb150c0ae1c398be692a8ab92666b7d079cdc18",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -2766,8 +2766,8 @@
           "anytime_valid": false,
           "certificate_ref": "data-trust://unit",
           "certificate_role": "promotion",
-          "check_id": "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19",
-          "claim_execution_binding_hash": "sha256:33af8fec6ba4fcdb6803767d865a2d75ab1675c7eb8c63b707f04f51263e5e26",
+          "check_id": "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02",
+          "claim_execution_binding_hash": "sha256:96abec8a5b27e62ba0ceba4aab39d23bd7081776ae299ebb6cdcd6e273ef0bf7",
           "claim_polarity": "false_accept",
           "eligible_for_promotion": false,
           "execution_id": null,
@@ -2807,7 +2807,7 @@
       "total_spend_decimal": "0",
       "within_budget": true
     },
-    "confidence_ledger_receipt_id": "confidence-ledger:sha256:d0ad71b179e1518b6ea3fdd0f933d1be1f526a29d69fa6ac72b386cbff1d2f5c",
+    "confidence_ledger_receipt_id": "confidence-ledger:sha256:5c8a9cbe527b2d9bc297aa1e8c144a0e80a13fe87353a43356d912891adbe856",
     "confidence_ledger_scope_ref": "confidence-risk-scope:sha256:b7e7a179a30f7e35b0e6b33a288cba61a39fc9e1cb57caad1b0d3e19e0b4bfb9",
     "confidence_ledger_semantic_projection": {
       "authority_provenance": "verification",
@@ -3043,7 +3043,7 @@
       "within_budget": true
     },
     "consumer_promotable": false,
-    "gate_outcome_hash": "sha256:6de329e77057d38bc6eb5e3264ba6725ba2b30a026cdbe302c68494fdbe51ac1",
+    "gate_outcome_hash": "sha256:3d3e79620dcfad84827f2b6118e110837023dacd019ea23caed433483bc74b41",
     "non_promotable_reason": "verification_only_replay",
     "obligations": [
       {
@@ -3174,7 +3174,7 @@
       {
         "detail": "calibration cannot support promotion: confidence ledger refusal or owner-claim binding failure non_anytime_valid; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6"
+          "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d"
         ],
         "gate_id": "n8_calibration",
         "identity_provenance": "recomputed",
@@ -3191,7 +3191,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d",
           "obligation_class": "calibration"
         },
         "semantic_scope": "real_semantics",
@@ -3219,7 +3219,7 @@
       {
         "detail": "data cannot support promotion: confidence ledger refusal or owner-claim binding failure owner_theorem_unavailable; check does not bind the compiled obligation evidence.",
         "evidence_refs": [
-          "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19"
+          "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02"
         ],
         "gate_id": "n8_value",
         "identity_provenance": "recomputed",
@@ -3236,7 +3236,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02",
           "obligation_class": "data"
         },
         "semantic_scope": "real_semantics",
@@ -3667,7 +3667,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "fixed_time_confidence_interval",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:197511b2ff01920e21bb634543edf94f2c96da052e57b3dcdcd2f1e998ea52a6",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:d368cc7cf75d69936eb74b211ce7b9333d216ace0026a1025b164ada61ae344d",
           "obligation_class": "calibration"
         },
         {
@@ -3677,7 +3677,7 @@
           "declared_delta_spend": 0.0,
           "deterministic_proof": false,
           "instrument": "owner_verified_e_process",
-          "n11_confidence_ledger_ref": "confidence-check:sha256:14e0a97bc93b34a2a66ad61ac75559e4041d4515ad2493f7a00327737c67cf19",
+          "n11_confidence_ledger_ref": "confidence-check:sha256:18c52130721bc1ce00a9006530aee2eed4a3f251107ca581243d012c9b207a02",
           "obligation_class": "data"
         }
       ],

@@ -1414,8 +1414,9 @@ producer in `check_frontend_disposition_register.py`, exercise it in
 ```
 
 After the real-browser 7/7 receipt, transition that same row—never a second
-row—to `status: repaired`, retain the seven evidence refs, add the actual
-`repair_commit`, and regenerate the same report and induced status receipt.
+row—to `status: repaired`, retain the three evidence refs that cover the seven
+source identities, add the actual `repair_commit`, and regenerate the same
+report and induced status receipt.
 The C16 receipt is exactly 7/7: one Storybook story passed in 14.02 s, its raw
 JSON SHA-256 is
 `a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa`,

@@ -8052,7 +8052,7 @@
       "finding_id": "baseline-test-a11y-rendered-contrast-incomplete-debt",
       "finding_kind": "baseline_test_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
         "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.ts",
         "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.test.ts",
@@ -8060,7 +8060,8 @@
       ],
       "owner_slice": "DS6",
       "decision_date": "2026-08-11",
-      "rationale": "C01/C06/C09/C14 comprise seven declared source identities. Axe incomplete nodes are neither passes, source-attributed receipts, nor denominator members; closure requires 7/7 numeric WCAG-AA receipts on an opaque real-browser background."
+      "rationale": "C01/C06/C09/C14 comprise seven declared source identities. Axe incomplete nodes are neither passes, source-attributed receipts, nor denominator members; closure requires 7/7 numeric WCAG-AA receipts on an opaque real-browser background.",
+      "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
     }
   ],
   "seeded_negative_lifecycle": [

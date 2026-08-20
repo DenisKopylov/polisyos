@@ -135,6 +135,28 @@ C04_RENDERED_CONTRAST_CLUSTER_COUNTS = {
     "C09": 1,
     "C14": 3,
 }
+C06_C04_ADMISSION_COMMIT = "39a19c078066dc8326d81f9bee1746144c52f573"
+C06_C16_ENTRY_REVISION = "41a2020d5c2097c30c94807737ba6d3a80323d2e"
+C06_C16_SOURCE_DELTA_SHA256 = (
+    "800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a"
+)
+C06_CONTRAST_RAW_RECEIPT_SHA256 = (
+    "a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa"
+)
+C06_CONTRAST_EVIDENCE_SHA256 = {
+    C04_RENDERED_CONTRAST_SOURCE_REF: (
+        "c54524c59102c38e02eafdf6cc690ca8896dd1a0262b243138f71e271aa0d225"
+    ),
+    "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.test.ts": (
+        "7659dac8e09ea2aa51876fda6358d543af45bf16819ac4a4ecb66db4168ebda3"
+    ),
+    "apps/runtime-dashboard/src/test/a11y/OpaqueBackgroundContrast.stories.tsx": (
+        "681ca884a66d00bc5442906abecf30778838e228f2a94ecb446f59942b3d7fdc"
+    ),
+}
+C06_RENDERED_CONTRAST_FINDING_ID = (
+    "baseline-test-a11y-rendered-contrast-incomplete-debt"
+)
 V4_COUNTERPART_RE = re.compile(r"\[v4_counterpart=([^;\]]+)")
 NEGATIVE_ID_RE = re.compile(r"`(DS1-N0(?:0[1-9]|1[0-9]|2[0-3]))`")
 
@@ -6682,6 +6704,16 @@ def _c04_rendered_contrast_finding(
     }
 
 
+def _c06_rendered_contrast_finding() -> dict[str, Any]:
+    """Close the exact C04 row only from the landed C16 browser release."""
+    _c06_verify_c04_admission()
+    receipt = _c06_c16_contrast_receipt()
+    finding = _c04_rendered_contrast_finding()
+    finding["status"] = "repaired"
+    finding["repair_commit"] = receipt["producer_revision"]
+    return finding
+
+
 def _supplemental_findings() -> list[dict[str, Any]]:
     baseline_ref = "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json"
     baseline = _load_json(BASELINE_PATH)
@@ -6751,7 +6783,7 @@ def _supplemental_findings() -> list[dict[str, Any]]:
         if finding_id == "baseline-test-i18n-count-debt" and not is_open:
             finding["repair_commit"] = C03_REPAIR_COMMIT
         findings.append(finding)
-    findings.append(_c04_rendered_contrast_finding())
+    findings.append(_c06_rendered_contrast_finding())
     dependencies = {
         "dependency-axe-core": "apps/runtime-dashboard/src/shared/lib/a11yAudit.ts:71",
         "dependency-intl-messageformat": "apps/runtime-dashboard/src/shared/i18n/messages/icu-messages.ts:1",
@@ -6960,6 +6992,50 @@ def _render_supplemental_finding(row: Mapping[str, Any]) -> str:
     return lines[0] + "\n" + "\n".join("    " + line for line in lines[1:])
 
 
+def _c06_rendered_contrast_transition_text(text: str) -> str:
+    """Transition only the exact C04 row, or admit the exact repaired result."""
+    _start, _end, spans = _supplemental_section_spans(text)
+    matches = [
+        (object_start, object_end)
+        for finding_id, object_start, object_end in spans
+        if finding_id == C06_RENDERED_CONTRAST_FINDING_ID
+    ]
+    if len(matches) != 1:
+        raise ValueError(
+            "C06 rendered contrast transition rejected:target cardinality"
+        )
+    object_start, object_end = matches[0]
+    stored = json.loads(text[object_start : object_end + 1])
+    admitted_open = _c04_rendered_contrast_finding()
+    admitted_repaired = _c06_rendered_contrast_finding()
+    if stored == admitted_repaired:
+        return text
+    if stored != admitted_open:
+        raise ValueError(
+            "C06 rendered contrast transition rejected:predecessor:"
+            + _canonical_sha256(stored)
+        )
+
+    candidate = (
+        text[:object_start]
+        + _render_supplemental_finding(admitted_repaired)
+        + text[object_end + 1 :]
+    )
+    _candidate_start, _candidate_end, candidate_rows = _supplemental_section(
+        candidate
+    )
+    _original_start, _original_end, original_rows = _supplemental_section(text)
+    original_peers = [
+        row for row in original_rows if row[0] != C06_RENDERED_CONTRAST_FINDING_ID
+    ]
+    candidate_peers = [
+        row for row in candidate_rows if row[0] != C06_RENDERED_CONTRAST_FINDING_ID
+    ]
+    if original_peers != candidate_peers:
+        raise ValueError("C06 rendered contrast transition rejected:peer drift")
+    return candidate
+
+
 def _refresh_supplemental_findings_text(text: str) -> str:
     """Upsert descriptor rows while preserving every other register byte."""
     descriptor_ids = (
@@ -6982,6 +7058,14 @@ def _refresh_supplemental_findings_text(text: str) -> str:
     for finding_id, object_start, object_end in reversed(spans):
         if finding_id not in generated:
             continue
+        if finding_id == C06_RENDERED_CONTRAST_FINDING_ID:
+            stored = json.loads(refreshed[object_start : object_end + 1])
+            if stored != generated[finding_id]:
+                raise ValueError(
+                    "rendered contrast requires the dedicated C06 transition"
+                )
+            seen.add(finding_id)
+            continue
         if finding_id in AUTHORITY_PRESENTATION_DEBT_SPECS:
             stored = json.loads(refreshed[object_start : object_end + 1])
             if _authority_row_semantic_value(stored) == _authority_row_semantic_value(
@@ -6998,6 +7082,8 @@ def _refresh_supplemental_findings_text(text: str) -> str:
         seen.add(finding_id)
 
     missing = sorted(descriptor_ids - seen)
+    if C06_RENDERED_CONTRAST_FINDING_ID in missing:
+        raise ValueError("rendered contrast requires the dedicated C06 transition")
     if not missing:
         return refreshed
     start, end, refreshed_spans = _supplemental_section_spans(refreshed)
@@ -7519,6 +7605,264 @@ def _c03_c16_receipt() -> dict[str, Any]:
         ],
     )
     _c03_verify_c16_git_provenance(receipt["receipt_provenance"])
+    return receipt
+
+
+def _c06_c16_contrast_receipt_from_sources(
+    plan_text: str,
+    journal_text: str,
+) -> dict[str, Any]:
+    """Resolve the final accepted contrast receipt from the immutable C16 release."""
+    try:
+        release = _c03_c16_receipt_from_sources(plan_text, journal_text)
+        plan_receipt = _c03_required_match(
+            r"The C16 receipt is exactly (\d+)/(\d+): one Storybook story "
+            r"passed in ([0-9.]+) s, its raw\s+JSON SHA-256 is\s+"
+            r"`([a-f0-9]{64})`,\s+and all seven numeric source receipts "
+            r"were admitted atomically\.",
+            plan_text,
+            "final opaque Storybook plan receipt",
+            flags=re.DOTALL,
+        )
+        journal_receipt = _c03_required_match(
+            r"the final bounded run completed GREEN at exact (\d+)/(\d+) "
+            r"in ([0-9.]+) s\. Its one\s+Storybook file/test passed, raw JSON "
+            r"is ([\d,]+) bytes, and SHA-256 is\s+`([a-f0-9]{64})`",
+            journal_text,
+            "final opaque Storybook journal receipt",
+            flags=re.DOTALL,
+        )
+        table_receipt = _c03_required_match(
+            r"\| opaque Storybook probe \| (\d+) \| GREEN \| ([0-9.]+) "
+            r"\| [^|\n]+ \| exact (\d+)/(\d+) atomic computed-pass "
+            r"receipts; zero violations/incompletes in the seven custom "
+            r"source observations \|",
+            journal_text,
+            "serialized opaque Storybook table row",
+        )
+        meta_report = _c03_required_match(
+            r"The raw Storybook automatic a11y meta-report separately retains "
+            r"three\s+unattributed incomplete nodes, including one "
+            r"`color-contrast` incomplete for\s+the exact excluded `aria-hidden` "
+            r"`⊙` glyph\. They are outside the seven custom\s+source observations "
+            r"and are neither attributed source receipts nor silently\s+counted "
+            r"green; the custom story's atomic result remains exact (\d+)/(\d+)\.",
+            journal_text,
+            "automatic Storybook a11y meta-report scope",
+            flags=re.DOTALL,
+        )
+        predicate_sha256 = _c03_required_match(
+            r"`hasOpaqueBackground`, the classifier, and the frozen registry "
+            r"remain\s+byte-identical; the predicate SHA-256 is\s+"
+            r"`([a-f0-9]{64})`",
+            journal_text,
+            "opaque Storybook predicate hash",
+            flags=re.DOTALL,
+        ).group(1)
+    except ValueError as exc:
+        raise ValueError("C16 contrast receipt source invalid") from exc
+
+    plan_total, plan_passed = (int(value) for value in plan_receipt.groups()[:2])
+    plan_wall = float(plan_receipt.group(3))
+    plan_raw_sha256 = plan_receipt.group(4)
+    journal_total, journal_passed = (
+        int(value) for value in journal_receipt.groups()[:2]
+    )
+    journal_wall = float(journal_receipt.group(3))
+    raw_receipt_bytes = int(journal_receipt.group(4).replace(",", ""))
+    journal_raw_sha256 = journal_receipt.group(5)
+    ceiling = int(table_receipt.group(1))
+    table_wall = float(table_receipt.group(2))
+    table_total = int(table_receipt.group(3))
+    table_passed = int(table_receipt.group(4))
+    meta_custom_total = int(meta_report.group(1))
+    meta_custom_passed = int(meta_report.group(2))
+    provenance = release["receipt_provenance"]
+    if (
+        (plan_total, plan_passed) != (7, 7)
+        or (journal_total, journal_passed) != (7, 7)
+        or (table_total, table_passed) != (7, 7)
+        or (meta_custom_total, meta_custom_passed) != (7, 7)
+        or plan_wall != 14.02
+        or journal_wall != plan_wall
+        or table_wall != plan_wall
+        or ceiling != 300
+        or raw_receipt_bytes != 163_320
+        or plan_raw_sha256 != C06_CONTRAST_RAW_RECEIPT_SHA256
+        or journal_raw_sha256 != plan_raw_sha256
+        or predicate_sha256
+        != C06_CONTRAST_EVIDENCE_SHA256[C04_RENDERED_CONTRAST_SOURCE_REF]
+        or provenance.get("producer_revision") != C03_REPAIR_COMMIT
+        or provenance.get("entry_revision") != C06_C16_ENTRY_REVISION
+        or provenance.get("source_delta_sha256")
+        != C06_C16_SOURCE_DELTA_SHA256
+    ):
+        raise ValueError("C16 contrast receipt sources do not reconcile")
+
+    return {
+        "receipt_kind": "landed_opaque_storybook_release",
+        "producer_revision": C03_REPAIR_COMMIT,
+        "entry_revision": C06_C16_ENTRY_REVISION,
+        "source_delta_sha256": C06_C16_SOURCE_DELTA_SHA256,
+        "wall_duration_seconds": plan_wall,
+        "story_files": {"total": 1, "passed": 1, "failed": 0},
+        "tests": {"total": 1, "passed": 1, "failed": 0},
+        "custom_source_observations": {
+            "sources": {"total": plan_total, "passed": plan_passed, "failed": 0},
+            "violation_count": 0,
+            "incomplete_count": 0,
+            "numeric_source_receipts": True,
+            "atomic": True,
+        },
+        "automatic_a11y_meta_report": {
+            "incomplete_count": 3,
+            "color_contrast_incomplete_count": 1,
+            "source_attribution": "unattributed",
+            "denominator_membership": "outside_custom_source_observations",
+        },
+        "raw_receipt": {
+            "format": "storybook_json",
+            "bytes": raw_receipt_bytes,
+            "sha256": plan_raw_sha256,
+            "availability": "not_persisted_in_repository",
+        },
+        "source_registry_sha256": C04_RENDERED_CONTRAST_REGISTRY_SHA256,
+        "owner_ast_sha256": C04_RENDERED_CONTRAST_OWNER_AST_SHA256,
+        "release_provenance": "recomputed",
+        "measurement_provenance": "task_authoritative_landed_release",
+        "authority_purpose": "c16_landed_opaque_storybook_release",
+        "source_refs": [
+            {
+                "path": source_ref,
+                "content_sha256": source_sha256,
+            }
+            for source_ref, source_sha256 in C03_RECEIPT_SOURCE_SHA256.items()
+        ],
+    }
+
+
+def _c06_verify_c04_admission() -> None:
+    """Require the landed C04 commit and its exact open predecessor row."""
+    try:
+        _c03_git_text(
+            "merge-base",
+            "--is-ancestor",
+            C06_C04_ADMISSION_COMMIT,
+            "HEAD",
+        )
+    except ValueError as exc:
+        raise ValueError("C04 admission ancestry missing") from exc
+
+    register_ref = REGISTER_PATH.relative_to(REPO_ROOT).as_posix()
+    try:
+        admission_text = _c03_git_text(
+            "show",
+            f"{C06_C04_ADMISSION_COMMIT}:policy-engine/{register_ref}",
+        )
+        _start, _end, rows = _supplemental_section(admission_text)
+        matches = [
+            serialized
+            for finding_id, serialized in rows
+            if finding_id == C06_RENDERED_CONTRAST_FINDING_ID
+        ]
+        if len(matches) != 1:
+            raise ValueError("target cardinality")
+        admitted_row = json.loads(matches[0])
+    except (json.JSONDecodeError, ValueError) as exc:
+        raise ValueError("C04 admission source invalid") from exc
+    if admitted_row != _c04_rendered_contrast_finding():
+        raise ValueError("C04 admission predecessor row drift")
+
+
+def _c06_verify_c16_contrast_evidence(
+    current_evidence_bytes: Mapping[str, bytes] | None = None,
+) -> None:
+    """Bind current C04 evidence inputs to the exact landed C16 Git objects."""
+    _c03_c16_receipt()
+    expected_refs = set(C04_RENDERED_CONTRAST_EVIDENCE_REFS)
+    if current_evidence_bytes is None:
+        current_evidence_bytes = {
+            source_ref: (REPO_ROOT / source_ref).read_bytes()
+            for source_ref in C04_RENDERED_CONTRAST_EVIDENCE_REFS
+        }
+    if set(current_evidence_bytes) != expected_refs:
+        raise ValueError("C16 contrast current evidence drift:population")
+
+    changed_paths = set(
+        _c03_git_text(
+            "diff-tree",
+            "--no-commit-id",
+            "--name-only",
+            "-r",
+            C03_REPAIR_COMMIT,
+        ).splitlines()
+    )
+    story_ref = C04_RENDERED_CONTRAST_EVIDENCE_REFS[2]
+    changed_evidence_refs = {
+        source_ref
+        for source_ref in expected_refs
+        if f"policy-engine/{source_ref}" in changed_paths
+    }
+    if changed_evidence_refs != {story_ref}:
+        raise ValueError("C16 contrast historical evidence drift:changed paths")
+
+    historical: dict[str, bytes] = {}
+    for source_ref, expected_sha256 in C06_CONTRAST_EVIDENCE_SHA256.items():
+        source_bytes = _c03_git_bytes(
+            "show",
+            f"{C03_REPAIR_COMMIT}:policy-engine/{source_ref}",
+        )
+        historical[source_ref] = source_bytes
+        if hashlib.sha256(source_bytes).hexdigest() != expected_sha256:
+            raise ValueError(
+                f"C16 contrast historical evidence drift:{source_ref}"
+            )
+        current_bytes = current_evidence_bytes.get(source_ref)
+        if current_bytes != source_bytes:
+            raise ValueError(f"C16 contrast current evidence drift:{source_ref}")
+
+    for unchanged_ref in C04_RENDERED_CONTRAST_EVIDENCE_REFS[:2]:
+        parent_bytes = _c03_git_bytes(
+            "show",
+            f"{C06_C16_ENTRY_REVISION}:policy-engine/{unchanged_ref}",
+        )
+        if parent_bytes != historical[unchanged_ref]:
+            raise ValueError(
+                f"C16 contrast historical evidence drift:{unchanged_ref}:parent"
+            )
+    parent_story = _c03_git_bytes(
+        "show",
+        f"{C06_C16_ENTRY_REVISION}:policy-engine/{story_ref}",
+    )
+    if parent_story == historical[story_ref]:
+        raise ValueError("C16 contrast historical evidence drift:story unchanged")
+
+    try:
+        _c04_rendered_contrast_source_rows(
+            historical[C04_RENDERED_CONTRAST_SOURCE_REF].decode("utf-8")
+        )
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise ValueError("C16 contrast historical registry drift") from exc
+
+
+@lru_cache(maxsize=1)
+def _c06_c16_contrast_receipt() -> dict[str, Any]:
+    """Return the Git-bound, task-authoritative C16 contrast release receipt."""
+    _c03_c16_receipt()
+    source_texts = {
+        source_ref: _c03_git_text(
+            "show",
+            f"{C03_REPAIR_COMMIT}:policy-engine/{source_ref}",
+        )
+        for source_ref in C03_RECEIPT_SOURCE_SHA256
+    }
+    receipt = _c06_c16_contrast_receipt_from_sources(
+        source_texts["docs/plans/active/atlas-slices/DS6-evidence-workflow.md"],
+        source_texts[
+            "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
+        ],
+    )
+    _c06_verify_c16_contrast_evidence()
     return receipt
 
 
@@ -9657,6 +10001,40 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     missing_finding["supplemental_findings"].pop()
     probes.append(("missing-finding", missing_finding))
 
+    c06_row = next(
+        row
+        for row in data["supplemental_findings"]
+        if row["finding_id"] == C06_RENDERED_CONTRAST_FINDING_ID
+    )
+    for field, value in c06_row.items():
+        c06_drift = copy.deepcopy(data)
+        stored = next(
+            row
+            for row in c06_drift["supplemental_findings"]
+            if row["finding_id"] == C06_RENDERED_CONTRAST_FINDING_ID
+        )
+        stored[field] = corrupt_value(value)
+        probes.append((f"c06-rendered-contrast-{field}-drift", c06_drift))
+    c06_open_regression = copy.deepcopy(data)
+    open_row = next(
+        row
+        for row in c06_open_regression["supplemental_findings"]
+        if row["finding_id"] == C06_RENDERED_CONTRAST_FINDING_ID
+    )
+    open_row["status"] = "open_debt"
+    open_row.pop("repair_commit", None)
+    probes.append(("c06-rendered-contrast-open-regression", c06_open_regression))
+    c06_missing = copy.deepcopy(data)
+    c06_missing["supplemental_findings"] = [
+        row
+        for row in c06_missing["supplemental_findings"]
+        if row["finding_id"] != C06_RENDERED_CONTRAST_FINDING_ID
+    ]
+    probes.append(("c06-rendered-contrast-missing", c06_missing))
+    c06_duplicate = copy.deepcopy(data)
+    c06_duplicate["supplemental_findings"].append(copy.deepcopy(c06_row))
+    probes.append(("c06-rendered-contrast-duplicate", c06_duplicate))
+
     missing_negative = copy.deepcopy(data)
     missing_negative["seeded_negative_lifecycle"].pop()
     probes.append(("missing-negative", missing_negative))
@@ -10491,6 +10869,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="surgically transition the exact C03 Vitest receipt to C16 resolved",
     )
     parser.add_argument(
+        "--write-c06-rendered-contrast-resolution",
+        action="store_true",
+        help="surgically transition the exact C04 row from the landed C16 receipt",
+    )
+    parser.add_argument(
         "--write-c11b-query-memory-root",
         action="store_true",
         help="surgically produce the exact C11b query-memory root transition",
@@ -10544,6 +10927,32 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.write_c06_rendered_contrast_resolution:
+        incompatible = any(
+            (
+                args.check,
+                args.write_seed,
+                args.write_supplemental,
+                args.write_c03_vitest_resolution,
+                args.write_c11b_query_memory_root,
+                args.migrate_c21b,
+                args.migrate_c21c,
+                args.print_c21b_authority_partition_hashes,
+                args.print_c21b_authority_identity_literals,
+                args.print_c21b_descriptor_identities,
+                args.corruption_probes,
+                args.verify_baseline_source_bytes,
+                args.lint_results is not None,
+                args.vitest_results is not None,
+                args.architecture_results is not None,
+            )
+        )
+        if incompatible or not args.write_report:
+            sys.stderr.write(
+                "C06 rendered-contrast transition requires only --write-report\n"
+            )
+            return 1
+
     if args.print_c21b_authority_partition_hashes:
         scan = _authority_presentation_scan()
         for error in [
@@ -10589,6 +10998,32 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"missing register: {REGISTER_PATH}", file=sys.stderr)
         return 1
     register_text = REGISTER_PATH.read_text(encoding="utf-8")
+    if args.write_c06_rendered_contrast_resolution:
+        try:
+            candidate_text = _c06_rendered_contrast_transition_text(register_text)
+            candidate_data = json.loads(candidate_text)
+            candidate_errors = validate_register(
+                candidate_data,
+                report_parity=False,
+            )
+        except (json.JSONDecodeError, OSError, ValueError) as exc:
+            sys.stderr.write(f"C06 rendered contrast transition rejected: {exc}\n")
+            return 1
+        if candidate_errors:
+            for error in candidate_errors:
+                sys.stderr.write(
+                    f"C06 rendered contrast transition rejected: {error}\n"
+                )
+            return 1
+        candidate_report = render_report(candidate_data)
+        REGISTER_PATH.write_text(candidate_text, encoding="utf-8")
+        REPORT_PATH.write_text(candidate_report, encoding="utf-8")
+        sys.stdout.write("transitioned the exact C04 rendered-contrast row from C16\n")
+        sys.stdout.write(f"wrote {REPORT_PATH.relative_to(REPO_ROOT)}\n")
+        sys.stdout.write(
+            json.dumps(_summary(candidate_data), indent=2, sort_keys=True) + "\n"
+        )
+        return 0
     if args.write_c11b_query_memory_root:
         register_text = _c11b_query_memory_transition_text(register_text)
         REGISTER_PATH.write_text(register_text, encoding="utf-8")

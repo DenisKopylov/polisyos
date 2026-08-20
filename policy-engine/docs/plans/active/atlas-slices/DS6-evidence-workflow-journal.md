@@ -4748,3 +4748,205 @@ snapshot, health-test, `pyproject.toml`, or `uv.lock` inputs changed. C04 is
 ready for attached-branch landing. The family lock remains held for C06, the
 C16 browser receipt remains unconsumed, and this is not a C06, C13, C14, or
 DS6 closure claim.
+
+## C06 — close the typed rendered-contrast debt (2026-08-20)
+
+C06 entered from the clean, attached C04 commit
+`39a19c078066dc8326d81f9bee1746144c52f573`. The register-family lock carried
+forward from C03 through C04 without release. Fresh opening identities were
+register
+`f047dcc51719c42312e7d7673710488b824e144be8a1a979c16bb96b9e3f61cd`,
+report `7c0f318b5b990918cb53d263ed223fe75616787ca38a4dfcb81ba4d68b718ca9`,
+status inventory
+`f68f20e3b1a54ba3f8854606449cc3405efaad33245208ad9ba34a725156fc77`,
+baseline manifest
+`8c86ea3eb48585158de331a4e4c60f6b6520b2152dc39b527f6238d12bb0ff55`,
+and readiness ledger
+`4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+C05 still has **zero remaining executable content**: C16 already supplied the
+authorized heavy receipt, so no browser, Storybook, Playwright, whole-suite
+Vitest, typecheck, build, full lint, dev server, or component-a11y wave ran.
+
+### Red first and immutable C16 release admission
+
+The first focused C06 test failed with `AttributeError` because the contrast
+release resolver did not exist. The canonical checker now resolves the actual
+landed evidence commit
+`97d0c620836a3e6d33c347a1f7f563aaa9177d0c`, requires its single parent
+`41a2020d5c2097c30c94807737ba6d3a80323d2e`, recomputes the complete seven-path
+commit denominator and five dashboard-mechanism paths, and content-binds their
+binary delta at
+`800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a`.
+It reads the plan and journal from that Git object, not mutable current prose;
+their fixed SHA-256 values remain `8339ef3b…34cdad` and
+`70bd0986…472eae`.
+
+The final accepted C16 browser record is exactly one Storybook file/test,
+14.02 seconds, seven of seven atomic numeric `computed_pass` source receipts,
+zero violations/incompletes **within those seven custom observations**, and a
+163,320-byte raw JSON receipt recorded at SHA-256
+`a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa`.
+The invalidated 5.91-second and 14.57-second apparent 7/7 attempts cannot match
+the final anchored paragraph/table. The separate automatic axe meta-report's
+three unattributed incomplete nodes remain outside this custom denominator and
+are not relabelled green.
+
+Git ancestry, parent, path denominator, binary delta, historical evidence
+blobs, exact C16-to-current equality of all three C04 evidence paths, and the
+historical seven-row registry are `recomputed`. The browser measurements are
+`task_authoritative_landed_release`: their raw bytes and per-source ratio arrays
+are not persisted in the repository and are not claimed independently replayed.
+That bounded availability does not reopen the gate because the controlling
+task expressly designates the landed C16 release as the supplied 7/7 receipt.
+The exact source, focused test, and repaired story blobs are respectively
+content-bound at `c54524c5…0d225`, `7659dac8…bda3`, and
+`681ca884…d7fdc`.
+
+### Same-row transition, induced projection, and focused verification
+
+One dedicated transition writer admits only the exact C04 predecessor or the
+exact repaired result. It changes the same
+`baseline-test-a11y-rendered-contrast-incomplete-debt` object from
+`open_debt` to `repaired` and adds only
+`repair_commit=97d0c620836a3e6d33c347a1f7f563aaa9177d0c`; its ID, kind,
+`rebind_pending` disposition, ordered three evidence refs, DS6 owner,
+2026-08-11 date, and rationale remain identical. Missing, duplicate, drifted,
+prematurely repaired, or wrong-commit predecessors fail before writes. The
+exact repaired state is byte-idempotent, every peer row is byte-preserved, and
+the generic supplemental writer cannot bypass the dedicated transition.
+
+The DS6 plan's pre-existing phrase “seven evidence refs” conflated the seven
+source identities with the exact three paths shown in its adjacent JSON. That
+record-only wording is corrected to “three evidence refs that cover the seven
+source identities.” It changes no mechanism byte, governed artifact, or test
+outcome and consumes zero P40 rounds.
+
+The canonical writer validated the complete candidate before writing the
+register and report, then completed in 68.03 seconds under a 600-second
+ceiling. Uptime moved from `15:58 up 18:29`, load 2.48/2.09/2.04, to
+`15:59 up 18:31`, load 2.92/2.28/2.12. It retained 261 roots, 62 supplemental
+findings, 10 censuses, 23 seeded negatives, 36 storage sites, and the unchanged
+two-subunit split.
+
+The generated-client receipt census, run after the register transition, still
+derives the complete induced set rather than relying on memory. The target's
+three refs are not generated-client targets and the register's sole navigation
+reference precedes it, so the only induced write is
+`status-retirement-inventory.json#/sources/ds19/sha256`. That anchor now equals
+the new register SHA-256. Current projected identities are register
+`c50bd2010437421a334a7db9a25726fce6ba11fc253bc4d10ee456c1c366c00a`,
+report `f5b80c7f33d5d280573da49c05ac9e927b690b84d946cc1d09d40dbf54bff4bc`,
+and status inventory
+`25430ee8c9739aabc44220647181d4d148c73a14cc4ff7c7aaaf1be51a551d80`.
+Baseline and readiness remain byte-identical to their opening identities.
+
+Six focused C04/C06 tests pass 6/6 in 50.809 seconds (`real 52.09`) under a
+240-second ceiling. They retain the complete C04 owner-scope falsifier matrix;
+bind the exact repaired row and C16 release; reject receipt, current evidence,
+predecessor, lifecycle, field, and population drift; and prove surgery,
+idempotence, and generic-writer exclusion. Python compilation and
+`git diff --check` pass. Full corruption, status, census, Ruff, and delta-review
+receipts remain pending until source freeze.
+
+Prospective P40 buckets are
+`c06-landed-contrast-release-binding` and
+`c06-same-row-lifecycle-emission-binding`; C06 begins at **0/2**. Raw path
+arithmetic is **1 mechanism + 6 mandatory companions = 7**: the checker is the
+sole mechanism; its governed test, generated register/report/status, this
+journal, and the record-only plan clarification are companions held outside
+the cap under P39. Subtracting those companions leaves one mechanism path,
+which fits the declared cap of 6 without splitting scope.
+
+The three inherited task reds—DS8 A4 print, DS5 run-deck, and DS6-C11—remain
+registered and untouched. No product, visual, snapshot, health-test,
+`pyproject.toml`, `uv.lock`, baseline, readiness, or master-plan path changed.
+The family lock remains held through source freeze, reviews, final verification,
+and landing readback. C06 closes only this typed row; C13/C14 remain gated on
+the DS8 print repair, independently established semantic non-overlap, and two
+stable no-update captures, so this is not a DS6 closure or lock-release claim.
+
+### Final review, verification, and register-family hand-off
+
+The frozen C06 packet consumed exactly **2/2** mechanism rounds. The first
+Important class, `c06-landed-contrast-release-binding`, found that unqualified
+zero incomplete counts could be mistaken for the complete raw Storybook
+meta-report. The widened receipt now scopes zero violations/incompletes only to
+the seven custom source observations, separately binds the automatic report's
+three unattributed incompletes (including one `color-contrast` incomplete) as
+outside that denominator, and separately names the raw JSON hash, size, and
+repository absence. The second Important class,
+`c06-same-row-lifecycle-emission-binding`, contained two sibling examples and
+therefore consumed one round: C04 admission ancestry was not load-bearing, and
+three early print modes could pre-empt the writer. One structural repair now
+requires the pinned C04 commit in `HEAD`, reads its exact sole open predecessor
+row, and makes every print mode mutually exclusive with C06 write mode. The
+falsifier matrix covers both classes. Mechanism and semantic delta reviews are
+READY with no further Important or Blocking finding.
+
+The record review's one Important finding was **record-only**: the journal's
+gate sentence had omitted independently established semantic non-overlap. The
+corrected record preserves that conjunct without changing a mechanism byte or
+test outcome, so it consumes no round under the mandated record split. The
+plan's companion-only clarification likewise says three evidence refs cover
+seven source identities; it changes no gate. A later normalized Ruff comparison
+found six current-only `T201` diagnostics in C06's new CLI `print` calls after
+the added-line shortcut had missed them. Equivalent explicit stream writes
+removed all six; a delta reviewer proved identical text, trailing newlines,
+write counts, ordering, and return values across success and failure. That
+verification finding implicated no P40 review class.
+
+Post-freeze focused verification passed **7/7** C04/C06 tests in 53.162 s
+(`real 54.44`) under a 240 s ceiling. The final canonical C06 writer then
+completed in 71.23 s under the same ceiling and was byte-idempotent: register
+`c50bd2010437421a334a7db9a25726fce6ba11fc253bc4d10ee456c1c366c00a`
+and report
+`f5b80c7f33d5d280573da49c05ac9e927b690b84d946cc1d09d40dbf54bff4bc`
+were identical before and after. Because the lint repair changed mechanism
+bytes after the first expensive wave, the complete register corruption matrix
+was repriced rather than inherited; it passed at the final freeze in 204.63 s
+under a 600 s process-group ceiling with 261 roots, 62 supplemental findings,
+10 censuses, 23 negatives, 36 storage sites, and both subunit rows.
+
+The status baseline is still the exact inherited RED receipt: checker exit 1,
+13 stderr diagnostics, 887 bytes, SHA-256
+`511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`,
+and no stdout. Its complete corruption population passed **10/10** with zero
+escapes. The generated-client receipt census, not memory, derived zero errors
+over 1,375 candidates = 1,176 JSON + 199 TOML at path hash
+`5f77930ad765e6361ad0095d8e5e70c56f35b400491d04b56da22fb4928c195f`:
+18 primary/independent records and 38 line bindings, including exactly 15/30
+in the status inventory. It confirms the sole induced anchor is the exact
+prefixed register hash at `sources.ds19.sha256`. Ruff is baseline-relative
+576 at C04 `HEAD` versus 576 current, with zero normalized new or removed
+diagnostics. Python compilation and `git diff --check` pass.
+
+Closing readback retains exactly one
+`baseline-test-a11y-rendered-contrast-incomplete-debt` row. Its disposition
+remains `rebind_pending`; its status is `repaired`; its same three evidence
+refs, owner, date, and rationale are unchanged; and `repair_commit` is the
+actual landed C16 commit `97d0c620836a3e6d33c347a1f7f563aaa9177d0c`.
+The five closing family identities are:
+
+- disposition register `c50bd2010437421a334a7db9a25726fce6ba11fc253bc4d10ee456c1c366c00a`;
+- report `f5b80c7f33d5d280573da49c05ac9e927b690b84d946cc1d09d40dbf54bff4bc`;
+- status inventory `25430ee8c9739aabc44220647181d4d148c73a14cc4ff7c7aaaf1be51a551d80`;
+- baseline manifest `8c86ea3eb48585158de331a4e4c60f6b6520b2152dc39b527f6238d12bb0ff55`;
+- readiness ledger `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+
+P39 closing arithmetic remains **1 mechanism + 6 mandatory companions = 7
+raw paths**. The checker is the sole mechanism. Its governed test, generated
+register/report/status projection, this journal, and the record-only DS6 plan
+clarification are compulsory companions held outside the count. Subtracting
+them leaves one mechanism path, within C06's declared cap of 6.
+
+The DS8 A4 print RED (`724×2113` expected versus `770×13269`), DS5 run-deck
+RED (`1094×820` versus `1094×821`, 4,178 pixels), and owned-but-out-of-scope
+DS6-C11 `non_revision_paths` RED remain exactly registered and untouched; the
+changed-path set intersects their product/snapshot/health inputs at zero. No
+fresh heavy or visual run relabels them green. The whole register-family lock
+remains held through this record write and the required attached-branch
+landing readback. That successful C06 commit/readback is the release event:
+DS6 then explicitly relinquishes the family at the five closing identities
+above. C13/C14 remain gated on the DS8 print repair, independently established
+semantic non-overlap, and two consecutive stable no-update captures. **DS6 is
+not closed.**

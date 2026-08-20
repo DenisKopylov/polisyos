@@ -5081,3 +5081,42 @@ record companions**. The governed test is the repaired mechanism; this plan
 and journal are companions outside the count. Subtracting them leaves one path,
 within C11's cap of 12. No producer, implementation tuple, `pyproject.toml`,
 `uv.lock`, report, register, snapshot, or product byte changed.
+
+## DS5 run-deck residual execution — 2026-08-20
+
+Revision 3.22 permits execution of the residual despite DS5's closed owner; it
+does not transfer correctness ownership. The visual lane remained held from
+the print piece. The governed no-update Chromium case `run deck content slide`
+completed exit 1 in 15.853 s with zero retries: 1,094×820 expected,
+1,094×821 actual, and 4,178 differing pixels. No snapshot writer or update flag
+was used.
+
+The closure record authorized a product edit only if live measurement proved a
+`.atlas-deck-slide`/`.atlas-deck-slide-evidence` border-box-height defect. An
+ignored no-writer Playwright diagnostic waited for fonts and stable bounds,
+captured the live DOM quantities, and parsed an in-memory locator screenshot.
+Its exact result at viewport 1,440×1,200 and DPR 1 was:
+
+- bounding box 1,094×820, top 3,920.75 and bottom 4,740.75;
+- computed `box-sizing: border-box`, `block-size: 820px`, and
+  `min-block-size: 820px`;
+- offset height 820, client height 818, and scroll height 818;
+- zero direct-child content overflow; and
+- in-memory PNG 1,094×821.
+
+The CSS border box is already the governed 820-pixel height, with no intrinsic
+overflow. The extra raster row comes from the fractional Y-phase of the clip,
+not a border-box-height defect. The authorized repair predicate is therefore
+false. Adjusting CSS until pixels match would fix the proxy rather than the
+recorded property, so the piece stops without editing `styles.css`, the visual
+test, or the snapshot. Three consecutive decoded-pixel matches do not exist,
+and the residual remains open.
+
+P40 is **0/2** because no mechanism was entered. P39 arithmetic is **zero
+mechanism paths plus two mandatory record companions**: this plan and journal.
+The ignored diagnostic files are temporary execution evidence, not delivered
+paths. After the test runner exited, a process/port census found no worktree
+Vite, Storybook, fixture-server, or Playwright test process and no listener on
+5,173/6,006/8,000. DS6 explicitly relinquished the visual lane at attached
+`da1ff039870b13de3697be9ce14050f5bfcd2d5d`; the later record-only write does
+not reacquire it.

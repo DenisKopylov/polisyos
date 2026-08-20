@@ -912,6 +912,29 @@ Capability truth is `contract_only` with `producer_missing`,
 `artifact_missing`, `bridge_missing`, `consumer_missing`, actual-evidence
 `verification_missing`, and `surface_missing`.
 
+### Revision 3.22 debt-row execution — DS5 run-deck residual
+
+**Status: honestly stopped before mechanism entry. Live measurement disproves
+the recorded border-box-height cause; no CSS or snapshot byte changed.**
+
+The closed DS5 owner's residual is executable under Revision 3.22 without
+transferring correctness ownership. The governed no-update Chromium comparator
+reproduced 1,094×820 expected against 1,094×821 actual with 4,178 differing
+pixels. The independent no-writer diagnostic then established that the live
+evidence slide is already an exact 1,094×820 CSS border box: computed and
+offset height are 820 px, `box-sizing` is `border-box`, client and scroll
+height are both 818 px, and direct-child content overflow is zero. At DPR 1,
+the box starts and ends at fractional Y coordinates 3,920.75/4,740.75; the
+in-memory locator PNG is 1,094×821. The divergence is therefore fractional
+screenshot clipping/rasterization, not a border-box-height defect.
+
+The authorized repair condition is false, so CSS adjustment would be a P38
+proxy repair. The run-deck residual remains open, no three-match closure wave
+is run, and the governed snapshot remains byte-unchanged. P40 is **0/2**
+because no mechanism was entered. P39 arithmetic is zero mechanism paths plus
+this plan and the journal as mandatory record companions. The visual lane was
+explicitly relinquished after the stopped measurement.
+
 ### Task 13 — DS6-C13: independently verify DS8 adjacent print export
 
 **Revision 3.22 execution status: a scoped product-repair candidate is

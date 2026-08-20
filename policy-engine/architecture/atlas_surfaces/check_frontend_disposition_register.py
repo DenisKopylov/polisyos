@@ -3698,8 +3698,7 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
         "prop": "freshness",
         "consumer_paths": [
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
         ],
         "owner_slice": "DS18",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
@@ -3790,21 +3789,6 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
             "a source-owned lineage freshness issuer owns the cue and absence cannot be upgraded"
         ),
     },
-    "prop-time-semantics-freshness": {
-        "classification": "debt",
-        "component": "TimeSemanticsLabel",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-        "prop": "freshness",
-        "consumer_paths": [
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-        ],
-        "owner_slice": "DS18",
-        "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "closure_signal": _authority_closure(
-            "the generated owner freshness value enters an issued temporal presentation with explicit unknown behavior"
-        ),
-    },
     "prop-dispute-status": {
         "classification": "debt",
         "component": "DisputeBadge",
@@ -3843,7 +3827,6 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
             "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
             "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
             "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         ],
     },
     "prop-envelope-authority-purpose": {
@@ -3853,7 +3836,6 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "prop": "authorityPurpose",
         "consumer_paths": [
             "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         ],
     },
     "prop-segmented-control-tone": {
@@ -3962,20 +3944,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
         "capability_states": ["bridge_missing", "semantic_test_missing"],
         "closure_signal": _authority_closure(
             "a generated availability union enters an exhaustive issuer and novel values render unrecognized"
-        ),
-    },
-    "badge-governed-projection-rights-bar": {
-        "owner_slice": "DS5",
-        "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "closure_signal": _authority_closure(
-            "a generated may_not_use_for item enters a branded veto presentation"
-        ),
-    },
-    "badge-governed-source-validation": {
-        "owner_slice": "DS7",
-        "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "closure_signal": _authority_closure(
-            "generated source validation status enters an exhaustive issuer with novelty tests"
         ),
     },
     "badge-uncertainty-dispute": {
@@ -4091,24 +4059,24 @@ AUTHORITY_PRESENTATION_DEBT_SPECS.update(
 )
 
 AUTHORITY_PRESENTATION_COUNTS = {
-    "badge_total": 163,
+    "badge_total": 161,
     "badge_branded": 2,
-    "badge_debt": 58,
+    "badge_debt": 56,
     "badge_benign": 103,
-    "prop_total": 19,
+    "prop_total": 18,
     "prop_branded": 2,
-    "prop_debt": 12,
+    "prop_debt": 11,
     "prop_benign": 5,
-    "prop_use_total": 35,
-    "prop_use_branded": 6,
-    "prop_use_debt": 21,
+    "prop_use_total": 30,
+    "prop_use_branded": 4,
+    "prop_use_debt": 18,
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:407d0c0f1c2cd3b39e315591a6cb6196dcb36ca0bfe62b04f7d82f409aec8b28"
+    "sha256:f5cb1209582b31775758692e1ad97c4427667e0d18ce6fca9bd86957ce83f347"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
-    "sha256:267db0ff1a795a6992810b415f257c0502ad733899abe44e53c58ebad79ce89f"
+    "sha256:69ba5f8de385f401dea85a9997dcd19081dc0a4d7688381e5db7dd11fa414e3a"
 )
 
 
@@ -4141,7 +4109,7 @@ def _badge_classification_errors(
     scan: Mapping[str, Any],
     classifications: Mapping[str, str] | None = None,
 ) -> list[str]:
-    """Validate the exact 163-site Badge partition as a finite set property."""
+    """Validate the exact 161-site Badge partition as a finite set property."""
     errors: list[str] = []
     sites = scan.get("badgeSites", [])
     if not isinstance(sites, list):
@@ -4284,7 +4252,7 @@ def _badge_classification_errors(
 
 
 def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
-    """Validate the exact declaration/use identity of all 19 prop groups."""
+    """Validate the exact declaration/use identity of all 18 prop groups."""
     errors: list[str] = []
     facts = scan.get("authorityPropCensus", [])
     if not isinstance(facts, list):
@@ -4576,9 +4544,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '078599fe50e49c45b6b69803352191205b7409a7e9f382d25019887b1e56fab1': (
         'benign:transport_or_runtime_health'
     ),
-    '0963299bc8c2f44481a04d9a53aa44b6d0cd19eb5b738dcfae62517cadc7f1db': (
-        'debt:badge-governed-source-validation'
-    ),
     '0975deb3026c856f342cdb39c794dfa4ba8330e71504c957f9925437544cf9fa': (
         'benign:opaque_metadata_or_taxonomy'
     ),
@@ -4641,9 +4606,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     ),
     '1e01bb02aa403bfae75475c5ffe5346af68c654fc554bf1c544535e82bae724c': (
         'debt:badge-public-packet-authority-framing'
-    ),
-    'a0b5fb9183dad72b89c998f4817fe67911c5cc088204b6872de391c080c41a42': (
-        'debt:badge-governed-projection-availability'
     ),
     '22c2a2e7b9b3c9c07fcff8e313559f5e18f31abf5fef96c074ed58da84765c75': (
         'debt:badge-run-deck-authority-summary'
@@ -4741,9 +4703,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '59b6a960611036630340cfdbdeb67c09a0b0bc2fe0d1670fe9be49d0ac386054': (
         'benign:interaction_or_editor_state'
     ),
-    '5a3bada810ad2a1c0b65fe6b458bfeadf3e8a641046b873a86c26b8d89cad2ef': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
     '5d069598ed2432ba1300d23dbf64545fdcdb1b00db025ba683c40b395882c7e9': (
         'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
@@ -4819,9 +4778,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '89b13db33efc33ad01d076818b832f51aed4a1a2dc5bc3465376b8ff1cc42dae': (
         'debt:badge-control-approval-quality'
     ),
-    '27bd4c02bcf144b52fdebc88ab9ca03bd8b35522f94ace154d373d2a1bd57cc8': (
-        'debt:badge-governed-projection-availability'
-    ),
     '8d1d1b0a3f1bd470d97feec2780c3f3ecace0182e30b9dc4ab6fe918eea698de': (
         'benign:layout_or_counts'
     ),
@@ -4845,9 +4801,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     ),
     '95aea9c66d7babdca5ee9911a0db61b65d7d62614effac90dbf4478aa4b77bff': (
         'debt:badge-projection-source-freshness'
-    ),
-    '98ca189a06de16043ec40ca09c3d74f2b63a524ff10299c3561539dbea882f56': (
-        'debt:badge-governed-projection-rights-bar'
     ),
     '997f7c5ee2d23388fecbe89b4b0248095e86078fb8902768f3ee8f2b647fa2bb': (
         'benign:transport_or_runtime_health'
@@ -5053,6 +5006,15 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     'ff08cad30b4d331f3ba7cfb3757d527f2763dff5608e03f2230e6f4e3c1440b4': (
         'debt:badge-control-approval-quality'
     ),
+    '1af359393d833cb5ead635d9f8e8442e724e75825ae5a8895f2b8e572244e3b2': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '3f6aa01ff891586e321a52eb178b2257fffbd55d0fe678d3d9f730ec63d60cc2': (
+        'debt:badge-governed-projection-availability'
+    ),
+    'ba589be6170116aa03e25219cdb55b3c8718b77a3d7090d8ed25da799505eabd': (
+        'debt:badge-governed-projection-availability'
+    ),
 }
 
 FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
@@ -5091,13 +5053,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'classification': 'branded:governed_authority_purpose',
             'descriptor_id': 'prop-envelope-authority-purpose',
             'role': 'consumer',
-        },
-    ],
-    '161ada920d42be7ec2d8a0dfd475ae9abd0de9bb4c611601f93afbf43bd5616b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'prop_declaration',
         },
     ],
     '16eb7fca7159f7309d9753a11f1b620f29fcd51b9b4301c8dfbb25a239079ab6': [
@@ -5140,13 +5095,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'classification': 'debt',
             'descriptor_id': 'prop-data-freshness',
             'role': 'prop_declaration',
-        },
-    ],
-    '1c7bcc568eb6d0de6ce70be64ac1c95b1fef451ad22feb88e19f0954f3acffb2': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'consumer',
         },
     ],
     '2d62ca48a2d4a778b23e7a62ae53dee274c480cacff2cde588352a70e5c46d1c': [
@@ -5247,13 +5195,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    '73ac833708a0af8050ac16602ceb7cea2c0fc956868ac75bb17143960f24eec4': [
-        {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'consumer',
-        },
-    ],
     '73cf45800d9bbc0e5781565dbbc6ee5de54c0c6b48682c33666e50e8686f8c7b': [
         {
             'classification': 'debt',
@@ -5331,20 +5272,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    '9156023f5437ed35cbd33f0b0cf42bcd52ba029088f23fd0b05e0e24d5d445ef': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '8ca5bce9456d9cca63c0b849a155f81bb76f1a574036af53229a7d7821ebac88': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'component_declaration',
-        },
-    ],
     '9b0285075c32d8b904ad899c523bfd5dddde9eaa78876dec98ba96b57be00dbd': [
         {
             'classification': 'debt',
@@ -5356,13 +5283,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
         {
             'classification': 'debt',
             'descriptor_id': 'prop-counterfactual-status',
-            'role': 'consumer',
-        },
-    ],
-    '703faaedd976bad47dd750f4d8070e4165856bf928a548de3b935503010d0187': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
             'role': 'consumer',
         },
     ],
@@ -5427,13 +5347,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'classification': 'benign:interaction_state',
             'descriptor_id': 'prop-review-presence-status',
             'role': 'component_declaration',
-        },
-    ],
-    '4e70f64ec87d614c63aec73be716f44afb13834c62e9158ce5e671d1d5481738': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'consumer',
         },
     ],
     'c4695dc59b4f9cbfc62344f12d91f50ab9c0042557aed065d345f054c4bf44e0': [
@@ -5541,10 +5454,10 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    '6282429660a99493402eadcb5de2ce7f580de3b660c9014b8a60be742ffac6b3': [
+    '0f083eca94d56e8a79548b996eb3f1d709a2f67b00548bf3c72f40080b815bed': [
         {
             'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
+            'descriptor_id': 'prop-data-freshness',
             'role': 'consumer',
         },
     ],
@@ -5826,18 +5739,17 @@ GOVERNED_DEBT_DESCRIPTORS.update(copy.deepcopy(INTEGRATE_DEBT_DESCRIPTORS))
 C11B_QUERY_MEMORY_ROOT_ID = "cache-query-memory"
 C11B_QUERY_MEMORY_SUCCESSOR_ID = "dashboard-governed-query-cache-posture"
 C11B_QUERY_MEMORY_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/api/queryKeys.ts",
     "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
     "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
     "apps/runtime-dashboard/src/api/cacheDiscipline.ts",
     "apps/runtime-dashboard/src/api/cacheDiscipline.test.ts",
     "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
     "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
-    "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-    "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx",
-    "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-    "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx",
-    "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
-    "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
 ]
 C11B_QUERY_MEMORY_PENDING_RATIONALE = (
     "DS1 does not record this narrow unit as implemented; C04a-R1 removes the "
@@ -5846,11 +5758,12 @@ C11B_QUERY_MEMORY_PENDING_RATIONALE = (
     "without creating a parallel owner."
 )
 C11B_QUERY_MEMORY_RATIONALE = (
-    "C11a/C11b and C12b strangle the generic query-memory root only through the "
-    "governed-query option issuer, source-derived policy debt ratchet, owner-as_of "
-    "cache observation, and one visible run consumer; the remaining 65 constructions "
-    "and 41 producers remain explicitly adjudicated debt, and no DS8, DS9, or DS14 "
-    "semantics are claimed."
+    "C11a/C11b, C12b, and DS7 strangle the generic query-memory root through the "
+    "governed-query option issuer, one representation-specific key, explicit "
+    "never_cache_authority posture, and one permission-gated global Cycle Board "
+    "consumer. Transaction observation time is not owner as_of, run detail neither "
+    "fetches nor retains the packet, and exact response bytes remain per-request "
+    "export custody only; no DS8, DS9, or DS14 semantics are claimed."
 )
 
 
@@ -6962,17 +6875,17 @@ def _supplemental_section(
 
 
 def _surgical_supplemental_finding_ids(text: str) -> set[str]:
-    """Return descriptor rows and unsupported producer rows owned by refresh."""
+    """Return descriptor rows and retired generated rows owned by refresh."""
     descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS) | set(
         AUTHORITY_PRESENTATION_DEBT_SPECS
     ) | DS6_REGISTER_TRANSITION_FINDING_IDS
     _start, _end, spans = _supplemental_section_spans(text)
     for finding_id, object_start, object_end in spans:
         row = json.loads(text[object_start : object_end + 1])
-        if (
-            row.get("finding_kind") == "producer_binding_debt"
-            and finding_id not in descriptor_ids
-        ):
+        if row.get("finding_kind") in {
+            "producer_binding_debt",
+            "authority_presentation_debt",
+        } and finding_id not in descriptor_ids:
             descriptor_ids.add(finding_id)
     return descriptor_ids
 

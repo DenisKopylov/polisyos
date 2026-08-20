@@ -4511,10 +4511,10 @@ def _resolve_authority_import_closure(
 ) -> tuple[tuple[str, str], ...]:
     """Resolve one complete repository-local declared import closure.
 
-    Runtime mode follows repository-local static imports on executable paths
-    and source-declared PEP 562 re-exports. Owner/tool mode additionally sees
-    every static arm and literal dynamic import. Tool modules remain excluded
-    from the runtime-only E12 closure.
+    Runtime mode follows repository-local static imports outside typing-only
+    arms plus source-declared PEP 562 re-exports. Literal dynamic targets are
+    source-owner inputs, not runtime modules, unless reached through a static
+    edge; owner/tool mode sees every static arm and literal dynamic import.
     """
 
     resolved: dict[str, Path] = {}

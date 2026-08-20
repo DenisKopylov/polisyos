@@ -1394,6 +1394,89 @@ def test_authority_import_closure_tracks_nested_runtime_but_not_type_only_import
     assert type_only_target not in with_type_only
 
 
+def test_authority_session_paths_do_not_invoke_unadmitted_literal_dynamic_imports(
+) -> None:
+    """A derived dynamic target may stay outside only while the real path is dormant."""
+
+    script = """
+import ast
+import importlib
+import json
+import tempfile
+from pathlib import Path
+
+import_module_calls = []
+original_import_module = importlib.import_module
+def recording_import_module(name, package=None):
+    import_module_calls.append(name)
+    return original_import_module(name, package)
+importlib.import_module = recording_import_module
+
+from polisyos.runtime.quality import confidence_ledger as ledger
+from polisyos.core.artifacts import FileSystemCAS
+
+repo_root = Path.cwd()
+closure = dict(
+    ledger._resolve_authority_import_closure(repo_root, ledger.__name__)
+)
+literal_dynamic_refs = set()
+for relative_path in closure.values():
+    tree = ast.parse((repo_root / relative_path).read_bytes())
+    for node in ledger._runtime_ast_nodes(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        dynamic_ref = ledger._literal_dynamic_import_ref(node)
+        if isinstance(dynamic_ref, str) and dynamic_ref.startswith("polisyos."):
+            literal_dynamic_refs.add(dynamic_ref)
+unadmitted = literal_dynamic_refs - closure.keys()
+assert unadmitted
+
+scope = ledger.ConfidenceRiskBudgetScope(
+    scope_owner_ref="polisyos.runtime.quality.promotion_sequence",
+    authority_purpose="n9_promotion",
+    owner_scope_key="design-problem:dynamic-import-residual",
+    owner_projection_hash="sha256:" + "1" * 64,
+    epoch_ref=None,
+    model_ref=None,
+    rule_ref="policyos.layer3.gy.n9.v1",
+    schema_ref="polisyos.runtime.design_problem.v1",
+)
+with tempfile.TemporaryDirectory() as temporary:
+    temporary_root = Path(temporary)
+    ledger.ConfidenceLedgerSession._for_verification(
+        repo_root,
+        risk_scope=scope,
+        artifact_store=FileSystemCAS(temporary_root / "cas"),
+        state_root=temporary_root / "state",
+    )
+    ledger.ConfidenceLedgerSession.from_repo(repo_root, risk_scope=scope)
+
+observed = set(import_module_calls) & unadmitted
+print(json.dumps({
+    "literal_dynamic_ref_count": len(literal_dynamic_refs),
+    "unadmitted_count": len(unadmitted),
+    "observed": sorted(observed),
+}, sort_keys=True))
+"""
+    env = os.environ.copy()
+    env["PYTHONPATH"] = str(REPO_ROOT / "src")
+
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=REPO_ROOT,
+        env=env,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+
+    assert completed.returncode == 0, completed.stdout + completed.stderr
+    payload = json.loads(completed.stdout.strip().splitlines()[-1])
+    assert payload["literal_dynamic_ref_count"] == payload["unadmitted_count"]
+    assert payload["unadmitted_count"] > 0
+    assert payload["observed"] == []
+
+
 def test_loaded_code_manifest_fails_closed_on_missing_declared_member(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:

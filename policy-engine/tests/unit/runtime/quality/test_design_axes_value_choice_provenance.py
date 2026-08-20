@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -328,7 +329,10 @@ def test_pareto_archive_model_cannot_bypass_ranked_admission_guard() -> None:
         )
 
 
-@pytest.mark.parametrize("minting_seam", ["model_copy", "model_construct", "copy"])
+@pytest.mark.parametrize(
+    "minting_seam",
+    ["model_copy", "model_construct", "copy", "construct", "__replace__", "copy_replace"],
+)
 def test_pareto_archive_unvalidated_minting_seams_revalidate(
     minting_seam: str,
 ) -> None:
@@ -350,16 +354,31 @@ def test_pareto_archive_unvalidated_minting_seams_revalidate(
     elif minting_seam == "model_construct":
         with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
             archive_model.model_construct(**{**unranked_payload, **ranked_update})
-    else:
+    elif minting_seam == "copy":
         with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
             unranked.copy(update=ranked_update)
+    elif minting_seam == "construct":
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            archive_model.construct(**{**unranked_payload, **ranked_update})
+    elif minting_seam == "__replace__":
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            unranked.__replace__(**ranked_update)
+    else:
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            replace(unranked, **ranked_update)
 
     if minting_seam == "model_copy":
         safe_copy = unranked.model_copy()
     elif minting_seam == "model_construct":
         safe_copy = archive_model.model_construct(**unranked_payload)
-    else:
+    elif minting_seam == "copy":
         safe_copy = unranked.copy()
+    elif minting_seam == "construct":
+        safe_copy = archive_model.construct(**unranked_payload)
+    elif minting_seam == "__replace__":
+        safe_copy = unranked.__replace__()
+    else:
+        safe_copy = replace(unranked)
     assert safe_copy.ranking_mode == "unranked_frontier_only"
 
 

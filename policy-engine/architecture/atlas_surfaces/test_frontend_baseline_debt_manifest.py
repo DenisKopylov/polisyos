@@ -10,6 +10,7 @@ import subprocess
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 
 ATLAS_DIR = Path(__file__).resolve().parent
@@ -62,6 +63,166 @@ def _write_json(value: object) -> Path:
     with handle:
         json.dump(value, handle)
     return Path(handle.name)
+
+
+def _expect_equal(expected: object, actual: object) -> None:
+    if expected != actual:
+        raise AssertionError(f"expected {expected!r}, received {actual!r}")
+
+
+def _expect_true(value: object, message: str) -> None:
+    if not value:
+        raise AssertionError(message)
+
+
+def _c16_resolved_manifest() -> dict[str, object]:
+    manifest = copy.deepcopy(_manifest())
+    manifest["vitest"].update(
+        {
+            "disposition": "resolved",
+            "command": (
+                "/usr/bin/time -p corepack pnpm exec vitest run --reporter=json "
+                "--outputFile=../../_build/apps/runtime-dashboard/"
+                "ds6-c16-vitest-final.json"
+            ),
+            "wall_duration_seconds": 515.40,
+            "vitest_duration_seconds": 512.9371760253906,
+            "exit_code": 0,
+            "test_files": {"total": 317, "passed": 317, "failed": 0},
+            "tests": {"total": 983, "passed": 983, "failed": 0},
+            "failure_set": {
+                "hash_algorithm": "sha256",
+                "serialization": "RFC8785_JCS",
+                "payload": "flat_sorted_failures",
+                "sort_key": [
+                    "test_file",
+                    "test_name",
+                    "assertion_line",
+                    "assertion_anchor",
+                ],
+                "sha256": (
+                    "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+                ),
+            },
+            "debt_classes": [],
+            "receipt_provenance": {
+                "receipt_kind": "whole_suite_vitest_json",
+                "producer_revision": (
+                    "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
+                ),
+                "entry_revision": "41a2020d5c2097c30c94807737ba6d3a80323d2e",
+                "source_delta_sha256": (
+                    "800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a"
+                ),
+                "raw_receipt_sha256": (
+                    "0621a29ad48454fa57c232206f2eec26267e82ad5285879dacc02bf29ebe79ec"
+                ),
+                "raw_receipt_bytes": 368353,
+                "predicate_provenance": "recomputed",
+                "authority_purpose": "c16_landed_whole_suite_release",
+                "raw_receipt_availability": "not_persisted_in_repository",
+                "source_refs": [
+                    {
+                        "path": (
+                            "docs/plans/active/atlas-slices/"
+                            "DS6-evidence-workflow.md"
+                        ),
+                        "content_sha256": (
+                            "8339ef3b2a4c12220e0e205cb66fd5626fe1e81eebdf9cec3aafb7861c34cdad"
+                        ),
+                    },
+                    {
+                        "path": (
+                            "docs/plans/active/atlas-slices/"
+                            "DS6-evidence-workflow-journal.md"
+                        ),
+                        "content_sha256": (
+                            "70bd0986b2b1c1d78e2e9e7e507d5f3f592ede12ccf15b27705d0da24a472eae"
+                        ),
+                    },
+                ],
+            },
+        }
+    )
+    return manifest
+
+
+def _c03_open_manifest() -> dict[str, object]:
+    manifest = copy.deepcopy(_manifest())
+    manifest["vitest"] = {
+        "owner_slice": "DS4",
+        "disposition": "rebind_pending",
+        "command": (
+            "corepack pnpm exec vitest run --reporter=json "
+            "--outputFile=../../_build/apps/runtime-dashboard/"
+            "ds4-c12-vitest-v2.json"
+        ),
+        "wall_duration_seconds": 315.06,
+        "vitest_duration_seconds": 315.06,
+        "exit_code": 1,
+        "test_files": {"total": 263, "passed": 262, "failed": 1},
+        "tests": {"total": 766, "passed": 763, "failed": 3},
+        "failure_set": {
+            "hash_algorithm": "sha256",
+            "serialization": "RFC8785_JCS",
+            "payload": "flat_sorted_failures",
+            "sort_key": [
+                "test_file",
+                "test_name",
+                "assertion_line",
+                "assertion_anchor",
+            ],
+            "sha256": (
+                "533b0f74d085c34acb3b3dbbffd8a8fa056b023e1b96f93a464902682a9b94dd"
+            ),
+        },
+        "debt_classes": [
+            {
+                "class_id": "i18n-count-message-parity",
+                "owner_slice": "DS6",
+                "disposition": "rebind_pending",
+                "rationale": (
+                    "Three unchanged locale parity cases expose the same "
+                    "count-sensitive message without ICU plural syntax or an "
+                    "explicit allowlist entry; Ruling 2 assigns this class to DS6."
+                ),
+                "failure_count": 3,
+                "failures": [
+                    {
+                        "test_file": (
+                            "apps/runtime-dashboard/src/shared/i18n/parity.test.ts"
+                        ),
+                        "test_name": (
+                            "locale catalogs > marks all count-sensitive "
+                            f"{locale} messages with ICU plural syntax or an "
+                            "explicit allowlist entry"
+                        ),
+                        "assertion_line": 88,
+                        "assertion_anchor": (
+                            "panels.agentPipeline.overBudget must use ICU plural "
+                            "syntax or be justified in COUNT_MESSAGE_ALLOWLIST: "
+                            "expected false to be true"
+                        ),
+                    }
+                    for locale in ("en", "uk", "ru")
+                ],
+            }
+        ],
+        "parent_reproduction": {
+            "revision": "0ef16da1b1a3efe1bce0345cf85163fe4971baaa",
+            "command": (
+                "corepack pnpm exec vitest run src/shared/i18n/parity.test.ts "
+                "src/shared/ui/A11yCoverage.a11y.test.tsx "
+                "src/app/providers/TemporalCursorProvider.test.tsx"
+            ),
+            "wall_duration_seconds": 2.43,
+            "exit_code": 1,
+            "test_files": {"total": 3, "passed": 1, "failed": 2},
+            "tests": {"total": 8, "passed": 4, "failed": 4},
+            "matches_full_run_failure_set": True,
+        },
+    }
+    return manifest
 
 
 def _eslint_results(lint: dict[str, object]) -> list[dict[str, object]]:
@@ -125,6 +286,255 @@ class FrontendBaselineDebtLifecycleTests(unittest.TestCase):
         self.assertEqual(lint["source_file_count"], 0)
         self.assertEqual(len(lint["resolutions"]), 75)
         self.assertEqual(checker.validate_baseline_manifest(manifest), [])
+
+    def test_vitest_accepts_the_exact_open_or_c16_resolved_lifecycle(self) -> None:
+        _expect_equal([], checker.validate_baseline_manifest(_c03_open_manifest()))
+        _expect_equal([], checker.validate_baseline_manifest(_c16_resolved_manifest()))
+
+    def test_c03_c16_receipt_is_recomputed_from_landed_content(self) -> None:
+        receipt_loader = getattr(checker, "_c03_c16_receipt", None)
+        receipt_parser = getattr(checker, "_c03_c16_receipt_from_sources", None)
+        _expect_true(callable(receipt_loader), "C16 receipt loader is missing")
+        _expect_true(callable(receipt_parser), "C16 receipt parser is missing")
+        if not callable(receipt_loader) or not callable(receipt_parser):
+            return
+
+        receipt = receipt_loader()
+        expected = _c16_resolved_manifest()["vitest"]
+        for field in (
+            "command",
+            "wall_duration_seconds",
+            "vitest_duration_seconds",
+            "exit_code",
+            "test_files",
+            "tests",
+            "failure_set",
+            "debt_classes",
+            "receipt_provenance",
+        ):
+            with self.subTest(field=field):
+                _expect_equal(expected[field], receipt[field])
+
+        source_revision = "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
+        sources = {}
+        for label, source_ref in {
+            "plan": "policy-engine/docs/plans/active/atlas-slices/DS6-evidence-workflow.md",
+            "journal": (
+                "policy-engine/docs/plans/active/atlas-slices/"
+                "DS6-evidence-workflow-journal.md"
+            ),
+        }.items():
+            result = subprocess.run(  # noqa: S603 - fixed test fixture revision
+                [  # noqa: S607 - repository tool resolved by the test environment
+                    "git",
+                    "show",
+                    f"{source_revision}:{source_ref}",
+                ],
+                cwd=REPO_ROOT.parent,
+                check=True,
+                capture_output=True,
+                text=True,
+            )
+            sources[label] = result.stdout
+        _expect_equal(receipt, receipt_parser(sources["plan"], sources["journal"]))
+
+        for label, plan_text, journal_text in (
+            (
+                "changed_plan_hash",
+                sources["plan"].replace(
+                    "0621a29ad48454fa57c232206f2eec26267e82ad5285879dacc02bf29ebe79ec",
+                    "0" * 64,
+                    1,
+                ),
+                sources["journal"],
+            ),
+            (
+                "changed_journal_count",
+                sources["plan"],
+                sources["journal"].replace("317/317 files", "316/317 files", 1),
+            ),
+        ):
+            with self.subTest(label=label):
+                try:
+                    receipt_parser(plan_text, journal_text)
+                except ValueError:
+                    continue
+                raise AssertionError(f"C16 source corruption escaped: {label}")
+
+    def test_c03_c16_git_provenance_is_recomputed_not_self_attested(self) -> None:
+        validator = getattr(checker, "_c03_verify_c16_git_provenance", None)
+        _expect_true(callable(validator), "C16 Git provenance verifier is missing")
+        if not callable(validator):
+            return
+
+        provenance = copy.deepcopy(
+            _c16_resolved_manifest()["vitest"]["receipt_provenance"]
+        )
+        validator(provenance)
+        for field in ("entry_revision", "source_delta_sha256"):
+            with self.subTest(field=field):
+                mutation = copy.deepcopy(provenance)
+                mutation[field] = "0" * len(str(mutation[field]))
+                try:
+                    validator(mutation)
+                except ValueError:
+                    continue
+                raise AssertionError(f"C16 Git provenance drift escaped: {field}")
+
+    def test_vitest_resolved_lifecycle_rejects_mixed_or_unmeasured_receipts(self) -> None:
+        corruptions = {
+            "open_disposition": lambda vitest: vitest.__setitem__(
+                "disposition", "rebind_pending"
+            ),
+            "nonzero_exit": lambda vitest: vitest.__setitem__("exit_code", 1),
+            "nonempty_debt": lambda vitest: vitest.__setitem__(
+                "debt_classes",
+                copy.deepcopy(_c03_open_manifest()["vitest"]["debt_classes"]),
+            ),
+            "changed_command": lambda vitest: vitest.__setitem__(
+                "command", "corepack pnpm exec vitest run --reporter=json"
+            ),
+            "changed_wall_duration": lambda vitest: vitest.__setitem__(
+                "wall_duration_seconds", 515.41
+            ),
+            "changed_vitest_duration": lambda vitest: vitest.__setitem__(
+                "vitest_duration_seconds", 512.0
+            ),
+            "changed_file_total": lambda vitest: vitest["test_files"].__setitem__(
+                "total", 318
+            ),
+            "changed_test_total": lambda vitest: vitest["tests"].__setitem__(
+                "total", 984
+            ),
+            "nonempty_failure_hash": lambda vitest: vitest["failure_set"].__setitem__(
+                "sha256", "0" * 64
+            ),
+        }
+        for label, corrupt in corruptions.items():
+            with self.subTest(label=label):
+                mutation = _c16_resolved_manifest()
+                corrupt(mutation["vitest"])
+                _expect_true(
+                    checker.validate_baseline_manifest(mutation),
+                    f"resolved corruption escaped: {label}",
+                )
+
+    def test_vitest_schema_rejects_a_changed_open_signature(self) -> None:
+        mutation = _c03_open_manifest()
+        mutation["vitest"]["debt_classes"][0]["failures"][0][
+            "assertion_anchor"
+        ] = "fabricated anchor"
+        _expect_true(
+            checker._schema_errors(mutation, checker.BASELINE_SCHEMA_PATH),
+            "standalone baseline schema admitted a changed C03 anchor",
+        )
+
+    def test_resolved_comparator_rejects_empty_or_focused_receipts(self) -> None:
+        for label, raw in {
+            "empty": {"testResults": []},
+            "focused": {
+                "testResults": [
+                    {
+                        "name": "src/shared/i18n/parity.test.ts",
+                        "assertionResults": [{"status": "passed"}],
+                    }
+                ]
+            },
+        }.items():
+            with self.subTest(label=label):
+                receipt_path = _write_json(raw)
+                _expect_true(
+                    checker.compare_vitest_results(
+                        _c16_resolved_manifest(), receipt_path
+                    ),
+                    f"resolved comparator admitted {label} receipt",
+                )
+
+    def test_supplemental_producer_rejects_a_mixed_c03_lifecycle(self) -> None:
+        mutation = _c16_resolved_manifest()
+        mutation["vitest"]["disposition"] = "rebind_pending"
+        original_load = checker._load_json
+
+        def load_mixed_baseline(path: Path) -> dict[str, object]:
+            if path == checker.BASELINE_PATH:
+                return copy.deepcopy(mutation)
+            return original_load(path)
+
+        with mock.patch.object(checker, "_load_json", side_effect=load_mixed_baseline):
+            try:
+                checker._supplemental_findings()
+            except ValueError:
+                return
+        raise AssertionError("supplemental producer admitted mixed C03 lifecycle")
+
+    def test_c03_producer_transitions_only_the_exact_open_receipt(self) -> None:
+        producer = getattr(checker, "_c03_resolved_baseline_manifest", None)
+        _expect_true(callable(producer), "C03 baseline producer is missing")
+        if not callable(producer):
+            return
+
+        expected = _c16_resolved_manifest()
+        _expect_equal(expected, producer(_c03_open_manifest()))
+        _expect_equal(expected, producer(expected))
+
+        for label, mutate in {
+            "fourth_identity": lambda manifest: manifest["vitest"]["debt_classes"][0][
+                "failures"
+            ].append(
+                {
+                    "test_file": "apps/runtime-dashboard/src/changed.test.ts",
+                    "test_name": "changed",
+                    "assertion_line": 1,
+                    "assertion_anchor": "changed",
+                }
+            ),
+            "changed_signature": lambda manifest: manifest["vitest"]["debt_classes"][
+                0
+            ]["failures"][0].__setitem__("assertion_anchor", "changed"),
+        }.items():
+            with self.subTest(label=label):
+                mutation = _c03_open_manifest()
+                mutate(mutation)
+                try:
+                    producer(mutation)
+                except ValueError:
+                    continue
+                raise AssertionError(f"C03 admitted corrupted receipt: {label}")
+
+    def test_c03_text_producer_rewrites_only_the_vitest_member(self) -> None:
+        producer = getattr(checker, "_c03_resolved_baseline_manifest_text", None)
+        _expect_true(callable(producer), "C03 text producer is missing")
+        if not callable(producer):
+            return
+
+        source = MANIFEST_PATH.read_text(encoding="utf-8")
+        member = '\n  "vitest": {'
+        next_member = ',\n  "architecture":'
+        source_start = source.index(member) + 1
+        source_suffix = source.index(next_member, source_start)
+        open_lines = json.dumps(
+            _c03_open_manifest()["vitest"], indent=2, ensure_ascii=False
+        ).splitlines()
+        open_member = open_lines[0] + "\n" + "\n".join(
+            "  " + line for line in open_lines[1:]
+        )
+        open_source = (
+            source[:source_start]
+            + '  "vitest": '
+            + open_member
+            + source[source_suffix:]
+        )
+
+        candidate = producer(open_source)
+        _expect_equal(_c16_resolved_manifest(), json.loads(candidate))
+        _expect_equal(candidate, producer(candidate))
+
+        source_start = open_source.index(member) + 1
+        candidate_start = candidate.index(member) + 1
+        source_suffix = open_source.index(next_member, source_start)
+        candidate_suffix = candidate.index(next_member, candidate_start)
+        _expect_equal(open_source[:source_start], candidate[:candidate_start])
+        _expect_equal(open_source[source_suffix:], candidate[candidate_suffix:])
 
     def test_lint_partition_rejects_a_missing_resolution(self) -> None:
         mutation = copy.deepcopy(_manifest())

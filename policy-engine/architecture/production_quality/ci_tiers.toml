@@ -737,7 +737,7 @@ owner = "team-quality-closeout"
 purpose = "Policy Design Case Layer 2 S7 delegation coverage."
 
 [[tests]]
-path = "tests/unit/runtime/quality/test_layer2_s8_value_choice.py"
+path = "tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py"
 tier = "fast-pr"
 owner = "team-quality-closeout"
 purpose = "Policy Design Case Layer 2 S8 value-choice provenance coverage."

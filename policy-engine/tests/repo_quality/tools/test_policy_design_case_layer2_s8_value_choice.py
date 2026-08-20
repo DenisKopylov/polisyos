@@ -308,7 +308,7 @@ def test_layer2_s8_public_projection_is_tradeoff_shaped_pull_first(
     assert "s8_value_disposition" not in public_projection
 
 
-def test_layer2_s8_shadow_scenario_schedules_are_not_authority() -> None:
+def test_layer2_s8_ranked_admission_fails_closed_while_schedule_resolver_is_absent() -> None:
     shadow_schedule = runtime_quality.build_shadow_scenario_value_schedule(
         schedule_ref="pdc://layer2/s8/shadow/readiness-scenario",
         case_id="layer2-s8-repo-quality-probe",
@@ -320,7 +320,7 @@ def test_layer2_s8_shadow_scenario_schedules_are_not_authority() -> None:
 
     assert shadow_schedule.disposition == "shadow_scenario_only"
     assert "ranked_recommendation_authority" in shadow_schedule.may_not_use_for
-    with pytest.raises(runtime_quality.P20NormativeChoiceError, match="shadow_scenario"):
+    with pytest.raises(runtime_quality.P20NormativeChoiceError) as exc_info:
         runtime_quality.build_pareto_archive(
             archive_id="layer2.s8.repo_quality.shadow",
             archive_ref="pdc://layer2/s8/repo-quality/shadow-pareto",
@@ -331,6 +331,8 @@ def test_layer2_s8_shadow_scenario_schedules_are_not_authority() -> None:
             authority_boundary=_authority_boundary(),
             rule_version_ref=RULE_VERSION_REF,
         )
+
+    assert exc_info.value.code == "p20_value_schedule_resolver_absent"
 
 
 def test_layer2_s8_arrow_disclosure_rows_are_required_for_multi_principal_conflict() -> None:

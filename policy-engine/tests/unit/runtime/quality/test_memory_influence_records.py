@@ -4,7 +4,7 @@ from __future__ import annotations
 from datetime import UTC, datetime, timedelta
 
 import pytest
-from pydantic import ValidationError
+from pydantic import Field, ValidationError
 
 from polisyos.runtime.quality.claim_registry import normalize_runtime_claim_registry
 from polisyos.runtime.quality.memory_influence import (
@@ -103,6 +103,24 @@ def test_undeclared_marker_inside_typed_memory_record_fails_closed() -> None:
 
     with pytest.raises(ValueError, match="outside owner-declared position"):
         assert_memory_influence_not_claim_evidence(record)
+
+
+def test_caller_subclass_cannot_extend_declared_memory_positions() -> None:
+    class CallerWidenedMemoryRecord(MemoryInfluenceRecord):
+        caller_widened_position: str = Field(
+            default="memory-influence:caller-widened",
+            json_schema_extra={"memory_influence_bearing_position": True},
+        )
+
+    payload = build_memory_influence_record(
+        _success_memory(),
+        run_id="run-target",
+        context=MemoryApplicabilityContext(run_id="run-target", domain="tax"),
+        contamination_check_ref="quality_evidence/memory_contamination_pass.json",
+    ).model_dump(mode="python")
+
+    with pytest.raises(ValueError, match="outside owner-declared position"):
+        CallerWidenedMemoryRecord.model_validate(payload)
 
 
 def test_memory_marker_in_unordered_container_fails_closed() -> None:

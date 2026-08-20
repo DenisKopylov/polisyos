@@ -4511,10 +4511,10 @@ def _resolve_authority_import_closure(
 ) -> tuple[tuple[str, str], ...]:
     """Resolve one complete repository-local declared import closure.
 
-    Static imports, literal dynamic imports, and repository owner references
-    declared as strings all enter the closure. Tool modules remain excluded
-    from the runtime-only E12 closure unless a governed tool owner explicitly
-    requests them.
+    Runtime mode follows repository-local static imports on executable paths
+    and source-declared PEP 562 re-exports. Owner/tool mode additionally sees
+    every static arm and literal dynamic import. Tool modules remain excluded
+    from the runtime-only E12 closure.
     """
 
     resolved: dict[str, Path] = {}
@@ -4551,7 +4551,7 @@ def _resolve_authority_import_closure(
                 relative.as_posix(),
             ) from exc
         discovered: set[str] = set()
-        nodes = _runtime_ast_nodes(tree) if include_tools else ast.walk(tree)
+        nodes = ast.walk(tree) if include_tools else _runtime_ast_nodes(tree)
         for node in nodes:
             if isinstance(node, ast.Import):
                 for alias in node.names:

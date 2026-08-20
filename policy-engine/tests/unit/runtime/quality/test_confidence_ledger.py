@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import ast
 import copy
-import importlib
 import inspect
 import json
 import os
@@ -1028,56 +1027,102 @@ raise SystemExit(3)
     assert completed.stdout.strip() == "canonical_loaded_runtime_mismatch"
 
 
-def test_rebound_authority_callable_fails_closed_for_every_session_mode(
+def test_rebound_closure_owned_callable_fails_closed_for_every_session_mode(
     tmp_path: Path,
 ) -> None:
+    probe_source = """
+from contextlib import contextmanager
+from functools import lru_cache
+
+def _default_metrics(*args, **kwargs):
+    return None
+
+class AuthzInput:
+    @classmethod
+    def for_http_request(cls):
+        return cls()
+
+    @classmethod
+    def for_cas_artifact(cls):
+        return cls()
+
+class DatabaseBackend:
+    @contextmanager
+    def transaction(self):
+        yield None
+
+    @contextmanager
+    def tenant_scope(self):
+        yield None
+
+class LRUCache:
+    def __init__(self):
+        self._max_size = 1
+
+    @property
+    def max_size(self):
+        return self._max_size
+
+    @max_size.setter
+    def max_size(self, value):
+        self._max_size = value
+
+@lru_cache(maxsize=1)
+def get_security_settings():
+    return None
+"""
     script = """
+import importlib.util
 import json
 import sys
 import tempfile
 from functools import lru_cache
 from pathlib import Path
 
-import polisyos.core.cache.lru as cache_lru
-import polisyos.core.security.authz as authz
-import polisyos.core.security.db_backend as db_backend
-import polisyos.core.security.settings as security_settings
 from polisyos.core.artifacts import FileSystemCAS
+
+probe_name = "polisyos._gy_di1_closure_probe"
+probe_path = Path.cwd() / "src/polisyos/_gy_di1_closure_probe.py"
+spec = importlib.util.spec_from_file_location(probe_name, probe_path)
+assert spec is not None and spec.loader is not None
+probe = importlib.util.module_from_spec(spec)
+sys.modules[probe_name] = probe
+spec.loader.exec_module(probe)
 
 mutation = sys.argv[1]
 if mutation == "foreign":
     def replacement(*args, **kwargs):
         return "foreign-rebound"
-    authz._default_metrics = replacement
+    probe._default_metrics = replacement
 elif mutation == "local_swap":
-    authz._default_metrics = authz.AuthzInput.for_http_request.__func__
+    probe._default_metrics = probe.AuthzInput.for_http_request.__func__
 elif mutation == "deleted":
-    del authz._default_metrics
+    del probe._default_metrics
 elif mutation == "class_swap":
-    authz.AuthzInput.for_http_request = classmethod(
-        authz.AuthzInput.for_cas_artifact.__func__
+    probe.AuthzInput.for_http_request = classmethod(
+        probe.AuthzInput.for_cas_artifact.__func__
     )
 elif mutation == "class_deleted":
-    del authz.AuthzInput.for_http_request
+    del probe.AuthzInput.for_http_request
 elif mutation == "class_descriptor_swap":
-    original = vars(authz.AuthzInput)["for_http_request"]
-    authz.AuthzInput.for_http_request = staticmethod(original.__func__)
+    original = vars(probe.AuthzInput)["for_http_request"]
+    probe.AuthzInput.for_http_request = staticmethod(original.__func__)
 elif mutation == "decorated_swap":
-    db_backend.DatabaseBackend.transaction = vars(db_backend.DatabaseBackend)["tenant_scope"]
+    probe.DatabaseBackend.transaction = vars(probe.DatabaseBackend)["tenant_scope"]
 elif mutation == "decorated_unwrapped":
-    original = vars(db_backend.DatabaseBackend)["transaction"]
-    db_backend.DatabaseBackend.transaction = original.__wrapped__
+    original = vars(probe.DatabaseBackend)["transaction"]
+    probe.DatabaseBackend.transaction = original.__wrapped__
 elif mutation == "decorated_deleted":
-    del db_backend.DatabaseBackend.transaction
+    del probe.DatabaseBackend.transaction
 elif mutation == "property_roles_swapped":
-    original = vars(cache_lru.LRUCache)["max_size"]
-    cache_lru.LRUCache.max_size = property(
+    original = vars(probe.LRUCache)["max_size"]
+    probe.LRUCache.max_size = property(
         fget=original.fset,
         fset=original.fget,
     )
 elif mutation == "lru_policy_rewritten":
-    original = security_settings.get_security_settings
-    security_settings.get_security_settings = lru_cache(maxsize=8, typed=True)(
+    original = probe.get_security_settings
+    probe.get_security_settings = lru_cache(maxsize=8, typed=True)(
         original.__wrapped__
     )
 else:
@@ -1144,6 +1189,13 @@ print(json.dumps(results))
         (checkout / "architecture").symlink_to(
             REPO_ROOT / "architecture",
             target_is_directory=True,
+        )
+        probe_path = checkout / "src/polisyos/_gy_di1_closure_probe.py"
+        probe_path.write_text(probe_source, encoding="utf-8")
+        entry_path = checkout / "src/polisyos/runtime/quality/confidence_ledger.py"
+        entry_path.write_bytes(
+            entry_path.read_bytes()
+            + b"\nimport polisyos._gy_di1_closure_probe\n"
         )
         env = os.environ.copy()
         env["PYTHONPATH"] = str(checkout / "src")
@@ -1279,14 +1331,79 @@ def test_authority_import_closure_includes_every_live_repository_import_binding(
     assert providers.items() <= closure.items()
 
 
+def test_authority_import_closure_tracks_nested_runtime_but_not_type_only_imports(
+    tmp_path: Path,
+) -> None:
+    """Executable nested edges enter closure while type-only edges stay outside."""
+
+    repo_root = tmp_path / "closure-repo"
+    shutil.copytree(REPO_ROOT / "src", repo_root / "src")
+    modules: dict[str, Path] = {}
+    for source_path in sorted(
+        (repo_root / "src/polisyos").rglob("*.py"),
+        key=lambda candidate: candidate.as_posix(),
+    ):
+        parts = list(source_path.relative_to(repo_root / "src").parts)
+        if parts[-1] == "__init__.py":
+            parts.pop()
+        else:
+            parts[-1] = source_path.stem
+        modules[".".join(parts)] = source_path.relative_to(repo_root)
+
+    baseline = dict(
+        ledger_module._resolve_authority_import_closure(
+            repo_root,
+            ledger_module.__name__,
+        )
+    )
+    runtime_target = next(
+        module_name for module_name in sorted(modules) if module_name not in baseline
+    )
+    entry_path = repo_root / baseline[ledger_module.__name__]
+    entry_path.write_bytes(
+        entry_path.read_bytes()
+        + (
+            "\ndef _nested_runtime_import_probe() -> None:\n"
+            f"    import {runtime_target}\n"
+        ).encode()
+    )
+    with_runtime = dict(
+        ledger_module._resolve_authority_import_closure(
+            repo_root,
+            ledger_module.__name__,
+        )
+    )
+    assert with_runtime[runtime_target] == modules[runtime_target].as_posix()
+
+    type_only_target = next(
+        module_name for module_name in sorted(modules) if module_name not in with_runtime
+    )
+    entry_path.write_bytes(
+        entry_path.read_bytes()
+        + (
+            "\nif TYPE_CHECKING:\n"
+            f"    import {type_only_target}\n"
+        ).encode()
+    )
+    with_type_only = dict(
+        ledger_module._resolve_authority_import_closure(
+            repo_root,
+            ledger_module.__name__,
+        )
+    )
+    assert type_only_target not in with_type_only
+
+
 def test_loaded_code_manifest_fails_closed_on_missing_declared_member(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """A declared closure member cannot disappear behind a partial manifest."""
 
-    module_name = "polisyos.core.security.authz"
-    relative_path = dict(ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)[module_name]
-    importlib.import_module(module_name)
+    module_name, relative_path = next(
+        row
+        for row in reversed(ledger_module._IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
+        if row[0] != ledger_module.__name__ and row[0] in sys.modules
+    )
     monkeypatch.delitem(sys.modules, module_name)
 
     with pytest.raises(

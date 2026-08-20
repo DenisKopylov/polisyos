@@ -3720,6 +3720,42 @@ and cold closeout remain unproved.
   differing. `catalog_provenance_manifest_mismatch` no longer fires at all, which is the closure
   signal for the derived consequence rather than an exclusion.
 
+- **GY-DEF18 — provenance admission is gated by a duplicated field-name proxy (registered
+  2026-08-20; inherited by GY-PA2).** Owner: **runtime/quality**, canonically the
+  `memory_influence` module (`ADR-0172`,
+  `policyos.runtime.quality.memory_influence_record.v1`), with `calibration_ledger` as the measured
+  sibling consumer. Pattern: **P38**. The property is “a value carrying memory-influence provenance
+  cannot become current-run evidence outside an owner-declared influence position.” The code instead
+  asks whether the value occupies one of 13 named evidence slots and consults provenance only inside
+  those slots. A signed `policy_fact_ref=memory-influence:prior-policy-fact` therefore passes, as
+  does a novel key invented after the tuple was written. This is a gate measuring a field name rather
+  than the provenance property at the boundary it exists to police.
+
+  The defect has two measured members. `memory_influence.py` and `calibration_ledger.py` independently
+  define the same 13-member `CLAIM_EVIDENCE_SLOT_KEYS` vocabulary and independently loop over it;
+  all 13 values are identical. The calibration sibling has the same escape for
+  `historical-prior-influence:*` and `calibration-ledger:*` values under an unlisted key. This is one
+  P31/P38 class, not two per-module defects. GY-PA2 consumed the existing
+  `memory_influence_claim_evidence_issues` owner and changed neither module between `bedd47503` and
+  the finding head, so the escape is inherited rather than a PA2 mechanism finding. PA2 repair rounds
+  restart at **0/2** by architect ruling. `[P37: recomputed; P41: independently_reconciled]`
+
+  **Smallest correct closure:** invert the predicate. Traverse the complete admitted payload and
+  decide admission from each value's provenance. A memory-influence or historical-prior marker is
+  refused wherever it appears unless the destination contract owner explicitly declares that typed
+  position as an influence-only position; an invocation/caller cannot supply, extend, or select that
+  declaration. The duplicated slot vocabulary must have one owner or the sibling must demonstrate a
+  genuinely different vocabulary and record why. **Forbidden closures:** adding
+  `policy_fact_ref`; lengthening either tuple; a regex over key names; inferring evidence-slot status
+  from a naming convention; or copying the list a third time.
+
+  **Closure signal, for both members:** the exact `policy_fact_ref` escape and a key invented only in
+  the test are refused before any external effect, while a genuinely owner-declared
+  memory-influence position still admits. Existing listed-slot refusals stay green. The calibration
+  sibling must pass the same novel-key discriminator, and the duplicated 13-member vocabulary must
+  no longer have two owners. **Standing: registered/open; no source repair had begun at
+  registration.**
+
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
   then spend the cold run (NEW, Rev 43).** Owner: **runtime/quality**, with the Foundry
   catalog/discovery boundary as co-owner of items 1 and 2.

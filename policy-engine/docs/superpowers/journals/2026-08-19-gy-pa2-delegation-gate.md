@@ -329,3 +329,33 @@ Minor factual correction: the earlier mechanism paragraph says v2 requires both 
 envelope data. The model actually requires the v2 mandate owner but permits an empty envelope tuple;
 dispatch then fails closed with `unknown_action_kind`. This claim/model mismatch is recorded and was
 not repaired because it is not the Blocking stop class.
+
+## GY-DEF18 registered before source change
+
+The architect's P41 adjudication established that the final-audit blocker is inherited rather than a
+GY-PA2 mechanism defect. At registration head `940817bf1abb6ba3ac4ab3e6d453ea7ef739ec36`, the
+branch was attached and clean, and `git diff bedd47503 HEAD` was empty for
+`memory_influence.py`, `calibration_ledger.py`, and `claim_registry.py`. PA2 consumed the existing
+`memory_influence_claim_evidence_issues` owner; it did not create or modify that predicate. The PA2
+round ledger therefore restarts at architect-authorized **0/2**. `[P41: recomputed for the path
+intersection; institutionally_supplied for the fresh-round ruling]`
+
+The next identifier was measured before registration. This branch and local `main` contain
+`GY-DEF1` through `GY-DEF16`; the live `codex/gy-gap1-obligation-instance-identity` head already
+registers and closes reserved `GY-DEF17`, while a complete local-head scan finds no `GY-DEF18`.
+The collision-free identifier is therefore `GY-DEF18`. This entry and journal receipt are committed
+before any source or test byte moves, following the `GY-DEF15` precedent. `[P35/P37: complete local
+head census, independently reconciled against the reserved lane]`
+
+Both defect members reproduce. The two modules independently define 13 `CLAIM_EVIDENCE_SLOT_KEYS`;
+the 13 values compare equal in order. A direct owner call returned `[]` for each of
+`policy_fact_ref=memory-influence:prior-policy-fact`, a never-declared test key carrying
+`memory-influence:novel`, and `policy_fact_ref=historical-prior-influence:escaped`. Claim Registry
+retains unknown top-level claim members before invoking both predicates, so the sibling calibration
+consumer has the same fail-open rather than a hypothetical drift risk. `[P37: recomputed]`
+
+`GY-DEF18` records one P31/P38 class: two copied slot-name vocabularies turn provenance admission on
+a key-name proxy. Its closure is value-provenance traversal over the complete admitted payload, with
+exceptions admitted only at typed positions declared by the destination contract owner. Adding a
+known escape key, lengthening either tuple, matching key names, or copying the vocabulary again is
+explicitly forbidden. No Python or test file had changed when this registration was frozen.

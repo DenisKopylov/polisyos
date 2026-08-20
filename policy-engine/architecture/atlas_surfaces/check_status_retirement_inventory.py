@@ -18,6 +18,15 @@ from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 
+try:
+    from architecture.atlas_surfaces.generated_client_receipt_census import (
+        build_repository_report,
+    )
+except ModuleNotFoundError as error:
+    if error.name != "architecture":  # pragma: no cover - preserve nested failures
+        raise
+    from generated_client_receipt_census import build_repository_report
+
 ATLAS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = ATLAS_DIR.parents[1]
 INVENTORY_PATH = ATLAS_DIR / "status-retirement-inventory.json"
@@ -1016,6 +1025,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     inventory = _load_json(INVENTORY_PATH)
     debt = _load_json(WAIST_DEBT_PATH)
     errors = validate_inventory(inventory, debt)
+    receipt_report = build_repository_report(repo_root=REPO_ROOT)
+    errors.extend(
+        f"generated_client_receipt_census:{error}"
+        for error in receipt_report["errors"]
+    )
     if errors:
         for error in errors:
             print(error, file=sys.stderr)

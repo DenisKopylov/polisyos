@@ -9274,6 +9274,7 @@ export interface components {
             root_artifact_count: number;
             /** Run Id */
             run_id: string;
+            run_terminality: components["schemas"]["RunTerminality"];
             /**
              * Source Kind
              * @constant
@@ -9288,6 +9289,12 @@ export interface components {
             /** Warnings */
             warnings?: string[];
         };
+        /**
+         * RunTerminality
+         * @description Producer-owned knowledge state for whether a run has terminated.
+         * @enum {string}
+         */
+        RunTerminality: "terminal" | "non_terminal" | "not_established";
         /**
          * RunTimelineEvent
          * @description One timestamped event emitted into the runtime timeline for a run.

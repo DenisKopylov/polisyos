@@ -2900,19 +2900,17 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "vcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ"
             ),
             (
-                "apps/runtime-dashboard/src/api/types.ts#ts-identity=eyJkZW"
-                "NsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMu"
-                "cGVybWlzc2lvbnMiLCJzeW1ib2w6cGVybWlzc2lvbnMiLCJyZXNvbHZlZD"
-                "pwZXJtaXNzaW9ucyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNo"
-                "Ym9hcmQvc3JjL2FwaS90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLC"
-                "JkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5wZXJtaXNzaW9ucyIsIm5v"
-                "cm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjBjYWQ3NjY3ZjcyN2Q3MjE1ND"
-                "k2YmZmNGM0MGExNDc2NmZkZWZkZjA5ZWIxOTQzODhjMzU4ZDU1MzEzYTY3"
-                "OGMiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoiYX"
-                "Bwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3R5cGVzLnRzIiwic3Ry"
-                "dWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTG"
-                "l0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzciLCJUeXBlTGl0ZXJh"
-                "bDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ"
+                "apps/runtime-dashboard/src/api/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
+                "aGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMucGVybWlzc2lvbnMiLCJzeW1ib2w6"
+                "cGVybWlzc2lvbnMiLCJyZXNvbHZlZDpwZXJtaXNzaW9ucyIsImRlY2xhcmF0aW9uOmFwcHMv"
+                "cnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJd"
+                "LCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5wZXJtaXNzaW9ucyIsIm5vcm1hbGl6ZWRf"
+                "dG9rZW5zX3NoYTI1NiI6IjJiNGFhNzA4MzcyY2RkNmNjYWYzYTVhYmI2ZjgwOTBiNTYxNTRj"
+                "M2U0MmVkMmRjNGFkMWRhYjIwZTNlZGFkMzUiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNv"
+                "dXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3R5cGVzLnRzIiwi"
+                "c3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDox"
+                "IiwiUHJvcGVydHlTaWduYXR1cmU6NDAiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWdu"
+                "YXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ"
             ),
             _C21C_FROZEN_STRUCTURED_IDENTITIES[
                 "architecture/generated_artifacts.toml:764"
@@ -3103,8 +3101,12 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
         "finding_kind": "producer_binding_debt",
         "disposition": "rebind_pending",
         "status": "open_debt",
-        "owner_slice": "DS3",
-        "capability_states": ["producer_missing", "surface_missing"],
+        "owner_slice": "DS7",
+        "capability_states": [
+            "consumer_missing",
+            "surface_missing",
+            "semantic_test_missing",
+        ],
         "evidence_refs": [
             (
                 "packages/runtime-api-client/canonicalRuntimeApiClient.ts#t"
@@ -3121,18 +3123,16 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "XJzaW9uIjoxfQ"
             ),
             (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
-                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuUnV"
-                "uU3VtbWFyeSIsInN5bWJvbDpSdW5TdW1tYXJ5IiwicmVzb2x2ZWQ6UnVuU"
-                "3VtbWFyeSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWN"
-                "saWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmlta"
-                "W5hdG9yIjoiY29tcG9uZW50cy5SdW5TdW1tYXJ5Iiwibm9ybWFsaXplZF9"
-                "0b2tlbnNfc2hhMjU2IjoiNzE0Zjk1ZTEyMWFmYzU1OGI5MjQ3NDFjMDk0O"
-                "DIyZjExMDA1NTEwY2Y4MjM4ZWI1ODBjZGIzNmFjZmMzYWZmYyIsInJvbGU"
-                "iOiJ0eXBlX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9yd"
-                "W50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGg"
-                "iOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQc"
-                "m9wZXJ0eVNpZ25hdHVyZToyOTQiXSwidmVyc2lvbiI6MX0"
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGF"
+                "pbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuUnVuU3VtbWFyeSIsInN5bWJvbDpSdW5"
+                "TdW1tYXJ5IiwicmVzb2x2ZWQ6UnVuU3VtbWFyeSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J"
+                "1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcml"
+                "taW5hdG9yIjoiY29tcG9uZW50cy5SdW5TdW1tYXJ5Iiwibm9ybWFsaXplZF90b2tlbnNfc2h"
+                "hMjU2IjoiZmJhNGMxYzM5M2NjZThiNjgzNWViZjUzOWEzMTE2MzNlMzI5M2RjZThhNjc4YWM"
+                "0NzRjNDVlMzEzNGVhMzM1MSIsInJvbGUiOiJ0eXBlX3Byb3BlcnR5Iiwic291cmNlX3BhdGg"
+                "iOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3B"
+                "hdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVN"
+                "pZ25hdHVyZToyOTQiXSwidmVyc2lvbiI6MX0"
             ),
             (
                 "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
@@ -3150,35 +3150,31 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "yb3BlcnR5U2lnbmF0dXJlOjgiXSwidmVyc2lvbiI6MX0"
             ),
             (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
-                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3R"
-                "hdHVzIiwic3ltYm9sOnN0YXR1cyIsInJlc29sdmVkOnN0YXR1cyIsImRlY"
-                "2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy5"
-                "0czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tc"
-                "G9uZW50cy5zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI"
-                "xN2U2NzM1NGM0ZWI2OWU5MzA1MGM0ZWI3MzJjZWU0ZDU0MWU5OWU2OTJiN"
-                "TE1NGE5NDBhNTI2NGViODllODlmIiwicm9sZSI6InR5cGVfcHJvcGVydHk"
-                "iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVud"
-                "C90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVNpZ25"
-                "hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlO"
-                "jI5NCIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNSJ"
-                "dLCJ2ZXJzaW9uIjoxfQ"
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGF"
+                "pbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3RhdHVzIiwic3ltYm9sOnN0YXR1cyI"
+                "sInJlc29sdmVkOnN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWN"
+                "saWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29"
+                "tcG9uZW50cy5zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxN2U2NzM1NGM"
+                "0ZWI2OWU5MzA1MGM0ZWI3MzJjZWU0ZDU0MWU5OWU2OTJiNTE1NGE5NDBhNTI2NGViODllODl"
+                "mIiwicm9sZSI6InR5cGVfcHJvcGVydHkiLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnR"
+                "pbWUtYXBpLWNsaWVudC90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVN"
+                "pZ25hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjI5NCIsIlR"
+                "5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNiJdLCJ2ZXJzaW9uIjoxfQ"
             ),
-            "src/polisyos/runtime/http/routes/runs.py:179",
-            "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602",
+            "src/polisyos/runtime/http/services/adapters/core_run.py",
+            "docs/superpowers/journals/2026-08-16-gy-gap4-run-terminality.md",
+            "docs/superpowers/specs/2026-08-20-ds7-cycle-board-design.md",
         ],
         "rationale": (
-            "RunSummary exposes open status text and finished_at but no "
-            "producer-signed terminal fact; the runtime SSE sibling currently "
-            "derives terminality from status substrings, so DS4 must render "
-            "labels opaquely and may not mint lifecycle authority."
+            "GAP4 now supplies producer-owned lifecycle terminality through "
+            "RunSummary and both generated clients. The DS7 hero consumer and "
+            "its absence/proxy semantic tests have not landed yet."
         ),
         "closure_signal": (
-            "DS3 projects a producer-signed terminal/completion fact through "
-            "the generated RunSummary and governed event contracts; dashboard "
-            "polling, optimistic, Clerk, and run surfaces consume that fact; "
-            "novel status labels remain opaque; the C22 semantic negatives and "
-            "DS5 ownership lint remain green."
+            "DS7 renders the producer-signed RunSummary.run_terminality value "
+            "without status/timestamp derivation, renders an unbound lifecycle "
+            "fact as absent rather than false, and keeps the C22 semantic "
+            "negatives plus DS5 ownership lint green."
         ),
     },
     RAW_TRANSPORT_DRIFT_FINDING_ID: _raw_transport_drift_descriptor(),
@@ -6022,12 +6018,12 @@ def _c21c_surgical_identity_text(text: str) -> str:
     line_references = [
         reference for reference in references if line_reference_re.match(reference)
     ]
-    if len(line_references) != 14 or len(
+    if len(line_references) != 12 or len(
         {
             line_reference_re.match(reference).group(1)
             for reference in line_references
         }
-    ) != 11:
+    ) != 10:
         raise ValueError("c21c_navigation_residual_drift")
     if any(
         Path(line_reference_re.match(reference).group(1)).suffix

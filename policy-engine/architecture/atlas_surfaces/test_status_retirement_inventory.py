@@ -5,8 +5,11 @@ from __future__ import annotations
 import copy
 import importlib.util
 import json
+import subprocess
+import sys
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ATLAS_DIR = Path(__file__).resolve().parent
 CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
@@ -81,6 +84,33 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 )
             },
         )
+
+    def test_command_gate_rejects_an_incomplete_generated_receipt_population(
+        self,
+    ) -> None:
+        """The status command consumes the census instead of relying on manual use."""
+        with (
+            mock.patch.object(checker, "validate_inventory", return_value=[]),
+            mock.patch.object(
+                checker,
+                "build_repository_report",
+                return_value={"errors": ["anchor_population_mismatch:probe"]},
+            ),
+        ):
+            self.assertEqual(1, checker.main([]))  # noqa: PT009
+
+    def test_direct_script_entrypoint_resolves_the_receipt_census(self) -> None:
+        """The documented path invocation loads the mandatory census bridge."""
+        completed = subprocess.run(  # noqa: S603 - fixed interpreter and checker path
+            [sys.executable, str(CHECKER_PATH), "--help"],
+            cwd=checker.REPO_ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        self.assertEqual(0, completed.returncode, completed.stderr)  # noqa: PT009
+        self.assertNotIn("ModuleNotFoundError", completed.stderr)  # noqa: PT009
 
     def test_rejects_a_renamed_local_authority_union(self) -> None:
         inventory, debt = _artifacts()

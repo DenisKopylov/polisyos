@@ -3390,12 +3390,15 @@ export type RunSummary = {
   has_workflow_report?: boolean;
   root_artifact_count?: number;
   run_id: string;
+  run_terminality: RunTerminality;
   source_kind: string;
   started_at?: string | null;
   status: string;
   tenant_id?: string | null;
   warnings?: Array<string>;
 };
+
+export type RunTerminality = "terminal" | "non_terminal" | "not_established";
 
 export type RunTimelineEvent = {
   error_count?: number;

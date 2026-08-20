@@ -33,6 +33,7 @@ from polisyos.core.contracts.runtime import (
     RunsBatchRequest,
     RunsBatchResponse,
     RunsListResponse,
+    RunTerminality,
     RunTimelineResponse,
     RunWorkflowResponse,
     SourceKind,
@@ -236,17 +237,6 @@ def _payload_signature(payload: dict[str, Any]) -> str:
 
 def _as_source_kind(value: str) -> SourceKind:
     return cast("SourceKind", value)
-
-
-def _is_terminal_status(status: str | None) -> bool:
-    normalized = (status or "").strip().lower()
-    return bool(normalized) and not (
-        "running" in normalized
-        or "pending" in normalized
-        or "plan" in normalized
-        or "execut" in normalized
-        or "evaluat" in normalized
-    )
 
 
 def _control_service_from_request(request: Request) -> Any | None:
@@ -492,6 +482,7 @@ def _build_runs_live_payload(request: Request, ctx: RuntimeApiContext) -> RunsLi
             RunsListSnapshotRun(
                 run_id=run.run_id,
                 status=run.status,
+                run_terminality=run.run_terminality,
                 started_at=run.started_at,
                 finished_at=run.finished_at,
                 duration_ms=run.duration_ms,
@@ -515,6 +506,7 @@ def _build_run_live_payload(run_id: str, ctx: RuntimeApiContext) -> RunDetailSna
         run_id=run_id,
         cursor=now,
         status=run.details.status,
+        run_terminality=run.summary.run_terminality,
         started_at=run.details.started_at,
         finished_at=run.details.finished_at,
         duration_ms=run.details.duration_ms,
@@ -531,7 +523,6 @@ def _build_run_live_payload(run_id: str, ctx: RuntimeApiContext) -> RunDetailSna
         decision_validity_status=run.details.decision_validity_status,
         decision_review_required=run.details.decision_review_required,
         decision_superseded_by_ref=run.details.decision_superseded_by_ref,
-        terminal=_is_terminal_status(run.details.status),
         generated_at=now,
     )
 
@@ -574,7 +565,7 @@ async def _stream_payloads(
                 event="snapshot",
                 event_id=event_id or None,
             )
-            if payload.get("terminal") is True:
+            if payload.get("run_terminality") == RunTerminality.TERMINAL:
                 break
         elif monotonic() - last_emit_at >= policy.keepalive_seconds:
             last_emit_at = monotonic()

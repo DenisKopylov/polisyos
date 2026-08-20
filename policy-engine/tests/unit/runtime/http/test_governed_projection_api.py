@@ -143,7 +143,7 @@ def test_channel_registry_covers_every_active_hidden_runtime_channel(
     assert {entry["capability_state"] for entry in entries} == {"verification_missing"}
     sse_entries = [entry for entry in entries if entry["transport"] == "sse"]
     assert {entry["message_contract"] for entry in sse_entries} == {
-        "policyos.runtime.runs_channel_data_event.v1"
+        "policyos.runtime.runs_channel_data_event.v2"
     }
     assert {entry["producer_contract_ref"] for entry in sse_entries} == {
         "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent"

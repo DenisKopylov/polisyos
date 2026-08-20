@@ -395,7 +395,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "path_template": "/api/v1/runs/live",
                 "transport": "sse",
                 "channels": [],
-                "message_contract": "policyos.runtime.runs_channel_data_event.v1",
+                "message_contract": "policyos.runtime.runs_channel_data_event.v2",
                 "producer_contract_ref": (
                     "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent"
                 ),
@@ -411,7 +411,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "path_template": "/api/v1/runs/{run_id}/live",
                 "transport": "sse",
                 "channels": [],
-                "message_contract": "policyos.runtime.runs_channel_data_event.v1",
+                "message_contract": "policyos.runtime.runs_channel_data_event.v2",
                 "producer_contract_ref": (
                     "polisyos.runtime.http.services.channel_contracts:RunsChannelDataEvent"
                 ),
@@ -462,6 +462,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "run_id": _RUN_ID_SAMPLE,
                 "source_kind": "core_run",
                 "status": "completed",
+                "run_terminality": "terminal",
                 "started_at": _TS_SAMPLE,
                 "finished_at": _TS_SAMPLE,
                 "duration_ms": 4200,

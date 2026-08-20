@@ -1025,14 +1025,19 @@ class ProducerBindingDebtTests(unittest.TestCase):
     """Prove producer-binding debt is descriptor-derived and fail closed."""
 
     finding_id = "run-lifecycle-terminal-fact"
-    capability_states = ["producer_missing", "surface_missing"]
+    capability_states = [
+        "consumer_missing",
+        "surface_missing",
+        "semantic_test_missing",
+    ]
     evidence_refs = [
         "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865",
         "packages/runtime-api-client/types.ts:9240",
         "packages/runtime-api-client/types.ts:9258",
         "packages/runtime-api-client/types.ts:9284",
-        "src/polisyos/runtime/http/routes/runs.py:179",
-        "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md:602",
+        "src/polisyos/runtime/http/services/adapters/core_run.py",
+        "docs/superpowers/journals/2026-08-16-gy-gap4-run-terminality.md",
+        "docs/superpowers/specs/2026-08-20-ds7-cycle-board-design.md",
     ]
     _c21b_identity_by_hint: ClassVar[dict[str, str] | None] = None
     _c21c_identity_by_hint: ClassVar[dict[str, str] | None] = None
@@ -1060,21 +1065,19 @@ class ProducerBindingDebtTests(unittest.TestCase):
             "disposition": "rebind_pending",
             "status": "open_debt",
             "evidence_refs": cls._migrated_descriptor_refs(cls.evidence_refs),
-            "owner_slice": "DS3",
+            "owner_slice": "DS7",
             "decision_date": checker.DECISION_DATE,
             "capability_states": list(cls.capability_states),
             "rationale": (
-                "RunSummary exposes open status text and finished_at but no "
-                "producer-signed terminal fact; the runtime SSE sibling currently "
-                "derives terminality from status substrings, so DS4 must render "
-                "labels opaquely and may not mint lifecycle authority."
+                "GAP4 now supplies producer-owned lifecycle terminality through "
+                "RunSummary and both generated clients. The DS7 hero consumer and "
+                "its absence/proxy semantic tests have not landed yet."
             ),
             "closure_signal": (
-                "DS3 projects a producer-signed terminal/completion fact through "
-                "the generated RunSummary and governed event contracts; dashboard "
-                "polling, optimistic, Clerk, and run surfaces consume that fact; "
-                "novel status labels remain opaque; the C22 semantic negatives and "
-                "DS5 ownership lint remain green."
+                "DS7 renders the producer-signed RunSummary.run_terminality value "
+                "without status/timestamp derivation, renders an unbound lifecycle "
+                "fact as absent rather than false, and keeps the C22 semantic "
+                "negatives plus DS5 ownership lint green."
             ),
         }
 
@@ -1217,10 +1220,10 @@ class ProducerBindingDebtTests(unittest.TestCase):
         )
         local_source = local_types.read_text(encoding="utf-8")
         self.assertEqual(3, canonical_source.count("RuntimePermission"))  # noqa: PT009
-        self.assertEqual(0, local_source.count("RuntimePermission"))  # noqa: PT009
+        self.assertEqual(3, local_source.count("RuntimePermission"))  # noqa: PT009
         canonical_permissions = 'permissions?: components["schemas"]["RuntimePermission"][]'
         self.assertIn(canonical_permissions, canonical_source)  # noqa: PT009
-        self.assertIn("permissions?: string[]", local_source)  # noqa: PT009
+        self.assertIn(canonical_permissions, local_source)  # noqa: PT009
 
         finding_id = "c07b-dashboard-generated-client-single-owner-debt"
         expected = {
@@ -1343,7 +1346,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
             str(row["finding_id"]): row for row in data["supplemental_findings"]
         }
         benign = descriptors["run-lifecycle-terminal-fact"]
-        self.assertEqual("DS3", benign["owner_slice"])
+        self.assertEqual("DS7", benign["owner_slice"])
         for finding_id, successor in expected.items():
             with self.subTest(finding_id=finding_id):
                 descriptor = descriptors[finding_id]
@@ -1895,7 +1898,10 @@ class ProducerBindingDebtTests(unittest.TestCase):
 
         self.assertIn("Capability states", projection)
         self.assertIn("Closure signal", projection)
-        self.assertIn("`producer_missing`, `surface_missing`", producer_line)
+        self.assertIn(
+            "`consumer_missing`, `surface_missing`, `semantic_test_missing`",
+            producer_line,
+        )
         self.assertIn(str(self._producer_row()["closure_signal"]), producer_line)
         self.assertIn("| — | — |", ordinary_line)
         readiness_line = next(
@@ -4140,15 +4146,15 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                 len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in extension_references}),
             )
 
-        self.assertEqual(260, len(references), "ds5_line_address_total_reference_drift")
-        self.assertEqual(14, len(line_references), "ds5_line_address_line_reference_drift")
+        self.assertEqual(261, len(references), "ds5_line_address_total_reference_drift")
+        self.assertEqual(12, len(line_references), "ds5_line_address_line_reference_drift")
         self.assertEqual(
-            11,
+            10,
             len({self._LINE_REFERENCE_RE.match(reference).group(1) for reference in line_references}),
             "ds5_line_address_line_file_drift",
         )
         self.assertEqual(
-            {"TSX": (0, 0), "TS": (6, 4), "PY": (5, 5), "JSON": (0, 0), "MD": (3, 2), "TOML": (0, 0)},
+            {"TSX": (0, 0), "TS": (6, 4), "PY": (4, 4), "JSON": (0, 0), "MD": (2, 2), "TOML": (0, 0)},
             extension_counts,
             "ds5_line_address_extension_partition_drift",
         )
@@ -4169,7 +4175,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             if "#structured-identity=" in reference
         ]
         self.assertEqual(
-            14,
+            12,
             len(navigation_references),
             "ds5_line_address_navigation_reference_drift",
         )
@@ -4217,7 +4223,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             "ds5_line_address_authority_evidence_line_drift",
         )
         self.assertEqual(
-            14,
+            12,
             len(descriptor_evidence_line_references),
             "ds5_line_address_descriptor_evidence_line_drift",
         )
@@ -4529,7 +4535,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         )
 
     def test_c21c_surgical_writer_is_idempotent_with_navigation_residual(self) -> None:
-        """The governed writer leaves only the 14 declared navigation lines."""
+        """The governed writer leaves only the 12 declared navigation lines."""
         original = REGISTER_PATH.read_text(encoding="utf-8")
         once = checker._c21c_surgical_identity_text(original)
         twice = checker._c21c_surgical_identity_text(once)
@@ -4552,7 +4558,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
             set(structured),
         )
         self.assertEqual(5, len(structured))
-        self.assertEqual(14, len(remaining_lines))
+        self.assertEqual(12, len(remaining_lines))
 
     def test_c21c_real_gate_ignores_json_move_but_rejects_rename_and_content(
         self,

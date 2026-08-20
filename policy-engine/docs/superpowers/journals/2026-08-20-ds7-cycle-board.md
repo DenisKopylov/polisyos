@@ -1052,3 +1052,60 @@ recomputed all six closing identities from committed bytes; every identity
 matches the frozen closing table above. The whole Atlas register-family lock
 was then explicitly relinquished with no DS7 family write pending. Task 6 is
 closed at `0/2`.
+
+### Task 7 — frozen dashboard RED boundary
+
+Task 7 committed the dashboard RED boundary at
+`932b720a9bf7bbc85414989e6f6ebd2b2f7547f5`: 13 test/fixture paths,
+`+1,252/-420`, and zero production paths. Root read the commit back from the attached
+`codex/atlas-ds7-cycle-board` branch with a clean worktree before updating this record. The stale
+RunExplainabilityPanel projection suite was replaced rather than retained; the remaining test is a
+strangle negative which proves a legacy prop bundle is ignored. Overview now has REDs for zero board
+fetch/render plus a review-filtered global-cohort link.
+
+The frozen Task 4 closure-basis file at `d585d2fa0` has SHA-256
+`a3747cd490157519406aaecbf15d843238bf6c167d4e517d563d49c7d0d23a4e`.
+It and the RED-phase bucket rule were handed to all three reviewers before their first wave and again
+before every delta review. Review packages remained below 28 KB: page/presentation/fixture 27,728
+bytes, route/access 9,954 bytes, strangle 18,848 bytes, and the independently reviewed census 10,263
+bytes. All findings were existing-basis test convergence; no review required a different projection,
+authority boundary, owner, route, or fact algebra, so Task 7 closes at `0/2`.
+
+The complete RED wave completed (not killed) in 41.701 seconds: 63 existing assertions passed and ten
+new mechanism assertions failed at the absent page/component/presentation/route/strangle seams; the
+three new modules correctly failed collection because production did not yet exist. The final delta
+wave completed in 22.256 seconds with 25 existing assertions passed and exactly the three remaining
+consumer/static-route negatives red. App TypeScript completed in 25.586 seconds with only the intended
+missing `cycleBoardRouteHandle`, `CycleBoard`, `cycleBoardPresentation`, and `CycleBoardPage` symbols
+(plus their inference companions). Focused ESLint completed green in 97.552 seconds under the unchanged
+120-second ceiling with an uptime pair. A prior wrapper that placed `uptime` after the child masked its
+exit code; that harness output was discarded and rerun with child-exit propagation.
+
+The consumer census derives the production TS/TSX population twice—from the filesystem and the Git
+index—and requires equality before inspecting it. TypeScript symbol resolution then follows imports,
+re-exports, namespaces, fixed-point local identifier and member aliases, destructuring, assignments,
+JSX, and direct or aliased React factories. It expects exactly one hook call and one renderer in the
+same `CycleBoardPage`, exactly one generated static-client call in the hook owner, and zero legacy
+renderer declarations or props. Its declared bounded residual is dynamic/higher-order provenance
+through runtime-computed keys, arrays/maps, or callback returns. Closing that property requires a
+reusable whole-program interprocedural JavaScript points-to/dataflow analyzer. The falsifier walked all
+16 dependency manifests and 6,706 tracked JavaScript/TypeScript/Python inputs: no such dependency or
+reusable analyzer exists. The scoped `collectInteractionLeaks` checker in
+`architecture/atlas_surfaces/status_retirement_scan.mjs` is not that capability: it is configured for
+one source/sink pair and invoked per source file. The owner records the required sound whole-program
+interprocedural data/control-flow capability as `absent/unallocated` in
+`C17B_AUTHORITY_FLOW_LIMITATION`.
+
+The strict fixture carries the production-order 11-source manifest (five governed sources, N13b,
+two historical records, and three exact lifecycle lookups), ordered three N10 plus thirteen legacy
+rows, available planner economics distinct from route presence, exact source-local time/freshness,
+typed GAP5/GAP6 absences, and honest-empty movement. Presentation REDs prohibit aggregate freshness,
+status/time/search lifecycle proxies, adjacent-count credit, cohort reordering, and a fabricated route
+for education. These are presentation inputs only; `4C-DOM-05` remains `semantic_test_missing` until
+Task 9 runs the frozen rendered-DOM mutation falsifier.
+
+No Atlas register-family write or lock was needed. GY plan line 7 remains byte-identical at
+`432e664ec3e5fc8c70688b41084d292b7fa606868a0425501a9d345cc769449f`; the current Atlas master-plan
+line 7 is untouched by Task 7 and hashes to
+`7855f9209333c06be639d343a7dd2f2e981e1b21ef9c4c01252b473525a43d6d`.
+The inherited DS8 A4, DS5 run-deck, and DS6-C11 reds plus the thirteen status diagnostics remain red.

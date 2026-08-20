@@ -334,29 +334,39 @@ legacy replay isolation.
 **Files:**
 
 - Add: `apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx`
+- Add: `apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts`
+- Add presentation and hero component REDs plus the source-shaped 3+13 packet fixture
 - Replace stale assertions in:
   `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx`
 - Modify: `apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx`
-- Modify: `apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx`
-- Modify exact route/permission registry tests identified by the complete consumer census
+- Modify exact route/permission/header/static-route collision tests identified by the complete census.
+  No `RunsListPage` change is required: the registry owns the global entry and Overview owns the
+  scoped navigation-only link.
 
 **Interfaces:** static `/runs/cycle-board`; permission-before-query mount; one production fetch/render
 consumer; stable raw DOM slots; navigation-only run-detail link.
 
-- [ ] RED: `runs.review` mounts the hero query; settled `runs.view`-only renders denied state and no
+- [x] RED: `runs.review` mounts the hero query; settled `runs.view`-only renders denied state and no
   query, board, or export link.
-- [ ] RED: run detail neither fetches nor renders the projection; its permission-filtered link only
+- [x] RED: run detail neither fetches nor renders the projection; its permission-filtered link only
   navigates and labels the cohort global. Replace, do not retain, tests whose sole purpose was the old
   in-panel rendering.
-- [ ] RED: absent lifecycle is visibly and structurally absent, never false/non-terminal/default;
+- [x] RED: absent lifecycle is visibly and structurally absent, never false/non-terminal/default;
   search terminal remains separate.
-- [ ] RED: typed structural gaps retain their grounding/owner-lever/estimand identities and exact
+- [x] RED: typed structural gaps retain their grounding/owner-lever/estimand identities and exact
   routes; adjacent counts cannot change presentation or movement.
-- [ ] RED: producer environment absence renders the exact `invalid_source`/`artifact_missing` state,
+- [x] RED: producer environment absence renders the exact `invalid_source`/`artifact_missing` state,
   source-relative times, and limitation; no global fresh/current badge appears.
-- [ ] RED: PUBLIC navigation/access stays absent before DS12; only REVIEWER/EXPERT audiences appear.
-- [ ] RED: complete TS/TSX census expects exactly one production hook caller and renderer after the
+- [x] RED: PUBLIC navigation/access stays absent before DS12; only REVIEWER/EXPERT audiences appear.
+- [x] RED: complete TS/TSX census expects exactly one production hook caller and renderer after the
   strangle. Run focused Vitest files and record intended failures. Commit RED tests.
+
+**Declared bounded residual (`P40`).** The census closes every statically resolvable TypeScript
+identifier/member/destructuring/assignment/JSX/React-factory alias over the independently reconciled
+production population. Provenance passed through runtime-computed keys, dynamic containers, or
+higher-order callback returns is `not_established`: closing that residual requires a reusable
+whole-program interprocedural JavaScript points-to/dataflow analyzer, which the repository does not
+provide. Task 7 records and runs that capability falsifier instead of adding per-example marker rules.
 
 ## Task 8 — Implement the hero and strangle both existing renderers
 

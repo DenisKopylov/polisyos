@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **29902**
-- Application lines deleted: **20131**
-- Net application LOC reduction: **-9771**
+- Application lines added: **46034**
+- Application lines deleted: **20252**
+- Net application LOC reduction: **-25782**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -263,7 +263,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `dependency-workbox-window` | `dependency_declaration` | `use_as_is` | `DS19` | — | — | `repaired` — The source or PWA peer was already resolved transitively; DS19 declared the exact locked version without changing the resolved graph. |
 | `fixture-policy-design-case-audience` | `fixture_contract_drift` | `use_as_is` | `DS19` | — | — | `repaired` — The fixtures now type audience from the generated projection contract introduced after the fixture helper; runtime and generated code were not changed. |
 | `producer-binding-readiness-scientific-depth` | `producer_binding_debt` | `rebind_pending` | `DS16` | `producer_missing`, `artifact_missing`, `bridge_missing`, `semantic_test_missing` | each named value resolves to a generated field or registered typed refusal and C23 containment negatives remain green | `open_debt` — dashboard-local synthesis removed because no typed producer field/refusal exists |
-| `run-lifecycle-terminal-fact` | `producer_binding_debt` | `rebind_pending` | `DS3` | `producer_missing`, `surface_missing` | DS3 projects a producer-signed terminal/completion fact through the generated RunSummary and governed event contracts; dashboard polling, optimistic, Clerk, and run surfaces consume that fact; novel status labels remain opaque; the C22 semantic negatives and DS5 ownership lint remain green. | `open_debt` — RunSummary exposes open status text and finished_at but no producer-signed terminal fact; the runtime SSE sibling currently derives terminality from status substrings, so DS4 must render labels opaquely and may not mint lifecycle authority. |
+| `run-lifecycle-terminal-fact` | `producer_binding_debt` | `rebind_pending` | `DS7` | `consumer_missing`, `surface_missing`, `semantic_test_missing` | DS7 renders the producer-signed RunSummary.run_terminality value without status/timestamp derivation, renders an unbound lifecycle fact as absent rather than false, and keeps the C22 semantic negatives plus DS5 ownership lint green. | `open_debt` — GAP4 now supplies producer-owned lifecycle terminality through RunSummary and both generated clients. The DS7 hero consumer and its absence/proxy semantic tests have not landed yet. |
 | `g4-complete-audience-projection-contract` | `integrate_contract_debt` | `rebind_pending` | `team-runtime-quality` | `implemented_but_not_orchestrated`, `bridge_missing`, `consumer_missing`, `surface_missing`, `semantic_test_missing` | uv run python tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py --repo-root . --output-format json exits 0 after owner corruptions prove the canonical projection ID and exact fields, public_export_bundle_route_registered=true, an implemented non-reference-only hook, atomic EXPERT mode.analyst denial, content hashes, owner time, and runtime novelty behavior | `open_debt` — The G4 owner publishes only reduced reference projections; DS5 may not invent or route the complete eight-field audience projection. |
 | `authority-presentation-badge-artifact-pipeline-decision-grade` | `authority_presentation_debt` | `rebind_pending` | `DS5` | `producer_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after C06 exports DecisionGrade through the generated client and a private exhaustive issuer handles runtime novelty | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-bureaucratic-legal-review` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated legal-review union enters an exhaustive issuer and runtime novelty renders unrecognized | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
@@ -610,12 +610,94 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 
 ## Commits
 
+- `40ef040bd merge current main into DS7 cycle board`
+- `e0b0dbe79 docs(superpowers): plan DS7 cycle board implementation`
+- `82474845a plan(gy): Rev 52 — GY-PA2 and the inherited GY-DEF18 closed; ownership is measured, not inferred from a stop`
+- `663f2d36a merge(gy): close GY-PA2 delegation gate and the inherited GY-DEF18 provenance defect`
+- `6c1a90c33 docs(gy): close PA2 inherited provenance defect`
+- `2f6badff0 fix(runtime): keep provenance traversal internal`
+- `7cc23675b fix(runtime): govern provenance by owner-declared values`
+- `c7c3206da test(runtime): fail closed on opaque provenance carriers`
+- `17d5849ef test(runtime): forbid caller-widened memory positions`
+- `18d7e058d test(runtime): widen provenance admission falsifiers`
+- `4eec3fb48 docs(atlas): approve DS7 cycle board design`
+- `8a3e0f763 test(runtime): expose provenance proxy escapes`
+- `c05475263 plan(gy): Rev 51 — GY-DEF4 closed; renumber the lane's standing after a concurrent revision collision`
+- `42de52dc1 docs(gy): register inherited provenance proxy defect`
+- `618de0f69 merge(gy): close GY-DEF4 — the temporal pass token is an owner-declared contract`
+- `c106db3c4 plan(gy): Rev 50 — GY-GAP1 closed; the promotion critical path is now institutional only`
+- `4180b295b merge(gy): close GY-GAP1 obligation-instance identity, GY-DEF5 and GY-DEF17`
+- `29866faf5 plan(gy): Rev 49 — GY-PA3 closed; the sequencing note had expired unnoticed`
+- `870ac427d merge(gy): land GY-PA3 compression-loss ledger producer`
+- `82a046081 docs(gy): close obligation instance identity gap`
+- `cacb5d154 fix(gy): route obligation drafts through pdc facade`
+- `4b21458d0 artifacts(gy): reissue obligation instance receipts`
+- `940817bf1 docs(gy): record PA2 final audit stop`
+- `5774eba7c docs(gy): redeclare repaired obligation artifact transition`
+- `a3df41e18 docs(gy): record PA2 standing and receipts`
+- `132bcf007 fix(runtime): honor architecture import facades`
+- `aeb732851 docs(plan): record GY-PA3 standing`
+- `58207ed0e test(architecture): bind stale public surface adversary`
+- `6ec57dcbc fix(runtime): seal GY-PA2 request authority inputs`
+- `260575a5f chore(architecture): regenerate G6 compression receipts`
+- `bd05837fb test(runtime): bind GY-PA2 owner proof and live clock`
+- `dbadb872f fix(architecture): register G6 authority-preserving export`
+- `1007277ac test(architecture): reject stale G6 public export registration`
+- `872899d2c fix(runtime): close GY-PA2 authority owner escapes`
+- `4be81772f fix(runtime): bind compression receipts through public export`
+- `e6a74ea04 test(runtime): widen compression authority adversaries`
+- `4456bb885 plan(atlas): Revision 3.20 — DS5 closed and merged; GAP4 re-sequenced into DS7's opening`
+- `c77888b7c merge(atlas): land DS5 enforcement waist — D4-A1 English primary, C21 register release issued`
+- `a498f5db3 DS5 close post-main handoff and issue C21 release`
+- `ae039824d test(runtime): expose GY-PA2 authority bypasses`
+- `5bfcdb5da feat(runtime): validate compression authority preservation`
+- `e4c40beac feat(runtime): add mandate-bounded agent action gate`
+- `ae04e0a8b feat(runtime): bridge compression receipts through G6`
+- `c58ed658f docs(gy): record DEF4 governed reissue closure`
+- `3eda73f89 fix(gy): normalize N10a transitions across declared outputs`
+- `c3fe58812 test(runtime): add GY-PA2 delegation gate reds`
+- `3f6acc300 fix(architecture): keep artifact typing behind runtime protocol`
+- `a9423fbe1 docs(gy): refresh GAP1 pre-writer disjointness`
+- `88d1f70cf Merge main into DS5 and reconcile D4-A1 parity ownership`
+- `7e9111a37 fix(runtime): recompute time-source projection at authority intake`
+- `bf42d0108 feat(runtime): add compression-loss receipt owner`
+- `04d6cb756 docs(gy): register N10a transition normalization defect`
+- `0b45fe60a test(runtime): bind compression completeness gates`
+- `208a3b44c fix(runtime): close time-source projection pass intake`
+- `3db4c2c39 test(runtime): add compression-loss behavioral reds`
+- `bcba9db6c DS5-D4-A1 restore authored English primary and close slice honestly`
+- `9ba6935d0 docs(gy): record GAP1 P41 ownership replay`
+- `d48a242e9 docs(gy): record obligation artifact freeze stop`
+- `f332387bb docs(gy): declare obligation artifact transition`
+- `bedd47503 plan(atlas): Revision 3.19 — amend D4 as D4-A1; English is primary, Ukrainian a translation`
+- `1de11b8bd fix(gy): admit authentic v2 promotion custody`
 - `0f6a01b5b DS5-C20 correct slice-base debt attribution`
+- `7ca24cda0 feat(gy): bind decisive obligation instances`
+- `1c9f91180 fix(gy): scope the N9 obligation denominator claim`
+- `3f7263a9b docs(patterns): register P41 — red of unknown provenance`
+- `f000aa1d2 plan(gy): Rev 48 — three repository defects closed, GY-DEF4 stops on a governed artifact`
+- `b07148239 merge(gy): land three of four repository defects; GY-DEF4 stops on a governed artifact`
 - `5ac5cee63 DS5-C20 close enforcement waist for architect handoff`
+- `b66bf3f82 fix(scientist): close GY-DEF3 checkpoint scope`
+- `42957f826 fix(legal): close GY-DEF1 jurisdiction fallback`
+- `673e81706 docs(gy): record GY-DEF4 artifact stop`
+- `07f5fd6ab fix(runtime): close GY-DEF2 public export ref leak`
 - `dc816548f docs: record DS5-C20 architecture owner stop`
 - `7ee283762 Revert "DS5-C20 preserve architecture-baseline-red closure candidate"`
 - `4c20818c3 DS5-C20 preserve architecture-baseline-red closure candidate`
+- `068aab9df plan(gy): Rev 47 — the N11 suffix is closed`
+- `18f081933 merge(gy): land GY-DEFC-9 — the N11 suffix closes with a zero-issue cold run`
+- `e6bcd57fa plan(gy): Rev 46 — sixteen registry entries now state their own standing`
+- `cdf2186bb docs(gy): record zero-issue cold N11 suffix`
+- `69f3fa39a docs(gy): bind Darwin cold environment`
 - `700e3aa14 DS5-C09b-R1 default deny modes and run surfaces`
+- `b19f9941d docs(gy): authorize proxy-free cold launch`
+- `d894f0bd8 docs(gy): record DEFC-9 cold terminal`
+- `0f6c88add docs(gy): authorize owner-path cold preflight`
+- `541613965 docs(gy): authorize cold preflight parser repair`
+- `cc198b2a4 docs(gy): bind retained cold preflight`
+- `a35c5cb68 docs(gy): correct cold authorization coordinate`
+- `4c1079373 docs(gy): authorize DEFC-9 cold launch`
 - `6002d1eab DS5-C09a-R2 default deny application chrome`
 - `91600981c DS5-C15b-R1 mount Clerk identity hydration`
 - `4edcf96be DS5-C11b-R1 render governed cache posture`
@@ -624,74 +706,276 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 - `f240db1b7 DS5-C09a-R1 preserve stopped default-deny candidate`
 - `a22cbb0be DS5 record C07a generated-family owner block`
 - `9e389a17a DS5-C17b-R3 govern persistence construction`
+- `cb868c901 docs(gy): stop DEFC-9 before cold launch`
+- `1a16ecef7 docs(gy): record accepted confidence reissue`
+- `8ae3facde chore(gy): reissue confidence deployment identity`
 - `c84b9262f DS5-C19-R2 wire and retire D5 flags`
+- `c5f661323 docs(gy): close confidence acceptance review`
+- `5e0a7b2f1 docs(gy): bind confidence acceptance paths`
+- `6ce8b468b docs(gy): declare DEFC-9 confidence transition`
+- `68bb34762 docs(patterns): register P40 — ladder repair, and the rule that ends it`
+- `9eee8affb plan(gy): Rev 45 — GY-DEF9 closed, and with it the whole DEF7–DEF12 cascade`
+- `c5aeeedcc merge(gy): land the GY-DEF9 executable witness — five of five producers closed`
 - `24cebe3ca DS5 record C19 flag-gate recut stop`
+- `5044b8ae9 test: compare depth owner projection bytes`
 - `33ea792b5 Revert "DS5-C19-R1 preserve stopped flag-gate candidate"`
 - `9b87f0e09 DS5-C19-R1 preserve stopped flag-gate candidate`
+- `d9a0beb90 feat(gy): quarantine ambient N8 provenance drift`
+- `3af775d8e test: witness governed owner history independence`
 - `a447c9721 DS5 record C17b persistence census recut stop`
+- `1c9397147 docs(gy): register DEFC-9 suffix execution`
 - `eb97981c4 Revert "DS5-C17b-R2 preserve stopped persistence census candidate"`
 - `ca1400c55 DS5-C17b-R2 preserve stopped persistence census candidate`
+- `3fde27f0d plan(atlas): Revision 3.18 — carry DS6's debt at the programme level`
+- `96b0bff85 plan(atlas): record DS6 as blocked_on_another_plan with its executable set exhausted`
+- `fa1f3e4d0 merge(atlas): land DS6 C10-R2 per-claim readiness reconciliation`
+- `5824bac08 docs(atlas): land C10 R2 readiness reconciliation`
 - `8bb10a611 DS5-C18b-R2 bind flag sources to strict registry`
+- `9c46d6f67 docs(atlas): record C10 R2 setup nonreceipt`
+- `c17ad017d docs(atlas): declare C10 R2 verification wave`
+- `c18688501 fix(atlas): align readiness scope with unavailable checks`
+- `c1354ec7a feat(atlas): declare readiness intake threat model`
 - `593ad6170 DS5 reconcile executable standings`
+- `cb0273ba4 docs(atlas): enter DS6 C10-R2 threat model`
+- `7fa48a9d9 Merge branch 'main' into codex/atlas-ds6-c10r1-readiness-reconciliation`
+- `66d08f287 perf(data-forge): serve catalog graphs from a content-addressed cache`
+- `a6190c1c6 plan(gy): Rev 44 — the five unrecorded standings, four closed and one witnessless`
+- `eda27b0f2 docs(atlas): stop C10-R1 on terminal finding`
+- `6906777f4 fix(atlas): close readiness CI admission`
+- `84cb20d20 docs(atlas): record C10-R1 repair round two`
+- `2c1df24b4 fix(atlas): bind per-claim readiness evidence`
+- `a986295f6 docs(atlas): record C10-R1 repair round one`
+- `2120daeeb docs(atlas): describe per-claim readiness bases`
+- `b0e557c04 feat(atlas): reconcile readiness claims per basis`
+- `e66960215 docs(gy): record DEF7-12 standings`
+- `a2aee665f docs(atlas): enter DS6 C10-R1 per-claim reconciliation`
+- `f63748684 docs(patterns): register P39 — a budget that counts the record it mandates`
+- `fa708f2bc merge(atlas): land DS6 C11 instrumentation and the C18 fixture recut`
+- `44276ccd5 plan(gy): Rev 43 — the P30 objective is closed, and the marathon that remains is enumerated`
+- `70a3f3d15 merge(gy): land the N11 acceptance milestone and the null-versus-absent projection owner`
+- `f6915af3a plan(atlas): Revision 3.17 — the DS16 inherited obligation is not satisfiable as written`
+- `4b2904e8a DS6-C18 fix visual fixture and re-anchor C15-R1 deltas`
 - `324996652 DS5 record C18b governed recut stop`
 - `1464feee1 Revert "DS5-C18b-R1 checkpoint strict flag closeout recut"`
 - `52ab21cf6 DS5-C18b-R1 checkpoint strict flag closeout recut`
+- `25d7718f6 docs(gy): record pre-cold provenance stop`
+- `e3c533d91 Merge branch 'main' into codex/gy-defc-3-retry`
+- `5b2c2173b feat(gy): accept confidence ledger reissue`
+- `21ae2ba65 plan(atlas): Revision 3.16 — DS16's authority half closed, and DS5 inherits the register reconciliation`
+- `88210076e merge(gy): land the GY-DI timing lane — durable substrate, honest admission, derived catalog`
+- `e9079bade plan(gy): Rev 42 — close the two items GY-INFRA-2 carried; INFRA-2 itself was already closed`
+- `1c6e36067 feat(gy-infra-2b): make a delta package state what it excludes`
+- `32cfdfac3 feat(gy-infra-2a): publish a p95 only where the sample count can support one`
+- `bd01fbe87 plan(backlog): correct INT-R6's dependency — Atlas D4 is ratified, not unratified`
+- `c889ee085 plan(gy): Rev 41 — GY-DI2/DI3/DI4 closed, and DI4 was registered at the wrong severity`
+- `7e745391f fix(gy-di2): derive budget lanes from the recorded log and name the unbudgeted ones`
+- `ec1a8f055 fix(gy-di3): default the timing log to a durable in-repo path, with a reasoned retention`
+- `ee44c5e8d fix(gy-di4): admit a timing sample on completion, not on exit_code == 0`
+- `15b41f960 salvage(gy-di3): rescue the perishable tool-timing records before they vanish`
+- `01943ed83 merge(gy): land the GY-INFRA-3 step-0 diagnosis journal`
+- `49a328854 merge(gy): land the GY-DEFC-3 writer non-receipt journal`
+- `b27268df9 merge(research): land the wave-4 consolidation`
+- `b910f9841 merge(research): land the S0-GAP-02 P37 vocabulary correction (W4-K02)`
+- `cf69a9aa4 merge(research): land the S0-GAP-02 amendment and its conformance verification`
+- `b44008a7e merge(research): land S0-GAP-02 research and its independent audit`
+- `6ae73fe34 merge(research): land the PAO-R4 census attribution correction (W4-K01)`
+- `563fb278f merge(research): land the PAO-R4 amendment and its conformance verification`
+- `db8c9b2cb merge(research): land PAO-R4 research and its independent audit`
+- `ba566d024 merge(research): land the PAO-R36 census attribution correction (W4-K01)`
+- `3bf3f51de merge(research): land the PAO-R36 amendment and its conformance verification`
+- `a806e0281 merge(research): land PAO-R36 research and its independent audit`
+- `df02cca23 merge(research): land the OPS-R14 bounded remediation and its delta verification`
+- `3dbfdb263 merge(research): land the OPS-R14 amendment and its conformance verification`
+- `cfd828c04 merge(research): land OPS-R14 research and its independent audit`
+- `25d601bcd docs(reference): specify the policy-operations research pipeline`
+- `9ebc718eb research(s0-gap-02): reduce the six-way P37 register to the five registered classes under W4-K02`
+- `6f48fc83d research(pao-r36): correct census attribution under ratified W4-K01`
+- `9b4375c25 research(pao-r4): correct census attribution under ratified W4-K01`
+- `2560cb3f4 plan(backlog): Rev 7 — wave 4 closed and ratified; standing axes, absent/unallocated, Pattern Pass to P38`
+- `c26cbc9b3 docs(wave4): ratify W4-K01..W4-K06 — what the deciding machinery may turn on`
+- `176335d97 docs(patterns): register P38, the P37 fixed-point corollary, the P35 holder rider, and absent/unallocated`
+- `29f526527 docs(wave4): add package and wave standing statement`
+- `e19c91212 docs(wave4): add orientation audit record`
+- `147ce8ee2 docs(wave4): add ratification candidates`
+- `f289de7d0 docs(wave4): add deduplicated routing map`
+- `cf498d0c6 docs(wave4): add complete disposition ledger`
+- `610e48556 docs(wave4): consolidation orientation pack — the audit is not an ancestor of the amendment, and the census gap is closed by recomputation`
+- `915ed6031 docs(ops-r14): add bounded remediation delta verification`
+- `62de2c5fe docs(ops-r14): add bounded remediation ledger`
+- `48031ecc5 docs(ops-r14): apply bounded P37 remediation to primary report`
+- `3ff74a782 docs(ops-r14): split F-14 and add red succession probe`
+- `1650c1621 docs(ops-r14): split F-14 succession worlds in replay semantics`
+- `a7644dfa2 docs(ops-r14): complete R8 currentness refusal`
+- `43a497b55 docs(ops-r14): align amendment ledger with bounded remediation`
+- `0032adbdf docs(ops-r14): remediate census provenance and denominators`
+- `0fe8fe6a0 docs(ops-r14): add independent amendment conformance verification`
+- `93571fd3c research(pao-r4): add independent amendment conformance verification`
+- `47f0680f4 docs(verification): add PAO-R36 amendment conformance verdict`
+- `d8ecdaaac docs(verification): add PAO-R36 amendment orientation ledger`
+- `0c7ab71aa audit(s0-gap-02): verify amendment conformance`
+- `708003630 plan(gy,atlas): P38, GY-DEF14 as a class, GY-DEFC-4..6, GY-GAP4 landed, DS5 line-address closure, DS-INFRA-2`
 - `94e2c8ca0 DS5-C18a make flag exposure registry strict`
+- `dec77a050 DS6-C11 instrument Atlas health metrics`
 - `a1e6ebcdc DS5-C16b-R2 record final verification`
+- `202930742 docs(gy): declare confidence transition`
 - `0cfcf6690 DS5-C16b-R2 bind dispute scope snapshot`
+- `2789b49ea fix(gy): own N11 null representation`
 - `78ea7c3d7 DS5-C16b-R2 partition dispute interaction state`
+- `1ac08391b docs(gy): record zero-move null census`
+- `3f9c817b2 docs(gy): register null representation defect`
 - `e5a190261 DS5-C16b-R1 record structural recut`
 - `72522acd9 DS5-C16a-R1 partition causal draft state`
+- `b856d4e1f DS6-C10 record stopped readiness reconciliation attempt`
+- `7b15ea2df docs(gy): record confidence ledger reprobe stop`
+- `a7ae91891 Revert "DS6-C10 checkpoint stopped readiness reconciliation attempt"`
+- `573be9598 DS6-C10 checkpoint stopped readiness reconciliation attempt`
+- `a67d172e6 docs(gy): close defc6 at owner bundle`
 - `96a7e6dff DS5-C15a partition Clerk session codec`
 - `4f1f71cd3 DS5-C13b-R7 close scoped composer persistence`
 - `07fd56378 Reapply "DS5-C13b-R6 checkpoint composer local state"`
 - `19293faaa DS5-C21d retire migration address bindings`
+- `ca9bc59b0 docs(gy): authorize single cold n11`
+- `b340a8845 fix(gy): close depth corruption diagnostics`
+- `a84556865 DS6 attribute C15-R1 visual regressions`
 - `dd52314af DS5 record C13b-R6 structural stop`
+- `97d0c6208 DS6-C16 close deferred-lane diagnostics`
 - `f77850487 Revert "DS5-C13b-R6 checkpoint composer local state"`
 - `a3ad1e615 DS5-C13b-R6 checkpoint composer local state`
+- `b63e53b05 docs(gy): record depth measurement correction`
 - `05bac9e37 DS5 record governed timing ceilings`
+- `d095b9feb docs(gy): open defc6 budgeted depth wave`
+- `6700ff36e docs(gy): correct depth census predicate`
+- `42f60729f docs(gy): record defc5 closeout`
+- `4bc138373 docs(gy): close defc5 at depth census cap`
+- `93a6ba2d8 docs(gy): record depth census cap nonreceipt`
+- `7a259daa6 fix(gy): bind depth migration to proof source`
+- `1f7d549c0 fix(gy): migrate depth recording once`
+- `c1a4df93b fix(gy): preserve aligned comparison once`
+- `974036d4e fix(gy): align legacy comparison before projection`
+- `8829bbe9b chore(gy): reissue n10a v2 projection`
 - `5e868da0c DS5-C17a-R2 partition operator craft local state`
+- `d875a2285 docs(gy): record n10a source-bound nonreceipt`
+- `41a2020d5 DS6-C13 verify adjacent print export`
+- `075eedb3b DS6-C08 wire automated evidence capture`
 - `bc9421163 DS5-C13b-R5 close service-worker authority bridge`
+- `b4afdf052 docs(gy): record recurring n10a contention`
+- `c6a26e6fb docs(gy): record n10a contention nonreceipt`
+- `13ceb3762 docs(gy): declare n10a v2 transition`
 - `7e6478b71 Reapply "checkpoint: preserve stopped DS5-C13b-R3 service-worker closure"`
+- `8a9e32058 DS6-C05 record serialized evidence wave`
+- `f2aa668e3 chore(gy): reissue generation v2 projection`
 - `fd2971e73 DS5-C13b-R4 repair offline queue production denominator`
+- `2666f5628 docs(gy): record generation acceptance non-receipt`
+- `38f11fe00 docs(gy): correct generation contention interval`
+- `475815945 docs(gy): declare generation v2 delta`
+- `64dbb87cb docs(gy): record contended generation non-receipt`
+- `0a288717d chore(gy): reissue promotion v2 projection`
+- `fef63760d docs(gy): declare promotion v2 delta`
+- `a64391514 docs(gy): record depth migration review gate`
+- `cd29ca29d fix(gy): rebind depth migration envelopes`
+- `bddbe85d8 fix(gy): bind promotion comparison to semantic ledger`
 - `b9fcdbd66 Revert "checkpoint: preserve stopped DS5-C13b-R3 service-worker closure"`
 - `efd5ebcba checkpoint: preserve stopped DS5-C13b-R3 service-worker closure`
+- `4748b9211 DS6-C15-R1 gate quantitative-use declarations`
 - `2e144c048 DS5-C13b-R2 re-anchor composer DB module`
+- `769c08b35 DS6-C15 record stopped numeric plural attempt`
 - `cf80700bb Reapply "checkpoint: preserve stopped DS5-C13b-R2 rename"`
+- `8171ed209 fix(gy): compose depth recording admissions`
+- `4d7743f07 Revert "DS6-C15 checkpoint stopped numeric plural attempt"`
+- `8fd8f9e5d DS6-C15 checkpoint stopped numeric plural attempt`
+- `e7c3b08a7 fix(gy): keep comparison proof custody private`
+- `cc4ca6d82 fix(gy): seal promotion comparison proof`
 - `f4990b6f5 Revert "checkpoint: preserve stopped DS5-C13b-R2 rename"`
 - `56eeef256 checkpoint: preserve stopped DS5-C13b-R2 rename`
+- `23a3f364f fix(gy): bind controlled recording comparison`
+- `a11b4f4a3 docs: freeze GY-DEFC-5 recording comparator contract`
+- `ba18ad7d7 docs(gy): record depth comparison stop`
+- `d15681e5d chore(gy): reissue n10a comparison receipts`
+- `482c204d9 chore(gy): reissue generation comparison receipt`
+- `7d02818a0 chore(gy): reissue promotion comparison receipt`
+- `5591eb370 docs(gy): record reviewed def14 census`
+- `708d18d6b fix(gy): bind n10a transition source scope`
+- `8816df5f4 fix(gy): gate n10a writes on measured transitions`
+- `ae3d713d4 fix(gy): bind comparison manifests to owner policy`
+- `207069dae fix(gy): bind verification comparison to full receipts`
 - `db6c4c350 DS5-C21c bind structured evidence identities`
+- `23b421add docs(gy): bind defc4 census to corrected freeze`
+- `e2f23c6eb style(gy): clarify depth comparison owner`
+- `e1bf84804 fix(gy): bind verification comparison to projection owners`
+- `b15747da6 DS6-C12 correct measured path declaration`
+- `4e148ec9a DS6-C12 seed honesty comprehension protocol`
 - `ceccb0746 DS5-C21b-R1 close TypeScript line-address migration`
+- `122208801 DS6-C09 bind manual AT evidence to maturity`
+- `d03f0c6e6 fix(gy): exclude declared verification blocks from comparison hashes`
+- `7041a433e docs(gy): freeze defc4 predicate contract`
 - `055345536 Reapply "checkpoint: preserve stopped DS5-C21b identity migration"`
+- `85a839f27 DS6-C07 define evidence artifact storage`
+- `b20951668 DS6-C01-R1 justify count exemptions and repair active plurals`
 - `f0e138d6b Revert "checkpoint: preserve stopped DS5-C21b identity migration"`
 - `3b0b721a4 checkpoint: preserve stopped DS5-C21b identity migration`
+- `a9d276177 docs(gy): record DEF14 blast-radius stop`
+- `2fc42db92 DS6-C02 add opaque rendered-contrast probe`
+- `82cb9ac57 DS6-C01 close count parity and freeze Russian keys`
 - `015fb8f08 DS5-C21a establish TypeScript reference identity`
+- `b28101e42 DS6-C00 open evidence workflow slice`
+- `0ff4ed681 docs(gy): record DEF14 source-fence blocker`
+- `9a24a4efa docs(gy): record rejected N10a reissue`
+- `74b94f301 docs(gy): record corrupt-lane ruling`
 - `60a06701c docs: register DS5 line-address binding defect`
+- `e21d2b5e6 docs(gy): record DEFC-3 retry checkpoint`
+- `1b34c7f6c fix(tools): derive timing budgets from successful runs`
 - `653f12d08 DS5-C13a-R3 delete authority mutation replay`
+- `c1a89b6cf plan(gy): register GY-DI2 and GY-DI3 — the timing catalog failed the way INFRA-2 was built to prevent`
+- `0fbf3bf7b docs(gy): record DEFC-3 writer nonreceipt`
 - `f4f62ca58 Revert "checkpoint: preserve stopped DS5-C13a-R2 governed receipts"`
 - `95274a88c checkpoint: preserve stopped DS5-C13a-R2 governed receipts`
+- `dac4e28fa plan(gy): register GY-DEF14 and GY-DEFC-3`
+- `ec4a9f091 Merge branch 'codex/gy-def13' — the path binding is fixed; the address no longer decides`
+- `b49b6e1df docs(gy): record def13 cold boundary`
 - `dcd8b073b Revert "checkpoint: preserve blocked DS5-C13a authority replay deletion"`
 - `c2a03de41 checkpoint: preserve blocked DS5-C13a authority replay deletion`
+- `f015e6631 fix(gy): reissue path-independent provenance`
+- `66bad69b0 test(gy): bind provenance witnesses end to end`
+- `a352ba1b6 test(gy): prove editable identity through provenance`
+- `883febe7f fix(gy): bind editable discovery identity`
 - `8794d58c8 docs: correct DS5 C07 drift attribution`
+- `8f7a39194 plan(gy): register GY-DEF13 — the provenance manifest binds an address, not an identity`
+- `5f19f86b8 Merge branch 'codex/gy-defc-2' — drift failures now self-describing; N11 boundary not_established`
 - `06f24a40c DS5-C07b-D1 record generated-client single-owner debt`
 - `53fe8a84c DS5-C12b-R1 enforce governed query policy`
+- `e988619f5 docs(gy): record DEFC-2 classification`
+- `d1a428d15 fix(gy): bind replay drift diagnostics`
+- `98514488a fix(gy): describe embedded replay drift`
 - `15c89d241 DS5-C12a register query construction debt`
 - `125b6d604 docs: bind DS5 mechanism rounds and duplication duty`
+- `d8f4bf142 plan(gy): record GY-DEFC-1's standing and register GY-DEFC-2`
+- `8d87624db Merge branch 'codex/gy-defc-1-diag' — N11 boundary diagnosed not_established, discriminator named`
 - `b0d7dcaa6 Revert "checkpoint: preserve stopped DS5-C07 audience mapping"`
 - `3db3f4154 checkpoint: preserve stopped DS5-C07 audience mapping`
 - `40fc512ae DS5-C08a isolate auth test fixtures`
 - `7fbf1823c DS5-C14a record local-state envelope debt`
 - `5acbde148 Revert "checkpoint: preserve rejected DS5-C12a query census"`
 - `6e6422540 checkpoint: preserve rejected DS5-C12a query census`
+- `4542ec9d0 docs(gy): diagnose N11 cold worker boundary`
 - `4a4fadd47 docs: bind DS5 construction residual`
+- `e18861d12 Merge branch 'codex/gy-defc-1' — two class owners land, cold closeout still blocked`
 - `77356ba98 Revert "DS5-C12a checkpoint query cache policy conflict"`
 - `22a8c2f32 DS5-C12a checkpoint query cache policy conflict`
 - `f37c3fe9e docs: record DS5 C12a enforcement conflict`
+- `b2c2b3347 docs(gy): record cold closeout non-receipt`
+- `6782cb546 artifacts(gy): reissue Depth-N receipt`
 - `0b811e884 DS5-C08b-D1 record auth-session revision debt`
+- `bba532ea2 artifacts(gy): reissue composition certificate`
+- `3fa8af6dc artifacts(gy): reissue value and second-domain receipts`
+- `431bcd798 feat(gy): bind cold closeout inputs and projections`
 - `c8c7a291c DS5-C11a derive cache observation posture`
 - `edb8e045f DS5-C08b-R2 fail closed on unsettled identity`
 - `5e93edf88 DS5-C04b-R2 restore capability construction lint`
 - `c2eeddb2a DS5-C05b-R3 restore semantic-copy issuer`
+- `c088c0e3d docs(gy): census cold closeout inputs`
+- `355e81be8 plan(gy): register GY-DEFC-1, the cold-closeout restoration task`
+- `fe840d3ab Merge branch 'codex/gy-def6' — DEF6 closed on the defect axis, capability still blocked`
+- `17e9b70ac docs(gy): close DEF6 and hand off cascade`
 - `bffef7881 docs: bind DS5 review bars and waits`
 - `c61a4b5fb DS5-C06-D1 record waist producer gaps`
 - `2d41f2675 Revert "checkpoint: DS5-C06-D1 oversized owner-debt atom"`
@@ -715,39 +999,444 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 - `1d0ff1f53 Revert "DS5-C03b-R2 blocked checkpoint after two fix rounds"`
 - `54fec7ae9 DS5-C03b-R2 blocked checkpoint after two fix rounds`
 - `6c6c31299 DS5-C03a-R1 record raw transport drift`
+- `e708e8f77 fix(gy): bind N8 catalog discovery provenance`
 - `e69d95423 docs: recut DS5 content-bound register clusters`
+- `90e20d31e Merge branch 'codex/gy-infra-3-step2' — E11 freeze/batch gate, implemented_but_not_orchestrated`
+- `c1d711a1c feat(tools): enforce E11 review freeze gate`
+- `bf108f897 plan(gy): register GY-DEF6 and adopt the GY-INFRA-3 Step 0 verdict`
+- `4afca8b90 docs(gy): record infra-3 step0 diagnosis`
+- `c14e3d435 research(s0-gap-02): finalize amendment delivery receipt`
+- `10c0b6c09 research(s0-gap-02): finalize orientation ledger`
+- `8a2224ac3 research(s0-gap-02): finalize external transfer ledger`
+- `d38978c24 research(s0-gap-02): amend falsifier suite`
+- `5e34bdbf5 research(s0-gap-02): amend benchmark oracle architecture`
+- `0df03f35e research(pao-r4): record final amendment payload readback`
+- `04ff572ba research(pao-r4): reset amendment receipt after payload revision`
+- `1bd865f85 research(pao-r4): express rule transport with bounded existing verdict`
+- `4432a1ace research(pao-r4): keep rule transport outside outcome vocabulary`
+- `e5d53dd19 research(s0-gap-02): amend sealed expectation semantics`
+- `0223c140a research(s0-gap-02): amend oracle custody and adjudication`
+- `ea3c384cb research(s0-gap-02): amend mutation and receipt specification`
+- `b2baf118c research(pao-r4): record amendment payload readback`
+- `57681aa0d research(s0-gap-02): amend independence model`
+- `926326174 docs(pao-r36): amend falsifier suite`
+- `9f33c1e10 research(pao-r4): correct P35-P37 orientation anchor`
+- `e0cb9395c research(pao-r4): correct P35-P37 anchor`
+- `cc7598079 research(s0-gap-02): amend integration handoff`
+- `3cb42612c docs(pao-r36): amend primary correction report`
+- `e9c2e70ed docs(pao-r36): amend ordered fanout contract`
+- `fd0fb177f research(s0-gap-02): amend external transfer ledger`
+- `0e988b744 research(s0-gap-02): amend delivery provenance and readback`
+- `83539ebf0 docs(ops-r14): add independent-audit amendment ledger`
+- `61da3d0d2 research(s0-gap-02): reconcile orientation census`
+- `03c61b7a4 docs(ops-r14): consolidate independent-audit amendment`
+- `f9f25d408 plan(gy): register GY-INFRA-3 and record GY-INFRA-2's closure`
+- `4c5fba015 research(pao-r4): record audit amendment dispositions`
+- `dfbc61b4f docs(pao-r36): amend comparative models and hard cases`
+- `f3090dde6 docs(pao-r36): amend owner and dependency handoff`
+- `57c0a86a0 research(pao-r4): pin external sources and narrow legal comparison`
+- `4f9e3b966 research(s0-gap-02): add amendment ledger`
+- `69ae9f6ff docs(ops-r14): bound procurement source transfer`
+- `d94cfe5d1 docs(pao-r36): settle complete orientation census`
+- `279b500ae docs(pao-r36): amend external source transfer limits`
+- `36e2f57b9 docs(ops-r14): correct capability labels and handoff`
+- `71421c202 docs(ops-r14): amend replay semantics and seam closure`
+- `b505ad8bf docs(ops-r14): amend recovery predicate and standing`
+- `4049b75ff research(pao-r4): reopen handoff owner placement and predicate provenance`
+- `4993680eb research(pao-r4): rewrite falsifiers as exact use-boundary cases`
+- `837619f36 docs(ops-r14): extend fixtures and drill evidence`
+- `060c7ac1b research(pao-r4): amend comparative firewall selection`
+- `e067f8f1a docs(ops-r14): add prospective dependency reconciliation`
+- `57ee85fba research(pao-r4): correct complete source census`
+- `11c8f4578 research(pao-r4): amend formal boundary and firewall contract`
+- `033e3fc72 docs(pao-r36): add post-audit amendment ledger`
+- `69cfee072 docs(ops-r14): amend orientation census and standing axes`
+- `e089f508b Merge branch 'codex/gy-infra-2' — verification economics A/B green, C closed negative`
+- `109ba3f44 docs(patterns): register P37 and make P35 symmetric over search indexes`
+- `bc6fd7704 docs(gy-infra-2): close verification economics`
+- `5d2d98ddc fix(tools): bind review package ratio receipt`
+- `3abbaf8c2 audit(s0-gap-02): add executable revision register`
+- `2201d3257 audit(s0-gap-02): add seam and crosscheck audit`
+- `89f77d341 audit(s0-gap-02): add formal argument and falsifier audit`
+- `c6cb54500 audit(s0-gap-02): add anchor and citation verification`
+- `735716c27 audit(s0-gap-02): add claim evidence ledger`
+- `e5b019b4b audit(s0-gap-02): add hostile independent audit register`
+- `bfb0d8bea audit(s0-gap-02): complete orientation error ledger`
+- `34c65a04e docs(audit): deliver OPS-R14 independent audit verdict`
+- `60ee971bb docs(audit): add OPS-R14 recommended revision register`
+- `0fe8e2397 docs(audit): add OPS-R14 seam and kernel crosscheck`
+- `9b6539be4 docs(audit): add OPS-R14 formal argument audit`
+- `eaf21b7fa docs(audit): verify OPS-R14 anchors and external sources`
+- `e8941473d docs(audit): add OPS-R14 claim-evidence ledger`
+- `9bbfd37a2 docs(audit): add PAO-R36 independent audit`
+- `9603b3d09 docs(audit): add PAO-R36 recommended revision register`
+- `caa5a8451 docs(audit): add PAO-R36 seam and crosscheck`
+- `426d6c9a6 docs(audit): add PAO-R36 formal argument audit`
+- `7538f694c docs(audit): add PAO-R36 anchor and citation verification`
+- `b762cf656 docs(audit): add OPS-R14 orientation error ledger`
+- `41020abc8 docs(audit): add PAO-R36 claim evidence ledger`
+- `56cc093fd docs(audit): add PAO-R36 orientation error ledger`
+- `6cc64e8ad audit(s0-gap-02): canonicalize census extraction request`
+- `e487a8b35 audit(s0-gap-02): bind exact census extraction request`
+- `69182c079 audit(pao-r4): deliver independent verdict`
+- `91baee424 audit(pao-r4): specify required revisions`
+- `9edc52e33 audit(pao-r4): map claims to evidence`
+- `76e8045f0 audit(pao-r4): crosscheck seams and capability labels`
+- `df0efbbf4 audit(pao-r4): attack formal and detection arguments`
+- `9a535d24c audit(pao-r4): verify anchors and external sources`
+- `c150e607f audit(s0-gap-02): add exact tree retrieval reference`
+- `5a58386f5 audit(pao-r4): reproduce orientation census`
+- `c8adf0b17 audit(s0-gap-02): establish orientation ledger shell`
+- `a27c3da99 docs(pao-r4): record remote delivery readback`
+- `4120dc79a research(pao-r4): restore complete falsifier suite`
+- `ed9427fa5 research(pao-r4): restore complete comparative survey`
+- `9c0f5108e research(pao-r4): restore complete orientation ledger`
+- `3ccec71ce docs(pao-r4): record delivery incident`
+- `3046f73d7 research(pao-r4): record legal transfer ledger`
+- `0f2172cb8 research(pao-r4): map integration handoff`
+- `b21c94f76 research(pao-r4): specify firewall falsifiers`
+- `d41fd04b5 research(pao-r4): compare firewall control models`
+- `12cda9223 research(pao-r4): record orientation census`
+- `ba4b48e0d research(pao-r4): define the individual-decision firewall`
+- `a7c34cc40 research(s0-gap-02): deliver the independent custody-benchmark oracle architecture`
+- `3a694212a docs: deliver OPS-R14 custody resilience research`
+- `67b2f72b6 docs: add OPS-R14 integration handoff`
+- `44ade2500 docs: add OPS-R14 primary-source transfer ledger`
+- `ef0f23013 docs: add OPS-R14 disaster fixtures and drill contract`
+- `33a1c804b docs: add OPS-R14 long-term replay semantics`
+- `0b7c99009 docs: add OPS-R14 watched dependency semantics`
+- `29bab4e64 docs: add OPS-R14 custody recovery objectives`
+- `1bccc012b docs(research): complete PAO-R36 Pass I line-count audit`
+- `e3d36ad24 docs: add OPS-R14 orientation ledger`
+- `a8d40aa3e docs(research): add PAO-R36 public correction report`
+- `652b8ea4d docs(research): add PAO-R36 external source transfer ledger`
+- `b57adc048 docs(research): add PAO-R36 falsifier suite`
+- `350336acb docs(research): add PAO-R36 integration and dependency handoff`
+- `42274f1c9 docs(research): add PAO-R36 ordered fan-out contract`
+- `a08e693ee docs(research): add PAO-R36 comparative models and hard cases`
+- `7df07eab4 docs(research): correct PAO-R36 orientation arithmetic`
+- `139282761 docs(research): add PAO-R36 orientation ledger`
+- `1a7a2d05e plan(wave2): adopt the execution sequence for the seventeen remaining research tasks`
+- `260ae2330 fix(pv): cite INT-R8's controlling head in the GY Rev 26 line`
+- `98bb0726c docs(agents): add the delivery read-back rule and index the two ratification acts`
+- `acb641dac plan(pv): record DS12 research-input closure and the Wave-2 completion ledger`
+- `ce819de57 plan(pv): register GY-GAP3 and route the ratified kernel into GY-N12`
+- `391d239cf decide(pv): ratify the nine public-verification and disclosure invariants PV-K01-PV-K09`
+- `93a961086 merge(research): land the INT-R7/INT-R8 wave consolidation`
+- `77d15b5a0 merge(research): land the INT-R8 bounded remediation and its verification`
+- `ead6e5ace merge(research): land the INT-R8 amendment and its conformance verification`
+- `31f13f708 merge(research): land INT-R8 research and its independent audit`
+- `33d53806a merge(research): land the INT-R7 reachability invariant closure`
+- `72d051232 merge(research): land the INT-R7 bounded remediation and its verification`
+- `7fb1b2f52 merge(research): land the INT-R7 amendment and its conformance verification`
+- `a0def4531 merge(research): land INT-R7 research and its independent audit`
+- `a8709a8f7 research: correct repository evidence and FNV source attribution`
+- `e1121e0b2 research: correct INT-R7 R8 report path denominator and evidence`
+- `b3704476a research: add INT-R7 R8 open questions and next research`
+- `61636a067 research: add INT-R7 R8 routing map`
+- `d6eb0d4a3 research: add INT-R7 R8 repository findings register`
+- `d0626b02e research: add INT-R7 R8 cross-audit finding matrix`
+- `44a455a2c research: add INT-R7 R8 ratification candidates`
+- `0019aee9a research: add INT-R7 R8 consolidation report`
+- `79e64f13e research: add INT-R7 R8 preflight and seam adjudication`
+- `3883b4547 docs(research): finalize INT-R7 reachability closure read-back record`
+- `75d8c4525 docs(research): add INT-R7 reachability invariant closure ledger`
+- `cf05b19ec docs(research): enforce INT-R7 supersession reachability invariant`
+- `8a0847ffd docs(verification): confirm INT-R8 bounded remediation`
+- `807e6f4cb docs(verification): add INT-R8 remediation conformance ledger`
+- `286ade105 docs(research): add INT-R8 bounded remediation ledger`
+- `f705c4a7c docs(audit): add INT-R7 remediation conformance ledger`
+- `123142b25 docs(research): reconcile INT-R8 remediation denominators`
+- `c62b4a0fe docs(audit): verify INT-R7 bounded remediation`
+- `a3f493c80 docs(research): close INT-R8 fixture conformance gaps`
+- `92c05323e docs(research): finalize INT-R7 remediation read-back record`
+- `09cc60105 docs(research): add INT-R7 bounded remediation ledger`
+- `00919d94e docs(research): tighten INT-R7 amendment evidence paths`
+- `8b487e54e docs(research): repair INT-R7 suite grammar and vectors`
+- `ead4aca36 docs(verification): deliver INT-R8 amendment conformance verdict`
+- `1a35f61f5 docs(verification): add INT-R8 amendment conformance evidence ledger`
+- `538cd0cd7 docs(research): separate issuer and requested-use predicates`
+- `c531bdfac docs(research): make INT-R7 primary supersession reachable`
+- `92b8773fe docs(research): add INT-R8 post-audit amendment ledger`
+- `961ee8cd4 docs(research): correct and compact INT-R8 v2 suite`
+- `80e79ee7e docs(research): add atomic INT-R8 v2 falsifiers and honest handoff`
+- `c719a16d2 docs(research): operationalize INT-R8 loss boundary and receipt`
+- `c6e3e9b7f docs(research): bound INT-R8 reconstruction and prefix discipline`
+- `5225f8bf6 docs(audit): add INT-R7 amendment conformance evidence ledger`
+- `e717e7684 docs(research): add deterministic QIF transfer models to INT-R8`
+- `fc8b7c51d docs(audit): verify INT-R7 amendment conformance`
+- `cf8a6beba docs(research): correct INT-R8 orientation censuses and callers`
+- `e992d3126 docs(research): amend INT-R8 primary decision after audit`
+- `f45f338f9 docs(audit): make INT-R8 finding anchors path-explicit`
+- `b4f27bb3b docs(audit): deliver hostile independent audit of INT-R8`
+- `2d922813e docs(research): finalize INT-R7 amendment evidence ledger`
+- `b52335645 docs(audit): add executable INT-R8 revision register`
+- `4065caf91 docs(research): add INT-R7 post-audit amendment ledger`
+- `f55ce31f7 docs(audit): add INT-R8 claim and capability evidence ledger`
+- `309300c57 docs(audit): add INT-R8 kernel and INT-R7 seam crosscheck`
+- `91a5af066 docs(research): amend INT-R7 public verification lifecycle`
+- `6d3142af3 docs(audit): add INT-R8 formal argument and falsifier audit`
+- `24186c19c docs(audit): verify INT-R8 anchors and primary sources`
+- `e836dd22e docs(research): publish exact INT-R7 falsifier suite v2`
+- `0422ddcce docs(audit): add INT-R8 orientation error ledger`
+- `e252f0503 docs(research): amend INT-R7 citizen verification semantics`
+- `61c1a6283 docs(research): amend INT-R7 preservation and recovery gates`
+- `f956fb8be docs(research): amend INT-R7 public verification profile`
+- `290f4cf84 docs(research): decompose INT-R7 verification dimensions`
+- `ae3e1dd14 docs(research): amend INT-R7 comparative transfer boundaries`
+- `c6f84a940 docs(research): correct INT-R7 capability and dependency classifications`
+- `b2a3c8ac4 docs(research): amend INT-R7 source transfer ledger`
+- `539ebafc6 docs(research): amend INT-R7 orientation and reproduction ledger`
+- `54e8f41d7 docs(audit): add INT-R7 hostile independent audit verdict`
+- `e54f495f2 docs(audit): add INT-R7 formal argument audit`
+- `de0d0f574 docs(audit): add INT-R7 executable revision register`
+- `977b4330e docs(audit): add INT-R7 anchor and source verification`
+- `90b372964 docs(research): deliver INT-R8 compression loss and disclosure composition`
+- `67558982a docs(audit): add INT-R7 seam and kernel crosscheck`
+- `18dfadebd docs(audit): add INT-R7 claim evidence ledger`
+- `05e690d53 docs(audit): add INT-R7 orientation error ledger`
+- `06ef1264a docs(research): add INT-R8 primary source and transfer ledger`
+- `19585bb3a docs(research): add INT-R8 falsifiers and integration handoff`
+- `3fd9f1580 docs(research): formalize INT-R8 reconstruction and disclosure discipline`
+- `a1c6bc053 docs(research): define INT-R8 loss contract and materiality boundary`
+- `8d028710e docs(research): add INT-R8 orientation audit ledger`
+- `f5671253b docs(research): deliver INT-R7 public verification proof lifecycle`
+- `cada64849 docs(research): add frozen INT-R7 falsifier suite`
+- `ac77d76f0 docs(research): add INT-R7 citizen verification UX requirements`
+- `86c3b263d docs(research): add INT-R7 PublicVerificationProfile contract`
+- `92d1506af docs(research): add INT-R7 threat model and verification predicates`
+- `c2d9df2eb docs(research): add INT-R7 pinned orientation audit ledger`
+- `8f88a9ea9 docs(research): add INT-R7 repository integration handoff`
+- `a1498dc25 docs(research): add INT-R7 lifecycle migration and preservation profile`
+- `f816c5e1d docs(research): add INT-R7 comparative proof models`
+- `a9e4501ab docs(research): add INT-R7 external source and transfer ledger`
+- `02c5b8d23 docs(patterns): register P35 sampled-denominator generalization and P36 authority by adjacency`
+- `295a0898e plan(int-wave): route the ratified claim-semantics kernel into GY, Atlas and the Wave-2 backlog`
+- `8128ad919 decide(int-wave): ratify the eight claim-semantics invariants INT-K01-INT-K08`
+- `65b0beb72 fix(int-r9): complete the INT-R10 rebinding and close the carried bookkeeping gaps`
+- `8cb4b8cf4 merge(research): land the INT-R1/R9/R10 wave consolidation`
+- `4ec2250d8 merge(research): land the INT-R9 amendment conformance verification`
+- `babf3f606 research: add INT wave next-research register`
+- `815076929 research: add INT wave routing map`
+- `e9d6644a7 research: add INT wave repository findings`
+- `b9dcf893b research: add INT wave cross-audit matrix`
+- `8c794950c research: add INT wave consolidation kernel`
+- `52dd773a8 verify(int-r9): add amendment conformance ledger`
+- `5900b39da verify(int-r9): record amendment conformance verdict`
+- `a548a2f93 merge(research): land the INT-R10 revision verification`
+- `a45181ef9 verify(int-r10): add finding conformance ledger`
+- `982c1fdf7 verify(int-r10): confirm revision conformance`
+- `01a9ec884 docs: architect corrections to the INT-R9 and INT-R1 amendments`
+- `250a18828 merge(research): land the INT-R10 revision, superseding the audited artifact`
+- `ea11e89b0 merge(research): land the INT-R10 independent audit`
+- `2b29fb576 merge(research): land INT-R10 family-wise risk composition (as audited)`
+- `1a110e792 merge(research): land the INT-R9 post-audit amendment`
+- `6e0863392 merge(research): land the INT-R1 amendment verification`
+- `558cb41ec merge(research): land the INT-R1 post-audit amendment`
+- `a334f7d84 research(int-r10): account for all audited anchor sites`
+- `07f74631b research(int-r10): add audit revision ledger`
+- `8de272198 research(int-r10): rebuild fixture and demote artifact sketch`
+- `56f895563 research(int-r10): revise source and transfer ledger`
+- `946667f3c research(int-r10): repair canonical family composition`
+- `f5c9103ba docs: pin the GY-GAP2 envelope to the expanded per-class weight`
+- `36a052e3e docs: correct the GY-GAP2 arithmetic after the INT-R10 audit`
+- `bb322361e docs(int-r9): record amendment closure ledger`
+- `58d975246 docs(int-r9): retire executable protocol yaml`
+- `5e1a890fa docs(int-r9): add post-audit falsifiers`
+- `7bc799fcd docs(int-r9): align state and artifact sketches with adaptive protocol`
+- `7f41bf8b7 audit(int-r10): deliver independent adversarial verdict`
+- `491f59ff6 docs(int-r9): correct contamination and reviewer census`
+- `1038b822d audit(int-r10): record required revisions before consolidation`
+- `fa4f1d11b docs(int-r9): withdraw numeric family claim after audit`
+- `5e915fdfe audit(int-r10): add exhaustive claim-evidence ledger`
+- `84222ccc5 audit(int-r10): grade conformance to the R1 specification`
+- `85995fc7b audit(int-r10): verify repository anchors and external sources`
+- `16bba69a7 audit(int-r10): verify supplied orientation facts`
+- `f2cfd22d6 audit(int-r10): examine the formal arguments`
+- `8b8693f05 docs(INT-R1): add amendment conformance ledger`
+- `fa50d7448 docs(INT-R1): verify amendment conformance`
+- `317fc9c36 research(int-r10): correct fixture repository rule anchors`
+- `3ba4e005c research(int-r10): correct source-ledger repository rule anchors`
+- `a848f44d4 research(int-r10): correct repository rule line anchors`
+- `9db1e75f8 research(int-r10): anchor source-transfer conclusions to pinned owner state`
+- `b77f960b1 research(int-r10): anchor fixture baseline to live owner paths`
+- `f2fd298ca research(int-r10): make repository anchors fully explicit`
+- `ebb6afcf1 research(int-r10): bind family fixtures to precommitted member plan vector`
+- `620388370 research(int-r10): tighten fixed-plan and adaptive composition boundary`
+- `212864ab9 research(int-r10): conclude family-wise risk composition`
+- `66baff37c docs(INT-R1): correct amendment frontmatter ledger summary`
+- `c384e462f docs(INT-R1): add post-audit amendment ledger`
+- `90dc728bf research(int-r10): add family composition fixture and artifact sketch`
+- `36111b152 docs(INT-R1): block OM-01 on GY-GAP1 and preserve red semantics`
+- `267d573f5 docs(INT-R1): make artifact sketch refusal-first and one-lattice safe`
+- `e68ed7491 research(int-r10): add primary-source transfer ledger`
+- `23e12739f docs(INT-R1): separate conditional theorem from admissibility protocol`
+- `0d71fee89 docs(INT-R1): repair source attribution and normalize citations`
+- `246d507c8 docs(INT-R1): narrow repository census and Rule-12 verdict`
+- `50f117e56 docs(INT-R1): narrow theorem and current capability after audit`
+- `978e6b958 merge(research): land the INT-R9 independent audit`
+- `803417b14 merge(research): land INT-R9 first-promotion evaluation protocol`
+- `31f4f73d9 merge(research): land the INT-R1 independent audit`
+- `215645be6 merge(research): land INT-R1 obligation coverage and open-world completeness`
+- `b56ba4de5 docs: register the repository findings measured by the INT-R1/INT-R9 audits`
+- `ce354864f audit(int-r9): add ordered revision requirements`
+- `fba1b06c6 audit(int-r9): add orientation error ledger`
+- `9ff7dc8a2 audit(int-r9): cross-check S0-GAP-02 and INT-R1 seams`
+- `67a1c7600 audit(int-r9): add adversarial protocol reading`
+- `4d9469a05 audit(int-r9): verify anchors and external citations`
+- `d0ebeca08 audit(int-r9): add claim evidence ledger`
+- `a09128e6b audit(int-r9): record independent no-go verdict`
+- `887bce985 docs: correct INT-R1 claim disposition summary`
+- `0893a739e docs: add INT-R1 independent audit verdict`
+- `fbba18ad6 docs: record INT-R1 revision requirements`
+- `003b097f4 docs: add INT-R1 claim evidence ledger`
+- `f8ae1c5fa docs: verify INT-R1 anchors and sources`
+- `e1bca33f5 docs: audit INT-R1 formal arguments`
+- `fe9b92ffd docs: audit INT-R1 supplied orientation`
+- `14648fa5b fix(tools): close delta review gaps`
+- `b9048c185 fix(tools): hermeticize review package inputs`
+- `45dc19344 fix(tools): close timing review gaps`
+- `f5ad92237 docs(research): deliver INT-R9 first-promotion evaluation protocol`
 - `7cba15e56 DS5-C02 make architecture zero recurrent`
+- `c935a610f docs(research): add INT-R9 adversarial fixture specifications`
+- `82e136a8d docs(INT-R1): deliver obligation coverage and open-world completeness research`
+- `c27f2cbaf docs(research): add INT-R9 state machine and artifact contracts`
+- `e1644709e docs(research): add structured INT-R9 first-promotion protocol`
+- `1a1e908fd docs(INT-R1): specify mutation benchmark and edge fixtures`
+- `5ceb8443c docs(gy-infra-2): record closeout verification`
+- `daae9ac36 docs(INT-R1): sketch typed artifacts and coverage lifecycle`
+- `69b1cf2a0 docs(research): add INT-R9 proving-ground contamination census`
+- `f612c2067 docs(INT-R1): formalize open-world impossibility and relative coverage`
+- `d47407d1a docs(INT-R1): add primary-source transfer ledger`
+- `2583dd2ab docs(gy-infra-2): close Part C review`
+- `fe5036663 docs(INT-R1): record repository census and owner anchors`
+- `5391639c6 docs(gy-infra-2): reconcile Gate-0 receipts`
+- `4c8999334 docs(gy-infra-2): record negative Part C gate zero`
 - `33a530d12 DS5-C01c freeze issuer enforcement gaps`
+- `1d24793a1 docs(gy-infra-2): close Part B review`
+- `ff446d788 docs(gy-infra-2): record Part B round-two repair`
+- `6113c5ee8 fix(tools): refuse unbound diff configuration`
+- `078c5257f docs(gy-infra-2): record Part B fix review package`
+- `495bb0749 fix(tools): make review packages hermetic`
+- `c8c02072a feat(tools): package full and delta code reviews`
+- `d152565dc docs: annotate the plans and the Wave-2 backlog under the ratified kernel`
+- `bfa31770d docs: AGENTS.md — carry S0-K03 plane decomposition and the S0-K06 band split`
+- `514e61658 docs: adopt the Custody Time Model as the temporal target spec`
+- `d9c5c6a9d docs: ratify the Stage-0 custody kernel S0-K01-S0-K16`
+- `923f5ca33 docs(gy-infra-2): record Part A review verdict`
+- `dc5ff8505 fix(tools): render catalog lanes in empty timing reports`
+- `a14fe9a13 merge(research): land OPS-R4 temporal semantics for policy custody`
+- `8a684cf5a merge(research): land the Stage-0 consolidation stack and the S0-GAP-01 decision`
+- `a1ccf2936 merge(research): land the OPS-R15 independent audit`
+- `24c3cfaea merge(research): land the PAO-R1 independent audit`
+- `3febc3f19 merge(research): land the PAO-R0 independent audit`
+- `6bcc95bff feat(tools): publish measured verification budgets`
+- `53df61d40 docs: GY plan — register GY-DEF4, temporal diagnostic minting the authority pass token`
+- `f1d9c5539 docs: GY plan Rev 21 — register three live repository defects outside the sequence`
+- `498351be8 fix(tools): preserve timing summary denominators`
+- `06b563134 feat(tools): persist direct verification timings`
 - `c447d5744 DS5-C01b forbid authority escape hatches`
+- `ad2f7585c docs: Atlas plan Rev 3.8 — DS-INFRA-1, restore incrementality where provably safe`
+- `f4fc44d73 docs(gy-infra-2): plan verification economics work`
+- `4b9e76f20 docs: GY-INFRA-2 — extend to three parts, replay-free work first`
+- `1758ac357 docs: GY-DI1 — classify the over-binding as false withdrawal, not unsafe grant`
+- `f41d49071 merge: land GY-N11 — honest confidence ledger (anytime-valid promotion risk)`
+- `d671cb68a docs(gy-n11): record architect handoff receipts`
+- `681d0de2f docs(gy-n11): distinguish no-op reissue receipts`
+- `d9a46027d docs(gy-n11): correct closeout row semantics`
+- `a8be8be1b docs(gy-n11): reconcile dependency-ordered closeout`
 - `b19c33181 DS5-C01a census branded authority sinks`
+- `c732eaa58 chore(gy-n11): converge second-domain receipt family`
+- `94d10ed41 docs: correct the DS5 W2 evidence — detached worktree, not dropped commits`
+- `cd2de8364 docs: record the DS5 work-preservation and history lessons in both plans`
+- `ddc746a8f docs: land the verification-economics findings in both plans and AGENTS.md`
 - `24e66b44c DS5-C10 defer G4 owner projection contract`
+- `b3ad262e9 docs: GY plan Rev 20 — E11/E12 compute-economics gates + GY-DI1 debt from N11`
+- `369065e8b chore(gy-n11): converge deployment receipt cascade`
 - `2d6a532ed docs: recut DS5 enforcement execution clusters`
+- `c08325a08 docs: Atlas plan — add the DS5 execution-order law after the ruling was over-applied`
+- `3ffbc7bad chore(gy-n11): reissue depth-N capstone receipt`
+- `94121785f chore(gy-n11): reissue grounding receipt chain`
+- `636645bec docs: Atlas plan — rule the DS5 enforcement mechanism onto types, not flow analysis`
+- `bc3dffcc3 chore(gy-n11): reissue composition certificates`
+- `0fc3cd8c7 chore(gy-n11): reissue second-domain owner pack`
+- `a03d4d80f chore(gy-n11): reissue N8 value gate receipt`
+- `d20a95db9 chore(gy-n11): rederive Fork-B relation census`
+- `1335509f7 chore(gy-n11): reissue promotion deployment receipts`
+- `86a79fe96 fix(gy-n11): bind ledger accounting to owner provenance`
 - `b67084dd6 DS5-C01 enforce canonical status ownership`
+- `450bc31f3 chore(gy-n11): finalize deployment-bound receipts`
+- `4556fc4c8 docs(gy-n11): reconcile closure evidence`
+- `10586702c fix(gy-n10): isolate validator machine output`
+- `11ce05571 style(fabric): sort public exports`
+- `fcd110334 chore(gy-n11): rebind ledger to N13b route projection`
+- `b5ca9af0a fix(gy-n11): honor advancing cold closeout`
+- `f3c8e1780 chore(gy-n11): rebind N13b to N13a route projection`
+- `8c506eb93 chore(gy-n11): rebind N13a to U3 capstone routes`
+- `479533278 chore(gy-n11): rebind N10a gap evidence to N8`
+- `1ff19637e chore(gy-n11): rebind N8 to U3 education context`
+- `29ab2fc56 docs: Atlas plan — authorize the DS5 schema/contract-test fence; fix DS6 parallelism`
+- `f489ba0ee test(gy-n11): restore behavioral source flip matrix`
 - `d6b38294e DS5-C00 plan measured enforcement waist`
 - `5e6482302 docs: Atlas plan — sync D4 to its ratified state (unblocks DS5 locale lint)`
+- `71086ae48 fix(quality): account terminal N11 worker startup`
 - `18642c2d6 fix(atlas): re-anchor DS4 status receipts onto the DS20-regenerated client`
 - `bf5b76b0b docs: Atlas plan Rev 3.6 — DS4 closed & merged; six debts registered with owners`
 - `7f450eb7b merge: land Atlas DS4 — status-grammar rebinding, 12 families, 47 statuses`
+- `cb83a4c13 feat(quality): register data-only refusal instrument`
 - `fb44ea5a6 docs: close Atlas DS4 for architect review`
 - `470a802d4 test(dashboard): reconcile governed visual baselines`
+- `5a5d422a8 chore(quality): freeze generic N11 ledger baseline`
 - `0faf33e7b test(dashboard): prove authority posture on a real panel`
 - `2d83e3264 fix(dashboard): name provenance popover dialog`
 - `bfb30c82b fix(dashboard): restore counterfactual text contrast`
+- `604b74e80 feat(quality): implement generic N11 confidence ledger`
 - `31aae0c45 test(dashboard): budget the C14 decision-grade census`
 - `810ef6b77 test(dashboard): stabilize C22 semantic scanners`
 - `bc1d01001 fix(dashboard): contain readiness and scientific synthesis`
+- `19de04940 feat(gy-n11): isolate verification replay`
+- `1697c051d fix(gy-n11): bind live authority callables`
 - `2a9da098e refactor(dashboard): retire local return vocabularies`
+- `c1922e0a3 fix(gy-n11): bind loaded runtime and recover wal tails`
 - `31134a9fa refactor(dashboard): bind provenance posture to generated metadata`
+- `828531cf3 fix(gy-n11): preserve durable ledger witnesses`
+- `869cb4628 fix(gy-n11): harden confidence ledger durability`
 - `d2dceae95 refactor(dashboard): remove run lifecycle guessing`
+- `2e9b26183 docs(research): decide S0-GAP-01 subject-reference owner`
+- `fd4e32b44 docs(research): finalize external-source audit`
+- `eb831318d docs(research): finalize external-source audit`
+- `a1c1a0e0c docs(research): finalize external-source audit`
+- `34a864373 docs(research): record final Stage-0 audit evidence`
+- `6eafee90e docs(research): define OPS-R4 custody temporal semantics`
+- `290725446 docs(research): amend Stage-0 anchor reports`
+- `a55d33c7a docs(research): consolidate Stage-0 anchor audits`
+- `11b0c2129 docs(research): consolidate Stage-0 anchor audits`
+- `713cd082e docs(research): consolidate Stage-0 anchor audits`
+- `46a7402ea docs(research): consolidate Stage-0 anchor audits`
+- `a8e4cf480 docs(research): consolidate Stage-0 anchor audits`
+- `fcc9c06e5 docs(research): consolidate Stage-0 anchor audits`
+- `f576e3c34 docs(research): consolidate Stage-0 anchor audits`
+- `f090887fb docs(research): consolidate Stage-0 anchor audits`
+- `c567c1034 docs(research): consolidate Stage-0 anchor audits`
+- `42a79a655 docs(research): independently audit OPS-R15 capstone benchmark`
+- `566840c33 docs(research): independently audit PAO-R1 boundary register`
+- `258aa740e docs(research): independently audit PAO-R0 against repository`
 - `0e9aa6eef test(atlas): harden C22 semantic debt governance`
 - `299fe06e8 refactor(dashboard): retire bounded status taxonomies`
 - `5f63537c2 refactor(dashboard): close architecture severing remainder`
 - `4bf425bfa refactor(dashboard): bind generated responsive breakpoints`
+- `759f1722a chore(gy-n11): register confidence ledger artifact`
 - `66dcdc0b6 refactor(atlas-ui): migrate shared patterns`
 - `b171c4708 refactor(atlas-ui): migrate root compounds`
+- `de7da6f5c chore(gy): freeze capstone owner supersession`
+- `aaf537cc2 fix(gy): preserve refusal obligations across owner reissue`
+- `f54902bfc fix(gy): make grounding witness ranking reissue-stable`
 - `4813b49f6 docs: ratify PolicyOS identity and custody boundary; reshape Wave-2 research; audit both plans`
 - `e5730cf6a refactor(dashboard): rebind compound evidence families`
 - `7486eaa08 docs(atlas): authorize DS4 re-cut — clusters C21-C23`
+- `650b692e3 fix(gy): chain capstone context rebind receipts`
+- `1c05b9387 chore(gy): rebaseline the grounding benchmark`
+- `3c16857f8 fix(gy): rebaseline the N11 receipt chain`
 - `f444ba719 refactor(dashboard): fail closed on counterfactual projections`
 - `a59efb3dc refactor(dashboard): rebind operator evidence primitives`
 - `8a8c8169e refactor(dashboard): rebind trust view authority`
@@ -766,6 +1455,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 - `23d2abed0 docs: Atlas plan — DS20 + DS20-B closed & merged; typed limitations registered as debt`
 - `03ebc1ce8 merge: land Atlas DS20 + DS20-B — server authorization enforcement floor`
 - `07ed51c81 refactor(dashboard): preserve chart quantity semantics`
+- `60d2445cb docs: plan GY-N11 confidence ledger`
 - `7fa1b5f27 docs: finalize Atlas DS20 cross-fence closure`
 - `5ca5a9979 fix: bind deployment security to application identity`
 - `811088d25 fix: preserve review authorization import boundary`

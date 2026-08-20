@@ -1,0 +1,67 @@
+id = "2026-08-20-ds7-gap4-run-terminality"
+title = "Expose producer-owned run terminality"
+type = "added"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Expose producer-owned run terminality through RunSummary and regenerate both OpenAPI client families."
+evidence = [
+  "docs/superpowers/journals/2026-08-20-ds7-cycle-board.md",
+  "docs/superpowers/journals/2026-08-16-gy-gap4-run-terminality.md",
+  "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+  "tests/unit/runtime/http/test_runs_api.py",
+  "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+  "architecture/atlas_surfaces/generated_client_receipt_census.py",
+  "architecture/atlas_surfaces/status-retirement-inventory.json",
+]
+compatibility = "Client regeneration is required. GAP4's net client contribution is additive, while the dashboard regeneration also incorporates the inherited AuthMeResponse.permissions narrowing registered as open GY-DEF20; the release owner retains the compatibility-impact ruling."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime RunSummary"
+migration = "Regenerate both runtime OpenAPI client families before consuming run_terminality, review dashboard permission consumers against RuntimePermission, preserve not_established, and never derive terminality from status or timestamps."
+api = "RunSummary now carries run_terminality as terminal, non_terminal, or not_established; governed runs-channel registry examples move from version v1 to v2."
+limitations = "The lifecycle terminality fact is distinct from design-search terminal_kind. Clients predating this fragment have no lifecycle binding and must render that state as absent rather than false. GY-DEF20 remains open for generated-family output ownership and required freshness execution. GY-DEF21 remains open because the one-time status-inventory receipt refresh does not close generated-construct identity safety."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "run-summary-producer-owned-terminality"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: polisyos.runtime RunSummary"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Run summaries expose producer-owned lifecycle terminality without deriving it from status or timestamps, and governed runs-channel examples advance to v2."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-api-client-run-terminality"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The generated runtime API client exposes RunTerminality and RunSummary.run_terminality."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-dashboard-api-types-run-terminality"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "internal: runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The runtime dashboard generated API types expose run terminality and incorporate the previously stale RuntimePermission projection recorded in GY-DEF20."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []

@@ -864,6 +864,8 @@ export type RunQuantitiesResponse =
 
 export type RunSummary = RuntimeApiComponents["schemas"]["RunSummary"];
 
+export type RunTerminality = RuntimeApiComponents["schemas"]["RunTerminality"];
+
 export type RunTimelineEvent =
   RuntimeApiComponents["schemas"]["RunTimelineEvent"];
 

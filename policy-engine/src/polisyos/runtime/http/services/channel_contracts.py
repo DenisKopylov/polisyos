@@ -10,8 +10,11 @@ from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001 - Pydant
 from polisyos.core.contracts.decision_validity import (  # noqa: TC001 - Pydantic runtime type
     DecisionValidityStatus,
 )
+from polisyos.runtime.http.services.adapters import (  # noqa: TC001 - Pydantic runtime type
+    RunTerminality,
+)
 
-RUNS_CHANNEL_DATA_EVENT_CONTRACT = "policyos.runtime.runs_channel_data_event.v1"
+RUNS_CHANNEL_DATA_EVENT_CONTRACT = "policyos.runtime.runs_channel_data_event.v2"
 
 
 class _StrictOutboundChannelModel(BaseModel):
@@ -31,6 +34,7 @@ class RunsListSnapshotRun(_StrictOutboundChannelModel):
 
     run_id: str = Field(min_length=1)
     status: str = Field(min_length=1)
+    run_terminality: RunTerminality
     started_at: AwareDatetime | None = None
     finished_at: AwareDatetime | None = None
     duration_ms: int | None = Field(default=None, ge=0)
@@ -45,8 +49,8 @@ class RunsListSnapshot(_StrictOutboundChannelModel):
     contract_id: Literal["policyos.runtime.runs_list_snapshot"] = (
         "policyos.runtime.runs_list_snapshot"
     )
-    schema_version: Literal["policyos.runtime.runs_list_snapshot.v1"] = (
-        "policyos.runtime.runs_list_snapshot.v1"
+    schema_version: Literal["policyos.runtime.runs_list_snapshot.v2"] = (
+        "policyos.runtime.runs_list_snapshot.v2"
     )
     cursor: AwareDatetime
     generated_at: AwareDatetime
@@ -61,12 +65,13 @@ class RunDetailSnapshot(_StrictOutboundChannelModel):
     contract_id: Literal["policyos.runtime.run_detail_snapshot"] = (
         "policyos.runtime.run_detail_snapshot"
     )
-    schema_version: Literal["policyos.runtime.run_detail_snapshot.v1"] = (
-        "policyos.runtime.run_detail_snapshot.v1"
+    schema_version: Literal["policyos.runtime.run_detail_snapshot.v2"] = (
+        "policyos.runtime.run_detail_snapshot.v2"
     )
     run_id: str = Field(min_length=1)
     cursor: AwareDatetime
     status: str = Field(min_length=1)
+    run_terminality: RunTerminality
     started_at: AwareDatetime | None = None
     finished_at: AwareDatetime | None = None
     duration_ms: int | None = Field(default=None, ge=0)
@@ -79,7 +84,6 @@ class RunDetailSnapshot(_StrictOutboundChannelModel):
     decision_validity_status: DecisionValidityStatus | None = None
     decision_review_required: bool
     decision_superseded_by_ref: ArtifactRef | None = None
-    terminal: bool
     generated_at: AwareDatetime
 
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import copy
 import importlib.util
+import io
 import json
 import re
 import subprocess
@@ -1911,6 +1912,738 @@ class ProducerBindingDebtTests(unittest.TestCase):
         )
         self.assertIn("`artifact_missing`", readiness_line)
         self.assertIn("registered typed refusal", readiness_line)
+
+
+class DS6RegisterTransitionTests(unittest.TestCase):
+    """Prove DS6 register rows follow measured evidence lifecycles."""
+
+    def test_c04_open_rendered_contrast_row_covers_the_exact_typed_registry(
+        self,
+    ) -> None:
+        expected_sources = [
+            {
+                "sourceId": "badge-neutral",
+                "ownerCluster": "C01",
+                "component": "Badge",
+                "selector": '[data-opaque-contrast-source="badge-neutral"]',
+            },
+            {
+                "sourceId": "provenance-popover",
+                "ownerCluster": "C06",
+                "component": "ProvenancePopover",
+                "selector": '[data-opaque-contrast-source="provenance-popover"]',
+            },
+            {
+                "sourceId": "provenance-mini-graph",
+                "ownerCluster": "C06",
+                "component": "ProvenanceMiniGraph",
+                "selector": '[data-opaque-contrast-source="provenance-mini-graph"]',
+            },
+            {
+                "sourceId": "time-semantics-label",
+                "ownerCluster": "C09",
+                "component": "TimeSemanticsLabel",
+                "selector": '[data-opaque-contrast-source="time-semantics-label"]',
+            },
+            {
+                "sourceId": "candidate-frame",
+                "ownerCluster": "C14",
+                "component": "CandidateFrame",
+                "selector": '[data-opaque-contrast-source="candidate-frame"]',
+            },
+            {
+                "sourceId": "negative-certificate-card",
+                "ownerCluster": "C14",
+                "component": "NegativeCertificateCard",
+                "selector": '[data-opaque-contrast-source="negative-certificate-card"]',
+            },
+            {
+                "sourceId": "weakest-link-explainer",
+                "ownerCluster": "C14",
+                "component": "WeakestLinkExplainer",
+                "selector": '[data-opaque-contrast-source="weakest-link-explainer"]',
+            },
+        ]
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            checker.C04_RENDERED_CONTRAST_REGISTRY_SHA256,
+            checker._canonical_sha256(expected_sources),
+        )
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            "d455a84a63b3fbcb1e890d913d3dad87e6abe47a69a593b4d7575f0afc743eba",
+            checker.C04_RENDERED_CONTRAST_OWNER_AST_SHA256,
+        )
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            expected_sources,
+            checker._c04_rendered_contrast_source_rows(),
+        )
+
+        row = checker._c04_rendered_contrast_finding()
+        expected_row = {
+            "finding_id": "baseline-test-a11y-rendered-contrast-incomplete-debt",
+            "finding_kind": "baseline_test_debt",
+            "disposition": "rebind_pending",
+            "status": "open_debt",
+            "evidence_refs": [
+                "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.ts",
+                "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.test.ts",
+                "apps/runtime-dashboard/src/test/a11y/OpaqueBackgroundContrast.stories.tsx",
+            ],
+            "owner_slice": "DS6",
+            "decision_date": "2026-08-11",
+            "rationale": (
+                "C01/C06/C09/C14 comprise seven declared source identities. Axe "
+                "incomplete nodes are neither passes, source-attributed receipts, nor "
+                "denominator members; closure requires 7/7 numeric WCAG-AA receipts "
+                "on an opaque real-browser background."
+            ),
+        }
+        self.assertEqual(row, expected_row)  # noqa: PT009 - unittest suite
+
+    def test_c04_source_registry_rejects_semantic_drift_not_text_layout(
+        self,
+    ) -> None:
+        source = checker.C04_RENDERED_CONTRAST_SOURCE_PATH.read_text(
+            encoding="utf-8"
+        )
+        reformatted = source.replace(
+            'sourceId: "badge-neutral",',
+            'sourceId:\n      "badge-neutral",',
+            1,
+        )
+        self.assertEqual(  # noqa: PT009 - this module is a unittest suite
+            checker._c04_rendered_contrast_source_rows(),
+            checker._c04_rendered_contrast_source_rows(reformatted),
+        )
+
+        first_start = source.index('  {\n    sourceId: "badge-neutral"')
+        second_start = source.index('  {\n    sourceId: "provenance-popover"')
+        third_start = source.index('  {\n    sourceId: "provenance-mini-graph"')
+        first_row = source[first_start:second_start]
+        second_row = source[second_start:third_start]
+        reordered = (
+            source[:first_start]
+            + second_row
+            + first_row
+            + source[third_start:]
+        )
+        namespace_wrapped = source.replace(
+            "export const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+            "export namespace Hidden {\nexport const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+            1,
+        ).replace("] as const;", "] as const;\n}", 1)
+        registry_start = source.index("[", source.index("OPAQUE_BACKGROUND"))
+        registry_end = source.index("] as const;", registry_start) + 1
+        registry_literal = source[registry_start:registry_end]
+
+        corruptions = {
+            "renamed": source.replace(
+                'sourceId: "badge-neutral"', 'sourceId: "badge"', 1
+            ),
+            "duplicate": source.replace(
+                'sourceId: "provenance-popover"',
+                'sourceId: "badge-neutral"',
+                1,
+            ),
+            "wrong-cluster": source.replace(
+                'ownerCluster: "C01"', 'ownerCluster: "C14"', 1
+            ),
+            "wrong-component": source.replace(
+                'component: "Badge"', 'component: "Text"', 1
+            ),
+            "wrong-selector": source.replace(
+                '[data-opaque-contrast-source="badge-neutral"]',
+                '[data-opaque-contrast-source="badge"]',
+                1,
+            ),
+            "extra-field": source.replace(
+                'component: "Badge",',
+                'component: "Badge",\n    invented: "authority",',
+                1,
+            ),
+            "unexported": source.replace(
+                "export const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                "const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                1,
+            ),
+            "mutable": source.replace(
+                "export const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                "export let OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                1,
+            ),
+            "spread": source.replace(
+                "] as const;",
+                "  ...inventedSources(),\n] as const;",
+                1,
+            ),
+            "eighth-source": source.replace(
+                "] as const;",
+                (
+                    '  { sourceId: "invented", ownerCluster: "C14", '
+                    'component: "Invented", selector: '
+                    "'[data-opaque-contrast-source=\"invented\"]' },\n"
+                    "] as const;"
+                ),
+                1,
+            ),
+            "duplicate-binding": (
+                source
+                + "\nexport const OPAQUE_BACKGROUND_CONTRAST_SOURCES = [] as const;\n"
+            ),
+            "missing-source": source[:first_start] + source[second_start:],
+            "reordered": reordered,
+            "computed-key": source.replace("sourceId:", '["sourceId"]:', 1),
+            "template-value": source.replace(
+                'sourceId: "badge-neutral"',
+                "sourceId: `badge-neutral`",
+                1,
+            ),
+            "missing-const-assertion": source.replace("] as const;", "];", 1),
+            "namespace-owned": namespace_wrapped,
+            "ambient": source.replace(
+                "export const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                "export declare const OPAQUE_BACKGROUND_CONTRAST_SOURCES",
+                1,
+            ),
+            "runtime-mutation": (
+                source
+                + "\n;(OPAQUE_BACKGROUND_CONTRAST_SOURCES as unknown as "
+                "Array<unknown>).pop();\n"
+            ),
+            "esm-only-runtime-mutation": (
+                source
+                + '\nif (!("module" in globalThis)) {\n'
+                "  ;(OPAQUE_BACKGROUND_CONTRAST_SOURCES as unknown as "
+                "Array<unknown>).pop();\n}\n"
+            ),
+            "conflicting-export-alias": (
+                source
+                + "\nconst forgedRegistry = OPAQUE_BACKGROUND_CONTRAST_SOURCES;\n"
+                "export { forgedRegistry as OPAQUE_BACKGROUND_CONTRAST_SOURCES };\n"
+            ),
+            "alternate-export-alias": (
+                source
+                + "\nexport { OPAQUE_BACKGROUND_CONTRAST_SOURCES as SECOND_NAME };\n"
+            ),
+            "default-export-alias": (
+                source
+                + "\nexport { OPAQUE_BACKGROUND_CONTRAST_SOURCES as default };\n"
+            ),
+            "unused-dynamic-import": (
+                source
+                + '\nexport async function unused() { return import("./invented"); }\n'
+            ),
+            "commonjs-export-forgery": (
+                source
+                + "\ndeclare const exports: Record<string, unknown>;\n"
+                + ";(OPAQUE_BACKGROUND_CONTRAST_SOURCES as unknown as "
+                "Array<unknown>).pop();\n"
+                + "exports.OPAQUE_BACKGROUND_CONTRAST_SOURCES = "
+                + registry_literal
+                + ";\n"
+            ),
+            "transitive-map-mutation": (
+                source
+                + '\n;(SOURCE_BY_ID.get("badge-neutral") as any).sourceId = "forged";\n'
+            ),
+            "return-line-terminator": source.replace(
+                "return false;",
+                "return\nfalse;",
+                1,
+            ),
+            "declaration-any": source.replace(
+                "OPAQUE_BACKGROUND_CONTRAST_SOURCES = [",
+                "OPAQUE_BACKGROUND_CONTRAST_SOURCES: any = [",
+                1,
+            ),
+            "property-any": source.replace(
+                'sourceId: "badge-neutral"',
+                'sourceId: ("badge-neutral" as any)',
+                1,
+            ),
+            "row-any": source.replace(
+                '  },\n  {\n    sourceId: "provenance-popover"',
+                '  } as any,\n  {\n    sourceId: "provenance-popover"',
+                1,
+            ),
+            "array-any": source.replace(
+                "] as const;",
+                "] as any as const;",
+                1,
+            ),
+        }
+        for name, mutation in corruptions.items():
+            with (
+                self.subTest(name=name),
+                self.assertRaisesRegex(  # noqa: PT027 - unittest suite
+                    ValueError,
+                    "c04_rendered_contrast_source_registry_drift",
+                ),
+            ):
+                checker._c04_rendered_contrast_finding(source_text=mutation)
+
+    def test_c06_repaired_row_binds_the_exact_landed_browser_receipt(self) -> None:
+        receipt = checker._c06_c16_contrast_receipt()
+        self.assertEqual(  # noqa: PT009 - unittest suite
+            {
+                "receipt_kind": "landed_opaque_storybook_release",
+                "producer_revision": (
+                    "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
+                ),
+                "entry_revision": "41a2020d5c2097c30c94807737ba6d3a80323d2e",
+                "source_delta_sha256": (
+                    "800225190d7a47f68b585db206d6b634bd1c7787ab27bb9c5b8e8e1f5fc2bf8a"
+                ),
+                "wall_duration_seconds": 14.02,
+                "story_files": {"total": 1, "passed": 1, "failed": 0},
+                "tests": {"total": 1, "passed": 1, "failed": 0},
+                "custom_source_observations": {
+                    "sources": {"total": 7, "passed": 7, "failed": 0},
+                    "violation_count": 0,
+                    "incomplete_count": 0,
+                    "numeric_source_receipts": True,
+                    "atomic": True,
+                },
+                "automatic_a11y_meta_report": {
+                    "incomplete_count": 3,
+                    "color_contrast_incomplete_count": 1,
+                    "source_attribution": "unattributed",
+                    "denominator_membership": (
+                        "outside_custom_source_observations"
+                    ),
+                },
+                "raw_receipt": {
+                    "format": "storybook_json",
+                    "bytes": 163320,
+                    "sha256": (
+                        "a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa"
+                    ),
+                    "availability": "not_persisted_in_repository",
+                },
+                "source_registry_sha256": (
+                    "5f69573f7c1cbb27665d0e7696901f194a51a16ca55f6a827095fd691d761177"
+                ),
+                "owner_ast_sha256": (
+                    "d455a84a63b3fbcb1e890d913d3dad87e6abe47a69a593b4d7575f0afc743eba"
+                ),
+                "release_provenance": "recomputed",
+                "measurement_provenance": "task_authoritative_landed_release",
+                "authority_purpose": "c16_landed_opaque_storybook_release",
+                "source_refs": [
+                    {
+                        "path": source_ref,
+                        "content_sha256": source_sha256,
+                    }
+                    for source_ref, source_sha256 in (
+                        checker.C03_RECEIPT_SOURCE_SHA256.items()
+                    )
+                ],
+            },
+            receipt,
+        )
+
+        expected_row = {
+            **checker._c04_rendered_contrast_finding(),
+            "status": "repaired",
+            "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c",
+        }
+        self.assertEqual(  # noqa: PT009 - unittest suite
+            expected_row,
+            checker._c06_rendered_contrast_finding(),
+        )
+        stored = next(
+            finding
+            for finding in checker._supplemental_findings()
+            if finding["finding_id"]
+            == "baseline-test-a11y-rendered-contrast-incomplete-debt"
+        )
+        self.assertEqual(expected_row, stored)  # noqa: PT009 - unittest suite
+
+    def test_c06_receipt_and_current_evidence_drift_fail_closed(self) -> None:
+        revision = "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
+        plan_ref = "docs/plans/active/atlas-slices/DS6-evidence-workflow.md"
+        journal_ref = (
+            "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
+        )
+        plan_text = checker._c03_git_text(
+            "show",
+            f"{revision}:policy-engine/{plan_ref}",
+        )
+        journal_text = checker._c03_git_text(
+            "show",
+            f"{revision}:policy-engine/{journal_ref}",
+        )
+        source_corruptions = {
+            "six-of-seven": (
+                plan_text.replace("exactly 7/7", "exactly 6/7", 1),
+                journal_text,
+            ),
+            "wrong-duration": (
+                plan_text.replace("14.02 s", "14.03 s", 1),
+                journal_text,
+            ),
+            "wrong-raw-hash": (
+                plan_text.replace(
+                    "a608e9b606e50b75bef602136e0f9b0c47406dfedf0f68888b792b781e99eafa",
+                    "0" * 64,
+                    1,
+                ),
+                journal_text,
+            ),
+            "invalidated-attempt-substitution": (
+                plan_text,
+                journal_text.replace("14.02 s", "14.57 s", 1),
+            ),
+            "custom-incomplete": (
+                plan_text,
+                journal_text.replace(
+                    "zero violations/incompletes in the seven custom source observations",
+                    "one incomplete in the seven custom source observations",
+                    1,
+                ),
+            ),
+            "automatic-meta-incomplete-count": (
+                plan_text,
+                journal_text.replace(
+                    "meta-report separately retains three",
+                    "meta-report separately retains zero",
+                    1,
+                ),
+            ),
+            "automatic-meta-contrast-count": (
+                plan_text,
+                journal_text.replace(
+                    "incomplete nodes, including one `color-contrast` incomplete",
+                    "incomplete nodes, including zero `color-contrast` incomplete",
+                    1,
+                ),
+            ),
+            "automatic-meta-denominator": (
+                plan_text,
+                journal_text.replace(
+                    "They are outside the seven custom\nsource observations",
+                    "They are inside the seven custom\nsource observations",
+                    1,
+                ),
+            ),
+        }
+        for name, (mutated_plan, mutated_journal) in source_corruptions.items():
+            with (
+                self.subTest(source=name),
+                self.assertRaisesRegex(  # noqa: PT027 - unittest suite
+                    ValueError,
+                    "C16 contrast receipt",
+                ),
+            ):
+                checker._c06_c16_contrast_receipt_from_sources(
+                    mutated_plan,
+                    mutated_journal,
+                )
+
+        current_evidence = {
+            source_ref: (checker.REPO_ROOT / source_ref).read_bytes()
+            for source_ref in checker.C04_RENDERED_CONTRAST_EVIDENCE_REFS
+        }
+        for source_ref, source_bytes in current_evidence.items():
+            mutation = dict(current_evidence)
+            mutation[source_ref] = source_bytes + b"\n// drift\n"
+            with (
+                self.subTest(current_evidence=source_ref),
+                self.assertRaisesRegex(  # noqa: PT027 - unittest suite
+                    ValueError,
+                    "C16 contrast current evidence drift",
+                ),
+            ):
+                checker._c06_verify_c16_contrast_evidence(mutation)
+
+    def test_c06_transition_is_surgical_idempotent_and_rejects_bypass(self) -> None:
+        finding_id = "baseline-test-a11y-rendered-contrast-incomplete-debt"
+        register_ref = (
+            "policy-engine/architecture/atlas_surfaces/"
+            "frontend-disposition-register.json"
+        )
+        open_text = checker._c03_git_text(
+            "show",
+            f"{checker.C06_C04_ADMISSION_COMMIT}:{register_ref}",
+        )
+        repaired_text = checker._c06_rendered_contrast_transition_text(open_text)
+        self.assertEqual(  # noqa: PT009 - unittest suite
+            repaired_text,
+            checker._c06_rendered_contrast_transition_text(repaired_text),
+        )
+
+        _open_start, _open_end, open_rows = checker._supplemental_section(open_text)
+        _repaired_start, _repaired_end, repaired_rows = checker._supplemental_section(
+            repaired_text
+        )
+        self.assertEqual(  # noqa: PT009 - unittest suite
+            [row for row in open_rows if row[0] != finding_id],
+            [row for row in repaired_rows if row[0] != finding_id],
+        )
+        open_row = json.loads(next(row for row in open_rows if row[0] == finding_id)[1])
+        repaired_row = json.loads(
+            next(row for row in repaired_rows if row[0] == finding_id)[1]
+        )
+        self.assertEqual(  # noqa: PT009 - unittest suite
+            checker._c04_rendered_contrast_finding(),
+            open_row,
+        )
+        self.assertEqual(  # noqa: PT009 - unittest suite
+            checker._c06_rendered_contrast_finding(),
+            repaired_row,
+        )
+        with self.assertRaisesRegex(  # noqa: PT027 - unittest suite
+            ValueError,
+            "dedicated C06 transition",
+        ):
+            checker._refresh_supplemental_findings_text(open_text)
+
+        _section_start, section_end, spans = checker._supplemental_section_spans(
+            open_text
+        )
+        target = next(span for span in spans if span[0] == finding_id)
+
+        def replace_target(row: dict[str, object]) -> str:
+            return (
+                open_text[: target[1]]
+                + checker._render_supplemental_finding(row)
+                + open_text[target[2] + 1 :]
+            )
+
+        premature = {**open_row, "status": "repaired"}
+        wrong_commit = {
+            **premature,
+            "repair_commit": "0" * 40,
+        }
+        wrong_rationale = {**open_row, "rationale": "fabricated"}
+        missing = checker._remove_supplemental_finding_text(open_text, finding_id)
+        duplicate = (
+            open_text[:section_end]
+            + ",\n    "
+            + checker._render_supplemental_finding(open_row)
+            + open_text[section_end:]
+        )
+        corruptions = {
+            "premature-repair": replace_target(premature),
+            "wrong-repair-commit": replace_target(wrong_commit),
+            "wrong-open-rationale": replace_target(wrong_rationale),
+            "missing": missing,
+            "duplicate": duplicate,
+        }
+        for name, mutation in corruptions.items():
+            with (
+                self.subTest(predecessor=name),
+                self.assertRaisesRegex(  # noqa: PT027 - unittest suite
+                    ValueError,
+                    "C06 rendered contrast transition rejected",
+                ),
+            ):
+                checker._c06_rendered_contrast_transition_text(mutation)
+
+        original_git_text = checker._c03_git_text
+
+        def reject_missing_c04_ancestry(*arguments: str) -> str:
+            if arguments == (
+                "merge-base",
+                "--is-ancestor",
+                checker.C06_C04_ADMISSION_COMMIT,
+                "HEAD",
+            ):
+                raise ValueError("C04 admission ancestry missing")
+            return original_git_text(*arguments)
+
+        with (
+            mock.patch.object(
+                checker,
+                "_c03_git_text",
+                side_effect=reject_missing_c04_ancestry,
+            ),
+            self.assertRaisesRegex(  # noqa: PT027 - unittest suite
+                ValueError,
+                "C04 admission ancestry missing",
+            ),
+        ):
+            checker._c06_rendered_contrast_transition_text(open_text)
+
+    def test_c06_write_mode_rejects_every_early_print_mode(self) -> None:
+        print_flags = (
+            "--print-c21b-authority-identity-literals",
+            "--print-c21b-descriptor-identities",
+            "--print-c21b-authority-partition-hashes",
+        )
+        for print_flag in print_flags:
+            with self.subTest(print_flag=print_flag), mock.patch(
+                "sys.stdout",
+                new=io.StringIO(),
+            ):
+                self.assertEqual(  # noqa: PT009 - unittest suite
+                    1,
+                    checker.main(
+                        [
+                            "--write-c06-rendered-contrast-resolution",
+                            "--write-report",
+                            print_flag,
+                        ]
+                    ),
+                )
+
+    def test_c06_stored_repaired_row_rejects_drift_in_every_governed_field(
+        self,
+    ) -> None:
+        finding_id = "baseline-test-a11y-rendered-contrast-incomplete-debt"
+        validator = getattr(
+            checker,
+            "_validate_ds6_register_transition_findings",
+            None,
+        )
+        if not callable(validator):
+            raise AssertionError("DS6 transition-row validator is missing")
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        stored = [
+            row
+            for row in data["supplemental_findings"]
+            if row["finding_id"] == finding_id
+        ]
+        self.assertEqual(1, len(stored))  # noqa: PT009 - unittest suite
+        corruptions = {
+            "finding_id": finding_id + "-drift",
+            "finding_kind": "dependency_declaration",
+            "disposition": "use_as_is",
+            "status": "open_debt",
+            "evidence_refs": ["docs/fabricated.md"],
+            "owner_slice": "DS4",
+            "decision_date": "2026-08-20",
+            "repair_commit": "0" * 40,
+            "closure_signal": "fabricated but schema-valid optional field",
+            "rationale": "fabricated",
+        }
+        for field, value in corruptions.items():
+            with self.subTest(field=field):
+                mutation = copy.deepcopy(data)
+                row = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == finding_id
+                )
+                row[field] = value
+                errors: list[str] = []
+                validator(mutation, errors)
+                self.assertIn(  # noqa: PT009 - this module is a unittest suite
+                    f"ds6_register_transition_drift:{finding_id}", errors
+                )
+
+        missing_commit = copy.deepcopy(data)
+        next(
+            row
+            for row in missing_commit["supplemental_findings"]
+            if row["finding_id"] == finding_id
+        ).pop("repair_commit")
+        errors = []
+        validator(missing_commit, errors)
+        self.assertIn(  # noqa: PT009 - unittest suite
+            f"ds6_register_transition_drift:{finding_id}", errors
+        )
+
+        for population, mutation in {
+            "missing": {
+                **data,
+                "supplemental_findings": [
+                    row
+                    for row in data["supplemental_findings"]
+                    if row["finding_id"] != finding_id
+                ],
+            },
+            "duplicate": {
+                **data,
+                "supplemental_findings": [
+                    *data["supplemental_findings"],
+                    copy.deepcopy(stored[0]),
+                ],
+            },
+        }.items():
+            with self.subTest(population=population):
+                errors = []
+                validator(mutation, errors)
+                self.assertIn(  # noqa: PT009 - this module is a unittest suite
+                    f"ds6_register_transition_drift:{finding_id}", errors
+                )
+
+    def test_c03_repaired_i18n_row_is_bound_to_the_c16_receipt(self) -> None:
+        baseline = checker._load_json(checker.BASELINE_PATH)
+        baseline["vitest"] = {
+            **baseline["vitest"],
+            **copy.deepcopy(checker._c03_c16_receipt()),
+        }
+        original_load = checker._load_json
+
+        def load_with_resolved_baseline(path: Path) -> dict[str, object]:
+            if path == checker.BASELINE_PATH:
+                return copy.deepcopy(baseline)
+            return original_load(path)
+
+        with mock.patch.object(checker, "_load_json", side_effect=load_with_resolved_baseline):
+            row = next(
+                finding
+                for finding in checker._supplemental_findings()
+                if finding["finding_id"] == "baseline-test-i18n-count-debt"
+            )
+
+        expected = {
+                "finding_id": "baseline-test-i18n-count-debt",
+                "finding_kind": "baseline_test_debt",
+                "disposition": "rebind_pending",
+                "status": "repaired",
+                "evidence_refs": [
+                    "architecture/atlas_surfaces/"
+                    "frontend-baseline-debt-manifest.json#tests/i18n-count"
+                ],
+                "owner_slice": "DS6",
+                "decision_date": "2026-07-17",
+                "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c",
+                "rationale": (
+                    "The governed Vitest lifecycle admits exactly the three historical DS6 "
+                    "count-message identities while open or the C16 full-suite empty "
+                    "failure set when repaired."
+                ),
+            }
+        if row != expected:
+            raise AssertionError(f"C03 row drift: {row!r}")
+
+    def test_c03_stored_row_rejects_drift_in_every_governed_field(self) -> None:
+        validator = getattr(
+            checker, "_validate_ds6_register_transition_findings", None
+        )
+        if not callable(validator):
+            raise AssertionError("DS6 transition-row validator is missing")
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        stored = next(
+            row
+            for row in data["supplemental_findings"]
+            if row["finding_id"] == "baseline-test-i18n-count-debt"
+        )
+        corruptions = {
+            "finding_kind": "dependency_declaration",
+            "disposition": "use_as_is",
+            "status": "open_debt",
+            "evidence_refs": ["docs/fabricated.md"],
+            "owner_slice": "DS4",
+            "decision_date": "2026-08-20",
+            "repair_commit": "d01eaa572",
+            "rationale": "fabricated",
+        }
+        for field, value in corruptions.items():
+            with self.subTest(field=field):
+                mutation = copy.deepcopy(data)
+                row = next(
+                    item
+                    for item in mutation["supplemental_findings"]
+                    if item["finding_id"] == stored["finding_id"]
+                )
+                row[field] = value
+                errors: list[str] = []
+                validator(mutation, errors)
+                _expect = f"ds6_register_transition_drift:{stored['finding_id']}"
+                if _expect not in errors:
+                    raise AssertionError(f"stored C03 {field} drift escaped: {errors}")
 
 
 class RawTransportDriftTests(unittest.TestCase):

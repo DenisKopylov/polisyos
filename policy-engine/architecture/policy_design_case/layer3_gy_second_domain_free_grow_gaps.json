@@ -1,6 +1,6 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:c7c674e64c4ba35ceab15d3e060fbeda8519a372351b784e453c5751b87044d0",
+  "gap_report_content_hash": "sha256:14b50fb7dc3846b4341d6b6f0090bc00c47e369226f8717712817d7d6d631313",
   "gaps": [
     {
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
@@ -410,7 +410,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:4bbffa4cfc449d9e2e5dbe3d99b5dcd31ec9da5add8e0d76b92cd1c8ad53fa4f",
+      "gap_content_hash": "sha256:d90e464bbe28059bbff37edd6e6d35f01e4ef29d785a07c8fa0f44d0c3b9b91d",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [],
@@ -444,12 +444,12 @@
           "closed": true,
           "cycle_count": 1,
           "reason_code": "n6_coherent_single_terminal_accepted",
-          "receipt_ref": "sha256:410b736ec65a7a8df5696f0dbccc61e2d6cbc2ddf46b6fa26dc4d8786a31fee8",
-          "run_content_hash": "sha256:d34a88708f985599ce5642ff72fe9c07f4dcf04a9cb3b0f1b14cc175de1817a9",
+          "receipt_ref": "sha256:d744bbe9be3484e8ad8cf2e5f26ab1b269559098036d3ac36493d5f01be4b1d1",
+          "run_content_hash": "sha256:5450db7da3b1b93b4475a2facaf2f05e01cd7b41aaaabd89a82cb97263fbbebe",
           "terminal_kind": "acquisition_required",
           "validation_issues": []
         },
-        "trace_content_hash": "sha256:1e9c67b971ff46dffdbcecd7b12f6e495551f84df61485175a49903907a10d95"
+        "trace_content_hash": "sha256:8ca68849fd40751b25d4fbeda45876914dddc6fa96cf91c82677f3a1e03c9919"
       },
       "status": "closed"
     }

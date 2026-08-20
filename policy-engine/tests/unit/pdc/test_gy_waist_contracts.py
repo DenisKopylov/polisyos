@@ -697,6 +697,58 @@ def test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape() ->
         )
 
 
+def test_overlay_gy_shared_operational_leaves_retains_live_semantics_and_shape() -> None:
+    """Writer overlay preserves shared operations without minting frozen structure."""
+
+    previous = {
+        "content_hash": "sha256:frozen",
+        "semantic": {
+            "score": 1,
+            "generated_at": "frozen-shared",
+            "completed_at": "frozen-only",
+        },
+        "runtime_metrics": {"wall_time_seconds": 1.0},
+        "frozen_only_branch": {"generated_at": "frozen-only-branch"},
+        "rows": [
+            {"name": "shared", "generated_at": "frozen-row"},
+            {"name": "frozen-extra", "generated_at": "frozen-extra-row"},
+        ],
+    }
+    current = {
+        "content_hash": "sha256:live",
+        "semantic": {
+            "score": 2,
+            "generated_at": "live-shared",
+            "started_at": "live-only",
+        },
+        "runtime_metrics": {"wall_time_seconds": 9.0},
+        "live_only_branch": {"generated_at": "live-only-branch"},
+        "rows": [
+            {"name": "shared", "generated_at": "live-row"},
+            {"name": "frozen-extra", "generated_at": "live-second-row"},
+            {"name": "live-extra", "generated_at": "live-extra-row"},
+        ],
+    }
+
+    overlaid = pdc_module.overlay_gy_shared_operational_leaves(previous, current)
+
+    assert overlaid == {
+        "content_hash": "sha256:live",
+        "semantic": {
+            "score": 2,
+            "generated_at": "frozen-shared",
+            "started_at": "live-only",
+        },
+        "runtime_metrics": {"wall_time_seconds": 1.0},
+        "live_only_branch": {"generated_at": "live-only-branch"},
+        "rows": [
+            {"name": "shared", "generated_at": "frozen-row"},
+            {"name": "frozen-extra", "generated_at": "frozen-extra-row"},
+            {"name": "live-extra", "generated_at": "live-extra-row"},
+        ],
+    }
+
+
 def test_reconcile_gy_comparison_projection_preserves_admitted_raw_record() -> None:
     """A producer-bound projection may preserve raw evidence but not governing drift."""
 

@@ -13,7 +13,7 @@ from pathlib import Path
 
 import pytest
 
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import gy_content_hash, reconcile_gy_operational_leaves
 from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
@@ -818,59 +818,240 @@ def test_nonbinding_dispositions_route_to_acquisition_not_repair_only() -> None:
     )
 
 
-def test_writer_preserves_routing_time_only_for_same_semantic_trace(
+def test_writer_overlays_operational_leaves_for_every_declared_output(
     tmp_path: Path,
 ) -> None:
-    """Operational N7 timestamps cannot destabilize equal frozen trace bytes."""
+    """The writer derives its denominator and discriminates time from semantics."""
 
-    path = tmp_path / second_domain_pack.CYCLE_TRACE_OUTPUT
-    path.parent.mkdir(parents=True)
-    frozen = {
-        "trace_content_hash": "sha256:" + "a" * 64,
-        "runtime_metrics": {"wall_time_seconds": 1.0},
-        "generation_cycle_run": {
-            "cycles": [
+    def bundle_for(*, semantic: str, generated_at: str) -> dict[str, object]:
+        bundle: dict[str, object] = {}
+        for _relative_path, bundle_key, hash_field, _mode in (
+            second_domain_pack._ARTIFACT_WRITE_SPECS
+        ):
+            excluded_fields = tuple(
+                second_domain_pack._CONTENT_HASH_ALLOWED_EXCLUSIONS.get(
+                    hash_field,
+                    frozenset(),
+                )
+            )
+            bundle[bundle_key] = second_domain_pack._with_content_hash(
                 {
-                    "cycle_index": 0,
-                    "acquisition_routing_report": {
-                        "status": "pass",
-                        "generated_at": "2026-07-14T00:00:00Z",
-                    },
-                }
-            ]
+                    "artifact": bundle_key,
+                    "content_hash_excluded_fields": sorted(excluded_fields),
+                    "semantic_value": semantic,
+                    "operational_probe": {"generated_at": generated_at},
+                },
+                hash_field,
+                excluded_fields=excluded_fields,
+            )
+        return bundle
+
+    frozen = bundle_for(semantic="frozen", generated_at="frozen-time")
+    for relative_path, bundle_key, _hash_field, _mode in (
+        second_domain_pack._ARTIFACT_WRITE_SPECS
+    ):
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(frozen[bundle_key]), encoding="utf-8")
+
+    same_a = bundle_for(semantic="frozen", generated_at="live-time-a")
+    same_b = bundle_for(semantic="frozen", generated_at="live-time-b")
+    delta_a = bundle_for(semantic="declared-delta", generated_at="live-time-a")
+    delta_b = bundle_for(semantic="declared-delta", generated_at="live-time-b")
+    governing_mutant = bundle_for(
+        semantic="second-governing-delta",
+        generated_at="live-time-b",
+    )
+
+    for bundle in (same_a, same_b, delta_a, delta_b, governing_mutant):
+        second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
+
+    assert same_a == frozen
+    assert same_b == frozen
+    assert delta_a == delta_b
+    assert delta_a != frozen
+    assert governing_mutant != delta_a
+    assert tuple(
+        relative_path
+        for relative_path, _bundle_key, _hash_field, _mode in (
+            second_domain_pack._ARTIFACT_WRITE_SPECS
+        )
+    ) == second_domain_pack.ARTIFACT_OUTPUTS
+    assert delta_a["pack"]["operational_probe"]["generated_at"] == "frozen-time"
+    assert delta_a["pack"]["semantic_value"] == "declared-delta"
+
+    missing_live_leaf = bundle_for(
+        semantic="declared-delta",
+        generated_at="live-time-a",
+    )
+    del missing_live_leaf["pack"]["operational_probe"]["generated_at"]
+    second_domain_pack._preserve_frozen_operational_metrics(missing_live_leaf, tmp_path)
+    assert "generated_at" not in missing_live_leaf["pack"]["operational_probe"]
+
+
+def test_writer_overlay_remains_eligible_during_declared_semantic_delta(
+    tmp_path: Path,
+) -> None:
+    """A governing trace delta cannot disable operational preservation."""
+
+    excluded_fields = tuple(
+        second_domain_pack._CONTENT_HASH_ALLOWED_EXCLUSIONS["trace_content_hash"]
+    )
+    frozen = second_domain_pack._with_content_hash(
+        {
+            "content_hash_excluded_fields": sorted(excluded_fields),
+            "semantic_value": "frozen",
+            "operational_probe": {"generated_at": "frozen-time"},
         },
-    }
+        "trace_content_hash",
+        excluded_fields=excluded_fields,
+    )
+    path = tmp_path / second_domain_pack.CYCLE_TRACE_OUTPUT
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(frozen), encoding="utf-8")
-    live_trace = copy.deepcopy(frozen)
-    live_trace["runtime_metrics"] = {"wall_time_seconds": 9.0}
-    live_trace["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
-        "generated_at"
-    ] = "2026-07-15T00:00:00Z"
-    bundle = {"cycle_trace": live_trace}
+    live = second_domain_pack._with_content_hash(
+        {
+            "content_hash_excluded_fields": sorted(excluded_fields),
+            "semantic_value": "declared-delta",
+            "operational_probe": {"generated_at": "live-time"},
+        },
+        "trace_content_hash",
+        excluded_fields=excluded_fields,
+    )
+    live_hash = live["trace_content_hash"]
+    bundle = {"cycle_trace": live}
 
     second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
 
-    assert bundle["cycle_trace"]["runtime_metrics"] == frozen["runtime_metrics"]
-    assert (
-        bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
-            "generated_at"
-        ]
-        == "2026-07-14T00:00:00Z"
+    assert bundle["cycle_trace"]["semantic_value"] == "declared-delta"
+    assert bundle["cycle_trace"]["trace_content_hash"] == live_hash
+    assert bundle["cycle_trace"]["operational_probe"]["generated_at"] == "frozen-time"
+
+
+def test_writer_operational_denominator_grows_from_write_specs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A declared writer output enters normalization without a second member list."""
+
+    probe_spec = (
+        "architecture/policy_design_case/gy_def17_probe.json",
+        "probe",
+        "probe_content_hash",
+        "probe_mode",
+    )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_ARTIFACT_WRITE_SPECS",
+        (*second_domain_pack._ARTIFACT_WRITE_SPECS, probe_spec),
+    )
+    frozen = second_domain_pack._with_content_hash(
+        {
+            "semantic_value": "frozen",
+            "operational_probe": {"generated_at": "frozen-time"},
+        },
+        "probe_content_hash",
+    )
+    path = tmp_path / probe_spec[0]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(frozen), encoding="utf-8")
+    live = second_domain_pack._with_content_hash(
+        {
+            "semantic_value": "declared-delta",
+            "operational_probe": {"generated_at": "live-time"},
+        },
+        "probe_content_hash",
+    )
+    live_hash = live["probe_content_hash"]
+    bundle = {"probe": live}
+
+    second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
+
+    assert bundle["probe"]["semantic_value"] == "declared-delta"
+    assert bundle["probe"]["probe_content_hash"] == live_hash
+    assert bundle["probe"]["operational_probe"]["generated_at"] == "frozen-time"
+
+
+def test_transition_manifest_normalizes_time_and_binds_pack_semantic_delta(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Manifest equality ignores time but remains sensitive to governing pack content."""
+
+    def bundle_for(*, pack_semantic: str, generated_at: str) -> dict[str, object]:
+        bundle: dict[str, object] = {}
+        for _relative_path, bundle_key, hash_field, _mode in (
+            second_domain_pack._ARTIFACT_WRITE_SPECS
+        ):
+            excluded_fields = tuple(
+                second_domain_pack._CONTENT_HASH_ALLOWED_EXCLUSIONS.get(
+                    hash_field,
+                    frozenset(),
+                )
+            )
+            bundle[bundle_key] = second_domain_pack._with_content_hash(
+                {
+                    "artifact": bundle_key,
+                    "content_hash_excluded_fields": sorted(excluded_fields),
+                    "semantic_value": pack_semantic if bundle_key == "pack" else "frozen",
+                    "operational_probe": {"generated_at": generated_at},
+                },
+                hash_field,
+                excluded_fields=excluded_fields,
+            )
+        return bundle
+
+    frozen = bundle_for(pack_semantic="frozen", generated_at="frozen-time")
+    for relative_path, bundle_key, _hash_field, _mode in (
+        second_domain_pack._ARTIFACT_WRITE_SPECS
+    ):
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(frozen[bundle_key]), encoding="utf-8")
+    monkeypatch.setattr(second_domain_pack, "_require_n10a_source_scope_clean", lambda _root: None)
+    monkeypatch.setattr(second_domain_pack, "_git", lambda _root, *_args: "a" * 40)
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_n10a_source_scope_content_hash",
+        lambda _root: "sha256:" + "b" * 64,
     )
 
-    shifted = copy.deepcopy(live_trace)
-    shifted["trace_content_hash"] = "sha256:" + "b" * 64
-    shifted_bundle = {"cycle_trace": shifted}
-    second_domain_pack._preserve_frozen_operational_metrics(
-        shifted_bundle,
-        tmp_path,
+    def manifest_for(*, pack_semantic: str, generated_at: str) -> dict[str, object]:
+        bundle = bundle_for(pack_semantic=pack_semantic, generated_at=generated_at)
+        second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
+        transitions = second_domain_pack._prepare_artifact_write_transitions(bundle, tmp_path)
+        return second_domain_pack._artifact_write_transition_manifest(tmp_path, transitions)
+
+    manifest_a = manifest_for(
+        pack_semantic="declared-delta",
+        generated_at="live-time-a",
     )
-    assert (
-        shifted_bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0][
-            "acquisition_routing_report"
-        ]["generated_at"]
-        == "2026-07-15T00:00:00Z"
+    manifest_b = manifest_for(
+        pack_semantic="declared-delta",
+        generated_at="live-time-b",
     )
+    governing_mutant = manifest_for(
+        pack_semantic="second-governing-delta",
+        generated_at="live-time-b",
+    )
+
+    assert manifest_a == manifest_b
+    assert governing_mutant != manifest_a
+    assert all(
+        not any(
+            second_domain_pack.is_gy_content_hash_excluded_field(
+                pointer.rsplit("/", maxsplit=1)[-1].replace("~1", "/").replace("~0", "~")
+            )
+            for pointer in row["changed_leaves"]
+        )
+        for row in manifest_a["artifacts"]
+    )
+    pack_row = next(
+        row
+        for row in manifest_a["artifacts"]
+        if row["output"] == second_domain_pack.PACK_OUTPUT
+    )
+    assert "/semantic_value" in pack_row["changed_leaves"]
 
 
 def test_writer_accounts_for_all_five_legacy_outputs_before_write(
@@ -1253,7 +1434,7 @@ def test_routing_time_preservation_does_not_manufacture_missing_runtime_property
     del live["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"]["generated_at"]
 
     with pytest.raises(ValueError, match="gy_operational_reconciliation_shape_mismatch"):
-        second_domain_pack.reconcile_gy_operational_leaves(frozen, live)
+        reconcile_gy_operational_leaves(frozen, live)
 
 
 def test_frozen_pack_persists_content_bound_registry_for_cycle_intake() -> None:

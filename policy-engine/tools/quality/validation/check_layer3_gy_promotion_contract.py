@@ -82,7 +82,9 @@ from polisyos.runtime.quality.promotion_sequence import (
     CanonicalPromotionReceipt,
     LegacyPromotionStrangleReceipt,
     N9DesignProblemBinding,
+    _gate_outcome_hash,
     _run_canonical_promotion_sequence_for_verification,
+    _validate_canonical_promotion_receipt_for_verification,
     admit_canonical_promotion_receipt_for_comparison,
     confidence_risk_scope_for_problem,
 )
@@ -138,7 +140,8 @@ def _run_with_isolated_confidence_ledger(
     *,
     scenario_id: str,
     promotion_input: CanonicalPromotionInput,
-) -> tuple[CanonicalPromotionReceipt, GyComparisonAdmission]:
+    produce_om01_witness: bool = False,
+) -> tuple[CanonicalPromotionReceipt, GyComparisonAdmission, dict[str, Any] | None]:
     """Replay one synthetic scenario against a fresh deterministic N11 scope."""
 
     risk_scope = confidence_risk_scope_for_problem(promotion_input.design_problem_binding)
@@ -159,7 +162,76 @@ def _run_with_isolated_confidence_ledger(
             repo_root=repo_root,
             confidence_ledger_session=session,
         )
-        return receipt, admission
+        witness = (
+            _live_om01_witness(repo_root, receipt=receipt, session=session)
+            if produce_om01_witness
+            else None
+        )
+        return receipt, admission, witness
+
+
+def _live_om01_witness(
+    repo_root: Path,
+    *,
+    receipt: CanonicalPromotionReceipt,
+    session: ConfidenceLedgerSession,
+) -> dict[str, Any]:
+    """Remove one decisive row and run the authority validator before session close."""
+
+    targets = [
+        row
+        for row in receipt.obligations
+        if row.obligation_role == "decisive_predicate"
+        and row.source_obligation_ref.endswith(
+            "#transport_wmr_hash_equals_receipt_wmr_hash"
+        )
+    ]
+    if len(targets) != 1:
+        raise ValueError("om01_decisive_obligation_target_denominator_mismatch")
+    target = targets[0]
+    obligations = tuple(
+        row
+        for row in receipt.obligations
+        if row.obligation_instance_id != target.obligation_instance_id
+    )
+    removed_count = len(receipt.obligations) - len(obligations)
+    class_rows = tuple(
+        row for row in obligations if row.obligation_role == "class_gate"
+    )
+    class_total = tuple(row.obligation_class for row in class_rows) == tuple(
+        PromotionObligationClass
+    )
+    mutated = receipt.model_copy(
+        update={
+            "obligations": obligations,
+            "gate_outcome_hash": _gate_outcome_hash(obligations),
+        }
+    )
+    authority_issues = _validate_canonical_promotion_receipt_for_verification(
+        mutated,
+        repo_root=repo_root,
+        confidence_ledger_session=session,
+    )
+    expected_issue = {
+        "code": "decisive_obligation_omitted",
+        "obligation_instance_id": target.obligation_instance_id,
+    }
+    authority_red = authority_issues == (expected_issue,)
+    if removed_count != 1 or not class_total or not authority_red:
+        raise ValueError("om01_live_authority_witness_failed")
+    return {
+        "mutation_id": "om_01_decisive_obligation_omission",
+        "removed_obligation_role": target.obligation_role,
+        "removed_source_obligation_ref": target.source_obligation_ref,
+        "removed_obligation_instance_id": target.obligation_instance_id,
+        "removed_instance_count": removed_count,
+        "class_denominator_status": "green",
+        "class_denominator_count": len(class_rows),
+        "authority_status": "red",
+        "authority_issue_codes": [str(item["code"]) for item in authority_issues],
+        "authority_issues": list(authority_issues),
+        "verification_session_provenance": session.authority_provenance,
+    }
 
 
 def build_payload(repo_root: Path) -> dict[str, Any]:
@@ -176,12 +248,17 @@ def _build_payload_with_comparison_plan(
 
     started = time.monotonic()
     contract_input = _promotion_input()
-    contract_refusal, contract_refusal_admission = _run_with_isolated_confidence_ledger(
+    (
+        contract_refusal,
+        contract_refusal_admission,
+        obligation_instance_mutation_witness,
+    ) = _run_with_isolated_confidence_ledger(
         repo_root,
         scenario_id="contract-lane-anytime-refusal",
         promotion_input=contract_input,
+        produce_om01_witness=True,
     )
-    production_shadow, production_shadow_admission = _run_with_isolated_confidence_ledger(
+    production_shadow, production_shadow_admission, _ = _run_with_isolated_confidence_ledger(
         repo_root,
         scenario_id="production-honest-shadow",
         promotion_input=contract_input.model_copy(
@@ -195,7 +272,7 @@ def _build_payload_with_comparison_plan(
             }
         ),
     )
-    non_promotable, non_promotable_admission = _run_with_isolated_confidence_ledger(
+    non_promotable, non_promotable_admission, _ = _run_with_isolated_confidence_ledger(
         repo_root,
         scenario_id="non-promotable-contract-stamp",
         promotion_input=contract_input,
@@ -239,6 +316,7 @@ def _build_payload_with_comparison_plan(
             "scientist_champion_strangled": "src/polisyos/scientist/methods/search/judge_stack.py",
         },
         "obligation_denominator": _obligation_denominator(),
+        "obligation_instance_mutation_witness": obligation_instance_mutation_witness,
         "scope_insufficient_promotion_policy": _scope_insufficient_promotion_policy(),
         "contract_lane_anytime_refusal": contract_refusal.model_dump(mode="json"),
         "production_honest_shadow": production_shadow.model_dump(mode="json"),
@@ -284,6 +362,31 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
         issues.append({"code": "schema_version_drift"})
     if payload.get("obligation_denominator") != _obligation_denominator():
         issues.append({"code": "obligation_denominator_drift"})
+    witness = payload.get("obligation_instance_mutation_witness")
+    witness_valid = isinstance(witness, dict)
+    if witness_valid:
+        removed_id = witness.get("removed_obligation_instance_id")
+        witness_valid = bool(
+            witness.get("mutation_id") == "om_01_decisive_obligation_omission"
+            and witness.get("removed_obligation_role") == "decisive_predicate"
+            and witness.get("removed_instance_count") == 1
+            and witness.get("class_denominator_status") == "green"
+            and witness.get("class_denominator_count") == len(PromotionObligationClass)
+            and witness.get("authority_status") == "red"
+            and witness.get("authority_issue_codes")
+            == ["decisive_obligation_omitted"]
+            and witness.get("verification_session_provenance") == "verification"
+            and isinstance(removed_id, str)
+            and witness.get("authority_issues")
+            == [
+                {
+                    "code": "decisive_obligation_omitted",
+                    "obligation_instance_id": removed_id,
+                }
+            ]
+        )
+    if not witness_valid:
+        issues.append({"code": "obligation_instance_mutation_witness_invalid"})
     if payload.get("scope_insufficient_promotion_policy") != _scope_insufficient_promotion_policy():
         issues.append({"code": "scope_insufficient_promotion_policy_drift"})
     if payload.get("delta_caveat") != CONDITIONAL_VALIDITY_CLAUSE:

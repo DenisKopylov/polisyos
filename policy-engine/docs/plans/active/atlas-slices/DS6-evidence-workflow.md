@@ -937,6 +937,49 @@ explicitly relinquished after the stopped measurement.
 
 ### Task 13 — DS6-C13: independently verify DS8 adjacent print export
 
+**2026-08-20 pinned-main re-entry: stopped at the required DS8 design
+escalation before mechanism entry.** The lane entered clean at `8275e321c`,
+merged the explicitly pinned `main` commit `0dda8be51` as `66d13fdb`, and
+bound `0dda8be51` as its immutable merge base. The post-merge
+`corepack pnpm install --frozen-lockfile` gate completed exit 0 with pnpm
+10.33.2 before any TypeScript-derived evidence.
+
+The requested panel-owner census finds that `OperatorCraftPanel` is not
+affordance-only. Alongside seven rendered-control JSX source sites, it renders
+browser-persisted annotation body/target/snapshot hash, threshold and impact
+values, saved evidence references, and onboarding progress/evidence
+references/completion duration. `AmbientTelemetryHud` adds one control site;
+the route also has a sibling diagnostic disclosure. Whether this recorded
+reviewer state belongs on paper is therefore the design question named by the
+task, not a classification DS6 may make. DS8/`team-design` still owes that
+paper-semantics adjudication; Revision 3.22 permits the live co-owner to
+execute but does not waive the absent owner's decision.
+
+No CSS, product component, test, semantic guard, snapshot, or governed
+register-family byte changed. The visual lane and register-family lock were
+never acquired. The generic whole-tree no-rendered-interactive-control guard
+is designed but deliberately not implemented: its projection predicate
+depends on whether DS8 chooses whole-panel exclusion, control-only exclusion,
+or a dedicated noninteractive paper projection.
+
+The architect's adjudication is recorded as **`institutionally_supplied`**:
+724×2,113 is a **bulk-publish placeholder never derived against this
+surface**, so a future replacement is a **first derivation, not a
+re-baseline**. Its 724→770 branch is unsupported and closed because the active
+770-pixel shell rule predates the PNG by six weeks. Q4, the post-repair height
+composition, the growth mutation, the
+expectation derivation receipt, and the two stable captures were not entered
+after the mandatory escalation.
+
+C13's predicates remain independent: a complete print-scope repair release
+and the whole-tree no-interactive-control property are both
+`not_established` and fail closed. The stable-pair predicate is `recomputed`
+false because the first admitted no-update comparison is RED; no new capture
+was run in this stopped re-entry. The existing signed-target non-overlap
+remains a narrower true result and cannot stand in for the missing print-scope
+property. Their conjunction is false, so C13 makes no governed transition and
+C14 remains not executable. DS6 remains open.
+
 **Revision 3.22 execution status: the scoped product repair is released at
 `1fc07ed01a3cd3d5cfd9dc4a04b1ad89d0d141cd` after attached-branch
 readback, and its narrow current-surface semantic guard is GREEN. DS8/

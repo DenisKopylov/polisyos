@@ -5340,3 +5340,145 @@ Vite, Storybook, fixture-server, or Playwright test process and no listener on
 5,173, 6,006, or 8,000; pre-existing app-level Playwright MCP helpers were not
 part of this lane. C13 and C14 remain unentered, DS6 remains open, and the
 plural-rule successor debt remains registered and untouched.
+
+## Print-scope repair re-entry and DS8 escalation — 2026-08-20
+
+This execution entered clean and attached at
+`8275e321c4f095fcf64b2bf98bddd0f8d008bc61` on
+`codex/atlas-ds6-closure`. It merged the explicitly pinned current-main commit
+`0dda8be515c588b326bb5253ca40eb825f0d46f2`; the resulting merge commit is
+`66d13fdbcbabb4fcd438fe4b0c6b34d07ae6253c`, whose second parent and immutable
+merge base are exactly the pinned commit. The guard then reread the exact
+worktree path, attached branch, clean status, and bound base. No moving
+`main` tip is used below.
+
+The fresh post-merge toolchain gate ran before TypeScript-derived evidence:
+`corepack pnpm install --frozen-lockfile` completed exit 0 in 1.1 s with pnpm
+10.33.2 and a current lockfile. The tracked tree remained clean.
+
+### Panel-owner census and escalation ruling
+
+A TypeScript-AST census over the two mounted panel owners enumerated source
+sites rather than guessed runtime multiplicities. `OperatorCraftPanel` has
+seven rendered-control JSX sites: a threshold slider; annotation select,
+textarea, and submit button; an evidence-wallet save button; an onboarding
+start button; and the per-incomplete-step action button. Its surrounding form
+is an eighth interaction-surface site but is not itself a rendered control;
+the wallet and step buttons can instantiate repeatedly from data.
+`AmbientTelemetryHud` adds one slider. A mount/symbol census finds exactly
+these two panel definitions and their direct mounts at
+`RunDetailLayout.tsx:333` and `:793`; the route also contains a sibling
+diagnostic `<details>` disclosure. The nine-file `src/styles/` denominator
+plus root `src/styles.css` find the existing `print.css` chrome boundary and
+the root screen shell rules; neither panel root matches either exclusion.
+
+The decisive result is **mixed content**, not the number of controls.
+`OperatorCraftPanel` also renders:
+
+- reviewer-authored annotation body, target label, and packet snapshot hash;
+- the current threshold, visible/hidden/remaining counts, hidden-claim
+  labels/scores, and updated date;
+- saved evidence-wallet labels and references; and
+- onboarding progress, evidence references, and conditional completion
+  duration.
+
+Those are recorded state and values. Their browser-local TTL and the panel's
+own “reviewer workflow chrome” description do not adjudicate whether they
+belong in a printed report; treating either fact as authority would make the
+implementation decide the very paper semantics reserved to DS8. This meets
+the task's explicit escalation condition. DS8/`team-design` still owes a
+design adjudication between whole-panel exclusion, retaining selected
+noninteractive state while excluding controls, and a dedicated paper
+projection. The debt-row execution rule lets DS6 act when the closure signal
+is executable; it does not waive this owed decision.
+
+The subagent proposal to classify all browser-local state as
+`surface_out_of_scope` was therefore rejected as an unratified design opinion.
+The sibling guard design remains useful after adjudication: a real-browser
+walk of the complete document tree classifies native controls, ARIA control
+roles, editable nodes, and focusable nodes; it follows ancestor visibility and
+requires no rendered interactive control while continuing to allow ordinary
+archival links. It is not implemented in this stopped execution.
+
+### Work deliberately not entered
+
+No CSS, component, visual test, semantic test, snapshot, generated report,
+register, status inventory, or readiness-ledger byte changed. No Playwright,
+Vite, Storybook, or fixed-port server was started. The visual lane was never
+acquired and remains free; the register-family lock was likewise never
+acquired. Consequently there is no post-repair height, growth-mutation, Q4
+assertion-shape verdict, first-derivation receipt, or stable-capture pair to
+report. This is the required honest stop, not a non-receipt presented as a
+finding.
+
+P40 remains **0/2**: no mechanism was entered and no review finding exists
+against mechanism bytes. P39 arithmetic is **zero mechanism paths plus four
+mandatory record companions**: the master-plan debt row, the DS5 carried-debt
+record, the DS6 plan, and this journal. The generated disposition register and
+report were not touched because C13 did not acquire their family lock.
+
+### Debt-row corrections landed
+
+The `adjacent-print-export` measured record now says what the accepted commands
+actually established. The governed no-update command
+`CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm exec playwright test
+--config=playwright.visual.config.ts --project=chromium --grep='run detail A4
+print$' --timeout=90000` measures 724×2,113 placeholder versus 770×12,966
+current. The no-writer in-memory diagnostic over all 19 anchors / 4 rendered
+anchors measured 770×13,269 with the original cascade, 770×12,966 with only
+the 17,206-character signed target suppressed, 770×12,918 with all targets
+suppressed, and 12,893 pixels of main content. The target accounts for 303
+pixels, about 2.7% of the pre-repair excess, and cannot cause the width.
+
+Git reconciliation supplies the two measurements used by the architect's
+**`institutionally_supplied`** adjudication: `45f330235` assigned the same
+231,141-byte blob to five different A4 names, and `3535d89f` introduced the
+active 770-pixel shell rule six weeks before that PNG. The adjudicated result
+is that the 724×2,113 file is a **bulk-publish placeholder never derived
+against this surface**. Its future replacement is a **first derivation, not a
+re-baseline**; the 724→770 branch is unsupported and closed.
+
+The run-deck row now binds its governed no-update receipt—1,094×820 expected,
+1,094×821 actual, 4,178 differing pixels—to the no-writer DOM/PNG measurement:
+exact 820-pixel CSS bounding/offset height, client/scroll height 818, no
+direct-child overflow, fractional Y 3,920.75–4,740.75 at DPR 1, and a
+1,094×821 locator PNG. The extra row is fractional clip rasterization, not an
+established border-box-height defect. The residual remains open and no CSS may
+be nudged to chase the pixel.
+
+### C13/C14 decision
+
+The three C13 predicates are evaluated separately:
+
+1. complete print-scope repair release — **`not_established`**, therefore
+   fail-closed; the mixed content requires the owed DS8 adjudication before a
+   mechanism can be chosen;
+2. complete-tree no-rendered-interactive-control result —
+   **`not_established`**; no guard was implemented or run; and
+3. two consecutive stable no-update captures — **`recomputed`, false**; the
+   first admitted no-update comparison remains RED, and no new capture was
+   entered after predicate 1 failed.
+
+The previously landed signed-target repair and its narrow non-overlap guard
+remain true, but they do not discharge the broader print-scope conjunct. The
+conjunction is false. C13 makes no governed transition, C14 is not executable,
+and **DS6 remains open**. The separately registered
+`i18n-plural-rule-covers-only-{count}` successor debt remains open and
+untouched.
+
+Closing record-only verification preserves every inherited red. The status
+inventory checker completed exit 1 in 24.7 s with zero stdout, exactly 13
+stderr diagnostics / 887 bytes, and stderr SHA-256
+`511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`.
+That completed failure is the accepted inherited receipt, not a green claim;
+there is no current-only diagnostic. `git diff --check` is GREEN and the path
+census is exactly four record companions / zero mechanism paths. The governed
+PNG readback is byte-unchanged: run-detail remains 724×2,113 at SHA-256
+`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`,
+and run-deck remains 1,094×820 at SHA-256
+`76ecd68a93dd843940212f73392f080704ae17dea87be5f8a358f337c15d9aaa`.
+
+Because no browser work was entered, there was no visual-lane acquisition to
+relinquish. The closing census reports zero DS6 Playwright, Vite, Storybook, or
+fixture-server processes and zero listeners on 5,173, 6,006, or 8,000. The
+visual lane remains explicitly free.

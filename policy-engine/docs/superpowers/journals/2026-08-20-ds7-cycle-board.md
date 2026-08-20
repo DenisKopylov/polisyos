@@ -527,3 +527,57 @@ and consume no seam round.
 This freeze changes only mandated plan/journal records. It changes no test,
 production, generated, governed, line-7, or inherited-red byte and consumes no
 mechanism round.
+
+## Task 4a — composition and fact-algebra RED receipt
+
+The frozen basis was committed at attached-branch commit
+`d585d2fa0783433f95f2fc4981ed337cf20fdecb`, whose closure-basis byte has
+SHA-256 `a3747cd490157519406aaecbf15d843238bf6c167d4e517d563d49c7d0d23a4e`.
+Root sent that exact commit, hash, and bucket rule to all three read-only
+reviewers before the 4a review wave. Findings against test strength were
+therefore classified against the named basis rows rather than counted.
+
+The full review found three on-basis convergence items: the reverse
+search-versus-lifecycle independence control under `4A-TERM-02`, a no-value
+`invalid_source` fact witness under `4A-FACT-01`, and explicit confirmation that
+the already-authored available lifecycle source entries close
+`4A-SOURCES-10`. The repaired deltas received three GO re-reviews. No reviewer
+named an off-basis property or a production-design change, so 4a remains
+`0/2`.
+
+The reviewed working-tree 4a RED population is split at the seam rather than
+hidden in one oversized package:
+
+- the raw governed-projection test adversarially varies every new owner field
+  and refuses a malformed canonical `DesignProblem`;
+- the fact-algebra file covers absent, available, producer
+  `not_established`, mismatched binding, and the complete proxy families;
+- the fact-owner file recomputes evidence class through the live N10 owner,
+  preserves ordered producer blockers, and binds the historical DS4 table to
+  its raw bytes; and
+- the core compositor file derives 3+13, the complete source ledger, GAP5/GAP6,
+  adjacent-count denial, N13b control-plane denial, per-source time, and all
+  three no-value absence branches.
+
+After source freeze and all reviews, the two independent focused commands ran
+in parallel under fixed 60-second ceilings with load recorded on both sides.
+The raw-owner command completed with exit 1 in 29.463 seconds and three
+expected failures: both adversarial variants lack the newly projected
+`design_problem`, while malformed `nl_provenance` is not yet refused. The
+composed command completed with exit 2 in 28.441 seconds: the core and
+fact-owner files directly fail collection because
+`polisyos.runtime.http.services.cycle_board_projection` does not yet exist.
+The paired host load was `4.13/3.33/2.95 -> 4.50/3.50/3.03`; neither command
+was killed.
+
+Parallel collection initially rendered the fact-algebra dependency as a
+secondary partially-initialized import message. That message was a harness
+non-receipt for the intended cause, not a product finding. An isolated rerun
+under the unchanged 60-second ceiling completed with exit 2 in 47.420 seconds
+and named the same absent compositor module directly. Its load pair was
+`8.52/5.20/3.73 -> 10.53/6.16/4.16`; it was not killed. The raw-owner command
+is a behavioral RED. The composed core, fact-algebra, and fact-owner receipts
+are collection-level REDs at the intended missing-compositor boundary; their
+individual behavioral predicates remain unexecuted until Task 5 supplies that
+mechanism. None fails because of malformed fixture data or an exhausted
+timeout. No bounded residual is needed in 4a.

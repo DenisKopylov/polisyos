@@ -38,9 +38,20 @@ def _write_json(root: Path, relative_path: str, payload: dict[str, Any]) -> Path
     return path
 
 
+def _recorded_design_problem() -> dict[str, Any]:
+    source = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    return source["domain_runs"]["unseen"]["design_problem"]
+
+
 def _minimal_capstone(*, terminal_label: str = "acquisition_required") -> dict[str, Any]:
     run = {
         "content_hash": "sha256:run",
+        "design_problem": _recorded_design_problem(),
         "design_problem_ref": "design://example",
         "domain_role": "unseen",
         "evidence_witness": {
@@ -57,7 +68,37 @@ def _minimal_capstone(*, terminal_label: str = "acquisition_required") -> dict[s
         },
         "terminal": {
             "blocking_obligations": ["owner_recorded_weakest_link"],
-            "costed_plan": {"canonical_planner_report": {"status": "pass"}},
+            "costed_plan": {
+                "canonical_planner_report": {
+                    "status": "pass",
+                    "acquisition_records": [
+                        {
+                            "decision_owner_ref": "owner.planner",
+                            "gap_id": "requirement-gap:example",
+                            "missing_requirement_fields": ["grounding_relation:example"],
+                            "next_actions": [
+                                {
+                                    "action": "build_production_snapshot",
+                                    "owner": "owner.planner",
+                                    "producer_expected": "data_forge.snapshot",
+                                    "strategy": "production_snapshot_build",
+                                }
+                            ],
+                            "producer_expected": "data_forge.snapshot",
+                            "recommended_strategy": "production_snapshot_build",
+                            "status": "ready",
+                            "strategy_records": [
+                                {
+                                    "strategy": "production_snapshot_build",
+                                    "voi_expected_cost": None,
+                                    "voi_expected_value": None,
+                                    "voi_rank": None,
+                                }
+                            ],
+                        }
+                    ],
+                }
+            },
             "kind": terminal_label,
         },
         "terminal_distribution": {terminal_label: 1},
@@ -629,6 +670,94 @@ def test_depth_n_projection_preserves_recorded_validator_outputs_without_rederiv
 
     assert run["evidence_class"] == "deliberately_unseen_owner_evidence_class"
     assert run["weakest_links"] == ["deliberately_unseen_owner_weakest_link"]
+
+
+@pytest.mark.parametrize(
+    ("suffix", "terminal_kind", "cost", "voi", "rank"),
+    [
+        ("alpha", "owner_terminal_alpha", 7.5, 11.0, 1),
+        ("beta", "owner_terminal_beta", 91.0, 3.25, 4),
+    ],
+)
+def test_depth_n_projection_carries_changed_owner_problem_terminal_and_costed_route(
+    tmp_path: Path,
+    owner_validator_pass: None,
+    suffix: str,
+    terminal_kind: str,
+    cost: float,
+    voi: float,
+    rank: int,
+) -> None:
+    source = _minimal_capstone(terminal_label=terminal_kind)
+    run_source = source["domain_runs"]["unseen"]
+    problem = run_source["design_problem"]
+    problem["design_problem_id"] = f"owner_problem_{suffix}"
+    problem["problem_statement"] = f"Owner problem statement {suffix}."
+    acquisition = run_source["stage_trace"]["acquisition"]
+    acquisition.update(
+        {
+            "owner": f"owner.planner.{suffix}",
+            "planner_report_content_hash": f"sha256:planner-{suffix}",
+            "route_kind": f"owner_route_{suffix}",
+        }
+    )
+    report = run_source["terminal"]["costed_plan"]["canonical_planner_report"]
+    report["status"] = f"planner_status_{suffix}"
+    record = report["acquisition_records"][0]
+    record.update(
+        {
+            "decision_owner_ref": f"decision.owner.{suffix}",
+            "gap_id": f"requirement-gap:{suffix}",
+            "missing_requirement_fields": [f"typed_missing_link:{suffix}"],
+            "producer_expected": f"producer.{suffix}",
+            "recommended_strategy": f"strategy_{suffix}",
+        }
+    )
+    record["next_actions"][0]["action"] = f"next_action_{suffix}"
+    record["strategy_records"][0].update(
+        {
+            "strategy": f"strategy_{suffix}",
+            "voi_expected_cost": cost,
+            "voi_expected_value": voi,
+            "voi_rank": rank,
+        }
+    )
+    _write_minimal_capstone(tmp_path, source)
+
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+    run = _payload(packet)["domain_runs"]["unseen"]
+
+    assert run["design_problem"] == problem
+    assert run["search_terminal_kind"] == run_source["terminal"]["kind"]
+    assert run["acquisition_route"] == {
+        "decision_owner_ref": record["decision_owner_ref"],
+        "expected_cost": cost,
+        "expected_voi": voi,
+        "missing_requirement_fields": record["missing_requirement_fields"],
+        "next_action": record["next_actions"][0]["action"],
+        "owner": acquisition["owner"],
+        "planner_report_content_hash": acquisition["planner_report_content_hash"],
+        "planner_status": report["status"],
+        "producer_expected": record["producer_expected"],
+        "recommended_strategy": record["recommended_strategy"],
+        "requirement_gap_id": record["gap_id"],
+        "route_kind": acquisition["route_kind"],
+        "voi_rank": rank,
+    }
+
+
+def test_depth_n_projection_rejects_malformed_design_problem(
+    tmp_path: Path,
+    owner_validator_pass: None,
+) -> None:
+    source = _minimal_capstone()
+    del source["domain_runs"]["unseen"]["design_problem"]["nl_provenance"]
+    _write_minimal_capstone(tmp_path, source)
+
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+
+    assert packet.availability is ProjectionAvailability.INVALID_SOURCE
+    assert "design_problem" in (packet.absence_reason or "")
 
 
 def test_depth_n_projection_fails_closed_instead_of_deriving_missing_evidence(

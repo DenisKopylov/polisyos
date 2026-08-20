@@ -227,19 +227,20 @@ budget. Each review request quotes this bucket before review begins.
 
 - Modify: `tests/unit/runtime/http/test_governed_projection_service.py`
 - Add: `tests/unit/runtime/http/test_cycle_board_projection_service.py`
+- Add: `tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py`
 - Add: `tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py`
 
 **Interfaces:** strict fact algebra; exact run binding; canonical `DesignProblem`;
 owner-recomputed evidence/weakest links; exact 3+13 cohort; GAP5/GAP6; complete
 source ledger; historical DS4 disposition.
 
-- [ ] Close every `4A-*` basis row, including the composed DesignProblem/route/DS4
+- [x] Close every `4A-*` basis row, including the composed DesignProblem/route/DS4
   carries, complete per-source time fields, and behavioral N13b denial for row
   membership, known count, exhaustiveness, and movement.
-- [ ] Keep terminality proxy coverage generic over status, time, raw search,
+- [x] Keep terminality proxy coverage generic over status, time, raw search,
   distribution, blocker, and acquisition classes; absence remains a branch with
   no value.
-- [ ] Run the focused 4a files and witness failure because the compositor is
+- [x] Run the focused 4a files and witness failure because the compositor is
   absent, not because a fixture/import is malformed.
 - [ ] Freeze, issue the 4a basis to reviewers, repair only on-basis convergence,
   rerun the focused RED witness, and commit the reviewed 4a REDs.

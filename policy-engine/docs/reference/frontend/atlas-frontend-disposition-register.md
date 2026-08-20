@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **46034**
-- Application lines deleted: **20252**
-- Net application LOC reduction: **-25782**
+- Application lines added: **47309**
+- Application lines deleted: **20420**
+- Net application LOC reduction: **-26889**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -611,17 +611,42 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 
 ## Commits
 
+- `d17ecd36e fix(runtime): bind cycle board routes to owner artifacts`
+- `a70a72b3e Merge commit '0b721454e2f246e89bd084d5e19039c6a1e3d4c5' into codex/atlas-ds7-cycle-board`
+- `0184d0bd7 test(runtime): close DS7 owner equality receipt`
+- `6f9662eb2 feat(runtime): compose DS7 cycle board projection`
+- `0b721454e plan(atlas): Revision 3.22 — DS6 transitions landed; debt-row execution rule corrects a sequencing error`
+- `b0249e82d merge(atlas): land DS6 C03/C04/C06 — the three append-only register transitions`
+- `95d4d9419 DS6-C06 close rendered-contrast evidence debt`
+- `80127b654 Merge commit '1360b1cb592be6a19c162a3ec3ddb5a2e87986c7' into codex/atlas-ds7-cycle-board`
 - `39a19c078 DS6-C04 admit rendered-contrast evidence debt`
 - `86a2cc1f7 DS6-C03 rebind i18n baseline lifecycle`
+- `21699a504 docs: close DS7 task 4 RED basis`
+- `38654406f docs: record DS7 task 4c RED receipt`
+- `a2b2e113a test: freeze DS7 cycle board loading REDs`
+- `981849b99 docs: record DS7 task 4b RED receipt`
+- `5b3d8b766 test: freeze DS7 cycle board access replay REDs`
+- `043c18117 docs: record DS7 task 4a RED receipt`
+- `e36fec44e test: freeze DS7 cycle board fact algebra REDs`
+- `d585d2fa0 docs: freeze DS7 task 4 RED closure basis`
+- `1360b1cb5 plan(gy): Rev 54 — GY-DI1 closed and the reissue paid once; register GY-DEF22`
+- `bb2ce91fb merge(gy): close GY-DI1 — deployment identity is derived, not enumerated`
 - `3c1e8201c merge(atlas): land DS7 Cluster 0 — GAP4 with regenerated clients, and the DS7 record boundary`
+- `0fc36511d docs(gy): record deployment identity closure`
+- `f4e4522e4 chore(gy): reissue deployment-bound confidence artifacts`
+- `015a062a8 docs(gy): declare deployment identity reissue delta`
 - `f5fd5c66d docs(ds7): register cycle recording gaps`
 - `192774f24 docs(ds7): record inherited red provenance`
 - `d588b5a13 merge: update main before DS7 board`
 - `dc3e50a90 merge(ds7): land GAP4 with regenerated clients`
+- `59e4b7c7b fix(runtime): compose owner and runtime closure modes`
+- `69aaa1b76 test(runtime): falsify dormant dynamic authority edges`
+- `da0c17079 fix(runtime): exclude type-only authority edges`
 - `11781974d plan: GY Rev 53 + Atlas Revision 3.21 — GY-PA1 not executable, GY-DEF19 registered, a refuted anchor corrected`
 - `0084fc1bf merge(gy): record the GY-PA1 foundability probe — producer_missing`
 - `40ef040bd merge current main into DS7 cycle board`
 - `e0b0dbe79 docs(superpowers): plan DS7 cycle board implementation`
+- `c52bdfb09 fix(runtime): derive deployment identity from authority closure`
 - `82474845a plan(gy): Rev 52 — GY-PA2 and the inherited GY-DEF18 closed; ownership is measured, not inferred from a stop`
 - `663f2d36a merge(gy): close GY-PA2 delegation gate and the inherited GY-DEF18 provenance defect`
 - `6c1a90c33 docs(gy): close PA2 inherited provenance defect`

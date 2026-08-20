@@ -932,3 +932,115 @@ duration sample. The completed focused receipts above are the admitted wave.
 The raw-v1 API parity receipt remains the previously recorded environment
 non-receipt because the invalid-source packet cannot supply four replay pins;
 this repair neither relabels nor weakens it.
+
+### Task 6 — v2 generated seam, derived re-anchors, and short lock window
+
+The post-repair regeneration was classified before the Atlas register-family
+lock opened. Both complete client families retain the same five top-level
+exports, every pre-existing export occurs exactly once, and neither family has
+a removed or duplicate field. The complete AST property census is identical
+for package and dashboard: `8,167 -> 8,468`, with `8,164` unchanged, three
+changed containing records, zero removed, and 301 added. Two changed records
+are derived containers; the sole changed leaf is
+`DepthNDomainRunProjection.acquisition_route`, the explicit Task 5 correction
+from open JSON to an optional strict four-field reference. Under the stricter
+non-container leaf census, `4,853 -> 5,086`, all 4,853 pre-existing leaves are
+unchanged, and 233 are added. Net of that separately charged Task 5 source
+repair, Task 6 is `additive-and-declared`: one static path, one generated
+`getDepthNCycleBoardProjection` operation, its complete v1/v2 replay request
+algebra, and the composed packet/fact schemas. A second regeneration was
+byte-identical.
+
+The generated hashes frozen for the window are:
+
+- OpenAPI `56540549d9b51d9479656223ef8c74e6af6742b62d126229c14f727a1efdf7f8`;
+- package types `fb6aa94083eff6aba37a790c518e9ba2b00707b5793964bf4a9b10a1f9c85497`;
+- canonical TypeScript client `680dafe6db1ea714462debb19c857e4ced5bcb2e6229ccbed2f63424eb004cd5`;
+- dashboard types `6ea329a031e05aba43d98c22d19fd4e6f9d00a748425df8007d0b5fe5bbcda9c`.
+
+The whole-family lock opened only after that proof, at register
+`c50bd2010437421a334a7db9a25726fce6ba11fc253bc4d10ee456c1c366c00a`,
+report `f5b80c7f33d5d280573da49c05ac9e927b690b84d946cc1d09d40dbf54bff4bc`,
+status inventory
+`25430ee8c9739aabc44220647181d4d148c73a14cc4ff7c7aaaf1be51a551d80`,
+baseline manifest
+`8c86ea3eb48585158de331a4e4c60f6b6520b2152dc39b527f6238d12bb0ff55`,
+and readiness ledger
+`4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`.
+The derivable receipt census independently walks 1,377 candidate documents
+(1,177 JSON and 200 TOML), binds 18 structured anchors / 38 integer binding
+coordinates, and separates 38 navigation-only references. It induced the
+status inventory, DS4 waist register, disposition register, and generated
+report updates; no remembered receipt list was used.
+
+Closing identities are register
+`f330f538f4b4ca09f04aff6db22884c7ee5839385136c954bcd38552000e5386`,
+report `b6c9aef23050d80c1c5f67fd36cacc62fc1ccf1999e2212a65abd0e023724b86`,
+status inventory
+`f31257a3d7525eb8c4ef5fc7607b017ff5732518d9c9a64c6e741ec199251ba3`,
+unchanged baseline and readiness identities above, and induced DS4 waist
+`9ff2bb717d8dbbed95b299687c24575dc7157822056a25eaecd856332053dc45`.
+This atomic Task 6 commit is the lock release signal: root reads these bytes
+back from the attached branch before explicitly relinquishing the family.
+
+The distinct hero hook calls only the static generated operation, rejects raw
+v1, and uses a representation-specific cache key; the legacy raw-v1 query key
+cannot share its cache. The package tests exercise both complete legal replay
+tuples and the response-version discriminators. Dashboard fixtures now use a
+strict source-shaped helper; no old `{route}`, `{status}`, or open-object route
+placeholder remains. The compatibility fragment is present and the release
+validator reports 24 fragments, zero errors, and zero findings.
+
+The OpenAPI response-example gate initially completed red because the new
+operation had no entry in the central success-example owner. The convergence
+repair adds one strict, owner-reachable composed absence example: all eight
+source-ledger entries are present, rows and movement are honestly empty,
+GAP5/GAP6 remain typed absences, and no row value is invented. Its test
+independently reconciles governed-source semantics with the projection catalog,
+binds N13b's denied uses, and recomputes manifest, dependency, projection, and
+replay hashes. It does not accept self-consistent but owner-unreachable prose.
+
+Final admitted receipts after source freeze and review:
+
+| Receipt | Result |
+| --- | --- |
+| package client behavior / typecheck / lint / architecture | 5/5 and all static gates passed |
+| dashboard hook/fixture logic | 4 files / 19 tests passed |
+| dashboard typecheck | passed |
+| dashboard Task 6 write-set ESLint | passed in 27.174 s |
+| runtime API contract command | passed in 11.558 s |
+| focused success-example ownership tests | 2/2 passed in 11.498 s |
+| generated receipt census | 1,377 candidates; 18 anchors; zero errors |
+| disposition owner checker and corruption probes | passed in 176.727 s |
+| focused governed identity tests | 11/11 passed in 111.225 s |
+| status inventory checker | completed with exactly the 13 inherited diagnostics, stderr hash `511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9` |
+| focused Python Ruff lint/format | passed |
+| `git diff --check` | passed |
+
+The full dashboard lint command crossed the unchanged 120-second ceiling on
+three attempts under host contention and each kill is a non-receipt, never a
+failure or duration sample. The exact Task 6 write-set lint completed green.
+The full runtime-focused file likewise had one 120-second non-receipt; the
+changed success-example properties then completed under the same ceiling.
+The two large governed-owner Python files complete Ruff with 576 diagnostics
+at both immutable Task 6 base and current (243 checker / 333 test), with
+identical per-code counts and identical `(code, path, message)` multisets. The
+two constant-pin substitutions have no Ruff hit; coordinate-only movement in
+the checker is line drift. This is a baseline-relative static receipt, not an
+absolute Ruff-green claim and not a reason to rewrite frozen owner bytes.
+
+The architecture guard completed red with six added and three removed
+deep-import identities. Exact isolated-clone replays at slice base
+`4456bb885` (41.467 s) and Task 6 base `d17ecd36` (42.615 s) reproduce the same
+identities. Edge-level history assigns all nine to ancestors of the slice;
+Task 6's OpenAPI change adds no imports. Full-input zero-intersection is not
+claimed: DS7 has touched two implicated source files and the guard, so the
+honest receipt is exact diagnostic reproduction plus edge-level attribution,
+not a false blanket P41 disjointness statement. No architecture baseline or
+exception is changed here.
+
+Task 6 is ready to close at `0/2`: every review finding was on the frozen basis and was
+convergence, not a narrower proxy, minted authority, or owner-boundary change.
+The three inherited visual/component reds and the thirteen status diagnostics
+remain red. `4C-DOM-05` remains `semantic_test_missing` until Task 9 runs its
+frozen mutation falsifier.

@@ -1,6 +1,36 @@
 {
   "components": {
     "schemas": {
+      "AbsentFact": {
+        "additionalProperties": false,
+        "description": "A typed absence whose shape cannot carry a defaulted value.",
+        "properties": {
+          "availability": {
+            "enum": [
+              "not_established",
+              "artifact_missing",
+              "invalid_source"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "owner_route": {
+            "title": "Owner Route",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "required": [
+          "availability",
+          "reason",
+          "owner_route"
+        ],
+        "title": "AbsentFact",
+        "type": "object"
+      },
       "AccessRef": {
         "additionalProperties": false,
         "description": "Access policy and redaction state for a decision-bearing value.",
@@ -2331,6 +2361,376 @@
         "title": "AuthoredText",
         "type": "object"
       },
+      "AuthorityProfile": {
+        "additionalProperties": false,
+        "description": "Record requester authority and mandate context for the problem.",
+        "properties": {
+          "authority_refs": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authority Refs",
+            "type": "array"
+          },
+          "mandate": {
+            "minLength": 1,
+            "title": "Mandate",
+            "type": "string"
+          },
+          "requested_authority_level": {
+            "enum": [
+              "research",
+              "governed",
+              "production"
+            ],
+            "title": "Requested Authority Level",
+            "type": "string"
+          },
+          "requester_authority": {
+            "minLength": 1,
+            "title": "Requester Authority",
+            "type": "string"
+          }
+        },
+        "required": [
+          "requester_authority",
+          "requested_authority_level",
+          "mandate"
+        ],
+        "title": "AuthorityProfile",
+        "type": "object"
+      },
+      "AvailableFact_CycleBoardAcquisitionEconomics_": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "source_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source As Of"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/CycleBoardAcquisitionEconomics"
+          }
+        },
+        "required": [
+          "value",
+          "source_ref"
+        ],
+        "title": "AvailableFact[CycleBoardAcquisitionEconomics]",
+        "type": "object"
+      },
+      "AvailableFact_DepthNAcquisitionRouteReference_": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "source_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source As Of"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/DepthNAcquisitionRouteReference"
+          }
+        },
+        "required": [
+          "value",
+          "source_ref"
+        ],
+        "title": "AvailableFact[DepthNAcquisitionRouteReference]",
+        "type": "object"
+      },
+      "AvailableFact_DesignProblem_": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "source_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source As Of"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/DesignProblem"
+          }
+        },
+        "required": [
+          "value",
+          "source_ref"
+        ],
+        "title": "AvailableFact[DesignProblem]",
+        "type": "object"
+      },
+      "AvailableFact_RunTerminality_": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "source_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source As Of"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/RunTerminality"
+          }
+        },
+        "required": [
+          "value",
+          "source_ref"
+        ],
+        "title": "AvailableFact[RunTerminality]",
+        "type": "object"
+      },
+      "AvailableFact_SurfaceReadinessPayload_": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "source_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source As Of"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "value": {
+            "$ref": "#/components/schemas/SurfaceReadinessPayload"
+          }
+        },
+        "required": [
+          "value",
+          "source_ref"
+        ],
+        "title": "AvailableFact[SurfaceReadinessPayload]",
+        "type": "object"
+      },
+      "AvailableFact_float_": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "source_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source As Of"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "number"
+          }
+        },
+        "required": [
+          "value",
+          "source_ref"
+        ],
+        "title": "AvailableFact[float]",
+        "type": "object"
+      },
+      "AvailableFact_int_": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "source_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source As Of"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "value",
+          "source_ref"
+        ],
+        "title": "AvailableFact[int]",
+        "type": "object"
+      },
+      "AvailableFact_str_": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "source_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source As Of"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "value": {
+            "title": "Value",
+            "type": "string"
+          }
+        },
+        "required": [
+          "value",
+          "source_ref"
+        ],
+        "title": "AvailableFact[str]",
+        "type": "object"
+      },
+      "AvailableFact_tuple_str__________": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "source_as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source As Of"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          },
+          "value": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Value",
+            "type": "array"
+          }
+        },
+        "required": [
+          "value",
+          "source_ref"
+        ],
+        "title": "AvailableFact[tuple[str, ...]]",
+        "type": "object"
+      },
       "AvailableGovernedProjectionPacket": {
         "additionalProperties": false,
         "description": "Projection state with a source-specific typed payload.",
@@ -3537,6 +3937,62 @@
           "meta"
         ],
         "title": "CacheStatusResponse",
+        "type": "object"
+      },
+      "CandidateLever": {
+        "additionalProperties": false,
+        "description": "Represent one candidate operator/instrument slot for atom binding.",
+        "properties": {
+          "instrument": {
+            "minLength": 1,
+            "title": "Instrument",
+            "type": "string"
+          },
+          "lever_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Lever Id",
+            "type": "string"
+          },
+          "operator_kind": {
+            "minLength": 1,
+            "title": "Operator Kind",
+            "type": "string"
+          },
+          "target_slot": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Target Slot",
+            "type": "string"
+          }
+        },
+        "required": [
+          "lever_id",
+          "operator_kind",
+          "instrument",
+          "target_slot"
+        ],
+        "title": "CandidateLever",
+        "type": "object"
+      },
+      "CandidateLeverSpace": {
+        "additionalProperties": false,
+        "description": "Represent the allowed lever/operator space for candidate generation.",
+        "properties": {
+          "allowed_operator_kinds": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Allowed Operator Kinds",
+            "type": "array"
+          },
+          "candidate_levers": {
+            "items": {
+              "$ref": "#/components/schemas/CandidateLever"
+            },
+            "title": "Candidate Levers",
+            "type": "array"
+          }
+        },
+        "title": "CandidateLeverSpace",
         "type": "object"
       },
       "CapabilityFeatureInfo": {
@@ -6269,6 +6725,774 @@
         "title": "CursorPage",
         "type": "object"
       },
+      "CycleBoardAcquisitionEconomics": {
+        "additionalProperties": false,
+        "description": "Hash-resolved N7 planner contents, distinct from the route reference.",
+        "properties": {
+          "decision_owner_ref": {
+            "title": "Decision Owner Ref",
+            "type": "string"
+          },
+          "execution_status": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_str_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_str_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Execution Status"
+          },
+          "expected_cost": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_float_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_float_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Expected Cost"
+          },
+          "expected_voi": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_float_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_float_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Expected Voi"
+          },
+          "missing_requirement_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Requirement Fields",
+            "type": "array"
+          },
+          "next_action": {
+            "title": "Next Action",
+            "type": "string"
+          },
+          "planner_report_content_hash": {
+            "title": "Planner Report Content Hash",
+            "type": "string"
+          },
+          "planner_status": {
+            "title": "Planner Status",
+            "type": "string"
+          },
+          "producer_expected": {
+            "title": "Producer Expected",
+            "type": "string"
+          },
+          "recommended_strategy": {
+            "title": "Recommended Strategy",
+            "type": "string"
+          },
+          "voi_rank": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_int_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_int_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Voi Rank"
+          }
+        },
+        "required": [
+          "planner_report_content_hash",
+          "planner_status",
+          "missing_requirement_fields",
+          "recommended_strategy",
+          "expected_cost",
+          "expected_voi",
+          "voi_rank",
+          "decision_owner_ref",
+          "producer_expected",
+          "next_action",
+          "execution_status"
+        ],
+        "title": "CycleBoardAcquisitionEconomics",
+        "type": "object"
+      },
+      "CycleBoardCompositionSource": {
+        "additionalProperties": false,
+        "description": "One independently timed input in the outer composition manifest.",
+        "properties": {
+          "absence_reason": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Absence Reason"
+          },
+          "artifact_content_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Content Hash"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "authoritative_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "availability": {
+            "enum": [
+              "available",
+              "artifact_missing",
+              "invalid_source",
+              "not_established"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "freshness": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProjectionFreshness"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "may_not_use_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "source_dependency_hash": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Dependency Hash"
+          },
+          "source_id": {
+            "title": "Source Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "governed_projection",
+              "control_plane_evidence",
+              "historical_owner_record",
+              "run_summary_lookup"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          }
+        },
+        "required": [
+          "source_id",
+          "source_kind",
+          "availability",
+          "authoritative_for",
+          "may_not_use_for"
+        ],
+        "title": "CycleBoardCompositionSource",
+        "type": "object"
+      },
+      "CycleBoardCoverageGap": {
+        "additionalProperties": false,
+        "description": "Render the board's unclosed production enumeration capability.",
+        "properties": {
+          "capability_state": {
+            "const": "absent/unallocated",
+            "default": "absent/unallocated",
+            "title": "Capability State",
+            "type": "string"
+          },
+          "deficits": {
+            "default": [
+              "artifact_missing",
+              "bridge_missing"
+            ],
+            "items": {
+              "enum": [
+                "artifact_missing",
+                "bridge_missing"
+              ],
+              "type": "string"
+            },
+            "title": "Deficits",
+            "type": "array"
+          },
+          "execution_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Execution Status",
+            "type": "string"
+          },
+          "exhaustive": {
+            "const": false,
+            "default": false,
+            "title": "Exhaustive",
+            "type": "boolean"
+          },
+          "known_row_count": {
+            "minimum": 0.0,
+            "title": "Known Row Count",
+            "type": "integer"
+          },
+          "known_scope": {
+            "const": "N10 capstone + legacy fixture cohort",
+            "default": "N10 capstone + legacy fixture cohort",
+            "title": "Known Scope",
+            "type": "string"
+          },
+          "missing_link": {
+            "const": "production_recursive_cycle_run_enumeration",
+            "default": "production_recursive_cycle_run_enumeration",
+            "title": "Missing Link",
+            "type": "string"
+          },
+          "owner_route": {
+            "const": "GY-GAP5 -> runtime/quality GY-N12",
+            "default": "GY-GAP5 -> runtime/quality GY-N12",
+            "title": "Owner Route",
+            "type": "string"
+          },
+          "unknown_scope": {
+            "const": "future production recursive-cycle DesignProblems",
+            "default": "future production recursive-cycle DesignProblems",
+            "title": "Unknown Scope",
+            "type": "string"
+          }
+        },
+        "required": [
+          "known_row_count"
+        ],
+        "title": "CycleBoardCoverageGap",
+        "type": "object"
+      },
+      "CycleBoardMovementGap": {
+        "additionalProperties": false,
+        "description": "Render the absent per-row N13b re-entry binding without simulated motion.",
+        "properties": {
+          "capability_state": {
+            "const": "absent/unallocated",
+            "default": "absent/unallocated",
+            "title": "Capability State",
+            "type": "string"
+          },
+          "chronology_route": {
+            "const": "GY-N12",
+            "default": "GY-N12",
+            "title": "Chronology Route",
+            "type": "string"
+          },
+          "deficits": {
+            "default": [
+              "artifact_missing",
+              "bridge_missing"
+            ],
+            "items": {
+              "enum": [
+                "artifact_missing",
+                "bridge_missing"
+              ],
+              "type": "string"
+            },
+            "title": "Deficits",
+            "type": "array"
+          },
+          "execution_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Execution Status",
+            "type": "string"
+          },
+          "missing_link": {
+            "const": "acquisition_reentry_deeper_terminal_binding",
+            "default": "acquisition_reentry_deeper_terminal_binding",
+            "title": "Missing Link",
+            "type": "string"
+          },
+          "movement_records": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Movement Records",
+            "type": "array"
+          },
+          "producer_route": {
+            "const": "GY-GAP6 -> GY-N13b",
+            "default": "GY-GAP6 -> GY-N13b",
+            "title": "Producer Route",
+            "type": "string"
+          }
+        },
+        "title": "CycleBoardMovementGap",
+        "type": "object"
+      },
+      "CycleBoardProjectionPacket": {
+        "additionalProperties": false,
+        "description": "Replay-addressed outer Cycle Board projection.",
+        "properties": {
+          "composition_manifest": {
+            "items": {
+              "$ref": "#/components/schemas/CycleBoardCompositionSource"
+            },
+            "title": "Composition Manifest",
+            "type": "array"
+          },
+          "composition_manifest_hash": {
+            "title": "Composition Manifest Hash",
+            "type": "string"
+          },
+          "intended_audiences": {
+            "default": [
+              "REVIEWER",
+              "EXPERT"
+            ],
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "const": "REVIEWER",
+                "type": "string"
+              },
+              {
+                "const": "EXPERT",
+                "type": "string"
+              }
+            ],
+            "title": "Intended Audiences",
+            "type": "array"
+          },
+          "packet_schema_version": {
+            "const": "policyos.runtime.cycle_board_packet.v1",
+            "default": "policyos.runtime.cycle_board_packet.v1",
+            "title": "Packet Schema Version",
+            "type": "string"
+          },
+          "payload": {
+            "$ref": "#/components/schemas/DepthNCycleBoardPayloadV2"
+          },
+          "projection_hash": {
+            "title": "Projection Hash",
+            "type": "string"
+          },
+          "projection_id": {
+            "const": "depth-n-cycle-board",
+            "default": "depth-n-cycle-board",
+            "title": "Projection Id",
+            "type": "string"
+          },
+          "projection_observed_at": {
+            "format": "date-time",
+            "title": "Projection Observed At",
+            "type": "string"
+          },
+          "projection_rule_version": {
+            "const": "policyos.runtime.depth_n_cycle_board.v2",
+            "default": "policyos.runtime.depth_n_cycle_board.v2",
+            "title": "Projection Rule Version",
+            "type": "string"
+          },
+          "replay_address": {
+            "title": "Replay Address",
+            "type": "string"
+          },
+          "source_dependency_hash": {
+            "title": "Source Dependency Hash",
+            "type": "string"
+          },
+          "stable_address": {
+            "const": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+            "default": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+            "title": "Stable Address",
+            "type": "string"
+          }
+        },
+        "required": [
+          "composition_manifest",
+          "composition_manifest_hash",
+          "source_dependency_hash",
+          "projection_hash",
+          "projection_observed_at",
+          "replay_address",
+          "payload"
+        ],
+        "title": "CycleBoardProjectionPacket",
+        "type": "object"
+      },
+      "CycleBoardRow": {
+        "additionalProperties": false,
+        "description": "One known capstone or fixture-only Cycle Board row.",
+        "properties": {
+          "acquisition_economics": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_CycleBoardAcquisitionEconomics_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_CycleBoardAcquisitionEconomics_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Acquisition Economics"
+          },
+          "acquisition_route": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_DepthNAcquisitionRouteReference_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_DepthNAcquisitionRouteReference_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Acquisition Route"
+          },
+          "cohort": {
+            "enum": [
+              "n10_capstone",
+              "legacy_fixture"
+            ],
+            "title": "Cohort",
+            "type": "string"
+          },
+          "design_problem": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_DesignProblem_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_DesignProblem_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Design Problem"
+          },
+          "domain_role": {
+            "title": "Domain Role",
+            "type": "string"
+          },
+          "explanation_code": {
+            "title": "Explanation Code",
+            "type": "string"
+          },
+          "explanation_inputs": {
+            "additionalProperties": {
+              "type": "string"
+            },
+            "title": "Explanation Inputs",
+            "type": "object"
+          },
+          "generation_cycle_run_id": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_str_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_str_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Generation Cycle Run Id"
+          },
+          "lifecycle_terminality": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_RunTerminality_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_RunTerminality_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Lifecycle Terminality"
+          },
+          "missing_link": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_str_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_str_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Missing Link"
+          },
+          "movement_records": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Movement Records",
+            "type": "array"
+          },
+          "responsible_slices": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Responsible Slices",
+            "type": "array"
+          },
+          "row_id": {
+            "title": "Row Id",
+            "type": "string"
+          },
+          "search_terminal_kind": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_str_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_str_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Search Terminal Kind"
+          },
+          "stage_trace_href": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_str_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_str_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Stage Trace Href"
+          },
+          "structural_evidence_class": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_str_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_str_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Structural Evidence Class"
+          },
+          "surface_readiness": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_SurfaceReadinessPayload_",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_SurfaceReadinessPayload_"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Surface Readiness"
+          },
+          "weakest_links": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/AbsentFact",
+                "available": "#/components/schemas/AvailableFact_tuple_str__________",
+                "invalid_source": "#/components/schemas/AbsentFact",
+                "not_established": "#/components/schemas/AbsentFact"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableFact_tuple_str__________"
+              },
+              {
+                "$ref": "#/components/schemas/AbsentFact"
+              }
+            ],
+            "title": "Weakest Links"
+          }
+        },
+        "required": [
+          "row_id",
+          "cohort",
+          "domain_role",
+          "generation_cycle_run_id",
+          "design_problem",
+          "search_terminal_kind",
+          "lifecycle_terminality",
+          "structural_evidence_class",
+          "weakest_links",
+          "missing_link",
+          "acquisition_route",
+          "acquisition_economics",
+          "responsible_slices",
+          "stage_trace_href",
+          "surface_readiness",
+          "explanation_code",
+          "explanation_inputs"
+        ],
+        "title": "CycleBoardRow",
+        "type": "object"
+      },
       "DataCatalogSearchResponse": {
         "additionalProperties": false,
         "description": "Return catalog search matches and the total result count for a query.",
@@ -8518,6 +9742,120 @@
         "title": "DeltaQuantity",
         "type": "object"
       },
+      "DepthNAcquisitionEconomicsProjection": {
+        "additionalProperties": false,
+        "description": "Hash-resolved N7 planner economics, separate from its route reference.",
+        "properties": {
+          "decision_owner_ref": {
+            "title": "Decision Owner Ref",
+            "type": "string"
+          },
+          "expected_cost": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Cost"
+          },
+          "expected_voi": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Voi"
+          },
+          "missing_requirement_fields": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Missing Requirement Fields",
+            "type": "array"
+          },
+          "next_action": {
+            "title": "Next Action",
+            "type": "string"
+          },
+          "planner_report_content_hash": {
+            "title": "Planner Report Content Hash",
+            "type": "string"
+          },
+          "planner_status": {
+            "title": "Planner Status",
+            "type": "string"
+          },
+          "producer_expected": {
+            "title": "Producer Expected",
+            "type": "string"
+          },
+          "recommended_strategy": {
+            "title": "Recommended Strategy",
+            "type": "string"
+          },
+          "voi_rank": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Voi Rank"
+          }
+        },
+        "required": [
+          "planner_report_content_hash",
+          "planner_status",
+          "missing_requirement_fields",
+          "recommended_strategy",
+          "expected_cost",
+          "expected_voi",
+          "voi_rank",
+          "decision_owner_ref",
+          "producer_expected",
+          "next_action"
+        ],
+        "title": "DepthNAcquisitionEconomicsProjection",
+        "type": "object"
+      },
+      "DepthNAcquisitionRouteReference": {
+        "additionalProperties": false,
+        "description": "Content-bound owner route reference carried by the depth-N artifact.",
+        "properties": {
+          "owner_content_hash": {
+            "title": "Owner Content Hash",
+            "type": "string"
+          },
+          "owner_schema": {
+            "title": "Owner Schema",
+            "type": "string"
+          },
+          "planner_report_content_hash": {
+            "title": "Planner Report Content Hash",
+            "type": "string"
+          },
+          "requirement_gap_id": {
+            "title": "Requirement Gap Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "owner_content_hash",
+          "owner_schema",
+          "planner_report_content_hash",
+          "requirement_gap_id"
+        ],
+        "title": "DepthNAcquisitionRouteReference",
+        "type": "object"
+      },
       "DepthNCycleBoardPayload": {
         "additionalProperties": false,
         "description": "Cycle Board dependency projection from the depth-N capstone.",
@@ -8552,16 +9890,66 @@
         "title": "DepthNCycleBoardPayload",
         "type": "object"
       },
+      "DepthNCycleBoardPayloadV2": {
+        "additionalProperties": false,
+        "description": "Reviewer/Expert Cycle Board facts without a fabricated aggregate clock.",
+        "properties": {
+          "coverage": {
+            "$ref": "#/components/schemas/CycleBoardCoverageGap"
+          },
+          "historical_producer_availability": {
+            "$ref": "#/components/schemas/HistoricalProducerAvailability"
+          },
+          "movement_gap": {
+            "$ref": "#/components/schemas/CycleBoardMovementGap"
+          },
+          "realized_ds4_disposition": {
+            "$ref": "#/components/schemas/HistoricalDS4Disposition"
+          },
+          "rows": {
+            "items": {
+              "$ref": "#/components/schemas/CycleBoardRow"
+            },
+            "title": "Rows",
+            "type": "array"
+          }
+        },
+        "required": [
+          "rows",
+          "coverage",
+          "movement_gap",
+          "realized_ds4_disposition",
+          "historical_producer_availability"
+        ],
+        "title": "DepthNCycleBoardPayloadV2",
+        "type": "object"
+      },
       "DepthNDomainRunProjection": {
         "additionalProperties": false,
         "description": "Narrow recorded fields for one depth-N domain run.",
         "properties": {
+          "acquisition_economics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DepthNAcquisitionEconomicsProjection"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
           "acquisition_route": {
-            "additionalProperties": {
-              "$ref": "#/components/schemas/ProjectionJsonValue"
-            },
-            "title": "Acquisition Route",
-            "type": "object"
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/DepthNAcquisitionRouteReference"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "design_problem": {
+            "$ref": "#/components/schemas/DesignProblem"
           },
           "design_problem_ref": {
             "title": "Design Problem Ref",
@@ -8586,6 +9974,10 @@
             "title": "Generation Cycle Run Id",
             "type": "string"
           },
+          "search_terminal_kind": {
+            "title": "Search Terminal Kind",
+            "type": "string"
+          },
           "terminal_distribution": {
             "additionalProperties": {
               "$ref": "#/components/schemas/ProjectionJsonValue"
@@ -8604,12 +9996,13 @@
         "required": [
           "generation_cycle_run_id",
           "design_problem_ref",
+          "design_problem",
           "domain_role",
+          "search_terminal_kind",
           "terminal_distribution",
           "evidence_class",
           "evidence_witness",
-          "weakest_links",
-          "acquisition_route"
+          "weakest_links"
         ],
         "title": "DepthNDomainRunProjection",
         "type": "object"
@@ -8631,6 +10024,249 @@
           "ref"
         ],
         "title": "DerivedArtifact",
+        "type": "object"
+      },
+      "DesignConstraint": {
+        "additionalProperties": false,
+        "description": "Represent a constraint with explicit admissibility provenance.",
+        "properties": {
+          "admissibility_basis": {
+            "minLength": 1,
+            "title": "Admissibility Basis",
+            "type": "string"
+          },
+          "constraint_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Constraint Id",
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "evidence_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Ref"
+          },
+          "hard": {
+            "default": true,
+            "title": "Hard",
+            "type": "boolean"
+          },
+          "source_text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Text"
+          }
+        },
+        "required": [
+          "constraint_id",
+          "description",
+          "admissibility_basis"
+        ],
+        "title": "DesignConstraint",
+        "type": "object"
+      },
+      "DesignObjective": {
+        "additionalProperties": false,
+        "description": "Represent one objective reused by generator and IR projections.",
+        "properties": {
+          "description": {
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "direction": {
+            "default": "maximize",
+            "enum": [
+              "maximize",
+              "minimize",
+              "maintain_range"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "metric_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Metric Id",
+            "type": "string"
+          },
+          "objective_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Objective Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "objective_id",
+          "description",
+          "metric_id"
+        ],
+        "title": "DesignObjective",
+        "type": "object"
+      },
+      "DesignProblem": {
+        "additionalProperties": false,
+        "description": "Bridge one policy-design problem across existing PolicyOS owners.\n\n``DesignProblem`` is the canonical request/problem bridge for the generation\ncycle. It reuses ``PolicyIntentEnvelope`` request semantics, projects to the\nScientist agent ``ProblemFrame``, projects to IR governance ``ProblemFrame``,\nkeeps the verified ``PolicyRequestFrame`` as a legal sub-projection, and\ncarries ``ModelSpec`` time semantics by reference instead of creating a\nparallel ontology.\n\nAttributes:\n    design_problem_id: Stable problem id used by projections.\n    nl_provenance: Raw NL request and capture context.\n    authority_profile: Requester authority and mandate boundaries.\n    jurisdiction_time: Jurisdiction and valid/as-of/policy/data time roles.\n    objectives: Formal objective candidates for generator and IR projection.\n    constraints: Constraints admitted only with request, authority, or\n        producer-evidence support.\n    stakeholders: Affected actor set.\n    outcome_of_interest: Target variable and estimand for value gating.\n    candidate_lever_space: Operator/instrument space for atom binding.\n    evidence_acquisition_needs: Grounding and acquisition demands.\n    model_spec_ref: Optional persisted ModelSpec reference.\n    ir_problem_frame_ref: Optional persisted IR ProblemFrame reference.\n    policy_request_frame_ref: Optional verified-policy sub-projection ref.\n    runtime_hints: Runtime-only projection hints for current cycle adapters.",
+        "properties": {
+          "authority_profile": {
+            "$ref": "#/components/schemas/AuthorityProfile"
+          },
+          "candidate_lever_space": {
+            "$ref": "#/components/schemas/CandidateLeverSpace"
+          },
+          "constraints": {
+            "items": {
+              "$ref": "#/components/schemas/DesignConstraint"
+            },
+            "title": "Constraints",
+            "type": "array"
+          },
+          "design_problem_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Design Problem Id",
+            "type": "string"
+          },
+          "domain": {
+            "minLength": 1,
+            "title": "Domain",
+            "type": "string"
+          },
+          "evidence_acquisition_needs": {
+            "$ref": "#/components/schemas/EvidenceAcquisitionNeeds"
+          },
+          "ir_problem_frame_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ir Problem Frame Ref"
+          },
+          "jurisdiction_time": {
+            "$ref": "#/components/schemas/JurisdictionTimeSemantics"
+          },
+          "model_spec_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[a-f0-9]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Model Spec Ref"
+          },
+          "nl_provenance": {
+            "$ref": "#/components/schemas/NLProvenance"
+          },
+          "objectives": {
+            "items": {
+              "$ref": "#/components/schemas/DesignObjective"
+            },
+            "title": "Objectives",
+            "type": "array"
+          },
+          "outcome_of_interest": {
+            "$ref": "#/components/schemas/OutcomeOfInterest"
+          },
+          "policy_request_frame_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Request Frame Ref"
+          },
+          "problem_statement": {
+            "minLength": 1,
+            "title": "Problem Statement",
+            "type": "string"
+          },
+          "runtime_hints": {
+            "additionalProperties": true,
+            "title": "Runtime Hints",
+            "type": "object"
+          },
+          "schema_version": {
+            "default": "policyos.runtime.design_problem.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "stakeholders": {
+            "items": {
+              "$ref": "#/components/schemas/DesignStakeholder"
+            },
+            "title": "Stakeholders",
+            "type": "array"
+          }
+        },
+        "required": [
+          "design_problem_id",
+          "problem_statement",
+          "domain",
+          "nl_provenance",
+          "authority_profile",
+          "jurisdiction_time",
+          "outcome_of_interest",
+          "candidate_lever_space",
+          "evidence_acquisition_needs"
+        ],
+        "title": "DesignProblem",
+        "type": "object"
+      },
+      "DesignStakeholder": {
+        "additionalProperties": false,
+        "description": "Represent an affected stakeholder shared across projections.",
+        "properties": {
+          "name": {
+            "minLength": 1,
+            "title": "Name",
+            "type": "string"
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Role"
+          },
+          "stakeholder_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Stakeholder Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "stakeholder_id",
+          "name"
+        ],
+        "title": "DesignStakeholder",
         "type": "object"
       },
       "DiscoveryCandidate": {
@@ -9509,6 +11145,81 @@
           }
         },
         "title": "EvaluatorScoresView",
+        "type": "object"
+      },
+      "EvidenceAcquisitionNeeds": {
+        "additionalProperties": false,
+        "description": "Represent grounding demands carried into GY-N3/GY-N7.",
+        "properties": {
+          "needs": {
+            "items": {
+              "$ref": "#/components/schemas/EvidenceNeed"
+            },
+            "title": "Needs",
+            "type": "array"
+          }
+        },
+        "title": "EvidenceAcquisitionNeeds",
+        "type": "object"
+      },
+      "EvidenceNeed": {
+        "additionalProperties": false,
+        "description": "Represent one grounding or acquisition demand.",
+        "properties": {
+          "artifact_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artifact Ref"
+          },
+          "need_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Need Id",
+            "type": "string"
+          },
+          "question": {
+            "minLength": 1,
+            "title": "Question",
+            "type": "string"
+          },
+          "required_for": {
+            "minLength": 1,
+            "title": "Required For",
+            "type": "string"
+          },
+          "source_hint": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Hint"
+          },
+          "status": {
+            "default": "required",
+            "enum": [
+              "required",
+              "satisfied",
+              "blocked"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "need_id",
+          "question",
+          "required_for"
+        ],
+        "title": "EvidenceNeed",
         "type": "object"
       },
       "ExecPlanRef-Input": {
@@ -11095,6 +12806,101 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "HistoricalDS4Disposition": {
+        "additionalProperties": false,
+        "description": "Arithmetic derived from the complete historical DS4 owner table.",
+        "properties": {
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "package",
+                "rebind",
+                "use_as_is",
+                "retire"
+              ]
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "denominator": {
+            "minimum": 0.0,
+            "title": "Denominator",
+            "type": "integer"
+          },
+          "source_class": {
+            "const": "historical_ds4_component_disposition",
+            "default": "historical_ds4_component_disposition",
+            "title": "Source Class",
+            "type": "string"
+          },
+          "source_content_hash": {
+            "title": "Source Content Hash",
+            "type": "string"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_ref",
+          "source_content_hash",
+          "counts",
+          "denominator"
+        ],
+        "title": "HistoricalDS4Disposition",
+        "type": "object"
+      },
+      "HistoricalProducerAvailability": {
+        "additionalProperties": false,
+        "description": "Environment-relative DS3 measurement, never current producer authority.",
+        "properties": {
+          "counts": {
+            "additionalProperties": {
+              "type": "integer"
+            },
+            "propertyNames": {
+              "enum": [
+                "available",
+                "invalid_source",
+                "artifact_missing"
+              ]
+            },
+            "title": "Counts",
+            "type": "object"
+          },
+          "environment_absence": {
+            "const": "production_data",
+            "default": "production_data",
+            "title": "Environment Absence",
+            "type": "string"
+          },
+          "measurement_scope": {
+            "const": "environment_relative",
+            "default": "environment_relative",
+            "title": "Measurement Scope",
+            "type": "string"
+          },
+          "source_content_hash": {
+            "title": "Source Content Hash",
+            "type": "string"
+          },
+          "source_ref": {
+            "title": "Source Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_ref",
+          "source_content_hash",
+          "counts"
+        ],
+        "title": "HistoricalProducerAvailability",
+        "type": "object"
+      },
       "IndexStats": {
         "additionalProperties": false,
         "description": "Report catalog index size, source coverage, and last-update counters.",
@@ -11587,6 +13393,56 @@
           }
         },
         "title": "IterationLifecycleView",
+        "type": "object"
+      },
+      "JurisdictionTimeSemantics": {
+        "additionalProperties": false,
+        "description": "Bind jurisdiction and time-role semantics for the design problem.",
+        "properties": {
+          "as_of": {
+            "minLength": 1,
+            "title": "As Of",
+            "type": "string"
+          },
+          "data_time": {
+            "minLength": 1,
+            "title": "Data Time",
+            "type": "string"
+          },
+          "policy_time": {
+            "minLength": 1,
+            "title": "Policy Time",
+            "type": "string"
+          },
+          "region": {
+            "minLength": 1,
+            "title": "Region",
+            "type": "string"
+          },
+          "time_semantics": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TimeSemantics"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "valid_time": {
+            "minLength": 1,
+            "title": "Valid Time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "region",
+          "valid_time",
+          "as_of",
+          "policy_time",
+          "data_time"
+        ],
+        "title": "JurisdictionTimeSemantics",
         "type": "object"
       },
       "Layer3HealthMetricsPayload": {
@@ -13772,6 +15628,33 @@
         "title": "N13ALiveProbeJournalPayload",
         "type": "object"
       },
+      "NLProvenance": {
+        "additionalProperties": false,
+        "description": "Record raw natural-language request provenance.\n\nAttributes:\n    raw_request: Original user request text before producer interpretation.\n    source_surface: Runtime or API surface that captured the request.\n    source_context: Structured context supplied at capture time.",
+        "properties": {
+          "raw_request": {
+            "minLength": 1,
+            "title": "Raw Request",
+            "type": "string"
+          },
+          "source_context": {
+            "additionalProperties": true,
+            "title": "Source Context",
+            "type": "object"
+          },
+          "source_surface": {
+            "minLength": 1,
+            "title": "Source Surface",
+            "type": "string"
+          }
+        },
+        "required": [
+          "raw_request",
+          "source_surface"
+        ],
+        "title": "NLProvenance",
+        "type": "object"
+      },
       "NaturalLanguageRunRequest": {
         "additionalProperties": false,
         "description": "POST /api/v1/control/runs/nl — NL request triggering agent circuit.",
@@ -14155,6 +16038,44 @@
           "authority"
         ],
         "title": "OperatorProjectionStateLabel",
+        "type": "object"
+      },
+      "OutcomeOfInterest": {
+        "additionalProperties": false,
+        "description": "Represent the target variable the value gate will estimate.",
+        "properties": {
+          "direction": {
+            "default": "maximize",
+            "enum": [
+              "maximize",
+              "minimize",
+              "maintain_range"
+            ],
+            "title": "Direction",
+            "type": "string"
+          },
+          "estimand": {
+            "minLength": 1,
+            "title": "Estimand",
+            "type": "string"
+          },
+          "metric_id": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Metric Id",
+            "type": "string"
+          },
+          "target_variable": {
+            "pattern": "^[a-z][a-z0-9_]*$",
+            "title": "Target Variable",
+            "type": "string"
+          }
+        },
+        "required": [
+          "target_variable",
+          "metric_id",
+          "estimand"
+        ],
+        "title": "OutcomeOfInterest",
         "type": "object"
       },
       "PolicyDesignCaseAudience": {
@@ -21290,6 +23211,65 @@
           "supported"
         ],
         "title": "TemporalSurfaceCapability",
+        "type": "object"
+      },
+      "TimeFrequency": {
+        "description": "Единицы времени для симуляции.",
+        "enum": [
+          "M",
+          "Q",
+          "Y"
+        ],
+        "title": "TimeFrequency",
+        "type": "string"
+      },
+      "TimeSemantics": {
+        "additionalProperties": false,
+        "description": "Time semantics public type.",
+        "properties": {
+          "end_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "End Date"
+          },
+          "frequency": {
+            "$ref": "#/components/schemas/TimeFrequency"
+          },
+          "notes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Notes",
+            "type": "array"
+          },
+          "start_date": {
+            "title": "Start Date",
+            "type": "string"
+          },
+          "step_count": {
+            "anyOf": [
+              {
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Step Count"
+          }
+        },
+        "required": [
+          "frequency",
+          "start_date"
+        ],
+        "title": "TimeSemantics",
         "type": "object"
       },
       "TypedGap": {
@@ -36818,6 +38798,600 @@
           }
         },
         "summary": "List governed artifact projection contracts",
+        "tags": [
+          "runtime-exports"
+        ]
+      }
+    },
+    "/api/v1/exports/governed-projections/depth-n-cycle-board": {
+      "get": {
+        "operationId": "get_depth_n_cycle_board_projection",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "replay_target",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "raw_v1",
+                    "composed_v2"
+                  ],
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Replay Target"
+            }
+          },
+          {
+            "in": "query",
+            "name": "artifact_content_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Artifact Content Hash"
+            }
+          },
+          {
+            "in": "query",
+            "name": "projection_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Projection Hash"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source_dependency_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Dependency Hash"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source_as_of",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source As Of"
+            }
+          },
+          {
+            "in": "query",
+            "name": "projection_rule_version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Projection Rule Version"
+            }
+          },
+          {
+            "in": "query",
+            "name": "composition_manifest_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Composition Manifest Hash"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_depth_n_cycle_board_projection response example",
+                    "value": {
+                      "composition_manifest": [
+                        {
+                          "absence_reason": "owner validation is unavailable in this environment",
+                          "artifact_content_hash": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                          "as_of": null,
+                          "authoritative_for": [
+                            "cycle_board_domain_runs",
+                            "terminal_distributions",
+                            "recorded_evidence_classes"
+                          ],
+                          "availability": "invalid_source",
+                          "freshness": null,
+                          "may_not_use_for": [
+                            "public_claim",
+                            "publication_authority",
+                            "audience_authorization",
+                            "recompute_generation_cycle_semantics"
+                          ],
+                          "source_dependency_hash": null,
+                          "source_id": "depth-n-cycle-board",
+                          "source_kind": "governed_projection",
+                          "source_ref": "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+                        },
+                        {
+                          "absence_reason": "owner validation is unavailable in this environment",
+                          "artifact_content_hash": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
+                          "as_of": null,
+                          "authoritative_for": [
+                            "acquisition_family_scorecards",
+                            "metric_resolution",
+                            "route_evidence"
+                          ],
+                          "availability": "invalid_source",
+                          "freshness": null,
+                          "may_not_use_for": [
+                            "public_claim",
+                            "publication_authority",
+                            "audience_authorization",
+                            "closeout_pass"
+                          ],
+                          "source_dependency_hash": null,
+                          "source_id": "n13a-acquisition-census",
+                          "source_kind": "governed_projection",
+                          "source_ref": "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json"
+                        },
+                        {
+                          "absence_reason": "the optional live-probe journal is absent",
+                          "artifact_content_hash": null,
+                          "as_of": null,
+                          "authoritative_for": [
+                            "live_probe_records",
+                            "family_receipts",
+                            "selection_plan"
+                          ],
+                          "availability": "artifact_missing",
+                          "freshness": null,
+                          "may_not_use_for": [
+                            "public_claim",
+                            "publication_authority",
+                            "audience_authorization",
+                            "source_success_inference"
+                          ],
+                          "source_dependency_hash": null,
+                          "source_id": "n13a-live-probe-journal",
+                          "source_kind": "governed_projection",
+                          "source_ref": "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
+                        },
+                        {
+                          "absence_reason": "validator-confirmed legacy runtime outcomes are absent",
+                          "artifact_content_hash": null,
+                          "as_of": null,
+                          "authoritative_for": [
+                            "legacy_case_identity",
+                            "fixture_semantic_expectation"
+                          ],
+                          "availability": "artifact_missing",
+                          "freshness": null,
+                          "may_not_use_for": [
+                            "public_claim",
+                            "publication_authority",
+                            "audience_authorization",
+                            "readiness",
+                            "runtime_outcome",
+                            "admissibility"
+                          ],
+                          "source_dependency_hash": null,
+                          "source_id": "legacy-proving-ground",
+                          "source_kind": "governed_projection",
+                          "source_ref": "tests/fixtures/universal-corpus/manifest.json"
+                        },
+                        {
+                          "absence_reason": "the governed readiness source is absent",
+                          "artifact_content_hash": null,
+                          "as_of": null,
+                          "authoritative_for": [
+                            "validated_surface_readiness_entries"
+                          ],
+                          "availability": "artifact_missing",
+                          "freshness": null,
+                          "may_not_use_for": [
+                            "public_claim",
+                            "publication_authority",
+                            "audience_authorization",
+                            "derive_readiness_from_route_presence"
+                          ],
+                          "source_dependency_hash": null,
+                          "source_id": "surface-readiness",
+                          "source_kind": "governed_projection",
+                          "source_ref": "architecture/atlas_surfaces/surface-readiness-ledger.json"
+                        },
+                        {
+                          "absence_reason": "the optional N13b control-plane artifact is absent",
+                          "artifact_content_hash": null,
+                          "as_of": null,
+                          "authoritative_for": [],
+                          "availability": "artifact_missing",
+                          "freshness": null,
+                          "may_not_use_for": [
+                            "per_row_movement",
+                            "row_enumeration",
+                            "exhaustiveness"
+                          ],
+                          "source_dependency_hash": null,
+                          "source_id": "n13b-global-deeper-terminal",
+                          "source_kind": "control_plane_evidence",
+                          "source_ref": "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json"
+                        },
+                        {
+                          "absence_reason": null,
+                          "artifact_content_hash": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                          "as_of": null,
+                          "authoritative_for": [
+                            "historical_ds4_component_disposition"
+                          ],
+                          "availability": "available",
+                          "freshness": null,
+                          "may_not_use_for": [
+                            "current_readiness",
+                            "current_producer_availability"
+                          ],
+                          "source_dependency_hash": null,
+                          "source_id": "ds4-realized-disposition",
+                          "source_kind": "historical_owner_record",
+                          "source_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-closure.md"
+                        },
+                        {
+                          "absence_reason": null,
+                          "artifact_content_hash": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
+                          "as_of": null,
+                          "authoritative_for": [
+                            "historical_environment_relative_measurement"
+                          ],
+                          "availability": "available",
+                          "freshness": null,
+                          "may_not_use_for": [
+                            "current_readiness",
+                            "current_producer_availability"
+                          ],
+                          "source_dependency_hash": null,
+                          "source_id": "historical-producer-availability",
+                          "source_kind": "historical_owner_record",
+                          "source_ref": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
+                        }
+                      ],
+                      "composition_manifest_hash": "sha256:b69628732b574a98f6418027b96062112ff8bc28ba4fa499c840c35ad373dbbc",
+                      "intended_audiences": [
+                        "REVIEWER",
+                        "EXPERT"
+                      ],
+                      "packet_schema_version": "policyos.runtime.cycle_board_packet.v1",
+                      "payload": {
+                        "coverage": {
+                          "capability_state": "absent/unallocated",
+                          "deficits": [
+                            "artifact_missing",
+                            "bridge_missing"
+                          ],
+                          "execution_status": "not_established",
+                          "exhaustive": false,
+                          "known_row_count": 0,
+                          "known_scope": "N10 capstone + legacy fixture cohort",
+                          "missing_link": "production_recursive_cycle_run_enumeration",
+                          "owner_route": "GY-GAP5 -> runtime/quality GY-N12",
+                          "unknown_scope": "future production recursive-cycle DesignProblems"
+                        },
+                        "historical_producer_availability": {
+                          "counts": {
+                            "artifact_missing": 1,
+                            "available": 5,
+                            "invalid_source": 7
+                          },
+                          "environment_absence": "production_data",
+                          "measurement_scope": "environment_relative",
+                          "source_content_hash": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
+                          "source_ref": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
+                        },
+                        "movement_gap": {
+                          "capability_state": "absent/unallocated",
+                          "chronology_route": "GY-N12",
+                          "deficits": [
+                            "artifact_missing",
+                            "bridge_missing"
+                          ],
+                          "execution_status": "not_established",
+                          "missing_link": "acquisition_reentry_deeper_terminal_binding",
+                          "movement_records": [],
+                          "producer_route": "GY-GAP6 -> GY-N13b"
+                        },
+                        "realized_ds4_disposition": {
+                          "counts": {
+                            "package": 27,
+                            "rebind": 41,
+                            "retire": 3,
+                            "use_as_is": 18
+                          },
+                          "denominator": 89,
+                          "source_class": "historical_ds4_component_disposition",
+                          "source_content_hash": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                          "source_ref": "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-closure.md"
+                        },
+                        "rows": []
+                      },
+                      "projection_hash": "sha256:3d3358e9d913977f5049d3410df9e537968d6d5607692c8f3ff11ac6c8a0a311",
+                      "projection_id": "depth-n-cycle-board",
+                      "projection_observed_at": "2026-02-11T12:00:00Z",
+                      "projection_rule_version": "policyos.runtime.depth_n_cycle_board.v2",
+                      "replay_address": "/api/v1/exports/governed-projections/depth-n-cycle-board?composition_manifest_hash=sha256%3Ab69628732b574a98f6418027b96062112ff8bc28ba4fa499c840c35ad373dbbc&projection_hash=sha256%3A3d3358e9d913977f5049d3410df9e537968d6d5607692c8f3ff11ac6c8a0a311&projection_rule_version=policyos.runtime.depth_n_cycle_board.v2&replay_target=composed_v2&source_dependency_hash=sha256%3Aea8c7ffcbecfc5ba9fc8d6641c82b2d8ab19a2ae156ab1c1ff6a3fbd1c56a959",
+                      "source_dependency_hash": "sha256:ea8c7ffcbecfc5ba9fc8d6641c82b2d8ab19a2ae156ab1c1ff6a3fbd1c56a959",
+                      "stable_address": "/api/v1/exports/governed-projections/depth-n-cycle-board"
+                    }
+                  }
+                },
+                "schema": {
+                  "anyOf": [
+                    {
+                      "discriminator": {
+                        "mapping": {
+                          "artifact_missing": "#/components/schemas/ArtifactMissingGovernedProjectionPacket",
+                          "available": "#/components/schemas/AvailableGovernedProjectionPacket",
+                          "invalid_source": "#/components/schemas/InvalidGovernedProjectionPacket"
+                        },
+                        "propertyName": "availability"
+                      },
+                      "oneOf": [
+                        {
+                          "$ref": "#/components/schemas/AvailableGovernedProjectionPacket"
+                        },
+                        {
+                          "$ref": "#/components/schemas/ArtifactMissingGovernedProjectionPacket"
+                        },
+                        {
+                          "$ref": "#/components/schemas/InvalidGovernedProjectionPacket"
+                        }
+                      ]
+                    },
+                    {
+                      "$ref": "#/components/schemas/CycleBoardProjectionPacket"
+                    }
+                  ],
+                  "title": "Response Get Depth N Cycle Board Projection"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get the reviewer Cycle Board or replay its raw owner packet",
         "tags": [
           "runtime-exports"
         ]

@@ -1,6 +1,8 @@
 import {
   RuntimeApiClient,
+  type CycleBoardProjectionPacket,
   type DepthNCycleBoardPayload,
+  type DepthNCycleBoardPayloadV2,
   type DepthNDomainRunProjection,
 } from "@polisyos/runtime-api-client";
 
@@ -15,6 +17,20 @@ type GovernedProjectionPacket = Awaited<
 >;
 
 type GovernedProjectionClient = Pick<RuntimeApiClient, "getGovernedProjection">;
+
+type CycleBoardExportPacket = Awaited<
+  ReturnType<RuntimeApiClient["getDepthNCycleBoardProjection"]>
+>;
+
+type CycleBoardHeroClient = Pick<
+  RuntimeApiClient,
+  "getDepthNCycleBoardProjection"
+>;
+
+export type DepthNCycleBoardHeroProjection = Readonly<{
+  packet: CycleBoardProjectionPacket;
+  payload: DepthNCycleBoardPayloadV2;
+}>;
 
 export type DepthNCycleBoardProjection = Readonly<{
   packet: GovernedProjectionPacket;
@@ -51,7 +67,9 @@ function isDepthNDomainRunProjection(
     return false;
   }
   return (
-    isRecord(value.acquisition_route) &&
+    (value.acquisition_route == null || isRecord(value.acquisition_route)) &&
+    (value.acquisition_economics == null ||
+      isRecord(value.acquisition_economics)) &&
     typeof value.design_problem_ref === "string" &&
     typeof value.domain_role === "string" &&
     typeof value.evidence_class === "string" &&
@@ -74,6 +92,40 @@ function isDepthNCycleBoardPayload(
     return false;
   }
   return Object.values(value.domain_runs).every(isDepthNDomainRunProjection);
+}
+
+/** Narrow only the generated composed-v2 packet intended for the hero surface. */
+export function narrowDepthNCycleBoardHeroProjection(
+  packet: CycleBoardExportPacket,
+): DepthNCycleBoardHeroProjection {
+  if (
+    packet.packet_schema_version !== "policyos.runtime.cycle_board_packet.v1" ||
+    packet.projection_rule_version !== "policyos.runtime.depth_n_cycle_board.v2" ||
+    packet.projection_id !== "depth-n-cycle-board"
+  ) {
+    throw new TypeError(
+      "contract_error: Cycle Board hero requires the composed-v2 packet version",
+    );
+  }
+  return Object.freeze({ packet, payload: packet.payload });
+}
+
+/** Prepare the future hero query against the distinct static operation. */
+export function depthNCycleBoardHeroProjectionQueryOptions(
+  client: CycleBoardHeroClient,
+) {
+  return {
+    queryKey: queryKeys.cycleBoardProjection(),
+    queryFn: async () =>
+      narrowDepthNCycleBoardHeroProjection(
+        await client.getDepthNCycleBoardProjection({}),
+      ),
+  };
+}
+
+/** Composed authority has no aggregate owner as-of and is never retained. */
+export function depthNCycleBoardHeroProjectionQueryPolicy() {
+  return { kind: "never_cache_authority" } as const;
 }
 
 /**

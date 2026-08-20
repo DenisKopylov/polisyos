@@ -22,13 +22,13 @@
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:c50bd2010437421a334a7db9a25726fce6ba11fc253bc4d10ee456c1c366c00a"
+      "sha256": "sha256:f330f538f4b4ca09f04aff6db22884c7ee5839385136c954bcd38552000e5386"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
-      "canonical_sha256": "sha256:6770adbca8411bc2464e5fd58fab12b671251108b24f884a2af8066c218b66a5",
+      "canonical_sha256": "sha256:680dafe6db1ea714462debb19c857e4ced5bcb2e6229ccbed2f63424eb004cd5",
       "types_path": "packages/runtime-api-client/types.ts",
-      "types_sha256": "sha256:e290256295f9e567005775ffcbb9771d2e514bbae9cfc34ab7075417b48317d1"
+      "types_sha256": "sha256:fb6aa94083eff6aba37a790c518e9ba2b00707b5793964bf4a9b10a1f9c85497"
     }
   },
   "denominators": {
@@ -484,8 +484,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "ComparabilityReport",
-        "canonical_line": 225,
-        "schema_line": 3420,
+        "canonical_line": 262,
+        "schema_line": 3614,
         "field": "status"
       }
     },
@@ -717,8 +717,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "AgentPipelineStep",
-        "canonical_line": 25,
-        "schema_line": 1700,
+        "canonical_line": 27,
+        "schema_line": 1732,
         "field": "status"
       }
     },
@@ -800,8 +800,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "RunWorkflowNodeView",
-        "canonical_line": 884,
-        "schema_line": 9453,
+        "canonical_line": 977,
+        "schema_line": 10225,
         "field": "status"
       }
     },
@@ -906,8 +906,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "VerificationMetadata",
-        "canonical_line": 1005,
-        "schema_line": 10347,
+        "canonical_line": 1102,
+        "schema_line": 11140,
         "field": "verification_status"
       }
     },
@@ -945,8 +945,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "ScenarioRef",
-        "canonical_line": 947,
-        "schema_line": 9896,
+        "canonical_line": 1040,
+        "schema_line": 10668,
         "field": "status"
       }
     },
@@ -1009,8 +1009,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "PolisyosCoreContractsRuntimeLineageRefOutput",
-        "canonical_line": 1011,
-        "schema_line": 10417,
+        "canonical_line": 1108,
+        "schema_line": 11210,
         "field": "status"
       }
     },
@@ -1048,8 +1048,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "VerificationMetadata",
-        "canonical_line": 1005,
-        "schema_line": 10330,
+        "canonical_line": 1102,
+        "schema_line": 11123,
         "field": "dispute_status"
       }
     },
@@ -1102,8 +1102,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "VerificationMetadata",
-        "canonical_line": 1005,
-        "schema_line": 10330,
+        "canonical_line": 1102,
+        "schema_line": 11123,
         "field": "dispute_status"
       }
     },
@@ -1151,8 +1151,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "PromotionDecisionResponse",
-        "canonical_line": 763,
-        "schema_line": 8339,
+        "canonical_line": 856,
+        "schema_line": 9111,
         "field": "status"
       }
     },
@@ -1444,8 +1444,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "BureaucraticTemplateRef",
-        "canonical_line": 178,
-        "schema_line": 2936,
+        "canonical_line": 210,
+        "schema_line": 3106,
         "field": "legal_review_status"
       }
     },
@@ -1493,8 +1493,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "BureaucraticDocument",
-        "canonical_line": 163,
-        "schema_line": 2817,
+        "canonical_line": 195,
+        "schema_line": 2987,
         "field": "status"
       }
     },
@@ -1876,8 +1876,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "DecisionValidityStatus",
-        "canonical_line": 387,
-        "schema_line": 4735
+        "canonical_line": 441,
+        "schema_line": 5208
       }
     },
     {
@@ -1930,8 +1930,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "DecisionValidityStatus",
-        "canonical_line": 387,
-        "schema_line": 4735
+        "canonical_line": 441,
+        "schema_line": 5208
       }
     },
     {
@@ -2132,8 +2132,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "VerificationMetadata",
-        "canonical_line": 1005,
-        "schema_line": 10347,
+        "canonical_line": 1102,
+        "schema_line": 11140,
         "field": "verification_status"
       }
     },
@@ -2256,8 +2256,8 @@
       ],
       "generated_anchor": {
         "export_symbol": "ScenarioRef",
-        "canonical_line": 947,
-        "schema_line": 9896,
+        "canonical_line": 1040,
+        "schema_line": 10668,
         "field": "status"
       }
     }

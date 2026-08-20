@@ -4795,10 +4795,10 @@ id = "target"
     def test_live_c21c_selector_hashes_are_complete_and_frozen(self) -> None:
         expected_hashes = {
             "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
-                "d333a5ad21d1303613a7a8a9ca08280afec38ed3437b56511e20c55bd66ab613"
+                "b503e66f352769e60481dc523209b1a26fc76db7925efb901098cf7a9d9c8b1b"
             ),
             "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
-                "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe"
+                "399e89a188beb761be92339723ce1f399f80da100aa23d32201c18f38a319248"
             ),
             "schemas/runtime_api_v1.openapi.json:2221": (
                 "7983a50e47d9c0a6e7785de9367614512ce2be27a3e183ac7d844cb4dba6bd3f"

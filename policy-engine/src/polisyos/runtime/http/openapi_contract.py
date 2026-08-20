@@ -186,6 +186,227 @@ _BUREAUCRATIC_DOCUMENT_SAMPLE = {
     },
     "metadata": {"template_version": "ua.kmu.postanova.v1"},
 }
+_CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE = {
+    "packet_schema_version": "policyos.runtime.cycle_board_packet.v1",
+    "projection_id": "depth-n-cycle-board",
+    "projection_rule_version": "policyos.runtime.depth_n_cycle_board.v2",
+    "intended_audiences": ["REVIEWER", "EXPERT"],
+    "composition_manifest": [
+        {
+            "source_id": "depth-n-cycle-board",
+            "source_kind": "governed_projection",
+            "source_ref": (
+                "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+            ),
+            "availability": "invalid_source",
+            "artifact_content_hash": _SHA_DATA,
+            "source_dependency_hash": None,
+            "as_of": None,
+            "freshness": None,
+            "authoritative_for": [
+                "cycle_board_domain_runs",
+                "terminal_distributions",
+                "recorded_evidence_classes",
+            ],
+            "may_not_use_for": [
+                "public_claim",
+                "publication_authority",
+                "audience_authorization",
+                "recompute_generation_cycle_semantics",
+            ],
+            "absence_reason": "owner validation is unavailable in this environment",
+        },
+        {
+            "source_id": "n13a-acquisition-census",
+            "source_kind": "governed_projection",
+            "source_ref": (
+                "architecture/policy_design_case/layer3_gy_n13a_acquisition_census.json"
+            ),
+            "availability": "invalid_source",
+            "artifact_content_hash": _SHA_METHOD,
+            "source_dependency_hash": None,
+            "as_of": None,
+            "freshness": None,
+            "authoritative_for": [
+                "acquisition_family_scorecards",
+                "metric_resolution",
+                "route_evidence",
+            ],
+            "may_not_use_for": [
+                "public_claim",
+                "publication_authority",
+                "audience_authorization",
+                "closeout_pass",
+            ],
+            "absence_reason": "owner validation is unavailable in this environment",
+        },
+        {
+            "source_id": "n13a-live-probe-journal",
+            "source_kind": "governed_projection",
+            "source_ref": (
+                "architecture/policy_design_case/layer3_gy_n13a_live_probe_journal.json"
+            ),
+            "availability": "artifact_missing",
+            "artifact_content_hash": None,
+            "source_dependency_hash": None,
+            "as_of": None,
+            "freshness": None,
+            "authoritative_for": [
+                "live_probe_records",
+                "family_receipts",
+                "selection_plan",
+            ],
+            "may_not_use_for": [
+                "public_claim",
+                "publication_authority",
+                "audience_authorization",
+                "source_success_inference",
+            ],
+            "absence_reason": "the optional live-probe journal is absent",
+        },
+        {
+            "source_id": "legacy-proving-ground",
+            "source_kind": "governed_projection",
+            "source_ref": "tests/fixtures/universal-corpus/manifest.json",
+            "availability": "artifact_missing",
+            "artifact_content_hash": None,
+            "source_dependency_hash": None,
+            "as_of": None,
+            "freshness": None,
+            "authoritative_for": ["legacy_case_identity", "fixture_semantic_expectation"],
+            "may_not_use_for": [
+                "public_claim",
+                "publication_authority",
+                "audience_authorization",
+                "readiness",
+                "runtime_outcome",
+                "admissibility",
+            ],
+            "absence_reason": "validator-confirmed legacy runtime outcomes are absent",
+        },
+        {
+            "source_id": "surface-readiness",
+            "source_kind": "governed_projection",
+            "source_ref": "architecture/atlas_surfaces/surface-readiness-ledger.json",
+            "availability": "artifact_missing",
+            "artifact_content_hash": None,
+            "source_dependency_hash": None,
+            "as_of": None,
+            "freshness": None,
+            "authoritative_for": ["validated_surface_readiness_entries"],
+            "may_not_use_for": [
+                "public_claim",
+                "publication_authority",
+                "audience_authorization",
+                "derive_readiness_from_route_presence",
+            ],
+            "absence_reason": "the governed readiness source is absent",
+        },
+        {
+            "source_id": "n13b-global-deeper-terminal",
+            "source_kind": "control_plane_evidence",
+            "source_ref": (
+                "architecture/policy_design_case/layer3_gy_n13b_acquisition_executor_contract.json"
+            ),
+            "availability": "artifact_missing",
+            "artifact_content_hash": None,
+            "source_dependency_hash": None,
+            "as_of": None,
+            "freshness": None,
+            "authoritative_for": [],
+            "may_not_use_for": ["per_row_movement", "row_enumeration", "exhaustiveness"],
+            "absence_reason": "the optional N13b control-plane artifact is absent",
+        },
+        {
+            "source_id": "ds4-realized-disposition",
+            "source_kind": "historical_owner_record",
+            "source_ref": (
+                "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-closure.md"
+            ),
+            "availability": "available",
+            "artifact_content_hash": _SHA_DATA,
+            "source_dependency_hash": None,
+            "as_of": None,
+            "freshness": None,
+            "authoritative_for": ["historical_ds4_component_disposition"],
+            "may_not_use_for": ["current_readiness", "current_producer_availability"],
+            "absence_reason": None,
+        },
+        {
+            "source_id": "historical-producer-availability",
+            "source_kind": "historical_owner_record",
+            "source_ref": (
+                "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
+            ),
+            "availability": "available",
+            "artifact_content_hash": _SHA_METHOD,
+            "source_dependency_hash": None,
+            "as_of": None,
+            "freshness": None,
+            "authoritative_for": ["historical_environment_relative_measurement"],
+            "may_not_use_for": ["current_readiness", "current_producer_availability"],
+            "absence_reason": None,
+        },
+    ],
+    "composition_manifest_hash": (
+        "sha256:b69628732b574a98f6418027b96062112ff8bc28ba4fa499c840c35ad373dbbc"
+    ),
+    "source_dependency_hash": (
+        "sha256:ea8c7ffcbecfc5ba9fc8d6641c82b2d8ab19a2ae156ab1c1ff6a3fbd1c56a959"
+    ),
+    "projection_hash": ("sha256:3d3358e9d913977f5049d3410df9e537968d6d5607692c8f3ff11ac6c8a0a311"),
+    "projection_observed_at": _TS_SAMPLE,
+    "stable_address": "/api/v1/exports/governed-projections/depth-n-cycle-board",
+    "replay_address": (
+        "/api/v1/exports/governed-projections/depth-n-cycle-board?"
+        "composition_manifest_hash=sha256%3Ab69628732b574a98f6418027b96062112ff8bc28ba"
+        "4fa499c840c35ad373dbbc&projection_hash=sha256%3A3d3358e9d913977f5049d3410df9"
+        "e537968d6d5607692c8f3ff11ac6c8a0a311&projection_rule_version=policyos.runtime."
+        "depth_n_cycle_board.v2&replay_target=composed_v2&source_dependency_hash=sha256%3A"
+        "ea8c7ffcbecfc5ba9fc8d6641c82b2d8ab19a2ae156ab1c1ff6a3fbd1c56a959"
+    ),
+    "payload": {
+        "rows": [],
+        "coverage": {
+            "capability_state": "absent/unallocated",
+            "deficits": ["artifact_missing", "bridge_missing"],
+            "missing_link": "production_recursive_cycle_run_enumeration",
+            "owner_route": "GY-GAP5 -> runtime/quality GY-N12",
+            "execution_status": "not_established",
+            "known_scope": "N10 capstone + legacy fixture cohort",
+            "unknown_scope": "future production recursive-cycle DesignProblems",
+            "known_row_count": 0,
+            "exhaustive": False,
+        },
+        "movement_gap": {
+            "capability_state": "absent/unallocated",
+            "deficits": ["artifact_missing", "bridge_missing"],
+            "missing_link": "acquisition_reentry_deeper_terminal_binding",
+            "producer_route": "GY-GAP6 -> GY-N13b",
+            "chronology_route": "GY-N12",
+            "execution_status": "not_established",
+            "movement_records": [],
+        },
+        "realized_ds4_disposition": {
+            "source_class": "historical_ds4_component_disposition",
+            "source_ref": (
+                "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding-closure.md"
+            ),
+            "source_content_hash": _SHA_DATA,
+            "counts": {"package": 27, "rebind": 41, "use_as_is": 18, "retire": 3},
+            "denominator": 89,
+        },
+        "historical_producer_availability": {
+            "source_ref": (
+                "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
+            ),
+            "source_content_hash": _SHA_METHOD,
+            "counts": {"available": 5, "invalid_source": 7, "artifact_missing": 1},
+            "measurement_scope": "environment_relative",
+            "environment_absence": "production_data",
+        },
+    },
+}
 
 _DEFAULT_PROBLEM_RESPONSES: dict[str, dict[str, str]] = {
     "400": {"code": "bad_request", "description": "Malformed request payload or parameters."},
@@ -360,9 +581,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
                 "bound_dependency_aggregate_identity": _SHA_BINDINGS,
                 "bound_dependency_count": 1,
                 "semantic_projection_hash": _SHA_PLAN,
-                "semantic_projection_hash_rule_version": (
-                    "polisyos.pdc.gy_content_hash.v1"
-                ),
+                "semantic_projection_hash_rule_version": ("polisyos.pdc.gy_content_hash.v1"),
                 "issue_codes": [],
             },
             "related_artifact_bindings": [],
@@ -387,6 +606,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         },
         "absence_reason": None,
     },
+    "get_depth_n_cycle_board_projection": _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE,
     "get_runtime_channel_registry": {
         "schema_version": "policyos.runtime.channel_registry.v1",
         "channels": [

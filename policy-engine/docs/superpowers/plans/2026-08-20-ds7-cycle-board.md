@@ -319,10 +319,10 @@ composition manifest, and projection/dependency hashes.
 **Interfaces:** distinct generated `getDepthNCycleBoardProjection`; packet/rule-version union;
 legacy replay isolation.
 
-- [ ] Regenerate OpenAPI and both complete client families with Task 1 owner commands.
-- [ ] Re-run the full two-family symbol/field/anchor enumeration. Stop on changed/removed or
+- [x] Regenerate OpenAPI and both complete client families with Task 1 owner commands.
+- [x] Re-run the full two-family symbol/field/anchor enumeration. Stop on changed/removed or
   non-mechanical drift before acquiring the lock.
-- [ ] RED then GREEN the package-client test proving the distinct static method and version
+- [x] RED then GREEN the package-client test proving the distinct static method and version
   discriminator. RED then GREEN the dashboard hook contract rejecting v1 on the hero path.
 - [ ] Announce and acquire the whole-family lock only for re-anchors, owner report generation,
   verification, commit read-back, and closing hashes; then explicitly relinquish.

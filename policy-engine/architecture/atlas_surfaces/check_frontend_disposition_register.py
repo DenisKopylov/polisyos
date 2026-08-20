@@ -154,6 +154,17 @@ C06_CONTRAST_EVIDENCE_SHA256 = {
         "681ca884a66d00bc5442906abecf30778838e228f2a94ecb446f59942b3d7fdc"
     ),
 }
+C06_CONTRAST_CURRENT_EVIDENCE_SHA256 = {
+    C04_RENDERED_CONTRAST_SOURCE_REF: (
+        "c54524c59102c38e02eafdf6cc690ca8896dd1a0262b243138f71e271aa0d225"
+    ),
+    "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.test.ts": (
+        "7659dac8e09ea2aa51876fda6358d543af45bf16819ac4a4ecb66db4168ebda3"
+    ),
+    "apps/runtime-dashboard/src/test/a11y/OpaqueBackgroundContrast.stories.tsx": (
+        "805007c4ccefc4fb9ea682afc894ac8765dcbc9fba82e7bc13ce582596e56cbf"
+    ),
+}
 C06_RENDERED_CONTRAST_FINDING_ID = (
     "baseline-test-a11y-rendered-contrast-incomplete-debt"
 )
@@ -2344,12 +2355,12 @@ _C21C_STRUCTURED_HINTS = {
     "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
         "json",
         "/entries[debt_id=ds4-waist-cgf-disposition]",
-        "d333a5ad21d1303613a7a8a9ca08280afec38ed3437b56511e20c55bd66ab613",
+        "b503e66f352769e60481dc523209b1a26fc76db7925efb901098cf7a9d9c8b1b",
     ),
     "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
         "json",
         "/entries[debt_id=ds4-waist-decision-grade]",
-        "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe",
+        "399e89a188beb761be92339723ce1f399f80da100aa23d32201c18f38a319248",
     ),
     "schemas/runtime_api_v1.openapi.json:2221": (
         "json",
@@ -3301,17 +3312,16 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "UudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ"
             ),
             (
-                "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJh"
-                "dGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlz"
-                "IiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRh"
-                "c2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0s"
-                "ImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEy"
-                "NTYiOiI3NmU4ZDRlOGQ1NzdkZGNhNGI2MDgzOTY2OWZlM2VjNmM0NGEwOGVmZTk0OWYw"
-                "YTllODVjZjhjZTFiNjA3NGQ5Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwi"
-                "c291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlL"
-                "ZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJp"
-                "YWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZl"
-                "cnNpb24iOjF9"
+                "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
+                "aGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6"
+                "cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1"
+                "ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtl"
+                "eXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxNmU5M2RhYjk3Y2RmYTJhMmRiYzk1ZTM1"
+                "M2Y0ODg4N2YzZWE5NGQwZTc3YzNkZjM5MzU0MzljNjk2NmFmOWU4Iiwicm9sZSI6InZhcmlhYmxl"
+                "X2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9h"
+                "cGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJW"
+                "YXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNp"
+                "b24iOjF9"
             ),
         ],
         "rationale": (
@@ -3456,31 +3466,28 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "pZ25hdHVyZToyOTQiXSwidmVyc2lvbiI6MX0"
             ),
             (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
-                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuZml"
-                "uaXNoZWRfYXQiLCJzeW1ib2w6ZmluaXNoZWRfYXQiLCJyZXNvbHZlZDpma"
-                "W5pc2hlZF9hdCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXB"
-                "pLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjc"
-                "mltaW5hdG9yIjoiY29tcG9uZW50cy5maW5pc2hlZF9hdCIsIm5vcm1hbGl"
-                "6ZWRfdG9rZW5zX3NoYTI1NiI6IjQxOTY2ZjRkZTYwODFiNmQ2OGFmZmZjY"
-                "jJiZWRlNTQ2OGY5NjljNzg5NzI3ZWVkNjg3ZTc4MGNlNzE2MDY4YjIiLCJ"
-                "yb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZ"
-                "XMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9"
-                "wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxI"
-                "iwiUHJvcGVydHlTaWduYXR1cmU6Mjk0IiwiVHlwZUxpdGVyYWw6MSIsIlB"
-                "yb3BlcnR5U2lnbmF0dXJlOjgiXSwidmVyc2lvbiI6MX0"
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI"
+                "6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuZmluaXNoZWRfYXQiLCJzeW1ib2w6ZmluaXNoZWR"
+                "fYXQiLCJyZXNvbHZlZDpmaW5pc2hlZF9hdCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWU"
+                "tYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjo"
+                "iY29tcG9uZW50cy5maW5pc2hlZF9hdCIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjQxOTY"
+                "2ZjRkZTYwODFiNmQ2OGFmZmZjYjJiZWRlNTQ2OGY5NjljNzg5NzI3ZWVkNjg3ZTc4MGNlNzE2MDY"
+                "4YjIiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGl"
+                "tZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF"
+                "0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzI3IiwiVHlwZUxpdGV"
+                "yYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjgiXSwidmVyc2lvbiI6MX0"
             ),
             (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGF"
-                "pbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3RhdHVzIiwic3ltYm9sOnN0YXR1cyI"
-                "sInJlc29sdmVkOnN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWN"
-                "saWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29"
-                "tcG9uZW50cy5zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxN2U2NzM1NGM"
-                "0ZWI2OWU5MzA1MGM0ZWI3MzJjZWU0ZDU0MWU5OWU2OTJiNTE1NGE5NDBhNTI2NGViODllODl"
-                "mIiwicm9sZSI6InR5cGVfcHJvcGVydHkiLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnR"
-                "pbWUtYXBpLWNsaWVudC90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVN"
-                "pZ25hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjI5NCIsIlR"
-                "5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNiJdLCJ2ZXJzaW9uIjoxfQ"
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI"
+                "6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3RhdHVzIiwic3ltYm9sOnN0YXR1cyIsInJlc29"
+                "sdmVkOnN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXB"
+                "lcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5zdGF"
+                "0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxN2U2NzM1NGM0ZWI2OWU5MzA1MGM0ZWI"
+                "3MzJjZWU0ZDU0MWU5OWU2OTJiNTE1NGE5NDBhNTI2NGViODllODlmIiwicm9sZSI6InR5cGVfcHJ"
+                "vcGVydHkiLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy5"
+                "0cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVNpZ25hdHVyZToyIiwiVHlwZUxpdGVyYWw"
+                "6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjMyNyIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25"
+                "hdHVyZToxNiJdLCJ2ZXJzaW9uIjoxfQ"
             ),
             "src/polisyos/runtime/http/services/adapters/core_run.py",
             "docs/superpowers/journals/2026-08-16-gy-gap4-run-terminality.md",
@@ -6112,12 +6119,12 @@ def _structured_identity_reference_errors(references: Sequence[str]) -> list[str
 
 
 _C21B_DESCRIPTOR_HINTS = {
-    "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865": ("exported_declaration", "RunSummary"),
-    "packages/runtime-api-client/types.ts:9240": ("type_property", "components.RunSummary"),
-    "packages/runtime-api-client/types.ts:9258": ("type_property", "components.finished_at"),
-    "packages/runtime-api-client/types.ts:9284": ("type_property", "components.status"),
-    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103": ("exported_declaration", "depthNCycleBoardProjectionQueryOptions"),
-    "packages/runtime-api-client/types.ts:2411": ("type_property", "components.AuthMeResponse"),
+    "packages/runtime-api-client/canonicalRuntimeApiClient.ts:958": ("exported_declaration", "RunSummary"),
+    "packages/runtime-api-client/types.ts:10012": ("type_property", "components.RunSummary"),
+    "packages/runtime-api-client/types.ts:10031": ("type_property", "components.finished_at"),
+    "packages/runtime-api-client/types.ts:10058": ("type_property", "components.status"),
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:156": ("exported_declaration", "depthNCycleBoardProjectionQueryOptions"),
+    "packages/runtime-api-client/types.ts:2446": ("type_property", "components.AuthMeResponse"),
     "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42": ("named_declaration", "fetchAuthMe"),
     "apps/runtime-dashboard/src/api/queryKeys.ts:11": ("variable_declaration", "queryKeys"),
     "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15": ("exported_declaration", "ComposerDraftRecord"),
@@ -6128,8 +6135,8 @@ _C21B_DESCRIPTOR_HINTS = {
     "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301": ("named_declaration", "writeStoredCausalDraft"),
     "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109": ("exported_declaration", "writeStoredDisputes"),
     "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444": ("exported_declaration", "setReviewerThreshold"),
-    "packages/runtime-api-client/types.ts:2430": ("type_property", "components.permissions"),
-    "apps/runtime-dashboard/src/api/types.ts:2323": ("type_property", "components.permissions"),
+    "packages/runtime-api-client/types.ts:2462": ("type_property", "components.permissions"),
+    "apps/runtime-dashboard/src/api/types.ts:2513": ("type_property", "components.permissions"),
 }
 
 
@@ -7817,9 +7824,20 @@ def _c06_verify_c16_contrast_evidence(
             raise ValueError(
                 f"C16 contrast historical evidence drift:{source_ref}"
             )
-        current_bytes = current_evidence_bytes.get(source_ref)
-        if current_bytes != source_bytes:
+        current_bytes = current_evidence_bytes.get(source_ref, b"")
+        if (
+            hashlib.sha256(current_bytes).hexdigest()
+            != C06_CONTRAST_CURRENT_EVIDENCE_SHA256[source_ref]
+        ):
             raise ValueError(f"C16 contrast current evidence drift:{source_ref}")
+
+    current_delta_refs = {
+        source_ref
+        for source_ref in expected_refs
+        if current_evidence_bytes[source_ref] != historical[source_ref]
+    }
+    if current_delta_refs != {story_ref}:
+        raise ValueError("C16 contrast current evidence drift:declared delta")
 
     for unchanged_ref in C04_RENDERED_CONTRAST_EVIDENCE_REFS[:2]:
         parent_bytes = _c03_git_bytes(

@@ -11,6 +11,7 @@ import { observeCachePosture } from "@/api/cacheDiscipline";
 import type { RunInspectorSummary } from "@/features/runs/context/RunInspectorContext";
 import { narrowDepthNCycleBoardProjection } from "@/features/runs/api/useDepthNCycleBoardProjection";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import { depthNDomainRunFixture } from "@/test/fixtures/depthNCycleBoard";
 import { renderWithProviders } from "@/test/render";
 
 import { RunExplainabilityPanel } from "./RunExplainabilityPanel";
@@ -67,8 +68,7 @@ function summaryFixture(): RunInspectorSummary {
 function domainRun(
   overrides: Partial<DepthNDomainRunProjection> = {},
 ): DepthNDomainRunProjection {
-  return {
-    acquisition_route: { route: "owner-supplied" },
+  return depthNDomainRunFixture({
     design_problem_ref: "design-problem://global-domain",
     domain_role: "legal",
     evidence_class: "recorded_owner_evidence",
@@ -77,7 +77,7 @@ function domainRun(
     terminal_distribution: { recorded_terminal: 0.6 },
     weakest_links: ["owner supplied weakest link"],
     ...overrides,
-  };
+  });
 }
 
 function availablePacket(

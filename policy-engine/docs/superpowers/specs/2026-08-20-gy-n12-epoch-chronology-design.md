@@ -2,11 +2,11 @@
 
 ## Status
 
-Research specification, Cycle 2 revision, independently reviewed and delta-
-clean. No production code, governed artifact, writer, deployment-bound artifact
-or generated surface is authorized by this document. Cycles 3–4 and their
-independent reviews remain open; the final specification requires user approval
-before implementation planning.
+Research specification, Cycle 3 revision, independently reviewed and
+delta-clean. No production code, governed artifact, writer, deployment-bound
+artifact or generated surface is authorized by this document. Cycle 4 and its
+adversarial delta reviews remain open; the final specification requires user
+approval before implementation planning.
 
 ## Problem
 
@@ -66,6 +66,11 @@ The decisive classifications are:
   `absent/unallocated`.
 - The epoch-to-Decision-Validity trigger is `producer_missing`; automatic
   derivation-recipe recomputation remains `absent/unallocated`.
+- N11's scope-local CAS/hash-chain/WAL and core audit/security hashing,
+  signatures and optional replicas are implemented within their native claims.
+  They are reusable proof machinery/precedent, not a generic chronology owner
+  or a writer-independent accepted anchor. The common proof protocol and
+  accepted-anchor chain remain `absent/unallocated`.
 
 ## Non-goals
 
@@ -81,56 +86,80 @@ The decisive classifications are:
   limits the claim.
 - No implementation or governed artifact during the four research cycles.
 
-## Cycle 2 architecture candidate — Cycle 3 verdict pending
+## Cycle 3 verdict — one protocol, split semantic authorities
 
-The candidate shape remains one reusable **chronology proof semantics and
-verification owner**, with family-native member records, denominator resolvers
-and persistence adapters. Cycle 2 narrows the reusable primitive to:
+Cycle 3 supports a **qualified unification** as the architecture direction and
+refutes the stronger candidate against repository counterexamples. The
+specification calls for one shared, policy-free **chronology-proof protocol**,
+with four family-native adapters and proof domains. No implementation evidence
+yet promotes that `absent/unallocated` capability. There is not one chronology
+semantic or authority owner.
 
-- scoped member identity as a content commitment to a native record;
-- predecessor/append relation and ordered sequence within that native scope;
-- family-scoped commitment-head derivation and independently accepted anchor
-  reconciliation;
-- complete-basis declaration and unknown-external-copy limitation;
-- offline Merkle-style membership and old-to-new consistency verification; and
-- detection of deletion, substitution, reordering and post-hoc basis
-  narrowing.
+The shared protocol owns:
+
+- proof-domain and canonicalization-profile versions;
+- scoped content commitments to native records;
+- proof append/predecessor relations, explicitly non-semantic;
+- family-scoped commitment-head derivation;
+- offline inclusion and old-to-new consistency verification;
+- accepted-anchor verification and typed limitation results; and
+- detection of deletion, substitution, reordering, fork replacement and
+  post-hoc basis narrowing.
+
+The family authority supplies and owns:
+
+- native member schema, persistence, scope/root and applicable CTM roles;
+- declared basis and complete source-denominator reconciliation;
+- semantic eligibility, applicability, correction/fork policy and native
+  predecessor/successor relations;
+- authority heads/currentness/status/terminal, if the family has them; and
+- acceptance of the proof anchor by a competent consumer outside the
+  transcript writer's mutation authority.
+
+This is one real protocol, not four ledgers behind a common interface: family
+adapters may not reimplement commitment, consistency, anchor verification or
+generic mutation dispositions. It is also not a central temporal platform:
+the protocol may not require a common payload, timestamp, status, action enum
+or physical log, and may not infer any family authority predicate.
 
 The proof layer has a **commitment head**, never an authority head. It proves
-only the prefix admitted under a declared basis and accepted earlier head. It
-cannot establish that every required release or production run was admitted;
-each family owner must independently reconcile the committed set with its
-complete canonical denominator. Event payloads, temporal roles, semantic
-applicability, validity decisions, release dispositions, recursive terminals,
-acquisition evidence and native authority heads remain family-owned and are
-recomputed before admission or current projection. Decision Validity remains
-the sole owner of packet currentness and lineage heads, while Claim Ledger
-remains the claim-history owner. Chronology can emit verified perturbation
-evidence to them; it cannot duplicate their state.
+only the prefix admitted under a declared basis and accepted earlier head.
+It cannot establish that every required release, boundary source or production
+run was admitted. Each family owner independently reconciles the committed set
+with its complete canonical denominator. Decision Validity remains the sole
+owner of packet currentness and lineage heads; Claim Ledger remains the
+claim-history owner; generation-cycle producers retain terminals; N13b/N7
+retain endpoint evidence.
 
 Acceptance is a separate P37 predicate, not a location or `accepted=true`
-field. Every anchor freezes the accepting owner, proof-domain/log identity,
+field. Every anchor freezes the accepting owner, proof-domain identity,
 signature, prior anchor, admission cutoff, witness or consumer-receipt basis,
-verifier provenance and admission provenance class. At least one accepted
-anchor must cross a custody boundary the transcript writer cannot rewrite. If
-no such family capability is named and independently reconciled, the result is
-only consistency relative to a supplied head and whole-history authenticity is
-`not_established`. Cycle 3 must name the real anchor owner per family rather
-than assigning that authority to the shared proof layer.
+verifier provenance and admission provenance class. At least one retained
+anchor crosses a custody boundary the writer cannot rewrite. The common
+contract verifies that receipt; it cannot accept its own head. Until a family
+names and implements that consumer/holder chain, the strongest result is
+consistency relative to a supplied head and whole-history authenticity is
+`not_established`.
 
-Reconciliation of external two-axis facts with the ratified Custody Time Model
-§3 yields a provisional PolicyOS inference: an epoch is a content-bound
-semantic projection at explicit native coordinates, not a third clock. Valid/
-effect time and transaction/knowledge time retain their meanings; `epoch_ref`
-selects the fixed admitted model/rule/schema/data/interpretation basis. Cycle 3
-must confirm or refute that inference; prior art does not ratify it.
+The epoch inference is now confirmed within CTM's boundary: an `epoch_ref` is
+a content-bound fixed-semantics replay selector at explicit native coordinates,
+not a third clock. Valid/effect time and transaction/knowledge time retain
+their meanings; the epoch selects an admitted model/rule/schema/data/
+interpretation basis. Proof append order cannot select semantic applicability.
 
-This is intentionally only a hypothesis. Cycle 3 must reject it if the common
-commitment becomes a universal envelope under another name, if one proof
-algebra cannot serve all four families, if family adapters carry so much policy
-that “one owner” is merely cosmetic, or if a production-boundary receipt cannot
-fit while preserving GY-GAP5's additive/non-blocking recorder rule and
-INT-K08's narrower negative-terminal semantics.
+The proof contract is algorithm-profiled rather than Merkle-specific.
+RFC-style membership and append-only consistency are behavioral properties.
+Because offline replay already carries the full native history, a full-prefix
+content hash chain over reusable canonical hashing/CAS/signature machinery is
+the bounded provisional profile, not a settled scale claim. Before
+implementation chooses it, measure per-family cutoff-bound member counts,
+canonical bundle bytes, owner latency/storage ceilings and admitted
+selective-proof demand. Full replay pays linear verification; exceeding an
+owner ceiling or requiring sublinear selective proof selects a Merkle profile.
+Either profile must satisfy the same frozen closure basis.
+
+The complete argument, counterexamples and ownership matrix are in
+`docs/superpowers/journals/2026-08-20-gy-n12-cycle-3-unification-verdict.md`.
 
 ## Family obligations
 
@@ -183,9 +212,9 @@ is immutable after admission except by an appended correction/supersession.
 Offline replay proves membership and append-only consistency relative to an
 independently accepted head carrying the frozen anchor basis above. The family
 owner also reconciles that admitted prefix with the complete release
-denominator; Merkle
-membership cannot prove a release was required to be submitted. Deleting,
-substituting, reordering, whole-history replacement or narrowing controlled
+denominator; an inclusion proof cannot prove a release was required to be
+submitted. Deleting, substituting, reordering, whole-history replacement or
+narrowing controlled
 history fails. Unknown external copies or heads produce a typed limitation
 rather than a false globally complete/latest claim.
 
@@ -194,7 +223,10 @@ rather than a false globally complete/latest claim.
 Each production member binds exact `DesignProblem` content, recursive graph and
 cycle content identities, authority scope and owner-derived terminal. The
 family enumerates the complete production receipt denominator, orders admitted
-runs, derives current heads per existing root and projects resolved terminals.
+runs, derives current heads per existing root from an explicit native
+supersession/retry relation and projects resolved terminals. Append position or
+maximum timestamp cannot manufacture a native run head; absent that relation,
+the head is unresolved rather than guessed.
 Recording/projection failure cannot change the completed run or terminal.
 Deletion, substitution and basis narrowing fail replay. A best-effort recorder
 cannot establish “all production runs”: every production path must cross a
@@ -213,6 +245,9 @@ Boolean inferred from adjacent counts. Each row binds N13b observation,
 passport/raw evidence and resolved epoch to the same `DesignProblem`, recursive
 run/cycle, N7 same-cycle re-entry receipt and before/after owner-derived
 terminal. Missing any link is absence, never “no movement.”
+Movement has a commitment head for proof integrity but requires no independent
+native authority head; its query projection consumes endpoint-owner heads and
+terminals.
 
 ## Authority predicates
 
@@ -236,9 +271,9 @@ accepts only the first two. In particular:
 - terminal values are recomputed/validated by their existing owners;
 - movement identity is recomputed from exact row/passport/run/re-entry refs;
 - chronology consistency is verified from content commitments and predecessor
-  relations, not timestamps, list position or an exit code.
+  relations, not timestamps, list position or an exit code;
 - a commitment head proves prefix integrity only; native authority heads are
-  recomputed by the applicable owner and cannot be inferred from it.
+  recomputed by the applicable owner and cannot be inferred from it;
 - accepted-anchor provenance is independently reconciled by the named family
   custody consumer; a writer-retained adjacent copy or self-attested witness
   cannot establish whole-history authenticity.
@@ -325,32 +360,36 @@ constant.
 
 ## Draft implementation clusters — no authorization
 
-1. **Owner-preserving environment dependency and proof substrate:** close
-   GY-DEF22 at its Foundry/N8/N10a owner boundary, consume that identity in N12,
-   define canonical commitments, accepted commitment heads and offline
-   membership/consistency verification, and prove no universal envelope,
-   authority head, second currentness owner or claim-history owner was
-   introduced.
-2. **Epoch producer and validity cascade:** generic regime/amendment/acquisition
+1. **Owner-preserving environment dependency:** close GY-DEF22 at its
+   Foundry/N8/N10a owner boundary, consume that identity in N12 and pass its
+   research-profile, irrelevant-difference and novel-profile falsifiers.
+2. **Single proof protocol and independent anchor contract:** define
+   algorithm-profiled canonical commitments, append-only consistency,
+   commitment heads, proof-only dispositions and offline verification over
+   reusable core canonical/CAS/audit machinery. Reuse the N11 behavior, never
+   its confidence scope or private ledger. Add the writer-independent
+   consumer/holder contract and prove no universal envelope, authority head,
+   second currentness owner or claim-history owner was introduced.
+3. **Epoch producer and validity cascade:** generic regime/amendment/acquisition
    boundary resolution, unresolved scope, append-only epochs, current heads,
    N13b semantic stamp, owner-adjudicated perturbations, promotion freeze,
    certificate staleness and recipe recomputation.
-3. **Controlled release adapter:** native release member/producer, immutable
+4. **Controlled release adapter:** native release member/producer, immutable
    denominator, retained accepted head, verifier dispositions, denominator
    reconciliation, offline membership/consistency replay and prefix discipline.
-4. **Recursive-run adapter:** production-boundary content receipt and explicit
+5. **Recursive-run adapter:** production-boundary content receipt and explicit
    gap reconciliation while preserving GY-GAP5's non-blocking producer-owned
    terminal, complete-denominator reconciliation, per-root native heads/
    resolved terminals and deletion/narrowing detection.
-5. **Movement composition:** exact N13b row/passport to N7 re-entry/deeper
+6. **Movement composition:** exact N13b row/passport to N7 re-entry/deeper
    terminal relation and consumer projection.
-6. **Surfaces and capstone verification:** audit/API/dashboard projection from
+7. **Surfaces and capstone verification:** audit/API/dashboard projection from
    owner artifacts, full frozen closure basis, negative/e2e semantic suite,
    owner recomputation validators and the single deployment replay.
 
 Each cluster must be independently reviewable and end with a real
 producer/artifact/bridge/consumer/verifier chain or retain an exact incomplete
-label. Cluster boundaries and order may change after Cycles 2–4.
+label. Cluster boundaries and order may change after Cycle 4.
 
 ## Pattern pass
 
@@ -373,11 +412,19 @@ shared native authority head. The repair is independent denominator
 reconciliation plus a proof-only commitment head, and complete recipe/profile
 closure before automatic revalidation.
 
+Cycle 3 found the owner-wording trap: “one delivery lane,” “one proof
+protocol,” and “one semantic authority” are three different propositions. The
+first two hold; the third fails against native denominators, correction
+authority, terminals and anchor custody. It also found a reuse trap: N11's
+behavioral hash-chain precedent does not authorize reusing its per-problem
+confidence scope. The repair is one policy-free proof protocol with native
+semantic owners and writer-independent family acceptance.
+
 ## Research and revision log
 
 | cycle | input | result | spec action |
 | --- | --- | --- | --- |
 | 1 | complete literal + CTM-owner census; independent architecture/census/basis reviews | proof owner absent; Decision Validity and Claim Ledger mandatory; five negative classes added | rewritten after blocking P38/label/basis findings; hypothesis only |
 | 2 | transparency, bitemporal, immutable-history, revocation, provenance/recompute and scholarly-correction prior art | proof algebra fits admitted-prefix integrity; CTM reconciliation tentatively makes epoch a projection rather than a third clock; canonical denominator and authority heads stay native | rewritten with commitment/authority-head split, independently accepted anchors, GY-GAP5-attributed run receipt, recipe/profile closure and proposition/use denominators; three return reviews clean |
-| 3 | unification argued both ways | pending | verdict and architecture rewrite |
+| 3 | strongest conditional unification versus minimal semantic-owner split; repository head/membership/correction/anchor/run-gap counterexamples | one policy-free proof protocol is the supported direction for four domains; one semantic authority is refuted; hash-chain-first is provisional and N11 owner reuse forbidden | rewritten with protocol/authority split, explicit native-head limits, anchor custody, algorithm-choice measurement and reordered clusters; first and return reviews repaired same-class deeper findings, final delta clean |
 | 4 | adversarial record/design/method review | pending | delta-review until clean; freeze basis |

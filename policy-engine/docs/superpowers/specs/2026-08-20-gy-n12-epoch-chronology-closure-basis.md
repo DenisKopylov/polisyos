@@ -2,16 +2,18 @@
 
 ## Status
 
-Draft after Cycle 2. This list is deliberately not frozen and cannot support a
+Draft after the Cycle-3 rewrite. This list is deliberately not frozen and cannot support a
 closure claim until Cycle 4 reviewers return a clean delta and the final basis
 is committed. Once frozen, implementation review uses the P40 bucket rule:
 every escape is classified as a new class or the same class one level deeper,
 and against design, record, or research method.
 
-The decisive property is that the chronology owner reproduces the complete
-admitted history for a declared native scope, detects mutation or narrowing
-that could manufacture a pass, and changes current validity without erasing
-historical authenticity.
+The decisive property is that the single policy-free chronology-proof protocol
+reproduces and verifies the complete **admitted** history for a declared native
+scope, while each family authority independently reconciles its complete source
+denominator, semantic membership and native heads. Together they detect every
+in-basis mutation or narrowing that could manufacture a pass, and family
+currentness changes without erasing historical authenticity.
 
 ## A. Time and identity boundary
 
@@ -30,6 +32,9 @@ historical authenticity.
   packet currentness and lineage heads; Claim Ledger alone owns claim-history
   transitions. Chronology supplies verified dependency evidence and cannot
   create parallel status/head ledgers.
+- **CB-A07 — delivery is not authority:** GY-N12 may be the accountable lane for
+  the protocol and adapters without absorbing source admission, legal effect,
+  currentness, claim lifecycle, terminality or anchor acceptance.
 
 ## B. Common chronology proof
 
@@ -37,8 +42,10 @@ historical authenticity.
   source denominator and content-binds the basis at admission.
 - **CB-B02 — membership:** every admitted native member has a content-bound
   membership proof; valid-shaped substitution fails.
-- **CB-B03 — order:** predecessor/append relations are content-bound; deletion,
-  insertion, reordering and fork substitution are detectable offline.
+- **CB-B03 — two orders:** proof append/predecessor relations are content-bound
+  and detect deletion, insertion, reordering and fork substitution offline.
+  That integrity order is never a proxy for native semantic applicability,
+  succession or currentness.
 - **CB-B04 — consistency:** a later accepted head proves append-only extension
   from the pinned earlier head; post-hoc prefix/narrowing cannot pass.
 - **CB-B05 — scoped heads:** heads are derived under the native family's scope
@@ -63,6 +70,30 @@ historical authenticity.
 - **CB-B11 — two head predicates:** a commitment head proves prefix integrity;
   a native authority head expresses owner-derived current state. Neither may
   stand in for the other, and legitimate native multi-head state stays native.
+- **CB-B12 — policy-free protocol:** the shared implementation owns
+  canonicalization, commitments, consistency, proof dispositions and offline
+  verification only. It cannot inspect family fields to decide eligibility,
+  denominator completeness, semantic order, correction, terminality or a
+  native authority head.
+- **CB-B13 — adapters do not fork proof semantics:** family adapters map native
+  records and supply owner proofs but cannot reimplement chain/consistency,
+  anchor verification or mutation dispositions. A second family verifier that
+  accepts a history the common verifier rejects fails.
+- **CB-B14 — no N11 owner reuse:** reusable N11 hash-chain behavior and core
+  canonical/CAS/audit primitives may be consolidated, but no chronology family
+  is persisted under, keyed by or authorized through the confidence-ledger
+  scope/root/head.
+- **CB-B15 — algorithm-profiled property:** full-prefix hash-chain and Merkle
+  implementations, if present, are interchangeable only when both pass the
+  same membership, consistency, substitution, narrowing and accepted-anchor
+  behaviors. Algorithm name, root-field presence or exit status is not proof.
+- **CB-B16 — head orthogonality:** an authority-only dependency transition can
+  move a native currentness head without moving the commitment head; an
+  annotation-only appended member can move the commitment head without moving
+  authority. Both directions are tested.
+- **CB-B17 — no mandatory native head:** a proof domain always has a
+  commitment head; a family with no meaningful native authority head, including
+  movement, is not forced to invent one.
 
 ## C. Epoch derivation and unresolved scope
 
@@ -181,8 +212,10 @@ historical authenticity.
   content identities, not only run ID or timestamp.
 - **CB-F04 — terminal authenticity:** search and lifecycle terminals remain
   distinct owner values; refusal/void/dispute/exhaustion are completed members.
-- **CB-F05 — per-root heads:** current heads are derived per existing root and
-  explicit branch semantics; no synthetic family parent.
+- **CB-F05 — per-root heads:** current heads are derived per existing root from
+  an explicit owner-native retry/supersession/branch relation; no synthetic
+  family parent. If that relation is absent, head status is unresolved rather
+  than maximum append position or timestamp.
 - **CB-F06 — resolved-terminal projection:** projections consume owner-validated
   terminals and exact membership; projection cannot manufacture terminality.
 - **CB-F07 — run deletion/narrowing:** deletion, substitution, reordering or a
@@ -220,6 +253,9 @@ historical authenticity.
   distinct from a producer-established “no movement.”
 - **CB-G07 — deletion/substitution:** removing or swapping any row/passport/raw
   evidence/run/re-entry/terminal link fails verification.
+- **CB-G08 — no movement head invention:** movement has a proof commitment head
+  but no independent native authority head. Its projection consumes exact
+  endpoint-owner currentness and terminal facts.
 
 ## H. Gate provenance and behavioral verification
 
@@ -248,6 +284,24 @@ historical authenticity.
   declared dependency list constant while changing an actually influential
   omitted tool/environment input. Reuse or revalidation must fail rather than
   return a cache-like green result.
+- **CB-H10 — policy-leak falsifier:** hold the proof bundle and commitment head
+  fixed while changing a canonical family-owner admission/currentness
+  disposition. Proof integrity remains unchanged and the authority result
+  follows the family owner; the shared protocol cannot adjudicate it.
+- **CB-H11 — algorithm mutation:** keep profile names, root fields and marker
+  strings while deleting actual predecessor/consistency verification. The
+  whole-history substitution and deletion negatives fail the real path.
+- **CB-H12 — writer-self-anchor:** give the writer a valid signature and a
+  self-consistent rewritten history but no independently accepted/retained
+  anchor. Whole-history authenticity remains `not_established`.
+- **CB-H13 — terminal/receipt divergence:** suppress the run chronology receipt
+  after a producer-owned negative or positive terminal. Terminality is
+  byte-identical while chronology completeness fails against the independent
+  production denominator.
+- **CB-H14 — valid-prefix denominator omission:** keep every presented member,
+  commitment and consistency proof valid while omitting one required member
+  from the family source-of-truth denominator at the bound cutoff. Independent
+  reconciliation and the authority consumer fail closed.
 
 ## I. GY-DEF22 and replay economics
 
@@ -273,20 +327,33 @@ historical authenticity.
 
 ## J. End-to-end capability reality
 
+- **CB-J00 — common protocol chain:** family source-of-truth denominator at a
+  bound cutoff -> independently reconciled required-member or receipt/gap set
+  -> native adapter -> canonical commitment producer -> family-native
+  persisted proof artifact -> offline verifier -> competent family-consumer
+  acceptance/admission -> accepted-anchor receipt -> writer-independent holder
+  retention -> downstream use -> valid-prefix denominator-omission, deletion,
+  substitution, narrowing and policy-leak tests.
 - **CB-J01 — epoch chain:** generic owner-admitted boundary source -> epoch
-  producer -> persisted native history/proof -> N13b/Decision Validity/Claim
-  Ledger bridge -> promotion and public/audit consumers -> negative semantic
-  test.
-- **CB-J02 — release chain:** release producer -> native member -> persisted
-  history/proof -> offline verifier -> PV-K07/audit surface -> deletion test.
-- **CB-J03 — run chain:** production run -> non-blocking recorder -> persisted
-  enumeration/proof -> terminal projection -> API/dashboard/audit surface ->
-  narrowing test.
+  producer -> common protocol plus persisted native history/proof ->
+  N13b/Decision Validity/Claim Ledger bridge -> promotion and public/audit
+  consumers -> negative semantic test.
+- **CB-J02 — release chain:** immutable required-release denominator at cutoff
+  -> independently reconciled required member set -> release producer ->
+  native member -> persisted history/proof -> family-consumer acceptance and
+  retained anchor -> PV-K07/audit surface -> required-member omission and
+  deletion tests.
+- **CB-J03 — run chain:** independently complete production launch/emission
+  denominator -> receipt-or-gap reconciliation -> production run ->
+  non-blocking recorder -> persisted enumeration/proof -> family-consumer
+  acceptance and retained anchor -> terminal projection ->
+  API/dashboard/audit surface -> never-receipted-run and narrowing tests.
 - **CB-J04 — movement chain:** admitted row -> exact composition receipt ->
   persisted relation -> movement consumer -> API/dashboard/audit surface ->
   substitution test.
 - **CB-J05 — incomplete labels:** any missing link retains one of
-  `contract_only`, `producer_missing`, `artifact_missing`, `bridge_missing`,
-  `consumer_missing`, `verification_missing`,
+  `absent/unallocated`, `contract_only`, `producer_missing`,
+  `artifact_missing`, `bridge_missing`, `consumer_missing`,
+  `verification_missing`,
   `implemented_but_not_orchestrated`, `surface_missing`,
   `surface_out_of_scope`, or `semantic_test_missing`; prose never promotes it.

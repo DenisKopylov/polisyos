@@ -319,6 +319,15 @@ def test_shadow_kind_is_refused_under_a_name_invented_at_test_time() -> None:
     assert exc_info.value.code == "p20_value_schedule_resolver_absent"
 
 
+def test_pareto_archive_model_cannot_bypass_ranked_admission_guard() -> None:
+    with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+        _s8("ParetoArchive")(
+            **_pareto_archive_payload(
+                value_schedule_ref="pdc://layer2/s8/value-schedules/direct-model-bypass",
+            )
+        )
+
+
 def test_p20_rejects_llm_or_corpus_derived_social_weights() -> None:
     probe = _fixture("llm_social_weight_probe.json")
     for social_weight_provenance in probe["social_weight_provenance_candidates"]:

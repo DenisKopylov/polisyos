@@ -429,24 +429,24 @@ download bytes.
 **Interfaces:** frozen diff, <=28 KB review package, P40 buckets, measured suite timings, closure
 claims, attached-branch read-back.
 
-- [ ] Run pre-freeze focused tests and self-review against every approved spec invariant. Search for
+- [x] Run pre-freeze focused tests and self-review against every approved spec invariant. Search for
   placeholders, status/timestamp terminality proxies, adjacent-count credit, invented readiness,
   PUBLIC exposure, duplicate projection owners, and stale in-panel fixtures.
-- [ ] Freeze source and dispatch independent backend semantics, frontend custody/strangle,
+- [x] Freeze source and dispatch independent backend semantics, frontend custody/strangle,
   authorization/API, generated receipts, and DOM-parity reviews. Package only the changed delta and
   keep each package at or below 28 KB.
-- [ ] Bucket every Blocking/Important finding before repair. New class consumes a round; same class
+- [x] Bucket every Blocking/Important finding before repair. New class consumes a round; same class
   one level deeper widens the mechanism; a proven non-behavioral static diagnostic consumes none.
   Run delta-only re-review after any repair.
-- [ ] After all reviews are in, run logic suites, ESLint, typecheck, build, release/runtime contract,
+- [x] After all reviews are in, run logic suites, ESLint, typecheck, build, release/runtime contract,
   architecture, and Atlas governance in parallel where uncontended. Serialize Storybook,
   Playwright/visual, fixed-port, and same-artifact writers. Use preset timeouts and uptime pairs.
-- [ ] Reconfirm the three inherited reds remain exactly red and no new baseline-relative diagnostic
+- [x] Reconfirm the three inherited reds remain exactly red and no new baseline-relative diagnostic
   exists. Do not relabel a kill as a result.
-- [ ] Record that DS7 renders producer values only for status-like/structural fields and renders
+- [x] Record that DS7 renders producer values only for status-like/structural fields and renders
   refusals/typed gaps for policy substance; it renders no policy quantity/effect/welfare value and
   therefore does not satisfy DS16 re-entry.
-- [ ] Record exact GAP5/GAP6 ownership and closure signals, honest-empty movement, environment-scoped
+- [x] Record exact GAP5/GAP6 ownership and closure signals, honest-empty movement, environment-scoped
   5/7/1 debt discharge, one human renderer, v2/MACHINE parity, realized DS4 `27/41/18/3`, locale
   posture, and no PUBLIC gate.
 - [ ] Commit closure, then read back HEAD, commit/file denominator, clean status, and branch

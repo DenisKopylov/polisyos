@@ -1254,3 +1254,171 @@ red. GY plan line 7 remains
 `432e664ec3e5fc8c70688b41084d292b7fa606868a0425501a9d345cc769449f`,
 and Atlas master-plan line 7 remains
 `7855f9209333c06be639d343a7dd2f2e981e1b21ef9c4c01252b473525a43d6d`.
+
+### Task 10 — frozen closeout, authority-presentation convergence, and honest reds
+
+Task 10 bound the moving-main input rather than treating the tip as an event.
+The branch was clean and attached when current local `main`
+`1e78542f106a86444080a98e2dc0f18d8c128584` was merged without conflict at
+`b6f12ed48e70ed6e167011f550367368755af2c6`. That merge carried the unrelated
+GY-DEF19 lane and was completed before any Task 10 governed-family lock. No
+rebase, push, force operation, stash storage, or merge to `main` occurred.
+
+The frozen basis
+`a3747cd490157519406aaecbf15d843238bf6c167d4e517d563d49c7d0d23a4e`
+and the incomplete-versus-wrong bucket rule were issued before every backend,
+frontend, generated/governance, and parity review. Backend owner-boundary,
+frontend custody/strangle/DOM, root-register, and generated-report packages
+returned GO. The authority checker/test package had one on-basis gap: the
+generic writer could delete retired authority rows, but its deletion path had
+no property test. The added test injects a valid retired
+`authority_presentation_debt` row, requires exact restoration of the original
+register bytes, proves idempotence and explicit deletion, and compares every
+non-refresh-owned row byte-for-byte. Its focused run passed 1/1 in 34.478 s and
+delta re-review returned GO. Task 10 closes at `0/2`; Task 5 remains the only
+reopened task with one wrong-approach round, `1/2`.
+
+Review package accounting stayed below 28 KB: the Task 10 authority
+checker/test package was 23,986 bytes, the root-entry/baseline/status package
+7,153 bytes, the supplemental-register package 23,580 bytes, and the generated
+report package 12,474 bytes. The earlier backend review packages were also
+individually bounded (largest 26,431 bytes), as were the Task 8/9 dashboard
+packages (largest 21,889 bytes). Task 6's historical atomic generated commit
+has a 283,577-byte raw patch, but its contemporaneous record did not preserve
+per-review-package byte breakdowns; individual Task 6 package-size compliance
+is therefore `not_established`, not inferred from the later review layout.
+
+The Task 6 client-drift stop remains the gate doing useful work. Both complete
+families measured `8,167 -> 8,468` AST properties with zero removals; the only
+pre-existing leaf shape change was the explicitly charged Task 5 correction
+from an open acquisition-route object to its optional four-key owner
+reference. The strict leaf census measured `4,853 -> 5,086`, all 4,853 prior
+leaves unchanged and 233 added. Net of that declared source-contract repair,
+Task 6 is `additive-and-declared`: one static operation, request-version
+separation, and its v2 packet/fact types. The Task 6 lock window and every
+opening/closing identity remain recorded above; no symbol or field drift was
+silently waived.
+
+The Task 8 strangle changed the live authority-presentation census and therefore
+required one final short whole-family window. It opened after the main merge at:
+
+- register `f330f538f4b4ca09f04aff6db22884c7ee5839385136c954bcd38552000e5386`;
+- report `b6c9aef23050d80c1c5f67fd36cacc62fc1ccf1999e2212a65abd0e023724b86`;
+- status inventory `f31257a3d7525eb8c4ef5fc7607b017ff5732518d9c9a64c6e741ec199251ba3`;
+- baseline manifest `8c86ea3eb48585158de331a4e4c60f6b6520b2152dc39b527f6238d12bb0ff55`;
+- readiness ledger `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`;
+- DS4 waist `9ff2bb717d8dbbed95b299687c24575dc7157822056a25eaecd856332053dc45`.
+
+The live scanner now binds 161 direct Badge sites: 2 branded, 56 debt, and 103
+benign. The Cycle Board's two availability badges retain the existing governed
+availability debt; its responsible-slice badge is opaque taxonomy. The stale
+run-detail rights-bar/source-validation identities retire rather than being
+reassigned. The prop census has 18 descriptors and 30 uses (4 branded, 18
+debt, 8 benign); data freshness rebinds to the board and the unused time
+semantics descriptor retires. The generic surgical writer removes exactly the
+three retired supplemental rows and preserves accepted history.
+
+The transition committed atomically at
+`df0484301aab6135abac8db9d3c2306948811afb` and was read back from the attached
+branch before release. Closing identities are:
+
+- register `77245b9d18089b962d443af8f1b5f6ea13d4da6a5ce703d3353abb3ee61ee90b`;
+- report `b2e25ddea0169c6b3643c88e53fbc4d28798e8a5427cf9619b3aecb008cca36d`;
+- status inventory `8faae363bf16107ef3b1cf3b275678e17df8cb30924a26c71645653fd83357f3`;
+- baseline manifest `b575b856f363c763230fefd3c4538c03c30fbf92c9ed1a4f9bfb9f617b3a0202`;
+- unchanged readiness `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13`;
+- unchanged DS4 waist `9ff2bb717d8dbbed95b299687c24575dc7157822056a25eaecd856332053dc45`.
+
+The family lock was then explicitly relinquished with no later DS7 write
+pending. The final owner checker and corruption probes passed with 261 root
+entries and 59 supplemental findings; the paired uptime receipt ran from load
+`2.35/2.33/2.46` to `2.82/2.58/2.53`. The derived generated-client census
+passed with 1,377 candidate documents (1,177 JSON / 200 TOML), 18 structured
+anchors, 38 integer bindings, 38 navigation references, and zero errors; no
+generated target moved. The admitted authority tests are the pre-freeze 10-test
+class plus the new 1-test deletion witness, and the three C11B transition
+tests; all passed under their measured sub-60-second runs. A redundant final
+parallel run passed 11/11 and 3/3 in 76.57 s, but because contention pushed it
+past sixty without a pre-run uptime pair it is not used as the duration
+receipt. The status checker completed with exactly the inherited thirteen
+diagnostics and SHA-256
+`511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`;
+that is baseline-relative honesty, not status green.
+
+The wider frozen verification evidence is:
+
+| Receipt | Result |
+| --- | --- |
+| runtime API contract | passed in 12.93 s |
+| release compatibility | 24 fragments; zero errors/findings; 28 structured changes |
+| core cycle-board backend | 41/41 passed in 34.20 s |
+| owner equality | 2/2 passed in 34.02 s through independent `_domain_evidence_witness` recomputation |
+| raw Depth-N projector | 7/7 passed in 11.30 s |
+| governed API excluding the environment raw replay | 8/8 passed in 15.82 s |
+| dashboard build/typecheck | passed in 30.35 s |
+| Task 9 parity/consumer/locale | 56/56 passed; exact write-set ESLint and Prettier passed |
+| architecture | same inherited six added / three removed identities; no DS7 edge |
+| `git diff --check` | passed |
+
+The narrow frozen `test + solvers` provision is retained: the offline cache
+attempt for `ortools==9.15.6755` was a non-receipt, then the authorized online
+sync installed the pinned OR-Tools and PuLP without the research/Torch profile;
+the lint extra restored Ruff separately. That closed the canonical owner
+equality receipt. Raw-v1 API byte parity remains an honest environment
+non-receipt: absent `production_data/manifest.json` yields a real
+`invalid_source` packet without the four complete replay pins. No owner mock,
+root-checkout data read, or weaker tuple was substituted.
+
+Two larger aggregate commands are also kept honest. The full component run
+completed 1,196/1,199 with the DS6-C11 assertion plus two 15-second test
+timeouts; both timed-out identities passed when run under their measured
+targeted ceiling, while DS6-C11 reproduced alone. The full dashboard lint
+controller was manually interrupted after it had emitted no diagnostics and
+is a non-receipt; exact Task 8 and Task 9 write-set lint receipts are green.
+The full runs API completed 42/44; both failures reproduce with the same HTTP
+400 result at immutable slice base `4456bb885`, but a complete transitive input
+denominator is not established, so no stronger ownership claim is made.
+
+The serialized visual lane was acquired only after ports 6006, 5173, and 8000
+were free, and was explicitly released after both commands. Neither run was
+killed and neither snapshot was updated. DS5 reproduces exactly: expected
+`1094x820`, received `1094x821`, 4,178 differing pixels. DS8 A4 remains the
+same inherited failing test, expected `724x2113`; current DS7 receives
+`770x12949`, 704,292 differing pixels. Its earlier P41 replay proved that the
+red predates DS7, but the intentional Task 8 removal of the stale in-panel
+renderer changes this same screenshot payload; current pixels are therefore
+not called byte-identical or fully DS7-disjoint. DS6-C11 remains the sole
+targeted `non_revision_paths` component red. None is relabelled green.
+
+DS7 now has exactly one production hook caller and one human renderer, both
+`CycleBoardPage`; run detail retains only the review-filtered global-cohort
+link. The static v2 response and rendered DOM have a real parity proof, and
+the MACHINE download is the exact response byte sequence from that one
+request. `4C-DOM-05` is closed. Authored English and active Ukrainian move
+together; frozen Russian is untouched. The page is `runs.review` gated,
+declares REVIEWER/EXPERT, and makes no PUBLIC claim.
+
+GAP5 renders `production_recursive_cycle_run_enumeration` as a typed
+`not_established` absence routed to GY-N12, with known `3 + 13` rows explicitly
+non-exhaustive and future rows not fabricated. GAP6 renders
+`acquisition_reentry_deeper_terminal_binding` as a typed `not_established`
+absence routed through GY-N13b plus N12 chronology; global N13b evidence cannot
+mint row membership, exhaustiveness, or movement. Movement is honestly empty.
+The historical producer record remains environment-relative `5/7/1`, and DS4
+disposition remains historical `27/41/18/3`, never current estate readiness.
+
+For DS16, the answer is precise rather than binary: the board renders
+producer-signed status, terminal, structural, source, accounting, and bound
+planner-economics values where available. It renders policy substance as
+refusals and typed gaps and carries no policy quantity, predicted effect, or
+welfare value. Therefore DS16's stated re-entry condition—a surface rendering
+policy values rather than refusals—is **not satisfied**; DS7 does not build or
+pre-empt DS16's grammar.
+
+Task 10's substantive record is complete, but the final plan checkbox remains
+open until this record is committed and read back from the attached branch.
+At this pre-record boundary, Atlas master-plan line 7 is unchanged from the
+post-merge entry at
+`7855f9209333c06be639d343a7dd2f2e981e1b21ef9c4c01252b473525a43d6d`,
+and GY plan line 7 is unchanged at
+`ffe105ef594603c3a2a3a0247d41cb188529c4fd6fd72cab3ddfbde7956fc6e0`.

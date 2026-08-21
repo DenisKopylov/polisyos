@@ -316,6 +316,40 @@ repair. Any later closure must state the chosen raster property and exercise
 it without a snapshot writer. The repair path count and duration remain
 `not_established`. No snapshot byte changes in this landing.
 
+**Restored detail from the superseded text (architect, 2026-08-21; DS5 is
+closed and nothing here reopens it).** The 2026-08-20 print-scope escalation
+rewrote the two paragraphs above **in place** rather than appending, and three
+pieces of measured detail were lost with the text they sat in. The
+supersession itself stands — the run-deck cause is fractional clip
+rasterization, so the old border-box repair is **not** re-authorized — but a
+successor should not have to re-derive coordinates that were already paid for:
+
+- **The run-deck coordinates.** The measured surface is
+  `run-deck-slide-evidence` / `.atlas-deck-slide`, defined in
+  `AtlasRunDeck.tsx` and its `styles.css`. Whatever raster property the owner
+  finally adjudicates, that is where it is exercised.
+- **The verification shape.** The superseded text required *three consecutive
+  no-update captures whose decoded RGBA equals the baseline*, plus a full
+  visual run containing only the external DS8 A4 red. The **repair** it
+  attached that shape to is refuted; the **shape** is not, and it remains the
+  right strength for any closure of this row.
+- **The pre-repair A4 height, without which the current figure is
+  unreadable.** The paragraph above now cites `770×12,966`. That number is the
+  *post-suppression* value; the raw cascade is `770×13,269` with the original
+  print cascade, `770×12,966` with only the 17,206-character signed target
+  suppressed, and `770×12,918` with all link targets suppressed. Dropping the
+  first figure leaves `12,966` looking like a baseline when it is a result.
+
+**And all three A4 figures are themselves now superseded.** DS7's strangle
+removed the stale in-panel run-detail renderer and measured `770×12,949` on a
+tree carrying that change but **not** DS6's scoped signed-target suppression.
+Both changes are now in `main` at `fffd9013a` and **nobody has measured the
+combination** — it is `not_established`, and it must not be predicted by
+subtracting the two deltas, which were measured against different baselines
+and are not established as disjoint layout regions. This changes nothing DS5
+owns; it is recorded here so a reader of this closed plan does not carry a
+stale number forward.
+
 ### Import policy / exception lifecycle — `reproduces_at_slice_base`
 
 The direct owner command is

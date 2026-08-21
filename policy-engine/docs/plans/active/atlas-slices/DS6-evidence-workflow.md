@@ -1017,6 +1017,31 @@ so the first post-repair no-update capture is a completed RED receipt and no
 second capture is run. The snapshot is not rewritten and no report content is
 hidden to fit it.
 
+**THE PIXEL CASCADE ABOVE IS SUPERSEDED, AND THE CURRENT VALUE IS UNMEASURED
+(architect, 2026-08-21).** Every figure in this section — `13,269`, `12,966`,
+`12,918` — was measured on a tree carrying *at most one* of the two changes
+that have since landed. DS7's strangle removed the stale in-panel run-detail
+renderer and DS7's own visual lane measured **`770×12,949`** on a tree that
+had the strangle but **not** this cluster's scoped signed-target suppression.
+So there are now four states and only three are measured:
+
+| tree | A4 actual |
+| --- | --- |
+| neither change | `770×13,269` |
+| this cluster's scoped repair only (`1fc07ed01`) | `770×12,966` |
+| DS7's strangle only | `770×12,949` |
+| **both, which is what `main` now is (`fffd9013a`)** | **`not_established`** |
+
+Do **not** subtract the two contributions to predict the fourth cell. `303`
+px of signed target and roughly `320` px of removed chrome are separately
+measured deltas against different baselines, and nothing establishes that they
+are disjoint regions of the same layout. The next actor on this surface —
+DS8 — must **measure** the combined value, not derive it.
+
+None of this changes the C13 verdict below. The capture conjunct is false
+because the expectation is a placeholder, and a placeholder stays wrong at
+every one of these four heights.
+
 C13 requires all three conjuncts: a content-bound scoped repair release,
 independently established semantic non-overlap, and two consecutive GREEN
 no-update A4 captures. The repair-release predicate is `recomputed` and true
@@ -1514,6 +1539,13 @@ governed write.
 
 ### Contended governed writes after DS5-C21
 
+> **EXECUTED — architect, 2026-08-21.** Everything specified in this section for `C03`,
+> `C04` and `C06` **has been carried out** and merged at `b0249e82d`. The instructions below
+> are retained as the executed specification, not as pending work; do not re-run them. The
+> `C13` hold at the end of *Contended-package readiness* is the only part of this package
+> still standing, and it is still a `NO WRITE` hold.
+
+
 **I18n lifecycle, DS6-C03.** Apply through the existing producer/checker, not a
 hand edit:
 
@@ -1677,6 +1709,28 @@ that distinction.
 
 ## Slice standing (recorded 2026-08-18)
 
+> **SUPERSEDED IN PART — architect, 2026-08-21.** The table and Landed list below are the
+> 2026-08-18 record and are kept as written. Four entries have since moved and the current
+> standing is here:
+>
+> - **`C03`, `C04`, `C06` are LANDED and MERGED** — the three append-only register
+>   transitions ran at `b0249e82d` on 2026-08-20, and the artifact confirms it in this very
+>   tree: `frontend-baseline-debt-manifest.json` reads `vitest.disposition = resolved`. The
+>   blocker row below that holds them on DS5-`C21` is spent; `C21`'s release happened.
+> - **`C19` is LANDED** — mechanism `c552d5b5c`, records `71b6189de`, merged to `main` at
+>   `fffd9013a`. The `i18n-plural-rule-covers-only-{count}` debt row is struck.
+> - **`C10` is settled, not stopped** — `C10-R2` landed in `main` at `fa1f3e4d0`. See the
+>   correction under *Not yet* below.
+> - **The blocked set is now exactly `C13`'s governed transition and `C14`**, both on the
+>   same single unmet conjunct: two consecutive green no-update A4 captures. DS6 cannot
+>   supply it, because the `724×2113` expectation was never a capture of this surface, so a
+>   replacement is a **first derivation** and it waits on DS8's paper-semantics adjudication.
+>
+> DS6's executable set really is exhausted — but by a shorter route than the table shows:
+> the slice already executed the part it could when it released the scoped print repair at
+> `1fc07ed01` under Revision 3.22's debt-row execution rule, rather than waiting for DS8 to
+> be entered.
+
 **DS6's executable set is exhausted. The slice is `blocked_on_another_plan`, not closed, and its
 closure cluster `C14` is deliberately not entered.**
 
@@ -1713,8 +1767,15 @@ governed transition follows. `C14` closes after both.
 - No typed contrast row or i18n baseline removal until DS5 releases the
   contended governed owner. C03's green-receipt gate is discharged; C04 and
   C06 now wait only on that release.
-- No landed readiness-ledger CI validator. C10 is a stopped, checkpointed,
-  forward-reverted attempt and C10-R1 requires its own clean-tree session. C11
+- ~~No landed readiness-ledger CI validator. C10 is a stopped, checkpointed,
+  forward-reverted attempt and C10-R1 requires its own clean-tree session.~~
+  **CORRECTED 2026-08-21:** this bullet contradicted this plan's own Task 10 status and
+  closure ledger. `C10-R2` landed in `main` at `fa1f3e4d0`, controlling for the per-claim CI
+  gate and the governed Core CAS claim-basis audit projection, with mechanism frozen at
+  `c186885010ad`. `C10-R1` needs no clean-tree session; it was superseded, not deferred.
+  What remains true is the narrower statement: neither surface grants a `stable`/`implemented`
+  claim or an aggregate reconciliation result, and `transitive-runner-closure-unbound` stays
+  `absent/unallocated`. C11
   now persists six instrumented measurements plus the seventh C12 seam; INT-R3
   content, observations, and every honesty threshold remain
   `not_established`.

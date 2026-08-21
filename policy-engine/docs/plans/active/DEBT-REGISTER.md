@@ -87,9 +87,10 @@ edited, no defect was repaired, and line 7 of both plans was not touched. Prose 
 admissible source. The two sources reconciled per item were:
 
 - **B′ — cited-evidence verification.** Every commit, branch and path a block cites was resolved
-  against git. **All 27 cited commits resolve, and 26 of 27 are ancestors of `c270b46c5`.** The
-  one exception is `ba5946ebc`, which the plan itself declares *not* an ancestor — so the blocks'
-  cited evidence checks out, including where it claims a negative. Structural claims reproduce
+  against git. **29 unique commits are cited across these blocks and their immediate neighbours;
+  all 29 resolve and 28 are ancestors of `c270b46c5`.** The one exception is `ba5946ebc`, which the
+  plan itself declares *not* an ancestor — so the blocks' cited evidence checks out, including
+  where it claims a negative. Structural claims reproduce
   exactly where they are checkable: `70a3f3d15` = 61 commits / 29 paths; `GY-DI4`'s lane = 15 files
   / 0 under `src/`; `GY-DEFC-4`'s delta = 0 paths under `src/polisyos/data_forge/`; and
   `88210076e` is `21ae2ba65^1`, the docs-only parent the `GY-DEFC-8` block says it is.

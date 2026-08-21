@@ -13,7 +13,8 @@ and **its own executable witness**, run at the base. A verdict was recorded only
 agreed. Where the witness could not reach its own predicate, the item stayed `ambiguous` — which
 is a complete result, not a failure.
 
-That method worked. **26 of 27 cited commits are ancestors of `c270b46c5`**, and the 27th
+That method worked. **29 unique commits are cited across these blocks and their immediate
+neighbours; all 29 resolve and 28 are ancestors of `c270b46c5`**, and the one that is not
 (`ba5946ebc`) is one the plan itself declares *not* an ancestor — so the blocks are accurate even
 about their negatives. The checkable structural claims reproduce exactly: `70a3f3d15` is 61
 commits and 29 paths; `GY-DI4`'s lane is 15 files with 0 under `src/`; `GY-DEFC-4`'s delta has 0
@@ -103,3 +104,12 @@ section, none adopted:
   and the two `TimeoutExpired` posture runs. Every bundled gate was judged by its own predicate,
   never by a composite exit code.
 - Nothing measured was repaired. Measuring and fixing in one pass turns a census into a rewrite.
+
+## Correction (same session, appended)
+
+The first write of this journal and of the register's Rev-2 provenance said "26 of 27 cited
+commits". That was a count taken from the working list rather than from a recomputed denominator —
+the exact failure mode my own standing rule names. Recomputed over the deduplicated set: **29
+unique commits, all 29 resolving, 28 ancestors of `c270b46c5`, 1 correctly-declared non-ancestor.**
+The conclusion is unchanged; the number is now derived rather than remembered.
+

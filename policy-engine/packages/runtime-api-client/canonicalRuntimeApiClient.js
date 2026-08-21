@@ -606,6 +606,17 @@ export class RuntimeApiClient {
     return this.request("GET", path, query);
   }
 
+  async getRunPaper(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/paper`;
+    const query = this.buildQuery({
+      manifest_artifact_id: params?.manifest_artifact_id,
+      manifest_schema_version: params?.manifest_schema_version,
+      paper_projection_rule_version: params?.paper_projection_rule_version,
+      paper_projection_hash: params?.paper_projection_hash,
+    });
+    return this.request("GET", path, query);
+  }
+
   async getRunQuantities(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/quantities`;
     const query = this.buildQuery({

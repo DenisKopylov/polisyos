@@ -5,7 +5,6 @@ from __future__ import annotations
 import hmac
 from typing import TYPE_CHECKING, Protocol
 
-from polisyos.core.trace import RunTerminality
 from polisyos.runtime.http.services.adapters.core_run import (
     BOUND_RUN_MANIFEST_SCHEMA_VERSION,
     load_bound_terminal_manifest,
@@ -32,7 +31,7 @@ from polisyos.runtime.http.services.run_paper_contracts import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.core.artifacts.protocol import ArtifactStore
+    from polisyos.core import artifacts
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
 
 
@@ -46,7 +45,7 @@ class RunPaperProjectionService:
     def __init__(
         self,
         *,
-        store: ArtifactStore,
+        store: artifacts.ArtifactStore,
         run_index: _RunIndex,
         tenant_id: str,
     ) -> None:
@@ -95,7 +94,7 @@ class RunPaperProjectionService:
     def _project(self, run: IndexedRunRecord) -> RunPaperPacket:
         if run.details.tenant_id != self._tenant_id:
             raise RunPaperSourceError("run paper tenant binding mismatch")
-        if run.summary.run_terminality is not RunTerminality.TERMINAL:
+        if run.summary.run_terminality.value != "terminal":
             raise RunPaperSourceError("run paper requires producer-owned terminality")
         manifest_ref = run.details.manifest_ref
         if manifest_ref is None:

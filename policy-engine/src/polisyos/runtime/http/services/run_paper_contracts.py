@@ -8,12 +8,7 @@ from typing import TYPE_CHECKING, Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
-from polisyos.core.artifacts.manifest import (  # noqa: TC001 - Pydantic resolves DTOs
-    ArtifactRef,
-    EnvInfo,
-    ProducerInfo,
-)
-from polisyos.core.trace import RunTerminality  # noqa: TC001 - Pydantic resolves DTOs
+from polisyos.core import artifacts  # noqa: TC001 - Pydantic resolves DTOs
 from polisyos.pdc import DesignRecordV0  # noqa: TC001 - frozen future ABI slot
 from polisyos.runtime.http.services.export_replay import (
     build_export_replay_address,
@@ -133,7 +128,7 @@ class RunPaperDesignRecordBinding(_StrictModel):
     case_id: str = Field(min_length=1)
     run_id: str = Field(min_length=1)
     tenant_id: str = Field(min_length=1)
-    design_record_ref: ArtifactRef
+    design_record_ref: artifacts.ArtifactRef
     design_record_record_id: str = Field(min_length=1)
     schema_name: Literal["policyos.layer2_s2.design_record_v0"] = (
         "policyos.layer2_s2.design_record_v0"
@@ -142,7 +137,7 @@ class RunPaperDesignRecordBinding(_StrictModel):
         "policyos.policy_design_case.layer2_readiness.v1"
     )
     content_digest: str = Field(pattern=_SHA256_PATTERN)
-    producer: ProducerInfo
+    producer: artifacts.ProducerInfo
 
     @model_validator(mode="after")
     def _bind_design_record_ref(self) -> RunPaperDesignRecordBinding:
@@ -172,11 +167,11 @@ class RunPaperVerifiedCaseSource(_StrictModel):
     """Content-bound, verifier-proven source for one case authority role."""
 
     authority_purpose: RunPaperCaseSourcePurpose
-    source_ref: ArtifactRef
+    source_ref: artifacts.ArtifactRef
     source_digest: str = Field(pattern=_SHA256_PATTERN)
     source_schema_name: str = Field(min_length=1)
     source_schema_version: str = Field(min_length=1)
-    producer: ProducerInfo
+    producer: artifacts.ProducerInfo
     verification: RunPaperCaseSourceVerification
     as_of: datetime | None = None
 
@@ -370,7 +365,7 @@ RunPaperCaseRecord = Annotated[
 
 class AvailableRunPaperStageTrace(_StrictModel):
     availability: Literal["available"] = "available"
-    trace_ref: ArtifactRef
+    trace_ref: artifacts.ArtifactRef
     section_id: Literal["stage-trace"] = "stage-trace"
     owner_route: Literal["core RunManifest.trace_ref"] = "core RunManifest.trace_ref"
 
@@ -391,7 +386,7 @@ class RunPaperArtifactLink(_StrictModel):
     """One content-addressed ordinary link admitted from manifest outputs."""
 
     relation: Literal["run_output"] = "run_output"
-    artifact_ref: ArtifactRef
+    artifact_ref: artifacts.ArtifactRef
     href: str
 
     @model_validator(mode="after")
@@ -406,7 +401,7 @@ class RunPaperRun(_StrictModel):
     run_id: str
     source_kind: Literal["core_run"] = "core_run"
     status: str
-    run_terminality: RunTerminality
+    run_terminality: Literal["terminal", "non_terminal", "not_established"]
     started_at: datetime | None = None
     finished_at: datetime | None = None
     duration_ms: int | None = Field(default=None, ge=0)
@@ -417,14 +412,14 @@ class RunPaperRun(_StrictModel):
 class RunPaperSourceBinding(_StrictModel):
     """Exact verified manifest and producer provenance used by the projection."""
 
-    manifest_ref: ArtifactRef
+    manifest_ref: artifacts.ArtifactRef
     manifest_schema_name: Literal["polisyos.core.RunManifest"] = (
         "polisyos.core.RunManifest"
     )
     manifest_schema_version: Literal["0.1.0"] = RUN_PAPER_MANIFEST_SCHEMA_VERSION
-    producer: ProducerInfo | None
-    environment: EnvInfo | None
-    registry_bundle: ArtifactRef
+    producer: artifacts.ProducerInfo | None
+    environment: artifacts.EnvInfo | None
+    registry_bundle: artifacts.ArtifactRef
 
 
 def build_run_paper_semantic_projection(

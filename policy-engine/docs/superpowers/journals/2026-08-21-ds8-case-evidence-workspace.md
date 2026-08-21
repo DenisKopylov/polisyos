@@ -391,3 +391,27 @@ protected line-7 byte hashes are Atlas
 `74cd4a8823318ffb00c349d05e19c7d8413b2123a6bd5c15ab88f291a837aebf`
 and GY
 `ffe105ef594603c3a2a3a0247d41cb188529c4fd6fd72cab3ddfbde7956fc6e0`.
+
+## C02 — generated paper clients
+
+The regeneration token was acquired once after the C01 freeze. Two setup
+attempts were tooling non-receipts (`fastapi` absent from the worktree venv;
+then `tools` absent from `PYTHONPATH`) and changed no generated output. With
+`PYTHONPATH=src:.` and the repository environment, the OpenAPI export completed
+in 7 seconds / 60; both generated TypeScript families then completed in 3
+seconds / 60. Generated outputs were never hand-edited.
+
+The first architecture receipt found four DS8-owned imports below the stable
+facades. One convergence repair replaced terminality and artifact internals
+with the owner literal and `polisyos.core.artifacts` facade; focused paper tests
+(8 passed) and Ruff were clean. A final derivation then reported both actual
+GY-DEF20 predicates clean: runtime-api-client **5/5** generator-observed outputs
+and runtime-dashboard-api-types **1/1**. The composite remained red only for the
+six inherited `deep-import-baseline-stale` edges; no DS8 path appears in that
+denominator and `guardrails sync` was not run.
+
+The independent generated-client census walked 1,377 JSON/TOML candidates and
+returned 18 primary plus 18 independent anchors, 34 construct identities, two
+absence predicates, zero legacy line bindings and zero errors. C02 spends
+**1/1**, cumulative **2/9**. The regeneration token was explicitly released
+after these predicates were read back.

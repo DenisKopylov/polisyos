@@ -2361,6 +2361,138 @@
         "title": "AuthoredText",
         "type": "object"
       },
+      "AuthorityBoundary": {
+        "additionalProperties": false,
+        "description": "Purpose-scoped authority boundary carried by Layer 2 records.",
+        "properties": {
+          "authoritative_for": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "boundary_id": {
+            "anyOf": [
+              {
+                "pattern": "^[a-z][a-z0-9_.-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Boundary Id"
+          },
+          "decision_grade": {
+            "anyOf": [
+              {
+                "enum": [
+                  "unsupported",
+                  "descriptive_only",
+                  "advisory_admissible",
+                  "decision_admissible"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Grade"
+          },
+          "evidence_basis": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EvidenceBasis"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "evidence_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "measurement",
+                  "derivation",
+                  "proxy",
+                  "transport",
+                  "bounds",
+                  "simulation",
+                  "elicitation",
+                  "incomparable_meet"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Evidence Kind"
+          },
+          "known_limits": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 80,
+            "title": "Known Limits",
+            "type": "array"
+          },
+          "may_not_use_for": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "posture": {
+            "enum": [
+              "shadow",
+              "advisory",
+              "governed",
+              "production"
+            ],
+            "title": "Posture",
+            "type": "string"
+          },
+          "rule_version_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Rule Version Refs",
+            "type": "array"
+          },
+          "source_authority": {
+            "enum": [
+              "deterministic_producer",
+              "governed_config",
+              "human_governance",
+              "llm_candidate",
+              "llm_critic",
+              "llm_drafter"
+            ],
+            "title": "Source Authority",
+            "type": "string"
+          }
+        },
+        "required": [
+          "authoritative_for",
+          "may_not_use_for",
+          "source_authority",
+          "posture",
+          "rule_version_refs"
+        ],
+        "title": "AuthorityBoundary",
+        "type": "object"
+      },
       "AuthorityProfile": {
         "additionalProperties": false,
         "description": "Record requester authority and mandate context for the problem.",
@@ -2892,6 +3024,230 @@
           "payload"
         ],
         "title": "AvailableGovernedProjectionPacket",
+        "type": "object"
+      },
+      "AvailableRunPaperCase": {
+        "additionalProperties": false,
+        "description": "Frozen DS8-B slot for a future verified run-bound DesignRecord.",
+        "properties": {
+          "abstentions": {
+            "items": {
+              "$ref": "#/components/schemas/RunPaperAbstention"
+            },
+            "title": "Abstentions",
+            "type": "array"
+          },
+          "admission_state": {
+            "$ref": "#/components/schemas/RunPaperAdmissionState"
+          },
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "blockers": {
+            "items": {
+              "$ref": "#/components/schemas/RunPaperBlocker"
+            },
+            "title": "Blockers",
+            "type": "array"
+          },
+          "case_id": {
+            "minLength": 1,
+            "title": "Case Id",
+            "type": "string"
+          },
+          "design_record": {
+            "$ref": "#/components/schemas/DesignRecordV0"
+          },
+          "design_record_binding": {
+            "$ref": "#/components/schemas/RunPaperDesignRecordBinding"
+          },
+          "grounding_state": {
+            "$ref": "#/components/schemas/RunPaperGroundingState"
+          },
+          "limitations": {
+            "items": {
+              "$ref": "#/components/schemas/RunPaperLimitation"
+            },
+            "title": "Limitations",
+            "type": "array"
+          },
+          "objections": {
+            "items": {
+              "$ref": "#/components/schemas/RunPaperObjection"
+            },
+            "title": "Objections",
+            "type": "array"
+          },
+          "promotion_state": {
+            "$ref": "#/components/schemas/RunPaperPromotionState"
+          }
+        },
+        "required": [
+          "case_id",
+          "design_record_binding",
+          "design_record",
+          "grounding_state",
+          "admission_state",
+          "promotion_state",
+          "blockers",
+          "limitations",
+          "objections",
+          "abstentions"
+        ],
+        "title": "AvailableRunPaperCase",
+        "type": "object"
+      },
+      "AvailableRunPaperStageTrace": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "const": "available",
+            "default": "available",
+            "title": "Availability",
+            "type": "string"
+          },
+          "owner_route": {
+            "const": "core RunManifest.trace_ref",
+            "default": "core RunManifest.trace_ref",
+            "title": "Owner Route",
+            "type": "string"
+          },
+          "section_id": {
+            "const": "stage-trace",
+            "default": "stage-trace",
+            "title": "Section Id",
+            "type": "string"
+          },
+          "trace_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "trace_ref"
+        ],
+        "title": "AvailableRunPaperStageTrace",
+        "type": "object"
+      },
+      "AxisFirewallStatus": {
+        "additionalProperties": false,
+        "description": "Fail-closed or predictive firewall status for one axis.",
+        "properties": {
+          "cell_ref": {
+            "maxLength": 200,
+            "minLength": 3,
+            "title": "Cell Ref",
+            "type": "string"
+          },
+          "maturity": {
+            "anyOf": [
+              {
+                "enum": [
+                  "fail_closed",
+                  "predictive"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Maturity"
+          },
+          "pattern_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Pattern Ids",
+            "type": "array"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "rule_version_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Rule Version Ref",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "not_applicable",
+              "pass",
+              "warn",
+              "limit",
+              "block"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cell_ref",
+          "status",
+          "reason",
+          "rule_version_ref"
+        ],
+        "title": "AxisFirewallStatus",
+        "type": "object"
+      },
+      "AxisPositionDeclaration": {
+        "additionalProperties": false,
+        "description": "A declared position on a universal designer cluster axis.",
+        "properties": {
+          "authority_purpose": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "axis": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Axis",
+            "type": "string"
+          },
+          "cluster": {
+            "maxLength": 80,
+            "minLength": 1,
+            "title": "Cluster",
+            "type": "string"
+          },
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 40,
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "position": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Position",
+            "type": "string"
+          },
+          "rule_version_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Rule Version Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "cluster",
+          "axis",
+          "position",
+          "authority_purpose",
+          "rule_version_ref"
+        ],
+        "title": "AxisPositionDeclaration",
         "type": "object"
       },
       "BasinEstimate": {
@@ -4720,6 +5076,118 @@
         "title": "CausalFrontierSAEResponse",
         "type": "object"
       },
+      "CertifiedOperationEnvelope": {
+        "additionalProperties": false,
+        "description": "Certified operation envelope attached to a design record.",
+        "properties": {
+          "actor_scopes": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Actor Scopes",
+            "type": "array"
+          },
+          "certified_for": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Certified For",
+            "type": "array"
+          },
+          "cluster_authority_dimension_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 40,
+            "title": "Cluster Authority Dimension Refs",
+            "type": "array"
+          },
+          "domains": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Domains",
+            "type": "array"
+          },
+          "envelope_id": {
+            "pattern": "^[a-z][a-z0-9_.-]*$",
+            "title": "Envelope Id",
+            "type": "string"
+          },
+          "epistemic_regime_scopes": {
+            "items": {
+              "enum": [
+                "risk",
+                "uncertainty",
+                "ambiguity",
+                "ignorance",
+                "contested_model"
+              ],
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Epistemic Regime Scopes",
+            "type": "array"
+          },
+          "method_scopes": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Method Scopes",
+            "type": "array"
+          },
+          "not_certified_for": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 40,
+            "minItems": 1,
+            "title": "Not Certified For",
+            "type": "array"
+          },
+          "posture_scopes": {
+            "items": {
+              "enum": [
+                "shadow",
+                "advisory",
+                "governed",
+                "production"
+              ],
+              "type": "string"
+            },
+            "maxItems": 4,
+            "minItems": 1,
+            "title": "Posture Scopes",
+            "type": "array"
+          },
+          "rule_version_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Rule Version Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "envelope_id",
+          "domains",
+          "posture_scopes",
+          "actor_scopes",
+          "method_scopes",
+          "certified_for",
+          "not_certified_for",
+          "rule_version_ref"
+        ],
+        "title": "CertifiedOperationEnvelope",
+        "type": "object"
+      },
       "ChannelRegistryEntry": {
         "additionalProperties": false,
         "description": "Govern a non-OpenAPI realtime channel and its existing security contract.",
@@ -5215,6 +5683,11 @@
         ],
         "title": "ComparisonFrame",
         "type": "object"
+      },
+      "ComponentId": {
+        "description": "Component identifier: dot.path.name@semver.",
+        "title": "ComponentId",
+        "type": "string"
       },
       "ConnectorInfo": {
         "additionalProperties": false,
@@ -6949,7 +7422,8 @@
               "governed_projection",
               "control_plane_evidence",
               "historical_owner_record",
-              "run_summary_lookup"
+              "run_summary_lookup",
+              "run_paper_projection"
             ],
             "title": "Source Kind",
             "type": "string"
@@ -10236,6 +10710,106 @@
         "title": "DesignProblem",
         "type": "object"
       },
+      "DesignRecordV0": {
+        "additionalProperties": false,
+        "description": "Minimal narrow-waist design record carried from S2 onward.",
+        "properties": {
+          "authority_boundary": {
+            "$ref": "#/components/schemas/AuthorityBoundary"
+          },
+          "axis_positions": {
+            "items": {
+              "$ref": "#/components/schemas/AxisPositionDeclaration"
+            },
+            "maxItems": 40,
+            "title": "Axis Positions",
+            "type": "array"
+          },
+          "candidate_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Candidate Ref",
+            "type": "string"
+          },
+          "candidate_source": {
+            "enum": [
+              "deterministic_producer",
+              "governed_config",
+              "human_governance",
+              "llm_candidate",
+              "llm_critic",
+              "llm_drafter"
+            ],
+            "title": "Candidate Source",
+            "type": "string"
+          },
+          "envelope": {
+            "$ref": "#/components/schemas/CertifiedOperationEnvelope"
+          },
+          "firewall_status": {
+            "items": {
+              "$ref": "#/components/schemas/AxisFirewallStatus"
+            },
+            "maxItems": 40,
+            "title": "Firewall Status",
+            "type": "array"
+          },
+          "ledger_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 40,
+            "title": "Ledger Refs",
+            "type": "array"
+          },
+          "projection_audiences": {
+            "items": {
+              "enum": [
+                "PUBLIC",
+                "REVIEWER",
+                "EXPERT",
+                "MACHINE"
+              ],
+              "type": "string"
+            },
+            "maxItems": 4,
+            "minItems": 1,
+            "title": "Projection Audiences",
+            "type": "array"
+          },
+          "projection_status": {
+            "enum": [
+              "shadow",
+              "advisory",
+              "governed",
+              "production"
+            ],
+            "title": "Projection Status",
+            "type": "string"
+          },
+          "record_id": {
+            "pattern": "^[a-z][a-z0-9_.-]*$",
+            "title": "Record Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": "policyos.policy_design_case.layer2_readiness.v1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "record_id",
+          "candidate_ref",
+          "candidate_source",
+          "projection_status",
+          "authority_boundary",
+          "envelope",
+          "projection_audiences"
+        ],
+        "title": "DesignRecordV0",
+        "type": "object"
+      },
       "DesignStakeholder": {
         "additionalProperties": false,
         "description": "Represent an affected stakeholder shared across projections.",
@@ -10461,6 +11035,31 @@
           "scope"
         ],
         "title": "EngineCensusPayload",
+        "type": "object"
+      },
+      "EnvInfo": {
+        "additionalProperties": false,
+        "description": "Summarize the runtime environment fingerprint persisted with a manifest.",
+        "properties": {
+          "deps_lock_hash": {
+            "title": "Deps Lock Hash",
+            "type": "string"
+          },
+          "platform": {
+            "title": "Platform",
+            "type": "string"
+          },
+          "python": {
+            "title": "Python",
+            "type": "string"
+          }
+        },
+        "required": [
+          "python",
+          "platform",
+          "deps_lock_hash"
+        ],
+        "title": "EnvInfo",
         "type": "object"
       },
       "EquilibriumBasinInterval": {
@@ -11160,6 +11759,40 @@
           }
         },
         "title": "EvidenceAcquisitionNeeds",
+        "type": "object"
+      },
+      "EvidenceBasis": {
+        "additionalProperties": false,
+        "description": "Producer evidence used by the GY authority lattice.",
+        "properties": {
+          "calibration_refs": {
+            "items": {},
+            "maxItems": 80,
+            "title": "Calibration Refs",
+            "type": "array"
+          },
+          "counterexamples_closed": {
+            "items": {},
+            "maxItems": 80,
+            "title": "Counterexamples Closed",
+            "type": "array"
+          },
+          "method_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 80,
+            "title": "Method Refs",
+            "type": "array"
+          },
+          "producer_roots": {
+            "items": {},
+            "maxItems": 80,
+            "title": "Producer Roots",
+            "type": "array"
+          }
+        },
+        "title": "EvidenceBasis",
         "type": "object"
       },
       "EvidenceNeed": {
@@ -12578,6 +13211,26 @@
           "parallel_world_reconciliation"
         ],
         "title": "GenerationCycleDispositionPayload",
+        "type": "object"
+      },
+      "GitInfo": {
+        "additionalProperties": false,
+        "description": "Capture producer git provenance attached to a manifest.",
+        "properties": {
+          "commit": {
+            "title": "Commit",
+            "type": "string"
+          },
+          "dirty": {
+            "default": false,
+            "title": "Dirty",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "commit"
+        ],
+        "title": "GitInfo",
         "type": "object"
       },
       "GovernanceDebugResponse": {
@@ -17349,6 +18002,43 @@
         "title": "PreflightReportView",
         "type": "object"
       },
+      "ProducerInfo": {
+        "additionalProperties": false,
+        "description": "Identify the component/version that produced an artifact.",
+        "properties": {
+          "component": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ComponentId"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Component"
+          },
+          "git": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/GitInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "version": {
+            "title": "Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "component",
+          "version"
+        ],
+        "title": "ProducerInfo",
+        "type": "object"
+      },
       "ProductionApprovalEligibility": {
         "additionalProperties": false,
         "description": "Machine-readable production approval eligibility projection.",
@@ -20583,6 +21273,863 @@
         "title": "RunOperatorProjectionStateLabel",
         "type": "object"
       },
+      "RunPaperAbstention": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "issue_id": {
+            "minLength": 1,
+            "title": "Issue Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "abstention",
+            "default": "abstention",
+            "title": "Kind",
+            "type": "string"
+          },
+          "owner_route": {
+            "minLength": 1,
+            "title": "Owner Route",
+            "type": "string"
+          },
+          "source_bindings": {
+            "items": {
+              "$ref": "#/components/schemas/RunPaperVerifiedCaseSource"
+            },
+            "minItems": 1,
+            "title": "Source Bindings",
+            "type": "array"
+          },
+          "statement": {
+            "minLength": 1,
+            "title": "Statement",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "resolved",
+              "escalated",
+              "accepted_as_limit"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "status_vocabulary_ref": {
+            "const": "polisyos.pdc.ObligationRecord.status",
+            "default": "polisyos.pdc.ObligationRecord.status",
+            "title": "Status Vocabulary Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id",
+          "code",
+          "status",
+          "statement",
+          "owner_route",
+          "source_bindings"
+        ],
+        "title": "RunPaperAbstention",
+        "type": "object"
+      },
+      "RunPaperAdmissionState": {
+        "additionalProperties": false,
+        "description": "Admission state using the hypothesis-ledger owner's closed vocabulary.",
+        "properties": {
+          "source_binding": {
+            "$ref": "#/components/schemas/RunPaperVerifiedCaseSource"
+          },
+          "state": {
+            "enum": [
+              "candidate_unverified",
+              "rejected_speculation",
+              "typed_blocker",
+              "limitation",
+              "admitted_to_obligation",
+              "admitted_to_claim"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "vocabulary_ref": {
+            "const": "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState",
+            "default": "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState",
+            "title": "Vocabulary Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_binding",
+          "state"
+        ],
+        "title": "RunPaperAdmissionState",
+        "type": "object"
+      },
+      "RunPaperArtifactLink": {
+        "additionalProperties": false,
+        "description": "One content-addressed ordinary link admitted from manifest outputs.",
+        "properties": {
+          "artifact_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "href": {
+            "title": "Href",
+            "type": "string"
+          },
+          "relation": {
+            "const": "run_output",
+            "default": "run_output",
+            "title": "Relation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact_ref",
+          "href"
+        ],
+        "title": "RunPaperArtifactLink",
+        "type": "object"
+      },
+      "RunPaperBlocker": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "issue_id": {
+            "minLength": 1,
+            "title": "Issue Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "blocker",
+            "default": "blocker",
+            "title": "Kind",
+            "type": "string"
+          },
+          "owner_route": {
+            "minLength": 1,
+            "title": "Owner Route",
+            "type": "string"
+          },
+          "source_bindings": {
+            "items": {
+              "$ref": "#/components/schemas/RunPaperVerifiedCaseSource"
+            },
+            "minItems": 1,
+            "title": "Source Bindings",
+            "type": "array"
+          },
+          "statement": {
+            "minLength": 1,
+            "title": "Statement",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "resolved",
+              "escalated",
+              "accepted_as_limit"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "status_vocabulary_ref": {
+            "const": "polisyos.pdc.ObligationRecord.status",
+            "default": "polisyos.pdc.ObligationRecord.status",
+            "title": "Status Vocabulary Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id",
+          "code",
+          "status",
+          "statement",
+          "owner_route",
+          "source_bindings"
+        ],
+        "title": "RunPaperBlocker",
+        "type": "object"
+      },
+      "RunPaperCaseSourceVerification": {
+        "additionalProperties": false,
+        "description": "Verifier-written binding between authority bytes and one case/run identity.",
+        "properties": {
+          "bound_artifact_content_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Bound Artifact Content Hash",
+            "type": "string"
+          },
+          "bound_case_id": {
+            "minLength": 1,
+            "title": "Bound Case Id",
+            "type": "string"
+          },
+          "bound_design_record_record_id": {
+            "minLength": 1,
+            "title": "Bound Design Record Record Id",
+            "type": "string"
+          },
+          "bound_run_id": {
+            "minLength": 1,
+            "title": "Bound Run Id",
+            "type": "string"
+          },
+          "bound_tenant_id": {
+            "minLength": 1,
+            "title": "Bound Tenant Id",
+            "type": "string"
+          },
+          "status": {
+            "const": "passed",
+            "default": "passed",
+            "title": "Status",
+            "type": "string"
+          },
+          "validator_id": {
+            "minLength": 1,
+            "title": "Validator Id",
+            "type": "string"
+          },
+          "validator_version": {
+            "minLength": 1,
+            "title": "Validator Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "validator_id",
+          "validator_version",
+          "bound_artifact_content_hash",
+          "bound_case_id",
+          "bound_run_id",
+          "bound_tenant_id",
+          "bound_design_record_record_id"
+        ],
+        "title": "RunPaperCaseSourceVerification",
+        "type": "object"
+      },
+      "RunPaperDesignRecordBinding": {
+        "additionalProperties": false,
+        "description": "Future content-bound DesignRecord identity; DS8-A never constructs it.",
+        "properties": {
+          "case_id": {
+            "minLength": 1,
+            "title": "Case Id",
+            "type": "string"
+          },
+          "content_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Content Digest",
+            "type": "string"
+          },
+          "design_record_record_id": {
+            "minLength": 1,
+            "title": "Design Record Record Id",
+            "type": "string"
+          },
+          "design_record_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "producer": {
+            "$ref": "#/components/schemas/ProducerInfo"
+          },
+          "run_id": {
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_name": {
+            "const": "policyos.layer2_s2.design_record_v0",
+            "default": "policyos.layer2_s2.design_record_v0",
+            "title": "Schema Name",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.policy_design_case.layer2_readiness.v1",
+            "default": "policyos.policy_design_case.layer2_readiness.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "tenant_id": {
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id",
+          "run_id",
+          "tenant_id",
+          "design_record_ref",
+          "design_record_record_id",
+          "content_digest",
+          "producer"
+        ],
+        "title": "RunPaperDesignRecordBinding",
+        "type": "object"
+      },
+      "RunPaperGroundingState": {
+        "additionalProperties": false,
+        "description": "Grounding state using the generation-cycle owner's closed vocabulary.",
+        "properties": {
+          "source_binding": {
+            "$ref": "#/components/schemas/RunPaperVerifiedCaseSource"
+          },
+          "state": {
+            "enum": [
+              "current_valid",
+              "grounded_shadow",
+              "grounding_gap",
+              "grounding_failed",
+              "grounding_unavailable"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "vocabulary_ref": {
+            "const": "polisyos.runtime.quality.generation_cycle.GroundingStatus",
+            "default": "polisyos.runtime.quality.generation_cycle.GroundingStatus",
+            "title": "Vocabulary Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_binding",
+          "state"
+        ],
+        "title": "RunPaperGroundingState",
+        "type": "object"
+      },
+      "RunPaperLimitation": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "issue_id": {
+            "minLength": 1,
+            "title": "Issue Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "limitation",
+            "default": "limitation",
+            "title": "Kind",
+            "type": "string"
+          },
+          "owner_route": {
+            "minLength": 1,
+            "title": "Owner Route",
+            "type": "string"
+          },
+          "source_bindings": {
+            "items": {
+              "$ref": "#/components/schemas/RunPaperVerifiedCaseSource"
+            },
+            "minItems": 1,
+            "title": "Source Bindings",
+            "type": "array"
+          },
+          "statement": {
+            "minLength": 1,
+            "title": "Statement",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "resolved",
+              "escalated",
+              "accepted_as_limit"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "status_vocabulary_ref": {
+            "const": "polisyos.pdc.ObligationRecord.status",
+            "default": "polisyos.pdc.ObligationRecord.status",
+            "title": "Status Vocabulary Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id",
+          "code",
+          "status",
+          "statement",
+          "owner_route",
+          "source_bindings"
+        ],
+        "title": "RunPaperLimitation",
+        "type": "object"
+      },
+      "RunPaperObjection": {
+        "additionalProperties": false,
+        "properties": {
+          "code": {
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "issue_id": {
+            "minLength": 1,
+            "title": "Issue Id",
+            "type": "string"
+          },
+          "kind": {
+            "const": "objection",
+            "default": "objection",
+            "title": "Kind",
+            "type": "string"
+          },
+          "owner_route": {
+            "minLength": 1,
+            "title": "Owner Route",
+            "type": "string"
+          },
+          "source_bindings": {
+            "items": {
+              "$ref": "#/components/schemas/RunPaperVerifiedCaseSource"
+            },
+            "minItems": 1,
+            "title": "Source Bindings",
+            "type": "array"
+          },
+          "statement": {
+            "minLength": 1,
+            "title": "Statement",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "open",
+              "resolved",
+              "escalated",
+              "accepted_as_limit"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "status_vocabulary_ref": {
+            "const": "polisyos.pdc.ObligationRecord.status",
+            "default": "polisyos.pdc.ObligationRecord.status",
+            "title": "Status Vocabulary Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issue_id",
+          "code",
+          "status",
+          "statement",
+          "owner_route",
+          "source_bindings"
+        ],
+        "title": "RunPaperObjection",
+        "type": "object"
+      },
+      "RunPaperPacket": {
+        "additionalProperties": false,
+        "description": "One replay-addressed paper and MACHINE packet for a verified run.",
+        "properties": {
+          "artifact_links": {
+            "items": {
+              "$ref": "#/components/schemas/RunPaperArtifactLink"
+            },
+            "title": "Artifact Links",
+            "type": "array"
+          },
+          "case_record": {
+            "discriminator": {
+              "mapping": {
+                "artifact_missing": "#/components/schemas/UnavailableRunPaperCase",
+                "available": "#/components/schemas/AvailableRunPaperCase"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableRunPaperCase"
+              },
+              {
+                "$ref": "#/components/schemas/UnavailableRunPaperCase"
+              }
+            ],
+            "title": "Case Record"
+          },
+          "intended_audiences": {
+            "default": [
+              "reviewer",
+              "expert"
+            ],
+            "maxItems": 2,
+            "minItems": 2,
+            "prefixItems": [
+              {
+                "const": "reviewer",
+                "type": "string"
+              },
+              {
+                "const": "expert",
+                "type": "string"
+              }
+            ],
+            "title": "Intended Audiences",
+            "type": "array"
+          },
+          "packet_schema_version": {
+            "const": "policyos.runtime.run_paper_packet.v1",
+            "default": "policyos.runtime.run_paper_packet.v1",
+            "title": "Packet Schema Version",
+            "type": "string"
+          },
+          "projection_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Projection Hash",
+            "type": "string"
+          },
+          "projection_rule_version": {
+            "const": "policyos.runtime.run_paper.v1",
+            "default": "policyos.runtime.run_paper.v1",
+            "title": "Projection Rule Version",
+            "type": "string"
+          },
+          "replay_address": {
+            "title": "Replay Address",
+            "type": "string"
+          },
+          "replay_pins": {
+            "$ref": "#/components/schemas/RunPaperReplayPins"
+          },
+          "report_href": {
+            "title": "Report Href",
+            "type": "string"
+          },
+          "run": {
+            "$ref": "#/components/schemas/RunPaperRun"
+          },
+          "source": {
+            "$ref": "#/components/schemas/RunPaperSourceBinding"
+          },
+          "stable_address": {
+            "title": "Stable Address",
+            "type": "string"
+          },
+          "stage_trace": {
+            "discriminator": {
+              "mapping": {
+                "available": "#/components/schemas/AvailableRunPaperStageTrace",
+                "invalid_source": "#/components/schemas/UnavailableRunPaperStageTrace",
+                "not_established": "#/components/schemas/UnavailableRunPaperStageTrace"
+              },
+              "propertyName": "availability"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/AvailableRunPaperStageTrace"
+              },
+              {
+                "$ref": "#/components/schemas/UnavailableRunPaperStageTrace"
+              }
+            ],
+            "title": "Stage Trace"
+          }
+        },
+        "required": [
+          "run",
+          "case_record",
+          "stage_trace",
+          "artifact_links",
+          "source",
+          "replay_pins",
+          "projection_hash",
+          "stable_address",
+          "replay_address",
+          "report_href"
+        ],
+        "title": "RunPaperPacket",
+        "type": "object"
+      },
+      "RunPaperPromotionState": {
+        "additionalProperties": false,
+        "description": "Promotion state using the governed G4 promotion owner's vocabulary.",
+        "properties": {
+          "source_binding": {
+            "$ref": "#/components/schemas/RunPaperVerifiedCaseSource"
+          },
+          "state": {
+            "enum": [
+              "governed_promoted",
+              "promotion_blocked"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "vocabulary_ref": {
+            "const": "polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state",
+            "default": "polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state",
+            "title": "Vocabulary Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_binding",
+          "state"
+        ],
+        "title": "RunPaperPromotionState",
+        "type": "object"
+      },
+      "RunPaperReplayPins": {
+        "additionalProperties": false,
+        "description": "Complete immutable identity for one run-paper projection.",
+        "properties": {
+          "manifest_artifact_id": {
+            "title": "Manifest Artifact Id",
+            "type": "string"
+          },
+          "manifest_schema_version": {
+            "const": "0.1.0",
+            "default": "0.1.0",
+            "title": "Manifest Schema Version",
+            "type": "string"
+          },
+          "paper_projection_hash": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Paper Projection Hash",
+            "type": "string"
+          },
+          "paper_projection_rule_version": {
+            "const": "policyos.runtime.run_paper.v1",
+            "default": "policyos.runtime.run_paper.v1",
+            "title": "Paper Projection Rule Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "manifest_artifact_id",
+          "paper_projection_hash"
+        ],
+        "title": "RunPaperReplayPins",
+        "type": "object"
+      },
+      "RunPaperRun": {
+        "additionalProperties": false,
+        "properties": {
+          "cell_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Cell Id"
+          },
+          "duration_ms": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duration Ms"
+          },
+          "finished_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Finished At"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "run_terminality": {
+            "enum": [
+              "terminal",
+              "non_terminal",
+              "not_established"
+            ],
+            "title": "Run Terminality",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "core_run",
+            "default": "core_run",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "started_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Started At"
+          },
+          "status": {
+            "title": "Status",
+            "type": "string"
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "status",
+          "run_terminality",
+          "tenant_id"
+        ],
+        "title": "RunPaperRun",
+        "type": "object"
+      },
+      "RunPaperSourceBinding": {
+        "additionalProperties": false,
+        "description": "Exact verified manifest and producer provenance used by the projection.",
+        "properties": {
+          "environment": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/EnvInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "manifest_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "manifest_schema_name": {
+            "const": "polisyos.core.RunManifest",
+            "default": "polisyos.core.RunManifest",
+            "title": "Manifest Schema Name",
+            "type": "string"
+          },
+          "manifest_schema_version": {
+            "const": "0.1.0",
+            "default": "0.1.0",
+            "title": "Manifest Schema Version",
+            "type": "string"
+          },
+          "producer": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ProducerInfo"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "registry_bundle": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          }
+        },
+        "required": [
+          "manifest_ref",
+          "producer",
+          "environment",
+          "registry_bundle"
+        ],
+        "title": "RunPaperSourceBinding",
+        "type": "object"
+      },
+      "RunPaperVerifiedCaseSource": {
+        "additionalProperties": false,
+        "description": "Content-bound, verifier-proven source for one case authority role.",
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "As Of"
+          },
+          "authority_purpose": {
+            "enum": [
+              "grounding_state",
+              "admission_state",
+              "promotion_state",
+              "blocker",
+              "limitation",
+              "objection",
+              "abstention"
+            ],
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "producer": {
+            "$ref": "#/components/schemas/ProducerInfo"
+          },
+          "source_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Digest",
+            "type": "string"
+          },
+          "source_ref": {
+            "$ref": "#/components/schemas/ArtifactRef-Output"
+          },
+          "source_schema_name": {
+            "minLength": 1,
+            "title": "Source Schema Name",
+            "type": "string"
+          },
+          "source_schema_version": {
+            "minLength": 1,
+            "title": "Source Schema Version",
+            "type": "string"
+          },
+          "verification": {
+            "$ref": "#/components/schemas/RunPaperCaseSourceVerification"
+          }
+        },
+        "required": [
+          "authority_purpose",
+          "source_ref",
+          "source_digest",
+          "source_schema_name",
+          "source_schema_version",
+          "producer",
+          "verification"
+        ],
+        "title": "RunPaperVerifiedCaseSource",
+        "type": "object"
+      },
       "RunQuantitiesResponse": {
         "additionalProperties": false,
         "description": "Response envelope returned by the run quantity inventory endpoint.",
@@ -23391,6 +24938,89 @@
           "status"
         ],
         "title": "TypedGap",
+        "type": "object"
+      },
+      "UnavailableRunPaperCase": {
+        "additionalProperties": false,
+        "description": "Typed absence for the registered run-to-DesignRecord producer gap.",
+        "properties": {
+          "availability": {
+            "const": "artifact_missing",
+            "default": "artifact_missing",
+            "title": "Availability",
+            "type": "string"
+          },
+          "capability_state": {
+            "const": "producer_missing",
+            "default": "producer_missing",
+            "title": "Capability State",
+            "type": "string"
+          },
+          "closure_signal": {
+            "const": "case-record-not-run-bound",
+            "default": "case-record-not-run-bound",
+            "title": "Closure Signal",
+            "type": "string"
+          },
+          "may_not_use_for": {
+            "default": [
+              "case_identity",
+              "design_record",
+              "grounding_state",
+              "admission_state",
+              "promotion_state",
+              "blockers",
+              "limitations",
+              "objections",
+              "abstentions"
+            ],
+            "items": {
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "owner_route": {
+            "const": "team-runtime",
+            "default": "team-runtime",
+            "title": "Owner Route",
+            "type": "string"
+          },
+          "reason_code": {
+            "const": "case-record-not-run-bound",
+            "default": "case-record-not-run-bound",
+            "title": "Reason Code",
+            "type": "string"
+          }
+        },
+        "title": "UnavailableRunPaperCase",
+        "type": "object"
+      },
+      "UnavailableRunPaperStageTrace": {
+        "additionalProperties": false,
+        "properties": {
+          "availability": {
+            "default": "not_established",
+            "enum": [
+              "not_established",
+              "invalid_source"
+            ],
+            "title": "Availability",
+            "type": "string"
+          },
+          "owner_route": {
+            "const": "core RunManifest.trace_ref",
+            "default": "core RunManifest.trace_ref",
+            "title": "Owner Route",
+            "type": "string"
+          },
+          "reason": {
+            "default": "verified run manifest carries no trace reference",
+            "title": "Reason",
+            "type": "string"
+          }
+        },
+        "title": "UnavailableRunPaperStageTrace",
         "type": "object"
       },
       "UnitRef-Input": {
@@ -50060,6 +51690,371 @@
           }
         },
         "summary": "Get Run Nodes",
+        "tags": [
+          "runtime-runs"
+        ]
+      }
+    },
+    "/api/v1/runs/{run_id}/paper": {
+      "get": {
+        "operationId": "get_run_paper",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "manifest_artifact_id",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Manifest Artifact Id"
+            }
+          },
+          {
+            "in": "query",
+            "name": "manifest_schema_version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 64,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Manifest Schema Version"
+            }
+          },
+          {
+            "in": "query",
+            "name": "paper_projection_rule_version",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "maxLength": 128,
+                  "minLength": 1,
+                  "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Paper Projection Rule Version"
+            }
+          },
+          {
+            "in": "query",
+            "name": "paper_projection_hash",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Paper Projection Hash"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_run_paper response example",
+                    "value": {
+                      "artifact_links": [],
+                      "case_record": {
+                        "availability": "artifact_missing",
+                        "capability_state": "producer_missing",
+                        "closure_signal": "case-record-not-run-bound",
+                        "may_not_use_for": [
+                          "case_identity",
+                          "design_record",
+                          "grounding_state",
+                          "admission_state",
+                          "promotion_state",
+                          "blockers",
+                          "limitations",
+                          "objections",
+                          "abstentions"
+                        ],
+                        "owner_route": "team-runtime",
+                        "reason_code": "case-record-not-run-bound"
+                      },
+                      "intended_audiences": [
+                        "reviewer",
+                        "expert"
+                      ],
+                      "packet_schema_version": "policyos.runtime.run_paper_packet.v1",
+                      "projection_hash": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                      "projection_rule_version": "policyos.runtime.run_paper.v1",
+                      "replay_address": "/api/v1/runs/R_core_api_001/paper?manifest_artifact_id=sha256%3Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&manifest_schema_version=0.1.0&paper_projection_hash=sha256%3A853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa&paper_projection_rule_version=policyos.runtime.run_paper.v1",
+                      "replay_pins": {
+                        "manifest_artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "manifest_schema_version": "0.1.0",
+                        "paper_projection_hash": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                        "paper_projection_rule_version": "policyos.runtime.run_paper.v1"
+                      },
+                      "report_href": "/runs/R_core_api_001/report?manifest_artifact_id=sha256%3Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&manifest_schema_version=0.1.0&paper_projection_hash=sha256%3A853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa&paper_projection_rule_version=policyos.runtime.run_paper.v1#stage-trace",
+                      "run": {
+                        "cell_id": null,
+                        "duration_ms": null,
+                        "finished_at": null,
+                        "run_id": "R_core_api_001",
+                        "run_terminality": "terminal",
+                        "source_kind": "core_run",
+                        "started_at": null,
+                        "status": "completed",
+                        "tenant_id": "tenant-fixture"
+                      },
+                      "source": {
+                        "environment": null,
+                        "manifest_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "core.run_manifest",
+                          "media_type": "application/json"
+                        },
+                        "manifest_schema_name": "polisyos.core.RunManifest",
+                        "manifest_schema_version": "0.1.0",
+                        "producer": null,
+                        "registry_bundle": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "core.registry_bundle",
+                          "media_type": "application/json"
+                        }
+                      },
+                      "stable_address": "/api/v1/runs/R_core_api_001/paper",
+                      "stage_trace": {
+                        "availability": "not_established",
+                        "owner_route": "core RunManifest.trace_ref",
+                        "reason": "verified run manifest carries no trace reference"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RunPaperPacket"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/paper",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/paper",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/paper",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/paper",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/paper",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/paper",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/paper",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get the replay-bound paper projection for one verified run",
         "tags": [
           "runtime-runs"
         ]

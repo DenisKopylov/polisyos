@@ -89,7 +89,7 @@ source_contract = "architecture/gates/repository_sota.toml"
 table = "gate"
 owner = "team-architecture"
 mode = "fail_closed"
-command = "uv run polisyos-tools architecture guardrails check --run-generated-checks"
+command = "uv run polisyos-tools architecture guardrails check --all-generated-checks"
 
 [[gate]]
 id = "docs-freshness"

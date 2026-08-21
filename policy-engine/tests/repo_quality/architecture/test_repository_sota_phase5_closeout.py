@@ -54,9 +54,35 @@ def test_phase5_gate_registry_is_fail_closed_and_evidence_backed() -> None:
         if gate.get("exceptions"):
             assert _contract_path_exists(gate["exceptions"]), gate["id"]
     assert (
+        gates["generated-drift"]["command"]
+        == "uv run polisyos-tools architecture guardrails check --all-generated-checks"
+    )
+    assert (
         gates["docs-freshness"]["command"]
         == "uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks"
     )
+
+
+def test_phase5_closeout_generated_gate_uses_explicit_full_or_skip_mode() -> None:
+    from tools.devx.workspace import repository_sota_closeout
+
+    full = repository_sota_closeout._generated_guardrail_command(
+        skip_generated_checks=False
+    )
+    light = repository_sota_closeout._generated_guardrail_command(
+        skip_generated_checks=True
+    )
+
+    assert full[-1] == "--all-generated-checks"
+    assert light[-1] == "--skip-generated-checks"
+    assert full[:-1] == light[:-1] == [
+        "uv",
+        "run",
+        "polisyos-tools",
+        "architecture",
+        "guardrails",
+        "check",
+    ]
 
 
 def test_phase5_remaining_exceptions_are_owner_approved_and_time_bounded() -> None:

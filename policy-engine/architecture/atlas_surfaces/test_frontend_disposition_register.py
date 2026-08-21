@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import base64
 import copy
+import hashlib
 import importlib.util
 import io
 import json
@@ -4047,6 +4048,132 @@ export function Badge({ tone }: Props) { return <span tone={tone} />; }
         self.assertEqual([], checker._validate_typescript_reference_identity(prop, {source_path: moved}))
         self.assertEqual([], checker._validate_typescript_reference_identity(attribute, {source_path: moved}))
 
+    def test_generated_schema_property_is_owner_qualified_and_fails_closed(self) -> None:
+        """Generated fields bind their schema owner, content, and unique resolution."""
+        source_path = "packages/runtime-api-client/types.ts"
+        source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
+        discriminator = (
+            "components.schemas."
+            "polisyos__core__contracts__runtime__LineageRef-Output.status"
+        )
+        owner_facts = checker._typescript_reference_construct_facts(
+            {source_path: source},
+            source_path=source_path,
+            role="generated_schema_property",
+            discriminator=discriminator,
+        )
+        assert len(owner_facts["matches"]) == 1  # noqa: S101
+        target_match = owner_facts["matches"][0]
+        navigation_line = target_match["startLine"]
+        legacy_identity = checker._typescript_reference_identity(
+            {source_path: source},
+            source_path=source_path,
+            role="type_property",
+            discriminator="components.status",
+            navigation_hint=navigation_line,
+        )
+        _legacy_path, _legacy_marker, legacy_encoded = legacy_identity[
+            "encoded_identity"
+        ].partition("#ts-identity=")
+        legacy_payload = json.loads(
+            base64.urlsafe_b64decode(
+                legacy_encoded + "=" * (-len(legacy_encoded) % 4)
+            )
+        )
+        legacy_facts = checker._typescript_reference_construct_facts(
+            {source_path: source},
+            source_path=source_path,
+            role="type_property",
+            discriminator="components.status",
+        )
+        relocation_candidates = [
+            match
+            for match in legacy_facts["matches"]
+            if match["declarationChain"] == legacy_payload["declaration_chain"]
+            and match["normalizedTokensSha256"]
+            == legacy_payload["normalized_tokens_sha256"]
+        ]
+        expected_candidates = {
+            "components.schemas.LineageGraphView.status",
+            "components.schemas.LineageRef-Input.status",
+            "components.schemas.QuantityCoverageEntry.status",
+            (
+                "components.schemas."
+                "polisyos__core__contracts__runtime__LineageRef-Output.status"
+            ),
+            (
+                "components.schemas."
+                "polisyos__fabric__evidence__decision_data__LineageRef.status"
+            ),
+        }
+        assert {  # noqa: S101
+            match["generatedSchemaProperty"] for match in relocation_candidates
+        } == expected_candidates
+
+        identity = checker._typescript_reference_identity(
+            {source_path: source},
+            source_path=source_path,
+            role="generated_schema_property",
+            discriminator=discriminator,
+            navigation_hint=navigation_line,
+        )
+        _prefix, _marker, encoded = identity["encoded_identity"].partition(
+            "#ts-identity="
+        )
+        payload = json.loads(
+            base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4))
+        )
+        assert payload["version"] == 1  # noqa: S101
+        assert payload["role"] == "generated_schema_property"  # noqa: S101
+        assert not any("line" in key for key in payload)  # noqa: S101
+        assert "navigation_hint" not in identity["encoded_identity"]  # noqa: S101
+
+        lines = source.splitlines(keepends=True)
+        target_index = navigation_line - 1
+        target_line = lines[target_index]
+        owner_index = next(
+            index
+            for index in range(target_index - 1, -1, -1)
+            if '"polisyos__core__contracts__runtime__LineageRef-Output": {'
+            in lines[index]
+        )
+        moved_lines = list(lines)
+        moved_status = moved_lines.pop(target_index)
+        moved_lines.insert(owner_index + 1, moved_status)
+        moved = "\n" + "".join(moved_lines)
+        assert (  # noqa: S101
+            checker._validate_typescript_reference_identity(
+                identity, {source_path: moved}
+            )
+            == []
+        )
+
+        def replace_target_line(replacement: str) -> str:
+            changed = list(lines)
+            changed[target_index] = replacement
+            return "".join(changed)
+
+        renamed = replace_target_line(target_line.replace("status:", "state:"))
+        removed = replace_target_line("")
+        for mutation in (renamed, removed):
+            assert checker._validate_typescript_reference_identity(  # noqa: S101
+                identity, {source_path: mutation}
+            ) == ["typescript_reference_binding_missing_or_renamed"]
+
+        drifted = replace_target_line(
+            target_line.replace('"untraced"', '"unknown"')
+        )
+        assert checker._validate_typescript_reference_identity(  # noqa: S101
+            identity, {source_path: drifted}
+        ) == ["typescript_reference_content_drift"]
+
+        duplicated_lines = list(lines)
+        duplicated_lines.insert(target_index + 1, target_line)
+        duplicated = "".join(duplicated_lines)
+        assert checker._validate_typescript_reference_identity(  # noqa: S101
+            identity, {source_path: duplicated}
+        ) == ["typescript_reference_binding_ambiguous"]
+
     def test_protected_call_and_route_literals_replay_without_navigation_lines(self) -> None:
         """The protected-live direct syntax classes survive a move and reject a rewrite."""
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
@@ -4492,6 +4619,25 @@ it("second", () => {
         )
         self.assertEqual(  # noqa: PT009
             128, len(set(hybrid_keys)), "ds5_c21d_hybrid_identity_merge"
+        )
+
+    def test_def21_additive_role_preserves_all_155_ds5_identity_bytes(self) -> None:
+        """Pin the ordered legacy identity byte sequence across additive role changes."""
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        identity_references = [
+            reference
+            for reference in DS5LineAddressCensusTests._live_references(data)
+            if "#ts-identity=" in reference
+        ]
+        encoded = json.dumps(
+            identity_references,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+        assert len(identity_references) == 155  # noqa: S101
+        assert hashlib.sha256(encoded).hexdigest() == (  # noqa: S101
+            "f1ac4d933af3c980190ee9ba31faae8e823d928ea651ff6d6117ec86f5fc42e2"
         )
 
     def test_c21d_multi_site_authority_sink_ignores_navigation_only_changes(self) -> None:

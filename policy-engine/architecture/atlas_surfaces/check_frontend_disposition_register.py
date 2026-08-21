@@ -1257,6 +1257,7 @@ _TYPESCRIPT_REFERENCE_ROLES = frozenset(
         "named_declaration",
         "variable_declaration",
         "type_property",
+        "generated_schema_property",
         "object_property",
         "call_expression",
         "string_literal",
@@ -1275,6 +1276,7 @@ let raw = "";
 for await (const chunk of process.stdin) raw += chunk;
 const input = JSON.parse(raw);
 const { sources } = input;
+const closedUniverse = input.closedUniverse ?? false;
 const requests = input.requests ?? [{
   sourcePath: input.sourcePath,
   role: input.role,
@@ -1316,14 +1318,17 @@ host.getCurrentDirectory = () => repoRoot;
 function virtualSource(fileName) {
   return virtualSources.get(path.resolve(repoRoot, fileName));
 }
-host.fileExists = (fileName) => virtualSource(fileName) !== undefined || defaultFileExists(fileName);
-host.readFile = (fileName) => virtualSource(fileName) ?? defaultReadFile(fileName);
+host.fileExists = (fileName) =>
+  virtualSource(fileName) !== undefined || (!closedUniverse && defaultFileExists(fileName));
+host.readFile = (fileName) =>
+  virtualSource(fileName) ?? (closedUniverse ? undefined : defaultReadFile(fileName));
 host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
   const source = virtualSource(fileName);
   if (source !== undefined) {
     const kind = fileName.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
     return ts.createSourceFile(fileName, source, languageVersion, true, kind);
   }
+  if (closedUniverse) return undefined;
   return defaultGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile);
 };
 host.resolveModuleNames = (moduleNames, containingFile) => moduleNames.map((specifier) => {
@@ -1449,6 +1454,61 @@ function qualifiedPropertyName(node) {
   return [...namedEnclosingChain(node), node.name.getText(sourceFile)].join(".");
 }
 
+function propertyNameText(name) {
+  if (
+    ts.isIdentifier(name) ||
+    ts.isStringLiteral(name) ||
+    ts.isNumericLiteral(name)
+  ) {
+    return name.text;
+  }
+  return name.getText(sourceFile);
+}
+
+function generatedSchemaPropertyName(node) {
+  if (!ts.isPropertySignature(node)) return null;
+  const names = [];
+  let current = node;
+  while (current && !ts.isSourceFile(current)) {
+    if (ts.isPropertySignature(current)) {
+      names.push(propertyNameText(current.name));
+    } else if (ts.isInterfaceDeclaration(current)) {
+      names.push(current.name.text);
+      break;
+    }
+    current = current.parent;
+  }
+  names.reverse();
+  if (
+    names.length !== 4 ||
+    names[0] !== "components" ||
+    names[1] !== "schemas"
+  ) {
+    return null;
+  }
+  return names.join(".");
+}
+
+function generatedSchemaOwner(node) {
+  if (!ts.isTypeAliasDeclaration(node)) return null;
+  const ownerAccess = node.type;
+  if (!ts.isIndexedAccessTypeNode(ownerAccess)) return null;
+  const schemasAccess = ownerAccess.objectType;
+  if (!ts.isIndexedAccessTypeNode(schemasAccess)) return null;
+  const owner = ownerAccess.indexType;
+  const schemas = schemasAccess.indexType;
+  if (
+    !ts.isLiteralTypeNode(owner) ||
+    !ts.isStringLiteral(owner.literal) ||
+    !ts.isLiteralTypeNode(schemas) ||
+    !ts.isStringLiteral(schemas.literal) ||
+    schemas.literal.text !== "schemas"
+  ) {
+    return null;
+  }
+  return owner.literal.text;
+}
+
 function normalizedTokenSha256(node) {
   function semanticValue(current) {
     if (ts.isIdentifier(current)) return ["identifier", current.text];
@@ -1539,7 +1599,12 @@ function stringLiteralChain(node) {
 
 function nodeDiscriminator(node) {
   if ((namedDeclarationKinds(node) || ts.isVariableDeclaration(node)) && node.name && ts.isIdentifier(node.name)) return node.name.text;
-  if ((ts.isPropertySignature(node) || ts.isPropertyAssignment(node)) && node.name) return qualifiedPropertyName(node);
+  if (ts.isPropertySignature(node) && node.name) {
+    return role === "generated_schema_property"
+      ? generatedSchemaPropertyName(node) ?? "unresolved"
+      : qualifiedPropertyName(node);
+  }
+  if (ts.isPropertyAssignment(node) && node.name) return qualifiedPropertyName(node);
   if (ts.isCallExpression(node)) return node.expression.getText(sourceFile);
   if (ts.isStringLiteral(node)) return node.text;
   if ((ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || ts.isImportClause(node)) && node.name) return node.name.text;
@@ -1574,6 +1639,20 @@ function visit(node, structuralPath = []) {
     matchesDiscriminator(node)
   ) {
     matches.push({ node, declarationChain: declarationChain(node.name, `variable:${discriminator}`), structuralPath });
+  } else if (
+    role === "generated_schema_property" &&
+    ts.isPropertySignature(node) &&
+    generatedSchemaPropertyName(node) !== null &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({
+      node,
+      declarationChain: declarationChain(
+        node.name,
+        `generated_schema_property:${discriminator}`,
+      ),
+      structuralPath,
+    });
   } else if (
     role === "type_property" &&
     ts.isPropertySignature(node) &&
@@ -1648,6 +1727,8 @@ for (const request of requests) {
     sourceMissing: false,
     matches: matches.map((match) => ({
       discriminator: nodeDiscriminator(match.node),
+      generatedSchemaOwner: generatedSchemaOwner(match.node),
+      generatedSchemaProperty: generatedSchemaPropertyName(match.node),
       structuralPath: match.structuralPath,
       declarationChain: match.declarationChain,
       normalizedTokensSha256: normalizedTokenSha256(match.node),
@@ -1697,7 +1778,10 @@ def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]
 
 
 def _typescript_reference_construct_facts_batch(
-    sources: Mapping[str, str], requests: Sequence[Mapping[str, str]]
+    sources: Mapping[str, str],
+    requests: Sequence[Mapping[str, str]],
+    *,
+    closed_universe: bool = False,
 ) -> list[dict[str, Any]]:
     """Resolve many direct-syntax constructs through one TypeScript program."""
     for request in requests:
@@ -1707,6 +1791,7 @@ def _typescript_reference_construct_facts_batch(
     cache_key = hashlib.sha256(
         json.dumps(
             {
+                "closed_universe": closed_universe,
                 "sources": sources,
                 "requests": requests,
             },
@@ -1723,6 +1808,7 @@ def _typescript_reference_construct_facts_batch(
         cwd=REPO_ROOT / "apps/runtime-dashboard",
         input=json.dumps(
             {
+                "closedUniverse": closed_universe,
                 "sources": sources,
                 "requests": requests,
             }
@@ -1985,6 +2071,8 @@ def _typescript_reference_match_error(
     matches = facts["matches"]
     if not matches:
         return "typescript_reference_binding_missing_or_renamed"
+    if payload.get("role") == "generated_schema_property" and len(matches) > 1:
+        return "typescript_reference_binding_ambiguous"
 
     binding_matches = [
         match
@@ -2072,6 +2160,7 @@ def _validate_typescript_reference_identity(
     )
     error = _typescript_reference_match_error(
         {
+            "role": role,
             "declaration_chain": expected_chain,
             "structural_path": expected_structural_path,
             "normalized_tokens_sha256": expected_tokens_sha256,
@@ -5959,7 +6048,9 @@ def _reference_resolution_error(value: str) -> str | None:
     return None
 
 
-def _typescript_identity_reference_errors(references: Sequence[str]) -> list[str]:
+def _typescript_identity_reference_errors(
+    references: Sequence[str], *, source_root: Path | None = None
+) -> list[str]:
     """Batch-validate every stored C21a identity against one source snapshot."""
     parsed: list[tuple[str, dict[str, Any]]] = []
     for reference in references:
@@ -5981,9 +6072,12 @@ def _typescript_identity_reference_errors(references: Sequence[str]) -> list[str
         parsed.append((reference, payload))
     if not parsed:
         return []
+    root = source_root or REPO_ROOT
+    source_paths = {str(payload["source_path"]) for _reference, payload in parsed}
     sources = {
-        str(payload["source_path"]): (REPO_ROOT / str(payload["source_path"])).read_text(encoding="utf-8")
-        for _reference, payload in parsed
+        source_path: (root / source_path).read_text(encoding="utf-8")
+        for source_path in source_paths
+        if (root / source_path).is_file()
     }
     requests = [
         {
@@ -5997,7 +6091,11 @@ def _typescript_identity_reference_errors(references: Sequence[str]) -> list[str
     for reference, payload, facts in zip(
         (reference for reference, _payload in parsed),
         (payload for _reference, payload in parsed),
-        _typescript_reference_construct_facts_batch(sources, requests),
+        _typescript_reference_construct_facts_batch(
+            sources,
+            requests,
+            closed_universe=source_root is not None,
+        ),
         strict=True,
     ):
         error = _typescript_reference_match_error(payload, facts)

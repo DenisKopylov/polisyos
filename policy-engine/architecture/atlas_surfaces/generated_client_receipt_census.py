@@ -1,10 +1,11 @@
-"""Derive every structured receipt that line-binds regenerated clients.
+"""Derive every structured receipt that binds regenerated clients.
 
 The primary census discovers explicitly named anchor records. An independent
 shape census discovers any target-associated line-coordinate record without
 depending on its container or symbol vocabulary. Navigation references remain
-a separate population. A mismatch fails closed so a new receipt shape cannot
-silently shrink the binding denominator.
+a separate population. Identity-mode anchors replay the shared TypeScript v1
+resolver while their numeric coordinates remain navigation-only. A mismatch
+fails closed so a new receipt shape cannot silently shrink the denominator.
 """
 
 from __future__ import annotations
@@ -17,6 +18,7 @@ import shutil
 import subprocess
 import tomllib
 from collections.abc import Iterable, Mapping, Sequence
+from functools import lru_cache
 from pathlib import Path
 
 DEFAULT_TARGET_PATHS = (
@@ -62,6 +64,87 @@ def _line_items(value: Mapping[object, object]) -> list[tuple[str, int]]:
         ),
         key=lambda item: item[0],
     )
+
+
+def _identity_items(value: Mapping[object, object]) -> list[tuple[str, object]]:
+    """Return direct fields explicitly declaring a construct identity."""
+    return sorted(
+        (
+            (str(key), child)
+            for key, child in value.items()
+            if "identity" in _key_tokens(key)
+        ),
+        key=lambda item: item[0],
+    )
+
+
+def _binding_stem(key: str, terminal: str) -> tuple[str, ...] | None:
+    """Return the normalized key stem before a terminal binding token."""
+    tokens = _key_tokens(key)
+    if not tokens or tokens[-1] != terminal:
+        return None
+    return tokens[:-1]
+
+
+def _anchor_binding_mode(
+    lines: Sequence[tuple[str, int]], identities: Sequence[tuple[str, object]]
+) -> str:
+    """Classify one complete anchor as legacy-line, identity, or mixed."""
+    if not identities:
+        return "legacy_line"
+    line_stems = {
+        stem
+        for key, _value in lines
+        if (stem := _binding_stem(key, "line")) is not None
+    }
+    identity_stems = {
+        stem
+        for key, _value in identities
+        if (stem := _binding_stem(key, "identity")) is not None
+    }
+    if (
+        len(lines) == len(identities)
+        and line_stems == identity_stems
+        and all(isinstance(value, str) for _key, value in identities)
+    ):
+        return "identity"
+    return "mixed"
+
+
+@lru_cache(maxsize=1)
+def _typescript_identity_engine() -> object:
+    """Load the one DS5 v1 identity engine only when identities are present."""
+    try:
+        from architecture.atlas_surfaces import check_frontend_disposition_register
+    except ModuleNotFoundError as error:
+        if error.name != "architecture":  # pragma: no cover - preserve nested failure
+            raise
+        import check_frontend_disposition_register
+
+    return check_frontend_disposition_register
+
+
+def _document_target_slots(
+    value: object, target_paths: frozenset[str]
+) -> dict[str, str]:
+    """Derive canonical/schema target roles from declared source-path fields."""
+    field_roles = {
+        ("canonical", "path"): "canonical",
+        ("types", "path"): "schema",
+    }
+    candidates: dict[str, set[str]] = {}
+    for _path, node in _walk(value):
+        if not isinstance(node, Mapping):
+            continue
+        for key, child in node.items():
+            role = field_roles.get(_key_tokens(key))
+            if role is not None and isinstance(child, str) and child in target_paths:
+                candidates.setdefault(role, set()).add(child)
+    return {
+        role: next(iter(paths))
+        for role, paths in candidates.items()
+        if len(paths) == 1
+    }
 
 
 def _exact_targets(value: object, target_paths: frozenset[str]) -> frozenset[str]:
@@ -185,6 +268,7 @@ def _anchor_records(
     *,
     artifact_path: str,
     target_paths: frozenset[str],
+    target_slots: Mapping[str, str],
     explicit: bool,
 ) -> dict[tuple[str, ...], dict[str, object]]:
     """Discover anchor records by explicit or independent structural rules."""
@@ -204,6 +288,7 @@ def _anchor_records(
         lines = _line_items(candidate)
         if not lines:
             continue
+        identities = _identity_items(candidate)
         candidate_targets = _associated_targets(
             candidate,
             document_targets=document_targets,
@@ -227,13 +312,164 @@ def _anchor_records(
             "line_bindings": [
                 {"key": key, "value": line} for key, line in lines
             ],
+            "identity_bindings": [
+                {"key": key, "value": value} for key, value in identities
+            ],
+            "binding_mode": _anchor_binding_mode(lines, identities),
             "pointer": _json_pointer(path),
             "record_id": _record_id(value, path),
             "record_name": path[-1],
             "symbol": symbol,
             "target_paths": sorted(candidate_targets),
+            "target_slots": dict(target_slots),
         }
     return records
+
+
+def _validate_identity_bindings(
+    bindings: Sequence[dict[str, object]],
+    *,
+    repo_root: Path,
+    errors: list[str],
+) -> None:
+    """Replay every discovered identity through the shared DS5 v1 engine."""
+    identity_references: list[str] = []
+    engine: object | None = None
+    alias_rows: list[tuple[dict[str, object], dict[str, object]]] = []
+    for binding in bindings:
+        identity_bindings = binding["identity_bindings"]
+        if not identity_bindings:
+            continue
+        if engine is None:
+            engine = _typescript_identity_engine()
+        slots: dict[str, dict[str, object]] = {}
+        for identity_binding in identity_bindings:
+            stem = _binding_stem(str(identity_binding["key"]), "identity")
+            slot = "_".join(stem or ())
+            if not slot or slot in slots:
+                errors.append(
+                    "anchor_identity_slot_set_drift:"
+                    f"{binding['artifact_path']}:{binding['pointer']}"
+                )
+                continue
+            slots[slot] = identity_binding
+            encoded_identity = identity_binding["value"]
+            if not isinstance(encoded_identity, str):
+                errors.append(
+                    "typescript_identity_validation:"
+                    f"{binding['artifact_path']}:{binding['pointer']}:"
+                    f"{identity_binding['key']}:typescript_reference_identity_invalid"
+                )
+                continue
+            try:
+                record = engine._typescript_reference_identity_record(  # type: ignore[attr-defined]
+                    encoded_identity
+                )
+            except (KeyError, TypeError, ValueError):
+                errors.append(
+                    "typescript_identity_validation:"
+                    f"{binding['artifact_path']}:{binding['pointer']}:"
+                    f"{identity_binding['key']}:typescript_reference_identity_invalid"
+                )
+                continue
+            identity_binding.update(
+                {
+                    "source_path": record["source_path"],
+                    "role": record["role"],
+                    "discriminator": record["discriminator"],
+                }
+            )
+            identity_references.append(encoded_identity)
+        if set(slots) != {"canonical", "schema"}:
+            errors.append(
+                "anchor_identity_slot_set_drift:"
+                f"{binding['artifact_path']}:{binding['pointer']}"
+            )
+            continue
+        target_slots = binding["target_slots"]
+        for slot, identity_binding in slots.items():
+            expected_source = target_slots.get(slot)
+            if identity_binding.get("source_path") != expected_source:
+                errors.append(
+                    "anchor_identity_slot_drift:"
+                    f"{binding['artifact_path']}:{binding['pointer']}:{slot}:source_path"
+                )
+        symbol = binding.get("symbol")
+        canonical = slots["canonical"]
+        if (
+            canonical.get("role") != "exported_declaration"
+            or canonical.get("discriminator") != symbol
+        ):
+            errors.append(
+                "anchor_identity_slot_drift:"
+                f"{binding['artifact_path']}:{binding['pointer']}:canonical:construct"
+            )
+        if isinstance(symbol, str) and isinstance(target_slots.get("canonical"), str):
+            alias_rows.append((binding, slots["schema"]))
+    if engine is not None and alias_rows:
+        alias_sources = {
+            str(binding["target_slots"]["canonical"]): (
+                repo_root / str(binding["target_slots"]["canonical"])
+            ).read_text(encoding="utf-8")
+            for binding, _schema in alias_rows
+            if (repo_root / str(binding["target_slots"]["canonical"])).is_file()
+        }
+        alias_requests = [
+            {
+                "sourcePath": binding["target_slots"]["canonical"],
+                "role": "exported_declaration",
+                "discriminator": binding["symbol"],
+            }
+            for binding, _schema in alias_rows
+        ]
+        alias_facts = engine._typescript_reference_construct_facts_batch(  # type: ignore[attr-defined]
+            alias_sources, alias_requests, closed_universe=True
+        )
+        for (binding, schema), facts in zip(
+            alias_rows, alias_facts, strict=True
+        ):
+            matches = facts["matches"]
+            if len(matches) > 1:
+                errors.append(
+                    "anchor_identity_alias_relation_ambiguous:"
+                    f"{binding['artifact_path']}:{binding['pointer']}"
+                )
+                continue
+            owners = [
+                match["generatedSchemaOwner"]
+                for match in matches
+                if isinstance(match.get("generatedSchemaOwner"), str)
+            ]
+            if len(owners) != 1:
+                errors.append(
+                    "anchor_identity_alias_relation_drift:"
+                    f"{binding['artifact_path']}:{binding['pointer']}"
+                )
+                continue
+            owner = owners[0]
+            field = binding.get("field")
+            expected_role = "generated_schema_property" if field else "type_property"
+            expected_discriminator = (
+                f"components.schemas.{owner}.{field}"
+                if field
+                else f"components.{owner}"
+            )
+            if (
+                schema.get("role") != expected_role
+                or schema.get("discriminator") != expected_discriminator
+            ):
+                errors.append(
+                    "anchor_identity_slot_drift:"
+                    f"{binding['artifact_path']}:{binding['pointer']}:schema:construct"
+                )
+    if engine is not None:
+        errors.extend(
+            "typescript_identity_validation:" + error
+            for error in engine._typescript_identity_reference_errors(  # type: ignore[attr-defined]
+                identity_references,
+                source_root=repo_root,
+            )
+        )
 
 
 def build_report(
@@ -273,6 +509,9 @@ def build_report(
     independent_total = 0
     primary_lines_total = 0
     independent_lines_total = 0
+    identity_bindings_total = 0
+    legacy_line_bindings_total = 0
+    navigation_line_hints_total = 0
 
     for relative_path in normalized_candidates:
         absolute_path = repo_root / relative_path
@@ -282,16 +521,20 @@ def build_report(
             errors.append(f"parse_error:{relative_path.as_posix()}:{type(error).__name__}")
             continue
 
+        target_slots = _document_target_slots(value, target_set)
+
         primary = _anchor_records(
             value,
             artifact_path=relative_path.as_posix(),
             target_paths=target_set,
+            target_slots=target_slots,
             explicit=True,
         )
         independent = _anchor_records(
             value,
             artifact_path=relative_path.as_posix(),
             target_paths=target_set,
+            target_slots=target_slots,
             explicit=False,
         )
         navigation = _direct_navigation_references(
@@ -322,6 +565,38 @@ def build_report(
                 f"{relative_path.as_posix()}:"
                 f"primary={primary_lines}:independent={independent_lines}"
             )
+        primary_identities = sum(
+            len(record["identity_bindings"]) for record in primary.values()
+        )
+        independent_identities = sum(
+            len(record["identity_bindings"]) for record in independent.values()
+        )
+        if primary_identities != independent_identities:
+            errors.append(
+                "anchor_identity_population_mismatch:"
+                f"{relative_path.as_posix()}:"
+                f"primary={primary_identities}:independent={independent_identities}"
+            )
+        binding_modes = {
+            str(record["binding_mode"]) for record in independent.values()
+        }
+        if "mixed" in binding_modes or len(binding_modes) > 1:
+            errors.append(
+                f"anchor_identity_mode_mixed:{relative_path.as_posix()}"
+            )
+        identity_bindings = sum(
+            len(record["identity_bindings"]) for record in independent.values()
+        )
+        legacy_line_bindings = sum(
+            len(record["line_bindings"])
+            for record in independent.values()
+            if record["binding_mode"] == "legacy_line"
+        )
+        navigation_line_hints = sum(
+            len(record["line_bindings"])
+            for record in independent.values()
+            if record["binding_mode"] == "identity"
+        )
         artifacts.append(
             {
                 "path": relative_path.as_posix(),
@@ -329,6 +604,9 @@ def build_report(
                 "primary_anchor_records": len(primary),
                 "independent_anchor_records": len(independent),
                 "line_bindings": independent_lines,
+                "identity_bindings": identity_bindings,
+                "legacy_line_bindings": legacy_line_bindings,
+                "navigation_line_hints": navigation_line_hints,
                 "navigation_references": len(navigation),
             }
         )
@@ -338,6 +616,11 @@ def build_report(
         independent_total += len(independent)
         primary_lines_total += primary_lines
         independent_lines_total += independent_lines
+        identity_bindings_total += identity_bindings
+        legacy_line_bindings_total += legacy_line_bindings
+        navigation_line_hints_total += navigation_line_hints
+
+    _validate_identity_bindings(bindings, repo_root=repo_root, errors=errors)
 
     by_suffix = {
         suffix: sum(path.suffix == suffix for path in normalized_candidates)
@@ -358,6 +641,9 @@ def build_report(
         "independent_anchor_records": independent_total,
         "line_bindings": primary_lines_total,
         "independent_line_bindings": independent_lines_total,
+        "identity_bindings": identity_bindings_total,
+        "legacy_line_bindings": legacy_line_bindings_total,
+        "navigation_line_hints": navigation_line_hints_total,
         "navigation_references": len(navigation_references),
     }
     return {

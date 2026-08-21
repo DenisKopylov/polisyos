@@ -78,6 +78,9 @@ jobs:
           python-version: "3.14"
           extras: "lint test runtime docs causal-discovery"
 
+      - name: Setup generated-client toolchain
+        uses: ./.github/actions/setup-runtime-dashboard
+
       - name: Run mypy strict gate
         run: uv run python tools/devx/workspace/core_runtime_mypy.py
 
@@ -269,6 +272,9 @@ jobs:
         with:
           python-version: "3.11"
           extras: "test runtime causal-discovery security"
+
+      - name: Setup generated-client toolchain
+        uses: ./.github/actions/setup-runtime-dashboard
 
       - name: Run targeted runtime contract tests
         run: |

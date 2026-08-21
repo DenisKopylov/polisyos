@@ -723,11 +723,14 @@ promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
 outputs = [
+  "packages/runtime-api-client/types.ts",
   "packages/runtime-api-client/runtimeApiClient.ts",
   "packages/runtime-api-client/runtimeApiClient.js",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.js",
 ]
 regenerate_commands = [
-  "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js",
+  "corepack pnpm --filter @polisyos/runtime-api-client run generate",
 ]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever the runtime OpenAPI snapshot changes."
@@ -748,6 +751,18 @@ check_command = [
   "ml",
   "python",
   "tools/ops_runners/runtime/check_runtime_api_contract.py",
+]
+default_freshness_check = true
+output_probe_command = [
+  "corepack",
+  "pnpm",
+  "--filter",
+  "@polisyos/runtime-api-client",
+  "run",
+  "generate",
+  "--",
+  "--output-root",
+  "{output_root}",
 ]
 
 [[family]]
@@ -775,6 +790,18 @@ workflow = "ops/ci/templates/workflows/arch.yml"
 check_cwd = "apps/runtime-dashboard"
 check_command = ["corepack", "pnpm", "run", "generate:api"]
 check_git_diff_paths = ["src/api/types.ts"]
+default_freshness_check = true
+output_probe_command = [
+  "corepack",
+  "pnpm",
+  "--filter",
+  "@polisyos/runtime-dashboard",
+  "run",
+  "generate:api",
+  "--",
+  "--output-root",
+  "{output_root}",
+]
 
 [[family]]
 id = "connector-recorded-fixtures"

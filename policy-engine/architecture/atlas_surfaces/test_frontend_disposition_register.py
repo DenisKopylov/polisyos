@@ -4621,8 +4621,14 @@ it("second", () => {
             128, len(set(hybrid_keys)), "ds5_c21d_hybrid_identity_merge"
         )
 
-    def test_def21_additive_role_preserves_all_155_ds5_identity_bytes(self) -> None:
-        """Pin the ordered legacy identity byte sequence across additive role changes."""
+    def test_def21_additive_role_preserves_ds5_identity_bytes(self) -> None:
+        """Pin the live DS5 bytes after Task 6 re-anchoring and Task 10 retirement.
+
+        ``fea50aadd`` superseded the original bytes while preserving 155
+        identities; ``df0484301`` then retired eight occurrences, leaving the
+        current ordered corpus. A count-only pin would have missed the first
+        event, so the ordered byte digest remains the binding assertion.
+        """
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         identity_references = [
             reference
@@ -4635,9 +4641,9 @@ it("second", () => {
             separators=(",", ":"),
         ).encode("utf-8")
 
-        assert len(identity_references) == 155  # noqa: S101
+        assert len(identity_references) == 147  # noqa: S101
         assert hashlib.sha256(encoded).hexdigest() == (  # noqa: S101
-            "f1ac4d933af3c980190ee9ba31faae8e823d928ea651ff6d6117ec86f5fc42e2"
+            "e297ac8da1a63c06ad9a1e15de760cdb347395900f14d59997bbf8e0af94d5da"
         )
 
     def test_c21d_multi_site_authority_sink_ignores_navigation_only_changes(self) -> None:

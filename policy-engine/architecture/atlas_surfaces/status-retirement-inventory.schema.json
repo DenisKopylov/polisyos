@@ -17,7 +17,7 @@
   ],
   "properties": {
     "$schema": { "const": "./status-retirement-inventory.schema.json" },
-    "schema_version": { "const": "1.2" },
+    "schema_version": { "const": "1.3" },
     "inventory_id": { "const": "atlas-ds4-status-retirement" },
     "as_of": { "type": "string", "format": "date-time" },
     "authority": { "$ref": "#/$defs/authority" },
@@ -169,11 +169,19 @@
     "generatedAnchor": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["export_symbol", "canonical_line", "schema_line"],
+      "required": [
+        "export_symbol",
+        "canonical_line",
+        "canonical_identity",
+        "schema_line",
+        "schema_identity"
+      ],
       "properties": {
         "export_symbol": { "$ref": "#/$defs/nonEmpty" },
         "canonical_line": { "type": "integer", "minimum": 1 },
+        "canonical_identity": { "$ref": "#/$defs/nonEmpty" },
         "schema_line": { "type": "integer", "minimum": 1 },
+        "schema_identity": { "$ref": "#/$defs/nonEmpty" },
         "field": { "$ref": "#/$defs/nonEmpty" }
       }
     },

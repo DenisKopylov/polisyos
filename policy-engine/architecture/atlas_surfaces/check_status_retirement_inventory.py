@@ -21,11 +21,15 @@ from jsonschema import Draft202012Validator, FormatChecker
 try:
     from architecture.atlas_surfaces.generated_client_receipt_census import (
         build_repository_report,
+        validate_anchor_identity_document,
     )
 except ModuleNotFoundError as error:
     if error.name != "architecture":  # pragma: no cover - preserve nested failures
         raise
-    from generated_client_receipt_census import build_repository_report
+    from generated_client_receipt_census import (
+        build_repository_report,
+        validate_anchor_identity_document,
+    )
 
 ATLAS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = ATLAS_DIR.parents[1]
@@ -370,18 +374,12 @@ def _validate_denominators(inventory: Mapping[str, Any]) -> list[str]:
 
 def _validate_generated_anchors(inventory: Mapping[str, Any]) -> list[str]:
     errors: list[str] = []
-    canonical_path = REPO_ROOT / inventory["sources"]["generated_client"]["canonical_path"]
-    types_path = REPO_ROOT / inventory["sources"]["generated_client"]["types_path"]
-    canonical_lines = canonical_path.read_text(encoding="utf-8").splitlines()
-    type_lines = types_path.read_text(encoding="utf-8").splitlines()
     for entry in inventory["entries"]:
         if entry["classification"] != "lattice_derived":
             continue
         unit_id = entry["unit_id"]
         anchor = entry["generated_anchor"]
         symbol = anchor["export_symbol"]
-        canonical_line = anchor["canonical_line"]
-        schema_line = anchor["schema_line"]
         field = anchor.get("field")
         expected_query = f'{symbol}["{field}"]' if field else symbol
         if entry["owner_type"].get("query") != expected_query:
@@ -398,16 +396,18 @@ def _validate_generated_anchors(inventory: Mapping[str, Any]) -> list[str]:
             source_query = _resolve_local_generated_query(entry)
             if source_query != expected_query:
                 errors.append(f"generated_source_binding_drift:{unit_id}")
-        if not (1 <= canonical_line <= len(canonical_lines)) or (
-            f"export type {symbol}" not in canonical_lines[canonical_line - 1]
-        ):
-            errors.append(f"generated_anchor_drift:{unit_id}")
-            continue
-        expected_schema_fragment = f"{field}:" if field else f"{symbol}:"
-        if not (1 <= schema_line <= len(type_lines)) or (
-            expected_schema_fragment not in type_lines[schema_line - 1]
-        ):
-            errors.append(f"generated_anchor_drift:{unit_id}")
+    generated_client = inventory["sources"]["generated_client"]
+    errors.extend(
+        validate_anchor_identity_document(
+            inventory,
+            artifact_path="architecture/atlas_surfaces/status-retirement-inventory.json",
+            repo_root=REPO_ROOT,
+            target_paths=(
+                generated_client["canonical_path"],
+                generated_client["types_path"],
+            ),
+        )
+    )
     return errors
 
 

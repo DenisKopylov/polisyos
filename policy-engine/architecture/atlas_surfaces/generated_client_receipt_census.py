@@ -17,6 +17,7 @@ import re
 import shutil
 import subprocess
 import tomllib
+from collections import namedtuple
 from collections.abc import Iterable, Mapping, Sequence
 from functools import lru_cache
 from pathlib import Path
@@ -472,6 +473,136 @@ def _validate_identity_bindings(
         )
 
 
+_DocumentAnchorCensus = namedtuple(
+    "_DocumentAnchorCensus",
+    (
+        "primary",
+        "independent",
+        "navigation",
+        "primary_lines",
+        "independent_lines",
+        "identity_bindings",
+        "legacy_line_bindings",
+        "navigation_line_hints",
+        "errors",
+    ),
+)
+
+
+def _document_anchor_census(
+    value: object,
+    *,
+    artifact_path: str,
+    target_paths: Sequence[str],
+) -> _DocumentAnchorCensus:
+    """Enumerate and independently reconcile one structured document."""
+    normalized_targets = tuple(dict.fromkeys(str(path) for path in target_paths))
+    target_set = frozenset(normalized_targets)
+    target_slots = _document_target_slots(value, target_set)
+    primary = _anchor_records(
+        value,
+        artifact_path=artifact_path,
+        target_paths=target_set,
+        target_slots=target_slots,
+        explicit=True,
+    )
+    independent = _anchor_records(
+        value,
+        artifact_path=artifact_path,
+        target_paths=target_set,
+        target_slots=target_slots,
+        explicit=False,
+    )
+    navigation = _direct_navigation_references(
+        value,
+        artifact_path=artifact_path,
+        target_paths=normalized_targets,
+    )
+    errors: list[str] = []
+    for pointer in sorted(set(primary) ^ set(independent)):
+        primary_state = "present" if pointer in primary else "absent"
+        independent_state = "present" if pointer in independent else "absent"
+        errors.append(
+            "anchor_population_mismatch:"
+            f"{artifact_path}:{_json_pointer(pointer)}:"
+            f"primary={primary_state}:independent={independent_state}"
+        )
+    primary_lines = sum(
+        len(record["line_bindings"]) for record in primary.values()
+    )
+    independent_lines = sum(
+        len(record["line_bindings"]) for record in independent.values()
+    )
+    if primary_lines != independent_lines:
+        errors.append(
+            "anchor_line_population_mismatch:"
+            f"{artifact_path}:primary={primary_lines}:independent={independent_lines}"
+        )
+    primary_identities = sum(
+        len(record["identity_bindings"]) for record in primary.values()
+    )
+    independent_identities = sum(
+        len(record["identity_bindings"]) for record in independent.values()
+    )
+    if primary_identities != independent_identities:
+        errors.append(
+            "anchor_identity_population_mismatch:"
+            f"{artifact_path}:primary={primary_identities}:"
+            f"independent={independent_identities}"
+        )
+    binding_modes = {
+        str(record["binding_mode"]) for record in independent.values()
+    }
+    if "mixed" in binding_modes or len(binding_modes) > 1:
+        errors.append(f"anchor_identity_mode_mixed:{artifact_path}")
+    identity_bindings = sum(
+        len(record["identity_bindings"]) for record in independent.values()
+    )
+    legacy_line_bindings = sum(
+        len(record["line_bindings"])
+        for record in independent.values()
+        if record["binding_mode"] == "legacy_line"
+    )
+    navigation_line_hints = sum(
+        len(record["line_bindings"])
+        for record in independent.values()
+        if record["binding_mode"] == "identity"
+    )
+    return _DocumentAnchorCensus(
+        primary=primary,
+        independent=independent,
+        navigation=navigation,
+        primary_lines=primary_lines,
+        independent_lines=independent_lines,
+        identity_bindings=identity_bindings,
+        legacy_line_bindings=legacy_line_bindings,
+        navigation_line_hints=navigation_line_hints,
+        errors=errors,
+    )
+
+
+def validate_anchor_identity_document(
+    value: object,
+    *,
+    artifact_path: str,
+    repo_root: Path,
+    target_paths: Sequence[str],
+) -> list[str]:
+    """Validate one in-memory anchor document through the shared identity engine."""
+    census = _document_anchor_census(
+        value,
+        artifact_path=artifact_path,
+        target_paths=target_paths,
+    )
+    errors = list(census.errors)
+    _validate_identity_bindings(
+        list(census.independent.values()),
+        repo_root=repo_root,
+        errors=errors,
+    )
+    return sorted(set(errors))
+
+
 def build_report(
     *,
     repo_root: Path,
@@ -490,7 +621,6 @@ def build_report(
         fail-closed reconciliation errors.
     """
     normalized_targets = tuple(dict.fromkeys(str(path) for path in target_paths))
-    target_set = frozenset(normalized_targets)
     normalized_candidates = tuple(
         sorted(
             {
@@ -521,82 +651,22 @@ def build_report(
             errors.append(f"parse_error:{relative_path.as_posix()}:{type(error).__name__}")
             continue
 
-        target_slots = _document_target_slots(value, target_set)
-
-        primary = _anchor_records(
-            value,
-            artifact_path=relative_path.as_posix(),
-            target_paths=target_set,
-            target_slots=target_slots,
-            explicit=True,
-        )
-        independent = _anchor_records(
-            value,
-            artifact_path=relative_path.as_posix(),
-            target_paths=target_set,
-            target_slots=target_slots,
-            explicit=False,
-        )
-        navigation = _direct_navigation_references(
+        document = _document_anchor_census(
             value,
             artifact_path=relative_path.as_posix(),
             target_paths=normalized_targets,
         )
+        primary = document.primary
+        independent = document.independent
+        navigation = document.navigation
         if not (primary or independent or navigation):
             continue
-
-        for pointer in sorted(set(primary) ^ set(independent)):
-            primary_state = "present" if pointer in primary else "absent"
-            independent_state = "present" if pointer in independent else "absent"
-            errors.append(
-                "anchor_population_mismatch:"
-                f"{relative_path.as_posix()}:{_json_pointer(pointer)}:"
-                f"primary={primary_state}:independent={independent_state}"
-            )
-        primary_lines = sum(
-            len(record["line_bindings"]) for record in primary.values()
-        )
-        independent_lines = sum(
-            len(record["line_bindings"]) for record in independent.values()
-        )
-        if primary_lines != independent_lines:
-            errors.append(
-                "anchor_line_population_mismatch:"
-                f"{relative_path.as_posix()}:"
-                f"primary={primary_lines}:independent={independent_lines}"
-            )
-        primary_identities = sum(
-            len(record["identity_bindings"]) for record in primary.values()
-        )
-        independent_identities = sum(
-            len(record["identity_bindings"]) for record in independent.values()
-        )
-        if primary_identities != independent_identities:
-            errors.append(
-                "anchor_identity_population_mismatch:"
-                f"{relative_path.as_posix()}:"
-                f"primary={primary_identities}:independent={independent_identities}"
-            )
-        binding_modes = {
-            str(record["binding_mode"]) for record in independent.values()
-        }
-        if "mixed" in binding_modes or len(binding_modes) > 1:
-            errors.append(
-                f"anchor_identity_mode_mixed:{relative_path.as_posix()}"
-            )
-        identity_bindings = sum(
-            len(record["identity_bindings"]) for record in independent.values()
-        )
-        legacy_line_bindings = sum(
-            len(record["line_bindings"])
-            for record in independent.values()
-            if record["binding_mode"] == "legacy_line"
-        )
-        navigation_line_hints = sum(
-            len(record["line_bindings"])
-            for record in independent.values()
-            if record["binding_mode"] == "identity"
-        )
+        errors.extend(document.errors)
+        primary_lines = document.primary_lines
+        independent_lines = document.independent_lines
+        identity_bindings = document.identity_bindings
+        legacy_line_bindings = document.legacy_line_bindings
+        navigation_line_hints = document.navigation_line_hints
         artifacts.append(
             {
                 "path": relative_path.as_posix(),

@@ -671,6 +671,36 @@ doctrine bullet); only the owning slice closes and re-manifests a debt:
 | ~~**Four axe-`incomplete` contrast clusters** (registered by the architect 2026-08-01 — DS4 recorded them honestly in its closure/journal but left **no machine-readable row**, so this table is their authority until DS6 creates one)~~ | axe reports these foregrounds as `incomplete` — neither violations nor passes — because translucent/gradient ancestors defeat computed contrast: **C01** neutral `Badge` variant; **C06** `ProvenancePopover` + `ProvenanceMiniGraph`; **C09** `TimeSemanticsLabel` inheritance; **C14** `CandidateFrame`, `NegativeCertificateCard`, `WeakestLinkExplainer`. They are not suppressed and not counted green; the automated a11y denominator (85/85 component, 21/21 browser) is green *around* them | **DS6** (a11y evidence owner) | **CLOSED** (DS6-C04 admitted the typed row, DS6-C06 repaired it; merge `b0249e82d`): `baseline-test-a11y-rendered-contrast-incomplete-debt` covers seven source identities through three evidence refs and is bound to the landed C16 contrast release `97d0c6208`. The real-browser opaque-background probe exists at `apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.ts`. |
 | **`deep-import-baseline-stale` — the required release gate fails on `main`** (registered by the architect 2026-08-21, surfaced when GY-DEF21's executor stopped at the DEF20 receipt gate) | `architecture/baselines/imports/deep_import.json` is stale on `main` `04fa1b3b0`, and `uv run polisyos-tools architecture guardrails check` therefore **exits nonzero** — the exact command the core release gate runs at `core-runtime-release-gate.yml:242` and standard CI runs at `ci.yml:151`. The checker enumerates **six** unregistered creep edges itself: `http.services.channel_contracts → core.artifacts.manifest`; `→ core.contracts.decision_validity`; `http.services.control.lex_pipeline → lex.knowledge.store`; `http.services.control.lex_search_projection → core.contracts.runtime`; `→ lex.knowledge.types`; and `scientist.orchestration.engine.checkpoint → core.security.tenant_context`. DS7's replay reported a removed side of three; I did not independently re-derive that count and it is `not_established` here. **Not caused by DS7, DEF20 or DEF21** — the four source files were last touched by the GAP4/run-terminality lane (`dc3e50a90`, `1775cf8a5`, `ec7228eff`) and GY-DEF3 (`b66bf3f82`), and DS7 replayed the identical identities at both its slice base and its Task 6 base with edge-level introducers predating it. **The reason it matters more now:** GY-DEF20 made this same command carry generated-client freshness, so one stale baseline holds a gate that two separate properties depend on, and every lane that runs the required gate reads a red it did not cause. Closing it is a **governance act, not a sync** — `guardrails sync` would silently accept six new deep-import creeps. | **runtime/GY lane** (the owner of all four source modules); approval `team-architecture` | the owner adjudicates each of the six edges — stable facade, intentional baseline acceptance with a recorded reason, or a registered temporary exception — and the plain gate then exits zero on `main` with generated freshness still clean for both families |
 
+### Group A generated-client seam closeout receipt — 2026-08-21
+
+`GY-DEF20`'s post-DS7 receipt is discharged on immutable integration base
+`34f4df5fb02e7681a199e191d8ff714374e4b0dd`: the plain default-on gate
+reported `runtime-api-client` 5/5 clean and `runtime-dashboard-api-types` 1/1
+clean against one scratch expected root, while the attached worktree stayed
+byte-clean before and after. Its composite exit remained nonzero only for the
+separately registered `deep-import-baseline-stale` predicate; that red remains
+owned by the runtime/GY lane with `team-architecture` approval.
+
+`GY-DEF21`'s deferred inventory half is closed on the attached Group A branch.
+All 15 generated anchors migrated atomically from 30 semantic integer bindings
+to 30 v1 `#ts-identity` bindings; the same 30 integers remain navigation hints,
+and all 353 other integer leaves are unchanged. The real DS7 Task 6 history
+`d17ecd36e → fea50aadd` resolves all identities and makes all 30 old coordinate
+bindings red. The real GAP4 history `40ef040bd → dc3e50a90` resolves the eight
+uniform `+2` canonical / `+7` schema moves and the seven unchanged records.
+Rename/removal, content drift, ambiguity, mixed mode, and hidden navigation
+metadata remain fail-closed. The census transition is exactly 0 identities / 30
+legacy bindings to 30 identities / 0 legacy bindings for the status artifact.
+
+The register-family window and the exact verification receipts are recorded in
+`docs/superpowers/journals/2026-08-21-gy-def21-register-migration.md`. One
+pre-existing assertion cannot honestly be repeated as closed: the integration
+base already carries 147 DS5 identities with ordered digest
+`e297ac8da1a63c06ad9a1e15de760cdb347395900f14d59997bbf8e0af94d5da`,
+not the stale 155 / `f1ac4d…` pin. The migration does not edit the DS5 register;
+the reconciliation remains with the DS7/Atlas register owner and is not
+re-baselined here.
+
 **Debt-row execution rule (Revision 3.22, measured 2026-08-20).** A registered
 debt row with an **executable closure signal** is executable independently of
 where its owning slice sits in the Start-Now Ladder. **Ownership assigns

@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import base64
 import importlib.util
 import json
 import subprocess
@@ -41,6 +42,27 @@ def _load_identity_checker() -> object:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _git_blob(revision: str, relative_path: str) -> str:
+    """Read one real repository blob without materializing a historical tree."""
+    return subprocess.run(  # noqa: S603 - fixed system Git executable
+        [
+            "/usr/bin/git",
+            "show",
+            f"{revision}:policy-engine/{relative_path}",
+        ],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+
+
+def _identity_payload(reference: str) -> dict[str, object]:
+    """Decode a v1 identity payload for independent historical replay."""
+    encoded = reference.split("#ts-identity=", 1)[1]
+    return json.loads(base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4)))
 
 
 class GeneratedClientReceiptCensusTests(unittest.TestCase):
@@ -526,6 +548,31 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         ]
         assert len(status) == 15
         assert sum(len(binding["line_bindings"]) for binding in status) == 30
+        assert sum(len(binding["identity_bindings"]) for binding in status) == 30
+        assert all(binding["binding_mode"] == "identity" for binding in status)
+        before = census._document_anchor_census(
+            json.loads(
+                _git_blob(
+                    "34f4df5fb",
+                    "architecture/atlas_surfaces/status-retirement-inventory.json",
+                )
+            ),
+            artifact_path=(
+                "architecture/atlas_surfaces/status-retirement-inventory.json"
+            ),
+            target_paths=(
+                "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+                "packages/runtime-api-client/types.ts",
+            ),
+        )
+        assert before.identity_bindings == 0
+        assert before.legacy_line_bindings == 30
+        assert before.navigation_line_hints == 0
+        assert sum(
+            len(binding["identity_bindings"]) for binding in status
+        ) - before.identity_bindings == before.legacy_line_bindings
+        assert report["summary"]["legacy_line_bindings"] == 8
+        assert report["summary"]["navigation_line_hints"] == 30
         candidate_population = report["candidate_population"]
         assert candidate_population["total"] == sum(
             candidate_population["by_suffix"].values()
@@ -533,6 +580,157 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         assert candidate_population["by_suffix"][".json"] > 0
         assert candidate_population["by_suffix"][".toml"] > 0
         assert len(candidate_population["path_sha256"]) == 64
+
+    def test_live_status_identities_replay_across_real_client_regenerations(
+        self,
+    ) -> None:
+        """Bind the migration to the real Task 6 and registered GAP4 movements."""
+        identity_checker = _load_identity_checker()
+        inventory_path = "architecture/atlas_surfaces/status-retirement-inventory.json"
+        canonical_path = "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
+        schema_path = "packages/runtime-api-client/types.ts"
+        inventory = json.loads((REPO_ROOT / inventory_path).read_text(encoding="utf-8"))
+        anchors = [
+            (row["unit_id"], row["generated_anchor"])
+            for row in inventory["entries"]
+            if row["classification"] == "lattice_derived"
+        ]
+        references = [
+            anchor[key]
+            for _unit_id, anchor in anchors
+            for key in ("canonical_identity", "schema_identity")
+        ]
+        payloads = [_identity_payload(reference) for reference in references]
+
+        assert len(anchors) == 15
+        assert len(references) == 30
+        assert all(
+            not any("line" in str(key).lower() for key in payload)
+            for payload in payloads
+        )
+
+        def sources_at(revision: str) -> dict[str, str]:
+            return {
+                canonical_path: _git_blob(revision, canonical_path),
+                schema_path: _git_blob(revision, schema_path),
+            }
+
+        def facts_at(revision: str) -> list[dict[str, object]]:
+            sources = sources_at(revision)
+            requests = [
+                {
+                    "sourcePath": payload["source_path"],
+                    "role": payload["role"],
+                    "discriminator": payload["discriminator"],
+                }
+                for payload in payloads
+            ]
+            return identity_checker._typescript_reference_construct_facts_batch(
+                sources,
+                requests,
+                closed_universe=True,
+            )
+
+        def replay_errors(revision: str) -> list[str]:
+            return [
+                error
+                for payload, facts in zip(payloads, facts_at(revision), strict=True)
+                if (
+                    error := identity_checker._typescript_reference_match_error(
+                        payload, facts
+                    )
+                )
+                is not None
+            ]
+
+        assert replay_errors("d17ecd36e") == []
+        assert replay_errors("fea50aadd") == []
+
+        old_inventory = json.loads(_git_blob("d17ecd36e", inventory_path))
+        task6_sources = sources_at("fea50aadd")
+        legacy_results: list[bool] = []
+        for row in old_inventory["entries"]:
+            if row["classification"] != "lattice_derived":
+                continue
+            anchor = row["generated_anchor"]
+            canonical_line = task6_sources[canonical_path].splitlines()[
+                anchor["canonical_line"] - 1
+            ]
+            schema_line = task6_sources[schema_path].splitlines()[
+                anchor["schema_line"] - 1
+            ]
+            legacy_results.extend(
+                [
+                    f'export type {anchor["export_symbol"]}' in canonical_line,
+                    (
+                        f'{anchor["field"]}:'
+                        if anchor.get("field")
+                        else f'{anchor["export_symbol"]}:'
+                    )
+                    in schema_line,
+                ]
+            )
+        assert legacy_results == [False] * 30
+
+        gap4_before = facts_at("40ef040bd")
+        gap4_after = facts_at("dc3e50a90")
+        movements: dict[str, list[int]] = {}
+        for (unit_id, _anchor), before_pair, after_pair in zip(
+            anchors,
+            zip(gap4_before[::2], gap4_before[1::2], strict=True),
+            zip(gap4_after[::2], gap4_after[1::2], strict=True),
+            strict=True,
+        ):
+            movements[unit_id] = [
+                int(after_pair[0]["matches"][0]["startLine"])
+                - int(before_pair[0]["matches"][0]["startLine"]),
+                int(after_pair[1]["matches"][0]["startLine"])
+                - int(before_pair[1]["matches"][0]["startLine"]),
+            ]
+        assert sum(delta == [2, 7] for delta in movements.values()) == 8
+        assert sum(delta == [0, 0] for delta in movements.values()) == 7
+        assert replay_errors("40ef040bd") == []
+        assert replay_errors("dc3e50a90") == []
+
+        lineage_anchor = dict(
+            next(anchor for unit_id, anchor in anchors if unit_id == "status-verification")
+        )
+        lineage_identity = lineage_anchor["schema_identity"]
+        lineage_payload = _identity_payload(lineage_identity)
+        lineage_facts = identity_checker._typescript_reference_construct_facts_batch(
+            task6_sources,
+            [
+                {
+                    "sourcePath": lineage_payload["source_path"],
+                    "role": lineage_payload["role"],
+                    "discriminator": lineage_payload["discriminator"],
+                }
+            ],
+            closed_universe=True,
+        )[0]
+        target_line_index = int(lineage_facts["matches"][0]["startLine"]) - 1
+        source_lines = task6_sources[schema_path].splitlines(keepends=True)
+        target_line = source_lines[target_line_index]
+
+        def changed_schema(replacement: str) -> dict[str, str]:
+            changed = list(source_lines)
+            changed[target_line_index] = replacement
+            return {schema_path: "".join(changed)}
+
+        renamed = changed_schema(target_line.replace("status:", "state:"))
+        removed = changed_schema("")
+        content_changed = changed_schema(
+            target_line.replace('"untraced"', '"unknown"')
+        )
+        assert identity_checker._validate_typescript_reference_identity(
+            {"encoded_identity": lineage_identity}, renamed
+        ) == ["typescript_reference_binding_missing_or_renamed"]
+        assert identity_checker._validate_typescript_reference_identity(
+            {"encoded_identity": lineage_identity}, removed
+        ) == ["typescript_reference_binding_missing_or_renamed"]
+        assert identity_checker._validate_typescript_reference_identity(
+            {"encoded_identity": lineage_identity}, content_changed
+        ) == ["typescript_reference_content_drift"]
 
 
 if __name__ == "__main__":  # pragma: no cover - direct unittest entry point

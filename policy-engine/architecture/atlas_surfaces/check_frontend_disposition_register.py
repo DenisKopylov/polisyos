@@ -1267,6 +1267,18 @@ _TYPESCRIPT_REFERENCE_ROLES = frozenset(
     }
 )
 
+_TYPESCRIPT_REFERENCE_IDENTITY_PAYLOAD_KEYS = frozenset(
+    {
+        "version",
+        "source_path",
+        "role",
+        "discriminator",
+        "declaration_chain",
+        "structural_path",
+        "normalized_tokens_sha256",
+    }
+)
+
 _TS_REFERENCE_CONSTRUCT_SCRIPT = r"""
 import { createHash } from "node:crypto";
 import path from "node:path";
@@ -1908,14 +1920,52 @@ def _typescript_reference_identity(
     }
 
 
+def _typescript_reference_identity_payload(encoded_identity: str) -> dict[str, Any]:
+    """Decode and strictly validate the shared v1 TypeScript identity envelope."""
+    try:
+        source_path, marker, encoded_payload = encoded_identity.partition("#ts-identity=")
+        if not source_path or not marker or "#" in encoded_payload:
+            raise ValueError
+        payload = json.loads(
+            base64.urlsafe_b64decode(
+                encoded_payload + "=" * (-len(encoded_payload) % 4)
+            )
+        )
+        if (
+            not isinstance(payload, dict)
+            or set(payload) != _TYPESCRIPT_REFERENCE_IDENTITY_PAYLOAD_KEYS
+            or payload["version"] != 1
+            or isinstance(payload["version"], bool)
+            or payload["source_path"] != source_path
+            or not isinstance(payload["source_path"], str)
+            or not isinstance(payload["role"], str)
+            or payload["role"] not in _TYPESCRIPT_REFERENCE_ROLES
+            or not isinstance(payload["discriminator"], str)
+            or not isinstance(payload["declaration_chain"], list)
+            or not all(
+                isinstance(part, str) for part in payload["declaration_chain"]
+            )
+            or not isinstance(payload["structural_path"], list)
+            or not all(isinstance(part, str) for part in payload["structural_path"])
+            or not isinstance(payload["normalized_tokens_sha256"], str)
+        ):
+            raise ValueError
+    except (
+        AttributeError,
+        KeyError,
+        TypeError,
+        ValueError,
+        UnicodeDecodeError,
+        binascii.Error,
+        json.JSONDecodeError,
+    ) as error:
+        raise ValueError("typescript_reference_identity_invalid") from error
+    return payload
+
+
 def _typescript_reference_identity_record(encoded_identity: str) -> dict[str, str]:
     """Decode one internally minted identity into the relocation-key input shape."""
-    source_path, marker, encoded_payload = encoded_identity.partition("#ts-identity=")
-    if not source_path or not marker:
-        raise ValueError("typescript_reference_identity_invalid")
-    payload = json.loads(
-        base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
-    )
+    payload = _typescript_reference_identity_payload(encoded_identity)
     return {
         "source_path": str(payload["source_path"]),
         "role": str(payload["role"]),
@@ -2118,13 +2168,7 @@ def _validate_typescript_reference_identity(
         encoded_identity = reference["encoded_identity"]
         if not isinstance(encoded_identity, str):
             raise ValueError
-        path_prefix, fragment, encoded_payload = encoded_identity.partition("#ts-identity=")
-        if not fragment or not path_prefix or "#" in encoded_payload:
-            raise ValueError
-        payload = json.loads(
-            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
-        )
-        version = payload["version"]
+        payload = _typescript_reference_identity_payload(encoded_identity)
         source_path = payload["source_path"]
         role = payload["role"]
         discriminator = payload["discriminator"]
@@ -2138,18 +2182,6 @@ def _validate_typescript_reference_identity(
         UnicodeDecodeError,
         binascii.Error,
         json.JSONDecodeError,
-    ):
-        return ["typescript_reference_identity_invalid"]
-    if (
-        version != 1
-        or not isinstance(source_path, str)
-        or not isinstance(role, str)
-        or not isinstance(discriminator, str)
-        or not isinstance(expected_chain, list)
-        or not isinstance(expected_structural_path, list)
-        or not isinstance(expected_tokens_sha256, str)
-        or path_prefix != source_path
-        or role not in _TYPESCRIPT_REFERENCE_ROLES
     ):
         return ["typescript_reference_identity_invalid"]
     facts = _typescript_reference_construct_facts(
@@ -6057,16 +6089,7 @@ def _typescript_identity_reference_errors(
         if "#ts-identity=" not in reference:
             continue
         try:
-            path, payload_text = reference.split("#ts-identity=", 1)
-            payload = json.loads(
-                base64.urlsafe_b64decode(payload_text + "=" * (-len(payload_text) % 4))
-            )
-            if (
-                payload["version"] != 1
-                or payload["source_path"] != path
-                or payload["role"] not in _TYPESCRIPT_REFERENCE_ROLES
-            ):
-                raise ValueError
+            payload = _typescript_reference_identity_payload(reference)
         except (KeyError, ValueError, UnicodeDecodeError, binascii.Error, json.JSONDecodeError):
             return ["typescript_reference_identity_invalid"]
         parsed.append((reference, payload))

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import base64
 import copy
 import importlib.util
 import json
@@ -1164,18 +1165,20 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             if entry["unit_id"] == "status-verification"
         )
         row["owner_type"]["query"] = 'VerificationMetadata["verification_status"]'
-        row["generated_anchor"] = {
-            "export_symbol": "VerificationMetadata",
-            "canonical_line": 1000,
-            "schema_line": 10334,
-            "field": "verification_status",
-        }
+        row["generated_anchor"].update(
+            {
+                "export_symbol": "VerificationMetadata",
+                "canonical_line": 1000,
+                "schema_line": 10334,
+                "field": "verification_status",
+            }
+        )
 
         errors = checker.validate_inventory(mutation, debt, live_probes=False)
 
         self.assertIn("generated_source_binding_drift:status-verification", errors)
 
-    def test_rejects_denominator_and_generated_anchor_drift(self) -> None:
+    def test_rejects_denominator_drift_but_lines_only_navigate(self) -> None:
         inventory, debt = _artifacts()
         denominator_mutation = copy.deepcopy(inventory)
         denominator_mutation["denominators"]["current_total"] = 47
@@ -1188,9 +1191,63 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             for entry in anchor_mutation["entries"]
             if entry["unit_id"] == "status-scenario"
         )
+        row["generated_anchor"]["canonical_line"] = 1
         row["generated_anchor"]["schema_line"] = 1
         errors = checker.validate_inventory(anchor_mutation, debt, live_probes=False)
-        self.assertIn("generated_anchor_drift:status-scenario", errors)
+        self.assertFalse(
+            any(error.startswith("generated_anchor_drift:") for error in errors),
+            errors,
+        )
+
+        identity_mutation = copy.deepcopy(inventory)
+        identity_row = next(
+            entry
+            for entry in identity_mutation["entries"]
+            if entry["unit_id"] == "status-scenario"
+        )
+        anchor = identity_row["generated_anchor"]
+        anchor["canonical_identity"], anchor["schema_identity"] = (
+            anchor["schema_identity"],
+            anchor["canonical_identity"],
+        )
+        errors = checker.validate_inventory(identity_mutation, debt, live_probes=False)
+        self.assertTrue(
+            any(error.startswith("anchor_identity_slot_drift:") for error in errors),
+            errors,
+        )
+
+        hidden_navigation_mutation = copy.deepcopy(inventory)
+        hidden_row = next(
+            entry
+            for entry in hidden_navigation_mutation["entries"]
+            if entry["unit_id"] == "status-scenario"
+        )
+        encoded_identity = hidden_row["generated_anchor"]["schema_identity"]
+        source_path, encoded_payload = encoded_identity.split("#ts-identity=", 1)
+        payload = json.loads(
+            base64.urlsafe_b64decode(
+                encoded_payload + "=" * (-len(encoded_payload) % 4)
+            )
+        )
+        payload["navigation_hint"] = hidden_row["generated_anchor"]["schema_line"]
+        hidden_row["generated_anchor"]["schema_identity"] = (
+            source_path
+            + "#ts-identity="
+            + base64.urlsafe_b64encode(
+                json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+            )
+            .decode("ascii")
+            .rstrip("=")
+        )
+        errors = checker.validate_inventory(
+            hidden_navigation_mutation, debt, live_probes=False
+        )
+        self.assertTrue(
+            any(
+                "typescript_reference_identity_invalid" in error for error in errors
+            ),
+            errors,
+        )
 
     def test_generated_anchor_accepts_only_retired_historical_source_absence(self) -> None:
         inventory, debt = _artifacts()

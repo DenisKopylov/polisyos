@@ -195,3 +195,50 @@ carry across this stop.
 The branch remains attached and is handed back in place. This journal must be
 committed and then read back from the branch; the final receipt records that
 commit and clean-tree state.
+
+## DS8-A continuation — Revision 3.29
+
+The owner accepted the `artifact_missing` stop at zero rounds and narrowed its
+scope. DS8-A resumes the paper, support-rebind, run-terminality, register and
+closeout clusters while `case-record-not-run-bound` remains a registered typed
+unavailable owned by `team-runtime`. DS8-B alone inherits the case-inspection
+endpoint, resolver, Case Workspace and MACHINE twin.
+
+The attached branch advanced append-only to user-directed immutable base
+`9e6a43b53d11166e90df376940cb34ff15b77289` through merge commit
+`0a6e45645e21234c9c4b4a7cc8d5811e8e3056f2`. Independent complete Git
+comparisons from `6049bf450c298885fa6b9077a144766b5fcd7c7a` to the new base
+each returned exactly one documentation path:
+
+```text
+M policy-engine/docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
+```
+
+The reallocated mechanism budget is **nine rounds**, with C03's two rounds not
+transferred and C01's paper-only scope halved:
+
+| cluster | DS8-A scope | mechanism rounds |
+| --- | --- | ---: |
+| C00 | new-base bind, red tests and artifact-role preflight | 0 |
+| C01-A | full paper contract, replay pins, href and typed unavailable case slot | 1 |
+| C02 | OpenAPI plus both generated client families | 1 |
+| C03 | DS8-B; not attempted | 0 |
+| C04 | four support-only artifact/evidence rebinds | 2 |
+| C05 | consume `RunSummary.run_terminality` without substitution | 1 |
+| C06 | paper producer/consumer, egress closure and composed A4 gate | 2 |
+| C07 | complete 145-production-path governed map | 2 |
+| C08 | frozen closeout, two no-writer receipts and C13 handoff | 0 |
+| **total** |  | **9** |
+
+Opening spend is **0/9**. P40 remains binding: classify each finding before a
+repair; on the second finding of one class, widen once or declare a bounded
+residual with its falsifier; never add a third patch. Tests, this journal,
+generated/release companions, governed register records and the one authorized
+bounded snapshot derivation remain P39 record companions rather than mechanism
+paths.
+
+At the continuation bind, all three serialized resources were unheld. The
+protected line-7 byte hashes are Atlas
+`74cd4a8823318ffb00c349d05e19c7d8413b2123a6bd5c15ab88f291a837aebf`
+and GY
+`ffe105ef594603c3a2a3a0247d41cb188529c4fd6fd72cab3ddfbde7956fc6e0`.

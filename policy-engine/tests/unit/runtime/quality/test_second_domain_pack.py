@@ -6,12 +6,14 @@ import ast
 import asyncio
 import copy
 import json
+import os
+import shutil
 import subprocess
 from pathlib import Path
 
 import pytest
 
-from polisyos.pdc import gy_content_hash
+from polisyos.pdc import gy_content_hash, reconcile_gy_operational_leaves
 from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import _build_boundary_world_model_record
@@ -25,6 +27,101 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
 N10A_PROOF_HEAD_COMMIT = "d8a8cf076da6233c66b0a90010647c0d437e81c4"
 
+_PLUGIN_POSTURE_WITNESS_SCRIPT = r"""
+import copy
+import json
+import os
+import site
+from pathlib import Path
+
+site.addsitedir(os.environ["GY_DEFC9_SITE_PACKAGES"])
+
+from polisyos.foundry.extensions.discovery import discover_foundry_method_components
+from polisyos.foundry.methods.catalog.snapshot import (
+    method_catalog_governed_provenance_id,
+    method_catalog_provenance_id,
+)
+from tools.quality.validation import (
+    check_layer3_gy_depth_n_universality_contract as depth,
+)
+from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
+from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+root = Path(os.environ["GY_DEFC9_REPO_ROOT"])
+discovery = discover_foundry_method_components(
+    include_builtins=False,
+    include_entry_points=True,
+    include_dev_scan=False,
+)
+component_ids = {str(row.metadata.component_id) for row in discovery.components}
+example_entry_points = [
+    row.as_dict()
+    for row in discovery.manifest.entry_points
+    if row.name == "example.weighted_average"
+]
+example_errors = [
+    row.error_type
+    for row in discovery.errors
+    if row.item == "example.weighted_average"
+]
+
+n8_result = n8.check_result(root)
+n10a_result = n10a.validate(root)
+depth_result = depth._derive_provenance_stability(root.as_posix())
+recorded_n8 = json.loads((root / n8.OUTPUT_PATH).read_text(encoding="utf-8"))
+recorded_catalog = recorded_n8["denominators"]["catalog_provenance"]
+live_catalog = n8._catalog_denominators_cached()["catalog_provenance"]
+
+result = {
+    "component_count": len(component_ids),
+    "example_resolved": "example.summary.weighted_average@1.0.0" in component_ids,
+    "example_entry_points": example_entry_points,
+    "example_errors": example_errors,
+    "n8_governing_issues": list(n8_result.governing_issues),
+    "n8_ambient_findings": list(n8_result.ambient_findings),
+    "n10a_status": n10a_result["status"],
+    "n10a_issues": n10a_result["issues"],
+    "depth_status": depth_result["status"],
+    "depth_issues": depth_result["issues"],
+    "recorded_raw_provenance_id": method_catalog_provenance_id(recorded_catalog),
+    "live_raw_provenance_id": method_catalog_provenance_id(live_catalog),
+    "recorded_governed_provenance_id": method_catalog_governed_provenance_id(
+        recorded_catalog
+    ),
+    "live_governed_provenance_id": method_catalog_governed_provenance_id(live_catalog),
+}
+
+if os.environ.get("GY_DEFC9_GOVERNED_PROBE") == "1":
+    governed_payload = copy.deepcopy(recorded_n8)
+    catalog_provenance = governed_payload["denominators"]["catalog_provenance"]
+    catalog_provenance["governed_discovery"]["component_count"] += 1
+    catalog_provenance["provenance_id"] = method_catalog_provenance_id(
+        catalog_provenance
+    )
+    governed_payload["contract_content_hash"] = n8._content_hash(governed_payload)
+
+    governed_n8 = n8.validate_payload_result(governed_payload)
+    governed_n10a = n10a._n8_transport_gap_closure(
+        governed_payload,
+        expected_education_covariates=("education_spending", "school_quality"),
+    )
+    original_read_json = depth._read_json
+
+    def _read_with_governed_change(path: Path) -> dict[str, object]:
+        if path == root / depth.N8_PATH:
+            return copy.deepcopy(governed_payload)
+        return original_read_json(path)
+
+    depth._read_json = _read_with_governed_change
+    governed_depth = depth._derive_provenance_stability(root.as_posix())
+    result["governed_n8_issues"] = list(governed_n8.governing_issues)
+    result["governed_n10a"] = governed_n10a
+    result["governed_depth_status"] = governed_depth["status"]
+    result["governed_depth_issues"] = governed_depth["issues"]
+
+print("GY_DEFC9_RESULT=" + json.dumps(result, sort_keys=True))
+"""
+
 
 def _git_head_sha(repo_root: Path) -> str:
     """Resolve the checkout head for the moving-range adversarial probe."""
@@ -37,6 +134,98 @@ def _git_head_sha(repo_root: Path) -> str:
         text=True,
     )
     return result.stdout.strip()
+
+
+def _run_plugin_posture_witness(
+    tmp_path: Path,
+    *,
+    importable: bool,
+    governed_probe: bool,
+) -> dict[str, object]:
+    """Run N8, N10a, and Depth-N in one real isolated plugin environment."""
+
+    dependency_site = Path(pytest.__file__).resolve().parents[1]
+    example_dist_infos = tuple(
+        dependency_site.glob("polisyos_foundry_method_example-*.dist-info")
+    )
+    if len(example_dist_infos) != 1:
+        raise AssertionError(
+            "expected one installed polisyos-foundry-method-example distribution, "
+            f"found {len(example_dist_infos)}"
+        )
+
+    posture_name = "importable" if importable else "missing_target"
+    posture_root = tmp_path / posture_name
+    isolated_site = posture_root / "site-packages"
+    isolated_site.mkdir(parents=True)
+    excluded_names = {
+        example_dist_infos[0].name,
+        "_editable_impl_polisyos_foundry_method_example.pth",
+        "_editable_impl_policy_engine.pth",
+    }
+    for entry in sorted(dependency_site.iterdir(), key=lambda path: path.name):
+        if entry.name in excluded_names:
+            continue
+        (isolated_site / entry.name).symlink_to(
+            entry,
+            target_is_directory=entry.is_dir(),
+        )
+    shutil.copytree(
+        example_dist_infos[0],
+        isolated_site / example_dist_infos[0].name,
+    )
+    (isolated_site / "00_policy_engine_worktree.pth").write_text(
+        f"{REPO_ROOT}\n{REPO_ROOT / 'src'}\n",
+        encoding="utf-8",
+    )
+    editable_target = REPO_ROOT / "examples/extensions/foundry_method/src"
+    if not importable:
+        editable_target = posture_root / "missing-editable-target"
+        editable_target.mkdir()
+    (isolated_site / "_editable_impl_polisyos_foundry_method_example.pth").write_text(
+        f"{editable_target}\n",
+        encoding="utf-8",
+    )
+
+    env = os.environ.copy()
+    env.pop("PYTHONPATH", None)
+    env["GY_DEFC9_SITE_PACKAGES"] = isolated_site.as_posix()
+    env["GY_DEFC9_REPO_ROOT"] = REPO_ROOT.as_posix()
+    env["GY_DEFC9_GOVERNED_PROBE"] = "1" if governed_probe else "0"
+    process = subprocess.run(
+        [
+            str(REPO_ROOT / ".venv/bin/python"),
+            "-S",
+            "-c",
+            _PLUGIN_POSTURE_WITNESS_SCRIPT,
+        ],
+        cwd=REPO_ROOT,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+        timeout=240,
+    )
+    if process.returncode != 0:
+        raise AssertionError(
+            f"{posture_name} witness exited {process.returncode}\n"
+            f"stdout:\n{process.stdout[-4000:]}\n"
+            f"stderr:\n{process.stderr[-4000:]}"
+        )
+    result_lines = [
+        line.removeprefix("GY_DEFC9_RESULT=")
+        for line in process.stdout.splitlines()
+        if line.startswith("GY_DEFC9_RESULT=")
+    ]
+    if len(result_lines) != 1:
+        raise AssertionError(
+            f"{posture_name} witness emitted {len(result_lines)} result rows\n"
+            f"stdout:\n{process.stdout[-4000:]}"
+        )
+    result = json.loads(result_lines[0])
+    if not isinstance(result, dict):
+        raise AssertionError("plugin posture witness result must be a mapping")
+    return result
 
 
 def _rehash_pack_manifest(bundle: dict[str, object]) -> None:
@@ -342,6 +531,163 @@ def test_n8_transport_gap_closes_from_pack_and_unseen_behavioral_proofs() -> Non
     assert str(evidence["receipt_ref"]).startswith("sha256:")
 
 
+def test_n8_transport_gap_consumes_the_typed_governing_subset(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Ambient N8 findings stay visible without deciding the N10a bridge."""
+
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    payload = json.loads(
+        (
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    monkeypatch.setattr(
+        n8,
+        "validate_payload_result",
+        lambda _payload: n8.ValueGateValidationResult(
+            governing_issues=(),
+            ambient_findings=({"code": "real_ambient_posture_difference"},),
+        ),
+    )
+    monkeypatch.setattr(
+        n8,
+        "validate_payload",
+        lambda _payload: (_ for _ in ()).throw(
+            AssertionError("N10a bypassed the typed N8 result")
+        ),
+    )
+
+    evidence = second_domain_pack._n8_transport_gap_closure(
+        payload,
+        expected_education_covariates=("education_spending", "school_quality"),
+    )
+
+    assert evidence["closed"] is True
+    assert evidence["reason_code"] == "n8_data_derived_transport_proven"
+
+
+def test_n8_transport_gap_fails_closed_on_a_typed_governing_issue(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A governed N8 failure remains decisive even beside ambient findings."""
+
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    payload = json.loads(
+        (
+            REPO_ROOT / "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    monkeypatch.setattr(
+        n8,
+        "validate_payload_result",
+        lambda _payload: n8.ValueGateValidationResult(
+            governing_issues=({"code": "governed_catalog_change"},),
+            ambient_findings=({"code": "real_ambient_posture_difference"},),
+        ),
+    )
+
+    evidence = second_domain_pack._n8_transport_gap_closure(
+        payload,
+        expected_education_covariates=("education_spending", "school_quality"),
+    )
+
+    assert evidence == {
+        "closed": False,
+        "reason_code": "n8_value_contract_invalid",
+        "issue_codes": ["governed_catalog_change"],
+        "receipt_ref": None,
+    }
+
+
+def test_real_plugin_postures_verify_n8_n10a_and_depth_n(
+    tmp_path: Path,
+) -> None:
+    """A real editable-path difference is diagnostic; governed drift stays red."""
+
+    missing_target = _run_plugin_posture_witness(
+        tmp_path,
+        importable=False,
+        governed_probe=False,
+    )
+    importable = _run_plugin_posture_witness(
+        tmp_path,
+        importable=True,
+        governed_probe=True,
+    )
+
+    assert missing_target["example_entry_points"] == importable[
+        "example_entry_points"
+    ]
+    assert len(missing_target["example_entry_points"]) == 1
+    assert missing_target["component_count"] == 389
+    assert importable["component_count"] == 390
+    assert missing_target["example_resolved"] is False
+    assert importable["example_resolved"] is True
+    assert missing_target["example_errors"] == ["ModuleNotFoundError"]
+    assert importable["example_errors"] == []
+    assert missing_target["recorded_raw_provenance_id"] == importable[
+        "recorded_raw_provenance_id"
+    ]
+    assert missing_target["live_raw_provenance_id"] == missing_target[
+        "recorded_raw_provenance_id"
+    ]
+    assert importable["live_raw_provenance_id"] != importable[
+        "recorded_raw_provenance_id"
+    ]
+    assert missing_target["recorded_governed_provenance_id"] == importable[
+        "recorded_governed_provenance_id"
+    ]
+    for result in (missing_target, importable):
+        assert result["live_governed_provenance_id"] == result[
+            "recorded_governed_provenance_id"
+        ]
+
+    for result in (missing_target, importable):
+        assert result["n8_governing_issues"] == []
+        assert result["n10a_status"] == "pass"
+        assert result["n10a_issues"] == []
+        assert result["depth_status"] == "stable"
+        assert result["depth_issues"] == []
+
+    assert missing_target["n8_ambient_findings"] == []
+    assert {
+        (finding["code"], finding.get("predicate"))
+        for finding in importable["n8_ambient_findings"]
+    } == {
+        ("catalog_ambient_discovery_manifest_mismatch", None),
+        ("catalog_ambient_component_manifest_mismatch", None),
+        ("catalog_ambient_unbound_input_manifest_mismatch", None),
+        (
+            "catalog_predicate_provenance_mismatch",
+            "ambient.discovered_component_membership",
+        ),
+    }
+    assert all(
+        finding["code"] != "catalog_provenance_manifest_mismatch"
+        for finding in importable["n8_ambient_findings"]
+    )
+
+    assert importable["governed_n8_issues"] == [
+        {"code": "catalog_builtin_discovery_manifest_mismatch"}
+    ]
+    assert importable["governed_n10a"] == {
+        "closed": False,
+        "issue_codes": ["catalog_builtin_discovery_manifest_mismatch"],
+        "reason_code": "n8_value_contract_invalid",
+        "receipt_ref": None,
+    }
+    assert importable["governed_depth_status"] == "drifted"
+    assert importable["governed_depth_issues"] == [
+        {
+            "code": "n8_owner_validation_failed",
+            "owner_issue": {"code": "catalog_builtin_discovery_manifest_mismatch"},
+        }
+    ]
+
+
 def test_n8_transport_gap_refuses_a_valid_but_wrong_pack_vocabulary() -> None:
     """An N8 receipt cannot close another pack's transport bridge by shape."""
 
@@ -472,58 +818,536 @@ def test_nonbinding_dispositions_route_to_acquisition_not_repair_only() -> None:
     )
 
 
-def test_writer_preserves_routing_time_only_for_same_semantic_trace(
+def test_writer_overlays_operational_leaves_for_every_declared_output(
     tmp_path: Path,
 ) -> None:
-    """Operational N7 timestamps cannot destabilize equal frozen trace bytes."""
+    """The writer derives its denominator and discriminates time from semantics."""
 
-    path = tmp_path / second_domain_pack.CYCLE_TRACE_OUTPUT
-    path.parent.mkdir(parents=True)
-    frozen = {
-        "trace_content_hash": "sha256:" + "a" * 64,
-        "runtime_metrics": {"wall_time_seconds": 1.0},
-        "generation_cycle_run": {
-            "cycles": [
+    def bundle_for(*, semantic: str, generated_at: str) -> dict[str, object]:
+        bundle: dict[str, object] = {}
+        for _relative_path, bundle_key, hash_field, _mode in (
+            second_domain_pack._ARTIFACT_WRITE_SPECS
+        ):
+            excluded_fields = tuple(
+                second_domain_pack._CONTENT_HASH_ALLOWED_EXCLUSIONS.get(
+                    hash_field,
+                    frozenset(),
+                )
+            )
+            bundle[bundle_key] = second_domain_pack._with_content_hash(
                 {
-                    "cycle_index": 0,
-                    "acquisition_routing_report": {
-                        "status": "pass",
-                        "generated_at": "2026-07-14T00:00:00Z",
-                    },
-                }
-            ]
+                    "artifact": bundle_key,
+                    "content_hash_excluded_fields": sorted(excluded_fields),
+                    "semantic_value": semantic,
+                    "operational_probe": {"generated_at": generated_at},
+                },
+                hash_field,
+                excluded_fields=excluded_fields,
+            )
+        return bundle
+
+    frozen = bundle_for(semantic="frozen", generated_at="frozen-time")
+    for relative_path, bundle_key, _hash_field, _mode in (
+        second_domain_pack._ARTIFACT_WRITE_SPECS
+    ):
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(frozen[bundle_key]), encoding="utf-8")
+
+    same_a = bundle_for(semantic="frozen", generated_at="live-time-a")
+    same_b = bundle_for(semantic="frozen", generated_at="live-time-b")
+    delta_a = bundle_for(semantic="declared-delta", generated_at="live-time-a")
+    delta_b = bundle_for(semantic="declared-delta", generated_at="live-time-b")
+    governing_mutant = bundle_for(
+        semantic="second-governing-delta",
+        generated_at="live-time-b",
+    )
+
+    for bundle in (same_a, same_b, delta_a, delta_b, governing_mutant):
+        second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
+
+    assert same_a == frozen
+    assert same_b == frozen
+    assert delta_a == delta_b
+    assert delta_a != frozen
+    assert governing_mutant != delta_a
+    assert tuple(
+        relative_path
+        for relative_path, _bundle_key, _hash_field, _mode in (
+            second_domain_pack._ARTIFACT_WRITE_SPECS
+        )
+    ) == second_domain_pack.ARTIFACT_OUTPUTS
+    assert delta_a["pack"]["operational_probe"]["generated_at"] == "frozen-time"
+    assert delta_a["pack"]["semantic_value"] == "declared-delta"
+
+    missing_live_leaf = bundle_for(
+        semantic="declared-delta",
+        generated_at="live-time-a",
+    )
+    del missing_live_leaf["pack"]["operational_probe"]["generated_at"]
+    second_domain_pack._preserve_frozen_operational_metrics(missing_live_leaf, tmp_path)
+    assert "generated_at" not in missing_live_leaf["pack"]["operational_probe"]
+
+
+def test_writer_overlay_remains_eligible_during_declared_semantic_delta(
+    tmp_path: Path,
+) -> None:
+    """A governing trace delta cannot disable operational preservation."""
+
+    excluded_fields = tuple(
+        second_domain_pack._CONTENT_HASH_ALLOWED_EXCLUSIONS["trace_content_hash"]
+    )
+    frozen = second_domain_pack._with_content_hash(
+        {
+            "content_hash_excluded_fields": sorted(excluded_fields),
+            "semantic_value": "frozen",
+            "operational_probe": {"generated_at": "frozen-time"},
         },
-    }
+        "trace_content_hash",
+        excluded_fields=excluded_fields,
+    )
+    path = tmp_path / second_domain_pack.CYCLE_TRACE_OUTPUT
+    path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(frozen), encoding="utf-8")
-    live_trace = copy.deepcopy(frozen)
-    live_trace["runtime_metrics"] = {"wall_time_seconds": 9.0}
-    live_trace["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
-        "generated_at"
-    ] = "2026-07-15T00:00:00Z"
-    bundle = {"cycle_trace": live_trace}
+    live = second_domain_pack._with_content_hash(
+        {
+            "content_hash_excluded_fields": sorted(excluded_fields),
+            "semantic_value": "declared-delta",
+            "operational_probe": {"generated_at": "live-time"},
+        },
+        "trace_content_hash",
+        excluded_fields=excluded_fields,
+    )
+    live_hash = live["trace_content_hash"]
+    bundle = {"cycle_trace": live}
 
     second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
 
-    assert bundle["cycle_trace"]["runtime_metrics"] == frozen["runtime_metrics"]
-    assert (
-        bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
-            "generated_at"
-        ]
-        == "2026-07-14T00:00:00Z"
+    assert bundle["cycle_trace"]["semantic_value"] == "declared-delta"
+    assert bundle["cycle_trace"]["trace_content_hash"] == live_hash
+    assert bundle["cycle_trace"]["operational_probe"]["generated_at"] == "frozen-time"
+
+
+def test_writer_operational_denominator_grows_from_write_specs(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A declared writer output enters normalization without a second member list."""
+
+    probe_spec = (
+        "architecture/policy_design_case/gy_def17_probe.json",
+        "probe",
+        "probe_content_hash",
+        "probe_mode",
+    )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_ARTIFACT_WRITE_SPECS",
+        (*second_domain_pack._ARTIFACT_WRITE_SPECS, probe_spec),
+    )
+    frozen = second_domain_pack._with_content_hash(
+        {
+            "semantic_value": "frozen",
+            "operational_probe": {"generated_at": "frozen-time"},
+        },
+        "probe_content_hash",
+    )
+    path = tmp_path / probe_spec[0]
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(frozen), encoding="utf-8")
+    live = second_domain_pack._with_content_hash(
+        {
+            "semantic_value": "declared-delta",
+            "operational_probe": {"generated_at": "live-time"},
+        },
+        "probe_content_hash",
+    )
+    live_hash = live["probe_content_hash"]
+    bundle = {"probe": live}
+
+    second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
+
+    assert bundle["probe"]["semantic_value"] == "declared-delta"
+    assert bundle["probe"]["probe_content_hash"] == live_hash
+    assert bundle["probe"]["operational_probe"]["generated_at"] == "frozen-time"
+
+
+def test_transition_manifest_normalizes_time_and_binds_pack_semantic_delta(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Manifest equality ignores time but remains sensitive to governing pack content."""
+
+    def bundle_for(*, pack_semantic: str, generated_at: str) -> dict[str, object]:
+        bundle: dict[str, object] = {}
+        for _relative_path, bundle_key, hash_field, _mode in (
+            second_domain_pack._ARTIFACT_WRITE_SPECS
+        ):
+            excluded_fields = tuple(
+                second_domain_pack._CONTENT_HASH_ALLOWED_EXCLUSIONS.get(
+                    hash_field,
+                    frozenset(),
+                )
+            )
+            bundle[bundle_key] = second_domain_pack._with_content_hash(
+                {
+                    "artifact": bundle_key,
+                    "content_hash_excluded_fields": sorted(excluded_fields),
+                    "semantic_value": pack_semantic if bundle_key == "pack" else "frozen",
+                    "operational_probe": {"generated_at": generated_at},
+                },
+                hash_field,
+                excluded_fields=excluded_fields,
+            )
+        return bundle
+
+    frozen = bundle_for(pack_semantic="frozen", generated_at="frozen-time")
+    for relative_path, bundle_key, _hash_field, _mode in (
+        second_domain_pack._ARTIFACT_WRITE_SPECS
+    ):
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(frozen[bundle_key]), encoding="utf-8")
+    monkeypatch.setattr(second_domain_pack, "_require_n10a_source_scope_clean", lambda _root: None)
+    monkeypatch.setattr(second_domain_pack, "_git", lambda _root, *_args: "a" * 40)
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_n10a_source_scope_content_hash",
+        lambda _root: "sha256:" + "b" * 64,
     )
 
-    shifted = copy.deepcopy(live_trace)
-    shifted["trace_content_hash"] = "sha256:" + "b" * 64
-    shifted_bundle = {"cycle_trace": shifted}
-    second_domain_pack._preserve_frozen_operational_metrics(
-        shifted_bundle,
+    def manifest_for(*, pack_semantic: str, generated_at: str) -> dict[str, object]:
+        bundle = bundle_for(pack_semantic=pack_semantic, generated_at=generated_at)
+        second_domain_pack._preserve_frozen_operational_metrics(bundle, tmp_path)
+        transitions = second_domain_pack._prepare_artifact_write_transitions(bundle, tmp_path)
+        return second_domain_pack._artifact_write_transition_manifest(tmp_path, transitions)
+
+    manifest_a = manifest_for(
+        pack_semantic="declared-delta",
+        generated_at="live-time-a",
+    )
+    manifest_b = manifest_for(
+        pack_semantic="declared-delta",
+        generated_at="live-time-b",
+    )
+    governing_mutant = manifest_for(
+        pack_semantic="second-governing-delta",
+        generated_at="live-time-b",
+    )
+
+    assert manifest_a == manifest_b
+    assert governing_mutant != manifest_a
+    assert all(
+        not any(
+            second_domain_pack.is_gy_content_hash_excluded_field(
+                pointer.rsplit("/", maxsplit=1)[-1].replace("~1", "/").replace("~0", "~")
+            )
+            for pointer in row["changed_leaves"]
+        )
+        for row in manifest_a["artifacts"]
+    )
+    pack_row = next(
+        row
+        for row in manifest_a["artifacts"]
+        if row["output"] == second_domain_pack.PACK_OUTPUT
+    )
+    assert "/semantic_value" in pack_row["changed_leaves"]
+
+
+def test_writer_accounts_for_all_five_legacy_outputs_before_write(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """No member of the N10a output group can bypass legacy hash/delta accounting."""
+
+    live: dict[str, object] = {}
+    for relative_path, bundle_key, hash_field, _mode in (
+        second_domain_pack._ARTIFACT_WRITE_SPECS
+    ):
+        allowed_exclusions = (
+            ["runtime_metrics"]
+            if hash_field
+            in {"census_content_hash", "manifest_content_hash", "trace_content_hash"}
+            else []
+        )
+        payload = second_domain_pack._with_content_hash(
+            {
+                "artifact": bundle_key,
+                "content_hash_excluded_fields": allowed_exclusions,
+                "value": "frozen",
+            },
+            hash_field,
+            excluded_fields=allowed_exclusions,
+        )
+        path = tmp_path / relative_path
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text(json.dumps(payload), encoding="utf-8")
+        live[bundle_key] = copy.deepcopy(payload)
+
+    for bundle_key, hash_field in (
+        ("pack", "manifest_content_hash"),
+        ("cycle_trace", "trace_content_hash"),
+        ("gaps", "gap_report_content_hash"),
+    ):
+        candidate = copy.deepcopy(live[bundle_key])
+        candidate["value"] = "live"
+        live[bundle_key] = second_domain_pack._with_content_hash(
+            candidate,
+            hash_field,
+            excluded_fields=("runtime_metrics",)
+            if hash_field in {"manifest_content_hash", "trace_content_hash"}
+            else (),
+        )
+
+    receipts = second_domain_pack._prepare_artifact_write_transitions(live, tmp_path)
+
+    assert tuple(receipt["output"] for receipt in receipts) == (
+        second_domain_pack.ARTIFACT_OUTPUTS
+    )
+    assert {receipt["mode"] for receipt in receipts} == {
+        "declared_live_rederived",
+        "exact_or_operational_reconciled",
+        "producer_comparison_reconciled",
+    }
+    assert {
+        receipt["output"]
+        for receipt in receipts
+        if receipt["changed_leaf_count"] > 0
+    } == {
+        second_domain_pack.PACK_OUTPUT,
+        second_domain_pack.CYCLE_TRACE_OUTPUT,
+        second_domain_pack.GAP_REPORT_OUTPUT,
+    }
+
+    live["runtime_metrics"] = {"query_timings_seconds": {}}
+    monkeypatch.setattr(
+        second_domain_pack,
+        "build_live_bundle",
+        lambda *_args, **_kwargs: copy.deepcopy(live),
+    )
+    monkeypatch.setattr(second_domain_pack, "validate_bundle_payloads", lambda *_args: [])
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_git",
+        lambda _root, *args: "" if args[0] == "status" else "a" * 40,
+    )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_n10a_source_scope_content_hash",
+        lambda _root: "sha256:" + "b" * 64,
+    )
+    before = {
+        relative_path: (tmp_path / relative_path).read_bytes()
+        for relative_path in second_domain_pack.ARTIFACT_OUTPUTS
+    }
+    measurement = second_domain_pack.write(tmp_path, persist=False)
+    assert measurement["status"] == "pass"
+    assert measurement["write_performed"] is False
+    assert all(
+        (tmp_path / relative_path).read_bytes() == content
+        for relative_path, content in before.items()
+    )
+
+    forged = copy.deepcopy(measurement["transition_manifest"])
+    pack_row = forged["artifacts"][1]
+    pack_row["changed_leaves"] = sorted(
+        [*pack_row["changed_leaves"], "/not-produced-by-measurement"]
+    )
+    pack_row["changed_leaf_count"] = len(pack_row["changed_leaves"])
+    forged["manifest_content_hash"] = second_domain_pack._hash(
+        {
+            key: value
+            for key, value in forged.items()
+            if key != "manifest_content_hash"
+        }
+    )
+    with pytest.raises(ValueError, match="n10a_expected_transition_manifest_mismatch"):
+        second_domain_pack.write(
+            tmp_path,
+            expected_transition_manifest=forged,
+        )
+    assert all(
+        (tmp_path / relative_path).read_bytes() == content
+        for relative_path, content in before.items()
+    )
+
+    accepted = second_domain_pack.write(
         tmp_path,
+        expected_transition_manifest=measurement["transition_manifest"],
+    )
+    assert accepted["status"] == "pass"
+    assert accepted["write_performed"] is True
+
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_git",
+        lambda _root, *args: (
+            " M tools/quality/validation/check_layer3_gy_second_domain_pack.py"
+            if args[0] == "status"
+            else "a" * 40
+        ),
+    )
+    with pytest.raises(ValueError, match="n10a_source_scope_not_clean"):
+        second_domain_pack.write(tmp_path, persist=False)
+
+    census_path = tmp_path / second_domain_pack.CENSUS_OUTPUT
+    corrupt = json.loads(census_path.read_text(encoding="utf-8"))
+    corrupt["value"] = "corrupt-with-stale-hash"
+    census_path.write_text(json.dumps(corrupt), encoding="utf-8")
+    with pytest.raises(ValueError, match="n10a_frozen_artifact_integrity_failed"):
+        second_domain_pack._prepare_artifact_write_transitions(live, tmp_path)
+
+
+@pytest.mark.parametrize(
+    ("modifier", "expected"),
+    [
+        (
+            ["--capture-stage1-n4"],
+            {"allow_live_n4_capture": True, "n4_capture_journal": None},
+        ),
+        (
+            ["--accept-stage1-n4-journal", "capture.json"],
+            {
+                "allow_live_n4_capture": False,
+                "n4_capture_journal": Path("capture.json"),
+            },
+        ),
+    ],
+)
+def test_measure_transition_supports_each_capture_mode(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    modifier: list[str],
+    expected: dict[str, object],
+) -> None:
+    calls: list[dict[str, object]] = []
+
+    def fake_write(_root: Path, **kwargs: object) -> dict[str, object]:
+        calls.append(dict(kwargs))
+        return {"status": "pass", "issues": []}
+
+    monkeypatch.setattr(second_domain_pack, "write", fake_write)
+
+    assert (
+        second_domain_pack.main(
+            [
+                "--repo-root",
+                str(tmp_path),
+                "--measure-write-transition",
+                *modifier,
+                "--output-format",
+                "json",
+            ]
+        )
+        == 0
+    )
+    assert calls == [{**expected, "persist": False}]
+
+
+def test_n6_normalization_does_not_trust_an_unvalidated_verification_declaration() -> None:
+    """A bare provenance declaration remains governing at the N10a bridge."""
+
+    first = {
+        "cycles": [
+            {
+                "value_port": {"wall_time_ms": 12.5},
+                "promotion_port": {
+                    "receipts": [
+                        {
+                            "confidence_ledger_projection": {
+                                "authority_provenance": "verification",
+                                "deployment_identity": "deployment-a",
+                                "checks": [{"check_id": "check-a", "status": "refused"}],
+                            }
+                        }
+                    ]
+                },
+            }
+        ],
+        "value_port": {"wall_time_ms": 20.0},
+    }
+    second = copy.deepcopy(first)
+    second["cycles"][0]["value_port"]["wall_time_ms"] = 99.0
+    projection = second["cycles"][0]["promotion_port"]["receipts"][0][
+        "confidence_ledger_projection"
+    ]
+    projection["authority_provenance"] = ["verification"]
+    projection["deployment_identity"] = "deployment-b"
+    projection["checks"][0]["check_id"] = "check-b"
+
+    first_normalized, first_metrics = second_domain_pack._normalize_n6_run_payload(first)
+    second_normalized, second_metrics = second_domain_pack._normalize_n6_run_payload(second)
+    empty_plan = second_domain_pack.GyComparisonProjectionPlan(entries=())
+
+    assert second_domain_pack._hash(first_normalized) != second_domain_pack._hash(second_normalized)
+    assert second_domain_pack._n6_comparison_content_hash(
+        first_normalized,
+        empty_plan,
+    ) != second_domain_pack._n6_comparison_content_hash(second_normalized, empty_plan)
+    assert first_metrics["cycle_value_port_wall_time_ms"] == [
+        {"cycle_index": 0, "value_port_wall_time_ms": 12.5}
+    ]
+    assert second_metrics["cycle_value_port_wall_time_ms"] == [
+        {"cycle_index": 0, "value_port_wall_time_ms": 99.0}
+    ]
+    assert (
+        first_normalized["cycles"][0]["promotion_port"]["receipts"][0][
+            "confidence_ledger_projection"
+        ]["checks"][0]["check_id"]
+        == "check-a"
     )
     assert (
-        shifted_bundle["cycle_trace"]["generation_cycle_run"]["cycles"][0][
-            "acquisition_routing_report"
-        ]["generated_at"]
-        == "2026-07-15T00:00:00Z"
+        second_normalized["cycles"][0]["promotion_port"]["receipts"][0][
+            "confidence_ledger_projection"
+        ]["checks"][0]["check_id"]
+        == "check-b"
+    )
+
+    governing = copy.deepcopy(second_normalized)
+    governing_projection = governing["cycles"][0]["promotion_port"]["receipts"][0][
+        "confidence_ledger_projection"
+    ]
+    governing_projection["authority_provenance"] = ["verification", "canonical_repo"]
+    governing_shift = copy.deepcopy(governing)
+    governing_shift["cycles"][0]["promotion_port"]["receipts"][0]["confidence_ledger_projection"][
+        "deployment_identity"
+    ] = "deployment-c"
+    assert second_domain_pack._hash(governing) != second_domain_pack._hash(governing_shift)
+
+
+def test_n10a_trace_keeps_full_projection_beside_owner_bound_comparison_identity(
+    live_bundle: dict[str, object],
+) -> None:
+    frozen = json.loads(
+        (REPO_ROOT / second_domain_pack.CYCLE_TRACE_OUTPUT).read_text(encoding="utf-8")
+    )
+    trace = live_bundle["cycle_trace"]
+    assert trace["comparison_admission_manifest"]
+    frozen_receipts = frozen["generation_cycle_run"]["promotion_port"]["receipts"]
+    live_receipts = trace["generation_cycle_run"]["promotion_port"]["receipts"]
+    for frozen_receipt, live_receipt in zip(
+        frozen_receipts,
+        live_receipts,
+        strict=True,
+    ):
+        migrated = copy.deepcopy(live_receipt)
+        semantic = migrated.pop("confidence_ledger_semantic_projection")
+        assert migrated == frozen_receipt
+        assert semantic["projection_scope"] == "n9_promotion_semantic_receipt"
+    assert all(receipt["confidence_ledger_projection"] for receipt in live_receipts)
+
+    plan = second_domain_pack._cycle_trace_plan_from_manifest(trace)
+    assert trace["comparison_content_hash"] == (
+        second_domain_pack._cycle_trace_comparison_content_hash(trace, plan)
+    )
+    governing_shift = copy.deepcopy(trace)
+    governing_shift["generation_cycle_run"]["candidate_summaries"][0]["front"] = "decision"
+    assert second_domain_pack._cycle_trace_comparison_content_hash(
+        trace,
+        plan,
+    ) != second_domain_pack._cycle_trace_comparison_content_hash(
+        governing_shift,
+        plan,
     )
 
 
@@ -574,9 +1398,9 @@ def test_rederive_audit_applies_writer_operational_normalization_before_comparis
     live = copy.deepcopy(frozen)
     live["census"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
     live["cycle_trace"]["runtime_metrics"] = {"wall_time_seconds": 9.0}
-    live["cycle_trace"]["generation_cycle_run"]["cycles"][0][
-        "acquisition_routing_report"
-    ]["generated_at"] = "2026-07-15T00:00:00Z"
+    live["cycle_trace"]["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
+        "generated_at"
+    ] = "2026-07-15T00:00:00Z"
     monkeypatch.setattr(second_domain_pack, "build_live_bundle", lambda _root: live)
     monkeypatch.setattr(
         second_domain_pack,
@@ -607,12 +1431,10 @@ def test_routing_time_preservation_does_not_manufacture_missing_runtime_property
         }
     }
     live = copy.deepcopy(frozen)
-    del live["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
-        "generated_at"
-    ]
+    del live["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"]["generated_at"]
 
     with pytest.raises(ValueError, match="gy_operational_reconciliation_shape_mismatch"):
-        second_domain_pack.reconcile_gy_operational_leaves(frozen, live)
+        reconcile_gy_operational_leaves(frozen, live)
 
 
 def test_frozen_pack_persists_content_bound_registry_for_cycle_intake() -> None:
@@ -1325,8 +2147,7 @@ def test_corrupt_drift_isolates_promotion_boundary_from_terminal_early_return(
 
     assert removed["status"] == "pass"
     assert (
-        "promotion_verification_boundary:"
-        "smoke_promotion_verification_boundary_invalid"
+        "promotion_verification_boundary:smoke_promotion_verification_boundary_invalid"
     ) in missing
 
 
@@ -1832,9 +2653,7 @@ def test_smoke_trace_requires_isolated_verification_promotion(
     """A typed terminal cannot retain an ambient authority-state result."""
 
     corrupted = copy.deepcopy(live_bundle)
-    promotion = corrupted["cycle_trace"]["generation_cycle_run"][
-        "promotion_port"
-    ]
+    promotion = corrupted["cycle_trace"]["generation_cycle_run"]["promotion_port"]
     promotion["reason"] = "confidence_ledger_refused:ledger_scope_binding_mismatch"
 
     codes = {

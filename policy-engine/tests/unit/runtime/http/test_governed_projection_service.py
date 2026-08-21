@@ -12,6 +12,8 @@ from typing import Any
 import pytest
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
+from polisyos.pdc import gy_content_hash
+
 REPO_ROOT = Path(__file__).resolve().parents[4]
 MODULE_PATH = REPO_ROOT / "src/polisyos/runtime/http/services/governed_projections.py"
 MODULE_NAME = "polisyos.runtime.http.services.governed_projections"
@@ -38,9 +40,20 @@ def _write_json(root: Path, relative_path: str, payload: dict[str, Any]) -> Path
     return path
 
 
+def _recorded_design_problem() -> dict[str, Any]:
+    source = json.loads(
+        (
+            REPO_ROOT
+            / "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+        ).read_text(encoding="utf-8")
+    )
+    return source["domain_runs"]["unseen"]["design_problem"]
+
+
 def _minimal_capstone(*, terminal_label: str = "acquisition_required") -> dict[str, Any]:
     run = {
         "content_hash": "sha256:run",
+        "design_problem": _recorded_design_problem(),
         "design_problem_ref": "design://example",
         "domain_role": "unseen",
         "evidence_witness": {
@@ -57,7 +70,37 @@ def _minimal_capstone(*, terminal_label: str = "acquisition_required") -> dict[s
         },
         "terminal": {
             "blocking_obligations": ["owner_recorded_weakest_link"],
-            "costed_plan": {"canonical_planner_report": {"status": "pass"}},
+            "costed_plan": {
+                "canonical_planner_report": {
+                    "status": "pass",
+                    "acquisition_records": [
+                        {
+                            "decision_owner_ref": "owner.planner",
+                            "gap_id": "requirement-gap:example",
+                            "missing_requirement_fields": ["grounding_relation:example"],
+                            "next_actions": [
+                                {
+                                    "action": "build_production_snapshot",
+                                    "owner": "owner.planner",
+                                    "producer_expected": "data_forge.snapshot",
+                                    "strategy": "production_snapshot_build",
+                                }
+                            ],
+                            "producer_expected": "data_forge.snapshot",
+                            "recommended_strategy": "production_snapshot_build",
+                            "status": "ready",
+                            "strategy_records": [
+                                {
+                                    "strategy": "production_snapshot_build",
+                                    "voi_expected_cost": None,
+                                    "voi_expected_value": None,
+                                    "voi_rank": None,
+                                }
+                            ],
+                        }
+                    ],
+                }
+            },
             "kind": terminal_label,
         },
         "terminal_distribution": {terminal_label: 1},
@@ -196,12 +239,8 @@ def test_owner_validation_receipt_rejects_forged_aggregate_binding(
                     "semantic_projection_hash": hash_export_projection(
                         payload.model_dump(mode="json")
                     ),
-                    "semantic_projection_hash_rule_version": (
-                        "polisyos.pdc.gy_content_hash.v1"
-                    ),
-                    "dependency_aggregate_identity": hash_export_projection(
-                        dependency_bindings
-                    ),
+                    "semantic_projection_hash_rule_version": ("polisyos.pdc.gy_content_hash.v1"),
+                    "dependency_aggregate_identity": hash_export_projection(dependency_bindings),
                     "dependency_bindings": dependency_bindings,
                     "issue_codes": [],
                 }
@@ -414,8 +453,7 @@ def test_owner_validation_cache_revalidates_when_semantic_hasher_bytes_drift(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     relative_path = (
-        "architecture/policy_design_case/layer3_gy_task0_audit/"
-        "layer3_gy_engine_census.json"
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json"
     )
     _copy_governed_source(tmp_path, relative_path)
     dependency = _write_json(
@@ -441,9 +479,7 @@ def test_owner_validation_cache_revalidates_when_semantic_hasher_bytes_drift(
             returncode=0,
             stdout=json.dumps(
                 {
-                    "schema_version": (
-                        "policyos.runtime.governed_projection.owner_validation.v2"
-                    ),
+                    "schema_version": ("policyos.runtime.governed_projection.owner_validation.v2"),
                     "projection_id": ProjectionId.ENGINE_CENSUS.value,
                     "validator_id": definition.owner_validator_id,
                     "validator_version": definition.owner_validator_version,
@@ -454,12 +490,8 @@ def test_owner_validation_cache_revalidates_when_semantic_hasher_bytes_drift(
                     "bound_source_identities": request["component_bindings"],
                     "bound_projection_payload_hash": hash_export_projection(payload),
                     "semantic_projection_hash": hash_export_projection(payload),
-                    "semantic_projection_hash_rule_version": (
-                        "polisyos.pdc.gy_content_hash.v1"
-                    ),
-                    "dependency_aggregate_identity": hash_export_projection(
-                        dependency_bindings
-                    ),
+                    "semantic_projection_hash_rule_version": ("polisyos.pdc.gy_content_hash.v1"),
+                    "dependency_aggregate_identity": hash_export_projection(dependency_bindings),
                     "dependency_bindings": dependency_bindings,
                     "issue_codes": [],
                 }
@@ -495,17 +527,14 @@ def test_owner_validation_cache_binds_exact_projected_payload(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     relative_path = (
-        "architecture/policy_design_case/layer3_gy_task0_audit/"
-        "layer3_gy_engine_census.json"
+        "architecture/policy_design_case/layer3_gy_task0_audit/layer3_gy_engine_census.json"
     )
     _copy_governed_source(tmp_path, relative_path)
     definition = MODULE._DEFINITION_BY_ID[ProjectionId.ENGINE_CENSUS]
     service = GovernedProjectionService(tmp_path)
     loaded = service._load(definition)
     first_payload = service._project(definition, loaded)
-    second_payload = first_payload.model_copy(
-        update={"row_count": first_payload.row_count + 1}
-    )
+    second_payload = first_payload.model_copy(update={"row_count": first_payload.row_count + 1})
     calls = 0
 
     def worker(*_args: object, **kwargs: object) -> SimpleNamespace:
@@ -514,17 +543,14 @@ def test_owner_validation_cache_binds_exact_projected_payload(
         request = json.loads(str(kwargs["input"]))
         payload = request["projection_payload"]
         dependency_bindings = {
-            path: f"file:{content_hash}"
-            for path, content_hash in loaded.component_bindings
+            path: f"file:{content_hash}" for path, content_hash in loaded.component_bindings
         }
         semantic_hash = hash_export_projection(payload)
         return SimpleNamespace(
             returncode=0,
             stdout=json.dumps(
                 {
-                    "schema_version": (
-                        "policyos.runtime.governed_projection.owner_validation.v2"
-                    ),
+                    "schema_version": ("policyos.runtime.governed_projection.owner_validation.v2"),
                     "projection_id": ProjectionId.ENGINE_CENSUS.value,
                     "validator_id": definition.owner_validator_id,
                     "validator_version": definition.owner_validator_version,
@@ -535,12 +561,8 @@ def test_owner_validation_cache_binds_exact_projected_payload(
                     "bound_source_identities": request["component_bindings"],
                     "bound_projection_payload_hash": semantic_hash,
                     "semantic_projection_hash": semantic_hash,
-                    "semantic_projection_hash_rule_version": (
-                        "polisyos.pdc.gy_content_hash.v1"
-                    ),
-                    "dependency_aggregate_identity": hash_export_projection(
-                        dependency_bindings
-                    ),
+                    "semantic_projection_hash_rule_version": ("polisyos.pdc.gy_content_hash.v1"),
+                    "dependency_aggregate_identity": hash_export_projection(dependency_bindings),
                     "dependency_bindings": dependency_bindings,
                     "issue_codes": [],
                 }
@@ -629,6 +651,95 @@ def test_depth_n_projection_preserves_recorded_validator_outputs_without_rederiv
 
     assert run["evidence_class"] == "deliberately_unseen_owner_evidence_class"
     assert run["weakest_links"] == ["deliberately_unseen_owner_weakest_link"]
+
+
+@pytest.mark.parametrize(
+    ("suffix", "terminal_kind", "cost", "voi", "rank"),
+    [
+        ("alpha", "owner_terminal_alpha", 7.5, 11.0, 1),
+        ("beta", "owner_terminal_beta", 91.0, 3.25, 4),
+    ],
+)
+def test_depth_n_projection_carries_changed_owner_problem_terminal_route_and_economics(
+    tmp_path: Path,
+    owner_validator_pass: None,
+    suffix: str,
+    terminal_kind: str,
+    cost: float,
+    voi: float,
+    rank: int,
+) -> None:
+    source = _minimal_capstone(terminal_label=terminal_kind)
+    run_source = source["domain_runs"]["unseen"]
+    problem = run_source["design_problem"]
+    problem["design_problem_id"] = f"owner_problem_{suffix}"
+    problem["problem_statement"] = f"Owner problem statement {suffix}."
+    acquisition = run_source["stage_trace"]["acquisition"]
+    acquisition.update({"owner": f"owner.planner.{suffix}", "route_kind": f"owner_route_{suffix}"})
+    report = run_source["terminal"]["costed_plan"]["canonical_planner_report"]
+    report["status"] = f"planner_status_{suffix}"
+    record = report["acquisition_records"][0]
+    record.update(
+        {
+            "decision_owner_ref": f"decision.owner.{suffix}",
+            "gap_id": f"requirement-gap:{suffix}",
+            "missing_requirement_fields": [f"typed_missing_link:{suffix}"],
+            "producer_expected": f"producer.{suffix}",
+            "recommended_strategy": f"strategy_{suffix}",
+        }
+    )
+    record["next_actions"][0]["action"] = f"next_action_{suffix}"
+    record["strategy_records"][0].update(
+        {
+            "strategy": f"strategy_{suffix}",
+            "voi_expected_cost": cost,
+            "voi_expected_value": voi,
+            "voi_rank": rank,
+        }
+    )
+    planner_report_content_hash = gy_content_hash(report)
+    acquisition["planner_report_content_hash"] = planner_report_content_hash
+    route_reference = {
+        "owner_content_hash": f"sha256:route-owner-{suffix}",
+        "owner_schema": "policyos.runtime.depth_n_acquisition_route_ref.v1",
+        "planner_report_content_hash": planner_report_content_hash,
+        "requirement_gap_id": record["gap_id"],
+    }
+    run_source["evidence_witness"]["acquisition_route"] = route_reference
+    _write_minimal_capstone(tmp_path, source)
+
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+    run = _payload(packet)["domain_runs"]["unseen"]
+
+    assert run["design_problem"] == problem
+    assert run["search_terminal_kind"] == run_source["terminal"]["kind"]
+    assert run["acquisition_route"] == route_reference
+    assert run["acquisition_economics"] == {
+        "decision_owner_ref": record["decision_owner_ref"],
+        "expected_cost": cost,
+        "expected_voi": voi,
+        "missing_requirement_fields": record["missing_requirement_fields"],
+        "next_action": record["next_actions"][0]["action"],
+        "planner_report_content_hash": planner_report_content_hash,
+        "planner_status": report["status"],
+        "producer_expected": record["producer_expected"],
+        "recommended_strategy": record["recommended_strategy"],
+        "voi_rank": rank,
+    }
+
+
+def test_depth_n_projection_rejects_malformed_design_problem(
+    tmp_path: Path,
+    owner_validator_pass: None,
+) -> None:
+    source = _minimal_capstone()
+    del source["domain_runs"]["unseen"]["design_problem"]["nl_provenance"]
+    _write_minimal_capstone(tmp_path, source)
+
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.DEPTH_N_CYCLE_BOARD)
+
+    assert packet.availability is ProjectionAvailability.INVALID_SOURCE
+    assert "design_problem" in (packet.absence_reason or "")
 
 
 def test_depth_n_projection_fails_closed_instead_of_deriving_missing_evidence(
@@ -895,9 +1006,7 @@ def test_n13a_census_fails_closed_when_recompute_catalog_is_absent() -> None:
     assert packet.source is not None
     assert packet.payload is None
     assert packet.source.validation.status == "failed"
-    assert packet.source.validation.issue_codes == (
-        "owner_validator_dependency_missing_catalog",
-    )
+    assert packet.source.validation.issue_codes == ("owner_validator_dependency_missing_catalog",)
     assert packet.source.declared_content_hash is None
 
 
@@ -920,16 +1029,13 @@ def test_n13a_valid_catalog_recomputes_through_service_within_bridge_budget(
     for relative_path in copied_paths:
         _copy_governed_source(tmp_path, relative_path)
     catalog_relative = (
-        "production_data/datasets_full_phase3full_20260327_183054/"
-        "dataset_catalog.duckdb"
+        "production_data/datasets_full_phase3full_20260327_183054/dataset_catalog.duckdb"
     )
     catalog_destination = tmp_path / catalog_relative
     catalog_destination.parent.mkdir(parents=True, exist_ok=True)
     catalog_destination.symlink_to(catalog)
 
-    packet = GovernedProjectionService(tmp_path).get(
-        ProjectionId.N13A_ACQUISITION_CENSUS
-    )
+    packet = GovernedProjectionService(tmp_path).get(ProjectionId.N13A_ACQUISITION_CENSUS)
 
     assert packet.availability is ProjectionAvailability.AVAILABLE
     assert packet.source is not None
@@ -953,9 +1059,7 @@ def test_n13a_probe_journal_fails_closed_when_recompute_catalog_is_absent() -> N
     assert packet.availability is ProjectionAvailability.INVALID_SOURCE
     assert packet.payload is None
     assert packet.source is not None
-    assert packet.source.validation.issue_codes == (
-        "owner_validator_dependency_missing_catalog",
-    )
+    assert packet.source.validation.issue_codes == ("owner_validator_dependency_missing_catalog",)
 
 
 def test_n13a_owner_hash_ignores_run_economics_but_replay_binds_changed_bytes(

@@ -25,4 +25,19 @@ describe("TimeSemanticsLabel", () => {
       screen.getByTestId("time-semantics-cache-age"),
     ).not.toHaveTextContent(/stale/iu);
   });
+
+  it("renders caller-owned temporal entries inside the semantic list", () => {
+    render(
+      <TimeSemanticsLabel>
+        <div data-testid="owned-temporal-entry">
+          <dt>Owner posture:</dt>
+          <dd>owner projection</dd>
+        </div>
+      </TimeSemanticsLabel>,
+    );
+
+    expect(screen.getByTestId("owned-temporal-entry")).toHaveTextContent(
+      "owner projection",
+    );
+  });
 });

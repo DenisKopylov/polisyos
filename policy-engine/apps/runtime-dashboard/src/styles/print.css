@@ -86,6 +86,10 @@
     word-break: break-all;
   }
 
+  [data-testid="run-detail-page"] a[href^="/public/decisions/"]::after {
+    content: none;
+  }
+
   .trust-hash-chip,
   .quantity,
   [data-testid="quantity"] {

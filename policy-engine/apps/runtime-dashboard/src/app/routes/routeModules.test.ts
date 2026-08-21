@@ -6,6 +6,7 @@ import { evidenceRouteHandle } from "@/features/evidence/routes.public";
 import { lexRouteHandle } from "@/features/lex";
 import { platformRouteHandle } from "@/features/platform";
 import {
+  cycleBoardRouteHandle,
   publicDecisionViewerRouteHandle,
   runDeckRouteHandle,
   runDetailRouteHandle,
@@ -72,7 +73,25 @@ describe("route modules", () => {
     expect(
       publicDecisionViewerRouteHandle.buildHref({ signedId: "signed-1" }),
     ).toBe("/public/decisions/signed-1");
-    expect(runsRoutes).toHaveLength(6);
-    expect(runsRoutes[5]?.children).toHaveLength(9);
+    expect(cycleBoardRouteHandle).toMatchObject({
+      prefetch: ["capabilities"],
+      routeId: "runs.cycleBoard",
+      workspaceKey: "runsDecisions",
+    });
+    expect(cycleBoardRouteHandle.buildHref()).toBe("/runs/cycle-board");
+    const staticIndex = runsRoutes.findIndex(
+      (route) => route.path === "runs/cycle-board",
+    );
+    const dynamicIndex = runsRoutes.findIndex(
+      (route) => route.path === "runs/:runId",
+    );
+    expect(
+      runsRoutes.filter((route) => route.path === "runs/cycle-board"),
+    ).toHaveLength(1);
+    expect(staticIndex).toBeGreaterThanOrEqual(0);
+    expect(staticIndex).toBeLessThan(dynamicIndex);
+    expect(
+      runsRoutes.find((route) => route.path === "runs/:runId")?.children,
+    ).toHaveLength(9);
   });
 });

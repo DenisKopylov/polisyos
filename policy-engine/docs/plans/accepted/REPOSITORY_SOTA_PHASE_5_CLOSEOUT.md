@@ -53,7 +53,7 @@ registered under `architecture/generated_artifacts.toml`,
 | Topology and loose files | `architecture/topology.toml` | `tests/repo_quality/architecture/test_repository_sota_phase3_topology_cleanup.py` |
 | Import policy | `architecture/imports/policy.toml`, `architecture/imports/exceptions.toml` | `tools/quality/lint/lint_imports.py` |
 | Public surface | `architecture/public_surface/contract.toml` | `polisyos-tools architecture guardrails check` |
-| Generated drift | `architecture/generated_artifacts.toml` | `polisyos-tools architecture guardrails check --run-generated-checks` |
+| Generated drift | `architecture/generated_artifacts.toml` | `polisyos-tools architecture guardrails check --all-generated-checks` |
 | Docs freshness | `architecture/exceptions/docs_freshness.toml` | `polisyos-tools workspace repository-sota-closeout` |
 | Public polish | `docs/reference/repository-topology.md` | `pytest tests/repo_quality/architecture/test_repository_public_polish.py` |
 | Shim audit | `architecture/shims.toml` | `polisyos-tools workspace repository-sota-closeout --contract-only` |

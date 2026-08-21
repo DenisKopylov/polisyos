@@ -20,6 +20,7 @@ import {
   setReviewerThreshold,
   startReadingOnboarding,
 } from "./operatorCraft";
+import type { AuthorityLocalScope } from "@/app/offline/authorityLocalState";
 
 const decisionView: DecisionCardViewModel = {
   confidence: "HIGH",
@@ -119,6 +120,11 @@ const evidenceContext: RunEvidenceContext = {
   warnings: [],
 };
 
+const verifiedScope: AuthorityLocalScope = {
+  tenantId: "tenant-operator",
+  userId: "reviewer-operator",
+};
+
 function packet() {
   return buildSignedPublicDecisionPacket({
     decisionScore: untracedDecisionQuantity({
@@ -154,6 +160,7 @@ describe("operator craft domain", () => {
       now: "2026-04-29T10:10:00.000Z",
       packet: signedPacket,
       runId: "run-36",
+      scope: verifiedScope,
     });
 
     const snapshot = buildOperatorCraftSnapshot({
@@ -162,7 +169,7 @@ describe("operator craft domain", () => {
       thresholdProfile: profile,
     });
 
-    expect(readReviewerThresholdProfile().threshold).toBe(0.8);
+    expect(readReviewerThresholdProfile(verifiedScope).threshold).toBe(0.8);
     expect(snapshot.thresholdImpact.threshold).toBe(0.8);
     expect(snapshot.thresholdImpact.hiddenCount).toBe(0);
     expect(snapshot.thresholdImpact.remainingShare).toBe(1);
@@ -180,9 +187,9 @@ describe("operator craft domain", () => {
       target: target!,
     });
 
-    saveReviewerAnnotation(annotation);
+    saveReviewerAnnotation(annotation, verifiedScope);
 
-    const [stored] = readReviewerAnnotations("run-36");
+    const [stored] = readReviewerAnnotations("run-36", verifiedScope);
     expect(stored?.snapshot.packetHash).toBe(signedPacket.packetHash);
     expect(stored?.snapshot.validAt).toBe(decisionView.generatedAt);
     expect(stored?.target.ref).toBe(target?.ref);
@@ -202,11 +209,11 @@ describe("operator craft domain", () => {
       runId: "run-36",
     });
 
-    saveEvidenceWalletItem(item);
-    saveEvidenceWalletItem(item);
+    saveEvidenceWalletItem(item, verifiedScope);
+    saveEvidenceWalletItem(item, verifiedScope);
 
-    expect(readEvidenceWallet()).toHaveLength(1);
-    expect(readEvidenceWallet()[0]).toMatchObject({
+    expect(readEvidenceWallet(verifiedScope)).toHaveLength(1);
+    expect(readEvidenceWallet(verifiedScope)[0]).toMatchObject({
       auditEvent: { kind: "evidence.saved" },
       ref: candidate?.ref,
       snapshot: { packetHash: signedPacket.packetHash },
@@ -218,6 +225,7 @@ describe("operator craft domain", () => {
     startReadingOnboarding({
       now: "2026-04-29T10:00:00.000Z",
       runId: "run-36",
+      scope: verifiedScope,
     });
 
     expect(
@@ -225,6 +233,7 @@ describe("operator craft domain", () => {
         now: "2026-04-29T10:01:00.000Z",
         packet: signedPacket,
         runId: "run-36",
+        scope: verifiedScope,
       }).completedAt,
     ).toBeNull();
 
@@ -241,6 +250,7 @@ describe("operator craft domain", () => {
         now: "2026-04-29T10:02:00.000Z",
         packet: signedPacket,
         runId: "run-36",
+        scope: verifiedScope,
         stepId,
       });
     }
@@ -249,6 +259,7 @@ describe("operator craft domain", () => {
       now: "2026-04-29T10:04:00.000Z",
       packet: signedPacket,
       runId: "run-36",
+      scope: verifiedScope,
     });
 
     expect(state.completedStepIds).toContain("checklist_complete");
@@ -263,7 +274,7 @@ describe("operator craft domain", () => {
       firstCompletionAt: "2026-04-29T10:04:00.000Z",
       timeToCompletionSeconds: 240,
     });
-    expect(readReadingOnboardingState("run-36").completedAt).toBe(
+    expect(readReadingOnboardingState("run-36", verifiedScope).completedAt).toBe(
       "2026-04-29T10:04:00.000Z",
     );
   });
@@ -277,5 +288,90 @@ describe("operator craft domain", () => {
     expect(snapshot.onboarding).toMatchObject({ canComplete: false });
     expect(snapshot.onboarding).not.toHaveProperty("canApprove");
     expect(JSON.stringify(snapshot.onboarding)).not.toMatch(/approval/iu);
+  });
+
+  it("partitions every operator-craft family through a verified scoped envelope", () => {
+    const signedPacket = packet();
+    const [target] = buildAnnotationTargets(signedPacket);
+    const [candidate] = buildEvidenceWalletCandidates(signedPacket);
+    const annotation = createReviewerAnnotation({
+      body: "Scope-bound note.",
+      now: "2026-04-29T10:11:00.000Z",
+      packet: signedPacket,
+      reviewerId: verifiedScope.userId,
+      runId: "run-36",
+      target: target!,
+    });
+    const walletItem = createEvidenceWalletItem({
+      candidate: candidate!,
+      now: "2026-04-29T10:12:00.000Z",
+      packet: signedPacket,
+      reviewerId: verifiedScope.userId,
+      runId: "run-36",
+    });
+
+    setReviewerThreshold({
+      next: 0.8,
+      packet: signedPacket,
+      runId: "run-36",
+      scope: verifiedScope,
+    });
+    saveReviewerAnnotation(annotation, verifiedScope);
+    saveEvidenceWalletItem(walletItem, verifiedScope);
+    startReadingOnboarding({ runId: "run-36", scope: verifiedScope });
+
+    const persisted = Array.from({ length: window.localStorage.length }, (_, index) => {
+      const key = window.localStorage.key(index)!;
+      return [key, JSON.parse(window.localStorage.getItem(key)!)] as const;
+    });
+    expect(persisted).toHaveLength(4);
+    expect(persisted.map(([key]) => key)).toEqual(
+      expect.arrayContaining([
+        expect.stringContaining("operator-craft.threshold"),
+        expect.stringContaining("operator-craft.annotations"),
+        expect.stringContaining("operator-craft.evidence-wallet"),
+        expect.stringContaining("operator-craft.onboarding"),
+      ]),
+    );
+    for (const [key, envelope] of persisted) {
+      expect(key).toContain("tenant-operator");
+      expect(key).toContain("reviewer-operator");
+      expect(envelope).toMatchObject({
+        tenantId: "tenant-operator",
+        userId: "reviewer-operator",
+        version: 1,
+      });
+      expect(envelope).toHaveProperty("family");
+      expect(envelope).toHaveProperty("slot");
+      expect(envelope).toHaveProperty("issuedAt");
+      expect(envelope).toHaveProperty("expiresAt");
+      expect(envelope).toHaveProperty("encodedPayload");
+    }
+
+    const foreignScope: AuthorityLocalScope = {
+      tenantId: "tenant-prior",
+      userId: "reviewer-prior",
+    };
+    expect(readReviewerThresholdProfile(verifiedScope).threshold).toBe(0.8);
+    expect(readReviewerThresholdProfile(foreignScope).threshold).toBe(0.6);
+    expect(readReviewerAnnotations("run-36", verifiedScope)).toHaveLength(1);
+    expect(readReviewerAnnotations("run-36", foreignScope)).toEqual([]);
+    expect(readEvidenceWallet(verifiedScope)).toHaveLength(1);
+    expect(readEvidenceWallet(foreignScope)).toEqual([]);
+    expect(readReadingOnboardingState("run-36", verifiedScope).startedAt).not.toBe(
+      "1970-01-01T00:00:00.000Z",
+    );
+    expect(readReadingOnboardingState("run-36", foreignScope).startedAt).toBe(
+      "1970-01-01T00:00:00.000Z",
+    );
+    expect(Object.isFrozen(readEvidenceWallet(verifiedScope))).toBe(true);
+    expect(Object.isFrozen(readEvidenceWallet(verifiedScope)[0]!)).toBe(true);
+  });
+
+  it("does not persist operator-craft bytes when verified scope is absent", () => {
+    setReviewerThreshold({ next: 0.8, scope: null });
+    startReadingOnboarding({ runId: "run-36", scope: null });
+
+    expect(window.localStorage.length).toBe(0);
   });
 });

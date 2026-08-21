@@ -67,6 +67,13 @@ export const ROUTE_PREFETCH_MANIFEST: RoutePrefetchManifestEntry[] = [
     pattern: "/runs",
   },
   {
+    handle: workspaceHandle("runs.cycleBoard", "runsDecisions", [
+      "capabilities",
+    ]),
+    kind: "workspace",
+    pattern: "/runs/cycle-board",
+  },
+  {
     handle: workspaceHandle("runs.report", "runsDecisions"),
     kind: "runReport",
     pattern: "/runs/:runId/report",

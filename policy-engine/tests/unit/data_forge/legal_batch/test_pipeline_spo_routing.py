@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+import pytest
+
 from polisyos.data_forge.domains.legal.batch.config import BatchConfig
 from polisyos.data_forge.domains.legal.batch.pipeline import (
     _build_spo_doc_routing_plan,
@@ -261,6 +263,19 @@ def test_extract_provisions_worker_passes_jurisdiction(monkeypatch) -> None:
     assert captured["jurisdiction"] == "EU"
     assert len(rows) == 1
     assert rows[0]["anchor_path"] == "article:1"
+
+
+@pytest.mark.parametrize("jurisdiction", [None, "   ", "DE"])
+def test_extract_provisions_worker_rejects_undeclared_jurisdiction(
+    jurisdiction: str | None,
+) -> None:
+    with pytest.raises(ValueError, match="jurisdiction code"):
+        extract_provisions_worker(
+            {
+                "text": "Article 1\nMember States shall ensure access to the register.",
+                "jurisdiction": jurisdiction,
+            }
+        )
 
 
 def test_should_extract_spo_from_small_fallback_approval_bundle() -> None:

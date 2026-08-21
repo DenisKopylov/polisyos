@@ -563,6 +563,12 @@ owner = "team-runtime-quality"
 purpose = "Runtime complexity governance coverage."
 
 [[tests]]
+path = "tests/unit/runtime/quality/test_confidence_ledger.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "Confidence-ledger authority closure and durable accounting coverage."
+
+[[tests]]
 path = "tests/unit/runtime/quality/test_construct_registry.py"
 tier = "fast-pr"
 owner = "team-runtime-quality"
@@ -731,7 +737,7 @@ owner = "team-quality-closeout"
 purpose = "Policy Design Case Layer 2 S7 delegation coverage."
 
 [[tests]]
-path = "tests/unit/runtime/quality/test_layer2_s8_value_choice.py"
+path = "tests/unit/runtime/quality/test_design_axes_value_choice_provenance.py"
 tier = "fast-pr"
 owner = "team-quality-closeout"
 purpose = "Policy Design Case Layer 2 S8 value-choice provenance coverage."
@@ -779,6 +785,12 @@ owner = "team-runtime-quality"
 purpose = "Policy Design Case Layer 3 G0 grounding inventory coverage."
 
 [[tests]]
+path = "tests/unit/runtime/quality/test_agent_action_authority.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "GY-PA2 mandate-bounded pre-action agent authority and zero-effect refusal coverage."
+
+[[tests]]
 path = "tests/unit/runtime/quality/test_gy_workspace_loop.py"
 tier = "fast-pr"
 owner = "team-runtime-quality"
@@ -819,6 +831,12 @@ path = "tests/unit/runtime/quality/test_layer3_g6_bounded_agent.py"
 tier = "fast-pr"
 owner = "team-runtime-quality"
 purpose = "Policy Design Case Layer 3 G6 bounded-agent coverage."
+
+[[tests]]
+path = "tests/unit/runtime/quality/test_compression_loss_ledger.py"
+tier = "fast-pr"
+owner = "team-runtime-quality"
+purpose = "G6 compression-loss receipt and orchestration authority-delta coverage."
 
 [[tests]]
 path = "tests/unit/runtime/quality/test_layer3_g7_region_widening.py"

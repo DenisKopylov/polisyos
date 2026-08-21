@@ -1,8 +1,12 @@
-export const SUPPORTED_LOCALES = ["en", "uk", "ru"] as const;
+export const SUPPORTED_LOCALES = ["en", "uk"] as const;
+export const [PRIMARY_LOCALE, ...TRANSLATED_LOCALES] = SUPPORTED_LOCALES;
+export const LEGACY_CONTINUITY_LOCALE = "ru" as const;
 
-export type Locale = (typeof SUPPORTED_LOCALES)[number];
+export type ProductLocale = (typeof SUPPORTED_LOCALES)[number];
+export type LegacyContinuityLocale = typeof LEGACY_CONTINUITY_LOCALE;
+export type Locale = ProductLocale | LegacyContinuityLocale;
 
-export const DEFAULT_LOCALE: Locale = "en";
+export const DEFAULT_LOCALE: ProductLocale = PRIMARY_LOCALE;
 export const LOCALE_STORAGE_KEY = "polisyos.runtime.locale";
 
 const INTL_LOCALE_BY_LOCALE: Record<Locale, string> = {
@@ -11,37 +15,56 @@ const INTL_LOCALE_BY_LOCALE: Record<Locale, string> = {
   ru: "ru-RU",
 };
 
-export function isLocale(value: string | null | undefined): value is Locale {
+export function isProductLocale(
+  value: string | null | undefined,
+): value is ProductLocale {
   return (
     value !== null &&
     value !== undefined &&
-    SUPPORTED_LOCALES.includes(value as Locale)
+    SUPPORTED_LOCALES.includes(value as ProductLocale)
   );
 }
 
-export function readStoredLocale(): Locale | null {
+function normalizeProductLocale(
+  value: string | null | undefined,
+): ProductLocale | null {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const match = /^(uk|en)(?:-[a-z]{2})?$/iu.exec(value);
+  return match ? (match[1].toLowerCase() as ProductLocale) : null;
+}
+
+export function isLocale(value: string | null | undefined): value is Locale {
+  return isProductLocale(value) || value === "ru";
+}
+
+export function readStoredLocale(): ProductLocale | null {
   if (typeof window === "undefined") {
     return null;
   }
   const raw = window.localStorage.getItem(LOCALE_STORAGE_KEY);
-  return isLocale(raw) ? raw : null;
+  return normalizeProductLocale(raw);
 }
 
-export function persistLocale(locale: Locale): void {
-  if (typeof window === "undefined") {
+export function persistLocale(locale: ProductLocale): void {
+  if (typeof window === "undefined" || !isProductLocale(locale)) {
     return;
   }
   window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
 }
 
-export function resolveLocale(explicit?: string | null): Locale {
-  if (isLocale(explicit)) {
-    return explicit;
+export function resolveLocale(explicit?: string | null): ProductLocale {
+  if (explicit !== null && explicit !== undefined) {
+    return normalizeProductLocale(explicit) ?? DEFAULT_LOCALE;
   }
 
-  const stored = readStoredLocale();
-  if (stored) {
-    return stored;
+  if (typeof window !== "undefined") {
+    const stored = window.localStorage.getItem(LOCALE_STORAGE_KEY);
+    if (stored !== null) {
+      return normalizeProductLocale(stored) ?? DEFAULT_LOCALE;
+    }
   }
 
   if (typeof navigator !== "undefined") {
@@ -51,12 +74,9 @@ export function resolveLocale(explicit?: string | null): Locale {
     ].filter(Boolean);
 
     for (const preferred of preferredLocales) {
-      const normalized = preferred.toLowerCase();
-      if (normalized.startsWith("uk")) {
-        return "uk";
-      }
-      if (normalized.startsWith("ru")) {
-        return "ru";
+      const preferredLocale = normalizeProductLocale(preferred);
+      if (preferredLocale) {
+        return preferredLocale;
       }
     }
   }

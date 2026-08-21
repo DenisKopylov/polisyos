@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import copy
+import hashlib
 import json
 import re
 
 import pytest
 from pydantic import ValidationError
 
+import polisyos.pdc as pdc_module
 from polisyos.pdc import (
+    GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER,
     ApplicabilityResult,
     ArtifactEnvelope,
     ArtifactRef,
@@ -17,6 +21,10 @@ from polisyos.pdc import (
     DecisionGrade,
     EvidenceBasis,
     EvidenceKind,
+    GyArtifactProjectionOwner,
+    GyArtifactProjectionRule,
+    GyComparisonAdmission,
+    GyComparisonOwnerRule,
     OperationClass,
     OperationContract,
     OperationInvocationRecord,
@@ -30,9 +38,16 @@ from polisyos.pdc import (
     VOISelectionAudit,
     WorkspaceContract,
     assert_ring2_verifier_provenance,
+    build_gy_comparison_projection_plan,
+    build_gy_comparison_projection_plan_from_manifest,
     gy_artifact_self_identity_projection,
+    gy_comparison_content_hash,
     gy_content_hash,
+    gy_recorded_content_hash,
+    is_gy_content_hash_excluded_field,
+    is_gy_declared_non_authority_block,
     reconcile_gy_operational_leaves,
+    strip_gy_volatile_fields,
 )
 from polisyos.pdc._impl.gy_waist import (
     PROMOTION_RISK_CONDITIONALITY_CAVEAT,
@@ -87,14 +102,501 @@ def test_gy_evidence_hash_strips_volatile_time_fields() -> None:
 
     assert first == second
     assert first.startswith("sha256:")
-    assert ArtifactRef.from_payload(
-        artifact_id="artifact-hash",
-        artifact_type="BaseDataset",
-        payload=payload,
-        schema_ref="policyos.gy.fixture.v1",
-        uri="cas://artifact-hash",
-        version="v1",
-    ).content_hash == first
+    assert (
+        ArtifactRef.from_payload(
+            artifact_id="artifact-hash",
+            artifact_type="BaseDataset",
+            payload=payload,
+            schema_ref="policyos.gy.fixture.v1",
+            uri="cas://artifact-hash",
+            version="v1",
+        ).content_hash
+        == first
+    )
+
+
+@pytest.mark.parametrize(
+    "declaration",
+    [
+        pytest.param("verification", id="scalar"),
+        pytest.param(["verification"], id="list"),
+        pytest.param(["verification", "verification"], id="repeated-list"),
+    ],
+)
+def test_gy_comparison_predicate_recognizes_only_entirely_non_authority_declarations(
+    declaration: object,
+) -> None:
+    block = {
+        "authority_provenance": declaration,
+        "deployment_identity": "run-specific",
+    }
+
+    assert is_gy_declared_non_authority_block(block)
+    assert not is_gy_content_hash_excluded_field("confidence_ledger_projection")
+
+
+@pytest.mark.parametrize(
+    "block",
+    [
+        pytest.param({}, id="absent"),
+        pytest.param({"authority_provenance": None}, id="null"),
+        pytest.param({"authority_provenance": ""}, id="empty-scalar"),
+        pytest.param({"authority_provenance": []}, id="empty-list"),
+        pytest.param({"authority_provenance": {}}, id="mapping"),
+        pytest.param({"authority_provenance": 42}, id="number"),
+        pytest.param({"authority_provenance": [42]}, id="number-list"),
+        pytest.param(
+            {"authority_provenance": ["not_established"]},
+            id="unrecognized",
+        ),
+        pytest.param(
+            {"authority_provenance": ["verification", "canonical_repo"]},
+            id="mixed-authority",
+        ),
+    ],
+)
+def test_gy_comparison_predicate_keeps_malformed_or_authority_blocks_governing(
+    block: dict[str, object],
+) -> None:
+    assert not is_gy_declared_non_authority_block(block)
+
+
+def _verification_semantic_projection(block: dict[str, object]) -> dict[str, object]:
+    if not is_gy_declared_non_authority_block(block):
+        raise ValueError("verification_declaration_invalid")
+    return {
+        "authority_provenance": block["authority_provenance"],
+        "status": block["status"],
+    }
+
+
+def _verification_admission(
+    block: dict[str, object],
+    *,
+    action: str = "project",
+) -> GyComparisonAdmission:
+    return GyComparisonAdmission(
+        owner_rule="test.verification_receipt.v1",
+        source_content_hash=gy_recorded_content_hash(block),
+        projector=_verification_semantic_projection,
+        action=action,  # type: ignore[arg-type]
+    )
+
+
+_VERIFICATION_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_verification_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
+
+
+def test_gy_comparison_projection_requires_owner_admission_and_preserves_full_record() -> None:
+    recorded = {
+        "governing_input": {"node_ref": "node-a"},
+        "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "deployment_identity": "deployment-a",
+            "status": "refused",
+        },
+    }
+    replayed = {
+        "governing_input": {"node_ref": "node-a"},
+        "confidence_ledger_projection": {
+            "authority_provenance": "verification",
+            "deployment_identity": "deployment-b",
+            "status": "refused",
+        },
+    }
+
+    recorded_plan = build_gy_comparison_projection_plan(
+        recorded,
+        admissions=(_verification_admission(recorded["confidence_ledger_projection"]),),
+    )
+    replayed_plan = build_gy_comparison_projection_plan(
+        replayed,
+        admissions=(_verification_admission(replayed["confidence_ledger_projection"]),),
+    )
+
+    assert gy_content_hash(recorded) != gy_content_hash(replayed)
+    assert gy_comparison_content_hash(
+        recorded,
+        comparison_plan=recorded_plan,
+    ) == gy_comparison_content_hash(
+        replayed,
+        comparison_plan=replayed_plan,
+    )
+    assert replayed_plan.preserve_admitted_blocks(recorded, replayed) == recorded
+    assert strip_gy_volatile_fields(recorded) == recorded
+    assert recorded["confidence_ledger_projection"]["deployment_identity"] == "deployment-a"
+
+    unadmitted = copy.deepcopy(replayed)
+    unadmitted["confidence_ledger_projection"]["deployment_identity"] = "deployment-c"
+    with pytest.raises(ValueError, match="live_admission_unbound"):
+        build_gy_comparison_projection_plan(
+            unadmitted,
+            admissions=(_verification_admission(recorded["confidence_ledger_projection"]),),
+        )
+
+    governing_replay = {
+        **replayed,
+        "governing_input": {"node_ref": "node-b"},
+    }
+    assert gy_comparison_content_hash(
+        recorded,
+        comparison_plan=recorded_plan,
+    ) != gy_comparison_content_hash(
+        governing_replay,
+        comparison_plan=replayed_plan,
+    )
+
+    mixed_authority = copy.deepcopy(recorded)
+    mixed_authority["confidence_ledger_projection"]["authority_provenance"] = [
+        "verification",
+        "canonical_repo",
+    ]
+    mixed_shift = copy.deepcopy(mixed_authority)
+    mixed_shift["confidence_ledger_projection"]["deployment_identity"] = "deployment-b"
+    assert gy_content_hash(mixed_authority) != gy_content_hash(mixed_shift)
+
+
+def test_gy_comparison_legacy_migration_is_ephemeral_and_owner_bound() -> None:
+    """A live owner may augment legacy custody without changing an old raw leaf."""
+
+    def _project_v2(value: dict[str, object]) -> dict[str, object]:
+        semantic = value.get("semantic_projection")
+        if not isinstance(semantic, dict):
+            raise ValueError("semantic_projection_missing")
+        return {
+            "governing_input": value["governing_input"],
+            "semantic_projection": semantic,
+        }
+
+    def _migrate_legacy(
+        previous: dict[str, object],
+        current: dict[str, object],
+    ) -> dict[str, object]:
+        if previous.get("governing_input") != current.get("governing_input"):
+            raise ValueError("legacy_governing_input_mismatch")
+        migrated = copy.deepcopy(previous)
+        migrated["semantic_projection"] = copy.deepcopy(current["semantic_projection"])
+        return migrated
+
+    previous = {
+        "receipt": {
+            "governing_input": "stable",
+            "raw_session_identity": "frozen",
+        }
+    }
+    current = {
+        "receipt": {
+            "governing_input": "stable",
+            "raw_session_identity": "live",
+            "semantic_projection": {"semantic_hash": "sha256:semantic"},
+        }
+    }
+    admission = GyComparisonAdmission(
+        owner_rule="test.verification_receipt.v2",
+        source_content_hash=gy_recorded_content_hash(current["receipt"]),
+        projector=_project_v2,
+        legacy_migrator=_migrate_legacy,
+    )
+    plan = build_gy_comparison_projection_plan(current, admissions=(admission,))
+
+    with pytest.raises(ValueError, match="semantic_projection_missing"):
+        plan.project(previous)
+    reconciled = plan.preserve_admitted_blocks(previous, current)
+
+    assert reconciled["receipt"]["raw_session_identity"] == "frozen"
+    assert reconciled["receipt"]["semantic_projection"] == {
+        "semantic_hash": "sha256:semantic"
+    }
+    assert plan.project(reconciled) == plan.project(current)
+
+    governing_drift = copy.deepcopy(previous)
+    governing_drift["receipt"]["governing_input"] = "changed"
+    with pytest.raises(
+        GyOperationalReconciliationError,
+        match="gy_operational_reconciliation_semantic_projection_mismatch",
+    ):
+        pdc_module.reconcile_gy_comparison_projection(
+            governing_drift,
+            current,
+            comparison_plan=plan,
+            recording_role="first_vertical",
+            admission_arm="migrated",
+        )
+
+    reconstructed = build_gy_comparison_projection_plan_from_manifest(
+        reconciled,
+        manifest=plan.manifest,
+        owner_rule_registry={
+            "test.verification_receipt.v2": GyComparisonOwnerRule(
+                projector=_project_v2,
+                action="project",
+                predicate_provenance="recomputed",
+            )
+        },
+    )
+    assert reconstructed.project(reconciled) == plan.project(current)
+    with pytest.raises(ValueError, match="legacy_governing_input_mismatch"):
+        plan.preserve_admitted_blocks(
+            {"receipt": {**previous["receipt"], "governing_input": "changed"}},
+            current,
+        )
+
+
+def test_reconcile_gy_comparison_projection_migrates_legacy_before_projection() -> None:
+    """The comparison owner must align admitted legacy custody before projecting it."""
+
+    migration_calls = 0
+
+    def _project_v2(value: dict[str, object]) -> dict[str, object]:
+        semantic = value.get("semantic_projection")
+        if not isinstance(semantic, dict):
+            raise ValueError("semantic_projection_missing")
+        return {
+            "governing_input": value["governing_input"],
+            "semantic_projection": semantic,
+        }
+
+    def _migrate_legacy(
+        previous: dict[str, object],
+        current: dict[str, object],
+    ) -> dict[str, object]:
+        nonlocal migration_calls
+        migration_calls += 1
+        if migration_calls > 1:
+            raise ValueError("legacy_migrator_called_twice")
+        if previous.get("governing_input") != current.get("governing_input"):
+            raise ValueError("legacy_governing_input_mismatch")
+        return {
+            **copy.deepcopy(previous),
+            "semantic_projection": copy.deepcopy(current["semantic_projection"]),
+        }
+
+    previous = {
+        "receipt": {
+            "governing_input": "stable",
+            "raw_session_identity": "frozen",
+        }
+    }
+    current = {
+        "receipt": {
+            "governing_input": "stable",
+            "raw_session_identity": "live",
+            "semantic_projection": {"semantic_hash": "sha256:semantic"},
+        }
+    }
+    plan = build_gy_comparison_projection_plan(
+        current,
+        admissions=(
+            GyComparisonAdmission(
+                owner_rule="test.verification_receipt.v2",
+                source_content_hash=gy_recorded_content_hash(current["receipt"]),
+                projector=_project_v2,
+                legacy_migrator=_migrate_legacy,
+            ),
+        ),
+    )
+
+    reconciled = pdc_module.reconcile_gy_comparison_projection(
+        previous,
+        current,
+        comparison_plan=plan,
+        recording_role="first_vertical",
+        admission_arm="migrated",
+    )
+
+    assert reconciled["receipt"]["raw_session_identity"] == "frozen"
+    assert reconciled["receipt"]["semantic_projection"] == {
+        "semantic_hash": "sha256:semantic"
+    }
+    assert plan.project(reconciled) == plan.project(current)
+    assert migration_calls == 1
+
+    governing_drift = copy.deepcopy(previous)
+    governing_drift["receipt"]["governing_input"] = "changed"
+    with pytest.raises(
+        GyOperationalReconciliationError,
+        match="gy_operational_reconciliation_semantic_projection_mismatch",
+    ):
+        pdc_module.reconcile_gy_comparison_projection(
+            governing_drift,
+            current,
+            comparison_plan=plan,
+            recording_role="first_vertical",
+            admission_arm="migrated",
+        )
+
+
+def test_reconcile_gy_comparison_projection_diagnostic_keeps_frozen_identity() -> None:
+    """A migrated comparison still labels the raw frozen operand truthfully."""
+
+    def _project_v2(value: dict[str, object]) -> dict[str, object]:
+        semantic = value.get("semantic_projection")
+        if not isinstance(semantic, dict):
+            raise ValueError("semantic_projection_missing")
+        return {"semantic_projection": semantic}
+
+    def _migrate_legacy(
+        previous: dict[str, object],
+        current: dict[str, object],
+    ) -> dict[str, object]:
+        return {
+            **copy.deepcopy(previous),
+            "semantic_projection": copy.deepcopy(current["semantic_projection"]),
+        }
+
+    previous = {
+        "governing_outer": "frozen",
+        "receipt": {"raw_session_identity": "frozen"},
+    }
+    current = {
+        "governing_outer": "live",
+        "receipt": {
+            "raw_session_identity": "live",
+            "semantic_projection": {"semantic_hash": "sha256:semantic"},
+        },
+    }
+    plan = build_gy_comparison_projection_plan(
+        current,
+        admissions=(
+            GyComparisonAdmission(
+                owner_rule="test.verification_receipt.v2",
+                source_content_hash=gy_recorded_content_hash(current["receipt"]),
+                projector=_project_v2,
+                legacy_migrator=_migrate_legacy,
+            ),
+        ),
+    )
+
+    with pytest.raises(GyOperationalReconciliationError) as exc_info:
+        pdc_module.reconcile_gy_comparison_projection(
+            previous,
+            current,
+            comparison_plan=plan,
+            recording_role="first_vertical",
+            admission_arm="migrated",
+        )
+
+    report = json.loads(str(exc_info.value).partition(":")[2])
+    frozen_payload = json.dumps(
+        {"type": type(previous).__name__, "value": previous},
+        ensure_ascii=True,
+        separators=(",", ":"),
+        sort_keys=True,
+        default=str,
+    ).encode("utf-8")
+    assert report["expected_frozen"]["content_identity"] == (
+        "sha256:" + hashlib.sha256(frozen_payload).hexdigest()
+    )
+
+
+def test_gy_comparison_projection_excludes_admitted_non_authority_blocks_in_lists() -> None:
+    payload = {
+        "receipts": [
+            {
+                "authority_provenance": ["verification"],
+                "status": "refused",
+                "receipt_id": "run-specific",
+            },
+            {
+                "authority_provenance": ["not_established"],
+                "receipt_id": "governing",
+            },
+        ]
+    }
+
+    plan = build_gy_comparison_projection_plan(
+        payload,
+        admissions=(_verification_admission(payload["receipts"][0], action="exclude"),),
+    )
+    assert plan.project(payload) == {
+        "receipts": [
+            {
+                "authority_provenance": ["not_established"],
+                "receipt_id": "governing",
+            }
+        ]
+    }
+    assert strip_gy_volatile_fields(payload) == payload
+    shifted = copy.deepcopy(payload)
+    shifted["receipts"][1]["receipt_id"] = "governing-shifted"
+    assert gy_comparison_content_hash(
+        payload,
+        comparison_plan=plan,
+    ) != gy_comparison_content_hash(
+        shifted,
+        comparison_plan=plan,
+    )
+    semantic_shift = copy.deepcopy(payload)
+    semantic_shift["receipts"][0]["status"] = "promoted"
+    with pytest.raises(ValueError, match="admitted_block_semantic_mismatch"):
+        plan.preserve_admitted_blocks(payload, semantic_shift)
+
+
+def test_gy_comparison_admission_is_exact_and_does_not_cover_a_copied_block() -> None:
+    block = {
+        "authority_provenance": "verification",
+        "deployment_identity": "deployment-a",
+        "status": "refused",
+    }
+    payload = {"receipts": [copy.deepcopy(block), copy.deepcopy(block)]}
+    plan = build_gy_comparison_projection_plan(
+        payload,
+        admissions=(_verification_admission(block),),
+    )
+
+    shifted = copy.deepcopy(payload)
+    shifted["receipts"][1]["deployment_identity"] = "forged-copy"
+    assert gy_comparison_content_hash(
+        payload,
+        comparison_plan=plan,
+    ) != gy_comparison_content_hash(
+        shifted,
+        comparison_plan=plan,
+    )
+
+
+def test_gy_comparison_manifest_is_integrity_only_and_cannot_choose_a_new_path() -> None:
+    block = {
+        "authority_provenance": "verification",
+        "deployment_identity": "deployment-a",
+        "status": "refused",
+    }
+    payload = {"governing_input": {"node_ref": "node-a"}, "receipt": block}
+    plan = build_gy_comparison_projection_plan(
+        payload,
+        admissions=(_verification_admission(block),),
+    )
+    reconstructed = build_gy_comparison_projection_plan_from_manifest(
+        payload,
+        manifest=plan.manifest,
+        owner_rule_registry={"test.verification_receipt.v1": _VERIFICATION_OWNER_RULE},
+    )
+    assert reconstructed.project(payload) == plan.project(payload)
+
+    forged_manifest = copy.deepcopy(plan.manifest)
+    forged_manifest[0]["json_pointer"] = "/governing_input"
+    with pytest.raises(ValueError, match="verification_declaration_invalid"):
+        build_gy_comparison_projection_plan_from_manifest(
+            payload,
+            manifest=forged_manifest,
+            owner_rule_registry={"test.verification_receipt.v1": _VERIFICATION_OWNER_RULE},
+        )
+
+    for field, forged_value in (
+        ("action", "exclude"),
+        ("predicate_provenance", "independently_reconciled"),
+    ):
+        forged_policy = copy.deepcopy(plan.manifest)
+        forged_policy[0][field] = forged_value
+        with pytest.raises(ValueError, match="manifest_owner_policy_mismatch"):
+            build_gy_comparison_projection_plan_from_manifest(
+                payload,
+                manifest=forged_policy,
+                owner_rule_registry={"test.verification_receipt.v1": _VERIFICATION_OWNER_RULE},
+            )
 
 
 def test_gy_artifact_projection_is_shared_by_writer_draft_and_verifier() -> None:
@@ -106,6 +608,63 @@ def test_gy_artifact_projection_is_shared_by_writer_draft_and_verifier() -> None
 
     with pytest.raises(ValueError, match="artifact_self_identity_ambiguous"):
         gy_artifact_self_identity_projection({**artifact, "record_hash": "sha256:other"})
+
+
+def test_gy_n11_projection_owner_retains_nulls_and_declares_exclusions() -> None:
+    payload = {
+        "required_nullable": None,
+        "comparison_content_hash": None,
+        "comparison_projection_schema_version": None,
+        "comparison_rule_version": None,
+        "artifact_content_hash": "sha256:self",
+    }
+
+    assert GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.artifact_projection(payload) == {
+        "required_nullable": None,
+        "artifact_content_hash": "sha256:self",
+    }
+    assert GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.identity_projection(payload) == {
+        "required_nullable": None,
+    }
+    assert tuple(
+        (rule.applies_to, rule.reason)
+        for rule in GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER.exclusion_rules
+    ) == (
+        ("artifact_and_identity", "non_governing_verification_identity"),
+        ("identity_only", "recursive_self_identity"),
+    )
+
+
+@pytest.mark.parametrize(
+    ("applies_to", "reason", "code"),
+    [
+        (
+            "invalid",
+            "declared_reason",
+            "gy_artifact_projection_rule_scope_invalid",
+        ),
+        (
+            "identity_only",
+            " ",
+            "gy_artifact_projection_rule_reason_required",
+        ),
+    ],
+)
+def test_gy_artifact_projection_owner_rejects_malformed_declarations(
+    applies_to: str,
+    reason: str,
+    code: str,
+) -> None:
+    with pytest.raises(ValueError, match=code):
+        GyArtifactProjectionOwner(
+            exclusion_rules=(
+                GyArtifactProjectionRule(
+                    top_level_fields=frozenset({"field"}),
+                    applies_to=applies_to,  # type: ignore[arg-type]
+                    reason=reason,
+                ),
+            )
+        )
 
 
 def test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape() -> None:
@@ -123,7 +682,9 @@ def test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape() ->
     assert reconcile_gy_operational_leaves(previous, current) == previous
 
     with pytest.raises(ValueError, match="semantic_projection_mismatch"):
-        reconcile_gy_operational_leaves(previous, {**current, "value": {"score": 2, "generated_at": "new"}})
+        reconcile_gy_operational_leaves(
+            previous, {**current, "value": {"score": 2, "generated_at": "new"}}
+        )
     with pytest.raises(ValueError, match="shape_mismatch"):
         reconcile_gy_operational_leaves(
             previous,
@@ -133,6 +694,117 @@ def test_reconcile_gy_operational_leaves_requires_equal_semantics_and_shape() ->
         reconcile_gy_operational_leaves(
             previous,
             {**current, "added_at": "new"},
+        )
+
+
+def test_overlay_gy_shared_operational_leaves_retains_live_semantics_and_shape() -> None:
+    """Writer overlay preserves shared operations without minting frozen structure."""
+
+    previous = {
+        "content_hash": "sha256:frozen",
+        "semantic": {
+            "score": 1,
+            "generated_at": "frozen-shared",
+            "completed_at": "frozen-only",
+        },
+        "runtime_metrics": {"wall_time_seconds": 1.0},
+        "frozen_only_branch": {"generated_at": "frozen-only-branch"},
+        "rows": [
+            {"name": "shared", "generated_at": "frozen-row"},
+            {"name": "frozen-extra", "generated_at": "frozen-extra-row"},
+        ],
+    }
+    current = {
+        "content_hash": "sha256:live",
+        "semantic": {
+            "score": 2,
+            "generated_at": "live-shared",
+            "started_at": "live-only",
+        },
+        "runtime_metrics": {"wall_time_seconds": 9.0},
+        "live_only_branch": {"generated_at": "live-only-branch"},
+        "rows": [
+            {"name": "shared", "generated_at": "live-row"},
+            {"name": "frozen-extra", "generated_at": "live-second-row"},
+            {"name": "live-extra", "generated_at": "live-extra-row"},
+        ],
+    }
+
+    overlaid = pdc_module.overlay_gy_shared_operational_leaves(previous, current)
+
+    assert overlaid == {
+        "content_hash": "sha256:live",
+        "semantic": {
+            "score": 2,
+            "generated_at": "frozen-shared",
+            "started_at": "live-only",
+        },
+        "runtime_metrics": {"wall_time_seconds": 1.0},
+        "live_only_branch": {"generated_at": "live-only-branch"},
+        "rows": [
+            {"name": "shared", "generated_at": "frozen-row"},
+            {"name": "frozen-extra", "generated_at": "frozen-extra-row"},
+            {"name": "live-extra", "generated_at": "live-extra-row"},
+        ],
+    }
+
+
+def test_reconcile_gy_comparison_projection_preserves_admitted_raw_record() -> None:
+    """A producer-bound projection may preserve raw evidence but not governing drift."""
+
+    def _project_verified_block(value: dict[str, object]) -> dict[str, object]:
+        if value.get("authority_provenance") != "verification":
+            raise ValueError("verification_declaration_invalid")
+        return {
+            str(key): item
+            for key, item in value.items()
+            if key not in {"session_ref", "projection_hash"}
+        }
+
+    previous = {
+        "recording": {
+            "authority_provenance": "verification",
+            "governing_result": "refused",
+            "session_ref": "confidence-session:frozen",
+            "projection_hash": "sha256:" + "1" * 64,
+        },
+        "generated_at": "2026-08-09T10:33:22Z",
+        "governing_input": "stable",
+    }
+    current = copy.deepcopy(previous)
+    current["recording"]["session_ref"] = "confidence-session:live"
+    current["recording"]["projection_hash"] = "sha256:" + "2" * 64
+    current["generated_at"] = "2026-08-12T10:33:22Z"
+    admission = GyComparisonAdmission(
+        owner_rule="test.recording.verification_projection.v1",
+        source_content_hash=gy_recorded_content_hash(current["recording"]),
+        projector=_project_verified_block,
+    )
+    plan = build_gy_comparison_projection_plan(current, admissions=(admission,))
+
+    reconciled = pdc_module.reconcile_gy_comparison_projection(
+        previous,
+        current,
+        comparison_plan=plan,
+        recording_role="education",
+        admission_arm="migrated",
+    )
+
+    assert reconciled == previous
+    assert json.dumps(reconciled, sort_keys=True) == json.dumps(previous, sort_keys=True)
+
+    changed = copy.deepcopy(current)
+    changed["governing_input"] = "changed"
+    with pytest.raises(
+        GyOperationalReconciliationError,
+        match="gy_operational_reconciliation_semantic_projection_mismatch",
+    ):
+        pdc_module.reconcile_gy_comparison_projection(
+            previous,
+            changed,
+            comparison_plan=plan,
+            recording_role="education",
+            admission_arm="migrated",
         )
 
 
@@ -189,9 +861,7 @@ def test_reconcile_gy_operational_leaves_reports_recursive_drift_without_values(
     assert report["live_replayed"]["operand_role"] == "live_replayed"
 
     leaves = {leaf["path"]: leaf for leaf in report["changed_leaves"]}
-    semantic = leaves[
-        "/compiled_run/recursive_run/nodes/0/cycle_run/semantic_marker"
-    ]
+    semantic = leaves["/compiled_run/recursive_run/nodes/0/cycle_run/semantic_marker"]
     operational = leaves["/compiled_run/recursive_run/generated_at"]
     assert semantic["operational"] is False
     assert operational["operational"] is True
@@ -363,7 +1033,9 @@ def test_ring1_contracts_are_constructible_without_ring2_authority() -> None:
         produces=[port.model_copy(update={"direction": "produces"})],
         formal_preconditions=[],
         allowed_internal_execution=["tool_call"],
-        implementation_refs=[{"kind": "python_function", "ref": "polisyos.runtime.quality.workspace.loop"}],
+        implementation_refs=[
+            {"kind": "python_function", "ref": "polisyos.runtime.quality.workspace.loop"}
+        ],
         cost_model={"compute": {"max_operation_invocations": 1}},
         authority_transform={"kind": "preserves", "rule_ref": "policyos.gy.authority.v1"},
         failure_modes=[],
@@ -711,8 +1383,7 @@ def _promotion_trace_payload() -> dict[str, object]:
         "resulting_authority_boundary_ref": "n9://boundary/current",
         "transform_mismatch_disposition": "matched",
         "promotion_sequence_ref": (
-            "polisyos.runtime.quality.promotion_sequence."
-            "run_canonical_promotion_sequence"
+            "polisyos.runtime.quality.promotion_sequence.run_canonical_promotion_sequence"
         ),
         "gate_outcome_hash": "sha256:" + "3" * 64,
         "confidence_ledger_scope_ref": "confidence-scope://n9/design-problem",

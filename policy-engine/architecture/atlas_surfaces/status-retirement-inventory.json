@@ -1,42 +1,44 @@
 {
   "$schema": "./status-retirement-inventory.schema.json",
-  "schema_version": "1.2",
+  "schema_version": "1.3",
   "inventory_id": "atlas-ds4-status-retirement",
-  "as_of": "2026-07-22T19:08:17+03:00",
+  "as_of": "2026-08-01T19:07:25+03:00",
   "authority": {
     "authoritative_for": [
-      "DS1 status-definition retirement accounting and assigned successor ownership."
+      "DS1 status-definition retirement accounting and assigned successor ownership.",
+      "DS5 C01 recurrence accounting for the unchanged DS4 estate across dashboard and Atlas UI production sources."
     ],
     "may_not_use_for": [
-      "Inventing runtime authority labels or claiming future target-cluster migrations are complete."
+      "Inventing runtime authority labels or claiming future target-cluster migrations are complete.",
+      "Treating scanner findings or presentation lint as runtime authority."
     ]
   },
   "sources": {
     "ds1": {
       "path": "architecture/atlas_surfaces/live-application-readiness-ledger.json",
       "ledger_id": "atlas-live-application-readiness",
-      "sha256": "sha256:11f4898f547283968f97f8778a2b29cf15520214151ea65b1a69bc6072f3e812"
+      "sha256": "sha256:4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13"
     },
     "ds19": {
       "path": "architecture/atlas_surfaces/frontend-disposition-register.json",
       "ledger_id": "atlas-frontend-disposition-register",
-      "sha256": "sha256:eff425eabbd9d2f65880184f8ddf5fb35ace4b9d1835b7d40da002112708985c"
+      "sha256": "sha256:4cc97abd7e0984e6dea28f77c5f046a34709e768a141aa5bb08c44cd371b8b61"
     },
     "generated_client": {
       "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
-      "canonical_sha256": "sha256:45a31882719cc949f6e1d453b8a6033ee2047f76deec1f184cb8ce95a9bcdd2d",
+      "canonical_sha256": "sha256:516be1d9de0223a7a94d7e8501ee58aee4dec37849f8dd66cc7d2f26b638e064",
       "types_path": "packages/runtime-api-client/types.ts",
-      "types_sha256": "sha256:137ba30652cc89ff37317d055ab63704e0ccdfdb705e618851fb7ed2f015e644"
+      "types_sha256": "sha256:7ef9c6d858145a49e00b1cbb2e5e0c9a5d7b1fa621cf9b0f0d2937aae209a8d3"
     }
   },
   "denominators": {
     "ds1_rows": 47,
     "ds1_named": 23,
     "ds1_inline": 24,
-    "current_named": 10,
-    "current_inline": 11,
-    "current_total": 21,
-    "retired_definitions": 25,
+    "current_named": 8,
+    "current_inline": 10,
+    "current_total": 18,
+    "retired_definitions": 28,
     "already_deleted": 1
   },
   "entries": [
@@ -82,9 +84,9 @@
     {
       "unit_id": "status-offline-queue-item",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
-        "path": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
+        "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
         "start_line": 8,
         "end_line": 8,
         "declaration_name": "OfflineQueueItemStatus"
@@ -93,7 +95,7 @@
       "type_expression": "\"failed\" | \"queued\" | \"retrying\"",
       "consumers": [
         {
-          "path": "apps/runtime-dashboard/src/app/offline/offlineQueueRepository.ts",
+          "path": "apps/runtime-dashboard/src/app/offline/composerDraftDb.ts",
           "line": 23,
           "kind": "prop"
         }
@@ -106,7 +108,7 @@
       "classification": "interaction_state",
       "replacement": "OfflineQueueDeliveryState",
       "authority_purpose": "transport",
-      "target_cluster": "C18",
+      "target_cluster": "C13",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
@@ -116,7 +118,7 @@
     {
       "unit_id": "status-feature-flag",
       "definition_kind": "named",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/app/providers/FeatureFlagProvider.tsx",
         "start_line": 26,
@@ -482,8 +484,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "ComparabilityReport",
-        "canonical_line": 225,
-        "schema_line": 3420,
+        "canonical_line": 262,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6Q29tcGFyYWJpbGl0eVJlcG9ydCIsInN5bWJvbDpDb21wYXJhYmlsaXR5UmVwb3J0IiwicmVzb2x2ZWQ6Q29tcGFyYWJpbGl0eVJlcG9ydCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJDb21wYXJhYmlsaXR5UmVwb3J0Iiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNTMzNDdmZGM3ODRjMmRmMTRjN2Q3MjQ5NDUxZTFkNmRhZDZhMDNmNWNiMTg3MTI1NTg1MDU3ZjYxZWU1OWMwZSIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L2Nhbm9uaWNhbFJ1bnRpbWVBcGlDbGllbnQudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
+        "schema_line": 3614,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5Db21wYXJhYmlsaXR5UmVwb3J0LnN0YXR1cyIsInN5bWJvbDpzdGF0dXMiLCJyZXNvbHZlZDpzdGF0dXMiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHM6UHJvcGVydHlTaWduYXR1cmUiXSwiZGlzY3JpbWluYXRvciI6ImNvbXBvbmVudHMuc2NoZW1hcy5Db21wYXJhYmlsaXR5UmVwb3J0LnN0YXR1cyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImI2YjU5ODE4MmZkM2RiOTNlNGRlN2I4NjhiN2M5MmMwYWZhZWMzZDVkZTJiZTJlZTlkMmVjZDA4MGY3ZWM4ODUiLCJyb2xlIjoiZ2VuZXJhdGVkX3NjaGVtYV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6ODciLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MSJdLCJ2ZXJzaW9uIjoxfQ",
         "field": "status"
       }
     },
@@ -671,7 +675,7 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
@@ -715,8 +719,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "AgentPipelineStep",
-        "canonical_line": 25,
-        "schema_line": 1700,
+        "canonical_line": 27,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6QWdlbnRQaXBlbGluZVN0ZXAiLCJzeW1ib2w6QWdlbnRQaXBlbGluZVN0ZXAiLCJyZXNvbHZlZDpBZ2VudFBpcGVsaW5lU3RlcCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJBZ2VudFBpcGVsaW5lU3RlcCIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImMyNTM1ZjEyNDY2MGFmNDc3YmM0NDhjZDcxNmMxNzYwYmRjZmE0ZGVkYjZkNmNkM2YwYTMzMjJkNDM2ODI2YTQiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 1732,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5BZ2VudFBpcGVsaW5lU3RlcC5zdGF0dXMiLCJzeW1ib2w6c3RhdHVzIiwicmVzb2x2ZWQ6c3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMuQWdlbnRQaXBlbGluZVN0ZXAuc3RhdHVzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiOWMxZjlkMTliZTY1YzQzNTlmOWVhOTlmZGE1MzVjZmIzN2ZhYzYxNjc1YzE5Y2FlNDdkMWYzYTY3MTNjODdhYyIsInJvbGUiOiJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZTo1IiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjExIl0sInZlcnNpb24iOjF9",
         "field": "status"
       }
     },
@@ -798,8 +804,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "RunWorkflowNodeView",
-        "canonical_line": 882,
-        "schema_line": 9446,
+        "canonical_line": 977,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6UnVuV29ya2Zsb3dOb2RlVmlldyIsInN5bWJvbDpSdW5Xb3JrZmxvd05vZGVWaWV3IiwicmVzb2x2ZWQ6UnVuV29ya2Zsb3dOb2RlVmlldyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJSdW5Xb3JrZmxvd05vZGVWaWV3Iiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiMDg2NTlkNGQxZGZmNWNhMTE4ZTJjNzU1ZmRiMWYxNDQ5YTZjMWI4MWE4N2RlZmI2NTM2MmM0N2RmZmYxOWU2YSIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L2Nhbm9uaWNhbFJ1bnRpbWVBcGlDbGllbnQudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
+        "schema_line": 10225,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5SdW5Xb3JrZmxvd05vZGVWaWV3LnN0YXR1cyIsInN5bWJvbDpzdGF0dXMiLCJyZXNvbHZlZDpzdGF0dXMiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHM6UHJvcGVydHlTaWduYXR1cmUiXSwiZGlzY3JpbWluYXRvciI6ImNvbXBvbmVudHMuc2NoZW1hcy5SdW5Xb3JrZmxvd05vZGVWaWV3LnN0YXR1cyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjcyNDdhMTY1YzI0MDM2ZTFjOTg5MjI2YWM3ZmVlZjhmMjVlNjc4ZGE4NmUxMTUyOTE0ZDEyYWYyYzUyZjAxZTMiLCJyb2xlIjoiZ2VuZXJhdGVkX3NjaGVtYV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzM0IiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjExIl0sInZlcnNpb24iOjF9",
         "field": "status"
       }
     },
@@ -904,8 +912,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "VerificationMetadata",
-        "canonical_line": 1003,
-        "schema_line": 10340,
+        "canonical_line": 1102,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6VmVyaWZpY2F0aW9uTWV0YWRhdGEiLCJzeW1ib2w6VmVyaWZpY2F0aW9uTWV0YWRhdGEiLCJyZXNvbHZlZDpWZXJpZmljYXRpb25NZXRhZGF0YSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJWZXJpZmljYXRpb25NZXRhZGF0YSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjgyN2UxYTcxNTJhYTQ1OGIxNGNmNWM2ZDY5NTcwMmZhNmVmZjdiMTg5ZTRhYmUyZWQ4MWRmYjlhMzIxOGM3ODAiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 11140,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5WZXJpZmljYXRpb25NZXRhZGF0YS52ZXJpZmljYXRpb25fc3RhdHVzIiwic3ltYm9sOnZlcmlmaWNhdGlvbl9zdGF0dXMiLCJyZXNvbHZlZDp2ZXJpZmljYXRpb25fc3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMuVmVyaWZpY2F0aW9uTWV0YWRhdGEudmVyaWZpY2F0aW9uX3N0YXR1cyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjI2OWRjN2QyM2NlMzQ1YWFhOGYzMDQ4YzA3NzBjYzk3ZWRkNmE0MjBlZTE2YzhkMDM0YzlkZmZlOWJkZjIxYjYiLCJyb2xlIjoiZ2VuZXJhdGVkX3NjaGVtYV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6Mzc4IiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjUiXSwidmVyc2lvbiI6MX0",
         "field": "verification_status"
       }
     },
@@ -943,8 +953,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "ScenarioRef",
-        "canonical_line": 945,
-        "schema_line": 9889,
+        "canonical_line": 1040,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6U2NlbmFyaW9SZWYiLCJzeW1ib2w6U2NlbmFyaW9SZWYiLCJyZXNvbHZlZDpTY2VuYXJpb1JlZiIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJTY2VuYXJpb1JlZiIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImEzYjJkYTZlMmRjMWJiN2VkNjc0Y2VlMWJiODI1NzFhNzczY2I4YmE1ZjQ2MWNhY2JmYTdmMjE0MDVjODQ4MDgiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 10668,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5TY2VuYXJpb1JlZi5zdGF0dXMiLCJzeW1ib2w6c3RhdHVzIiwicmVzb2x2ZWQ6c3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMuU2NlbmFyaW9SZWYuc3RhdHVzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiOTQ3M2YzMTI3OTc4N2QyYjNjY2NjZWE4YjBjNTU5NTA0YmFjNzllYTgyOTNhN2FjZTM2OTYxYmFhZmM5NWEwNSIsInJvbGUiOiJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZTozNTUiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ",
         "field": "status"
       }
     },
@@ -1007,8 +1019,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "PolisyosCoreContractsRuntimeLineageRefOutput",
-        "canonical_line": 1009,
-        "schema_line": 10410,
+        "canonical_line": 1108,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6UG9saXN5b3NDb3JlQ29udHJhY3RzUnVudGltZUxpbmVhZ2VSZWZPdXRwdXQiLCJzeW1ib2w6UG9saXN5b3NDb3JlQ29udHJhY3RzUnVudGltZUxpbmVhZ2VSZWZPdXRwdXQiLCJyZXNvbHZlZDpQb2xpc3lvc0NvcmVDb250cmFjdHNSdW50aW1lTGluZWFnZVJlZk91dHB1dCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJQb2xpc3lvc0NvcmVDb250cmFjdHNSdW50aW1lTGluZWFnZVJlZk91dHB1dCIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjkyN2ZiMjJjOWRlMWNiNzkyMWFlNzE5ZjNiYWJjYjZlYzkyMGVlN2Q0ZmEyMGE4OGFkYTBjZGI2OWE1MTBjNDEiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 11210,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5wb2xpc3lvc19fY29yZV9fY29udHJhY3RzX19ydW50aW1lX19MaW5lYWdlUmVmLU91dHB1dC5zdGF0dXMiLCJzeW1ib2w6c3RhdHVzIiwicmVzb2x2ZWQ6c3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMucG9saXN5b3NfX2NvcmVfX2NvbnRyYWN0c19fcnVudGltZV9fTGluZWFnZVJlZi1PdXRwdXQuc3RhdHVzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiYzkyYTc0ZjI2OTY5ZGZlODY0N2ZlMDA4ZjRhNjIzMDlkOTZkMjAxMTZiNWZjNjFiODg1OGUzNjU1YjVjOGI0NCIsInJvbGUiOiJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZTozODAiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ",
         "field": "status"
       }
     },
@@ -1046,8 +1060,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "VerificationMetadata",
-        "canonical_line": 1003,
-        "schema_line": 10323,
+        "canonical_line": 1102,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6VmVyaWZpY2F0aW9uTWV0YWRhdGEiLCJzeW1ib2w6VmVyaWZpY2F0aW9uTWV0YWRhdGEiLCJyZXNvbHZlZDpWZXJpZmljYXRpb25NZXRhZGF0YSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJWZXJpZmljYXRpb25NZXRhZGF0YSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjgyN2UxYTcxNTJhYTQ1OGIxNGNmNWM2ZDY5NTcwMmZhNmVmZjdiMTg5ZTRhYmUyZWQ4MWRmYjlhMzIxOGM3ODAiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 11123,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5WZXJpZmljYXRpb25NZXRhZGF0YS5kaXNwdXRlX3N0YXR1cyIsInN5bWJvbDpkaXNwdXRlX3N0YXR1cyIsInJlc29sdmVkOmRpc3B1dGVfc3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMuVmVyaWZpY2F0aW9uTWV0YWRhdGEuZGlzcHV0ZV9zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI4Y2MwNmU5ZjlhOWYwY2Y1ZGM2ODllZTZiMjZhNDhlNmU4NWRlMDI0M2Y3M2RiNDU3YzkxOTAxZDBhZGQyYTlmIiwicm9sZSI6ImdlbmVyYXRlZF9zY2hlbWFfcHJvcGVydHkiLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVNpZ25hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjM3OCIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZTowIl0sInZlcnNpb24iOjF9",
         "field": "dispute_status"
       }
     },
@@ -1100,8 +1116,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "VerificationMetadata",
-        "canonical_line": 1003,
-        "schema_line": 10323,
+        "canonical_line": 1102,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6VmVyaWZpY2F0aW9uTWV0YWRhdGEiLCJzeW1ib2w6VmVyaWZpY2F0aW9uTWV0YWRhdGEiLCJyZXNvbHZlZDpWZXJpZmljYXRpb25NZXRhZGF0YSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJWZXJpZmljYXRpb25NZXRhZGF0YSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjgyN2UxYTcxNTJhYTQ1OGIxNGNmNWM2ZDY5NTcwMmZhNmVmZjdiMTg5ZTRhYmUyZWQ4MWRmYjlhMzIxOGM3ODAiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 11123,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5WZXJpZmljYXRpb25NZXRhZGF0YS5kaXNwdXRlX3N0YXR1cyIsInN5bWJvbDpkaXNwdXRlX3N0YXR1cyIsInJlc29sdmVkOmRpc3B1dGVfc3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMuVmVyaWZpY2F0aW9uTWV0YWRhdGEuZGlzcHV0ZV9zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI4Y2MwNmU5ZjlhOWYwY2Y1ZGM2ODllZTZiMjZhNDhlNmU4NWRlMDI0M2Y3M2RiNDU3YzkxOTAxZDBhZGQyYTlmIiwicm9sZSI6ImdlbmVyYXRlZF9zY2hlbWFfcHJvcGVydHkiLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVNpZ25hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjM3OCIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZTowIl0sInZlcnNpb24iOjF9",
         "field": "dispute_status"
       }
     },
@@ -1149,15 +1167,17 @@
       ],
       "generated_anchor": {
         "export_symbol": "PromotionDecisionResponse",
-        "canonical_line": 763,
-        "schema_line": 8339,
+        "canonical_line": 856,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6UHJvbW90aW9uRGVjaXNpb25SZXNwb25zZSIsInN5bWJvbDpQcm9tb3Rpb25EZWNpc2lvblJlc3BvbnNlIiwicmVzb2x2ZWQ6UHJvbW90aW9uRGVjaXNpb25SZXNwb25zZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJQcm9tb3Rpb25EZWNpc2lvblJlc3BvbnNlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmRjMjU3YmQyNzZkM2EzOTdjMTYyZjIxMmYwMTM5ZTgzZTk5ZTNmMzZmNzJiNjZiZGJhOGVjOTAwOTZhNmZmYiIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L2Nhbm9uaWNhbFJ1bnRpbWVBcGlDbGllbnQudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
+        "schema_line": 9111,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5Qcm9tb3Rpb25EZWNpc2lvblJlc3BvbnNlLnN0YXR1cyIsInN5bWJvbDpzdGF0dXMiLCJyZXNvbHZlZDpzdGF0dXMiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHM6UHJvcGVydHlTaWduYXR1cmUiXSwiZGlzY3JpbWluYXRvciI6ImNvbXBvbmVudHMuc2NoZW1hcy5Qcm9tb3Rpb25EZWNpc2lvblJlc3BvbnNlLnN0YXR1cyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImM3YzM4YzdlMWIzMWY2MjdiYTUxODEzODBlOTA2YzlkNmM5OGE3NGI1YmU2Yjc2ODllZWM1ZjgzMWJkZjVkOGEiLCJyb2xlIjoiZ2VuZXJhdGVkX3NjaGVtYV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MjkxIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjQiXSwidmVyc2lvbiI6MX0",
         "field": "status"
       }
     },
     {
       "unit_id": "status-inline-queued-promotion",
       "definition_kind": "inline",
-      "current_definition_state": "present",
+      "current_definition_state": "retired",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/evidence/hooks/useQueuedPromotionDecision.ts",
         "start_line": 16,
@@ -1181,7 +1201,7 @@
       "classification": "interaction_state",
       "replacement": "OfflineQueueDeliveryState",
       "authority_purpose": "transport",
-      "target_cluster": "C18",
+      "target_cluster": "C13",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#c18"
@@ -1194,13 +1214,94 @@
       "current_definition_state": "present",
       "source_span": {
         "path": "apps/runtime-dashboard/src/app/authz/AuthzProvider.tsx",
-        "start_line": 21,
-        "end_line": 21,
+        "start_line": 22,
+        "end_line": 22,
         "field_name": "status"
       },
       "literal_members": ["error", "loading", "ready"],
       "type_expression": "\"error\" | \"loading\" | \"ready\"",
-      "consumers": [],
+      "consumers": [
+        {
+          "path": "apps/runtime-dashboard/src/app/authz/AuthzProvider.test.tsx",
+          "line": 52,
+          "kind": "test"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/app/authz/AuthzProvider.tsx",
+          "line": 65,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/app/authz/AuthzProvider.tsx",
+          "line": 133,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/clerk/routes/ClerkChatPage.tsx",
+          "line": 17,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+          "line": 1166,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+          "line": 1169,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+          "line": 1572,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
+          "line": 1575,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+          "line": 32,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+          "line": 40,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx",
+          "line": 163,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx",
+          "line": 169,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
+          "line": 83,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
+          "line": 91,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+          "line": 963,
+          "kind": "prop"
+        },
+        {
+          "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+          "line": 971,
+          "kind": "prop"
+        }
+      ],
       "owner_type": {
         "kind": "interaction_wrapper",
         "module": "@/shared/lib/domain/statusOwnership",
@@ -1361,8 +1462,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "BureaucraticTemplateRef",
-        "canonical_line": 178,
-        "schema_line": 2936,
+        "canonical_line": 210,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6QnVyZWF1Y3JhdGljVGVtcGxhdGVSZWYiLCJzeW1ib2w6QnVyZWF1Y3JhdGljVGVtcGxhdGVSZWYiLCJyZXNvbHZlZDpCdXJlYXVjcmF0aWNUZW1wbGF0ZVJlZiIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCdXJlYXVjcmF0aWNUZW1wbGF0ZVJlZiIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjRiMjQ3NzEwNzU0MTBjZTZmNTYwN2UyNDJjNzc0YjUwNWI1NWU5Zjg3ZTc3NTVlYmI3NDliNTY5MzE2MjJlMmEiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 3106,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5CdXJlYXVjcmF0aWNUZW1wbGF0ZVJlZi5sZWdhbF9yZXZpZXdfc3RhdHVzIiwic3ltYm9sOmxlZ2FsX3Jldmlld19zdGF0dXMiLCJyZXNvbHZlZDpsZWdhbF9yZXZpZXdfc3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMuQnVyZWF1Y3JhdGljVGVtcGxhdGVSZWYubGVnYWxfcmV2aWV3X3N0YXR1cyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImZhOWUzZWZiOGJjZGExZmNlNjdiMjc5Zjc1MzRmMWE0ZWJkYTkyMGYxZTQ4Njg2NjIzZGExMzU1ZWE4NmM3ZjYiLCJyb2xlIjoiZ2VuZXJhdGVkX3NjaGVtYV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NjkiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MyJdLCJ2ZXJzaW9uIjoxfQ",
         "field": "legal_review_status"
       }
     },
@@ -1410,8 +1513,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "BureaucraticDocument",
-        "canonical_line": 163,
-        "schema_line": 2817,
+        "canonical_line": 195,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6QnVyZWF1Y3JhdGljRG9jdW1lbnQiLCJzeW1ib2w6QnVyZWF1Y3JhdGljRG9jdW1lbnQiLCJyZXNvbHZlZDpCdXJlYXVjcmF0aWNEb2N1bWVudCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCdXJlYXVjcmF0aWNEb2N1bWVudCIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImE0NTQwZmNmZDkzOWZjZDRlMjA5YjlmNDkwYWM4ODcxM2U0OTIyZWYwZmQ4MjgxNWUwODE0NmU3ODc5YjQyNmMiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 2987,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5CdXJlYXVjcmF0aWNEb2N1bWVudC5zdGF0dXMiLCJzeW1ib2w6c3RhdHVzIiwicmVzb2x2ZWQ6c3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMuQnVyZWF1Y3JhdGljRG9jdW1lbnQuc3RhdHVzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiMWEzN2ZkZjdmYjU4YTM0ZThlY2Q5OWY1YWZiZGM5ZGY3OTBmNDEzNDZhYzU0MmU5ZWY3OGVkMTYyNGI3ODE5ZSIsInJvbGUiOiJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZTo2NCIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxMSJdLCJ2ZXJzaW9uIjoxfQ",
         "field": "status"
       }
     },
@@ -1748,7 +1853,7 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "authority_slot_barrier_ref": "apps/runtime-dashboard/src/shared/lib/domain/statusOwnership.compile.test.ts#rejects-divergent-dispute-status-vocabularies"
@@ -1788,13 +1893,15 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "generated_anchor": {
         "export_symbol": "DecisionValidityStatus",
-        "canonical_line": 387,
-        "schema_line": 4735
+        "canonical_line": 441,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6RGVjaXNpb25WYWxpZGl0eVN0YXR1cyIsInN5bWJvbDpEZWNpc2lvblZhbGlkaXR5U3RhdHVzIiwicmVzb2x2ZWQ6RGVjaXNpb25WYWxpZGl0eVN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJEZWNpc2lvblZhbGlkaXR5U3RhdHVzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNTY4ZTE1NDk2NDBjMDAzNDcwMzA1NTg4OGY2MjEwNjRkYjI4ZTQ1MGUxZWUyYTRkZWVhZjkwYjczNjUwZTZkMiIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L2Nhbm9uaWNhbFJ1bnRpbWVBcGlDbGllbnQudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
+        "schema_line": 5208,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuRGVjaXNpb25WYWxpZGl0eVN0YXR1cyIsInN5bWJvbDpEZWNpc2lvblZhbGlkaXR5U3RhdHVzIiwicmVzb2x2ZWQ6RGVjaXNpb25WYWxpZGl0eVN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5EZWNpc2lvblZhbGlkaXR5U3RhdHVzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiOGVkODY3NmY4MTQ1MmMzMTQ0YTQ0YWIwNDg3N2ExZmY3ZWUwOTI1ODM1Nzk3MGQ3YjMyZmM1ZTYwYjhmYjhmMiIsInJvbGUiOiJ0eXBlX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNDgiXSwidmVyc2lvbiI6MX0"
       }
     },
     {
@@ -1842,13 +1949,15 @@
       "target_cluster": "C14",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "generated_anchor": {
         "export_symbol": "DecisionValidityStatus",
-        "canonical_line": 387,
-        "schema_line": 4735
+        "canonical_line": 441,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6RGVjaXNpb25WYWxpZGl0eVN0YXR1cyIsInN5bWJvbDpEZWNpc2lvblZhbGlkaXR5U3RhdHVzIiwicmVzb2x2ZWQ6RGVjaXNpb25WYWxpZGl0eVN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJEZWNpc2lvblZhbGlkaXR5U3RhdHVzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNTY4ZTE1NDk2NDBjMDAzNDcwMzA1NTg4OGY2MjEwNjRkYjI4ZTQ1MGUxZWUyYTRkZWVhZjkwYjczNjUwZTZkMiIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L2Nhbm9uaWNhbFJ1bnRpbWVBcGlDbGllbnQudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
+        "schema_line": 5208,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuRGVjaXNpb25WYWxpZGl0eVN0YXR1cyIsInN5bWJvbDpEZWNpc2lvblZhbGlkaXR5U3RhdHVzIiwicmVzb2x2ZWQ6RGVjaXNpb25WYWxpZGl0eVN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5EZWNpc2lvblZhbGlkaXR5U3RhdHVzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiOGVkODY3NmY4MTQ1MmMzMTQ0YTQ0YWIwNDg3N2ExZmY3ZWUwOTI1ODM1Nzk3MGQ3YjMyZmM1ZTYwYjhmYjhmMiIsInJvbGUiOiJ0eXBlX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNDgiXSwidmVyc2lvbiI6MX0"
       }
     },
     {
@@ -2049,8 +2158,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "VerificationMetadata",
-        "canonical_line": 1003,
-        "schema_line": 10340,
+        "canonical_line": 1102,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6VmVyaWZpY2F0aW9uTWV0YWRhdGEiLCJzeW1ib2w6VmVyaWZpY2F0aW9uTWV0YWRhdGEiLCJyZXNvbHZlZDpWZXJpZmljYXRpb25NZXRhZGF0YSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJWZXJpZmljYXRpb25NZXRhZGF0YSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjgyN2UxYTcxNTJhYTQ1OGIxNGNmNWM2ZDY5NTcwMmZhNmVmZjdiMTg5ZTRhYmUyZWQ4MWRmYjlhMzIxOGM3ODAiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 11140,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5WZXJpZmljYXRpb25NZXRhZGF0YS52ZXJpZmljYXRpb25fc3RhdHVzIiwic3ltYm9sOnZlcmlmaWNhdGlvbl9zdGF0dXMiLCJyZXNvbHZlZDp2ZXJpZmljYXRpb25fc3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMuVmVyaWZpY2F0aW9uTWV0YWRhdGEudmVyaWZpY2F0aW9uX3N0YXR1cyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjI2OWRjN2QyM2NlMzQ1YWFhOGYzMDQ4YzA3NzBjYzk3ZWRkNmE0MjBlZTE2YzhkMDM0YzlkZmZlOWJkZjIxYjYiLCJyb2xlIjoiZ2VuZXJhdGVkX3NjaGVtYV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6Mzc4IiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjUiXSwidmVyc2lvbiI6MX0",
         "field": "verification_status"
       }
     },
@@ -2173,8 +2284,10 @@
       ],
       "generated_anchor": {
         "export_symbol": "ScenarioRef",
-        "canonical_line": 945,
-        "schema_line": 9889,
+        "canonical_line": 1040,
+        "canonical_identity": "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6U2NlbmFyaW9SZWYiLCJzeW1ib2w6U2NlbmFyaW9SZWYiLCJyZXNvbHZlZDpTY2VuYXJpb1JlZiIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJTY2VuYXJpb1JlZiIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImEzYjJkYTZlMmRjMWJiN2VkNjc0Y2VlMWJiODI1NzFhNzczY2I4YmE1ZjQ2MWNhY2JmYTdmMjE0MDVjODQ4MDgiLCJyb2xlIjoiZXhwb3J0ZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzIiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "schema_line": 10668,
+        "schema_identity": "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5TY2VuYXJpb1JlZi5zdGF0dXMiLCJzeW1ib2w6c3RhdHVzIiwicmVzb2x2ZWQ6c3RhdHVzIiwiZGVjbGFyYXRpb246cGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzOlByb3BlcnR5U2lnbmF0dXJlIl0sImRpc2NyaW1pbmF0b3IiOiJjb21wb25lbnRzLnNjaGVtYXMuU2NlbmFyaW9SZWYuc3RhdHVzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiOTQ3M2YzMTI3OTc4N2QyYjNjY2NjZWE4YjBjNTU5NTA0YmFjNzllYTgyOTNhN2FjZTM2OTYxYmFhZmM5NWEwNSIsInJvbGUiOiJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZTozNTUiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NSJdLCJ2ZXJzaW9uIjoxfQ",
         "field": "status"
       }
     }
@@ -2368,8 +2481,8 @@
       "definition_kind": "named",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
-        "start_line": 80,
-        "end_line": 85,
+        "start_line": 83,
+        "end_line": 88,
         "declaration_name": "EvidenceWalletCandidateKind"
       },
       "literal_members": [
@@ -2435,7 +2548,7 @@
       "rationale": "C14 deletes client-composed readiness severity; diagnostic presentation uses interaction-only state while decision validity remains generated-owner data.",
       "verification_refs": [
         "architecture/atlas_surfaces/test_status_retirement_inventory.py",
-        "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts",
         "docs/plans/active/atlas-slices/DS4-status-grammar-rebinding.md#ds4-c23"
       ],
       "does_not_change_ds1_denominator": true
@@ -3080,8 +3193,8 @@
       "definition_kind": "inline",
       "source_span": {
         "path": "apps/runtime-dashboard/src/features/composer/routes/ComposerModeSections.tsx",
-        "start_line": 140,
-        "end_line": 140,
+        "start_line": 143,
+        "end_line": 143,
         "field_name": "tone"
       },
       "literal_members": ["accent", "default"],
@@ -3387,8 +3500,8 @@
         "end_line": 1,
         "declaration_name": "SUPPORTED_LOCALES"
       },
-      "literal_members": ["en", "ru", "uk"],
-      "type_expression": "[\"en\", \"uk\", \"ru\"] as const",
+      "literal_members": ["en", "uk"],
+      "type_expression": "[\"en\", \"uk\"] as const",
       "disposition": "non_status_taxonomy",
       "target_cluster": "C14",
       "rationale": "SUPPORTED_LOCALES is a locale-selection taxonomy, not evidence support or authority posture; the as-const definition remains explicitly outside the authority lattice.",
@@ -3581,6 +3694,72 @@
       ],
       "protected_source_paths": [
         "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-feature-flags-feature-flag-disposition",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/lib/featureFlags.ts",
+        "start_line": 18,
+        "end_line": 18,
+        "declaration_name": "FeatureFlagDisposition"
+      },
+      "literal_members": ["RETIRE", "WIRE"],
+      "type_expression": "\"WIRE\" | \"RETIRE\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C18",
+      "rationale": "C18's complete wire-or-retire registry classifies rollout exposure disposition; it is neither runtime status nor authority, and no flag may grant a permission.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/lib/featureFlags.test.ts",
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c18a--strict-d5-exposure-registry"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-outer-set-value-state",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/shared/ui/quantity/OuterSetValue.tsx",
+        "start_line": 46,
+        "end_line": 46,
+        "declaration_name": "OuterSetValueState"
+      },
+      "literal_members": ["gap", "unknown", "value", "zero"],
+      "type_expression": "\"value\" | \"zero\" | \"unknown\" | \"gap\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C07",
+      "rationale": "DS16 C07's presentation value-state taxonomy distinguishes an ordinary value, exact zero, epistemic unknown, and an observation gap without assigning authority posture.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/ui/quantity/ds16ValueGrammarNegatives.test.tsx",
+        "docs/plans/active/atlas-slices/DS16-value-uncertainty-and-derived-data-grammar.md#c07--set-valued-value-viz-family"
+      ],
+      "does_not_change_ds1_denominator": true
+    },
+    {
+      "candidate_id": "semantic-rendered-value-state",
+      "current_definition_state": "present",
+      "definition_kind": "named",
+      "source_span": {
+        "path": "apps/runtime-dashboard/src/test/contracts/quantityDecisionProducerHarness.tsx",
+        "start_line": 352,
+        "end_line": 352,
+        "declaration_name": "RenderedValueState"
+      },
+      "literal_members": ["gap", "unknown", "zero"],
+      "type_expression": "\"zero\" | \"unknown\" | \"gap\"",
+      "disposition": "non_status_taxonomy",
+      "target_cluster": "C07",
+      "rationale": "DS16 C07's negative-test rendering vocabulary is the proper zero/unknown/gap subset of OuterSetValueState; the inventory has no subset relation field, so this exported vocabulary is registered independently and carries no authority posture.",
+      "verification_refs": [
+        "architecture/atlas_surfaces/test_status_retirement_inventory.py",
+        "apps/runtime-dashboard/src/shared/ui/quantity/ds16ValueGrammarNegatives.test.tsx",
+        "docs/plans/active/atlas-slices/DS16-value-uncertainty-and-derived-data-grammar.md#c07--set-valued-value-viz-family"
       ],
       "does_not_change_ds1_denominator": true
     }

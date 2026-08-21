@@ -2,6 +2,7 @@ import {
   createContext,
   type PropsWithChildren,
   type ReactNode,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
@@ -14,10 +15,14 @@ import {
   formatIcuRichMessage,
   type MessageValues,
 } from "./messages/icu-messages";
-import type { Locale } from "./locale";
-import { persistLocale, resolveLocale } from "./locale";
+import type { ProductLocale } from "./locale";
+import {
+  isProductLocale,
+  persistLocale,
+  PRIMARY_LOCALE,
+  resolveLocale,
+} from "./locale";
 import en from "./locales/en.json";
-import ru from "./locales/ru.json";
 import uk from "./locales/uk.json";
 import {
   applyLocaleTypography,
@@ -25,13 +30,14 @@ import {
   type LocaleTypographyOptions,
 } from "./typography/typography";
 
-const catalogs = { en, uk, ru } as const;
+const catalogs = { en, uk } as const;
+const authoredCatalog = catalogs[PRIMARY_LOCALE];
 
 type LabelMapName = keyof typeof en.labels;
 
 type I18nContextValue = {
-  locale: Locale;
-  setLocale: (locale: Locale) => void;
+  locale: ProductLocale;
+  setLocale: (locale: ProductLocale) => void;
   t: (
     path: string,
     vars?: MessageValues,
@@ -72,8 +78,8 @@ function readPathValue(source: unknown, path: string): string | null {
 }
 
 function createI18nContextValue(
-  locale: Locale,
-  setLocale: (locale: Locale) => void,
+  locale: ProductLocale,
+  setLocale: (locale: ProductLocale) => void,
 ): I18nContextValue {
   const catalog = catalogs[locale];
 
@@ -83,7 +89,7 @@ function createI18nContextValue(
     t: (path, vars, options) => {
       const translated =
         readPathValue(catalog, path) ??
-        readPathValue(catalogs.en, path) ??
+        readPathValue(authoredCatalog, path) ??
         path;
       return applyLocaleTypography(
         formatIcuMessage(translated, locale, vars),
@@ -94,7 +100,7 @@ function createI18nContextValue(
     rich: (path, vars, options) => {
       const translated =
         readPathValue(catalog, path) ??
-        readPathValue(catalogs.en, path) ??
+        readPathValue(authoredCatalog, path) ??
         path;
       return applyTypographyToReactNode(
         formatIcuRichMessage(translated, locale, vars) as ReactNode,
@@ -108,7 +114,7 @@ function createI18nContextValue(
       }
       const direct =
         readPathValue(catalog.labels[mapName], value) ??
-        readPathValue(catalogs.en.labels[mapName], value);
+        readPathValue(authoredCatalog.labels[mapName], value);
       if (direct) {
         return applyLocaleTypography(direct, locale);
       }
@@ -118,7 +124,13 @@ function createI18nContextValue(
 }
 
 export function LocaleProvider({ children }: PropsWithChildren) {
-  const [locale, setLocaleState] = useState<Locale>(() => resolveLocale());
+  const [locale, setLocaleState] = useState<ProductLocale>(() => resolveLocale());
+
+  const setLocale = useCallback((nextLocale: ProductLocale) => {
+    if (isProductLocale(nextLocale)) {
+      setLocaleState(nextLocale);
+    }
+  }, []);
 
   useEffect(() => {
     persistLocale(locale);
@@ -126,8 +138,8 @@ export function LocaleProvider({ children }: PropsWithChildren) {
   }, [locale]);
 
   const value = useMemo<I18nContextValue>(
-    () => createI18nContextValue(locale, setLocaleState),
-    [locale],
+    () => createI18nContextValue(locale, setLocale),
+    [locale, setLocale],
   );
 
   return (
@@ -137,7 +149,7 @@ export function LocaleProvider({ children }: PropsWithChildren) {
         transform={(node, presentationLocale, options) =>
           applyTypographyToReactNode(
             node,
-            presentationLocale as Locale,
+            presentationLocale as ProductLocale,
             options,
           )
         }

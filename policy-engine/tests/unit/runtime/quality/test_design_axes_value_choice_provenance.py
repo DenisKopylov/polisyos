@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+from copy import replace
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
+from uuid import uuid4
 
 import pytest
 from pydantic import ValidationError
@@ -251,6 +253,135 @@ def test_pareto_archive_cannot_rank_without_authorized_value_schedule() -> None:
         )
 
 
+def test_shadowless_name_cannot_mint_authority_while_resolver_is_absent() -> None:
+    schedule = _s8("build_authorized_value_schedule")(
+        **_authorized_schedule_payload(
+            schedule_ref="pdc://layer2/s8/value-schedules/shadowless-2026",
+        )
+    )
+
+    assert schedule.disposition == "authorized"
+    assert "shadow" in schedule.schedule_ref
+    with pytest.raises(_s8("P20NormativeChoiceError")) as exc_info:
+        _s8("build_pareto_archive")(
+            **_pareto_archive_payload(value_schedule_ref=schedule.schedule_ref)
+        )
+
+    assert exc_info.value.code == "p20_value_schedule_resolver_absent"
+
+
+def test_shadow_kind_is_refused_under_sh4dow_q3_name() -> None:
+    schedule = _s8("build_shadow_scenario_value_schedule")(
+        schedule_ref="pdc://layer2/s8/value-schedules/sh4dow-q3",
+        case_id=CASE_ID,
+        principal_refs=["principal://ua/ministry-of-economy"],
+        social_weight_provenance_refs=["swr://scenario/low-income-heavy"],
+        scenario_label="renamed shadow schedule",
+        rule_version_ref=RULE_VERSION_REF,
+    )
+
+    with pytest.raises(_s8("P20NormativeChoiceError")) as exc_info:
+        _s8("build_pareto_archive")(
+            **_pareto_archive_payload(value_schedule_ref=schedule.schedule_ref)
+        )
+
+    assert exc_info.value.code == "p20_value_schedule_resolver_absent"
+
+
+def test_unresolvable_value_schedule_ref_fails_closed_with_specific_code() -> None:
+    with pytest.raises(_s8("P20NormativeChoiceError")) as exc_info:
+        _s8("build_pareto_archive")(
+            **_pareto_archive_payload(
+                value_schedule_ref="pdc://layer2/s8/value-schedules/not-owned",
+            )
+        )
+
+    assert exc_info.value.code == "p20_value_schedule_resolver_absent"
+
+
+def test_shadow_kind_is_refused_under_a_name_invented_at_test_time() -> None:
+    generated_ref = f"pdc://layer2/s8/value-schedules/{uuid4().hex}"
+    schedule = _s8("build_shadow_scenario_value_schedule")(
+        schedule_ref=generated_ref,
+        case_id=CASE_ID,
+        principal_refs=["principal://ua/ministry-of-economy"],
+        social_weight_provenance_refs=["swr://scenario/low-income-heavy"],
+        scenario_label="runtime-renamed shadow schedule",
+        rule_version_ref=RULE_VERSION_REF,
+    )
+
+    assert "shadow" not in schedule.schedule_ref
+    assert "scenario" not in schedule.schedule_ref
+    with pytest.raises(_s8("P20NormativeChoiceError")) as exc_info:
+        _s8("build_pareto_archive")(
+            **_pareto_archive_payload(value_schedule_ref=schedule.schedule_ref)
+        )
+
+    assert exc_info.value.code == "p20_value_schedule_resolver_absent"
+
+
+def test_pareto_archive_model_cannot_bypass_ranked_admission_guard() -> None:
+    with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+        _s8("ParetoArchive")(
+            **_pareto_archive_payload(
+                value_schedule_ref="pdc://layer2/s8/value-schedules/direct-model-bypass",
+            )
+        )
+
+
+@pytest.mark.parametrize(
+    "minting_seam",
+    ["model_copy", "model_construct", "copy", "construct", "__replace__", "copy_replace"],
+)
+def test_pareto_archive_unvalidated_minting_seams_revalidate(
+    minting_seam: str,
+) -> None:
+    archive_model = _s8("ParetoArchive")
+    unranked_payload = _pareto_archive_payload(
+        value_schedule_ref=None,
+        ranking_mode="unranked_frontier_only",
+        archive_status="frontier_only",
+    )
+    unranked = archive_model(**unranked_payload)
+    ranked_update = {
+        "ranking_mode": "ranked_with_authorized_values",
+        "value_schedule_ref": "pdc://layer2/s8/value-schedules/unvalidated-bypass",
+    }
+
+    if minting_seam == "model_copy":
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            unranked.model_copy(update=ranked_update)
+    elif minting_seam == "model_construct":
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            archive_model.model_construct(**{**unranked_payload, **ranked_update})
+    elif minting_seam == "copy":
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            unranked.copy(update=ranked_update)
+    elif minting_seam == "construct":
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            archive_model.construct(**{**unranked_payload, **ranked_update})
+    elif minting_seam == "__replace__":
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            unranked.__replace__(**ranked_update)
+    else:
+        with pytest.raises(ValidationError, match="p20_value_schedule_resolver_absent"):
+            replace(unranked, **ranked_update)
+
+    if minting_seam == "model_copy":
+        safe_copy = unranked.model_copy()
+    elif minting_seam == "model_construct":
+        safe_copy = archive_model.model_construct(**unranked_payload)
+    elif minting_seam == "copy":
+        safe_copy = unranked.copy()
+    elif minting_seam == "construct":
+        safe_copy = archive_model.construct(**unranked_payload)
+    elif minting_seam == "__replace__":
+        safe_copy = unranked.__replace__()
+    else:
+        safe_copy = replace(unranked)
+    assert safe_copy.ranking_mode == "unranked_frontier_only"
+
+
 def test_p20_rejects_llm_or_corpus_derived_social_weights() -> None:
     probe = _fixture("llm_social_weight_probe.json")
     for social_weight_provenance in probe["social_weight_provenance_candidates"]:
@@ -296,13 +427,15 @@ def test_shadow_scenario_value_schedule_is_visible_but_not_authority() -> None:
     assert scenario.disposition == "shadow_scenario_only"
     assert "ranked_recommendation_authority" in scenario.may_not_use_for
 
-    with pytest.raises(_s8("P20NormativeChoiceError"), match="shadow_scenario"):
+    with pytest.raises(_s8("P20NormativeChoiceError")) as exc_info:
         _s8("build_pareto_archive")(
             **_pareto_archive_payload(
                 value_schedule_ref=scenario.schedule_ref,
                 ranking_mode="ranked_with_authorized_values",
             )
         )
+
+    assert exc_info.value.code == "p20_value_schedule_resolver_absent"
 
 
 def test_multi_principal_conflict_is_contested_not_silent_average() -> None:

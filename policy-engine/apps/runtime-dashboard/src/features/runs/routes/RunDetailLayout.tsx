@@ -2,8 +2,9 @@ import { useEffect, useMemo } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 
 import { useCapabilities } from "@/api/hooks/useCapabilities";
-import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
+import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import { getRunReviewTabPermission } from "@/app/authz/permissions";
+import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useTelemetryReadyMark } from "@/app/providers/TelemetryProvider";
 import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import { PrefetchNavLink } from "@/app/routes/PrefetchNavLink";
@@ -92,12 +93,16 @@ function runDetailProvenance(
 function RunBootstrapState({ runId }: { runId: string }) {
   const { t } = useI18n();
   const capabilitiesQuery = useCapabilities();
-  const authz = useMaybeAuthz();
+  const authzDecision = useAuthzDecision(),
+    { flags } = useFeatureFlags();
   const tabs = getVisibleRunInspectorTabs(capabilitiesQuery.data, {
     canAccessTab: (tab) => {
       const permission = getRunReviewTabPermission(tab);
-      return permission ? (authz ? authz.can(permission) : true) : true;
+      return permission
+        ? authzDecision.kind === "verified" && authzDecision.can(permission)
+        : true;
     },
+    isFeatureEnabled: (featureFlag) => flags[featureFlag],
   });
 
   return (
@@ -151,7 +156,8 @@ function RunInspectorContent() {
   const { runId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
-  const authz = useMaybeAuthz();
+  const authzDecision = useAuthzDecision(),
+    { flags } = useFeatureFlags();
   const summary = useRunInspector();
   const decisionPacket = useMemo(
     () => buildRunReportSnapshot(summary, []),
@@ -197,12 +203,17 @@ function RunInspectorContent() {
   const tabs = getVisibleRunInspectorTabs(capabilitiesQuery.data, {
     canAccessTab: (tab) => {
       const permission = getRunReviewTabPermission(tab);
-      return permission ? (authz ? authz.can(permission) : true) : true;
+      return permission
+        ? authzDecision.kind === "verified" && authzDecision.can(permission)
+        : true;
     },
+    isFeatureEnabled: (featureFlag) => flags[featureFlag],
   });
   const legacySearch = parseRunDetailLegacySearchParams(location.search);
-  const canOpenEvidence = authz ? authz.can("evidence.view") : true;
-  const canLaunchRuns = authz ? authz.can("runs.launch") : true;
+  const canOpenEvidence =
+    authzDecision.kind === "verified" && authzDecision.can("evidence.view");
+  const canLaunchRuns =
+    authzDecision.kind === "verified" && authzDecision.can("runs.launch");
   const { highlightMode } = useAuthorship();
   const readingViewHref = useMemo(() => {
     if (!summary.primaryDecisionArtifactId) {

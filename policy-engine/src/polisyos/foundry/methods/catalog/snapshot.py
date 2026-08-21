@@ -7,6 +7,7 @@ import json
 import platform
 from collections.abc import Mapping, Sequence
 from contextlib import nullcontext
+from copy import deepcopy
 from datetime import UTC, datetime
 from typing import Any
 
@@ -740,6 +741,133 @@ def _sha256_payload(value: object) -> str:
         sort_keys=True,
     ).encode("utf-8")
     return "sha256:" + hashlib.sha256(encoded).hexdigest()
+
+
+def method_catalog_governed_provenance_projection(
+    payload: Mapping[str, object],
+) -> dict[str, object]:
+    """Project full catalog custody evidence into its governed comparison content.
+
+    Ambient observations remain present in ``payload`` and bound by the ordinary
+    provenance identity. They are non-decisive here only when the parent admission
+    and every predicate row carry the complete structural declaration emitted by
+    this owner.
+
+    Args:
+        payload: Complete method-catalog provenance manifest.
+
+    Returns:
+        A detached JSON-compatible mapping containing every governed field and the
+        structural shells of admitted non-decisive predicates.
+
+    Raises:
+        MethodCatalogDiscoveryProvenanceError: If an admission or predicate row is
+            missing, malformed, duplicated, or contradictory.
+    """
+
+    ambient = payload.get("ambient_discovery")
+    if not isinstance(ambient, Mapping):
+        raise MethodCatalogDiscoveryProvenanceError(
+            "catalog_ambient_discovery_manifest_missing"
+        )
+    admission = ambient.get("admission")
+    if not isinstance(admission, Mapping) or set(admission) != {
+        "status",
+        "included_in_governed_denominator",
+        "fail_closed_action",
+    }:
+        raise MethodCatalogDiscoveryProvenanceError("catalog_ambient_input_not_quarantined")
+    if (
+        admission.get("included_in_governed_denominator") is not False
+        or admission.get("fail_closed_action") != "quarantine"
+        or admission.get("status") not in {"quarantined_unbound", "declared_not_admitted"}
+    ):
+        raise MethodCatalogDiscoveryProvenanceError("catalog_ambient_input_not_quarantined")
+    source_policy = ambient.get("source_policy")
+    if not isinstance(source_policy, Mapping):
+        raise MethodCatalogDiscoveryProvenanceError("catalog_ambient_source_policy_mismatch")
+
+    predicate_rows = payload.get("predicate_provenance")
+    if not isinstance(predicate_rows, list):
+        raise MethodCatalogDiscoveryProvenanceError("catalog_predicate_provenance_invalid")
+    allowed_classifications = {
+        "recomputed",
+        "independently_reconciled",
+        "consumer_asserted",
+        "institutionally_supplied",
+        "not_established",
+    }
+    projected_rows: list[dict[str, object]] = []
+    predicate_names: set[str] = set()
+    for row in predicate_rows:
+        if not isinstance(row, Mapping) or set(row) != {
+            "predicate",
+            "classification",
+            "decisive",
+            "fail_closed_action",
+        }:
+            raise MethodCatalogDiscoveryProvenanceError(
+                "catalog_predicate_provenance_invalid"
+            )
+        predicate = row.get("predicate")
+        classification = row.get("classification")
+        decisive = row.get("decisive")
+        action = row.get("fail_closed_action")
+        if (
+            not isinstance(predicate, str)
+            or not predicate
+            or predicate in predicate_names
+            or classification not in allowed_classifications
+            or not isinstance(decisive, bool)
+            or action not in {"reject", "quarantine"}
+        ):
+            raise MethodCatalogDiscoveryProvenanceError(
+                "catalog_predicate_provenance_invalid"
+            )
+        predicate_names.add(predicate)
+        if decisive:
+            if action != "reject" or classification in {
+                "consumer_asserted",
+                "institutionally_supplied",
+                "not_established",
+            }:
+                raise MethodCatalogDiscoveryProvenanceError(
+                    "catalog_predicate_provenance_invalid"
+                )
+            projected_rows.append(deepcopy(dict(row)))
+        else:
+            if action != "quarantine":
+                raise MethodCatalogDiscoveryProvenanceError(
+                    "catalog_predicate_provenance_invalid"
+                )
+            projected_rows.append(
+                {
+                    "predicate": predicate,
+                    "decisive": False,
+                    "fail_closed_action": "quarantine",
+                }
+            )
+
+    projection = deepcopy(dict(payload))
+    projection.pop("provenance_id", None)
+    projection["ambient_discovery"] = {
+        "source_policy": deepcopy(dict(source_policy)),
+        "admission": {
+            "included_in_governed_denominator": False,
+            "fail_closed_action": "quarantine",
+        },
+    }
+    projection["predicate_provenance"] = projected_rows
+    return projection
+
+
+def method_catalog_governed_provenance_id(payload: Mapping[str, object]) -> str:
+    """Return the canonical governed comparison identity for catalog provenance."""
+
+    projection = method_catalog_governed_provenance_projection(payload)
+    return "method_catalog_governed_provenance_" + _sha256_payload(projection).removeprefix(
+        "sha256:"
+    )
 
 
 def method_catalog_provenance_id(payload: Mapping[str, object]) -> str:

@@ -40,6 +40,9 @@ from polisyos.pdc import PromotionObligationClass
 
 CONFIDENCE_LEDGER_REGISTRY_SCHEMA_VERSION = "policyos.runtime.confidence_ledger.registry.v1"
 CONFIDENCE_LEDGER_SCHEMA_VERSION = "policyos.runtime.confidence_ledger.v1"
+N9_PROMOTION_SEMANTIC_PROJECTION_RULE_VERSION = (
+    "policyos.runtime.quality.confidence_ledger.n9_promotion_semantic_projection.v1"
+)
 CONDITIONAL_VALIDITY_CLAUSE = (
     "P(false promotion | maintained assumptions) <= delta is conditional on obligation "
     "completeness + validator soundness (the spec's A4 = our open P29)."
@@ -890,6 +893,106 @@ class ConfidenceLedgerSemanticReceiptProjection(_StrictModel):
     projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
 
+class N9PromotionSemanticLedgerProjection(_StrictModel):
+    """Stable promotion lineage emitted from a fully verified live ledger.
+
+    The raw N9 certificate remains the byte-complete custody record.  This
+    projection is the producer-owned comparison identity for its semantic
+    event history; it deliberately omits deployment- and CAS-local locators.
+    """
+
+    schema_version: Literal[CONFIDENCE_LEDGER_SCHEMA_VERSION]
+    projection_rule_version: Literal[N9_PROMOTION_SEMANTIC_PROJECTION_RULE_VERSION]
+    projection_scope: Literal["n9_promotion_semantic_receipt"]
+    authority_provenance: SessionAuthorityProvenance
+    risk_scope: ConfidenceRiskBudgetScope
+    scope_id: str = Field(pattern=r"^confidence-risk-scope:sha256:[0-9a-f]{64}$")
+    registry_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    schedule_profile_id: str = Field(min_length=1)
+    schedule_profile_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    schedule_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    budget_delta: RationalSpec
+    budget_delta_decimal: str
+    root_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    events: tuple[ConfidenceLedgerSemanticEvent, ...]
+    checks: tuple[ConfidenceLedgerSemanticCheck, ...]
+    head_event_projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    total_spend: RationalSpec
+    total_spend_decimal: str
+    within_budget: bool
+    good_event_clause: Literal[GOOD_EVENT_CLAUSE]
+    conditionality_clause: Literal[CONDITIONAL_VALIDITY_CLAUSE]
+    maintained_assumptions: tuple[
+        Literal["obligation_completeness", "validator_soundness"], ...
+    ]
+    projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _semantic_lineage_is_content_bound(self) -> N9PromotionSemanticLedgerProjection:
+        if self.scope_id != self.risk_scope.scope_id:
+            raise ValueError("n9_semantic_projection_scope_binding_invalid")
+        root_values = _n9_semantic_ledger_root_values(
+            receipt=self,
+            risk_scope=self.risk_scope,
+        )
+        if self.root_projection_hash != _content_hash(root_values):
+            raise ValueError("n9_semantic_projection_root_hash_drift")
+        head_projection_hash = self.root_projection_hash
+        current_checks: dict[str, ConfidenceLedgerSemanticCheck] = {}
+        filtration_by_request: dict[str, str] = {}
+        for event in self.events:
+            request_key = event.check.request_key
+            if event.event_type == "prepared" or (
+                request_key not in filtration_by_request
+                and event.check.outcome == "preflight_refusal"
+            ):
+                if request_key in filtration_by_request:
+                    raise ValueError("n9_semantic_projection_duplicate_preparation")
+                filtration_by_request[request_key] = head_projection_hash
+            if request_key not in filtration_by_request:
+                raise ValueError("n9_semantic_projection_missing_preparation")
+            if event.check.filtration_projection_hash != filtration_by_request[request_key]:
+                raise ValueError("n9_semantic_projection_filtration_drift")
+            expected_claim_hash = _semantic_claim_execution_projection_hash_from_projection(
+                event.check
+            )
+            if event.check.claim_execution_projection_hash != expected_claim_hash:
+                raise ValueError("n9_semantic_claim_execution_projection_hash_drift")
+            expected_check_hash = _content_hash(
+                event.check.model_dump(mode="json", exclude={"check_projection_hash"})
+            )
+            if event.check.check_projection_hash != expected_check_hash:
+                raise ValueError("n9_semantic_check_projection_hash_drift")
+            event_values = event.model_dump(mode="json", exclude={"event_projection_hash"})
+            if event.parent_event_projection_hash != head_projection_hash:
+                raise ValueError("n9_semantic_event_parent_drift")
+            if event.event_projection_hash != _content_hash(event_values):
+                raise ValueError("n9_semantic_event_projection_hash_drift")
+            current_checks[request_key] = event.check
+            head_projection_hash = event.event_projection_hash
+        checks = tuple(current_checks[key] for key in sorted(current_checks))
+        if self.checks != checks:
+            raise ValueError("n9_semantic_projection_current_check_drift")
+        if self.head_event_projection_hash != head_projection_hash:
+            raise ValueError("n9_semantic_projection_head_hash_drift")
+        if self.total_spend != _rational_spec(
+            sum((check.spend.fraction for check in self.checks), Fraction())
+        ):
+            raise ValueError("n9_semantic_projection_total_spend_drift")
+        if self.total_spend_decimal != _fraction_display(self.total_spend.fraction):
+            raise ValueError("n9_semantic_projection_total_spend_decimal_drift")
+        if self.within_budget is not (
+            self.total_spend.fraction <= self.budget_delta.fraction
+        ):
+            raise ValueError("n9_semantic_projection_budget_outcome_drift")
+        expected_projection_hash = _content_hash(
+            self.model_dump(mode="json", exclude={"projection_hash"})
+        )
+        if self.projection_hash != expected_projection_hash:
+            raise ValueError("n9_semantic_projection_hash_drift")
+        return self
+
+
 class N9PromotionLedgerRow(_StrictModel):
     """Typed promotion-claim row; other certificate roles are not projected."""
 
@@ -940,6 +1043,13 @@ class N9PromotionCertificateProjection(_StrictModel):
     conditionality_clause: Literal[CONDITIONAL_VALIDITY_CLAUSE]
     maintained_assumptions: tuple[Literal["obligation_completeness", "validator_soundness"], ...]
     projection_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _projection_hash_is_content_bound(self) -> N9PromotionCertificateProjection:
+        expected = _content_hash(self.model_dump(mode="json", exclude={"projection_hash"}))
+        if self.projection_hash != expected:
+            raise ValueError("n9_promotion_projection_hash_drift")
+        return self
 
 
 class N12EpochReferenceProjection(_StrictModel):
@@ -3213,6 +3323,33 @@ def _semantic_claim_execution_projection_hash(
     )
 
 
+def _semantic_claim_execution_projection_hash_from_projection(
+    check: ConfidenceLedgerSemanticCheck,
+) -> str:
+    """Recompute a semantic claim binding from its persisted full preimage."""
+
+    return _content_hash(
+        {
+            "scope_id": check.scope_id,
+            "request_fingerprint": check.request_fingerprint,
+            "claim_ref": check.claim_ref,
+            "null_ref": check.null_ref,
+            "claim_scope_ref": check.claim_scope_ref,
+            "data_window_ref": check.data_window_ref,
+            "filtration_projection_hash": check.filtration_projection_hash,
+            "certificate_role": check.certificate_role,
+            "claim_polarity": check.claim_polarity,
+            "execution_id": check.execution_id,
+            "execution_ordinal": check.execution_ordinal,
+            "schedule_query_index": check.schedule_query_index,
+            "reserved_alpha": check.spend,
+            "registry_content_hash": check.registry_content_hash,
+            "instrument_definition_hash": check.instrument_definition_hash,
+            "proof_profile_hash": check.proof_profile_hash,
+        }
+    )
+
+
 def _semantic_check_projection(
     check: ConfidenceLedgerCheck,
     *,
@@ -3307,6 +3444,88 @@ def _semantic_ledger_root_values(
     }
 
 
+def _n9_semantic_ledger_root_values(
+    *,
+    receipt: ConfidenceLedgerReceipt | N9PromotionSemanticLedgerProjection,
+    risk_scope: ConfidenceRiskBudgetScope,
+) -> dict[str, Any]:
+    """Return the stable N9 ledger root without physical deployment locators."""
+
+    return {
+        "schema_version": receipt.schema_version,
+        "projection_rule_version": N9_PROMOTION_SEMANTIC_PROJECTION_RULE_VERSION,
+        "projection_scope": "n9_promotion_semantic_receipt",
+        "authority_provenance": receipt.authority_provenance,
+        "risk_scope": risk_scope,
+        "scope_id": receipt.scope_id,
+        "registry_content_hash": receipt.registry_content_hash,
+        "schedule_profile_id": receipt.schedule_profile_id,
+        "schedule_profile_hash": receipt.schedule_profile_hash,
+        "schedule_projection_hash": receipt.schedule_projection_hash,
+        "budget_delta": receipt.budget_delta,
+        "budget_delta_decimal": receipt.budget_delta_decimal,
+        "conditionality_clause": receipt.conditionality_clause,
+        "maintained_assumptions": receipt.maintained_assumptions,
+    }
+
+
+def _project_semantic_event_lineage(
+    receipt: ConfidenceLedgerReceipt,
+    *,
+    root_projection_hash: str,
+    error_prefix: str,
+) -> tuple[
+    tuple[ConfidenceLedgerSemanticEvent, ...],
+    tuple[ConfidenceLedgerSemanticCheck, ...],
+    str,
+]:
+    """Project one validated physical event chain onto stable semantic lineage."""
+
+    head_projection_hash = root_projection_hash
+    filtration_by_request: dict[str, str] = {}
+    current_checks: dict[str, ConfidenceLedgerSemanticCheck] = {}
+    projected_events: list[ConfidenceLedgerSemanticEvent] = []
+    for event in receipt.events:
+        request_key = event.check.request_key
+        if event.event_type == "prepared" or (
+            request_key not in filtration_by_request and event.check.outcome == "preflight_refusal"
+        ):
+            if request_key in filtration_by_request:
+                raise ConfidenceLedgerError(f"{error_prefix}_duplicate_preparation")
+            filtration_by_request[request_key] = head_projection_hash
+        try:
+            filtration_projection_hash = filtration_by_request[request_key]
+        except KeyError as exc:  # pragma: no cover - live receipt validation owns this guard.
+            raise ConfidenceLedgerError(f"{error_prefix}_missing_preparation") from exc
+        projected_check = _semantic_check_projection(
+            event.check,
+            filtration_projection_hash=filtration_projection_hash,
+        )
+        event_values: dict[str, Any] = {
+            "event_type": event.event_type,
+            "revision": event.revision,
+            "parent_event_projection_hash": head_projection_hash,
+            "check": projected_check,
+        }
+        event_values["event_projection_hash"] = _content_hash(event_values)
+        projected_event = ConfidenceLedgerSemanticEvent.model_validate(event_values)
+        projected_events.append(projected_event)
+        current_checks[request_key] = projected_check
+        head_projection_hash = projected_event.event_projection_hash
+    live_current = {check.request_key: check for check in receipt.checks}
+    if set(live_current) != set(current_checks):  # pragma: no cover - receipt validation guard.
+        raise ConfidenceLedgerError(f"{error_prefix}_current_check_denominator_drift")
+    for request_key, live_check in live_current.items():
+        expected = _semantic_check_projection(
+            live_check,
+            filtration_projection_hash=filtration_by_request[request_key],
+        )
+        if expected != current_checks[request_key]:  # pragma: no cover - validation guard.
+            raise ConfidenceLedgerError(f"{error_prefix}_current_check_drift")
+    checks = tuple(current_checks[key] for key in sorted(current_checks))
+    return tuple(projected_events), checks, head_projection_hash
+
+
 def project_confidence_ledger_semantic_receipt(
     receipt: ConfidenceLedgerReceipt | Mapping[str, object],
     *,
@@ -3337,52 +3556,15 @@ def project_confidence_ledger_semantic_receipt(
         projection_scope=projection_scope,
     )
     root_projection_hash = _content_hash(root_values)
-    head_projection_hash = root_projection_hash
-    filtration_by_request: dict[str, str] = {}
-    current_checks: dict[str, ConfidenceLedgerSemanticCheck] = {}
-    projected_events: list[ConfidenceLedgerSemanticEvent] = []
-    for event in validated.events:
-        request_key = event.check.request_key
-        if event.event_type == "prepared" or (
-            request_key not in filtration_by_request and event.check.outcome == "preflight_refusal"
-        ):
-            if request_key in filtration_by_request:
-                raise ConfidenceLedgerError("semantic_projection_duplicate_preparation")
-            filtration_by_request[request_key] = head_projection_hash
-        try:
-            filtration_projection_hash = filtration_by_request[request_key]
-        except KeyError as exc:  # pragma: no cover - live receipt validation owns this guard.
-            raise ConfidenceLedgerError("semantic_projection_missing_preparation") from exc
-        projected_check = _semantic_check_projection(
-            event.check,
-            filtration_projection_hash=filtration_projection_hash,
-        )
-        event_values: dict[str, Any] = {
-            "event_type": event.event_type,
-            "revision": event.revision,
-            "parent_event_projection_hash": head_projection_hash,
-            "check": projected_check,
-        }
-        event_values["event_projection_hash"] = _content_hash(event_values)
-        projected_event = ConfidenceLedgerSemanticEvent.model_validate(event_values)
-        projected_events.append(projected_event)
-        current_checks[request_key] = projected_check
-        head_projection_hash = projected_event.event_projection_hash
-    live_current = {check.request_key: check for check in validated.checks}
-    if set(live_current) != set(current_checks):  # pragma: no cover - receipt validation guard.
-        raise ConfidenceLedgerError("semantic_projection_current_check_denominator_drift")
-    for request_key, live_check in live_current.items():
-        expected = _semantic_check_projection(
-            live_check,
-            filtration_projection_hash=filtration_by_request[request_key],
-        )
-        if expected != current_checks[request_key]:  # pragma: no cover - receipt validation guard.
-            raise ConfidenceLedgerError("semantic_projection_current_check_drift")
-    checks = tuple(current_checks[key] for key in sorted(current_checks))
+    projected_events, checks, head_projection_hash = _project_semantic_event_lineage(
+        validated,
+        root_projection_hash=root_projection_hash,
+        error_prefix="semantic_projection",
+    )
     values: dict[str, Any] = {
         **root_values,
         "root_projection_hash": root_projection_hash,
-        "events": tuple(projected_events),
+        "events": projected_events,
         "checks": checks,
         "head_event_projection_hash": head_projection_hash,
         "total_spend": validated.total_spend,
@@ -3392,6 +3574,44 @@ def project_confidence_ledger_semantic_receipt(
     }
     values["projection_hash"] = _content_hash(values)
     return ConfidenceLedgerSemanticReceiptProjection.model_validate(values)
+
+
+def project_n9_promotion_semantic_ledger(
+    receipt: ConfidenceLedgerReceipt | Mapping[str, object],
+    *,
+    session: ConfidenceLedgerSession,
+) -> N9PromotionSemanticLedgerProjection:
+    """Project a verified N9 ledger onto stable claim and filtration semantics."""
+
+    validated = validate_confidence_ledger_receipt(receipt, session=session)
+    risk_scope = session.risk_scope
+    if risk_scope.authority_purpose != "n9_promotion":
+        raise ConfidenceLedgerError("n9_semantic_projection_scope_authority_mismatch")
+    if validated.scope_id != risk_scope.scope_id:
+        raise ConfidenceLedgerError("n9_semantic_projection_scope_binding_invalid")
+    root_values = _n9_semantic_ledger_root_values(
+        receipt=validated,
+        risk_scope=risk_scope,
+    )
+    root_projection_hash = _content_hash(root_values)
+    events, checks, head_projection_hash = _project_semantic_event_lineage(
+        validated,
+        root_projection_hash=root_projection_hash,
+        error_prefix="n9_semantic_projection",
+    )
+    values: dict[str, Any] = {
+        **root_values,
+        "root_projection_hash": root_projection_hash,
+        "events": events,
+        "checks": checks,
+        "head_event_projection_hash": head_projection_hash,
+        "total_spend": validated.total_spend,
+        "total_spend_decimal": validated.total_spend_decimal,
+        "within_budget": validated.within_budget,
+        "good_event_clause": validated.good_event_clause,
+    }
+    values["projection_hash"] = _content_hash(values)
+    return N9PromotionSemanticLedgerProjection.model_validate(values)
 
 
 def project_n9_promotion_certificate(
@@ -4173,9 +4393,18 @@ def _assert_loaded_runtime_matches_import_baseline(
 ) -> None:
     """Reject authority if disk or runtime differs from the importing process."""
 
+    loaded_code_manifest, loaded_code_consistent = _loaded_code_manifest(
+        repo_root,
+        _derived_authority_import_closure(repo_root),
+    )
     if (
         deployment_baseline or _deployment_baseline(repo_root)
-    ) != _IMPORT_TIME_DEPLOYMENT_BASELINE or not _IMPORT_TIME_LOADED_CODE_CONSISTENT:
+    ) != _IMPORT_TIME_DEPLOYMENT_BASELINE or not (
+        _IMPORT_TIME_LOADED_CODE_CONSISTENT
+        and loaded_code_consistent
+        and _loaded_code_evidence_projection(loaded_code_manifest)
+        == _loaded_code_evidence_projection(_IMPORT_TIME_LOADED_CODE_MANIFEST)
+    ):
         raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
 
 
@@ -4232,7 +4461,9 @@ def _deployment_quick_fence(repo_root: Path) -> _DeploymentQuickFence:
     """Return a cheap path/inode/size/time fence for authority deployment files."""
 
     entries: list[_DeploymentFileFence] = []
-    for relative in _deployment_relative_paths(repo_root):
+    for relative in _deployment_relative_paths_from_closure(
+        _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE
+    ):
         path = repo_root / relative
         try:
             stat = path.stat()
@@ -4254,16 +4485,19 @@ def _deployment_quick_fence(repo_root: Path) -> _DeploymentQuickFence:
 
 
 def _deployment_relative_paths(repo_root: Path) -> tuple[Path, ...]:
-    """Return the generic sorted deployment file set."""
+    """Return the deployment files derived from the authority import closure."""
 
-    source_root = repo_root / "src/polisyos"
-    try:
-        source_paths = sorted(
-            (path.relative_to(repo_root) for path in source_root.rglob("*.py")),
-            key=lambda path: path.as_posix(),
-        )
-    except OSError as exc:
-        raise ConfidenceLedgerError("canonical_deployment_identity_invalid") from exc
+    return _deployment_relative_paths_from_closure(
+        _derived_authority_import_closure(repo_root)
+    )
+
+
+def _deployment_relative_paths_from_closure(
+    closure: tuple[tuple[str, str], ...],
+) -> tuple[Path, ...]:
+    """Return deployment paths from one already admitted derived closure."""
+
+    source_paths = tuple(Path(relative_path) for _module_name, relative_path in closure)
     if not source_paths:
         raise ConfidenceLedgerError("canonical_deployment_identity_invalid")
     return (Path("pyproject.toml"), Path("uv.lock"), *source_paths)
@@ -4277,10 +4511,11 @@ def _resolve_authority_import_closure(
 ) -> tuple[tuple[str, str], ...]:
     """Resolve one complete repository-local declared import closure.
 
-    Static imports, literal dynamic imports, and repository owner references
-    declared as strings all enter the closure. Tool modules remain excluded
-    from the runtime-only E12 closure unless a governed tool owner explicitly
-    requests them.
+    Runtime mode follows repository-local static imports outside typing-only
+    arms plus source-declared PEP 562 re-exports. Literal dynamic targets are
+    source-owner inputs, not runtime modules, unless reached through a static
+    edge; owner/tool mode additionally sees literal dynamic imports and tools.
+    Both modes exclude typing-only arms.
     """
 
     resolved: dict[str, Path] = {}
@@ -4317,7 +4552,7 @@ def _resolve_authority_import_closure(
                 relative.as_posix(),
             ) from exc
         discovered: set[str] = set()
-        nodes = _runtime_ast_nodes(tree) if include_tools else ast.walk(tree)
+        nodes = _runtime_ast_nodes(tree)
         for node in nodes:
             if isinstance(node, ast.Import):
                 for alias in node.names:
@@ -4344,6 +4579,23 @@ def _resolve_authority_import_closure(
                     candidate = f"{base}.{alias.name}"
                     if resolve_source(candidate) is not None:
                         discovered.add(candidate)
+                        continue
+                    provider = _literal_module_getattr_provider(
+                        repo_root,
+                        base,
+                        alias.name,
+                        directory_entries=directory_entries,
+                    )
+                    if (
+                        provider is not None
+                        and _repository_module_root(provider) in allowed_roots
+                    ):
+                        if resolve_source(provider) is None:
+                            raise ConfidenceLedgerError(
+                                "canonical_loaded_runtime_mismatch",
+                                f"unresolved repository import: {provider}",
+                            )
+                        discovered.add(provider)
             elif isinstance(node, ast.Call):
                 dynamic_ref = _literal_dynamic_import_ref(node)
                 if (
@@ -4367,6 +4619,97 @@ def _resolve_authority_import_closure(
     return tuple(
         (module_name, resolved[module_name].as_posix()) for module_name in sorted(resolved)
     )
+
+
+def _derived_authority_import_closure(repo_root: Path) -> tuple[tuple[str, str], ...]:
+    """Recompute and admit only the import-time authority closure."""
+
+    resolved = _resolve_authority_import_closure(repo_root, __name__)
+    if resolved != _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            "authority import closure differs from source",
+        )
+    return resolved
+
+
+def _literal_module_getattr_provider(
+    repo_root: Path,
+    module_name: str,
+    export_name: str,
+    *,
+    directory_entries: dict[Path, frozenset[str]],
+) -> str | None:
+    """Resolve one literal PEP 562 re-export provider without importing it."""
+
+    relative = _repository_module_source(
+        repo_root,
+        module_name,
+        directory_entries=directory_entries,
+    )
+    if relative is None:
+        return None
+    try:
+        tree = ast.parse((repo_root / relative).read_bytes(), filename=relative.as_posix())
+    except (OSError, SyntaxError) as exc:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            relative.as_posix(),
+        ) from exc
+    mapping_names: set[str] = set()
+    for statement in tree.body:
+        if not (
+            isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and statement.name == "__getattr__"
+            and statement.args.args
+        ):
+            continue
+        parameter_name = statement.args.args[0].arg
+        for node in ast.walk(statement):
+            if (
+                isinstance(node, ast.Subscript)
+                and isinstance(node.value, ast.Name)
+                and isinstance(node.slice, ast.Name)
+                and node.slice.id == parameter_name
+            ):
+                mapping_names.add(node.value.id)
+    providers: set[str] = set()
+    for statement in tree.body:
+        target: ast.expr | None = None
+        value: ast.expr | None = None
+        if isinstance(statement, ast.Assign) and len(statement.targets) == 1:
+            target = statement.targets[0]
+            value = statement.value
+        elif isinstance(statement, ast.AnnAssign):
+            target = statement.target
+            value = statement.value
+        if not (
+            isinstance(target, ast.Name)
+            and target.id in mapping_names
+            and isinstance(value, ast.Dict)
+        ):
+            continue
+        for key, provider_row in zip(value.keys, value.values, strict=True):
+            if not (
+                isinstance(key, ast.Constant)
+                and key.value == export_name
+                and isinstance(provider_row, (ast.Tuple, ast.List))
+                and provider_row.elts
+            ):
+                continue
+            provider = provider_row.elts[0]
+            if not (isinstance(provider, ast.Constant) and isinstance(provider.value, str)):
+                raise ConfidenceLedgerError(
+                    "canonical_loaded_runtime_mismatch",
+                    f"non-literal repository re-export: {module_name}.{export_name}",
+                )
+            providers.add(provider.value)
+    if len(providers) > 1:
+        raise ConfidenceLedgerError(
+            "canonical_loaded_runtime_mismatch",
+            f"ambiguous repository re-export: {module_name}.{export_name}",
+        )
+    return next(iter(providers), None)
 
 
 def _runtime_ast_nodes(node: ast.AST) -> Iterable[ast.AST]:
@@ -4774,7 +5117,10 @@ def _loader_owned_slot_function_matches(
         and Path(terminal.__code__.co_filename).resolve() == source_path
         and terminal_hash in expected_hashes
     )
-    expects_contextmanager = "contextmanager" in slot.decorators
+    expects_contextmanager = any(
+        decorator == "contextmanager" or decorator.endswith(".contextmanager")
+        for decorator in slot.decorators
+    )
     wrapper_matches = len(chain) == 1 and not expects_contextmanager
     if len(chain) > 1 and expects_contextmanager:
         expected_wrapper = contextmanager(terminal)
@@ -5015,6 +5361,39 @@ def _loaded_code_manifest(
             "live_loader_consistent": module_consistent,
         }
     return _canonical_json(manifest), all_consistent
+
+
+def _loaded_code_evidence_projection(manifest: str) -> str:
+    """Remove process-late non-local exports from stable runtime evidence."""
+
+    try:
+        payload = json.loads(manifest)
+    except (json.JSONDecodeError, TypeError) as exc:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch") from exc
+    if type(payload) is not dict:
+        raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+    projection: dict[str, object] = {}
+    for module_name, module_row in payload.items():
+        if not (isinstance(module_name, str) and type(module_row) is dict):
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        live_bindings = module_row.get("live_defined_code")
+        if type(live_bindings) is not dict:
+            raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+        local_bindings: dict[str, object] = {}
+        for label, binding in live_bindings.items():
+            if not (
+                isinstance(label, str)
+                and type(binding) is dict
+                and type(binding.get("defined_locally")) is bool
+            ):
+                raise ConfidenceLedgerError("canonical_loaded_runtime_mismatch")
+            if binding["defined_locally"]:
+                local_bindings[label] = binding
+        projection[module_name] = {
+            **module_row,
+            "live_defined_code": local_bindings,
+        }
+    return _canonical_json(projection)
 
 
 def _live_defined_code_manifest(
@@ -5366,6 +5745,7 @@ __all__ = [
     "ConfidenceRiskBudgetScope",
     "N9PromotionCertificateProjection",
     "N9PromotionLedgerRow",
+    "N9PromotionSemanticLedgerProjection",
     "N12EpochReferenceProjection",
     "OwnerCertificateBinding",
     "OwnerCertificateEvidence",
@@ -5376,6 +5756,7 @@ __all__ = [
     "load_confidence_ledger_registry",
     "project_confidence_ledger_semantic_receipt",
     "project_n9_promotion_certificate",
+    "project_n9_promotion_semantic_ledger",
     "project_n12_epoch_reference",
     "recompute_confidence_owner_evidence_hash",
     "recompute_confidence_owner_projection_hash",
@@ -5393,7 +5774,9 @@ _IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE = _resolve_authority_import_closure(
     _IMPORT_TIME_DEPLOYMENT_BASELINE,
     _IMPORT_TIME_DEPLOYMENT_QUICK_FENCE,
 ) = _stable_deployment_snapshot(_loaded_policy_engine_root())
+
 _import_authority_closure_modules(_IMPORT_TIME_AUTHORITY_IMPORT_CLOSURE)
+
 (
     _IMPORT_TIME_LOADED_CODE_MANIFEST,
     _IMPORT_TIME_LOADED_CODE_CONSISTENT,

@@ -71,7 +71,7 @@
     },
     "degradation_ledger": {},
     "dependency_fingerprints": {},
-    "deterministic_fingerprint": "sha256:ce4e3f2a98a9225c0613f843dd7e1d0e934691e226203a7635ad8f26c084c770",
+    "deterministic_fingerprint": "sha256:2f7595165d36409b8f590be69a9b9254e2db33a5105737633f75869fdd061b98",
     "effective_mode_ledger": {},
     "execution_summary": {
       "engineering_readiness_status": "pass",
@@ -101,10 +101,10 @@
       "carrier_ref": "evidence-spine:g6:req-layer3-g6-readiness",
       "claim_refs": [],
       "concept_spine_ref": "cas://concept-spine/layer3-g6/req-layer3-g6-readiness",
-      "continuity_fingerprint": "sha256:351cf287d2e2d630b7593faaf23dcdd7ed04965ff1fb87922414d68ad262a9aa",
+      "continuity_fingerprint": "sha256:6d9b2a58a057361233a0e39b5bd0e5cc250b9eb1b39ee101eb5479a64b4718ba",
       "continuity_ref": "quality_evidence/runtime_orchestration_continuity.json",
       "findings": [],
-      "generated_at": "2026-06-16T13:50:02+00:00",
+      "generated_at": "2026-08-19T19:50:59+00:00",
       "handoff_refs": [
         "producer-handshake-ledger://layer3-g6/req-layer3-g6-readiness",
         "quality_evidence/runtime_orchestration_continuity.json"

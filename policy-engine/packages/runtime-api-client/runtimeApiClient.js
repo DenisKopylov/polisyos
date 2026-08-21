@@ -288,6 +288,20 @@ export class RuntimeApiClient {
     return this.request('GET', path, query);
   }
 
+  async getDepthNCycleBoardProjection(params) {
+    const path = `/api/v1/exports/governed-projections/depth-n-cycle-board`;
+    const query = this.buildQuery({
+      replay_target: params?.replay_target,
+      artifact_content_hash: params?.artifact_content_hash,
+      projection_hash: params?.projection_hash,
+      source_dependency_hash: params?.source_dependency_hash,
+      source_as_of: params?.source_as_of,
+      projection_rule_version: params?.projection_rule_version,
+      composition_manifest_hash: params?.composition_manifest_hash,
+    });
+    return this.request('GET', path, query);
+  }
+
   async getGovernedProjection(params) {
     const path = `/api/v1/exports/governed-projections/${encodeURIComponent(String(params.projection_id))}`;
     const query = this.buildQuery({

@@ -5,13 +5,16 @@ import logging
 from typing import TYPE_CHECKING
 
 import pytest
+
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
+from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.scientist.orchestration.engine.async_executor import AsyncWorkflowExecutor
 from polisyos.scientist.orchestration.engine.checkpoint import (
     CASCheckpointHook,
+    CheckpointError,
     resolve_latest_checkpoint,
     resume_from_checkpoint,
 )
@@ -229,9 +232,21 @@ def _parallel_workflow() -> WorkflowSpec:
     )
 
 
-def _context(store: FileSystemCAS, run_id: str) -> tuple[ExecutionContext, object]:
+def _context(
+    store: FileSystemCAS,
+    run_id: str,
+    *,
+    tenant_id: str | None = None,
+    cell_id: str | None = None,
+) -> tuple[ExecutionContext, object]:
     bundle = build_default_registry_bundle(store)
-    run = RunContext.start(store=store, registry_bundle=bundle.bundle_ref, run_id=run_id)
+    run = RunContext.start(
+        store=store,
+        registry_bundle=bundle.bundle_ref,
+        run_id=run_id,
+        tenant_id=tenant_id,
+        cell_id=cell_id,
+    )
     ctx = ExecutionContext(store=store, run=run, logger=logging.getLogger("checkpoint_resume_test"))
     return ctx, bundle.bundle_ref
 
@@ -302,6 +317,88 @@ def test_resume_uses_checkpoint_cache_refs_when_trace_is_truncated(tmp_path: Pat
     assert resumed.state.params.get("final") is True
 
     # step1/step2 should be skipped via cache warm-up from checkpoint metadata
+    assert StepOneNode.calls == 1
+    assert StepTwoNode.calls == 1
+    assert FlakyFinalNode.calls == 2
+
+
+@pytest.mark.parametrize(
+    ("resume_tenant_id", "resume_cell_id"),
+    [("tenant-b", "cell-a"), ("tenant-a", "cell-b")],
+)
+def test_resume_rejects_mismatched_tenant_or_cell_before_protected_action(
+    tmp_path: Path,
+    resume_tenant_id: str,
+    resume_cell_id: str,
+) -> None:
+    StepOneNode.calls = 0
+    StepTwoNode.calls = 0
+    FlakyFinalNode.calls = 0
+    FlakyFinalNode.fail_once = True
+
+    store = FileSystemCAS(tmp_path)
+    workflow = _workflow()
+    run_id = "R_checkpoint_tenant_scope"
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        ctx, bundle_ref = _context(
+            store,
+            run_id,
+            tenant_id="tenant-a",
+            cell_id="cell-a",
+        )
+        state = ExperimentState(
+            run_id=run_id,
+            inputs={"registry_bundle_ref": bundle_ref},
+            params={"seed": 13},
+        )
+        hook = CASCheckpointHook(
+            store=store,
+            run_dir=tmp_path / "runs" / run_id,
+            checkpoint_policy="strict",
+        )
+        first = WorkflowExecutor(ctx, _registry(), checkpoint_hook=hook).execute(workflow, state)
+
+    assert first.report.status == "fail"
+    protected_calls_before = (
+        StepOneNode.calls,
+        StepTwoNode.calls,
+        FlakyFinalNode.calls,
+    )
+    trace_path = tmp_path / "runs" / run_id / "trace.jsonl"
+    trace_before = trace_path.read_bytes()
+
+    with (
+        tenant_scope(None, tenant_id=resume_tenant_id, cell_id=resume_cell_id),
+        pytest.raises(CheckpointError, match="scope mismatch"),
+    ):
+        resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=_registry(),
+            registry_bundle_ref=bundle_ref,
+            checkpoint_policy="strict",
+        )
+
+    assert (
+        StepOneNode.calls,
+        StepTwoNode.calls,
+        FlakyFinalNode.calls,
+    ) == protected_calls_before
+    assert trace_path.read_bytes() == trace_before
+
+    with tenant_scope(None, tenant_id="tenant-a", cell_id="cell-a"):
+        resumed = resume_from_checkpoint(
+            store,
+            run_id,
+            workflow=workflow,
+            registry=_registry(),
+            registry_bundle_ref=bundle_ref,
+            checkpoint_policy="strict",
+        )
+
+    assert resumed.report.status == "ok"
+    assert resumed.state.params.get("final") is True
     assert StepOneNode.calls == 1
     assert StepTwoNode.calls == 1
     assert FlakyFinalNode.calls == 2

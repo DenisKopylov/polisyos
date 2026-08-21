@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "authority-semantic-copy-registry.schema.json",
+  "title": "Atlas authority semantic copy registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["$schema", "schema_version", "registry_id", "capability_state", "copies"],
+  "properties": {
+    "$schema": { "const": "./authority-semantic-copy-registry.schema.json" },
+    "schema_version": { "const": "1.0" },
+    "registry_id": { "const": "atlas-authority-semantic-copy" },
+    "capability_state": { "const": "consumer_missing" },
+    "copies": { "type": "array", "items": { "$ref": "#/$defs/copy" } }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" },
+    "copy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["semantic_id", "source_token", "source_declaration", "semantic_class", "strength", "locale", "scope", "reviewed_output", "content_sha256", "active", "review"],
+      "properties": {
+        "semantic_id": { "type": "string", "minLength": 1 },
+        "source_token": { "type": "string", "minLength": 1 },
+        "source_declaration": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["contract_module", "schema", "field"],
+          "properties": {
+            "contract_module": { "const": "@polisyos/runtime-api-client" },
+            "schema": { "const": "AvailableGovernedProjectionPacket" },
+            "field": { "const": "may_not_use_for" }
+          }
+        },
+        "semantic_class": { "const": "rights_bar" },
+        "strength": { "const": "limited" },
+        "locale": { "enum": ["en", "uk"] },
+        "scope": { "const": "governed_projection.rights_bar" },
+        "reviewed_output": { "type": "string", "minLength": 1 },
+        "content_sha256": { "$ref": "#/$defs/sha256" },
+        "active": { "type": "boolean" },
+        "review": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["status", "reviewer_identity", "reviewer_version", "reviewer_scope"],
+          "properties": {
+            "status": { "enum": ["accepted", "verification_missing"] },
+            "reviewer_identity": { "type": "string", "minLength": 1 },
+            "reviewer_version": { "type": "string", "minLength": 1 },
+            "reviewer_scope": { "type": "string", "minLength": 1 }
+          }
+        }
+      }
+    }
+  }
+}

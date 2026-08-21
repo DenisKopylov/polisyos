@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import hashlib
+import json
 import sys
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -871,6 +872,120 @@ def test_n8_catalog_provenance_records_editable_identity_as_quarantined() -> Non
     assert value_contract._catalog_provenance_issues(provenance, provenance) == ()
 
 
+def _frozen_value_contract_payload() -> dict[str, Any]:
+    return json.loads(
+        (value_contract._repo_root() / value_contract.OUTPUT_PATH).read_text(
+            encoding="utf-8"
+        )
+    )
+
+
+def test_n8_validation_result_reports_canonical_ambient_drift_without_governing_it() -> None:
+    """The frozen canonical drift stays visible without invalidating N8."""
+
+    payload = _frozen_value_contract_payload()
+
+    result = value_contract.validate_payload_result(payload)
+
+    assert isinstance(result, value_contract.ValueGateValidationResult)
+    assert result.governing_issues == ()
+    assert value_contract.validate_payload(payload) == ()
+    assert {
+        finding["code"] for finding in result.ambient_findings
+    } == {
+        "catalog_ambient_discovery_manifest_mismatch",
+        "catalog_ambient_component_manifest_mismatch",
+        "catalog_ambient_unbound_input_manifest_mismatch",
+        "catalog_predicate_provenance_mismatch",
+    }
+    predicate_finding = next(
+        finding
+        for finding in result.ambient_findings
+        if finding["code"] == "catalog_predicate_provenance_mismatch"
+    )
+    assert predicate_finding["predicate"] == "ambient.discovered_component_membership"
+    assert "catalog_provenance_manifest_mismatch" not in {
+        finding["code"] for finding in result.ambient_findings
+    }
+
+
+def test_n8_validation_result_keeps_governed_catalog_drift_named_and_decisive() -> None:
+    """A governed registry-binding change remains an N8 failure with its named code."""
+
+    from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
+
+    payload = _frozen_value_contract_payload()
+    provenance = payload["denominators"]["catalog_provenance"]
+    provenance["governed_discovery"]["registry_binding_sha256"] = "sha256:" + "f" * 64
+    provenance["provenance_id"] = method_catalog_provenance_id(provenance)
+    payload["contract_content_hash"] = value_contract._content_hash(payload)
+
+    result = value_contract.validate_payload_result(payload)
+    governing_codes = {issue["code"] for issue in result.governing_issues}
+    ambient_codes = {finding["code"] for finding in result.ambient_findings}
+
+    assert "catalog_builtin_discovery_manifest_mismatch" in governing_codes
+    assert "catalog_builtin_discovery_manifest_mismatch" not in ambient_codes
+    assert {
+        issue["code"] for issue in value_contract.validate_payload(payload)
+    } >= {"catalog_builtin_discovery_manifest_mismatch"}
+
+
+def test_n8_validation_result_fails_closed_when_ambient_admission_is_missing() -> None:
+    """Removing the declaration cannot turn unknown posture into an ambient finding."""
+
+    from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
+
+    payload = _frozen_value_contract_payload()
+    provenance = payload["denominators"]["catalog_provenance"]
+    provenance["ambient_discovery"].pop("admission")
+    provenance["provenance_id"] = method_catalog_provenance_id(provenance)
+    payload["contract_content_hash"] = value_contract._content_hash(payload)
+
+    result = value_contract.validate_payload_result(payload)
+
+    assert "catalog_ambient_input_not_quarantined" in {
+        issue["code"] for issue in result.governing_issues
+    }
+    assert "catalog_ambient_input_not_quarantined" not in {
+        finding["code"] for finding in result.ambient_findings
+    }
+
+
+def test_n8_full_check_and_rederive_compare_the_governed_projection(
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+) -> None:
+    """Sibling paths retain ambient evidence without restoring it as the gate."""
+
+    root = value_contract._repo_root()
+
+    result = value_contract.run_rederive_audit_result(root)
+    assert value_contract.check(root) == ()
+    assert result.governing_issues == ()
+    assert {
+        (finding["code"], finding.get("predicate"))
+        for finding in result.ambient_findings
+    } == {
+        ("catalog_ambient_discovery_manifest_mismatch", None),
+        ("catalog_ambient_component_manifest_mismatch", None),
+        ("catalog_ambient_unbound_input_manifest_mismatch", None),
+        (
+            "catalog_predicate_provenance_mismatch",
+            "ambient.discovered_component_membership",
+        ),
+    }
+    summary = json.loads(capsys.readouterr().out.splitlines()[-1])
+    assert summary["ambient_findings"] == list(result.ambient_findings)
+
+    monkeypatch.setattr(
+        value_contract,
+        "run_rederive_audit_result",
+        lambda _root: result,
+    )
+    assert value_contract.run_rederive_audit(root) == ()
+
+
 def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path: Path,
@@ -1074,18 +1189,21 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
     assert first_bound_entry["editable_install"] is False
     assert second_bound_entry["editable_install"] is False
     assert first_bound_entry["direct_url_sha256"] != second_bound_entry["direct_url_sha256"]
-    bound_codes = {
-        issue["code"]
-        for issue in value_contract._catalog_provenance_issues(
-            second_bound,
-            first_bound,
-        )
+    bound_result = value_contract._catalog_provenance_validation_result(
+        second_bound,
+        first_bound,
+    )
+    bound_governing_codes = {
+        issue["code"] for issue in bound_result.governing_issues
     }
-    assert "catalog_entry_point_distribution_manifest_mismatch" in bound_codes
-    assert "catalog_provenance_content_hash_mismatch" not in bound_codes
+    assert bound_governing_codes == set()
+    assert "catalog_entry_point_distribution_manifest_mismatch" in {
+        finding["code"] for finding in bound_result.ambient_findings
+    }
+    assert "catalog_provenance_content_hash_mismatch" not in bound_governing_codes
 
 
-def test_n8_catalog_provenance_rejects_changed_content_bound_distribution_identity() -> None:
+def test_n8_catalog_provenance_reports_changed_content_bound_distribution_identity() -> None:
     from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
 
     expected = _catalog_provenance_comparison_fixture()
@@ -1099,13 +1217,13 @@ def test_n8_catalog_provenance_rejects_changed_content_bound_distribution_identi
     )
     recorded["provenance_id"] = method_catalog_provenance_id(recorded)
 
-    codes = {
-        issue["code"]
-        for issue in value_contract._catalog_provenance_issues(recorded, expected)
-    }
+    result = value_contract._catalog_provenance_validation_result(recorded, expected)
+    governing_codes = {issue["code"] for issue in result.governing_issues}
+    ambient_codes = {finding["code"] for finding in result.ambient_findings}
 
-    assert "catalog_entry_point_distribution_manifest_mismatch" in codes
-    assert "catalog_provenance_content_hash_mismatch" not in codes
+    assert "catalog_entry_point_distribution_manifest_mismatch" in ambient_codes
+    assert "catalog_entry_point_distribution_manifest_mismatch" not in governing_codes
+    assert "catalog_provenance_content_hash_mismatch" not in governing_codes
 
 
 def test_n8_catalog_provenance_reissue_changes_only_the_member_and_witness() -> None:
@@ -1338,15 +1456,18 @@ def test_n8_catalog_provenance_check_uses_the_frozen_payload(
     monkeypatch.setattr(value_contract, "OUTPUT_PATH", artifact.name)
     monkeypatch.setattr(
         value_contract,
-        "validate_payload",
-        lambda payload: observed.append(payload) or (),
+        "validate_payload_result",
+        lambda payload: (
+            observed.append(payload)
+            or value_contract.ValueGateValidationResult((), ())
+        ),
     )
 
     assert value_contract.check_catalog_provenance(tmp_path) == ()
     assert observed == [{"frozen": True}]
 
 
-def test_n8_catalog_provenance_names_environment_before_count_drift(
+def test_n8_catalog_provenance_reports_environment_without_masking_count_drift(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     expected_denominators = value_contract._catalog_denominators()
@@ -1371,6 +1492,12 @@ def test_n8_catalog_provenance_names_environment_before_count_drift(
             }
         )
     recorded_denominators["registered_method_count"] += 1
+    from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
+
+    recorded_provenance = recorded_denominators["catalog_provenance"]
+    recorded_provenance["provenance_id"] = method_catalog_provenance_id(
+        recorded_provenance
+    )
     monkeypatch.setattr(
         value_contract,
         "_catalog_denominators_cached",
@@ -1382,14 +1509,17 @@ def test_n8_catalog_provenance_names_environment_before_count_drift(
         "denominators": recorded_denominators,
     }
 
-    codes = {issue["code"] for issue in value_contract.validate_payload(payload)}
+    result = value_contract.validate_payload_result(payload)
+    governing_codes = {issue["code"] for issue in result.governing_issues}
+    ambient_codes = {finding["code"] for finding in result.ambient_findings}
 
-    assert "catalog_entry_point_distribution_manifest_mismatch" in codes
-    assert "catalog_method_denominator_drift" not in codes
+    assert "catalog_entry_point_distribution_manifest_mismatch" in ambient_codes
+    assert "catalog_entry_point_distribution_manifest_mismatch" not in governing_codes
+    assert "catalog_method_denominator_drift" in governing_codes
 
 
 @pytest.mark.parametrize(
-    ("section", "field", "corrupt_value", "expected_code"),
+    ("section", "field", "corrupt_value", "expected_code", "destination"),
     [
         (
             "ambient_discovery",
@@ -1400,12 +1530,14 @@ def test_n8_catalog_provenance_names_environment_before_count_drift(
                 "fail_closed_action": "quarantine",
             },
             "catalog_ambient_admission_mismatch",
+            "ambient",
         ),
         (
             "runtime_backend_identity",
             "schema_version",
             "policyos.method_catalog_runtime_identity.forged",
             "catalog_runtime_backend_identity_mismatch",
+            "governing",
         ),
     ],
 )
@@ -1414,6 +1546,7 @@ def test_n8_catalog_provenance_recomputes_recorded_manifest_identity(
     field: str,
     corrupt_value: object,
     expected_code: str,
+    destination: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     expected_denominators = value_contract._catalog_denominators()
@@ -1430,10 +1563,16 @@ def test_n8_catalog_provenance_recomputes_recorded_manifest_identity(
         "denominators": recorded_denominators,
     }
 
-    codes = {issue["code"] for issue in value_contract.validate_payload(payload)}
+    result = value_contract.validate_payload_result(payload)
+    governing_codes = {issue["code"] for issue in result.governing_issues}
+    ambient_codes = {finding["code"] for finding in result.ambient_findings}
 
-    assert expected_code in codes
-    assert "catalog_provenance_content_hash_mismatch" in codes
+    if destination == "ambient":
+        assert expected_code in ambient_codes
+        assert expected_code not in governing_codes
+    else:
+        assert expected_code in governing_codes
+    assert "catalog_provenance_content_hash_mismatch" in governing_codes
 
 
 def test_n8_catalog_predicate_bindings_cover_every_denominator_field() -> None:
@@ -2877,6 +3016,66 @@ def test_value_receipt_rejects_world_version_laundering() -> None:
     payload["calibration_receipt"] = receipt.calibration_receipt
     payload["world_model_record_content_hash"] = _hash("4")
     with pytest.raises(ValueError, match="value_world_version_laundered"):
+        ValueGateReceipt.model_validate(payload)
+
+
+def test_value_receipt_exposes_each_decisive_consistency_predicate() -> None:
+    world = _world_record("1")
+    receipt = _receipt(world)
+
+    predicates = receipt.decisive_consistency_predicates()
+
+    assert [
+        predicate.model_dump(mode="json", exclude={"content_hash"})
+        for predicate in predicates
+    ] == [
+        {
+            "rule_version": "polisyos.runtime.value_receipt_consistency.v1",
+            "predicate_id": "transport_wmr_hash_equals_receipt_wmr_hash",
+            "source_basis": "receipt_internal_consistency",
+            "candidate_id": "candidate_value_gate",
+            "observed_ref": world.content_hash,
+            "expected_ref": world.content_hash,
+            "satisfied": True,
+            "predicate_provenance": "recomputed",
+        },
+        {
+            "rule_version": "polisyos.runtime.value_receipt_consistency.v1",
+            "predicate_id": "outer_set_wmr_ref_equals_receipt_wmr_hash",
+            "source_basis": "receipt_internal_consistency",
+            "candidate_id": "candidate_value_gate",
+            "observed_ref": world.content_hash,
+            "expected_ref": world.content_hash,
+            "satisfied": True,
+            "predicate_provenance": "recomputed",
+        },
+    ]
+    assert len({predicate.content_hash for predicate in predicates}) == 2
+
+
+def test_value_receipt_transport_hash_predicate_fails_independently() -> None:
+    receipt = _receipt(_world_record("1"))
+    payload = receipt.model_dump(mode="python")
+    payload["value_outer_set"] = receipt.value_outer_set
+    payload["transport_receipt"] = receipt.transport_receipt.model_copy(
+        update={"world_model_record_content_hash": _hash("4")}
+    )
+    payload["calibration_receipt"] = receipt.calibration_receipt
+
+    with pytest.raises(ValueError, match="transport_wmr_hash_mismatch"):
+        ValueGateReceipt.model_validate(payload)
+
+
+def test_value_receipt_outer_set_ref_predicate_fails_independently() -> None:
+    receipt = _receipt(_world_record("1"))
+    payload = receipt.model_dump(mode="python")
+    payload["value_outer_set"] = receipt.value_outer_set.model_copy(
+        update={"world_model_record_ref": _hash("4")}
+    )
+    payload["transport_receipt"] = receipt.transport_receipt
+    payload["calibration_receipt"] = receipt.calibration_receipt
+
+    with pytest.raises(ValueError, match="outer_set_wmr_ref_mismatch"):
         ValueGateReceipt.model_validate(payload)
 
 

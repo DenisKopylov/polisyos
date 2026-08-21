@@ -122,6 +122,54 @@ async function ensureDeterministicConnectorFixture(request: APIRequestContext) {
     .toEqual([VISUAL_CONNECTOR_ID]);
 }
 
+function visualResponseMetadataPaths(coreRunId: string) {
+  return [
+    `/api/v1/runs/${encodeURIComponent(coreRunId)}/evidence-context`,
+    "/api/v1/control/data/promotion/candidates",
+    "/api/v1/control/data/connectors",
+  ];
+}
+
+async function installVisualResponseMetadataFixture(
+  page: Page,
+  coreRunId: string,
+) {
+  for (const responsePath of visualResponseMetadataPaths(coreRunId)) {
+    await page.route(`**${responsePath}`, async (route) => {
+      const request = route.request();
+      const pathname = decodeURIComponent(new URL(request.url()).pathname);
+      if (request.method() !== "GET" || pathname !== responsePath) {
+        await route.fallback();
+        return;
+      }
+
+      const response = await route.fetch();
+      const payload: unknown = await response.json();
+      if (
+        !isRecord(payload) ||
+        !isRecord(payload.meta) ||
+        typeof payload.meta.generated_at !== "string" ||
+        payload.meta.generated_at.length === 0
+      ) {
+        throw new TypeError(
+          `visual fixture expected nonempty meta.generated_at at ${responsePath}`,
+        );
+      }
+
+      await route.fulfill({
+        response,
+        json: {
+          ...payload,
+          meta: {
+            ...payload.meta,
+            generated_at: VISUAL_CLOCK_TIME,
+          },
+        },
+      });
+    });
+  }
+}
+
 async function installBureaucraticTimestampFixture(
   page: Page,
   artifactId: string,
@@ -290,9 +338,63 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test.beforeEach(async ({ page }) => {
-    await page.clock.install({ time: VISUAL_CLOCK_TIME });
+    await page.clock.setFixedTime(VISUAL_CLOCK_TIME);
     await installDashboardTestState(page);
+    await installVisualResponseMetadataFixture(
+      page,
+      fixtureMetadata.core_run_id,
+    );
     await page.emulateMedia({ reducedMotion: "reduce" });
+  });
+
+  test("binds visual response metadata to the visual clock", async ({
+    page,
+  }) => {
+    const responsePaths = visualResponseMetadataPaths(
+      fixtureMetadata.core_run_id,
+    );
+
+    await page.goto("/");
+    const visualTimeBeforeWait = await page.evaluate(() =>
+      new Date().toISOString(),
+    );
+    await page.waitForTimeout(50);
+    const visualTimeAfterWait = await page.evaluate(() =>
+      new Date().toISOString(),
+    );
+    expect(visualTimeBeforeWait).toBe(VISUAL_CLOCK_TIME);
+    expect(visualTimeAfterWait).toBe(VISUAL_CLOCK_TIME);
+
+    const generatedTimes = await page.evaluate(async (paths) => {
+      return Promise.all(
+        paths.map(async (path) => {
+          const response = await fetch(path);
+          if (!response.ok) {
+            throw new Error(
+              `visual fixture request failed at ${path}: ${response.status}`,
+            );
+          }
+          const payload: unknown = await response.json();
+          if (
+            typeof payload !== "object" ||
+            payload === null ||
+            !("meta" in payload) ||
+            typeof payload.meta !== "object" ||
+            payload.meta === null ||
+            !("generated_at" in payload.meta)
+          ) {
+            throw new TypeError(
+              `visual fixture expected meta.generated_at at ${path}`,
+            );
+          }
+          return payload.meta.generated_at;
+        }),
+      );
+    }, responsePaths);
+
+    for (const generatedAt of generatedTimes) {
+      expect(generatedAt).toBe(VISUAL_CLOCK_TIME);
+    }
   });
 
   test("command center shell", async ({ page }) => {
@@ -337,6 +439,13 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test("evidence promotion focus", async ({ page }) => {
+    const catalogResponsePromise = page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return (
+        response.request().method() === "GET" &&
+        url.pathname === "/api/v1/control/data/catalog/search"
+      );
+    });
     await page.goto(
       `/evidence?runId=${fixtureMetadata.core_run_id}&focus=promotion&promotionId=${fixtureMetadata.promotion_candidate_id}`,
     );
@@ -345,6 +454,23 @@ test.describe("runtime-dashboard visual baselines", () => {
         `promotion-approve-${fixtureMetadata.promotion_candidate_id}`,
       ),
     ).toBeVisible();
+    const catalogResponse = await catalogResponsePromise;
+    expect(catalogResponse.ok()).toBe(true);
+    const catalogPayload: unknown = await catalogResponse.json();
+    if (
+      !isRecord(catalogPayload) ||
+      typeof catalogPayload.query !== "string" ||
+      typeof catalogPayload.total_matches !== "number"
+    ) {
+      throw new TypeError(
+        "visual fixture expected a typed catalog search response",
+      );
+    }
+    await expect(
+      page.getByTestId("evidence-knowledge-weave-panel"),
+    ).toContainText(
+      `Catalog matches: ${catalogPayload.total_matches} for query \`${catalogPayload.query}\``,
+    );
     const surface = page.getByTestId("evidence-page");
     await waitForVisualFonts(page);
     await waitForStableRender(surface);
@@ -579,6 +705,40 @@ test.describe("runtime-dashboard visual baselines", () => {
       caret: "hide",
       maxDiffPixels: 100,
     });
+  });
+
+  test("run detail print omits signed targets and preserves ordinary link targets", async ({
+    page,
+  }) => {
+    const surface = await openPrintSurface(page, {
+      path: `/runs/${fixtureMetadata.core_run_id}/overview?trust=expanded`,
+      readyTestId: "run-detail-page",
+      selector: '[data-testid="run-detail-page"]',
+    });
+    const signedLink = surface.locator('a[href^="/public/decisions/"]');
+    await expect(signedLink).toHaveCount(1);
+    await expect(signedLink).toBeVisible();
+    const signedHref = await signedLink.getAttribute("href");
+    expect(signedHref?.length).toBeGreaterThan(1_000);
+    expect(
+      await signedLink.evaluate(
+        (element) => getComputedStyle(element, "::after").content,
+      ),
+    ).toBe("none");
+
+    const ordinaryLinks = await surface
+      .locator('a[href]:not([href^="/public/decisions/"]):visible')
+      .evaluateAll((elements) =>
+        elements.map((element) => ({
+          href: element.getAttribute("href"),
+          printedTarget: getComputedStyle(element, "::after").content,
+        })),
+      );
+    expect(ordinaryLinks.length).toBeGreaterThan(0);
+    for (const ordinaryLink of ordinaryLinks) {
+      expect(ordinaryLink.href).not.toBeNull();
+      expect(ordinaryLink.printedTarget).toContain(ordinaryLink.href);
+    }
   });
 
   test("bureaucratic document A4 print", async ({ page }) => {

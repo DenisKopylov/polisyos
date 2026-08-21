@@ -8,6 +8,11 @@ import {
 import { useParams } from "react-router-dom";
 
 import { useRunDetails } from "@/api/hooks/useRunDetails";
+import { useAuthz } from "@/app/authz/AuthzProvider";
+import {
+  createAuthorityLocalStateEnvelopeFamily,
+  type AuthorityLocalScope,
+} from "@/app/offline/authorityLocalState";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
   markUiMilestone,
@@ -56,7 +61,7 @@ import {
 // artifact in the run details and parse its payload.
 // ---------------------------------------------------------------------------
 
-type CausalArtifactPayload = {
+export type CausalArtifactPayload = {
   adjustmentSet: string[];
   edges: CausalEdgeData[];
   methodData?: Record<string, unknown>;
@@ -258,75 +263,293 @@ function nextDraftId(label: string, existingIds: Set<string>) {
   return candidate;
 }
 
-function causalDraftStorageKey(runId: string) {
-  return `polisyos:atlas:causal-draft:${runId}`;
+type StoredCausalNode = Readonly<{
+  description?: string;
+  id: string;
+  kind: CausalNodeKind;
+  label: string;
+}>;
+
+type StoredCausalEdge = Readonly<{
+  id: string;
+  source: string;
+  target: string;
+}>;
+
+type StoredCausalGraph = Readonly<{
+  edges: StoredCausalEdge[];
+  nodes: StoredCausalNode[];
+}>;
+
+type CausalDraftStorage = Readonly<{
+  getItem: (key: string) => string | null;
+  removeItem: (key: string) => void;
+  setItem: (key: string, value: string) => void;
+}>;
+
+const CAUSAL_DRAFT_FAMILY = "causal-draft" as const;
+const CAUSAL_DRAFT_TTL_MS = 24 * 60 * 60 * 1_000;
+
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
-function isCausalArtifactPayload(
-  value: unknown,
-): value is CausalArtifactPayload {
-  if (!value || typeof value !== "object") {
-    return false;
-  }
-  const record = value as Partial<CausalArtifactPayload>;
-  return Array.isArray(record.nodes) && Array.isArray(record.edges);
+function hasExactKeys(value: Record<string, unknown>, keys: string[]) {
+  const actual = Object.keys(value).sort();
+  const expected = [...keys].sort();
+  return (
+    actual.length === expected.length &&
+    actual.every((key, index) => key === expected[index])
+  );
 }
 
-function readStoredCausalDraft(runId: string): CausalArtifactPayload | null {
-  if (typeof window === "undefined") {
+function isNonEmptyString(value: unknown): value is string {
+  return typeof value === "string" && value.trim().length > 0;
+}
+
+function parseStoredCausalNode(value: unknown): StoredCausalNode | null {
+  if (!isRecord(value)) {
     return null;
   }
+  const hasDescription = Object.hasOwn(value, "description");
+  if (
+    !hasExactKeys(
+      value,
+      hasDescription
+        ? ["description", "id", "kind", "label"]
+        : ["id", "kind", "label"],
+    ) ||
+    !isNonEmptyString(value.id) ||
+    !isNonEmptyString(value.label) ||
+    !CAUSAL_NODE_KINDS.includes(value.kind as CausalNodeKind) ||
+    (hasDescription && typeof value.description !== "string")
+  ) {
+    return null;
+  }
+  return {
+    ...(hasDescription ? { description: value.description as string } : {}),
+    id: value.id,
+    kind: value.kind as CausalNodeKind,
+    label: value.label,
+  };
+}
 
+function parseStoredCausalEdge(value: unknown): StoredCausalEdge | null {
+  if (
+    !isRecord(value) ||
+    !hasExactKeys(value, ["id", "source", "target"]) ||
+    !isNonEmptyString(value.id) ||
+    !isNonEmptyString(value.source) ||
+    !isNonEmptyString(value.target)
+  ) {
+    return null;
+  }
+  return { id: value.id, source: value.source, target: value.target };
+}
+
+function parseStoredCausalGraph(value: unknown): StoredCausalGraph | null {
+  if (
+    !isRecord(value) ||
+    !hasExactKeys(value, ["edges", "nodes"]) ||
+    !Array.isArray(value.nodes) ||
+    !Array.isArray(value.edges)
+  ) {
+    return null;
+  }
+  const nodes: StoredCausalNode[] = [];
+  const nodeIds = new Set<string>();
+  for (const candidate of value.nodes) {
+    const node = parseStoredCausalNode(candidate);
+    if (!node || nodeIds.has(node.id)) {
+      return null;
+    }
+    nodes.push(node);
+    nodeIds.add(node.id);
+  }
+  const edges: StoredCausalEdge[] = [];
+  const edgeIds = new Set<string>();
+  for (const candidate of value.edges) {
+    const edge = parseStoredCausalEdge(candidate);
+    if (
+      !edge ||
+      edgeIds.has(edge.id) ||
+      !nodeIds.has(edge.source) ||
+      !nodeIds.has(edge.target)
+    ) {
+      return null;
+    }
+    edges.push(edge);
+    edgeIds.add(edge.id);
+  }
+  return { edges, nodes };
+}
+
+function encodeStoredCausalGraph(
+  graph: CausalArtifactPayload,
+): StoredCausalGraph | null {
+  const projected: StoredCausalGraph = {
+    edges: graph.edges.map(({ id, source, target }) => ({
+      id,
+      source,
+      target,
+    })),
+    nodes: graph.nodes.map(({ description, id, kind, label }) => ({
+      ...(description === undefined ? {} : { description }),
+      id,
+      kind,
+      label,
+    })),
+  };
+  return parseStoredCausalGraph(projected);
+}
+
+function decodeStoredCausalGraph(value: unknown): CausalArtifactPayload | null {
+  const stored = parseStoredCausalGraph(value);
+  if (!stored) {
+    return null;
+  }
+  const nodes: CausalNodeData[] = stored.nodes.map((node) => ({ ...node }));
+  const edges: CausalEdgeData[] = stored.edges.map((edge) => ({
+    ...edge,
+    status: createCausalDraftIdentificationDisplay("unidentified"),
+  }));
+  return {
+    adjustmentSet: [],
+    edges,
+    nodes,
+    paths: deriveCausalPaths(nodes, edges),
+  };
+}
+
+function browserCausalDraftStorage(): CausalDraftStorage | null {
   try {
-    const raw = window.localStorage.getItem(causalDraftStorageKey(runId));
-    if (!raw) {
-      return null;
-    }
-    const parsed = JSON.parse(raw) as { graph?: unknown };
-    if (!isCausalArtifactPayload(parsed.graph)) {
-      return null;
-    }
-    return asCandidateCausalGraph({
-      ...parsed.graph,
-      adjustmentSet: Array.isArray(parsed.graph.adjustmentSet)
-        ? parsed.graph.adjustmentSet
-        : [],
-      paths: [],
-    });
+    return typeof window === "undefined" ? null : window.localStorage;
   } catch {
     return null;
   }
 }
 
-function writeStoredCausalDraft(runId: string, graph: CausalArtifactPayload) {
-  if (typeof window === "undefined") {
-    return;
+export function createCausalDraftPersistence(config?: {
+  clock?: () => Date;
+  storage?: () => CausalDraftStorage | null;
+}) {
+  const owner = createAuthorityLocalStateEnvelopeFamily({
+    clock: config?.clock ?? (() => new Date()),
+    codec: {
+      decode: decodeStoredCausalGraph,
+      encode: encodeStoredCausalGraph,
+    },
+    family: CAUSAL_DRAFT_FAMILY,
+    ttlMs: CAUSAL_DRAFT_TTL_MS,
+    version: 1,
+  });
+  const storageResolver = config?.storage ?? browserCausalDraftStorage;
+
+  function resolveStorage(): CausalDraftStorage | null {
+    try {
+      return storageResolver();
+    } catch {
+      return null;
+    }
   }
 
-  try {
-    window.localStorage.setItem(
-      causalDraftStorageKey(runId),
-      JSON.stringify({
-        graph,
-        savedAt: new Date().toISOString(),
-        version: 1,
-      }),
-    );
-  } catch {
-    // Local draft persistence is a convenience; review should continue without it.
+  function key(
+    scope: AuthorityLocalScope | null | undefined,
+    runId: string,
+  ) {
+    return owner.key({ scope, slot: runId });
   }
+
+  function read(
+    scope: AuthorityLocalScope | null | undefined,
+    runId: string,
+  ): CausalArtifactPayload | null {
+    const physicalKey = key(scope, runId);
+    if (!physicalKey) {
+      return null;
+    }
+    try {
+      const raw = resolveStorage()?.getItem(physicalKey);
+      if (!raw) {
+        return null;
+      }
+      return owner.decode({
+        envelope: JSON.parse(raw) as unknown,
+        fallback: null,
+        scope,
+        slot: runId,
+      });
+    } catch {
+      return null;
+    }
+  }
+
+  function write(
+    scope: AuthorityLocalScope | null | undefined,
+    runId: string,
+    graph: CausalArtifactPayload,
+  ): boolean {
+    const issued = owner.encode({ scope, slot: runId, value: graph });
+    if (!issued) {
+      return false;
+    }
+    const storage = resolveStorage();
+    if (!storage) {
+      return false;
+    }
+    try {
+      storage.setItem(issued.key, JSON.stringify(issued.envelope));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  function remove(
+    scope: AuthorityLocalScope | null | undefined,
+    runId: string,
+  ): boolean {
+    const physicalKey = key(scope, runId);
+    if (!physicalKey) {
+      return false;
+    }
+    try {
+      const storage = resolveStorage();
+      if (!storage) {
+        return false;
+      }
+      storage.removeItem(physicalKey);
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  return Object.freeze({ key, read, remove, write });
 }
 
-function removeStoredCausalDraft(runId: string) {
-  if (typeof window === "undefined") {
-    return;
-  }
+const causalDraftPersistence = createCausalDraftPersistence();
 
-  try {
-    window.localStorage.removeItem(causalDraftStorageKey(runId));
-  } catch {
-    // Storage cleanup is best-effort.
-  }
+function readStoredCausalDraft(
+  scope: AuthorityLocalScope | null | undefined,
+  runId: string,
+) {
+  return causalDraftPersistence.read(scope, runId);
+}
+
+function writeStoredCausalDraft(
+  scope: AuthorityLocalScope | null | undefined,
+  runId: string,
+  graph: CausalArtifactPayload,
+) {
+  return causalDraftPersistence.write(scope, runId, graph);
+}
+
+function removeStoredCausalDraft(
+  scope: AuthorityLocalScope | null | undefined,
+  runId: string,
+) {
+  return causalDraftPersistence.remove(scope, runId);
 }
 
 // ---------------------------------------------------------------------------
@@ -395,7 +618,13 @@ function MethodVisualization({
 // Main tab content
 // ---------------------------------------------------------------------------
 
-function CausalTabContent({ runId }: { runId: string }) {
+function CausalTabContent({
+  runId,
+  scope,
+}: {
+  runId: string;
+  scope: AuthorityLocalScope | null;
+}) {
   const { t } = useI18n();
   const runDetailsQuery = useRunDetails(runId);
   const graph = useMemo(
@@ -403,8 +632,8 @@ function CausalTabContent({ runId }: { runId: string }) {
     [runDetailsQuery.data],
   );
   const storedDraft = useMemo(
-    () => (graph ? null : readStoredCausalDraft(runId)),
-    [graph, runId],
+    () => (graph ? null : readStoredCausalDraft(scope, runId)),
+    [graph, runId, scope],
   );
   const sourceGraph = useMemo(
     () => graph ?? storedDraft ?? buildFallbackCausalGraph(),
@@ -416,6 +645,7 @@ function CausalTabContent({ runId }: { runId: string }) {
   const [adversarialMode, setAdversarialMode] = useState(false);
   const [draftGraph, setDraftGraph] =
     useState<CausalArtifactPayload>(sourceGraph);
+  const [persistenceDirty, setPersistenceDirty] = useState(false);
   const [draftNodeLabel, setDraftNodeLabel] = useState("");
   const [draftNodeKind, setDraftNodeKind] =
     useState<CausalNodeKind>("confounder");
@@ -427,6 +657,7 @@ function CausalTabContent({ runId }: { runId: string }) {
 
   useEffect(() => {
     setDraftGraph(sourceGraph);
+    setPersistenceDirty(false);
     setDraftEdgeSource(sourceGraph.nodes[0]?.id ?? "");
     setDraftEdgeTarget(
       sourceGraph.nodes[1]?.id ?? sourceGraph.nodes[0]?.id ?? "",
@@ -437,12 +668,24 @@ function CausalTabContent({ runId }: { runId: string }) {
     if (runDetailsQuery.isLoading) {
       return;
     }
-    if (graph) {
-      removeStoredCausalDraft(runId);
+    if (!scope) {
       return;
     }
-    writeStoredCausalDraft(runId, draftGraph);
-  }, [draftGraph, graph, runDetailsQuery.isLoading, runId]);
+    if (graph) {
+      removeStoredCausalDraft(scope, runId);
+      return;
+    }
+    if (persistenceDirty) {
+      writeStoredCausalDraft(scope, runId, draftGraph);
+    }
+  }, [
+    draftGraph,
+    graph,
+    persistenceDirty,
+    runDetailsQuery.isLoading,
+    runId,
+    scope,
+  ]);
 
   useEffect(() => {
     if (!draftGraph) {
@@ -551,6 +794,7 @@ function CausalTabContent({ runId }: { runId: string }) {
                     nodes,
                     paths: deriveCausalPaths(nodes, draftGraph.edges),
                   });
+                  setPersistenceDirty(true);
                   setDraftNodeLabel("");
                 }}
                 variant="primary"
@@ -616,6 +860,7 @@ function CausalTabContent({ runId }: { runId: string }) {
                 edges,
                 paths: deriveCausalPaths(draftGraph.nodes, edges),
               });
+              setPersistenceDirty(true);
             }}
           >
             {t("phase32.causal.addEdge")}
@@ -712,8 +957,27 @@ function CausalTabContent({ runId }: { runId: string }) {
 export default function CausalTab() {
   const { t } = useI18n();
   const { runId } = useParams<{ runId: string }>();
+  const authz = useAuthz();
+  const scope = useMemo<AuthorityLocalScope | null>(
+    () =>
+      authz.status === "ready" &&
+      authz.user?.tenant_id &&
+      authz.user.user_id
+        ? {
+            tenantId: authz.user.tenant_id,
+            userId: authz.user.user_id,
+          }
+        : null,
+    [authz.status, authz.user?.tenant_id, authz.user?.user_id],
+  );
 
   if (!runId) return null;
+
+  const persistenceBinding = JSON.stringify(
+    scope
+      ? ["scoped", scope.tenantId, scope.userId, runId]
+      : ["unscoped", runId],
+  );
 
   return (
     <FeatureAsyncBoundary
@@ -723,7 +987,11 @@ export default function CausalTab() {
       resetKeys={[runId]}
       title={t("causal.title")}
     >
-      <CausalTabContent runId={runId} />
+      <CausalTabContent
+        key={persistenceBinding}
+        runId={runId}
+        scope={scope}
+      />
     </FeatureAsyncBoundary>
   );
 }

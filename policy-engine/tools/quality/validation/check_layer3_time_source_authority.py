@@ -15,6 +15,8 @@ from pathlib import Path
 from typing import Any
 from unittest.mock import patch
 
+from pydantic import ValidationError
+
 FAMILY_ID = "policy-design-case-layer3-time-source-authority"
 TIME_SOURCE_AUDIT_PATH = (
     "architecture/policy_design_case/layer3_gy_time_source_envelope_audit.json"
@@ -33,24 +35,6 @@ FIXED_RUN_STARTED = datetime(2026, 6, 16, 12, 5, 11, tzinfo=UTC)
 FIXED_RUN_FINISHED = datetime(2026, 6, 16, 12, 6, 13, tzinfo=UTC)
 FIXED_NODE_STARTED = datetime(2026, 6, 16, 12, 5, 19, tzinfo=UTC)
 FIXED_NODE_FINISHED = datetime(2026, 6, 16, 12, 5, 47, tzinfo=UTC)
-TIME_SOURCE_FIELDS = {
-    "catalog_watermark",
-    "source_observed_at",
-    "source_published_at",
-    "source_updated_at",
-    "ingested_at",
-    "effective_time",
-    "legal_valid_time",
-    "transaction_time",
-    "as_of_time",
-    "replay_time",
-    "run_started_at",
-    "run_finished_at",
-    "node_started_at",
-    "node_finished_at",
-    "retention_or_expiry",
-    "mismatch_disposition",
-}
 AUTHORITY_INVENTORY_FIELDS = {
     "producer_component",
     "source_artifact_ref",
@@ -77,7 +61,7 @@ def validate(repo_root: Path, *, write: bool = False) -> dict[str, Any]:
 
     _ensure_src_path(repo_root)
     issues: list[dict[str, str]] = []
-    _validate_generated_artifacts_registration(repo_root, issues)
+    _validate_public_surface_registration(repo_root, issues)
     expected = build_live_proof_payloads(repo_root)
     _validate_time_source_audit(expected[TIME_SOURCE_AUDIT_PATH], issues)
     _validate_authority_inventory(expected[AUTHORITY_INVENTORY_PATH], issues)
@@ -165,8 +149,8 @@ def _build_time_source_payload(repo_root: Path) -> dict[str, Any]:
     from polisyos.data_forge.read_api.catalog import build_production_data_contract_catalog_graph
     from polisyos.pdc import ValueOfInformationEstimate
     from polisyos.runtime.http.services.temporal import (
-        TimeSourceEnvelopeAudit,
-        build_time_source_envelope_audit,
+        TimeSourceConsistencyAuditProjection,
+        build_time_source_consistency_audit_projection,
     )
     from polisyos.runtime.quality.design_axes.resource_economics import (
         allocate_value_of_information,
@@ -189,7 +173,7 @@ def _build_time_source_payload(repo_root: Path) -> dict[str, Any]:
         RunTimelineEvent,
     )
     temporal_scope = TemporalScope(valid_at=run_details.finished_at, tx_at=run_details.finished_at)
-    clean = build_time_source_envelope_audit(
+    clean = build_time_source_consistency_audit_projection(
         catalog_watermark=catalog_time,
         source_observed_at=catalog_time,
         source_published_at=catalog_time,
@@ -205,7 +189,7 @@ def _build_time_source_payload(repo_root: Path) -> dict[str, Any]:
         node_finished_at=node_finished.timestamp,
         retention_or_expiry=run_details.finished_at + timedelta(days=30),
     )
-    stale_watermark = build_time_source_envelope_audit(
+    stale_watermark = build_time_source_consistency_audit_projection(
         catalog_watermark=catalog_time,
         source_observed_at=run_details.started_at,
         source_published_at=catalog_time,
@@ -221,7 +205,7 @@ def _build_time_source_payload(repo_root: Path) -> dict[str, Any]:
         node_finished_at=node_finished.timestamp,
         retention_or_expiry=run_details.finished_at + timedelta(days=30),
     )
-    legal_outside_replay = build_time_source_envelope_audit(
+    legal_outside_replay = build_time_source_consistency_audit_projection(
         catalog_watermark=run_details.finished_at,
         source_observed_at=run_details.finished_at,
         source_published_at=catalog_time,
@@ -288,9 +272,12 @@ def _build_time_source_payload(repo_root: Path) -> dict[str, Any]:
     )
     audits = [clean, stale_watermark, legal_outside_replay]
     return {
-        "schema_version": "policyos.policy_design_case.layer3_gy.time_source_envelope_audit.v1",
+        "schema_version": (
+            "policyos.policy_design_case.layer3_gy."
+            "time_source_consistency_audit_projection.v1"
+        ),
         "owner": "team-runtime-quality",
-        "proof_source": "catalog_temporal_lineage_s12_recompute",
+        "proof_source": "catalog_temporal_consistency_s12_recompute",
         "catalog_source": {
             "dataset_ref": dataset.id,
             "source": dataset.source,
@@ -318,7 +305,7 @@ def _build_time_source_payload(repo_root: Path) -> dict[str, Any]:
             "g5_real_ref_evidence": g5_evidence.model_dump(mode="json"),
             "authorial_negative_fixture": authorial_evidence.model_dump(mode="json"),
         },
-        "audit_model": TimeSourceEnvelopeAudit.__name__,
+        "audit_model": TimeSourceConsistencyAuditProjection.__name__,
     }
 
 
@@ -408,29 +395,10 @@ def _runtime_lifecycle_objects(
             store.close()
 
 
-def _validate_generated_artifacts_registration(
+def _validate_public_surface_registration(
     repo_root: Path,
     issues: list[dict[str, str]],
 ) -> None:
-    generated = tomllib.loads(
-        (repo_root / "architecture/generated_artifacts.toml").read_text(encoding="utf-8")
-    )
-    families = {family.get("id"): family for family in generated.get("family", [])}
-    family = families.get(FAMILY_ID)
-    if not family:
-        issues.append({"code": "layer3_time_source_authority_family_missing"})
-    else:
-        if set(family.get("outputs") or []) != set(OUTPUTS):
-            issues.append({"code": "layer3_time_source_authority_outputs_mismatch"})
-        if family.get("owner") != "team-runtime-quality":
-            issues.append({"code": "layer3_time_source_authority_owner_mismatch"})
-        if family.get("stale_output_behavior") != "fail":
-            issues.append({"code": "layer3_time_source_authority_stale_not_fail"})
-        if "--check" not in list(family.get("check_command") or []):
-            issues.append({"code": "layer3_time_source_authority_check_missing_check"})
-        if "--write" not in " ".join(family.get("regenerate_commands") or []):
-            issues.append({"code": "layer3_time_source_authority_regenerate_missing_write"})
-
     contract = tomllib.loads(
         (repo_root / "architecture/public_surface/contract.toml").read_text(encoding="utf-8")
     )
@@ -440,8 +408,16 @@ def _validate_generated_artifacts_registration(
     contract_family = contract_families.get(FAMILY_ID)
     if not contract_family:
         issues.append({"code": "layer3_time_source_authority_public_family_missing"})
-    elif contract_family.get("stale_output_behavior") != "fail":
-        issues.append({"code": "layer3_time_source_authority_public_stale_not_fail"})
+    else:
+        if set(contract_family.get("outputs") or []) != set(OUTPUTS):
+            issues.append({"code": "layer3_time_source_authority_outputs_mismatch"})
+        if contract_family.get("owner") != "team-runtime-quality":
+            issues.append({"code": "layer3_time_source_authority_owner_mismatch"})
+        if contract_family.get("stale_output_behavior") != "fail":
+            issues.append({"code": "layer3_time_source_authority_public_stale_not_fail"})
+        regenerate = str(contract_family.get("regenerate") or "")
+        if "--write" not in regenerate:
+            issues.append({"code": "layer3_time_source_authority_regenerate_missing_write"})
 
     inventory_path = repo_root / "architecture/public_surface/inventory.json"
     if inventory_path.exists():
@@ -451,31 +427,59 @@ def _validate_generated_artifacts_registration(
             for item in inventory.get("generated_artifact_families", [])
             if isinstance(item, dict)
         }
-        if FAMILY_ID not in inventory_families:
+        inventory_family = inventory_families.get(FAMILY_ID)
+        if inventory_family is None:
             issues.append({"code": "layer3_time_source_authority_inventory_family_missing"})
+        elif inventory_family != contract_family:
+            issues.append({"code": "layer3_time_source_authority_public_inventory_drift"})
 
 
 def _validate_time_source_audit(
     payload: dict[str, Any],
     issues: list[dict[str, str]],
 ) -> None:
+    from polisyos.runtime.http.services.temporal import (
+        TimeSourceConsistencyAuditProjection,
+    )
+    from polisyos.runtime.quality.authority import (
+        TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION,
+        TIME_SOURCE_CONSISTENT_DISPOSITION,
+        TIME_SOURCE_INCONSISTENT_DISPOSITION,
+    )
+
+    if payload.get("audit_model") != TimeSourceConsistencyAuditProjection.__name__:
+        issues.append({"code": "time_source_audit_model_mismatch"})
     audits = payload.get("audits")
     if not isinstance(audits, list) or len(audits) < 3:
         issues.append({"code": "time_source_audits_missing"})
         return
-    dispositions = {str(item.get("mismatch_disposition")) for item in audits if isinstance(item, dict)}
+    disposition_schema = TimeSourceConsistencyAuditProjection.model_json_schema()["properties"][
+        "mismatch_disposition"
+    ]
+    allowed_dispositions = set(disposition_schema.get("enum") or [])
+    expected_fields = set(TimeSourceConsistencyAuditProjection.model_fields)
+    dispositions: set[str] = set()
     for audit in audits:
         if not isinstance(audit, dict):
             issues.append({"code": "time_source_audit_not_object"})
             continue
-        if set(audit) != TIME_SOURCE_FIELDS:
+        if set(audit) != expected_fields:
             issues.append({"code": "time_source_audit_fields_mismatch"})
-    if "admitted" not in dispositions:
-        issues.append({"code": "time_source_admitted_fixture_missing"})
-    if "block:catalog_watermark_stale_for_source" not in dispositions:
-        issues.append({"code": "time_source_stale_watermark_not_blocked"})
-    if "block:legal_valid_time_outside_as_of_replay" not in dispositions:
-        issues.append({"code": "time_source_legal_replay_not_blocked"})
+        disposition = audit.get("mismatch_disposition")
+        if not isinstance(disposition, str) or disposition not in allowed_dispositions:
+            issues.append({"code": "time_source_disposition_unknown"})
+        else:
+            dispositions.add(disposition)
+        try:
+            TimeSourceConsistencyAuditProjection.model_validate(audit)
+        except ValidationError:
+            issues.append({"code": "time_source_audit_contract_invalid"})
+    if TIME_SOURCE_CONSISTENT_DISPOSITION not in dispositions:
+        issues.append({"code": "time_source_consistent_fixture_missing"})
+    if TIME_SOURCE_INCONSISTENT_DISPOSITION not in dispositions:
+        issues.append({"code": "time_source_inconsistent_fixture_missing"})
+    if TIME_SOURCE_BLOCKED_FOR_OWNER_REVIEW_DISPOSITION not in dispositions:
+        issues.append({"code": "time_source_owner_review_fixture_missing"})
 
     deref = payload.get("s12_ref_dereference") if isinstance(payload, dict) else {}
     if not isinstance(deref, dict):

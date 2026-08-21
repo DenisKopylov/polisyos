@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import { useLocation } from "react-router-dom";
 
 import { useCapabilities } from "@/api/hooks/useCapabilities";
-import { useMaybeAuthz } from "@/app/authz/AuthzProvider";
+import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import {
   WORKSPACES,
@@ -52,16 +52,16 @@ export function WorkspaceBoundary({
   const location = useLocation();
   const { t } = useI18n();
   const capabilitiesQuery = useCapabilities();
-  const authz = useMaybeAuthz();
+  const authzDecision = useAuthzDecision();
   const { flags } = useFeatureFlags();
 
   const workspace = WORKSPACES[workspaceKey];
   const workspaceEnabled = workspace.featureFlag
     ? flags[workspace.featureFlag]
     : true;
-  const workspaceAllowed = authz
-    ? authz.isWorkspaceAllowed(workspaceKey)
-    : true;
+  const workspaceAllowed =
+    authzDecision.kind === "verified" &&
+    authzDecision.isWorkspaceAllowed(workspaceKey);
   const missingCapabilities = workspace.requiredCapabilities.filter(
     (capability) => !isCapabilityEnabled(capabilitiesQuery.data, capability),
   );

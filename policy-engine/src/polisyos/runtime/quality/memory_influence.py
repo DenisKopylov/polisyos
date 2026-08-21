@@ -56,6 +56,8 @@ CLAIM_EVIDENCE_SLOT_KEYS: tuple[str, ...] = (
     "accepted_deficit_refs",
     "blocker_refs",
 )
+# Compatibility projection of the legacy claim grammar. Provenance admission must
+# traverse values and never decide from membership in this key vocabulary.
 MEMORY_INFLUENCE_REF_PREFIXES: tuple[str, ...] = (
     "memory-influence:",
     "runtime.memory_influence:",
@@ -74,6 +76,20 @@ FORBIDDEN_MEMORY_KEY_TOKENS: tuple[str, ...] = (
     "canary",
 )
 _LLM_SOURCE_KINDS = frozenset({"llm_candidate", "llm_critic", "llm_drafter"})
+_MEMORY_INFLUENCE_POSITION_FLAG = "memory_influence_bearing_position"
+
+
+class _ProvenancePayloadError(ValueError):
+    """Raised when provenance traversal reaches a non-canonical payload value."""
+
+    def __init__(self, *, path: tuple[str, ...], value: object) -> None:
+        self.path = path
+        self.value_type = type(value).__name__
+        location = _payload_path(path) if path else "$"
+        super().__init__(
+            "unsupported provenance payload value at "
+            f"{location}: {self.value_type}"
+        )
 
 
 class MemoryInfluenceRecord(BaseModel):
@@ -81,14 +97,24 @@ class MemoryInfluenceRecord(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["policyos.runtime.quality.memory_influence_record.v1"] = (
-        MEMORY_INFLUENCE_SCHEMA_VERSION
+    schema_version: Literal["policyos.runtime.quality.memory_influence_record.v1"] = Field(
+        default=MEMORY_INFLUENCE_SCHEMA_VERSION,
+        json_schema_extra={_MEMORY_INFLUENCE_POSITION_FLAG: True},
     )
-    record_kind: Literal["runtime.quality.memory_influence"] = MEMORY_INFLUENCE_RECORD_KIND
+    record_kind: Literal["runtime.quality.memory_influence"] = Field(
+        default=MEMORY_INFLUENCE_RECORD_KIND,
+        json_schema_extra={_MEMORY_INFLUENCE_POSITION_FLAG: True},
+    )
     adr_ref: Literal["ADR-0172"] = MEMORY_INFLUENCE_ADR_REF
-    record_id: str = Field(default_factory=lambda: f"memory-influence-{uuid4().hex}")
+    record_id: str = Field(
+        default_factory=lambda: f"memory-influence-{uuid4().hex}",
+        json_schema_extra={_MEMORY_INFLUENCE_POSITION_FLAG: True},
+    )
     run_id: str = Field(min_length=1)
-    memory_id: str = Field(min_length=1)
+    memory_id: str = Field(
+        min_length=1,
+        json_schema_extra={_MEMORY_INFLUENCE_POSITION_FLAG: True},
+    )
     memory_kind: str = Field(min_length=1)
     source_run_id: str = Field(min_length=1)
     source_kind: str = Field(min_length=1)
@@ -119,6 +145,7 @@ class MemoryInfluenceRecord(BaseModel):
             raise ValueError("memory influence cannot carry current evidence or claim closure refs")
         if self.source_kind in _LLM_SOURCE_KINDS and self.influence_modes:
             raise ValueError("unverified LLM memory cannot influence current run")
+        _assert_markers_in_owner_declared_positions(self)
         return self
 
     def to_authority_boundary(self) -> dict[str, Any]:
@@ -197,6 +224,7 @@ def assert_memory_influence_not_claim_evidence(
             "memory influence boundary missing forbidden current uses: "
             + ",".join(sorted(missing))
         )
+    _assert_markers_in_owner_declared_positions(record)
     return record
 
 
@@ -394,59 +422,136 @@ def memory_influence_claim_evidence_issues(
     *,
     claim_id: str | None = None,
 ) -> list[dict[str, Any]]:
-    """Return claim-registry issues for memory influence refs in evidence slots."""
+    """Return claim-registry issues for memory provenance anywhere in a claim."""
+
+    try:
+        provenance_values = _payload_provenance_values(row)
+    except _ProvenancePayloadError as exc:
+        return [
+            {
+                "code": "memory_influence_payload_provenance_unknown",
+                "severity": "fail",
+                "layer": "runtime_quality",
+                "phase": "balanced_memory_firewall",
+                "claim_id": claim_id,
+                "evidence_slot": exc.path[0] if exc.path else "$",
+                "payload_path": _payload_path(exc.path) if exc.path else "$",
+                "unsupported_value_type": exc.value_type,
+                "message": (
+                    "Memory influence admission cannot classify a non-canonical "
+                    "payload value and therefore fails closed."
+                ),
+                "next_action": (
+                    "Resolve the value through the destination contract's canonical "
+                    "payload grammar before claim-evidence admission."
+                ),
+                "authority_boundary": {
+                    "adr_ref": MEMORY_INFLUENCE_ADR_REF,
+                    "authoritative_for": list(MEMORY_FUTURE_AUTHORITY_USES),
+                    "may_not_use_for": list(MEMORY_FORBIDDEN_CURRENT_USES),
+                },
+            }
+        ]
 
     issues: list[dict[str, Any]] = []
-    for slot in CLAIM_EVIDENCE_SLOT_KEYS:
-        for ref in _refs_from(row.get(slot)):
-            if not is_memory_influence_ref(ref):
-                continue
-            issues.append(
-                {
-                    "code": "memory_influence_ref_not_admissible_as_claim_evidence",
-                    "severity": "fail",
-                    "layer": "runtime_quality",
-                    "phase": "balanced_memory_firewall",
-                    "claim_id": claim_id,
-                    "evidence_slot": slot,
-                    "memory_influence_ref": ref,
-                    "message": (
-                        "Balanced memory influence records may guide future search, "
-                        "review, routing, or acquisition, but they cannot satisfy, "
-                        "close, support, or refute current-run claim evidence."
-                    ),
-                    "next_action": (
-                        "Move the memory ref to a memory influence surface and bind "
-                        "the claim to current-run producer evidence, typed blockers, "
-                        "limitations, or accepted deficits."
-                    ),
-                    "authority_boundary": {
-                        "adr_ref": MEMORY_INFLUENCE_ADR_REF,
-                        "authoritative_for": list(MEMORY_FUTURE_AUTHORITY_USES),
-                        "may_not_use_for": list(MEMORY_FORBIDDEN_CURRENT_USES),
-                    },
-                }
-            )
+    for path, ref in provenance_values:
+        if not is_memory_influence_ref(ref):
+            continue
+        issues.append(
+            {
+                "code": "memory_influence_ref_not_admissible_as_claim_evidence",
+                "severity": "fail",
+                "layer": "runtime_quality",
+                "phase": "balanced_memory_firewall",
+                "claim_id": claim_id,
+                "evidence_slot": path[0],
+                "payload_path": _payload_path(path),
+                "memory_influence_ref": ref,
+                "message": (
+                    "Balanced memory influence records may guide future search, "
+                    "review, routing, or acquisition, but they cannot satisfy, "
+                    "close, support, or refute current-run claim evidence."
+                ),
+                "next_action": (
+                    "Move the memory ref to a memory influence surface and bind "
+                    "the claim to current-run producer evidence, typed blockers, "
+                    "limitations, or accepted deficits."
+                ),
+                "authority_boundary": {
+                    "adr_ref": MEMORY_INFLUENCE_ADR_REF,
+                    "authoritative_for": list(MEMORY_FUTURE_AUTHORITY_USES),
+                    "may_not_use_for": list(MEMORY_FORBIDDEN_CURRENT_USES),
+                },
+            }
+        )
     return issues
 
 
-def _refs_from(value: object) -> list[str]:
-    if value is None:
-        return []
+def _payload_provenance_values(
+    value: object,
+) -> list[tuple[tuple[str, ...], str]]:
+    """Return every non-empty string value with its structural payload path.
+
+    Destination contract owners apply their own provenance classifier to this
+    complete value set. Callers cannot supply an allowlist or select paths.
+    """
+
+    return _collect_payload_provenance_values(value, path=())
+
+
+def _collect_payload_provenance_values(
+    value: object,
+    *,
+    path: tuple[str, ...],
+) -> list[tuple[tuple[str, ...], str]]:
     if isinstance(value, str):
         text = value.strip()
-        return [text] if text else []
-    if isinstance(value, dict):
-        refs: list[str] = []
-        for key in ("artifact_id", "artifact_ref", "ref", "uri", "value"):
-            refs.extend(_refs_from(value.get(key)))
-        return refs
-    if isinstance(value, list | tuple | set):
-        refs: list[str] = []
-        for item in value:
-            refs.extend(_refs_from(item))
-        return refs
-    return []
+        return [(path, text)] if text and path else []
+    if value is None or isinstance(value, bool | int | float | datetime):
+        return []
+    if isinstance(value, Mapping):
+        values: list[tuple[tuple[str, ...], str]] = []
+        for key, item in value.items():
+            if not isinstance(key, str):
+                raise _ProvenancePayloadError(path=(*path, "<mapping-key>"), value=key)
+            values.extend(
+                _collect_payload_provenance_values(item, path=(*path, key))
+            )
+        return values
+    if isinstance(value, list | tuple):
+        values = []
+        for index, item in enumerate(value):
+            values.extend(
+                _collect_payload_provenance_values(item, path=(*path, f"[{index}]"))
+            )
+        return values
+    raise _ProvenancePayloadError(path=path, value=value)
+
+
+def _payload_path(path: tuple[str, ...]) -> str:
+    output = path[0]
+    for part in path[1:]:
+        output += part if part.startswith("[") else f".{part}"
+    return output
+
+
+def _assert_markers_in_owner_declared_positions(record: MemoryInfluenceRecord) -> None:
+    declared_paths = {
+        (field_name,)
+        for field_name, field_info in MemoryInfluenceRecord.model_fields.items()
+        if isinstance(field_info.json_schema_extra, Mapping)
+        and field_info.json_schema_extra.get(_MEMORY_INFLUENCE_POSITION_FLAG) is True
+    }
+    undeclared_paths = [
+        path
+        for path, ref in _payload_provenance_values(record.model_dump(mode="python"))
+        if is_memory_influence_ref(ref) and path not in declared_paths
+    ]
+    if undeclared_paths:
+        raise ValueError(
+            "memory influence marker outside owner-declared position: "
+            + ",".join(_payload_path(path) for path in undeclared_paths)
+        )
 
 
 __all__ = [

@@ -4,6 +4,7 @@ import {
   type WorkspaceKey,
 } from "@/app/workspaces";
 import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
+import type { FeatureFlagKey } from "@/shared/lib/featureFlags";
 
 export type SurfacePlacement = "panel" | "sidebar" | "workspace-tab";
 export type SurfaceKind = "panel" | "run-tab" | "workspace";
@@ -42,6 +43,7 @@ export type SurfaceRegistryEntry = {
     shortcut?: string;
   };
   descriptionKey: string;
+  featureFlag?: FeatureFlagKey;
   glyph: GlyphName;
   id: SurfaceId;
   kind: SurfaceKind;
@@ -102,6 +104,26 @@ export const WORKSPACE_SURFACES: readonly SurfaceRegistryEntry[] =
     } satisfies SurfaceRegistryEntry;
   });
 
+export const WORKSPACE_CHILD_SURFACES: readonly SurfaceRegistryEntry[] = [
+  {
+    aliases: ["cycle board", "design cycle", "global cohort"],
+    command: { enabled: true, group: "workspaceSurfaces" },
+    descriptionKey: "surfaceRegistry.run.cycleBoard.description",
+    glyph: "reproducibility",
+    id: "runs.cycleBoard",
+    kind: "workspace",
+    labelKey: "surfaceRegistry.run.cycleBoard.label",
+    parentId: "workspace.runsDecisions",
+    permissionKey: "runs.review",
+    placement: "panel",
+    requiredCapabilities: [],
+    resolveHref: () => "/runs/cycle-board",
+    routeId: "runs.cycleBoard",
+    semanticExplanationId: "surface.runs.cycleBoard",
+    workspaceKey: "runsDecisions",
+  },
+] as const;
+
 export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
   {
     aliases: ["decision"],
@@ -123,6 +145,7 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     aliases: ["causal", "graph"],
     command: { enabled: true, group: "runSurfaces", requiresContext: "runId" },
     descriptionKey: "surfaceRegistry.run.causal.description",
+    featureFlag: "enableCausalGraph",
     glyph: "identifiability",
     id: "runs.causal",
     kind: "run-tab",
@@ -319,6 +342,7 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     aliases: ["causal atlas", "dag", "identification"],
     command: { enabled: true, group: "runSurfaces", requiresContext: "runId" },
     descriptionKey: "surfaceRegistry.panels.causalAtlas.description",
+    featureFlag: "enableCausalGraph",
     glyph: "identifiability",
     id: "runs.causalAtlas",
     kind: "panel",
@@ -339,6 +363,7 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     aliases: ["identifiability", "identified set", "bounds", "manski"],
     command: { enabled: true, group: "runSurfaces", requiresContext: "runId" },
     descriptionKey: "surfaceRegistry.panels.identifiabilitySurface.description",
+    featureFlag: "enableCausalGraph",
     glyph: "identifiability",
     id: "runs.identifiabilitySurface",
     kind: "panel",
@@ -847,6 +872,7 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
 
 export const SURFACE_REGISTRY: readonly SurfaceRegistryEntry[] = [
   ...WORKSPACE_SURFACES,
+  ...WORKSPACE_CHILD_SURFACES,
   ...RUN_DETAIL_SURFACES,
   ...PANEL_SURFACES,
 ] as const;
@@ -894,6 +920,7 @@ export function getCommandPaletteSurfaceEntries(
   context: SurfaceHrefContext & {
     canAccessPermission?: (permission: SurfacePermissionKey) => boolean;
     hasCapability?: (capability: string) => boolean;
+    isFeatureEnabled?: (featureFlag: FeatureFlagKey) => boolean;
     isWorkspaceAllowed?: (workspaceKey: WorkspaceKey) => boolean;
     isWorkspaceEnabled?: (workspaceKey: WorkspaceKey) => boolean;
   } = {},
@@ -904,6 +931,13 @@ export function getCommandPaletteSurfaceEntries(
     }
 
     if (context.isWorkspaceEnabled?.(surface.workspaceKey) === false) {
+      return [];
+    }
+
+    if (
+      surface.featureFlag &&
+      context.isFeatureEnabled?.(surface.featureFlag) === false
+    ) {
       return [];
     }
 

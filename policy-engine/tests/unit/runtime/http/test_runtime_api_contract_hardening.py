@@ -15,6 +15,21 @@ if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
 from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.cycle_board_contracts import (
+    CYCLE_BOARD_PROJECTION_RULE_VERSION,
+    CYCLE_BOARD_STABLE_ADDRESS,
+    CycleBoardProjectionPacket,
+)
+from polisyos.runtime.http.services.cycle_board_projection import (
+    _GOVERNED_COMPONENT_ORDER,
+    _manifest_hash_material,
+)
+from polisyos.runtime.http.services.cycle_board_sources import N13B_DENIED_ROW_USES
+from polisyos.runtime.http.services.export_replay import (
+    build_export_replay_address,
+    hash_export_projection,
+)
+from polisyos.runtime.http.services.governed_projections import GovernedProjectionService
 from tools.ops_runners.runtime import generate_runtime_client
 
 OPENAPI_TYPESCRIPT_VERSION = "7.13.0"
@@ -24,6 +39,79 @@ def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
     schema = export_runtime_openapi_schema()
     violations = validate_runtime_openapi_contract(schema)
     assert violations == []
+
+
+def test_cycle_board_success_example_is_a_strict_composed_absence_packet() -> None:
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/exports/governed-projections/depth-n-cycle-board"]["get"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"]["default"][
+        "value"
+    ]
+
+    packet = CycleBoardProjectionPacket.model_validate(example)
+
+    assert packet.projection_rule_version == "policyos.runtime.depth_n_cycle_board.v2"
+    assert tuple(source.source_id for source in packet.composition_manifest) == (
+        *(projection_id.value for projection_id in _GOVERNED_COMPONENT_ORDER),
+        "n13b-global-deeper-terminal",
+        "ds4-realized-disposition",
+        "historical-producer-availability",
+    )
+    repository_root = Path(__file__).resolve().parents[4]
+    catalog = {
+        item.projection_id.value: item
+        for item in GovernedProjectionService(repository_root).catalog()
+    }
+    for source in packet.composition_manifest[: len(_GOVERNED_COMPONENT_ORDER)]:
+        owner = catalog[source.source_id]
+        assert source.source_ref == owner.expected_source_path
+        assert source.authoritative_for == owner.authoritative_for
+        assert source.may_not_use_for == owner.may_not_use_for
+    n13b_source = packet.composition_manifest[len(_GOVERNED_COMPONENT_ORDER)]
+    assert n13b_source.authoritative_for == ()
+    assert n13b_source.may_not_use_for == N13B_DENIED_ROW_USES
+    assert packet.payload.rows == ()
+    assert packet.payload.coverage.capability_state == "absent/unallocated"
+    assert packet.payload.coverage.execution_status == "not_established"
+    assert packet.payload.coverage.exhaustive is False
+    assert packet.payload.movement_gap.capability_state == "absent/unallocated"
+    assert packet.payload.movement_gap.execution_status == "not_established"
+    assert packet.payload.movement_gap.movement_records == ()
+
+    manifest_material = _manifest_hash_material(packet.composition_manifest)
+    manifest_hash = hash_export_projection(manifest_material)
+    dependency_hash = hash_export_projection(
+        tuple(
+            {
+                "source_id": source["source_id"],
+                "availability": source["availability"],
+                "artifact_content_hash": source["artifact_content_hash"],
+                "source_dependency_hash": source["source_dependency_hash"],
+                "absence_reason": source["absence_reason"],
+            }
+            for source in manifest_material
+        )
+    )
+    projection_hash = hash_export_projection(
+        {
+            "projection_rule_version": CYCLE_BOARD_PROJECTION_RULE_VERSION,
+            "composition_manifest": manifest_material,
+            "payload": packet.payload,
+        }
+    )
+    assert packet.composition_manifest_hash == manifest_hash
+    assert packet.source_dependency_hash == dependency_hash
+    assert packet.projection_hash == projection_hash
+    assert packet.replay_address == build_export_replay_address(
+        CYCLE_BOARD_STABLE_ADDRESS,
+        {
+            "replay_target": "composed_v2",
+            "projection_rule_version": CYCLE_BOARD_PROJECTION_RULE_VERSION,
+            "composition_manifest_hash": manifest_hash,
+            "projection_hash": projection_hash,
+            "source_dependency_hash": dependency_hash,
+        },
+    )
 
 
 def test_openapi_contract_includes_client_navigation_links() -> None:
@@ -68,6 +156,23 @@ def test_openapi_contract_includes_batch_read_operations() -> None:
     assert artifacts_batch["operationId"] == "get_artifact_batch"
     lineage_batch = schema["paths"]["/api/v1/lineage/batch"]["post"]
     assert lineage_batch["operationId"] == "get_lineage_batch"
+
+
+def test_openapi_run_summary_requires_three_state_producer_terminality() -> None:
+    schema = export_runtime_openapi_schema()
+    components = schema["components"]["schemas"]
+    summary = components["RunSummary"]
+
+    assert components["RunTerminality"]["enum"] == [
+        "terminal",
+        "non_terminal",
+        "not_established",
+    ]
+    assert "run_terminality" in summary["required"]
+    assert summary["properties"]["run_terminality"] == {
+        "$ref": "#/components/schemas/RunTerminality"
+    }
+    assert "run_terminality" not in components["RunDetails"]["properties"]
 
 
 def test_openapi_contract_exposes_typed_policy_design_case_projection() -> None:
@@ -239,15 +344,71 @@ def test_shared_client_generation_is_package_owned_and_version_pinned() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     client_root = repo_root / "packages" / "runtime-api-client"
     manifest = json.loads((client_root / "package.json").read_text(encoding="utf-8"))
+    generator = (client_root / "scripts/generate-runtime-api-client.sh").read_text(
+        encoding="utf-8"
+    )
     readme = (client_root / "README.md").read_text(encoding="utf-8")
     expected_invocation = f"npx --yes openapi-typescript@{OPENAPI_TYPESCRIPT_VERSION}"
 
     generate_command = manifest["scripts"]["generate"]
-    assert expected_invocation in generate_command
-    assert "apps/runtime-dashboard" not in generate_command
-    assert "--prefix" not in generate_command
+    assert generate_command == "bash ./scripts/generate-runtime-api-client.sh"
+    assert expected_invocation in generator
+    assert "apps/runtime-dashboard" not in generator
+    assert "--prefix" not in generator
+    assert "--output-root" in generator
     assert expected_invocation in readme
     assert "npx --prefix apps/runtime-dashboard" not in readme
+
+
+def test_client_package_entrypoints_generate_only_in_scratch(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    output_root = tmp_path / "generated"
+    package_outputs = {
+        "packages/runtime-api-client/types.ts",
+        "packages/runtime-api-client/runtimeApiClient.ts",
+        "packages/runtime-api-client/runtimeApiClient.js",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+        "packages/runtime-api-client/canonicalRuntimeApiClient.js",
+    }
+    dashboard_output = "apps/runtime-dashboard/src/api/types.ts"
+    tracked_outputs = {
+        relative: (repo_root / relative).read_bytes()
+        for relative in package_outputs | {dashboard_output}
+    }
+
+    for package, script in (
+        ("@polisyos/runtime-api-client", "generate"),
+        ("@polisyos/runtime-dashboard", "generate:api"),
+    ):
+        result = subprocess.run(
+            [
+                "corepack",
+                "pnpm",
+                "--filter",
+                package,
+                "run",
+                script,
+                "--",
+                "--output-root",
+                str(output_root),
+            ],
+            cwd=repo_root,
+            env=os.environ.copy(),
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        assert result.returncode == 0, result.stderr or result.stdout
+
+    observed = {
+        path.relative_to(output_root).as_posix()
+        for path in output_root.rglob("*")
+        if path.is_file()
+    }
+    assert observed == package_outputs | {dashboard_output}
+    assert {
+        relative: (repo_root / relative).read_bytes() for relative in tracked_outputs
+    } == tracked_outputs
 
 
 def test_openapi_typescript_output_matches_committed_shared_types(tmp_path: Path) -> None:
@@ -264,16 +425,14 @@ def test_openapi_typescript_output_matches_committed_shared_types(tmp_path: Path
 def test_generated_client_permission_union_matches_server_openapi_enum() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     schema = json.loads(
-        (repo_root / "schemas" / "runtime_api_v1.openapi.json").read_text(
-            encoding="utf-8"
-        )
+        (repo_root / "schemas" / "runtime_api_v1.openapi.json").read_text(encoding="utf-8")
     )
     server_permissions = [permission.value for permission in RuntimePermission]
     openapi_permissions = schema["components"]["schemas"]["RuntimePermission"]["enum"]
-    generated_types = (
-        repo_root / "packages" / "runtime-api-client" / "types.ts"
-    ).read_text(encoding="utf-8")
-    match = re.search(r'^\s*RuntimePermission:\s*([^;]+);$', generated_types, re.MULTILINE)
+    generated_types = (repo_root / "packages" / "runtime-api-client" / "types.ts").read_text(
+        encoding="utf-8"
+    )
+    match = re.search(r"^\s*RuntimePermission:\s*([^;]+);$", generated_types, re.MULTILINE)
 
     assert match is not None
     generated_permissions = re.findall(r'"([^"]+)"', match.group(1))

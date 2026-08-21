@@ -341,7 +341,7 @@ generator = "Layer 3 G6 readiness validator write mode"
 verifier = "Layer 3 G6 readiness validator and architecture guardrails"
 promotion_target = "registered Policy Design Case G6 bounded-agent audit surface artifacts"
 stale_output_behavior = "fail"
-source_of_truth = "src/polisyos/runtime/quality/layer3_bounded_agent.py and tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
+source_of_truth = "src/polisyos/runtime/quality/proving_ground/bounded_request_agent.py, src/polisyos/runtime/quality/prompt_tool_ledger.py, architecture/production_quality/orchestration_choice_policies.toml, and tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
 outputs = [
   "architecture/policy_design_case/layer3_g6_dependency_readiness_snapshot.json",
   "architecture/policy_design_case/layer3_g6_request_envelope.json",
@@ -376,7 +376,7 @@ regenerate_commands = [
   "uv run python tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py --repo-root . --write --output-format json",
 ]
 commit_policy = "committed_after_task10_write"
-freshness_rule = "Regenerate and commit whenever the Layer 3 G6 bounded-agent runtime builder, validator, route registry, public projection refs, G5 bridge, or orchestration-choice audit rules change."
+freshness_rule = "Regenerate and commit whenever the Layer 3 G6 bounded-agent runtime builder, prompt/tool/compression ledger owner policy, validator, route registry, public projection refs, G5 bridge, or orchestration-choice audit rules change."
 drift_gate = "automated"
 workflow = "tools/quality/validation/check_policy_design_case_layer3_g6_readiness.py"
 check_cwd = "."
@@ -723,11 +723,14 @@ promotion_target = "registered committed outputs listed in outputs"
 stale_output_behavior = "fail"
 source_of_truth = "schemas/runtime_api_v1.openapi.json"
 outputs = [
+  "packages/runtime-api-client/types.ts",
   "packages/runtime-api-client/runtimeApiClient.ts",
   "packages/runtime-api-client/runtimeApiClient.js",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+  "packages/runtime-api-client/canonicalRuntimeApiClient.js",
 ]
 regenerate_commands = [
-  "PYTHONPATH=src:. uv run --extra runtime --extra ml python tools/ops_runners/runtime/generate_runtime_client.py --openapi schemas/runtime_api_v1.openapi.json --out-ts packages/runtime-api-client/runtimeApiClient.ts --out-js packages/runtime-api-client/runtimeApiClient.js",
+  "corepack pnpm --filter @polisyos/runtime-api-client run generate",
 ]
 commit_policy = "committed"
 freshness_rule = "Regenerate and commit whenever the runtime OpenAPI snapshot changes."
@@ -748,6 +751,18 @@ check_command = [
   "ml",
   "python",
   "tools/ops_runners/runtime/check_runtime_api_contract.py",
+]
+default_freshness_check = true
+output_probe_command = [
+  "corepack",
+  "pnpm",
+  "--filter",
+  "@polisyos/runtime-api-client",
+  "run",
+  "generate",
+  "--",
+  "--output-root",
+  "{output_root}",
 ]
 
 [[family]]
@@ -775,6 +790,18 @@ workflow = "ops/ci/templates/workflows/arch.yml"
 check_cwd = "apps/runtime-dashboard"
 check_command = ["corepack", "pnpm", "run", "generate:api"]
 check_git_diff_paths = ["src/api/types.ts"]
+default_freshness_check = true
+output_probe_command = [
+  "corepack",
+  "pnpm",
+  "--filter",
+  "@polisyos/runtime-dashboard",
+  "run",
+  "generate:api",
+  "--",
+  "--output-root",
+  "{output_root}",
+]
 
 [[family]]
 id = "connector-recorded-fixtures"

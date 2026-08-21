@@ -68,4 +68,10 @@ describe("locale typography", () => {
       }),
     ).toBe('в "Атласі"');
   });
+
+  it("keeps frozen Russian typography available only through an explicit compatibility locale", () => {
+    expect(applyLocaleTypography('о "PolicyOS"', "ru")).toBe(
+      `о${NBSP}«PolicyOS»`,
+    );
+  });
 });

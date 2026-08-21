@@ -1,6 +1,6 @@
 import { lazy } from "react";
 import type { RouteObject } from "react-router-dom";
-import { Navigate } from "react-router-dom";
+import { Navigate, useParams } from "react-router-dom";
 
 import type { AppRouteModule } from "@/app/routes/contracts";
 import {
@@ -10,6 +10,7 @@ import {
 } from "@/app/routes/loaders";
 import { TabBoundary } from "@/app/routes/TabBoundary";
 import { WorkspaceBoundary } from "@/app/routes/WorkspaceBoundary";
+import { useFeatureFlag } from "@/app/providers/FeatureFlagProvider";
 import {
   buildRunCompareHref,
   buildRunDeckHref,
@@ -31,6 +32,9 @@ import {
 const RunsListPage = lazy(() => import("@/features/runs/routes/RunsListPage"));
 const RunComparePage = lazy(
   () => import("@/features/runs/routes/RunComparePage"),
+);
+const CycleBoardPage = lazy(
+  () => import("@/features/runs/routes/CycleBoardPage"),
 );
 const RunInspectorLayout = lazy(
   () => import("@/features/runs/routes/RunDetailLayout"),
@@ -65,10 +69,20 @@ const RunAgentsTab = lazy(
 );
 const RunDebugTab = lazy(() => import("@/features/runs/routes/tabs/DebugTab"));
 
+export function RunCausalFeatureGate() {
+  const enabled = useFeatureFlag("enableCausalGraph");
+  const { runId } = useParams();
+  return enabled ? (
+    <RunCausalTab />
+  ) : (
+    <Navigate replace to={runId ? `/runs/${runId}/overview` : "/runs"} />
+  );
+}
+
 const RUN_TAB_COMPONENTS = {
   agents: RunAgentsTab,
   artifacts: RunArtifactsTab,
-  causal: RunCausalTab,
+  causal: RunCausalFeatureGate,
   debug: RunDebugTab,
   evidence: RunEvidenceTab,
   governance: RunGovernanceTab,
@@ -94,6 +108,14 @@ export const runsCompareRouteHandle = {
   routeId: "runs.compare",
   workspaceKey: "runsDecisions",
 } satisfies AppRouteModule<RunCompareSearchParams>["handle"];
+
+export const cycleBoardRouteHandle = {
+  buildHref: () => "/runs/cycle-board",
+  parseSearch: () => ({}),
+  prefetch: ["capabilities"],
+  routeId: "runs.cycleBoard",
+  workspaceKey: "runsDecisions",
+} satisfies AppRouteModule<Record<string, never>>["handle"];
 
 export const runReportRouteHandle = {
   buildHref: (input) => buildRunReportHref(input?.runId ?? ""),
@@ -138,6 +160,10 @@ export const runsListLoader = createWorkspaceLoader(
 export const runsCompareLoader = createWorkspaceLoader(
   runsCompareRouteHandle.routeId,
   runsCompareRouteHandle.prefetch,
+);
+export const cycleBoardLoader = createWorkspaceLoader(
+  cycleBoardRouteHandle.routeId,
+  cycleBoardRouteHandle.prefetch,
 );
 export const runReportLoader = createRunDetailLoader(
   runReportRouteHandle.routeId,
@@ -203,6 +229,16 @@ export const runsRoutes: RouteObject[] = [
     element: (
       <WorkspaceBoundary workspaceKey="runsDecisions">
         <RunComparePage />
+      </WorkspaceBoundary>
+    ),
+  },
+  {
+    path: "runs/cycle-board",
+    loader: cycleBoardLoader,
+    handle: cycleBoardRouteHandle,
+    element: (
+      <WorkspaceBoundary workspaceKey="runsDecisions">
+        <CycleBoardPage />
       </WorkspaceBoundary>
     ),
   },

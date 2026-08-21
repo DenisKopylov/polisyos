@@ -63,6 +63,7 @@ _DIRECT_ACTION_OPTION_PREFIXES = (
     "cold",
     "corrupt",
     "execute",
+    "measure",
     "rederive",
     "reissue",
     "source-flip",
@@ -451,21 +452,59 @@ def _retention_limit() -> int:
     return max(parsed, 1)
 
 
+def _record_string(
+    payload: dict[str, object],
+    field: str,
+    *,
+    default: str | None = None,
+) -> str:
+    """Read a required non-blank timing-record string without coercion."""
+
+    value = payload.get(field, default)
+    if not isinstance(value, str) or not value.strip():
+        raise ValueError(f"timing record requires a non-empty {field}")
+    return value
+
+
 def _coerce_record(payload: dict[str, object]) -> ToolRunRecord:
-    tool = str(payload.get("tool") or "")
-    category = str(payload.get("category") or tool.split(".", 1)[0] or "unknown")
-    output_format = str(payload.get("output_format") or "text")
+    """Read one persisted record without manufacturing fields from malformed telemetry."""
+
+    tool = _record_string(payload, "tool")
+    category = _record_string(
+        payload,
+        "category",
+        default=tool.split(".", 1)[0] or "unknown",
+    )
+    duration = payload.get("duration_ms")
+    if (
+        isinstance(duration, bool)
+        or not isinstance(duration, int | float)
+        or not math.isfinite(duration)
+        or duration < 0
+    ):
+        raise ValueError("timing record requires a finite non-negative duration_ms")
+    exit_code = payload.get("exit_code")
+    if isinstance(exit_code, bool) or not isinstance(exit_code, int):
+        raise ValueError("timing record requires an integer exit_code")
+    started_at = _record_string(payload, "started_at")
+    try:
+        datetime.fromisoformat(started_at)
+    except ValueError as exc:
+        raise ValueError("timing record requires an ISO-8601 started_at") from exc
+    regime = _record_string(payload, "regime", default="unknown")
+    if regime not in SAMPLE_REGIMES:
+        raise ValueError("timing record requires a known regime")
     return ToolRunRecord(
         tool=tool,
         category=category,
-        output_format=output_format,
-        status=str(payload.get("status") or "unknown"),
-        preflight_status=str(payload.get("preflight_status") or "ok"),
-        started_at=str(payload.get("started_at") or ""),
-        duration_ms=float(payload.get("duration_ms") or 0.0),
-        exit_code=int(payload.get("exit_code") or 0),
-        mode=str(payload.get("mode") or "default"),
-        regime=str(payload.get("regime") or "unknown"),
+        output_format=_record_string(payload, "output_format", default="text"),
+        status=_record_string(payload, "status"),
+        preflight_status=_record_string(payload, "preflight_status", default="ok"),
+        started_at=started_at,
+        duration_ms=float(duration),
+        exit_code=exit_code,
+        mode=_record_string(payload, "mode", default="default"),
+        regime=regime,
     )
 
 

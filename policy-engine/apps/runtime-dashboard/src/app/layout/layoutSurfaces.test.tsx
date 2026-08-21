@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 
 const {
+  connectedTemporalScrubberMock,
   dismissIncidentMock,
   cycleDensityMock,
   useDensityMock,
@@ -11,6 +12,7 @@ const {
   setLocaleMock,
   toggleThemeMock,
   useCapabilitiesMock,
+  useAuthzDecisionMock,
   useFeatureFlagsMock,
   useHealthMock,
   useInterfaceModeMock,
@@ -23,6 +25,7 @@ const {
   setCounterfactualModeMock,
   setCounterfactualScenarioIdMock,
 } = vi.hoisted(() => ({
+  connectedTemporalScrubberMock: vi.fn(),
   dismissIncidentMock: vi.fn(),
   cycleDensityMock: vi.fn(),
   setCounterfactualModeMock: vi.fn(),
@@ -32,6 +35,7 @@ const {
   toggleThemeMock: vi.fn(),
   useDensityMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
+  useAuthzDecisionMock: vi.fn(),
   useFeatureFlagsMock: vi.fn(),
   useHealthMock: vi.fn(),
   useInterfaceModeMock: vi.fn(),
@@ -41,6 +45,20 @@ const {
   useRunScenariosMock: vi.fn(),
   useRuntimeApiIncidentMock: vi.fn(),
   useThemeMock: vi.fn(),
+}));
+
+vi.mock("@/app/layout/ConnectedTemporalScrubber", () => ({
+  ConnectedTemporalScrubber: (props: {
+    className?: string;
+    runId: string | null;
+  }) => {
+    connectedTemporalScrubberMock(props);
+    return <div data-testid="connected-temporal-scrubber" />;
+  },
+}));
+
+vi.mock("@/app/authz/AuthzProvider", () => ({
+  useAuthzDecision: () => useAuthzDecisionMock(),
 }));
 
 vi.mock("@/api/hooks/useCapabilities", () => ({
@@ -79,6 +97,10 @@ vi.mock("@/app/providers/ThemeProvider", () => ({
 
 vi.mock("@/app/providers/RunsLiveProvider", () => ({
   useRunsLiveStatus: (...args: unknown[]) => useRunsLiveStatusMock(...args),
+}));
+
+vi.mock("@/features/commandPalette", () => ({
+  CommandPalette: () => <div data-testid="command-palette" />,
 }));
 
 vi.mock("@/features/runs/api/useRunsSample", () => ({
@@ -147,6 +169,7 @@ function mockViewport(width: number) {
 describe("layout surfaces", () => {
   beforeEach(() => {
     mockViewport(1280);
+    connectedTemporalScrubberMock.mockReset();
     dismissIncidentMock.mockReset();
     setCounterfactualModeMock.mockReset();
     setCounterfactualScenarioIdMock.mockReset();
@@ -155,6 +178,12 @@ describe("layout surfaces", () => {
     toggleThemeMock.mockReset();
     cycleDensityMock.mockReset();
     useCapabilitiesMock.mockReset();
+    useAuthzDecisionMock.mockReset();
+    useAuthzDecisionMock.mockReturnValue({
+      can: () => true,
+      isWorkspaceAllowed: () => true,
+      kind: "verified",
+    });
     useCapabilitiesMock.mockReturnValue({
       data: {
         features: [
@@ -287,6 +316,47 @@ describe("layout surfaces", () => {
     expect(setCounterfactualModeMock).toHaveBeenCalledWith(
       "actual_vs_scenario",
     );
+  });
+
+  it("does not mount run-scoped controls for the global Cycle Board", () => {
+    renderWithRouter(
+      <AppShell>
+        <div>Cycle Board</div>
+      </AppShell>,
+      "/runs/cycle-board",
+    );
+
+    expect(useRunScenariosMock).not.toHaveBeenCalled();
+    expect(connectedTemporalScrubberMock).toHaveBeenCalled();
+    expect(
+      connectedTemporalScrubberMock.mock.calls.every(
+        ([props]) => (props as { runId: string | null }).runId === null,
+      ),
+    ).toBe(true);
+    expect(
+      screen.queryByTestId("counterfactual-shell-rail"),
+    ).not.toBeInTheDocument();
+  });
+
+  it("removes command and what-if entry surfaces when rollout flags are false", () => {
+    useFeatureFlagsMock.mockReturnValueOnce({
+      flags: buildFeatureFlags({
+        enableCommandPalette: false,
+        enableWhatIfAnalysis: false,
+      }),
+    });
+
+    renderWithRouter(
+      <AppShell>
+        <div>Run detail</div>
+      </AppShell>,
+      "/runs/run-1/overview",
+    );
+
+    expect(screen.queryByTestId("command-palette")).not.toBeInTheDocument();
+    expect(
+      screen.queryByTestId("counterfactual-shell-rail"),
+    ).not.toBeInTheDocument();
   });
 
   it("switches to Atlas brand lockups when Atlas v2 is enabled", () => {
@@ -429,17 +499,19 @@ describe("layout surfaces", () => {
   it("renders unavailable watch posture instead of guessing blocked runs", () => {
     useRunsSampleMock.mockReturnValueOnce({
       data: {
-        runs: [
-          { run_id: "run-opaque", status: "blocked_by_external_owner" },
-        ],
+        runs: [{ run_id: "run-opaque", status: "blocked_by_external_owner" }],
       },
     });
 
     renderWithRouter(<Sidebar />, "/");
 
     expect(screen.getByText("common.unavailable")).toBeInTheDocument();
-    expect(screen.queryByText("shell.watchStatusBlocked")).not.toBeInTheDocument();
-    expect(screen.queryByText("shell.watchStatusStable")).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("shell.watchStatusBlocked"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("shell.watchStatusStable"),
+    ).not.toBeInTheDocument();
   });
 
   it("uses native radio inputs for the mode toggle with tab and arrow keyboard support", async () => {

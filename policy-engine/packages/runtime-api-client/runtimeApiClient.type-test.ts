@@ -3,8 +3,10 @@ import type {
   AvailableGovernedProjectionPacket,
   ChannelRegistryEntry,
   ChannelRegistryResponse,
+  CycleBoardProjectionPacket,
   InvalidGovernedProjectionPacket,
   ProjectionSourceValidation,
+  RuntimeApiClient,
 } from "./canonicalRuntimeApiClient.js";
 
 type Equal<Left, Right> =
@@ -19,6 +21,10 @@ type GovernedProjectionPacket =
   | AvailableGovernedProjectionPacket
   | ArtifactMissingGovernedProjectionPacket
   | InvalidGovernedProjectionPacket;
+
+type CycleBoardExportPacket = Awaited<
+  ReturnType<RuntimeApiClient["getDepthNCycleBoardProjection"]>
+>;
 
 type CanonicalLiteralWitnesses = [
   Assert<Equal<AvailableGovernedProjectionPacket["availability"], "available">>,
@@ -51,6 +57,29 @@ type CanonicalLiteralWitnesses = [
   >,
   Assert<
     Equal<ChannelRegistryEntry["capability_state"], "verification_missing">
+  >,
+  Assert<
+    Equal<
+      Extract<
+        CycleBoardExportPacket,
+        { packet_schema_version: "policyos.runtime.cycle_board_packet.v1" }
+      >["projection_rule_version"],
+      "policyos.runtime.depth_n_cycle_board.v2"
+    >
+  >,
+  Assert<
+    Equal<
+      Extract<
+        CycleBoardExportPacket,
+        {
+          packet_schema_version: "policyos.runtime.governed_projection_packet.v1";
+        }
+      >["projection_rule_version"],
+      "policyos.runtime.governed_projection.v1"
+    >
+  >,
+  Assert<
+    Equal<CycleBoardProjectionPacket["projection_id"], "depth-n-cycle-board">
   >,
   Assert<Equal<ChannelRegistryEntry["include_in_schema"], false>>,
   Assert<Equal<ChannelRegistryEntry["status"], "active">>,

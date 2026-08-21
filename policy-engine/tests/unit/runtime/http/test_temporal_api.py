@@ -2,6 +2,10 @@ from __future__ import annotations
 
 from datetime import UTC, datetime, timedelta
 
+import pytest
+from pydantic import ValidationError
+
+import polisyos.runtime.http.services.temporal as temporal_service_module
 from polisyos.core.contracts.runtime import (
     LineageRef,
     QuantityCoverageEntry,
@@ -16,7 +20,14 @@ from polisyos.core.contracts.runtime import (
 )
 from polisyos.runtime.http.services.temporal import (
     TemporalService,
-    build_time_source_envelope_audit,
+    TimeSourceConsistencyAuditProjection,
+    build_time_source_consistency_audit_projection,
+)
+from polisyos.runtime.quality.authority import (
+    TIME_SOURCE_CONSISTENCY_PRODUCER_REF,
+    TIME_SOURCE_CONSISTENCY_PROJECTION_KIND,
+    TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE,
+    TIME_SOURCE_CONSISTENT_DISPOSITION,
 )
 
 
@@ -177,11 +188,11 @@ def test_temporal_scope_projects_runtime_state_without_naked_echo() -> None:
     assert coverage.total == 1
 
 
-def test_time_source_envelope_blocks_stale_catalog_watermark() -> None:
+def test_time_source_consistency_projection_marks_stale_catalog_inconsistent() -> None:
     catalog_time = datetime(2026, 1, 15, 10, 5, 7, tzinfo=UTC)
     run_time = datetime(2026, 6, 16, 12, 5, 11, tzinfo=UTC)
 
-    audit = build_time_source_envelope_audit(
+    audit = build_time_source_consistency_audit_projection(
         catalog_watermark=catalog_time,
         source_observed_at=run_time,
         source_published_at=catalog_time,
@@ -199,13 +210,13 @@ def test_time_source_envelope_blocks_stale_catalog_watermark() -> None:
         retention_or_expiry=run_time + timedelta(days=30),
     )
 
-    assert audit.mismatch_disposition == "block:catalog_watermark_stale_for_source"
+    assert audit.mismatch_disposition == "inconsistent"
 
 
-def test_time_source_envelope_blocks_legal_valid_time_outside_replay() -> None:
+def test_time_source_consistency_projection_blocks_legal_time_for_owner_review() -> None:
     base = datetime(2026, 6, 16, 12, 5, 11, tzinfo=UTC)
 
-    audit = build_time_source_envelope_audit(
+    audit = build_time_source_consistency_audit_projection(
         catalog_watermark=base,
         source_observed_at=base,
         source_published_at=base,
@@ -223,7 +234,60 @@ def test_time_source_envelope_blocks_legal_valid_time_outside_replay() -> None:
         retention_or_expiry=base + timedelta(days=30),
     )
 
-    assert audit.mismatch_disposition == "block:legal_valid_time_outside_as_of_replay"
+    assert audit.mismatch_disposition == "blocked_for_owner_review"
+
+
+def test_time_source_consistency_projection_uses_authority_owned_pass_contract() -> None:
+    base = datetime(2026, 6, 16, 12, 5, 11, tzinfo=UTC)
+
+    audit = build_time_source_consistency_audit_projection(
+        catalog_watermark=base,
+        source_observed_at=base,
+        source_published_at=base,
+        source_updated_at=base,
+        ingested_at=base,
+        effective_time=base,
+        legal_valid_time=base,
+        transaction_time=base,
+        as_of_time=base,
+        replay_time=base,
+        run_started_at=base,
+        run_finished_at=base + timedelta(seconds=5),
+        node_started_at=base,
+        node_finished_at=base + timedelta(seconds=1),
+        retention_or_expiry=base + timedelta(days=30),
+    )
+
+    assert isinstance(audit, TimeSourceConsistencyAuditProjection)
+    assert audit.projection_kind == TIME_SOURCE_CONSISTENCY_PROJECTION_KIND
+    assert audit.producer_ref == TIME_SOURCE_CONSISTENCY_PRODUCER_REF
+    assert audit.projection_scope == TIME_SOURCE_CONSISTENCY_PROJECTION_SCOPE
+    assert audit.mismatch_disposition == TIME_SOURCE_CONSISTENT_DISPOSITION
+
+
+def test_time_source_consistency_projection_marks_missing_roles_insufficient() -> None:
+    audit = build_time_source_consistency_audit_projection()
+
+    assert audit.mismatch_disposition == "insufficient_evidence"
+
+
+@pytest.mark.parametrize(
+    "unknown_disposition",
+    ["admitted", "renamed_consistent", "CONSISTENT", " consistent "],
+)
+def test_time_source_consistency_projection_rejects_unknown_disposition(
+    unknown_disposition: str,
+) -> None:
+    base = build_time_source_consistency_audit_projection().model_dump(mode="json")
+    base["mismatch_disposition"] = unknown_disposition
+
+    with pytest.raises(ValidationError):
+        TimeSourceConsistencyAuditProjection.model_validate(base)
+
+
+def test_time_source_consistency_projection_has_no_legacy_model_or_builder_alias() -> None:
+    assert not hasattr(temporal_service_module, "TimeSourceEnvelopeAudit")
+    assert not hasattr(temporal_service_module, "build_time_source_envelope_audit")
 
 
 def test_temporal_scope_conflict_returns_422(runtime_api_env) -> None:

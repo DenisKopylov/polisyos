@@ -1,0 +1,65 @@
+id = "2026-08-20-ds7-cycle-board-v2"
+title = "Expose the governed Cycle Board v2 projection"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Add the reviewer-only Cycle Board export and bind acquisition routes to their owner artifact references."
+evidence = [
+  "docs/superpowers/journals/2026-08-20-ds7-cycle-board.md",
+  "tests/unit/runtime/http/test_depth_n_route_projection_artifact.py",
+  "tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py",
+  "tests/unit/runtime/http/test_governed_projection_api.py",
+  "packages/runtime-api-client/runtimeApiClient.test.mjs",
+  "packages/runtime-api-client/runtimeApiClient.type-test.ts",
+  "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+  "schemas/runtime_api_v1.openapi.json",
+]
+compatibility = "Client regeneration is required. The static Cycle Board operation is additive; the existing DepthNDomainRunProjection acquisition_route field is corrected from an open JSON object to an optional strict owner reference, with planner economics exposed as a separate optional projection."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime governed projection export"
+migration = "Regenerate both runtime API client families, use getDepthNCycleBoardProjection for the composed v2 surface, treat an absent acquisition route or unresolved planner economics as not_established, and do not substitute stage-trace route metadata for a direct owner route reference."
+api = "GET /api/v1/exports/governed-projections/depth-n-cycle-board exposes raw-v1 replay and composed-v2 packet identities; generated clients add getDepthNCycleBoardProjection."
+limitations = "The known 3+13 row population is non-exhaustive; production enumeration and per-row acquisition re-entry movement remain typed absent under GY-GAP5 and GY-GAP6."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "cycle-board-static-v2-export"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: GET /api/v1/exports/governed-projections/depth-n-cycle-board"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Reviewer clients can request the governed Cycle Board through a distinct generated static operation with separated raw-v1 and composed-v2 replay identities."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "depth-n-acquisition-route-owner-reference"
+change_class = "schema-openapi-abi"
+impact = "requires_regeneration"
+surface = "public_stable: polisyos.runtime DepthNDomainRunProjection"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Depth-N acquisition routes now preserve the strict four-field owner reference, while content-bound planner economics are projected separately and may be absent."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-api-client-cycle-board-v2"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The generated runtime client adds getDepthNCycleBoardProjection and the strict Cycle Board v2 packet and acquisition-reference types."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []

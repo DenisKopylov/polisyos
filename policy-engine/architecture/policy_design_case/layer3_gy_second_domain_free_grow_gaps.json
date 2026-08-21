@@ -1,6 +1,6 @@
 {
   "artifact_kind": "policy_design_case.gy_n10a.free_grow_gap_report",
-  "gap_report_content_hash": "sha256:fe1607f0c29460200df8fa236445d274e4c218683cfe3c50806e8328c5fd0c85",
+  "gap_report_content_hash": "sha256:14b50fb7dc3846b4341d6b6f0090bc00c47e369226f8717712817d7d6d631313",
   "gaps": [
     {
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
@@ -357,7 +357,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:c179036378b303724df0a28ae9026d63c044951b4959e2cd96f9edba9ec5a141",
+      "gap_content_hash": "sha256:5e8cdb1acbda0fec922779ac8c9eea2c2bf77b9fecedcab3ad713becf3bb88d5",
       "gap_id": "n8_transport_tuple_hardcode",
       "owner_evidence": {
         "first_vertical_method_family": "panel",
@@ -396,12 +396,12 @@
             "school_quality"
           ],
           "reason_code": "n8_data_derived_transport_proven",
-          "receipt_ref": "sha256:b0c6bf2b9e3f664fba02e5c1713d419e5894dba0bc8b3bafd8eb58db67953c5f",
+          "receipt_ref": "sha256:750d304c17659f01e19d14c7dd1846927f638ac31addd441296995d3530d9ea1",
           "unseen_covariates": [
             "watershed_slope"
           ],
           "unseen_proof_content_hash": "sha256:0d22ab48c85451bd6475dfd2f6e83cab699448b4689560c4119bc389d3607aaa",
-          "value_contract_content_hash": "sha256:578db97cb5a700f8d069dfe82a8c8d1d81c4a244d9d9cecd1b43a197e8e4727d"
+          "value_contract_content_hash": "sha256:ad12c4fd20ceee364b1ad4e8a87db877926f8b5a77a7b161745677fa4adb3779"
         }
       },
       "status": "closed"
@@ -410,7 +410,7 @@
       "blocking_seam": "Closed by a live content-bound behavioral receipt.",
       "capability_label": "closed",
       "disposition": "closed_by_live_behavioral_receipt",
-      "gap_content_hash": "sha256:c6dd10ea74bf130c746837b98aea923c013b7c922362c5dabbd87d7cb31dfeab",
+      "gap_content_hash": "sha256:d90e464bbe28059bbff37edd6e6d35f01e4ef29d785a07c8fa0f44d0c3b9b91d",
       "gap_id": "n6_single_terminal_validation_gap",
       "owner_evidence": {
         "n6_validation_issues": [],
@@ -444,12 +444,12 @@
           "closed": true,
           "cycle_count": 1,
           "reason_code": "n6_coherent_single_terminal_accepted",
-          "receipt_ref": "sha256:31a63da98459462f4a748806d24ca6d4e8498bd9e6baa2d7ccdc8566ed7aa449",
-          "run_content_hash": "sha256:296d7ef9df2f2f173ad9ca6de659854c5b953b1f7c346cc4f1d5eee560b401a5",
+          "receipt_ref": "sha256:d744bbe9be3484e8ad8cf2e5f26ab1b269559098036d3ac36493d5f01be4b1d1",
+          "run_content_hash": "sha256:5450db7da3b1b93b4475a2facaf2f05e01cd7b41aaaabd89a82cb97263fbbebe",
           "terminal_kind": "acquisition_required",
           "validation_issues": []
         },
-        "trace_content_hash": "sha256:f9be282f0b16720d38440572aeecfc9c47f2566407fa5a68a8402796ef250430"
+        "trace_content_hash": "sha256:8ca68849fd40751b25d4fbeda45876914dddc6fa96cf91c82677f3a1e03c9919"
       },
       "status": "closed"
     }

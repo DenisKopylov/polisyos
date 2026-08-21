@@ -2,11 +2,16 @@
 
 from __future__ import annotations
 
+import base64
 import copy
 import importlib.util
 import json
+import subprocess
+import sys
+import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
 
 ATLAS_DIR = Path(__file__).resolve().parent
 CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
@@ -55,6 +60,59 @@ def _artifacts() -> tuple[dict[str, object], dict[str, object]]:
 
 class StatusRetirementInventoryTests(unittest.TestCase):
     """Prove the guard recomputes ownership rather than trusting markers."""
+
+    def test_shared_scan_adds_declaration_census_without_changing_ds4_estate(
+        self,
+    ) -> None:
+        inventory, debt = _artifacts()
+        scan = checker._scan()
+
+        self.assertEqual(36, scan["sourceDenominators"]["atlasUiProduction"])
+        self.assertNotIn("unauthorizedStatusOwners", scan)
+        self.assertNotIn("unauthorizedStatusSinks", scan)
+        self.assertIsInstance(scan["authoritySinkDeclarations"], list)
+        self.assertEqual(
+            {
+                "current_authored": 12,
+                "ds1_rows": 47,
+                "semantic_retirement_debt": 0,
+            },
+            {
+                key: checker._summary(inventory, debt)[key]
+                for key in (
+                    "current_authored",
+                    "ds1_rows",
+                    "semantic_retirement_debt",
+                )
+            },
+        )
+
+    def test_command_gate_rejects_an_incomplete_generated_receipt_population(
+        self,
+    ) -> None:
+        """The status command consumes the census instead of relying on manual use."""
+        with (
+            mock.patch.object(checker, "validate_inventory", return_value=[]),
+            mock.patch.object(
+                checker,
+                "build_repository_report",
+                return_value={"errors": ["anchor_population_mismatch:probe"]},
+            ),
+        ):
+            self.assertEqual(1, checker.main([]))  # noqa: PT009
+
+    def test_direct_script_entrypoint_resolves_the_receipt_census(self) -> None:
+        """The documented path invocation loads the mandatory census bridge."""
+        completed = subprocess.run(  # noqa: S603 - fixed interpreter and checker path
+            [sys.executable, str(CHECKER_PATH), "--help"],
+            cwd=checker.REPO_ROOT,
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+
+        self.assertEqual(0, completed.returncode, completed.stderr)  # noqa: PT009
+        self.assertNotIn("ModuleNotFoundError", completed.stderr)  # noqa: PT009
 
     def test_rejects_a_renamed_local_authority_union(self) -> None:
         inventory, debt = _artifacts()
@@ -216,7 +274,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 if row["candidate_id"] in C21_RETIRED_IDS
             )
         )
-        self.assertEqual(55, len(rows))
+        self.assertEqual(58, len(rows))
         self.assertEqual(47, inventory["denominators"]["ds1_rows"])
         live_c22_rows = {
             row["candidate_id"]
@@ -1108,18 +1166,20 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             if entry["unit_id"] == "status-verification"
         )
         row["owner_type"]["query"] = 'VerificationMetadata["verification_status"]'
-        row["generated_anchor"] = {
-            "export_symbol": "VerificationMetadata",
-            "canonical_line": 1000,
-            "schema_line": 10334,
-            "field": "verification_status",
-        }
+        row["generated_anchor"].update(
+            {
+                "export_symbol": "VerificationMetadata",
+                "canonical_line": 1000,
+                "schema_line": 10334,
+                "field": "verification_status",
+            }
+        )
 
         errors = checker.validate_inventory(mutation, debt, live_probes=False)
 
         self.assertIn("generated_source_binding_drift:status-verification", errors)
 
-    def test_rejects_denominator_and_generated_anchor_drift(self) -> None:
+    def test_rejects_denominator_drift_but_lines_only_navigate(self) -> None:
         inventory, debt = _artifacts()
         denominator_mutation = copy.deepcopy(inventory)
         denominator_mutation["denominators"]["current_total"] = 47
@@ -1132,9 +1192,63 @@ class StatusRetirementInventoryTests(unittest.TestCase):
             for entry in anchor_mutation["entries"]
             if entry["unit_id"] == "status-scenario"
         )
+        row["generated_anchor"]["canonical_line"] = 1
         row["generated_anchor"]["schema_line"] = 1
         errors = checker.validate_inventory(anchor_mutation, debt, live_probes=False)
-        self.assertIn("generated_anchor_drift:status-scenario", errors)
+        self.assertFalse(
+            any(error.startswith("generated_anchor_drift:") for error in errors),
+            errors,
+        )
+
+        identity_mutation = copy.deepcopy(inventory)
+        identity_row = next(
+            entry
+            for entry in identity_mutation["entries"]
+            if entry["unit_id"] == "status-scenario"
+        )
+        anchor = identity_row["generated_anchor"]
+        anchor["canonical_identity"], anchor["schema_identity"] = (
+            anchor["schema_identity"],
+            anchor["canonical_identity"],
+        )
+        errors = checker.validate_inventory(identity_mutation, debt, live_probes=False)
+        self.assertTrue(
+            any(error.startswith("anchor_identity_slot_drift:") for error in errors),
+            errors,
+        )
+
+        hidden_navigation_mutation = copy.deepcopy(inventory)
+        hidden_row = next(
+            entry
+            for entry in hidden_navigation_mutation["entries"]
+            if entry["unit_id"] == "status-scenario"
+        )
+        encoded_identity = hidden_row["generated_anchor"]["schema_identity"]
+        source_path, encoded_payload = encoded_identity.split("#ts-identity=", 1)
+        payload = json.loads(
+            base64.urlsafe_b64decode(
+                encoded_payload + "=" * (-len(encoded_payload) % 4)
+            )
+        )
+        payload["navigation_hint"] = hidden_row["generated_anchor"]["schema_line"]
+        hidden_row["generated_anchor"]["schema_identity"] = (
+            source_path
+            + "#ts-identity="
+            + base64.urlsafe_b64encode(
+                json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()
+            )
+            .decode("ascii")
+            .rstrip("=")
+        )
+        errors = checker.validate_inventory(
+            hidden_navigation_mutation, debt, live_probes=False
+        )
+        self.assertTrue(
+            any(
+                "typescript_reference_identity_invalid" in error for error in errors
+            ),
+            errors,
+        )
 
     def test_generated_anchor_accepts_only_retired_historical_source_absence(self) -> None:
         inventory, debt = _artifacts()
@@ -1173,35 +1287,104 @@ class StatusRetirementInventoryTests(unittest.TestCase):
         errors = checker.validate_inventory(inventory, wrong_owner, live_probes=False)
         self.assertIn("waist_debt_owner:ds4-waist-cgf-disposition", errors)
 
-    def test_rejects_non_exact_generated_schema_spans_for_present_waist_anchors(
-        self,
-    ) -> None:
+    def test_public_inventory_validation_consumes_waist_semantic_errors(self) -> None:
+        """The public status gate cannot bypass the waist semantic consumer."""
         inventory, debt = _artifacts()
-        present_ids = {
-            entry["debt_id"]
-            for entry in debt["entries"]
-            if entry["generated_client_anchor"]["anchor_kind"]
-            == "present_projection"
-        }
+        sentinel = "waist_semantic_consumer_sentinel"
+        with mock.patch.object(
+            checker,
+            "_validate_waist_debt",
+            return_value=[sentinel],
+        ) as waist_validator:
+            errors = checker.validate_inventory(
+                inventory,
+                debt,
+                live_probes=False,
+            )
 
-        for debt_id in present_ids:
-            for field in ("types_start_line", "types_end_line"):
-                with self.subTest(debt_id=debt_id, field=field):
-                    mutation = copy.deepcopy(debt)
-                    row = next(
-                        entry
-                        for entry in mutation["entries"]
-                        if entry["debt_id"] == debt_id
-                    )
-                    row["generated_client_anchor"][field] += 1
+        self.assertIn(sentinel, errors)
+        waist_validator.assert_called_once_with(debt)
 
-                    errors = checker.validate_inventory(
-                        inventory,
-                        mutation,
-                        live_probes=False,
-                    )
+    def test_waist_anchors_bind_constructs_and_recompute_missing_exports(self) -> None:
+        """The status consumer ignores navigation but fails on semantic drift."""
+        _inventory, debt = _artifacts()
+        canonical_path = "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
+        types_path = "packages/runtime-api-client/types.ts"
+        canonical_source = (checker.REPO_ROOT / canonical_path).read_text(
+            encoding="utf-8"
+        )
+        types_source = (checker.REPO_ROOT / types_path).read_text(encoding="utf-8")
 
-                    self.assertIn(f"waist_debt_anchor_drift:{debt_id}", errors)
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            (root / canonical_path).parent.mkdir(parents=True)
+
+            def waist_errors(
+                canonical: str = canonical_source,
+                types: str = types_source,
+                artifact: dict[str, object] = debt,
+            ) -> list[str]:
+                (root / canonical_path).write_text(canonical, encoding="utf-8")
+                (root / types_path).write_text(types, encoding="utf-8")
+                return checker._validate_waist_debt(artifact, repo_root=root)
+
+            self.assertEqual([], waist_errors())
+
+            navigation_only = copy.deepcopy(debt)
+            for row in navigation_only["entries"]:
+                anchor = row["generated_client_anchor"]
+                for field in ("canonical_line", "schema_line"):
+                    if field in anchor:
+                        anchor[field] += 10_000
+            self.assertEqual([], waist_errors(artifact=navigation_only))
+
+            renamed = canonical_source.replace(
+                "export type GenerationCycleDispositionPayload =",
+                "export type RenamedGenerationCycleDispositionPayload =",
+                1,
+            )
+            self.assertTrue(
+                any(
+                    "typescript_reference_binding_missing_or_renamed" in error
+                    for error in waist_errors(canonical=renamed)
+                )
+            )
+
+            content_drift = types_source.replace(
+                "bridge_artifacts:", "bridge_receipts:", 1
+            )
+            self.assertTrue(
+                any(
+                    "typescript_reference_content_drift" in error
+                    for error in waist_errors(types=content_drift)
+                )
+            )
+
+            comment_only = canonical_source + "\n// DecisionGrade remains absent.\n"
+            self.assertEqual([], waist_errors(canonical=comment_only))
+
+            present_export = canonical_source + "\nexport type DecisionGrade = string;\n"
+            self.assertTrue(
+                any(
+                    "anchor_absence_unexpected_presence" in error
+                    and ":canonical:DecisionGrade" in error
+                    for error in waist_errors(canonical=present_export)
+                )
+            )
+
+            present_schema = types_source.replace(
+                "export interface components {\n    schemas: {",
+                "export interface components {\n    schemas: {\n"
+                "        DecisionGrade: string;",
+                1,
+            )
+            self.assertTrue(
+                any(
+                    "anchor_absence_unexpected_presence" in error
+                    and ":schema:DecisionGrade" in error
+                    for error in waist_errors(types=present_schema)
+                )
+            )
 
     def test_rejects_an_unregistered_semantic_union_outside_the_status_denominator(self) -> None:
         inventory, debt = _artifacts()

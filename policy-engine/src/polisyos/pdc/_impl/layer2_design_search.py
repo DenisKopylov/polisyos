@@ -15,7 +15,7 @@ from .gy_waist import (
     PromotionFailClosedReason,
     PromotionGateId,
     PromotionObligationClass,
-    PromotionObligationRecord,
+    PromotionObligationDraft,
     PromotionObligationStatus,
 )
 from .layer2_readiness import (
@@ -3379,7 +3379,7 @@ def _s8_blocks_ranked_selection(value_posture: Layer2S8ValuePostureInput) -> boo
 
 def evaluate_s6_blind_spot_promotion_gate(
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
-) -> PromotionObligationRecord:
+) -> PromotionObligationDraft:
     """Return N9's S6 obligation by delegating to the Layer-2 blind-spot owner.
 
     Owner breadcrumb: the S6 posture contract and firewall status semantics live
@@ -3388,7 +3388,7 @@ def evaluate_s6_blind_spot_promotion_gate(
     """
 
     if blind_spot_posture is None:
-        return PromotionObligationRecord(
+        return PromotionObligationDraft(
             obligation_class=PromotionObligationClass.IMPLEMENTATION,
             gate_id=PromotionGateId.S6_BLIND_SPOT,
             status=PromotionObligationStatus.SCOPE_INSUFFICIENT,
@@ -3398,7 +3398,7 @@ def evaluate_s6_blind_spot_promotion_gate(
             semantic_scope="scope_insufficient",
         )
     if blind_spot_posture.overall_posture == "blocked":
-        return PromotionObligationRecord(
+        return PromotionObligationDraft(
             obligation_class=PromotionObligationClass.IMPLEMENTATION,
             gate_id=PromotionGateId.S6_BLIND_SPOT,
             status=PromotionObligationStatus.FAILED,
@@ -3407,7 +3407,7 @@ def evaluate_s6_blind_spot_promotion_gate(
             detail=blind_spot_posture.limitation_summary,
             evidence_refs=_s6_ledger_refs(blind_spot_posture),
         )
-    return PromotionObligationRecord(
+    return PromotionObligationDraft(
         obligation_class=PromotionObligationClass.IMPLEMENTATION,
         gate_id=PromotionGateId.S6_BLIND_SPOT,
         status=PromotionObligationStatus.SATISFIED,
@@ -3421,11 +3421,11 @@ def evaluate_s7_mandate_delegation_promotion_gate(
     delegation_posture: Layer2S7DelegationPostureInput | None,
     *,
     blind_spot_posture: Layer2S6BlindSpotPostureInput | None,
-) -> PromotionObligationRecord:
+) -> PromotionObligationDraft:
     """Return N9's S7 obligation through the Layer-2 delegation owner."""
 
     if delegation_posture is None:
-        return PromotionObligationRecord(
+        return PromotionObligationDraft(
             obligation_class=PromotionObligationClass.NORMATIVE,
             gate_id=PromotionGateId.S7_MANDATE_DELEGATION,
             status=PromotionObligationStatus.SCOPE_INSUFFICIENT,
@@ -3438,7 +3438,7 @@ def evaluate_s7_mandate_delegation_promotion_gate(
         delegation_posture,
         blind_spot_posture=blind_spot_posture,
     ):
-        return PromotionObligationRecord(
+        return PromotionObligationDraft(
             obligation_class=PromotionObligationClass.NORMATIVE,
             gate_id=PromotionGateId.S7_MANDATE_DELEGATION,
             status=PromotionObligationStatus.FAILED,
@@ -3447,7 +3447,7 @@ def evaluate_s7_mandate_delegation_promotion_gate(
             detail="S7 owner did not mark the candidate governed-pilot eligible.",
             evidence_refs=_s7_ledger_refs(delegation_posture),
         )
-    return PromotionObligationRecord(
+    return PromotionObligationDraft(
         obligation_class=PromotionObligationClass.NORMATIVE,
         gate_id=PromotionGateId.S7_MANDATE_DELEGATION,
         status=PromotionObligationStatus.SATISFIED,
@@ -3459,11 +3459,11 @@ def evaluate_s7_mandate_delegation_promotion_gate(
 
 def evaluate_s8_value_posture_promotion_gate(
     value_posture: Layer2S8ValuePostureInput | None,
-) -> PromotionObligationRecord:
+) -> PromotionObligationDraft:
     """Return N9's S8 obligation through the Layer-2 value-posture owner."""
 
     if value_posture is None:
-        return PromotionObligationRecord(
+        return PromotionObligationDraft(
             obligation_class=PromotionObligationClass.VALUE,
             gate_id=PromotionGateId.S8_VALUE_POSTURE,
             status=PromotionObligationStatus.SCOPE_INSUFFICIENT,
@@ -3473,7 +3473,7 @@ def evaluate_s8_value_posture_promotion_gate(
             semantic_scope="scope_insufficient",
         )
     if _s8_blocks_ranked_selection(value_posture):
-        return PromotionObligationRecord(
+        return PromotionObligationDraft(
             obligation_class=PromotionObligationClass.VALUE,
             gate_id=PromotionGateId.S8_VALUE_POSTURE,
             status=PromotionObligationStatus.FAILED,
@@ -3482,7 +3482,7 @@ def evaluate_s8_value_posture_promotion_gate(
             detail=f"S8 value owner blocked ranked selection: {value_posture.disposition}.",
             evidence_refs=_s8_ledger_refs(value_posture),
         )
-    return PromotionObligationRecord(
+    return PromotionObligationDraft(
         obligation_class=PromotionObligationClass.VALUE,
         gate_id=PromotionGateId.S8_VALUE_POSTURE,
         status=PromotionObligationStatus.SATISFIED,

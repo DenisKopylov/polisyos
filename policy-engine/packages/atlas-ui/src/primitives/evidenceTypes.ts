@@ -35,6 +35,17 @@ function exactFixtureAuthority(authority: FixtureAuthority): "fixture_only" {
   return authority;
 }
 
+function issueFixtureProvenance(
+  authority: FixtureAuthority,
+): FixtureProvenance {
+  const provenance: FixtureProvenance = {
+    [fixtureProvenanceBrand]: true,
+    authority,
+  };
+  fixtureProvenanceIssuances.add(provenance);
+  return Object.freeze(provenance);
+}
+
 /** Create fixture presentation proof from the complete generated fixture DTO. */
 export function createFixtureProvenance(
   payload: LegacyProvingGroundPayload,
@@ -43,12 +54,22 @@ export function createFixtureProvenance(
   if (authority !== "fixture_only") {
     throw new TypeError("generated fixture provenance is required");
   }
-  const provenance: FixtureProvenance = {
-    [fixtureProvenanceBrand]: true as const,
-    authority,
+  return issueFixtureProvenance(authority);
+}
+
+function issueGovernedAuthorityPurpose(
+  value: AvailableGovernedProjectionPacket["authoritative_for"][number],
+  fixtureAuthority?: FixtureAuthority,
+): GovernedAuthorityPurpose {
+  const purpose: GovernedAuthorityPurpose = {
+    [governedAuthorityPurposeBrand]: true,
+    value,
   };
-  fixtureProvenanceIssuances.add(provenance);
-  return Object.freeze(provenance);
+  governedAuthorityPurposeIssuances.set(
+    purpose,
+    Object.freeze({ fixtureAuthority, value }),
+  );
+  return Object.freeze(purpose);
 }
 
 /** Select a purpose only when the generated owner packet declares it. */
@@ -83,15 +104,7 @@ export function createGovernedAuthorityPurpose(
           createFixtureProvenance(packet.payload as LegacyProvingGroundPayload),
         )
       : undefined;
-  const purpose: GovernedAuthorityPurpose = {
-    [governedAuthorityPurposeBrand]: true as const,
-    value: authorityPurpose,
-  };
-  governedAuthorityPurposeIssuances.set(
-    purpose,
-    Object.freeze({ fixtureAuthority, value: authorityPurpose }),
-  );
-  return Object.freeze(purpose);
+  return issueGovernedAuthorityPurpose(authorityPurpose, fixtureAuthority);
 }
 
 export function fixtureAuthorityValue(

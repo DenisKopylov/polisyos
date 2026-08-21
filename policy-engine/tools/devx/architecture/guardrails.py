@@ -6,11 +6,14 @@ import ast
 import datetime as dt
 import difflib
 import fnmatch
+import hashlib
 import json
 import os
 import re
 import shlex
+import shutil
 import subprocess
+import tempfile
 import tomllib
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -31,6 +34,7 @@ DEFAULT_EXCEPTION_FILE = REPO_ROOT / "architecture" / "exceptions" / "guardrails
 DEFAULT_EXCEPTION_REGISTRY = REPO_ROOT / "architecture" / "guardrail_exceptions_registry.md"
 DEFAULT_MODULE_SIZE_BUDGET = REPO_ROOT / "architecture" / "module_size_budget.toml"
 DEFAULT_MAX_EXPIRY_DAYS = 90
+RUNTIME_OPENAPI_CLIENT_SOURCE = "schemas/runtime_api_v1.openapi.json"
 FRESHNESS_PATTERNS = (
     re.compile(r"^- Last updated:\s+\d{4}-\d{2}-\d{2}$", flags=re.MULTILINE),
     re.compile(r"^- Последнее обновление:\s+\d{4}-\d{2}-\d{2}$", flags=re.MULTILINE),
@@ -188,6 +192,8 @@ class GeneratedArtifactFamily:
     check_cwd: Path | None
     check_command: tuple[str, ...] | None
     check_git_diff_paths: tuple[Path, ...]
+    default_freshness_check: bool
+    output_probe_command: tuple[str, ...] | None
     retention_days: int | None
 
 
@@ -216,10 +222,28 @@ def _parse_args() -> argparse.Namespace:
 
     check = subparsers.add_parser("check", help="Validate manifests, inventories, and baselines.")
     _add_common_args(check)
-    check.add_argument(
-        "--run-generated-checks",
+    generated_check_mode = check.add_mutually_exclusive_group()
+    generated_check_mode.add_argument(
+        "--all-generated-checks",
         action="store_true",
-        help="Run automated generated-artifact freshness checks declared in the manifest.",
+        help=(
+            "Run optional generated-artifact checks in addition to the required default "
+            "freshness checks."
+        ),
+    )
+    generated_check_mode.add_argument(
+        "--skip-generated-checks",
+        action="store_true",
+        help="Explicitly skip even the required default generated-artifact freshness checks.",
+    )
+    check.add_argument(
+        "--generated-expected-root",
+        type=Path,
+        default=REPO_ROOT,
+        help=(
+            "Compare generator-observed candidates with a mirrored expected-output root "
+            "instead of the worktree."
+        ),
     )
     check.add_argument(
         "--max-expiry-days",
@@ -333,6 +357,8 @@ def _parse_generated_artifacts(path: Path) -> list[GeneratedArtifactFamily]:
                 check_git_diff_paths=tuple(
                     Path(part) for part in item.get("check_git_diff_paths", [])
                 ),
+                default_freshness_check=bool(item.get("default_freshness_check", False)),
+                output_probe_command=_parse_check_command(item.get("output_probe_command")),
                 retention_days=(
                     int(item["retention_days"]) if item.get("retention_days") is not None else None
                 ),
@@ -653,7 +679,8 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
         "candidate DesignRecord handoff refs, orchestration-choice audit refs, and",
         "projection-only public refs;",
         "`layer3_g6_public_export_projection_refs.json` records",
-        "`out_of_scope_reference_only` and does not register a public-export bundle route.",
+        "`authority_preserving_public_export`, registers a redacted public-export bundle",
+        "route, and emits only the owner-recomputed safe summary or governed refusal.",
         "",
         "`layer3_g7_region_widening_surface` is a generated",
         "PUBLIC/REVIEWER/EXPERT/MACHINE Policy Design Case audit surface documented here",
@@ -808,6 +835,14 @@ def render_generated_artifacts_markdown(families: list[GeneratedArtifactFamily])
             lines.append(f"- Retention: `{family.retention_days}` days")
         if family.workflow is not None:
             lines.append(f"- Related workflow/config: `{_repo_display_path(family.workflow)}`")
+        if family.default_freshness_check:
+            lines.append("- Required in default freshness check: `true`")
+        if family.output_probe_command is not None:
+            lines.append(
+                "- Generator-observed output probe: `"
+                + shlex.join(family.output_probe_command)
+                + "`"
+            )
         lines.extend(
             [
                 "- Outputs:",
@@ -1088,6 +1123,60 @@ def _check_generated_artifact_manifest(
                     message=f"{family.family_id} must declare at least one regeneration command.",
                 )
             )
+        is_runtime_openapi_client = (
+            family.source_of_truth == RUNTIME_OPENAPI_CLIENT_SOURCE
+        )
+        if is_runtime_openapi_client and not family.default_freshness_check:
+            violations.append(
+                GuardrailViolation(
+                    check="generated_artifact",
+                    subject=family.family_id,
+                    detail="missing_default_freshness_check",
+                    message=(
+                        f"{family.family_id} is derived from {RUNTIME_OPENAPI_CLIENT_SOURCE} "
+                        "and cannot opt out of the default freshness check."
+                    ),
+                )
+            )
+        if _requires_default_generated_freshness(family):
+            if family.stale_output_behavior != "fail":
+                violations.append(
+                    GuardrailViolation(
+                        check="generated_artifact",
+                        subject=family.family_id,
+                        detail="default_freshness_check_requires_fail",
+                        message=(
+                            f"{family.family_id} is required in the default freshness check "
+                            "and must declare stale_output_behavior = `fail`."
+                        ),
+                    )
+                )
+            if family.output_probe_command is None:
+                violations.append(
+                    GuardrailViolation(
+                        check="generated_artifact",
+                        subject=family.family_id,
+                        detail="missing_output_probe_command",
+                        message=(
+                            f"{family.family_id} is required in the default freshness check "
+                            "and must declare output_probe_command."
+                        ),
+                    )
+                )
+            elif sum(
+                part.count("{output_root}") for part in family.output_probe_command
+            ) != 1:
+                violations.append(
+                    GuardrailViolation(
+                        check="generated_artifact",
+                        subject=family.family_id,
+                        detail="invalid_output_probe_command",
+                        message=(
+                            f"{family.family_id} output_probe_command must contain exactly one "
+                            "`{output_root}` placeholder."
+                        ),
+                    )
+                )
         if family.commit_policy == "committed":
             for output in family.outputs:
                 if not output.exists():
@@ -1105,7 +1194,7 @@ def _check_generated_artifact_manifest(
     return violations
 
 
-def _run_generated_artifact_checks(
+def _run_declared_generated_artifact_checks(
     families: list[GeneratedArtifactFamily],
 ) -> list[GuardrailViolation]:
     violations: list[GuardrailViolation] = []
@@ -1155,6 +1244,346 @@ def _run_generated_artifact_checks(
                         ),
                     )
                 )
+    return violations
+
+
+def _relative_generated_output(output: Path) -> str | None:
+    try:
+        return output.relative_to(REPO_ROOT).as_posix()
+    except ValueError:
+        return None
+
+
+def _requires_default_generated_freshness(family: GeneratedArtifactFamily) -> bool:
+    return (
+        family.default_freshness_check
+        or family.source_of_truth == RUNTIME_OPENAPI_CLIENT_SOURCE
+    )
+
+
+def _path_content_state(path: Path) -> str:
+    if path.is_symlink():
+        return f"symlink:{os.readlink(path)}"
+    if not path.exists():
+        return "missing"
+    if not path.is_file():
+        return "non-file"
+    digest = hashlib.sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(chunk)
+    mode = path.stat().st_mode & 0o777
+    return f"file:{mode:o}:{digest.hexdigest()}"
+
+
+def _snapshot_git_visible_worktree(repo_root: Path) -> dict[str, str]:
+    git_binary = shutil.which("git")
+    if git_binary is None:
+        return _snapshot_filesystem_tree(repo_root)
+    top_level = subprocess.run(
+        [git_binary, "-C", str(repo_root), "rev-parse", "--show-toplevel"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    if top_level.returncode == 0:
+        worktree_root = Path(top_level.stdout.strip()).resolve()
+        listed = subprocess.run(
+            [
+                git_binary,
+                "-C",
+                str(worktree_root),
+                "ls-files",
+                "--cached",
+                "--others",
+                "--exclude-standard",
+                "-z",
+            ],
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+        if listed.returncode == 0:
+            return {
+                relative: _path_content_state(worktree_root / relative)
+                for relative in listed.stdout.split("\0")
+                if relative
+            }
+
+    return _snapshot_filesystem_tree(repo_root)
+
+
+def _snapshot_filesystem_tree(repo_root: Path) -> dict[str, str]:
+    return {
+        path.relative_to(repo_root).as_posix(): _path_content_state(path)
+        for path in repo_root.rglob("*")
+        if ".git" not in path.parts and (path.is_file() or path.is_symlink())
+    }
+
+
+def _copy_isolated_probe_source(repo_root: Path, destination: Path) -> None:
+    ignored = shutil.ignore_patterns(
+        ".git",
+        ".cache",
+        ".mypy_cache",
+        ".pytest_cache",
+        ".ruff_cache",
+        ".venv",
+        "__pycache__",
+        "_build",
+        "_cache",
+        "node_modules",
+        "production_data",
+    )
+    shutil.copytree(repo_root, destination, symlinks=True, ignore=ignored)
+    for relative in (
+        Path(".venv"),
+        Path("node_modules"),
+        Path("packages/runtime-api-client/node_modules"),
+        Path("apps/runtime-dashboard/node_modules"),
+    ):
+        source = repo_root / relative
+        if not source.exists():
+            continue
+        linked = destination / relative
+        linked.parent.mkdir(parents=True, exist_ok=True)
+        linked.symlink_to(source, target_is_directory=True)
+
+
+def _changed_snapshot_paths(
+    before: dict[str, str],
+    after: dict[str, str],
+) -> list[str]:
+    return sorted(
+        relative
+        for relative in before.keys() | after.keys()
+        if before.get(relative) != after.get(relative)
+    )
+
+
+def _expected_output_snapshot(
+    families: list[GeneratedArtifactFamily],
+    *,
+    expected_root: Path,
+) -> dict[str, bytes | None]:
+    relative_outputs = {
+        relative
+        for family in families
+        for output in family.outputs
+        if (relative := _relative_generated_output(output)) is not None
+    }
+    return {
+        relative: (
+            (expected_root / relative).read_bytes()
+            if (expected_root / relative).is_file()
+            else None
+        )
+        for relative in relative_outputs
+    }
+
+
+def _summarize_changed_paths(paths: list[str], *, limit: int = 12) -> str:
+    displayed = paths[:limit]
+    suffix = f" (+{len(paths) - limit} more)" if len(paths) > limit else ""
+    return ", ".join(displayed) + suffix
+
+
+def _run_required_generated_artifact_checks(
+    families: list[GeneratedArtifactFamily],
+    *,
+    expected_root: Path,
+) -> list[GuardrailViolation]:
+    required_families = [
+        family for family in families if _requires_default_generated_freshness(family)
+    ]
+    violations: list[GuardrailViolation] = []
+    declared_owners: dict[str, list[str]] = {}
+    for family in families:
+        for output in family.outputs:
+            relative = _relative_generated_output(output)
+            if relative is None:
+                continue
+            declared_owners.setdefault(relative, []).append(family.family_id)
+    expected_outputs = _expected_output_snapshot(
+        required_families,
+        expected_root=expected_root,
+    )
+
+    with tempfile.TemporaryDirectory(prefix="polisyos_generated_freshness_") as scratch_name:
+        scratch_root = Path(scratch_name)
+        isolated_repo_root = scratch_root / "source"
+        output_root = scratch_root / "outputs"
+        _copy_isolated_probe_source(REPO_ROOT, isolated_repo_root)
+        for family in required_families:
+            family_violations: list[GuardrailViolation] = []
+            probe_command = family.output_probe_command
+            if probe_command is None:
+                family_violations.append(
+                    GuardrailViolation(
+                        check="generated_artifact",
+                        subject=family.family_id,
+                        detail="missing_output_probe_command",
+                        message=f"{family.family_id} has no generator-observed output probe.",
+                    )
+                )
+                violations.extend(family_violations)
+                continue
+
+            family_scratch_root = output_root / family.family_id
+            rendered_command = [
+                part.replace("{output_root}", str(family_scratch_root))
+                for part in probe_command
+            ]
+            worktree_before = _snapshot_git_visible_worktree(REPO_ROOT)
+            isolated_before = _snapshot_filesystem_tree(isolated_repo_root)
+            result = subprocess.run(
+                rendered_command,
+                cwd=isolated_repo_root,
+                capture_output=True,
+                text=True,
+                check=False,
+            )
+            worktree_after = _snapshot_git_visible_worktree(REPO_ROOT)
+            escaped_paths = _changed_snapshot_paths(worktree_before, worktree_after)
+            isolated_after = _snapshot_filesystem_tree(isolated_repo_root)
+            escaped_paths.extend(
+                f"isolated-source/{relative}"
+                for relative in _changed_snapshot_paths(isolated_before, isolated_after)
+            )
+            for relative, frozen_bytes in expected_outputs.items():
+                current = expected_root / relative
+                current_bytes = current.read_bytes() if current.is_file() else None
+                if current_bytes != frozen_bytes:
+                    escaped_paths.append(current.as_posix())
+            escaped_paths = sorted(set(escaped_paths))
+            if escaped_paths:
+                family_violations.append(
+                    GuardrailViolation(
+                        check="generated_artifact",
+                        subject=family.family_id,
+                        detail="output_probe_worktree_escape",
+                        message=(
+                            f"{family.family_id} output probe changed paths outside its assigned "
+                            f"scratch root: {_summarize_changed_paths(escaped_paths)}."
+                        ),
+                    )
+                )
+            if result.returncode != 0:
+                output = ((result.stdout or "") + (result.stderr or "")).strip()
+                family_violations.append(
+                    GuardrailViolation(
+                        check="generated_artifact",
+                        subject=family.family_id,
+                        detail="output_probe_failed",
+                        message=(
+                            f"{family.family_id} generator-observed output probe failed:\n{output}"
+                        ),
+                    )
+                )
+                violations.extend(family_violations)
+                continue
+
+            observed_outputs = {
+                candidate.relative_to(family_scratch_root).as_posix()
+                for candidate in family_scratch_root.rglob("*")
+                if candidate.is_file()
+            }
+            declared_outputs = {
+                relative
+                for output in family.outputs
+                if (relative := _relative_generated_output(output)) is not None
+            }
+
+            for relative in sorted(observed_outputs):
+                owners = sorted(declared_owners.get(relative, []))
+                if not owners:
+                    family_violations.append(
+                        GuardrailViolation(
+                            check="generated_artifact",
+                            subject=family.family_id,
+                            detail=relative,
+                            message=(
+                                f"{family.family_id} emitted {relative} but it is not registered "
+                                "under any generated-artifact family."
+                            ),
+                        )
+                    )
+                    continue
+                if len(owners) > 1:
+                    family_violations.append(
+                        GuardrailViolation(
+                            check="generated_artifact",
+                            subject=family.family_id,
+                            detail=relative,
+                            message=(
+                                f"{family.family_id} emitted {relative}, but it is registered by "
+                                f"multiple families: {', '.join(owners)}."
+                            ),
+                        )
+                    )
+                    continue
+                if owners[0] != family.family_id:
+                    family_violations.append(
+                        GuardrailViolation(
+                            check="generated_artifact",
+                            subject=family.family_id,
+                            detail=relative,
+                            message=(
+                                f"{family.family_id} emitted {relative}, but it is registered to "
+                                f"{owners[0]}."
+                            ),
+                        )
+                    )
+                    continue
+
+                candidate = family_scratch_root / relative
+                expected = expected_root / relative
+                frozen_expected = expected_outputs.get(relative)
+                if frozen_expected is None:
+                    family_violations.append(
+                        GuardrailViolation(
+                            check="generated_artifact",
+                            subject=family.family_id,
+                            detail=relative,
+                            message=(
+                                f"{family.family_id} expected output is missing: "
+                                f"{expected.as_posix()}."
+                            ),
+                        )
+                    )
+                elif candidate.read_bytes() != frozen_expected:
+                    family_violations.append(
+                        GuardrailViolation(
+                            check="generated_artifact",
+                            subject=family.family_id,
+                            detail=relative,
+                            message=(
+                                f"{family.family_id} generated output {relative} does not match "
+                                f"{expected.as_posix()}."
+                            ),
+                        )
+                    )
+
+            for relative in sorted(declared_outputs - observed_outputs):
+                family_violations.append(
+                    GuardrailViolation(
+                        check="generated_artifact",
+                        subject=family.family_id,
+                        detail=relative,
+                        message=(
+                            f"{family.family_id} declares {relative}, but its generator did not "
+                            "emit that output."
+                        ),
+                    )
+                )
+
+            violations.extend(family_violations)
+            if not family_violations:
+                print(
+                    "Generated artifact freshness clean: "
+                    f"{family.family_id} ({len(observed_outputs)} generator-observed outputs)."
+                )
+
     return violations
 
 
@@ -1461,10 +1890,26 @@ def run_check(args: argparse.Namespace) -> int:
         )
     )
 
-    if args.run_generated_checks:
+    if not args.skip_generated_checks:
+        expected_root = args.generated_expected_root
+        if not expected_root.is_absolute():
+            expected_root = (Path.cwd() / expected_root).resolve()
         violations.extend(
             _apply_guardrail_exceptions(
-                _run_generated_artifact_checks(families),
+                _run_required_generated_artifact_checks(
+                    families,
+                    expected_root=expected_root,
+                ),
+                guardrail_exceptions,
+            )
+        )
+    if args.all_generated_checks:
+        optional_families = [
+            family for family in families if not _requires_default_generated_freshness(family)
+        ]
+        violations.extend(
+            _apply_guardrail_exceptions(
+                _run_declared_generated_artifact_checks(optional_families),
                 guardrail_exceptions,
             )
         )

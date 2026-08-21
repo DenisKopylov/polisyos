@@ -18,6 +18,19 @@ from typing import Any
 
 from jsonschema import Draft202012Validator, FormatChecker
 
+try:
+    from architecture.atlas_surfaces.generated_client_receipt_census import (
+        build_repository_report,
+        validate_anchor_identity_document,
+    )
+except ModuleNotFoundError as error:
+    if error.name != "architecture":  # pragma: no cover - preserve nested failures
+        raise
+    from generated_client_receipt_census import (
+        build_repository_report,
+        validate_anchor_identity_document,
+    )
+
 ATLAS_DIR = Path(__file__).resolve().parent
 REPO_ROOT = ATLAS_DIR.parents[1]
 INVENTORY_PATH = ATLAS_DIR / "status-retirement-inventory.json"
@@ -110,6 +123,30 @@ def _scan_json(request_json: str) -> dict[str, Any]:
     result = json.loads(completed.stdout)
     if not isinstance(result, dict):
         raise RuntimeError("status TypeScript scan returned a non-object")
+    for finding_key in (
+        "authorityCandidates",
+        "definitions",
+        "interactionLeaks",
+        "protectedRevivals",
+        "authoritySinkDeclarations",
+        "badgeSites",
+        "authorityPropCensus",
+    ):
+        if not isinstance(result.get(finding_key), list):
+            raise RuntimeError(
+                f"status TypeScript scan returned invalid {finding_key} findings"
+            )
+    request = json.loads(request_json)
+    if request.get("validateOverrideDiagnostics") is True and not isinstance(
+        result.get("overrideDiagnostics"), list
+    ):
+        raise RuntimeError(
+            "status TypeScript scan returned invalid overrideDiagnostics findings"
+        )
+    if "sourceOverrides" not in request and not isinstance(
+        result.get("sourceDenominators"), dict
+    ):
+        raise RuntimeError("status TypeScript scan returned invalid source denominators")
     return result
 
 
@@ -133,14 +170,31 @@ def _scan(
     source_overrides: Mapping[str, str] | None = None,
     *,
     inventory: Mapping[str, Any] | None = None,
+    validate_override_diagnostics: bool = False,
+    authority_prop_descriptors: Sequence[Mapping[str, str]] = (),
 ) -> dict[str, Any]:
     request = (
         {"sourceOverrides": dict(sorted(source_overrides.items()))}
         if source_overrides is not None
         else {}
     )
+    if source_overrides is not None and validate_override_diagnostics:
+        request["validateOverrideDiagnostics"] = True
+    if authority_prop_descriptors:
+        request["authorityPropDescriptors"] = [
+            dict(sorted(descriptor.items()))
+            for descriptor in authority_prop_descriptors
+        ]
     if inventory is not None:
         request["protectedDefinitions"] = _protected_semantic_definitions(inventory)
+        generated = inventory.get("sources", {}).get("generated_client", {})
+        request["generatedDefinitionPaths"] = sorted(
+            {
+                str(generated[key])
+                for key in ("canonical_path", "types_path")
+                if generated.get(key)
+            }
+        )
     return _scan_json(json.dumps(request, sort_keys=True, separators=(",", ":")))
 
 
@@ -320,18 +374,12 @@ def _validate_denominators(inventory: Mapping[str, Any]) -> list[str]:
 
 def _validate_generated_anchors(inventory: Mapping[str, Any]) -> list[str]:
     errors: list[str] = []
-    canonical_path = REPO_ROOT / inventory["sources"]["generated_client"]["canonical_path"]
-    types_path = REPO_ROOT / inventory["sources"]["generated_client"]["types_path"]
-    canonical_lines = canonical_path.read_text(encoding="utf-8").splitlines()
-    type_lines = types_path.read_text(encoding="utf-8").splitlines()
     for entry in inventory["entries"]:
         if entry["classification"] != "lattice_derived":
             continue
         unit_id = entry["unit_id"]
         anchor = entry["generated_anchor"]
         symbol = anchor["export_symbol"]
-        canonical_line = anchor["canonical_line"]
-        schema_line = anchor["schema_line"]
         field = anchor.get("field")
         expected_query = f'{symbol}["{field}"]' if field else symbol
         if entry["owner_type"].get("query") != expected_query:
@@ -348,16 +396,18 @@ def _validate_generated_anchors(inventory: Mapping[str, Any]) -> list[str]:
             source_query = _resolve_local_generated_query(entry)
             if source_query != expected_query:
                 errors.append(f"generated_source_binding_drift:{unit_id}")
-        if not (1 <= canonical_line <= len(canonical_lines)) or (
-            f"export type {symbol}" not in canonical_lines[canonical_line - 1]
-        ):
-            errors.append(f"generated_anchor_drift:{unit_id}")
-            continue
-        expected_schema_fragment = f"{field}:" if field else f"{symbol}:"
-        if not (1 <= schema_line <= len(type_lines)) or (
-            expected_schema_fragment not in type_lines[schema_line - 1]
-        ):
-            errors.append(f"generated_anchor_drift:{unit_id}")
+    generated_client = inventory["sources"]["generated_client"]
+    errors.extend(
+        validate_anchor_identity_document(
+            inventory,
+            artifact_path="architecture/atlas_surfaces/status-retirement-inventory.json",
+            repo_root=REPO_ROOT,
+            target_paths=(
+                generated_client["canonical_path"],
+                generated_client["types_path"],
+            ),
+        )
+    )
     return errors
 
 
@@ -718,30 +768,12 @@ def _validate_source_overrides(
     return errors
 
 
-def _generated_object_schema_span(
-    types_text: str,
-    symbol: str,
-) -> tuple[int, int] | None:
-    lines = types_text.splitlines()
-    declaration = re.compile(
-        rf"^(?P<indent>\s*){re.escape(symbol)}:\s*\{{\s*$",
-    )
-    matches = [
-        (index, match.group("indent"))
-        for index, line in enumerate(lines)
-        if (match := declaration.match(line)) is not None
-    ]
-    if len(matches) != 1:
-        return None
-    start_index, indent = matches[0]
-    closing_line = f"{indent}}};"
-    for end_index in range(start_index + 1, len(lines)):
-        if lines[end_index].rstrip() == closing_line:
-            return start_index + 1, end_index + 1
-    return None
-
-
-def _validate_waist_debt(debt: Mapping[str, Any]) -> list[str]:
+def _validate_waist_debt(
+    debt: Mapping[str, Any],
+    *,
+    repo_root: Path = REPO_ROOT,
+) -> list[str]:
+    """Validate waist ownership and generated-client semantics from one census."""
     errors: list[str] = []
     entries = debt.get("entries", [])
     if len(entries) != 3:
@@ -758,31 +790,37 @@ def _validate_waist_debt(debt: Mapping[str, Any]) -> list[str]:
         if entry.get("capability_states") != ["bridge_missing", "surface_missing"]:
             errors.append(f"waist_debt_states:{debt_id}")
         anchor = entry.get("generated_client_anchor", {})
-        canonical = REPO_ROOT / anchor.get("canonical_path", "missing")
-        types = REPO_ROOT / anchor.get("types_path", "missing")
+        canonical = repo_root / anchor.get("canonical_path", "missing")
+        types = repo_root / anchor.get("types_path", "missing")
         if not canonical.exists() or not types.exists():
             errors.append(f"waist_debt_anchor_missing:{debt_id}")
-            continue
-        canonical_text = canonical.read_text(encoding="utf-8")
-        types_text = types.read_text(encoding="utf-8")
-        symbol = anchor.get("symbol", "")
-        if anchor.get("anchor_kind") == "missing_export":
-            if symbol in canonical_text or symbol in types_text:
-                errors.append(f"waist_debt_missing_export_now_present:{debt_id}")
-        elif anchor.get("anchor_kind") == "present_projection":
-            canonical_lines = canonical_text.splitlines()
-            start = anchor.get("types_start_line", 0)
-            end = anchor.get("types_end_line", 0)
-            type_block = "\n".join(types_text.splitlines()[max(0, start - 1):end])
-            line = anchor.get("canonical_line", 0)
-            if (
-                not (1 <= line <= len(canonical_lines))
-                or f"export type {symbol}" not in canonical_lines[line - 1]
-                or symbol not in type_block
-                or _generated_object_schema_span(types_text, symbol)
-                != (start, end)
-            ):
-                errors.append(f"waist_debt_anchor_drift:{debt_id}")
+    canonical_paths = {
+        entry.get("generated_client_anchor", {}).get("canonical_path")
+        for entry in entries
+        if isinstance(entry, Mapping)
+    }
+    types_paths = {
+        entry.get("generated_client_anchor", {}).get("types_path")
+        for entry in entries
+        if isinstance(entry, Mapping)
+    }
+    if (
+        len(canonical_paths) == 1
+        and len(types_paths) == 1
+        and all(isinstance(path, str) for path in (*canonical_paths, *types_paths))
+    ):
+        errors.extend(
+            validate_anchor_identity_document(
+                debt,
+                artifact_path=(
+                    "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+                ),
+                repo_root=repo_root,
+                target_paths=(*canonical_paths, *types_paths),
+            )
+        )
+    else:
+        errors.append("waist_debt_generated_target_drift")
     return errors
 
 
@@ -975,6 +1013,11 @@ def main(argv: Sequence[str] | None = None) -> int:
     inventory = _load_json(INVENTORY_PATH)
     debt = _load_json(WAIST_DEBT_PATH)
     errors = validate_inventory(inventory, debt)
+    receipt_report = build_repository_report(repo_root=REPO_ROOT)
+    errors.extend(
+        f"generated_client_receipt_census:{error}"
+        for error in receipt_report["errors"]
+    )
     if errors:
         for error in errors:
             print(error, file=sys.stderr)

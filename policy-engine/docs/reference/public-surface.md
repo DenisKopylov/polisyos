@@ -39,7 +39,8 @@ search-ledger refs, replay-manifest refs, orchestration-continuity refs,
 candidate DesignRecord handoff refs, orchestration-choice audit refs, and
 projection-only public refs;
 `layer3_g6_public_export_projection_refs.json` records
-`out_of_scope_reference_only` and does not register a public-export bundle route.
+`authority_preserving_public_export`, registers a redacted public-export bundle
+route, and emits only the owner-recomputed safe summary or governed refusal.
 
 `layer3_g7_region_widening_surface` is a generated
 PUBLIC/REVIEWER/EXPERT/MACHINE Policy Design Case audit surface documented here

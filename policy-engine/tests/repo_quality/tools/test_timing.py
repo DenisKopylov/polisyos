@@ -895,6 +895,44 @@ def test_timing_retention_one_keeps_only_the_latest_record(
     assert [record.tool for record in records] == ["tests.retention.2"]
 
 
+def test_read_timing_records_rejects_incomplete_or_nonfinite_receipts(tmp_path: Path) -> None:
+    """Catch malformed raw telemetry acquiring defaults that could mint a budget."""
+
+    timing_log = tmp_path / "timing.jsonl"
+    valid = {
+        "tool": "tests.valid",
+        "category": "tests",
+        "output_format": "text",
+        "status": "ok",
+        "preflight_status": "ok",
+        "started_at": "2026-08-11T00:00:00+00:00",
+        "duration_ms": 100.0,
+        "exit_code": 0,
+        "mode": "write",
+    }
+    malformed = [
+        {key: value for key, value in valid.items() if key != "exit_code"},
+        {key: value for key, value in valid.items() if key != "duration_ms"},
+        {**valid, "tool": ""},
+        {**valid, "mode": ""},
+        {**valid, "started_at": ""},
+        {**valid, "duration_ms": float("nan")},
+        {**valid, "duration_ms": float("inf")},
+        {**valid, "duration_ms": -1.0},
+        {**valid, "exit_code": True},
+        {**valid, "regime": "invented"},
+    ]
+    timing_log.write_text(
+        "".join(json.dumps(payload) + "\n" for payload in [*malformed, valid]),
+        encoding="utf-8",
+    )
+
+    records = read_timing_records(timing_log)
+
+    assert [record.tool for record in records] == ["tests.valid"]
+    assert records[0].regime == "unknown"
+
+
 def test_timing_budget_catalog_rejects_p95_drift_from_literal_samples(tmp_path: Path) -> None:
     """Catch a catalog that asserts a p95 rather than deriving it from its samples."""
 

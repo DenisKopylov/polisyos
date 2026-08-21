@@ -18,6 +18,7 @@ import subprocess
 import sys
 import time
 from collections.abc import Callable, Mapping
+from copy import deepcopy
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
 from decimal import Decimal
@@ -133,6 +134,16 @@ SOURCE_FLIP_MUTATION_IDS: tuple[str, ...] = (
     "source_flip_world_identity_problem_frame_binding_required",
     "source_flip_world_identity_target_slot_binding_required",
 )
+
+
+@dataclass(frozen=True, slots=True)
+class ValueGateValidationResult:
+    """Separate governed N8 failures from retained ambient diagnostics."""
+
+    governing_issues: tuple[dict[str, Any], ...]
+    ambient_findings: tuple[dict[str, Any], ...]
+
+
 FROZEN_MUTATION_PROOFS: dict[str, str] = {
     "value_input_read_from_runtime_hint": (
         "Production N8 path has zero value-input runtime_hints reads."
@@ -3335,20 +3346,54 @@ def _authority_boundary() -> dict[str, Any]:
     }
 
 
-def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
-    """Recompute every live/cached Fork-B proof and compare the frozen artifact."""
+def _governed_denominators_projection(value: object) -> object:
+    """Project only the catalog provenance nested inside an N8 denominator set."""
+
+    from polisyos.foundry.methods.catalog.snapshot import (
+        method_catalog_governed_provenance_projection,
+    )
+
+    if not isinstance(value, Mapping):
+        return deepcopy(value)
+    projection = deepcopy(dict(value))
+    catalog_provenance = value.get("catalog_provenance")
+    if isinstance(catalog_provenance, Mapping):
+        projection["catalog_provenance"] = method_catalog_governed_provenance_projection(
+            catalog_provenance
+        )
+    return projection
+
+
+def _governed_value_gate_projection(payload: Mapping[str, Any]) -> dict[str, Any]:
+    """Return the complete N8 comparison payload with ambient custody non-decisive."""
+
+    projection = deepcopy(dict(payload))
+    projection.pop("contract_content_hash", None)
+    if "denominators" in projection:
+        projection["denominators"] = _governed_denominators_projection(
+            projection["denominators"]
+        )
+    return projection
+
+
+def run_rederive_audit_result(repo_root: Path) -> ValueGateValidationResult:
+    """Recompute N8 while retaining ambient diagnostics in the audit result."""
 
     _ensure_src_path(repo_root)
     started = time.monotonic()
     expected = build_payload(repo_root)
-    issues = list(validate_payload(expected))
+    expected_result = validate_payload_result(expected)
+    issues = list(expected_result.governing_issues)
+    ambient_findings = list(expected_result.ambient_findings)
     path = repo_root / OUTPUT_PATH
     if not path.exists():
         issues.append({"code": "artifact_missing", "path": OUTPUT_PATH})
         actual: Mapping[str, Any] = {}
     else:
         actual = _load_json(path)
-        issues.extend(validate_payload(actual))
+        actual_result = validate_payload_result(actual)
+        issues.extend(actual_result.governing_issues)
+        ambient_findings.extend(actual_result.ambient_findings)
         for section in (
             "denominators",
             "fork_b_census_receipt",
@@ -3359,7 +3404,18 @@ def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
             "projector_refusal_proofs",
             "transport_component_proofs",
         ):
-            if actual.get(section) != expected.get(section):
+            recorded_section = actual.get(section)
+            expected_section = expected.get(section)
+            if section == "denominators":
+                try:
+                    section_drift = _governed_denominators_projection(
+                        recorded_section
+                    ) != _governed_denominators_projection(expected_section)
+                except (RuntimeError, TypeError, ValueError):
+                    section_drift = True
+            else:
+                section_drift = recorded_section != expected_section
+            if section_drift:
                 issues.append(
                     {
                         "code": "live_rederive_section_drift",
@@ -3395,11 +3451,23 @@ def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
                     row["family"]
                     for row in expected["native_projector_contract_proofs"]
                 ],
+                "ambient_findings": list(
+                    _deduplicate_findings(ambient_findings)
+                ),
             },
             sort_keys=True,
         )
     )
-    return tuple(issues)
+    return ValueGateValidationResult(
+        governing_issues=_deduplicate_findings(issues),
+        ambient_findings=_deduplicate_findings(ambient_findings),
+    )
+
+
+def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Return governing rederive failures for backward-compatible consumers."""
+
+    return run_rederive_audit_result(repo_root).governing_issues
 
 
 def _content_hash(payload: Mapping[str, Any]) -> str:
@@ -3423,19 +3491,57 @@ def _is_fixture_world_hash(value: object) -> bool:
     )
 
 
-def _catalog_provenance_issues(
+def _deduplicate_findings(
+    findings: list[dict[str, Any]],
+) -> tuple[dict[str, Any], ...]:
+    seen: set[str] = set()
+    deduplicated: list[dict[str, Any]] = []
+    for finding in findings:
+        identity = json.dumps(finding, ensure_ascii=True, sort_keys=True, separators=(",", ":"))
+        if identity not in seen:
+            seen.add(identity)
+            deduplicated.append(finding)
+    return tuple(deduplicated)
+
+
+def _is_valid_catalog_ambient_admission(value: object) -> bool:
+    return bool(
+        isinstance(value, Mapping)
+        and set(value)
+        == {"status", "included_in_governed_denominator", "fail_closed_action"}
+        and value.get("included_in_governed_denominator") is False
+        and value.get("fail_closed_action") == "quarantine"
+        and value.get("status") in {"quarantined_unbound", "declared_not_admitted"}
+    )
+
+
+def _is_structurally_non_decisive_predicate(value: object) -> bool:
+    return bool(
+        isinstance(value, Mapping)
+        and value.get("decisive") is False
+        and value.get("fail_closed_action") == "quarantine"
+    )
+
+
+def _catalog_provenance_validation_result(
     recorded: object,
     expected: Mapping[str, Any],
     *,
     denominator_fields: frozenset[str] | None = None,
-) -> tuple[dict[str, Any], ...]:
+) -> ValueGateValidationResult:
     from polisyos.foundry.methods.catalog.snapshot import (
+        MethodCatalogDiscoveryProvenanceError,
+        method_catalog_governed_provenance_id,
         method_catalog_provenance_id,
     )
 
-    issues: list[dict[str, Any]] = []
+    governing: list[dict[str, Any]] = []
+    ambient_findings: list[dict[str, Any]] = []
     if not isinstance(recorded, Mapping):
-        return ({"code": "catalog_discovery_provenance_missing"},)
+        return ValueGateValidationResult(
+            governing_issues=({"code": "catalog_discovery_provenance_missing"},),
+            ambient_findings=(),
+        )
 
     recorded_provenance_id = recorded.get("provenance_id")
     try:
@@ -3446,15 +3552,26 @@ def _catalog_provenance_issues(
         not isinstance(recorded_provenance_id, str)
         or recorded_provenance_id != recomputed_provenance_id
     ):
-        issues.append({"code": "catalog_provenance_content_hash_mismatch"})
+        governing.append({"code": "catalog_provenance_content_hash_mismatch"})
+
+    recorded_projection_id: str | None = None
+    expected_projection_id: str | None = None
+    try:
+        recorded_projection_id = method_catalog_governed_provenance_id(recorded)
+    except MethodCatalogDiscoveryProvenanceError as exc:
+        governing.append({"code": str(exc)})
+    try:
+        expected_projection_id = method_catalog_governed_provenance_id(expected)
+    except MethodCatalogDiscoveryProvenanceError as exc:
+        governing.append({"code": str(exc)})
 
     recorded_governed = recorded.get("governed_discovery")
     expected_governed = expected.get("governed_discovery")
     if not isinstance(recorded_governed, Mapping) or not isinstance(expected_governed, Mapping):
-        issues.append({"code": "catalog_governed_discovery_manifest_missing"})
+        governing.append({"code": "catalog_governed_discovery_manifest_missing"})
     else:
         if recorded_governed.get("source_policy") != expected_governed.get("source_policy"):
-            issues.append({"code": "catalog_governed_source_policy_mismatch"})
+            governing.append({"code": "catalog_governed_source_policy_mismatch"})
         if any(
             recorded_governed.get(field) != expected_governed.get(field)
             for field in (
@@ -3466,26 +3583,35 @@ def _catalog_provenance_issues(
                 "unbound_inputs",
             )
         ):
-            issues.append({"code": "catalog_builtin_discovery_manifest_mismatch"})
+            governing.append({"code": "catalog_builtin_discovery_manifest_mismatch"})
         if recorded_governed.get("unbound_inputs"):
-            issues.append({"code": "catalog_governed_discovery_manifest_unbound"})
+            governing.append({"code": "catalog_governed_discovery_manifest_unbound"})
 
     recorded_ambient = recorded.get("ambient_discovery")
     expected_ambient = expected.get("ambient_discovery")
+    ambient_admission_valid = False
     if not isinstance(recorded_ambient, Mapping) or not isinstance(expected_ambient, Mapping):
-        issues.append({"code": "catalog_ambient_discovery_manifest_missing"})
+        governing.append({"code": "catalog_ambient_discovery_manifest_missing"})
     else:
+        recorded_admission = recorded_ambient.get("admission")
+        expected_admission = expected_ambient.get("admission")
+        ambient_admission_valid = _is_valid_catalog_ambient_admission(
+            recorded_admission
+        ) and _is_valid_catalog_ambient_admission(expected_admission)
+        ambient_destination = ambient_findings if ambient_admission_valid else governing
         if recorded_ambient.get("source_policy") != expected_ambient.get("source_policy"):
-            issues.append({"code": "catalog_ambient_source_policy_mismatch"})
+            governing.append({"code": "catalog_ambient_source_policy_mismatch"})
         if recorded_ambient.get("manifest_id") != expected_ambient.get("manifest_id"):
-            issues.append({"code": "catalog_ambient_discovery_manifest_mismatch"})
+            ambient_destination.append({"code": "catalog_ambient_discovery_manifest_mismatch"})
         if recorded_ambient.get("entry_points") != expected_ambient.get("entry_points"):
-            issues.append({"code": "catalog_entry_point_distribution_manifest_mismatch"})
+            ambient_destination.append(
+                {"code": "catalog_entry_point_distribution_manifest_mismatch"}
+            )
         if any(
             recorded_ambient.get(field) != expected_ambient.get(field)
             for field in ("dev_scan_roots", "dev_scan_files")
         ):
-            issues.append({"code": "catalog_development_scan_manifest_mismatch"})
+            ambient_destination.append({"code": "catalog_development_scan_manifest_mismatch"})
         if any(
             recorded_ambient.get(field) != expected_ambient.get(field)
             for field in (
@@ -3496,30 +3622,27 @@ def _catalog_provenance_issues(
                 "overlap_component_set_sha256",
             )
         ):
-            issues.append({"code": "catalog_ambient_component_manifest_mismatch"})
+            ambient_destination.append({"code": "catalog_ambient_component_manifest_mismatch"})
         if recorded_ambient.get("unbound_inputs") != expected_ambient.get("unbound_inputs"):
-            issues.append({"code": "catalog_ambient_unbound_input_manifest_mismatch"})
-        admission = recorded_ambient.get("admission")
-        if admission != expected_ambient.get("admission"):
-            issues.append({"code": "catalog_ambient_admission_mismatch"})
-        if not isinstance(admission, Mapping) or (
-            admission.get("included_in_governed_denominator") is not False
-            or admission.get("fail_closed_action") != "quarantine"
-            or admission.get("status") not in {"quarantined_unbound", "declared_not_admitted"}
-        ):
-            issues.append({"code": "catalog_ambient_input_not_quarantined"})
+            ambient_destination.append(
+                {"code": "catalog_ambient_unbound_input_manifest_mismatch"}
+            )
+        if recorded_admission != expected_admission:
+            ambient_destination.append({"code": "catalog_ambient_admission_mismatch"})
+        if not _is_valid_catalog_ambient_admission(recorded_admission):
+            governing.append({"code": "catalog_ambient_input_not_quarantined"})
 
     recorded_runtime = recorded.get("runtime_backend_identity")
     expected_runtime = expected.get("runtime_backend_identity")
     if not isinstance(recorded_runtime, Mapping) or not isinstance(expected_runtime, Mapping):
-        issues.append({"code": "catalog_runtime_backend_identity_missing"})
+        governing.append({"code": "catalog_runtime_backend_identity_missing"})
     else:
         if recorded_runtime.get("schema_version") != expected_runtime.get("schema_version"):
-            issues.append({"code": "catalog_runtime_backend_identity_mismatch"})
+            governing.append({"code": "catalog_runtime_backend_identity_mismatch"})
         if recorded_runtime.get("identity_id") != expected_runtime.get("identity_id"):
-            issues.append({"code": "catalog_runtime_backend_identity_mismatch"})
+            governing.append({"code": "catalog_runtime_backend_identity_mismatch"})
         if recorded_runtime.get("runtime_packages") != expected_runtime.get("runtime_packages"):
-            issues.append({"code": "catalog_runtime_package_identity_mismatch"})
+            governing.append({"code": "catalog_runtime_package_identity_mismatch"})
         if any(
             recorded_runtime.get(field) != expected_runtime.get(field)
             for field in (
@@ -3528,65 +3651,80 @@ def _catalog_provenance_issues(
                 "entry_runtime_bindings_sha256",
             )
         ):
-            issues.append({"code": "catalog_backend_fingerprint_mismatch"})
+            governing.append({"code": "catalog_backend_fingerprint_mismatch"})
 
     predicate_rows = recorded.get("predicate_provenance")
     expected_predicate_rows = expected.get("predicate_provenance")
-    if predicate_rows != expected_predicate_rows:
-        issues.append({"code": "catalog_predicate_provenance_mismatch"})
-    if not isinstance(predicate_rows, list):
-        issues.append({"code": "catalog_predicate_provenance_missing"})
+    recorded_by_predicate: dict[str, Mapping[str, Any]] = {}
+    expected_by_predicate: dict[str, Mapping[str, Any]] = {}
+    if not isinstance(predicate_rows, list) or not isinstance(expected_predicate_rows, list):
+        governing.append({"code": "catalog_predicate_provenance_missing"})
     else:
-        for row in predicate_rows:
-            if not isinstance(row, Mapping):
-                issues.append({"code": "catalog_predicate_provenance_invalid"})
-                continue
-            classification = str(row.get("classification") or "")
-            fail_closed_action = str(row.get("fail_closed_action") or "")
-            if (
-                classification
-                not in {
-                    "recomputed",
-                    "independently_reconciled",
+        for rows, destination in (
+            (predicate_rows, recorded_by_predicate),
+            (expected_predicate_rows, expected_by_predicate),
+        ):
+            for row in rows:
+                if not isinstance(row, Mapping) or not isinstance(row.get("predicate"), str):
+                    governing.append({"code": "catalog_predicate_provenance_invalid"})
+                    continue
+                predicate = str(row["predicate"])
+                if not predicate or predicate in destination:
+                    governing.append({"code": "catalog_predicate_provenance_invalid"})
+                    continue
+                destination[predicate] = row
+                classification = str(row.get("classification") or "")
+                if classification in {
                     "consumer_asserted",
                     "institutionally_supplied",
                     "not_established",
-                }
-                or not isinstance(row.get("decisive"), bool)
-                or fail_closed_action not in {"reject", "quarantine"}
-            ):
-                issues.append({"code": "catalog_predicate_provenance_invalid"})
+                } and row.get("decisive") is True:
+                    governing.append(
+                        {
+                            "code": "catalog_predicate_provenance_not_admissible",
+                            "predicate": predicate,
+                            "classification": classification,
+                        }
+                    )
+        for predicate in sorted(set(recorded_by_predicate) | set(expected_by_predicate)):
+            recorded_row = recorded_by_predicate.get(predicate)
+            expected_row = expected_by_predicate.get(predicate)
+            if recorded_row == expected_row:
                 continue
-            if classification in {
-                "consumer_asserted",
-                "institutionally_supplied",
-                "not_established",
-            } and (bool(row.get("decisive")) or fail_closed_action not in {"reject", "quarantine"}):
-                issues.append(
-                    {
-                        "code": "catalog_predicate_provenance_not_admissible",
-                        "predicate": row.get("predicate"),
-                        "classification": classification,
-                    }
-                )
+            finding = {
+                "code": "catalog_predicate_provenance_mismatch",
+                "predicate": predicate,
+            }
+            if (
+                ambient_admission_valid
+                and _is_structurally_non_decisive_predicate(recorded_row)
+                and _is_structurally_non_decisive_predicate(expected_row)
+            ):
+                ambient_findings.append(finding)
+            else:
+                governing.append(finding)
+        recorded_order = [
+            str(row.get("predicate")) for row in predicate_rows if isinstance(row, Mapping)
+        ]
+        expected_order = [
+            str(row.get("predicate"))
+            for row in expected_predicate_rows
+            if isinstance(row, Mapping)
+        ]
+        if set(recorded_order) == set(expected_order) and recorded_order != expected_order:
+            governing.append({"code": "catalog_predicate_provenance_order_mismatch"})
 
     predicate_bindings = recorded.get("predicate_bindings")
     expected_predicate_bindings = expected.get("predicate_bindings")
     if predicate_bindings != expected_predicate_bindings:
-        issues.append({"code": "catalog_predicate_bindings_mismatch"})
+        governing.append({"code": "catalog_predicate_bindings_mismatch"})
     if denominator_fields is not None:
         if not isinstance(predicate_bindings, Mapping) or set(predicate_bindings) != set(
             denominator_fields
         ):
-            issues.append({"code": "catalog_predicate_binding_coverage_mismatch"})
+            governing.append({"code": "catalog_predicate_binding_coverage_mismatch"})
         else:
-            known_predicates = set()
-            if isinstance(predicate_rows, list):
-                known_predicates = {
-                    str(row.get("predicate") or "")
-                    for row in predicate_rows
-                    if isinstance(row, Mapping)
-                }
+            known_predicates = set(recorded_by_predicate)
             for field, references in predicate_bindings.items():
                 if (
                     not isinstance(references, list)
@@ -3596,7 +3734,7 @@ def _catalog_provenance_issues(
                         for reference in references
                     )
                 ):
-                    issues.append(
+                    governing.append(
                         {
                             "code": "catalog_predicate_binding_invalid",
                             "field": field,
@@ -3606,16 +3744,42 @@ def _catalog_provenance_issues(
     admission_policy = recorded.get("predicate_admission_policy")
     expected_admission_policy = expected.get("predicate_admission_policy")
     if admission_policy != expected_admission_policy:
-        issues.append({"code": "catalog_predicate_admission_policy_mismatch"})
+        governing.append({"code": "catalog_predicate_admission_policy_mismatch"})
     if recorded.get("schema_version") != expected.get("schema_version"):
-        issues.append({"code": "catalog_provenance_schema_version_mismatch"})
-    if recorded.get("provenance_id") != expected.get("provenance_id"):
-        issues.append({"code": "catalog_provenance_manifest_mismatch"})
-    return tuple(issues)
+        governing.append({"code": "catalog_provenance_schema_version_mismatch"})
+    if (
+        recorded_projection_id is not None
+        and expected_projection_id is not None
+        and recorded_projection_id != expected_projection_id
+        and not governing
+    ):
+        governing.append({"code": "catalog_governed_provenance_manifest_mismatch"})
+    return ValueGateValidationResult(
+        governing_issues=_deduplicate_findings(governing),
+        ambient_findings=_deduplicate_findings(ambient_findings),
+    )
 
 
-def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
+def _catalog_provenance_issues(
+    recorded: object,
+    expected: Mapping[str, Any],
+    *,
+    denominator_fields: frozenset[str] | None = None,
+) -> tuple[dict[str, Any], ...]:
+    """Return only governing catalog-provenance failures for legacy consumers."""
+
+    return _catalog_provenance_validation_result(
+        recorded,
+        expected,
+        denominator_fields=denominator_fields,
+    ).governing_issues
+
+
+def validate_payload_result(payload: Mapping[str, Any]) -> ValueGateValidationResult:
+    """Validate N8 and retain non-decisive ambient findings separately."""
+
     issues: list[dict[str, Any]] = []
+    ambient_findings: list[dict[str, Any]] = []
     if payload.get("schema_version") != SCHEMA_VERSION:
         issues.append({"code": "schema_version_mismatch"})
     if payload.get("rule_version") != VALUE_GATE_RULE_VERSION:
@@ -3627,12 +3791,14 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
         issues.append({"code": "denominators_missing"})
     else:
         expected_denominators = _catalog_denominators_cached()
-        provenance_issues = _catalog_provenance_issues(
+        provenance_result = _catalog_provenance_validation_result(
             denominators.get("catalog_provenance"),
             expected_denominators["catalog_provenance"],
             denominator_fields=frozenset(expected_denominators) - {"catalog_provenance"},
         )
+        provenance_issues = provenance_result.governing_issues
         issues.extend(provenance_issues)
+        ambient_findings.extend(provenance_result.ambient_findings)
         modes = tuple(denominators.get("evaluation_modes") or ())
         if modes != tuple(get_args(ValueEvaluationMode)):
             issues.append({"code": "evaluation_mode_denominator_not_full"})
@@ -3775,7 +3941,16 @@ def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
     expected_hash = _content_hash(payload)
     if payload.get("contract_content_hash") != expected_hash:
         issues.append({"code": "contract_content_hash_mismatch"})
-    return tuple(issues)
+    return ValueGateValidationResult(
+        governing_issues=_deduplicate_findings(issues),
+        ambient_findings=_deduplicate_findings(ambient_findings),
+    )
+
+
+def validate_payload(payload: Mapping[str, Any]) -> tuple[dict[str, Any], ...]:
+    """Return governing N8 failures for backward-compatible owner consumers."""
+
+    return validate_payload_result(payload).governing_issues
 
 
 def _validate_refusal_receipt(
@@ -4386,22 +4561,52 @@ def _catalog_provenance_reissue_payload(
 def check_catalog_provenance(repo_root: Path) -> tuple[dict[str, Any], ...]:
     """Validate the frozen payload against live canonical catalog provenance."""
 
+    return check_catalog_provenance_result(repo_root).governing_issues
+
+
+def check_catalog_provenance_result(repo_root: Path) -> ValueGateValidationResult:
+    """Validate frozen catalog provenance and retain ambient diagnostics."""
+
     path = repo_root / OUTPUT_PATH
     if not path.exists():
-        return ({"code": "artifact_missing", "path": OUTPUT_PATH},)
-    return validate_payload(_load_json(path))
+        return ValueGateValidationResult(
+            governing_issues=({"code": "artifact_missing", "path": OUTPUT_PATH},),
+            ambient_findings=(),
+        )
+    return validate_payload_result(_load_json(path))
 
 
 def check(repo_root: Path) -> tuple[dict[str, Any], ...]:
+    """Return governing full-contract failures for legacy callers."""
+
+    return check_result(repo_root).governing_issues
+
+
+def check_result(repo_root: Path) -> ValueGateValidationResult:
+    """Compare the full frozen N8 contract through its governed projection."""
+
     path = repo_root / OUTPUT_PATH
     if not path.exists():
-        return ({"code": "artifact_missing", "path": OUTPUT_PATH},)
+        return ValueGateValidationResult(
+            governing_issues=({"code": "artifact_missing", "path": OUTPUT_PATH},),
+            ambient_findings=(),
+        )
     expected = build_payload(repo_root)
     actual = _load_json(path)
-    issues = list(validate_payload(actual))
-    if actual != expected:
+    result = validate_payload_result(actual)
+    issues = list(result.governing_issues)
+    try:
+        artifact_drift = _governed_value_gate_projection(
+            actual
+        ) != _governed_value_gate_projection(expected)
+    except (RuntimeError, TypeError, ValueError):
+        artifact_drift = True
+    if artifact_drift:
         issues.append({"code": "artifact_drift", "path": OUTPUT_PATH})
-    return tuple(issues)
+    return ValueGateValidationResult(
+        governing_issues=_deduplicate_findings(issues),
+        ambient_findings=result.ambient_findings,
+    )
 
 
 def corrupt_field_drift_check(repo_root: Path) -> int:
@@ -4430,32 +4635,24 @@ def corrupt_field_drift_check(repo_root: Path) -> int:
     legacy["contract_content_hash"] = _content_hash(legacy)
     cases.append(("legacy_positive_alias", legacy, "legacy_positive_key_forbidden"))
 
-    ambient_distribution = json.loads(json.dumps(base))
-    entry_points = ambient_distribution["denominators"]["catalog_provenance"][
-        "ambient_discovery"
-    ]["entry_points"]
-    if entry_points:
-        entry_points[0]["distribution_name"] = "corrupt-environment"
-    else:
-        entry_points.append(
-            {
-                "group": "polisyos.foundry_methods",
-                "name": "corrupt-environment",
-                "value": "corrupt_environment:factory",
-                "distribution_name": "corrupt-environment",
-                "distribution_version": "0",
-                "entry_points_sha256": "sha256:" + "0" * 64,
-                "direct_url_sha256": None,
-                "editable_install": None,
-                "source_byte_closure": "not_established",
-            }
-        )
-    ambient_distribution["contract_content_hash"] = _content_hash(ambient_distribution)
+    malformed_ambient_admission = json.loads(json.dumps(base))
+    catalog_provenance = malformed_ambient_admission["denominators"][
+        "catalog_provenance"
+    ]
+    catalog_provenance["ambient_discovery"].pop("admission", None)
+    from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
+
+    catalog_provenance["provenance_id"] = method_catalog_provenance_id(
+        catalog_provenance
+    )
+    malformed_ambient_admission["contract_content_hash"] = _content_hash(
+        malformed_ambient_admission
+    )
     cases.append(
         (
-            "ambient_distribution_manifest_drift",
-            ambient_distribution,
-            "catalog_entry_point_distribution_manifest_mismatch",
+            "missing_ambient_admission",
+            malformed_ambient_admission,
+            "catalog_ambient_input_not_quarantined",
         )
     )
 
@@ -4511,9 +4708,17 @@ def main(argv: list[str] | None = None) -> int:
     if args.corrupt_field_drift_check:
         return corrupt_field_drift_check(repo_root)
     if args.rederive_audit:
-        issues = run_rederive_audit(repo_root)
-        if issues:
-            print(json.dumps({"issues": list(issues)}, sort_keys=True))
+        result = run_rederive_audit_result(repo_root)
+        if result.governing_issues:
+            print(
+                json.dumps(
+                    {
+                        "issues": list(result.governing_issues),
+                        "ambient_findings": list(result.ambient_findings),
+                    },
+                    sort_keys=True,
+                )
+            )
             return 1
         return 0
     if args.source_flip_mutations:
@@ -4522,13 +4727,27 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"results": list(results)}, sort_keys=True))
         return 1 if failures else 0
     if args.check_catalog_provenance:
-        issues = check_catalog_provenance(repo_root)
-        if issues:
-            print(json.dumps({"status": "fail", "issues": list(issues)}, sort_keys=True))
+        result = check_catalog_provenance_result(repo_root)
+        if result.governing_issues:
+            print(
+                json.dumps(
+                    {
+                        "status": "fail",
+                        "issues": list(result.governing_issues),
+                        "ambient_findings": list(result.ambient_findings),
+                    },
+                    sort_keys=True,
+                )
+            )
             return 1
         print(
             json.dumps(
-                {"status": "pass", "path": OUTPUT_PATH, "scope": "catalog_provenance"},
+                {
+                    "status": "pass",
+                    "path": OUTPUT_PATH,
+                    "scope": "catalog_provenance",
+                    "ambient_findings": list(result.ambient_findings),
+                },
                 sort_keys=True,
             )
         )
@@ -4587,11 +4806,29 @@ def main(argv: list[str] | None = None) -> int:
         else:
             print(f"wrote {OUTPUT_PATH}")
         return 0
-    issues = check(repo_root)
-    if issues:
-        print(json.dumps({"status": "fail", "issues": list(issues)}, sort_keys=True))
+    result = check_result(repo_root)
+    if result.governing_issues:
+        print(
+            json.dumps(
+                {
+                    "status": "fail",
+                    "issues": list(result.governing_issues),
+                    "ambient_findings": list(result.ambient_findings),
+                },
+                sort_keys=True,
+            )
+        )
         return 1
-    print(json.dumps({"status": "pass", "path": OUTPUT_PATH}, sort_keys=True))
+    print(
+        json.dumps(
+            {
+                "status": "pass",
+                "path": OUTPUT_PATH,
+                "ambient_findings": list(result.ambient_findings),
+            },
+            sort_keys=True,
+        )
+    )
     return 0
 
 

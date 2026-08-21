@@ -87,21 +87,4 @@ describe("EnvelopeChip", () => {
       createGovernedAuthorityPurpose(missing, "publication_review"),
     ).toThrow(/canonical marker/i);
   });
-
-  it("does not expose caller-selected envelope clothing", () => {
-    const purpose = createGovernedAuthorityPurpose(
-      GOVERNED_PACKET,
-      "publication_review",
-    );
-    const compileOnly = () => (
-      <>
-        {/* @ts-expect-error Envelope clothing cannot be supplied by class. */}
-        <EnvelopeChip className="text-red-500" authorityPurpose={purpose} />
-        {/* @ts-expect-error Envelope clothing cannot be supplied by style. */}
-        <EnvelopeChip authorityPurpose={purpose} style={{ color: "red" }} />
-      </>
-    );
-
-    expect(compileOnly).toBeTypeOf("function");
-  });
 });

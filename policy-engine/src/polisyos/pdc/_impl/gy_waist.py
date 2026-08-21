@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import hashlib
 import json
-from collections.abc import Mapping
+import math
+from collections.abc import Callable, Mapping
+from dataclasses import dataclass
 from enum import StrEnum
 from typing import Any, ClassVar, Literal
 
@@ -23,7 +25,17 @@ from .layer2_readiness import (
 )
 
 GY_WAIST_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_waist.v1"
-GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v2"
+GY_PROMOTION_SEQUENCE_SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.n9_promotion.v3"
+
+GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION = "policyos.gy.comparison_projection.v1"
+GY_COMPARISON_PROJECTION_SCHEMA_VERSION = "policyos.gy.comparison_projection.v2"
+
+
+GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION = (
+    "policyos.gy.non_authority_verification.v2"
+)
+GY_VERIFICATION_COMPARISON_RULE_VERSION = "policyos.gy.non_authority_verification.v3"
+
 GY_ARTIFACT_ID_PATTERN = r"^(?:[a-z][a-z0-9_.-]*|sha256:[0-9a-f]{64})$"
 
 GY_CONTENT_HASH_EXCLUDED_FIELDS = (
@@ -67,7 +79,409 @@ _DECISION_GRADE_RANK: dict[str | None, int] = {
     "decision_admissible": 3,
 }
 _GY_DRIFT_MISSING = object()
+_GY_CONTENT_HASH_VALUE_MISSING = object()
 _GY_DIAGNOSTIC_IDENTITY_PATTERN = r"^(?:absent|sha256:[0-9a-f]{64})$"
+_GY_NON_AUTHORITY_PROVENANCE = frozenset({"verification"})
+_GY_COMPARISON_BLOCK_EXCLUDED = object()
+type _GyComparisonPathSegment = str | int
+type _GyComparisonPath = tuple[_GyComparisonPathSegment, ...]
+type GyComparisonPredicateProvenance = Literal["recomputed", "independently_reconciled"]
+type GyComparisonLegacyMigrator = Callable[
+    [Mapping[str, object], Mapping[str, object]],
+    Mapping[str, object],
+]
+
+
+@dataclass(frozen=True)
+class GyArtifactProjectionRule:
+    """One reason-bound top-level exclusion from an artifact projection."""
+
+    top_level_fields: frozenset[str]
+    applies_to: Literal["artifact_and_identity", "identity_only"]
+    reason: str
+
+    def __post_init__(self) -> None:
+        if (
+            not isinstance(self.top_level_fields, frozenset)
+            or not self.top_level_fields
+            or any(
+                not isinstance(field, str) or not field.strip()
+                for field in self.top_level_fields
+            )
+        ):
+            raise ValueError("gy_artifact_projection_rule_fields_required")
+        if self.applies_to not in {"artifact_and_identity", "identity_only"}:
+            raise ValueError("gy_artifact_projection_rule_scope_invalid")
+        if not isinstance(self.reason, str) or not self.reason.strip():
+            raise ValueError("gy_artifact_projection_rule_reason_required")
+
+
+@dataclass(frozen=True)
+class GyArtifactProjectionOwner:
+    """Own JSON representation and declared exclusions for one artifact family.
+
+    Explicit nulls are governing JSON values. Missing members stay missing, and
+    unsupported values fail closed rather than being stringified. Exclusions are
+    exact top-level names, grouped by a durable reason.
+    """
+
+    exclusion_rules: tuple[GyArtifactProjectionRule, ...]
+
+    def __post_init__(self) -> None:
+        if not isinstance(self.exclusion_rules, tuple) or any(
+            not isinstance(rule, GyArtifactProjectionRule)
+            for rule in self.exclusion_rules
+        ):
+            raise ValueError("gy_artifact_projection_rules_invalid")
+        seen_fields: set[str] = set()
+        seen_reasons: set[str] = set()
+        for rule in self.exclusion_rules:
+            if seen_fields.intersection(rule.top_level_fields):
+                raise ValueError("gy_artifact_projection_rule_field_duplicate")
+            if rule.reason in seen_reasons:
+                raise ValueError("gy_artifact_projection_rule_reason_duplicate")
+            seen_fields.update(rule.top_level_fields)
+            seen_reasons.add(rule.reason)
+
+    def exclusion_rule(self, *, reason: str) -> GyArtifactProjectionRule:
+        """Return the one declared exclusion rule carrying ``reason``."""
+
+        for rule in self.exclusion_rules:
+            if rule.reason == reason:
+                return rule
+        raise ValueError("gy_artifact_projection_rule_unknown")
+
+    def artifact_projection(self, value: object) -> dict[str, object]:
+        """Return canonical artifact JSON with governing nulls retained."""
+
+        return self._project(value, include_identity_only=False)
+
+    def identity_projection(self, value: object) -> dict[str, object]:
+        """Return the artifact projection without its recursive self-identity."""
+
+        return self._project(value, include_identity_only=True)
+
+    def _project(
+        self,
+        value: object,
+        *,
+        include_identity_only: bool,
+    ) -> dict[str, object]:
+        payload = _gy_artifact_projection_json_mapping(value)
+        excluded = {
+            field
+            for rule in self.exclusion_rules
+            if rule.applies_to == "artifact_and_identity" or include_identity_only
+            for field in rule.top_level_fields
+        }
+        return {key: item for key, item in payload.items() if key not in excluded}
+
+
+GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER = GyArtifactProjectionOwner(
+    exclusion_rules=(
+        GyArtifactProjectionRule(
+            top_level_fields=frozenset(
+                {
+                    "comparison_content_hash",
+                    "comparison_projection_schema_version",
+                    "comparison_rule_version",
+                }
+            ),
+            applies_to="artifact_and_identity",
+            reason="non_governing_verification_identity",
+        ),
+        GyArtifactProjectionRule(
+            top_level_fields=frozenset({"artifact_content_hash"}),
+            applies_to="identity_only",
+            reason="recursive_self_identity",
+        ),
+    )
+)
+
+
+def _gy_artifact_projection_json_mapping(value: object) -> dict[str, object]:
+    if isinstance(value, BaseModel):
+        value = value.model_dump(mode="json", exclude_none=False)
+    if not isinstance(value, Mapping):
+        raise ValueError("gy_artifact_projection_mapping_required")
+    projected = _gy_artifact_projection_json_value(value)
+    if not isinstance(projected, dict):  # pragma: no cover - root checked above
+        raise ValueError("gy_artifact_projection_mapping_required")
+    return projected
+
+
+def _gy_artifact_projection_json_value(value: object) -> object:
+    if isinstance(value, Mapping):
+        if any(not isinstance(key, str) for key in value):
+            raise ValueError("gy_artifact_projection_mapping_key_invalid")
+        return {
+            key: _gy_artifact_projection_json_value(item)
+            for key, item in value.items()
+        }
+    if isinstance(value, (list, tuple)):
+        return [_gy_artifact_projection_json_value(item) for item in value]
+    if value is None or isinstance(value, (str, bool, int)):
+        return value
+    if isinstance(value, float) and math.isfinite(value):
+        return value
+    raise ValueError("gy_artifact_projection_value_not_json")
+
+
+@dataclass(frozen=True)
+class GyComparisonOwnerRule:
+    """Producer-owned policy for reconstructing one comparison-plan entry.
+
+    A persisted manifest is an integrity recipe, never an authority source.  The
+    live owner registry fixes the only action and P37 predicate provenance that
+    one rule may claim, so artifact bytes cannot widen ``project`` into
+    ``exclude`` or upgrade the predicate's evidence class.
+    """
+
+    projector: Callable[[Mapping[str, object]], object]
+    action: Literal["exclude", "project"]
+    predicate_provenance: GyComparisonPredicateProvenance
+
+
+@dataclass(frozen=True)
+class GyComparisonAdmission:
+    """One ephemeral producer-owned admission into a comparison projection.
+
+    ``source_content_hash`` binds the admission to the exact live block that the
+    producer validated.  ``projector`` is owned by that producer and is applied
+    to the aligned frozen block only after the live path has been derived from
+    that exact binding.  A JSON declaration or a self-computed hash cannot mint
+    an admission.
+    """
+
+    owner_rule: str
+    source_content_hash: str
+    projector: Callable[[Mapping[str, object]], object]
+    action: Literal["exclude", "project"] = "project"
+    predicate_provenance: GyComparisonPredicateProvenance = "recomputed"
+    legacy_migrator: GyComparisonLegacyMigrator | None = None
+
+
+@dataclass(frozen=True)
+class _GyComparisonPlanEntry:
+    path: _GyComparisonPath
+    owner_rule: str
+    projector: Callable[[Mapping[str, object]], object]
+    action: Literal["exclude", "project"]
+    predicate_provenance: GyComparisonPredicateProvenance
+    legacy_migrator: GyComparisonLegacyMigrator | None = None
+
+
+@dataclass(frozen=True)
+class GyComparisonProjectionPlan:
+    """Path-bound comparison plan derived from live producer admissions."""
+
+    entries: tuple[_GyComparisonPlanEntry, ...]
+
+    def __post_init__(self) -> None:
+        paths = tuple(entry.path for entry in self.entries)
+        if len(paths) != len(set(paths)):
+            raise ValueError("gy_comparison_admission_path_duplicate")
+
+    @property
+    def manifest(self) -> list[dict[str, str]]:
+        """Return the stable, persisted description of admitted live paths."""
+
+        return [
+            {
+                "action": entry.action,
+                "json_pointer": _gy_comparison_json_pointer(entry.path),
+                "owner_rule": entry.owner_rule,
+                "predicate_provenance": entry.predicate_provenance,
+            }
+            for entry in self.entries
+        ]
+
+    def project(self, value: object) -> object:
+        """Project an aligned full record under this producer-bound plan."""
+
+        entries = {entry.path: entry for entry in self.entries}
+        applied: set[_GyComparisonPath] = set()
+
+        def walk(item: object, path: _GyComparisonPath) -> object:
+            entry = entries.get(path)
+            if entry is not None:
+                if not isinstance(item, Mapping):
+                    raise ValueError("gy_comparison_admitted_block_shape_mismatch")
+                applied.add(path)
+                if entry.action == "exclude":
+                    entry.projector(item)
+                    return _GY_COMPARISON_BLOCK_EXCLUDED
+                projected = entry.projector(item)
+                if projected is _GY_COMPARISON_BLOCK_EXCLUDED:
+                    raise ValueError("gy_comparison_projector_action_mismatch")
+                return strip_gy_volatile_fields(projected)
+            if isinstance(item, Mapping):
+                projected_mapping: dict[str, object] = {}
+                for key, child in item.items():
+                    normalized_key = str(key)
+                    if is_gy_content_hash_excluded_field(normalized_key):
+                        continue
+                    projected_child = walk(child, (*path, normalized_key))
+                    if projected_child is not _GY_COMPARISON_BLOCK_EXCLUDED:
+                        projected_mapping[normalized_key] = projected_child
+                return projected_mapping
+            if isinstance(item, (list, tuple)):
+                projected_items: list[object] = []
+                for index, child in enumerate(item):
+                    projected_child = walk(child, (*path, index))
+                    if projected_child is not _GY_COMPARISON_BLOCK_EXCLUDED:
+                        projected_items.append(projected_child)
+                return projected_items
+            return item
+
+        projected = walk(value, ())
+        if applied != set(entries):
+            raise ValueError("gy_comparison_admission_path_missing")
+        return projected
+
+    def relative_to(self, prefix: _GyComparisonPath) -> GyComparisonProjectionPlan:
+        """Return the portion of this plan below one already-bound container."""
+
+        selected = tuple(
+            _GyComparisonPlanEntry(
+                path=entry.path[len(prefix) :],
+                owner_rule=entry.owner_rule,
+                projector=entry.projector,
+                action=entry.action,
+                predicate_provenance=entry.predicate_provenance,
+                legacy_migrator=entry.legacy_migrator,
+            )
+            for entry in self.entries
+            if entry.path[: len(prefix)] == prefix
+        )
+        if not selected:
+            raise ValueError("gy_comparison_relative_plan_empty")
+        return GyComparisonProjectionPlan(entries=selected)
+
+    def migrate_admitted_blocks(self, previous: object, current: object) -> object:
+        """Apply live-owner legacy migrations only at their admitted paths.
+
+        A migration callback is ephemeral: it exists only on a plan built from
+        live producer admissions and is never serialized in the manifest.
+        Every non-admitted byte remains the previous custody value here; the
+        ordinary reconciliation step decides unrelated live changes later.
+        """
+
+        migrations = {
+            entry.path: entry
+            for entry in self.entries
+            if entry.legacy_migrator is not None
+        }
+        if not migrations:
+            return previous
+        visited: set[_GyComparisonPath] = set()
+
+        def walk(left: object, right: object, path: _GyComparisonPath) -> object:
+            entry = migrations.get(path)
+            if entry is not None:
+                if not isinstance(left, Mapping) or not isinstance(right, Mapping):
+                    raise ValueError("gy_comparison_admitted_block_shape_mismatch")
+                migrator = entry.legacy_migrator
+                if migrator is None:  # pragma: no cover - selected above.
+                    raise ValueError("gy_comparison_legacy_migrator_missing")
+                migrated = migrator(left, right)
+                if not isinstance(migrated, Mapping):
+                    raise ValueError("gy_comparison_legacy_migration_shape_invalid")
+                visited.add(path)
+                return {str(key): item for key, item in migrated.items()}
+            if isinstance(left, Mapping) and isinstance(right, Mapping):
+                return {
+                    str(key): (
+                        walk(child, right[key], (*path, str(key)))
+                        if key in right
+                        else child
+                    )
+                    for key, child in left.items()
+                }
+            if isinstance(left, list) and isinstance(right, list):
+                return [
+                    walk(child, right[index], (*path, index))
+                    if index < len(right)
+                    else child
+                    for index, child in enumerate(left)
+                ]
+            if isinstance(left, tuple) and isinstance(right, tuple):
+                return tuple(
+                    walk(child, right[index], (*path, index))
+                    if index < len(right)
+                    else child
+                    for index, child in enumerate(left)
+                )
+            return left
+
+        migrated = walk(previous, current, ())
+        if visited != set(migrations):
+            raise ValueError("gy_comparison_admission_path_missing")
+        return migrated
+
+    def preserve_admitted_blocks(self, previous: object, current: object) -> object:
+        """Retain admitted evidence while taking unrelated live reissue deltas.
+
+        A projected admission is retained only when its complete typed semantic
+        projection is equal.  An excluded admission was already validated and
+        content-bound by its live producer token.  Fields outside admissions are
+        taken from the live record, except ordinary operational leaves.
+        """
+
+        aligned_previous = self.migrate_admitted_blocks(previous, current)
+        return self._preserve_aligned_admitted_blocks(aligned_previous, current)
+
+    def _preserve_aligned_admitted_blocks(
+        self,
+        aligned_previous: object,
+        current: object,
+    ) -> object:
+        """Preserve one already-migrated frozen value without rerunning its owner."""
+
+        entries = {entry.path: entry for entry in self.entries}
+        preserve_operational = self.project(aligned_previous) == self.project(current)
+        visited: set[_GyComparisonPath] = set()
+
+        def walk(left: object, right: object, path: _GyComparisonPath) -> object:
+            entry = entries.get(path)
+            if entry is not None:
+                if not isinstance(left, Mapping) or not isinstance(right, Mapping):
+                    raise ValueError("gy_comparison_admitted_block_shape_mismatch")
+                visited.add(path)
+                if entry.projector(left) != entry.projector(right):
+                    raise ValueError("gy_comparison_admitted_block_semantic_mismatch")
+                return left
+            if isinstance(left, Mapping) and isinstance(right, Mapping):
+                return {
+                    str(key): (
+                        left[key]
+                        if (
+                            preserve_operational
+                            and key in left
+                            and is_gy_content_hash_excluded_field(str(key))
+                        )
+                        else walk(left[key], child, (*path, str(key)))
+                        if key in left
+                        else child
+                    )
+                    for key, child in right.items()
+                }
+            if isinstance(left, list) and isinstance(right, list):
+                return [
+                    walk(left[index], child, (*path, index)) if index < len(left) else child
+                    for index, child in enumerate(right)
+                ]
+            if isinstance(left, tuple) and isinstance(right, tuple):
+                return tuple(
+                    walk(left[index], child, (*path, index)) if index < len(left) else child
+                    for index, child in enumerate(right)
+                )
+            return right
+
+        reconciled = walk(aligned_previous, current, ())
+        if visited != set(entries):
+            raise ValueError("gy_comparison_admission_path_missing")
+        return reconciled
 
 
 class _GyDriftOperandIdentity(BaseModel):
@@ -152,11 +566,15 @@ class GyOperationalReconciliationError(ValueError):
     def safe_detail(self) -> str:
         """Return the canonical code plus identity-only diagnostic payload."""
 
-        return self.code + ":" + json.dumps(
-            self._diagnostic.model_dump(mode="json"),
-            ensure_ascii=True,
-            separators=(",", ":"),
-            sort_keys=True,
+        return (
+            self.code
+            + ":"
+            + json.dumps(
+                self._diagnostic.model_dump(mode="json"),
+                ensure_ascii=True,
+                separators=(",", ":"),
+                sort_keys=True,
+            )
         )
 
     def __str__(self) -> str:
@@ -164,7 +582,7 @@ class GyOperationalReconciliationError(ValueError):
 
 
 def is_gy_content_hash_excluded_field(key: str) -> bool:
-    """Return whether ``key`` is excluded by the canonical GY hash owner."""
+    """Return whether ``key`` is an operational GY content-hash exclusion."""
 
     normalized = key.lower()
     return any(
@@ -173,8 +591,30 @@ def is_gy_content_hash_excluded_field(key: str) -> bool:
     )
 
 
+def is_gy_declared_non_authority_block(value: object) -> bool:
+    """Return whether a block declares only recognized non-authority provenance.
+
+    This function classifies the declaration only. It does not establish producer
+    provenance or content integrity and therefore never changes ``gy_content_hash``.
+    A comparison owner must separately admit the block through its typed producer.
+    """
+
+    if not isinstance(value, Mapping):
+        return False
+    declaration = value.get("authority_provenance", _GY_CONTENT_HASH_VALUE_MISSING)
+    if isinstance(declaration, str):
+        provenances = (declaration,)
+    elif isinstance(declaration, list) and all(isinstance(item, str) for item in declaration):
+        provenances = tuple(declaration)
+    else:
+        return False
+    return bool(provenances) and all(
+        provenance in _GY_NON_AUTHORITY_PROVENANCE for provenance in provenances
+    )
+
+
 def strip_gy_volatile_fields(value: object) -> object:
-    """Return ``value`` with volatile timing fields removed recursively."""
+    """Return ``value`` with operational timing fields removed recursively."""
 
     if isinstance(value, dict):
         return {
@@ -192,6 +632,143 @@ def gy_content_hash(value: object) -> str:
 
     payload = json.dumps(
         strip_gy_volatile_fields(value),
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def gy_recorded_content_hash(value: object) -> str:
+    """Return an exact canonical-JSON hash without comparison exclusions."""
+
+    payload = json.dumps(
+        value,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode("utf-8")
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def build_gy_comparison_projection_plan(
+    value: object,
+    *,
+    admissions: tuple[GyComparisonAdmission, ...],
+) -> GyComparisonProjectionPlan:
+    """Bind exact live producer admissions to their derived payload paths.
+
+    Admissions form a multiset.  Every supplied admission must match exactly one
+    live mapping, and an additional byte-identical copy receives no admission.
+    This prevents a caller-controlled declaration or duplicated block from
+    widening the comparison projection.
+    """
+
+    remaining = list(admissions)
+    entries: list[_GyComparisonPlanEntry] = []
+
+    def walk(item: object, path: _GyComparisonPath) -> None:
+        if isinstance(item, Mapping):
+            source_content_hash = gy_recorded_content_hash(item)
+            match_index = next(
+                (
+                    index
+                    for index, admission in enumerate(remaining)
+                    if admission.source_content_hash == source_content_hash
+                ),
+                None,
+            )
+            if match_index is not None:
+                admission = remaining.pop(match_index)
+                # Exercise the producer's typed projector at binding time.  A
+                # coincidental hash-shaped mapping cannot create a usable plan.
+                admission.projector(item)
+                entries.append(
+                    _GyComparisonPlanEntry(
+                        path=path,
+                        owner_rule=admission.owner_rule,
+                        projector=admission.projector,
+                        action=admission.action,
+                        predicate_provenance=admission.predicate_provenance,
+                        legacy_migrator=admission.legacy_migrator,
+                    )
+                )
+                return
+            for key, child in item.items():
+                walk(child, (*path, str(key)))
+        elif isinstance(item, (list, tuple)):
+            for index, child in enumerate(item):
+                walk(child, (*path, index))
+
+    walk(value, ())
+    if remaining:
+        raise ValueError("gy_comparison_live_admission_unbound")
+    return GyComparisonProjectionPlan(entries=tuple(entries))
+
+
+def build_gy_comparison_projection_plan_from_manifest(
+    value: object,
+    *,
+    manifest: object,
+    owner_rule_registry: Mapping[str, GyComparisonOwnerRule],
+) -> GyComparisonProjectionPlan:
+    """Reconstruct a projection recipe for non-authoritative integrity checks.
+
+    This function does not establish comparison admission.  Writers and exact
+    rederive checks must independently rebuild a plan from live producer
+    admissions and require its manifest to equal this recipe.
+    """
+
+    if not isinstance(manifest, list) or not manifest:
+        raise ValueError("gy_comparison_admission_manifest_invalid")
+    entries: list[_GyComparisonPlanEntry] = []
+    for row in manifest:
+        if not isinstance(row, Mapping):
+            raise ValueError("gy_comparison_admission_manifest_invalid")
+        pointer = row.get("json_pointer")
+        owner_rule = row.get("owner_rule")
+        action = row.get("action")
+        predicate_provenance = row.get("predicate_provenance")
+        if (
+            not isinstance(pointer, str)
+            or not isinstance(owner_rule, str)
+            or owner_rule not in owner_rule_registry
+        ):
+            raise ValueError("gy_comparison_admission_manifest_invalid")
+        registered = owner_rule_registry[owner_rule]
+        if (
+            action != registered.action
+            or predicate_provenance != registered.predicate_provenance
+        ):
+            raise ValueError("gy_comparison_admission_manifest_owner_policy_mismatch")
+        path = _gy_comparison_path_from_pointer(value, pointer)
+        entries.append(
+            _GyComparisonPlanEntry(
+                path=path,
+                owner_rule=owner_rule,
+                projector=registered.projector,
+                action=registered.action,
+                predicate_provenance=registered.predicate_provenance,
+                legacy_migrator=None,
+            )
+        )
+    plan = GyComparisonProjectionPlan(entries=tuple(entries))
+    if plan.manifest != manifest:
+        raise ValueError("gy_comparison_admission_manifest_not_canonical")
+    plan.project(value)
+    return plan
+
+
+def gy_comparison_content_hash(
+    value: object,
+    *,
+    comparison_plan: GyComparisonProjectionPlan,
+) -> str:
+    """Hash the owner-admitted comparison projection of a full GY record."""
+
+    projected = comparison_plan.project(value)
+    payload = json.dumps(
+        projected,
         sort_keys=True,
         separators=(",", ":"),
         default=str,
@@ -218,6 +795,24 @@ def gy_artifact_self_identity_projection(value: object) -> dict[str, Any]:
     return projected
 
 
+def overlay_gy_shared_operational_leaves(previous: object, current: object) -> object:
+    """Overlay shared operational leaves while preserving the current payload shape.
+
+    This writer operation is deliberately distinct from strict comparison
+    reconciliation: governing changes and current-only branches remain live,
+    and a previous-only field or sequence member is never manufactured.
+
+    Args:
+        previous: Previously persisted payload supplying admitted operational values.
+        current: Live writer payload supplying shape and governing content.
+
+    Returns:
+        The current-shaped payload with shared canonically operational fields overlaid.
+    """
+
+    return _overlay_gy_shared_operational_leaves(previous, current)
+
+
 def reconcile_gy_operational_leaves(
     previous: object,
     current: object,
@@ -233,8 +828,9 @@ def reconcile_gy_operational_leaves(
     Mismatches report recursive paths and content identities, never raw values.
     """
 
-    previous_semantic = strip_gy_volatile_fields(previous)
-    current_semantic = strip_gy_volatile_fields(current)
+    projector = strip_gy_volatile_fields
+    previous_semantic = projector(previous)
+    current_semantic = projector(current)
     if previous_semantic != current_semantic:
         raise _gy_operational_reconciliation_error(
             "gy_operational_reconciliation_semantic_projection_mismatch",
@@ -259,7 +855,69 @@ def reconcile_gy_operational_leaves(
             recording_role=recording_role,
             admission_arm=admission_arm,
         )
-    return _reconcile_gy_operational_leaves(previous, current)
+    return overlay_gy_shared_operational_leaves(previous, current)
+
+
+def reconcile_gy_comparison_projection(
+    previous: object,
+    current: object,
+    *,
+    comparison_plan: GyComparisonProjectionPlan,
+    recording_role: Literal["first_vertical", "education", "unseen"] | None = None,
+    admission_arm: Literal["controlled_at_capture", "migrated"] | None = None,
+) -> object:
+    """Preserve raw admitted evidence after producer-owned semantic agreement.
+
+    The supplied plan is ephemeral proof that its admitted live blocks were
+    resolved and validated by their canonical owners. The comparison remains
+    fail-closed for every field outside those exact paths. On agreement, the
+    frozen admitted blocks and shared operational leaves are retained verbatim;
+    the ordinary custody hash therefore continues to bind every recorded byte.
+    """
+
+    try:
+        aligned_previous = comparison_plan.migrate_admitted_blocks(previous, current)
+    except GyOperationalReconciliationError:
+        raise
+    except ValueError as exc:
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_semantic_projection_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        ) from exc
+    previous_semantic = comparison_plan.project(aligned_previous)
+    current_semantic = comparison_plan.project(current)
+    if previous_semantic != current_semantic:
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_semantic_projection_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        )
+    if not _gy_payload_shape_matches(aligned_previous, current):
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_shape_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        )
+    reconciled = comparison_plan._preserve_aligned_admitted_blocks(
+        aligned_previous,
+        current,
+    )
+    if comparison_plan.project(reconciled) != previous_semantic:  # pragma: no cover
+        raise _gy_operational_reconciliation_error(
+            "gy_operational_reconciliation_semantic_projection_mismatch",
+            previous,
+            current,
+            recording_role=recording_role,
+            admission_arm=admission_arm,
+        )
+    return reconciled
 
 
 def _gy_operational_reconciliation_error(
@@ -401,9 +1059,7 @@ def _gy_changed_leaf_report(
     return _GyDriftChangedLeaf(
         expected_frozen=_gy_leaf_identity(expected),
         live_replayed=_gy_leaf_identity(observed),
-        operational=bool(
-            field_name is not None and is_gy_content_hash_excluded_field(field_name)
-        ),
+        operational=bool(field_name is not None and is_gy_content_hash_excluded_field(field_name)),
         path=path or "/",
     )
 
@@ -438,38 +1094,89 @@ def _gy_json_pointer(parent: str, segment: str) -> str:
     return f"{parent}/{escaped}"
 
 
-def _gy_payload_shape_matches(previous: object, current: object) -> bool:
+def _gy_comparison_json_pointer(path: _GyComparisonPath) -> str:
+    pointer = ""
+    for segment in path:
+        pointer = _gy_json_pointer(pointer, str(segment))
+    return pointer or "/"
+
+
+def _gy_comparison_path_from_pointer(value: object, pointer: str) -> _GyComparisonPath:
+    if pointer == "/":
+        return ()
+    if not pointer.startswith("/"):
+        raise ValueError("gy_comparison_admission_pointer_invalid")
+    current = value
+    path: list[_GyComparisonPathSegment] = []
+    for encoded in pointer[1:].split("/"):
+        segment = encoded.replace("~1", "/").replace("~0", "~")
+        if isinstance(current, Mapping):
+            if segment not in current:
+                raise ValueError("gy_comparison_admission_path_missing")
+            path.append(segment)
+            current = current[segment]
+        elif isinstance(current, (list, tuple)):
+            try:
+                index = int(segment)
+            except ValueError as exc:
+                raise ValueError("gy_comparison_admission_pointer_invalid") from exc
+            if index < 0 or index >= len(current):
+                raise ValueError("gy_comparison_admission_path_missing")
+            path.append(index)
+            current = current[index]
+        else:
+            raise ValueError("gy_comparison_admission_path_missing")
+    return tuple(path)
+
+
+def _gy_payload_shape_matches(
+    previous: object,
+    current: object,
+) -> bool:
     if isinstance(previous, dict) and isinstance(current, dict):
         return set(previous) == set(current) and all(
             _gy_payload_shape_matches(previous[key], current[key]) for key in previous
         )
     if isinstance(previous, (list, tuple)) and isinstance(current, (list, tuple)):
-        return type(previous) is type(current) and len(previous) == len(current) and all(
-            _gy_payload_shape_matches(left, right)
-            for left, right in zip(previous, current, strict=True)
+        return (
+            type(previous) is type(current)
+            and len(previous) == len(current)
+            and all(
+                _gy_payload_shape_matches(left, right)
+                for left, right in zip(previous, current, strict=True)
+            )
         )
     return type(previous) is type(current)
 
 
-def _reconcile_gy_operational_leaves(previous: object, current: object) -> object:
-    if isinstance(previous, dict) and isinstance(current, dict):
+def _overlay_gy_shared_operational_leaves(
+    previous: object,
+    current: object,
+) -> object:
+    if isinstance(previous, Mapping) and isinstance(current, Mapping):
         return {
             key: (
                 previous[key]
                 if is_gy_content_hash_excluded_field(str(key)) and key in previous
-                else _reconcile_gy_operational_leaves(previous[key], value)
+                else _overlay_gy_shared_operational_leaves(previous[key], value)
+                if key in previous
+                else value
             )
             for key, value in current.items()
         }
     if isinstance(previous, list) and isinstance(current, list):
         return [
-            _reconcile_gy_operational_leaves(left, right)
-            for left, right in zip(previous, current, strict=True)
+            _overlay_gy_shared_operational_leaves(previous[index], value)
+            if index < len(previous)
+            else value
+            for index, value in enumerate(current)
         ]
     if isinstance(previous, tuple) and isinstance(current, tuple):
         return tuple(
-            _reconcile_gy_operational_leaves(left, right)
-            for left, right in zip(previous, current, strict=True)
+            _overlay_gy_shared_operational_leaves(previous[index], value)
+            if index < len(previous)
+            else value
+            for index, value in enumerate(current)
         )
     return current
 
@@ -589,7 +1296,7 @@ class SearchTerminalKind(StrEnum):
 
 
 class PromotionObligationClass(StrEnum):
-    """Universal N9 obligation-class denominator."""
+    """Declared N9 obligation-class denominator at this promotion rule version."""
 
     SYNTAX = "syntax"
     TYPE = "type"
@@ -626,6 +1333,14 @@ class PromotionObligationStatus(StrEnum):
     UNKNOWN = "unknown"
     SCOPE_INSUFFICIENT = "scope_insufficient"
     NOT_APPLICABLE_DATA_ONLY = "not_applicable_data_only"
+
+
+type PromotionObligationRole = Literal["class_gate", "decisive_predicate"]
+type PromotionObligationIdentityProvenance = Literal["recomputed"]
+
+PROMOTION_OBLIGATION_IDENTITY_RULE_VERSION = (
+    "polisyos.policy_design_case.layer3_gy.n9_obligation_instance_identity.v1"
+)
 
 
 class PromotionGateId(StrEnum):
@@ -712,8 +1427,8 @@ class PromotionRiskSpendSummary(GyWaistModel):
         return self
 
 
-class PromotionObligationRecord(GyWaistModel):
-    """One compiled N9 obligation result bound to its real owner or honest scope gap."""
+class PromotionObligationDraft(GyWaistModel):
+    """One owner-produced N9 class result before run-scoped identity finalization."""
 
     obligation_class: PromotionObligationClass
     gate_id: PromotionGateId
@@ -728,18 +1443,101 @@ class PromotionObligationRecord(GyWaistModel):
     )
 
     @model_validator(mode="after")
-    def _fail_closed_reason_matches_status(self) -> PromotionObligationRecord:
-        if self.status in {
-            PromotionObligationStatus.FAILED,
-            PromotionObligationStatus.UNKNOWN,
-            PromotionObligationStatus.SCOPE_INSUFFICIENT,
-        } and self.reason is None:
+    def _fail_closed_reason_matches_status(self) -> PromotionObligationDraft:
+        if (
+            self.status
+            in {
+                PromotionObligationStatus.FAILED,
+                PromotionObligationStatus.UNKNOWN,
+                PromotionObligationStatus.SCOPE_INSUFFICIENT,
+            }
+            and self.reason is None
+        ):
             raise ValueError("unsatisfied_promotion_obligation_requires_reason")
         if (
             self.status == PromotionObligationStatus.SATISFIED
             and self.semantic_scope == "scope_insufficient"
         ):
             raise ValueError("obligation_class_vacuously_passed")
+        return self
+
+
+def promotion_obligation_instance_id(
+    *,
+    obligation_role: PromotionObligationRole,
+    obligation_class: PromotionObligationClass,
+    gate_id: PromotionGateId,
+    source_obligation_ref: str,
+    source_obligation_content_hash: str,
+    instance_scope_content_hash: str,
+) -> str:
+    """Derive one obligation identity from its governed source and run scope."""
+
+    return gy_content_hash(
+        {
+            "rule_version": PROMOTION_OBLIGATION_IDENTITY_RULE_VERSION,
+            "obligation_role": obligation_role,
+            "obligation_class": obligation_class.value,
+            "gate_id": gate_id.value,
+            "source_obligation_ref": source_obligation_ref,
+            "source_obligation_content_hash": source_obligation_content_hash,
+            "instance_scope_content_hash": instance_scope_content_hash,
+        }
+    )
+
+
+class PromotionObligationRecord(PromotionObligationDraft):
+    """Canonical N9 row with deterministic identity over governed source content."""
+
+    obligation_role: PromotionObligationRole
+    source_obligation_ref: str = Field(..., min_length=1, max_length=500)
+    source_obligation_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    instance_scope_content_hash: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+    identity_provenance: PromotionObligationIdentityProvenance
+    obligation_instance_id: str = Field(..., pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @classmethod
+    def from_draft(
+        cls,
+        draft: PromotionObligationDraft,
+        *,
+        obligation_role: PromotionObligationRole,
+        source_obligation_ref: str,
+        source_obligation_content_hash: str,
+        instance_scope_content_hash: str,
+    ) -> PromotionObligationRecord:
+        """Finalize an owner outcome after all class-level mutations are complete."""
+
+        identity = promotion_obligation_instance_id(
+            obligation_role=obligation_role,
+            obligation_class=draft.obligation_class,
+            gate_id=draft.gate_id,
+            source_obligation_ref=source_obligation_ref,
+            source_obligation_content_hash=source_obligation_content_hash,
+            instance_scope_content_hash=instance_scope_content_hash,
+        )
+        return cls(
+            **draft.model_dump(mode="python"),
+            obligation_role=obligation_role,
+            source_obligation_ref=source_obligation_ref,
+            source_obligation_content_hash=source_obligation_content_hash,
+            instance_scope_content_hash=instance_scope_content_hash,
+            identity_provenance="recomputed",
+            obligation_instance_id=identity,
+        )
+
+    @model_validator(mode="after")
+    def _identity_is_recomputed_from_governing_content(self) -> PromotionObligationRecord:
+        expected = promotion_obligation_instance_id(
+            obligation_role=self.obligation_role,
+            obligation_class=self.obligation_class,
+            gate_id=self.gate_id,
+            source_obligation_ref=self.source_obligation_ref,
+            source_obligation_content_hash=self.source_obligation_content_hash,
+            instance_scope_content_hash=self.instance_scope_content_hash,
+        )
+        if self.obligation_instance_id != expected:
+            raise ValueError("promotion_obligation_instance_identity_mismatch")
         return self
 
 
@@ -834,9 +1632,7 @@ class ArtifactEnvelope(GyWaistModel):
     certified_operation_envelope: CertifiedOperationEnvelope | None = None
     authority_boundary: AuthorityBoundary | None = None
     obligations: list[str] = Field(default_factory=list)
-    verification: ArtifactEnvelopeVerification = Field(
-        default_factory=ArtifactEnvelopeVerification
-    )
+    verification: ArtifactEnvelopeVerification = Field(default_factory=ArtifactEnvelopeVerification)
 
 
 class PortSpec(GyWaistModel):
@@ -1047,8 +1843,7 @@ class AuthorityDerivationTrace(Layer2ReadinessModel):
                 missing.append("risk_spend_total")
             if missing:
                 raise ValueError(
-                    "promotion_trace_confidence_ledger_binding_missing:"
-                    + ",".join(sorted(missing))
+                    "promotion_trace_confidence_ledger_binding_missing:" + ",".join(sorted(missing))
                 )
             if (
                 self.risk_budget_delta is not None
@@ -1059,18 +1854,15 @@ class AuthorityDerivationTrace(Layer2ReadinessModel):
         requested_grade = self.declared_authority_transform.get("requested_decision_grade")
         if self.transform_mismatch_disposition not in {"matched", "downgraded", "rejected"}:
             raise ValueError("authority_transform hints cannot self-promote")
-        kind_self_promotes = (
-            isinstance(requested_kind, str)
-            and not _computed_evidence_covers_request(
-                computed=self.computed_evidence_kind,
-                requested=requested_kind,
-            )
+        kind_self_promotes = isinstance(
+            requested_kind, str
+        ) and not _computed_evidence_covers_request(
+            computed=self.computed_evidence_kind,
+            requested=requested_kind,
         )
-        grade_self_promotes = (
-            isinstance(requested_grade, str)
-            and _DECISION_GRADE_RANK.get(requested_grade, 0)
-            > _DECISION_GRADE_RANK.get(self.computed_decision_grade, 0)
-        )
+        grade_self_promotes = isinstance(requested_grade, str) and _DECISION_GRADE_RANK.get(
+            requested_grade, 0
+        ) > _DECISION_GRADE_RANK.get(self.computed_decision_grade, 0)
         if self.transform_mismatch_disposition == "matched" and (
             kind_self_promotes or grade_self_promotes
         ):
@@ -1199,16 +1991,17 @@ class SearchBlockerRecord(GyWaistModel):
     frontier_snapshot_ref: str | None = None
     applicability_result_ref: str | None = None
     repair_options: list[dict[str, Any]] = Field(default_factory=list)
-    producer_missing_label: Literal[
-        "producer_missing",
-        "bridge_missing",
-        "artifact_missing",
-        "verification_missing",
-        "semantic_test_missing",
-    ] | None = None
-    severity: Literal["repair_required", "blocks_authority", "blocks_execution"] = (
-        "repair_required"
-    )
+    producer_missing_label: (
+        Literal[
+            "producer_missing",
+            "bridge_missing",
+            "artifact_missing",
+            "verification_missing",
+            "semantic_test_missing",
+        ]
+        | None
+    ) = None
+    severity: Literal["repair_required", "blocks_authority", "blocks_execution"] = "repair_required"
 
 
 class AgentDecisionRecord(GyWaistModel):
@@ -1321,8 +2114,7 @@ class SearchExitContract(GyWaistModel):
         for field, expected in derived.items():
             if field in payload and payload[field] != expected:
                 raise ValueError(
-                    f"{field} must be derived from authority_boundary; "
-                    f"expected {expected!r}"
+                    f"{field} must be derived from authority_boundary; expected {expected!r}"
                 )
             payload[field] = expected
         return payload
@@ -1473,6 +2265,7 @@ class CompositionCertificate(GyWaistModel):
 __all__ = [
     "GY_ARTIFACT_ID_PATTERN",
     "GY_CONTENT_HASH_EXCLUDED_FIELDS",
+    "GY_N11_CONFIDENCE_CONTRACT_PROJECTION_OWNER",
     "GY_WAIST_SCHEMA_VERSION",
     "PROMOTION_RISK_CONDITIONALITY_CAVEAT",
     "AgentDecisionRecord",
@@ -1490,6 +2283,8 @@ __all__ = [
     "EvidenceBasis",
     "EvidenceKind",
     "FrontierSnapshot",
+    "GyArtifactProjectionOwner",
+    "GyArtifactProjectionRule",
     "MethodOutputConsumptionRecord",
     "MethodPlan",
     "ObligationRecord",

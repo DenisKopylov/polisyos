@@ -22,6 +22,7 @@ import { WeakestLinkExplainer } from "@/shared/ui/compounds/WeakestLinkExplainer
 import { ProvenancePopover } from "@/shared/ui/quantity/ProvenancePopover";
 import type { QuantityValue } from "@/shared/ui/quantity/quantity.types";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
+import { depthNDomainRunFixture } from "@/test/fixtures/depthNCycleBoard";
 
 const fixturePayload = {
   fixture_authority: "fixture_only",
@@ -121,8 +122,7 @@ const blocker = {
   severity: "blocking",
 } satisfies PolicyDesignCaseProjectionBlocker;
 
-const domainProjection = {
-  acquisition_route: { status: "artifact_missing" },
+const domainProjection = depthNDomainRunFixture({
   design_problem_ref: "fixture://design-problem/storybook",
   domain_role: "fixture_only",
   evidence_class: "fixture_only",
@@ -132,7 +132,7 @@ const domainProjection = {
   weakest_links: [
     "Fixture only: no producer-signed weakest boundary is available in Storybook.",
   ],
-} satisfies DepthNDomainRunProjection;
+} satisfies Partial<DepthNDomainRunProjection>);
 
 const freshness = {
   basis: "source_timestamp",

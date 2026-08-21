@@ -346,3 +346,93 @@ imports. Final delta review is GO across five packages below 28 KB. The legacy
 `724×2,113` PNG remains 231,141 bytes with SHA-256 `a920f6c9…`, byte-unmodified
 until C08 runs the serialized semantic/PDF gate. C06 spends **2/2**, cumulative
 **7/9**. No serialization token or register/visual lock is held.
+
+## C07 stop — immutable DS5 identity corpus conflicts with live re-anchoring
+
+The register-family lock was acquired only after the C06 source freeze at
+`fd43342f87fda34c6123a8f5f4791f8e3236b4f9`. Opening governed hashes were:
+
+- frontend register `77245b9d18089b962d443af8f1b5f6ea13d4da6a5ce703d3353abb3ee61ee90b`;
+- report `b2e25ddea0169c6b3643c88e53fbc4d28798e8a5427cf9619b3aecb008cca36d`;
+- status inventory `0548f6b6ce2a41b829a5b6a4e20e2d0cdbf1339fd8947318ce7104a9105b0edb`.
+
+Two independent complete walkers reconciled T0 as 207 paths / 38,544 lines:
+145 production / 26,502, 57 tests / 11,575 and five stories / 467. The C06
+freeze has 217 paths / 40,243 lines: 148 production / 27,298, 64 tests /
+12,478 and the same five stories. The set difference is ten paths—three
+production and seven tests—with zero removals. The opening production
+partition is exactly eight in-scope plus 137 `surface_out_of_scope`, each
+deferred row owned by `team-design` and movable only by an approved named
+successor slice.
+
+C07-R1 implemented the generic 217-row derivation, strict schema, corruption
+walk, report parity and one failure-atomic register/report/status writer. The
+writer derives Git objects from the immutable commits and independently
+reconciles an archive walk. Persistent validation binds the live path/role set
+but not every source byte; only the immediate writer fence binds the complete
+C06 source bytes. Missing, duplicate, nonexistent, role/disposition drift,
+stale closure receipts and remove-property-keep-counts mutations all fail.
+
+C07-R2 widened the mechanism once after delta review: Git coordinates and the
+uncached live fence became one property; full-population byte custody was split
+from persistent path membership; the top-level schema selector became
+surgical; and staged candidate/rollback files became one cleanup and handled-
+failure rollback mechanism with a second immediate pre-promote fence. The
+focused C07 class completed 8/8 in 11.793 seconds. A full no-write candidate
+contained all 217 rows and had zero schema errors.
+
+The first atomic writer run completed red before promotion because C04/C05 had
+truthfully changed the complete Badge census. Its governed-file hashes remained
+the three opening values. A complete scanner and an independent changed-file
+reconciliation established 159 live sites = two branded + 53 debt + 104
+benign, with partition SHA-256
+`494022a38caeeefc138901cff8385a4d207a26595b7c62412c8c116cbb055649`.
+The three removed FreshnessBraid Badge sites do not close their producer/
+bridge/consumer/test debt; the widened row represents a recomputed zero-live-
+consumer `authority_sink_absence` while retaining `open_debt`. The strict
+schema rejects a positive count, asserted provenance, placeholder reason, or
+simultaneous sink and absence. Independent review returned GO on that census.
+
+The second atomic writer run also completed red before promotion. Besides
+three expected changed-file lint hashes and five existing stable-reference
+receipts, it exposed a binding invariant that DS8 may not rewrite: refreshing
+the three truthful authority rows changes the ordered DS5 `#ts-identity`
+corpus from required **147 / `e297ac8d…`** to **143 / `665f6368…`**. Two
+independent complete walks reproduced the same delta: seven old identity
+occurrences leave and three live ones enter. Retaining stale identities as
+current sinks would make the authority rows false; re-pinning the corpus would
+change an explicit inherited invariant.
+
+Independent triage separated the remaining diagnostics. The three lint hashes
+and two DS4 structured-row hashes are honest P39 companion updates. The two
+generated `types.ts` identities and the `queryKeys` identity all validate at
+the immutable base and fail only against current source; even one-for-one live
+re-anchoring changes the protected ordered corpus. The separate GY-DEF21 census
+still exits clean at 18 anchors / 34 identities / two absence predicates /
+zero legacy bindings, so this is not a regenerated-client legacy regression.
+
+The smallest honest repair is a new dual-basis evidence mechanism: preserve
+the immutable-base identities as explicitly historical receipts validated
+against their bound source revision, while current `authority_sink` or
+`authority_sink_absence` remains recomputed from the live 159-site census and
+the checker pins the unchanged ordered corpus. That is not a constant update;
+it changes the evidence contract and needs its own falsifiers. C07 has already
+spent its one implementation and one widening round, so adding it would be the
+forbidden third mechanism patch. No exemption, stale sink, invariant rewrite,
+or third-round mechanism was added.
+
+This is the authorized budget stop at **9/9** rounds. C07 is not materialized,
+the 145-path register map is not claimed, and C08 was not attempted. The old
+A4 expectation remains byte-unmodified; there is no DS6 C13 handoff and no
+claim about DS6-owned C14. The stop checkpoint preserves the reviewed C07
+checker/schema/test work and this evidence, then releases the register-family
+lock after attached-branch read-back. The regeneration token was already
+released and the visual lane was never acquired.
+
+Stop-state remeasurement keeps the committed DS5 corpus at 147 / `e297ac8d…`
+and the generated census at 18 / 34 / 2 / 0. The unmaterialized status inventory
+still has exactly 383 governed line-bearing leaves and 30 `#ts-identity`
+references. Its live checker reports 16 diagnostics: the inherited 13 plus the
+two generated source-hash moves and one DataIntelligence consumer-line move
+that the rejected atomic family candidate would have re-anchored. No governed
+register/report/status byte changed in either completed-red writer run.

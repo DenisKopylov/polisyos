@@ -11,6 +11,7 @@ import json
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
@@ -3174,24 +3175,100 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         self,
     ) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        rows = checker._authority_presentation_rows()
+        scan = checker._authority_presentation_scan()
+        rows = checker._authority_presentation_rows(scan)
 
         self.assertEqual(36, len(rows))
         self.assertEqual(
             11,
-            sum(row["authority_sink"]["sink_kind"] == "prop_boundary" for row in rows),
-        )
-        self.assertEqual(
-            25,
             sum(
-                row["authority_sink"]["sink_kind"] == "direct_badge_group"
+                row.get("authority_sink", {}).get("sink_kind") == "prop_boundary"
                 for row in rows
             ),
         )
         self.assertEqual(
-            [],
-            checker._authority_presentation_errors(data, live_probes=True),
+            24,
+            sum(
+                row.get("authority_sink", {}).get("sink_kind")
+                == "direct_badge_group"
+                for row in rows
+            ),
         )
+        absence = next(
+            row
+            for row in rows
+            if row["finding_id"]
+            == "authority-presentation-badge-evidence-source-freshness"
+        )
+        self.assertEqual(
+            {
+                "sink_kind": "direct_badge_group",
+                "descriptor_id": "badge-evidence-source-freshness",
+                "consumer_count": 0,
+                "predicate_provenance": "recomputed",
+                "reason": "no_live_consumer_sites",
+            },
+            absence["authority_sink_absence"],
+        )
+        self.assertNotIn("authority_sink", absence)
+        self.assertEqual("open_debt", absence["status"])
+        self.assertEqual("DS8", absence["owner_slice"])
+        self.assertEqual(
+            [
+                "producer_missing",
+                "bridge_missing",
+                "consumer_missing",
+                "semantic_test_missing",
+            ],
+            absence["capability_states"],
+        )
+        self.assertEqual(
+            [],
+            checker._authority_presentation_errors(
+                data, live_probes=True, scan=scan
+            ),
+        )
+
+        for field, value in (
+            ("consumer_count", 1),
+            ("predicate_provenance", "consumer_asserted"),
+            ("reason", "placeholder"),
+        ):
+            with self.subTest(absence_field=field):
+                mutation = copy.deepcopy(data)
+                stored = next(
+                    row
+                    for row in mutation["supplemental_findings"]
+                    if row["finding_id"] == absence["finding_id"]
+                )
+                stored["authority_sink_absence"][field] = value
+                self.assertIn(
+                    "authority_presentation_debt_drift:"
+                    + absence["finding_id"]
+                    + ":authority_sink_absence",
+                    checker._authority_presentation_errors(
+                        mutation, live_probes=False, scan=scan
+                    ),
+                )
+                self.assertTrue(
+                    checker._schema_errors(mutation, checker.SCHEMA_PATH)
+                )
+
+        both = copy.deepcopy(data)
+        stored_absence = next(
+            row
+            for row in both["supplemental_findings"]
+            if row["finding_id"] == absence["finding_id"]
+        )
+        stored_absence["authority_sink"] = copy.deepcopy(
+            next(
+                row["authority_sink"]
+                for row in rows
+                if "authority_sink" in row
+                and row["authority_sink"]["sink_kind"] == "direct_badge_group"
+            )
+        )
+        self.assertTrue(checker._schema_errors(both, checker.SCHEMA_PATH))
 
     def test_authority_debt_corruptions_fail_closed(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -3322,8 +3399,8 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         badge = checker.AUTHORITY_BADGE_CLASSIFICATIONS
         prop = checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
         prop_records = [record for records in prop.values() for record in records]
-        self.assertEqual(161, len(badge))
-        self.assertEqual(161, len(set(badge)))
+        self.assertEqual(159, len(badge))
+        self.assertEqual(159, len(set(badge)))
         self.assertEqual(66, len(prop_records))
         self.assertEqual(65, len(prop))
         shared = [records for records in prop.values() if len(records) == 2]
@@ -4503,7 +4580,7 @@ it("second", () => {
         ):
             spec.loader.exec_module(module)
         self.assertEqual(  # noqa: PT009
-            161, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
+            159, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
         )
         self.assertEqual(  # noqa: PT009
             65, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
@@ -4516,13 +4593,13 @@ it("second", () => {
             {
                 "interaction_or_editor_state": 13,
                 "transport_or_runtime_health": 20,
-                "workflow_or_lifecycle_display_without_terminality_inference": 24,
+                "workflow_or_lifecycle_display_without_terminality_inference": 25,
                 "layout_or_counts": 21,
                 "opaque_metadata_or_taxonomy": 25,
             },
             checker.BENIGN_BADGE_CLASS_COUNTS,
         )
-        self.assertEqual(103, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
+        self.assertEqual(104, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
         self.assertEqual(18, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
         self.assertEqual(  # noqa: PT009
             30,
@@ -4545,7 +4622,7 @@ it("second", () => {
         for specification in checker.AUTHORITY_BADGE_DEBT_SPECS.values():
             self.assertNotIn("locations", specification)  # noqa: PT009
         badge_values = checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.values()
-        self.assertEqual(56, sum(value.startswith("debt:") for value in badge_values))  # noqa: PT009
+        self.assertEqual(53, sum(value.startswith("debt:") for value in badge_values))  # noqa: PT009
         prop_records = [
             record
             for records in checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.values()
@@ -4570,8 +4647,8 @@ it("second", () => {
         }
         self.assertEqual(  # noqa: PT009
             {
-                "benign_or_count_anchors": (103, 0),
-                "debt_group_bindings": (56, 0),
+                "benign_or_count_anchors": (104, 0),
+                "debt_group_bindings": (53, 0),
                 "prop_addresses": (66, 0),
             },
             {
@@ -5654,6 +5731,252 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                 if error.startswith("structured_reference_")
             ],
         )
+
+
+class DS8StrangleCoverageTests(unittest.TestCase):
+    """Pin the complete DS8 T0/source-freeze estate and generic falsifiers."""
+
+    BASE_COMMIT = "9e6a43b53d11166e90df376940cb34ff15b77289"
+    SOURCE_COMMIT = "fd43342f87fda34c6123a8f5f4791f8e3236b4f9"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.coverage = checker.build_ds8_strangle_coverage(
+            baseline_commit=cls.BASE_COMMIT,
+            source_commit=cls.SOURCE_COMMIT,
+        )
+
+    def test_complete_denominator_and_assignments_are_exact(self) -> None:
+        coverage = self.coverage
+        self.assertEqual("independently_reconciled", coverage["predicate_provenance"])
+        self.assertFalse(coverage["family_complete"])
+        self.assertEqual(
+            {"files": 207, "physical_lines": 38544},
+            coverage["baseline"]["all"],
+        )
+        self.assertEqual(
+            {"files": 145, "physical_lines": 26502},
+            coverage["baseline"]["production"],
+        )
+        self.assertEqual(
+            {"files": 57, "physical_lines": 11575},
+            coverage["baseline"]["tests"],
+        )
+        self.assertEqual(
+            {"files": 5, "physical_lines": 467},
+            coverage["baseline"]["stories"],
+        )
+        assignments = coverage["assignments"]
+        paths = [row["path"] for row in assignments]
+        self.assertEqual(len(paths), len(set(paths)))
+        self.assertEqual(217, len(paths))
+        dispositions = Counter(row["disposition"] for row in assignments)
+        self.assertEqual(8, dispositions["in_scope"])
+        self.assertEqual(137, dispositions["surface_out_of_scope"])
+        self.assertEqual(57, dispositions["verification_companion"])
+        self.assertEqual(5, dispositions["retained"])
+        self.assertEqual(10, dispositions["new_in_slice"])
+        deferred = [
+            row
+            for row in assignments
+            if row["disposition"] == "surface_out_of_scope"
+        ]
+        self.assertTrue(deferred)
+        self.assertTrue(
+            all(
+                row["owner_team"] == "team-design"
+                and row["capability_state"] == "surface_out_of_scope"
+                and row["exit_condition"]
+                == "approved_named_successor_slice_moves_row"
+                and row["successor_slice"] is None
+                for row in deferred
+            )
+        )
+        self.assertEqual(
+            [],
+            checker.validate_ds8_strangle_coverage(
+                coverage,
+                expected_baseline_commit=self.BASE_COMMIT,
+                expected_source_commit=self.SOURCE_COMMIT,
+            ),
+        )
+
+    def test_generic_walk_rejects_missing_duplicate_stale_and_nonexistent(self) -> None:
+        self.assertEqual(
+            [],
+            checker.ds8_strangle_corruption_probes(
+                self.coverage,
+                expected_baseline_commit=self.BASE_COMMIT,
+                expected_source_commit=self.SOURCE_COMMIT,
+            ),
+        )
+
+    def test_writer_rechecks_bytes_but_persistent_gate_tracks_path_roles(self) -> None:
+        poisoned = dict(checker._ds8_live_sources())
+        target = next(iter(poisoned))
+        poisoned[target] += b"// post-census drift\n"
+        with mock.patch.object(
+            checker, "_ds8_live_sources", return_value=poisoned
+        ):
+            self.assertEqual(
+                [],
+                checker.validate_ds8_strangle_coverage(
+                    self.coverage,
+                    expected_baseline_commit=self.BASE_COMMIT,
+                    expected_source_commit=self.SOURCE_COMMIT,
+                ),
+            )
+            with self.assertRaisesRegex(ValueError, "byte reconciliation failed"):
+                checker.build_ds8_strangle_coverage(
+                    baseline_commit=self.BASE_COMMIT,
+                    source_commit=self.SOURCE_COMMIT,
+                    require_live_source_match=True,
+                )
+
+    def test_persistent_gate_rejects_live_path_addition_and_removal(self) -> None:
+        live = checker._ds8_live_sources()
+        added = {
+            **live,
+            "apps/runtime-dashboard/src/features/runs/nonexistent.ts": b"",
+        }
+        missing = dict(live)
+        removed_path = next(iter(missing))
+        missing.pop(removed_path)
+        for population in (added, missing):
+            with self.subTest(paths=len(population)), mock.patch.object(
+                checker, "_ds8_live_sources", return_value=population
+            ):
+                errors = checker.validate_ds8_strangle_coverage(
+                    self.coverage,
+                    expected_baseline_commit=self.BASE_COMMIT,
+                    expected_source_commit=self.SOURCE_COMMIT,
+                )
+                self.assertTrue(
+                    any(
+                        error.startswith("ds8_strangle_live_path_set_drift:")
+                        for error in errors
+                    )
+                )
+
+    def test_register_writer_is_surgical_and_idempotent(self) -> None:
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        once = checker._ds8_register_candidate_text(original, self.coverage)
+        twice = checker._ds8_register_candidate_text(once, self.coverage)
+        self.assertEqual(once, twice)
+        parsed = json.loads(once)
+        self.assertEqual("1.1", parsed["schema_version"])
+        self.assertEqual(
+            "1.0", parsed["storage_construction_census"]["schema_version"]
+        )
+        original_data = json.loads(original)
+        parsed.pop("ds8_strangle_coverage")
+        parsed["schema_version"] = original_data["schema_version"]
+        self.assertEqual(original_data, parsed)
+
+    def test_failure_atomic_writer_succeeds_idempotently_and_rolls_back(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            paths = [root / name for name in ("register", "report", "status")]
+            originals = {path: f"old-{index}\n" for index, path in enumerate(paths)}
+            candidates = {
+                path: f"new-{index}\n" for index, path in enumerate(paths)
+            }
+            for path, content in originals.items():
+                path.write_text(content, encoding="utf-8")
+                path.chmod(0o640)
+
+            def validate_new() -> list[str]:
+                return [
+                    str(path)
+                    for path, expected in candidates.items()
+                    if path.read_text(encoding="utf-8") != expected
+                ]
+
+            checker._failure_atomic_write_texts(
+                candidates, validate_after=validate_new
+            )
+            checker._failure_atomic_write_texts(
+                candidates, validate_after=validate_new
+            )
+            self.assertEqual(
+                candidates,
+                {path: path.read_text(encoding="utf-8") for path in paths},
+            )
+            self.assertTrue(all((path.stat().st_mode & 0o777) == 0o640 for path in paths))
+            self.assertEqual([], list(root.glob(".*.tmp")))
+
+            for path, content in originals.items():
+                path.write_text(content, encoding="utf-8")
+            real_replace = checker.os.replace
+            calls = 0
+
+            def fail_second(source: object, target: object) -> None:
+                nonlocal calls
+                calls += 1
+                if calls == 2:
+                    raise OSError("injected second promotion failure")
+                real_replace(source, target)
+
+            with mock.patch.object(checker.os, "replace", side_effect=fail_second):
+                with self.assertRaisesRegex(OSError, "second promotion"):
+                    checker._failure_atomic_write_texts(
+                        candidates, validate_after=validate_new
+                    )
+            self.assertEqual(
+                originals,
+                {path: path.read_text(encoding="utf-8") for path in paths},
+            )
+            self.assertEqual([], list(root.glob(".*.tmp")))
+
+    def test_staging_and_pre_promote_failures_leave_no_residue(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            paths = [root / name for name in ("register", "report", "status")]
+            originals = {path: "old\n" for path in paths}
+            candidates = {path: "new\n" for path in paths}
+            for path in paths:
+                path.write_text(originals[path], encoding="utf-8")
+            real_stage = checker._stage_same_directory
+            stage_calls = 0
+
+            def fail_second_stage(path: Path, payload: bytes) -> Path:
+                nonlocal stage_calls
+                stage_calls += 1
+                if stage_calls == 2:
+                    raise OSError("injected staging failure")
+                return real_stage(path, payload)
+
+            with mock.patch.object(
+                checker, "_stage_same_directory", side_effect=fail_second_stage
+            ):
+                with self.assertRaisesRegex(OSError, "staging failure"):
+                    checker._failure_atomic_write_texts(
+                        candidates, validate_after=lambda: []
+                    )
+            self.assertEqual([], list(root.glob(".*.tmp")))
+            self.assertEqual(
+                originals,
+                {path: path.read_text(encoding="utf-8") for path in paths},
+            )
+            with mock.patch.object(checker.os, "replace") as replace:
+                with self.assertRaisesRegex(ValueError, "pre-promote"):
+                    checker._failure_atomic_write_texts(
+                        candidates,
+                        validate_after=lambda: [],
+                        pre_promote=lambda: (_ for _ in ()).throw(
+                            ValueError("pre-promote fence")
+                        ),
+                    )
+            replace.assert_not_called()
+            self.assertEqual([], list(root.glob(".*.tmp")))
+
+    def test_complete_row_projection_is_reported(self) -> None:
+        projection = checker._ds8_strangle_report_projection(self.coverage)
+        self.assertIn("**145**", projection)
+        self.assertIn("**8**", projection)
+        self.assertIn("**137**", projection)
+        for row in self.coverage["assignments"]:
+            self.assertEqual(1, projection.count(f"`{row['path']}`"))
 
 
 if __name__ == "__main__":

@@ -34,6 +34,8 @@ export const queryKeys = {
       runId,
       { temporal: temporalScopeKey(temporalScope) },
     ] as const,
+  runPaper: (runId: string, rawReplaySearch: string) =>
+    ["runtime", "run", runId, "paper", { rawReplaySearch }] as const,
   runTimeline: (runId: string, temporalScope?: TemporalScope | null) =>
     [
       "runtime",

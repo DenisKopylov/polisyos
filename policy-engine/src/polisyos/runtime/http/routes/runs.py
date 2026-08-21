@@ -119,6 +119,13 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
+_GET_RUN_PAPER_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.run_paper",
+    ),
+)
 _GET_RUNS_BATCH_AUTHZ = require_action_permission(
     RuntimePermission.RUNS_BATCH_READ,
     ResourceBindingSpec(
@@ -843,6 +850,7 @@ if router is not None:
     @router.get(
         "/{run_id}/paper",
         response_model=RunPaperPacket,
+        dependencies=[Depends(_GET_RUN_PAPER_AUTHZ)],
         operation_id="get_run_paper",
         summary="Get the replay-bound paper projection for one verified run",
     )

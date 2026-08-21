@@ -4,6 +4,14 @@ import {
 } from "./routeManifest";
 
 describe("route prefetch manifest", () => {
+  it("classifies report as authorization-before-query paper", () => {
+    const resolved = resolveRoutePrefetchEntry("/runs/run-42/report");
+    expect(resolved).toMatchObject({
+      entry: { kind: "runPaper", pattern: "/runs/:runId/report" },
+      params: { runId: "run-42" },
+    });
+  });
+
   it("resolves the Cycle Board as a static capability-only workspace route", () => {
     const resolved = resolveRoutePrefetchEntry("/runs/cycle-board");
 

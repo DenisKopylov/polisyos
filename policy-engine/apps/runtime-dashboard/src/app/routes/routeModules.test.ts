@@ -82,6 +82,9 @@ describe("route modules", () => {
     const staticIndex = runsRoutes.findIndex(
       (route) => route.path === "runs/cycle-board",
     );
+    const reportIndex = runsRoutes.findIndex(
+      (route) => route.path === "runs/:runId/report",
+    );
     const dynamicIndex = runsRoutes.findIndex(
       (route) => route.path === "runs/:runId",
     );
@@ -90,6 +93,8 @@ describe("route modules", () => {
     ).toHaveLength(1);
     expect(staticIndex).toBeGreaterThanOrEqual(0);
     expect(staticIndex).toBeLessThan(dynamicIndex);
+    expect(reportIndex).toBeGreaterThanOrEqual(0);
+    expect(reportIndex).toBeLessThan(dynamicIndex);
     expect(
       runsRoutes.find((route) => route.path === "runs/:runId")?.children,
     ).toHaveLength(9);

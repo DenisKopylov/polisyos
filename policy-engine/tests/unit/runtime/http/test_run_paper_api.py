@@ -5,8 +5,20 @@ from pathlib import Path
 from urllib.parse import parse_qs, urlsplit
 
 import pytest
+from fastapi.routing import APIRoute
+from polisyos_tests_runtime_http_conftest import (
+    build_runtime_api_env,
+    close_runtime_api_env,
+)
 from pydantic import TypeAdapter, ValidationError
 
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.security.identity import PolicyOSRole
+from polisyos.runtime.http.authorization import (
+    ResourceBindingSource,
+    get_route_action_permission_dependency,
+)
+from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.export_replay import (
     build_export_replay_address,
     hash_export_projection,
@@ -18,9 +30,39 @@ from polisyos.runtime.http.services.run_paper_contracts import (
     RunPaperRun,
     RunPaperSourceBinding,
     RunPaperStageTrace,
+    UnavailableRunPaperCase,
     build_run_paper_semantic_projection,
 )
 from polisyos.runtime.http.services.run_paper_projection import RunPaperProjectionService
+from tests.unit.runtime.http.test_runtime_api_authz import (
+    _AllowOPA,
+    _build_secure_client,
+    _claims,
+    _fixture_bearer,
+)
+
+
+def _run_paper_secure_client(runtime_api_env, *, role: PolicyOSRole, suffix: str):
+    bearer = _fixture_bearer(suffix)
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti=f"jwt-{suffix}",
+            roles=frozenset({role}),
+        ),
+    )
+    return client, {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+    }
 
 
 def _available_case_payload(packet: dict[str, object]) -> dict[str, object]:
@@ -206,6 +248,17 @@ def test_run_paper_returns_typed_case_unavailable_without_defaulting_case_facts(
     }.intersection(packet["case_record"])
 
 
+@pytest.mark.parametrize(
+    "denied_uses",
+    [(), ("case_identity",), ("placeholder",)],
+)
+def test_run_paper_unavailable_case_requires_complete_canonical_denied_uses(
+    denied_uses: tuple[str, ...],
+) -> None:
+    with pytest.raises(ValidationError, match="complete canonical denied-use tuple"):
+        UnavailableRunPaperCase(may_not_use_for=denied_uses)
+
+
 def test_run_paper_requires_complete_recomputed_replay_tuple_and_preserves_bytes(
     runtime_api_env,
 ) -> None:
@@ -251,9 +304,7 @@ def test_run_paper_requires_complete_recomputed_replay_tuple_and_preserves_bytes
         assert mismatch.status_code == 409
         assert mismatch.json()["code"] == "run_paper_replay_conflict"
 
-    other_generation = client.get(
-        f"/api/v1/runs/{runtime_api_env['core_run_id_secondary']}/paper"
-    )
+    other_generation = client.get(f"/api/v1/runs/{runtime_api_env['core_run_id_secondary']}/paper")
     assert other_generation.status_code == 200
     cross_generation = client.get(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper",
@@ -293,9 +344,9 @@ def test_run_paper_replay_syntax_rejects_unknown_duplicate_and_malformed_items(
 def test_run_paper_available_case_rejects_cross_bound_or_candidate_authority(
     runtime_api_env,
 ) -> None:
-    packet = runtime_api_env["client"].get(
-        f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper"
-    ).json()
+    packet = (
+        runtime_api_env["client"].get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper").json()
+    )
     available = _available_case_payload(packet)
     with pytest.raises(ValidationError, match="complete paper semantics"):
         RunPaperPacket.model_validate({**packet, "case_record": available})
@@ -348,9 +399,7 @@ def test_run_paper_available_case_rejects_cross_bound_or_candidate_authority(
     assert isinstance(grounding, dict)
     grounding["state"] = "looks_grounded"
     with pytest.raises(ValidationError):
-        RunPaperPacket.model_validate(
-            _packet_with_recomputed_case(packet, novel_grounding)
-        )
+        RunPaperPacket.model_validate(_packet_with_recomputed_case(packet, novel_grounding))
 
     one_generic_source = deepcopy(available)
     grounding_source = one_generic_source["grounding_state"]
@@ -372,9 +421,7 @@ def test_run_paper_available_case_rejects_cross_bound_or_candidate_authority(
         verification["validator_id"] = validator_id
         authority_state["source_binding"] = reused
     with pytest.raises(ValidationError, match="distinct owner sources"):
-        RunPaperPacket.model_validate(
-            _packet_with_recomputed_case(packet, one_generic_source)
-        )
+        RunPaperPacket.model_validate(_packet_with_recomputed_case(packet, one_generic_source))
 
     grounding_state = available["grounding_state"]
     assert isinstance(grounding_state, dict)
@@ -407,9 +454,7 @@ def test_run_paper_available_case_rejects_cross_bound_or_candidate_authority(
 def test_run_paper_addresses_serialize_every_pin_before_the_stage_trace_fragment(
     runtime_api_env,
 ) -> None:
-    response = runtime_api_env["client"].get(
-        f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper"
-    )
+    response = runtime_api_env["client"].get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper")
 
     assert response.status_code == 200
     packet = response.json()
@@ -429,6 +474,104 @@ def test_run_paper_denies_cross_tenant_before_projecting(runtime_api_env) -> Non
 
     assert response.status_code == 403
     assert response.json()["code"] == "run_tenant_mismatch"
+
+
+def test_run_paper_is_review_guarded_before_projection(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    viewer, viewer_headers = _run_paper_secure_client(
+        runtime_api_env,
+        role=PolicyOSRole.VIEWER,
+        suffix="run-paper-viewer",
+    )
+    routes = [route for route in viewer.app.routes if isinstance(route, APIRoute)]
+    paper_routes = [
+        route
+        for route in routes
+        if route.path == "/api/v1/runs/{run_id}/paper" and "GET" in route.methods
+    ]
+
+    assert len(paper_routes) == 1
+    dependency = get_route_action_permission_dependency(paper_routes[0])
+    assert dependency.requirement.permission is RuntimePermission.RUNS_REVIEW
+    assert dependency.requirement.resource_binding.source is ResourceBindingSource.TENANT_COLLECTION
+    assert dependency.requirement.resource_binding.resource_kind == "runtime.run_paper"
+
+    admitted = runtime_api_env["client"].get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper")
+    assert admitted.status_code == 200, admitted.text
+
+    projection_calls: list[str] = []
+
+    def _projection_must_not_run(_service, run_id: str, **_kwargs):
+        projection_calls.append(run_id)
+        raise AssertionError("paper projection ran before review authorization")
+
+    monkeypatch.setattr(RunPaperProjectionService, "get", _projection_must_not_run)
+    denied = viewer.get(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper",
+        headers=viewer_headers,
+    )
+    assert denied.status_code == 403
+    assert denied.json()["code"] == "action_permission_denied"
+    assert projection_calls == []
+
+
+def test_opt_in_run_paper_growth_fixtures_are_real_stable_terminal_packets(
+    runtime_api_env,
+    tmp_path: Path,
+) -> None:
+    assert "run_paper_empty_run_id" not in runtime_api_env
+    assert "run_paper_growth_run_id" not in runtime_api_env
+
+    envs = []
+    try:
+        for name in ("first", "second"):
+            envs.append(
+                build_runtime_api_env(
+                    tmp_path / name,
+                    include_run_paper_fixtures=True,
+                    include_test_client=True,
+                )
+            )
+
+        for metadata_key, expected_link_count in (
+            ("run_paper_empty_run_id", 0),
+            ("run_paper_growth_run_id", 64),
+        ):
+            response_bytes = []
+            for env in envs:
+                run_id = env[metadata_key]
+                response = env["client"].get(f"/api/v1/runs/{run_id}/paper")
+                assert response.status_code == 200, response.text
+                packet = response.json()
+                assert packet["run"] == {
+                    "cell_id": env["cell_a"],
+                    "duration_ms": 300_000,
+                    "finished_at": "2026-01-01T00:05:00Z",
+                    "run_id": run_id,
+                    "run_terminality": "terminal",
+                    "source_kind": "core_run",
+                    "started_at": "2026-01-01T00:00:00Z",
+                    "status": "completed",
+                    "tenant_id": env["tenant_a"],
+                }
+                assert packet["case_record"]["reason_code"] == ("case-record-not-run-bound")
+                links = packet["artifact_links"]
+                assert len(links) == expected_link_count
+                artifact_ids = [link["artifact_ref"]["artifact_id"] for link in links]
+                assert len(artifact_ids) == len(set(artifact_ids))
+                assert [link["relation"] for link in links] == ["run_output"] * expected_link_count
+                assert [link["href"] for link in links] == [
+                    f"/api/v1/artifacts/{artifact_id}" for artifact_id in artifact_ids
+                ]
+                store = FileSystemCAS(env["cas_root"])
+                assert all(store.verify(artifact_id).ok for artifact_id in artifact_ids)
+                response_bytes.append(response.content)
+            assert response_bytes[0] == response_bytes[1]
+    finally:
+        for env in envs:
+            close_runtime_api_env(env)
 
 
 def test_corrupt_manifest_bytes_fail_paper_and_stage_trace_resolution_closed(
@@ -468,13 +611,9 @@ def test_openapi_exposes_strict_run_paper_union(runtime_api_env) -> None:
 
     operation = schema["paths"]["/api/v1/runs/{run_id}/paper"]["get"]
     assert operation["operationId"] == "get_run_paper"
-    response_schema = operation["responses"]["200"]["content"][
-        "application/json"
-    ]["schema"]
+    response_schema = operation["responses"]["200"]["content"]["application/json"]["schema"]
     packet_name = response_schema["$ref"].rsplit("/", 1)[-1]
-    case_schema = schema["components"]["schemas"][packet_name]["properties"][
-        "case_record"
-    ]
+    case_schema = schema["components"]["schemas"][packet_name]["properties"]["case_record"]
     assert case_schema["discriminator"]["propertyName"] == "availability"
     assert len(case_schema["oneOf"]) == 2
     for arm in case_schema["oneOf"]:

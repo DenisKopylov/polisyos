@@ -4,7 +4,7 @@ import hashlib
 import sys
 from collections.abc import Mapping
 from contextlib import suppress
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import TYPE_CHECKING
 
 import pytest
@@ -19,6 +19,7 @@ from polisyos.core.artifacts.manifest import ArtifactAuthorityInfo, InputRef
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.contracts.control import PromotionCandidate
 from polisyos.core.run.context import RunContext
+from polisyos.core.trace.record import TraceRecord
 from polisyos.fabric.catalog.source_selection_audit import build_fabric_source_selection_trace
 from polisyos.runtime.http.app import create_runtime_api_app
 from polisyos.runtime.http.services.control import ControlPlaneService
@@ -92,6 +93,32 @@ def _record_fixture_owner(
             cell_id=cell_id,
             writer="tests.runtime_api_env",
         )
+
+
+def _pin_run_fixture_times(
+    run: RunContext,
+    *,
+    started_at: datetime,
+    finished_at: datetime,
+) -> None:
+    """Make one real fixture run content-stable across independent servers."""
+    run.run_manifest.started_at = started_at
+    run.run_manifest.finished_at = finished_at
+    trace_path = run.trace_path
+    if trace_path is None:
+        raise RuntimeError("run paper fixture trace path is not established")
+    records = [
+        TraceRecord.model_validate_json(line)
+        for line in trace_path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    pinned_lines = [
+        record.model_copy(
+            update={"ts": started_at + timedelta(seconds=index)}
+        ).model_dump_json(exclude_none=True)
+        for index, record in enumerate(records)
+    ]
+    trace_path.write_text("\n".join(pinned_lines) + "\n", encoding="utf-8")
 
 
 def _with_fixture_authority_surface_packet(
@@ -208,6 +235,7 @@ def build_runtime_api_env(
     tmp_path: Path,
     *,
     include_test_client: bool = True,
+    include_run_paper_fixtures: bool = False,
     app_kwargs: dict[str, object] | None = None,
 ):
     tenant_a = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"
@@ -1188,6 +1216,59 @@ def build_runtime_api_env(
     cross_tenant_run.add_output(decision_packet_ref_secondary)
     cross_tenant_run.finalize(status="completed")
 
+    run_paper_metadata: dict[str, str] = {}
+    if include_run_paper_fixtures:
+        paper_started_at = datetime.fromisoformat("2026-01-01T00:00:00+00:00")
+        paper_finished_at = datetime.fromisoformat("2026-01-01T00:05:00+00:00")
+
+        run_paper_empty_run_id = "R_run_paper_empty_001"
+        empty_run = RunContext.start(
+            store=store,
+            registry_bundle=registry_ref,
+            run_id=run_paper_empty_run_id,
+            tenant_id=tenant_a,
+            cell_id=cell_a,
+        )
+        _pin_run_fixture_times(
+            empty_run,
+            started_at=paper_started_at,
+            finished_at=paper_finished_at,
+        )
+        empty_run.finalize(status="completed")
+
+        growth_refs = [
+            _put_json(
+                store,
+                {
+                    "fixture": "run_paper_admitted_growth",
+                    "ordinal": ordinal,
+                    "statement": f"Admitted paper output {ordinal:03d}",
+                },
+                kind="test.run_paper_growth_output",
+            )
+            for ordinal in range(64)
+        ]
+        run_paper_growth_run_id = "R_run_paper_growth_001"
+        growth_run = RunContext.start(
+            store=store,
+            registry_bundle=registry_ref,
+            run_id=run_paper_growth_run_id,
+            tenant_id=tenant_a,
+            cell_id=cell_a,
+        )
+        for growth_ref in growth_refs:
+            growth_run.add_output(growth_ref)
+        _pin_run_fixture_times(
+            growth_run,
+            started_at=paper_started_at,
+            finished_at=paper_finished_at,
+        )
+        growth_run.finalize(status="completed")
+        run_paper_metadata = {
+            "run_paper_empty_run_id": run_paper_empty_run_id,
+            "run_paper_growth_run_id": run_paper_growth_run_id,
+        }
+
     app = create_runtime_api_app(
         cas_root=cas_root,
         core_runs_root=cas_root / "runs",
@@ -1268,6 +1349,7 @@ def build_runtime_api_env(
         "tenant_a": tenant_a,
         "tenant_b": tenant_b,
         "cell_a": cell_a,
+        **run_paper_metadata,
     }
     _RUNTIME_API_ENVS.append(env)
     return env

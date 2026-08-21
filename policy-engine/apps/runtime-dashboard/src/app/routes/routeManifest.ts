@@ -14,7 +14,7 @@ export type RoutePrefetchManifestEntry = {
     | "artifact"
     | "evidence"
     | "runDeck"
-    | "runReport"
+    | "runPaper"
     | "runTab"
     | "workspace";
   pattern: string;
@@ -75,7 +75,7 @@ export const ROUTE_PREFETCH_MANIFEST: RoutePrefetchManifestEntry[] = [
   },
   {
     handle: workspaceHandle("runs.report", "runsDecisions"),
-    kind: "runReport",
+    kind: "runPaper",
     pattern: "/runs/:runId/report",
   },
   {

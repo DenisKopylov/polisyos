@@ -72,20 +72,23 @@ describe("route loaders", () => {
     });
   });
 
-  it("returns detail bootstrap state for run routes", async () => {
-    const { createRunDetailLoader } = await import("@/app/routes/loaders");
+  it("returns parser-only paper state without priming interactive detail", async () => {
+    const { createRunPaperLoader } = await import("@/app/routes/loaders");
 
-    const result = await createRunDetailLoader("runs.report")(
-      buildLoaderArgs(new Request("http://localhost/runs/run-42/report"), {
-        runId: "run-42",
-      }),
+    const result = await createRunPaperLoader("runs.report")(
+      buildLoaderArgs(
+        new Request("http://localhost/runs/run-42/report?pin=1"),
+        {
+          runId: "run-42",
+        },
+      ),
     );
 
     expect(result).toEqual({
-      runBootstrapPending: false,
+      rawSearch: "?pin=1",
       runId: "run-42",
     });
-    expect(ensureQueryData).toHaveBeenCalled();
+    expect(ensureQueryData).not.toHaveBeenCalled();
   });
 
   it("hydrates evidence workspace search state", async () => {

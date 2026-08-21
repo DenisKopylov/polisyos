@@ -18,6 +18,7 @@
   .reading-view-toggle,
   .trust-inspector,
   [data-a11y-overlay="true"],
+  [data-run-detail-screen-only="true"],
   [data-print-hidden="true"] {
     display: none !important;
   }
@@ -86,8 +87,25 @@
     word-break: break-all;
   }
 
-  [data-testid="run-detail-page"] a[href^="/public/decisions/"]::after {
+  [data-run-paper-document="true"] a[href]::after {
     content: none;
+  }
+
+  [data-run-paper-document="true"]
+    a[data-paper-link-eligible="true"][href]::after {
+    color: var(--print-muted);
+    content: " <" attr(href) ">";
+    font-size: 8pt;
+    word-break: break-all;
+  }
+
+  a[href^="/public/decisions/"]::after {
+    content: none;
+  }
+
+  [data-run-paper-document="true"]
+    :is(button, input, select, textarea, [role="slider"], [contenteditable]) {
+    display: none !important;
   }
 
   .trust-hash-chip,

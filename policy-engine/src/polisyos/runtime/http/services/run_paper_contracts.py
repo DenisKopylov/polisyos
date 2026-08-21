@@ -194,9 +194,9 @@ class _RunPaperAuthorityState(_StrictModel):
 class RunPaperGroundingState(_RunPaperAuthorityState):
     """Grounding state using the generation-cycle owner's closed vocabulary."""
 
-    vocabulary_ref: Literal[
+    vocabulary_ref: Literal["polisyos.runtime.quality.generation_cycle.GroundingStatus"] = (
         "polisyos.runtime.quality.generation_cycle.GroundingStatus"
-    ] = "polisyos.runtime.quality.generation_cycle.GroundingStatus"
+    )
     state: RunPaperGroundingStatus
 
 
@@ -283,12 +283,8 @@ class AvailableRunPaperCase(_StrictModel):
         }
         for role, source in authority_sources.items():
             self._assert_source_binding(role, source)
-        source_ids = {
-            str(source.source_ref.artifact_id) for source in authority_sources.values()
-        }
-        validator_ids = {
-            source.verification.validator_id for source in authority_sources.values()
-        }
+        source_ids = {str(source.source_ref.artifact_id) for source in authority_sources.values()}
+        validator_ids = {source.verification.validator_id for source in authority_sources.values()}
         if len(source_ids) != len(authority_sources) or len(validator_ids) != len(
             authority_sources
         ):
@@ -356,6 +352,14 @@ class UnavailableRunPaperCase(_StrictModel):
     closure_signal: Literal["case-record-not-run-bound"] = RUN_PAPER_CASE_GAP
     may_not_use_for: tuple[str, ...] = _CASE_DENIED_USES
 
+    @model_validator(mode="after")
+    def _require_complete_denied_uses(self) -> UnavailableRunPaperCase:
+        if self.may_not_use_for != _CASE_DENIED_USES:
+            raise ValueError(
+                "typed unavailable case must carry the complete canonical denied-use tuple"
+            )
+        return self
+
 
 RunPaperCaseRecord = Annotated[
     AvailableRunPaperCase | UnavailableRunPaperCase,
@@ -413,9 +417,7 @@ class RunPaperSourceBinding(_StrictModel):
     """Exact verified manifest and producer provenance used by the projection."""
 
     manifest_ref: artifacts.ArtifactRef
-    manifest_schema_name: Literal["polisyos.core.RunManifest"] = (
-        "polisyos.core.RunManifest"
-    )
+    manifest_schema_name: Literal["polisyos.core.RunManifest"] = "polisyos.core.RunManifest"
     manifest_schema_version: Literal["0.1.0"] = RUN_PAPER_MANIFEST_SCHEMA_VERSION
     producer: artifacts.ProducerInfo | None
     environment: artifacts.EnvInfo | None
@@ -475,9 +477,7 @@ class RunPaperPacket(_StrictModel):
                 raise ValueError("case binding run_id must equal packet run_id")
             if binding.tenant_id != self.run.tenant_id:
                 raise ValueError("case binding tenant_id must equal packet tenant_id")
-        if self.replay_pins.manifest_artifact_id != str(
-            self.source.manifest_ref.artifact_id
-        ):
+        if self.replay_pins.manifest_artifact_id != str(self.source.manifest_ref.artifact_id):
             raise ValueError("replay manifest pin must equal source manifest artifact id")
         if self.replay_pins.manifest_schema_version != self.source.manifest_schema_version:
             raise ValueError("replay manifest schema pin must equal source schema version")
@@ -498,10 +498,13 @@ class RunPaperPacket(_StrictModel):
         pin_values = self.replay_pins.model_dump(mode="json")
         expected_stable = f"/api/v1/runs/{self.run.run_id}/paper"
         expected_replay = build_export_replay_address(expected_stable, pin_values)
-        expected_report = build_export_replay_address(
-            f"/runs/{self.run.run_id}/report",
-            pin_values,
-        ) + "#stage-trace"
+        expected_report = (
+            build_export_replay_address(
+                f"/runs/{self.run.run_id}/report",
+                pin_values,
+            )
+            + "#stage-trace"
+        )
         if self.stable_address != expected_stable:
             raise ValueError("stable_address must be derived from packet run identity")
         if self.replay_address != expected_replay:

@@ -160,8 +160,8 @@ export async function prefetchRouteHref(href: string) {
     return;
   }
 
-  if (resolved.entry.kind === "runReport" && resolved.params.runId) {
-    await primeRunDetail(resolved.params.runId);
+  if (resolved.entry.kind === "runPaper") {
+    // Review authorization must settle before the sole paper query mounts.
     return;
   }
 

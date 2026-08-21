@@ -7,6 +7,7 @@ import { MemoryRouter, Route, Routes } from "react-router-dom";
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { buildFeatureFlags } from "@/test/featureFlags";
+import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
 
 const ownerCapabilityManifest = {
   features: [
@@ -40,6 +41,7 @@ const {
   useRunErrorsMock,
   useRunInspectorMock,
   useRunLineageMock,
+  useRunPaperMock,
   useRunNodesMock,
   useRunScenariosMock,
   useRunTimelineMock,
@@ -67,6 +69,7 @@ const {
   useRunErrorsMock: vi.fn(),
   useRunInspectorMock: vi.fn(),
   useRunLineageMock: vi.fn(),
+  useRunPaperMock: vi.fn(),
   useRunNodesMock: vi.fn(),
   useRunScenariosMock: vi.fn(),
   useRunTimelineMock: vi.fn(),
@@ -137,6 +140,10 @@ vi.mock("@/api/hooks/useCounterfactualMetrics", () => ({
 vi.mock("@/features/runs/api/useDepthNCycleBoardProjection", () => ({
   useDepthNCycleBoardProjection: (...args: unknown[]) =>
     useDepthNCycleBoardProjectionMock(...args),
+}));
+
+vi.mock("@/features/runs/api/useRunPaper", () => ({
+  useRunPaper: (...args: unknown[]) => useRunPaperMock(...args),
 }));
 
 vi.mock("@/api/hooks/useScenarioCapabilities", () => ({
@@ -610,6 +617,17 @@ describe("run detail surfaces", () => {
       isError: false,
       isLoading: false,
     });
+    const paperPacket = runPaperPacketFixture();
+    useRunPaperMock.mockReset();
+    useRunPaperMock.mockReturnValue({
+      data: {
+        packet: paperPacket,
+        rawPacketBytes: new TextEncoder().encode(JSON.stringify(paperPacket)),
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
     useRunInspectorMock.mockReturnValue(summary);
     useGovernanceDebugMock.mockReturnValue({
       data: {
@@ -789,7 +807,11 @@ describe("run detail surfaces", () => {
 
     renderNestedRunDetail("/runs/run-1/governance?tab=decision");
 
-    expect(await screen.findByTestId("run-detail-page")).toBeInTheDocument();
+    expect(await screen.findByTestId("run-detail-page")).toHaveAttribute(
+      "data-print-hidden",
+      "true",
+    );
+    expect(screen.queryByTestId("run-paper-document")).not.toBeInTheDocument();
     expect(screen.getByTestId("run-tab-nav")).toBeInTheDocument();
 
     useRunInspectorMock.mockReturnValue(createSummary());
@@ -889,8 +911,11 @@ describe("run detail surfaces", () => {
     ).toBeDisabled();
     expect(screen.getByTestId("run-replan-link")).toBeDisabled();
     expect(
-      screen.getByRole("link", { name: "pages.runs.auditReport" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("link", { name: "pages.runs.auditReport" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "pages.runs.auditReport" }),
+    ).toBeDisabled();
     expect(
       screen.getByRole("link", { name: "pages.runs.openDeck" }),
     ).toBeInTheDocument();
@@ -985,6 +1010,8 @@ describe("run detail surfaces", () => {
   it("renders the Atlas decision packet summary in RunDetailLayout", async () => {
     renderNestedRunDetail("/runs/run-1/overview");
 
+    expect(useRunPaperMock).not.toHaveBeenCalled();
+    expect(screen.queryAllByTestId("run-paper-document")).toHaveLength(0);
     expect(
       await screen.findByTestId("run-decision-packet"),
     ).toBeInTheDocument();
@@ -1177,9 +1204,11 @@ describe("run detail surfaces", () => {
     );
     expect(window.print).toHaveBeenCalled();
     expect(
-      screen.getByRole("button", { name: "pages.runs.report.exportJson" }),
+      screen.getByRole("button", { name: "pages.runs.report.exportMachine" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Runtime failed")).toBeInTheDocument();
+    expect(screen.getByTestId("run-paper-document")).toHaveTextContent(
+      "artifact_missing",
+    );
 
     renderRoute("/deck", "/deck", <RunDeckPage />);
     expect(

@@ -22,7 +22,7 @@ function resolveRunId(pathname: string) {
     matchPath({ path: "/runs/:runId/*", end: false }, pathname) ??
     matchPath({ path: "/runs/:runId", end: true }, pathname);
   const runId = detailMatch?.params.runId ?? null;
-  return runId && runId !== "compare" ? runId : null;
+  return runId && runId !== "compare" && runId !== "cycle-board" ? runId : null;
 }
 
 function CounterfactualShellRail({ runId }: { runId: string }) {

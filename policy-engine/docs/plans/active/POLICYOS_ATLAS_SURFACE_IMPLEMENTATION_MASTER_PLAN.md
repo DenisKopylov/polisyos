@@ -1271,6 +1271,19 @@ Loosening the ratified posture is out of scope for every slice.
 - **Not yet:** REVIEWER/EXPERT only; the board does not go PUBLIC before
   DS12's gate; the movement row is honest-empty until N13b actually closes a
   route (no simulated motion).
+- **DS7 branch closure (2026-08-21; no plan revision assigned):** the static
+  v2 board is the sole human renderer and its MACHINE download preserves the
+  exact response bytes. The real rendered-DOM decoder closes the semantic
+  parity test with dropped-row, duplicate-row, defaulted-absence,
+  omitted-source, fabricated-movement, and localized-raw mutations. GAP5 and
+  GAP6 render as typed `not_established` absences with their owner routes and
+  closure signals; known membership stays non-exhaustive and movement stays
+  honestly empty. The surface renders owner-supplied terminal, structural,
+  source, accounting, and bound planner-economics values, but policy substance
+  remains refusal/gap-shaped: it renders no policy quantity, effect, or
+  welfare value. DS16's stated value-surface re-entry condition is therefore
+  **not satisfied**. The gate remains `runs.review`, audiences remain
+  REVIEWER/EXPERT, and no PUBLIC claim is made.
 
 #### DS8 — Case & Evidence Workspace (strangling)
 

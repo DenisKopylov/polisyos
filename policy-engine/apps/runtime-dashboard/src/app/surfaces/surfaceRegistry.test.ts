@@ -167,6 +167,32 @@ describe("surface registry", () => {
     ).toBe("/runs/run-42/overview?surface=bureaucratic-forms");
   });
 
+  it("registers the Cycle Board as a review-only global workspace surface", () => {
+    expect(getSurfaceById("runs.cycleBoard")).toMatchObject({
+      command: { enabled: true, group: "workspaceSurfaces" },
+      id: "runs.cycleBoard",
+      kind: "workspace",
+      parentId: "workspace.runsDecisions",
+      permissionKey: "runs.review",
+      placement: "panel",
+      routeId: "runs.cycleBoard",
+      workspaceKey: "runsDecisions",
+    });
+    expect(getSurfaceById("runs.cycleBoard")?.resolveHref({})).toBe(
+      "/runs/cycle-board",
+    );
+    expect(
+      getCommandPaletteSurfaceEntries({
+        canAccessPermission: (permission) => permission !== "runs.review",
+      }).some((surface) => surface.id === "runs.cycleBoard"),
+    ).toBe(false);
+    expect(
+      getCommandPaletteSurfaceEntries({
+        canAccessPermission: () => true,
+      }).some((surface) => surface.id === "runs.cycleBoard"),
+    ).toBe(true);
+  });
+
   it("filters command surfaces through workspace, capability, and permission gates", () => {
     const surfaces = getCommandPaletteSurfaceEntries({
       canAccessPermission: (permission) => permission !== "runs.review",

@@ -4,6 +4,7 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 
 const {
+  connectedTemporalScrubberMock,
   dismissIncidentMock,
   cycleDensityMock,
   useDensityMock,
@@ -24,6 +25,7 @@ const {
   setCounterfactualModeMock,
   setCounterfactualScenarioIdMock,
 } = vi.hoisted(() => ({
+  connectedTemporalScrubberMock: vi.fn(),
   dismissIncidentMock: vi.fn(),
   cycleDensityMock: vi.fn(),
   setCounterfactualModeMock: vi.fn(),
@@ -43,6 +45,16 @@ const {
   useRunScenariosMock: vi.fn(),
   useRuntimeApiIncidentMock: vi.fn(),
   useThemeMock: vi.fn(),
+}));
+
+vi.mock("@/app/layout/ConnectedTemporalScrubber", () => ({
+  ConnectedTemporalScrubber: (props: {
+    className?: string;
+    runId: string | null;
+  }) => {
+    connectedTemporalScrubberMock(props);
+    return <div data-testid="connected-temporal-scrubber" />;
+  },
 }));
 
 vi.mock("@/app/authz/AuthzProvider", () => ({
@@ -157,6 +169,7 @@ function mockViewport(width: number) {
 describe("layout surfaces", () => {
   beforeEach(() => {
     mockViewport(1280);
+    connectedTemporalScrubberMock.mockReset();
     dismissIncidentMock.mockReset();
     setCounterfactualModeMock.mockReset();
     setCounterfactualScenarioIdMock.mockReset();
@@ -303,6 +316,26 @@ describe("layout surfaces", () => {
     expect(setCounterfactualModeMock).toHaveBeenCalledWith(
       "actual_vs_scenario",
     );
+  });
+
+  it("does not mount run-scoped controls for the global Cycle Board", () => {
+    renderWithRouter(
+      <AppShell>
+        <div>Cycle Board</div>
+      </AppShell>,
+      "/runs/cycle-board",
+    );
+
+    expect(useRunScenariosMock).not.toHaveBeenCalled();
+    expect(connectedTemporalScrubberMock).toHaveBeenCalled();
+    expect(
+      connectedTemporalScrubberMock.mock.calls.every(
+        ([props]) => (props as { runId: string | null }).runId === null,
+      ),
+    ).toBe(true);
+    expect(
+      screen.queryByTestId("counterfactual-shell-rail"),
+    ).not.toBeInTheDocument();
   });
 
   it("removes command and what-if entry surfaces when rollout flags are false", () => {

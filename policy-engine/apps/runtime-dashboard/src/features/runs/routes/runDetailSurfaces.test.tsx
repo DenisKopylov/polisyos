@@ -5,7 +5,6 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
-import { observeCachePosture } from "@/api/cacheDiscipline";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { buildFeatureFlags } from "@/test/featureFlags";
 
@@ -82,7 +81,10 @@ vi.mock("@/shared/i18n/LocaleProvider", () => ({
       value: string | null | undefined,
       fallback: string,
     ) => fallback ?? value ?? "",
-    t: (key: string) => key,
+    t: (key: string) =>
+      key === "pages.cycleBoard.globalCohortLink"
+        ? "Cycle Board global cohort — not this run"
+        : key,
   }),
 }));
 
@@ -571,6 +573,7 @@ describe("run detail surfaces", () => {
       isWorkspaceAllowed: () => true,
       kind: "verified",
     });
+    usePermissionMock.mockReset();
     usePermissionMock.mockReturnValue(true);
     useReviewCollaborationEnabledMock.mockReturnValue(false);
     useCapabilitiesMock.mockReturnValue({
@@ -600,6 +603,7 @@ describe("run detail surfaces", () => {
       isError: false,
       isLoading: false,
     });
+    useDepthNCycleBoardProjectionMock.mockReset();
     useDepthNCycleBoardProjectionMock.mockReturnValue({
       data: undefined,
       error: null,
@@ -1243,70 +1247,27 @@ describe("run detail surfaces", () => {
     expect(
       screen.getByTestId("overview-scenario-workbench"),
     ).toBeInTheDocument();
-    expect(useDepthNCycleBoardProjectionMock).toHaveBeenCalledWith();
+    expect(useDepthNCycleBoardProjectionMock).not.toHaveBeenCalled();
+    expect(
+      screen.queryByTestId("governed-depth-projection"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Cycle Board.*global cohort/iu }),
+    ).toHaveAttribute("href", "/runs/cycle-board");
   });
 
-  it.each([
-    {
-      fetchStatus: "idle",
-      isFetchedAfterMount: true,
-      isStale: false,
-      posture: "live",
-    },
-    {
-      fetchStatus: "idle",
-      isFetchedAfterMount: false,
-      isStale: false,
-      posture: "cached",
-    },
-    {
-      fetchStatus: "fetching",
-      isFetchedAfterMount: true,
-      isStale: true,
-      posture: "stale",
-    },
-  ])(
-    "bridges owner-issued $posture cache posture into Overview",
-    (lifecycle) => {
-      const asOf = "2026-08-19T09:30:00Z";
-      useDepthNCycleBoardProjectionMock.mockReturnValue({
-        cacheObservation: observeCachePosture({ data: {}, ...lifecycle }, asOf),
-        data: {
-          packet: {
-            absence_reason: "owner artifact is not present",
-            as_of: asOf,
-            authoritative_for: [],
-            availability: "artifact_missing",
-            freshness: {
-              basis: "request_observation",
-              observed_at: "2026-08-19T09:31:00Z",
-              state: "artifact_missing",
-            },
-            intended_audience: "EXPERT",
-            may_not_use_for: ["authority"],
-            projection_id: "depth-n-cycle-board",
-          },
-          payload: null,
-        },
-        error: null,
-        isError: false,
-        isLoading: false,
-      });
+  it("hides the global Cycle Board link without runs.review", () => {
+    usePermissionMock.mockImplementation(
+      (permission: string) => permission !== "runs.review",
+    );
 
-      renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
+    renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
 
-      expect(
-        screen.getByTestId("time-semantics-cache-posture"),
-      ).toHaveTextContent(lifecycle.posture);
-      expect(
-        screen.getByTestId("time-semantics-cache-owner-as-of"),
-      ).toHaveTextContent(asOf);
-      expect(screen.getByTestId("governed-depth-projection")).toHaveAttribute(
-        "data-authority-posture",
-        "unavailable",
-      );
-    },
-  );
+    expect(useDepthNCycleBoardProjectionMock).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole("link", { name: /Cycle Board.*global cohort/iu }),
+    ).not.toBeInTheDocument();
+  });
 
   it("keeps novel and missing governance severity labels opaque and neutral", () => {
     const summary = createSummary();

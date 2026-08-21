@@ -3175,13 +3175,13 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         rows = checker._authority_presentation_rows()
 
-        self.assertEqual(39, len(rows))
+        self.assertEqual(36, len(rows))
         self.assertEqual(
-            12,
+            11,
             sum(row["authority_sink"]["sink_kind"] == "prop_boundary" for row in rows),
         )
         self.assertEqual(
-            27,
+            25,
             sum(
                 row["authority_sink"]["sink_kind"] == "direct_badge_group"
                 for row in rows
@@ -3321,10 +3321,10 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         badge = checker.AUTHORITY_BADGE_CLASSIFICATIONS
         prop = checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
         prop_records = [record for records in prop.values() for record in records]
-        self.assertEqual(163, len(badge))
-        self.assertEqual(163, len(set(badge)))
-        self.assertEqual(73, len(prop_records))
-        self.assertEqual(72, len(prop))
+        self.assertEqual(161, len(badge))
+        self.assertEqual(161, len(set(badge)))
+        self.assertEqual(66, len(prop_records))
+        self.assertEqual(65, len(prop))
         shared = [records for records in prop.values() if len(records) == 2]
         self.assertEqual(
             [[
@@ -3375,6 +3375,75 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                 for error in errors
             ),
             errors,
+        )
+
+    def test_cycle_board_strangle_reanchors_authority_presentations(self) -> None:
+        """The live Cycle Board replaces, rather than preserves, the retired panel sinks."""
+        scan = checker._authority_presentation_scan()
+        sites = scan["badgeSites"]
+        encoded_by_location = checker._authority_badge_live_identity_by_location(sites)
+        identity_rows = [
+            checker._typescript_reference_identity_record(identity)
+            for identity in encoded_by_location.values()
+        ]
+        key_by_location = dict(
+            zip(
+                encoded_by_location,
+                checker._typescript_reference_hybrid_keys(identity_rows),
+                strict=True,
+            )
+        )
+        cycle_board_path = (
+            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx"
+        )
+        expected = {
+            (cycle_board_path, 78): "debt:badge-governed-projection-availability",
+            (cycle_board_path, 136): "benign:opaque_metadata_or_taxonomy",
+            (cycle_board_path, 354): "debt:badge-governed-projection-availability",
+        }
+        self.assertEqual(
+            expected,
+            {
+                location: checker.AUTHORITY_BADGE_CLASSIFICATIONS[
+                    key_by_location[location]
+                ]
+                for location in expected
+            },
+        )
+        self.assertFalse(
+            any(
+                str(site["path"]).endswith("/RunExplainabilityPanel.tsx")
+                for site in sites
+            )
+        )
+        grouped = checker._authority_badge_sites_by_debt_group(scan)
+        self.assertEqual(
+            [(cycle_board_path, 78), (cycle_board_path, 354)],
+            sorted(
+                (str(site["path"]), int(site["line"]))
+                for site in grouped["badge-governed-projection-availability"]
+            ),
+        )
+
+        props = {
+            str(fact["descriptorId"]): fact
+            for fact in scan["authorityPropCensus"]
+        }
+        self.assertNotIn("prop-time-semantics-freshness", props)
+        self.assertEqual(
+            [(cycle_board_path, 358)],
+            [
+                (str(site["path"]), int(site["line"]))
+                for site in props["prop-data-freshness"]["consumerSites"]
+            ],
+        )
+        self.assertEqual(
+            3,
+            len(props["prop-authority-badge-presentation"]["consumerSites"]),
+        )
+        self.assertEqual(
+            1,
+            len(props["prop-envelope-authority-purpose"]["consumerSites"]),
         )
 
     def test_new_direct_badge_site_is_unclassified_until_adjudicated(self) -> None:
@@ -3438,6 +3507,57 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                 for row in after["supplemental_findings"]
                 if row["finding_id"] in checker.AUTHORITY_PRESENTATION_DEBT_SPECS
             },
+        )
+
+    def test_writer_removes_only_retired_authority_presentation_rows(self) -> None:
+        original_text = REGISTER_PATH.read_text(encoding="utf-8")
+        _start, _end, original_rows = checker._supplemental_section(original_text)
+        refresh_owned_ids = checker._surgical_supplemental_finding_ids(original_text)
+        accepted_rows = [
+            (finding_id, row_text)
+            for finding_id, row_text in original_rows
+            if finding_id not in refresh_owned_ids
+        ]
+        self.assertTrue(accepted_rows)
+
+        source_row = next(
+            json.loads(row_text)
+            for _finding_id, row_text in original_rows
+            if json.loads(row_text).get("finding_kind")
+            == "authority_presentation_debt"
+        )
+        retired_id = "authority-presentation-retired-writer-probe"
+        retired_row = copy.deepcopy(source_row)
+        retired_row["finding_id"] = retired_id
+        _array_start, _array_end, spans = checker._supplemental_section_spans(
+            original_text
+        )
+        insertion_at = spans[-1][2] + 1
+        with_retired_row = (
+            original_text[:insertion_at]
+            + ",\n    "
+            + checker._render_supplemental_finding(retired_row)
+            + original_text[insertion_at:]
+        )
+        self.assertIn(
+            retired_id,
+            checker._surgical_supplemental_finding_ids(with_retired_row),
+        )
+
+        refreshed = checker._refresh_supplemental_findings_text(with_retired_row)
+        self.assertEqual(original_text, refreshed)
+        self.assertEqual(refreshed, checker._refresh_supplemental_findings_text(refreshed))
+        _refreshed_start, _refreshed_end, refreshed_rows = (
+            checker._supplemental_section(refreshed)
+        )
+        refreshed_rows_by_id = dict(refreshed_rows)
+        self.assertNotIn(retired_id, refreshed_rows_by_id)
+        self.assertEqual(
+            accepted_rows,
+            [
+                (finding_id, refreshed_rows_by_id[finding_id])
+                for finding_id, _row_text in accepted_rows
+            ],
         )
 
     def test_duplicate_ids_and_decision_date_rewrites_fail_closed(self) -> None:
@@ -4256,10 +4376,10 @@ it("second", () => {
         ):
             spec.loader.exec_module(module)
         self.assertEqual(  # noqa: PT009
-            163, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
+            161, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
         )
         self.assertEqual(  # noqa: PT009
-            72, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
+            65, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
         )
 
     def test_c21d_retired_address_owners_are_absent_and_counts_are_complete(self) -> None:
@@ -4276,9 +4396,9 @@ it("second", () => {
             checker.BENIGN_BADGE_CLASS_COUNTS,
         )
         self.assertEqual(103, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
-        self.assertEqual(19, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
+        self.assertEqual(18, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
         self.assertEqual(  # noqa: PT009
-            35,
+            30,
             sum(
                 len(specification["consumer_paths"])
                 for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values()
@@ -4294,17 +4414,17 @@ it("second", () => {
                     for path in specification["consumer_paths"]
                 )
             )
-        self.assertEqual(27, len(checker.AUTHORITY_BADGE_DEBT_SPECS))  # noqa: PT009
+        self.assertEqual(25, len(checker.AUTHORITY_BADGE_DEBT_SPECS))  # noqa: PT009
         for specification in checker.AUTHORITY_BADGE_DEBT_SPECS.values():
             self.assertNotIn("locations", specification)  # noqa: PT009
         badge_values = checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.values()
-        self.assertEqual(58, sum(value.startswith("debt:") for value in badge_values))  # noqa: PT009
+        self.assertEqual(56, sum(value.startswith("debt:") for value in badge_values))  # noqa: PT009
         prop_records = [
             record
             for records in checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.values()
             for record in records
         ]
-        self.assertEqual(73, len(prop_records))  # noqa: PT009
+        self.assertEqual(66, len(prop_records))  # noqa: PT009
 
         raw_address_residuals = {
             "benign_or_count_anchors": 0
@@ -4324,8 +4444,8 @@ it("second", () => {
         self.assertEqual(  # noqa: PT009
             {
                 "benign_or_count_anchors": (103, 0),
-                "debt_group_bindings": (58, 0),
-                "prop_addresses": (73, 0),
+                "debt_group_bindings": (56, 0),
+                "prop_addresses": (66, 0),
             },
             {
                 "benign_or_count_anchors": (
@@ -4795,10 +4915,10 @@ id = "target"
     def test_live_c21c_selector_hashes_are_complete_and_frozen(self) -> None:
         expected_hashes = {
             "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
-                "d333a5ad21d1303613a7a8a9ca08280afec38ed3437b56511e20c55bd66ab613"
+                "b503e66f352769e60481dc523209b1a26fc76db7925efb901098cf7a9d9c8b1b"
             ),
             "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
-                "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe"
+                "399e89a188beb761be92339723ce1f399f80da100aa23d32201c18f38a319248"
             ),
             "schemas/runtime_api_v1.openapi.json:2221": (
                 "7983a50e47d9c0a6e7785de9367614512ce2be27a3e183ac7d844cb4dba6bd3f"

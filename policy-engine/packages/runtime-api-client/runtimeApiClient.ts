@@ -9,6 +9,12 @@ export type JsonValue =
   | { [key: string]: JsonValue }
   | JsonValue[];
 
+export type AbsentFact = {
+  availability: "not_established" | "artifact_missing" | "invalid_source";
+  owner_route: string;
+  reason: string;
+};
+
 export type AccessRef = {
   classification?: string;
   pii_tier?: string;
@@ -427,6 +433,76 @@ export type AuthoredText = {
   text: string;
 };
 
+export type AuthorityProfile = {
+  authority_refs?: Array<string>;
+  mandate: string;
+  requested_authority_level: "research" | "governed" | "production";
+  requester_authority: string;
+};
+
+export type AvailableFact_CycleBoardAcquisitionEconomics_ = {
+  availability?: string;
+  source_as_of?: string | null;
+  source_ref: string;
+  value: CycleBoardAcquisitionEconomics;
+};
+
+export type AvailableFact_DepthNAcquisitionRouteReference_ = {
+  availability?: string;
+  source_as_of?: string | null;
+  source_ref: string;
+  value: DepthNAcquisitionRouteReference;
+};
+
+export type AvailableFact_DesignProblem_ = {
+  availability?: string;
+  source_as_of?: string | null;
+  source_ref: string;
+  value: DesignProblem;
+};
+
+export type AvailableFact_RunTerminality_ = {
+  availability?: string;
+  source_as_of?: string | null;
+  source_ref: string;
+  value: RunTerminality;
+};
+
+export type AvailableFact_SurfaceReadinessPayload_ = {
+  availability?: string;
+  source_as_of?: string | null;
+  source_ref: string;
+  value: SurfaceReadinessPayload;
+};
+
+export type AvailableFact_float_ = {
+  availability?: string;
+  source_as_of?: string | null;
+  source_ref: string;
+  value: number;
+};
+
+export type AvailableFact_int_ = {
+  availability?: string;
+  source_as_of?: string | null;
+  source_ref: string;
+  value: number;
+};
+
+export type AvailableFact_str_ = {
+  availability?: string;
+  source_as_of?: string | null;
+  source_ref: string;
+  value: string;
+};
+
+export type AvailableFact_tuple_str__________ = {
+  availability?: string;
+  source_as_of?: string | null;
+  source_ref: string;
+  value: Array<string>;
+};
+
 export type AvailableGovernedProjectionPacket = {
   absence_reason?: null;
   as_of: string;
@@ -639,6 +715,18 @@ export type CacheStatusResponse = {
   meta: ApiMeta;
   total_entries?: number;
   total_size_bytes?: number;
+};
+
+export type CandidateLever = {
+  instrument: string;
+  lever_id: string;
+  operator_kind: string;
+  target_slot: string;
+};
+
+export type CandidateLeverSpace = {
+  allowed_operator_kinds?: Array<string>;
+  candidate_levers?: Array<CandidateLever>;
 };
 
 export type CapabilityFeatureInfo = {
@@ -1137,6 +1225,98 @@ export type CursorPage = {
   total?: number | null;
 };
 
+export type CycleBoardAcquisitionEconomics = {
+  decision_owner_ref: string;
+  execution_status: AvailableFact_str_ | AbsentFact;
+  expected_cost: AvailableFact_float_ | AbsentFact;
+  expected_voi: AvailableFact_float_ | AbsentFact;
+  missing_requirement_fields: Array<string>;
+  next_action: string;
+  planner_report_content_hash: string;
+  planner_status: string;
+  producer_expected: string;
+  recommended_strategy: string;
+  voi_rank: AvailableFact_int_ | AbsentFact;
+};
+
+export type CycleBoardCompositionSource = {
+  absence_reason?: string | null;
+  artifact_content_hash?: string | null;
+  as_of?: string | null;
+  authoritative_for: Array<string>;
+  availability: "available" | "artifact_missing" | "invalid_source" | "not_established";
+  freshness?: ProjectionFreshness | null;
+  may_not_use_for: Array<string>;
+  source_dependency_hash?: string | null;
+  source_id: string;
+  source_kind: "governed_projection" | "control_plane_evidence" | "historical_owner_record" | "run_summary_lookup";
+  source_ref?: string | null;
+};
+
+export type CycleBoardCoverageGap = {
+  capability_state?: string;
+  deficits?: Array<"artifact_missing" | "bridge_missing">;
+  execution_status?: string;
+  exhaustive?: boolean;
+  known_row_count: number;
+  known_scope?: string;
+  missing_link?: string;
+  owner_route?: string;
+  unknown_scope?: string;
+};
+
+export type CycleBoardMovementGap = {
+  capability_state?: string;
+  chronology_route?: string;
+  deficits?: Array<"artifact_missing" | "bridge_missing">;
+  execution_status?: string;
+  missing_link?: string;
+  movement_records?: Array<{
+  [key: string]: unknown;
+}>;
+  producer_route?: string;
+};
+
+export type CycleBoardProjectionPacket = {
+  composition_manifest: Array<CycleBoardCompositionSource>;
+  composition_manifest_hash: string;
+  intended_audiences?: Array<unknown>;
+  packet_schema_version?: string;
+  payload: DepthNCycleBoardPayloadV2;
+  projection_hash: string;
+  projection_id?: string;
+  projection_observed_at: string;
+  projection_rule_version?: string;
+  replay_address: string;
+  source_dependency_hash: string;
+  stable_address?: string;
+};
+
+export type CycleBoardRow = {
+  acquisition_economics: AvailableFact_CycleBoardAcquisitionEconomics_ | AbsentFact;
+  acquisition_route: AvailableFact_DepthNAcquisitionRouteReference_ | AbsentFact;
+  cohort: "n10_capstone" | "legacy_fixture";
+  design_problem: AvailableFact_DesignProblem_ | AbsentFact;
+  domain_role: string;
+  explanation_code: string;
+  explanation_inputs: {
+  [key: string]: string;
+};
+  generation_cycle_run_id: AvailableFact_str_ | AbsentFact;
+  lifecycle_terminality: AvailableFact_RunTerminality_ | AbsentFact;
+  missing_link: AvailableFact_str_ | AbsentFact;
+  movement_records?: Array<{
+  [key: string]: unknown;
+}>;
+  responsible_slices: Array<string>;
+  row_id: string;
+  search_terminal_kind: AvailableFact_str_ | AbsentFact;
+  stage_trace_href: AvailableFact_str_ | AbsentFact;
+  structural_evidence_class: AvailableFact_str_ | AbsentFact;
+  surface_readiness: AvailableFact_SurfaceReadinessPayload_ | AbsentFact;
+  weakest_links: AvailableFact_tuple_str__________ | AbsentFact;
+};
+
 export type DataCatalogSearchResponse = {
   matches?: Array<MetricCandidate>;
   meta: ApiMeta;
@@ -1494,6 +1674,26 @@ export type DeltaQuantity = {
   significance?: "improved" | "worsened" | "mixed" | "uncertain" | "not_comparable";
 };
 
+export type DepthNAcquisitionEconomicsProjection = {
+  decision_owner_ref: string;
+  expected_cost: number | null;
+  expected_voi: number | null;
+  missing_requirement_fields: Array<string>;
+  next_action: string;
+  planner_report_content_hash: string;
+  planner_status: string;
+  producer_expected: string;
+  recommended_strategy: string;
+  voi_rank: number | null;
+};
+
+export type DepthNAcquisitionRouteReference = {
+  owner_content_hash: string;
+  owner_schema: string;
+  planner_report_content_hash: string;
+  requirement_gap_id: string;
+};
+
 export type DepthNCycleBoardPayload = {
   depth_evidence: {
   [key: string]: ProjectionJsonValue;
@@ -1506,10 +1706,18 @@ export type DepthNCycleBoardPayload = {
 };
 };
 
-export type DepthNDomainRunProjection = {
-  acquisition_route: {
-  [key: string]: ProjectionJsonValue;
+export type DepthNCycleBoardPayloadV2 = {
+  coverage: CycleBoardCoverageGap;
+  historical_producer_availability: HistoricalProducerAvailability;
+  movement_gap: CycleBoardMovementGap;
+  realized_ds4_disposition: HistoricalDS4Disposition;
+  rows: Array<CycleBoardRow>;
 };
+
+export type DepthNDomainRunProjection = {
+  acquisition_economics?: DepthNAcquisitionEconomicsProjection | null;
+  acquisition_route?: DepthNAcquisitionRouteReference | null;
+  design_problem: DesignProblem;
   design_problem_ref: string;
   domain_role: string;
   evidence_class: string;
@@ -1517,6 +1725,7 @@ export type DepthNDomainRunProjection = {
   [key: string]: ProjectionJsonValue;
 };
   generation_cycle_run_id: string;
+  search_terminal_kind: string;
   terminal_distribution: {
   [key: string]: ProjectionJsonValue;
 };
@@ -1526,6 +1735,50 @@ export type DepthNDomainRunProjection = {
 export type DerivedArtifact = {
   ref: ArtifactRefOutput;
   role: string;
+};
+
+export type DesignConstraint = {
+  admissibility_basis: string;
+  constraint_id: string;
+  description: string;
+  evidence_ref?: string | null;
+  hard?: boolean;
+  source_text?: string | null;
+};
+
+export type DesignObjective = {
+  description: string;
+  direction?: "maximize" | "minimize" | "maintain_range";
+  metric_id: string;
+  objective_id: string;
+};
+
+export type DesignProblem = {
+  authority_profile: AuthorityProfile;
+  candidate_lever_space: CandidateLeverSpace;
+  constraints?: Array<DesignConstraint>;
+  design_problem_id: string;
+  domain: string;
+  evidence_acquisition_needs: EvidenceAcquisitionNeeds;
+  ir_problem_frame_ref?: string | null;
+  jurisdiction_time: JurisdictionTimeSemantics;
+  model_spec_ref?: string | null;
+  nl_provenance: NLProvenance;
+  objectives?: Array<DesignObjective>;
+  outcome_of_interest: OutcomeOfInterest;
+  policy_request_frame_ref?: string | null;
+  problem_statement: string;
+  runtime_hints?: {
+  [key: string]: unknown;
+};
+  schema_version?: string;
+  stakeholders?: Array<DesignStakeholder>;
+};
+
+export type DesignStakeholder = {
+  name: string;
+  role?: string | null;
+  stakeholder_id: string;
 };
 
 export type DiscoveryCandidate = {
@@ -1683,6 +1936,19 @@ export type EvaluatorScoresView = {
   kpi_score?: number;
   total_score?: number;
   uncertainty_score?: number;
+};
+
+export type EvidenceAcquisitionNeeds = {
+  needs?: Array<EvidenceNeed>;
+};
+
+export type EvidenceNeed = {
+  artifact_ref?: string | null;
+  need_id: string;
+  question: string;
+  required_for: string;
+  source_hint?: string | null;
+  status?: "required" | "satisfied" | "blocked";
 };
 
 export type ExecPlanRefInput = {
@@ -2020,6 +2286,26 @@ export type HTTPValidationError = {
   detail?: Array<ValidationError>;
 };
 
+export type HistoricalDS4Disposition = {
+  counts: {
+  [key: string]: number;
+};
+  denominator: number;
+  source_class?: string;
+  source_content_hash: string;
+  source_ref: string;
+};
+
+export type HistoricalProducerAvailability = {
+  counts: {
+  [key: string]: number;
+};
+  environment_absence?: string;
+  measurement_scope?: string;
+  source_content_hash: string;
+  source_ref: string;
+};
+
 export type IndexStats = {
   docs_added_last_run?: number;
   index_docs_total?: number;
@@ -2099,6 +2385,15 @@ export type IterationLifecycleView = {
   state?: "plan_created" | "preflight_running" | "preflight_failed" | "ready_to_run" | "executing" | "evaluating" | "replanning" | "approved" | "stopped_budget" | "stopped_no_delta" | "stopped_guardrail";
   state_ref?: ArtifactRefOutput | null;
   stop_reason?: "approved" | "budget_exhausted" | "no_delta" | "guardrail_violation" | null;
+};
+
+export type JurisdictionTimeSemantics = {
+  as_of: string;
+  data_time: string;
+  policy_time: string;
+  region: string;
+  time_semantics?: TimeSemantics | null;
+  valid_time: string;
 };
 
 export type Layer3HealthMetricsPayload = {
@@ -2528,6 +2823,14 @@ export type N13ALiveProbeJournalPayload = {
 };
 };
 
+export type NLProvenance = {
+  raw_request: string;
+  source_context?: {
+  [key: string]: unknown;
+};
+  source_surface: string;
+};
+
 export type NaturalLanguageRunRequest = {
   checkpoint_policy?: "strict" | "lenient" | "disabled";
   context?: {
@@ -2597,6 +2900,13 @@ export type OperatorProjectionStateLabel = {
   authority: "runtime_authority" | "projection_only";
   label: string;
   state: "draft" | "projection_only" | "redacted" | "stale" | "contested" | "projected" | "blocked" | "readiness_closed" | "approved" | "rejected" | "published_blocked" | "publishable";
+};
+
+export type OutcomeOfInterest = {
+  direction?: "maximize" | "minimize" | "maintain_range";
+  estimand: string;
+  metric_id: string;
+  target_variable: string;
 };
 
 export type PolicyDesignCaseAudience = "public" | "reviewer" | "expert" | "machine";
@@ -3786,6 +4096,16 @@ export type TemporalSurfaceCapability = {
   valid_range?: TemporalRange | null;
 };
 
+export type TimeFrequency = "M" | "Q" | "Y";
+
+export type TimeSemantics = {
+  end_date?: string | null;
+  frequency: TimeFrequency;
+  notes?: Array<string>;
+  start_date: string;
+  step_count?: number | null;
+};
+
 export type TypedGap = {
   access_policy?: string | null;
   capability_endpoint?: string | null;
@@ -4308,6 +4628,28 @@ export class RuntimeApiClient {
     const path = `/api/v1/exports/governed-projections`;
     const query = undefined;
     return this.request<ProjectionCatalogResponse>("GET", path, query);
+  }
+
+  async getDepthNCycleBoardProjection(params: {
+    replay_target?: "raw_v1" | "composed_v2" | null;
+    artifact_content_hash?: string | null;
+    projection_hash?: string | null;
+    source_dependency_hash?: string | null;
+    source_as_of?: string | null;
+    projection_rule_version?: string | null;
+    composition_manifest_hash?: string | null;
+  }): Promise<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket | CycleBoardProjectionPacket> {
+    const path = `/api/v1/exports/governed-projections/depth-n-cycle-board`;
+    const query = this.buildQuery({
+      replay_target: params.replay_target,
+      artifact_content_hash: params.artifact_content_hash,
+      projection_hash: params.projection_hash,
+      source_dependency_hash: params.source_dependency_hash,
+      source_as_of: params.source_as_of,
+      projection_rule_version: params.projection_rule_version,
+      composition_manifest_hash: params.composition_manifest_hash,
+    });
+    return this.request<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket | CycleBoardProjectionPacket>("GET", path, query);
   }
 
   async getGovernedProjection(params: {

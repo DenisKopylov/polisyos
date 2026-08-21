@@ -211,41 +211,78 @@ acquisition_reentry_deeper_terminal_binding`.
   inside the registered-gaps block and does not touch line 7.
 - [ ] Commit the two disjoint registered gap rows and journal receipt.
 
-## Task 4 — Write server REDs for custody, composition, replay, and authorization
+## Task 4 — Freeze and land REDs by independently reviewable seam
+
+**Frozen basis:**
+`docs/superpowers/plans/2026-08-20-ds7-task4-red-closure-basis.md`
+
+During RED, an on-basis test-strengthening finding is convergence and consumes
+no mechanism round. Only a finding that changes the production design, or a
+genuinely new property absent from the frozen basis, consumes the seam's `0/2`
+budget. Each review request quotes this bucket before review begins.
+
+### Task 4a — Composition and fact algebra REDs
 
 **Files:**
 
 - Modify: `tests/unit/runtime/http/test_governed_projection_service.py`
-- Modify: `tests/unit/runtime/http/test_governed_projection_api.py`
 - Add: `tests/unit/runtime/http/test_cycle_board_projection_service.py`
-- Add or modify exact owner test discovered by the projection-semantics census for N10
-  recomputation equality
+- Add: `tests/unit/runtime/http/test_cycle_board_projection_fact_algebra.py`
+- Add: `tests/unit/runtime/http/test_cycle_board_projection_fact_owners.py`
 
-**Interfaces:** raw v1 adapter; composed v2 packet; `AvailableFact[T] | AbsentFact`; exact run binding;
-`RuntimePermission.RUNS_REVIEW`; static-route ordering; replay version tuple.
+**Interfaces:** strict fact algebra; exact run binding; canonical `DesignProblem`;
+owner-recomputed evidence/weakest links; exact 3+13 cohort; GAP5/GAP6; complete
+source ledger; historical DS4 disposition.
 
-- [ ] RED: mutate status, status substrings, `finished_at`, and timestamps while holding/removing
-  signed `run_terminality`; prove no proxy can create or alter lifecycle truth and absence remains an
-  absent branch, never false/default/producer `not_established`.
-- [ ] RED: mutate search `terminal_kind` and lifecycle terminality independently; prove neither
-  changes the other.
-- [ ] RED: invoke canonical N10 owner recomputation over the complete three-row set and compare its
-  evidence class plus ordered blocking obligations to the packet. Corrupt either packet field and
-  prove failure.
-- [ ] RED: increase adjacent observation/catalog counts while structural owner facts stay fixed;
-  prove evidence, weakest links, route status, and movement bytes remain unchanged.
-- [ ] RED: `/runs/nl` and any job without canonical recursive-cycle receipt do not increase the
-  explicitly non-exhaustive known-row denominator.
-- [ ] RED: the three capstone rows precede thirteen owner-manifest-order `fixture_only` rows; legacy
-  runtime fields are typed absences; global N13b state cannot populate per-row movement.
-- [ ] RED: component `invalid_source` remains distinct from `artifact_missing`; the historical
-  5/7/1 measurement is labeled environment-relative and cannot become current board state.
-- [ ] RED: raw complete v1 pins return byte-equivalent v1; unpinned returns v2; v2 pins bind the
-  composition manifest; partial/mixed pins return typed replay conflict.
-- [ ] RED: every raw or composed HTTP path requires `runs.review`; `runs.view`-only is denied; the
-  literal static path cannot fall through the dynamic projection route.
-- [ ] Run each focused test to witness the intended missing-mechanism failure before production code.
-  Commit RED tests without weakening assertions.
+- [x] Close every `4A-*` basis row, including the composed DesignProblem/route/DS4
+  carries, complete per-source time fields, and behavioral N13b denial for row
+  membership, known count, exhaustiveness, and movement.
+- [x] Keep terminality proxy coverage generic over status, time, raw search,
+  distribution, blocker, and acquisition classes; absence remains a branch with
+  no value.
+- [x] Run the focused 4a files and witness failure because the compositor is
+  absent, not because a fixture/import is malformed.
+- [x] Freeze, issue the 4a basis to reviewers, repair only on-basis convergence,
+  rerun the focused RED witness, and commit the reviewed 4a REDs.
+
+### Task 4b — Access and replay REDs
+
+**Files:**
+
+- Modify: `tests/unit/runtime/http/test_governed_projection_api.py`
+- Add: `tests/unit/runtime/http/test_cycle_board_projection_access_replay.py`
+
+**Interfaces:** one static route; direct `RUNS_REVIEW` gate; real unpinned v2;
+same-observation raw bytes; complete v1/v2 tuples; typed service and HTTP
+conflicts.
+
+- [x] Close every `4B-*` basis row. Run the real unpinned v2 request before
+  installing the raw-only frozen adapter; prove viewer denial leaves the raw
+  adapter's call count unchanged.
+- [x] Exercise authorized HTTP 409 translation for a wrong complete raw tuple
+  and partial/mixed generation tuples in addition to service-level conflicts.
+- [x] Run the focused 4b files and witness failure at the missing static
+  operation/service, then freeze, issue the basis, review, and commit.
+
+### Task 4c — Loading and parity boundary REDs
+
+**Files:**
+
+- Add: `tests/unit/runtime/http/test_cycle_board_projection_loading.py`
+- Keep the rendered-DOM residual in the frozen closure-basis record until its
+  real Task 9 capability exists.
+
+**Interfaces:** raw-byte-bound N13b loader; schema/rule/producer validation;
+typed optional-source failure; control-plane authority; DS8 typed absence;
+declared `semantic_test_missing` DOM/MACHINE residual.
+
+- [x] Close `4C-N13B-01` through `4C-DS8-04`, including raw UTF-8 hash equality,
+  substituted/malformed owner refusal, and no-value absences.
+- [x] Run the recorded complete 971-file dashboard-source two-census falsifier for `4C-DOM-05`;
+  retain `semantic_test_missing` and its Task 9 mutation falsifier rather than
+  fabricating a server DOM test.
+- [x] Run the focused 4c file and witness failure at the missing loader/service,
+  then freeze, issue the basis, review, and commit.
 
 ## Task 5 — Implement the minimal server compositor and static operation
 
@@ -262,17 +299,17 @@ acquisition_reentry_deeper_terminal_binding`.
 `policyos.runtime.cycle_board_packet.v1`, `policyos.runtime.depth_n_cycle_board.v2`, ordered source
 composition manifest, and projection/dependency hashes.
 
-- [ ] Define strict discriminated available/absent facts and `CycleBoardRow`/source/coverage/movement
+- [x] Define strict discriminated available/absent facts and `CycleBoardRow`/source/coverage/movement
   DTOs. Cost/VOI `None` becomes `not_established`, never zero.
-- [ ] Implement one internal raw call and compose only after it returns. Bind exact signed lifecycle
+- [x] Implement one internal raw call and compose only after it returns. Bind exact signed lifecycle
   facts; leave unbound rows absent. Never inspect status or timestamps for terminality.
-- [ ] Carry full source packet states and per-source `as_of`/freshness. Use transaction time only as
+- [x] Carry full source packet states and per-source `as_of`/freshness. Use transaction time only as
   `projection_observed_at`; emit no aggregate currentness.
-- [ ] Compose three capstones, thirteen fixture-only legacy cases, board-level GAP5, empty GAP6
+- [x] Compose three capstones, thirteen fixture-only legacy cases, board-level GAP5, empty GAP6
   movement, realized DS4 `27/41/18/3`, and no fabricated future rows.
-- [ ] Add the static authorized route before the dynamic sibling with operation ID
+- [x] Add the static authorized route before the dynamic sibling with operation ID
   `get_depth_n_cycle_board_projection` and owner-appropriate collection binding.
-- [ ] Rerun Task 4 focused tests to GREEN, then focused Ruff/type checks and architecture import
+- [x] Rerun Task 4 focused tests to GREEN, then focused Ruff/type checks and architecture import
   guardrails. Commit the server mechanism.
 
 ## Task 6 — Regenerate the v2 API/client seam under a fresh short lock
@@ -282,14 +319,14 @@ composition manifest, and projection/dependency hashes.
 **Interfaces:** distinct generated `getDepthNCycleBoardProjection`; packet/rule-version union;
 legacy replay isolation.
 
-- [ ] Regenerate OpenAPI and both complete client families with Task 1 owner commands.
-- [ ] Re-run the full two-family symbol/field/anchor enumeration. Stop on changed/removed or
+- [x] Regenerate OpenAPI and both complete client families with Task 1 owner commands.
+- [x] Re-run the full two-family symbol/field/anchor enumeration. Stop on changed/removed or
   non-mechanical drift before acquiring the lock.
-- [ ] RED then GREEN the package-client test proving the distinct static method and version
+- [x] RED then GREEN the package-client test proving the distinct static method and version
   discriminator. RED then GREEN the dashboard hook contract rejecting v1 on the hero path.
-- [ ] Announce and acquire the whole-family lock only for re-anchors, owner report generation,
+- [x] Announce and acquire the whole-family lock only for re-anchors, owner report generation,
   verification, commit read-back, and closing hashes; then explicitly relinquish.
-- [ ] Commit the generated seam, compatibility fragment update if required, and all induced receipts
+- [x] Commit the generated seam, compatibility fragment update if required, and all induced receipts
   atomically.
 
 ## Task 7 — Write dashboard REDs for the hero, strangle, authorization, and honest absence
@@ -297,29 +334,39 @@ legacy replay isolation.
 **Files:**
 
 - Add: `apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx`
+- Add: `apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts`
+- Add presentation and hero component REDs plus the source-shaped 3+13 packet fixture
 - Replace stale assertions in:
   `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx`
 - Modify: `apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx`
-- Modify: `apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx`
-- Modify exact route/permission registry tests identified by the complete consumer census
+- Modify exact route/permission/header/static-route collision tests identified by the complete census.
+  No `RunsListPage` change is required: the registry owns the global entry and Overview owns the
+  scoped navigation-only link.
 
 **Interfaces:** static `/runs/cycle-board`; permission-before-query mount; one production fetch/render
 consumer; stable raw DOM slots; navigation-only run-detail link.
 
-- [ ] RED: `runs.review` mounts the hero query; settled `runs.view`-only renders denied state and no
+- [x] RED: `runs.review` mounts the hero query; settled `runs.view`-only renders denied state and no
   query, board, or export link.
-- [ ] RED: run detail neither fetches nor renders the projection; its permission-filtered link only
+- [x] RED: run detail neither fetches nor renders the projection; its permission-filtered link only
   navigates and labels the cohort global. Replace, do not retain, tests whose sole purpose was the old
   in-panel rendering.
-- [ ] RED: absent lifecycle is visibly and structurally absent, never false/non-terminal/default;
+- [x] RED: absent lifecycle is visibly and structurally absent, never false/non-terminal/default;
   search terminal remains separate.
-- [ ] RED: typed structural gaps retain their grounding/owner-lever/estimand identities and exact
+- [x] RED: typed structural gaps retain their grounding/owner-lever/estimand identities and exact
   routes; adjacent counts cannot change presentation or movement.
-- [ ] RED: producer environment absence renders the exact `invalid_source`/`artifact_missing` state,
+- [x] RED: producer environment absence renders the exact `invalid_source`/`artifact_missing` state,
   source-relative times, and limitation; no global fresh/current badge appears.
-- [ ] RED: PUBLIC navigation/access stays absent before DS12; only REVIEWER/EXPERT audiences appear.
-- [ ] RED: complete TS/TSX census expects exactly one production hook caller and renderer after the
+- [x] RED: PUBLIC navigation/access stays absent before DS12; only REVIEWER/EXPERT audiences appear.
+- [x] RED: complete TS/TSX census expects exactly one production hook caller and renderer after the
   strangle. Run focused Vitest files and record intended failures. Commit RED tests.
+
+**Declared bounded residual (`P40`).** The census closes every statically resolvable TypeScript
+identifier/member/destructuring/assignment/JSX/React-factory alias over the independently reconciled
+production population. Provenance passed through runtime-computed keys, dynamic containers, or
+higher-order callback returns is `not_established`: closing that residual requires a reusable
+whole-program interprocedural JavaScript points-to/dataflow analyzer, which the repository does not
+provide. Task 7 records and runs that capability falsifier instead of adding per-example marker rules.
 
 ## Task 8 — Implement the hero and strangle both existing renderers
 
@@ -337,17 +384,17 @@ consumer; stable raw DOM slots; navigation-only run-detail link.
 **Interfaces:** `packetToVisibleCycleBoard`; source/fact exhaustive issuers; refusal-with-path rows;
 coverage and movement typed absences; DS8 drill-down links.
 
-- [ ] Add the static route before `/runs/:runId`, permission boundary before data hook, route/prefetch
+- [x] Add the static route before `/runs/:runId`, permission boundary before data hook, route/prefetch
   manifest entry, and `permissionKey: "runs.review"` surface entry.
-- [ ] Reuse the hook with the distinct generated static client method and accept only unpinned v2.
-- [ ] Implement one pure packet-to-visible projection that formats but never derives owner facts.
+- [x] Reuse the hook with the distinct generated static client method and accept only unpinned v2.
+- [x] Implement one pure packet-to-visible projection that formats but never derives owner facts.
   Expose stable raw typed data in DOM semantic regions next to localized labels.
-- [ ] Render coverage/movement gaps first, the ordered cohorts, terminal facts, recomputed evidence,
+- [x] Render coverage/movement gaps first, the ordered cohorts, terminal facts, recomputed evidence,
   full weakest-link sequence, costed route and execution state, slices, DS8 link, readiness absence,
   public-safe explanation, source ledger, and realized `27/41/18/3` disposition.
-- [ ] Remove the Overview hook call and governed projection prop/rendering from
+- [x] Remove the Overview hook call and governed projection prop/rendering from
   RunExplainabilityPanel. Retain only the scoped permission-filtered navigation link.
-- [ ] Rerun Task 7 GREEN, dashboard typecheck, focused ESLint, architecture checks, and complete
+- [x] Rerun Task 7 GREEN, dashboard typecheck, focused ESLint, architecture checks, and complete
   TS/TSX consumer census. Commit hero and strangle together.
 
 ## Task 9 — Add the MACHINE twin and rendered-DOM parity proof
@@ -361,14 +408,14 @@ coverage and movement typed absences; DS8 drill-down links.
 **Interfaces:** server packet bytes; `packetToVisibleCycleBoard`; raw typed DOM encoding; export
 download bytes.
 
-- [ ] Reuse the DS16 rendered-DOM decoding precedent. RED against the real page: decode every stable
+- [x] Reuse the DS16 rendered-DOM decoding precedent. RED against the real page: decode every stable
   semantic region and compare the complete value to `packetToVisibleCycleBoard(packet)`.
-- [ ] Include coverage gap, movement gap/empty denominator, DS4 disposition, all sources, cohorts,
+- [x] Include coverage gap, movement gap/empty denominator, DS4 disposition, all sources, cohorts,
   rows, both terminal facts, evidence, weakest links, routes, readiness, and explanations. Add
   dropped-row, duplicate-row, defaulted-absence, omitted-source, and fabricated-movement negatives.
-- [ ] RED then GREEN an export assertion that downloaded bytes equal the exact request packet bytes;
+- [x] RED then GREEN an export assertion that downloaded bytes equal the exact request packet bytes;
   never reconstruct JSON from DOM/localized state.
-- [ ] Run focused parity/Vitest and typecheck. Commit MACHINE parity.
+- [x] Run focused parity/Vitest and typecheck. Commit MACHINE parity.
 
 ## Task 10 — Freeze, review, run the verification wave once, and close
 
@@ -382,25 +429,25 @@ download bytes.
 **Interfaces:** frozen diff, <=28 KB review package, P40 buckets, measured suite timings, closure
 claims, attached-branch read-back.
 
-- [ ] Run pre-freeze focused tests and self-review against every approved spec invariant. Search for
+- [x] Run pre-freeze focused tests and self-review against every approved spec invariant. Search for
   placeholders, status/timestamp terminality proxies, adjacent-count credit, invented readiness,
   PUBLIC exposure, duplicate projection owners, and stale in-panel fixtures.
-- [ ] Freeze source and dispatch independent backend semantics, frontend custody/strangle,
+- [x] Freeze source and dispatch independent backend semantics, frontend custody/strangle,
   authorization/API, generated receipts, and DOM-parity reviews. Package only the changed delta and
   keep each package at or below 28 KB.
-- [ ] Bucket every Blocking/Important finding before repair. New class consumes a round; same class
+- [x] Bucket every Blocking/Important finding before repair. New class consumes a round; same class
   one level deeper widens the mechanism; a proven non-behavioral static diagnostic consumes none.
   Run delta-only re-review after any repair.
-- [ ] After all reviews are in, run logic suites, ESLint, typecheck, build, release/runtime contract,
+- [x] After all reviews are in, run logic suites, ESLint, typecheck, build, release/runtime contract,
   architecture, and Atlas governance in parallel where uncontended. Serialize Storybook,
   Playwright/visual, fixed-port, and same-artifact writers. Use preset timeouts and uptime pairs.
-- [ ] Reconfirm the three inherited reds remain exactly red and no new baseline-relative diagnostic
+- [x] Reconfirm the three inherited reds remain exactly red and no new baseline-relative diagnostic
   exists. Do not relabel a kill as a result.
-- [ ] Record that DS7 renders producer values only for status-like/structural fields and renders
+- [x] Record that DS7 renders producer values only for status-like/structural fields and renders
   refusals/typed gaps for policy substance; it renders no policy quantity/effect/welfare value and
   therefore does not satisfy DS16 re-entry.
-- [ ] Record exact GAP5/GAP6 ownership and closure signals, honest-empty movement, environment-scoped
+- [x] Record exact GAP5/GAP6 ownership and closure signals, honest-empty movement, environment-scoped
   5/7/1 debt discharge, one human renderer, v2/MACHINE parity, realized DS4 `27/41/18/3`, locale
   posture, and no PUBLIC gate.
-- [ ] Commit closure, then read back HEAD, commit/file denominator, clean status, and branch
+- [x] Commit closure, then read back HEAD, commit/file denominator, clean status, and branch
   attachment. Confirm no push and no merge to `main` occurred.

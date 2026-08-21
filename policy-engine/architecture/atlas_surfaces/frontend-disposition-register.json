@@ -4811,17 +4811,21 @@
         "consumer_refs": [
           "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
           "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
-          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx",
-          "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
-          "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx"
+          "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/components/cycleBoardPresentation.ts",
+          "apps/runtime-dashboard/src/features/runs/components/cycleBoardPresentation.test.ts",
+          "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts"
         ]
       },
       "owner": "team-design",
       "owner_slice": "DS4",
       "decision_date": "2026-07-31",
       "seed_rule": "ds4_c19a_governed_projection_rebind_complete",
-      "rationale": "C19a rebinds the living RunExplainabilityPanel to the generated global depth-N governed-projection packet: the feature adapter preserves owner availability, freshness, source validation, terminal distributions, evidence labels, and weakest-link arrays without route correlation or local authority inference; typed artifact absence renders fixture_only and unavailable; the existing decision-grade bridge remains the single neutral swap point; the new CGF module preserves unknown owner values as explicitly unrecognized without closing the DS5-owned vocabulary gap."
+      "rationale": "DS7 replaces the retired inline explainability projection with one permission-gated global Cycle Board: the static v2 hook, pure presentation mapper, rendered-DOM decoder, and MACHINE export preserve owner facts, source-relative time, typed gaps, and typed absence without client recomputation. Run detail only links to the global cohort and neither fetches nor renders the board."
     },
     {
       "unit_id": "status-inline-counterfactual-badge",
@@ -5253,21 +5257,20 @@
       "successor": {
         "unit_id": "dashboard-governed-query-cache-posture",
         "consumer_refs": [
+          "apps/runtime-dashboard/src/api/queryKeys.ts",
           "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
           "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
           "apps/runtime-dashboard/src/api/cacheDiscipline.ts",
           "apps/runtime-dashboard/src/api/cacheDiscipline.test.ts",
           "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
           "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
-          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-          "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx",
-          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-          "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx",
-          "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
-          "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx"
+          "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts"
         ]
       },
-      "rationale": "C11a/C11b and C12b strangle the generic query-memory root only through the governed-query option issuer, source-derived policy debt ratchet, owner-as_of cache observation, and one visible run consumer; the remaining 65 constructions and 41 producers remain explicitly adjudicated debt, and no DS8, DS9, or DS14 semantics are claimed."
+      "rationale": "C11a/C11b, C12b, and DS7 strangle the generic query-memory root through the governed-query option issuer, one representation-specific key, explicit never_cache_authority posture, and one permission-gated global Cycle Board consumer. Transaction observation time is not owner as_of, run detail neither fetches nor retains the packet, and exact response bytes remain per-request export custody only; no DS8, DS9, or DS14 semantics are claimed."
     },
     {
       "unit_id": "cache-local-storage-state",
@@ -5867,8 +5870,8 @@
       "evidence_refs": [
         "packages/runtime-api-client/canonicalRuntimeApiClient.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJleHBvcnQ6UnVuU3VtbWFyeSIsInN5bWJvbDpSdW5TdW1tYXJ5IiwicmVzb2x2ZWQ6UnVuU3VtbWFyeSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC9jYW5vbmljYWxSdW50aW1lQXBpQ2xpZW50LnRzOlR5cGVBbGlhc0RlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJSdW5TdW1tYXJ5Iiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZjZjZWUwZjdmMGY0ZDBkODI1NjMyMDc3YWU1MDFhYTM1OWI4NjIxZWE0ZjExN2ZjMWRlOTcwNDMyYTQ5OTFkOSIsInJvbGUiOiJleHBvcnRlZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L2Nhbm9uaWNhbFJ1bnRpbWVBcGlDbGllbnQudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
         "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuUnVuU3VtbWFyeSIsInN5bWJvbDpSdW5TdW1tYXJ5IiwicmVzb2x2ZWQ6UnVuU3VtbWFyeSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5SdW5TdW1tYXJ5Iiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmJhNGMxYzM5M2NjZThiNjgzNWViZjUzOWEzMTE2MzNlMzI5M2RjZThhNjc4YWM0NzRjNDVlMzEzNGVhMzM1MSIsInJvbGUiOiJ0eXBlX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHlTaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToyOTQiXSwidmVyc2lvbiI6MX0",
-        "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuZmluaXNoZWRfYXQiLCJzeW1ib2w6ZmluaXNoZWRfYXQiLCJyZXNvbHZlZDpmaW5pc2hlZF9hdCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5maW5pc2hlZF9hdCIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjQxOTY2ZjRkZTYwODFiNmQ2OGFmZmZjYjJiZWRlNTQ2OGY5NjljNzg5NzI3ZWVkNjg3ZTc4MGNlNzE2MDY4YjIiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6Mjk0IiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjgiXSwidmVyc2lvbiI6MX0",
-        "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3RhdHVzIiwic3ltYm9sOnN0YXR1cyIsInJlc29sdmVkOnN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxN2U2NzM1NGM0ZWI2OWU5MzA1MGM0ZWI3MzJjZWU0ZDU0MWU5OWU2OTJiNTE1NGE5NDBhNTI2NGViODllODlmIiwicm9sZSI6InR5cGVfcHJvcGVydHkiLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVNpZ25hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjI5NCIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNiJdLCJ2ZXJzaW9uIjoxfQ",
+        "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuZmluaXNoZWRfYXQiLCJzeW1ib2w6ZmluaXNoZWRfYXQiLCJyZXNvbHZlZDpmaW5pc2hlZF9hdCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5maW5pc2hlZF9hdCIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjQxOTY2ZjRkZTYwODFiNmQ2OGFmZmZjYjJiZWRlNTQ2OGY5NjljNzg5NzI3ZWVkNjg3ZTc4MGNlNzE2MDY4YjIiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzI3IiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjgiXSwidmVyc2lvbiI6MX0",
+        "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3RhdHVzIiwic3ltYm9sOnN0YXR1cyIsInJlc29sdmVkOnN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxN2U2NzM1NGM0ZWI2OWU5MzA1MGM0ZWI3MzJjZWU0ZDU0MWU5OWU2OTJiNTE1NGE5NDBhNTI2NGViODllODlmIiwicm9sZSI6InR5cGVfcHJvcGVydHkiLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVNpZ25hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjMyNyIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNiJdLCJ2ZXJzaW9uIjoxfQ",
         "src/polisyos/runtime/http/services/adapters/core_run.py",
         "docs/superpowers/journals/2026-08-16-gy-gap4-run-terminality.md",
         "docs/superpowers/specs/2026-08-20-ds7-cycle-board-design.md"
@@ -6528,8 +6531,8 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjM4Y2QwY2RhYzcxZDM1OGFmOWEzZjIwM2IzMjkyOTZiZmFmNGQzMzhlYjZlYjUyZjliZGUyYTMyMjU0YzM0ZmIiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiSWZTdGF0ZW1lbnQ6NyIsIkJsb2NrOjEiLCJSZXR1cm5TdGF0ZW1lbnQ6MiIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjIiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjM4Y2QwY2RhYzcxZDM1OGFmOWEzZjIwM2IzMjkyOTZiZmFmNGQzMzhlYjZlYjUyZjliZGUyYTMyMjU0YzM0ZmIiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjkiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoyIiwiSnN4RWxlbWVudDo0IiwiSnN4RWxlbWVudDoyIiwiSnN4T3BlbmluZ0VsZW1lbnQ6MCJdLCJ2ZXJzaW9uIjoxfQ"
+        "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6Q3ljbGVCb2FyZDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiMzhjZDBjZGFjNzFkMzU4YWY5YTNmMjAzYjMyOTI5NmJmYWY0ZDMzOGViNmViNTJmOWJkZTJhMzIyNTRjMzRmYiIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0N5Y2xlQm9hcmQudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MiIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjgiLCJKc3hFbGVtZW50OjQiLCJKc3hFeHByZXNzaW9uOjIiLCJDYWxsRXhwcmVzc2lvbjowIiwiQXJyb3dGdW5jdGlvbjoxIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MiIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6MiIsIkpzeEVsZW1lbnQ6NCIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0",
+        "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6RmFjdEZpZWxkOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIzOGNkMGNkYWM3MWQzNThhZjlhM2YyMDNiMzI5Mjk2YmZhZjRkMzM4ZWI2ZWI1MmY5YmRlMmEzMjI1NGMzNGZiIiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQ3ljbGVCb2FyZC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiQmxvY2s6MiIsIlJldHVyblN0YXRlbWVudDowIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEV4cHJlc3Npb246NCIsIkNvbmRpdGlvbmFsRXhwcmVzc2lvbjowIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246NCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6MiIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0"
       ],
       "owner_slice": "DS7",
       "decision_date": "2026-08-02",
@@ -6553,93 +6556,15 @@
         "consumer_sites": [
           {
             "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 407,
-            "site_sha256": "sha256:bf37ebab87157fb90efd1270600474e5a772645b88152e887ec4340142a10790"
+            "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+            "line": 78,
+            "site_sha256": "sha256:33f590459f350b8ea6521f8f90237e1012100144bdd6ef3f51d1f1c9b56798de"
           },
           {
             "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 442,
-            "site_sha256": "sha256:bf37ebab87157fb90efd1270600474e5a772645b88152e887ec4340142a10790"
-          }
-        ]
-      }
-    },
-    {
-      "finding_id": "authority-presentation-badge-governed-projection-rights-bar",
-      "finding_kind": "authority_presentation_debt",
-      "disposition": "rebind_pending",
-      "status": "open_debt",
-      "evidence_refs": [
-        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
-        "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjhjOTc1MTc3ZmYzNDgwZmQwZWE3NjY2MjBmNjE3ZTc1ZDdiMzJlYzRkY2Q2MDM1N2FmNGZjYTI3NTc1YzJkMzYiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjkiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjo2IiwiQ29uZGl0aW9uYWxFeHByZXNzaW9uOjAiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDo0IiwiSnN4RXhwcmVzc2lvbjoyIiwiQ2FsbEV4cHJlc3Npb246MCIsIkFycm93RnVuY3Rpb246MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hFbGVtZW50OjAiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9"
-      ],
-      "owner_slice": "DS5",
-      "decision_date": "2026-08-02",
-      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
-      "capability_states": [
-        "bridge_missing",
-        "semantic_test_missing"
-      ],
-      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated may_not_use_for item enters a branded veto presentation",
-      "authority_sink": {
-        "sink_kind": "direct_badge_group",
-        "descriptor_id": "badge-governed-projection-rights-bar",
-        "component": "Badge",
-        "component_declaration": {
-          "role": "component_declaration",
-          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
-          "line": 31,
-          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
-        },
-        "consumer_count": 1,
-        "consumer_sites": [
-          {
-            "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 463,
-            "site_sha256": "sha256:f5b0d2b865fba3d2bb9804e1a0e97a3e6b3591fa5e2ce8713746678f5ee6a66c"
-          }
-        ]
-      }
-    },
-    {
-      "finding_id": "authority-presentation-badge-governed-source-validation",
-      "finding_kind": "authority_presentation_debt",
-      "disposition": "rebind_pending",
-      "status": "open_debt",
-      "evidence_refs": [
-        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
-        "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6R292ZXJuZWREZXB0aFByb2plY3Rpb246aW1wb3J0OkBwb2xpc3lvcy9hdGxhcy11aTpwYWNrYWdlcy9hdGxhcy11aS9zcmMvaW5kZXgudHM6QmFkZ2UiLCJzeW1ib2w6QmFkZ2UiLCJyZXNvbHZlZDpCYWRnZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9wcmltaXRpdmVzL0JhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjliYjRhMjlmM2FlODNkOTA5OWJlMjhlYzE5MDBkNjRjMzcxZTE4NGY2NWZkOGE3MGNmMWQ3OTY4NzY5M2Y2ODkiLCJyb2xlIjoianN4X29wZW5pbmciLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjkiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoxMCIsIkpzeEVsZW1lbnQ6NiIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0"
-      ],
-      "owner_slice": "DS7",
-      "decision_date": "2026-08-02",
-      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
-      "capability_states": [
-        "bridge_missing",
-        "semantic_test_missing"
-      ],
-      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated source validation status enters an exhaustive issuer with novelty tests",
-      "authority_sink": {
-        "sink_kind": "direct_badge_group",
-        "descriptor_id": "badge-governed-source-validation",
-        "component": "Badge",
-        "component_declaration": {
-          "role": "component_declaration",
-          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
-          "line": 31,
-          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
-        },
-        "consumer_count": 1,
-        "consumer_sites": [
-          {
-            "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 488,
-            "site_sha256": "sha256:8f89134fa6975051cab6f6c84f8aa1a818f427708df999bb629a9502d9bb3902"
+            "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+            "line": 354,
+            "site_sha256": "sha256:94ccfd36d2ad4ba6ac0029bece6f708ff96958eeee4dc90b295acbfbb718587b"
           }
         ]
       }
@@ -7346,8 +7271,7 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpEYXRhRnJlc2huZXNzQmFkZ2UiLCJzeW1ib2w6RGF0YUZyZXNobmVzc0JhZGdlIiwicmVzb2x2ZWQ6RGF0YUZyZXNobmVzc0JhZGdlIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL2NvbXBvdW5kcy9EYXRhRnJlc2huZXNzQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkRhdGFGcmVzaG5lc3NCYWRnZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImQ3NTdhNTA1ZGRkZTg1NTJiNjU2NTY4NDU2NWI5OWMxN2FkNzZjOTY0N2YwZjVjOTZiNzQ1NzUxNDgzY2UzNTAiLCJyb2xlIjoibmFtZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS9jb21wb3VuZHMvRGF0YUZyZXNobmVzc0JhZGdlLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6W10sInZlcnNpb24iOjF9",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRhdGFGcmVzaG5lc3NCYWRnZTpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJJZlN0YXRlbWVudDo3IiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDo2IiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRhdGFGcmVzaG5lc3NCYWRnZTpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6OSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6NCIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9"
+        "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRhdGFGcmVzaG5lc3NCYWRnZTpmcmVzaG5lc3M6ZW5jbG9zaW5nOkN5Y2xlQm9hcmQiLCJzeW1ib2w6ZnJlc2huZXNzIiwicmVzb2x2ZWQ6ZnJlc2huZXNzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL0N5Y2xlQm9hcmQudHN4OkpzeEF0dHJpYnV0ZSJdLCJkaXNjcmltaW5hdG9yIjoiZnJlc2huZXNzIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiYWUzMDNhYjViMDQ1MGZjMDdjNjI3YzNiNjMzZmU0MGM1OGUzNmIwNTVkODAyY2FjN2NhYWY1NWY4MjJjNDM2YSIsInJvbGUiOiJqc3hfYXR0cmlidXRlIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQ3ljbGVCb2FyZC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiQmxvY2s6MyIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6OCIsIkpzeEVsZW1lbnQ6NCIsIkpzeEV4cHJlc3Npb246MiIsIkNhbGxFeHByZXNzaW9uOjAiLCJBcnJvd0Z1bmN0aW9uOjEiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjo0IiwiQ29uZGl0aW9uYWxFeHByZXNzaW9uOjAiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RnJhZ21lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDoyIiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0"
       ],
       "owner_slice": "DS18",
       "decision_date": "2026-08-02",
@@ -7374,19 +7298,13 @@
           "line": 7,
           "content_sha256": "sha256:424363795b3744b3ad009ba7d8cd6c5ea3945398df29a2935e5372ef99852e04"
         },
-        "consumer_count": 2,
+        "consumer_count": 1,
         "consumer_sites": [
           {
             "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 418,
-            "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
-          },
-          {
-            "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 443,
-            "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
+            "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+            "line": 358,
+            "site_sha256": "sha256:b5d85941a81ae66e89499d7fca5d95a487df484f625ff79074c8497814dd18a0"
           }
         ]
       }
@@ -7704,59 +7622,6 @@
       }
     },
     {
-      "finding_id": "authority-presentation-prop-time-semantics-freshness",
-      "finding_kind": "authority_presentation_debt",
-      "disposition": "rebind_pending",
-      "status": "open_debt",
-      "evidence_refs": [
-        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
-        "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpUaW1lU2VtYW50aWNzTGFiZWwiLCJzeW1ib2w6VGltZVNlbWFudGljc0xhYmVsIiwicmVzb2x2ZWQ6VGltZVNlbWFudGljc0xhYmVsIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiVGltZVNlbWFudGljc0xhYmVsIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiOGNkYWY4OTk2OTE4NWZlNjE4OGU2ODI4NjFmMjAzODk1OTcwYjlmY2FiOGRiZjQwMTJlZTc2NGYxMjAzYjQ3NSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RlbXBvcmFsL1RpbWVTZW1hbnRpY3NMYWJlbC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJJZlN0YXRlbWVudDo3IiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDoyIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6OCIsIkpzeE9wZW5pbmdFbGVtZW50OjAiLCJKc3hBdHRyaWJ1dGVzOjEiLCJKc3hBdHRyaWJ1dGU6MCJdLCJ2ZXJzaW9uIjoxfQ",
-        "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlRpbWVTZW1hbnRpY3NMYWJlbDpmcmVzaG5lc3M6ZW5jbG9zaW5nOkdvdmVybmVkRGVwdGhQcm9qZWN0aW9uIiwic3ltYm9sOmZyZXNobmVzcyIsInJlc29sdmVkOmZyZXNobmVzcyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2ZlYXR1cmVzL3J1bnMvY29tcG9uZW50cy9SdW5FeHBsYWluYWJpbGl0eVBhbmVsLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6ImZyZXNobmVzcyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjNjZWJkZmI2YWNkMGY0YzU4YzlmYzk0OTZhNTRiMTNjM2FmMzNhYjBmMjI0ODQzNDQ2ZTNlMWExMjQyMDA2NTMiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9jb21wb25lbnRzL1J1bkV4cGxhaW5hYmlsaXR5UGFuZWwudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6OSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjgiLCJKc3hPcGVuaW5nRWxlbWVudDowIiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0"
-      ],
-      "owner_slice": "DS18",
-      "decision_date": "2026-08-02",
-      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
-      "capability_states": [
-        "bridge_missing",
-        "semantic_test_missing"
-      ],
-      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after the generated owner freshness value enters an issued temporal presentation with explicit unknown behavior",
-      "authority_sink": {
-        "sink_kind": "prop_boundary",
-        "descriptor_id": "prop-time-semantics-freshness",
-        "component": "TimeSemanticsLabel",
-        "prop": "freshness",
-        "component_declaration": {
-          "role": "component_declaration",
-          "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-          "line": 18,
-          "content_sha256": "sha256:8eb384f2a8d2be39683bb7927ad5b3f1edc13abefaa0fbba5d11f1f7f05ff389"
-        },
-        "prop_declaration": {
-          "role": "prop_declaration",
-          "path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-          "line": 12,
-          "content_sha256": "sha256:424363795b3744b3ad009ba7d8cd6c5ea3945398df29a2935e5372ef99852e04"
-        },
-        "consumer_count": 2,
-        "consumer_sites": [
-          {
-            "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 420,
-            "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
-          },
-          {
-            "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "line": 476,
-            "site_sha256": "sha256:14586bc6669748ee1417fd38c97ef3671bbc8ba302b8dfcdace33fb3703cc33b"
-          }
-        ]
-      }
-    },
-    {
       "finding_id": "authority-presentation-prop-verification-status-cue",
       "finding_kind": "authority_presentation_debt",
       "disposition": "rebind_pending",
@@ -7967,7 +7832,7 @@
         "semantic_test_missing"
       ],
       "evidence_refs": [
-        "architecture/atlas_surfaces/ds4-waist-debt-register.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6ImQzMzNhNWFkMjFkMTMwMzYxM2E3YThhOWNhMDgyODBhZmVjMzhlZDM0MzdiNTY1MTFlMjBjNTViZDY2YWI2MTMiLCJzZWxlY3RvciI6Ii9lbnRyaWVzW2RlYnRfaWQ9ZHM0LXdhaXN0LWNnZi1kaXNwb3NpdGlvbl0iLCJzb3VyY2VfcGF0aCI6ImFyY2hpdGVjdHVyZS9hdGxhc19zdXJmYWNlcy9kczQtd2Fpc3QtZGVidC1yZWdpc3Rlci5qc29uIiwidmVyc2lvbiI6MX0",
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6ImI1MDNlNjZmMzUyNzY5ZTYwNDgxZGM1MjMyMDliMWEyNmZjNzZkYjc5MjVlZmI5MDEwOThjZjdhOWQ5YzhiMWIiLCJzZWxlY3RvciI6Ii9lbnRyaWVzW2RlYnRfaWQ9ZHM0LXdhaXN0LWNnZi1kaXNwb3NpdGlvbl0iLCJzb3VyY2VfcGF0aCI6ImFyY2hpdGVjdHVyZS9hdGxhc19zdXJmYWNlcy9kczQtd2Fpc3QtZGVidC1yZWdpc3Rlci5qc29uIiwidmVyc2lvbiI6MX0",
         "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py:34",
         "src/polisyos/runtime/http/services/governed_projections.py:200",
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06"
@@ -7992,7 +7857,7 @@
         "semantic_test_missing"
       ],
       "evidence_refs": [
-        "architecture/atlas_surfaces/ds4-waist-debt-register.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6IjM3YWU4YzkzMTM4MjE1MDdiMDM0ZTJkMDg1ZjM0MmI4YjIwMjcyMzZkNzhmY2M5MjU4Y2E1MGVlNGVmNjljZmUiLCJzZWxlY3RvciI6Ii9lbnRyaWVzW2RlYnRfaWQ9ZHM0LXdhaXN0LWRlY2lzaW9uLWdyYWRlXSIsInNvdXJjZV9wYXRoIjoiYXJjaGl0ZWN0dXJlL2F0bGFzX3N1cmZhY2VzL2RzNC13YWlzdC1kZWJ0LXJlZ2lzdGVyLmpzb24iLCJ2ZXJzaW9uIjoxfQ",
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6IjM5OWU4OWExODhiZWI3NjFiZTkyMzM5NzIzY2UxZjM5OWY4MGRhMTAwYWEyM2QzMjIwMWMxOGYzOGEzMTkyNDgiLCJzZWxlY3RvciI6Ii9lbnRyaWVzW2RlYnRfaWQ9ZHM0LXdhaXN0LWRlY2lzaW9uLWdyYWRlXSIsInNvdXJjZV9wYXRoIjoiYXJjaGl0ZWN0dXJlL2F0bGFzX3N1cmZhY2VzL2RzNC13YWlzdC1kZWJ0LXJlZ2lzdGVyLmpzb24iLCJ2ZXJzaW9uIjoxfQ",
         "src/polisyos/pdc/_impl/layer2_readiness.py:39",
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06"
       ],
@@ -8018,7 +7883,7 @@
         "schemas/runtime_api_v1.openapi.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6Ijc5ODNhNTBlNDdkOWMwYTZlNzc4NWRlOTM2NzYxNDUxMmNlMmJlMjdhM2UxODNhYzdkODQ0Y2I0ZGJhNmJkM2YiLCJzZWxlY3RvciI6Ii9jb21wb25lbnRzL3NjaGVtYXMvQXV0aE1lUmVzcG9uc2UiLCJzb3VyY2VfcGF0aCI6InNjaGVtYXMvcnVudGltZV9hcGlfdjEub3BlbmFwaS5qc29uIiwidmVyc2lvbiI6MX0",
         "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuQXV0aE1lUmVzcG9uc2UiLCJzeW1ib2w6QXV0aE1lUmVzcG9uc2UiLCJyZXNvbHZlZDpBdXRoTWVSZXNwb25zZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5BdXRoTWVSZXNwb25zZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImE5MWQ2NGU4OTdlYWYyMTQ0ZDI1MmZhMDA1NDI4YTFjOTU1ZTcxNjg5YzFhYjllMTMzMzY1YzYwZGE1MmUwMmUiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NDAiXSwidmVyc2lvbiI6MX0",
         "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpmZXRjaEF1dGhNZSIsInN5bWJvbDpmZXRjaEF1dGhNZSIsInJlc29sdmVkOmZldGNoQXV0aE1lIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL2hvb2tzL3VzZUF1dGhNZS50czpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJmZXRjaEF1dGhNZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjZkMjU2OWQyZTNjMjA2NjAxODY4YzU5ZWE3MGE1ZjAxMTMwNGNmMWJlNmEyNjdiYjU1MGJhNzk2ZDg5NTExYWQiLCJyb2xlIjoibmFtZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS9ob29rcy91c2VBdXRoTWUudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
-        "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI3NmU4ZDRlOGQ1NzdkZGNhNGI2MDgzOTY2OWZlM2VjNmM0NGEwOGVmZTk0OWYwYTllODVjZjhjZTFiNjA3NGQ5Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
+        "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxNmU5M2RhYjk3Y2RmYTJhMmRiYzk1ZTM1M2Y0ODg4N2YzZWE5NGQwZTc3YzNkZjM5MzU0MzljNjk2NmFmOWU4Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
       ],
       "rationale": "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity.",
       "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails",

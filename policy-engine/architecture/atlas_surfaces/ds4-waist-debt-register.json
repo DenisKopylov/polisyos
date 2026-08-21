@@ -21,10 +21,10 @@
       "generated_client_anchor": {
         "anchor_kind": "present_projection",
         "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
-        "canonical_line": 516,
+        "canonical_line": 595,
         "types_path": "packages/runtime-api-client/types.ts",
-        "types_start_line": 5850,
-        "types_end_line": 5879,
+        "types_start_line": 6520,
+        "types_end_line": 6549,
         "symbol": "GenerationCycleDispositionPayload"
       },
       "swap_module": "apps/runtime-dashboard/src/shared/ui/compounds/cgfDispositionPresentation.ts",
@@ -42,8 +42,8 @@
       "generated_client_anchor": {
         "anchor_kind": "missing_export",
         "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
-        "export_block_start_line": 333,
-        "export_block_end_line": 394,
+        "export_block_start_line": 387,
+        "export_block_end_line": 448,
         "types_path": "packages/runtime-api-client/types.ts",
         "symbol": "DecisionGrade"
       },
@@ -62,10 +62,10 @@
       "generated_client_anchor": {
         "anchor_kind": "present_projection",
         "canonical_path": "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
-        "canonical_line": 737,
+        "canonical_line": 830,
         "types_path": "packages/runtime-api-client/types.ts",
-        "types_start_line": 8164,
-        "types_end_line": 8182,
+        "types_start_line": 8936,
+        "types_end_line": 8954,
         "symbol": "ProjectionFreshness"
       },
       "swap_module": "apps/runtime-dashboard/src/shared/ui/temporal/cacheAgePresentation.ts",

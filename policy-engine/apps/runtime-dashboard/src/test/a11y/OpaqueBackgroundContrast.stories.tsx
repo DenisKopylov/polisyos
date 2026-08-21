@@ -20,6 +20,7 @@ import type {
   QuantityValue,
 } from "@/shared/ui/quantity/quantity.types";
 import { TimeSemanticsLabel } from "@/shared/ui/temporal/TimeSemanticsLabel";
+import { depthNDomainRunFixture } from "@/test/fixtures/depthNCycleBoard";
 
 import {
   classifyOpaqueBackgroundContrast,
@@ -64,8 +65,7 @@ const blocker = {
   severity: "blocking",
 } satisfies PolicyDesignCaseProjectionBlocker;
 
-const weakestLinkUnavailable = {
-  acquisition_route: { status: "artifact_missing" },
+const weakestLinkUnavailable = depthNDomainRunFixture({
   design_problem_ref: "fixture://design-problem/ds6-contrast",
   domain_role: "fixture_only",
   evidence_class: "fixture_only",
@@ -73,7 +73,7 @@ const weakestLinkUnavailable = {
   generation_cycle_run_id: "fixture://generation-cycle/ds6-contrast",
   terminal_distribution: { fixture_only: 1 },
   weakest_links: [],
-} satisfies DepthNDomainRunProjection;
+} satisfies Partial<DepthNDomainRunProjection>);
 
 const freshness = {
   basis: "source_timestamp",

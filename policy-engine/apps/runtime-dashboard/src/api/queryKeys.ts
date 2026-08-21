@@ -14,6 +14,14 @@ export const queryKeys = {
   capabilities: () => ["control", "capabilities"] as const,
   governedProjection: (projectionId: ProjectionId) =>
     ["runtime", "governed-projection", projectionId] as const,
+  cycleBoardProjection: () =>
+    [
+      "runtime",
+      "exports",
+      "governed-projections",
+      "depth-n-cycle-board",
+      { representation: "composed-v2" },
+    ] as const,
   temporalCapabilities: (runId: string | null | undefined) =>
     ["runtime", "temporal", "capabilities", { runId: runId ?? null }] as const,
   runsRoot: () => ["runtime", "runs"] as const,

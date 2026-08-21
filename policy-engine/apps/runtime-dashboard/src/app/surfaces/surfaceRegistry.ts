@@ -104,6 +104,26 @@ export const WORKSPACE_SURFACES: readonly SurfaceRegistryEntry[] =
     } satisfies SurfaceRegistryEntry;
   });
 
+export const WORKSPACE_CHILD_SURFACES: readonly SurfaceRegistryEntry[] = [
+  {
+    aliases: ["cycle board", "design cycle", "global cohort"],
+    command: { enabled: true, group: "workspaceSurfaces" },
+    descriptionKey: "surfaceRegistry.run.cycleBoard.description",
+    glyph: "reproducibility",
+    id: "runs.cycleBoard",
+    kind: "workspace",
+    labelKey: "surfaceRegistry.run.cycleBoard.label",
+    parentId: "workspace.runsDecisions",
+    permissionKey: "runs.review",
+    placement: "panel",
+    requiredCapabilities: [],
+    resolveHref: () => "/runs/cycle-board",
+    routeId: "runs.cycleBoard",
+    semanticExplanationId: "surface.runs.cycleBoard",
+    workspaceKey: "runsDecisions",
+  },
+] as const;
+
 export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
   {
     aliases: ["decision"],
@@ -852,6 +872,7 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
 
 export const SURFACE_REGISTRY: readonly SurfaceRegistryEntry[] = [
   ...WORKSPACE_SURFACES,
+  ...WORKSPACE_CHILD_SURFACES,
   ...RUN_DETAIL_SURFACES,
   ...PANEL_SURFACES,
 ] as const;

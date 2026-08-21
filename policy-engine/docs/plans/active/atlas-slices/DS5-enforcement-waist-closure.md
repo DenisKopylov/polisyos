@@ -287,29 +287,34 @@ After D4-A1, Storybook composition, and verified-mode recovery, the final
 visual command passes 16/18. No locale- or chrome-driven snapshot is
 re-anchored.
 
-The inherited DS8 A4 identity remains expected 724×2113 versus observed
-770×13269. The other residual is DS5-owned by P41 because it is green at slice
-base and reproducibly red now: `run deck content slide` expects 1094×820,
-observes 1094×821, and differs by 4,178 pixels / 1%. Three serial captures in
-the same fixed environment are byte- and decoded-pixel-identical: each actual
-is 1094×821, PNG SHA-256
+The institutionally supplied adjudication is that the inherited DS8 A4 file
+is a bulk-publish placeholder, not a derived run-detail expectation: all five
+A4 names shared one 231,141-byte blob at `45f330235`, and the active 770-pixel
+shell rule predates its 724-pixel width by six weeks. Current no-update
+measurement is 724×2,113 placeholder versus 770×12,966 actual. The other
+residual is DS5-owned by P41 because it is green
+at slice base and reproducibly red now: `run deck content slide` expects
+1,094×820, observes 1,094×821, and differs by 4,178 pixels / 1%. Three serial
+captures in the same fixed environment are byte- and decoded-pixel-identical:
+each actual is 1,094×821, PNG SHA-256
 `823fffa7f72433bdb8c1a141c9f38b1b2da7d8bbd28652755dada8abdfa3053f`,
 RGBA SHA-256
 `ab8965b51b7a89e82540f49d2a3511634998181190b04e10881e3f1e5934fcc8`,
-with the same 4,178-pixel delta. This is a stable layout delta, not rendering
-nondeterminism. Its introducing cluster remains `not_established`, so a
-snapshot re-anchor would still be a proxy repair and is not authorized.
+with the same 4,178-pixel delta. A no-writer DOM/PNG diagnostic measured an
+exact 1,094×820 border box, client/scroll height 818, no direct-child overflow,
+fractional Y 3,920.75–4,740.75 at DPR 1, and a 1,094×821 locator PNG. The extra
+raster row is institutionally accepted as fractional clip rasterization, not
+a border-box-height defect.
+Its introducing cluster remains `not_established`, so a snapshot re-anchor or
+CSS nudge would be a proxy repair and is not authorized.
 
 DS5 carries it under `team-frontend` / `@frontend-owners`, with registered
-successor `dashboard-run-deck-visual-determinism-reconciliation`. The
-executable closure signal is now exact: adjudicate the rendered border-box
-height of `run-deck-slide-evidence` / `.atlas-deck-slide` in
-`AtlasRunDeck.tsx` and `styles.css`, restore the fixed-fixture capture from
-1094×821 to the governed 1094×820 baseline without a snapshot writer, then
-require three consecutive no-update captures whose decoded RGBA equals the
-baseline and a full visual run containing only the external DS8 A4 red. The
-repair path count and duration remain `not_established`; the successor can
-start from this measured property. No snapshot byte changes in this landing.
+successor `dashboard-run-deck-visual-determinism-reconciliation`. Its next
+step is owner adjudication of whether exact locator-raster equality is the
+right property under fractional clipping; it is not an authorized border-box
+repair. Any later closure must state the chosen raster property and exercise
+it without a snapshot writer. The repair path count and duration remain
+`not_established`. No snapshot byte changes in this landing.
 
 ### Import policy / exception lifecycle — `reproduces_at_slice_base`
 
@@ -354,8 +359,8 @@ These remain debt rather than C20 prerequisites:
 | DS6 C03 i18n baseline lifecycle | The three historical `panels.agentPipeline.overBudget` reds are now green under DS6's merged parity gate. The baseline/register debt row remains open only because its canonical lifecycle transition is deferred until the C21 release becomes effective; owner is DS6 C03, not DS5. |
 | DS6 C11 health-metric replay oracle | External main-owned component red: the clean committed tree returns `revision_resolvable` with an empty `non_revision_paths`, while the DS6 test still expects `pyproject.toml` and `uv.lock` to be dirty/non-revision. The fixture does not exist at slice base, so P41 outcome is `not_established`; Git attributes the source/test to DS6-C11 `dec77a050`. Owner `team-frontend`; executable signal is to make the clean-tree assertion exact while retaining the existing changed/absent-path degradation witnesses. |
 | Post-merge DS6 status vocabulary | External DS6 governed-write debt exposed by the `main` merge: four live status definitions and eight semantic candidates under DS6 `src/test/evidence/**` and `src/test/a11y/**`; owner `team-frontend`, approval `team-architecture` / `@architecture-owners`. DS5 does not hand-author rows. After the effective C21 release, DS6 must run the canonical status scanner, adjudicate/register or retire the 12 source-bound facts, regenerate any induced register/report/status family bytes through their owners, and make the status checker green. |
-| Run-detail A4 visual identity | External DS8 visual debt; expected 724×2113 versus observed 770×13269 on the final freeze; DS5 does not re-anchor it. |
-| Run-deck stable layout delta | **DS5-owned** under `team-frontend` / `@frontend-owners`; expected 1094×820 versus three byte/pixel-identical 1094×821 captures, 4,178 pixels / 1%; introducing cluster remains `not_established`; registered successor `dashboard-run-deck-visual-determinism-reconciliation`; executable signal is the exact border-box-height restoration and three stable baseline-equal captures described above. |
+| Run-detail A4 visual identity | External DS8 visual debt. The governed no-update command measures a 724×2,113 placeholder against 770×12,966 current. The architect's **institutionally supplied** adjudication is that the placeholder was never derived against run-detail: `45f330235` assigned one 231,141-byte blob to all five A4 names, and the 770-pixel shell rule predates it by six weeks. The signed target accounts for only 303 pixels of height and none of the width. The expectation therefore requires a **first derivation, not a re-baseline**, after DS8 adjudicates the mixed reviewer-workflow panel's paper semantics and the resulting print-scope repair is verified. DS5 does not re-anchor it. |
+| Run-deck stable layout delta | **DS5-owned** under `team-frontend` / `@frontend-owners`. The governed no-update command measures 1,094×820 expected versus 1,094×821 actual with 4,178 differing pixels. A no-writer DOM/PNG diagnostic measures the slide's CSS bounding and offset height as exactly 820 px, client/scroll height 818 px, no direct-child overflow, fractional Y 3,920.75–4,740.75 at DPR 1, and a 1,094×821 locator PNG. The institutionally accepted cause is fractional clip rasterization, not a border-box-height defect. The residual remains open; owner adjudication of the raster assertion is required, and no CSS may be nudged to chase the pixel. |
 
 The C17b residual's smallest closing capability is whole-program
 interprocedural data/control flow with reaching definitions, dominance, and

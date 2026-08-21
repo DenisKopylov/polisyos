@@ -66,6 +66,10 @@ from polisyos.runtime.http.resource_binding import (
     production_approval_scorecard_from_bound_request,
 )
 from polisyos.runtime.http.response_policies import add_run_link_relations
+from polisyos.runtime.http.services.authority_values import (
+    RunAuthorityProjection,
+    build_run_authority_projection,
+)
 from polisyos.runtime.http.services.channel_contracts import (
     RunDetailSnapshot,
     RunsListSnapshot,
@@ -990,6 +994,35 @@ if router is not None:
             temporal_scope=temporal_scope,
             timeline=timeline,
         )
+
+    @router.get(
+        "/{run_id}/authority-values",
+        response_model=RunAuthorityProjection,
+        operation_id="get_run_authority_values",
+        summary="Disposition of every retired readiness/scientific-depth value",
+    )
+    def get_run_authority_values(
+        run_id: str,
+        request: Request,
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> RunAuthorityProjection:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_authority_values",
+        )
+        projection = build_run_authority_projection(run_id)
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            metadata={"value_count": len(projection.values)},
+        )
+        add_run_link_relations(response, run_id=run_id)
+        return projection
 
     @router.get("/{run_id}/nodes", response_model=RunNodesResponse, operation_id="get_run_nodes")
     def get_run_nodes(

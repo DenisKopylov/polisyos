@@ -3882,27 +3882,29 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
             ),
             (
                 "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI"
-                "6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuZmluaXNoZWRfYXQiLCJzeW1ib2w6ZmluaXNoZWR"
-                "fYXQiLCJyZXNvbHZlZDpmaW5pc2hlZF9hdCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWU"
-                "tYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjo"
-                "iY29tcG9uZW50cy5maW5pc2hlZF9hdCIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjQxOTY"
-                "2ZjRkZTYwODFiNmQ2OGFmZmZjYjJiZWRlNTQ2OGY5NjljNzg5NzI3ZWVkNjg3ZTc4MGNlNzE2MDY"
-                "4YjIiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGl"
-                "tZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF"
-                "0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzI3IiwiVHlwZUxpdGV"
-                "yYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjgiXSwidmVyc2lvbiI6MX0"
+                "6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5SdW5TdW1tYXJ"
+                "5LmZpbmlzaGVkX2F0Iiwic3ltYm9sOmZpbmlzaGVkX2F0IiwicmVzb2x2ZWQ6ZmluaXNoZWRfYXQ"
+                "iLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHM6UHJvcGV"
+                "ydHlTaWduYXR1cmUiXSwiZGlzY3JpbWluYXRvciI6ImNvbXBvbmVudHMuc2NoZW1hcy5SdW5TdW1"
+                "tYXJ5LmZpbmlzaGVkX2F0Iiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNDE5NjZmNGRlNjA"
+                "4MWI2ZDY4YWZmZmNiMmJlZGU1NDY4Zjk2OWM3ODk3MjdlZWQ2ODdlNzgwY2U3MTYwNjhiMiIsInJ"
+                "vbGUiOiJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9"
+                "ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHl"
+                "TaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZTozMzEiLCJUeXB"
+                "lTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6OCJdLCJ2ZXJzaW9uIjoxfQ"
             ),
             (
                 "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI"
-                "6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3RhdHVzIiwic3ltYm9sOnN0YXR1cyIsInJlc29"
-                "sdmVkOnN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXB"
-                "lcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5zdGF"
-                "0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxN2U2NzM1NGM0ZWI2OWU5MzA1MGM0ZWI"
-                "3MzJjZWU0ZDU0MWU5OWU2OTJiNTE1NGE5NDBhNTI2NGViODllODlmIiwicm9sZSI6InR5cGVfcHJ"
-                "vcGVydHkiLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy5"
-                "0cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVNpZ25hdHVyZToyIiwiVHlwZUxpdGVyYWw"
-                "6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjMyNyIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25"
-                "hdHVyZToxNiJdLCJ2ZXJzaW9uIjoxfQ"
+                "6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5SdW5TdW1tYXJ"
+                "5LnN0YXR1cyIsInN5bWJvbDpzdGF0dXMiLCJyZXNvbHZlZDpzdGF0dXMiLCJkZWNsYXJhdGlvbjp"
+                "wYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHM6UHJvcGVydHlTaWduYXR1cmUiXSw"
+                "iZGlzY3JpbWluYXRvciI6ImNvbXBvbmVudHMuc2NoZW1hcy5SdW5TdW1tYXJ5LnN0YXR1cyIsIm5"
+                "vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjE3ZTY3MzU0YzRlYjY5ZTkzMDUwYzRlYjczMmNlZTR"
+                "kNTQxZTk5ZTY5MmI1MTU0YTk0MGE1MjY0ZWI4OWU4OWYiLCJyb2xlIjoiZ2VuZXJhdGVkX3NjaGV"
+                "tYV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R"
+                "5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl"
+                "0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzMxIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR"
+                "5U2lnbmF0dXJlOjE2Il0sInZlcnNpb24iOjF9"
             ),
             "src/polisyos/runtime/http/services/adapters/core_run.py",
             "docs/superpowers/journals/2026-08-16-gy-gap4-run-terminality.md",
@@ -6268,11 +6270,14 @@ C23_SUCCESSOR_ID = "c23-readiness-scientific-containment"
 C23_SUCCESSOR_REFS = [
     "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
     "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
-    "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+    "apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts",
 ]
 C23_RATIONALE = (
-    "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels "
-    "emit unavailable until DS16 provides producer-signed fields or registered typed refusal."
+    "C23 deleted dashboard-local readiness and scientific synthesis; DS16 commit "
+    "fa325dcfe83439fc624fcc09865c823e6b128ae3 replaced "
+    "readinessScientificContainment.test.ts with ds16SuccessorContainment.test.ts, bound "
+    "the retained panels to runtime-served typed refusals, and retained the exact "
+    "no-local-authority gate."
 )
 
 C17B_SCOPED_ENVELOPE_OWNER = (

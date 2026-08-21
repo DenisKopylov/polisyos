@@ -440,6 +440,10 @@ export type AuthorityProfile = {
   requester_authority: string;
 };
 
+export type AuthoritySurface = "readiness" | "scientific";
+
+export type AuthorityValueId = "readiness.composite_verdict" | "readiness.lens_projection" | "readiness.fairness_audit" | "readiness.harm_assessment" | "readiness.embargo_overlay" | "readiness.slow_review" | "readiness.revocation_ledger" | "scientific.identifiability_remedy" | "scientific.sensitivity_e_value" | "scientific.cohort_timeline" | "scientific.stress_ranking";
+
 export type AvailableFact_CycleBoardAcquisitionEconomics_ = {
   availability?: string;
   source_as_of?: string | null;
@@ -3397,6 +3401,16 @@ export type QuantityValueOutput = {
   unit: polisyos__core__contracts__runtime__UnitRef;
 };
 
+export type RefusedAuthorityValue = {
+  owner_surface?: string | null;
+  reason: string;
+  refusal_code: ValueRefusalCode;
+  retired_from: string;
+  state?: string;
+  surface: AuthoritySurface;
+  value_id: AuthorityValueId;
+};
+
 export type ReplayRef = {
   manifest_ref?: string | null;
   reason_code?: string | null;
@@ -3441,6 +3455,13 @@ export type RetrievalTelemetryView = {
   mode?: string;
   notes?: Array<string>;
   phases?: Array<RetrievalPhaseTelemetry>;
+};
+
+export type RunAuthorityProjection = {
+  inventory_version: string;
+  retirement_commit: string;
+  run_id: string;
+  values: Array<RefusedAuthorityValue | SuppliedAuthorityValue>;
 };
 
 export type RunCompareResponse = {
@@ -4005,6 +4026,14 @@ export type SourceProfilesListResponse = {
   profiles?: Array<SourceProfileInfo>;
 };
 
+export type SuppliedAuthorityValue = {
+  metric_id: string;
+  point?: number | null;
+  state?: string;
+  surface: AuthoritySurface;
+  value_id: AuthorityValueId;
+};
+
 export type SurfaceReadinessPayload = {
   authority: {
   [key: string]: ProjectionJsonValue;
@@ -4172,6 +4201,8 @@ export type ValueGatePayload = {
   [key: string]: ProjectionJsonValue;
 }>;
 };
+
+export type ValueRefusalCode = "no_runtime_composition_rule" | "no_runtime_estimator" | "analysis_not_runtime_resident" | "no_runtime_producer" | "owned_by_another_surface";
 
 export type VerificationMetadata = {
   dispute_status?: "none" | "disputed" | "under_review" | "resolved";
@@ -4989,6 +5020,14 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
     });
     return this.request<AgentPipelineResponse>("GET", path, query);
+  }
+
+  async getRunAuthorityValues(params: {
+    run_id: string;
+  }): Promise<RunAuthorityProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/authority-values`;
+    const query = undefined;
+    return this.request<RunAuthorityProjection>("GET", path, query);
   }
 
   async getRunCompareCandidates(params: {

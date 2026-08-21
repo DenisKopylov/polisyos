@@ -52,6 +52,7 @@ const runsPayload = {
       duration_ms: 1_000,
       root_artifact_count: 2,
       run_id: runId,
+      run_terminality: "not_established",
       source_kind: "core_run",
       started_at: "2026-03-09T10:00:00Z",
       status: "running",

@@ -434,3 +434,19 @@ C04 red was 4 failures / 10 passes; green is 14/14 across the four support
 views, targeted ESLint and dashboard typecheck clean. Final read-only review is
 GO. No route, field, MACHINE view, or authority-debt closure is claimed.
 Cumulative spend is **4/9**.
+
+## C05 — run terminality consumer
+
+P40 classifies the page-only omission as **SAME-CLASS-DEEPER** content
+preservation, already widened in C00 to one ingress-plus-consumer mechanism.
+The generated `RunTerminality` union now validates exhaustively at Zod ingress;
+the list renders and exports that exact field in neutral clothing, never status
+or Cycle Board substitution.
+
+The focused validator/hook/fixture/page wave is 33/33; the two P15 files remain
+12/12; targeted ESLint and dashboard typecheck are clean. A complete UTF-8 walk
+of 984 tracked dashboard `src` TS/TSX files (zero ambiguous) and independent
+`rg` occurrence census agree: production has three occurrences/three lines in
+exactly two paths—validator (one) and RunsListPage (two)—beside two generated
+and 15 test occurrences. Thus C05 discharges `run-lifecycle-terminal-fact`.
+C05 spends **1/1**, cumulative **5/9**.

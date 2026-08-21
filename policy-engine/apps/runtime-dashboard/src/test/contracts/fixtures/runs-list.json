@@ -14,6 +14,7 @@
   "runs": [
     {
       "run_id": "R_core_api_001",
+      "run_terminality": "terminal",
       "source_kind": "core_run",
       "status": "fail",
       "started_at": "2026-03-10T19:30:35Z",
@@ -28,6 +29,7 @@
     },
     {
       "run_id": "R_core_api_002",
+      "run_terminality": "terminal",
       "source_kind": "core_run",
       "status": "completed",
       "started_at": "2026-03-10T19:30:35Z",

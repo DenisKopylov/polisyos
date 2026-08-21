@@ -24,11 +24,11 @@ function PaperFact({
   value: string | number;
 }) {
   return (
-    <div data-run-paper-field={field}>
+    <div className="min-w-0" data-run-paper-field={field}>
       <dt className="text-muted text-xs font-semibold tracking-wide uppercase">
         {label}
       </dt>
-      <dd className="mt-1 font-mono text-sm break-words">{value}</dd>
+      <dd className="mt-1 font-mono text-sm break-all">{value}</dd>
     </div>
   );
 }

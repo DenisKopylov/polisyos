@@ -52,6 +52,7 @@ function CounterfactualShellRail({ runId }: { runId: string }) {
   return (
     <div
       className="border-border bg-background/80 mb-4 flex flex-wrap items-center justify-between gap-3 rounded-md border px-3 py-2"
+      data-print-hidden="true"
       data-testid="counterfactual-shell-rail"
     >
       <CounterfactualModeSwitch
@@ -82,6 +83,7 @@ export default function AppShell({ children }: PropsWithChildren) {
       <a
         href="#main-content"
         className="border-line bg-panel text-text sr-only top-4 left-4 z-50 rounded-full border px-4 py-2 text-sm font-semibold focus:not-sr-only focus:absolute"
+        data-print-hidden="true"
       >
         {t("common.skipToContent")}
       </a>

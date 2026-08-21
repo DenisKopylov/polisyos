@@ -518,3 +518,74 @@ Both protected plan line-7 hashes are unchanged. File-wide Ruff remains an
 inherited high-volume style red; changed-line inspection found only cosmetic
 unittest-style/line-length findings, recorded under the frozen-source rule and
 not used as a semantic gate.
+
+## C08 continuation — governed paper expectation and DS6 handoff
+
+The visual lane opened only after ports 6006, 5173 and 8000 were all free. The
+opening tuple was macOS 26.5.2 / arm64, Playwright 1.59.1, Chromium
+147.0.7727.15, Manrope 5.2.8 and IBM Plex Mono 5.2.7. The legacy expectation
+was re-read before any writer: **724 x 2,113**, 231,141 bytes, SHA-256
+`a920f6c95aead95c1126838d2eebd7ed1410fad10cf8f8e6f05d9b848f79217d`.
+
+C08-R1 first ran only the complete live print-DOM census and parsed-PDF growth
+gate, with snapshots disabled. The completed red receipt found four visible
+counterfactual buttons/selects and the global skip link as a synthetic printed
+target. Both were one incomplete-exclusion class: their roots sat outside the
+existing `[data-print-hidden="true"]` boundary. Binding those two screen-only
+roots to that boundary made the identical command pass **2/2 in 45.3s**. The
+parsed PDFs are **3 pages** for zero admitted outputs and **14 pages** for 64
+admitted outputs; every MediaBox and CropBox is `594.95996 x 841.91998` points,
+within the declared 0.5-point A4 tolerance. No global page count is pinned.
+
+Only after that semantic/PDF green did the roster retire the unbounded overview
+test and its 724 x 2,113 PNG. The static roster then completed red because the
+new bounded baseline did not yet exist. Its old 80,000-byte proxy was replaced
+by non-empty-file membership; the real bounds remain exercised by the browser.
+
+C08-R2 is the P40 second finding and one mechanism widening. The first writer-
+mode attempt wrote no snapshot: the pre-capture assertion measured a 2,352px
+identity width in the 794px A4 viewport. The locator was correct; long replay
+and authority facts inflated the card's intrinsic minimum width. The shared
+paper-fact primitive now has zero minimum width and breaks authority tokens.
+The one successful bounded derivation then passed **1/1 in 27.6s** and wrote
+exactly `run-report-identity-a4-print-chromium-darwin.png`: **746 x 84**, 19,197
+bytes, SHA-256
+`26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a`.
+The print roster is green; focused component/parity tests are **23/23**, and
+dashboard typecheck, targeted ESLint and changed-file formatting are green.
+C08 has spent **2/2** rounds; a further mechanism finding is a budget stop.
+
+DS6 may evaluate C13 from `apps/runtime-dashboard` with two separate invocations
+of this no-writer command, using distinct `--output` directories and the same
+committed HEAD/host/browser/font tuple:
+
+```text
+CI=1 PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 \
+UV_PROJECT_ENVIRONMENT=${POLICY_ENGINE_ROOT}/.venv UV_NO_SYNC=1 \
+PYTHONPATH=${POLICY_ENGINE_ROOT}/src corepack pnpm exec playwright test \
+--config=playwright.visual.config.ts --project=chromium \
+--grep='DS8 governed run paper' --workers=1 --retries=0 --timeout=90000 \
+--global-timeout=240000 --update-snapshots=none --output=<distinct-output>
+```
+
+Immediately before run one, between the runs and after run two, DS6 must also
+execute this read-only receipt command from the repository root and require all
+three complete outputs to be identical:
+
+```text
+shasum -a 256 \
+apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/\
+run-report-identity-a4-print-chromium-darwin.png
+```
+
+The executable conjunction is: both commands exit zero; `/report` is the sole
+paper emitter and `/overview` emits no paper payload; the complete visible
+print DOM has zero controls, browser-local sentinel, HUD/Craft nodes, or signed
+targets; its complete link roster equals admitted packet links without
+synthetic links; MACHINE bytes equal the one response body; every parsed
+MediaBox and CropBox is portrait A4 within 0.5 point; the 64-link fixture has
+more pages than the zero-link fixture; the bounded identity matches the
+committed raster after font readiness; and the raster SHA-256 is unchanged
+before, between and after the two invocations. The immutable-commit capture
+receipts are returned in the hand-back so recording them cannot change the
+commit they attest.

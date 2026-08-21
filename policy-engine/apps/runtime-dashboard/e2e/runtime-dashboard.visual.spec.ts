@@ -874,53 +874,6 @@ test.describe("runtime-dashboard visual baselines", () => {
     );
   });
 
-  test("run detail A4 print", async ({ page }) => {
-    const surface = await openPrintSurface(page, {
-      path: `/runs/${fixtureMetadata.core_run_id}/overview?trust=expanded`,
-      readyTestId: "run-detail-page",
-      selector: '[data-testid="run-detail-page"]',
-    });
-    await expect(surface).toHaveScreenshot("run-detail-a4-print.png", {
-      animations: "disabled",
-      caret: "hide",
-      maxDiffPixels: 100,
-    });
-  });
-
-  test("run detail print omits signed targets and preserves ordinary link targets", async ({
-    page,
-  }) => {
-    const surface = await openPrintSurface(page, {
-      path: `/runs/${fixtureMetadata.core_run_id}/overview?trust=expanded`,
-      readyTestId: "run-detail-page",
-      selector: '[data-testid="run-detail-page"]',
-    });
-    const signedLink = surface.locator('a[href^="/public/decisions/"]');
-    await expect(signedLink).toHaveCount(1);
-    await expect(signedLink).toBeVisible();
-    const signedHref = await signedLink.getAttribute("href");
-    expect(signedHref?.length).toBeGreaterThan(1_000);
-    expect(
-      await signedLink.evaluate(
-        (element) => getComputedStyle(element, "::after").content,
-      ),
-    ).toBe("none");
-
-    const ordinaryLinks = await surface
-      .locator('a[href]:not([href^="/public/decisions/"]):visible')
-      .evaluateAll((elements) =>
-        elements.map((element) => ({
-          href: element.getAttribute("href"),
-          printedTarget: getComputedStyle(element, "::after").content,
-        })),
-      );
-    expect(ordinaryLinks.length).toBeGreaterThan(0);
-    for (const ordinaryLink of ordinaryLinks) {
-      expect(ordinaryLink.href).not.toBeNull();
-      expect(ordinaryLink.printedTarget).toContain(ordinaryLink.href);
-    }
-  });
-
   test.describe("DS8 governed run paper", () => {
     test("semantic DOM closes overview and report paper egress", async ({
       page,

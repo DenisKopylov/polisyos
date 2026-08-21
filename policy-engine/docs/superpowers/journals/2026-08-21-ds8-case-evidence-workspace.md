@@ -237,6 +237,67 @@ generated/release companions, governed register records and the one authorized
 bounded snapshot derivation remain P39 record companions rather than mechanism
 paths.
 
+### C00 artifact-role preflight
+
+The paper source denominator was walked before contract work. DS8-A admits only
+facts already bound into the terminal run closure:
+
+| paper role | admitted source | binding / negative |
+| --- | --- | --- |
+| run identity, terminal state and times | verified terminal `core.run_manifest` plus producer-owned `RunSummary.run_terminality` | the canonical bound-manifest resolver must re-check CAS bytes, sidecar kind/media/schema, run/tenant/cell identity, producer provenance and registry lineage; terminality is the exact `terminal` / `non_terminal` / `not_established` value and is never inferred from status |
+| replay identity | manifest artifact id and schema plus a versioned paper-projection rule and recomputed projection hash | all pins are required together and recomputed; omitted, partial, mixed or mismatched pins fail with 409 |
+| run stage trace | the verified manifest trace/provenance reference | this is the `#stage-trace` section of the run paper, never a case/DesignRecord stage or promotion claim |
+| ordinary artifact links | exact manifest outputs with content-bound artifact identifiers | only admitted links are preserved; a valid zero-link packet emits no synthetic link |
+| case / DesignRecord | no admitted run-bound source exists | the full ABI slot is `artifact_missing`, reason and closure signal `case-record-not-run-bound`, capability state `producer_missing`, owner route `team-runtime`, with a non-empty `may_not_use_for`; case values may not be built, mocked, globally indexed or borrowed from unrelated persistence |
+| browser-local reviewer state and signed public targets | no admitted paper source | excluded from the packet and from every print/MACHINE egress |
+
+This classification makes the available run-paper projection independent of
+the unavailable case slot. A Cycle Board href is resolver-backed only when it
+addresses the verified run-manifest paper projection and its complete replay
+tuple. An unavailable or foreign-tenant run remains a typed absent href; a
+mere string or guessed route is not an available fact.
+
+### P40 property widening before source work
+
+The earlier C05 validator omission is the first finding, and the C06
+route/query/loader/prefetch bypass is the second finding, of one class: the
+declared path set was narrower than the single-response typed-egress property.
+DS8-A therefore widens this mechanism once and will not pay site patches for a
+third example.
+
+- C05 is **two** production mechanism paths: `src/api/validators.ts` preserves
+  the producer-owned three-state value and `RunsListPage.tsx` consumes it.
+- C06 is **eleven** production mechanism paths: one raw-byte paper hook, one
+  pure paper presentation, one exact-byte export helper, the canonical query
+  key, report loader, report prefetch, route manifest, runs route, report
+  consumer, overview link-only consumer, and scoped print CSS.
+- Tests, generated artifacts, package/lock and PDF helpers, the journal,
+  register/inventory and bounded snapshot are mandatory P39 companions outside
+  those mechanism counts.
+
+The widening targets the property: one resolved paper response supplies the
+typed DOM, print tree and byte-identical MACHINE download; `/report` is its only
+emitter, while `/overview` can link/prefetch but cannot render or export its
+payload. A later route or component instance of the same class folds into this
+invariant and consumes no new patch round.
+
+### C00 red receipts
+
+`corepack pnpm install --frozen-lockfile` completed first, exit 0 in 1.7
+seconds under a fixed 180-second ceiling, with no tracked delta. The focused
+frontend red ran 27 tests in two files: 22 passed and five failed in 11 seconds
+under a 120-second ceiling. The three validator failures prove Zod discards
+each producer state, the negative proves missing terminality is accepted, and
+the real-DOM failure proves the list renders none of them.
+
+The corrected focused backend red completed in 17 seconds under a 60-second
+ceiling: seven of seven tests failed for only the intended missing mechanisms.
+Five `/paper` tests received 404/no OpenAPI operation, and the two Cycle Board
+tests failed because `CycleBoardProjectionService` has no injected stage-trace
+resolver. Both runs recorded an `uptime` pair and completed; these are red
+receipts, not killed non-receipts. C00 changes no production mechanism and the
+mechanism spend remains **0/9**.
+
 At the continuation bind, all three serialized resources were unheld. The
 protected line-7 byte hashes are Atlas
 `74cd4a8823318ffb00c349d05e19c7d8413b2123a6bd5c15ab88f291a837aebf`

@@ -274,7 +274,7 @@ class StatusRetirementInventoryTests(unittest.TestCase):
                 if row["candidate_id"] in C21_RETIRED_IDS
             )
         )
-        self.assertEqual(56, len(rows))
+        self.assertEqual(58, len(rows))
         self.assertEqual(47, inventory["denominators"]["ds1_rows"])
         live_c22_rows = {
             row["candidate_id"]

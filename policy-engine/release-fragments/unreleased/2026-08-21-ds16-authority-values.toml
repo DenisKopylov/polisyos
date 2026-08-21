@@ -1,0 +1,63 @@
+id = "2026-08-21-ds16-authority-values"
+title = "Expose typed run authority-value dispositions"
+type = "added"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Expose every retired readiness and scientific-depth value as either a runtime-supplied value or a typed refusal."
+evidence = [
+  "docs/plans/active/atlas-slices/DS16-value-uncertainty-and-derived-data-grammar.md",
+  "tests/unit/runtime/http/test_authority_values.py",
+  "apps/runtime-dashboard/src/features/runs/export/authorityValueTwin.test.tsx",
+  "schemas/runtime_api_v1.openapi.json",
+  "packages/runtime-api-client/types.ts",
+  "apps/runtime-dashboard/src/api/types.ts",
+]
+compatibility = "The OpenAPI operation and six component schemas are additive; both generated client families require regeneration before consumers can use them."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime authority-values projection"
+migration = "Regenerate both runtime OpenAPI client families, consume the state-discriminated supplied-or-refused union, and preserve typed refusals instead of inferring a missing value."
+api = "GET /api/v1/runs/{run_id}/authority-values returns the complete RunAuthorityProjection for the retired DS4-C23 inventory."
+limitations = "All 11 inventory members are typed refusals today because no runtime producer supplies them; the value-grammar body remains deferred to the separate successor task."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "run-authority-values-operation"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: GET /api/v1/runs/{run_id}/authority-values"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Runtime clients can retrieve a complete supplied-or-refused disposition for every retired readiness and scientific-depth value."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-api-client-authority-values"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The generated runtime API client adds getRunAuthorityValues and the RunAuthorityProjection supplied-or-refused types."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-dashboard-api-types-authority-values"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "internal: runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The runtime dashboard generated API types add the authority-values operation and its six component schemas."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []

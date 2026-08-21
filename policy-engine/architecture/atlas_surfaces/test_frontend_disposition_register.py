@@ -4699,12 +4699,16 @@ it("second", () => {
         )
 
     def test_def21_additive_role_preserves_ds5_identity_bytes(self) -> None:
-        """Pin the live DS5 bytes after Task 6 re-anchoring and Task 10 retirement.
+        """Pin the live DS5 bytes through the DS16 reconciliation merge.
 
         ``fea50aadd`` superseded the original bytes while preserving 155
-        identities; ``df0484301`` then retired eight occurrences, leaving the
-        current ordered corpus. A count-only pin would have missed the first
-        event, so the ordered byte digest remains the binding assertion.
+        identities; ``df0484301`` then retired eight occurrences. The third
+        supersession is this DS16 merge: client regeneration made ownerless
+        ``components.finished_at`` and ``components.status`` identities
+        ambiguous, so they moved to owner-qualified ``generated_schema_property``
+        identities for ``RunSummary`` while the corpus stayed at 147. A count-only
+        pin would have missed the first and third events, so the ordered byte digest
+        remains the binding assertion.
         """
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         identity_references = [
@@ -4720,7 +4724,7 @@ it("second", () => {
 
         assert len(identity_references) == 147  # noqa: S101
         assert hashlib.sha256(encoded).hexdigest() == (  # noqa: S101
-            "e297ac8da1a63c06ad9a1e15de760cdb347395900f14d59997bbf8e0af94d5da"
+            "d1b5df71a2b96157c3969e4de01af37761570ebbfe82df0350c54f97f3663c37"
         )
 
     def test_c21d_multi_site_authority_sink_ignores_navigation_only_changes(self) -> None:

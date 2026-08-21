@@ -1072,14 +1072,15 @@ export default function DataIntelligencePanel({
                     {plan.metric_id} {"->"} {plan.connector_id} /{" "}
                     {plan.dataset_id}
                   </p>
-                  <button
+                  <Button
                     type="button"
                     onClick={() => handlePreview(plan)}
                     disabled={previewMutation.isPending}
-                    className="border-line bg-panel rounded border px-2 py-1 text-[11px] font-semibold"
+                    size="sm"
+                    variant="ghost"
                   >
                     {t("panels.dataIntelligence.preview")}
-                  </button>
+                  </Button>
                 </div>
                 <p className="text-muted">
                   {t("panels.dataIntelligence.resolvePlanMeta", {

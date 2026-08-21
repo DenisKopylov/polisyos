@@ -415,3 +415,22 @@ returned 18 primary plus 18 independent anchors, 34 construct identities, two
 absence predicates, zero legacy line bindings and zero errors. C02 spends
 **1/1**, cumulative **2/9**. The regeneration token was explicitly released
 after these predicates were read back.
+
+### C04 P40 classification before repair
+
+The first delta review classified the surviving SLA-colored thread bar and
+governing container as **SAME-CLASS-DEEPER** local authority clothing. C04-R1
+therefore widens once to the complete local-SLA presentation property: neutral
+geometry and labels with explicit interaction-purpose/display-state metadata.
+It does not invent `ProjectionFreshness` or claim the registered authority
+rows closed.
+
+The final C04 review classified the new accessible 0–100 meter as a **NEW
+P38/P15 proxy class**: the clamped decorative width is not a producer quantity.
+C04-R2 removes that invented measurement, marks the bar decorative and keeps
+only the interaction labels semantic. This exhausts C04 at **2/2**.
+
+C04 red was 4 failures / 10 passes; green is 14/14 across the four support
+views, targeted ESLint and dashboard typecheck clean. Final read-only review is
+GO. No route, field, MACHINE view, or authority-debt closure is claimed.
+Cumulative spend is **4/9**.

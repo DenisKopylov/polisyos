@@ -1,28 +1,8 @@
 import type { FreshnessBraidView } from "../domain/productionSlice";
 
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import type { InteractionState } from "@/shared/lib/domain/statusOwnership";
-import {
-  cn,
-  formatDate,
-  formatDuration,
-  formatNumber,
-} from "@/shared/lib/utils";
+import { formatDate, formatDuration, formatNumber } from "@/shared/lib/utils";
 import { Badge, Card, EmptyState } from "@polisyos/atlas-ui";
-
-function stateKind(state: InteractionState) {
-  if (state.label === "ok") return "ok";
-  if (state.label === "warn") return "warn";
-  if (state.label === "fail") return "fail";
-  return "neutral";
-}
-
-function threadColor(state: InteractionState) {
-  if (state.label === "ok") return "bg-[var(--color-status-approved)]";
-  if (state.label === "warn") return "bg-[var(--color-status-pending)]";
-  if (state.label === "fail") return "bg-[var(--color-status-rejected)]";
-  return "bg-muted";
-}
 
 export function FreshnessBraidPanel({ view }: { view: FreshnessBraidView }) {
   const { t } = useI18n();
@@ -46,31 +26,32 @@ export function FreshnessBraidPanel({ view }: { view: FreshnessBraidView }) {
           <h3>{t("phase32.freshness.title")}</h3>
           <p className="topbar-subtitle mt-2">{t("phase32.freshness.body")}</p>
         </div>
-        <Badge kind={view.governingLagMs === null ? "neutral" : "warn"}>
+        <span className="text-muted text-xs">
           {t("phase32.freshness.governingLag", {
             lag: formatDuration(view.governingLagMs),
           })}
-        </Badge>
+        </span>
       </div>
 
       <div className="space-y-3" role="list">
         {view.threads.map((thread) => (
           <div
             key={thread.connectorId}
-            className={cn(
-              "border-line bg-surface/80 grid gap-3 rounded-2xl border p-3 md:grid-cols-[minmax(12rem,0.9fr)_minmax(0,1fr)_auto]",
-              thread.governing && "border-warning/50 bg-warning/5",
-            )}
+            className="border-line bg-surface/80 grid gap-3 rounded-2xl border p-3 md:grid-cols-[minmax(12rem,0.9fr)_minmax(0,1fr)_auto]"
+            data-display-state={thread.state.label}
+            data-interaction-purpose={thread.state.authorityPurpose}
             role="listitem"
           >
             <div>
               <div className="flex flex-wrap items-center gap-2">
                 <strong>{thread.label}</strong>
-                <Badge kind={stateKind(thread.state)}>
+                <span className="text-muted text-xs">
                   {thread.state.label}
-                </Badge>
+                </span>
                 {thread.governing ? (
-                  <Badge kind="warn">{t("phase32.freshness.governing")}</Badge>
+                  <span className="text-muted text-xs">
+                    {t("phase32.freshness.governing")}
+                  </span>
                 ) : null}
               </div>
               <p className="text-muted mt-1 text-xs">
@@ -82,10 +63,9 @@ export function FreshnessBraidPanel({ view }: { view: FreshnessBraidView }) {
             <div className="flex items-center gap-3">
               <div className="bg-line h-3 flex-1 overflow-hidden rounded-full">
                 <div
-                  className={cn(
-                    "h-full rounded-full",
-                    threadColor(thread.state),
-                  )}
+                  aria-hidden="true"
+                  className="bg-muted h-full rounded-full"
+                  data-testid={`freshness-thread-fill-${thread.connectorId}`}
                   style={{
                     width: `${Math.max(
                       8,

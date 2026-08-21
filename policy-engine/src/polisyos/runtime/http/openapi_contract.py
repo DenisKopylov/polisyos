@@ -15,6 +15,7 @@ from polisyos.runtime.http.security import PolicyOSRole
 
 _ARTIFACT_ID_SAMPLE = "sha256:" + "a" * 64
 _SHA_PLAN = "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
+_SHA_RUN_PAPER = "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa"
 _SHA_REGISTRY = "sha256:bdedb5a6471e6a1b3bd16ef5065570d33157d96788e0ebc2ca17a569f03921b8"
 _SHA_METHOD = "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073"
 _SHA_DATA = "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb"
@@ -503,6 +504,87 @@ _SUCCESS_LINKS_BY_OPERATION: dict[str, dict[str, dict[str, Any]]] = {
     },
 }
 
+_RUN_PAPER_TYPED_UNAVAILABLE_SAMPLE = {
+    "packet_schema_version": "policyos.runtime.run_paper_packet.v1",
+    "projection_rule_version": "policyos.runtime.run_paper.v1",
+    "intended_audiences": ["reviewer", "expert"],
+    "run": {
+        "run_id": _RUN_ID_SAMPLE,
+        "source_kind": "core_run",
+        "status": "completed",
+        "run_terminality": "terminal",
+        "started_at": None,
+        "finished_at": None,
+        "duration_ms": None,
+        "tenant_id": "tenant-fixture",
+        "cell_id": None,
+    },
+    "case_record": {
+        "availability": "artifact_missing",
+        "capability_state": "producer_missing",
+        "reason_code": "case-record-not-run-bound",
+        "owner_route": "team-runtime",
+        "closure_signal": "case-record-not-run-bound",
+        "may_not_use_for": [
+            "case_identity",
+            "design_record",
+            "grounding_state",
+            "admission_state",
+            "promotion_state",
+            "blockers",
+            "limitations",
+            "objections",
+            "abstentions",
+        ],
+    },
+    "stage_trace": {
+        "availability": "not_established",
+        "reason": "verified run manifest carries no trace reference",
+        "owner_route": "core RunManifest.trace_ref",
+    },
+    "artifact_links": [],
+    "source": {
+        "manifest_ref": {
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "core.run_manifest",
+            "media_type": "application/json",
+        },
+        "manifest_schema_name": "polisyos.core.RunManifest",
+        "manifest_schema_version": "0.1.0",
+        "producer": None,
+        "environment": None,
+        "registry_bundle": {
+            "artifact_id": _ARTIFACT_ID_SAMPLE,
+            "kind": "core.registry_bundle",
+            "media_type": "application/json",
+        },
+    },
+    "replay_pins": {
+        "manifest_artifact_id": _ARTIFACT_ID_SAMPLE,
+        "manifest_schema_version": "0.1.0",
+        "paper_projection_rule_version": "policyos.runtime.run_paper.v1",
+        "paper_projection_hash": _SHA_RUN_PAPER,
+    },
+    "projection_hash": _SHA_RUN_PAPER,
+    "stable_address": f"/api/v1/runs/{_RUN_ID_SAMPLE}/paper",
+    "replay_address": (
+        f"/api/v1/runs/{_RUN_ID_SAMPLE}/paper?manifest_artifact_id="
+        f"{_ARTIFACT_ID_SAMPLE.replace(':', '%3A')}"
+        "&manifest_schema_version=0.1.0&paper_projection_hash="
+        f"{_SHA_RUN_PAPER.replace(':', '%3A')}"
+        "&paper_projection_rule_version=policyos.runtime.run_paper.v1"
+    ),
+    "report_href": (
+        f"/runs/{_RUN_ID_SAMPLE}/report?manifest_artifact_id="
+        f"{_ARTIFACT_ID_SAMPLE.replace(':', '%3A')}"
+        "&manifest_schema_version=0.1.0&paper_projection_hash="
+        f"{_SHA_RUN_PAPER.replace(':', '%3A')}"
+        "&paper_projection_rule_version=policyos.runtime.run_paper.v1"
+        "#stage-trace"
+    ),
+}
+
+
 _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
     "health": {"status": "ok"},
     "ready": {"status": "ready"},
@@ -607,6 +689,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "absence_reason": None,
     },
     "get_depth_n_cycle_board_projection": _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE,
+    "get_run_paper": _RUN_PAPER_TYPED_UNAVAILABLE_SAMPLE,
     "get_runtime_channel_registry": {
         "schema_version": "policyos.runtime.channel_registry.v1",
         "channels": [

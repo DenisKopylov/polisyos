@@ -13,7 +13,11 @@ from polisyos.runtime.http.authorization import (
     ResourceBindingSpec,
     require_action_permission,
 )
-from polisyos.runtime.http.dependencies import get_runtime_api_context, set_authz_resource
+from polisyos.runtime.http.dependencies import (
+    get_runtime_api_context,
+    require_access_scope,
+    set_authz_resource,
+)
 from polisyos.runtime.http.errors import conflict
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.services.cycle_board_projection import (
@@ -31,6 +35,7 @@ from polisyos.runtime.http.services.governed_projections import (
     ProjectionId,
     ReplayPinMismatchError,
 )
+from polisyos.runtime.http.services.run_paper_projection import RunPaperProjectionService
 
 if TYPE_CHECKING:
     from fastapi import APIRouter, Depends, Query, Request, Response
@@ -66,10 +71,16 @@ def _get_projection_service() -> GovernedProjectionService:
 
 def _get_cycle_board_projection_service(request: Request) -> CycleBoardProjectionService:
     context = get_runtime_api_context(request)
+    access_scope = require_access_scope(request)
     return CycleBoardProjectionService(
         projection_service=_get_projection_service(),
         run_index=context.run_index,
         repository_root=_repository_root(),
+        stage_trace_resolver=RunPaperProjectionService(
+            store=context.store,
+            run_index=context.run_index,
+            tenant_id=access_scope.tenant_id,
+        ),
     )
 
 

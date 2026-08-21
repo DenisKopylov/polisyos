@@ -298,6 +298,94 @@ resolver. Both runs recorded an `uptime` pair and completed; these are red
 receipts, not killed non-receipts. C00 changes no production mechanism and the
 mechanism spend remains **0/9**.
 
+## C01-A — frozen run-paper producer and Cycle Board bridge
+
+The one C01-A mechanism round landed as the seven-path property declared by
+the plan: strict frozen DTOs, one manifest-backed projection service, public
+reuse of the existing bound-terminal-manifest verifier, one `/paper` operation,
+the Cycle Board source-kind extension, resolver composition, and request-tenant
+DI. `openapi_contract.py` and tests are P39 companions.
+
+The producer requires exact owner `RunSummary.run_terminality == terminal`,
+then re-verifies the manifest CAS bytes, sidecar kind/media/schema, run/tenant/
+cell identity, producer/environment provenance and registry lineage. Trace and
+ordinary output refs are separately verified against their sidecars before
+they become paper facts or links. The projection carries no request clock,
+browser state or signed target. Its semantic hash excludes self-referential
+addresses and pins.
+
+The full case ABI is frozen with an available arm for a content-bound
+`DesignRecordV0`, separate grounding/admission/promotion facts and distinct
+blocker/limitation/objection/abstention objects. DS8-A has no code path that can
+construct that arm. Every emitted packet instead carries exactly the registered
+`artifact_missing` / `producer_missing` / `case-record-not-run-bound` /
+`team-runtime` typed unavailable, with all nine denied uses and no available
+keys.
+
+The available arm is not merely field-shaped. DesignRecord digest/ref/kind/
+media/schema and case/record/run/tenant identities are structural invariants.
+Each future authority or issue source carries content hash, schema, producer,
+role, verifier id/version and verifier-bound case/run/tenant/record identity.
+Grounding, admission and promotion use their closed owner vocabularies and
+require distinct source artifacts and validators; a candidate admission cannot
+carry governed promotion. The packet recomputes its complete semantic hash,
+ordinary artifact hrefs derive from their refs, and hashes, pins and addresses
+must agree.
+
+Replay is zero pins for the current packet or exactly all four recomputed pins.
+The HTTP boundary walks raw query multi-items before FastAPI can collapse them:
+unknown or duplicate keys in either order return 422, as does malformed syntax;
+well-formed partial, stale and cross-generation tuples return 409
+`run_paper_replay_conflict`. Complete replay returns byte-identical HTTP content.
+The report href serializes all four pins before `#stage-trace`. Cycle Board only
+emits that href for a non-`None` tenant-bound resolver result and adds its
+manifest id and projection hash to the composition manifest; changing the paper
+hash changes both board composition and projection hashes.
+
+P40 classified raw-query scalar collapse and stale semantic-content replay as
+the first and second findings of one replay-identity class. The mechanism was
+widened once to the whole raw-multiset plus semantic-content property. A stale
+unavailable-to-available substitution now fails on semantic hash recomputation,
+while an independently recomputed available packet passes; wrong source role,
+verifier identity and derived artifact href each fail their own invariant. The
+remaining declarative verifier/content proof is a bounded DS8-B residual: only
+the registered run-bound producer/resolver can establish those source bytes,
+and DS8-A's emitter has no available-arm path.
+
+Final measured greens, each with a fixed ceiling and `uptime` pair:
+
+- paper API, real-CAS corruption, raw replay syntax, semantic binding and strict
+  OpenAPI union: 8 passed, 11 seconds / 60;
+- resolver/Cycle Board link and composition hashing: 2 passed, 8 seconds / 60;
+- global runtime OpenAPI examples/problem hardening, including independent
+  paper-example hash recomputation: 18 passed, 28 seconds / 90;
+- focused Ruff over all C01-A and companion paths: clean.
+
+The worktree-local `.venv` did not contain Ruff, so that first static-check
+attempt was a tooling non-receipt; the repository environment's Ruff module ran
+the exact path set clean under the same 60-second ceiling. Three final
+delta-only reviewers returned GO: API/OpenAPI, authority/content binding, and
+focused behavioral tests. The last reviewer independently completed the
+combined 28-test set and reproduced both stale-swap rejection and recomputed
+available acceptance.
+
+The real-CAS negative first obtained the packet, changed the exact manifest
+blob while preserving its id/ref/shape, and then proved both the HTTP producer
+(409 `run_paper_source_invalid`) and direct stage-trace resolver (`None`) fail
+closed.
+
+A broader Cycle Board/API replay returned one unrelated red: the raw governed
+owner packet was `invalid_source` where an existing test expects `available`.
+P41 replay from an archive of immutable slice base `9e6a43b53` reproduced the
+identical assertion in 20 seconds / 90. The failing subpredicate reads the
+unchanged `services/governed_projections.py` definition, owner JSON and owner
+validator; C01-A's route DI and composed-paper additions do not enter it. It is
+therefore an inherited completed red, not a C01 repair or stop.
+
+C01-A mechanism spend is **1/1**; cumulative spend is **1/9**. The
+`case-record-not-run-bound` producer gap remains owned by `team-runtime` and no
+DS8-B route, resolver or workspace was attempted.
+
 At the continuation bind, all three serialized resources were unheld. The
 protected line-7 byte hashes are Atlas
 `74cd4a8823318ffb00c349d05e19c7d8413b2123a6bd5c15ab88f291a837aebf`

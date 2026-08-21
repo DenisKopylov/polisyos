@@ -2775,12 +2775,12 @@ _C21C_STRUCTURED_HINTS = {
     "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
         "json",
         "/entries[debt_id=ds4-waist-cgf-disposition]",
-        "b503e66f352769e60481dc523209b1a26fc76db7925efb901098cf7a9d9c8b1b",
+        "c70f0656487e81fc889b19d3f5198eb930eac5e9289d85d99c445cd4785868af",
     ),
     "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
         "json",
         "/entries[debt_id=ds4-waist-decision-grade]",
-        "399e89a188beb761be92339723ce1f399f80da100aa23d32201c18f38a319248",
+        "621616705e0a72e62ca87bb18a23aba5b1e60dbff8d6ddadd365c31eb32d0fee",
     ),
     "schemas/runtime_api_v1.openapi.json:2221": (
         "json",
@@ -3533,6 +3533,20 @@ DS6_REGISTER_TRANSITION_FINDING_IDS = {
     "baseline-test-a11y-rendered-contrast-incomplete-debt",
 }
 
+DS8_QUERY_KEYS_IDENTITY = (
+    "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
+    "aGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6"
+    "cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1"
+    "ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtl"
+    "eXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI1YzY4MzcyYjFlZGY5YzEwNWE3M2E3NzFl"
+    "OThmOTIzOGViNGQ1N2FmNWZlZjg3NzVhYTdmMGJjZjAyYWRlZDVmIiwicm9sZSI6InZhcmlhYmxl"
+    "X2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9h"
+    "cGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJW"
+    "YXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNp"
+    "b24iOjF9"
+)
+
+
 PRODUCER_BINDING_DEBT_DESCRIPTORS = {
     "authority-issuer-generated-semantic-id-coverage": {
         "finding_kind": "producer_binding_debt",
@@ -3731,18 +3745,7 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "cHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS9ob29rcy91c2VBdXRoTW"
                 "UudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ"
             ),
-            (
-                "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
-                "aGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6"
-                "cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1"
-                "ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtl"
-                "eXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxNmU5M2RhYjk3Y2RmYTJhMmRiYzk1ZTM1"
-                "M2Y0ODg4N2YzZWE5NGQwZTc3YzNkZjM5MzU0MzljNjk2NmFmOWU4Iiwicm9sZSI6InZhcmlhYmxl"
-                "X2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9h"
-                "cGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJW"
-                "YXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNp"
-                "b24iOjF9"
-            ),
+            DS8_QUERY_KEYS_IDENTITY,
         ],
         "rationale": (
             "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, "
@@ -6434,12 +6437,42 @@ REPORT_PROJECTION_END = "<!-- END DS19 REGISTER PROJECTION -->"
 
 DS8_STRANGLE_BASE_COMMIT = "9e6a43b53d11166e90df376940cb34ff15b77289"
 DS8_STRANGLE_SOURCE_COMMIT = "fd43342f87fda34c6123a8f5f4791f8e3236b4f9"
+DS8_STRANGLE_WRITER_HEAD_COMMIT = "c393090ab35c242b03314cd2095d195c4e188fc3"
 DS8_STRANGLE_ROOTS = (
     "apps/runtime-dashboard/src/features/runs",
     "apps/runtime-dashboard/src/features/artifacts",
     "apps/runtime-dashboard/src/features/evidence",
 )
 DS8_STRANGLE_EXTENSIONS = (".ts", ".tsx")
+DS8_BASELINE_CONTENT_REANCHORS = frozenset(
+    {
+        (
+            "C06",
+            "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        ),
+        (
+            "C08",
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "DataIntelligencePanel.test.tsx",
+        ),
+        (
+            "C08",
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "DataIntelligencePanel.tsx",
+        ),
+    }
+)
+DS8_COMPANION_REFERENCE_PATHS = {
+    "c06-cgf-public-vocabulary-producer-debt": (
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+    ),
+    "c06-decision-grade-generated-contract-debt": (
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+    ),
+    "c08b-auth-session-revision-producer-debt": (
+        "apps/runtime-dashboard/src/api/queryKeys.ts"
+    ),
+}
 DS8_STRANGLE_IN_SCOPE = frozenset(
     {
         "apps/runtime-dashboard/src/features/runs/route.tsx",
@@ -6758,6 +6791,7 @@ def build_ds8_strangle_coverage(
     *,
     baseline_commit: str,
     source_commit: str,
+    writer_preimage_commit: str = DS8_STRANGLE_WRITER_HEAD_COMMIT,
     require_live_source_match: bool = False,
 ) -> dict[str, Any]:
     """Derive the complete DS8 assignment map from two independent Git walks."""
@@ -6767,6 +6801,13 @@ def build_ds8_strangle_coverage(
         raise ValueError("DS8 baseline ls-tree/archive reconciliation failed")
     if source != _ds8_archive_sources(source_commit):
         raise ValueError("DS8 source ls-tree/archive reconciliation failed")
+    ancestry = subprocess.run(  # noqa: S603 - fixed repository command
+        ["git", "merge-base", "--is-ancestor", source_commit, writer_preimage_commit],  # noqa: S607
+        cwd=REPO_ROOT.parent,
+        check=False,
+    )
+    if ancestry.returncode != 0:
+        raise ValueError("DS8 source freeze is not an ancestor of writer preimage")
     if require_live_source_match and source != _ds8_live_sources():
         raise ValueError("DS8 source-freeze/live-worktree byte reconciliation failed")
     if not set(baseline) <= set(source):
@@ -6853,6 +6894,7 @@ def build_ds8_strangle_coverage(
         "family_complete": False,
         "baseline": _ds8_snapshot(baseline_commit, baseline),
         "source_freeze": _ds8_snapshot(source_commit, source),
+        "writer_preimage_commit": writer_preimage_commit,
         "opening_production_partition": {
             "total": len(baseline_production),
             "in_scope": len(DS8_STRANGLE_IN_SCOPE),
@@ -6875,7 +6917,8 @@ def build_ds8_strangle_coverage(
         "reconciliation": {
             "baseline_git_tree_vs_archive": "exact",
             "source_git_tree_vs_archive": "exact",
-            "source_git_vs_live_physical_and_ls_files": "path_set_exact",
+            "source_freeze_vs_writer_history": "ancestor",
+            "live_tree_disposition": "outside_frozen_coverage",
         },
     }
 
@@ -6892,7 +6935,6 @@ def validate_ds8_strangle_coverage(
             baseline_commit=expected_baseline_commit,
             source_commit=expected_source_commit,
         )
-        live_paths = set(_ds8_live_sources())
     except (OSError, subprocess.SubprocessError, ValueError) as exc:
         return [f"ds8_strangle_reconciliation_failed:{exc}"]
     assignments = coverage.get("assignments")
@@ -6906,13 +6948,6 @@ def validate_ds8_strangle_coverage(
     ]
     counts = Counter(actual_paths)
     errors: list[str] = []
-    expected_live_paths = set(expected_rows)
-    if live_paths != expected_live_paths:
-        errors.append(
-            "ds8_strangle_live_path_set_drift:"
-            f"missing={sorted(expected_live_paths - live_paths)}:"
-            f"new={sorted(live_paths - expected_live_paths)}"
-        )
     errors.extend(
         f"ds8_strangle_duplicate_assignment:{path}"
         for path, count in sorted(counts.items())
@@ -7102,35 +7137,90 @@ def _replace_unique_text(
     raise ValueError(f"DS8 status preimage is ambiguous: {label}")
 
 
+def _ds8_baseline_manifest_candidate_text(original_text: str) -> str:
+    """Re-anchor exactly three DS8-touched lint-resolution source receipts."""
+    match = re.search(
+        r'^    "resolution_content_bindings":\s*(\[)',
+        original_text,
+        re.MULTILINE,
+    )
+    if match is None:
+        raise ValueError("DS8 baseline resolution bindings are missing")
+    array_start = match.start(1)
+    array_end = _json_container_end(original_text, array_start)
+    index = array_start + 1
+    spans: list[tuple[tuple[str, str], int, int, Mapping[str, Any]]] = []
+    while index < array_end:
+        while index < array_end and (
+            original_text[index].isspace() or original_text[index] == ","
+        ):
+            index += 1
+        if index >= array_end:
+            break
+        if original_text[index] != "{":
+            raise ValueError("DS8 baseline resolution row is malformed")
+        object_end = _json_container_end(original_text, index)
+        row = json.loads(original_text[index : object_end + 1])
+        key = (str(row.get("cluster_id")), str(row.get("path")))
+        spans.append((key, index, object_end, row))
+        index = object_end + 1
+
+    counts = Counter(key for key, _start, _end, _row in spans)
+    if any(counts[key] != 1 for key in DS8_BASELINE_CONTENT_REANCHORS):
+        raise ValueError("DS8 baseline resolution target cardinality drift")
+    replacements: list[tuple[int, int, str]] = []
+    for key, object_start, object_end, row in spans:
+        if key not in DS8_BASELINE_CONTENT_REANCHORS:
+            continue
+        source_path = REPO_ROOT / key[1]
+        if not source_path.is_file():
+            raise ValueError(f"DS8 baseline source is missing: {key[1]}")
+        old = f'"sha256": "{row["sha256"]}"'
+        new = f'"sha256": "{hashlib.sha256(source_path.read_bytes()).hexdigest()}"'
+        object_text = original_text[object_start : object_end + 1]
+        if object_text.count(old) != 1:
+            raise ValueError(f"DS8 baseline hash span is ambiguous: {key}")
+        relative_start = object_text.index(old)
+        replacements.append(
+            (
+                object_start + relative_start,
+                object_start + relative_start + len(old),
+                new,
+            )
+        )
+    candidate = original_text
+    for start, end, replacement in sorted(replacements, reverse=True):
+        candidate = candidate[:start] + replacement + candidate[end:]
+    candidate_data = json.loads(candidate)
+    errors = validate_baseline_manifest(candidate_data)
+    if errors:
+        raise ValueError("DS8 baseline candidate rejected: " + ";".join(errors))
+    return candidate
+
+
 def _ds8_status_inventory_candidate_text(
     original_text: str, *, register_bytes: bytes
 ) -> str:
     """Re-anchor four exact DS8-induced status receipts without reformatting."""
+    stored = json.loads(original_text)
+    generated = stored["sources"]["generated_client"]
     candidate = _replace_unique_text(
         original_text,
-        old=(
-            '"canonical_sha256": "sha256:'
-            "680dafe6db1ea714462debb19c857e4ced5bcb2e6229ccbed2f63424eb004cd5"
-            '"'
-        ),
+        old=f'"canonical_sha256": "{generated["canonical_sha256"]}"',
         new=(
-            '"canonical_sha256": "sha256:'
-            "85ee148f1605cc50c04744010da28e609bd80f28c00668effb81d475f9b6f573"
-            '"'
+            '"canonical_sha256": "'
+            + _sha256(REPO_ROOT / generated["canonical_path"])
+            + '"'
         ),
         label="generated canonical hash",
     )
     candidate = _replace_unique_text(
         candidate,
-        old=(
-            '"types_sha256": "sha256:'
-            "fb6aa94083eff6aba37a790c518e9ba2b00707b5793964bf4a9b10a1f9c85497"
-            '"'
-        ),
+        old=f'"types_sha256": "{generated["types_sha256"]}"',
         new=(
-            '"types_sha256": "sha256:'
-            "7f63605d9d3ddfd2f46912e73bc351f442c45928fa7f50d56c45ed3a231e93ee"
-            '"'
+            '"types_sha256": "'
+            + _sha256(REPO_ROOT / generated["types_path"])
+            + '"'
         ),
         label="generated types hash",
     )
@@ -7216,7 +7306,7 @@ def _ds8_status_candidate_errors(
         source_path = REPO_ROOT / generated[f"{key}_path"]
         if generated[f"{key}_sha256"] != _sha256(source_path):
             errors.append(f"ds8_status_generated_{key}_hash_drift")
-    if _status_line_leaf_count(inventory) != 383:
+    if _status_line_leaf_count(inventory) != 387:
         errors.append("ds8_status_line_leaf_count_drift")
     if _string_leaf_count(inventory, "#ts-identity=") != 30:
         errors.append("ds8_status_ts_identity_count_drift")
@@ -7288,8 +7378,8 @@ def _failure_atomic_write_texts(
             pre_promote()
         for path in ordered:
             os.replace(staged[path], path)
-            _fsync_directory(path.parent)
             promoted.append(path)
+            _fsync_directory(path.parent)
         post_errors = list(validate_after())
         if post_errors:
             raise ValueError("DS8 post-promotion validation failed: " + ";".join(post_errors))
@@ -7324,21 +7414,19 @@ def _ds8_writer_fence() -> None:
     if branch != "refs/heads/codex/atlas-ds8-planning":
         raise ValueError(f"DS8 writer branch fence failed: {branch}")
     head = _ds8_git_text("rev-parse", "HEAD").strip()
-    if head != DS8_STRANGLE_SOURCE_COMMIT:
+    if head != DS8_STRANGLE_WRITER_HEAD_COMMIT:
         raise ValueError(f"DS8 writer source HEAD drift: {head}")
-    ancestry = subprocess.run(  # noqa: S603 - fixed repository command
-        [
-            "git",  # noqa: S607 - controlled toolchain executable
-            "merge-base",
-            "--is-ancestor",
-            DS8_STRANGLE_BASE_COMMIT,
-            head,
-        ],
-        cwd=REPO_ROOT.parent,
-        check=False,
-    )
-    if ancestry.returncode != 0:
-        raise ValueError("DS8 immutable base is not an ancestor of source HEAD")
+    for ancestor, label in (
+        (DS8_STRANGLE_BASE_COMMIT, "immutable base"),
+        (DS8_STRANGLE_SOURCE_COMMIT, "source freeze"),
+    ):
+        ancestry = subprocess.run(  # noqa: S603 - fixed repository command
+            ["git", "merge-base", "--is-ancestor", ancestor, head],  # noqa: S607
+            cwd=REPO_ROOT.parent,
+            check=False,
+        )
+        if ancestry.returncode != 0:
+            raise ValueError(f"DS8 {label} is not an ancestor of writer HEAD")
     source_status = subprocess.run(  # noqa: S603 - fixed repository command
         [
             "git",  # noqa: S607 - controlled toolchain executable
@@ -7358,32 +7446,43 @@ def _ds8_writer_fence() -> None:
 
 
 def _write_ds8_strangle_family() -> dict[str, Any]:
-    """Materialize register, report, and status receipts in one lock window."""
+    """Materialize baseline, register, report, and status in one lock window."""
     _ds8_writer_fence()
     coverage = build_ds8_strangle_coverage(
         baseline_commit=DS8_STRANGLE_BASE_COMMIT,
         source_commit=DS8_STRANGLE_SOURCE_COMMIT,
-        require_live_source_match=True,
+        writer_preimage_commit=DS8_STRANGLE_WRITER_HEAD_COMMIT,
     )
     original_register = REGISTER_PATH.read_text(encoding="utf-8")
     original_report = REPORT_PATH.read_text(encoding="utf-8")
     original_status = STATUS_INVENTORY_PATH.read_text(encoding="utf-8")
+    original_baseline = BASELINE_PATH.read_text(encoding="utf-8")
     opening_hashes = {
-        REGISTER_PATH: "sha256:77245b9d18089b962d443af8f1b5f6ea13d4da6a5ce703d3353abb3ee61ee90b",
+        REGISTER_PATH: "sha256:4cc97abd7e0984e6dea28f77c5f046a34709e768a141aa5bb08c44cd371b8b61",
         REPORT_PATH: "sha256:b2e25ddea0169c6b3643c88e53fbc4d28798e8a5427cf9619b3aecb008cca36d",
-        STATUS_INVENTORY_PATH: "sha256:0548f6b6ce2a41b829a5b6a4e20e2d0cdbf1339fd8947318ce7104a9105b0edb",
+        STATUS_INVENTORY_PATH: "sha256:9a6eddd187bd20bf88f773f944e7f717480d9a9c1750e7c79fad29ee60aca8b5",
+        BASELINE_PATH: "sha256:e060069e7fcae2226b332634338da1be96348c29390d1498080ba87cfa33d5c5",
     }
     original_texts = {
         REGISTER_PATH: original_register,
         REPORT_PATH: original_report,
         STATUS_INVENTORY_PATH: original_status,
+        BASELINE_PATH: original_baseline,
     }
+    baseline_candidate = _ds8_baseline_manifest_candidate_text(
+        original_baseline
+    )
+    baseline_data = json.loads(baseline_candidate)
     refreshed_register = _refresh_supplemental_findings_text(original_register)
     register_candidate = _ds8_register_candidate_text(
         refreshed_register, coverage
     )
     register_data = json.loads(register_candidate)
-    pre_errors = validate_register(register_data, report_parity=False)
+    pre_errors = validate_register(
+        register_data,
+        report_parity=False,
+        baseline_manifest=baseline_data,
+    )
     if pre_errors:
         raise ValueError("DS8 register candidate rejected: " + ";".join(pre_errors))
     report_candidate = render_report(register_data)
@@ -7402,6 +7501,7 @@ def _write_ds8_strangle_family() -> dict[str, Any]:
         REGISTER_PATH: register_candidate,
         REPORT_PATH: report_candidate,
         STATUS_INVENTORY_PATH: status_candidate,
+        BASELINE_PATH: baseline_candidate,
     }
     for path, original in original_texts.items():
         original_hash = _ds8_digest(original.encode("utf-8"))
@@ -10855,6 +10955,7 @@ def validate_register(
     schema: bool = True,
     report_parity: bool = True,
     direct_transport_sources: Mapping[str, str] | None = None,
+    baseline_manifest: Mapping[str, Any] | None = None,
 ) -> list[str]:
     """Return all schema, parity, composition, and live-census failures."""
     errors: list[str] = []
@@ -11093,7 +11194,11 @@ def validate_register(
     if not BASELINE_PATH.exists() or not BASELINE_SCHEMA_PATH.exists():
         errors.append("baseline_debt_manifest_missing")
     else:
-        baseline = _load_json(BASELINE_PATH)
+        baseline = (
+            baseline_manifest
+            if baseline_manifest is not None
+            else _load_json(BASELINE_PATH)
+        )
         errors.extend(
             "baseline_" + error for error in validate_baseline_manifest(baseline)
         )

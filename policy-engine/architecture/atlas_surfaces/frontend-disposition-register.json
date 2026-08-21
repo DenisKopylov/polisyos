@@ -1,6 +1,6 @@
 {
   "$schema": "./frontend-disposition-register.schema.json",
-  "schema_version": "1.0",
+  "schema_version": "1.1",
   "register_id": "atlas-ds19-frontend-disposition",
   "as_of": "2026-08-09T11:35:00+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
@@ -6375,15 +6375,11 @@
       "disposition": "rebind_pending",
       "status": "open_debt",
       "evidence_refs": [
-        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
-        "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6RnJlc2huZXNzQnJhaWRQYW5lbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNGYwNWEwMDQ1ZDIyYWU0YzU2OWQ4NmUwN2UxYjQ2MDQ1Y2I5MWM0OGM0NWFiNGI4YmViOTQ1NDRkMjkxMmUwNSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvZXZpZGVuY2UvY29tcG9uZW50cy9GcmVzaG5lc3NCcmFpZFBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazozIiwiUmV0dXJuU3RhdGVtZW50OjIiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDo0IiwiSnN4RXhwcmVzc2lvbjoyIiwiQ2FsbEV4cHJlc3Npb246MCIsIkFycm93RnVuY3Rpb246MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjIiLCJKc3hFeHByZXNzaW9uOjYiLCJDb25kaXRpb25hbEV4cHJlc3Npb246MCIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hFbGVtZW50OjAiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
-        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6RnJlc2huZXNzQnJhaWRQYW5lbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNWRmNjAyYzg4NGI2ZGE2M2I5YmNkN2RmNDhjMWE4OThjNzY5Y2Y1OWVlMTQwYjQ2NGYyODUyMjNiNjkwYWUzYSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvZXZpZGVuY2UvY29tcG9uZW50cy9GcmVzaG5lc3NCcmFpZFBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazozIiwiUmV0dXJuU3RhdGVtZW50OjIiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDoyIiwiSnN4RWxlbWVudDo0IiwiSnN4T3BlbmluZ0VsZW1lbnQ6MCJdLCJ2ZXJzaW9uIjoxfQ",
-        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6RnJlc2huZXNzQnJhaWRQYW5lbDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZTk2YTMzZWMyMDUxNjVmN2RkMzA3MzBjZTAwNDgzNDE0YWJkMDBjNThlYjY4ZDJmYmVlZmFmYWZhZmFiZWYzOSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvZXZpZGVuY2UvY29tcG9uZW50cy9GcmVzaG5lc3NCcmFpZFBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazozIiwiUmV0dXJuU3RhdGVtZW50OjIiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDo0IiwiSnN4RXhwcmVzc2lvbjoyIiwiQ2FsbEV4cHJlc3Npb246MCIsIkFycm93RnVuY3Rpb246MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9"
+        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary"
       ],
       "owner_slice": "DS8",
       "decision_date": "2026-08-02",
-      "rationale": "C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern.",
+      "rationale": "The live census establishes that this authority-debt group has no remaining direct Badge consumer. Its producer and bridge capability debt remains open without preserving a stale sink.",
       "capability_states": [
         "producer_missing",
         "bridge_missing",
@@ -6391,37 +6387,12 @@
         "semantic_test_missing"
       ],
       "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after owner source_as_of and freshness fields enforce oldest-input veto without local SLA authority",
-      "authority_sink": {
+      "authority_sink_absence": {
         "sink_kind": "direct_badge_group",
         "descriptor_id": "badge-evidence-source-freshness",
-        "component": "Badge",
-        "component_declaration": {
-          "role": "component_declaration",
-          "path": "packages/atlas-ui/src/primitives/Badge.tsx",
-          "line": 31,
-          "content_sha256": "sha256:0aa4db8e20339ba2fd667fa7af9cf066d0c7254e04087704a62c84d8fd4168ad"
-        },
-        "consumer_count": 3,
-        "consumer_sites": [
-          {
-            "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
-            "line": 49,
-            "site_sha256": "sha256:73f3bd90ab6963201e6a8ccd8f7c8531cf6a5c4efc798d8370e4325874d2bc6e"
-          },
-          {
-            "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
-            "line": 69,
-            "site_sha256": "sha256:6d5c44af2e4591bd5fe5614e707d3b7a55c0a670f533aa44f274d50f46218c26"
-          },
-          {
-            "role": "consumer",
-            "path": "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
-            "line": 73,
-            "site_sha256": "sha256:b6ecc9078a1212eb3e6af770139ab16b7e6789d4669ac8d93cc3f052e5c6ef54"
-          }
-        ]
+        "consumer_count": 0,
+        "predicate_provenance": "recomputed",
+        "reason": "no_live_consumer_sites"
       }
     },
     {
@@ -6655,8 +6626,8 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6UHJlZmxpZ2h0UmVwb3J0Vmlld2VyOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI0ZjA1YTAwNDVkMjJhZTRjNTY5ZDg2ZTA3ZTFiNDYwNDVjYjkxYzQ4YzQ1YWI0YjhiZWI5NDU0NGQyOTEyZTA1Iiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9hcnRpZmFjdHMvY29tcG9uZW50cy9BcnRpZmFjdFZpZXdlclJlZ2lzdHJ5LnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjUiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjo0IiwiQ29uZGl0aW9uYWxFeHByZXNzaW9uOjAiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjoyIiwiQ2FsbEV4cHJlc3Npb246MCIsIkFycm93RnVuY3Rpb246MSIsIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
-        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6UHJlZmxpZ2h0UmVwb3J0Vmlld2VyOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI2MmJjMGNjN2VjNmVmZDhkYzg5MTQ1NjkxZjc5MTcxZDI5YzM4Yjg5NjI1MGY2OGJkODlkZWI0MzczNTQ3YWMzIiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9hcnRpZmFjdHMvY29tcG9uZW50cy9BcnRpZmFjdFZpZXdlclJlZ2lzdHJ5LnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjUiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4U2VsZkNsb3NpbmdFbGVtZW50OjIiLCJKc3hBdHRyaWJ1dGVzOjEiLCJKc3hBdHRyaWJ1dGU6MCIsIkpzeEV4cHJlc3Npb246MSIsIkFycmF5TGl0ZXJhbEV4cHJlc3Npb246MCIsIk9iamVjdExpdGVyYWxFeHByZXNzaW9uOjAiLCJQcm9wZXJ0eUFzc2lnbm1lbnQ6MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjEiLCJKc3hFbGVtZW50OjAiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
+        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6UHJlZmxpZ2h0UmVwb3J0Vmlld2VyOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIwZTUzMGEzZGUwZDNhNzhiY2ZiYTRkZDM0MjNmNjE4ZjYyOWUwMGIxYzNkOTIyNzNiOGEwNjMyZDEzZjljNmUzIiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9hcnRpZmFjdHMvY29tcG9uZW50cy9BcnRpZmFjdFZpZXdlclJlZ2lzdHJ5LnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjYiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjo0IiwiQ29uZGl0aW9uYWxFeHByZXNzaW9uOjAiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjoyIiwiQ2FsbEV4cHJlc3Npb246MCIsIkFycm93RnVuY3Rpb246MSIsIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
+        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6UHJlZmxpZ2h0UmVwb3J0Vmlld2VyOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJjOWY3ZDU3Njk0MTRjNWMzNjhmNjFiZjc4NWU0MjdkYTNmNGIyYjY4ZWE3YTgyZDQ2NTM4Y2MxMjQwYmM1YjRjIiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9hcnRpZmFjdHMvY29tcG9uZW50cy9BcnRpZmFjdFZpZXdlclJlZ2lzdHJ5LnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoyIiwiUmV0dXJuU3RhdGVtZW50OjYiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4U2VsZkNsb3NpbmdFbGVtZW50OjIiLCJKc3hBdHRyaWJ1dGVzOjEiLCJKc3hBdHRyaWJ1dGU6MCIsIkpzeEV4cHJlc3Npb246MSIsIkFycmF5TGl0ZXJhbEV4cHJlc3Npb246MCIsIk9iamVjdExpdGVyYWxFeHByZXNzaW9uOjAiLCJQcm9wZXJ0eUFzc2lnbm1lbnQ6MSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjEiLCJKc3hFbGVtZW50OjAiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9",
         "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6QWdlbnRQaXBlbGluZVBhbmVsOmltcG9ydDpAcG9saXN5b3MvYXRsYXMtdWk6cGFja2FnZXMvYXRsYXMtdWkvc3JjL2luZGV4LnRzOkJhZGdlIiwic3ltYm9sOkJhZGdlIiwicmVzb2x2ZWQ6QmFkZ2UiLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9hdGxhcy11aS9zcmMvcHJpbWl0aXZlcy9CYWRnZS50c3g6RnVuY3Rpb25EZWNsYXJhdGlvbiJdLCJkaXNjcmltaW5hdG9yIjoiQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJiYWY0OGI1M2M4OGJhOWQ0YzMzM2JmNzdkNjI2ZjExZGM4NmIwZTExNTE3ZDk2MWY4OWVjNmJlOWY2YjYxOWM2Iiwicm9sZSI6ImpzeF9vcGVuaW5nIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9mZWF0dXJlcy9ydW5zL2NvbXBvbmVudHMvQWdlbnRQaXBlbGluZVBhbmVsLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazo0IiwiUmV0dXJuU3RhdGVtZW50OjYiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjoxMCIsIkNvbmRpdGlvbmFsRXhwcmVzc2lvbjowIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MiIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6MiIsIkpzeEVsZW1lbnQ6NCIsIkpzeE9wZW5pbmdFbGVtZW50OjAiXSwidmVyc2lvbiI6MX0"
       ],
       "owner_slice": "DS7",
@@ -6684,14 +6655,14 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
-            "line": 269,
-            "site_sha256": "sha256:588750bed922c923ae00d474fce557d43ccd7400845d9954d1b23ac03645fd11"
+            "line": 275,
+            "site_sha256": "sha256:71e4fd4e759f1eecca1b2b4677f8874df22aac37a5dc8da13af28e7b435dae47"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
-            "line": 312,
-            "site_sha256": "sha256:c6b58e5a07d4e7545d7883f7c8e31089aece7134f5125f7cce58a4a324befa92"
+            "line": 320,
+            "site_sha256": "sha256:6fad07577cbb7933dd8f855b1c8361264045b84e4610779a2652c8f39b3fc853"
           },
           {
             "role": "consumer",
@@ -7124,7 +7095,7 @@
       "evidence_refs": [
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
         "packages/atlas-ui/src/primitives/Badge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiZmFjMDRlZGNmZTkwOGFiZTIyMzFkMGNlZjczZWMyMTdiZGE5OTc2ZTJhZGQ0YWY3YjZhOTVjMDZmNzdjNjMwOSIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6UnVuSW5zcGVjdG9yQ29udGVudDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiYmRiMWE2NjEwNDUwNzhjYTY0ZDVjMzE3MDBlM2NkM2RiZTQyZjYzZTNjMmIzNjVjZTM5NmM2ODIzMDllN2NmZSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9yb3V0ZXMvUnVuRGV0YWlsTGF5b3V0LnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoxIiwiUmV0dXJuU3RhdGVtZW50OjMzIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDo0IiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjEiLCJKc3hFeHByZXNzaW9uOjEiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjQiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjYiLCJKc3hFbGVtZW50OjYiLCJKc3hFeHByZXNzaW9uOjYiLCJDb25kaXRpb25hbEV4cHJlc3Npb246MCIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9"
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfb3BlbmluZzpCYWRnZTplbmNsb3Npbmc6UnVuSW5zcGVjdG9yQ29udGVudDppbXBvcnQ6QHBvbGlzeW9zL2F0bGFzLXVpOnBhY2thZ2VzL2F0bGFzLXVpL3NyYy9pbmRleC50czpCYWRnZSIsInN5bWJvbDpCYWRnZSIsInJlc29sdmVkOkJhZGdlIiwiZGVjbGFyYXRpb246cGFja2FnZXMvYXRsYXMtdWkvc3JjL3ByaW1pdGl2ZXMvQmFkZ2UudHN4OkZ1bmN0aW9uRGVjbGFyYXRpb24iXSwiZGlzY3JpbWluYXRvciI6IkJhZGdlIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiYmRiMWE2NjEwNDUwNzhjYTY0ZDVjMzE3MDBlM2NkM2RiZTQyZjYzZTNjMmIzNjVjZTM5NmM2ODIzMDllN2NmZSIsInJvbGUiOiJqc3hfb3BlbmluZyIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvZmVhdHVyZXMvcnVucy9yb3V0ZXMvUnVuRGV0YWlsTGF5b3V0LnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6WyJCbG9jazoxIiwiUmV0dXJuU3RhdGVtZW50OjM0IiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDo0IiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjEiLCJKc3hFeHByZXNzaW9uOjEiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjQiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjYiLCJKc3hFbGVtZW50OjYiLCJKc3hFeHByZXNzaW9uOjYiLCJDb25kaXRpb25hbEV4cHJlc3Npb246MCIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjQiLCJKc3hPcGVuaW5nRWxlbWVudDowIl0sInZlcnNpb24iOjF9"
       ],
       "owner_slice": "DS16",
       "decision_date": "2026-08-02",
@@ -7149,7 +7120,7 @@
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
-            "line": 720,
+            "line": 823,
             "site_sha256": "sha256:bf00ed6e644f1319bbc35ba52201a66342ea6207868f682e3e094c9803fa342e"
           }
         ]
@@ -7832,7 +7803,7 @@
         "semantic_test_missing"
       ],
       "evidence_refs": [
-        "architecture/atlas_surfaces/ds4-waist-debt-register.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6ImI1MDNlNjZmMzUyNzY5ZTYwNDgxZGM1MjMyMDliMWEyNmZjNzZkYjc5MjVlZmI5MDEwOThjZjdhOWQ5YzhiMWIiLCJzZWxlY3RvciI6Ii9lbnRyaWVzW2RlYnRfaWQ9ZHM0LXdhaXN0LWNnZi1kaXNwb3NpdGlvbl0iLCJzb3VyY2VfcGF0aCI6ImFyY2hpdGVjdHVyZS9hdGxhc19zdXJmYWNlcy9kczQtd2Fpc3QtZGVidC1yZWdpc3Rlci5qc29uIiwidmVyc2lvbiI6MX0",
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6ImM3MGYwNjU2NDg3ZTgxZmM4ODliMTlkM2Y1MTk4ZWI5MzBlYWM1ZTkyODlkODVkOTljNDQ1Y2Q0Nzg1ODY4YWYiLCJzZWxlY3RvciI6Ii9lbnRyaWVzW2RlYnRfaWQ9ZHM0LXdhaXN0LWNnZi1kaXNwb3NpdGlvbl0iLCJzb3VyY2VfcGF0aCI6ImFyY2hpdGVjdHVyZS9hdGxhc19zdXJmYWNlcy9kczQtd2Fpc3QtZGVidC1yZWdpc3Rlci5qc29uIiwidmVyc2lvbiI6MX0",
         "tools/quality/validation/check_layer3_gy_generation_cycle_disposition_ledger.py:34",
         "src/polisyos/runtime/http/services/governed_projections.py:200",
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06"
@@ -7857,7 +7828,7 @@
         "semantic_test_missing"
       ],
       "evidence_refs": [
-        "architecture/atlas_surfaces/ds4-waist-debt-register.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6IjM5OWU4OWExODhiZWI3NjFiZTkyMzM5NzIzY2UxZjM5OWY4MGRhMTAwYWEyM2QzMjIwMWMxOGYzOGEzMTkyNDgiLCJzZWxlY3RvciI6Ii9lbnRyaWVzW2RlYnRfaWQ9ZHM0LXdhaXN0LWRlY2lzaW9uLWdyYWRlXSIsInNvdXJjZV9wYXRoIjoiYXJjaGl0ZWN0dXJlL2F0bGFzX3N1cmZhY2VzL2RzNC13YWlzdC1kZWJ0LXJlZ2lzdGVyLmpzb24iLCJ2ZXJzaW9uIjoxfQ",
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6IjYyMTYxNjcwNWUwYTcyZTYyY2E4N2JiMThhMjNhYmE1YjFlNjBkYmZmOGQ2ZGRhZGQzNjVjMzFlYjMyZDBmZWUiLCJzZWxlY3RvciI6Ii9lbnRyaWVzW2RlYnRfaWQ9ZHM0LXdhaXN0LWRlY2lzaW9uLWdyYWRlXSIsInNvdXJjZV9wYXRoIjoiYXJjaGl0ZWN0dXJlL2F0bGFzX3N1cmZhY2VzL2RzNC13YWlzdC1kZWJ0LXJlZ2lzdGVyLmpzb24iLCJ2ZXJzaW9uIjoxfQ",
         "src/polisyos/pdc/_impl/layer2_readiness.py:39",
         "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c06"
       ],
@@ -7883,7 +7854,7 @@
         "schemas/runtime_api_v1.openapi.json#structured-identity=eyJmb3JtYXRfYWRhcHRlciI6Impzb24iLCJub3JtYWxpemVkX3ZhbHVlX3NoYTI1NiI6Ijc5ODNhNTBlNDdkOWMwYTZlNzc4NWRlOTM2NzYxNDUxMmNlMmJlMjdhM2UxODNhYzdkODQ0Y2I0ZGJhNmJkM2YiLCJzZWxlY3RvciI6Ii9jb21wb25lbnRzL3NjaGVtYXMvQXV0aE1lUmVzcG9uc2UiLCJzb3VyY2VfcGF0aCI6InNjaGVtYXMvcnVudGltZV9hcGlfdjEub3BlbmFwaS5qc29uIiwidmVyc2lvbiI6MX0",
         "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuQXV0aE1lUmVzcG9uc2UiLCJzeW1ib2w6QXV0aE1lUmVzcG9uc2UiLCJyZXNvbHZlZDpBdXRoTWVSZXNwb25zZSIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29tcG9uZW50cy5BdXRoTWVSZXNwb25zZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImE5MWQ2NGU4OTdlYWYyMTQ0ZDI1MmZhMDA1NDI4YTFjOTU1ZTcxNjg5YzFhYjllMTMzMzY1YzYwZGE1MmUwMmUiLCJyb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6NDAiXSwidmVyc2lvbiI6MX0",
         "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpmZXRjaEF1dGhNZSIsInN5bWJvbDpmZXRjaEF1dGhNZSIsInJlc29sdmVkOmZldGNoQXV0aE1lIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL2hvb2tzL3VzZUF1dGhNZS50czpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJmZXRjaEF1dGhNZSIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjZkMjU2OWQyZTNjMjA2NjAxODY4YzU5ZWE3MGE1ZjAxMTMwNGNmMWJlNmEyNjdiYjU1MGJhNzk2ZDg5NTExYWQiLCJyb2xlIjoibmFtZWRfZGVjbGFyYXRpb24iLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS9ob29rcy91c2VBdXRoTWUudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ",
-        "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxNmU5M2RhYjk3Y2RmYTJhMmRiYzk1ZTM1M2Y0ODg4N2YzZWE5NGQwZTc3YzNkZjM5MzU0MzljNjk2NmFmOWU4Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
+        "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI1YzY4MzcyYjFlZGY5YzEwNWE3M2E3NzFlOThmOTIzOGViNGQ1N2FmNWZlZjg3NzVhYTdmMGJjZjAyYWRlZDVmIiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
       ],
       "rationale": "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, useAuthMe, and queryKeys all lack auth_session_revision. This is the missing client-bound producer contract, not ownership of server identity.",
       "closure_signal": "python3 -m unittest architecture.atlas_surfaces.test_atlas_enforcement.AtlasEnforcementTests.test_auth_me_query_key_partitions_tenant_user_and_revision tests.unit.runtime.http.test_auth_api.AuthApiTests.test_auth_me_publishes_auth_session_revision exits 0 after /auth/me and generated AuthMeResponse publish a server-issued auth_session_revision and queryKeys binds it; tenant/user-switch corruption fails",
@@ -7929,6 +7900,2338 @@
       "repair_commit": "97d0c620836a3e6d33c347a1f7f563aaa9177d0c"
     }
   ],
+  "ds8_strangle_coverage": {
+    "coverage_id": "ds8-case-evidence-strangle-coverage",
+    "predicate_provenance": "independently_reconciled",
+    "family_complete": false,
+    "baseline": {
+      "commit": "9e6a43b53d11166e90df376940cb34ff15b77289",
+      "coordinate_prefix": "policy-engine/",
+      "roots": [
+        "apps/runtime-dashboard/src/features/runs",
+        "apps/runtime-dashboard/src/features/artifacts",
+        "apps/runtime-dashboard/src/features/evidence"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx"
+      ],
+      "classifier": "stories_then_tests_then_production",
+      "all": {
+        "files": 207,
+        "physical_lines": 38544
+      },
+      "production": {
+        "files": 145,
+        "physical_lines": 26502
+      },
+      "tests": {
+        "files": 57,
+        "physical_lines": 11575
+      },
+      "stories": {
+        "files": 5,
+        "physical_lines": 467
+      },
+      "features": {
+        "runs": {
+          "all": {
+            "files": 129,
+            "physical_lines": 25679
+          },
+          "production": {
+            "files": 86,
+            "physical_lines": 16665
+          },
+          "tests": {
+            "files": 40,
+            "physical_lines": 8802
+          },
+          "stories": {
+            "files": 3,
+            "physical_lines": 212
+          }
+        },
+        "artifacts": {
+          "all": {
+            "files": 62,
+            "physical_lines": 8216
+          },
+          "production": {
+            "files": 48,
+            "physical_lines": 6513
+          },
+          "tests": {
+            "files": 12,
+            "physical_lines": 1448
+          },
+          "stories": {
+            "files": 2,
+            "physical_lines": 255
+          }
+        },
+        "evidence": {
+          "all": {
+            "files": 16,
+            "physical_lines": 4649
+          },
+          "production": {
+            "files": 11,
+            "physical_lines": 3324
+          },
+          "tests": {
+            "files": 5,
+            "physical_lines": 1325
+          },
+          "stories": {
+            "files": 0,
+            "physical_lines": 0
+          }
+        }
+      },
+      "path_manifest_sha256": "sha256:b3f088e2b5abf2699b1da970e8f4aaeeb529c4a0fc6bddd3707679eca8e4c8b5",
+      "production_path_manifest_sha256": "sha256:b77f2bbf6c4e45c9191c57b22d6511d57d7a05551d6cfde76965786d8a58a16f",
+      "content_manifest_sha256": "sha256:dbbfe75b108f6d3244a0672540c5faa0b09178b006c7025355ac7bdeecb42f53"
+    },
+    "source_freeze": {
+      "commit": "fd43342f87fda34c6123a8f5f4791f8e3236b4f9",
+      "coordinate_prefix": "policy-engine/",
+      "roots": [
+        "apps/runtime-dashboard/src/features/runs",
+        "apps/runtime-dashboard/src/features/artifacts",
+        "apps/runtime-dashboard/src/features/evidence"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx"
+      ],
+      "classifier": "stories_then_tests_then_production",
+      "all": {
+        "files": 217,
+        "physical_lines": 40243
+      },
+      "production": {
+        "files": 148,
+        "physical_lines": 27298
+      },
+      "tests": {
+        "files": 64,
+        "physical_lines": 12478
+      },
+      "stories": {
+        "files": 5,
+        "physical_lines": 467
+      },
+      "features": {
+        "runs": {
+          "all": {
+            "files": 137,
+            "physical_lines": 27228
+          },
+          "production": {
+            "files": 89,
+            "physical_lines": 17468
+          },
+          "tests": {
+            "files": 45,
+            "physical_lines": 9548
+          },
+          "stories": {
+            "files": 3,
+            "physical_lines": 212
+          }
+        },
+        "artifacts": {
+          "all": {
+            "files": 63,
+            "physical_lines": 8332
+          },
+          "production": {
+            "files": 48,
+            "physical_lines": 6525
+          },
+          "tests": {
+            "files": 13,
+            "physical_lines": 1552
+          },
+          "stories": {
+            "files": 2,
+            "physical_lines": 255
+          }
+        },
+        "evidence": {
+          "all": {
+            "files": 17,
+            "physical_lines": 4683
+          },
+          "production": {
+            "files": 11,
+            "physical_lines": 3305
+          },
+          "tests": {
+            "files": 6,
+            "physical_lines": 1378
+          },
+          "stories": {
+            "files": 0,
+            "physical_lines": 0
+          }
+        }
+      },
+      "path_manifest_sha256": "sha256:6f788ac379d17b68af010ec853527b051e5c8cc4f128bb68964908128cf6e379",
+      "production_path_manifest_sha256": "sha256:21f6ccc4254f3e5d770288e6bb8b4cf6958716bc70485f9156b0c82e10425314",
+      "content_manifest_sha256": "sha256:4b1e18c9b4542320560d015e04e5734fd63494c397421f33ae22341160deb79e"
+    },
+    "writer_preimage_commit": "c393090ab35c242b03314cd2095d195c4e188fc3",
+    "opening_production_partition": {
+      "total": 145,
+      "in_scope": 8,
+      "deferred": 137,
+      "in_scope_path_manifest_sha256": "sha256:3efd0cef5f0555c47b5787040758800e9036f0f745f14c05e267ef987ba73fed",
+      "deferred_path_manifest_sha256": "sha256:108bf75f9b27e9b1c5d33e3431292ba3293ed74e54e170595af6e17d7274b470",
+      "deferred_unchanged_content_manifest_sha256": "sha256:623cebf1bf4eaf92b99dcecce2d8aa452d6ea11c91904a2749d9d26251ef985e"
+    },
+    "new_path_count": 10,
+    "new_path_manifest_sha256": "sha256:38562b3a701a98709292039ec925098c653410df9efe883625b8a97faba5442f",
+    "changed_baseline_paths": [
+      "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.test.tsx",
+      "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+      "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+      "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.test.tsx",
+      "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+      "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+      "apps/runtime-dashboard/src/features/runs/route.tsx",
+      "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
+      "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+      "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+      "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx",
+      "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+      "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx"
+    ],
+    "assignments": [
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.a11y.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.stories.tsx",
+        "feature": "artifacts",
+        "role": "story",
+        "origin": "opening_base",
+        "disposition": "retained"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticGenrePicker.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticTemplateBadge.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.test.ts",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/epistemic-map.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/numbering.test.ts",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/numbering.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-docx.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-pdf.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/parity-check.test.ts",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/parity-check.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/AnalitichnaZapyskaRenderer.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/ExpertVysnovokRenderer.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/PostanovaKMURenderer.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/ZakonoproektRenderer.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BaseBureaucraticRenderer.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BaseBureaucraticRenderer.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticHeader.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticNumbering.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticWatermark.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/EpistemicLegend.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/SignatureBlock.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/bureaucratic-tokens.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "in_scope",
+        "closure_cluster": "C04"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "in_scope",
+        "closure_cluster": "C04"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/MetricValidationComparisonTable.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/simulation/CalibrationReport.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/simulation/DistributionalPanel.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/simulation/MetricsPanel.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/simulation/MetricsPanel.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/simulation/SimulationResultsViewer.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/simulation/UncertaintyOverlay.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/simulation/UncertaintyOverlay.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/trinity/InterventionDetail.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/trinity/TrinityCard.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/trinity/TrinityDiff.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/domain/searchParams.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/domain/typedPreview.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/index.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/DefinitionList.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/Footnote.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/MarginNotes.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/MarginNotes.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.stories.tsx",
+        "feature": "artifacts",
+        "role": "story",
+        "origin": "opening_base",
+        "disposition": "retained"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/PullQuote.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/ReadingViewToggle.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/TableOfContentsGlyphed.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useMarginNoteAnchors.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useReadingProgress.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/reading-view/reading-view-tokens.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/route.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/routes.public.ts",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.tsx",
+        "feature": "artifacts",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/components/ConnectorCharacterCards.tsx",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.test.tsx",
+        "feature": "evidence",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "in_scope",
+        "closure_cluster": "C04"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "in_scope",
+        "closure_cluster": "C04"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/domain/context.test.ts",
+        "feature": "evidence",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/domain/context.ts",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.test.ts",
+        "feature": "evidence",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/domain/searchParams.ts",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.test.tsx",
+        "feature": "evidence",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.ts",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/index.ts",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/route.tsx",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/routes.public.ts",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.test.tsx",
+        "feature": "evidence",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+        "feature": "evidence",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useRunsSample.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useRunsSample.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/CausalDeltaStrip.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/CompareCommandDialog.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/ComparisonFramePanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/PolicyDiffLayout.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/PolicyDiffLayout.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.a11y.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.stories.tsx",
+        "feature": "runs",
+        "role": "story",
+        "origin": "opening_base",
+        "disposition": "retained"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/compare-math.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/compare-math.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/compare-types.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/AssumptionDiff.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/BudgetFlowDiff.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/DistributionDelta.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/GovernanceRadarDiff.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/GovernanceRadarDiff.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/IdentifiabilityTrajectory.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/OutcomeDelta.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/ProvenanceDrift.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/delta-widgets/SubgroupDeltaMatrix.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/fixtures.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/index.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/route.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/useCompareRuns.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/compare/useDiffData.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.stories.tsx",
+        "feature": "runs",
+        "role": "story",
+        "origin": "opening_base",
+        "disposition": "retained"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/AuditTimeline.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/EffectComparisonForest.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/MetricCard.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/ParameterDiff.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.a11y.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/PublicationReadinessPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/ReproduceRunButton.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/RunBreadcrumbs.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/RunComparisonVisual.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.a11y.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/cycleBoardExport.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/cycleBoardPresentation.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/cycleBoardPresentation.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/narrative/RunNarrativeView.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/narrative/index.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/NarrativeChapter.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/narrative/shared/NarrativeTransition.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/context/RunInspectorContext.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/context/RunInspectorContext.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/compare.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/compare.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/disputes.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/runChoreography.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/runChoreography.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/runDetailTabs.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/searchParams.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/searchParams.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/status.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/status.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/tabs.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/index.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/live/useRunLiveUpdates.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/live/useRunLiveUpdates.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/route.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "in_scope",
+        "closure_cluster": "C06"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes.public.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/RunComparePage.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/RunDeckPage.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "in_scope",
+        "closure_cluster": "C06"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "in_scope",
+        "closure_cluster": "C06"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.stories.tsx",
+        "feature": "runs",
+        "role": "story",
+        "origin": "opening_base",
+        "disposition": "retained"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "in_scope",
+        "closure_cluster": "C05"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/AgentsTab.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/ArtifactsTab.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/DebugTab.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/EvidenceTab.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/GovernanceTab.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/tabs/WorkflowTab.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/state/useRunsListUiStore.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/state/useRunsListUiStore.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/workspaces.public.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "opening_base",
+        "disposition": "surface_out_of_scope",
+        "owner_team": "team-design",
+        "capability_state": "surface_out_of_scope",
+        "exit_condition": "approved_named_successor_slice_moves_row",
+        "successor_slice": null
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.test.tsx",
+        "feature": "artifacts",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.test.tsx",
+        "feature": "evidence",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useRunPaper.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useRunPaper.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice",
+        "closure_cluster": "C06"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/runPaperExport.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/components/runPaperExport.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice",
+        "closure_cluster": "C06"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice",
+        "closure_cluster": "C06"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.parity.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice"
+      }
+    ],
+    "closure_receipts": [
+      {
+        "cluster": "C04",
+        "source_commit": "fd43342f87fda34c6123a8f5f4791f8e3236b4f9",
+        "paths": [
+          "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+          "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+          "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx"
+        ],
+        "file_count": 4,
+        "path_content_manifest_sha256": "sha256:ddf10b7ac37089b9ebe96e269cbc19aebc30b72477fa5e5e1c4e50a0f9303da4"
+      },
+      {
+        "cluster": "C05",
+        "source_commit": "fd43342f87fda34c6123a8f5f4791f8e3236b4f9",
+        "paths": [
+          "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx"
+        ],
+        "file_count": 1,
+        "path_content_manifest_sha256": "sha256:a9f5a4021e3dd7efd1651caafba7421e44a744f8d8738b457b52fc29412d277d"
+      },
+      {
+        "cluster": "C06",
+        "source_commit": "fd43342f87fda34c6123a8f5f4791f8e3236b4f9",
+        "paths": [
+          "apps/runtime-dashboard/src/features/runs/route.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+          "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+          "apps/runtime-dashboard/src/features/runs/api/useRunPaper.ts",
+          "apps/runtime-dashboard/src/features/runs/components/runPaperExport.ts",
+          "apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.ts"
+        ],
+        "file_count": 6,
+        "path_content_manifest_sha256": "sha256:4541d9ca8734e26845d2fd748b509f64ba44ba7a65e41855fe901a89e1c67569"
+      }
+    ],
+    "reconciliation": {
+      "baseline_git_tree_vs_archive": "exact",
+      "source_git_tree_vs_archive": "exact",
+      "source_freeze_vs_writer_history": "ancestor",
+      "live_tree_disposition": "outside_frozen_coverage"
+    }
+  },
   "seeded_negative_lifecycle": [
     {
       "negative_id": "DS1-N001",

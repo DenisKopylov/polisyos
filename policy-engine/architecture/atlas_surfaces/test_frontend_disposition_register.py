@@ -4699,16 +4699,18 @@ it("second", () => {
         )
 
     def test_def21_additive_role_preserves_ds5_identity_bytes(self) -> None:
-        """Pin the live DS5 bytes through the DS16 reconciliation merge.
+        """Pin the live DS5 bytes through the DS8 sink transition.
 
         ``fea50aadd`` superseded the original bytes while preserving 155
         identities; ``df0484301`` then retired eight occurrences. The third
         supersession is this DS16 merge: client regeneration made ownerless
         ``components.finished_at`` and ``components.status`` identities
         ambiguous, so they moved to owner-qualified ``generated_schema_property``
-        identities for ``RunSummary`` while the corpus stayed at 147. A count-only
-        pin would have missed the first and third events, so the ordered byte digest
-        remains the binding assertion.
+        identities for ``RunSummary`` while the corpus stayed at 147. DS8 then
+        re-anchors the live supplemental sinks, retires stale identities, and
+        re-anchors the query-key construct, moving the corpus to 143. A count-only
+        pin would have missed the first and third events, so the ordered byte
+        digest remains the binding assertion.
         """
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         identity_references = [
@@ -4722,9 +4724,9 @@ it("second", () => {
             separators=(",", ":"),
         ).encode("utf-8")
 
-        assert len(identity_references) == 147  # noqa: S101
+        assert len(identity_references) == 143  # noqa: S101
         assert hashlib.sha256(encoded).hexdigest() == (  # noqa: S101
-            "d1b5df71a2b96157c3969e4de01af37761570ebbfe82df0350c54f97f3663c37"
+            "6c0d327298bfa700900b1cf767960b3b076ce3ca5abf30c2421ac450aa5e6c8d"
         )
 
     def test_c21d_multi_site_authority_sink_ignores_navigation_only_changes(self) -> None:
@@ -5742,6 +5744,7 @@ class DS8StrangleCoverageTests(unittest.TestCase):
 
     BASE_COMMIT = "9e6a43b53d11166e90df376940cb34ff15b77289"
     SOURCE_COMMIT = "fd43342f87fda34c6123a8f5f4791f8e3236b4f9"
+    WRITER_HEAD_COMMIT = "c393090ab35c242b03314cd2095d195c4e188fc3"
 
     @classmethod
     def setUpClass(cls) -> None:
@@ -5837,33 +5840,265 @@ class DS8StrangleCoverageTests(unittest.TestCase):
                     require_live_source_match=True,
                 )
 
-    def test_persistent_gate_rejects_live_path_addition_and_removal(self) -> None:
+    def test_reconciled_later_lane_paths_do_not_enter_ds8_coverage(self) -> None:
         live = checker._ds8_live_sources()
-        added = {
+        ds16_path = (
+            "apps/runtime-dashboard/src/features/runs/export/authorityValueTwin.ts"
+        )
+        self.assertIn(ds16_path, live)
+        self.assertNotIn(
+            ds16_path,
+            {row["path"] for row in self.coverage["assignments"]},
+        )
+        downstream_tree = {
             **live,
-            "apps/runtime-dashboard/src/features/runs/nonexistent.ts": b"",
+            "apps/runtime-dashboard/src/features/runs/downstream-only.ts": b"",
         }
-        missing = dict(live)
-        removed_path = next(iter(missing))
-        missing.pop(removed_path)
-        for population in (added, missing):
-            with self.subTest(paths=len(population)), mock.patch.object(
-                checker, "_ds8_live_sources", return_value=population
-            ):
-                errors = checker.validate_ds8_strangle_coverage(
+        downstream_tree.pop(next(iter(self.coverage["assignments"]))["path"])
+        with mock.patch.object(
+            checker, "_ds8_live_sources", return_value=downstream_tree
+        ):
+            self.assertEqual(
+                [],
+                checker.validate_ds8_strangle_coverage(
                     self.coverage,
                     expected_baseline_commit=self.BASE_COMMIT,
                     expected_source_commit=self.SOURCE_COMMIT,
                 )
-                self.assertTrue(
-                    any(
-                        error.startswith("ds8_strangle_live_path_set_drift:")
-                        for error in errors
-                    )
-                )
+            )
+
+    def test_writer_head_is_distinct_from_ds8_coverage_source(self) -> None:
+        self.assertEqual(self.SOURCE_COMMIT, checker.DS8_STRANGLE_SOURCE_COMMIT)
+        self.assertEqual(
+            self.WRITER_HEAD_COMMIT,
+            checker.DS8_STRANGLE_WRITER_HEAD_COMMIT,
+        )
+        self.assertNotEqual(
+            checker.DS8_STRANGLE_SOURCE_COMMIT,
+            checker.DS8_STRANGLE_WRITER_HEAD_COMMIT,
+        )
+
+        def git_text(*arguments: str) -> str:
+            if arguments == ("symbolic-ref", "-q", "HEAD"):
+                return "refs/heads/codex/atlas-ds8-planning\n"
+            if arguments == ("rev-parse", "HEAD"):
+                return checker.DS8_STRANGLE_WRITER_HEAD_COMMIT + "\n"
+            raise AssertionError(arguments)
+
+        completed = mock.Mock(returncode=0, stdout="")
+        with mock.patch.object(checker, "_ds8_git_text", side_effect=git_text), mock.patch.object(
+            checker.subprocess,
+            "run",
+            side_effect=(completed, completed, completed),
+        ):
+            checker._ds8_writer_fence()
+
+    def test_status_candidate_reanchors_only_reconciled_receipts(self) -> None:
+        prefix = checker._ds8_coordinate_prefix()
+        opening_register = checker._ds8_git_text(
+            "show",
+            f"{self.WRITER_HEAD_COMMIT}:{prefix}"
+            "architecture/atlas_surfaces/frontend-disposition-register.json",
+        )
+        opening_status = checker._ds8_git_text(
+            "show",
+            f"{self.WRITER_HEAD_COMMIT}:{prefix}"
+            "architecture/atlas_surfaces/status-retirement-inventory.json",
+        )
+        refreshed_register = checker._refresh_supplemental_findings_text(
+            opening_register
+        )
+        register_candidate = checker._ds8_register_candidate_text(
+            refreshed_register,
+            self.coverage,
+        )
+        candidate = checker._ds8_status_inventory_candidate_text(
+            opening_status,
+            register_bytes=register_candidate.encode("utf-8"),
+        )
+        self.assertEqual(
+            checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8"),
+            candidate,
+        )
+        opening = json.loads(opening_status)
+        parsed = json.loads(candidate)
+        expected = copy.deepcopy(opening)
+        expected["sources"]["ds19"]["sha256"] = parsed["sources"]["ds19"][
+            "sha256"
+        ]
+        for key in ("canonical_sha256", "types_sha256"):
+            expected["sources"]["generated_client"][key] = parsed["sources"][
+                "generated_client"
+            ][key]
+        expected_status_row = next(
+            entry
+            for entry in expected["entries"]
+            if entry["unit_id"] == "status-inline-review-surface"
+        )
+        expected_consumer = next(
+            entry
+            for entry in expected_status_row["consumers"]
+            if entry["path"].endswith("/DataIntelligencePanel.tsx")
+        )
+        expected_consumer["line"] = 1212
+        self.assertEqual(expected, parsed)
+
+        generated = parsed["sources"]["generated_client"]
+        self.assertEqual(
+            checker._sha256(checker.REPO_ROOT / generated["canonical_path"]),
+            generated["canonical_sha256"],
+        )
+        self.assertEqual(
+            checker._sha256(checker.REPO_ROOT / generated["types_path"]),
+            generated["types_sha256"],
+        )
+        row = next(
+            entry
+            for entry in parsed["entries"]
+            if entry["unit_id"] == "status-inline-review-surface"
+        )
+        consumer = next(
+            entry
+            for entry in row["consumers"]
+            if entry["path"].endswith("/DataIntelligencePanel.tsx")
+        )
+        self.assertEqual(1212, consumer["line"])
+        self.assertEqual(387, checker._status_line_leaf_count(parsed))
+        self.assertEqual(30, checker._string_leaf_count(parsed, "#ts-identity="))
+        self.assertEqual(
+            [],
+            checker._ds8_status_candidate_errors(
+                parsed,
+                register_bytes=register_candidate.encode("utf-8"),
+            ),
+        )
+        debt = checker.status_checker._load_json(  # type: ignore[attr-defined]
+            checker.status_checker.WAIST_DEBT_PATH
+        )
+        original_status_sha256 = checker.status_checker._sha256  # type: ignore[attr-defined]
+        opening_register_hash = checker._ds8_digest(
+            opening_register.encode("utf-8")
+        )
+
+        def opening_sha256(path: Path) -> str:
+            if path == checker.status_checker.DS19_PATH:
+                return opening_register_hash
+            return original_status_sha256(path)
+
+        with mock.patch.object(
+            checker.status_checker,
+            "_sha256",
+            side_effect=opening_sha256,
+        ):
+            opening_diagnostics = checker.status_checker.validate_inventory(
+                opening,
+                debt,
+            )
+        candidate_diagnostics = checker.status_checker.validate_inventory(
+            parsed,
+            debt,
+        )
+        owned_opening_diagnostics = [
+            "inventory_source_hash_drift:packages/runtime-api-client/"
+            "canonicalRuntimeApiClient.ts",
+            "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
+            "status_consumers_drift:status-inline-review-surface",
+        ]
+        self.assertEqual(
+            Counter([*candidate_diagnostics, *owned_opening_diagnostics]),
+            Counter(opening_diagnostics),
+        )
+        self.assertEqual(16, len(opening_diagnostics))
+        self.assertEqual(13, len(candidate_diagnostics))
+        receipt = "".join(
+            f"{diagnostic}\n" for diagnostic in candidate_diagnostics
+        ).encode()
+        self.assertEqual(887, len(receipt))
+        self.assertEqual(
+            "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
+            hashlib.sha256(receipt).hexdigest(),
+        )
+
+    def test_companion_baseline_candidate_reanchors_only_three_source_bytes(
+        self,
+    ) -> None:
+        original = checker._ds8_git_text(
+            "show",
+            (
+                f"{self.WRITER_HEAD_COMMIT}:"
+                + checker._ds8_coordinate_prefix()
+                + "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json"
+            ),
+        )
+        candidate = checker._ds8_baseline_manifest_candidate_text(original)
+        self.assertEqual(
+            candidate,
+            checker._ds8_baseline_manifest_candidate_text(candidate),
+        )
+        original_data = json.loads(original)
+        candidate_data = json.loads(candidate)
+        original_rows = {
+            (row["cluster_id"], row["path"]): row
+            for row in original_data["lint"]["resolution_content_bindings"]
+        }
+        candidate_rows = {
+            (row["cluster_id"], row["path"]): row
+            for row in candidate_data["lint"]["resolution_content_bindings"]
+        }
+        changed = {
+            key
+            for key in original_rows
+            if original_rows[key] != candidate_rows[key]
+        }
+        self.assertEqual(checker.DS8_BASELINE_CONTENT_REANCHORS, changed)
+        for key in changed:
+            row = candidate_rows[key]
+            self.assertEqual(
+                hashlib.sha256((checker.REPO_ROOT / row["path"]).read_bytes()).hexdigest(),
+                row["sha256"],
+            )
+        self.assertEqual([], checker.validate_baseline_manifest(candidate_data))
+
+    def test_companion_reference_reanchors_resolve_without_peer_drift(self) -> None:
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        refreshed = checker._refresh_supplemental_findings_text(original)
+        original_rows = {
+            row["finding_id"]: row
+            for row in json.loads(original)["supplemental_findings"]
+        }
+        refreshed_rows = {
+            row["finding_id"]: row
+            for row in json.loads(refreshed)["supplemental_findings"]
+        }
+        for finding_id, source_path in checker.DS8_COMPANION_REFERENCE_PATHS.items():
+            before = original_rows[finding_id]
+            after = refreshed_rows[finding_id]
+            self.assertEqual(
+                {**before, "evidence_refs": after["evidence_refs"]},
+                after,
+            )
+            references = [
+                reference
+                for reference in after["evidence_refs"]
+                if reference.startswith(source_path + "#")
+            ]
+            self.assertEqual(1, len(references))
+            errors = (
+                checker._typescript_identity_reference_errors(references)
+                if "#ts-identity=" in references[0]
+                else checker._structured_identity_reference_errors(references)
+            )
+            self.assertEqual([], errors)
 
     def test_register_writer_is_surgical_and_idempotent(self) -> None:
-        original = REGISTER_PATH.read_text(encoding="utf-8")
+        original = checker._ds8_git_text(
+            "show",
+            (
+                f"{self.WRITER_HEAD_COMMIT}:"
+                + checker._ds8_coordinate_prefix()
+                + "architecture/atlas_surfaces/frontend-disposition-register.json"
+            ),
+        )
         once = checker._ds8_register_candidate_text(original, self.coverage)
         twice = checker._ds8_register_candidate_text(once, self.coverage)
         self.assertEqual(once, twice)
@@ -5880,7 +6115,10 @@ class DS8StrangleCoverageTests(unittest.TestCase):
     def test_failure_atomic_writer_succeeds_idempotently_and_rolls_back(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            paths = [root / name for name in ("register", "report", "status")]
+            paths = [
+                root / name
+                for name in ("register", "report", "status", "baseline")
+            ]
             originals = {path: f"old-{index}\n" for index, path in enumerate(paths)}
             candidates = {
                 path: f"new-{index}\n" for index, path in enumerate(paths)
@@ -5914,17 +6152,45 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             real_replace = checker.os.replace
             calls = 0
 
-            def fail_second(source: object, target: object) -> None:
+            def fail_fourth(source: object, target: object) -> None:
                 nonlocal calls
                 calls += 1
-                if calls == 2:
-                    raise OSError("injected second promotion failure")
+                if calls == 4:
+                    raise OSError("injected fourth promotion failure")
                 real_replace(source, target)
 
-            with mock.patch.object(checker.os, "replace", side_effect=fail_second):
-                with self.assertRaisesRegex(OSError, "second promotion"):
+            with mock.patch.object(checker.os, "replace", side_effect=fail_fourth):
+                with self.assertRaisesRegex(OSError, "fourth promotion"):
                     checker._failure_atomic_write_texts(
                         candidates, validate_after=validate_new
+                    )
+            self.assertEqual(
+                originals,
+                {path: path.read_text(encoding="utf-8") for path in paths},
+            )
+            self.assertEqual([], list(root.glob(".*.tmp")))
+
+            for path, content in originals.items():
+                path.write_text(content, encoding="utf-8")
+            real_fsync = checker._fsync_directory
+            fsync_calls = 0
+
+            def fail_fourth_fsync(path: Path) -> None:
+                nonlocal fsync_calls
+                fsync_calls += 1
+                if fsync_calls == 4:
+                    raise OSError("injected post-replace fsync failure")
+                real_fsync(path)
+
+            with mock.patch.object(
+                checker,
+                "_fsync_directory",
+                side_effect=fail_fourth_fsync,
+            ):
+                with self.assertRaisesRegex(OSError, "post-replace fsync"):
+                    checker._failure_atomic_write_texts(
+                        candidates,
+                        validate_after=validate_new,
                     )
             self.assertEqual(
                 originals,
@@ -5935,7 +6201,10 @@ class DS8StrangleCoverageTests(unittest.TestCase):
     def test_staging_and_pre_promote_failures_leave_no_residue(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
-            paths = [root / name for name in ("register", "report", "status")]
+            paths = [
+                root / name
+                for name in ("register", "report", "status", "baseline")
+            ]
             originals = {path: "old\n" for path in paths}
             candidates = {path: "new\n" for path in paths}
             for path in paths:

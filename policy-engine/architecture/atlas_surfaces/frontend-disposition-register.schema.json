@@ -1666,6 +1666,7 @@
         "family_complete",
         "baseline",
         "source_freeze",
+        "writer_preimage_commit",
         "opening_production_partition",
         "new_path_count",
         "new_path_manifest_sha256",
@@ -1680,6 +1681,10 @@
         "family_complete": { "const": false },
         "baseline": { "$ref": "#/$defs/ds8Snapshot" },
         "source_freeze": { "$ref": "#/$defs/ds8Snapshot" },
+        "writer_preimage_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
         "opening_production_partition": {
           "type": "object",
           "additionalProperties": false,
@@ -1727,14 +1732,14 @@
           "required": [
             "baseline_git_tree_vs_archive",
             "source_git_tree_vs_archive",
-            "source_git_vs_live_physical_and_ls_files"
+            "source_freeze_vs_writer_history",
+            "live_tree_disposition"
           ],
           "properties": {
             "baseline_git_tree_vs_archive": { "const": "exact" },
             "source_git_tree_vs_archive": { "const": "exact" },
-            "source_git_vs_live_physical_and_ls_files": {
-              "const": "path_set_exact"
-            }
+            "source_freeze_vs_writer_history": { "const": "ancestor" },
+            "live_tree_disposition": { "const": "outside_frozen_coverage" }
           }
         }
       }

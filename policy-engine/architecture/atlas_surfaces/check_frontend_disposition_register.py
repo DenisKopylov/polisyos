@@ -1756,6 +1756,300 @@ process.stdout.write(JSON.stringify(input.requests ? { results: countedResults }
 
 _TS_REFERENCE_CONSTRUCT_CACHE: dict[str, dict[str, Any]] = {}
 
+_TS_GENERATED_CLIENT_ABSENCE_SCRIPT = r"""
+import path from "node:path";
+import ts from "typescript";
+
+let raw = "";
+for await (const chunk of process.stdin) raw += chunk;
+const input = JSON.parse(raw);
+const dashboardRoot = process.cwd();
+const repoRoot = path.resolve(dashboardRoot, "../..");
+const config = ts.readConfigFile(
+  path.join(dashboardRoot, "tsconfig.app.json"),
+  ts.sys.readFile,
+);
+if (config.error) {
+  throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, "\n"));
+}
+const parsedConfig = ts.parseJsonConfigFileContent(config.config, ts.sys, dashboardRoot);
+if (parsedConfig.errors.length > 0) {
+  throw new Error(ts.flattenDiagnosticMessageText(parsedConfig.errors[0].messageText, "\n"));
+}
+const compilerOptions = {
+  ...parsedConfig.options,
+  jsx: ts.JsxEmit.Preserve,
+  module: ts.ModuleKind.ESNext,
+  noLib: true,
+  target: ts.ScriptTarget.Latest,
+};
+const virtualSources = new Map(
+  Object.entries(input.sources).map(([relativePath, source]) => [
+    path.resolve(repoRoot, relativePath),
+    source,
+  ]),
+);
+const host = ts.createCompilerHost(compilerOptions, true);
+host.getCurrentDirectory = () => repoRoot;
+function virtualSource(fileName) {
+  return virtualSources.get(path.resolve(repoRoot, fileName));
+}
+host.fileExists = (fileName) => virtualSource(fileName) !== undefined;
+host.readFile = (fileName) => virtualSource(fileName);
+host.getSourceFile = (fileName, languageVersion) => {
+  const source = virtualSource(fileName);
+  if (source === undefined) return undefined;
+  const kind = fileName.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+  return ts.createSourceFile(fileName, source, languageVersion, true, kind);
+};
+function resolveVirtualModule(specifier, containingFile) {
+  const resolved = ts.resolveModuleName(
+    specifier,
+    path.resolve(repoRoot, containingFile),
+    compilerOptions,
+    host,
+  ).resolvedModule;
+  if (resolved && virtualSource(resolved.resolvedFileName) !== undefined) {
+    return resolved;
+  }
+  if (!specifier.startsWith(".")) return undefined;
+  const withoutJs = specifier.replace(/\.(?:c|m)?js$/, "");
+  const base = path.resolve(path.dirname(path.resolve(repoRoot, containingFile)), withoutJs);
+  for (const extension of [".ts", ".tsx", ".mts", ".cts"]) {
+    const candidate = base + extension;
+    if (virtualSource(candidate) !== undefined) {
+      return {
+        resolvedFileName: candidate,
+        extension: ts.Extension.Ts,
+        isExternalLibraryImport: false,
+      };
+    }
+  }
+  return undefined;
+}
+host.resolveModuleNames = (moduleNames, containingFile) =>
+  moduleNames.map((specifier) => resolveVirtualModule(specifier, containingFile));
+const program = ts.createProgram({
+  rootNames: [...virtualSources.keys()],
+  options: compilerOptions,
+  host,
+});
+const checker = program.getTypeChecker();
+const canonicalPath = path.resolve(repoRoot, input.canonicalPath);
+const typesPath = path.resolve(repoRoot, input.typesPath);
+const canonicalSource = program.getSourceFiles().find(
+  (file) => path.resolve(repoRoot, file.fileName) === canonicalPath,
+);
+const typesSource = program.getSourceFiles().find(
+  (file) => path.resolve(repoRoot, file.fileName) === typesPath,
+);
+const errors = [];
+
+function sourceErrors(source, slot) {
+  if (!source) {
+    errors.push(`source_missing:${slot}`);
+    return;
+  }
+  for (const diagnostic of program.getSyntacticDiagnostics(source)) {
+    errors.push(
+      `source_invalid:${slot}:` +
+        ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
+    );
+  }
+}
+sourceErrors(canonicalSource, "canonical");
+sourceErrors(typesSource, "schema");
+
+for (const source of program.getSourceFiles()) {
+  if (virtualSource(source.fileName) === undefined) continue;
+  const sourcePath = path.resolve(repoRoot, source.fileName);
+  const relativeSourcePath = path.relative(repoRoot, source.fileName);
+  if (sourcePath !== canonicalPath && sourcePath !== typesPath) {
+    sourceErrors(source, `dependency:${relativeSourcePath}`);
+  }
+  for (const statement of source.statements) {
+    if (
+      !ts.isExportDeclaration(statement) ||
+      !statement.moduleSpecifier ||
+      !ts.isStringLiteral(statement.moduleSpecifier)
+    ) {
+      continue;
+    }
+    const specifier = statement.moduleSpecifier.text;
+    const resolved = resolveVirtualModule(specifier, source.fileName);
+    if (!resolved) {
+      errors.push(
+        `canonical_reexport_unresolved:` +
+          `${relativeSourcePath}:${specifier}`,
+      );
+      continue;
+    }
+    const targetSource = program.getSourceFile(resolved.resolvedFileName);
+    const targetModuleSymbol = targetSource
+      ? checker.getSymbolAtLocation(targetSource) ?? targetSource.symbol
+      : undefined;
+    if (!targetSource || !targetModuleSymbol) {
+      errors.push(
+        `canonical_reexport_target_scope_missing:` +
+          `${relativeSourcePath}:${specifier}`,
+      );
+    }
+  }
+}
+
+let canonicalExports = [];
+let canonicalScopeCount = 0;
+if (canonicalSource) {
+  const moduleSymbol = checker.getSymbolAtLocation(canonicalSource) ?? canonicalSource.symbol;
+  if (moduleSymbol) {
+    canonicalScopeCount = 1;
+    canonicalExports = checker
+      .getExportsOfModule(moduleSymbol)
+      .map((symbol) => symbol.getName())
+      .sort();
+  } else {
+    errors.push(`canonical_scope_missing:${input.canonicalPath}`);
+  }
+}
+
+function propertyName(name) {
+  if (
+    ts.isIdentifier(name) ||
+    ts.isStringLiteral(name) ||
+    ts.isNumericLiteral(name)
+  ) {
+    return name.text;
+  }
+  if (
+    ts.isComputedPropertyName(name) &&
+    (ts.isStringLiteral(name.expression) ||
+      ts.isNumericLiteral(name.expression))
+  ) {
+    return name.expression.text;
+  }
+  errors.push(`schema_owner_name_unsupported:${name.getText(typesSource)}`);
+  return null;
+}
+
+const schemaScopes = [];
+if (typesSource) {
+  for (const statement of typesSource.statements) {
+    if (
+      !ts.isInterfaceDeclaration(statement) ||
+      statement.name.text !== "components"
+    ) {
+      continue;
+    }
+    for (const member of statement.members) {
+      if (!member.name) {
+        errors.push(`schema_scope_member_unsupported:${ts.SyntaxKind[member.kind]}`);
+        continue;
+      }
+      const memberName = propertyName(member.name);
+      if (memberName !== "schemas") continue;
+      if (
+        !ts.isPropertySignature(member) ||
+        !member.type ||
+        !ts.isTypeLiteralNode(member.type)
+      ) {
+        errors.push(`schema_scope_shape_unsupported:${ts.SyntaxKind[member.kind]}`);
+        continue;
+      }
+      schemaScopes.push(member.type);
+    }
+  }
+}
+let schemaOwners = [];
+if (schemaScopes.length === 1) {
+  for (const member of schemaScopes[0].members) {
+    if (!ts.isPropertySignature(member)) {
+      errors.push(`schema_owner_member_unsupported:${ts.SyntaxKind[member.kind]}`);
+      continue;
+    }
+    const owner = propertyName(member.name);
+    if (owner !== null) schemaOwners.push(owner);
+  }
+  schemaOwners.sort();
+}
+
+process.stdout.write(JSON.stringify({
+  canonicalExports,
+  canonicalScopeCount,
+  schemaOwners,
+  schemaScopeCount: schemaScopes.length,
+  errors,
+}));
+"""
+
+_TS_GENERATED_CLIENT_ABSENCE_CACHE: dict[str, dict[str, Any]] = {}
+
+
+def _typescript_generated_client_absence_facts(
+    sources: Mapping[str, str],
+    *,
+    canonical_path: str,
+    types_path: str,
+) -> dict[str, Any]:
+    """Derive canonical exports and exact generated schema-owner membership."""
+    cache_key = hashlib.sha256(
+        json.dumps(
+            {
+                "canonical_path": canonical_path,
+                "sources": sources,
+                "types_path": types_path,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    cached = _TS_GENERATED_CLIENT_ABSENCE_CACHE.get(cache_key)
+    if cached is not None:
+        return copy.deepcopy(cached)
+    completed = subprocess.run(  # noqa: S603 - fixed parser argument vector
+        [  # noqa: S607 - repository toolchain resolves bootstrapped Node
+            "node",
+            "--input-type=module",
+            "-e",
+            _TS_GENERATED_CLIENT_ABSENCE_SCRIPT,
+        ],
+        cwd=REPO_ROOT / "apps/runtime-dashboard",
+        input=json.dumps(
+            {
+                "canonicalPath": canonical_path,
+                "sources": sources,
+                "typesPath": types_path,
+            }
+        ),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "TypeScript generated-client absence parser failed: "
+            + completed.stderr.strip()
+        )
+    parsed = json.loads(completed.stdout)
+    if (
+        not isinstance(parsed, dict)
+        or not isinstance(parsed.get("canonicalExports"), list)
+        or not isinstance(parsed.get("canonicalScopeCount"), int)
+        or not isinstance(parsed.get("schemaOwners"), list)
+        or not isinstance(parsed.get("schemaScopeCount"), int)
+        or not isinstance(parsed.get("errors"), list)
+        or any(
+            not isinstance(value, str)
+            for key in ("canonicalExports", "schemaOwners", "errors")
+            for value in parsed[key]
+        )
+    ):
+        raise RuntimeError(
+            "TypeScript generated-client absence parser returned an invalid payload"
+        )
+    _TS_GENERATED_CLIENT_ABSENCE_CACHE[cache_key] = copy.deepcopy(parsed)
+    return parsed
+
 
 def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]:
     """Parse TypeScript modules with the installed compiler, never text markers."""

@@ -701,6 +701,28 @@ not the stale 155 / `f1ac4d…` pin. The migration does not edit the DS5 registe
 the reconciliation remains with the DS7/Atlas register owner and is not
 re-baselined here.
 
+**Companion correction and complete-denominator closeout.** The preceding pin
+statement and file-local denominator were both superseded by a complete census.
+The ordered DS5 corpus changed twice: Task 6 kept 155 occurrences but re-anchored
+the bytes from `f1ac4d93…` to `656e271a…`; Task 10 then retired eight, leaving
+147 / `e297ac8d…`. The count-free DEF21 test now pins that current ordered byte
+sequence, while the register bytes remain unchanged. The census's other three
+generated-client anchors in `ds4-waist-debt-register.json` are also closed:
+`GenerationCycleDispositionPayload` and `ProjectionFreshness` carry four v1
+construct identities plus four navigation hints. `DecisionGrade` has no
+construct to identify, so its ignored export-window lines are removed and its
+absence is recomputed over the complete canonical module exports and exact
+`components.schemas` owners; direct/re-exported/schema presence fails, while
+real Task 6 movement remains green. The complete 18-anchor population is now 34
+construct identities + 2 absence predicates, 34 navigation hints, and **zero
+legacy line bindings**. Across `d17ecd36e -> fea50aadd`, all four present
+identities resolve, all six old present coordinates lose meaning, and the two
+old DecisionGrade coordinates move while the legacy checker stays green only
+because it never consumed them. The single governed window and exact hashes are
+recorded in the migration journal; no generated client, status identity, other
+383-leaf status coordinate, disposition-register byte, deep-import baseline, or
+programme-plan line 7 moves.
+
 **Debt-row execution rule (Revision 3.22, measured 2026-08-20).** A registered
 debt row with an **executable closure signal** is executable independently of
 where its owning slice sits in the Start-Now Ladder. **Ownership assigns

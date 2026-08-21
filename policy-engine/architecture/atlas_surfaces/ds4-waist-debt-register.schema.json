@@ -14,7 +14,7 @@
   ],
   "properties": {
     "$schema": { "const": "./ds4-waist-debt-register.schema.json" },
-    "schema_version": { "const": "1.0" },
+    "schema_version": { "const": "1.1" },
     "register_id": { "const": "atlas-ds4-waist-debt" },
     "as_of": { "type": "string", "format": "date-time" },
     "authority": {
@@ -57,18 +57,26 @@
             "anchor_kind",
             "canonical_path",
             "canonical_line",
+            "canonical_identity",
             "types_path",
-            "types_start_line",
-            "types_end_line",
+            "schema_line",
+            "schema_identity",
             "symbol"
           ],
           "properties": {
             "anchor_kind": { "const": "present_projection" },
             "canonical_path": { "$ref": "#/$defs/path" },
             "canonical_line": { "type": "integer", "minimum": 1 },
+            "canonical_identity": {
+              "type": "string",
+              "pattern": "#ts-identity="
+            },
             "types_path": { "$ref": "#/$defs/path" },
-            "types_start_line": { "type": "integer", "minimum": 1 },
-            "types_end_line": { "type": "integer", "minimum": 1 },
+            "schema_line": { "type": "integer", "minimum": 1 },
+            "schema_identity": {
+              "type": "string",
+              "pattern": "#ts-identity="
+            },
             "symbol": { "$ref": "#/$defs/nonEmpty" }
           }
         },
@@ -77,17 +85,17 @@
           "additionalProperties": false,
           "required": [
             "anchor_kind",
+            "absence_scope",
             "canonical_path",
-            "export_block_start_line",
-            "export_block_end_line",
             "types_path",
             "symbol"
           ],
           "properties": {
             "anchor_kind": { "const": "missing_export" },
+            "absence_scope": {
+              "const": "canonical_module_exports_and_schema_owners"
+            },
             "canonical_path": { "$ref": "#/$defs/path" },
-            "export_block_start_line": { "type": "integer", "minimum": 1 },
-            "export_block_end_line": { "type": "integer", "minimum": 1 },
             "types_path": { "$ref": "#/$defs/path" },
             "symbol": { "$ref": "#/$defs/nonEmpty" }
           }

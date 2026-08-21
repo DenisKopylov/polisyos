@@ -768,30 +768,12 @@ def _validate_source_overrides(
     return errors
 
 
-def _generated_object_schema_span(
-    types_text: str,
-    symbol: str,
-) -> tuple[int, int] | None:
-    lines = types_text.splitlines()
-    declaration = re.compile(
-        rf"^(?P<indent>\s*){re.escape(symbol)}:\s*\{{\s*$",
-    )
-    matches = [
-        (index, match.group("indent"))
-        for index, line in enumerate(lines)
-        if (match := declaration.match(line)) is not None
-    ]
-    if len(matches) != 1:
-        return None
-    start_index, indent = matches[0]
-    closing_line = f"{indent}}};"
-    for end_index in range(start_index + 1, len(lines)):
-        if lines[end_index].rstrip() == closing_line:
-            return start_index + 1, end_index + 1
-    return None
-
-
-def _validate_waist_debt(debt: Mapping[str, Any]) -> list[str]:
+def _validate_waist_debt(
+    debt: Mapping[str, Any],
+    *,
+    repo_root: Path = REPO_ROOT,
+) -> list[str]:
+    """Validate waist ownership and generated-client semantics from one census."""
     errors: list[str] = []
     entries = debt.get("entries", [])
     if len(entries) != 3:
@@ -808,31 +790,37 @@ def _validate_waist_debt(debt: Mapping[str, Any]) -> list[str]:
         if entry.get("capability_states") != ["bridge_missing", "surface_missing"]:
             errors.append(f"waist_debt_states:{debt_id}")
         anchor = entry.get("generated_client_anchor", {})
-        canonical = REPO_ROOT / anchor.get("canonical_path", "missing")
-        types = REPO_ROOT / anchor.get("types_path", "missing")
+        canonical = repo_root / anchor.get("canonical_path", "missing")
+        types = repo_root / anchor.get("types_path", "missing")
         if not canonical.exists() or not types.exists():
             errors.append(f"waist_debt_anchor_missing:{debt_id}")
-            continue
-        canonical_text = canonical.read_text(encoding="utf-8")
-        types_text = types.read_text(encoding="utf-8")
-        symbol = anchor.get("symbol", "")
-        if anchor.get("anchor_kind") == "missing_export":
-            if symbol in canonical_text or symbol in types_text:
-                errors.append(f"waist_debt_missing_export_now_present:{debt_id}")
-        elif anchor.get("anchor_kind") == "present_projection":
-            canonical_lines = canonical_text.splitlines()
-            start = anchor.get("types_start_line", 0)
-            end = anchor.get("types_end_line", 0)
-            type_block = "\n".join(types_text.splitlines()[max(0, start - 1):end])
-            line = anchor.get("canonical_line", 0)
-            if (
-                not (1 <= line <= len(canonical_lines))
-                or f"export type {symbol}" not in canonical_lines[line - 1]
-                or symbol not in type_block
-                or _generated_object_schema_span(types_text, symbol)
-                != (start, end)
-            ):
-                errors.append(f"waist_debt_anchor_drift:{debt_id}")
+    canonical_paths = {
+        entry.get("generated_client_anchor", {}).get("canonical_path")
+        for entry in entries
+        if isinstance(entry, Mapping)
+    }
+    types_paths = {
+        entry.get("generated_client_anchor", {}).get("types_path")
+        for entry in entries
+        if isinstance(entry, Mapping)
+    }
+    if (
+        len(canonical_paths) == 1
+        and len(types_paths) == 1
+        and all(isinstance(path, str) for path in (*canonical_paths, *types_paths))
+    ):
+        errors.extend(
+            validate_anchor_identity_document(
+                debt,
+                artifact_path=(
+                    "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+                ),
+                repo_root=repo_root,
+                target_paths=(*canonical_paths, *types_paths),
+            )
+        )
+    else:
+        errors.append("waist_debt_generated_target_drift")
     return errors
 
 

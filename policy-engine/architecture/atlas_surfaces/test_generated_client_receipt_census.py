@@ -524,6 +524,215 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
             assert direct.returncode == 0, direct.stderr
             assert json.loads(direct.stdout)["summary"]["identity_bindings"] == 2
 
+    def test_missing_export_recomputes_ast_absence_without_a_construct_identity(
+        self,
+    ) -> None:
+        """Absence binds complete export/schema-owner sets, never a nearby line."""
+        census = _load_census()
+        identity_checker = _load_identity_checker()
+        canonical = "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
+        types = "packages/runtime-api-client/types.ts"
+        bridge = "packages/runtime-api-client/bridge.ts"
+        canonical_source = (
+            'export type Present = components["schemas"]["Present"];\n'
+        )
+        types_source = (
+            "export interface components {\n"
+            "  schemas: {\n"
+            "    Present: { value: string };\n"
+            "  };\n"
+            "}\n"
+        )
+        anchor = {
+            "anchor_kind": "missing_export",
+            "absence_scope": "canonical_module_exports_and_schema_owners",
+            "canonical_path": canonical,
+            "types_path": types,
+            "symbol": "DecisionGrade",
+        }
+
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            artifact_path = root / "architecture/waist.json"
+            artifact_path.parent.mkdir(parents=True)
+            (root / canonical).parent.mkdir(parents=True)
+
+            def report_for(
+                canonical_text: str = canonical_source,
+                types_text: str = types_source,
+            ) -> dict[str, object]:
+                (root / canonical).write_text(canonical_text, encoding="utf-8")
+                (root / types).write_text(types_text, encoding="utf-8")
+                artifact_path.write_text(
+                    json.dumps(
+                        {
+                            "entries": [
+                                {
+                                    "debt_id": "missing",
+                                    "generated_client_anchor": anchor,
+                                }
+                            ]
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                return census.build_report(
+                    repo_root=root,
+                    target_paths=(canonical, types),
+                    candidate_paths=(Path("architecture/waist.json"),),
+                )
+
+            report = report_for()
+            assert report["errors"] == []
+            assert report["summary"] == {
+                "binding_artifacts": 1,
+                "navigation_artifacts": 0,
+                "primary_anchor_records": 1,
+                "independent_anchor_records": 1,
+                "line_bindings": 0,
+                "independent_line_bindings": 0,
+                "identity_bindings": 0,
+                "absence_predicates": 2,
+                "semantic_bindings": 2,
+                "legacy_line_bindings": 0,
+                "navigation_line_hints": 0,
+                "navigation_references": 0,
+            }
+            binding = report["bindings"][0]
+            assert binding["binding_mode"] == "recomputed_absence"
+            assert binding["absence_bindings"] == [
+                {
+                    "slot": "canonical",
+                    "predicate": "module_export_absent",
+                    "symbol": "DecisionGrade",
+                },
+                {
+                    "slot": "schema",
+                    "predicate": "generated_schema_owner_absent",
+                    "symbol": "DecisionGrade",
+                },
+            ]
+
+            moved = report_for(
+                "\n\n" + canonical_source,
+                "\n\n\n" + types_source,
+            )
+            assert moved["errors"] == []
+
+            comment_and_string = report_for(
+                canonical_source
+                + '\nconst note = "DecisionGrade"; // DecisionGrade is absent\n',
+                types_source + "\n// DecisionGrade is absent\n",
+            )
+            assert comment_and_string["errors"] == []
+
+            direct = report_for(
+                canonical_source + "\nexport type DecisionGrade = string;\n"
+            )
+            assert any(
+                error.endswith(":canonical:DecisionGrade")
+                for error in direct["errors"]
+            )
+
+            reexport = report_for(
+                canonical_source + '\nexport { DecisionGrade } from "./types.js";\n',
+                types_source + "\nexport type DecisionGrade = string;\n",
+            )
+            assert any(
+                error.endswith(":canonical:DecisionGrade")
+                for error in reexport["errors"]
+            )
+
+            unresolved_star = report_for(
+                canonical_source + '\nexport * from "./missing.js";\n'
+            )
+            assert any(
+                "canonical_reexport_unresolved" in error
+                for error in unresolved_star["errors"]
+            )
+
+            malformed_dependency = (
+                identity_checker._typescript_generated_client_absence_facts(
+                    {
+                        canonical: canonical_source
+                        + '\nexport * from "./bridge.js";\n',
+                        types: types_source,
+                        bridge: "export type Other = ;\n",
+                    },
+                    canonical_path=canonical,
+                    types_path=types,
+                )
+            )
+            assert any(
+                "source_invalid:dependency:" in error
+                for error in malformed_dependency["errors"]
+            )
+
+            script_dependency = (
+                identity_checker._typescript_generated_client_absence_facts(
+                    {
+                        canonical: canonical_source
+                        + '\nexport * from "./bridge.js";\n',
+                        types: types_source,
+                        bridge: "type Other = string;\n",
+                    },
+                    canonical_path=canonical,
+                    types_path=types,
+                )
+            )
+            assert any(
+                "canonical_reexport_target_scope_missing" in error
+                for error in script_dependency["errors"]
+            )
+
+            script_mode = report_for("type LocalOnly = string;\n")
+            assert any(
+                error.endswith(":canonical")
+                and "anchor_absence_scope_missing" in error
+                for error in script_mode["errors"]
+            )
+
+            schema_owner = report_for(
+                types_text=types_source.replace(
+                    "    Present: { value: string };",
+                    "    Present: { value: string };\n    DecisionGrade: string;",
+                )
+            )
+            assert any(
+                error.endswith(":schema:DecisionGrade")
+                for error in schema_owner["errors"]
+            )
+
+            computed_schema_owner = report_for(
+                types_text=types_source.replace(
+                    "    Present: { value: string };",
+                    '    Present: { value: string };\n    ["DecisionGrade"]: string;',
+                )
+            )
+            assert any(
+                error.endswith(":schema:DecisionGrade")
+                for error in computed_schema_owner["errors"]
+            )
+
+            unsupported_schema_scope = report_for(
+                types_text=types_source.replace(
+                    "  schemas: {",
+                    "  schemas(): void;\n  schemas: {",
+                )
+            )
+            assert any(
+                "schema_scope_shape_unsupported" in error
+                for error in unsupported_schema_scope["errors"]
+            )
+
+            missing_scope = report_for(
+                types_text="export interface components { parameters: never; }\n"
+            )
+            assert any(
+                "anchor_absence_scope_missing" in error
+                for error in missing_scope["errors"]
+            )
+
     def test_live_denominator_reconciles_without_remembered_artifact_paths(
         self,
     ) -> None:
@@ -550,6 +759,21 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         assert sum(len(binding["line_bindings"]) for binding in status) == 30
         assert sum(len(binding["identity_bindings"]) for binding in status) == 30
         assert all(binding["binding_mode"] == "identity" for binding in status)
+        waist = [
+            binding
+            for binding in report["bindings"]
+            if binding["artifact_path"]
+            == "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+        ]
+        assert len(waist) == 3
+        assert sum(len(binding["line_bindings"]) for binding in waist) == 4
+        assert sum(len(binding["identity_bindings"]) for binding in waist) == 4
+        assert sum(len(binding["absence_bindings"]) for binding in waist) == 2
+        assert [binding["binding_mode"] for binding in waist] == [
+            "identity",
+            "recomputed_absence",
+            "identity",
+        ]
         before = census._document_anchor_census(
             json.loads(
                 _git_blob(
@@ -571,8 +795,30 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         assert sum(
             len(binding["identity_bindings"]) for binding in status
         ) - before.identity_bindings == before.legacy_line_bindings
-        assert report["summary"]["legacy_line_bindings"] == 8
-        assert report["summary"]["navigation_line_hints"] == 30
+        waist_before = census._document_anchor_census(
+            json.loads(
+                _git_blob(
+                    "34f4df5fb",
+                    "architecture/atlas_surfaces/ds4-waist-debt-register.json",
+                )
+            ),
+            artifact_path=(
+                "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+            ),
+            target_paths=(
+                "packages/runtime-api-client/canonicalRuntimeApiClient.ts",
+                "packages/runtime-api-client/types.ts",
+            ),
+        )
+        assert waist_before.identity_bindings == 0
+        assert waist_before.absence_predicates == 0
+        assert waist_before.legacy_line_bindings == 8
+        assert report["summary"]["primary_anchor_records"] == 18
+        assert report["summary"]["identity_bindings"] == 34
+        assert report["summary"]["absence_predicates"] == 2
+        assert report["summary"]["semantic_bindings"] == 36
+        assert report["summary"]["legacy_line_bindings"] == 0
+        assert report["summary"]["navigation_line_hints"] == 34
         candidate_population = report["candidate_population"]
         assert candidate_population["total"] == sum(
             candidate_population["by_suffix"].values()
@@ -580,6 +826,191 @@ class GeneratedClientReceiptCensusTests(unittest.TestCase):
         assert candidate_population["by_suffix"][".json"] > 0
         assert candidate_population["by_suffix"][".toml"] > 0
         assert len(candidate_population["path_sha256"]) == 64
+
+    def test_live_waist_receipts_replay_task6_and_reject_semantic_drift(
+        self,
+    ) -> None:
+        """Use the real Task 6 movement for the last three DEF21 anchors."""
+        identity_checker = _load_identity_checker()
+        waist_path = "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+        canonical_path = "packages/runtime-api-client/canonicalRuntimeApiClient.ts"
+        types_path = "packages/runtime-api-client/types.ts"
+        waist = json.loads((REPO_ROOT / waist_path).read_text(encoding="utf-8"))
+        present = [
+            row["generated_client_anchor"]
+            for row in waist["entries"]
+            if row["generated_client_anchor"]["anchor_kind"]
+            == "present_projection"
+        ]
+        missing = next(
+            row["generated_client_anchor"]
+            for row in waist["entries"]
+            if row["generated_client_anchor"]["anchor_kind"] == "missing_export"
+        )
+        references = [
+            anchor[key]
+            for anchor in present
+            for key in ("canonical_identity", "schema_identity")
+        ]
+        payloads = [_identity_payload(reference) for reference in references]
+
+        assert len(present) == 2
+        assert len(references) == 4
+        assert missing == {
+            "anchor_kind": "missing_export",
+            "absence_scope": "canonical_module_exports_and_schema_owners",
+            "canonical_path": canonical_path,
+            "types_path": types_path,
+            "symbol": "DecisionGrade",
+        }
+
+        def sources_at(revision: str) -> dict[str, str]:
+            return {
+                canonical_path: _git_blob(revision, canonical_path),
+                types_path: _git_blob(revision, types_path),
+            }
+
+        def replay_errors(revision: str) -> list[str]:
+            sources = sources_at(revision)
+            requests = [
+                {
+                    "sourcePath": payload["source_path"],
+                    "role": payload["role"],
+                    "discriminator": payload["discriminator"],
+                }
+                for payload in payloads
+            ]
+            facts = identity_checker._typescript_reference_construct_facts_batch(
+                sources,
+                requests,
+                closed_universe=True,
+            )
+            return [
+                error
+                for payload, fact in zip(payloads, facts, strict=True)
+                if (
+                    error := identity_checker._typescript_reference_match_error(
+                        payload, fact
+                    )
+                )
+                is not None
+            ]
+
+        assert replay_errors("d17ecd36e") == []
+        assert replay_errors("fea50aadd") == []
+
+        for revision in ("d17ecd36e", "fea50aadd"):
+            facts = identity_checker._typescript_generated_client_absence_facts(
+                sources_at(revision),
+                canonical_path=canonical_path,
+                types_path=types_path,
+            )
+            assert facts["errors"] == []
+            assert "DecisionGrade" not in facts["canonicalExports"]
+            assert "DecisionGrade" not in facts["schemaOwners"]
+
+        old_waist = json.loads(_git_blob("d17ecd36e", waist_path))
+        task6_sources = sources_at("fea50aadd")
+        legacy_meaning: list[bool] = []
+        for row in old_waist["entries"]:
+            anchor = row["generated_client_anchor"]
+            if anchor["anchor_kind"] != "present_projection":
+                continue
+            symbol = anchor["symbol"]
+            canonical_line = task6_sources[canonical_path].splitlines()[
+                anchor["canonical_line"] - 1
+            ]
+            facts = identity_checker._typescript_reference_construct_facts(
+                {types_path: task6_sources[types_path]},
+                source_path=types_path,
+                role="type_property",
+                discriminator=f"components.{symbol}",
+            )
+            match = facts["matches"][0]
+            legacy_meaning.extend(
+                [
+                    f"export type {symbol}" in canonical_line,
+                    match["startLine"] == anchor["types_start_line"],
+                    match["endLine"] == anchor["types_end_line"],
+                ]
+            )
+        assert legacy_meaning == [False] * 6
+
+        old_missing = next(
+            row["generated_client_anchor"]
+            for row in old_waist["entries"]
+            if row["generated_client_anchor"]["anchor_kind"] == "missing_export"
+        )
+        for coordinate in ("export_block_start_line", "export_block_end_line"):
+            old_line = sources_at("d17ecd36e")[canonical_path].splitlines()[
+                old_missing[coordinate] - 1
+            ]
+            moved_line = task6_sources[canonical_path].splitlines()[
+                old_missing[coordinate] - 1
+            ]
+            assert old_line != moved_line
+        legacy_absence_verdicts = [
+            all(
+                "DecisionGrade" not in source
+                for source in sources_at(revision).values()
+            )
+            for revision in ("d17ecd36e", "fea50aadd")
+        ]
+        assert legacy_absence_verdicts == [True, True]
+
+        canonical_reference = present[0]["canonical_identity"]
+        canonical_payload = _identity_payload(canonical_reference)
+        canonical_facts = identity_checker._typescript_reference_construct_facts(
+            {canonical_path: task6_sources[canonical_path]},
+            source_path=canonical_path,
+            role=str(canonical_payload["role"]),
+            discriminator=str(canonical_payload["discriminator"]),
+        )
+        canonical_match = canonical_facts["matches"][0]
+        canonical_lines = task6_sources[canonical_path].splitlines(keepends=True)
+        del canonical_lines[
+            int(canonical_match["startLine"]) - 1 : int(canonical_match["endLine"])
+        ]
+        assert identity_checker._validate_typescript_reference_identity(
+            {"encoded_identity": canonical_reference},
+            {canonical_path: "".join(canonical_lines)},
+        ) == ["typescript_reference_binding_missing_or_renamed"]
+
+        schema_reference = present[0]["schema_identity"]
+        schema_payload = _identity_payload(schema_reference)
+        schema_facts = identity_checker._typescript_reference_construct_facts(
+            {types_path: task6_sources[types_path]},
+            source_path=types_path,
+            role=str(schema_payload["role"]),
+            discriminator=str(schema_payload["discriminator"]),
+        )
+        start = int(schema_facts["matches"][0]["startLine"]) - 1
+        source_lines = task6_sources[types_path].splitlines(keepends=True)
+
+        renamed_lines = list(source_lines)
+        renamed_lines[start] = renamed_lines[start].replace(
+            "GenerationCycleDispositionPayload:",
+            "RenamedGenerationCycleDispositionPayload:",
+            1,
+        )
+        assert identity_checker._validate_typescript_reference_identity(
+            {"encoded_identity": schema_reference},
+            {types_path: "".join(renamed_lines)},
+        ) == ["typescript_reference_binding_missing_or_renamed"]
+
+        content_lines = list(source_lines)
+        content_index = next(
+            index
+            for index in range(start, len(content_lines))
+            if "bridge_artifacts:" in content_lines[index]
+        )
+        content_lines[content_index] = content_lines[content_index].replace(
+            "bridge_artifacts:", "bridge_receipts:", 1
+        )
+        assert identity_checker._validate_typescript_reference_identity(
+            {"encoded_identity": schema_reference},
+            {types_path: "".join(content_lines)},
+        ) == ["typescript_reference_content_drift"]
 
     def test_live_status_identities_replay_across_real_client_regenerations(
         self,

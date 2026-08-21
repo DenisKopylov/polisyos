@@ -165,3 +165,124 @@ After the atomic commit, all five closing identities are read back from the
 attached branch before the one lock window is explicitly relinquished. The
 commit identity and read-back result are reported in the hand-back because a
 commit cannot contain its own hash.
+
+## Companion correction: the complete 18-anchor denominator
+
+This section supersedes the statement above that the stale DS5 pin belonged to
+another lane and the earlier file-local waist exclusion. Both were input-scope
+errors, not defects in the completed 15-record status migration. No additional
+Atlas revision is assigned here.
+
+The DS5 pin was re-derived from every stored reference in register order. Its
+two distinct supersession events are:
+
+| Committed state | Identity occurrences | Ordered-list SHA-256 |
+| --- | ---: | --- |
+| `d17ecd36e` | 155 | `f1ac4d933af3c980190ee9ba31faae8e823d928ea651ff6d6117ec86f5fc42e2` |
+| `fea50aadd` | 155 | `656e271a8e1c30df9cead62ca60e30a438c780dac2395049010d98e9256a9c81` |
+| `df0484301` through this branch | 147 | `e297ac8da1a63c06ad9a1e15de760cdb347395900f14d59997bbf8e0af94d5da` |
+
+Task 6 therefore re-anchored bytes without moving the count; Task 10 later
+retired eight occurrences. The DEF21 test is renamed so its name carries no
+count and is pinned to the current 147-entry byte sequence. The disposition register
+itself remains byte-identical at
+`77245b9d18089b962d443af8f1b5f6ea13d4da6a5ce703d3353abb3ee61ee90b`.
+
+The complete derivable population is 18 anchors across two artifacts. The two
+present waist projections now carry four ordinary v1 identities and four
+navigation hints. `DecisionGrade` has no construct to identify, so its two
+export-window coordinates are deleted rather than disguised as identities.
+Its binding is the recomputed predicate:
+
+1. `DecisionGrade` is absent from the complete canonical module export set;
+2. `DecisionGrade` is absent from the exact owner set under
+   `components.schemas`.
+
+The TypeScript compiler establishes both sets in a closed virtual universe,
+fails on an unresolved re-export, a missing module scope, a missing or
+ambiguous schema scope, and unsupported schema member/name forms, and treats a
+direct export, re-export, ordinary schema owner, or computed string-literal
+owner as presence. This costs two historical range coordinates and avoids a
+whole-file hash that would fail on unrelated regeneration. The resulting
+semantic census is 34 construct identities + 2 recomputed absence predicates =
+36 bindings, with 34 navigation hints and zero legacy line bindings across all
+18 anchors. The old 38-address denominator counted the two schema end lines as
+second bindings to already-identified constructs.
+
+The real `d17ecd36e -> fea50aadd` replay establishes the latent defect:
+
+- all four present identities resolve green at both revisions;
+- the six old present-projection coordinates lose their construct meaning;
+- both old `DecisionGrade` coordinates select different export-region source
+  after Task 6,
+  while the old checker remains green only because its raw whole-file substring
+  predicate never consumed either coordinate;
+- `DecisionGrade` remains absent at both revisions despite the moved export
+  region;
+- rename and removal return
+  `typescript_reference_binding_missing_or_renamed`, and content drift returns
+  `typescript_reference_content_drift`;
+- making `DecisionGrade` appear on either generated surface returns
+  `anchor_absence_unexpected_presence`.
+
+### Companion P40 round
+
+Round 1 found one denominator class and widened it once: broad line-free
+identity discovery first admitted unrelated byte-hash controls, then review
+showed that unresolved star re-exports, script-mode files, and computed schema
+names could make the absence set incomplete. The repair is the complete closed
+export/schema-owner universe above, not a filename exception. Round 2 supplied
+a deeper example of that same denominator class: a resolved transitive source
+could be malformed or script-mode, and a second `schemas`-named member could
+use an unsupported AST shape. The widened engine now syntax-checks every
+virtual source, requires a module symbol for every resolved re-export target,
+and rejects every `components.schemas` member that is not the supported inline
+property form. Two separate proof companions were also added: the real legacy
+`DecisionGrade` behavior is stated explicitly, and the public
+`validate_inventory` path is pinned as the waist consumer. The record/schema
+review was clean.
+
+### One companion lock window
+
+The user widened the governed family for this companion to include the waist
+register. After the real-history proof and with no generator process running,
+the single lock window opened at:
+
+| Governed member | Opening SHA-256 | Prepared closing SHA-256 |
+| --- | --- | --- |
+| `frontend-disposition-register.json` | `77245b9d18089b962d443af8f1b5f6ea13d4da6a5ce703d3353abb3ee61ee90b` | same |
+| `atlas-frontend-disposition-register.md` | `b2e25ddea0169c6b3643c88e53fbc4d28798e8a5427cf9619b3aecb008cca36d` | same |
+| `status-retirement-inventory.json` | `0548f6b6ce2a41b829a5b6a4e20e2d0cdbf1339fd8947318ce7104a9105b0edb` | same |
+| `frontend-baseline-debt-manifest.json` | `b575b856f363c763230fefd3c4538c03c30fbf92c9ed1a4f9bfb9f617b3a0202` | same |
+| `live-application-readiness-ledger.json` | `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13` | same |
+| `ds4-waist-debt-register.json` | `9ff2bb717d8dbbed95b299687c24575dc7157822056a25eaecd856332053dc45` | `cb5f4737be8b3f95d4776ee9af9075a5db8f5b878df4d7c9fb00825ad3124fa3` |
+
+The waist register and strict schema move atomically from 1.0 to 1.1. The
+prepared status receipt remains exactly 13 diagnostics with SHA-256
+`511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`.
+The existing status inventory remains 30 identities with the exact 383-leaf
+decomposition recorded above. Both generated clients and the dashboard client
+remain byte-identical; the registered deep-import red remains untouched and
+owned by the runtime/GY lane with `team-architecture` approval.
+
+### Prepared closeout receipts
+
+- The complete census suite passes 7/7 in 33.340 seconds; the four focused
+  status/public-consumer tests pass in 9.574 seconds; the renamed ordered-byte
+  pin passes independently.
+- The direct census reconciles 18 anchors as 34 construct identities + 2
+  recomputed absence predicates, 34 navigation hints, and 0 legacy bindings.
+- The direct status checker completes with its exact inherited 13 diagnostics
+  and SHA-256
+  `511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`.
+- The plain architecture guardrail reports `runtime-api-client` clean for all
+  five generator-observed outputs and `runtime-dashboard-api-types` clean for
+  its one output. Its composite exit remains red only for the registered six
+  deep-import creeps; the tracked-diff digest is byte-identical before/after.
+- Python compilation and delta lint are clean. Five repository-pre-existing
+  lint diagnostics in the large DS5 checker lie outside its sole changed hunk;
+  the other five changed Python files pass the selected lint rules directly.
+
+After the one atomic commit, the six governed identities are read back from the
+attached branch and the lock is explicitly relinquished. The closing commit and
+release receipt remain external because a commit cannot contain its own hash.

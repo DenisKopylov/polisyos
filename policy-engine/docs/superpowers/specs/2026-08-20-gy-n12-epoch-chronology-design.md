@@ -2,17 +2,15 @@
 
 ## Status
 
-Cycle-5 research and specification are complete for user decision. Cycles 1–4
-and the qualified unification direction are accepted and are not reopened.
-Cycle 5 fixes the v1 proof profile, names two owner-bridge prerequisites,
-sharpens the `epoch_ref` inference after an opposite-case review, recommends
-narrow delivery and frames the unresolved anchor-custody appointment. Three
-independent Wave-4 delta reviews returned clean with zero blocking and zero
-cosmetic findings. The frozen 128-property programme basis is unchanged. No
-production code, governed artifact, writer, deployment-bound artifact,
-generated surface, replay or implementation plan is authorized by this
-document. Implementation planning begins only after the user decides the
-anchor-custody question.
+Cycles 1–5 and the qualified unification direction are accepted and are not
+reopened. Cycle 6 settles the contingent epoch-holder decision, reconciles
+in-lane GY-DEF22 execution with Foundry correctness ownership, tests GY-GAP2
+as a fourth deferred candidate consumer, registers the two Cycle-5 bridge
+defects and freezes the narrow Clusters 1–4 implementation boundary. The
+frozen 128-property programme basis is unchanged. The companion implementation
+plan is executable only after user approval; this specification still
+authorizes no production code, governed artifact, writer, generated surface or
+replay.
 
 ## Problem
 
@@ -25,6 +23,13 @@ different family-native facts:
 - controlled release-family records and verifier dispositions;
 - production recursive-cycle runs and resolved terminals; and
 - exact per-row acquisition-to-re-entry movement.
+
+GY-GAP2 is a fourth **deferred candidate consumer** of the same proof
+protocol: if a family confidence number is ever product-required, its
+confidence owner must reproduce a declared family relation over existing
+non-resettable per-problem roots. It is not an activated fifth production
+adapter, remains `blocked_on_product_decision` under INT-K06 and is not
+scheduled by GY-N12.
 
 The design question is whether one chronology semantic owner can serve those
 families without weakening their native identities or rebuilding the refuted
@@ -268,6 +273,17 @@ content binding/profile; the family authority adapter validates its declared
 native fields. Missing/wrong purpose, profile, required native field or P37
 class fails closed.
 
+The family reconciliation record binds every decisive disposition to its exact
+member ref (and every query disposition to its exact requested-query context)
+under a persisted predicate-admission policy. A flat bag of predicates is not
+admissible because it permits evidence to migrate between members. Only
+`recomputed` or `independently_reconciled` satisfied predicates with exact
+evidence refs can carry an authority-positive family result. The common proof
+result itself has only `verified` and `rejected`: native/exterior uncertainty
+is typed by family reconciliation, and acceptance/custody uncertainty by the
+consumer, so `limited` cannot silently recombine commitment and authority
+heads.
+
 A separate canonical bundle header has exactly `format`, `profile`,
 `proof_domain`, `family`, `scope_ref`, `authority_purpose`,
 `native_schema_profile`, `declared_denominator_ref`,
@@ -390,7 +406,11 @@ completed dedupe. A fake pre-poisoning event leaves no dedupe or freeze state.
 The crash falsifier starts with one active and one withdrawn/revoked target,
 then observes the window after the first write: both remain authority-blocked
 and the terminal result remains terminal; retry reconciles both exactly once
-before completion.
+before completion. A run-index or sibling projection cannot cache around this
+owner read: its cache identity binds the Decision Validity owner generation or
+it overlays the owner state on every request. Holding the run-directory
+fingerprint fixed across phase one, process crash and restart must still expose
+the complete pending freeze.
 
 Claim Ledger's append-only action vocabulary fits the result, but its
 governance lifecycle bridge is still `implemented_but_not_orchestrated` and
@@ -402,14 +422,68 @@ affected claims, old/new ledger and run refs, epoch evidence, authority purpose
 and `requested_query_context_ref` plus the referenced old/new epoch member
 frames and their immutable member-admission contexts before Claim Ledger
 validates and appends the transition. It never requires the requested-query
-context to equal either historical member-admission context. Automatic recipe
-execution remains
+context to equal either historical member-admission context. Claim Ledger
+resolves its own current ledger/head rather than repeatedly using the decision
+packet's historical ref, and atomically compare-and-appends the new ledger plus
+bridge result so sequential batches cannot fork. A strict data registry
+enumerates every dependency-bearing ClaimRecord path (including nested
+preconditions); the owner reconciles that denominator generically and fails on
+an unregistered/malformed/new path rather than narrowing to six fields or all
+claims. Between DV completion and Claim Ledger head advance, an exact
+`claim_bridge_pending` limitation keeps the affected or unresolved public
+projection non-current; crash/retry resumes the same completed batch. Every
+public and sibling export resolves the same current head and rejects a stale
+caller ledger. Automatic recipe execution remains
 `absent/unallocated` with the artifact's canonical producer.
+
+Cycle-6 plan review fixes the remaining owner seams by construction:
+
+- The boundary-source registry dispatches data rows through exactly three
+  finite native owner kinds (L5 regime, Lex amendment window and N13b
+  acquisition), never through a provider map keyed by registration/facet ID.
+  One generic facet provider consumes every data row. New domains, regimes,
+  amendments and facets under those owner kinds therefore free-grow through
+  data; a genuinely new native owner kind is a new authority adapter and must
+  be reviewed as such.
+- L5 owns an explicit content-bound regime-to-scope relation and includes every
+  regime/relation assessment in its denominator receipt. N12 cannot infer
+  scope from IDs/paths or override it in its registry; missing or ambiguous L5
+  scope yields `epoch_scope_unresolved`. The same scoped projection strangles
+  generation substrate and L4/value-state binding; global
+  `latest_schema_regime()` and hard-coded Ukraine v1/v2/date branches are
+  removed. The initial case moves to L5-owned data, and a third regime/new
+  domain must agree across all three consumers without engine code.
+- N13b records an owner-native member-to-epoch relation for every overlay row
+  **referenced by each admission**, including reused metadata that was not
+  inserted again.
+  Its read-session strangle derives primary-key joins for the complete six-
+  table `_BASELINE_UNION_TABLES` denominator and uses `EXISTS`/semi-join
+  visibility through at least one `active` epoch. A pending creator plus active
+  reuser exposes a complete registration, while two active reusers emit each
+  native row once. A pending or legacy admission is otherwise absent from all
+  six views; a novel table without a native key/relation fails closed.
+- Epoch-transition signing uses the exact signed-evidence port, not generic
+  `ArtifactStore` or an invented signature-sidecar `ArtifactRef`. The raw CAS
+  identity is signed and exact blob/manifest/signature bytes are reloaded at
+  Decision Validity intake.
+- OpenWorldRisk's owner projection never resolves itself. The live N9 port,
+  standalone/offline replay verifier and decision-front consumer receive the
+  same owner-configured read-only artifact resolver and recompute vector bytes,
+  semantic hash and verifier provenance. Fresh-process replay rejects a
+  deleted or mutated vector.
+- The epoch-validity gate sits in the canonical core generation controller
+  before every N9 call, not only in HTTP control. On every attempt it compares
+  the packet-bound epoch to the current native head and reconciles complete
+  dependency and owner-adjudication denominators against the last completed
+  binding. An old packet after an earlier head advance, or a new adjudication
+  under an unchanged epoch, requires a new batch; “the head did not change in
+  this call” can never mint a no-transition pass.
 
 ### Delivery scope and anchor appointment
 
-The recommended delivery is narrow. GY-N12 consumes the Foundry-owned
-GY-DEF22 identity and delivers Clusters 1–4: the common protocol, one
+The recommended delivery is narrow. GY-N12 executes the owner-preserving
+GY-DEF22 work in this lane while Foundry remains its correctness owner, then
+delivers Clusters 1–4: the common protocol, one
 non-authoritative second-shape conformance witness, the epoch adapter and
 epoch/OpenWorldRisk/cascade plus owner bridges. The witness proves only generic
 protocol behavior relative to supplied native inputs and cannot mint a native
@@ -425,7 +499,7 @@ The non-overlapping 128-ID responsibility partition is:
 | N12 common/profile | A01–A07; B01–B03, B05–B08, B10–B17; H01, H02, H04–H06, H10, H11, H14, H16, H17; J05 | 34 | supplied-head protocol under either decision; not accepted whole history without holder |
 | N12 epoch/OpenWorld/cascade | C00–C10A; D01–D13A; H03, H07, H18–H22; J01A | 40 | native owner results remain distinct from chronology authenticity |
 | N12 anchor-dependent | B04, B09, B09A; H08, H12, H15; J01, J06 | 8 | `not_established` without appointment; eligible, not automatically closed, with consumer+holder |
-| Foundry prerequisite | H09; I01–I06 | 9 | Foundry N8/N10a owner; N12 consumes |
+| Foundry prerequisite | H09; I01–I06 | 9 | N12 executes owner-preserving work; Foundry N8/N10a owner adjudicates correctness |
 | GY-GAP3/GY-PA3 | E01–E09; J02 | 10 | deferred |
 | GY-GAP5/generation cycle | F01–F10; H13, H13A; J03 | 14 | deferred |
 | GY-GAP6/N13b-N7-DS7 | G00–G09; J04 | 12 | deferred |
@@ -437,11 +511,13 @@ ranges are included exactly once. The Cycle-5 journal carries the expanded
 no-holder/with-holder status.
 
 The wide alternative would prove genericity with multiple production adapters,
-but it couples three absent producer/denominator chains and their surfaces to
-epoch delivery while all remain blocked on anchor custody. The cost of narrow
-is a bounded residual: each later adapter must rerun common conformance plus
-its native basis. The cost of wide is the premature delivery and review of
-three sovereign capabilities before the shared institutional decision.
+but it couples three absent producer/denominator chains and one
+product-blocked confidence-family contract to epoch delivery. The cost of
+narrow is a bounded residual: each later adapter must rerun common conformance
+plus its native basis. The cost of wide is premature delivery and review of
+sovereign capabilities whose owner predicates are absent or deliberately
+unscheduled. The additional GY-GAP2 candidate therefore strengthens the need
+for the Cluster-2 opaque witness but does not reverse the narrow verdict.
 
 No writer-independent accepted-anchor holder is evidenced. A competent family
 consumer must recompute or independently reconcile acceptance at the bound
@@ -454,18 +530,250 @@ S3 Object Lock audit cold tier is the strongest reuse mechanism but has no
 evidenced bucket, separate principal or chronology intake. Its generic audit
 replication is implemented and conditionally orchestrated; chronology holder
 intake/receipt/readback/challenge remains `absent/unallocated` and deployment
-independence `not_established`.
+independence `not_established`. The user's contingent epoch-only appointment
+therefore does not activate: Cluster 3 must deliver acceptance and verification
+machinery with positive holder custody honestly unavailable.
 
-If one appointment is made, the recommendation is a cross-family neutral
-`Chronology Anchor Custodian`: a separately credentialed/accounted Object Lock
-holder that accepts only competent family-consumer-signed receipts and exports
-put/version/retention and readback receipts. It retains proof but mints no
-semantic authority. Without that appointment, supplied-head integrity and
-independently reconciled native denominators remain deliverable, but accepted
-whole-history authenticity, global/latest and PV-K07 issuance remain
-`not_established`. The user may instead appoint an epoch-only holder or
-deliberately accept that claim ceiling. The full decision brief is in the
-Cycle-5 journal.
+The user selected an epoch-only holder contingent on qualification. The
+tracked operating evidence does not qualify the cold tier, so no appointment
+is made. Supplied-head integrity and independently reconciled native
+denominators remain deliverable, while accepted whole-history authenticity and
+global/latest claims remain `not_established`. The exact minimum appointment
+and deployment evidence are fixed in the Cycle-6 decision below.
+
+## Cycle 6 decisions
+
+### Epoch-only custody — contingent appointment does not activate
+
+The existing S3 Object Lock cold tier is not an epoch anchor holder. Its
+`ColdTierBackend` accepts generic audit JSONL, calls `put_object` with a
+requested compliance retention mode, discards the response and has no
+chronology intake, accepted-anchor index, object/version/retention receipt,
+remote readback or challenge interface. It uses ambient S3 credentials and
+models no account, role, deny policy, separate principal or receipt-log
+authority. Repository configuration exposes only bucket, prefix and region;
+the tracked cloud/IAM denominator contains no qualifying S3 deployment. These
+facts establish repository absence only. External deployment and credential
+independence remain `not_established`.
+
+The generic audit replica remains an implemented reusable component and is
+conditionally orchestrated. Its deployment boundary is `not_established`,
+its reader/receipt path is `consumer_missing` and its end-to-end proof is
+`verification_missing`. The chronology holder capability itself remains
+`absent/unallocated`. A remote location, a writer-retained adjacent copy or
+a self-attested witness cannot promote those labels.
+
+The minimum epoch-only appointment that would qualify is one package of
+institutional and behavioral evidence:
+
+1. an appointed epoch anchor custodian that is not the semantic authority;
+2. an Object-Lock-enabled bucket in a holder-controlled account/principal,
+   with policy receipts proving the epoch writer cannot change policy,
+   retention, versions, holder credentials or the receipt log;
+3. a competent epoch consumer that independently reconciles scope, purpose,
+   cutoff, denominator, query coordinate and prior lineage before signing;
+4. holder ingestion of exactly that signed acceptance package, returning
+   content-bound object version and retention receipts;
+5. holder-side exact-ref readback and independent retention/version challenge;
+6. fail-closed Decision Validity, Claim Ledger and public-surface consumption
+   of receipt or typed non-receipt; and
+7. the writer-compromise falsifier: rewriting every writer-controlled history
+   must diverge from the holder's retained accepted bytes.
+
+Until those facts exist, Cluster 3 implements the acceptance/verification
+contracts, anti-rollback checks and honest `not_established` result, but no
+holder writer, positive custody claim or whole-history authenticity. This is a
+complete bounded delivery, not an implicit appointment.
+
+The machinery's trust boundary is also fixed. Acceptance and holder
+appointments resolve **independently**, each scoped to family, proof domain and
+authority purpose, so acceptance-only, holder-only and neither can preserve
+their exact established/not-established halves. A no-argument production
+composition root installs the no-appointment resolver/empty registry and is
+the only source constructor; downstream code receives only its provider and
+cannot inject test services. No authority call accepts a caller-provided proof
+result, native reconciliation, verifier, trust root, holder or appointment. The
+competent acceptance authority reloads exact bytes and recomputes both
+full-prefix proof and member-bound native predicates before signing. Its
+owner-held append-only lineage repository resolves explicit current multi-heads
+and compare-and-appends the new acceptance; a caller's prior ref is only an
+assertion. Thus an authentic old record remains valid for its stored query but
+cannot satisfy a later/current query. Signing
+targets the raw CAS artifact identity required by the existing signer; the
+domain-separated acceptance digest remains a distinct semantic identity. A
+narrow signed-evidence repository supplies exact blob, manifest and detached-
+signature bytes—a generic `ArtifactStore` cannot impersonate it. Every signed
+object uses an unsigned canonical statement/record followed by a persisted
+wrapper; no record contains its own ref. The retention
+package embeds the complete accepted verification object graph and holder
+readback returns those retained bytes, so deleting every writer-side copy does
+not remove the evidence needed for challenge. A discriminated result requires
+both halves for `verified`, preserves established halves under `limited`, and
+records independently reconciled mismatch provenance under `rejected`.
+Production still resolves no appointment/holder and therefore remains
+`not_established`.
+
+### GY-DEF22 — lane of execution changes; correctness owner does not
+
+GY-N12 executes GY-DEF22 inside Cluster 1. Foundry catalog/discovery remains the
+canonical correctness and admissibility owner; N8 remains the producer and
+N10a the amplifying consumer. N12 may wire, test and consume the resulting
+identity but may not mint a chronology-local environment identity or decide
+which distribution/profile is admitted. Foundry adjudication of the exact
+profile/root/distribution discriminant and its falsifier packet is owed before
+GY-DEF22 can close. This applies Atlas Revision 3.22's ownership rule:
+ownership assigns responsibility for correctness, not the moment or lane of
+execution.
+
+Both GY-DEF14 branches survive at their proper scopes:
+
+- ambient plugin-discovery posture remains fully recorded but non-decisive,
+  as the existing governed projection and two-posture test already establish;
+- the execution environment is decisive and must name a reconstructible
+  admitted profile/root/distribution discriminant. Treating it as ambient
+  would reproduce the `research`/`torch==2.10.0` P38 failure.
+
+Foundry therefore owns a purpose-to-profile admission relation; N8 supplies
+only the fixed `n8_method_catalog_reconstruction` purpose and cannot select or
+relabel a profile. A canonical Foundry sync tool derives the uv argv from that
+relation, requires a fresh task-local environment and emits a content-bound
+candidate observation. An admitted environment receipt additionally requires
+a competent runtime-subtree cutoff authority. N8 reads installed metadata from
+that bound environment and requires the admitted receipt; caller-shaped distributions and the shell torch
+precheck are not product evidence. This makes a receipt genuinely issued for
+`research` fail even if its required subset overlaps, while a package outside
+the closure of a genuinely admitted receipt remains non-decisive as falsifier
+4 requires.
+
+The authority boundary is one strict/frozen evidence plane backed by the
+existing `ArtifactStore`/`FileSystemCAS`, not a second byte store. Every record
+pairs an immutable wire CAS identity with a domain-tagged semantic hash; live
+mutable artifact objects exist only behind the store adapter. Imported signed
+evidence retains the exact blob, original manifest and detached signature as
+one content-bound record; no regenerated manifest can verify. A Foundry-owned
+digest registry exhaustively names the preimage, ordering, phase, producer and
+independent verifier for every decisive ref/hash. A generic contract mutation
+rejects an unregistered field, predicate, cross-domain comparison or missing
+not-established branch. Exact trust material includes public-key and revocation
+bytes. Any post-cutoff N8 resolution must sign and verify a fresh nonce-bearing
+production-data root challenge and persist a separate resolution receipt
+binding request, source authority, immutable capsule, appointment, current
+manifest, fresh access evidence and stable/instance denominators. The capsule's
+sync-time receipt cannot stand in for that current P37 predicate.
+The owner resolves the requested production-data path into one opaque mount
+capability; both manifest reading and attestation must use that exact capability,
+so a genuine attestor for root A cannot validate a copied root B. Once that
+authority path exists, admitted, rejected and not-established attempts each
+persist their own discriminated outcome receipt. It does not exist in v1:
+runtime-cutoff preflight returns an exact strict in-process refusal with
+`persistence=not_established` and names the missing
+`owner_resolved_resolution_receipt_store`, whose current capability state is
+`absent/unallocated`. The smallest closure is an
+appointed owner-opened, request-bound, no-follow, explicitly signed audit store
+with independently resolvable readback. Live source provides no such component;
+therefore this specification does not promote a local CAS configuration into
+custody or authorize a refusal writer.
+
+Installed identity separates stable semantic content from install-instance
+bytes. The stable transform uses logical install roots and normalizes only a
+verified generated entry-point launcher; raw instance rows retain exact bytes.
+The N8 root distribution is installed non-editably; checkout-address-bearing
+editable metadata is rejected rather than normalized.
+Two absolute environment roots therefore reproduce one stable closure but
+different instance receipts. Wheel/source/build evidence is retained through
+canonical refs; a built wheel has a typed signed source→builder→output lineage,
+and Python identity covers launcher, stdlib, libpython and linked runtime
+libraries. Rewriting RECORD plus payload, changing `pathlib.py`, replaying an
+old root attestation or dirtying decisive authority bytes beneath an unchanged
+HEAD all fail.
+
+Cycle-6 adversarial review established a stricter runtime boundary. Two
+independently enumerated complete walks with per-file pre/post observations can
+show two equal observations, but cannot establish one simultaneous completion
+cutoff: a writer can change an early file after its final pass-two observation
+while later files are still read. Immediate re-verification does not repair
+that property. A positive runtime identity therefore requires either an
+owner-enforced immutable snapshot or mandatory writer-exclusion lease bound to
+the exact observation. No such owner/capability is evidenced; its state is
+`absent/unallocated`. The current production composition returns
+`owner_enforced_runtime_subtree_cutoff_not_established`, issues no admitted
+environment receipt and leaves GY-DEF22 `producer_missing`. Candidate
+reconstruction and all negative
+falsifiers remain executable; a writer-owned lock, adjacent copy or bare
+two-pass receipt cannot promote them.
+
+Tracked source and production data are two separately bound roots. The latter
+may be an explicitly appointed external read-only root; its custody receipt,
+resolved root, manifest bytes and source-freeze binding must agree. Writable,
+moved, sibling/unappointed or changed targets fail. Missing and unreadable
+manifests share the single public code `production_data_manifest_missing`, with
+the strict failure leaf retaining only
+`cause: Literal["missing", "unreadable"]` for diagnosis.
+
+The fixed six-falsifier set is:
+
+1. an environment receipt issued for `research` (which admits
+   `torch==2.10.0`) cannot be relabelled under the N8 purpose and fails with the
+   discriminating profile/root/distribution code rather than catalog or
+   downstream hash drift;
+2. an incompatible in-closure distribution substituted under the same shaped
+   profile is detected by recomputation;
+3. a second data-generated incompatible profile is rejected without a
+   package/profile-name rule;
+4. an out-of-closure package difference passes;
+5. a novel admitted profile derives and replays from data alone, including the
+   recorded GY-DI1 profile; and
+6. absent or unreadable `production_data/manifest.json` names
+   `production_data_manifest_missing` at the input boundary, never a catalog
+   identity mismatch, generation-contract hash change or N10a triage drift.
+
+Machine pinning, package allowlists, backend ignores and prose-only profiles
+remain forbidden. The honest current label for the authority-grade identity
+producer is `producer_missing`, with runtime-cutoff authority
+`absent/unallocated`, production runtime candidate-evidence disposition
+`not_requested`, and `artifact_missing`, `semantic_test_missing` and
+`surface_missing` deficits. A test/reference `present` candidate remains
+non-decisive and cannot alter the cutoff result. The existing N8
+artifact, N10a consumer and ambient quarantine are real partial capability and
+are not relabelled absent.
+
+### GY-GAP2 — fourth deferred candidate; narrow delivery still holds
+
+GY-GAP2 fits `full_prefix_canon_json_0_2_0_sha256_256_v1` without a
+profile fork. Its family declaration can be opaque native bytes whose immutable
+members reference existing per-problem confidence roots/receipts, prospective
+local caps, owner assumptions and owner-reconciled current heads. The common
+protocol needs no risk field, arithmetic rule, universal CTM field or parent
+scope.
+
+The protocol supplies a commitment head for the declared append-only family
+prefix. It supplies no family authority head. The confidence owner must
+reconcile the exact vector of existing per-problem native heads and enforce
+the INT-K04 caps before execution; INT-K05 forbids merging or resetting those
+roots. That absent owner-side family relation remains `contract_missing` and
+`blocked_on_product_decision` under INT-K06. It is recorded as a candidate,
+not scheduled.
+
+Adding this fourth deferred candidate strengthens the wide argument but does
+not overcome its blockers: no admitted consumer requires a family number, and
+building GAP2 would add owner arithmetic rather than test the common proof
+protocol. Narrow delivery therefore still wins. Cluster 2 must make its second
+opaque conformance witness materially non-epoch and run it through the **real
+full-prefix verifier** at 0/1/2 members plus deletion, substitution, reorder,
+profile/domain replay and consistency falsifiers. The test-only witness emits
+no release, run, movement or confidence-family producer, denominator,
+acceptance, authority head or number.
+
+### Registered Cluster-4 prerequisites
+
+The complete tracked-tree identifier census gives next free identifiers
+`GY-DEF23` and `GY-GAP8`. GY-DEF23 records Decision Validity's
+caller-supplied status/dependency-key authority defect. Its epoch admission
+capability remains `producer_missing` and closes only through
+`C5-PREREQ-DV-EPOCH-ADMISSION`. GY-GAP8 records the Claim Ledger lifecycle
+bridge's zero production call sites and inability to authenticate detector
+truth. It remains `implemented_but_not_orchestrated` and closes only through
+`C5-PREREQ-CLAIM-DV-LIFECYCLE`. Neither is `bridge_missing`.
 
 ## Family obligations
 
@@ -506,6 +814,16 @@ recompute the identical semantic reference and basis at those coordinates; the
 overlay counter cannot select it. A mismatch refuses semantic admission or
 returns `not_established`. Once admitted, the acquisition boundary enters the
 same epoch/staleness cascade as an L3 or L5 change.
+
+The acquisition/epoch cycle is a two-phase owner handshake. N12 may prepare a
+deterministic stamp from content-bound candidate evidence, but preparation
+moves no epoch head. N13b first persists the passported row hidden as
+`pending_epoch_activation`; N12 then re-enumerates the now-admitted owner
+denominator, requires exact agreement with the prepared manifest/stamp and
+appends the epoch/native proof; finally N13b verifies that production receipt
+before making the row visible. A crash at any boundary is idempotently
+resumable, and neither an unadmitted candidate nor a pending row can create a
+current epoch/public observation.
 
 Resolution consumes owner-native valid/effect and visibility coordinates plus
 the authority context, and returns a discrete semantic reference with content
@@ -719,16 +1037,27 @@ completeness claim.
 
 ## GY-DEF22 owner-preserving folded closure
 
-The task explicitly routes GY-DEF22 into this lane, but its canonical authority
-stays at the Foundry catalog/discovery boundary, with the N8 tool as producer
-and N10a validator as consumer. N12 consumes the resulting identity; it does not
-mint or absorb it. One deployment-environment identity must serve that chain
-and chronology work. The owner record must name a reconstructible admitted
-dependency profile/root/distribution discriminant rather than only an observed
-package list. The validation owner compares the decisive profile identity
-before backend/package fingerprints. The epoch derivation recipe binds that
-profile identity: omitting a tool/environment dependency from the declared
-recipe closure is a false-revalidation pass, not an irrelevant packaging gap.
+The task explicitly routes GY-DEF22 execution into this lane, but its canonical
+authority stays at the Foundry catalog/discovery boundary, with the N8 tool as
+producer and N10a validator as consumer. N12 performs the owner-preserving
+repair and consumes the result; it does not mint or absorb the identity.
+Foundry adjudication of the exact source and falsifier packet remains owed.
+One deployment-environment identity must serve that chain and chronology work.
+The owner record must name a reconstructible admitted dependency
+profile/root/distribution discriminant rather than only an observed package
+list. The validation owner compares the decisive profile identity before
+backend/package fingerprints. The epoch derivation recipe binds that profile
+identity: omitting a tool/environment dependency from the declared recipe
+closure is a false-revalidation pass, not an irrelevant packaging gap.
+The source/profile/distribution repair remains executable in this lane, but a
+positive environment identity is additionally gated by the runtime-subtree
+cutoff predicate above. Because that predicate is currently
+`not_established`, the owner-preserving result is a candidate reconstruction
+plus typed non-receipt, not GY-DEF22 closure.
+That current preflight non-receipt is an in-process typed refusal, not a
+persisted artifact: refusal-receipt persistence remains `not_established` and
+`artifact_missing` until the owner-resolved audit-store capability above is
+appointed and implemented.
 
 Required falsifiers are:
 
@@ -744,16 +1073,20 @@ Required falsifiers are:
 - a novel admitted profile/distribution derives its discriminant and closure
   from recorded data and verifies without a code or allowlist edit;
 - the admitted GY-DI1 profile reconstructs from the record and replays
-  reproducibly.
+  reproducibly; and
+- an absent or unreadable `production_data/manifest.json` fails with
+  `production_data_manifest_missing` at that input boundary, never as
+  catalog-identity drift, generation-contract hash drift or N10a triage drift.
 
 Machine pinning, package allowlists, backend ignores and prose-only environment
 descriptions are forbidden repairs.
 
 ## Artifact and replay economics — pre-run price
 
-For this four-cycle phase the mechanism-path count and deployment-bound artifact
-count are both zero: only plan companions (journals, specification and closure
-basis) may move. No replay is authorized or useful before a mechanism exists.
+For the completed research phase the mechanism-path count and
+deployment-bound artifact count are both zero: only plan companions (journals,
+specification, registrations and implementation plan) may move. No replay is
+authorized or useful before a mechanism exists.
 
 At current HEAD, the deployment owner still resolves 96 paths (94 Python
 modules plus `pyproject.toml` and `uv.lock`) and three deployment-bound frozen
@@ -781,11 +1114,16 @@ that GY-N12 deliver only Clusters 1–4. Clusters 5–7 are separately routed
 consumer tasks, and Cluster 8 is sliced across the capability that owns each
 surface. This is a delivery decision, not implementation authorization.
 
-1. **Owner-preserving environment dependency:** the Foundry catalog/discovery
-   owner closes GY-DEF22 with N8/N10a and exposes the admitted identity for N12.
-   Pass known and generated incompatibility plus irrelevant-difference tests.
-   N12 is only a consumer. Current state: GY-DEF22 open; this cluster is not
-   executable by a chronology-local substitute.
+1. **Owner-preserving environment dependency:** the GY-N12 lane executes
+   GY-DEF22 through the Foundry N8 producer and N10a consumer, passes all six
+   environment/manifest falsifiers and hands the exact packet to Foundry for
+   owed correctness adjudication. N12 does not introduce a chronology-local
+   identity. The current production cutoff resolver returns
+   `owner_enforced_runtime_subtree_cutoff_not_established`; no
+   writer-exclusion/snapshot owner exists.
+   Current authority-grade producer state: `producer_missing`, with the cutoff
+   capability `absent/unallocated` and refusal-receipt persistence
+   `not_established` (`artifact_missing`).
 2. **Policy-free proof profile:** extend/consolidate core canonical/CAS,
    `ChainVerifier`, N11 behavioral checks and Data Forge commitment primitives
    into the fixed
@@ -795,9 +1133,21 @@ surface. This is a delivery decision, not implementation authorization.
    relative to a supplied head. Include one different-shape opaque
    non-authoritative conformance witness that cannot become a GAP producer,
    denominator or authority owner. Current capability: `absent/unallocated`.
-3. **Anchor admission and retention:** if the user appoints custody, wire the
-   epoch competent-consumer acceptance receipt and the appointed
-   writer-independent holder, including requested-coordinate anti-rollback.
+   Predicate/profile admission is owner-selected before adapter evidence is
+   read: a unique relation keyed by family/proof-domain/scope/purpose/cutoff
+   returns the native schema profile and exact predicate policy. The common
+   query carries neither. The adapter supplies only a candidate native history;
+   the consumer reconciles every member/bundle profile and the complete
+   predicate denominator against the owner result before constructing the
+   authority-positive reconciliation. Two valid profiles with a lax adapter
+   nomination and a zero-member history are both mandatory falsifiers.
+   The applicable denominator hashes an unsigned statement and stores its digest
+   only in a wrapper. Qualification returns a closed union of positive,
+   policy-resolution failure, post-policy rejection and native limitation;
+   common proof status remains only `verified` or `rejected`.
+3. **Anchor admission and retention:** implement the epoch
+   competent-consumer acceptance receipt, custody-verification port and
+   requested-coordinate anti-rollback.
    The receipt binds authority purpose, `requested_query_context_ref`, the
    defined `bundle_content_hash`, exact parsed header, commitment head, prior
    accepted anchor and the immutable member refs/commitments it evaluated.
@@ -805,10 +1155,12 @@ surface. This is a delivery decision, not implementation authorization.
    index keys the receipt's family/scope/purpose/query context and consumer,
    not equality with every member-admission context. Exact-ref authenticity
    alone cannot accept an old or cross-purpose anchor.
-   The recommended common holder may retain receipts for every family but
-   cannot accept native semantics. This is a separate review boundary from
-   proof production. With no appointment, skip the holder mechanism and retain
-   the explicit supplied-head/whole-history `not_established` claim ceiling.
+   This is a separate review boundary from proof production. Because the
+   contingent epoch-only appointment did not qualify, implement no holder
+   writer or positive deployment claim: holder resolution returns the explicit
+   supplied-head/whole-history `not_established` ceiling. A later
+   appointment must satisfy the fixed minimum before this cluster can be
+   reopened for positive custody.
 4. **Epoch producer and validity cascade:** generic boundary and full semantic-
    facet manifest resolution, unresolved scope, append-only epochs, exact N13b
    stamp/basis reconciliation, component-wise OpenWorldRisk, owner-adjudicated
@@ -816,7 +1168,10 @@ surface. This is a delivery decision, not implementation authorization.
    Validity/Claim Ledger bridges. Satisfy
    C5-PREREQ-DV-EPOCH-ADMISSION and
    C5-PREREQ-CLAIM-DV-LIFECYCLE; N12 emits content-bound evidence while
-   Decision Validity derives status and Claim Ledger appends history. Each
+   Decision Validity derives status and Claim Ledger appends history. The
+   canonical generation-control path invokes the epoch producer and passes the
+   signed transition ref into Decision Validity before N9 promotion; the new
+   intake is not left waiting for a caller-supplied producer. Each
    derived artifact's canonical producer executes its recipe. Missing producer
    links retain their exact labels. Current epoch/OpenWorld capability:
    `absent/unallocated`; Decision-Validity trigger: `producer_missing`.
@@ -917,3 +1272,4 @@ institutional appointment.
 | 3 | strongest conditional unification versus minimal semantic-owner split; repository head/membership/correction/anchor/run-gap counterexamples | one policy-free proof protocol is the supported direction for four domains; one semantic authority is refuted; hash-chain-first is provisional and N11 owner reuse forbidden | rewritten with protocol/authority split, explicit native-head limits, anchor custody, algorithm-choice measurement and reordered clusters; first and return reviews repaired same-class deeper findings, final delta clean |
 | 4 | content-bound adversarial record/design/method review under the written P40 bucket rule | 16 distinct blocking buckets after duplicate witnesses were folded; later findings stayed in those classes; no cosmetic-only finding | rewritten across design, basis and record; substantive design and superseding 128-property basis packets clean; final status/record delta freezes only on clean receipt plus commit readback |
 | 5 | cutoff-bound scale and consumer-demand measurement; live Decision Validity/Claim Ledger intake audit; strongest third-axis attack; narrow/wide and custody decision briefs | fixed full-prefix v1 with numeric fail-closed caps; two named Cluster-4 prerequisites; `epoch_ref` survives with sharpening; narrow scope recommended; neutral shared holder recommended but requires user appointment | spec revised without changing the frozen basis; no mechanism, artifact, writer, replay or implementation plan |
+| 6 | contingent epoch-only holder feasibility; in-lane/owner-bound GY-DEF22 reconciliation; GY-GAP2 fourth-candidate attack; live prerequisite registration; executable-plan adversaries | no qualifying epoch holder is evidenced, so Cluster 3 returns honest `not_established`; no runtime snapshot/writer-exclusion owner is evidenced, so Cluster 1 returns `owner_enforced_runtime_subtree_cutoff_not_established` rather than minting an admitted environment; N12 executes the remaining DEF22 machinery while Foundry adjudication remains owed; GAP2 fits as a deferred commitment-head consumer and narrow delivery survives; DEF23/GAP8 are registered; Clusters 1–4 receive exact atomic boundaries and guarded conditional replay protocol | specification finalized without changing the frozen 128-property basis; implementation remains unauthorized until this plan is approved |

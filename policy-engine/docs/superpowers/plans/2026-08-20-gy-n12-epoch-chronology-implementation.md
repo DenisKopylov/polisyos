@@ -347,315 +347,57 @@ sets assign review responsibility; they are not scores and must never be
 reported as `91/91` or `128/128`. A review finding is on-basis only when it maps
 to one of the cluster's exact IDs.
 
-### One execution manifest owns every implementation denominator
+### Cluster-scoped execution contract
 
-This is lane-local developer tooling, not a fifth product cluster, chronology
-family, authority owner or governed artifact. It may decide only whether this
-branch's next implementation commit has the reviewed paths/tests/receipts; it
-is never deployed, signed, projected, consumed by PolicyOS runtime decisions or
-included in the 96-path deployment identity. No receipt below may establish an
-epoch, Claim, promotion, acceptance, holder or whole-history predicate. Keep
-the implementation to one dependency-free checker/runner and its mirrored
-test; do not generalize it into a workflow engine, receipt service or reusable
-governance framework (`P13`). The detailed statement shapes below are its
-closed local file grammar, not new public contracts.
+GY-N12 executes cluster by cluster, not as one fifteen-task run. Cluster 1,
+then Cluster 2, then Cluster 3 and then Cluster 4 each use an attached cluster
+branch in this already-provisioned worktree and finish with their own frozen
+basis subset, closure receipt and handoff. Changing branch must not replace the
+worktree: the admitted `.venv`, appointed read-only `production_data` link and
+operator appointment files remain part of the lane environment. Cluster 1 is
+Foundry-owned and independent of the chronology chain; its correctness
+adjudication remains owed to Foundry.
 
-Before Cluster 1, one explicitly reviewed bootstrap boundary creates the
-non-governed, machine-readable execution record and its checker/test:
+The task sections are the execution source of truth. Their complete `Add` and
+`Modify` lists declare the only candidate paths for a boundary, and their argv
+rows are commands to run directly. `Modify` paths must exist at task entry;
+their absence is an error. `Add` paths need not exist until their candidate is
+present. Immediately before a task suite and again before attachment, derive
+the complete Git-visible working-tree delta and require exact set equality with
+the sorted union of the task's declared `Add` and `Modify` paths. Equality,
+not containment, is the drift guard. A missing declared candidate, an
+undeclared path, an Add/Modify overlap or a narrowed command denominator blocks
+the boundary.
 
-- `architecture/production_quality/gy_n12_execution_manifest.json`
-- `tools/quality/validation/check_gy_n12_execution_manifest.py`
-- `tests/repo_quality/tools/test_gy_n12_execution_manifest.py`
+The six-wave bootstrap harness is retired from the execution path. Its three
+files are not task inputs, suite members, boundary paths or authority
+artifacts. Their exact historical bytes remain recoverable from the non-branch
+preservation refs `refs/gy-n12-preservation/bootstrap-wave6`,
+`refs/gy-n12-preservation/bootstrap-wave6-declared-residuals` and
+`refs/gy-n12-preservation/bootstrap-wave6-evidence`; no cluster consumes those
+refs.
 
-After that bootstrap commit it is the sole executable denominator for task paths, Add/Modify roles,
-commit boundaries, check commands, timed suites and closeout. The Markdown
-lists below are reviewed projections of that record; the checker parses both
-and requires exact equality before every non-bootstrap edit and at every boundary. It
-also emits the exact product-relative path vector consumed by the guarded
-commit and the exact argv consumed by the suite runner. No handwritten shell
-path/test array carries authority.
+Every declared suite row runs in full through the canonical `GY_N12_RUN`
+wrapper (or the separately admitted N8 wrapper where the row explicitly says
+so). No selector may omit a named file or node. The journal records the
+attached branch, expected parent, declared and observed path sets, direct argv,
+process outcome and attachment readback. An ordinary non-zero exit is a
+completed failure receipt; a killed or signalled run is a non-receipt.
 
-```python
-GYN12RecordDigest = Annotated[
-    StrictStr, Field(pattern=r"^sha256:[0-9a-f]{64}$")
-]
-GYN12GitCommitId = Annotated[
-    StrictStr, Field(pattern=r"^[0-9a-f]{40}$")
-]
-GYN12GitTreeId = Annotated[
-    StrictStr, Field(pattern=r"^[0-9a-f]{40}$")
-]
+For every run measured or expected to exceed 60 seconds, declare the ceiling
+before launch from a prior comparable measurement, record `/usr/bin/uptime`
+immediately before and after, and write wall time, command, environment,
+process exit/signal and receipt/non-receipt disposition into the cluster
+journal. `GY-DI2` and `GY-DI4` are satisfied by those receipts, not by a
+timing machine or catalog-review state machine.
 
-class GYN12TaskPathSpec(BaseModel):
-    path: str
-    role: Literal["add", "modify", "generated_candidate", "record"]
-    kind: Literal[
-        "production", "test", "typecheck", "helper", "tool", "registry",
-        "documentation", "release_fragment",
-    ]
-    runner_refs: tuple[str, ...]
-    helper_consumer_refs: tuple[str, ...] = ()
-    execution_exemption: Literal[
-        "record_only", "generated_candidate_only"
-    ] | None = None
-
-class GYN12TaskSpec(BaseModel):
-    task_id: str
-    boundary_id: str
-    paths: tuple[GYN12TaskPathSpec, ...]
-
-class GYN12SuiteSpec(BaseModel):
-    suite_id: str
-    runner: Literal[
-        "pytest", "basedpyright", "ruff", "architecture", "runtime_contract",
-        "workspace", "validator",
-    ]
-    argv: tuple[str, ...]
-    phase: Literal["candidate", "post_commit", "source_freeze", "closeout"]
-    execution_environment: Literal["tooling", "n8"]
-    expected_exit_code: int
-    expected_semantic_status: str | None
-    expected_mode: str | None
-    required_issue_codes: tuple[str, ...] = ()
-    forbidden_issue_codes: tuple[str, ...] = ()
-    timing_policy: Literal["measure_then_catalog_enforce"]
-
-class GYN12SuiteObservation(BaseModel):
-    suite_id: str
-    candidate_snapshot_content_hash: GYN12RecordDigest
-    manifest_content_hash: GYN12RecordDigest
-    suite_spec_content_hash: GYN12RecordDigest
-    resolved_argv_content_hash: GYN12RecordDigest
-    timing_receipt_content_hash: GYN12RecordDigest
-    stdout_content_hash: GYN12RecordDigest | None
-    observed_exit_code: int
-    observed_semantic_status: str | None
-    observed_mode: str | None
-    observed_issue_codes: tuple[str, ...]
-    completion: Literal["completed"]
-
-class GYN12SuiteAdmissionStatement(BaseModel):
-    record_kind: Literal["suite_admission"]
-    boundary_id: str
-    observation: GYN12SuiteObservation
-    disposition: Literal["admitted"]
-
-class GYN12SuiteAdmissionRef(BaseModel):
-    suite_id: str
-    record_kind: Literal["suite_admission"]
-    boundary_id: str
-    receipt_content_hash: GYN12RecordDigest
-
-class GYN12SuiteIndexStatement(BaseModel):
-    record_kind: Literal["suite_index"]
-    boundary_id: str
-    candidate_snapshot_content_hash: GYN12RecordDigest
-    manifest_content_hash: GYN12RecordDigest
-    ordered_suite_admissions: tuple[GYN12SuiteAdmissionRef, ...]
-
-class GYN12HeldSubjectCandidateStatement(BaseModel):
-    record_kind: Literal["held_subject_candidate"]
-    boundary_id: str
-    expected_branch: Literal["codex/gy-n12-epoch-chronology"]
-    parent_commit: GYN12GitCommitId
-    subject_path_set_hash: GYN12RecordDigest
-    subject_content_set_hash: GYN12RecordDigest
-    candidate_snapshot_content_hash: GYN12RecordDigest
-    complete_measurement_denominator_hash: GYN12RecordDigest
-    timing_review_index_content_hash: GYN12RecordDigest
-    manifest_content_hash: GYN12RecordDigest
-    checker_content_hash: GYN12RecordDigest
-
-class GYN12TimingReviewRow(BaseModel):
-    suite_id: str
-    candidate_snapshot_content_hash: GYN12RecordDigest
-    command_content_hash: GYN12RecordDigest
-    measurement_receipt_content_hash: GYN12RecordDigest
-    measured_wall_milliseconds: int = Field(gt=60_000)
-
-class GYN12TimingReviewIndexStatement(BaseModel):
-    record_kind: Literal["timing_review"]
-    boundary_id: str
-    candidate_snapshot_content_hash: GYN12RecordDigest
-    complete_suite_denominator_hash: GYN12RecordDigest
-    over_sixty_rows: tuple[GYN12TimingReviewRow, ...]
-
-class GYN12TimingCatalogCandidateStatement(BaseModel):
-    record_kind: Literal["timing_catalog_candidate"]
-    timing_review_index_content_hash: GYN12RecordDigest
-    prior_catalog_content_hash: GYN12RecordDigest
-    candidate_catalog_content_hash: GYN12RecordDigest
-    ordered_catalog_row_hashes: tuple[GYN12RecordDigest, ...]
-
-class GYN12ExternalReviewResolutionStatement(BaseModel):
-    record_kind: Literal["external_review_resolution"]
-    reviewed_record_kind: Literal["timing_review"]
-    reviewed_record_content_hash: GYN12RecordDigest
-    review_packet_content_hash: GYN12RecordDigest
-    reviewer_receipts_content_hash: GYN12RecordDigest
-    appointment_content_hash: GYN12RecordDigest
-    disposition: Literal["clean"]
-
-class GYN12TimingCatalogTransitionStatement(BaseModel):
-    record_kind: Literal["timing_catalog_transition"]
-    subject_held_candidate_content_hash: GYN12RecordDigest
-    catalog_candidate_content_hash: GYN12RecordDigest
-    independent_review_resolution_content_hash: GYN12RecordDigest
-
-class GYN12TimingCatalogCommitStatement(BaseModel):
-    record_kind: Literal["timing_catalog_commit"]
-    subject_boundary_id: str
-    held_candidate_content_hash: GYN12RecordDigest
-    timing_transition_content_hash: GYN12RecordDigest
-    prior_head: GYN12GitCommitId
-    committed_head: GYN12GitCommitId
-    committed_tree: GYN12GitTreeId
-    catalog_content_hash: GYN12RecordDigest
-
-class GYN12StagedCandidateStatement(BaseModel):
-    record_kind: Literal["staged_candidate"]
-    boundary_id: str
-    candidate_receipt_content_hash: GYN12RecordDigest
-    candidate_snapshot_content_hash: GYN12RecordDigest
-    staged_tree: GYN12GitTreeId
-    staged_path_set_hash: GYN12RecordDigest
-
-class GYN12BoundarySpec(BaseModel):
-    boundary_id: str
-    task_ids: tuple[str, ...]
-    commit_message: str
-    precommit_suite_refs: tuple[str, ...]
-    postcommit_suite_refs: tuple[str, ...]
-    conditional_path_predicates: tuple[str, ...] = ()
-    timing_catalog_boundary_ref: str | None = None
-
-class GYN12RecordDigestDomain(StrEnum):
-    PLAN_RAW = "plan_raw"
-    EXECUTION_MANIFEST_RAW = "execution_manifest_raw"
-    CANDIDATE_PATH_RAW = "candidate_path_raw"
-    CANDIDATE_SNAPSHOT = "candidate_snapshot"
-    CANDIDATE_PATH_SET = "candidate_path_set"
-    SUITE_SPEC = "suite_spec"
-    SUITE_ARGV = "suite_argv"
-    SUITE_STDOUT_RAW = "suite_stdout_raw"
-    SUITE_TIMING_RECEIPT_RAW = "suite_timing_receipt_raw"
-    SUITE_ADMISSION_RECEIPT = "suite_admission_receipt"
-    SUITE_INDEX = "suite_index"
-    HELD_SUBJECT_CANDIDATE = "held_subject_candidate"
-    TIMING_REVIEW_INDEX = "timing_review_index"
-    TIMING_REVIEW_RESOLUTION = "timing_review_resolution"
-    TIMING_CATALOG_CANDIDATE = "timing_catalog_candidate"
-    TIMING_CATALOG_TRANSITION = "timing_catalog_transition"
-    TIMING_CATALOG_RECEIPT = "timing_catalog_receipt"
-    TIMING_CATALOG_COMMIT = "timing_catalog_commit"
-    STAGED_CANDIDATE_RECEIPT = "staged_candidate_receipt"
-    BOOTSTRAP_REVIEW_RECEIPT = "bootstrap_review_receipt"
-    ALLOCATION_RAW = "allocation_raw"
-    ALLOCATION_ENTRY = "allocation_entry"
-    ALLOCATION_PROJECTION = "allocation_projection"
-    TOPOLOGY_CENSUS = "topology_census"
-    BOUNDARY_RECEIPT = "boundary_receipt"
-
-class GYN12DigestDomainSpec(BaseModel):
-    prefix_utf8: str
-    representation: Literal["exact_raw_bytes", "framed_canon_raw_mapping"]
-    canon_spec: Literal[
-        "polisyos.canon.json@0.2.0/raw-mapping/exclude-none-false"
-    ] | None
-
-class GYN12ExecutionManifest(BaseModel):
-    schema_version: Literal["polisyos.gy-n12.execution-manifest.v1"]
-    tasks: tuple[GYN12TaskSpec, ...]
-    boundaries: tuple[GYN12BoundarySpec, ...]
-    suites: tuple[GYN12SuiteSpec, ...]
-    closeout_suite_refs: tuple[str, ...]
-    record_digest_domains: dict[
-        GYN12RecordDigestDomain, GYN12DigestDomainSpec
-    ]
-```
-
-The checker rejects a duplicate/unnormalized path, Add/Modify overlap, an Add
-path already present or Modify path absent at task entry, a task path outside
-its one guarded boundary, a changed path outside the declared task, a test or
-typecheck witness without a runner, a helper without an importing test, a
-public/generated change without its canonical sync/check, or any difference
-between final timed-suite membership and the exact union of task checks.
-Every `add`/`modify` path has at least one runner; only a `record` or
-`generated_candidate` path may use its matching closed exemption, and an
-exemption plus a runner is invalid. Every suite is invoked only by `suite_id`:
-the checker derives its environment, argv and result expectations, writes one
-exclusive receipt under the candidate snapshot, and later seals the exact
-`suite_id -> receipt` bijection with no missing or extra file.
-Shared files may recur only in ordered boundaries. The timing-budget path is
-the sole conditional source path and is admitted only by a reviewed over-60
-measurement receipt. Generated candidates never enter a source boundary.
-Closeout includes backend verify, CI parity, runtime contract, architecture,
-all cluster checks and all 91 slice behavioral witnesses. The checker walks
-every task section and every complete candidate-tree source/caller census, so
-a newly discovered caller/test changes the manifest denominator and stops for
-review rather than being added to a shell list.
-
-The runner has one boundary transition, not a collection of phase loops:
-`snapshot -> execute every precommit suite -> seal the keyed suite index ->
-admit candidate -> materialize -> stage -> reconcile staged blobs/tree ->
-commit captured tree -> atomically attach -> read back -> execute every
-postcommit suite`. The explicit candidate-snapshot ref is an argument to that
-transition and is carried by every suite/admission/staged/committed receipt.
-It runs for every manifest boundary; no boundary-specific receipt filename is
-accepted from the shell.
-
-The first measurement pass always completes the boundary's **entire** suite
-denominator and then seals one `GYN12TimingReviewIndexStatement`; an over-60
-row is a non-admission but does not stop the remaining measurements. If the
-index is non-empty, the runner emits status 75 plus one
-`GYN12HeldSubjectCandidateStatement`, not a candidate or suite index. That
-receipt binds parent/branch, the complete subject path/content set, snapshot,
-measurement denominator, timing review, manifest and checker.
-
-The conditional timing transition preserves the held subject bytes while
-committing only the reviewed catalog through an isolated `GIT_INDEX_FILE`
-seeded from the held parent; it never requires the dirty worktree to equal the
-one-path catalog boundary. A trusted review resolver consumes and independently
-rehashes the actual timing packet, reviewer receipt and appointment bytes. The
-catalog commit is built from that isolated tree and atomically attached by one
-`git update-ref --stdin` transaction containing symbolic-HEAD verification,
-expected-old verification and update; if the available Git cannot perform the
-symbolic check, the gate blocks with no fallback. Main-index state remains
-untouched. After attachment, the runner proves the held subject content set is
-byte-identical, emits a versioned catalog-commit receipt, renews tooling/N8
-receipts under `<boundary>/<source-freeze>/<run-id>/...`, and resumes only that
-held boundary. The resumed run proves the catalog commit is the sole parent
-transition, reruns the complete suite denominator once (enforce for reviewed
-over-60 rows, unbounded measurement for the rest), and only those fresh
-admissions enter its final suite index. An empty timing index skips this branch.
-
-Closeout uses the identical measure → held candidate → conditional reviewed
-catalog commit → runner renewal → enforce lifecycle. A newly over-60 closeout
-row is another typed non-admission, never a silent skip. If a closeout timing
-commit invalidates an artifact declaration, re-declaration/readback becomes a
-manifest predecessor before closeout can resume. Validator/static rows are
-ordinary suite rows inside these complete enumerations and are never rerun by
-a second loop. Suite admission, suite index, held candidate, timing review/
-candidate/review-resolution/commit, staged-candidate and closeout records each
-have their own registered domain, wrapper and predecessor role; the schema/
-domain walk rejects a missing or unused one.
-
-The execution manifest cannot authorize its own creation. The one
-`bootstrap-execution-manifest` boundary consumes a user-appointed external
-package binding the exact branch/parent, three paths, captured tree, raw review
-packet bytes, every raw reviewer receipt, clean disposition and raw appointment
-bytes. Root cannot produce, appoint or rewrite it. Shell/Git primitives
-independently recompute the path/tree/packet/receipt/appointment digests before
-the candidate checker runs; shaped hashes are not evidence. The boundary stages exactly those paths, verifies the
-staged tree against the appointment, creates a commit from that captured tree with
-`git commit-tree`, and attaches it with
-one atomic `git update-ref --stdin` symbolic-HEAD/expected-old transaction;
-ordinary `git commit` is forbidden
-because it would reread a mutable index. It reads the attached commit/tree
-back, requires empty porcelain, then runs the now-committed checker/test and
-records a bootstrap readback receipt. The manifest records that historical boundary with
-`self_authorized=false`; every subsequent boundary must consume the committed
-checker and a content-bound candidate receipt.
+Appendix C supplies the only reusable shell procedures: one plain
+task-boundary executor that enforces the prefix, branch, clean-index,
+exact-delta and complete-suite predicates, and one atomic attachment function.
+The attachment transaction performs symbolic-HEAD verification, expected-old
+verification and branch update in one `git update-ref --stdin` transaction.
+If the installed Git cannot execute `symref-verify`, the boundary blocks; no
+non-atomic fallback exists.
 
 ---
 
@@ -4782,14 +4524,12 @@ starts from both public symbols and follows all callers; restoring the current
 ambient dictionary branch or an edge to a pure candidate reducer fails even
 when the authority module remains perfectly negative-only.
 
-Manifest suite argv projection (not a directly executable command; no selector
-can omit the novel-profile test):
+Task 1.1 direct suite argv (no selector may omit the novel-profile test):
 
 ```text
 "${GY_N12_RUN[@]}" -m pytest -q \
   tests/unit/foundry/methods/test_dependency_profile.py \
-  tests/unit/foundry/methods/test_catalog_snapshot.py \
-  tests/repo_quality/tools/test_gy_n12_execution_manifest.py
+  tests/unit/foundry/methods/test_catalog_snapshot.py
 "${GY_N12_RUN[@]}" -m basedpyright --project basedpyright.toml \
   tests/typecheck/foundry/dependency_authority_covariance.py
 ```
@@ -5081,13 +4821,29 @@ source-first writer, then check the result; never edit generated rows by hand
 or rewrite the deep-import baseline:
 
 ```text
-"${GY_N12_RUN[@]}" -m tools.cli architecture guardrails sync \
-  --skip-deep-import-baseline
+"${GY_N12_RUN[@]}" - <<'PY'
+from tools.devx.architecture import guardrails
+
+policies = guardrails._parse_public_surface(guardrails.DEFAULT_PUBLIC_MANIFEST)
+families = guardrails._parse_public_generated_artifact_families(
+    guardrails.DEFAULT_PUBLIC_MANIFEST
+)
+inventory = guardrails.build_public_surface_inventory(policies)
+guardrails._write_if_changed(
+    guardrails.DEFAULT_PUBLIC_JSON,
+    guardrails.render_public_surface_json(
+        inventory, generated_artifact_families=families
+    ),
+)
+guardrails._write_if_changed(
+    guardrails.DEFAULT_PUBLIC_MD,
+    guardrails.render_public_surface_markdown(inventory),
+)
+PY
 "${GY_N12_RUN[@]}" -m tools.cli architecture guardrails check
 ```
 
-These are the exact manifest suite argv rows for the public-surface boundary;
-they are not directly executable outside `execute-next-boundary`.
+These are the exact direct suite argv rows for the public-surface boundary.
 
 **Commit boundaries:**
 
@@ -6076,7 +5832,7 @@ Tests must prove BaseModel/dataclass/mapping inputs cannot choose different
 null encodings, an inapplicable CTM role may be absent, member context at C1 is
 not rebound by query context C2, and every unknown field/profile fails closed.
 
-Manifest suite argv projection (not a directly executable command):
+Direct task suite argv (run exactly as written):
 
 ```text
 "${GY_N12_RUN[@]}" -m pytest -q \
@@ -6164,16 +5920,33 @@ header/count/head combinations.
 This task tests bytes only. The two authority-adapter shapes belong to Task 2.4
 so the verifier cannot acquire policy while satisfying B10/B11/B16.
 
-Manifest suite argv projection (not a directly executable command):
+Direct task suite argv (run exactly as written):
 
 ```text
 "${GY_N12_RUN[@]}" -m pytest -q tests/unit/core/security/test_full_prefix.py
-"${GY_N12_RUN[@]}" -m tools.cli architecture guardrails sync \
-  --skip-deep-import-baseline
+"${GY_N12_RUN[@]}" - <<'PY'
+from tools.devx.architecture import guardrails
+
+policies = guardrails._parse_public_surface(guardrails.DEFAULT_PUBLIC_MANIFEST)
+families = guardrails._parse_public_generated_artifact_families(
+    guardrails.DEFAULT_PUBLIC_MANIFEST
+)
+inventory = guardrails.build_public_surface_inventory(policies)
+guardrails._write_if_changed(
+    guardrails.DEFAULT_PUBLIC_JSON,
+    guardrails.render_public_surface_json(
+        inventory, generated_artifact_families=families
+    ),
+)
+guardrails._write_if_changed(
+    guardrails.DEFAULT_PUBLIC_MD,
+    guardrails.render_public_surface_markdown(inventory),
+)
+PY
 "${GY_N12_RUN[@]}" -m tools.cli architecture guardrails check
 ```
 
-The sync and check run after both root-facade edits and before the Tasks
+The narrow writer and check run after both root-facade edits and before the Tasks
 2.1–2.2 atomic commit. The generated inventory/reference and release fragment
 must be in that exact boundary; Cluster 1's earlier sync is not evidence for
 these bytes.
@@ -6341,7 +6114,7 @@ the persistence seam, a second/sibling factory is found by the complete
 census, a paired rogue owner container cannot construct the consumer, and
 forged/copied/spent/fork-inherited continuations perform zero store calls.
 
-Manifest suite argv projection (not a directly executable command):
+Direct task suite argv (run exactly as written):
 
 ```text
 "${GY_N12_RUN[@]}" -m pytest -q \
@@ -6480,230 +6253,22 @@ production-capable partition; an app/dashboard script, stub export or the
 Task-2.4 consumer itself cannot escape by living outside `src`/`tools` or being
 untracked before commit.
 
-The precommit/postcommit equality is itself content-bound, not remembered by a
-shell variable or prose statement:
+The precommit/postcommit equality is recorded as a cluster-journal receipt,
+not as a product contract or a lane execution-manifest DTO. Before the
+Task-2.4 suite, record each complete candidate path with its role, SHA-256 and
+one classifier from `production_capable`, `test_only`,
+`benchmark_only` or `example_only`. The two independent walks above must
+agree with that exact candidate set.
 
-```python
-class GYN12CandidatePathRecord(BaseModel):
-    path: str
-    role: Literal["add", "modify"]
-    content_hash: Digest
-    classifier: Literal[
-        "production_capable", "test_only", "benchmark_only", "example_only",
-    ]
-
-class GYN12BoundaryReceiptLink(BaseModel):
-    link_kind: Literal["boundary_receipt"]
-    role: Literal[
-        "candidate", "baseline_committed", "committed",
-        "history_extension", "latest_committed",
-    ]
-    boundary_id: str
-    receipt_content_hash: GYN12RecordDigest
-
-class GYN12StagedCandidateReceiptLink(BaseModel):
-    link_kind: Literal["staged_candidate"]
-    role: Literal["staged_candidate"]
-    boundary_id: str
-    receipt_content_hash: GYN12RecordDigest
-
-class GYN12SuiteIndexReceiptLink(BaseModel):
-    link_kind: Literal["suite_index"]
-    role: Literal["suite_index"]
-    boundary_id: str
-    receipt_content_hash: GYN12RecordDigest
-
-class GYN12TimingReviewReceiptLink(BaseModel):
-    link_kind: Literal["timing_review"]
-    role: Literal["timing_review"]
-    boundary_id: str
-    receipt_content_hash: GYN12RecordDigest
-
-class GYN12TimingCatalogReceiptLink(BaseModel):
-    link_kind: Literal["timing_catalog"]
-    role: Literal["timing_catalog"]
-    boundary_id: str
-    receipt_content_hash: GYN12RecordDigest
-
-class GYN12BootstrapReviewReceiptLink(BaseModel):
-    link_kind: Literal["bootstrap_review"]
-    role: Literal["bootstrap_review"]
-    boundary_id: Literal["bootstrap-execution-manifest"]
-    receipt_content_hash: GYN12RecordDigest
-
-GYN12ReceiptLink = Annotated[
-    GYN12BoundaryReceiptLink | GYN12StagedCandidateReceiptLink
-    | GYN12SuiteIndexReceiptLink | GYN12TimingReviewReceiptLink
-    | GYN12TimingCatalogReceiptLink | GYN12BootstrapReviewReceiptLink,
-    Field(discriminator="link_kind"),
-]
-
-class GYN12CandidateReceiptStatement(BaseModel):
-    schema_version: Literal["polisyos.gy-n12.boundary-receipt.v2"]
-    phase: Literal["candidate"]
-    boundary_id: str
-    plan_content_hash: Digest
-    execution_manifest_content_hash: Digest
-    expected_parent_head: GYN12GitCommitId
-    candidate_snapshot_content_hash: Digest
-    candidate_paths: tuple[GYN12CandidatePathRecord, ...]
-    candidate_path_set_hash: Digest
-    allocation_raw_byte_length: int = Field(ge=0)
-    allocation_raw_bytes_hash: Digest
-    allocation_entry_hashes: tuple[Digest, ...]
-    allocation_head_hash: Digest
-    projected_state_hash: Digest
-    topology_census_hash: Digest
-    predecessor_receipts: tuple[GYN12ReceiptLink, ...]
-    suite_admissions: tuple[GYN12SuiteAdmissionRef, ...]
-    suite_index_content_hash: Digest
-    timing_review_index_content_hash: Digest
-    timing_catalog_receipt_content_hash: Digest | None
-    status: Literal["pass"]
-
-class GYN12CommittedReceiptStatement(BaseModel):
-    schema_version: Literal["polisyos.gy-n12.boundary-receipt.v2"]
-    phase: Literal["committed"]
-    boundary_id: str
-    candidate_receipt: GYN12ReceiptLink
-    staged_candidate_receipt: GYN12ReceiptLink
-    committed_head: GYN12GitCommitId
-    committed_tree_hash: GYN12GitTreeId
-    candidate_snapshot_content_hash: Digest
-    committed_path_set_hash: Digest
-    topology_census_hash: Digest
-    allocation_head_hash: Digest
-    status: Literal["pass"]
-
-class GYN12HistoryExtensionReceiptStatement(BaseModel):
-    schema_version: Literal["polisyos.gy-n12.boundary-receipt.v2"]
-    phase: Literal["cluster_4_extension"]
-    boundary_id: str
-    baseline_committed_receipt: GYN12ReceiptLink
-    candidate_receipt: GYN12ReceiptLink
-    committed_receipt: GYN12ReceiptLink
-    baseline_allocation_size: int = Field(ge=0)
-    baseline_allocation_raw_hash: Digest
-    extended_allocation_size: int = Field(ge=0)
-    extended_allocation_raw_hash: Digest
-    appended_entry_hashes: tuple[Digest, ...]
-    projected_state_hash: Digest
-    topology_census_hash: Digest
-    status: Literal["pass"]
-
-class GYN12CloseoutReceiptStatement(BaseModel):
-    schema_version: Literal["polisyos.gy-n12.boundary-receipt.v2"]
-    phase: Literal["closeout"]
-    boundary_id: Literal["gy-n12-closeout"]
-    predecessor_receipts: tuple[GYN12ReceiptLink, ...]
-    final_head: GYN12GitCommitId
-    final_tree_hash: GYN12GitTreeId
-    suite_index_content_hash: Digest
-    allocation_head_hash: Digest
-    topology_census_hash: Digest
-    status: Literal["pass"]
-
-GYN12BoundaryReceiptStatement = Annotated[
-    GYN12CandidateReceiptStatement | GYN12CommittedReceiptStatement
-    | GYN12HistoryExtensionReceiptStatement | GYN12CloseoutReceiptStatement,
-    Field(discriminator="phase"),
-]
-
-class GYN12BoundaryReceipt(BaseModel):
-    statement: GYN12BoundaryReceiptStatement
-    receipt_content_hash: GYN12RecordDigest
-
-class GYN12TimingCatalogReceiptStatement(BaseModel):
-    record_kind: Literal["timing_catalog"]
-    transition: GYN12TimingCatalogTransitionStatement
-    timing_review_receipt: GYN12ReceiptLink
-    committed_catalog_head: GYN12GitCommitId
-    committed_catalog_tree: GYN12GitTreeId
-
-class GYN12BootstrapReviewReceiptStatement(BaseModel):
-    record_kind: Literal["bootstrap_review"]
-    expected_branch: Literal["codex/gy-n12-epoch-chronology"]
-    expected_parent: GYN12GitCommitId
-    candidate_tree: GYN12GitTreeId
-    exact_paths: tuple[str, str, str]
-    packet_content_hash: GYN12RecordDigest
-    reviewer_receipt_content_hashes: tuple[GYN12RecordDigest, ...]
-    appointing_user_receipt_content_hash: GYN12RecordDigest
-    disposition: Literal["clean"]
-
-GYN12DurableExecutionRecordStatement = Annotated[
-    GYN12SuiteAdmissionStatement | GYN12SuiteIndexStatement
-    | GYN12HeldSubjectCandidateStatement
-    | GYN12TimingReviewIndexStatement | GYN12ExternalReviewResolutionStatement
-    | GYN12TimingCatalogCandidateStatement
-    | GYN12TimingCatalogTransitionStatement | GYN12TimingCatalogCommitStatement
-    | GYN12TimingCatalogReceiptStatement
-    | GYN12StagedCandidateStatement | GYN12BootstrapReviewReceiptStatement,
-    Field(discriminator="record_kind"),
-]
-
-class GYN12DurableExecutionReceipt(BaseModel):
-    statement: GYN12DurableExecutionRecordStatement
-    receipt_content_hash: GYN12RecordDigest
-```
-
-`GYN12_RECORD_DIGEST_SPECS` is an exhaustive immutable mapping over the enum.
-Raw file/stdout/timing domains use
-`sha256(prefix_utf8 || exact_bytes)`; mapping domains use
-`sha256(prefix_utf8 || uint64_be(len(C(raw_mapping))) || C(raw_mapping))`
-with CanonSpec `polisyos.canon.json@0.2.0`, raw mappings only and
-`exclude_none=False`. Prefixes are exactly
-`polisyos.gy-n12.<hyphenated-enum-value>.v2\\0`, except allocation entry,
-which is fixed as
-`polisyos.chronology.capability-allocation-entry.v2\\0`. The registry binds
-each `(discriminated statement kind, complete field path)` to one domain;
-polymorphic wrapper field names never select a domain by themselves. A schema
-walk rejects an unregistered digest path, ambiguous kind/path pair or unused
-domain. Independent 0/1 golden encoders
-may not import the producer mapping. Allocation genesis explicitly encodes
-`previous_entry_hash:null`; no encoder may omit it. Boundary receipt hashing
-excludes only the wrapper's `receipt_content_hash`.
-
-Each auxiliary execution statement has an explicit `record_kind`, a single
-matching digest domain and exactly one `GYN12DurableExecutionReceipt` whose
-content hash is outside the statement preimage. A suite observation contains
-no admission hash; its admission statement contains the observation, and suite
-indexes/candidates carry only typed `GYN12SuiteAdmissionRef` values. This makes
-the graph acyclic. The field/domain registry covers `suite_index_content_hash`,
-every suite-admission hash, held-candidate and timing review/catalog/commit
-hashes, staged-candidate hashes and bootstrap review; a digest field with no
-registered preimage or a domain with no reachable statement is a contract
-failure. Each receipt link class maps to exactly one target record kind and
-digest domain, and the referenced bytes are resolved before a link is accepted;
-a generic role-plus-digest link is not a wire type. Phase validators are generated
-from the discriminated graph: a committed receipt requires its exact candidate
-and staged-candidate predecessors; closeout requires the latest committed,
-history-extension and suite-index predecessors; a timing-catalog receipt
-requires the reviewed timing index; bootstrap alone requires the external
-review link. Malformed commit/tree IDs and a phase-substituted link are rejected
-before hashing.
-
-Suite observations live in lane scratch, but the candidate statement binds
-typed admission receipts by key, never an unkeyed tuple. Every observation
-must carry this statement's exact candidate snapshot hash and the manifest's
-suite/spec/argv hashes. Snapshot, suite execution, admission, materialization,
-staged-tree reconciliation, attachment and committed readback are private
-phases of one manifest-owned `execute-boundary` transition. They are not CLI
-subcommands and cannot independently mint an admissible receipt. The only
-public boundary command accepts boundary ID, mode, expected branch, receipt
-root, tooling/N8 receipts and optional declaration; every filename, argv, path
-and commit message is manifest-derived.
-
-The C2 candidate has no predecessor. Its committed receipt binds that exact
-candidate. A Cluster-4 candidate binds the C2 committed receipt; its committed
-receipt binds its own candidate; the history extension binds all three and
-proves the allocation prefix unchanged plus exactly three EOF entries.
-Closeout binds the manifest-derived terminal committed set and history
-extension. Repeating the same state under a different candidate or baseline
-receipt fails. The private committed-readback phase also binds the exact
-staged/commit tree and independently rewalks the filesystem. A missing receipt,
-path/content/classifier drift, receipt substitution or later
-source/allocation change is a failed gate.
+Appendix C's plain boundary function repeats exact set equality after the
+suite, stages exactly those declared paths, writes the captured tree, creates
+one commit object over that tree and attaches it with the reusable atomic
+transaction. The post-attachment readback requires the expected branch, commit
+and tree, an empty index/worktree, and a fresh committed-tree walk equal to the
+recorded candidate set. A missing path, path/content/classifier drift,
+undeclared source, later mutation or narrowed suite fails the boundary. These
+journal receipts guard this lane only; they do not establish chronology,
+holder, authority or whole-history properties.
 
 The allocation oracle is the separately added, strict append-only history
 `architecture/production_quality/chronology_capability_allocation.toml`, not
@@ -6830,12 +6395,12 @@ call/export, changing an owner row, omitting a candidate/committed Python or
 stub path, or failing to append the Cluster-4 transition turns the test red.
 
 `tests/repo_quality/test_gy_n12_cluster2_plan_paths.py` remains the C2 semantic
-projection test, while the single execution-manifest checker parses **all**
-task `Add`/`Modify` lists and reconciles them to every guarded boundary and
-runner. It permits a shared path in sequential boundaries only when both tasks
-declare it and requires each public-surface boundary to run canonical
-inventory sync/check. Adding a path to a task, boundary or command alone fails
-independently of the executor's selection.
+projection test. Appendix C derives the complete task `Add`/`Modify` union and
+requires exact equality with the Git-visible delta before suites and before
+attachment. A shared path may recur in sequential boundaries only when both
+tasks declare it. Each public-surface boundary runs its canonical inventory
+writer/check. Adding a path to a task or command alone fails independently of
+the executor's selection.
 
 **Exact 34-ID test map:**
 
@@ -6876,19 +6441,19 @@ CB-H17 test_cross_family_scope_domain_replay_fails
 CB-J05 test_cluster2_terminal_labels_match_source_derived_chain
 ```
 
-The manifest assigns these four files to the `c2-witness` suite row:
-`test_chronology_qualification.py`,
-`test_chronology_protocol_conformance.py`,
-`test_chronology_terminal_state.py`, and
-`test_gy_n12_cluster2_plan_paths.py`. They are not executable commands in this
-task section. The sole boundary entry point in Appendix C executes the complete
-row denominator, stages and attaches the captured candidate, and performs its
-post-commit readback. The CLI parser does not register `snapshot-paths`,
-`run-boundary-suites`, `admit-candidate`, `materialize-boundary`,
-`verify-staged-boundary` or `verify-committed-boundary`; those names exist only
-as private implementation phases. A checker mutation that registers one of
-them fails the plan contract. No later boundary may use the C2 receipt as a
-current-state proxy.
+Run the complete C2 witness denominator directly, with no selector:
+
+```text
+"${GY_N12_RUN[@]}" -m pytest -q \
+  tests/unit/runtime/quality/test_chronology_qualification.py \
+  tests/integration/runtime_quality/test_chronology_protocol_conformance.py \
+  tests/repo_quality/test_chronology_terminal_state.py \
+  tests/repo_quality/test_gy_n12_cluster2_plan_paths.py
+```
+
+Appendix C stages exactly the declared candidate, atomically attaches the
+captured tree and reads branch/commit/tree and the committed path set back.
+No later boundary may use the C2 journal receipt as a current-state proxy.
 
 **Commit boundaries:**
 
@@ -7631,9 +7196,9 @@ containing its own ref.
 
 Every Cluster-3 statement/record uses the Cluster-2 raw-mapping `CanonSpec` and
 `frame(x)=uint64_be(len(x))||x`. The complete **module** denominator is derived
-first from every production `.py` in Task 3.1's `Add`/`Modify` lists and the
-execution manifest's `c3-anchor` boundary; those two independently parsed sets must
-match exactly. Tests/helpers are a separate test-only partition. Every
+first from every production `.py` in Task 3.1's `Add`/`Modify` lists and then
+independently from the exact candidate delta recorded by Appendix C; those two
+sets must match exactly. Tests/helpers are a separate test-only partition. Every
 production module is classified exactly once as `model_owner` or
 `verified_no_cluster3_model`; the latter is admissible only when a full AST
 walk finds no concrete `BaseModel` definition, canonical codec, Cluster-3
@@ -7882,7 +7447,7 @@ Write red tests for:
 - the production constructor census has exactly one source call and no
   injectable service parameter.
 
-Manifest suite argv projection (not a directly executable command):
+Direct task suite argv (run exactly as written):
 
 ```text
 "${GY_N12_RUN[@]}" -m pytest -q \
@@ -7892,9 +7457,39 @@ Manifest suite argv projection (not a directly executable command):
   tests/unit/core/security/test_full_prefix.py \
   tests/unit/runtime/quality/test_chronology_custody.py \
   tests/unit/runtime/http/test_epoch_custody_container.py
-GY_N12_C3_RUFF_PATHS=("${(@f)$("${GY_N12_RUN[@]}" \
-  tools/quality/validation/check_gy_n12_execution_manifest.py \
-  emit-existing-python-paths --boundary-id c3-anchor)}")
+GY_N12_C3_MODIFY_PATHS=(
+  src/polisyos/core/contracts/chronology.py
+  src/polisyos/core/__init__.py
+  src/polisyos/core/security/__init__.py
+  src/polisyos/core/security/README.md
+  src/polisyos/runtime/http/container.py
+  src/polisyos/runtime/quality/README.md
+  tests/_helpers/chronology_qualification.py
+  architecture/public_surface/inventory.json
+  release-fragments/unreleased/2026-08-20-gy-n12-epoch-chronology.toml
+  docs/reference/public-surface.md
+)
+for GY_N12_C3_MODIFY in "${GY_N12_C3_MODIFY_PATHS[@]}"; do
+  test -e "$GY_N12_C3_MODIFY"
+done
+GY_N12_C3_ADD_PATHS=(
+  src/polisyos/core/artifacts/signed_evidence.py
+  src/polisyos/core/security/anchor_lineage.py
+  src/polisyos/core/security/chronology_anchor.py
+  src/polisyos/runtime/quality/chronology_custody.py
+  tests/unit/core/artifacts/test_signed_evidence.py
+  tests/unit/core/security/test_anchor_lineage.py
+  tests/unit/core/security/test_chronology_anchor.py
+  tests/unit/runtime/http/test_epoch_custody_container.py
+  tests/unit/runtime/quality/test_chronology_custody.py
+)
+GY_N12_C3_RUFF_PATHS=()
+for GY_N12_C3_CANDIDATE in \
+  "${GY_N12_C3_MODIFY_PATHS[@]}" "${GY_N12_C3_ADD_PATHS[@]}"; do
+  [[ "$GY_N12_C3_CANDIDATE" == *.py ]] || continue
+  [[ ! -e "$GY_N12_C3_CANDIDATE" ]] ||
+    GY_N12_C3_RUFF_PATHS+=("$GY_N12_C3_CANDIDATE")
+done
 test "${#GY_N12_C3_RUFF_PATHS[@]}" -gt 0
 "${GY_N12_RUN[@]}" -m ruff check "${GY_N12_C3_RUFF_PATHS[@]}"
 ```
@@ -8599,7 +8194,7 @@ Required red nodes include
 first data fixture; a source scan rejects `ukraine|prewar|wartime` in engine
 code.
 
-Manifest suite argv projection (not a directly executable command):
+Direct task suite argv (run exactly as written):
 
 ```text
 "${GY_N12_RUN[@]}" -m pytest -q \
@@ -8781,7 +8376,7 @@ Exact failure dispositions are `resolver_unavailable`, `scope_unresolved`,
 
 The combined 4.1+4.2 `c4-epoch` boundary is executed only by the same single
 manifest transition, with the C2 committed receipt supplied through its
-manifest-derived predecessor graph. Its private history phase requires the C2
+Task-4.1 declared predecessor relation. Its private history phase requires the C2
 allocation byte/entry-hash prefix unchanged, exactly three new EOF history
 entries with the Cluster-4 activation split, a fresh J05/topology result and
 the exact candidate-path set at the new HEAD. Any later C4 boundary changes
@@ -9388,7 +8983,7 @@ Required nodes include `test_recipe_binding_cannot_project_execution`,
 `test_owner_context_is_derived_from_canonical_candidate_denominator`, and
 `test_authentic_member_context_under_another_aggregate_freezes_n9`.
 
-Manifest suite argv projection (not a directly executable command):
+Direct task suite argv (run exactly as written):
 
 ```text
 "${GY_N12_RUN[@]}" -m pytest -q \
@@ -9714,7 +9309,7 @@ Required nodes include
 `test_current_receipt_requires_matching_prior_completed_denominators`;
 route authz and step-up tests exercise the typed path.
 
-Manifest suite argv projection (not a directly executable command):
+Direct task suite argv (run exactly as written):
 
 ```text
 "${GY_N12_RUN[@]}" -m pytest -q \
@@ -10283,7 +9878,7 @@ REVIEWER exports. Other required nodes are
 `test_every_registered_claim_dependency_path_participates_in_denominator`, and
 `test_novel_registered_dependency_path_requires_no_bridge_code`.
 
-Manifest suite argv projection (not a directly executable command):
+Direct task suite argv (run exactly as written):
 
 ```text
 "${GY_N12_RUN[@]}" -m pytest -q \
@@ -10318,19 +9913,13 @@ Manifest suite argv projection (not a directly executable command):
 
 - `tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py`
 - `tools/quality/validation/execute_gy_n12_artifact_transition.py`
-- `tools/quality/validation/run_gy_n12_timed_suite.py`
 - `tests/repo_quality/tools/test_layer3_gy_epoch_chronology_contract.py`
 - `tests/repo_quality/tools/test_execute_gy_n12_artifact_transition.py`
-- `tests/repo_quality/tools/test_run_gy_n12_timed_suite.py`
 
 **Modify before source freeze:**
 
 - `tools/quality/validation/check_layer3_gy_value_gate_contract.py`
 - `tools/quality/validation/check_layer3_gy_second_domain_pack.py`
-
-**Conditional Modify at the reviewed timing boundary only:**
-
-- `tools/quality/timing_budgets.json`
 
 **Candidate targets, never edited in the source commit:**
 
@@ -10357,30 +9946,17 @@ The transition tool implements only `measure`, `build-deployment-candidates`,
 `confidence_ledger._deployment_relative_paths` directly for this bounded
 transition instead of minting a second 96-path owner. It snapshots the complete
 protected denominator and implements the durable armed/final/fallback protocol
-in Deployment Intersection below. `run_gy_n12_timed_suite.py` makes the lane's
-timing rule executable: `measure` runs a declared suite without a timeout,
-captures `/usr/bin/uptime` immediately before and after, wall time and process
-exit/signal in a canonical receipt; optional `--stdout-path` captures exact
-child stdout separately and binds its SHA-256 in the timing receipt. `enforce`
-resolves that exact suite key and command hash from
-`tools/quality/timing_budgets.json`, applies its lane-owned ceiling to the
-process group and emits a completed receipt only for an ordinary exit. A
-killed/timed-out run is a non-receipt. Its exact protocol is in
-Appendix B. Tests prove wrong branch/HEAD, changed candidate, omitted protected
-path, intervening source/tool drift, kill after the first replacement and
-readback mismatch never advertise a partial governed state.
-
-Timing has one manifest-derived conditional source boundary for each complete
-candidate denominator that actually yields over-60 measurements. The measure
-transition always finishes the entire denominator and seals one timing-review
-index before returning non-admission. If nonempty, root obtains one external
-review of that exact index and catalog candidate; the matching
-`timing-catalog::<subject-boundary>` changes only
-`tools/quality/timing_budgets.json`. It then renews source freeze, reissues the
-versioned N8 environment receipt and runs the same complete denominator once
-under `enforce`. An empty index creates no timing boundary. Only a clean final
-suite index permits artifact declaration; ingestion estimates, an early-abort
-sample or old catalog row never substitutes for the complete measurement.
+in Deployment Intersection below. Timing is lane procedure, not another
+machine. For each complete suite expected or measured to exceed 60 seconds,
+the journal declares a ceiling before launch from a prior comparable
+measurement, records `/usr/bin/uptime` immediately before and after, and binds
+the exact argv, runner, wall time and ordinary exit or signal. An ordinary
+non-zero exit is a completed failure receipt; a killed or signalled run is a
+non-receipt. No timing index, catalog mutation, admission state machine
+or rerun around a failed receipt exists. Tests prove wrong branch/HEAD, changed
+candidate, omitted protected path, intervening source/tool drift, kill after
+the first replacement and readback mismatch never advertise a partial
+governed state.
 
 ### Task 4.7 — freeze source, then execute one declared artifact transaction
 
@@ -10409,12 +9985,9 @@ a typed non-receipt and omits the artifact commit.
    GY-GAP8 only when ledger persistence and real public export pass.
 5. `test(gy-n12): freeze epoch and artifact-transition validators` — Task 4.6,
    with no governed payload.
-6. `test(gy-n12): bind measured suite ceilings` — one conditional
-   `timing-catalog::<subject-boundary>` transition for each non-empty reviewed
-   complete measurement index; an empty index creates no commit.
-7. `docs(gy-n12): bind artifact transition declaration` — only the exact
+6. `docs(gy-n12): bind artifact transition declaration` — only the exact
    declaration journal path; it changes no source, tool or governed target.
-8. `chore(artifacts): issue declared GY-N12 artifact transaction` — Task 4.7
+7. `chore(artifacts): issue declared GY-N12 artifact transaction` — Task 4.7
    only if every prerequisite is green; otherwise omit and retain the exact
    incomplete label.
 
@@ -10431,7 +10004,8 @@ enter one self-contained fail-closed shell block:
 ```zsh
 set -euo pipefail
 cd "$GY_N12_PRODUCT"
-test "$(git symbolic-ref --short HEAD)" = codex/gy-n12-epoch-chronology
+: "${GY_N12_CLUSTER_BRANCH:?capture the attached Cluster-4 branch at entry}"
+test "$(git symbolic-ref --short HEAD)" = "$GY_N12_CLUSTER_BRANCH"
 test -z "$(git status --porcelain)"
 GY_N12_SOURCE_FREEZE="$(git rev-parse HEAD)"
 test "$(git merge-base "$GY_N12_IMPLEMENTATION_START" HEAD)" = \
@@ -10531,7 +10105,7 @@ set -euo pipefail
   tools/quality/validation/execute_gy_n12_artifact_transition.py declare \
   --measurement "$GY_N12_TRANSITION_SCRATCH/measurement.json" \
   --candidate-receipt "$GY_N12_TRANSITION_SCRATCH/candidate-receipt.json" \
-  --expected-branch codex/gy-n12-epoch-chronology \
+  --expected-branch "$GY_N12_CLUSTER_BRANCH" \
   --expected-source-freeze "$GY_N12_SOURCE_FREEZE" \
   --allowed-post-freeze-record \
     docs/superpowers/journals/2026-08-20-gy-n12-cluster-4-artifact-transition.md \
@@ -10546,14 +10120,14 @@ record path, then bind apply to the new attached HEAD:
 
 ```zsh
 set -euo pipefail
-test "$(git symbolic-ref --short HEAD)" = codex/gy-n12-epoch-chronology
+test "$(git symbolic-ref --short HEAD)" = "$GY_N12_CLUSTER_BRANCH"
 test -z "$(git status --porcelain)"
 GY_N12_DECLARATION_HEAD="$(git rev-parse HEAD)"
 "${GY_N12_RUN[@]}" \
   tools/quality/validation/execute_gy_n12_artifact_transition.py apply \
   --declaration "$GY_N12_TRANSITION_SCRATCH/declaration.json" \
   --candidate-dir "$GY_N12_TRANSITION_SCRATCH/candidates" \
-  --expected-branch codex/gy-n12-epoch-chronology \
+  --expected-branch "$GY_N12_CLUSTER_BRANCH" \
   --expected-source-freeze "$GY_N12_SOURCE_FREEZE" \
   --expected-declaration-head "$GY_N12_DECLARATION_HEAD" \
   --state-dir "$GY_N12_TRANSITION_SCRATCH/apply-state"
@@ -10580,14 +10154,14 @@ cheap consumer against those exact bytes without rebuilding N11:
 
 ```zsh
 set -euo pipefail
-test "$(git symbolic-ref --short HEAD)" = codex/gy-n12-epoch-chronology
+test "$(git symbolic-ref --short HEAD)" = "$GY_N12_CLUSTER_BRANCH"
 test -z "$(git status --porcelain)"
 GY_N12_ARTIFACT_HEAD="$(git rev-parse HEAD)"
 "${GY_N12_RUN[@]}" \
   tools/quality/validation/execute_gy_n12_artifact_transition.py readback \
   --declaration "$GY_N12_TRANSITION_SCRATCH/declaration.json" \
   --apply-receipt "$GY_N12_TRANSITION_SCRATCH/apply-state/final.json" \
-  --expected-branch codex/gy-n12-epoch-chronology \
+  --expected-branch "$GY_N12_CLUSTER_BRANCH" \
   --expected-head "$GY_N12_ARTIFACT_HEAD" \
   --output "$GY_N12_TRANSITION_SCRATCH/readback-receipt.json"
 ```
@@ -10605,59 +10179,26 @@ receipt.
 
 ## Final verification and handoff
 
-Run Appendix B's one manifest closeout transition. Independent child suites
-may run in parallel; serialize only the guarded artifact transaction. The
-measure pass records every uptime pair, wall time and ordinary process result
-without a timeout and completes the whole closeout denominator before deciding
-whether review is required. If the timing index is non-empty, use the exact
-reviewed timing transition above, renew source freeze/N8, and run that same
-closeout denominator exactly once through `enforce`. An enforced timeout or
-signal is a non-receipt, while an ordinary non-zero exit is a completed failure
-receipt. The first closeout invocation is always measurement, never an
-unmeasured enforcement proxy:
+Close each cluster on its own attached branch and hand it off before beginning
+the next cluster. Run every direct task and closeout argv row in Appendix B;
+no manifest command, receipt index or selector stands between the plan and
+those commands. Independent read-only suites may run in parallel. Serialize
+only the guarded artifact transition and any other explicitly shared writer.
 
-```zsh
-if gy_n12_manifest execute-closeout \
-  --mode measure \
-  --expected-head "$(git rev-parse HEAD)" \
-  --expected-source-freeze "$GY_N12_SOURCE_FREEZE" \
-  --tooling-runner "$GY_N12_TOOLING_RUNNER_RECEIPT" \
-  --n8-runner "$GY_N12_N8_ENV_RECEIPT" \
-  --boundary-receipt-root "$GY_N12_RECEIPT_SCRATCH" \
-  --receipt-root "$GY_N12_RECEIPT_SCRATCH"; then
-  :
-else
-  GY_N12_CLOSEOUT_RC=$?
-  [[ $GY_N12_CLOSEOUT_RC -eq 75 ]] || exit "$GY_N12_CLOSEOUT_RC"
-  print -u2 -- "closeout_timing_review_required"
-  return 75 2>/dev/null || exit 75
-fi
-```
+Before each launch expected or previously measured above 60 seconds, declare
+its ceiling from the prior comparable measurement in the cluster journal.
+Capture `/usr/bin/uptime` immediately before and after, wall time, exact argv
+and runner, and the ordinary exit or signal. A completed non-zero result is a
+failure receipt; a killed or signalled run is a non-receipt. Execute the
+complete denominator once after source freeze. A blocking post-freeze source
+change invalidates the freeze and re-prices that run.
 
-An empty timing index makes that command seal closeout. A non-empty index emits
-a held-closeout receipt and status 75; the same externally reviewed isolated
-timing transition used for source boundaries commits the catalog, renews the
-freeze/runners and resumes the entire closeout denominator once in enforce
-mode. A newly over-60 resumed row remains non-admitted. `execute-closeout`
-derives the exact suite-ID and predecessor-receipt
-denominators from the execution manifest and requires one and only one admitted
-receipt per ID, including
-backend verify, CI parity, runtime contract, architecture, Ruff, every task
-test/typecheck and each validator mode. Missing/extra receipts, a command-hash
-or uptime mismatch, ordinary non-zero completion, signal/timeout, stale
-boundary/history receipt or a closeout HEAD mismatch fail the handoff.
-
-For review, serialize each exact delta packet at at most 28,000 bytes; split a
-larger design/implementation delta into sequential non-overlapping packets.
-Give every reviewer this rule before review:
-
-> Classify every finding as `NEW_CLASS` or
-> `SAME_CLASS_ONE_LEVEL_DEEPER`, name the subject (design, record, research
-> method, implementation plan or mechanism), and bind the exact packet. On the
-> second finding of one class, require structural widening or an explicit
-> bounded residual with its falsifier. Cycle-6 findings consume no
-> implementation round; implementation findings begin only after production
-> code exists.
+At closeout, repeat Appendix C's exact declared-set equality and attachment
+readbacks, then compare each changed-input gate with its
+`GY_N12_IMPLEMENTATION_START` receipt under `P41`. Judge every gate by
+its own predicate, never by a composite exit code. The user reviews the
+attached cluster branch before merge; no additional reviewer wave or timing
+appointment is part of this execution contract.
 
 The final implementation handoff reports, per cluster, delivered chain links
 and every retained incomplete label. It reports neither a basis score nor
@@ -10814,43 +10355,19 @@ selectors that can drop a required node.
 
 ### Cluster test waves
 
-The manifest's sole `execute-next-boundary` entry point creates its
-content-addressed receipt directory, records the tooling/N8 runner identities,
-executes the complete suite denominator, and owns measurement, timing review,
-admission and suite-index sealing. Appendix B contains no separate runner,
-phase loop or caller-supplied candidate snapshot. Exact argv remains in the
-manifest and in the task projections above; the shell cannot invoke a subset.
+Each task section's direct argv rows are the complete, non-narrowable
+denominator for that task. Define one zsh callback containing those commands
+verbatim and pass that callback to Appendix C's boundary executor. Test full
+files; do not use selectors that can drop a required node. A task or cluster
+handoff lists every command, expected semantic/process result and actual
+receipt separately; a bundled exit code never decides another predicate.
 
-Its private suite phase accepts no child argv,
-expected status, environment or issue code from the shell; all come from the
-content-bound suite spec. `mode=measure` walks **every** suite ID in the named
-boundary even after one exceeds 60 seconds; each child has an uptime pair and
-no timeout. It then seals the complete timing-review index. At
-`wall_seconds <= 60` the measurement can be admitted. Every over-60 row is a
-typed non-admission, so the suite index and candidate are withheld until one
-external clean review binds the complete timing index and catalog candidate.
-After the conditional catalog commit and runner/source-freeze renewal,
-`mode=enforce` walks that same full denominator exactly once and admits only
-receipts whose catalog key, command-template hash and measurement ref match.
-A stale relation fails rather than remeasuring around the catalog. Suite
-admission requires ordinary completion, the manifest's
-exact process code and semantic status, uptime pair and command hash. An
-ordinary non-zero process result remains a completed receipt but the wrapper
-returns failure. A timeout/signal is a non-receipt and also fails. For each
-`wall_seconds > 60`, add one reviewed
-entry to `tools/quality/timing_budgets.json` containing the exact suite key,
-`command_sha256`, measurement receipt ref, measured wall time and the
-catalog-owner convention: append the sample, set `measured_p95_ms` to the
-largest admitted sample and `recommended_timeout_ms` to exactly twice that
-p95, with `sample_admission_predicate="gy_n12_timed_suite_receipt:v1"` and the
-measured serialized/parallel regime. The timing-runner unit file is already a
-suite row in that same denominator. `enforce` terminates the whole
-process group at the owner ceiling and emits no completed receipt on
-timeout/signal. The command independently derives the exact suite set, requires
-one exclusive admission per ID and no extra file, reloads every timing/stdout/
-admission receipt and binds the candidate snapshot, manifest and runner
-receipts. No phase loop, subset rerun, shell array or caller receipt list
-participates in admission.
+For any row expected or measured above 60 seconds, declare its ceiling before
+launch from a prior comparable measurement and capture an `uptime` pair, wall
+time and ordinary exit or signal in the journal. Run the complete denominator
+once after source freeze. An ordinary non-zero exit is a completed failure
+receipt. A kill, signal or enforced timeout is a non-receipt. There is no
+timing index, catalog mutation, timing admission or hidden rerun.
 
 ### Validator semantics
 
@@ -10863,205 +10380,177 @@ Every validator output implements the common envelope `validator`, `mode`,
 `status`, `issues` and `receipt_sha256`; no process status is inferred from the
 payload and no payload status is inferred from the process.
 
-Every validator mode is a distinct suite row in the one boundary denominator;
-there is no validator subset loop. The suite runner parses the common envelope and applies the manifest's exact
-mode/status/required/forbidden issue-code contract. It also checks the process
-result independently. Removing the semantic assertion while retaining an exit
-code, or removing the exit assertion while retaining JSON markers, fails its
-own contract mutation.
+Every validator mode is a distinct direct command in the task denominator;
+there is no validator subset loop. The boundary callback checks the declared
+mode/status/required/forbidden issue-code contract and the process result
+independently. Removing the semantic assertion while retaining an exit code,
+or removing the exit assertion while retaining JSON markers, fails its own
+contract mutation.
 
 ### Lint, imports and architecture
 
-Static and closeout checks are likewise ordinary rows in that same one-pass
-denominator; no second loop or reseal exists. The changed-path Ruff row derives existing Python/stub paths from the complete
-manifest/Git candidate delta; corepack installation, architecture sync/check,
-backend verify, CI parity, runtime contract and `git diff --check` each have
-their own suite row. No hand-maintained changed-path or receipt array remains.
+Static and closeout checks are likewise direct rows in that same one-pass
+denominator; no second loop exists. The changed-path Ruff row filters existing
+Python/stub paths from the complete declared/Git candidate delta; corepack
+installation, the narrow public-surface writer, architecture check, backend
+verify, CI parity, runtime contract and `git diff --check` each retain their
+own predicate. Never run `guardrails sync`.
 
 ---
 
-## Appendix C — commits, review freezes and pattern pass
+## Appendix C — commits, cluster closure and pattern pass
 
 The commit boundaries named under each cluster are indivisible mechanism
 boundaries. Registry plus reference documentation that names the same source
 belongs in that source commit; generated bytes belong only in the terminal
-artifact commit. The execution manifest cannot validate bytes before its own
-checker exists. Its one bootstrap boundary is therefore explicit and may not
-be reused:
+artifact commit. N12 executes Cluster 1, then 2, then 3, then 4 on separate
+attached cluster branches in this same provisioned worktree. At cluster entry,
+capture the actual branch and parent in the cluster journal; no function below
+binds a moving `main` tip or invents a branch name.
+
+The retired bootstrap's exact historical bytes remain under
+`refs/gy-n12-preservation/bootstrap-wave6`,
+`refs/gy-n12-preservation/bootstrap-wave6-declared-residuals` and
+`refs/gy-n12-preservation/bootstrap-wave6-evidence`. They are recovery
+evidence only. No bootstrap boundary, scalar appointment, disposition,
+reviewer receipt or self-authorization step remains in the execution path.
+
+Before the first edit for a task, assert every declared `Modify` path exists.
+Do not assert that an `Add` path exists until its candidate is present:
 
 ```zsh
-(
-  set -euo pipefail
-  : "${GY_N12_BOOTSTRAP_EXPECTED_PARENT:?user-appointed parent required}"
-  : "${GY_N12_BOOTSTRAP_EXPECTED_TREE:?user-appointed tree required}"
-  : "${GY_N12_BOOTSTRAP_REVIEW_PACKET:?raw review packet required}"
-  : "${GY_N12_BOOTSTRAP_REVIEW_PACKET_SHA256:?appointed packet digest required}"
-  : "${GY_N12_BOOTSTRAP_REVIEWER_RECEIPTS:?raw reviewer receipt bundle required}"
-  : "${GY_N12_BOOTSTRAP_REVIEWER_RECEIPTS_SHA256:?appointed receipt digest required}"
-  : "${GY_N12_BOOTSTRAP_APPOINTMENT:?raw user appointment required}"
-  : "${GY_N12_BOOTSTRAP_APPOINTMENT_SHA256:?appointed appointment digest required}"
-  : "${GY_N12_BOOTSTRAP_DISPOSITION:?appointed disposition required}"
-  GY_N12_BOOTSTRAP_BRANCH=codex/gy-n12-epoch-chronology
-  GY_N12_BOOTSTRAP_PATHS=(
-    architecture/production_quality/gy_n12_execution_manifest.json
-    tools/quality/validation/check_gy_n12_execution_manifest.py
-    tests/repo_quality/tools/test_gy_n12_execution_manifest.py
-  )
-
-  test "$(git rev-parse --show-prefix)" = policy-engine/
-  test "$(git symbolic-ref --short HEAD)" = "$GY_N12_BOOTSTRAP_BRANCH"
-  test "$(git rev-parse HEAD)" = "$GY_N12_BOOTSTRAP_EXPECTED_PARENT"
-  test "$GY_N12_BOOTSTRAP_DISPOSITION" = clean
-  test -z "$(git diff --cached --name-only)"
-  test "sha256:$(shasum -a 256 "$GY_N12_BOOTSTRAP_REVIEW_PACKET" | awk '{print $1}')" = "$GY_N12_BOOTSTRAP_REVIEW_PACKET_SHA256"
-  test "sha256:$(shasum -a 256 "$GY_N12_BOOTSTRAP_REVIEWER_RECEIPTS" | awk '{print $1}')" = "$GY_N12_BOOTSTRAP_REVIEWER_RECEIPTS_SHA256"
-  test "sha256:$(shasum -a 256 "$GY_N12_BOOTSTRAP_APPOINTMENT" | awk '{print $1}')" = "$GY_N12_BOOTSTRAP_APPOINTMENT_SHA256"
-
-  GY_N12_BOOTSTRAP_EXPECTED="$(printf '%s\n' "${GY_N12_BOOTSTRAP_PATHS[@]}" | LC_ALL=C sort)"
-  GY_N12_BOOTSTRAP_OBSERVED="$({
-    git diff --name-only --relative=policy-engine
-    git ls-files --others --exclude-standard -- .
-  } | sed 's#^policy-engine/##' | sed '/^$/d' | LC_ALL=C sort)"
-  test "$GY_N12_BOOTSTRAP_OBSERVED" = "$GY_N12_BOOTSTRAP_EXPECTED"
-  test "$(git symbolic-ref --short HEAD)" = "$GY_N12_BOOTSTRAP_BRANCH" &&
-    git add -- "${GY_N12_BOOTSTRAP_PATHS[@]}"
-  test "$(git diff --cached --name-only --relative=policy-engine | LC_ALL=C sort)" = "$GY_N12_BOOTSTRAP_EXPECTED"
-  git diff --cached --check
-  GY_N12_BOOTSTRAP_TREE="$(git write-tree)"
-  test "$GY_N12_BOOTSTRAP_TREE" = "$GY_N12_BOOTSTRAP_EXPECTED_TREE"
-  GY_N12_BOOTSTRAP_COMMIT="$(printf '%s\n' 'build(gy-n12): bootstrap reviewed execution manifest' |
-    git commit-tree "$GY_N12_BOOTSTRAP_TREE" -p "$GY_N12_BOOTSTRAP_EXPECTED_PARENT")"
-
-  {
-    printf 'start\n'
-    printf 'option no-deref\n'
-    printf 'symref-verify HEAD refs/heads/%s\n' "$GY_N12_BOOTSTRAP_BRANCH"
-    printf 'verify refs/heads/%s %s\n' "$GY_N12_BOOTSTRAP_BRANCH" "$GY_N12_BOOTSTRAP_EXPECTED_PARENT"
-    printf 'update refs/heads/%s %s %s\n' "$GY_N12_BOOTSTRAP_BRANCH" "$GY_N12_BOOTSTRAP_COMMIT" "$GY_N12_BOOTSTRAP_EXPECTED_PARENT"
-    printf 'prepare\ncommit\n'
-  } | git update-ref --stdin
-
-  test "$(git symbolic-ref --short HEAD)" = "$GY_N12_BOOTSTRAP_BRANCH"
-  test "$(git rev-parse HEAD)" = "$GY_N12_BOOTSTRAP_COMMIT"
-  test "$(git rev-parse 'HEAD^{tree}')" = "$GY_N12_BOOTSTRAP_TREE"
-  test -z "$(git status --porcelain=v1 --untracked-files=all)"
-  "${GY_N12_RUN[@]}" -m pytest -q tests/repo_quality/tools/test_gy_n12_execution_manifest.py
-  "${GY_N12_RUN[@]}" tools/quality/validation/check_gy_n12_execution_manifest.py record-bootstrap-readback     --review-packet "$GY_N12_BOOTSTRAP_REVIEW_PACKET"     --reviewer-receipts "$GY_N12_BOOTSTRAP_REVIEWER_RECEIPTS"     --appointment "$GY_N12_BOOTSTRAP_APPOINTMENT"     --expected-head "$GY_N12_BOOTSTRAP_COMMIT"     --expected-tree "$GY_N12_BOOTSTRAP_TREE"     --output "$GY_N12_RECEIPT_SCRATCH/bootstrap.committed.json"
-)
-```
-
-This boundary is permitted only after the user appoints the exact branch,
-parent, captured tree, three-path set, raw review packet, raw reviewer receipts,
-raw appointment bytes and clean disposition. The shell independently hashes
-the actual external bytes and checks those user-appointed scalars; neither the
-candidate checker nor a shaped receipt decides bootstrap authority. It records
-`self_authorized=false`; no manifest result is cited as authority for its
-creation. `commit-tree` consumes the already captured tree and a single
-`update-ref --stdin` transaction verifies symbolic HEAD and expected-old branch
-inside the same attachment mutation. If `symref-verify` is unavailable the
-boundary blocks; no non-atomic fallback exists. After it commits, the dependency-free
-checker parses every human task declaration, validates its Add/Modify entry
-state and materializes boundary paths/commands into task scratch. Newly added
-paths are not required to exist until their task candidate is present; Modify
-paths must exist at entry. The checker, not an existence loop or hand-built
-array, owns this distinction:
-
-```zsh
-gy_n12_manifest verify-plan \
-  --plan docs/superpowers/plans/2026-08-20-gy-n12-epoch-chronology-implementation.md \
-  --manifest architecture/production_quality/gy_n12_execution_manifest.json \
-  --output "$GY_N12_RECEIPT_SCRATCH/plan-manifest.json" || exit 1
-```
-
-The emitted boundary view includes every Task-1 digest/evidence/typecheck file,
-all C2/C3 paths, the complete C4 L5/Ukraine/N13b/OWR/DV/Claim caller sets and
-all validator/record paths. It includes `tools/quality/timing_budgets.json`
-only when its manifest predicate resolves a reviewed over-60 receipt. No
-pre-edit `test -f` is run over Add paths. Use this single fail-closed function
-at every boundary:
-
-```zsh
-gy_n12_execute_next_boundary() {
+gy_n12_assert_task_entry() {
   emulate -L zsh
   setopt LOCAL_OPTIONS ERR_EXIT NO_UNSET PIPE_FAIL
-  local gy_n12_mode="$1"
-  local gy_n12_expected_branch="codex/gy-n12-epoch-chronology"
-  local -a gy_n12_args=(
-    execute-next-boundary
-    --mode "$gy_n12_mode"
-    --expected-branch "$gy_n12_expected_branch"
-    --expected-parent "$(git rev-parse HEAD)"
-    --receipt-root "$GY_N12_RECEIPT_SCRATCH"
-    --tooling-runner "$GY_N12_TOOLING_RUNNER_RECEIPT"
-  )
-  [[ -z "${GY_N12_N8_ENV_RECEIPT:-}" ]] ||
-    gy_n12_args+=(--n8-runner "$GY_N12_N8_ENV_RECEIPT")
-  [[ -z "${GY_N12_ACTIVE_DECLARATION:-}" ]] ||
-    gy_n12_args+=(--declaration "$GY_N12_ACTIVE_DECLARATION")
-
-  test "$(git rev-parse --show-prefix)" = policy-engine/ || return 1
-  test "$(git symbolic-ref --short HEAD)" = "$gy_n12_expected_branch" || return 1
-  test -z "$(git diff --cached --name-only)" || return 1
-  gy_n12_manifest "${gy_n12_args[@]}"
+  test "$(git rev-parse --show-prefix)" = policy-engine/
+  local gy_n12_modify
+  for gy_n12_modify in "$@"; do
+    test -e "$gy_n12_modify"
+  done
 }
-
-# Invoke only after editing the manifest's one next-ready boundary. The command
-# owns snapshot, the complete suite denominator, admissions, staging, captured
-# tree, atomic symbolic-HEAD/expected-old attachment and committed readback.
-if gy_n12_execute_next_boundary measure; then
-  :
-else
-  GY_N12_BOUNDARY_RC=$?
-  [[ $GY_N12_BOUNDARY_RC -eq 75 ]] || exit "$GY_N12_BOUNDARY_RC"
-  print -u2 -- "timing_review_required"
-  return 75 2>/dev/null || exit 75
-fi
 ```
 
-The generic invocation is executed separately after each named reviewed
-boundary is edited; it is not a loop over future work. If it returns 75, root
-finishes the complete timing review before changing the catalog. The user or
-an independent reviewer supplies a clean external review receipt over the
-exact `timing-review.json` and catalog candidate. Then run:
+Use the following attachment function at every commit boundary. The symbolic
+HEAD check, expected-old check and branch update are one transaction. If this
+Git cannot execute `symref-verify`, the boundary blocks; no non-atomic
+fallback exists.
 
 ```zsh
-: "${GY_N12_TIMING_REVIEW_PACKET:?exact timing packet bytes required}"
-: "${GY_N12_TIMING_REVIEWER_RECEIPTS:?exact reviewer receipt bundle required}"
-: "${GY_N12_TIMING_REVIEW_APPOINTMENT:?appointing-user receipt required}"
-gy_n12_manifest admit-reviewed-timing-and-resume   --expected-branch codex/gy-n12-epoch-chronology   --expected-parent "$(git rev-parse HEAD)"   --receipt-root "$GY_N12_RECEIPT_SCRATCH"   --review-packet "$GY_N12_TIMING_REVIEW_PACKET"   --reviewer-receipts "$GY_N12_TIMING_REVIEWER_RECEIPTS"   --review-appointment "$GY_N12_TIMING_REVIEW_APPOINTMENT"   --tooling-runner-source "$GY_N12_TOOLING_RUNNER_RECEIPT"   --production-data-appointment "$GY_N12_DATA_APPOINTMENT_RECEIPT"   --offline-uv "$GY_N12_UV_BIN"   --offline-cache "$GY_N12_UV_CACHE_DIR" || exit 1
+gy_n12_attach_commit() {
+  emulate -L zsh
+  setopt LOCAL_OPTIONS ERR_EXIT NO_UNSET PIPE_FAIL
+  local gy_n12_branch="$1"
+  local gy_n12_old="$2"
+  local gy_n12_new="$3"
+  local gy_n12_tree="$4"
+  local gy_n12_ref="refs/heads/$gy_n12_branch"
+
+  test "$(git rev-parse --show-prefix)" = policy-engine/
+  test "$(git symbolic-ref -q HEAD)" = "$gy_n12_ref"
+  test "$(git rev-parse HEAD)" = "$gy_n12_old"
+  {
+    print -r -- start
+    print -r -- 'option no-deref'
+    print -r -- "symref-verify HEAD $gy_n12_ref"
+    print -r -- "verify $gy_n12_ref $gy_n12_old"
+    print -r -- "update $gy_n12_ref $gy_n12_new $gy_n12_old"
+    print -r -- prepare
+    print -r -- commit
+  } | git update-ref --stdin
+
+  test "$(git symbolic-ref -q HEAD)" = "$gy_n12_ref"
+  test "$(git rev-parse HEAD)" = "$gy_n12_new"
+  test "$(git rev-parse 'HEAD^{tree}')" = "$gy_n12_tree"
+}
 ```
 
-An empty timing-review index lets the measure invocation admit/commit the
-candidate. A non-empty index leaves one held subject candidate and makes every
-other source boundary unavailable. `admit-reviewed-timing-and-resume` resolves
-the actual external bytes, derives the catalog candidate from old/new catalog
-bytes, commits it through the isolated index, renews source-freeze/tooling/N8
-receipts at content-addressed paths, proves the held subject unchanged and
-runs its complete denominator in enforce mode. There is one measurement index,
-one external review resolution, one conditional catalog commit and one final
-suite index for that candidate; no fixed receipt path is overwritten and no
-dirty subject byte enters the catalog commit.
-
-For the terminal artifact boundary, derive the exact product-relative target
-array from the reviewed declaration's `targets[*].path`; require it to contain
-`architecture/policy_design_case/layer3_gy_epoch_chronology_contract.json`,
-`architecture/generated_artifacts.toml` and
-`docs/reference/generated-artifacts.md`, compare it to the exact post-apply
-working-tree delta, then execute the manifest's `c4-artifact` boundary.
-The manifest owns its commit message and target roles. No wildcard or
-hand-entered extra path is admissible:
+A boundary suite is a named zsh callback containing that task's direct argv
+rows verbatim. The plain executor below accepts the captured branch, expected
+parent, commit message, callback name and the complete declared `Add` plus
+`Modify` path union. It rejects duplicate declarations, a dirty index, a
+missing candidate, any undeclared drift and any suite-created drift. It stages
+only the exact set, commits the captured tree and reads attachment and
+cleanliness back.
 
 ```zsh
-GY_N12_ACTIVE_DECLARATION="$GY_N12_TRANSITION_SCRATCH/declaration.json"
-test "$(gy_n12_manifest next-ready-boundary \
-  --expected-head "$(git rev-parse HEAD)")" = c4-artifact || exit 1
-gy_n12_execute_next_boundary enforce || exit 1
+gy_n12_execute_task_boundary() {
+  emulate -L zsh
+  setopt LOCAL_OPTIONS ERR_EXIT NO_UNSET PIPE_FAIL
+  local gy_n12_branch="$1"
+  local gy_n12_old="$2"
+  local gy_n12_message="$3"
+  local gy_n12_suite_fn="$4"
+  shift 4
+  local -a gy_n12_paths=("$@")
+  local gy_n12_expected gy_n12_unique gy_n12_observed
+  local gy_n12_staged gy_n12_tree gy_n12_commit gy_n12_candidate
+
+  gy_n12_expected="$(printf '%s\n' "${gy_n12_paths[@]}" | LC_ALL=C sort)"
+  gy_n12_unique="$(printf '%s\n' "${gy_n12_paths[@]}" | LC_ALL=C sort -u)"
+  test -n "$gy_n12_expected"
+  test "$gy_n12_expected" = "$gy_n12_unique"
+  test "$(git rev-parse --show-prefix)" = policy-engine/
+  test "$(git symbolic-ref --short HEAD)" = "$gy_n12_branch"
+  test "$(git rev-parse HEAD)" = "$gy_n12_old"
+  test -z "$(git diff --cached --name-only)"
+
+  for gy_n12_candidate in "${gy_n12_paths[@]}"; do
+    test -e "$gy_n12_candidate"
+  done
+  gy_n12_observed="$({
+    git diff --name-only --relative "$gy_n12_old" -- .
+    git ls-files --others --exclude-standard -- .
+  } | sed '/^$/d' | LC_ALL=C sort -u)"
+  test "$gy_n12_observed" = "$gy_n12_expected"
+
+  "$gy_n12_suite_fn"
+
+  test "$(git symbolic-ref --short HEAD)" = "$gy_n12_branch"
+  test "$(git rev-parse HEAD)" = "$gy_n12_old"
+  test -z "$(git diff --cached --name-only)"
+  for gy_n12_candidate in "${gy_n12_paths[@]}"; do
+    test -e "$gy_n12_candidate"
+  done
+  gy_n12_observed="$({
+    git diff --name-only --relative "$gy_n12_old" -- .
+    git ls-files --others --exclude-standard -- .
+  } | sed '/^$/d' | LC_ALL=C sort -u)"
+  test "$gy_n12_observed" = "$gy_n12_expected"
+
+  test "$(git symbolic-ref --short HEAD)" = "$gy_n12_branch" &&
+    git add -- "${gy_n12_paths[@]}"
+  gy_n12_staged="$(
+    git diff --cached --name-only --relative "$gy_n12_old" -- . |
+      LC_ALL=C sort -u
+  )"
+  test "$gy_n12_staged" = "$gy_n12_expected"
+  git diff --cached --check
+  gy_n12_tree="$(git write-tree)"
+  test "$(git symbolic-ref --short HEAD)" = "$gy_n12_branch"
+  test "$(git rev-parse HEAD)" = "$gy_n12_old"
+  gy_n12_commit="$(
+    printf '%s\n' "$gy_n12_message" |
+      git commit-tree "$gy_n12_tree" -p "$gy_n12_old"
+  )"
+  gy_n12_attach_commit \
+    "$gy_n12_branch" "$gy_n12_old" "$gy_n12_commit" "$gy_n12_tree"
+  test -z "$(git status --porcelain=v1 --untracked-files=all)"
+}
 ```
 
-Root alone edits/commits. Review packets are exact sequential non-overlapping
-deltas of at most 28,000 bytes. Every reviewer receives the P40 bucket rule in
-Final Verification before reading. A blocking source finding lands before
-`GY_N12_SOURCE_FREEZE`; after freeze it invalidates the artifact declaration.
+Record the declared and observed sets, callback argv, suite receipts, commit
+and tree IDs, and both attachment readbacks in the cluster journal. For the
+terminal artifact boundary, derive the exact target array from the reviewed
+declaration's `targets[*].path`, require the epoch payload, generated-artifact
+registry and reference paths, compare that array with the exact post-apply
+delta, and pass it to this same executor. No wildcard or hand-entered extra
+path is admissible.
+
+Root alone edits and commits. A blocking source finding lands before
+`GY_N12_SOURCE_FREEZE`; after freeze it invalidates the declaration and
+re-prices the full run. The user reviews each attached cluster branch before
+merge. No harness review wave, timing appointment or scalar appointment is
+part of this contract.
 
 Pattern pass:
 

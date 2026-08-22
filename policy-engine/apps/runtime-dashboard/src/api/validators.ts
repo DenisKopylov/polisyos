@@ -4,6 +4,7 @@ import type {
   DecisionValidityStatus,
   QuantityUncertainty,
   QuantityValueOutput,
+  RunTerminality,
 } from "@polisyos/runtime-api-client";
 
 import type { components } from "./types";
@@ -56,6 +57,20 @@ const decisionValidityStatusSchema = z
     (value): value is DecisionValidityStatus =>
       Object.hasOwn(decisionValidityStatusMembers, value),
     "unknown generated decision validity status",
+  );
+
+const runTerminalityMembers = {
+  non_terminal: true,
+  not_established: true,
+  terminal: true,
+} as const satisfies Record<RunTerminality, true>;
+
+const runTerminalitySchema = z
+  .string()
+  .refine(
+    (value): value is RunTerminality =>
+      Object.hasOwn(runTerminalityMembers, value),
+    "unknown generated run terminality",
   );
 
 const temporalRangeSchema = z.object({
@@ -164,6 +179,7 @@ const runSummarySchema = z.object({
   run_id: z.string(),
   source_kind: z.literal("core_run"),
   status: z.string(),
+  run_terminality: runTerminalitySchema,
   decision_review_required: z.boolean().optional(),
   started_at: z.string().nullable().optional(),
   finished_at: z.string().nullable().optional(),

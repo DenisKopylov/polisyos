@@ -140,10 +140,14 @@ export function CommandPalette() {
     command();
   }, []);
 
-  const currentRunId =
+  const matchedRunId =
     matchPath("/runs/:runId/*", location.pathname)?.params.runId ??
     matchPath("/runs/:runId", location.pathname)?.params.runId ??
     null;
+  const currentRunId =
+    matchedRunId === "compare" || matchedRunId === "cycle-board"
+      ? null
+      : matchedRunId;
   const surfaceEntries = useMemo(
     () =>
       getCommandPaletteSurfaceEntries({

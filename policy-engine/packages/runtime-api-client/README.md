@@ -38,7 +38,9 @@ file is a downstream compatibility surface, not a second owner.
   [`runtimeApiClient.js`](runtimeApiClient.js)
 
 - Generator:
-  [`../../tools/ops_runners/runtime/generate_runtime_client.py`](../../tools/ops_runners/runtime/generate_runtime_client.py)
+  [`scripts/generate-runtime-api-client.sh`](scripts/generate-runtime-api-client.sh),
+  which composes the schema-type generator, raw client generator, and
+  canonicalizer through one output-root-aware entrypoint.
 
 - Canonicalizer:
   [`scripts/canonicalize-runtime-client.mjs`](scripts/canonicalize-runtime-client.mjs)

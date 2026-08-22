@@ -1,25 +1,39 @@
 import {
   RuntimeApiClient,
-  type DepthNCycleBoardPayload,
-  type DepthNDomainRunProjection,
+  type CycleBoardProjectionPacket,
+  type DepthNCycleBoardPayloadV2,
 } from "@polisyos/runtime-api-client";
 
 import { queryKeys } from "@/api/queryKeys";
-import { observeCachePosture } from "@/api/cacheDiscipline";
-import { governedQueryOptions, useGovernedQuery } from "@/api/governedQueryPolicy";
+import {
+  governedQueryOptions,
+  useGovernedQuery,
+} from "@/api/governedQueryPolicy";
 import { authAwareRuntimeFetch } from "@/app/auth/authSession";
 import { API_BASE_URL } from "@/shared/lib/constants";
 
-type GovernedProjectionPacket = Awaited<
-  ReturnType<RuntimeApiClient["getGovernedProjection"]>
+type CycleBoardExportPacket = Awaited<
+  ReturnType<RuntimeApiClient["getDepthNCycleBoardProjection"]>
 >;
 
-type GovernedProjectionClient = Pick<RuntimeApiClient, "getGovernedProjection">;
+type CapturedCycleBoardExport = Readonly<{
+  packet: CycleBoardExportPacket;
+  rawPacketBytes: Uint8Array;
+}>;
+
+type CycleBoardHeroClient = Readonly<{
+  getDepthNCycleBoardProjection: (
+    params: Record<string, never>,
+  ) => Promise<CapturedCycleBoardExport>;
+}>;
 
 export type DepthNCycleBoardProjection = Readonly<{
-  packet: GovernedProjectionPacket;
-  payload: DepthNCycleBoardPayload | null;
+  packet: CycleBoardProjectionPacket;
+  payload: DepthNCycleBoardPayloadV2;
+  rawPacketBytes: Uint8Array;
 }>;
+
+export type DepthNCycleBoardHeroProjection = DepthNCycleBoardProjection;
 
 function runtimeApiBaseUrl(): string {
   const applicationOrigin =
@@ -29,110 +43,78 @@ function runtimeApiBaseUrl(): string {
     : applicationOrigin;
 }
 
-const governedProjectionClient = new RuntimeApiClient({
-  baseUrl: runtimeApiBaseUrl(),
-  fetchImpl: (input, init) => authAwareRuntimeFetch(new Request(input, init)),
-});
+const cycleBoardProjectionClient: CycleBoardHeroClient = {
+  async getDepthNCycleBoardProjection(params) {
+    let rawPacketBytes: Uint8Array | null = null;
+    const client = new RuntimeApiClient({
+      baseUrl: runtimeApiBaseUrl(),
+      fetchImpl: async (input, init) => {
+        const response = await authAwareRuntimeFetch(new Request(input, init));
+        rawPacketBytes = new Uint8Array(await response.clone().arrayBuffer());
+        return response;
+      },
+    });
+    const packet = await client.getDepthNCycleBoardProjection(params);
+    if (rawPacketBytes === null) {
+      throw new TypeError(
+        "contract_error: Cycle Board response bytes were not captured",
+      );
+    }
+    return Object.freeze({ packet, rawPacketBytes });
+  },
+};
 
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === "object" && value !== null && !Array.isArray(value);
-}
-
-function isStringArray(value: unknown): value is string[] {
-  return (
-    Array.isArray(value) && value.every((item) => typeof item === "string")
-  );
-}
-
-function isDepthNDomainRunProjection(
-  value: unknown,
-): value is DepthNDomainRunProjection {
-  if (!isRecord(value)) {
-    return false;
-  }
-  return (
-    isRecord(value.acquisition_route) &&
-    typeof value.design_problem_ref === "string" &&
-    typeof value.domain_role === "string" &&
-    typeof value.evidence_class === "string" &&
-    isRecord(value.evidence_witness) &&
-    typeof value.generation_cycle_run_id === "string" &&
-    isRecord(value.terminal_distribution) &&
-    isStringArray(value.weakest_links)
-  );
-}
-
-function isDepthNCycleBoardPayload(
-  value: unknown,
-): value is DepthNCycleBoardPayload {
-  if (
-    !isRecord(value) ||
-    !isRecord(value.depth_evidence) ||
-    !isRecord(value.domain_runs) ||
-    !isRecord(value.terminal_distributions)
-  ) {
-    return false;
-  }
-  return Object.values(value.domain_runs).every(isDepthNDomainRunProjection);
-}
-
-/**
- * Narrow one generated governed packet at the feature boundary.
- *
- * The packet is retained byte-for-byte. Contract mismatches become query
- * errors; they are never relabelled as an owner-issued invalid-source state.
- */
-export function narrowDepthNCycleBoardProjection(
-  packet: GovernedProjectionPacket,
+/** Narrow only the generated composed-v2 packet intended for the hero surface. */
+export function narrowDepthNCycleBoardHeroProjection(
+  packet: CycleBoardExportPacket,
+  rawPacketBytes: Uint8Array,
 ): DepthNCycleBoardProjection {
-  if (packet.projection_id !== "depth-n-cycle-board") {
+  if (
+    packet.packet_schema_version !== "policyos.runtime.cycle_board_packet.v1" ||
+    packet.projection_rule_version !==
+      "policyos.runtime.depth_n_cycle_board.v2" ||
+    packet.projection_id !== "depth-n-cycle-board"
+  ) {
     throw new TypeError(
-      "contract_error: governed projection id is not depth-n-cycle-board",
+      "contract_error: Cycle Board hero requires the composed-v2 packet version",
     );
   }
-  if (packet.availability !== "available") {
-    return Object.freeze({ packet, payload: null });
-  }
-  if (!isDepthNCycleBoardPayload(packet.payload)) {
-    throw new TypeError(
-      "contract_error: depth-n-cycle-board payload does not match the generated shape",
-    );
-  }
-  return Object.freeze({ packet, payload: packet.payload });
+  return Object.freeze({
+    packet,
+    payload: packet.payload,
+    rawPacketBytes,
+  });
 }
 
-export function depthNCycleBoardProjectionQueryOptions(
-  client: GovernedProjectionClient = governedProjectionClient,
+/** Prepare the hero query against the distinct static composed-v2 operation. */
+export function depthNCycleBoardHeroProjectionQueryOptions(
+  client: CycleBoardHeroClient,
 ) {
   return {
-    queryKey: queryKeys.governedProjection("depth-n-cycle-board"),
-    queryFn: async () =>
-      narrowDepthNCycleBoardProjection(
-        await client.getGovernedProjection({
-          projection_id: "depth-n-cycle-board",
-        }),
-      ),
+    queryKey: queryKeys.cycleBoardProjection(),
+    queryFn: async () => {
+      const response = await client.getDepthNCycleBoardProjection({});
+      return narrowDepthNCycleBoardHeroProjection(
+        response.packet,
+        response.rawPacketBytes,
+      );
+    },
   };
 }
 
-/** Bind the feature producer to the wrapper's direct packet `as_of` rule. */
-export function depthNCycleBoardProjectionQueryPolicy() {
-  return { kind: "owner_as_of" } as const;
+/** Composed authority has no aggregate owner as-of and is never retained. */
+export function depthNCycleBoardHeroProjectionQueryPolicy() {
+  return { kind: "never_cache_authority" } as const;
 }
 
 /** Read the global Cycle Board projection without correlating it to a route. */
 export function useDepthNCycleBoardProjection(
-  client: GovernedProjectionClient = governedProjectionClient,
+  client: CycleBoardHeroClient = cycleBoardProjectionClient,
 ) {
-  const query = useGovernedQuery(
+  return useGovernedQuery(
     governedQueryOptions(
-      depthNCycleBoardProjectionQueryOptions(client),
-      depthNCycleBoardProjectionQueryPolicy(),
+      depthNCycleBoardHeroProjectionQueryOptions(client),
+      depthNCycleBoardHeroProjectionQueryPolicy(),
     ),
   );
-
-  return {
-    ...query,
-    cacheObservation: observeCachePosture(query, query.data?.packet.as_of),
-  };
 }

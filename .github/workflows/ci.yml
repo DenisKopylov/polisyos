@@ -30,6 +30,9 @@ jobs:
         with:
           profile: runtime
 
+      - name: Setup generated-client toolchain
+        uses: ./.github/actions/setup-runtime-dashboard
+
       - name: Verify runtime HTTP dependencies
         run: uv run python -c "import fastapi, jwt"
 
@@ -144,11 +147,8 @@ jobs:
       - name: Verify Runtime API contract drift
         run: uv run --extra runtime --extra ml python tools/ops_runners/runtime/check_runtime_api_contract.py
 
-      - name: Verify dashboard API types are current
-        working-directory: policy-engine/apps/runtime-dashboard
-        run: |
-          corepack pnpm run generate:api
-          git diff --exit-code -- src/api/types.ts
+      - name: Verify architecture and generated-client freshness
+        run: uv run polisyos-tools architecture guardrails check
 
       - name: Verify runtime contract fixtures
         working-directory: policy-engine/apps/runtime-dashboard

@@ -157,10 +157,40 @@ describe("ArtifactViewerRegistry", () => {
     ).toHaveAttribute("href", "/artifacts/artifact-1");
     expect(screen.getByText("missing_data")).toBeInTheDocument();
     expect(screen.getByText("Missing source")).toBeInTheDocument();
+    expect(screen.getByText("label:warning")).toHaveAttribute(
+      "data-kind",
+      "neutral",
+    );
     expect(
       screen.getByText('pages.artifacts.viewers.hints:{"hints":"Pin dataset"}'),
     ).toBeInTheDocument();
     expect(screen.getByText("- Review license")).toBeInTheDocument();
+  });
+
+  it("keeps all three preflight readiness facts in neutral owner-recorded clothing", () => {
+    let view = renderViewer("scientist.preflight_report", {
+      ready_to_run: true,
+    });
+    expect(screen.getByText("common.ready")).toHaveAttribute(
+      "data-kind",
+      "neutral",
+    );
+
+    view.unmount();
+    view = renderViewer("scientist.preflight_report", {
+      ready_to_run: false,
+    });
+    expect(screen.getByText("common.blocked")).toHaveAttribute(
+      "data-kind",
+      "neutral",
+    );
+
+    view.unmount();
+    renderViewer("scientist.preflight_report", {});
+    expect(screen.getByText("common.unavailable")).toHaveAttribute(
+      "data-kind",
+      "neutral",
+    );
   });
 
   it("renders evaluator and reproducibility typed viewers", () => {

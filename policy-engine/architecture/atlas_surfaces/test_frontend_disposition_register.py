@@ -4,17 +4,21 @@ from __future__ import annotations
 
 import base64
 import copy
+import hashlib
 import importlib.util
 import io
 import json
 import re
 import subprocess
 import sys
+import tempfile
 import unittest
 from collections import Counter
 from pathlib import Path
 from typing import ClassVar
 from unittest import mock
+
+import pytest
 
 ATLAS_DIR = Path(__file__).resolve().parent
 CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
@@ -2646,6 +2650,246 @@ class DS6RegisterTransitionTests(unittest.TestCase):
                     raise AssertionError(f"stored C03 {field} drift escaped: {errors}")
 
 
+class DS6C13PrintTransitionTests(unittest.TestCase):
+    """Prove C13 closes only the independently verified run-paper predecessor."""
+
+    @staticmethod
+    def _require(value: object) -> None:
+        if not value:
+            raise AssertionError
+
+    @staticmethod
+    def _receipt_source(receipt: object) -> str:
+        return (
+            f"{checker.C13_RECEIPT_START}\n"
+            + json.dumps(receipt)
+            + f"\n{checker.C13_RECEIPT_END}\n"
+        )
+
+    def test_independent_receipt_binds_the_full_conjunction_and_current_bytes(
+        self,
+    ) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        self._require(receipt["predicate_provenance"] == "recomputed")
+        self._require([row["exit_code"] for row in receipt["captures"]] == [0, 0])
+        self._require(
+            [
+                [
+                    capture["pdfs"]["base_page_count"],
+                    capture["pdfs"]["grown_page_count"],
+                ]
+                for capture in receipt["captures"]
+            ]
+            == [[5, 30], [5, 30]]
+        )
+        checker._c13_verify_current_print_evidence(receipt)
+
+    def test_independent_receipt_fails_closed_on_each_decisive_class(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        mutations: dict[str, tuple[tuple[object, ...], object]] = {
+            "writer": (("command", "update_snapshots"), "changed"),
+            "retry": (("captures", 1, "retries"), 1),
+            "snapshot": (("snapshot", "sha256_receipts", 1), "0" * 64),
+            "semantic": (("semantic_conjunction", "visible_controls"), 1),
+            "geometry": (("captures", 0, "pdfs", "max_width_delta_pt"), 0.5),
+            "growth": (("captures", 0, "pdfs", "grown_page_count"), 5),
+            "second-growth": (("captures", 1, "pdfs", "grown_page_count"), 5),
+            "environment": (("captures", 1, "environment_sha256"), "0" * 64),
+        }
+
+        for name, (coordinates, value) in mutations.items():
+            mutation = copy.deepcopy(receipt)
+            target = mutation
+            for coordinate in coordinates[:-1]:
+                target = target[coordinate]
+            target[coordinates[-1]] = value
+            with (
+                self.subTest(name=name),
+                pytest.raises(ValueError, match="C13 independent receipt rejected"),
+            ):
+                checker._c13_independent_print_receipt(self._receipt_source(mutation))
+
+    def test_independent_receipt_rejects_every_wrong_test_population(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        populations = {
+            "missing": checker.C13_TEST_TITLES[:-1],
+            "duplicate": [
+                checker.C13_TEST_TITLES[0],
+                checker.C13_TEST_TITLES[1],
+                checker.C13_TEST_TITLES[1],
+            ],
+            "substituted": [
+                checker.C13_TEST_TITLES[0],
+                checker.C13_TEST_TITLES[1],
+                "unrelated passing test",
+            ],
+        }
+        for name, titles in populations.items():
+            mutation = copy.deepcopy(receipt)
+            mutation["test_titles"] = titles
+            with self.subTest(name=name):
+                self._require(
+                    "test_title_population"
+                    in checker._c13_receipt_shape_errors(mutation)
+                )
+
+    def test_current_source_byte_drift_invalidates_the_receipt(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        evidence = {
+            row["path"]: (checker.REPO_ROOT / row["path"]).read_bytes()
+            for row in receipt["source_bindings"]
+        }
+        source_ref = next(iter(evidence))
+        evidence[source_ref] += b"\n// drift\n"
+        with pytest.raises(ValueError, match="C13 current evidence drift"):
+            checker._c13_verify_current_print_evidence(receipt, evidence_bytes=evidence)
+
+    def test_raw_playwright_and_environment_artifacts_are_the_receipt(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        raw = checker._c13_raw_execution_receipt(receipt)
+        self._require(raw["test_titles"] == receipt["test_titles"])
+        self._require(raw["page_counts"] == [[5, 30], [5, 30]])
+        self._require(raw["environment_tuple_count"] == 1)
+
+        artifacts = {
+            row["path"]: (checker.REPO_ROOT / row["path"]).read_bytes()
+            for row in receipt["raw_artifacts"]
+        }
+        result_path = receipt["raw_artifacts"][0]["path"]
+        artifacts[result_path] = artifacts[result_path].replace(
+            b"semantic DOM closes overview and report paper egress",
+            b"unrelated passing test                            ",
+            1,
+        )
+        receipt["raw_artifacts"][0]["sha256"] = hashlib.sha256(
+            artifacts[result_path]
+        ).hexdigest()
+        with pytest.raises(ValueError, match="C13 raw execution rejected"):
+            checker._c13_raw_execution_receipt(receipt, artifacts=artifacts)
+
+    def test_transition_is_surgical_idempotent_and_keeps_broad_debt_open(
+        self,
+    ) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        original = checker._c03_git_bytes(
+            "show",
+            f"{checker.C13_VERIFIED_REVISION}:policy-engine/"
+            "architecture/atlas_surfaces/frontend-disposition-register.json",
+        ).decode("utf-8")
+        candidate = checker._c13_print_transition_text(original, receipt=receipt)
+        current = REGISTER_PATH.read_text(encoding="utf-8")
+        self._require(candidate == current)
+        self._require(
+            current == checker._c13_print_transition_text(current, receipt=receipt)
+        )
+        _original_start, _original_end, original_row = (
+            checker._json_entry_object_span(original, "adjacent-print-export")
+        )
+        _candidate_start, _candidate_end, candidate_row = (
+            checker._json_entry_object_span(candidate, "adjacent-print-export")
+        )
+        self._require(original_row == checker._c13_print_open_entry())
+        self._require(candidate_row == checker._c13_print_closed_entry(receipt))
+        self._require(candidate_row["disposition"] == "rebind_pending")
+        self._require(candidate_row["strangle_status"] == "strangled")
+        self._require(candidate_row["owner_slice"] == "DS8")
+
+        original_without_target = json.loads(original)
+        candidate_without_target = json.loads(candidate)
+        original_without_target["entries"] = [
+            row
+            for row in original_without_target["entries"]
+            if row["unit_id"] != "adjacent-print-export"
+        ]
+        candidate_without_target["entries"] = [
+            row
+            for row in candidate_without_target["entries"]
+            if row["unit_id"] != "adjacent-print-export"
+        ]
+        self._require(candidate_without_target == original_without_target)
+
+    def test_transition_rejects_open_and_closed_drift(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        closed = checker._c13_print_transition_text(original, receipt=receipt)
+        for source, field, value in (
+            (original, "owner_slice", "DS6"),
+            (closed, "strangle_status", "pending"),
+            (closed, "disposition", "use_as_is"),
+        ):
+            data = json.loads(source)
+            row = next(r for r in data["entries"] if r["unit_id"] == "adjacent-print-export")
+            row[field] = value
+            mutation = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+            with (
+                self.subTest(field=field),
+                pytest.raises(ValueError, match="C13 print transition rejected"),
+            ):
+                checker._c13_print_transition_text(mutation, receipt=receipt)
+
+    def test_status_candidate_reanchors_only_the_register_source(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        register_candidate = checker._c13_print_transition_text(
+            REGISTER_PATH.read_text(encoding="utf-8"),
+            receipt=receipt,
+        )
+        original_text = checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8")
+        candidate_text = checker._c13_status_inventory_candidate_text(
+            original_text,
+            register_bytes=register_candidate.encode("utf-8"),
+        )
+        original = json.loads(original_text)
+        candidate = json.loads(candidate_text)
+        expected = copy.deepcopy(original)
+        expected["sources"]["ds19"]["sha256"] = "sha256:" + hashlib.sha256(
+            register_candidate.encode("utf-8")
+        ).hexdigest()
+        self._require(candidate == expected)
+        self._require(
+            checker._c13_status_candidate_errors(
+                candidate,
+                register_bytes=register_candidate.encode("utf-8"),
+            )
+            == []
+        )
+        debt = checker.status_checker._load_json(checker.status_checker.WAIST_DEBT_PATH)
+        original_sha256 = checker.status_checker._sha256
+        original_load_json = checker.status_checker._load_json
+
+        def candidate_sha256(path: Path) -> str:
+            if path == checker.status_checker.DS19_PATH:
+                return expected["sources"]["ds19"]["sha256"]
+            return original_sha256(path)
+
+        def candidate_load_json(path: Path) -> dict[str, object]:
+            if path == checker.status_checker.DS19_PATH:
+                return json.loads(register_candidate)
+            return original_load_json(path)
+
+        with (
+            mock.patch.object(
+                checker.status_checker,
+                "_sha256",
+                side_effect=candidate_sha256,
+            ),
+            mock.patch.object(
+                checker.status_checker,
+                "_load_json",
+                side_effect=candidate_load_json,
+            ),
+        ):
+            diagnostics = checker.status_checker.validate_inventory(candidate, debt)
+        payload = "".join(f"{diagnostic}\n" for diagnostic in diagnostics).encode()
+        self._require(
+            (len(diagnostics), len(payload), hashlib.sha256(payload).hexdigest())
+            == (
+                13,
+                887,
+                "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
+            )
+        )
+
+
 class RawTransportDriftTests(unittest.TestCase):
     """Prove the historical DS1 receipt cannot become a live denominator."""
 
@@ -3173,24 +3417,100 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         self,
     ) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
-        rows = checker._authority_presentation_rows()
+        scan = checker._authority_presentation_scan()
+        rows = checker._authority_presentation_rows(scan)
 
-        self.assertEqual(39, len(rows))
+        self.assertEqual(36, len(rows))
         self.assertEqual(
-            12,
-            sum(row["authority_sink"]["sink_kind"] == "prop_boundary" for row in rows),
-        )
-        self.assertEqual(
-            27,
+            11,
             sum(
-                row["authority_sink"]["sink_kind"] == "direct_badge_group"
+                row.get("authority_sink", {}).get("sink_kind") == "prop_boundary"
                 for row in rows
             ),
         )
         self.assertEqual(
-            [],
-            checker._authority_presentation_errors(data, live_probes=True),
+            24,
+            sum(
+                row.get("authority_sink", {}).get("sink_kind")
+                == "direct_badge_group"
+                for row in rows
+            ),
         )
+        absence = next(
+            row
+            for row in rows
+            if row["finding_id"]
+            == "authority-presentation-badge-evidence-source-freshness"
+        )
+        self.assertEqual(
+            {
+                "sink_kind": "direct_badge_group",
+                "descriptor_id": "badge-evidence-source-freshness",
+                "consumer_count": 0,
+                "predicate_provenance": "recomputed",
+                "reason": "no_live_consumer_sites",
+            },
+            absence["authority_sink_absence"],
+        )
+        self.assertNotIn("authority_sink", absence)
+        self.assertEqual("open_debt", absence["status"])
+        self.assertEqual("DS8", absence["owner_slice"])
+        self.assertEqual(
+            [
+                "producer_missing",
+                "bridge_missing",
+                "consumer_missing",
+                "semantic_test_missing",
+            ],
+            absence["capability_states"],
+        )
+        self.assertEqual(
+            [],
+            checker._authority_presentation_errors(
+                data, live_probes=True, scan=scan
+            ),
+        )
+
+        for field, value in (
+            ("consumer_count", 1),
+            ("predicate_provenance", "consumer_asserted"),
+            ("reason", "placeholder"),
+        ):
+            with self.subTest(absence_field=field):
+                mutation = copy.deepcopy(data)
+                stored = next(
+                    row
+                    for row in mutation["supplemental_findings"]
+                    if row["finding_id"] == absence["finding_id"]
+                )
+                stored["authority_sink_absence"][field] = value
+                self.assertIn(
+                    "authority_presentation_debt_drift:"
+                    + absence["finding_id"]
+                    + ":authority_sink_absence",
+                    checker._authority_presentation_errors(
+                        mutation, live_probes=False, scan=scan
+                    ),
+                )
+                self.assertTrue(
+                    checker._schema_errors(mutation, checker.SCHEMA_PATH)
+                )
+
+        both = copy.deepcopy(data)
+        stored_absence = next(
+            row
+            for row in both["supplemental_findings"]
+            if row["finding_id"] == absence["finding_id"]
+        )
+        stored_absence["authority_sink"] = copy.deepcopy(
+            next(
+                row["authority_sink"]
+                for row in rows
+                if "authority_sink" in row
+                and row["authority_sink"]["sink_kind"] == "direct_badge_group"
+            )
+        )
+        self.assertTrue(checker._schema_errors(both, checker.SCHEMA_PATH))
 
     def test_authority_debt_corruptions_fail_closed(self) -> None:
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
@@ -3321,10 +3641,10 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         badge = checker.AUTHORITY_BADGE_CLASSIFICATIONS
         prop = checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
         prop_records = [record for records in prop.values() for record in records]
-        self.assertEqual(163, len(badge))
-        self.assertEqual(163, len(set(badge)))
-        self.assertEqual(73, len(prop_records))
-        self.assertEqual(72, len(prop))
+        self.assertEqual(159, len(badge))
+        self.assertEqual(159, len(set(badge)))
+        self.assertEqual(66, len(prop_records))
+        self.assertEqual(65, len(prop))
         shared = [records for records in prop.values() if len(records) == 2]
         self.assertEqual(
             [[
@@ -3375,6 +3695,75 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                 for error in errors
             ),
             errors,
+        )
+
+    def test_cycle_board_strangle_reanchors_authority_presentations(self) -> None:
+        """The live Cycle Board replaces, rather than preserves, the retired panel sinks."""
+        scan = checker._authority_presentation_scan()
+        sites = scan["badgeSites"]
+        encoded_by_location = checker._authority_badge_live_identity_by_location(sites)
+        identity_rows = [
+            checker._typescript_reference_identity_record(identity)
+            for identity in encoded_by_location.values()
+        ]
+        key_by_location = dict(
+            zip(
+                encoded_by_location,
+                checker._typescript_reference_hybrid_keys(identity_rows),
+                strict=True,
+            )
+        )
+        cycle_board_path = (
+            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx"
+        )
+        expected = {
+            (cycle_board_path, 78): "debt:badge-governed-projection-availability",
+            (cycle_board_path, 136): "benign:opaque_metadata_or_taxonomy",
+            (cycle_board_path, 354): "debt:badge-governed-projection-availability",
+        }
+        self.assertEqual(
+            expected,
+            {
+                location: checker.AUTHORITY_BADGE_CLASSIFICATIONS[
+                    key_by_location[location]
+                ]
+                for location in expected
+            },
+        )
+        self.assertFalse(
+            any(
+                str(site["path"]).endswith("/RunExplainabilityPanel.tsx")
+                for site in sites
+            )
+        )
+        grouped = checker._authority_badge_sites_by_debt_group(scan)
+        self.assertEqual(
+            [(cycle_board_path, 78), (cycle_board_path, 354)],
+            sorted(
+                (str(site["path"]), int(site["line"]))
+                for site in grouped["badge-governed-projection-availability"]
+            ),
+        )
+
+        props = {
+            str(fact["descriptorId"]): fact
+            for fact in scan["authorityPropCensus"]
+        }
+        self.assertNotIn("prop-time-semantics-freshness", props)
+        self.assertEqual(
+            [(cycle_board_path, 358)],
+            [
+                (str(site["path"]), int(site["line"]))
+                for site in props["prop-data-freshness"]["consumerSites"]
+            ],
+        )
+        self.assertEqual(
+            3,
+            len(props["prop-authority-badge-presentation"]["consumerSites"]),
+        )
+        self.assertEqual(
+            1,
+            len(props["prop-envelope-authority-purpose"]["consumerSites"]),
         )
 
     def test_new_direct_badge_site_is_unclassified_until_adjudicated(self) -> None:
@@ -3438,6 +3827,57 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                 for row in after["supplemental_findings"]
                 if row["finding_id"] in checker.AUTHORITY_PRESENTATION_DEBT_SPECS
             },
+        )
+
+    def test_writer_removes_only_retired_authority_presentation_rows(self) -> None:
+        original_text = REGISTER_PATH.read_text(encoding="utf-8")
+        _start, _end, original_rows = checker._supplemental_section(original_text)
+        refresh_owned_ids = checker._surgical_supplemental_finding_ids(original_text)
+        accepted_rows = [
+            (finding_id, row_text)
+            for finding_id, row_text in original_rows
+            if finding_id not in refresh_owned_ids
+        ]
+        self.assertTrue(accepted_rows)
+
+        source_row = next(
+            json.loads(row_text)
+            for _finding_id, row_text in original_rows
+            if json.loads(row_text).get("finding_kind")
+            == "authority_presentation_debt"
+        )
+        retired_id = "authority-presentation-retired-writer-probe"
+        retired_row = copy.deepcopy(source_row)
+        retired_row["finding_id"] = retired_id
+        _array_start, _array_end, spans = checker._supplemental_section_spans(
+            original_text
+        )
+        insertion_at = spans[-1][2] + 1
+        with_retired_row = (
+            original_text[:insertion_at]
+            + ",\n    "
+            + checker._render_supplemental_finding(retired_row)
+            + original_text[insertion_at:]
+        )
+        self.assertIn(
+            retired_id,
+            checker._surgical_supplemental_finding_ids(with_retired_row),
+        )
+
+        refreshed = checker._refresh_supplemental_findings_text(with_retired_row)
+        self.assertEqual(original_text, refreshed)
+        self.assertEqual(refreshed, checker._refresh_supplemental_findings_text(refreshed))
+        _refreshed_start, _refreshed_end, refreshed_rows = (
+            checker._supplemental_section(refreshed)
+        )
+        refreshed_rows_by_id = dict(refreshed_rows)
+        self.assertNotIn(retired_id, refreshed_rows_by_id)
+        self.assertEqual(
+            accepted_rows,
+            [
+                (finding_id, refreshed_rows_by_id[finding_id])
+                for finding_id, _row_text in accepted_rows
+            ],
         )
 
     def test_duplicate_ids_and_decision_date_rewrites_fail_closed(self) -> None:
@@ -3927,6 +4367,132 @@ export function Badge({ tone }: Props) { return <span tone={tone} />; }
         self.assertEqual([], checker._validate_typescript_reference_identity(prop, {source_path: moved}))
         self.assertEqual([], checker._validate_typescript_reference_identity(attribute, {source_path: moved}))
 
+    def test_generated_schema_property_is_owner_qualified_and_fails_closed(self) -> None:
+        """Generated fields bind their schema owner, content, and unique resolution."""
+        source_path = "packages/runtime-api-client/types.ts"
+        source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
+        discriminator = (
+            "components.schemas."
+            "polisyos__core__contracts__runtime__LineageRef-Output.status"
+        )
+        owner_facts = checker._typescript_reference_construct_facts(
+            {source_path: source},
+            source_path=source_path,
+            role="generated_schema_property",
+            discriminator=discriminator,
+        )
+        assert len(owner_facts["matches"]) == 1  # noqa: S101
+        target_match = owner_facts["matches"][0]
+        navigation_line = target_match["startLine"]
+        legacy_identity = checker._typescript_reference_identity(
+            {source_path: source},
+            source_path=source_path,
+            role="type_property",
+            discriminator="components.status",
+            navigation_hint=navigation_line,
+        )
+        _legacy_path, _legacy_marker, legacy_encoded = legacy_identity[
+            "encoded_identity"
+        ].partition("#ts-identity=")
+        legacy_payload = json.loads(
+            base64.urlsafe_b64decode(
+                legacy_encoded + "=" * (-len(legacy_encoded) % 4)
+            )
+        )
+        legacy_facts = checker._typescript_reference_construct_facts(
+            {source_path: source},
+            source_path=source_path,
+            role="type_property",
+            discriminator="components.status",
+        )
+        relocation_candidates = [
+            match
+            for match in legacy_facts["matches"]
+            if match["declarationChain"] == legacy_payload["declaration_chain"]
+            and match["normalizedTokensSha256"]
+            == legacy_payload["normalized_tokens_sha256"]
+        ]
+        expected_candidates = {
+            "components.schemas.LineageGraphView.status",
+            "components.schemas.LineageRef-Input.status",
+            "components.schemas.QuantityCoverageEntry.status",
+            (
+                "components.schemas."
+                "polisyos__core__contracts__runtime__LineageRef-Output.status"
+            ),
+            (
+                "components.schemas."
+                "polisyos__fabric__evidence__decision_data__LineageRef.status"
+            ),
+        }
+        assert {  # noqa: S101
+            match["generatedSchemaProperty"] for match in relocation_candidates
+        } == expected_candidates
+
+        identity = checker._typescript_reference_identity(
+            {source_path: source},
+            source_path=source_path,
+            role="generated_schema_property",
+            discriminator=discriminator,
+            navigation_hint=navigation_line,
+        )
+        _prefix, _marker, encoded = identity["encoded_identity"].partition(
+            "#ts-identity="
+        )
+        payload = json.loads(
+            base64.urlsafe_b64decode(encoded + "=" * (-len(encoded) % 4))
+        )
+        assert payload["version"] == 1  # noqa: S101
+        assert payload["role"] == "generated_schema_property"  # noqa: S101
+        assert not any("line" in key for key in payload)  # noqa: S101
+        assert "navigation_hint" not in identity["encoded_identity"]  # noqa: S101
+
+        lines = source.splitlines(keepends=True)
+        target_index = navigation_line - 1
+        target_line = lines[target_index]
+        owner_index = next(
+            index
+            for index in range(target_index - 1, -1, -1)
+            if '"polisyos__core__contracts__runtime__LineageRef-Output": {'
+            in lines[index]
+        )
+        moved_lines = list(lines)
+        moved_status = moved_lines.pop(target_index)
+        moved_lines.insert(owner_index + 1, moved_status)
+        moved = "\n" + "".join(moved_lines)
+        assert (  # noqa: S101
+            checker._validate_typescript_reference_identity(
+                identity, {source_path: moved}
+            )
+            == []
+        )
+
+        def replace_target_line(replacement: str) -> str:
+            changed = list(lines)
+            changed[target_index] = replacement
+            return "".join(changed)
+
+        renamed = replace_target_line(target_line.replace("status:", "state:"))
+        removed = replace_target_line("")
+        for mutation in (renamed, removed):
+            assert checker._validate_typescript_reference_identity(  # noqa: S101
+                identity, {source_path: mutation}
+            ) == ["typescript_reference_binding_missing_or_renamed"]
+
+        drifted = replace_target_line(
+            target_line.replace('"untraced"', '"unknown"')
+        )
+        assert checker._validate_typescript_reference_identity(  # noqa: S101
+            identity, {source_path: drifted}
+        ) == ["typescript_reference_content_drift"]
+
+        duplicated_lines = list(lines)
+        duplicated_lines.insert(target_index + 1, target_line)
+        duplicated = "".join(duplicated_lines)
+        assert checker._validate_typescript_reference_identity(  # noqa: S101
+            identity, {source_path: duplicated}
+        ) == ["typescript_reference_binding_ambiguous"]
+
     def test_protected_call_and_route_literals_replay_without_navigation_lines(self) -> None:
         """The protected-live direct syntax classes survive a move and reject a rewrite."""
         source_path = self._SOURCE_PATH.removesuffix(".ts") + ".tsx"
@@ -4256,10 +4822,10 @@ it("second", () => {
         ):
             spec.loader.exec_module(module)
         self.assertEqual(  # noqa: PT009
-            163, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
+            159, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
         )
         self.assertEqual(  # noqa: PT009
-            72, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
+            65, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
         )
 
     def test_c21d_retired_address_owners_are_absent_and_counts_are_complete(self) -> None:
@@ -4269,16 +4835,16 @@ it("second", () => {
             {
                 "interaction_or_editor_state": 13,
                 "transport_or_runtime_health": 20,
-                "workflow_or_lifecycle_display_without_terminality_inference": 24,
+                "workflow_or_lifecycle_display_without_terminality_inference": 25,
                 "layout_or_counts": 21,
                 "opaque_metadata_or_taxonomy": 25,
             },
             checker.BENIGN_BADGE_CLASS_COUNTS,
         )
-        self.assertEqual(103, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
-        self.assertEqual(19, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
+        self.assertEqual(104, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
+        self.assertEqual(18, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
         self.assertEqual(  # noqa: PT009
-            35,
+            30,
             sum(
                 len(specification["consumer_paths"])
                 for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values()
@@ -4294,17 +4860,17 @@ it("second", () => {
                     for path in specification["consumer_paths"]
                 )
             )
-        self.assertEqual(27, len(checker.AUTHORITY_BADGE_DEBT_SPECS))  # noqa: PT009
+        self.assertEqual(25, len(checker.AUTHORITY_BADGE_DEBT_SPECS))  # noqa: PT009
         for specification in checker.AUTHORITY_BADGE_DEBT_SPECS.values():
             self.assertNotIn("locations", specification)  # noqa: PT009
         badge_values = checker.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.values()
-        self.assertEqual(58, sum(value.startswith("debt:") for value in badge_values))  # noqa: PT009
+        self.assertEqual(53, sum(value.startswith("debt:") for value in badge_values))  # noqa: PT009
         prop_records = [
             record
             for records in checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.values()
             for record in records
         ]
-        self.assertEqual(73, len(prop_records))  # noqa: PT009
+        self.assertEqual(66, len(prop_records))  # noqa: PT009
 
         raw_address_residuals = {
             "benign_or_count_anchors": 0
@@ -4323,9 +4889,9 @@ it("second", () => {
         }
         self.assertEqual(  # noqa: PT009
             {
-                "benign_or_count_anchors": (103, 0),
-                "debt_group_bindings": (58, 0),
-                "prop_addresses": (73, 0),
+                "benign_or_count_anchors": (104, 0),
+                "debt_group_bindings": (53, 0),
+                "prop_addresses": (66, 0),
             },
             {
                 "benign_or_count_anchors": (
@@ -4345,7 +4911,7 @@ it("second", () => {
         )
 
     def test_c21d_live_register_identity_census_preserves_every_distinct_binding(self) -> None:
-        """Derive C21d's collision-safe identity census from every stored TypeScript ref."""
+        """Derive C21d's collision-safe identity census after DS8 sink retirement."""
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         references = DS5LineAddressCensusTests._live_references(data)
         identity_references = [
@@ -4362,16 +4928,47 @@ it("second", () => {
         hybrid_keys = checker._typescript_reference_hybrid_keys(identities)
 
         self.assertEqual(  # noqa: PT009
-            155, len(identity_references), "ds5_c21d_identity_reference_drift"
+            143, len(identity_references), "ds5_c21d_identity_reference_drift"
         )
         self.assertEqual(  # noqa: PT009
-            128, len(distinct_references), "ds5_c21d_distinct_identity_drift"
+            119, len(distinct_references), "ds5_c21d_distinct_identity_drift"
         )
         self.assertEqual(  # noqa: PT009
-            107, len(relocation_families), "ds5_c21d_relocation_family_drift"
+            101, len(relocation_families), "ds5_c21d_relocation_family_drift"
         )
         self.assertEqual(  # noqa: PT009
-            128, len(set(hybrid_keys)), "ds5_c21d_hybrid_identity_merge"
+            119, len(set(hybrid_keys)), "ds5_c21d_hybrid_identity_merge"
+        )
+
+    def test_def21_additive_role_preserves_ds5_identity_bytes(self) -> None:
+        """Pin the live DS5 bytes through the DS8 sink transition.
+
+        ``fea50aadd`` superseded the original bytes while preserving 155
+        identities; ``df0484301`` then retired eight occurrences. The third
+        supersession is this DS16 merge: client regeneration made ownerless
+        ``components.finished_at`` and ``components.status`` identities
+        ambiguous, so they moved to owner-qualified ``generated_schema_property``
+        identities for ``RunSummary`` while the corpus stayed at 147. DS8 then
+        re-anchors the live supplemental sinks, retires stale identities, and
+        re-anchors the query-key construct, moving the corpus to 143. A count-only
+        pin would have missed the first and third events, so the ordered byte
+        digest remains the binding assertion.
+        """
+        data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+        identity_references = [
+            reference
+            for reference in DS5LineAddressCensusTests._live_references(data)
+            if "#ts-identity=" in reference
+        ]
+        encoded = json.dumps(
+            identity_references,
+            ensure_ascii=False,
+            separators=(",", ":"),
+        ).encode("utf-8")
+
+        assert len(identity_references) == 143  # noqa: S101
+        assert hashlib.sha256(encoded).hexdigest() == (  # noqa: S101
+            "6c0d327298bfa700900b1cf767960b3b076ce3ca5abf30c2421ac450aa5e6c8d"
         )
 
     def test_c21d_multi_site_authority_sink_ignores_navigation_only_changes(self) -> None:
@@ -4795,10 +5392,10 @@ id = "target"
     def test_live_c21c_selector_hashes_are_complete_and_frozen(self) -> None:
         expected_hashes = {
             "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
-                "d333a5ad21d1303613a7a8a9ca08280afec38ed3437b56511e20c55bd66ab613"
+                "b503e66f352769e60481dc523209b1a26fc76db7925efb901098cf7a9d9c8b1b"
             ),
             "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
-                "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe"
+                "399e89a188beb761be92339723ce1f399f80da100aa23d32201c18f38a319248"
             ),
             "schemas/runtime_api_v1.openapi.json:2221": (
                 "7983a50e47d9c0a6e7785de9367614512ce2be27a3e183ac7d844cb4dba6bd3f"
@@ -5382,6 +5979,519 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                 if error.startswith("structured_reference_")
             ],
         )
+
+
+class DS8StrangleCoverageTests(unittest.TestCase):
+    """Pin the complete DS8 T0/source-freeze estate and generic falsifiers."""
+
+    BASE_COMMIT = "9e6a43b53d11166e90df376940cb34ff15b77289"
+    SOURCE_COMMIT = "fd43342f87fda34c6123a8f5f4791f8e3236b4f9"
+    WRITER_HEAD_COMMIT = "c393090ab35c242b03314cd2095d195c4e188fc3"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.coverage = checker.build_ds8_strangle_coverage(
+            baseline_commit=cls.BASE_COMMIT,
+            source_commit=cls.SOURCE_COMMIT,
+        )
+
+    def test_complete_denominator_and_assignments_are_exact(self) -> None:
+        coverage = self.coverage
+        self.assertEqual("independently_reconciled", coverage["predicate_provenance"])
+        self.assertFalse(coverage["family_complete"])
+        self.assertEqual(
+            {"files": 207, "physical_lines": 38544},
+            coverage["baseline"]["all"],
+        )
+        self.assertEqual(
+            {"files": 145, "physical_lines": 26502},
+            coverage["baseline"]["production"],
+        )
+        self.assertEqual(
+            {"files": 57, "physical_lines": 11575},
+            coverage["baseline"]["tests"],
+        )
+        self.assertEqual(
+            {"files": 5, "physical_lines": 467},
+            coverage["baseline"]["stories"],
+        )
+        assignments = coverage["assignments"]
+        paths = [row["path"] for row in assignments]
+        self.assertEqual(len(paths), len(set(paths)))
+        self.assertEqual(217, len(paths))
+        dispositions = Counter(row["disposition"] for row in assignments)
+        self.assertEqual(8, dispositions["in_scope"])
+        self.assertEqual(137, dispositions["surface_out_of_scope"])
+        self.assertEqual(57, dispositions["verification_companion"])
+        self.assertEqual(5, dispositions["retained"])
+        self.assertEqual(10, dispositions["new_in_slice"])
+        deferred = [
+            row
+            for row in assignments
+            if row["disposition"] == "surface_out_of_scope"
+        ]
+        self.assertTrue(deferred)
+        self.assertTrue(
+            all(
+                row["owner_team"] == "team-design"
+                and row["capability_state"] == "surface_out_of_scope"
+                and row["exit_condition"]
+                == "approved_named_successor_slice_moves_row"
+                and row["successor_slice"] is None
+                for row in deferred
+            )
+        )
+        self.assertEqual(
+            [],
+            checker.validate_ds8_strangle_coverage(
+                coverage,
+                expected_baseline_commit=self.BASE_COMMIT,
+                expected_source_commit=self.SOURCE_COMMIT,
+            ),
+        )
+
+    def test_generic_walk_rejects_missing_duplicate_stale_and_nonexistent(self) -> None:
+        self.assertEqual(
+            [],
+            checker.ds8_strangle_corruption_probes(
+                self.coverage,
+                expected_baseline_commit=self.BASE_COMMIT,
+                expected_source_commit=self.SOURCE_COMMIT,
+            ),
+        )
+
+    def test_writer_rechecks_bytes_but_persistent_gate_tracks_path_roles(self) -> None:
+        poisoned = dict(checker._ds8_live_sources())
+        target = next(iter(poisoned))
+        poisoned[target] += b"// post-census drift\n"
+        with mock.patch.object(
+            checker, "_ds8_live_sources", return_value=poisoned
+        ):
+            self.assertEqual(
+                [],
+                checker.validate_ds8_strangle_coverage(
+                    self.coverage,
+                    expected_baseline_commit=self.BASE_COMMIT,
+                    expected_source_commit=self.SOURCE_COMMIT,
+                ),
+            )
+            with self.assertRaisesRegex(ValueError, "byte reconciliation failed"):
+                checker.build_ds8_strangle_coverage(
+                    baseline_commit=self.BASE_COMMIT,
+                    source_commit=self.SOURCE_COMMIT,
+                    require_live_source_match=True,
+                )
+
+    def test_reconciled_later_lane_paths_do_not_enter_ds8_coverage(self) -> None:
+        live = checker._ds8_live_sources()
+        ds16_path = (
+            "apps/runtime-dashboard/src/features/runs/export/authorityValueTwin.ts"
+        )
+        self.assertIn(ds16_path, live)
+        self.assertNotIn(
+            ds16_path,
+            {row["path"] for row in self.coverage["assignments"]},
+        )
+        downstream_tree = {
+            **live,
+            "apps/runtime-dashboard/src/features/runs/downstream-only.ts": b"",
+        }
+        downstream_tree.pop(next(iter(self.coverage["assignments"]))["path"])
+        with mock.patch.object(
+            checker, "_ds8_live_sources", return_value=downstream_tree
+        ):
+            self.assertEqual(
+                [],
+                checker.validate_ds8_strangle_coverage(
+                    self.coverage,
+                    expected_baseline_commit=self.BASE_COMMIT,
+                    expected_source_commit=self.SOURCE_COMMIT,
+                )
+            )
+
+    def test_writer_head_is_distinct_from_ds8_coverage_source(self) -> None:
+        self.assertEqual(self.SOURCE_COMMIT, checker.DS8_STRANGLE_SOURCE_COMMIT)
+        self.assertEqual(
+            self.WRITER_HEAD_COMMIT,
+            checker.DS8_STRANGLE_WRITER_HEAD_COMMIT,
+        )
+        self.assertNotEqual(
+            checker.DS8_STRANGLE_SOURCE_COMMIT,
+            checker.DS8_STRANGLE_WRITER_HEAD_COMMIT,
+        )
+
+        def git_text(*arguments: str) -> str:
+            if arguments == ("symbolic-ref", "-q", "HEAD"):
+                return "refs/heads/codex/atlas-ds8-planning\n"
+            if arguments == ("rev-parse", "HEAD"):
+                return checker.DS8_STRANGLE_WRITER_HEAD_COMMIT + "\n"
+            raise AssertionError(arguments)
+
+        completed = mock.Mock(returncode=0, stdout="")
+        with mock.patch.object(checker, "_ds8_git_text", side_effect=git_text), mock.patch.object(
+            checker.subprocess,
+            "run",
+            side_effect=(completed, completed, completed),
+        ):
+            checker._ds8_writer_fence()
+
+    def test_status_candidate_reanchors_only_reconciled_receipts(self) -> None:
+        prefix = checker._ds8_coordinate_prefix()
+        opening_register = checker._ds8_git_text(
+            "show",
+            f"{self.WRITER_HEAD_COMMIT}:{prefix}"
+            "architecture/atlas_surfaces/frontend-disposition-register.json",
+        )
+        opening_status = checker._ds8_git_text(
+            "show",
+            f"{self.WRITER_HEAD_COMMIT}:{prefix}"
+            "architecture/atlas_surfaces/status-retirement-inventory.json",
+        )
+        refreshed_register = checker._refresh_supplemental_findings_text(
+            opening_register
+        )
+        register_candidate = checker._ds8_register_candidate_text(
+            refreshed_register,
+            self.coverage,
+        )
+        candidate = checker._ds8_status_inventory_candidate_text(
+            opening_status,
+            register_bytes=register_candidate.encode("utf-8"),
+        )
+        self.assertEqual(
+            checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8"),
+            candidate,
+        )
+        opening = json.loads(opening_status)
+        parsed = json.loads(candidate)
+        expected = copy.deepcopy(opening)
+        expected["sources"]["ds19"]["sha256"] = parsed["sources"]["ds19"][
+            "sha256"
+        ]
+        for key in ("canonical_sha256", "types_sha256"):
+            expected["sources"]["generated_client"][key] = parsed["sources"][
+                "generated_client"
+            ][key]
+        expected_status_row = next(
+            entry
+            for entry in expected["entries"]
+            if entry["unit_id"] == "status-inline-review-surface"
+        )
+        expected_consumer = next(
+            entry
+            for entry in expected_status_row["consumers"]
+            if entry["path"].endswith("/DataIntelligencePanel.tsx")
+        )
+        expected_consumer["line"] = 1212
+        self.assertEqual(expected, parsed)
+
+        generated = parsed["sources"]["generated_client"]
+        self.assertEqual(
+            checker._sha256(checker.REPO_ROOT / generated["canonical_path"]),
+            generated["canonical_sha256"],
+        )
+        self.assertEqual(
+            checker._sha256(checker.REPO_ROOT / generated["types_path"]),
+            generated["types_sha256"],
+        )
+        row = next(
+            entry
+            for entry in parsed["entries"]
+            if entry["unit_id"] == "status-inline-review-surface"
+        )
+        consumer = next(
+            entry
+            for entry in row["consumers"]
+            if entry["path"].endswith("/DataIntelligencePanel.tsx")
+        )
+        self.assertEqual(1212, consumer["line"])
+        self.assertEqual(387, checker._status_line_leaf_count(parsed))
+        self.assertEqual(30, checker._string_leaf_count(parsed, "#ts-identity="))
+        self.assertEqual(
+            [],
+            checker._ds8_status_candidate_errors(
+                parsed,
+                register_bytes=register_candidate.encode("utf-8"),
+            ),
+        )
+        debt = checker.status_checker._load_json(  # type: ignore[attr-defined]
+            checker.status_checker.WAIST_DEBT_PATH
+        )
+        original_status_sha256 = checker.status_checker._sha256  # type: ignore[attr-defined]
+        opening_register_hash = checker._ds8_digest(
+            opening_register.encode("utf-8")
+        )
+
+        def opening_sha256(path: Path) -> str:
+            if path == checker.status_checker.DS19_PATH:
+                return opening_register_hash
+            return original_status_sha256(path)
+
+        with mock.patch.object(
+            checker.status_checker,
+            "_sha256",
+            side_effect=opening_sha256,
+        ):
+            opening_diagnostics = checker.status_checker.validate_inventory(
+                opening,
+                debt,
+            )
+        candidate_diagnostics = checker.status_checker.validate_inventory(
+            parsed,
+            debt,
+        )
+        owned_opening_diagnostics = [
+            "inventory_source_hash_drift:packages/runtime-api-client/"
+            "canonicalRuntimeApiClient.ts",
+            "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
+            "status_consumers_drift:status-inline-review-surface",
+        ]
+        self.assertEqual(
+            Counter([*candidate_diagnostics, *owned_opening_diagnostics]),
+            Counter(opening_diagnostics),
+        )
+        self.assertEqual(16, len(opening_diagnostics))
+        self.assertEqual(13, len(candidate_diagnostics))
+        receipt = "".join(
+            f"{diagnostic}\n" for diagnostic in candidate_diagnostics
+        ).encode()
+        self.assertEqual(887, len(receipt))
+        self.assertEqual(
+            "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
+            hashlib.sha256(receipt).hexdigest(),
+        )
+
+    def test_companion_baseline_candidate_reanchors_only_three_source_bytes(
+        self,
+    ) -> None:
+        original = checker._ds8_git_text(
+            "show",
+            (
+                f"{self.WRITER_HEAD_COMMIT}:"
+                + checker._ds8_coordinate_prefix()
+                + "architecture/atlas_surfaces/frontend-baseline-debt-manifest.json"
+            ),
+        )
+        candidate = checker._ds8_baseline_manifest_candidate_text(original)
+        self.assertEqual(
+            candidate,
+            checker._ds8_baseline_manifest_candidate_text(candidate),
+        )
+        original_data = json.loads(original)
+        candidate_data = json.loads(candidate)
+        original_rows = {
+            (row["cluster_id"], row["path"]): row
+            for row in original_data["lint"]["resolution_content_bindings"]
+        }
+        candidate_rows = {
+            (row["cluster_id"], row["path"]): row
+            for row in candidate_data["lint"]["resolution_content_bindings"]
+        }
+        changed = {
+            key
+            for key in original_rows
+            if original_rows[key] != candidate_rows[key]
+        }
+        self.assertEqual(checker.DS8_BASELINE_CONTENT_REANCHORS, changed)
+        for key in changed:
+            row = candidate_rows[key]
+            self.assertEqual(
+                hashlib.sha256((checker.REPO_ROOT / row["path"]).read_bytes()).hexdigest(),
+                row["sha256"],
+            )
+        self.assertEqual([], checker.validate_baseline_manifest(candidate_data))
+
+    def test_companion_reference_reanchors_resolve_without_peer_drift(self) -> None:
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        refreshed = checker._refresh_supplemental_findings_text(original)
+        original_rows = {
+            row["finding_id"]: row
+            for row in json.loads(original)["supplemental_findings"]
+        }
+        refreshed_rows = {
+            row["finding_id"]: row
+            for row in json.loads(refreshed)["supplemental_findings"]
+        }
+        for finding_id, source_path in checker.DS8_COMPANION_REFERENCE_PATHS.items():
+            before = original_rows[finding_id]
+            after = refreshed_rows[finding_id]
+            self.assertEqual(
+                {**before, "evidence_refs": after["evidence_refs"]},
+                after,
+            )
+            references = [
+                reference
+                for reference in after["evidence_refs"]
+                if reference.startswith(source_path + "#")
+            ]
+            self.assertEqual(1, len(references))
+            errors = (
+                checker._typescript_identity_reference_errors(references)
+                if "#ts-identity=" in references[0]
+                else checker._structured_identity_reference_errors(references)
+            )
+            self.assertEqual([], errors)
+
+    def test_register_writer_is_surgical_and_idempotent(self) -> None:
+        original = checker._ds8_git_text(
+            "show",
+            (
+                f"{self.WRITER_HEAD_COMMIT}:"
+                + checker._ds8_coordinate_prefix()
+                + "architecture/atlas_surfaces/frontend-disposition-register.json"
+            ),
+        )
+        once = checker._ds8_register_candidate_text(original, self.coverage)
+        twice = checker._ds8_register_candidate_text(once, self.coverage)
+        self.assertEqual(once, twice)
+        parsed = json.loads(once)
+        self.assertEqual("1.1", parsed["schema_version"])
+        self.assertEqual(
+            "1.0", parsed["storage_construction_census"]["schema_version"]
+        )
+        original_data = json.loads(original)
+        parsed.pop("ds8_strangle_coverage")
+        parsed["schema_version"] = original_data["schema_version"]
+        self.assertEqual(original_data, parsed)
+
+    def test_failure_atomic_writer_succeeds_idempotently_and_rolls_back(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            paths = [
+                root / name
+                for name in ("register", "report", "status", "baseline")
+            ]
+            originals = {path: f"old-{index}\n" for index, path in enumerate(paths)}
+            candidates = {
+                path: f"new-{index}\n" for index, path in enumerate(paths)
+            }
+            for path, content in originals.items():
+                path.write_text(content, encoding="utf-8")
+                path.chmod(0o640)
+
+            def validate_new() -> list[str]:
+                return [
+                    str(path)
+                    for path, expected in candidates.items()
+                    if path.read_text(encoding="utf-8") != expected
+                ]
+
+            checker._failure_atomic_write_texts(
+                candidates, validate_after=validate_new
+            )
+            checker._failure_atomic_write_texts(
+                candidates, validate_after=validate_new
+            )
+            self.assertEqual(
+                candidates,
+                {path: path.read_text(encoding="utf-8") for path in paths},
+            )
+            self.assertTrue(all((path.stat().st_mode & 0o777) == 0o640 for path in paths))
+            self.assertEqual([], list(root.glob(".*.tmp")))
+
+            for path, content in originals.items():
+                path.write_text(content, encoding="utf-8")
+            real_replace = checker.os.replace
+            calls = 0
+
+            def fail_fourth(source: object, target: object) -> None:
+                nonlocal calls
+                calls += 1
+                if calls == 4:
+                    raise OSError("injected fourth promotion failure")
+                real_replace(source, target)
+
+            with mock.patch.object(checker.os, "replace", side_effect=fail_fourth):
+                with self.assertRaisesRegex(OSError, "fourth promotion"):
+                    checker._failure_atomic_write_texts(
+                        candidates, validate_after=validate_new
+                    )
+            self.assertEqual(
+                originals,
+                {path: path.read_text(encoding="utf-8") for path in paths},
+            )
+            self.assertEqual([], list(root.glob(".*.tmp")))
+
+            for path, content in originals.items():
+                path.write_text(content, encoding="utf-8")
+            real_fsync = checker._fsync_directory
+            fsync_calls = 0
+
+            def fail_fourth_fsync(path: Path) -> None:
+                nonlocal fsync_calls
+                fsync_calls += 1
+                if fsync_calls == 4:
+                    raise OSError("injected post-replace fsync failure")
+                real_fsync(path)
+
+            with mock.patch.object(
+                checker,
+                "_fsync_directory",
+                side_effect=fail_fourth_fsync,
+            ):
+                with self.assertRaisesRegex(OSError, "post-replace fsync"):
+                    checker._failure_atomic_write_texts(
+                        candidates,
+                        validate_after=validate_new,
+                    )
+            self.assertEqual(
+                originals,
+                {path: path.read_text(encoding="utf-8") for path in paths},
+            )
+            self.assertEqual([], list(root.glob(".*.tmp")))
+
+    def test_staging_and_pre_promote_failures_leave_no_residue(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            paths = [
+                root / name
+                for name in ("register", "report", "status", "baseline")
+            ]
+            originals = {path: "old\n" for path in paths}
+            candidates = {path: "new\n" for path in paths}
+            for path in paths:
+                path.write_text(originals[path], encoding="utf-8")
+            real_stage = checker._stage_same_directory
+            stage_calls = 0
+
+            def fail_second_stage(path: Path, payload: bytes) -> Path:
+                nonlocal stage_calls
+                stage_calls += 1
+                if stage_calls == 2:
+                    raise OSError("injected staging failure")
+                return real_stage(path, payload)
+
+            with mock.patch.object(
+                checker, "_stage_same_directory", side_effect=fail_second_stage
+            ):
+                with self.assertRaisesRegex(OSError, "staging failure"):
+                    checker._failure_atomic_write_texts(
+                        candidates, validate_after=lambda: []
+                    )
+            self.assertEqual([], list(root.glob(".*.tmp")))
+            self.assertEqual(
+                originals,
+                {path: path.read_text(encoding="utf-8") for path in paths},
+            )
+            with mock.patch.object(checker.os, "replace") as replace:
+                with self.assertRaisesRegex(ValueError, "pre-promote"):
+                    checker._failure_atomic_write_texts(
+                        candidates,
+                        validate_after=lambda: [],
+                        pre_promote=lambda: (_ for _ in ()).throw(
+                            ValueError("pre-promote fence")
+                        ),
+                    )
+            replace.assert_not_called()
+            self.assertEqual([], list(root.glob(".*.tmp")))
+
+    def test_complete_row_projection_is_reported(self) -> None:
+        projection = checker._ds8_strangle_report_projection(self.coverage)
+        self.assertIn("**145**", projection)
+        self.assertIn("**8**", projection)
+        self.assertIn("**137**", projection)
+        for row in self.coverage["assignments"]:
+            self.assertEqual(1, projection.count(f"`{row['path']}`"))
 
 
 if __name__ == "__main__":

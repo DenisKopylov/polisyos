@@ -5,9 +5,9 @@ import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes } from "react-router-dom";
 
 import { policyDiffFixture } from "@/features/runs/compare/fixtures";
-import { observeCachePosture } from "@/api/cacheDiscipline";
 import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { buildFeatureFlags } from "@/test/featureFlags";
+import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
 
 const ownerCapabilityManifest = {
   features: [
@@ -41,6 +41,7 @@ const {
   useRunErrorsMock,
   useRunInspectorMock,
   useRunLineageMock,
+  useRunPaperMock,
   useRunNodesMock,
   useRunScenariosMock,
   useRunTimelineMock,
@@ -68,6 +69,7 @@ const {
   useRunErrorsMock: vi.fn(),
   useRunInspectorMock: vi.fn(),
   useRunLineageMock: vi.fn(),
+  useRunPaperMock: vi.fn(),
   useRunNodesMock: vi.fn(),
   useRunScenariosMock: vi.fn(),
   useRunTimelineMock: vi.fn(),
@@ -82,7 +84,10 @@ vi.mock("@/shared/i18n/LocaleProvider", () => ({
       value: string | null | undefined,
       fallback: string,
     ) => fallback ?? value ?? "",
-    t: (key: string) => key,
+    t: (key: string) =>
+      key === "pages.cycleBoard.globalCohortLink"
+        ? "Cycle Board global cohort — not this run"
+        : key,
   }),
 }));
 
@@ -135,6 +140,10 @@ vi.mock("@/api/hooks/useCounterfactualMetrics", () => ({
 vi.mock("@/features/runs/api/useDepthNCycleBoardProjection", () => ({
   useDepthNCycleBoardProjection: (...args: unknown[]) =>
     useDepthNCycleBoardProjectionMock(...args),
+}));
+
+vi.mock("@/features/runs/api/useRunPaper", () => ({
+  useRunPaper: (...args: unknown[]) => useRunPaperMock(...args),
 }));
 
 vi.mock("@/api/hooks/useScenarioCapabilities", () => ({
@@ -521,7 +530,13 @@ function renderRoute(
 }
 
 function renderNestedRunDetail(path: string) {
+  // The DS16 panels are producer-bound as of C05, so this route now needs a query client
+  // like `renderRoute` already had.
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } },
+  });
   return render(
+    <QueryClientProvider client={queryClient}>
     <MemoryRouter initialEntries={[path]}>
       <Routes>
         <Route path="/runs/:runId" element={<RunDetailLayout />}>
@@ -536,7 +551,8 @@ function renderNestedRunDetail(path: string) {
         </Route>
         <Route path="/runs" element={<RunDetailLayout />} />
       </Routes>
-    </MemoryRouter>,
+    </MemoryRouter>
+    </QueryClientProvider>,
   );
 }
 
@@ -571,6 +587,7 @@ describe("run detail surfaces", () => {
       isWorkspaceAllowed: () => true,
       kind: "verified",
     });
+    usePermissionMock.mockReset();
     usePermissionMock.mockReturnValue(true);
     useReviewCollaborationEnabledMock.mockReturnValue(false);
     useCapabilitiesMock.mockReturnValue({
@@ -600,8 +617,20 @@ describe("run detail surfaces", () => {
       isError: false,
       isLoading: false,
     });
+    useDepthNCycleBoardProjectionMock.mockReset();
     useDepthNCycleBoardProjectionMock.mockReturnValue({
       data: undefined,
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+    const paperPacket = runPaperPacketFixture();
+    useRunPaperMock.mockReset();
+    useRunPaperMock.mockReturnValue({
+      data: {
+        packet: paperPacket,
+        rawPacketBytes: new TextEncoder().encode(JSON.stringify(paperPacket)),
+      },
       error: null,
       isError: false,
       isLoading: false,
@@ -785,7 +814,11 @@ describe("run detail surfaces", () => {
 
     renderNestedRunDetail("/runs/run-1/governance?tab=decision");
 
-    expect(await screen.findByTestId("run-detail-page")).toBeInTheDocument();
+    expect(await screen.findByTestId("run-detail-page")).toHaveAttribute(
+      "data-print-hidden",
+      "true",
+    );
+    expect(screen.queryByTestId("run-paper-document")).not.toBeInTheDocument();
     expect(screen.getByTestId("run-tab-nav")).toBeInTheDocument();
 
     useRunInspectorMock.mockReturnValue(createSummary());
@@ -885,8 +918,11 @@ describe("run detail surfaces", () => {
     ).toBeDisabled();
     expect(screen.getByTestId("run-replan-link")).toBeDisabled();
     expect(
-      screen.getByRole("link", { name: "pages.runs.auditReport" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("link", { name: "pages.runs.auditReport" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "pages.runs.auditReport" }),
+    ).toBeDisabled();
     expect(
       screen.getByRole("link", { name: "pages.runs.openDeck" }),
     ).toBeInTheDocument();
@@ -981,6 +1017,8 @@ describe("run detail surfaces", () => {
   it("renders the Atlas decision packet summary in RunDetailLayout", async () => {
     renderNestedRunDetail("/runs/run-1/overview");
 
+    expect(useRunPaperMock).not.toHaveBeenCalled();
+    expect(screen.queryAllByTestId("run-paper-document")).toHaveLength(0);
     expect(
       await screen.findByTestId("run-decision-packet"),
     ).toBeInTheDocument();
@@ -1173,9 +1211,11 @@ describe("run detail surfaces", () => {
     );
     expect(window.print).toHaveBeenCalled();
     expect(
-      screen.getByRole("button", { name: "pages.runs.report.exportJson" }),
+      screen.getByRole("button", { name: "pages.runs.report.exportMachine" }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Runtime failed")).toBeInTheDocument();
+    expect(screen.getByTestId("run-paper-document")).toHaveTextContent(
+      "artifact_missing",
+    );
 
     renderRoute("/deck", "/deck", <RunDeckPage />);
     expect(
@@ -1243,70 +1283,27 @@ describe("run detail surfaces", () => {
     expect(
       screen.getByTestId("overview-scenario-workbench"),
     ).toBeInTheDocument();
-    expect(useDepthNCycleBoardProjectionMock).toHaveBeenCalledWith();
+    expect(useDepthNCycleBoardProjectionMock).not.toHaveBeenCalled();
+    expect(
+      screen.queryByTestId("governed-depth-projection"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Cycle Board.*global cohort/iu }),
+    ).toHaveAttribute("href", "/runs/cycle-board");
   });
 
-  it.each([
-    {
-      fetchStatus: "idle",
-      isFetchedAfterMount: true,
-      isStale: false,
-      posture: "live",
-    },
-    {
-      fetchStatus: "idle",
-      isFetchedAfterMount: false,
-      isStale: false,
-      posture: "cached",
-    },
-    {
-      fetchStatus: "fetching",
-      isFetchedAfterMount: true,
-      isStale: true,
-      posture: "stale",
-    },
-  ])(
-    "bridges owner-issued $posture cache posture into Overview",
-    (lifecycle) => {
-      const asOf = "2026-08-19T09:30:00Z";
-      useDepthNCycleBoardProjectionMock.mockReturnValue({
-        cacheObservation: observeCachePosture({ data: {}, ...lifecycle }, asOf),
-        data: {
-          packet: {
-            absence_reason: "owner artifact is not present",
-            as_of: asOf,
-            authoritative_for: [],
-            availability: "artifact_missing",
-            freshness: {
-              basis: "request_observation",
-              observed_at: "2026-08-19T09:31:00Z",
-              state: "artifact_missing",
-            },
-            intended_audience: "EXPERT",
-            may_not_use_for: ["authority"],
-            projection_id: "depth-n-cycle-board",
-          },
-          payload: null,
-        },
-        error: null,
-        isError: false,
-        isLoading: false,
-      });
+  it("hides the global Cycle Board link without runs.review", () => {
+    usePermissionMock.mockImplementation(
+      (permission: string) => permission !== "runs.review",
+    );
 
-      renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
+    renderRoute("/runs/run-1/overview", "/runs/:runId/:tab", <OverviewTab />);
 
-      expect(
-        screen.getByTestId("time-semantics-cache-posture"),
-      ).toHaveTextContent(lifecycle.posture);
-      expect(
-        screen.getByTestId("time-semantics-cache-owner-as-of"),
-      ).toHaveTextContent(asOf);
-      expect(screen.getByTestId("governed-depth-projection")).toHaveAttribute(
-        "data-authority-posture",
-        "unavailable",
-      );
-    },
-  );
+    expect(useDepthNCycleBoardProjectionMock).not.toHaveBeenCalled();
+    expect(
+      screen.queryByRole("link", { name: /Cycle Board.*global cohort/iu }),
+    ).not.toBeInTheDocument();
+  });
 
   it("keeps novel and missing governance severity labels opaque and neutral", () => {
     const summary = createSummary();
@@ -1532,7 +1529,10 @@ describe("run detail surfaces", () => {
     ).toBeInTheDocument();
   });
 
-  it("renders both contained panels unavailable without producer inputs", () => {
+  it("renders both producer-bound panels with their sanctioned refusal", () => {
+    // C05 replaced containment with binding: the panels now read a producer and render
+    // its typed refusals. The sanctioned refusal key is still what a panel shows when
+    // the producer has served no member.
     renderNestedRunDetail("/runs/run-1/overview");
 
     expect(

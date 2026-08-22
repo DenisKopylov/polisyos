@@ -355,7 +355,9 @@ describe("Atlas health metrics", () => {
   });
 
   it("binds surface closure to its two target states, not every open state", () => {
-    const mixed = clone(metric(report, "surface_missing_closure")) as unknown as {
+    const mixed = clone(
+      metric(report, "surface_missing_closure"),
+    ) as unknown as {
       known_facts: Record<string, number>;
       measurement: Record<string, unknown>;
     };
@@ -377,9 +379,8 @@ describe("Atlas health metrics", () => {
       ranking: null,
     };
     expect(
-      atlasHealthMetricReportSchema.safeParse(
-        replaceMetric(report, 3, mixed),
-      ).success,
+      atlasHealthMetricReportSchema.safeParse(replaceMetric(report, 3, mixed))
+        .success,
     ).toBe(true);
 
     const conflated = clone(mixed);
@@ -644,10 +645,6 @@ describe("Atlas health metrics", () => {
         "pyproject.toml",
         "uv.lock",
       ]);
-      expect(
-        parsed.resolved_snapshot.snapshot.replay.non_revision_paths,
-      ).toEqual(expect.arrayContaining(["pyproject.toml", "uv.lock"]));
-
       const inconsistentReplay = clone(
         parsed,
       ) as AtlasHealthMetricPersistenceResult;

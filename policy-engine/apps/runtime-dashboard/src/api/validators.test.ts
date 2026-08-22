@@ -2,7 +2,11 @@ import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 import type { z } from "zod";
 
 import type { components } from "./types";
-import { quantityValueSchema, runDetailsSchema } from "./validators";
+import {
+  quantityValueSchema,
+  runDetailsSchema,
+  runsListSchema,
+} from "./validators";
 
 type ProjectionFixture = Record<string, unknown> & {
   audience?: components["schemas"]["PolicyDesignCaseProjection"]["audience"];
@@ -125,7 +129,50 @@ function runDetailsPayload(label: string) {
   };
 }
 
+function runsListPayload(runTerminality: string | undefined) {
+  return {
+    meta: {
+      generated_at: "2026-08-21T12:00:00.000Z",
+      request_id: "req-ds8-run-terminality",
+      source_kinds: ["core_run"],
+    },
+    page: {
+      count: 1,
+      cursor: null,
+      limit: 50,
+      next_cursor: null,
+      total: 1,
+    },
+    runs: [
+      {
+        run_id: "run-ds8-terminality",
+        run_terminality: runTerminality,
+        source_kind: "core_run",
+        status: "opaque-owner-status",
+      },
+    ],
+  };
+}
+
 describe("runtime API validators", () => {
+  it.each(["terminal", "non_terminal", "not_established"] as const)(
+    "preserves producer-owned run_terminality state %s",
+    (runTerminality) => {
+      const parsed = runsListSchema.parse(runsListPayload(runTerminality));
+
+      expect(parsed.runs?.[0]?.run_terminality).toBe(runTerminality);
+    },
+  );
+
+  it("rejects missing or novel run_terminality instead of inferring from status", () => {
+    expect(runsListSchema.safeParse(runsListPayload(undefined)).success).toBe(
+      false,
+    );
+    expect(
+      runsListSchema.safeParse(runsListPayload("completed-looking")).success,
+    ).toBe(false);
+  });
+
   it("matches the canonical quantity output type bidirectionally", () => {
     expectTypeOf<
       z.output<typeof quantityValueSchema>

@@ -7,6 +7,7 @@ import {
   mockRuntimeGetSuccess,
 } from "@/test/runtimeApi";
 import { buildFeatureFlags } from "@/test/featureFlags";
+import { RUN_DETAIL_SURFACES } from "@/app/surfaces/surfaceRegistry";
 
 const {
   cycleDensityMock,
@@ -232,6 +233,36 @@ describe("CommandPalette", () => {
     );
 
     expect(navigateMock).toHaveBeenCalledWith("/runs/run-1/causal");
+  });
+
+  it("does not treat the global Cycle Board route as a run context", () => {
+    locationPathnameMock.mockReturnValue("/runs/cycle-board");
+
+    renderCommandPalette();
+
+    for (const surface of RUN_DETAIL_SURFACES) {
+      expect(
+        screen.queryByRole("button", { name: surface.labelKey }),
+      ).not.toBeInTheDocument();
+    }
+    expect(
+      screen.getByRole("button", {
+        name: /surfaceRegistry\.run\.cycleBoard\.label/i,
+      }),
+    ).toBeInTheDocument();
+  });
+
+  it("keeps the Cycle Board out of navigation while authorization is unsettled", () => {
+    locationPathnameMock.mockReturnValue("/runs/cycle-board");
+    useAuthzDecisionMock.mockReturnValue({ kind: "unknown" });
+
+    renderCommandPalette();
+
+    expect(
+      screen.queryByRole("button", {
+        name: /surfaceRegistry\.run\.cycleBoard\.label/i,
+      }),
+    ).not.toBeInTheDocument();
   });
 
   it("does not mount or register the palette when its rollout flag is false", () => {

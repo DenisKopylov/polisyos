@@ -25,6 +25,7 @@ _RUN_MANIFEST_KIND = "core.run_manifest"
 _RUN_MANIFEST_MEDIA_TYPE = "application/json"
 _RUN_MANIFEST_SCHEMA_NAME = "polisyos.core.RunManifest"
 _RUN_MANIFEST_SCHEMA_VERSION = "0.1.0"
+BOUND_RUN_MANIFEST_SCHEMA_VERSION = _RUN_MANIFEST_SCHEMA_VERSION
 
 
 @dataclass(frozen=True)
@@ -197,7 +198,7 @@ def load_core_run(
 
     try:
         if run_terminality is RunTerminality.TERMINAL:
-            manifest = _load_bound_terminal_manifest(
+            manifest = load_bound_terminal_manifest(
                 store=store,
                 manifest_ref=manifest_ref,
                 run_id=run_id,
@@ -299,7 +300,7 @@ def _terminal_manifest_ref(record: TraceRecord) -> ArtifactRef | None:
     return ref
 
 
-def _load_bound_terminal_manifest(
+def load_bound_terminal_manifest(
     *,
     store: ArtifactStore,
     manifest_ref: ArtifactRef,

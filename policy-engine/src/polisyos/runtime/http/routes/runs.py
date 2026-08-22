@@ -11,7 +11,7 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from time import monotonic
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Annotated, Any, cast
 
 from polisyos.core.contracts.control import (
     ProductionApprovalOverrideRequest,
@@ -60,12 +60,16 @@ from polisyos.runtime.http.dependencies import (
     require_access_scope,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, conflict, forbidden
+from polisyos.runtime.http.errors import bad_request, conflict, forbidden, unprocessable_entity
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
     production_approval_scorecard_from_bound_request,
 )
 from polisyos.runtime.http.response_policies import add_run_link_relations
+from polisyos.runtime.http.services.authority_values import (
+    RunAuthorityProjection,
+    build_run_authority_projection,
+)
 from polisyos.runtime.http.services.channel_contracts import (
     RunDetailSnapshot,
     RunsListSnapshot,
@@ -76,6 +80,14 @@ from polisyos.runtime.http.services.channel_contracts import (
     validate_runs_channel_data_event,
 )
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
+from polisyos.runtime.http.services.run_paper_contracts import (
+    RunPaperPacket,
+    RunPaperReplayConflictError,
+    RunPaperReplayQuery,
+    RunPaperReplaySyntaxError,
+    RunPaperSourceError,
+)
+from polisyos.runtime.http.services.run_paper_projection import RunPaperProjectionService
 from polisyos.runtime.http.step_up import (
     StepUpAssertionVerification,
     StepUpClass,
@@ -111,6 +123,13 @@ def _build_router() -> APIRouter:
 
 
 router = _build_router()
+_GET_RUN_PAPER_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.run_paper",
+    ),
+)
 _GET_RUNS_BATCH_AUTHZ = require_action_permission(
     RuntimePermission.RUNS_BATCH_READ,
     ResourceBindingSpec(
@@ -832,6 +851,60 @@ if router is not None:
             ),
         )
 
+    @router.get(
+        "/{run_id}/paper",
+        response_model=RunPaperPacket,
+        dependencies=[Depends(_GET_RUN_PAPER_AUTHZ)],
+        operation_id="get_run_paper",
+        summary="Get the replay-bound paper projection for one verified run",
+    )
+    def get_run_paper(
+        run_id: str,
+        request: Request,
+        response: Response,
+        replay_query: Annotated[RunPaperReplayQuery, Depends()],
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> RunPaperPacket:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_paper",
+            artifact_id=(
+                str(run.details.manifest_ref.artifact_id)
+                if run.details.manifest_ref is not None
+                else None
+            ),
+        )
+        service = RunPaperProjectionService(
+            store=ctx.store,
+            run_index=ctx.run_index,
+            tenant_id=run.details.tenant_id,
+        )
+        try:
+            replay_query = RunPaperReplayQuery.from_query_items(
+                request.query_params.multi_items()
+            )
+            packet = service.get(run_id, replay_query=replay_query)
+        except RunPaperReplaySyntaxError as exc:
+            raise unprocessable_entity(
+                str(exc),
+                code="run_paper_replay_syntax_invalid",
+            ) from exc
+        except RunPaperReplayConflictError as exc:
+            raise conflict(str(exc), code="run_paper_replay_conflict") from exc
+        except RunPaperSourceError as exc:
+            raise conflict(str(exc), code="run_paper_source_invalid") from exc
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            outcome="run_paper_projected",
+        )
+        add_run_link_relations(response, run_id=run_id)
+        return packet
+
     @router.get("/{run_id}", response_model=RunDetailsResponse, operation_id="get_run_details")
     def get_run_details(
         run_id: str,
@@ -990,6 +1063,35 @@ if router is not None:
             temporal_scope=temporal_scope,
             timeline=timeline,
         )
+
+    @router.get(
+        "/{run_id}/authority-values",
+        response_model=RunAuthorityProjection,
+        operation_id="get_run_authority_values",
+        summary="Disposition of every retired readiness/scientific-depth value",
+    )
+    def get_run_authority_values(
+        run_id: str,
+        request: Request,
+        response: Response,
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> RunAuthorityProjection:
+        run = ctx.run_index.get_run(run_id)
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.run_authority_values",
+        )
+        projection = build_run_authority_projection(run_id)
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            metadata={"value_count": len(projection.values)},
+        )
+        add_run_link_relations(response, run_id=run_id)
+        return projection
 
     @router.get("/{run_id}/nodes", response_model=RunNodesResponse, operation_id="get_run_nodes")
     def get_run_nodes(

@@ -54,11 +54,16 @@ def main() -> None:
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=8000)
     parser.add_argument("--metadata-file", default=None)
+    parser.add_argument("--include-run-paper-fixtures", action="store_true")
     args = parser.parse_args()
 
     build_runtime_api_env = _load_fixture_builder()
     tmp_root = Path(tempfile.mkdtemp(prefix="runtime-dashboard-e2e-"))
-    env = build_runtime_api_env(tmp_root, include_test_client=False)
+    env = build_runtime_api_env(
+        tmp_root,
+        include_run_paper_fixtures=args.include_run_paper_fixtures,
+        include_test_client=False,
+    )
     app = env["app"]
 
     if args.metadata_file:

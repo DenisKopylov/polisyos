@@ -180,6 +180,15 @@ export default function RunsList() {
         ),
       },
       {
+        key: "runTerminality",
+        header: t("pages.cycleBoard.columns.lifecycleTerminality"),
+        exportValue: (run: (typeof displayedRuns)[number]) =>
+          run.run_terminality,
+        render: (run: (typeof displayedRuns)[number]) => (
+          <Badge kind="neutral">{run.run_terminality}</Badge>
+        ),
+      },
+      {
         key: "started",
         header: t("pages.runs.columns.started"),
         exportValue: (run: (typeof displayedRuns)[number]) => run.started_at,

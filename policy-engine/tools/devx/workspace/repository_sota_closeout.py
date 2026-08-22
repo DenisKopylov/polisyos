@@ -320,6 +320,9 @@ def _check_gate_registry() -> list[Finding]:
         findings.append(Finding("gate-registry", "missing required gates", ", ".join(missing)))
 
     expected_commands = {
+        "generated-drift": (
+            "uv run polisyos-tools architecture guardrails check --all-generated-checks"
+        ),
         "docs-freshness": (
             "uv run polisyos-tools workspace repository-sota-closeout --skip-generated-checks"
         ),
@@ -1334,9 +1337,8 @@ def _check_public_polish_contract() -> list[Finding]:
     return findings
 
 
-def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]:
-    findings: list[Finding] = []
-    guardrail_command = [
+def _generated_guardrail_command(*, skip_generated_checks: bool) -> list[str]:
+    command = [
         "uv",
         "run",
         "polisyos-tools",
@@ -1344,8 +1346,19 @@ def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]
         "guardrails",
         "check",
     ]
-    if not args.skip_generated_checks:
-        guardrail_command.append("--run-generated-checks")
+    command.append(
+        "--skip-generated-checks"
+        if skip_generated_checks
+        else "--all-generated-checks"
+    )
+    return command
+
+
+def _run_fail_closed_subprocess_gates(args: argparse.Namespace) -> list[Finding]:
+    findings: list[Finding] = []
+    guardrail_command = _generated_guardrail_command(
+        skip_generated_checks=args.skip_generated_checks
+    )
 
     commands = [
         ("generated-drift", guardrail_command),

@@ -16,16 +16,20 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 import posixpath
 import re
 import subprocess
 import sys
+import tarfile
+import tempfile
 import tomllib
 import unittest
 from collections import Counter, defaultdict
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import lru_cache
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
 try:
     from jsonschema import Draft202012Validator, FormatChecker
@@ -47,6 +51,7 @@ BASELINE_SCHEMA_PATH = ATLAS_DIR / "frontend-baseline-debt.schema.json"
 REPORT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-frontend-disposition-register.md"
 AUDIT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-live-application-audit.md"
 STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
+STATUS_INVENTORY_PATH = ATLAS_DIR / "status-retirement-inventory.json"
 
 _STATUS_SPEC = importlib.util.spec_from_file_location(
     "frontend_disposition_status_checker", STATUS_CHECKER_PATH
@@ -154,8 +159,76 @@ C06_CONTRAST_EVIDENCE_SHA256 = {
         "681ca884a66d00bc5442906abecf30778838e228f2a94ecb446f59942b3d7fdc"
     ),
 }
+C06_CONTRAST_CURRENT_EVIDENCE_SHA256 = {
+    C04_RENDERED_CONTRAST_SOURCE_REF: (
+        "c54524c59102c38e02eafdf6cc690ca8896dd1a0262b243138f71e271aa0d225"
+    ),
+    "apps/runtime-dashboard/src/test/a11y/opaqueBackgroundContrast.test.ts": (
+        "7659dac8e09ea2aa51876fda6358d543af45bf16819ac4a4ecb66db4168ebda3"
+    ),
+    "apps/runtime-dashboard/src/test/a11y/OpaqueBackgroundContrast.stories.tsx": (
+        "805007c4ccefc4fb9ea682afc894ac8765dcbc9fba82e7bc13ce582596e56cbf"
+    ),
+}
 C06_RENDERED_CONTRAST_FINDING_ID = (
     "baseline-test-a11y-rendered-contrast-incomplete-debt"
+)
+C13_RECEIPT_START = "<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:START -->"
+C13_RECEIPT_END = "<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:END -->"
+C13_VERIFIED_REVISION = "0440f0a8d6b64c254c37b64144461e5091e2b1db"
+C13_REPAIR_COMMIT = "69aca1e25921e145fecdf57eac5a73f638f11db4"
+C13_EVIDENCE_REVISION = "5255eaf4ef683d964b0a73a277751f8b9873ab41"
+C13_RECEIPT_SHA256 = "bae570619054115e08d81fa04044869e19b06f4281249d3ec5b677addd6cc854"
+C13_PRINT_ROOT_ID = "adjacent-print-export"
+C13_PRINT_SUCCESSOR_ID = "run-report-paper-projection"
+C13_TEST_TITLES = [
+    "semantic DOM closes overview and report paper egress",
+    "PDF keeps every page A4 and admitted growth adds pages",
+    "bounded identity A4 print",
+]
+C13_SOURCE_REFS = [
+    "apps/runtime-dashboard/src/styles/print.css",
+    "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.parity.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/route.tsx",
+    "apps/runtime-dashboard/e2e/helpers/pdfGeometry.ts",
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/"
+    "run-report-identity-a4-print-chromium-darwin.png",
+]
+C13_ENVIRONMENT_PRODUCER_REF = (
+    "architecture/atlas_surfaces/capture_c13_execution_environment.mjs"
+)
+C13_PRINT_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/route.tsx",
+    "apps/runtime-dashboard/src/styles/print.css",
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/run-report-identity-a4-print-chromium-darwin.png",
+]
+C13_PRINT_OPEN_RATIONALE = (
+    "Reason: C19b real-browser verification exposes run-detail-a4-print as an "
+    "open product regression: the global a[href]::after print rules emit the "
+    "full long public-decision URL into the report, overlap content, and prevent "
+    "a stable A4 capture. DS8 owns the product repair; DS6 owns independent "
+    "visual and semantic verification. Closure signal: no generated link URL "
+    "overlaps the report and two consecutive no-update real-browser A4 captures "
+    "are stable; until then the run-detail expectation remains unmodified and "
+    "may not count green."
+)
+C13_PRINT_RATIONALE = (
+    "DS8-A repaired the run-report paper projection at 69aca1e25; DS6-C13 "
+    "independently recomputed the complete semantic egress predicate and two "
+    "separate zero-retry, no-writer Chromium captures at 0440f0a8d. The "
+    "snapshot stayed 26cca8a75e61cfcf across all three receipts, both PDFs "
+    "were portrait A4 within 0.5 pt at 5 and 30 pages, admitted growth added "
+    "pages, and the font-ready bounded identity matched. This strangles only "
+    "the run-detail print predecessor; the broader print/PNG/CSV/JSON/server "
+    "unit remains rebind_pending, and DS8/team-design ownership is unchanged."
 )
 V4_COUNTERPART_RE = re.compile(r"\[v4_counterpart=([^;\]]+)")
 NEGATIVE_ID_RE = re.compile(r"`(DS1-N0(?:0[1-9]|1[0-9]|2[0-3]))`")
@@ -1246,12 +1319,25 @@ _TYPESCRIPT_REFERENCE_ROLES = frozenset(
         "named_declaration",
         "variable_declaration",
         "type_property",
+        "generated_schema_property",
         "object_property",
         "call_expression",
         "string_literal",
         "import_binding",
         "jsx_opening",
         "jsx_attribute",
+    }
+)
+
+_TYPESCRIPT_REFERENCE_IDENTITY_PAYLOAD_KEYS = frozenset(
+    {
+        "version",
+        "source_path",
+        "role",
+        "discriminator",
+        "declaration_chain",
+        "structural_path",
+        "normalized_tokens_sha256",
     }
 )
 
@@ -1264,6 +1350,7 @@ let raw = "";
 for await (const chunk of process.stdin) raw += chunk;
 const input = JSON.parse(raw);
 const { sources } = input;
+const closedUniverse = input.closedUniverse ?? false;
 const requests = input.requests ?? [{
   sourcePath: input.sourcePath,
   role: input.role,
@@ -1305,14 +1392,17 @@ host.getCurrentDirectory = () => repoRoot;
 function virtualSource(fileName) {
   return virtualSources.get(path.resolve(repoRoot, fileName));
 }
-host.fileExists = (fileName) => virtualSource(fileName) !== undefined || defaultFileExists(fileName);
-host.readFile = (fileName) => virtualSource(fileName) ?? defaultReadFile(fileName);
+host.fileExists = (fileName) =>
+  virtualSource(fileName) !== undefined || (!closedUniverse && defaultFileExists(fileName));
+host.readFile = (fileName) =>
+  virtualSource(fileName) ?? (closedUniverse ? undefined : defaultReadFile(fileName));
 host.getSourceFile = (fileName, languageVersion, onError, shouldCreateNewSourceFile) => {
   const source = virtualSource(fileName);
   if (source !== undefined) {
     const kind = fileName.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
     return ts.createSourceFile(fileName, source, languageVersion, true, kind);
   }
+  if (closedUniverse) return undefined;
   return defaultGetSourceFile(fileName, languageVersion, onError, shouldCreateNewSourceFile);
 };
 host.resolveModuleNames = (moduleNames, containingFile) => moduleNames.map((specifier) => {
@@ -1438,6 +1528,61 @@ function qualifiedPropertyName(node) {
   return [...namedEnclosingChain(node), node.name.getText(sourceFile)].join(".");
 }
 
+function propertyNameText(name) {
+  if (
+    ts.isIdentifier(name) ||
+    ts.isStringLiteral(name) ||
+    ts.isNumericLiteral(name)
+  ) {
+    return name.text;
+  }
+  return name.getText(sourceFile);
+}
+
+function generatedSchemaPropertyName(node) {
+  if (!ts.isPropertySignature(node)) return null;
+  const names = [];
+  let current = node;
+  while (current && !ts.isSourceFile(current)) {
+    if (ts.isPropertySignature(current)) {
+      names.push(propertyNameText(current.name));
+    } else if (ts.isInterfaceDeclaration(current)) {
+      names.push(current.name.text);
+      break;
+    }
+    current = current.parent;
+  }
+  names.reverse();
+  if (
+    names.length !== 4 ||
+    names[0] !== "components" ||
+    names[1] !== "schemas"
+  ) {
+    return null;
+  }
+  return names.join(".");
+}
+
+function generatedSchemaOwner(node) {
+  if (!ts.isTypeAliasDeclaration(node)) return null;
+  const ownerAccess = node.type;
+  if (!ts.isIndexedAccessTypeNode(ownerAccess)) return null;
+  const schemasAccess = ownerAccess.objectType;
+  if (!ts.isIndexedAccessTypeNode(schemasAccess)) return null;
+  const owner = ownerAccess.indexType;
+  const schemas = schemasAccess.indexType;
+  if (
+    !ts.isLiteralTypeNode(owner) ||
+    !ts.isStringLiteral(owner.literal) ||
+    !ts.isLiteralTypeNode(schemas) ||
+    !ts.isStringLiteral(schemas.literal) ||
+    schemas.literal.text !== "schemas"
+  ) {
+    return null;
+  }
+  return owner.literal.text;
+}
+
 function normalizedTokenSha256(node) {
   function semanticValue(current) {
     if (ts.isIdentifier(current)) return ["identifier", current.text];
@@ -1528,7 +1673,12 @@ function stringLiteralChain(node) {
 
 function nodeDiscriminator(node) {
   if ((namedDeclarationKinds(node) || ts.isVariableDeclaration(node)) && node.name && ts.isIdentifier(node.name)) return node.name.text;
-  if ((ts.isPropertySignature(node) || ts.isPropertyAssignment(node)) && node.name) return qualifiedPropertyName(node);
+  if (ts.isPropertySignature(node) && node.name) {
+    return role === "generated_schema_property"
+      ? generatedSchemaPropertyName(node) ?? "unresolved"
+      : qualifiedPropertyName(node);
+  }
+  if (ts.isPropertyAssignment(node) && node.name) return qualifiedPropertyName(node);
   if (ts.isCallExpression(node)) return node.expression.getText(sourceFile);
   if (ts.isStringLiteral(node)) return node.text;
   if ((ts.isImportSpecifier(node) || ts.isNamespaceImport(node) || ts.isImportClause(node)) && node.name) return node.name.text;
@@ -1563,6 +1713,20 @@ function visit(node, structuralPath = []) {
     matchesDiscriminator(node)
   ) {
     matches.push({ node, declarationChain: declarationChain(node.name, `variable:${discriminator}`), structuralPath });
+  } else if (
+    role === "generated_schema_property" &&
+    ts.isPropertySignature(node) &&
+    generatedSchemaPropertyName(node) !== null &&
+    matchesDiscriminator(node)
+  ) {
+    matches.push({
+      node,
+      declarationChain: declarationChain(
+        node.name,
+        `generated_schema_property:${discriminator}`,
+      ),
+      structuralPath,
+    });
   } else if (
     role === "type_property" &&
     ts.isPropertySignature(node) &&
@@ -1637,6 +1801,8 @@ for (const request of requests) {
     sourceMissing: false,
     matches: matches.map((match) => ({
       discriminator: nodeDiscriminator(match.node),
+      generatedSchemaOwner: generatedSchemaOwner(match.node),
+      generatedSchemaProperty: generatedSchemaPropertyName(match.node),
       structuralPath: match.structuralPath,
       declarationChain: match.declarationChain,
       normalizedTokensSha256: normalizedTokenSha256(match.node),
@@ -1651,6 +1817,300 @@ process.stdout.write(JSON.stringify(input.requests ? { results: countedResults }
 """
 
 _TS_REFERENCE_CONSTRUCT_CACHE: dict[str, dict[str, Any]] = {}
+
+_TS_GENERATED_CLIENT_ABSENCE_SCRIPT = r"""
+import path from "node:path";
+import ts from "typescript";
+
+let raw = "";
+for await (const chunk of process.stdin) raw += chunk;
+const input = JSON.parse(raw);
+const dashboardRoot = process.cwd();
+const repoRoot = path.resolve(dashboardRoot, "../..");
+const config = ts.readConfigFile(
+  path.join(dashboardRoot, "tsconfig.app.json"),
+  ts.sys.readFile,
+);
+if (config.error) {
+  throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, "\n"));
+}
+const parsedConfig = ts.parseJsonConfigFileContent(config.config, ts.sys, dashboardRoot);
+if (parsedConfig.errors.length > 0) {
+  throw new Error(ts.flattenDiagnosticMessageText(parsedConfig.errors[0].messageText, "\n"));
+}
+const compilerOptions = {
+  ...parsedConfig.options,
+  jsx: ts.JsxEmit.Preserve,
+  module: ts.ModuleKind.ESNext,
+  noLib: true,
+  target: ts.ScriptTarget.Latest,
+};
+const virtualSources = new Map(
+  Object.entries(input.sources).map(([relativePath, source]) => [
+    path.resolve(repoRoot, relativePath),
+    source,
+  ]),
+);
+const host = ts.createCompilerHost(compilerOptions, true);
+host.getCurrentDirectory = () => repoRoot;
+function virtualSource(fileName) {
+  return virtualSources.get(path.resolve(repoRoot, fileName));
+}
+host.fileExists = (fileName) => virtualSource(fileName) !== undefined;
+host.readFile = (fileName) => virtualSource(fileName);
+host.getSourceFile = (fileName, languageVersion) => {
+  const source = virtualSource(fileName);
+  if (source === undefined) return undefined;
+  const kind = fileName.endsWith("x") ? ts.ScriptKind.TSX : ts.ScriptKind.TS;
+  return ts.createSourceFile(fileName, source, languageVersion, true, kind);
+};
+function resolveVirtualModule(specifier, containingFile) {
+  const resolved = ts.resolveModuleName(
+    specifier,
+    path.resolve(repoRoot, containingFile),
+    compilerOptions,
+    host,
+  ).resolvedModule;
+  if (resolved && virtualSource(resolved.resolvedFileName) !== undefined) {
+    return resolved;
+  }
+  if (!specifier.startsWith(".")) return undefined;
+  const withoutJs = specifier.replace(/\.(?:c|m)?js$/, "");
+  const base = path.resolve(path.dirname(path.resolve(repoRoot, containingFile)), withoutJs);
+  for (const extension of [".ts", ".tsx", ".mts", ".cts"]) {
+    const candidate = base + extension;
+    if (virtualSource(candidate) !== undefined) {
+      return {
+        resolvedFileName: candidate,
+        extension: ts.Extension.Ts,
+        isExternalLibraryImport: false,
+      };
+    }
+  }
+  return undefined;
+}
+host.resolveModuleNames = (moduleNames, containingFile) =>
+  moduleNames.map((specifier) => resolveVirtualModule(specifier, containingFile));
+const program = ts.createProgram({
+  rootNames: [...virtualSources.keys()],
+  options: compilerOptions,
+  host,
+});
+const checker = program.getTypeChecker();
+const canonicalPath = path.resolve(repoRoot, input.canonicalPath);
+const typesPath = path.resolve(repoRoot, input.typesPath);
+const canonicalSource = program.getSourceFiles().find(
+  (file) => path.resolve(repoRoot, file.fileName) === canonicalPath,
+);
+const typesSource = program.getSourceFiles().find(
+  (file) => path.resolve(repoRoot, file.fileName) === typesPath,
+);
+const errors = [];
+
+function sourceErrors(source, slot) {
+  if (!source) {
+    errors.push(`source_missing:${slot}`);
+    return;
+  }
+  for (const diagnostic of program.getSyntacticDiagnostics(source)) {
+    errors.push(
+      `source_invalid:${slot}:` +
+        ts.flattenDiagnosticMessageText(diagnostic.messageText, "\n"),
+    );
+  }
+}
+sourceErrors(canonicalSource, "canonical");
+sourceErrors(typesSource, "schema");
+
+for (const source of program.getSourceFiles()) {
+  if (virtualSource(source.fileName) === undefined) continue;
+  const sourcePath = path.resolve(repoRoot, source.fileName);
+  const relativeSourcePath = path.relative(repoRoot, source.fileName);
+  if (sourcePath !== canonicalPath && sourcePath !== typesPath) {
+    sourceErrors(source, `dependency:${relativeSourcePath}`);
+  }
+  for (const statement of source.statements) {
+    if (
+      !ts.isExportDeclaration(statement) ||
+      !statement.moduleSpecifier ||
+      !ts.isStringLiteral(statement.moduleSpecifier)
+    ) {
+      continue;
+    }
+    const specifier = statement.moduleSpecifier.text;
+    const resolved = resolveVirtualModule(specifier, source.fileName);
+    if (!resolved) {
+      errors.push(
+        `canonical_reexport_unresolved:` +
+          `${relativeSourcePath}:${specifier}`,
+      );
+      continue;
+    }
+    const targetSource = program.getSourceFile(resolved.resolvedFileName);
+    const targetModuleSymbol = targetSource
+      ? checker.getSymbolAtLocation(targetSource) ?? targetSource.symbol
+      : undefined;
+    if (!targetSource || !targetModuleSymbol) {
+      errors.push(
+        `canonical_reexport_target_scope_missing:` +
+          `${relativeSourcePath}:${specifier}`,
+      );
+    }
+  }
+}
+
+let canonicalExports = [];
+let canonicalScopeCount = 0;
+if (canonicalSource) {
+  const moduleSymbol = checker.getSymbolAtLocation(canonicalSource) ?? canonicalSource.symbol;
+  if (moduleSymbol) {
+    canonicalScopeCount = 1;
+    canonicalExports = checker
+      .getExportsOfModule(moduleSymbol)
+      .map((symbol) => symbol.getName())
+      .sort();
+  } else {
+    errors.push(`canonical_scope_missing:${input.canonicalPath}`);
+  }
+}
+
+function propertyName(name) {
+  if (
+    ts.isIdentifier(name) ||
+    ts.isStringLiteral(name) ||
+    ts.isNumericLiteral(name)
+  ) {
+    return name.text;
+  }
+  if (
+    ts.isComputedPropertyName(name) &&
+    (ts.isStringLiteral(name.expression) ||
+      ts.isNumericLiteral(name.expression))
+  ) {
+    return name.expression.text;
+  }
+  errors.push(`schema_owner_name_unsupported:${name.getText(typesSource)}`);
+  return null;
+}
+
+const schemaScopes = [];
+if (typesSource) {
+  for (const statement of typesSource.statements) {
+    if (
+      !ts.isInterfaceDeclaration(statement) ||
+      statement.name.text !== "components"
+    ) {
+      continue;
+    }
+    for (const member of statement.members) {
+      if (!member.name) {
+        errors.push(`schema_scope_member_unsupported:${ts.SyntaxKind[member.kind]}`);
+        continue;
+      }
+      const memberName = propertyName(member.name);
+      if (memberName !== "schemas") continue;
+      if (
+        !ts.isPropertySignature(member) ||
+        !member.type ||
+        !ts.isTypeLiteralNode(member.type)
+      ) {
+        errors.push(`schema_scope_shape_unsupported:${ts.SyntaxKind[member.kind]}`);
+        continue;
+      }
+      schemaScopes.push(member.type);
+    }
+  }
+}
+let schemaOwners = [];
+if (schemaScopes.length === 1) {
+  for (const member of schemaScopes[0].members) {
+    if (!ts.isPropertySignature(member)) {
+      errors.push(`schema_owner_member_unsupported:${ts.SyntaxKind[member.kind]}`);
+      continue;
+    }
+    const owner = propertyName(member.name);
+    if (owner !== null) schemaOwners.push(owner);
+  }
+  schemaOwners.sort();
+}
+
+process.stdout.write(JSON.stringify({
+  canonicalExports,
+  canonicalScopeCount,
+  schemaOwners,
+  schemaScopeCount: schemaScopes.length,
+  errors,
+}));
+"""
+
+_TS_GENERATED_CLIENT_ABSENCE_CACHE: dict[str, dict[str, Any]] = {}
+
+
+def _typescript_generated_client_absence_facts(
+    sources: Mapping[str, str],
+    *,
+    canonical_path: str,
+    types_path: str,
+) -> dict[str, Any]:
+    """Derive canonical exports and exact generated schema-owner membership."""
+    cache_key = hashlib.sha256(
+        json.dumps(
+            {
+                "canonical_path": canonical_path,
+                "sources": sources,
+                "types_path": types_path,
+            },
+            sort_keys=True,
+            separators=(",", ":"),
+            ensure_ascii=False,
+        ).encode("utf-8")
+    ).hexdigest()
+    cached = _TS_GENERATED_CLIENT_ABSENCE_CACHE.get(cache_key)
+    if cached is not None:
+        return copy.deepcopy(cached)
+    completed = subprocess.run(  # noqa: S603 - fixed parser argument vector
+        [  # noqa: S607 - repository toolchain resolves bootstrapped Node
+            "node",
+            "--input-type=module",
+            "-e",
+            _TS_GENERATED_CLIENT_ABSENCE_SCRIPT,
+        ],
+        cwd=REPO_ROOT / "apps/runtime-dashboard",
+        input=json.dumps(
+            {
+                "canonicalPath": canonical_path,
+                "sources": sources,
+                "typesPath": types_path,
+            }
+        ),
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError(
+            "TypeScript generated-client absence parser failed: "
+            + completed.stderr.strip()
+        )
+    parsed = json.loads(completed.stdout)
+    if (
+        not isinstance(parsed, dict)
+        or not isinstance(parsed.get("canonicalExports"), list)
+        or not isinstance(parsed.get("canonicalScopeCount"), int)
+        or not isinstance(parsed.get("schemaOwners"), list)
+        or not isinstance(parsed.get("schemaScopeCount"), int)
+        or not isinstance(parsed.get("errors"), list)
+        or any(
+            not isinstance(value, str)
+            for key in ("canonicalExports", "schemaOwners", "errors")
+            for value in parsed[key]
+        )
+    ):
+        raise RuntimeError(
+            "TypeScript generated-client absence parser returned an invalid payload"
+        )
+    _TS_GENERATED_CLIENT_ABSENCE_CACHE[cache_key] = copy.deepcopy(parsed)
+    return parsed
 
 
 def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]:
@@ -1686,7 +2146,10 @@ def _typescript_module_facts(sources: Mapping[str, str]) -> list[dict[str, Any]]
 
 
 def _typescript_reference_construct_facts_batch(
-    sources: Mapping[str, str], requests: Sequence[Mapping[str, str]]
+    sources: Mapping[str, str],
+    requests: Sequence[Mapping[str, str]],
+    *,
+    closed_universe: bool = False,
 ) -> list[dict[str, Any]]:
     """Resolve many direct-syntax constructs through one TypeScript program."""
     for request in requests:
@@ -1696,6 +2159,7 @@ def _typescript_reference_construct_facts_batch(
     cache_key = hashlib.sha256(
         json.dumps(
             {
+                "closed_universe": closed_universe,
                 "sources": sources,
                 "requests": requests,
             },
@@ -1712,6 +2176,7 @@ def _typescript_reference_construct_facts_batch(
         cwd=REPO_ROOT / "apps/runtime-dashboard",
         input=json.dumps(
             {
+                "closedUniverse": closed_universe,
                 "sources": sources,
                 "requests": requests,
             }
@@ -1811,14 +2276,52 @@ def _typescript_reference_identity(
     }
 
 
+def _typescript_reference_identity_payload(encoded_identity: str) -> dict[str, Any]:
+    """Decode and strictly validate the shared v1 TypeScript identity envelope."""
+    try:
+        source_path, marker, encoded_payload = encoded_identity.partition("#ts-identity=")
+        if not source_path or not marker or "#" in encoded_payload:
+            raise ValueError
+        payload = json.loads(
+            base64.urlsafe_b64decode(
+                encoded_payload + "=" * (-len(encoded_payload) % 4)
+            )
+        )
+        if (
+            not isinstance(payload, dict)
+            or set(payload) != _TYPESCRIPT_REFERENCE_IDENTITY_PAYLOAD_KEYS
+            or payload["version"] != 1
+            or isinstance(payload["version"], bool)
+            or payload["source_path"] != source_path
+            or not isinstance(payload["source_path"], str)
+            or not isinstance(payload["role"], str)
+            or payload["role"] not in _TYPESCRIPT_REFERENCE_ROLES
+            or not isinstance(payload["discriminator"], str)
+            or not isinstance(payload["declaration_chain"], list)
+            or not all(
+                isinstance(part, str) for part in payload["declaration_chain"]
+            )
+            or not isinstance(payload["structural_path"], list)
+            or not all(isinstance(part, str) for part in payload["structural_path"])
+            or not isinstance(payload["normalized_tokens_sha256"], str)
+        ):
+            raise ValueError
+    except (
+        AttributeError,
+        KeyError,
+        TypeError,
+        ValueError,
+        UnicodeDecodeError,
+        binascii.Error,
+        json.JSONDecodeError,
+    ) as error:
+        raise ValueError("typescript_reference_identity_invalid") from error
+    return payload
+
+
 def _typescript_reference_identity_record(encoded_identity: str) -> dict[str, str]:
     """Decode one internally minted identity into the relocation-key input shape."""
-    source_path, marker, encoded_payload = encoded_identity.partition("#ts-identity=")
-    if not source_path or not marker:
-        raise ValueError("typescript_reference_identity_invalid")
-    payload = json.loads(
-        base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
-    )
+    payload = _typescript_reference_identity_payload(encoded_identity)
     return {
         "source_path": str(payload["source_path"]),
         "role": str(payload["role"]),
@@ -1974,6 +2477,8 @@ def _typescript_reference_match_error(
     matches = facts["matches"]
     if not matches:
         return "typescript_reference_binding_missing_or_renamed"
+    if payload.get("role") == "generated_schema_property" and len(matches) > 1:
+        return "typescript_reference_binding_ambiguous"
 
     binding_matches = [
         match
@@ -2019,13 +2524,7 @@ def _validate_typescript_reference_identity(
         encoded_identity = reference["encoded_identity"]
         if not isinstance(encoded_identity, str):
             raise ValueError
-        path_prefix, fragment, encoded_payload = encoded_identity.partition("#ts-identity=")
-        if not fragment or not path_prefix or "#" in encoded_payload:
-            raise ValueError
-        payload = json.loads(
-            base64.urlsafe_b64decode(encoded_payload + "=" * (-len(encoded_payload) % 4))
-        )
-        version = payload["version"]
+        payload = _typescript_reference_identity_payload(encoded_identity)
         source_path = payload["source_path"]
         role = payload["role"]
         discriminator = payload["discriminator"]
@@ -2041,18 +2540,6 @@ def _validate_typescript_reference_identity(
         json.JSONDecodeError,
     ):
         return ["typescript_reference_identity_invalid"]
-    if (
-        version != 1
-        or not isinstance(source_path, str)
-        or not isinstance(role, str)
-        or not isinstance(discriminator, str)
-        or not isinstance(expected_chain, list)
-        or not isinstance(expected_structural_path, list)
-        or not isinstance(expected_tokens_sha256, str)
-        or path_prefix != source_path
-        or role not in _TYPESCRIPT_REFERENCE_ROLES
-    ):
-        return ["typescript_reference_identity_invalid"]
     facts = _typescript_reference_construct_facts(
         sources,
         source_path=source_path,
@@ -2061,6 +2548,7 @@ def _validate_typescript_reference_identity(
     )
     error = _typescript_reference_match_error(
         {
+            "role": role,
             "declaration_chain": expected_chain,
             "structural_path": expected_structural_path,
             "normalized_tokens_sha256": expected_tokens_sha256,
@@ -2344,12 +2832,12 @@ _C21C_STRUCTURED_HINTS = {
     "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
         "json",
         "/entries[debt_id=ds4-waist-cgf-disposition]",
-        "d333a5ad21d1303613a7a8a9ca08280afec38ed3437b56511e20c55bd66ab613",
+        "c70f0656487e81fc889b19d3f5198eb930eac5e9289d85d99c445cd4785868af",
     ),
     "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
         "json",
         "/entries[debt_id=ds4-waist-decision-grade]",
-        "37ae8c9313821507b034e2d085f342b8b2027236d78fcc9258ca50ee4ef69cfe",
+        "621616705e0a72e62ca87bb18a23aba5b1e60dbff8d6ddadd365c31eb32d0fee",
     ),
     "schemas/runtime_api_v1.openapi.json:2221": (
         "json",
@@ -3102,6 +3590,20 @@ DS6_REGISTER_TRANSITION_FINDING_IDS = {
     "baseline-test-a11y-rendered-contrast-incomplete-debt",
 }
 
+DS8_QUERY_KEYS_IDENTITY = (
+    "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
+    "aGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6"
+    "cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1"
+    "ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtl"
+    "eXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI1YzY4MzcyYjFlZGY5YzEwNWE3M2E3NzFl"
+    "OThmOTIzOGViNGQ1N2FmNWZlZjg3NzVhYTdmMGJjZjAyYWRlZDVmIiwicm9sZSI6InZhcmlhYmxl"
+    "X2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9h"
+    "cGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJW"
+    "YXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNp"
+    "b24iOjF9"
+)
+
+
 PRODUCER_BINDING_DEBT_DESCRIPTORS = {
     "authority-issuer-generated-semantic-id-coverage": {
         "finding_kind": "producer_binding_debt",
@@ -3300,19 +3802,7 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "cHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS9ob29rcy91c2VBdXRoTW"
                 "UudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ"
             ),
-            (
-                "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJh"
-                "dGlvbl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlz"
-                "IiwicmVzb2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRh"
-                "c2hib2FyZC9zcmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0s"
-                "ImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEy"
-                "NTYiOiI3NmU4ZDRlOGQ1NzdkZGNhNGI2MDgzOTY2OWZlM2VjNmM0NGEwOGVmZTk0OWYw"
-                "YTllODVjZjhjZTFiNjA3NGQ5Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwi"
-                "c291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlL"
-                "ZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJp"
-                "YWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZl"
-                "cnNpb24iOjF9"
-            ),
+            DS8_QUERY_KEYS_IDENTITY,
         ],
         "rationale": (
             "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, "
@@ -3456,31 +3946,30 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "pZ25hdHVyZToyOTQiXSwidmVyc2lvbiI6MX0"
             ),
             (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsY"
-                "XJhdGlvbl9jaGFpbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuZml"
-                "uaXNoZWRfYXQiLCJzeW1ib2w6ZmluaXNoZWRfYXQiLCJyZXNvbHZlZDpma"
-                "W5pc2hlZF9hdCIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXB"
-                "pLWNsaWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjc"
-                "mltaW5hdG9yIjoiY29tcG9uZW50cy5maW5pc2hlZF9hdCIsIm5vcm1hbGl"
-                "6ZWRfdG9rZW5zX3NoYTI1NiI6IjQxOTY2ZjRkZTYwODFiNmQ2OGFmZmZjY"
-                "jJiZWRlNTQ2OGY5NjljNzg5NzI3ZWVkNjg3ZTc4MGNlNzE2MDY4YjIiLCJ"
-                "yb2xlIjoidHlwZV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZ"
-                "XMvcnVudGltZS1hcGktY2xpZW50L3R5cGVzLnRzIiwic3RydWN0dXJhbF9"
-                "wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl0ZXJhbDoxI"
-                "iwiUHJvcGVydHlTaWduYXR1cmU6Mjk0IiwiVHlwZUxpdGVyYWw6MSIsIlB"
-                "yb3BlcnR5U2lnbmF0dXJlOjgiXSwidmVyc2lvbiI6MX0"
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI"
+                "6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5SdW5TdW1tYXJ"
+                "5LmZpbmlzaGVkX2F0Iiwic3ltYm9sOmZpbmlzaGVkX2F0IiwicmVzb2x2ZWQ6ZmluaXNoZWRfYXQ"
+                "iLCJkZWNsYXJhdGlvbjpwYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHM6UHJvcGV"
+                "ydHlTaWduYXR1cmUiXSwiZGlzY3JpbWluYXRvciI6ImNvbXBvbmVudHMuc2NoZW1hcy5SdW5TdW1"
+                "tYXJ5LmZpbmlzaGVkX2F0Iiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiNDE5NjZmNGRlNjA"
+                "4MWI2ZDY4YWZmZmNiMmJlZGU1NDY4Zjk2OWM3ODk3MjdlZWQ2ODdlNzgwY2U3MTYwNjhiMiIsInJ"
+                "vbGUiOiJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5Iiwic291cmNlX3BhdGgiOiJwYWNrYWdlcy9"
+                "ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiUHJvcGVydHl"
+                "TaWduYXR1cmU6MiIsIlR5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZTozMzEiLCJUeXB"
+                "lTGl0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6OCJdLCJ2ZXJzaW9uIjoxfQ"
             ),
             (
-                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGF"
-                "pbiI6WyJ0eXBlX3Byb3BlcnR5OmNvbXBvbmVudHMuc3RhdHVzIiwic3ltYm9sOnN0YXR1cyI"
-                "sInJlc29sdmVkOnN0YXR1cyIsImRlY2xhcmF0aW9uOnBhY2thZ2VzL3J1bnRpbWUtYXBpLWN"
-                "saWVudC90eXBlcy50czpQcm9wZXJ0eVNpZ25hdHVyZSJdLCJkaXNjcmltaW5hdG9yIjoiY29"
-                "tcG9uZW50cy5zdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxN2U2NzM1NGM"
-                "0ZWI2OWU5MzA1MGM0ZWI3MzJjZWU0ZDU0MWU5OWU2OTJiNTE1NGE5NDBhNTI2NGViODllODl"
-                "mIiwicm9sZSI6InR5cGVfcHJvcGVydHkiLCJzb3VyY2VfcGF0aCI6InBhY2thZ2VzL3J1bnR"
-                "pbWUtYXBpLWNsaWVudC90eXBlcy50cyIsInN0cnVjdHVyYWxfcGF0aCI6WyJQcm9wZXJ0eVN"
-                "pZ25hdHVyZToyIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR5U2lnbmF0dXJlOjI5NCIsIlR"
-                "5cGVMaXRlcmFsOjEiLCJQcm9wZXJ0eVNpZ25hdHVyZToxNiJdLCJ2ZXJzaW9uIjoxfQ"
+                "packages/runtime-api-client/types.ts#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI"
+                "6WyJnZW5lcmF0ZWRfc2NoZW1hX3Byb3BlcnR5OmNvbXBvbmVudHMuc2NoZW1hcy5SdW5TdW1tYXJ"
+                "5LnN0YXR1cyIsInN5bWJvbDpzdGF0dXMiLCJyZXNvbHZlZDpzdGF0dXMiLCJkZWNsYXJhdGlvbjp"
+                "wYWNrYWdlcy9ydW50aW1lLWFwaS1jbGllbnQvdHlwZXMudHM6UHJvcGVydHlTaWduYXR1cmUiXSw"
+                "iZGlzY3JpbWluYXRvciI6ImNvbXBvbmVudHMuc2NoZW1hcy5SdW5TdW1tYXJ5LnN0YXR1cyIsIm5"
+                "vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjE3ZTY3MzU0YzRlYjY5ZTkzMDUwYzRlYjczMmNlZTR"
+                "kNTQxZTk5ZTY5MmI1MTU0YTk0MGE1MjY0ZWI4OWU4OWYiLCJyb2xlIjoiZ2VuZXJhdGVkX3NjaGV"
+                "tYV9wcm9wZXJ0eSIsInNvdXJjZV9wYXRoIjoicGFja2FnZXMvcnVudGltZS1hcGktY2xpZW50L3R"
+                "5cGVzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIlByb3BlcnR5U2lnbmF0dXJlOjIiLCJUeXBlTGl"
+                "0ZXJhbDoxIiwiUHJvcGVydHlTaWduYXR1cmU6MzMxIiwiVHlwZUxpdGVyYWw6MSIsIlByb3BlcnR"
+                "5U2lnbmF0dXJlOjE2Il0sInZlcnNpb24iOjF9"
             ),
             "src/polisyos/runtime/http/services/adapters/core_run.py",
             "docs/superpowers/journals/2026-08-16-gy-gap4-run-terminality.md",
@@ -3691,8 +4180,7 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/compounds/DataFreshnessBadge.tsx",
         "prop": "freshness",
         "consumer_paths": [
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
+            "apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx",
         ],
         "owner_slice": "DS18",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
@@ -3783,21 +4271,6 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
             "a source-owned lineage freshness issuer owns the cue and absence cannot be upgraded"
         ),
     },
-    "prop-time-semantics-freshness": {
-        "classification": "debt",
-        "component": "TimeSemanticsLabel",
-        "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-        "prop": "freshness",
-        "consumer_paths": [
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-        ],
-        "owner_slice": "DS18",
-        "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "closure_signal": _authority_closure(
-            "the generated owner freshness value enters an issued temporal presentation with explicit unknown behavior"
-        ),
-    },
     "prop-dispute-status": {
         "classification": "debt",
         "component": "DisputeBadge",
@@ -3836,7 +4309,6 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
             "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
             "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
             "apps/runtime-dashboard/src/shared/ui/OperatorDiagnosticPanel.tsx",
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         ],
     },
     "prop-envelope-authority-purpose": {
@@ -3846,7 +4318,6 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         "prop": "authorityPurpose",
         "consumer_paths": [
             "apps/runtime-dashboard/src/shared/ui/compounds/DecisionCard.tsx",
-            "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         ],
     },
     "prop-segmented-control-tone": {
@@ -3957,20 +4428,6 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
             "a generated availability union enters an exhaustive issuer and novel values render unrecognized"
         ),
     },
-    "badge-governed-projection-rights-bar": {
-        "owner_slice": "DS5",
-        "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "closure_signal": _authority_closure(
-            "a generated may_not_use_for item enters a branded veto presentation"
-        ),
-    },
-    "badge-governed-source-validation": {
-        "owner_slice": "DS7",
-        "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "closure_signal": _authority_closure(
-            "generated source validation status enters an exhaustive issuer with novelty tests"
-        ),
-    },
     "badge-uncertainty-dispute": {
         "owner_slice": "DS16",
         "capability_states": ["bridge_missing", "semantic_test_missing"],
@@ -4061,14 +4518,14 @@ BENIGN_BADGE_BASES = (
 BENIGN_BADGE_CLASS_COUNTS: dict[str, int] = {
     "interaction_or_editor_state": 13,
     "transport_or_runtime_health": 20,
-    "workflow_or_lifecycle_display_without_terminality_inference": 24,
+    "workflow_or_lifecycle_display_without_terminality_inference": 25,
     "layout_or_counts": 21,
     "opaque_metadata_or_taxonomy": 25,
 }
 
 if set(BENIGN_BADGE_CLASS_COUNTS) != set(BENIGN_BADGE_BASES):
     raise RuntimeError("benign Badge class vocabulary drift")
-if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 103:
+if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 104:
     raise RuntimeError("benign Badge class count drift")
 
 AUTHORITY_PRESENTATION_DEBT_SPECS = {
@@ -4084,24 +4541,24 @@ AUTHORITY_PRESENTATION_DEBT_SPECS.update(
 )
 
 AUTHORITY_PRESENTATION_COUNTS = {
-    "badge_total": 163,
+    "badge_total": 159,
     "badge_branded": 2,
-    "badge_debt": 58,
-    "badge_benign": 103,
-    "prop_total": 19,
+    "badge_debt": 53,
+    "badge_benign": 104,
+    "prop_total": 18,
     "prop_branded": 2,
-    "prop_debt": 12,
+    "prop_debt": 11,
     "prop_benign": 5,
-    "prop_use_total": 35,
-    "prop_use_branded": 6,
-    "prop_use_debt": 21,
+    "prop_use_total": 30,
+    "prop_use_branded": 4,
+    "prop_use_debt": 18,
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:407d0c0f1c2cd3b39e315591a6cb6196dcb36ca0bfe62b04f7d82f409aec8b28"
+    "sha256:494022a38caeeefc138901cff8385a4d207a26595b7c62412c8c116cbb055649"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
-    "sha256:267db0ff1a795a6992810b415f257c0502ad733899abe44e53c58ebad79ce89f"
+    "sha256:69ba5f8de385f401dea85a9997dcd19081dc0a4d7688381e5db7dd11fa414e3a"
 )
 
 
@@ -4134,7 +4591,7 @@ def _badge_classification_errors(
     scan: Mapping[str, Any],
     classifications: Mapping[str, str] | None = None,
 ) -> list[str]:
-    """Validate the exact 163-site Badge partition as a finite set property."""
+    """Validate the exact 161-site Badge partition as a finite set property."""
     errors: list[str] = []
     sites = scan.get("badgeSites", [])
     if not isinstance(sites, list):
@@ -4277,7 +4734,7 @@ def _badge_classification_errors(
 
 
 def _authority_prop_classification_errors(scan: Mapping[str, Any]) -> list[str]:
-    """Validate the exact declaration/use identity of all 19 prop groups."""
+    """Validate the exact declaration/use identity of all 18 prop groups."""
     errors: list[str] = []
     facts = scan.get("authorityPropCensus", [])
     if not isinstance(facts, list):
@@ -4488,6 +4945,8 @@ def _authority_evidence_identities(scan: Mapping[str, Any]) -> dict[tuple[str, i
     debt_sites_by_group = _authority_badge_sites_by_debt_group(scan)
     for group_id in AUTHORITY_BADGE_DEBT_SPECS:
         sites = debt_sites_by_group[group_id]
+        if not sites:
+            continue
         first = sites[0]
         anchors.append(
             {"path": first["componentDeclarationPath"], "line": first["componentDeclarationLine"], "role": "named_declaration", "discriminator": first["component"]}
@@ -4569,9 +5028,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '078599fe50e49c45b6b69803352191205b7409a7e9f382d25019887b1e56fab1': (
         'benign:transport_or_runtime_health'
     ),
-    '0963299bc8c2f44481a04d9a53aa44b6d0cd19eb5b738dcfae62517cadc7f1db': (
-        'debt:badge-governed-source-validation'
-    ),
     '0975deb3026c856f342cdb39c794dfa4ba8330e71504c957f9925437544cf9fa': (
         'benign:opaque_metadata_or_taxonomy'
     ),
@@ -4634,9 +5090,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     ),
     '1e01bb02aa403bfae75475c5ffe5346af68c654fc554bf1c544535e82bae724c': (
         'debt:badge-public-packet-authority-framing'
-    ),
-    'a0b5fb9183dad72b89c998f4817fe67911c5cc088204b6872de391c080c41a42': (
-        'debt:badge-governed-projection-availability'
     ),
     '22c2a2e7b9b3c9c07fcff8e313559f5e18f31abf5fef96c074ed58da84765c75': (
         'debt:badge-run-deck-authority-summary'
@@ -4734,9 +5187,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '59b6a960611036630340cfdbdeb67c09a0b0bc2fe0d1670fe9be49d0ac386054': (
         'benign:interaction_or_editor_state'
     ),
-    '5a3bada810ad2a1c0b65fe6b458bfeadf3e8a641046b873a86c26b8d89cad2ef': (
-        'benign:opaque_metadata_or_taxonomy'
-    ),
     '5d069598ed2432ba1300d23dbf64545fdcdb1b00db025ba683c40b395882c7e9': (
         'benign:workflow_or_lifecycle_display_without_terminality_inference'
     ),
@@ -4812,9 +5262,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     '89b13db33efc33ad01d076818b832f51aed4a1a2dc5bc3465376b8ff1cc42dae': (
         'debt:badge-control-approval-quality'
     ),
-    '27bd4c02bcf144b52fdebc88ab9ca03bd8b35522f94ace154d373d2a1bd57cc8': (
-        'debt:badge-governed-projection-availability'
-    ),
     '8d1d1b0a3f1bd470d97feec2780c3f3ecace0182e30b9dc4ab6fe918eea698de': (
         'benign:layout_or_counts'
     ),
@@ -4838,9 +5285,6 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     ),
     '95aea9c66d7babdca5ee9911a0db61b65d7d62614effac90dbf4478aa4b77bff': (
         'debt:badge-projection-source-freshness'
-    ),
-    '98ca189a06de16043ec40ca09c3d74f2b63a524ff10299c3561539dbea882f56': (
-        'debt:badge-governed-projection-rights-bar'
     ),
     '997f7c5ee2d23388fecbe89b4b0248095e86078fb8902768f3ee8f2b647fa2bb': (
         'benign:transport_or_runtime_health'
@@ -5046,6 +5490,15 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS: dict[str, str] = {
     'ff08cad30b4d331f3ba7cfb3757d527f2763dff5608e03f2230e6f4e3c1440b4': (
         'debt:badge-control-approval-quality'
     ),
+    '1af359393d833cb5ead635d9f8e8442e724e75825ae5a8895f2b8e572244e3b2': (
+        'benign:opaque_metadata_or_taxonomy'
+    ),
+    '3f6aa01ff891586e321a52eb178b2257fffbd55d0fe678d3d9f730ec63d60cc2': (
+        'debt:badge-governed-projection-availability'
+    ),
+    'ba589be6170116aa03e25219cdb55b3c8718b77a3d7090d8ed25da799505eabd': (
+        'debt:badge-governed-projection-availability'
+    ),
 }
 
 FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
@@ -5084,13 +5537,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'classification': 'branded:governed_authority_purpose',
             'descriptor_id': 'prop-envelope-authority-purpose',
             'role': 'consumer',
-        },
-    ],
-    '161ada920d42be7ec2d8a0dfd475ae9abd0de9bb4c611601f93afbf43bd5616b': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'prop_declaration',
         },
     ],
     '16eb7fca7159f7309d9753a11f1b620f29fcd51b9b4301c8dfbb25a239079ab6': [
@@ -5133,13 +5579,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'classification': 'debt',
             'descriptor_id': 'prop-data-freshness',
             'role': 'prop_declaration',
-        },
-    ],
-    '1c7bcc568eb6d0de6ce70be64ac1c95b1fef451ad22feb88e19f0954f3acffb2': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
-            'role': 'consumer',
         },
     ],
     '2d62ca48a2d4a778b23e7a62ae53dee274c480cacff2cde588352a70e5c46d1c': [
@@ -5240,13 +5679,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    '73ac833708a0af8050ac16602ceb7cea2c0fc956868ac75bb17143960f24eec4': [
-        {
-            'classification': 'branded:governed_authority_purpose',
-            'descriptor_id': 'prop-envelope-authority-purpose',
-            'role': 'consumer',
-        },
-    ],
     '73cf45800d9bbc0e5781565dbbc6ee5de54c0c6b48682c33666e50e8686f8c7b': [
         {
             'classification': 'debt',
@@ -5324,20 +5756,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    '9156023f5437ed35cbd33f0b0cf42bcd52ba029088f23fd0b05e0e24d5d445ef': [
-        {
-            'classification': 'branded:authority_presentation',
-            'descriptor_id': 'prop-authority-badge-presentation',
-            'role': 'consumer',
-        },
-    ],
-    '8ca5bce9456d9cca63c0b849a155f81bb76f1a574036af53229a7d7821ebac88': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'component_declaration',
-        },
-    ],
     '9b0285075c32d8b904ad899c523bfd5dddde9eaa78876dec98ba96b57be00dbd': [
         {
             'classification': 'debt',
@@ -5349,13 +5767,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
         {
             'classification': 'debt',
             'descriptor_id': 'prop-counterfactual-status',
-            'role': 'consumer',
-        },
-    ],
-    '703faaedd976bad47dd750f4d8070e4165856bf928a548de3b935503010d0187': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-data-freshness',
             'role': 'consumer',
         },
     ],
@@ -5420,13 +5831,6 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'classification': 'benign:interaction_state',
             'descriptor_id': 'prop-review-presence-status',
             'role': 'component_declaration',
-        },
-    ],
-    '4e70f64ec87d614c63aec73be716f44afb13834c62e9158ce5e671d1d5481738': [
-        {
-            'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
-            'role': 'consumer',
         },
     ],
     'c4695dc59b4f9cbfc62344f12d91f50ab9c0042557aed065d345f054c4bf44e0': [
@@ -5534,10 +5938,10 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
             'role': 'component_declaration',
         },
     ],
-    '6282429660a99493402eadcb5de2ce7f580de3b660c9014b8a60be742ffac6b3': [
+    '0f083eca94d56e8a79548b996eb3f1d709a2f67b00548bf3c72f40080b815bed': [
         {
             'classification': 'debt',
-            'descriptor_id': 'prop-time-semantics-freshness',
+            'descriptor_id': 'prop-data-freshness',
             'role': 'consumer',
         },
     ],
@@ -5562,6 +5966,55 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
     ],
 }
 # C21B_FROZEN_AUTHORITY_IDENTITIES_END
+
+DS8_REMOVED_AUTHORITY_BADGE_IDENTITIES = frozenset(
+    {
+        "32cab7325fba8b2f585fc0214ccf345bbf32b0ed4dafab55e94022336f809cba",
+        "3da0a4081081e0d98676b5857cc23316a01eb91b4ad3042e154ff6bf73edf38f",
+        "5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c",
+        "575992477f68b27fab1317f1688153b5afaced24c268c22dd2fd2b6f8c49ec76",
+        "775183902635829ee7a634e09e77c411ad11cbe0cfff43ee743cebaf17288e25",
+        "7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695",
+        "892350aac1cb253283d156a1952c835fc1d2a8d73327b0feea81fce21d67ad24",
+        "a4a0f209ac5afc0587dbeec512266e6543cc61ba7e05f95e5b88ad141c01f9ed",
+        "c240d2feaa07748f063fcff49d11df7617c812f95f3341136ca14d54f644c66b",
+        "dbe9710ceb60817af97733abdfa27ca081c78b89a98e2242ffc4f6166567e256",
+    }
+)
+DS8_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    "3e7cc757db7eddb95fe154ec05b066c4cccf23a240e0943f0675a40eba9f87a4": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    "4c06f4fadf11ce470b22bb90b672256d6968ba462efc0972de32570a3de34d7a": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "733a0be941f37521e2e274d3ae1002cdd671f1835b931f33f4f78d7e4d9a48b9": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "7b1d2e11c323bace1ce55613fb354b597bae8a240d144d85b302d0cd3b156d5a": (
+        "debt:badge-preflight-readiness"
+    ),
+    "91670222405793ddbb75edddf1eadf419dde7e4b57aefbf01c7ae6cdce0c89a9": (
+        "benign:transport_or_runtime_health"
+    ),
+    "c022809e1cbe4280802c442f8f3a1e5867f5dfecf68b2e57f51a7f18d64008c1": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "c7099772e56dfb77319548ebdd3dd1b17f41c38fbfda1d1295cd8b5c43bd8198": (
+        "debt:badge-preflight-readiness"
+    ),
+    "e8b7a946aac35f592f9723ee7e896716d5bed248e926322a0aedc08a271b036d": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+}
+FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    **{
+        identity: classification
+        for identity, classification in FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.items()
+        if identity not in DS8_REMOVED_AUTHORITY_BADGE_IDENTITIES
+    },
+    **DS8_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
+}
 
 AUTHORITY_BADGE_CLASSIFICATIONS = FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
 
@@ -5686,6 +6139,35 @@ def _authority_presentation_rows(
 
     for group_id, spec in sorted(AUTHORITY_BADGE_DEBT_SPECS.items()):
         badge_sites = debt_badge_sites_by_group[group_id]
+        finding_id = "authority-presentation-" + group_id
+        if not badge_sites:
+            rows.append(
+                {
+                    "finding_id": finding_id,
+                    "finding_kind": "authority_presentation_debt",
+                    "disposition": "rebind_pending",
+                    "status": "open_debt",
+                    "evidence_refs": [AUTHORITY_PRESENTATION_PLAN_REF],
+                    "owner_slice": spec["owner_slice"],
+                    "decision_date": DS5_C01A_DECISION_DATE,
+                    "rationale": (
+                        "The live census establishes that this authority-debt "
+                        "group has no remaining direct Badge consumer. Its "
+                        "producer and bridge capability debt remains open "
+                        "without preserving a stale sink."
+                    ),
+                    "capability_states": spec["capability_states"],
+                    "closure_signal": spec["closure_signal"],
+                    "authority_sink_absence": {
+                        "sink_kind": "direct_badge_group",
+                        "descriptor_id": group_id,
+                        "consumer_count": 0,
+                        "predicate_provenance": "recomputed",
+                        "reason": "no_live_consumer_sites",
+                    },
+                }
+            )
+            continue
         first = badge_sites[0]
         component_identity = (
             first["component"],
@@ -5714,7 +6196,6 @@ def _authority_presentation_rows(
             )
             for site in badge_sites
         ]
-        finding_id = "authority-presentation-" + group_id
         rows.append(
             {
                 "finding_id": finding_id,
@@ -5819,18 +6300,17 @@ GOVERNED_DEBT_DESCRIPTORS.update(copy.deepcopy(INTEGRATE_DEBT_DESCRIPTORS))
 C11B_QUERY_MEMORY_ROOT_ID = "cache-query-memory"
 C11B_QUERY_MEMORY_SUCCESSOR_ID = "dashboard-governed-query-cache-posture"
 C11B_QUERY_MEMORY_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/api/queryKeys.ts",
     "apps/runtime-dashboard/src/api/governedQueryPolicy.ts",
     "apps/runtime-dashboard/src/api/governedQueryPolicy.test.ts",
     "apps/runtime-dashboard/src/api/cacheDiscipline.ts",
     "apps/runtime-dashboard/src/api/cacheDiscipline.test.ts",
     "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts",
     "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx",
-    "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.tsx",
-    "apps/runtime-dashboard/src/shared/ui/temporal/TimeSemanticsLabel.test.tsx",
-    "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
-    "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.governedProjection.test.tsx",
-    "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
-    "apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
 ]
 C11B_QUERY_MEMORY_PENDING_RATIONALE = (
     "DS1 does not record this narrow unit as implemented; C04a-R1 removes the "
@@ -5839,11 +6319,12 @@ C11B_QUERY_MEMORY_PENDING_RATIONALE = (
     "without creating a parallel owner."
 )
 C11B_QUERY_MEMORY_RATIONALE = (
-    "C11a/C11b and C12b strangle the generic query-memory root only through the "
-    "governed-query option issuer, source-derived policy debt ratchet, owner-as_of "
-    "cache observation, and one visible run consumer; the remaining 65 constructions "
-    "and 41 producers remain explicitly adjudicated debt, and no DS8, DS9, or DS14 "
-    "semantics are claimed."
+    "C11a/C11b, C12b, and DS7 strangle the generic query-memory root through the "
+    "governed-query option issuer, one representation-specific key, explicit "
+    "never_cache_authority posture, and one permission-gated global Cycle Board "
+    "consumer. Transaction observation time is not owner as_of, run detail neither "
+    "fetches nor retains the packet, and exact response bytes remain per-request "
+    "export custody only; no DS8, DS9, or DS14 semantics are claimed."
 )
 
 
@@ -5863,6 +6344,602 @@ def _json_entry_object_span(
     if not isinstance(row, Mapping) or row.get("unit_id") != unit_id:
         raise ValueError(f"root_entry_span_mismatch:{unit_id}")
     return start, start + relative_end, row
+
+
+def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
+    """Evaluate every independently observed C13 conjunct without collapsing it."""
+    errors: list[str] = []
+    if (
+        receipt.get("receipt_id") != "ds6-c13-independent-run-paper-closure"
+        or receipt.get("schema_version") != "1.0"
+        or receipt.get("predicate_provenance") != "recomputed"
+        or receipt.get("verified_revision") != C13_VERIFIED_REVISION
+        or receipt.get("evidence_revision") != C13_EVIDENCE_REVISION
+        or receipt.get("repair_commit") != C13_REPAIR_COMMIT
+    ):
+        errors.append("identity")
+    if receipt.get("test_titles") != C13_TEST_TITLES:
+        errors.append("test_title_population")
+    command = receipt.get("command", {})
+    if not isinstance(command, Mapping) or any(
+        command.get(field) != expected
+        for field, expected in {
+            "global_timeout_ms": 240000,
+            "grep": "DS8 governed run paper",
+            "include_run_paper_fixtures": True,
+            "project": "chromium",
+            "reporter": "json",
+            "workers": 1,
+            "retries": 0,
+            "timeout_ms": 90000,
+            "update_snapshots": "none",
+        }.items()
+    ):
+        errors.append("command_not_no_writer_single_worker")
+    captures = receipt.get("captures")
+    if not isinstance(captures, list) or len(captures) != 2:
+        return [*errors, "capture_cardinality"]
+    outputs = [capture.get("output") for capture in captures]
+    expected_outputs = [
+        "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-1",
+        "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-2",
+    ]
+    if outputs != expected_outputs or [
+        capture.get("capture_id") for capture in captures
+    ] != ["ds6-c13-verification-1", "ds6-c13-verification-2"]:
+        errors.append("capture_output_not_distinct")
+    environment = receipt.get("environment")
+    environment_sha256 = _canonical_sha256(environment)
+    if (
+        not isinstance(environment, Mapping)
+        or environment.get("commit") != C13_VERIFIED_REVISION
+        or receipt.get("environment_sha256_receipts")
+        != [environment_sha256] * 3
+    ):
+        errors.append("capture_environment_drift")
+    environment_producer = receipt.get("environment_probe_producer")
+    if not isinstance(environment_producer, Mapping) or (
+        environment_producer.get("path") != C13_ENVIRONMENT_PRODUCER_REF
+        or not re.fullmatch(
+            r"[0-9a-f]{64}", str(environment_producer.get("sha256", ""))
+        )
+    ):
+        errors.append("environment_probe_producer")
+    for index, capture in enumerate(captures, 1):
+        if (
+            capture.get("exit_code") != 0
+            or capture.get("retries") != 0
+            or capture.get("environment_sha256") != environment_sha256
+        ):
+            errors.append(f"capture_{index}_not_zero_exit_no_retry")
+        if capture.get("tests") != {
+            "total": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+        }:
+            errors.append(f"capture_{index}_test_population")
+        pdfs = capture.get("pdfs")
+        if not isinstance(pdfs, Mapping):
+            errors.append(f"capture_{index}_pdf_missing")
+            continue
+        base_count = pdfs.get("base_page_count")
+        grown_count = pdfs.get("grown_page_count")
+        if (
+            type(base_count) is not int
+            or type(grown_count) is not int
+            or (base_count, grown_count) != (5, 30)
+        ):
+            errors.append(f"capture_{index}_growth_not_admitted")
+        for field in ("max_width_delta_pt", "max_height_delta_pt"):
+            delta = pdfs.get(field)
+            if (
+                not isinstance(delta, (int, float))
+                or isinstance(delta, bool)
+                or delta >= 0.5
+            ):
+                errors.append(f"capture_{index}_{field}")
+        width = pdfs.get("box_width_pt")
+        height = pdfs.get("box_height_pt")
+        if (
+            not isinstance(width, (int, float))
+            or not isinstance(height, (int, float))
+            or isinstance(width, bool)
+            or isinstance(height, bool)
+            or width >= height
+        ):
+            errors.append(f"capture_{index}_not_portrait")
+
+    snapshot = receipt.get("snapshot", {})
+    if not isinstance(snapshot, Mapping) or (
+        snapshot.get("sha256")
+        != "26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a"
+        or snapshot.get("bytes") != 19197
+        or (snapshot.get("width"), snapshot.get("height")) != (746, 84)
+        or snapshot.get("sha256_receipts") != [snapshot.get("sha256")] * 3
+    ):
+        errors.append("snapshot_receipt_drift")
+    semantics = receipt.get("semantic_conjunction", {})
+    false_counts = (
+        "overview_paper_payload_count",
+        "visible_controls",
+        "browser_local_state",
+        "hud_craft_chrome",
+        "signed_targets",
+        "synthetic_links",
+    )
+    true_predicates = (
+        "report_is_sole_paper_emitter",
+        "visible_links_equal_admitted_packet_links",
+        "machine_bytes_equal_exact_single_response_body",
+        "bounded_identity_matches_after_font_readiness",
+    )
+    if not isinstance(semantics, Mapping) or any(
+        semantics.get(field) != 0 for field in false_counts
+    ) or any(semantics.get(field) is not True for field in true_predicates):
+        errors.append("semantic_conjunction_false")
+    bindings = receipt.get("source_bindings")
+    if (
+        not isinstance(bindings, list)
+        or [
+            row.get("path") for row in bindings if isinstance(row, Mapping)
+        ]
+        != C13_SOURCE_REFS
+        or any(
+            not isinstance(row, Mapping)
+            or not isinstance(row.get("path"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", str(row.get("sha256", "")))
+            for row in bindings
+        )
+    ):
+        errors.append("source_population")
+    observed = hashlib.sha256(
+        json.dumps(receipt, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    if observed != C13_RECEIPT_SHA256:
+        errors.append(f"receipt_identity:{observed}")
+    return errors
+
+
+def _c13_independent_print_receipt(
+    source_text: str | None = None,
+) -> dict[str, Any]:
+    """Admit exactly the independently recomputed two-run journal receipt."""
+    if source_text is None:
+        source_text = (
+            REPO_ROOT
+            / "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
+        ).read_text(encoding="utf-8")
+    if (
+        source_text.count(C13_RECEIPT_START) != 1
+        or source_text.count(C13_RECEIPT_END) != 1
+    ):
+        raise ValueError("C13 independent receipt rejected:marker cardinality")
+    payload = source_text.split(C13_RECEIPT_START, 1)[1].split(
+        C13_RECEIPT_END, 1
+    )[0]
+    try:
+        receipt = json.loads(payload)
+    except json.JSONDecodeError as exc:
+        raise ValueError("C13 independent receipt rejected:invalid JSON") from exc
+    if not isinstance(receipt, dict):
+        raise ValueError("C13 independent receipt rejected:not an object")
+    shape_errors = _c13_receipt_shape_errors(receipt)
+    if shape_errors:
+        raise ValueError("C13 independent receipt rejected:" + ";".join(shape_errors))
+    return receipt
+
+
+def _c13_raw_specs(suites: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
+    specs: list[Mapping[str, Any]] = []
+    for suite in suites:
+        specs.extend(
+            spec for spec in suite.get("specs", []) if isinstance(spec, Mapping)
+        )
+        children = suite.get("suites", [])
+        if isinstance(children, list):
+            specs.extend(
+                _c13_raw_specs(
+                    [child for child in children if isinstance(child, Mapping)]
+                )
+            )
+    return specs
+
+
+def _c13_pdf_geometry(
+    pdf_bytes: bytes, geometry_bytes: bytes, *, expected_pages: int
+) -> dict[str, Any]:
+    """Recompute page count and A4 boxes from the retained raw PDF attachment."""
+    page_count = len(re.findall(rb"/Type\s*/Page\b", pdf_bytes))
+    boxes = [
+        tuple(float(value) for value in match.groups())
+        for match in re.finditer(
+            rb"/MediaBox\s*\[\s*([-0-9.]+)\s+([-0-9.]+)\s+"
+            rb"([-0-9.]+)\s+([-0-9.]+)\s*\]",
+            pdf_bytes,
+        )
+    ]
+    if page_count != expected_pages or len(boxes) != page_count:
+        raise ValueError("C13 raw execution rejected:PDF page population")
+    expected_width = 595.2756
+    expected_height = 841.8898
+    deltas: list[tuple[float, float]] = []
+    for x0, y0, x1, y1 in boxes:
+        width, height = x1 - x0, y1 - y0
+        if width >= height:
+            raise ValueError("C13 raw execution rejected:PDF not portrait")
+        deltas.append((abs(width - expected_width), abs(height - expected_height)))
+    try:
+        geometry = json.loads(geometry_bytes)
+    except json.JSONDecodeError as exc:
+        raise ValueError("C13 raw execution rejected:geometry JSON") from exc
+    if not isinstance(geometry, list) or len(geometry) != page_count:
+        raise ValueError("C13 raw execution rejected:geometry population")
+    for page_number, row in enumerate(geometry, 1):
+        if not isinstance(row, Mapping) or row.get("pageNumber") != page_number:
+            raise ValueError("C13 raw execution rejected:geometry page identity")
+        for box_name in ("mediaBox", "cropBox"):
+            box = row.get(box_name)
+            if not isinstance(box, Mapping) or any(
+                box.get(field) != expected
+                for field, expected in {
+                    "x": 0,
+                    "y": 0,
+                    "width": 594.95996,
+                    "height": 841.91998,
+                }.items()
+            ):
+                raise ValueError(f"C13 raw execution rejected:{box_name}")
+    max_width = max(width for width, _height in deltas)
+    max_height = max(height for _width, height in deltas)
+    if max_width >= 0.5 or max_height >= 0.5:
+        raise ValueError("C13 raw execution rejected:A4 tolerance")
+    return {
+        "page_count": page_count,
+        "max_width_delta_pt": round(max_width, 5),
+        "max_height_delta_pt": round(max_height, 5),
+    }
+
+
+def _c13_raw_execution_receipt(
+    receipt: Mapping[str, Any],
+    *,
+    artifacts: Mapping[str, bytes] | None = None,
+) -> dict[str, Any]:
+    """Resolve the two raw Playwright results and three environment probes."""
+    root = "docs/plans/active/atlas-slices/receipts/ds6-c13-raw"
+    expected_paths = [
+        f"{root}/run-1/results.json",
+        f"{root}/run-1/.last-run.json",
+        f"{root}/run-2/results.json",
+        f"{root}/run-2/.last-run.json",
+        f"{root}/environment-before.json",
+        f"{root}/environment-between.json",
+        f"{root}/environment-after.json",
+    ]
+    rows = receipt.get("raw_artifacts")
+    if not isinstance(rows, list) or [
+        row.get("path") for row in rows if isinstance(row, Mapping)
+    ] != expected_paths:
+        raise ValueError("C13 raw execution rejected:artifact population")
+    expected_hashes = {str(row["path"]): str(row["sha256"]) for row in rows}
+    expected_sizes = {str(row["path"]): row.get("bytes") for row in rows}
+    if artifacts is None:
+        artifacts = {path: (REPO_ROOT / path).read_bytes() for path in expected_paths}
+    if set(artifacts) != set(expected_paths):
+        raise ValueError("C13 raw execution rejected:artifact set")
+    for path, expected_sha256 in expected_hashes.items():
+        if (
+            len(artifacts[path]) != expected_sizes[path]
+            or hashlib.sha256(artifacts[path]).hexdigest() != expected_sha256
+        ):
+            raise ValueError(f"C13 raw execution rejected:artifact bytes:{path}")
+
+    environments: list[Mapping[str, Any]] = []
+    for phase in ("before", "between", "after"):
+        path = f"{root}/environment-{phase}.json"
+        environment = json.loads(artifacts[path])
+        execution_tuple = environment.get("tuple")
+        if (
+            environment.get("schema_version") != "1.0"
+            or environment.get("phase") != phase
+            or not isinstance(execution_tuple, Mapping)
+            or environment.get("tuple_sha256") != _canonical_sha256(execution_tuple)
+        ):
+            raise ValueError(f"C13 raw execution rejected:environment:{phase}")
+        environments.append(execution_tuple)
+    if environments != [receipt.get("environment")] * 3:
+        raise ValueError("C13 raw execution rejected:environment drift")
+
+    capture_receipts: list[dict[str, Any]] = []
+    for index in (1, 2):
+        result_path = f"{root}/run-{index}/results.json"
+        last_path = f"{root}/run-{index}/.last-run.json"
+        result = json.loads(artifacts[result_path])
+        last_run = json.loads(artifacts[last_path])
+        config = result.get("config", {})
+        stats = result.get("stats", {})
+        projects = config.get("projects", [])
+        chromium = next(
+            (
+                project
+                for project in projects
+                if isinstance(project, Mapping) and project.get("name") == "chromium"
+            ),
+            {},
+        )
+        output_suffix = f"/{root}/run-{index}"
+        if (
+            result.get("errors") != []
+            or last_run != {"status": "passed", "failedTests": []}
+            or config.get("version") != receipt["environment"]["playwright"]
+            or config.get("globalTimeout") != 240000
+            or config.get("updateSnapshots") != "none"
+            or config.get("workers") != 1
+            or config.get("reporter") != [["json"]]
+            or chromium.get("retries") != 0
+            or chromium.get("timeout") != 90000
+            or not str(chromium.get("outputDir", "")).endswith(output_suffix)
+            or any(stats.get(field) != expected for field, expected in {
+                "expected": 3,
+                "skipped": 0,
+                "unexpected": 0,
+                "flaky": 0,
+            }.items())
+        ):
+            raise ValueError(f"C13 raw execution rejected:run {index} metadata")
+        specs = _c13_raw_specs(result.get("suites", []))
+        if [spec.get("title") for spec in specs] != C13_TEST_TITLES:
+            raise ValueError(f"C13 raw execution rejected:run {index} titles")
+        results: dict[str, Mapping[str, Any]] = {}
+        for spec in specs:
+            tests = spec.get("tests", [])
+            if len(tests) != 1 or tests[0].get("projectName") != "chromium":
+                raise ValueError(f"C13 raw execution rejected:run {index} test")
+            test_results = tests[0].get("results", [])
+            if (
+                tests[0].get("status") != "expected"
+                or len(test_results) != 1
+                or test_results[0].get("status") != "passed"
+                or test_results[0].get("retry") != 0
+            ):
+                raise ValueError(f"C13 raw execution rejected:run {index} result")
+            results[str(spec["title"])] = test_results[0]
+        pdf_result = results[C13_TEST_TITLES[1]]
+        attachments = {
+            str(row.get("name")): row
+            for row in pdf_result.get("attachments", [])
+            if isinstance(row, Mapping)
+        }
+        expected_attachments = {
+            "run-paper-empty.pdf",
+            "run-paper-empty-geometry.json",
+            "run-paper-growth.pdf",
+            "run-paper-growth-geometry.json",
+        }
+        expected_content_types = {
+            "run-paper-empty.pdf": "application/pdf",
+            "run-paper-empty-geometry.json": "application/json",
+            "run-paper-growth.pdf": "application/pdf",
+            "run-paper-growth-geometry.json": "application/json",
+        }
+        if set(attachments) != expected_attachments or any(
+            "body" not in attachment
+            or attachment.get("contentType") != expected_content_types[name]
+            for name, attachment in attachments.items()
+        ):
+            raise ValueError(f"C13 raw execution rejected:run {index} attachments")
+        decoded = {
+            name: base64.b64decode(str(attachment["body"]), validate=True)
+            for name, attachment in attachments.items()
+        }
+        empty = _c13_pdf_geometry(
+            decoded["run-paper-empty.pdf"],
+            decoded["run-paper-empty-geometry.json"],
+            expected_pages=5,
+        )
+        grown = _c13_pdf_geometry(
+            decoded["run-paper-growth.pdf"],
+            decoded["run-paper-growth-geometry.json"],
+            expected_pages=30,
+        )
+        capture_receipts.append(
+            {
+                "base_page_count": empty["page_count"],
+                "grown_page_count": grown["page_count"],
+                "base_sha256": hashlib.sha256(
+                    decoded["run-paper-empty.pdf"]
+                ).hexdigest(),
+                "grown_sha256": hashlib.sha256(
+                    decoded["run-paper-growth.pdf"]
+                ).hexdigest(),
+                "max_width_delta_pt": max(
+                    empty["max_width_delta_pt"], grown["max_width_delta_pt"]
+                ),
+                "max_height_delta_pt": max(
+                    empty["max_height_delta_pt"], grown["max_height_delta_pt"]
+                ),
+            }
+        )
+    return {
+        "captures": capture_receipts,
+        "environment_tuple_count": len({_canonical_sha256(row) for row in environments}),
+        "page_counts": [
+            [row["base_page_count"], row["grown_page_count"]]
+            for row in capture_receipts
+        ],
+        "test_titles": list(C13_TEST_TITLES),
+    }
+
+
+def _c13_verify_current_print_evidence(
+    receipt: Mapping[str, Any],
+    *,
+    evidence_bytes: Mapping[str, bytes] | None = None,
+) -> None:
+    """Content-bind the admitted execution to the exact current property owners."""
+    if _c13_receipt_shape_errors(receipt):
+        raise ValueError("C13 current evidence drift:receipt")
+    raw_receipt = _c13_raw_execution_receipt(receipt)
+    for captured, recorded in zip(raw_receipt["captures"], receipt["captures"]):
+        for field, actual in captured.items():
+            if recorded["pdfs"].get(field) != actual:
+                raise ValueError(f"C13 current evidence drift:raw {field}")
+    for row in receipt["raw_artifacts"]:
+        source_ref = str(row["path"])
+        committed_bytes = _c03_git_bytes(
+            "show",
+            f"{C13_EVIDENCE_REVISION}:policy-engine/{source_ref}",
+        )
+        if hashlib.sha256(committed_bytes).hexdigest() != row["sha256"]:
+            raise ValueError(f"C13 current evidence drift:raw history:{source_ref}")
+    bindings = {
+        str(row["path"]): str(row["sha256"])
+        for row in receipt["source_bindings"]
+    }
+    if evidence_bytes is None:
+        evidence_bytes = {
+            source_ref: (REPO_ROOT / source_ref).read_bytes()
+            for source_ref in bindings
+        }
+    if set(evidence_bytes) != set(bindings):
+        raise ValueError("C13 current evidence drift:source population")
+    for source_ref, expected_sha256 in bindings.items():
+        observed_sha256 = hashlib.sha256(evidence_bytes[source_ref]).hexdigest()
+        if observed_sha256 != expected_sha256:
+            raise ValueError(f"C13 current evidence drift:{source_ref}")
+        verified_bytes = _c03_git_bytes(
+            "show",
+            f"{C13_VERIFIED_REVISION}:policy-engine/{source_ref}",
+        )
+        if hashlib.sha256(verified_bytes).hexdigest() != expected_sha256:
+            raise ValueError(f"C13 current evidence drift:history:{source_ref}")
+
+    producer = receipt["environment_probe_producer"]
+    producer_ref = str(producer["path"])
+    producer_bytes = (REPO_ROOT / producer_ref).read_bytes()
+    if hashlib.sha256(producer_bytes).hexdigest() != producer["sha256"]:
+        raise ValueError("C13 current evidence drift:environment producer")
+    committed_producer = _c03_git_bytes(
+        "show",
+        f"{C13_EVIDENCE_REVISION}:policy-engine/{producer_ref}",
+    )
+    if hashlib.sha256(committed_producer).hexdigest() != producer["sha256"]:
+        raise ValueError("C13 current evidence drift:environment producer history")
+
+    snapshot = receipt["snapshot"]
+    snapshot_bytes = evidence_bytes[str(snapshot["path"])]
+    if len(snapshot_bytes) != snapshot["bytes"]:
+        raise ValueError("C13 current evidence drift:snapshot bytes")
+    if snapshot_bytes[:8] != b"\x89PNG\r\n\x1a\n" or len(snapshot_bytes) < 24:
+        raise ValueError("C13 current evidence drift:snapshot format")
+    width = int.from_bytes(snapshot_bytes[16:20], "big")
+    height = int.from_bytes(snapshot_bytes[20:24], "big")
+    if (width, height) != (snapshot["width"], snapshot["height"]):
+        raise ValueError("C13 current evidence drift:snapshot dimensions")
+    legacy_snapshot = (
+        REPO_ROOT
+        / "apps/runtime-dashboard/e2e/"
+        "runtime-dashboard.visual.spec.ts-snapshots/"
+        "run-detail-a4-print-chromium-darwin.png"
+    )
+    if legacy_snapshot.exists():
+        raise ValueError("C13 current evidence drift:legacy snapshot restored")
+
+    for ancestor, descendant, label in (
+        (C13_REPAIR_COMMIT, C13_VERIFIED_REVISION, "repair"),
+        (C13_VERIFIED_REVISION, C13_EVIDENCE_REVISION, "evidence"),
+        (C13_EVIDENCE_REVISION, "HEAD", "evidence revision"),
+    ):
+        ancestry = subprocess.run(  # noqa: S603 - fixed Git command
+            ["git", "merge-base", "--is-ancestor", ancestor, descendant],  # noqa: S607
+            cwd=REPO_ROOT.parent,
+            check=False,
+        )
+        if ancestry.returncode != 0:
+            raise ValueError(f"C13 current evidence drift:{label} ancestry")
+    snapshot_at_repair = _c03_git_bytes(
+        "show",
+        f"{C13_REPAIR_COMMIT}:policy-engine/{snapshot['path']}",
+    )
+    if hashlib.sha256(snapshot_at_repair).hexdigest() != snapshot["sha256"]:
+        raise ValueError("C13 current evidence drift:first derivation bytes")
+    legacy_at_repair = subprocess.run(  # noqa: S603 - fixed Git command
+        [  # noqa: S607
+            "git",
+            "cat-file",
+            "-e",
+            f"{C13_REPAIR_COMMIT}:policy-engine/apps/runtime-dashboard/e2e/"
+            "runtime-dashboard.visual.spec.ts-snapshots/"
+            "run-detail-a4-print-chromium-darwin.png",
+        ],
+        cwd=REPO_ROOT.parent,
+        capture_output=True,
+        check=False,
+    )
+    if legacy_at_repair.returncode == 0:
+        raise ValueError("C13 current evidence drift:legacy present at repair")
+
+
+def _c13_print_open_entry() -> dict[str, Any]:
+    """Return the sole admitted predecessor for the C13 transition."""
+    return {
+        "unit_id": C13_PRINT_ROOT_ID,
+        "evidence_link": {
+            "ds1_entry_id": C13_PRINT_ROOT_ID,
+            "ds2_adoption_ids": [],
+        },
+        "disposition": "rebind_pending",
+        "strangle_status": "pending",
+        "owner": "team-design",
+        "owner_slice": "DS8",
+        "decision_date": DECISION_DATE,
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": C13_PRINT_OPEN_RATIONALE,
+    }
+
+
+def _c13_print_closed_entry(
+    receipt: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Produce the narrow strangled predecessor without closing the broad unit."""
+    if receipt is None:
+        receipt = _c13_independent_print_receipt()
+    _c13_verify_current_print_evidence(receipt)
+    closed = _c13_print_open_entry()
+    closed["strangle_status"] = "strangled"
+    closed["successor"] = {
+        "unit_id": C13_PRINT_SUCCESSOR_ID,
+        "consumer_refs": list(C13_PRINT_SUCCESSOR_REFS),
+    }
+    closed["rationale"] = C13_PRINT_RATIONALE
+    return closed
+
+
+def _c13_print_transition_text(
+    text: str,
+    *,
+    receipt: Mapping[str, Any] | None = None,
+) -> str:
+    """Surgically strangle the exact admitted print predecessor, once."""
+    if receipt is None:
+        receipt = _c13_independent_print_receipt()
+    start, end, stored = _json_entry_object_span(text, C13_PRINT_ROOT_ID)
+    admitted_open = _c13_print_open_entry()
+    admitted_closed = _c13_print_closed_entry(receipt)
+    if stored == admitted_closed:
+        return text
+    if stored != admitted_open:
+        raise ValueError(
+            "C13 print transition rejected:predecessor:"
+            + hashlib.sha256(
+                json.dumps(stored, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest()
+        )
+    rendered = json.dumps(admitted_closed, indent=2, ensure_ascii=False).replace(
+        "\n", "\n    "
+    )
+    return text[:start] + rendered + text[end:]
 
 
 def _c11b_query_memory_transition_text(text: str) -> str:
@@ -5933,11 +7010,14 @@ C23_SUCCESSOR_ID = "c23-readiness-scientific-containment"
 C23_SUCCESSOR_REFS = [
     "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
     "apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx",
-    "apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts",
+    "apps/runtime-dashboard/src/features/runs/components/ds16SuccessorContainment.test.ts",
 ]
 C23_RATIONALE = (
-    "C23 deleted dashboard-local readiness and scientific synthesis; the retained panels "
-    "emit unavailable until DS16 provides producer-signed fields or registered typed refusal."
+    "C23 deleted dashboard-local readiness and scientific synthesis; DS16 commit "
+    "fa325dcfe83439fc624fcc09865c823e6b128ae3 replaced "
+    "readinessScientificContainment.test.ts with ds16SuccessorContainment.test.ts, bound "
+    "the retained panels to runtime-served typed refusals, and retained the exact "
+    "no-local-authority gate."
 )
 
 C17B_SCOPED_ENVELOPE_OWNER = (
@@ -6008,6 +7088,77 @@ EXPECTED_FINDING_IDS = (
 REPORT_PROJECTION_START = "<!-- BEGIN DS19 REGISTER PROJECTION -->"
 REPORT_PROJECTION_END = "<!-- END DS19 REGISTER PROJECTION -->"
 
+DS8_STRANGLE_BASE_COMMIT = "9e6a43b53d11166e90df376940cb34ff15b77289"
+DS8_STRANGLE_SOURCE_COMMIT = "fd43342f87fda34c6123a8f5f4791f8e3236b4f9"
+DS8_STRANGLE_WRITER_HEAD_COMMIT = "c393090ab35c242b03314cd2095d195c4e188fc3"
+DS8_STRANGLE_ROOTS = (
+    "apps/runtime-dashboard/src/features/runs",
+    "apps/runtime-dashboard/src/features/artifacts",
+    "apps/runtime-dashboard/src/features/evidence",
+)
+DS8_STRANGLE_EXTENSIONS = (".ts", ".tsx")
+DS8_BASELINE_CONTENT_REANCHORS = frozenset(
+    {
+        (
+            "C06",
+            "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        ),
+        (
+            "C08",
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "DataIntelligencePanel.test.tsx",
+        ),
+        (
+            "C08",
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "DataIntelligencePanel.tsx",
+        ),
+    }
+)
+DS8_COMPANION_REFERENCE_PATHS = {
+    "c06-cgf-public-vocabulary-producer-debt": (
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+    ),
+    "c06-decision-grade-generated-contract-debt": (
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+    ),
+    "c08b-auth-session-revision-producer-debt": (
+        "apps/runtime-dashboard/src/api/queryKeys.ts"
+    ),
+}
+DS8_STRANGLE_IN_SCOPE = frozenset(
+    {
+        "apps/runtime-dashboard/src/features/runs/route.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+        "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+        "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+    }
+)
+DS8_STRANGLE_CLOSURE_PATHS = {
+    "C04": (
+        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+        "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+        "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+    ),
+    "C05": (
+        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+    ),
+    "C06": (
+        "apps/runtime-dashboard/src/features/runs/route.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+        "apps/runtime-dashboard/src/features/runs/api/useRunPaper.ts",
+        "apps/runtime-dashboard/src/features/runs/components/runPaperExport.ts",
+        "apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.ts",
+    ),
+}
+DS8_DEFERRED_EXIT_CONDITION = "approved_named_successor_slice_moves_row"
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -6015,6 +7166,1249 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def _sha256(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _ds8_digest(payload: bytes) -> str:
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _ds8_git_bytes(*arguments: str) -> bytes:
+    completed = subprocess.run(  # noqa: S603 - fixed repository command
+        ["git", *arguments],  # noqa: S607 - controlled toolchain executable
+        cwd=REPO_ROOT.parent,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise ValueError(
+            "DS8 Git census failed: "
+            + completed.stderr.decode("utf-8", errors="replace").strip()
+        )
+    return completed.stdout
+
+
+def _ds8_git_text(*arguments: str) -> str:
+    return _ds8_git_bytes(*arguments).decode("utf-8")
+
+
+@lru_cache(maxsize=1)
+def _ds8_coordinate_prefix() -> str:
+    completed = subprocess.run(  # noqa: S603 - fixed repository command
+        ["git", "rev-parse", "--show-prefix"],  # noqa: S607
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError(
+            "DS8 Git prefix query failed: " + completed.stderr.strip()
+        )
+    prefix = completed.stdout.strip()
+    if prefix != "policy-engine/":
+        raise ValueError(f"DS8 Git coordinate prefix drift: {prefix!r}")
+    return prefix
+
+
+def _ds8_role(path: str) -> str:
+    if re.search(r"\.stories\.(?:ts|tsx)$", path):
+        return "story"
+    if re.search(r"\.(?:test|spec)\.(?:ts|tsx)$", path):
+        return "test"
+    return "production"
+
+
+def _ds8_feature(path: str) -> str:
+    for feature in ("runs", "artifacts", "evidence"):
+        marker = f"/features/{feature}/"
+        if marker in path:
+            return feature
+    raise ValueError(f"DS8 path escaped feature denominator: {path}")
+
+
+def _ds8_is_source(path: str) -> bool:
+    return path.endswith(DS8_STRANGLE_EXTENSIONS) and any(
+        path == root or path.startswith(root + "/")
+        for root in DS8_STRANGLE_ROOTS
+    )
+
+
+@lru_cache(maxsize=4)
+def _ds8_git_tree_sources(commit: str) -> dict[str, bytes]:
+    resolved = _ds8_git_text("rev-parse", f"{commit}^{{commit}}").strip()
+    if resolved != commit:
+        raise ValueError(f"DS8 commit is not a full immutable identity: {commit}")
+    prefix = _ds8_coordinate_prefix()
+    top_roots = [prefix + root for root in DS8_STRANGLE_ROOTS]
+    path_output = _ds8_git_bytes(
+        "ls-tree",
+        "-r",
+        "-z",
+        "--name-only",
+        commit,
+        "--",
+        *top_roots,
+    )
+    top_paths = [
+        raw.decode("utf-8")
+        for raw in path_output.split(b"\0")
+        if raw
+    ]
+    paths = sorted(
+        top_path[len(prefix) :]
+        for top_path in top_paths
+        if top_path.startswith(prefix)
+        and _ds8_is_source(top_path[len(prefix) :])
+    )
+    return {
+        path: _ds8_git_bytes("show", f"{commit}:{prefix}{path}")
+        for path in paths
+    }
+
+
+@lru_cache(maxsize=4)
+def _ds8_archive_sources(commit: str) -> dict[str, bytes]:
+    prefix = _ds8_coordinate_prefix()
+    archive = _ds8_git_bytes(
+        "archive",
+        "--format=tar",
+        commit,
+        "--",
+        *(prefix + root for root in DS8_STRANGLE_ROOTS),
+    )
+    sources: dict[str, bytes] = {}
+    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as bundle:
+        for member in bundle.getmembers():
+            if not member.isfile() or not member.name.startswith(prefix):
+                continue
+            path = member.name[len(prefix) :]
+            if not _ds8_is_source(path):
+                continue
+            extracted = bundle.extractfile(member)
+            if extracted is None:
+                raise ValueError(f"DS8 archive member unreadable: {member.name}")
+            sources[path] = extracted.read()
+    return dict(sorted(sources.items()))
+
+
+def _ds8_live_sources() -> dict[str, bytes]:
+    physical = {
+        path.relative_to(REPO_ROOT).as_posix(): path.read_bytes()
+        for root in DS8_STRANGLE_ROOTS
+        for path in (REPO_ROOT / root).rglob("*")
+        if path.is_file()
+        and path.suffix in DS8_STRANGLE_EXTENSIONS
+    }
+    tracked_output = subprocess.run(  # noqa: S603 - fixed repository command
+        [
+            "git",  # noqa: S607 - controlled toolchain executable
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            *DS8_STRANGLE_ROOTS,
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+    )
+    if tracked_output.returncode != 0:
+        raise ValueError(
+            "DS8 live source census failed: "
+            + tracked_output.stderr.decode("utf-8", errors="replace").strip()
+        )
+    tracked = {
+        raw.decode("utf-8")
+        for raw in tracked_output.stdout.split(b"\0")
+        if raw and _ds8_is_source(raw.decode("utf-8"))
+    }
+    if set(physical) != tracked:
+        raise ValueError(
+            "DS8 physical/Git live path drift: "
+            f"physical_only={sorted(set(physical) - tracked)}:"
+            f"git_only={sorted(tracked - set(physical))}"
+        )
+    return dict(sorted(physical.items()))
+
+
+def _ds8_path_manifest(paths: Iterable[str], *, prefix: str) -> str:
+    payload = "".join(f"{prefix}{path}\n" for path in sorted(paths)).encode()
+    return _ds8_digest(payload)
+
+
+def _ds8_content_manifest(
+    sources: Mapping[str, bytes], paths: Iterable[str]
+) -> str:
+    payload = b"".join(
+        path.encode()
+        + b"\0"
+        + hashlib.sha256(sources[path]).hexdigest().encode()
+        + b"\n"
+        for path in sorted(paths)
+    )
+    return _ds8_digest(payload)
+
+
+def _ds8_count(sources: Mapping[str, bytes], paths: Iterable[str]) -> dict[str, int]:
+    selected = list(paths)
+    return {
+        "files": len(selected),
+        "physical_lines": sum(sources[path].count(b"\n") for path in selected),
+    }
+
+
+def _ds8_snapshot(
+    commit: str, sources: Mapping[str, bytes]
+) -> dict[str, Any]:
+    paths = sorted(sources)
+    roles = {role: [path for path in paths if _ds8_role(path) == role] for role in (
+        "production",
+        "test",
+        "story",
+    )}
+    features = {
+        feature: {
+            "all": _ds8_count(
+                sources, [path for path in paths if _ds8_feature(path) == feature]
+            ),
+            "production": _ds8_count(
+                sources,
+                [
+                    path
+                    for path in roles["production"]
+                    if _ds8_feature(path) == feature
+                ],
+            ),
+            "tests": _ds8_count(
+                sources,
+                [path for path in roles["test"] if _ds8_feature(path) == feature],
+            ),
+            "stories": _ds8_count(
+                sources,
+                [path for path in roles["story"] if _ds8_feature(path) == feature],
+            ),
+        }
+        for feature in ("runs", "artifacts", "evidence")
+    }
+    prefix = _ds8_coordinate_prefix()
+    return {
+        "commit": commit,
+        "coordinate_prefix": prefix,
+        "roots": list(DS8_STRANGLE_ROOTS),
+        "extensions": list(DS8_STRANGLE_EXTENSIONS),
+        "classifier": "stories_then_tests_then_production",
+        "all": _ds8_count(sources, paths),
+        "production": _ds8_count(sources, roles["production"]),
+        "tests": _ds8_count(sources, roles["test"]),
+        "stories": _ds8_count(sources, roles["story"]),
+        "features": features,
+        "path_manifest_sha256": _ds8_path_manifest(paths, prefix=prefix),
+        "production_path_manifest_sha256": _ds8_path_manifest(
+            roles["production"], prefix=prefix
+        ),
+        "content_manifest_sha256": _ds8_content_manifest(sources, paths),
+    }
+
+
+def _ds8_assignment(
+    path: str,
+    *,
+    origin: str,
+    disposition: str,
+    cluster: str | None = None,
+) -> dict[str, Any]:
+    row: dict[str, Any] = {
+        "path": path,
+        "feature": _ds8_feature(path),
+        "role": _ds8_role(path),
+        "origin": origin,
+        "disposition": disposition,
+    }
+    if cluster is not None:
+        row["closure_cluster"] = cluster
+    if disposition == "surface_out_of_scope":
+        row.update(
+            {
+                "owner_team": "team-design",
+                "capability_state": "surface_out_of_scope",
+                "exit_condition": DS8_DEFERRED_EXIT_CONDITION,
+                "successor_slice": None,
+            }
+        )
+    return row
+
+
+def build_ds8_strangle_coverage(
+    *,
+    baseline_commit: str,
+    source_commit: str,
+    writer_preimage_commit: str = DS8_STRANGLE_WRITER_HEAD_COMMIT,
+    require_live_source_match: bool = False,
+) -> dict[str, Any]:
+    """Derive the complete DS8 assignment map from two independent Git walks."""
+    baseline = _ds8_git_tree_sources(baseline_commit)
+    source = _ds8_git_tree_sources(source_commit)
+    if baseline != _ds8_archive_sources(baseline_commit):
+        raise ValueError("DS8 baseline ls-tree/archive reconciliation failed")
+    if source != _ds8_archive_sources(source_commit):
+        raise ValueError("DS8 source ls-tree/archive reconciliation failed")
+    ancestry = subprocess.run(  # noqa: S603 - fixed repository command
+        ["git", "merge-base", "--is-ancestor", source_commit, writer_preimage_commit],  # noqa: S607
+        cwd=REPO_ROOT.parent,
+        check=False,
+    )
+    if ancestry.returncode != 0:
+        raise ValueError("DS8 source freeze is not an ancestor of writer preimage")
+    if require_live_source_match and source != _ds8_live_sources():
+        raise ValueError("DS8 source-freeze/live-worktree byte reconciliation failed")
+    if not set(baseline) <= set(source):
+        raise ValueError(
+            "DS8 source freeze removed opening paths: "
+            + repr(sorted(set(baseline) - set(source)))
+        )
+
+    baseline_production = {
+        path for path in baseline if _ds8_role(path) == "production"
+    }
+    if not DS8_STRANGLE_IN_SCOPE <= baseline_production:
+        raise ValueError("DS8 declared in-scope path is absent from T0 production")
+    deferred = baseline_production - DS8_STRANGLE_IN_SCOPE
+    changed_baseline = sorted(
+        path for path in baseline if baseline[path] != source[path]
+    )
+    changed_production = {
+        path for path in changed_baseline if _ds8_role(path) == "production"
+    }
+    if changed_production != DS8_STRANGLE_IN_SCOPE:
+        raise ValueError(
+            "DS8 changed production set escaped the approved eight paths: "
+            f"missing={sorted(DS8_STRANGLE_IN_SCOPE - changed_production)}:"
+            f"extra={sorted(changed_production - DS8_STRANGLE_IN_SCOPE)}"
+        )
+    if any(baseline[path] != source[path] for path in deferred):
+        raise ValueError("DS8 deferred production source changed after T0")
+
+    cluster_by_path = {
+        path: cluster
+        for cluster, paths in DS8_STRANGLE_CLOSURE_PATHS.items()
+        for path in paths
+    }
+    new_paths = sorted(set(source) - set(baseline))
+    governed_mechanism_paths = DS8_STRANGLE_IN_SCOPE | {
+        path for path in new_paths if _ds8_role(path) == "production"
+    }
+    if set(cluster_by_path) != governed_mechanism_paths:
+        raise ValueError("DS8 closure receipts do not partition mechanism paths")
+
+    assignments: list[dict[str, Any]] = []
+    for path in sorted(baseline):
+        role = _ds8_role(path)
+        if path in DS8_STRANGLE_IN_SCOPE:
+            disposition = "in_scope"
+        elif role == "production":
+            disposition = "surface_out_of_scope"
+        elif role == "test":
+            disposition = "verification_companion"
+        else:
+            disposition = "retained"
+        assignments.append(
+            _ds8_assignment(
+                path,
+                origin="opening_base",
+                disposition=disposition,
+                cluster=cluster_by_path.get(path),
+            )
+        )
+    assignments.extend(
+        _ds8_assignment(
+            path,
+            origin="source_freeze",
+            disposition="new_in_slice",
+            cluster=cluster_by_path.get(path),
+        )
+        for path in new_paths
+    )
+    closure_receipts = [
+        {
+            "cluster": cluster,
+            "source_commit": source_commit,
+            "paths": list(paths),
+            "file_count": len(paths),
+            "path_content_manifest_sha256": _ds8_content_manifest(source, paths),
+        }
+        for cluster, paths in DS8_STRANGLE_CLOSURE_PATHS.items()
+    ]
+    prefix = _ds8_coordinate_prefix()
+    return {
+        "coverage_id": "ds8-case-evidence-strangle-coverage",
+        "predicate_provenance": "independently_reconciled",
+        "family_complete": False,
+        "baseline": _ds8_snapshot(baseline_commit, baseline),
+        "source_freeze": _ds8_snapshot(source_commit, source),
+        "writer_preimage_commit": writer_preimage_commit,
+        "opening_production_partition": {
+            "total": len(baseline_production),
+            "in_scope": len(DS8_STRANGLE_IN_SCOPE),
+            "deferred": len(deferred),
+            "in_scope_path_manifest_sha256": _ds8_path_manifest(
+                DS8_STRANGLE_IN_SCOPE, prefix=prefix
+            ),
+            "deferred_path_manifest_sha256": _ds8_path_manifest(
+                deferred, prefix=prefix
+            ),
+            "deferred_unchanged_content_manifest_sha256": _ds8_content_manifest(
+                baseline, deferred
+            ),
+        },
+        "new_path_count": len(new_paths),
+        "new_path_manifest_sha256": _ds8_path_manifest(new_paths, prefix=prefix),
+        "changed_baseline_paths": changed_baseline,
+        "assignments": assignments,
+        "closure_receipts": closure_receipts,
+        "reconciliation": {
+            "baseline_git_tree_vs_archive": "exact",
+            "source_git_tree_vs_archive": "exact",
+            "source_freeze_vs_writer_history": "ancestor",
+            "live_tree_disposition": "outside_frozen_coverage",
+        },
+    }
+
+
+def validate_ds8_strangle_coverage(
+    coverage: Mapping[str, Any],
+    *,
+    expected_baseline_commit: str = DS8_STRANGLE_BASE_COMMIT,
+    expected_source_commit: str = DS8_STRANGLE_SOURCE_COMMIT,
+) -> list[str]:
+    """Reject every missing, duplicate, stale, or nonexistent DS8 row."""
+    try:
+        expected = build_ds8_strangle_coverage(
+            baseline_commit=expected_baseline_commit,
+            source_commit=expected_source_commit,
+        )
+    except (OSError, subprocess.SubprocessError, ValueError) as exc:
+        return [f"ds8_strangle_reconciliation_failed:{exc}"]
+    assignments = coverage.get("assignments")
+    if not isinstance(assignments, list):
+        return ["ds8_strangle_assignments_missing"]
+    expected_rows = {row["path"]: row for row in expected["assignments"]}
+    actual_paths = [
+        str(row.get("path", ""))
+        for row in assignments
+        if isinstance(row, Mapping)
+    ]
+    counts = Counter(actual_paths)
+    errors: list[str] = []
+    errors.extend(
+        f"ds8_strangle_duplicate_assignment:{path}"
+        for path, count in sorted(counts.items())
+        if count > 1
+    )
+    errors.extend(
+        f"ds8_strangle_missing_assignment:{path}"
+        for path in sorted(set(expected_rows) - set(actual_paths))
+    )
+    errors.extend(
+        f"ds8_strangle_nonexistent_assignment:{path}"
+        for path in sorted(set(actual_paths) - set(expected_rows))
+    )
+    actual_by_path = {
+        str(row.get("path")): row
+        for row in assignments
+        if isinstance(row, Mapping) and counts[str(row.get("path"))] == 1
+    }
+    errors.extend(
+        f"ds8_strangle_stale_assignment:{path}"
+        for path in sorted(set(expected_rows) & set(actual_by_path))
+        if actual_by_path[path] != expected_rows[path]
+    )
+    for key, expected_value in expected.items():
+        if key == "assignments":
+            continue
+        if coverage.get(key) != expected_value:
+            errors.append(f"ds8_strangle_metadata_stale:{key}")
+    errors.extend(
+        f"ds8_strangle_unknown_property:{key}"
+        for key in sorted(set(coverage) - set(expected))
+    )
+    return errors
+
+
+def ds8_strangle_corruption_probes(
+    coverage: Mapping[str, Any],
+    *,
+    expected_baseline_commit: str = DS8_STRANGLE_BASE_COMMIT,
+    expected_source_commit: str = DS8_STRANGLE_SOURCE_COMMIT,
+) -> list[str]:
+    """Return named DS8 mutations that escaped the generic validator."""
+    probes: list[tuple[str, dict[str, Any], str]] = []
+    first_path = str(coverage["assignments"][0]["path"])
+
+    missing = copy.deepcopy(coverage)
+    removed = missing["assignments"].pop(0)
+    probes.append(
+        (
+            "missing",
+            missing,
+            f"ds8_strangle_missing_assignment:{removed['path']}",
+        )
+    )
+    duplicate = copy.deepcopy(coverage)
+    duplicate["assignments"].append(copy.deepcopy(duplicate["assignments"][0]))
+    probes.append(
+        (
+            "duplicate",
+            duplicate,
+            f"ds8_strangle_duplicate_assignment:{first_path}",
+        )
+    )
+    stale = copy.deepcopy(coverage)
+    stale["assignments"][0]["disposition"] = "new_in_slice"
+    probes.append(
+        ("stale", stale, f"ds8_strangle_stale_assignment:{first_path}")
+    )
+    nonexistent = copy.deepcopy(coverage)
+    nonexistent["assignments"][0]["path"] = (
+        "apps/runtime-dashboard/src/features/runs/nonexistent.ts"
+    )
+    probes.append(
+        (
+            "nonexistent",
+            nonexistent,
+            "ds8_strangle_nonexistent_assignment:"
+            "apps/runtime-dashboard/src/features/runs/nonexistent.ts",
+        )
+    )
+    deferred_index = next(
+        index
+        for index, row in enumerate(coverage["assignments"])
+        if row["disposition"] == "surface_out_of_scope"
+    )
+    deferred_path = str(coverage["assignments"][deferred_index]["path"])
+    for field, value in (
+        ("owner_team", "team-runtime"),
+        ("capability_state", "implemented_but_not_orchestrated"),
+        ("exit_condition", "count_reaches_zero"),
+        ("successor_slice", "DS9"),
+    ):
+        mutation = copy.deepcopy(coverage)
+        mutation["assignments"][deferred_index][field] = value
+        probes.append(
+            (
+                f"deferred-{field}",
+                mutation,
+                f"ds8_strangle_stale_assignment:{deferred_path}",
+            )
+        )
+    removed_property = copy.deepcopy(coverage)
+    removed_property.pop("closure_receipts")
+    probes.append(
+        (
+            "remove-property-keep-counts",
+            removed_property,
+            "ds8_strangle_metadata_stale:closure_receipts",
+        )
+    )
+    failures: list[str] = []
+    for name, mutation, expected_error in probes:
+        errors = validate_ds8_strangle_coverage(
+            mutation,
+            expected_baseline_commit=expected_baseline_commit,
+            expected_source_commit=expected_source_commit,
+        )
+        if expected_error not in errors:
+            failures.append(name)
+    return failures
+
+
+def _ds8_register_candidate_text(
+    original_text: str, coverage: Mapping[str, Any]
+) -> str:
+    """Surgically add or refresh only the DS8 coverage and schema version."""
+    original = json.loads(original_text)
+    candidate = original_text
+    old_version = (
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
+        '  "schema_version": "1.0",'
+    )
+    new_version = (
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
+        '  "schema_version": "1.1",'
+    )
+    if candidate.count(old_version) == 1:
+        candidate = candidate.replace(old_version, new_version, 1)
+    elif candidate.count(new_version) != 1:
+        raise ValueError("DS8 register schema-version preimage is ambiguous")
+
+    key_marker = '  "ds8_strangle_coverage": '
+    rendered = json.dumps(coverage, indent=2, ensure_ascii=False).replace(
+        "\n", "\n  "
+    )
+    if key_marker in candidate:
+        if candidate.count(key_marker) != 1:
+            raise ValueError("DS8 coverage key is duplicated")
+        value_start = candidate.index(key_marker) + len(key_marker)
+        _stored, relative_end = json.JSONDecoder().raw_decode(
+            candidate[value_start:]
+        )
+        candidate = (
+            candidate[:value_start]
+            + rendered
+            + candidate[value_start + relative_end :]
+        )
+    else:
+        insertion_marker = '  "seeded_negative_lifecycle": ['
+        if candidate.count(insertion_marker) != 1:
+            raise ValueError("DS8 register insertion point is ambiguous")
+        candidate = candidate.replace(
+            insertion_marker,
+            key_marker + rendered + ",\n" + insertion_marker,
+            1,
+        )
+    parsed = json.loads(candidate)
+    if parsed.get("ds8_strangle_coverage") != coverage:
+        raise ValueError("DS8 coverage surgical insertion changed value")
+    original_without_ds8 = copy.deepcopy(original)
+    original_without_ds8.pop("ds8_strangle_coverage", None)
+    original_without_ds8["schema_version"] = "1.1"
+    candidate_without_ds8 = copy.deepcopy(parsed)
+    candidate_without_ds8.pop("ds8_strangle_coverage", None)
+    if candidate_without_ds8 != original_without_ds8:
+        raise ValueError("DS8 coverage writer changed an unrelated register value")
+    return candidate
+
+
+def _replace_unique_text(
+    text: str, *, old: str, new: str, label: str
+) -> str:
+    if text.count(old) == 1:
+        return text.replace(old, new, 1)
+    if text.count(new) == 1:
+        return text
+    raise ValueError(f"DS8 status preimage is ambiguous: {label}")
+
+
+def _ds8_baseline_manifest_candidate_text(original_text: str) -> str:
+    """Re-anchor exactly three DS8-touched lint-resolution source receipts."""
+    match = re.search(
+        r'^    "resolution_content_bindings":\s*(\[)',
+        original_text,
+        re.MULTILINE,
+    )
+    if match is None:
+        raise ValueError("DS8 baseline resolution bindings are missing")
+    array_start = match.start(1)
+    array_end = _json_container_end(original_text, array_start)
+    index = array_start + 1
+    spans: list[tuple[tuple[str, str], int, int, Mapping[str, Any]]] = []
+    while index < array_end:
+        while index < array_end and (
+            original_text[index].isspace() or original_text[index] == ","
+        ):
+            index += 1
+        if index >= array_end:
+            break
+        if original_text[index] != "{":
+            raise ValueError("DS8 baseline resolution row is malformed")
+        object_end = _json_container_end(original_text, index)
+        row = json.loads(original_text[index : object_end + 1])
+        key = (str(row.get("cluster_id")), str(row.get("path")))
+        spans.append((key, index, object_end, row))
+        index = object_end + 1
+
+    counts = Counter(key for key, _start, _end, _row in spans)
+    if any(counts[key] != 1 for key in DS8_BASELINE_CONTENT_REANCHORS):
+        raise ValueError("DS8 baseline resolution target cardinality drift")
+    replacements: list[tuple[int, int, str]] = []
+    for key, object_start, object_end, row in spans:
+        if key not in DS8_BASELINE_CONTENT_REANCHORS:
+            continue
+        source_path = REPO_ROOT / key[1]
+        if not source_path.is_file():
+            raise ValueError(f"DS8 baseline source is missing: {key[1]}")
+        old = f'"sha256": "{row["sha256"]}"'
+        new = f'"sha256": "{hashlib.sha256(source_path.read_bytes()).hexdigest()}"'
+        object_text = original_text[object_start : object_end + 1]
+        if object_text.count(old) != 1:
+            raise ValueError(f"DS8 baseline hash span is ambiguous: {key}")
+        relative_start = object_text.index(old)
+        replacements.append(
+            (
+                object_start + relative_start,
+                object_start + relative_start + len(old),
+                new,
+            )
+        )
+    candidate = original_text
+    for start, end, replacement in sorted(replacements, reverse=True):
+        candidate = candidate[:start] + replacement + candidate[end:]
+    candidate_data = json.loads(candidate)
+    errors = validate_baseline_manifest(candidate_data)
+    if errors:
+        raise ValueError("DS8 baseline candidate rejected: " + ";".join(errors))
+    return candidate
+
+
+def _ds8_status_inventory_candidate_text(
+    original_text: str, *, register_bytes: bytes
+) -> str:
+    """Re-anchor four exact DS8-induced status receipts without reformatting."""
+    stored = json.loads(original_text)
+    generated = stored["sources"]["generated_client"]
+    candidate = _replace_unique_text(
+        original_text,
+        old=f'"canonical_sha256": "{generated["canonical_sha256"]}"',
+        new=(
+            '"canonical_sha256": "'
+            + _sha256(REPO_ROOT / generated["canonical_path"])
+            + '"'
+        ),
+        label="generated canonical hash",
+    )
+    candidate = _replace_unique_text(
+        candidate,
+        old=f'"types_sha256": "{generated["types_sha256"]}"',
+        new=(
+            '"types_sha256": "'
+            + _sha256(REPO_ROOT / generated["types_path"])
+            + '"'
+        ),
+        label="generated types hash",
+    )
+    candidate = _replace_unique_text(
+        candidate,
+        old=(
+            '"path": "apps/runtime-dashboard/src/features/evidence/components/'
+            'DataIntelligencePanel.tsx",\n          "line": 1211,\n'
+            '          "kind": "prop"'
+        ),
+        new=(
+            '"path": "apps/runtime-dashboard/src/features/evidence/components/'
+            'DataIntelligencePanel.tsx",\n          "line": 1212,\n'
+            '          "kind": "prop"'
+        ),
+        label="DataIntelligencePanel consumer line",
+    )
+    stored = json.loads(candidate)
+    old_register_hash = str(stored["sources"]["ds19"]["sha256"])
+    new_register_hash = _ds8_digest(register_bytes)
+    candidate = _replace_unique_text(
+        candidate,
+        old=f'"sha256": "{old_register_hash}"',
+        new=f'"sha256": "{new_register_hash}"',
+        label="DS19 register hash",
+    )
+    parsed = json.loads(candidate)
+    if parsed["sources"]["ds19"]["sha256"] != new_register_hash:
+        raise ValueError("DS8 status register hash did not bind candidate bytes")
+    return candidate
+
+
+def _c13_status_inventory_candidate_text(
+    original_text: str, *, register_bytes: bytes
+) -> str:
+    """Re-anchor only the register source induced by the C13 root transition."""
+    stored = json.loads(original_text)
+    old_register_hash = str(stored["sources"]["ds19"]["sha256"])
+    new_register_hash = _ds8_digest(register_bytes)
+    candidate = _replace_unique_text(
+        original_text,
+        old=f'"sha256": "{old_register_hash}"',
+        new=f'"sha256": "{new_register_hash}"',
+        label="C13 DS19 register hash",
+    )
+    parsed = json.loads(candidate)
+    if parsed["sources"]["ds19"]["sha256"] != new_register_hash:
+        raise ValueError("C13 status register hash did not bind candidate bytes")
+    expected = copy.deepcopy(stored)
+    expected["sources"]["ds19"]["sha256"] = new_register_hash
+    if parsed != expected:
+        raise ValueError("C13 status candidate changed an unrelated value")
+    return candidate
+
+
+def _status_line_leaf_count(value: Any, path: tuple[str, ...] = ()) -> int:
+    governed_keys = {
+        "line",
+        "start_line",
+        "end_line",
+        "canonical_line",
+        "schema_line",
+    }
+    governed_inline = {
+        ("denominators", "current_inline"),
+        ("denominators", "ds1_inline"),
+    }
+    if isinstance(value, Mapping):
+        return sum(
+            (
+                1
+                if type(child) is int  # noqa: E721 - bool must be excluded
+                and (key in governed_keys or path + (str(key),) in governed_inline)
+                else _status_line_leaf_count(child, path + (str(key),))
+            )
+            for key, child in value.items()
+        )
+    if isinstance(value, list):
+        return sum(
+            _status_line_leaf_count(child, path + (str(index),))
+            for index, child in enumerate(value)
+        )
+    return 0
+
+
+def _string_leaf_count(value: Any, marker: str) -> int:
+    if isinstance(value, Mapping):
+        return sum(_string_leaf_count(child, marker) for child in value.values())
+    if isinstance(value, list):
+        return sum(_string_leaf_count(child, marker) for child in value)
+    return int(isinstance(value, str) and marker in value)
+
+
+def _ds8_status_candidate_errors(
+    inventory: Mapping[str, Any], *, register_bytes: bytes
+) -> list[str]:
+    errors = status_checker._schema_errors(  # type: ignore[attr-defined]
+        inventory,
+        status_checker.INVENTORY_SCHEMA_PATH,
+        "status-retirement-inventory",
+    )
+    if inventory["sources"]["ds19"]["sha256"] != _ds8_digest(register_bytes):
+        errors.append("ds8_status_register_candidate_hash_drift")
+    generated = inventory["sources"]["generated_client"]
+    for key in ("canonical", "types"):
+        source_path = REPO_ROOT / generated[f"{key}_path"]
+        if generated[f"{key}_sha256"] != _sha256(source_path):
+            errors.append(f"ds8_status_generated_{key}_hash_drift")
+    if _status_line_leaf_count(inventory) != 387:
+        errors.append("ds8_status_line_leaf_count_drift")
+    if _string_leaf_count(inventory, "#ts-identity=") != 30:
+        errors.append("ds8_status_ts_identity_count_drift")
+    status_row = next(
+        row
+        for row in inventory["entries"]
+        if row["unit_id"] == "status-inline-review-surface"
+    )
+    data_consumer = next(
+        row
+        for row in status_row["consumers"]
+        if row["path"].endswith("/DataIntelligencePanel.tsx")
+    )
+    if data_consumer["line"] != 1212:
+        errors.append("ds8_status_DataIntelligencePanel_line_drift")
+    return errors
+
+
+def _stage_same_directory(path: Path, payload: bytes) -> Path:
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=f".{path.name}.ds8-", suffix=".tmp", dir=path.parent
+    )
+    temporary_path = Path(temporary)
+    owned_descriptor = descriptor
+    try:
+        os.fchmod(owned_descriptor, path.stat().st_mode & 0o7777)
+        handle = os.fdopen(owned_descriptor, "wb", closefd=True)
+        owned_descriptor = -1
+        with handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+    except BaseException:
+        if owned_descriptor >= 0:
+            os.close(owned_descriptor)
+        temporary_path.unlink(missing_ok=True)
+        raise
+    return temporary_path
+
+
+def _fsync_directory(path: Path) -> None:
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _failure_atomic_write_texts(
+    candidates: Mapping[Path, str],
+    *,
+    validate_after: Callable[[], Sequence[str]],
+    pre_promote: Callable[[], None] | None = None,
+) -> None:
+    """Promote a prevalidated family and restore it on handled failure."""
+    ordered = list(candidates)
+    originals = {path: path.read_bytes() for path in ordered}
+    staged: dict[Path, Path] = {}
+    rollback: dict[Path, Path] = {}
+    promoted: list[Path] = []
+    try:
+        for path in ordered:
+            staged[path] = _stage_same_directory(
+                path, candidates[path].encode("utf-8")
+            )
+        for path in ordered:
+            rollback[path] = _stage_same_directory(path, originals[path])
+        if pre_promote is not None:
+            pre_promote()
+        for path in ordered:
+            os.replace(staged[path], path)
+            promoted.append(path)
+            _fsync_directory(path.parent)
+        post_errors = list(validate_after())
+        if post_errors:
+            raise ValueError("DS8 post-promotion validation failed: " + ";".join(post_errors))
+    except BaseException as original_error:
+        rollback_errors: list[str] = []
+        for path in reversed(promoted):
+            try:
+                os.replace(rollback[path], path)
+                _fsync_directory(path.parent)
+            except BaseException as rollback_error:  # pragma: no cover - hard stop
+                rollback_errors.append(
+                    f"{path}:{rollback_error}:recovery={rollback[path]}"
+                )
+        for temporary in staged.values():
+            temporary.unlink(missing_ok=True)
+        if rollback_errors:
+            raise RuntimeError(
+                "DS8 rollback incomplete; readable recovery files retained: "
+                + ";".join(rollback_errors)
+            ) from original_error
+        for temporary in rollback.values():
+            temporary.unlink(missing_ok=True)
+        raise
+    for temporary in staged.values():
+        temporary.unlink(missing_ok=True)
+    for temporary in rollback.values():
+        temporary.unlink(missing_ok=True)
+
+
+def _c13_writer_fence() -> None:
+    """Require the bound branch, clean governed family, and a free index."""
+    branch = _c03_git_text("symbolic-ref", "-q", "HEAD").strip()
+    if branch != "refs/heads/codex/atlas-ds6-final-closure":
+        raise ValueError(f"C13 writer branch fence failed: {branch}")
+    head = _c03_git_text("rev-parse", "HEAD").strip()
+    ancestry = subprocess.run(  # noqa: S603 - fixed Git command
+        [  # noqa: S607
+            "git",
+            "merge-base",
+            "--is-ancestor",
+            C13_VERIFIED_REVISION,
+            head,
+        ],
+        cwd=REPO_ROOT.parent,
+        check=False,
+    )
+    if ancestry.returncode != 0:
+        raise ValueError("C13 verified revision is not an ancestor of writer HEAD")
+    tracked_status = subprocess.run(
+        [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=no",
+            "--",
+            *(
+                str(path.relative_to(REPO_ROOT))
+                for path in (
+                    REGISTER_PATH,
+                    REPORT_PATH,
+                    STATUS_INVENTORY_PATH,
+                    BASELINE_PATH,
+                    DS1_PATH,
+                )
+            ),
+        ],  # noqa: S607
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if tracked_status.returncode != 0 or tracked_status.stdout:
+        raise ValueError("C13 writer requires a clean governed family")
+    index_lock_ref = _c03_git_text("rev-parse", "--git-path", "index.lock").strip()
+    index_lock = Path(index_lock_ref)
+    if not index_lock.is_absolute():
+        index_lock = REPO_ROOT.parent / index_lock
+    if index_lock.exists():
+        raise ValueError(f"C13 writer index lock is live: {index_lock}")
+
+
+def _c13_status_receipt(
+    inventory: Mapping[str, Any], debt: Mapping[str, Any]
+) -> tuple[int, int, str]:
+    diagnostics = status_checker.validate_inventory(inventory, debt)
+    payload = "".join(f"{diagnostic}\n" for diagnostic in diagnostics).encode()
+    return len(diagnostics), len(payload), hashlib.sha256(payload).hexdigest()
+
+
+def _c13_status_candidate_errors(
+    inventory: Mapping[str, Any], *, register_bytes: bytes
+) -> list[str]:
+    """Validate a status candidate against the register bytes promoted with it."""
+    errors = status_checker._schema_errors(  # type: ignore[attr-defined]
+        inventory,
+        status_checker.INVENTORY_SCHEMA_PATH,
+        "status-retirement-inventory",
+    )
+    if inventory["sources"]["ds19"]["sha256"] != _ds8_digest(register_bytes):
+        errors.append("c13_status_register_candidate_hash_drift")
+    return errors
+
+
+def _write_c13_print_family() -> dict[str, Any]:
+    """Atomically transition the print root, report, and induced status anchor."""
+    _c13_writer_fence()
+    journal_path = (
+        REPO_ROOT
+        / "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
+    )
+    original_journal = journal_path.read_text(encoding="utf-8")
+    receipt = _c13_independent_print_receipt(original_journal)
+    evidence_paths = {
+        *(str(row["path"]) for row in receipt["source_bindings"]),
+        *(str(row["path"]) for row in receipt["raw_artifacts"]),
+        str(receipt["environment_probe_producer"]["path"]),
+    }
+    original_evidence = {
+        REPO_ROOT / source_ref: (REPO_ROOT / source_ref).read_bytes()
+        for source_ref in evidence_paths
+    }
+    original_register = REGISTER_PATH.read_text(encoding="utf-8")
+    original_report = REPORT_PATH.read_text(encoding="utf-8")
+    original_status = STATUS_INVENTORY_PATH.read_text(encoding="utf-8")
+    original_baseline = BASELINE_PATH.read_text(encoding="utf-8")
+    original_readiness = DS1_PATH.read_text(encoding="utf-8")
+    original_texts = {
+        REGISTER_PATH: original_register,
+        REPORT_PATH: original_report,
+        STATUS_INVENTORY_PATH: original_status,
+    }
+    register_candidate = _c13_print_transition_text(
+        original_register,
+        receipt=receipt,
+    )
+    register_data = json.loads(register_candidate)
+    pre_errors = validate_register(
+        register_data, live_probes=False, report_parity=False
+    )
+    if pre_errors:
+        raise ValueError("C13 register candidate rejected: " + ";".join(pre_errors))
+    report_candidate = render_report(register_data)
+    status_candidate = _c13_status_inventory_candidate_text(
+        original_status,
+        register_bytes=register_candidate.encode("utf-8"),
+    )
+    status_data = json.loads(status_candidate)
+    debt = status_checker._load_json(status_checker.WAIST_DEBT_PATH)
+    expected_status = (
+        13,
+        887,
+        "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
+    )
+    status_errors = _c13_status_candidate_errors(
+        status_data,
+        register_bytes=register_candidate.encode("utf-8"),
+    )
+    if status_errors:
+        raise ValueError("C13 status candidate rejected: " + ";".join(status_errors))
+    if _c13_status_receipt(json.loads(original_status), debt) != expected_status:
+        raise ValueError("C13 opening status diagnostic identity drift")
+    if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+        raise ValueError("C13 baseline moved while building candidates")
+    if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
+        raise ValueError("C13 readiness ledger moved while building candidates")
+
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+        STATUS_INVENTORY_PATH: status_candidate,
+    }
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        for governed_path, expected_text in candidates.items():
+            if governed_path.read_text(encoding="utf-8") != expected_text:
+                errors.append(f"c13_family_readback_drift:{governed_path}")
+        errors.extend(validate_register(_load_json(REGISTER_PATH), live_probes=False))
+        if _c13_status_receipt(_load_json(STATUS_INVENTORY_PATH), debt) != (
+            expected_status
+        ):
+            errors.append("c13_status_diagnostic_identity_drift")
+        if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+            errors.append("c13_baseline_readback_drift")
+        if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
+            errors.append("c13_readiness_readback_drift")
+        if journal_path.read_text(encoding="utf-8") != original_journal:
+            errors.append("c13_receipt_readback_drift")
+        for evidence_path, expected_bytes in original_evidence.items():
+            if evidence_path.read_bytes() != expected_bytes:
+                errors.append(f"c13_evidence_readback_drift:{evidence_path}")
+        return errors
+
+    def final_pre_promote_fence() -> None:
+        _c13_writer_fence()
+        for governed_path, expected_text in original_texts.items():
+            if governed_path.read_text(encoding="utf-8") != expected_text:
+                raise ValueError(
+                    f"C13 governed preimage moved before promotion: {governed_path}"
+                )
+        if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+            raise ValueError("C13 baseline moved before promotion")
+        if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
+            raise ValueError("C13 readiness ledger moved before promotion")
+        if journal_path.read_text(encoding="utf-8") != original_journal:
+            raise ValueError("C13 receipt moved before promotion")
+        for evidence_path, expected_bytes in original_evidence.items():
+            if evidence_path.read_bytes() != expected_bytes:
+                raise ValueError(
+                    f"C13 evidence moved before promotion: {evidence_path}"
+                )
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=final_pre_promote_fence,
+    )
+    return receipt
+
+
+def _ds8_writer_fence() -> None:
+    branch = _ds8_git_text("symbolic-ref", "-q", "HEAD").strip()
+    if branch != "refs/heads/codex/atlas-ds8-planning":
+        raise ValueError(f"DS8 writer branch fence failed: {branch}")
+    head = _ds8_git_text("rev-parse", "HEAD").strip()
+    if head != DS8_STRANGLE_WRITER_HEAD_COMMIT:
+        raise ValueError(f"DS8 writer source HEAD drift: {head}")
+    for ancestor, label in (
+        (DS8_STRANGLE_BASE_COMMIT, "immutable base"),
+        (DS8_STRANGLE_SOURCE_COMMIT, "source freeze"),
+    ):
+        ancestry = subprocess.run(  # noqa: S603 - fixed repository command
+            ["git", "merge-base", "--is-ancestor", ancestor, head],  # noqa: S607
+            cwd=REPO_ROOT.parent,
+            check=False,
+        )
+        if ancestry.returncode != 0:
+            raise ValueError(f"DS8 {label} is not an ancestor of writer HEAD")
+    source_status = subprocess.run(  # noqa: S603 - fixed repository command
+        [
+            "git",  # noqa: S607 - controlled toolchain executable
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all",
+            "--",
+            *DS8_STRANGLE_ROOTS,
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if source_status.returncode != 0 or source_status.stdout:
+        raise ValueError("DS8 source roots changed after C06 freeze")
+
+
+def _write_ds8_strangle_family() -> dict[str, Any]:
+    """Materialize baseline, register, report, and status in one lock window."""
+    _ds8_writer_fence()
+    coverage = build_ds8_strangle_coverage(
+        baseline_commit=DS8_STRANGLE_BASE_COMMIT,
+        source_commit=DS8_STRANGLE_SOURCE_COMMIT,
+        writer_preimage_commit=DS8_STRANGLE_WRITER_HEAD_COMMIT,
+    )
+    original_register = REGISTER_PATH.read_text(encoding="utf-8")
+    original_report = REPORT_PATH.read_text(encoding="utf-8")
+    original_status = STATUS_INVENTORY_PATH.read_text(encoding="utf-8")
+    original_baseline = BASELINE_PATH.read_text(encoding="utf-8")
+    opening_hashes = {
+        REGISTER_PATH: "sha256:4cc97abd7e0984e6dea28f77c5f046a34709e768a141aa5bb08c44cd371b8b61",
+        REPORT_PATH: "sha256:b2e25ddea0169c6b3643c88e53fbc4d28798e8a5427cf9619b3aecb008cca36d",
+        STATUS_INVENTORY_PATH: "sha256:9a6eddd187bd20bf88f773f944e7f717480d9a9c1750e7c79fad29ee60aca8b5",
+        BASELINE_PATH: "sha256:e060069e7fcae2226b332634338da1be96348c29390d1498080ba87cfa33d5c5",
+    }
+    original_texts = {
+        REGISTER_PATH: original_register,
+        REPORT_PATH: original_report,
+        STATUS_INVENTORY_PATH: original_status,
+        BASELINE_PATH: original_baseline,
+    }
+    baseline_candidate = _ds8_baseline_manifest_candidate_text(
+        original_baseline
+    )
+    baseline_data = json.loads(baseline_candidate)
+    refreshed_register = _refresh_supplemental_findings_text(original_register)
+    register_candidate = _ds8_register_candidate_text(
+        refreshed_register, coverage
+    )
+    register_data = json.loads(register_candidate)
+    pre_errors = validate_register(
+        register_data,
+        report_parity=False,
+        baseline_manifest=baseline_data,
+    )
+    if pre_errors:
+        raise ValueError("DS8 register candidate rejected: " + ";".join(pre_errors))
+    report_candidate = render_report(register_data)
+    status_candidate = _ds8_status_inventory_candidate_text(
+        original_status, register_bytes=register_candidate.encode("utf-8")
+    )
+    pre_errors.extend(
+        _ds8_status_candidate_errors(
+            json.loads(status_candidate),
+            register_bytes=register_candidate.encode("utf-8"),
+        )
+    )
+    if pre_errors:
+        raise ValueError("DS8 family candidate rejected: " + ";".join(pre_errors))
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+        STATUS_INVENTORY_PATH: status_candidate,
+        BASELINE_PATH: baseline_candidate,
+    }
+    for path, original in original_texts.items():
+        original_hash = _ds8_digest(original.encode("utf-8"))
+        candidate_hash = _ds8_digest(candidates[path].encode("utf-8"))
+        if original_hash not in {opening_hashes[path], candidate_hash}:
+            raise ValueError(f"DS8 governed preimage drift: {path}")
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        for path, expected_text in candidates.items():
+            if path.read_text(encoding="utf-8") != expected_text:
+                errors.append(f"ds8_family_readback_drift:{path}")
+        stored_register = _load_json(REGISTER_PATH)
+        errors.extend(validate_register(stored_register))
+        stored_status = _load_json(STATUS_INVENTORY_PATH)
+        debt = status_checker._load_json(status_checker.WAIST_DEBT_PATH)
+        diagnostics = status_checker.validate_inventory(stored_status, debt)
+        receipt = "".join(f"{diagnostic}\n" for diagnostic in diagnostics).encode()
+        if len(diagnostics) != 13:
+            errors.append(f"ds8_status_diagnostic_count:{len(diagnostics)}")
+        if len(receipt) != 887:
+            errors.append(f"ds8_status_diagnostic_bytes:{len(receipt)}")
+        if hashlib.sha256(receipt).hexdigest() != (
+            "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9"
+        ):
+            errors.append("ds8_status_diagnostic_identity_drift")
+        return errors
+
+    def final_pre_promote_fence() -> None:
+        _ds8_writer_fence()
+        for path, expected_text in original_texts.items():
+            if path.read_text(encoding="utf-8") != expected_text:
+                raise ValueError(f"DS8 governed preimage moved before promotion: {path}")
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=final_pre_promote_fence,
+    )
+    return coverage
 
 
 def _path_from_ref(value: str) -> Path:
@@ -6039,31 +8433,27 @@ def _reference_resolution_error(value: str) -> str | None:
     return None
 
 
-def _typescript_identity_reference_errors(references: Sequence[str]) -> list[str]:
+def _typescript_identity_reference_errors(
+    references: Sequence[str], *, source_root: Path | None = None
+) -> list[str]:
     """Batch-validate every stored C21a identity against one source snapshot."""
     parsed: list[tuple[str, dict[str, Any]]] = []
     for reference in references:
         if "#ts-identity=" not in reference:
             continue
         try:
-            path, payload_text = reference.split("#ts-identity=", 1)
-            payload = json.loads(
-                base64.urlsafe_b64decode(payload_text + "=" * (-len(payload_text) % 4))
-            )
-            if (
-                payload["version"] != 1
-                or payload["source_path"] != path
-                or payload["role"] not in _TYPESCRIPT_REFERENCE_ROLES
-            ):
-                raise ValueError
+            payload = _typescript_reference_identity_payload(reference)
         except (KeyError, ValueError, UnicodeDecodeError, binascii.Error, json.JSONDecodeError):
             return ["typescript_reference_identity_invalid"]
         parsed.append((reference, payload))
     if not parsed:
         return []
+    root = source_root or REPO_ROOT
+    source_paths = {str(payload["source_path"]) for _reference, payload in parsed}
     sources = {
-        str(payload["source_path"]): (REPO_ROOT / str(payload["source_path"])).read_text(encoding="utf-8")
-        for _reference, payload in parsed
+        source_path: (root / source_path).read_text(encoding="utf-8")
+        for source_path in source_paths
+        if (root / source_path).is_file()
     }
     requests = [
         {
@@ -6077,7 +8467,11 @@ def _typescript_identity_reference_errors(references: Sequence[str]) -> list[str
     for reference, payload, facts in zip(
         (reference for reference, _payload in parsed),
         (payload for _reference, payload in parsed),
-        _typescript_reference_construct_facts_batch(sources, requests),
+        _typescript_reference_construct_facts_batch(
+            sources,
+            requests,
+            closed_universe=source_root is not None,
+        ),
         strict=True,
     ):
         error = _typescript_reference_match_error(payload, facts)
@@ -6112,12 +8506,12 @@ def _structured_identity_reference_errors(references: Sequence[str]) -> list[str
 
 
 _C21B_DESCRIPTOR_HINTS = {
-    "packages/runtime-api-client/canonicalRuntimeApiClient.ts:865": ("exported_declaration", "RunSummary"),
-    "packages/runtime-api-client/types.ts:9240": ("type_property", "components.RunSummary"),
-    "packages/runtime-api-client/types.ts:9258": ("type_property", "components.finished_at"),
-    "packages/runtime-api-client/types.ts:9284": ("type_property", "components.status"),
-    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:103": ("exported_declaration", "depthNCycleBoardProjectionQueryOptions"),
-    "packages/runtime-api-client/types.ts:2411": ("type_property", "components.AuthMeResponse"),
+    "packages/runtime-api-client/canonicalRuntimeApiClient.ts:958": ("exported_declaration", "RunSummary"),
+    "packages/runtime-api-client/types.ts:10012": ("type_property", "components.RunSummary"),
+    "packages/runtime-api-client/types.ts:10031": ("type_property", "components.finished_at"),
+    "packages/runtime-api-client/types.ts:10058": ("type_property", "components.status"),
+    "apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts:156": ("exported_declaration", "depthNCycleBoardProjectionQueryOptions"),
+    "packages/runtime-api-client/types.ts:2446": ("type_property", "components.AuthMeResponse"),
     "apps/runtime-dashboard/src/api/hooks/useAuthMe.ts:42": ("named_declaration", "fetchAuthMe"),
     "apps/runtime-dashboard/src/api/queryKeys.ts:11": ("variable_declaration", "queryKeys"),
     "apps/runtime-dashboard/src/features/composer/state/composerDraftRepository.ts:15": ("exported_declaration", "ComposerDraftRecord"),
@@ -6128,8 +8522,8 @@ _C21B_DESCRIPTOR_HINTS = {
     "apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx:301": ("named_declaration", "writeStoredCausalDraft"),
     "apps/runtime-dashboard/src/features/runs/domain/disputes.ts:109": ("exported_declaration", "writeStoredDisputes"),
     "apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts:444": ("exported_declaration", "setReviewerThreshold"),
-    "packages/runtime-api-client/types.ts:2430": ("type_property", "components.permissions"),
-    "apps/runtime-dashboard/src/api/types.ts:2323": ("type_property", "components.permissions"),
+    "packages/runtime-api-client/types.ts:2462": ("type_property", "components.permissions"),
+    "apps/runtime-dashboard/src/api/types.ts:2513": ("type_property", "components.permissions"),
 }
 
 
@@ -6955,17 +9349,17 @@ def _supplemental_section(
 
 
 def _surgical_supplemental_finding_ids(text: str) -> set[str]:
-    """Return descriptor rows and unsupported producer rows owned by refresh."""
+    """Return descriptor rows and retired generated rows owned by refresh."""
     descriptor_ids = set(GOVERNED_DEBT_DESCRIPTORS) | set(
         AUTHORITY_PRESENTATION_DEBT_SPECS
     ) | DS6_REGISTER_TRANSITION_FINDING_IDS
     _start, _end, spans = _supplemental_section_spans(text)
     for finding_id, object_start, object_end in spans:
         row = json.loads(text[object_start : object_end + 1])
-        if (
-            row.get("finding_kind") == "producer_binding_debt"
-            and finding_id not in descriptor_ids
-        ):
+        if row.get("finding_kind") in {
+            "producer_binding_debt",
+            "authority_presentation_debt",
+        } and finding_id not in descriptor_ids:
             descriptor_ids.add(finding_id)
     return descriptor_ids
 
@@ -7176,7 +9570,7 @@ def build_seed_register() -> dict[str, Any]:
     ]
     return {
         "$schema": "./frontend-disposition-register.schema.json",
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "register_id": "atlas-ds19-frontend-disposition",
         "as_of": REGISTER_AS_OF,
         "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
@@ -7263,6 +9657,10 @@ def build_seed_register() -> dict[str, Any]:
             },
         ],
         "supplemental_findings": _supplemental_findings(),
+        "ds8_strangle_coverage": build_ds8_strangle_coverage(
+            baseline_commit=DS8_STRANGLE_BASE_COMMIT,
+            source_commit=DS8_STRANGLE_SOURCE_COMMIT,
+        ),
         "seeded_negative_lifecycle": _seeded_negatives(),
     }
 
@@ -7817,9 +10215,20 @@ def _c06_verify_c16_contrast_evidence(
             raise ValueError(
                 f"C16 contrast historical evidence drift:{source_ref}"
             )
-        current_bytes = current_evidence_bytes.get(source_ref)
-        if current_bytes != source_bytes:
+        current_bytes = current_evidence_bytes.get(source_ref, b"")
+        if (
+            hashlib.sha256(current_bytes).hexdigest()
+            != C06_CONTRAST_CURRENT_EVIDENCE_SHA256[source_ref]
+        ):
             raise ValueError(f"C16 contrast current evidence drift:{source_ref}")
+
+    current_delta_refs = {
+        source_ref
+        for source_ref in expected_refs
+        if current_evidence_bytes[source_ref] != historical[source_ref]
+    }
+    if current_delta_refs != {story_ref}:
+        raise ValueError("C16 contrast current evidence drift:declared delta")
 
     for unchanged_ref in C04_RENDERED_CONTRAST_EVIDENCE_REFS[:2]:
         parent_bytes = _c03_git_bytes(
@@ -9290,6 +11699,20 @@ def _validate_c11b_query_memory_root(
         errors.append("c11b_query_memory_root_drift:successor.consumer_refs")
 
 
+def _validate_c13_print_export_root(
+    entries: Mapping[str, Mapping[str, Any]], errors: list[str]
+) -> None:
+    """Bind the exact C13 predecessor closure to its independent receipt."""
+    try:
+        receipt = _c13_independent_print_receipt()
+        expected = _c13_print_closed_entry(receipt)
+    except (OSError, ValueError) as exc:
+        errors.append(f"c13_print_receipt_invalid:{exc}")
+        return
+    if entries.get(C13_PRINT_ROOT_ID) != expected:
+        errors.append("c13_print_export_root_drift")
+
+
 def _validate_storage_construction_census(
     data: Mapping[str, Any], errors: list[str]
 ) -> None:
@@ -9413,6 +11836,7 @@ def validate_register(
     schema: bool = True,
     report_parity: bool = True,
     direct_transport_sources: Mapping[str, str] | None = None,
+    baseline_manifest: Mapping[str, Any] | None = None,
 ) -> list[str]:
     """Return all schema, parity, composition, and live-census failures."""
     errors: list[str] = []
@@ -9461,6 +11885,11 @@ def validate_register(
         errors.extend(_schema_errors(data, SCHEMA_PATH))
         if any(error.startswith("schema:") for error in errors):
             return errors
+    ds8_coverage = data.get("ds8_strangle_coverage")
+    if not isinstance(ds8_coverage, Mapping):
+        errors.append("ds8_strangle_coverage_missing")
+    else:
+        errors.extend(validate_ds8_strangle_coverage(ds8_coverage))
     _validate_storage_construction_census(data, errors)
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
@@ -9572,6 +12001,7 @@ def validate_register(
         live_probes=live_probes,
     )
     _validate_c11b_query_memory_root(entry_by_id, errors)
+    _validate_c13_print_export_root(entry_by_id, errors)
     _validate_c23_containment_roots(entry_by_id, errors)
     for unit in [*entries, *data["subunits"]]:
         _validate_composition(unit, censuses, errors)
@@ -9646,7 +12076,11 @@ def validate_register(
     if not BASELINE_PATH.exists() or not BASELINE_SCHEMA_PATH.exists():
         errors.append("baseline_debt_manifest_missing")
     else:
-        baseline = _load_json(BASELINE_PATH)
+        baseline = (
+            baseline_manifest
+            if baseline_manifest is not None
+            else _load_json(BASELINE_PATH)
+        )
         errors.extend(
             "baseline_" + error for error in validate_baseline_manifest(baseline)
         )
@@ -10035,6 +12469,29 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     c06_duplicate["supplemental_findings"].append(copy.deepcopy(c06_row))
     probes.append(("c06-rendered-contrast-duplicate", c06_duplicate))
 
+    c13_regressions = {
+        "pending": ("strangle_status", "pending"),
+        "broad-close": ("disposition", "use_as_is"),
+        "owner-transfer": ("owner_slice", "DS6"),
+        "rationale": ("rationale", "fabricated"),
+    }
+    for name, (field, value) in c13_regressions.items():
+        mutation = copy.deepcopy(data)
+        row = next(
+            entry
+            for entry in mutation["entries"]
+            if entry["unit_id"] == C13_PRINT_ROOT_ID
+        )
+        row[field] = value
+        probes.append((f"c13-print-{name}", mutation))
+    c13_missing_successor = copy.deepcopy(data)
+    next(
+        entry
+        for entry in c13_missing_successor["entries"]
+        if entry["unit_id"] == C13_PRINT_ROOT_ID
+    ).pop("successor", None)
+    probes.append(("c13-print-missing-successor", c13_missing_successor))
+
     missing_negative = copy.deepcopy(data)
     missing_negative["seeded_negative_lifecycle"].pop()
     probes.append(("missing-negative", missing_negative))
@@ -10127,6 +12584,11 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
             )
 
     failures: list[str] = []
+    ds8_coverage = data.get("ds8_strangle_coverage")
+    if isinstance(ds8_coverage, Mapping):
+        failures.extend(ds8_strangle_corruption_probes(ds8_coverage))
+    else:
+        failures.append("ds8-strangle-coverage-missing")
     direct_sources = _typescript_production_sources(RAW_TRANSPORT_SCAN_ROOTS)
     benign_sources = {
         **direct_sources,
@@ -10393,6 +12855,90 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     ):
         failures.append("ui-patterns-searchable-list-consumerless-promotion")
     return failures
+
+
+def _ds8_strangle_report_projection(coverage: Mapping[str, Any]) -> str:
+    """Render the complete DS8 assignment map without sampled path summaries."""
+    assignments = list(coverage["assignments"])
+    baseline_rows = [row for row in assignments if row["origin"] == "opening_base"]
+    lines = [
+        "### DS8 case/evidence strangle coverage",
+        "",
+        (
+            f"Predicate provenance: `{coverage['predicate_provenance']}`. "
+            f"Family complete: `{str(coverage['family_complete']).lower()}`."
+        ),
+        "",
+        "| Feature | Opening production | In scope | Deferred |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+    totals = Counter()
+    for feature in ("runs", "artifacts", "evidence"):
+        rows = [
+            row
+            for row in baseline_rows
+            if row["feature"] == feature and row["role"] == "production"
+        ]
+        in_scope = sum(row["disposition"] == "in_scope" for row in rows)
+        deferred = sum(
+            row["disposition"] == "surface_out_of_scope" for row in rows
+        )
+        totals.update(total=len(rows), in_scope=in_scope, deferred=deferred)
+        lines.append(f"| {feature} | {len(rows)} | {in_scope} | {deferred} |")
+    lines.extend(
+        [
+            (
+                f"| **Total** | **{totals['total']}** | "
+                f"**{totals['in_scope']}** | **{totals['deferred']}** |"
+            ),
+            "",
+            (
+                f"Opening companions: **{coverage['baseline']['tests']['files']} "
+                "tests** and "
+                f"**{coverage['baseline']['stories']['files']} stories**. "
+                f"Source-freeze additions: **{coverage['new_path_count']} paths**."
+            ),
+            "",
+            (
+                f"T0 `{coverage['baseline']['commit']}`: "
+                f"`{coverage['baseline']['path_manifest_sha256']}`; source freeze "
+                f"`{coverage['source_freeze']['commit']}`: "
+                f"`{coverage['source_freeze']['path_manifest_sha256']}`."
+            ),
+            "",
+            "| Closure cluster | Files | Source commit | Path/content receipt |",
+            "| --- | ---: | --- | --- |",
+        ]
+    )
+    for receipt in coverage["closure_receipts"]:
+        lines.append(
+            f"| `{receipt['cluster']}` | {receipt['file_count']} | "
+            f"`{receipt['source_commit']}` | "
+            f"`{receipt['path_content_manifest_sha256']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "#### Complete DS8 path projection",
+            "",
+            "| Path | Feature | Role | Origin | Disposition | Closure | Owner / exit |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for row in assignments:
+        closure = row.get("closure_cluster", "—")
+        owner = (
+            f"`{row['owner_team']}` / `{row['capability_state']}` / "
+            f"`{row['exit_condition']}` / successor `null`"
+            if row["disposition"] == "surface_out_of_scope"
+            else "—"
+        )
+        lines.append(
+            f"| `{row['path']}` | `{row['feature']}` | `{row['role']}` | "
+            f"`{row['origin']}` | `{row['disposition']}` | `{closure}` | "
+            f"{owner} |"
+        )
+    return "\n".join(lines)
 
 
 def _report_projection(data: Mapping[str, Any]) -> str:
@@ -10662,6 +13208,7 @@ def _report_projection(data: Mapping[str, Any]) -> str:
         lines.append(
             f"| `{row['unit_id']}` | `{row['evidence_link']['ds1_entry_id']}` | {len(row['evidence_link']['ds2_adoption_ids'])} | `{row['disposition']}` | `{row['strangle_status']}` | `{row['owner_slice']}` | `{terminal}` |"
         )
+    lines.extend(["", _ds8_strangle_report_projection(data["ds8_strangle_coverage"])])
     return "\n".join(lines)
 
 
@@ -10838,6 +13385,8 @@ def _report_projection_errors(data: Mapping[str, Any]) -> list[str]:
 
 def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
     persistence = data["storage_construction_census"]
+    ds8 = data["ds8_strangle_coverage"]
+    dispositions = Counter(row["disposition"] for row in ds8["assignments"])
     return {
         "root_entries": len(data["entries"]),
         "root_dispositions": dict(sorted(Counter(entry["disposition"] for entry in data["entries"]).items())),
@@ -10851,6 +13400,9 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
         "storage_construction_files": persistence["production_file_count"],
         "storage_construction_sites": persistence["site_count"],
         "storage_production_sources": persistence["production_source_count"],
+        "ds8_strangle_assignments": len(ds8["assignments"]),
+        "ds8_strangle_dispositions": dict(sorted(dispositions.items())),
+        "ds8_strangle_family_complete": ds8["family_complete"],
     }
 
 
@@ -10877,6 +13429,16 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--write-c11b-query-memory-root",
         action="store_true",
         help="surgically produce the exact C11b query-memory root transition",
+    )
+    parser.add_argument(
+        "--write-c13-adjacent-print-export-resolution",
+        action="store_true",
+        help="atomically close the independently verified C13 print predecessor",
+    )
+    parser.add_argument(
+        "--write-ds8-strangle-coverage",
+        action="store_true",
+        help="atomically materialize the DS8 coverage/register/report/status family",
     )
     parser.add_argument(
         "--migrate-c21b",
@@ -10927,6 +13489,89 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.write_c13_adjacent_print_export_resolution:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {
+            "write_c13_adjacent_print_export_resolution",
+            "write_report",
+        }:
+            sys.stderr.write(
+                "C13 print transition requires only --write-report\n"
+            )
+            return 1
+        try:
+            receipt = _write_c13_print_family()
+        except (OSError, ValueError, RuntimeError) as exc:
+            sys.stderr.write(f"C13 print transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("closed the independently verified C13 print predecessor\n")
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "capture_count": len(receipt["captures"]),
+                    "receipt_id": receipt["receipt_id"],
+                    "snapshot_sha256": receipt["snapshot"]["sha256"],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
+
+    if args.write_ds8_strangle_coverage:
+        incompatible = any(
+            (
+                args.check,
+                args.write_seed,
+                args.write_supplemental,
+                args.write_c03_vitest_resolution,
+                args.write_c06_rendered_contrast_resolution,
+                args.write_c11b_query_memory_root,
+                args.write_c13_adjacent_print_export_resolution,
+                args.migrate_c21b,
+                args.migrate_c21c,
+                args.print_c21b_authority_partition_hashes,
+                args.print_c21b_authority_identity_literals,
+                args.print_c21b_descriptor_identities,
+                args.corruption_probes,
+                args.verify_baseline_source_bytes,
+                args.lint_results is not None,
+                args.vitest_results is not None,
+                args.architecture_results is not None,
+            )
+        )
+        if incompatible or not args.write_report:
+            sys.stderr.write(
+                "DS8 strangle transition requires only --write-report\n"
+            )
+            return 1
+        try:
+            coverage = _write_ds8_strangle_family()
+        except (OSError, ValueError, RuntimeError) as exc:
+            sys.stderr.write(f"DS8 strangle transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("materialized DS8 strangle/register/status family\n")
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "assignments": len(coverage["assignments"]),
+                    "opening_production": coverage[
+                        "opening_production_partition"
+                    ],
+                    "new_paths": coverage["new_path_count"],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
+
     if args.write_c06_rendered_contrast_resolution:
         incompatible = any(
             (
@@ -10935,6 +13580,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.write_supplemental,
                 args.write_c03_vitest_resolution,
                 args.write_c11b_query_memory_root,
+                args.write_c13_adjacent_print_export_resolution,
+                args.write_ds8_strangle_coverage,
                 args.migrate_c21b,
                 args.migrate_c21c,
                 args.print_c21b_authority_partition_hashes,

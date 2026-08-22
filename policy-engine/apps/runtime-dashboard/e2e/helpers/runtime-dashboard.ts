@@ -30,7 +30,14 @@ export type RuntimeFixtureMetadata = {
   data_snapshot_artifact_id: string;
   promotion_candidate_id: string;
   root_artifact_id: string;
-  [key: string]: string;
+  run_paper_empty_run_id?: string;
+  run_paper_growth_run_id?: string;
+  [key: string]: string | undefined;
+};
+
+export type RunPaperFixtureMetadata = RuntimeFixtureMetadata & {
+  run_paper_empty_run_id: string;
+  run_paper_growth_run_id: string;
 };
 
 export type RuntimeApiScenario =
@@ -197,6 +204,21 @@ export function readFixtureMetadata() {
     ) as RuntimeFixtureMetadata;
   }
   return cachedFixtureMetadata;
+}
+
+export function requireRunPaperFixtureMetadata(
+  metadata: RuntimeFixtureMetadata,
+): asserts metadata is RunPaperFixtureMetadata {
+  for (const key of [
+    "run_paper_empty_run_id",
+    "run_paper_growth_run_id",
+  ] as const) {
+    if (typeof metadata[key] !== "string" || metadata[key].length === 0) {
+      throw new Error(
+        `Run paper visual fixture metadata is unavailable: ${key}`,
+      );
+    }
+  }
 }
 
 export async function installDashboardTestState(

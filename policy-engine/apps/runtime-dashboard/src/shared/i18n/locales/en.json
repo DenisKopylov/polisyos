@@ -127,6 +127,7 @@
     "routes": {
       "commandCenterEyebrow": "Runtime control plane",
       "commandCenterTitle": "Interventions across data, evidence, and governance",
+      "cycleBoardEyebrow": "Design-cycle evidence",
       "runAnalysisEyebrow": "Run analysis",
       "runAnalysisTitle": "Decision workspace turns artifacts into one operating view",
       "evidenceEyebrow": "Data + provenance",
@@ -175,7 +176,7 @@
       "narrativeThroughput": "Throughput",
       "narrativeQueue": "Queue posture",
       "narrativeEvidence": "Evidence concentration",
-      "narrativeAttentionBody": "{count, plural, one {{count} active run needs immediate review posture; blocked packets: {blocked}.} other {{count} active runs need immediate review posture; blocked packets: {blocked}.}}",
+      "narrativeAttentionBody": "{count, plural, one {{count} active run needs immediate review posture} other {{count} active runs need immediate review posture}}; {blocked, plural, one {{blocked} blocked packet} other {blocked packets: {blocked}}}.",
       "narrativeThroughputBody": "Current sample · successful outcomes: {success} · total runs: {total}",
       "narrativeQueueBody": "{count, plural, one {{count} decision-bearing run is ready to open from the fleet.} other {{count} decision-bearing runs are ready to open from the fleet.}}",
       "narrativeEvidenceBody": "Last run · docs added: {docs} · promotion candidates remaining in lane: {promotions}",
@@ -385,6 +386,42 @@
       "continue": "Continue to sign in",
       "retry": "Retry session",
       "backHome": "Back to command center"
+    },
+    "cycleBoard": {
+      "eyebrow": "Reviewer evidence surface",
+      "title": "Cycle Board",
+      "subtitle": "The known design-cycle cohort, its producer-owned facts, and the exact capabilities still absent.",
+      "projectionObservedAt": "Projection transaction observed at",
+      "exportPacket": "Export Cycle Board packet",
+      "accessUnsettledTitle": "Checking review access",
+      "accessUnsettledBody": "The board will not request its evidence until reviewer authorization is settled.",
+      "accessDeniedTitle": "Review access required",
+      "accessDeniedBody": "Cycle Board evidence is available only to reviewer and expert audiences.",
+      "loadErrorTitle": "Cycle Board unavailable",
+      "loadErrorBody": "The composed owner projection could not be loaded. No adjacent run state is used as a substitute.",
+      "coverageGap": "Known-row coverage gap",
+      "movementGap": "Acquisition movement gap",
+      "historicalDs4": "Historical DS4 component disposition",
+      "historicalAvailability": "Historical environment-relative producer availability",
+      "sources": "Board source ledger",
+      "rows": "Known design problems",
+      "stageTrace": "Stage trace",
+      "openStageTrace": "Open owner stage trace",
+      "globalCohortLink": "Open Cycle Board global cohort — not this run",
+      "columns": {
+        "searchTerminal": "Design-search terminal kind",
+        "lifecycleTerminality": "Lifecycle terminality",
+        "evidenceClass": "Structural evidence class",
+        "weakestLinks": "Weakest links",
+        "missingLink": "Weakest missing link",
+        "acquisitionRoute": "Owner acquisition route reference",
+        "acquisitionEconomics": "Resolved acquisition economics",
+        "runId": "Generation-cycle run",
+        "designProblem": "Design problem",
+        "surfaceReadiness": "Surface readiness",
+        "stageTrace": "Stage-trace binding",
+        "explanation": "Owner explanation"
+      }
     },
     "runs": {
       "title": "Runs & Decisions",
@@ -669,6 +706,7 @@
         "requiredTitle": "Run report requires a run id",
         "requiredBody": "Open a concrete /runs/:runId/report route.",
         "unavailableBody": "Run report is unavailable.",
+        "exportMachine": "Export MACHINE packet",
         "eyebrow": "Audit report",
         "exportJson": "Export JSON",
         "printPdf": "Print / Save PDF",
@@ -677,7 +715,59 @@
         "artifacts": "Artifacts",
         "transport": "Transport",
         "timelineEyebrow": "Severity-filterable timeline",
-        "auditTrailTitle": "Audit trail"
+        "auditTrailTitle": "Audit trail",
+        "paper": {
+          "eyebrow": "Replay-bound decision report",
+          "runHeading": "Run {runId}",
+          "runState": "Run state",
+          "caseTitle": "Case and DesignRecord",
+          "mayNotUseFor": "May not be used for",
+          "stageTrace": "Stage trace",
+          "admittedOutputs": "Admitted run outputs",
+          "completeFacts": "Complete governed packet facts",
+          "groups": {
+            "blockers": "Blockers",
+            "limitations": "Limitations",
+            "objections": "Objections",
+            "abstentions": "Abstentions"
+          },
+          "fields": {
+            "packetSchema": "Packet schema",
+            "projectionRule": "Projection rule",
+            "projectionHash": "Projection hash",
+            "intendedAudiences": "Intended audiences",
+            "manifest": "Manifest",
+            "manifestSchemaVersion": "Manifest schema version",
+            "replayProjectionRule": "Replay projection rule",
+            "replayProjectionHash": "Replay projection hash",
+            "status": "Status",
+            "terminality": "Terminality",
+            "sourceKind": "Source kind",
+            "tenant": "Tenant",
+            "cell": "Cell",
+            "startedAt": "Started at",
+            "finishedAt": "Finished at",
+            "durationMs": "Duration (ms)",
+            "availability": "Availability",
+            "capabilityState": "Capability state",
+            "reason": "Reason",
+            "ownerRoute": "Owner route",
+            "closureSignal": "Closure signal",
+            "case": "Case",
+            "designRecord": "DesignRecord",
+            "grounding": "Grounding",
+            "admission": "Admission",
+            "promotion": "Promotion",
+            "traceArtifact": "Trace artifact",
+            "manifestSchema": "Manifest schema",
+            "registryBundle": "Registry bundle",
+            "producer": "Producer",
+            "pythonEnvironment": "Python environment",
+            "platformEnvironment": "Platform environment",
+            "dependenciesLock": "Dependencies lock",
+            "replayAddress": "Replay address"
+          }
+        }
       },
       "deck": {
         "requiredTitle": "Run deck requires a run id",
@@ -2059,6 +2149,10 @@
   },
   "surfaceRegistry": {
     "run": {
+      "cycleBoard": {
+        "label": "Cycle Board",
+        "description": "Global reviewer cohort of design-cycle facts, typed absences, source staleness, and honest-empty movement."
+      },
       "overview": {
         "description": "Decision summary, confidence signals, and first-pass operator review."
       },

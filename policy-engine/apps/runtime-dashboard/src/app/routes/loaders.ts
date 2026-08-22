@@ -35,6 +35,16 @@ export function createRunDetailLoader(routeId = "runs.detail") {
     });
 }
 
+export function createRunPaperLoader(routeId = "runs.report") {
+  return async ({ params, request }: LoaderFunctionArgs) =>
+    instrumentRouteLoader(routeId, () =>
+      Promise.resolve({
+        rawSearch: new URL(request.url).search,
+        runId: requireParam(params.runId, "runId"),
+      }),
+    );
+}
+
 export function createRunTabLoader(tabKey: RunTabKey) {
   return async ({ params }: LoaderFunctionArgs) =>
     instrumentRouteLoader(`runs.tab.${tabKey}`, async () => {

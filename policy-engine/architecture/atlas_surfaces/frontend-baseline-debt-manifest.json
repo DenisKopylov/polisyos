@@ -2142,13 +2142,13 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx",
         "roles": ["consumer", "implementation"],
-        "sha256": "4610ec10607f7dd1b9898e5815aa519e6ce15947084cabca13f17938f893c3bd"
+        "sha256": "61dafd9823098c6b63c2a50529a6b1b9037b62ab843e1dc33442a751c31e2956"
       },
       {
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         "roles": ["consumer", "implementation"],
-        "sha256": "7c211f9deca6ffbbbac8146c9eee1bae7ce4b9bbb8a59b8745388344d1726a69"
+        "sha256": "43b93cad9f8fbf41a9da1a6ec98a6aee4c9075730d3d4906654fc43f011d4d8a"
       },
       {
         "cluster_id": "C06",
@@ -2172,7 +2172,7 @@
         "cluster_id": "C06",
         "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
         "roles": ["consumer"],
-        "sha256": "ba004a8f8dfed5c19380c3b3730a190fcb179a69640987b016327f09ec8f1768"
+        "sha256": "514ddff6df513859ec99e2b429e50b7e6bf5c6417b320f416c2a576a744777df"
       },
       {
         "cluster_id": "C06",
@@ -2208,7 +2208,7 @@
         "cluster_id": "C07",
         "path": "apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx",
         "roles": ["consumer"],
-        "sha256": "7c211f9deca6ffbbbac8146c9eee1bae7ce4b9bbb8a59b8745388344d1726a69"
+        "sha256": "43b93cad9f8fbf41a9da1a6ec98a6aee4c9075730d3d4906654fc43f011d4d8a"
       },
       {
         "cluster_id": "C07",
@@ -2328,13 +2328,13 @@
         "cluster_id": "C08",
         "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.test.tsx",
         "roles": ["consumer"],
-        "sha256": "c90a90cb5472dc0057b54ac3f9972d256ca95bc32cf939ac16cd7ee7ff0474f7"
+        "sha256": "cf45eb2a036dc544d72e6afad832476939d6f251a77940a08dfb6ebcb02fae6f"
       },
       {
         "cluster_id": "C08",
         "path": "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
         "roles": ["consumer", "implementation"],
-        "sha256": "1d65789162905834efbc12eaa88f75b3a7f1f41c9f2cdf2e2d1f6e718a3c6de3"
+        "sha256": "4258f142df054fcfb854af7b23c350eea9f4a3ec6444e2cd75de99fb0b1718eb"
       },
       {
         "cluster_id": "C08",

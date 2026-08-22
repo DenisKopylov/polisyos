@@ -127,6 +127,7 @@
     "routes": {
       "commandCenterEyebrow": "Runtime control plane",
       "commandCenterTitle": "Інтервенції через дані, evidence та governance",
+      "cycleBoardEyebrow": "Evidence циклу дизайну",
       "runAnalysisEyebrow": "Аналіз запуску",
       "runAnalysisTitle": "Decision workspace зводить артефакти в єдину операційну картину",
       "evidenceEyebrow": "Дані + provenance",
@@ -175,7 +176,7 @@
       "narrativeThroughput": "Throughput",
       "narrativeQueue": "Стан черги",
       "narrativeEvidence": "Концентрація evidence",
-      "narrativeAttentionBody": "{count, plural, one {{count} активний запуск уже вимагає review posture; заблоковані packet: {blocked}.} few {{count} активні запуски уже вимагають review posture; заблоковані packet: {blocked}.} many {{count} активних запусків уже вимагають review posture; заблоковані packet: {blocked}.} other {Активні запуски: {count}; заблоковані packet: {blocked}; уже потрібна review posture.}}",
+      "narrativeAttentionBody": "{count, plural, one {{count} активний запуск уже вимагає review posture} few {{count} активні запуски уже вимагають review posture} many {{count} активних запусків уже вимагають review posture} other {Активні запуски: {count}; уже потрібна review posture}}; {blocked, plural, one {{blocked} заблокований packet} few {{blocked} заблоковані packet} many {{blocked} заблокованих packet} other {Заблоковані packet: {blocked}}}.",
       "narrativeThroughputBody": "Поточна вибірка · успішні результати: {success} · усі запуски: {total}",
       "narrativeQueueBody": "{count, plural, one {{count} decision-bearing запуск уже готовий відкриватися з fleet.} few {{count} decision-bearing запуски вже готові відкриватися з fleet.} many {{count} decision-bearing запусків уже готові відкриватися з fleet.} other {Decision-bearing запуски, готові до відкриття з fleet: {count}.}}",
       "narrativeEvidenceBody": "Останній run · додані docs: {docs} · promotion candidates у lane: {promotions}",
@@ -386,6 +387,42 @@
       "retry": "Спробувати сесію знову",
       "backHome": "До командного центру"
     },
+    "cycleBoard": {
+      "eyebrow": "Evidence surface для reviewer",
+      "title": "Cycle Board",
+      "subtitle": "Відомий cohort циклу дизайну, факти його producers і точні capabilities, яких досі бракує.",
+      "projectionObservedAt": "Транзакцію projection зафіксовано о",
+      "exportPacket": "Експортувати packet Cycle Board",
+      "accessUnsettledTitle": "Перевірка review-доступу",
+      "accessUnsettledBody": "Board не запитує evidence, доки reviewer authorization не визначена.",
+      "accessDeniedTitle": "Потрібен review-доступ",
+      "accessDeniedBody": "Evidence Cycle Board доступні лише аудиторіям reviewer та expert.",
+      "loadErrorTitle": "Cycle Board недоступна",
+      "loadErrorBody": "Composed owner projection не завантажилась. Суміжний стан run не використовується як заміна.",
+      "coverageGap": "Прогалина покриття відомих рядків",
+      "movementGap": "Прогалина руху acquisition",
+      "historicalDs4": "Історичний disposition компонентів DS4",
+      "historicalAvailability": "Історична environment-relative доступність producers",
+      "sources": "Ledger джерел board",
+      "rows": "Відомі design problems",
+      "stageTrace": "Stage trace",
+      "openStageTrace": "Відкрити owner stage trace",
+      "globalCohortLink": "Відкрити глобальний cohort Cycle Board — не цей run",
+      "columns": {
+        "searchTerminal": "Terminal kind пошуку дизайну",
+        "lifecycleTerminality": "Lifecycle terminality",
+        "evidenceClass": "Structural evidence class",
+        "weakestLinks": "Найслабші ланки",
+        "missingLink": "Найслабша відсутня ланка",
+        "acquisitionRoute": "Посилання на owner acquisition route",
+        "acquisitionEconomics": "Resolved acquisition economics",
+        "runId": "Generation-cycle run",
+        "designProblem": "Design problem",
+        "surfaceReadiness": "Готовність surface",
+        "stageTrace": "Stage-trace binding",
+        "explanation": "Пояснення owner"
+      }
+    },
     "runs": {
       "title": "Запуски та рішення",
       "subtitle": "Єдиний workspace для run lifecycle, рішень, governance та provenance.",
@@ -574,6 +611,7 @@
         "requiredTitle": "Для звіту запуску потрібен run id",
         "requiredBody": "Відкрийте конкретний маршрут /runs/:runId/report.",
         "unavailableBody": "Звіт запуску недоступний.",
+        "exportMachine": "Експортувати MACHINE packet",
         "eyebrow": "Аудитний звіт",
         "exportJson": "Експортувати JSON",
         "printPdf": "Друк / Зберегти PDF",
@@ -582,7 +620,59 @@
         "artifacts": "Артефакти",
         "transport": "Transport",
         "timelineEyebrow": "Timeline з фільтрацією за severity",
-        "auditTrailTitle": "Аудитний слід"
+        "auditTrailTitle": "Аудитний слід",
+        "paper": {
+          "eyebrow": "Звіт рішення з прив'язкою до replay",
+          "runHeading": "Запуск {runId}",
+          "runState": "Стан запуску",
+          "caseTitle": "Case і DesignRecord",
+          "mayNotUseFor": "Не можна використовувати для",
+          "stageTrace": "Трасування етапів",
+          "admittedOutputs": "Допущені результати запуску",
+          "completeFacts": "Повний перелік керованих фактів пакета",
+          "groups": {
+            "blockers": "Блокери",
+            "limitations": "Обмеження",
+            "objections": "Заперечення",
+            "abstentions": "Утримання"
+          },
+          "fields": {
+            "packetSchema": "Схема packet",
+            "projectionRule": "Правило проєкції",
+            "projectionHash": "Хеш проєкції",
+            "intendedAudiences": "Цільові аудиторії",
+            "manifest": "Маніфест",
+            "manifestSchemaVersion": "Версія схеми маніфесту",
+            "replayProjectionRule": "Правило replay-проєкції",
+            "replayProjectionHash": "Хеш replay-проєкції",
+            "status": "Статус",
+            "terminality": "Термінальність",
+            "sourceKind": "Тип джерела",
+            "tenant": "Tenant",
+            "cell": "Cell",
+            "startedAt": "Початок",
+            "finishedAt": "Завершення",
+            "durationMs": "Тривалість (мс)",
+            "availability": "Доступність",
+            "capabilityState": "Стан спроможності",
+            "reason": "Причина",
+            "ownerRoute": "Маршрут власника",
+            "closureSignal": "Сигнал закриття",
+            "case": "Case",
+            "designRecord": "DesignRecord",
+            "grounding": "Grounding",
+            "admission": "Admission",
+            "promotion": "Promotion",
+            "traceArtifact": "Артефакт трасування",
+            "manifestSchema": "Схема маніфесту",
+            "registryBundle": "Пакет реєстру",
+            "producer": "Продюсер",
+            "pythonEnvironment": "Python-середовище",
+            "platformEnvironment": "Середовище платформи",
+            "dependenciesLock": "Фіксація залежностей",
+            "replayAddress": "Адреса replay"
+          }
+        }
       },
       "deck": {
         "requiredTitle": "Для deck потрібен run id",
@@ -2059,6 +2149,10 @@
   },
   "surfaceRegistry": {
     "run": {
+      "cycleBoard": {
+        "label": "Cycle Board",
+        "description": "Глобальний reviewer cohort фактів design cycle, typed absences, staleness джерел та чесно порожнього movement."
+      },
       "overview": {
         "description": "Підсумок рішення, сигнали впевненості та перше операторське ревʼю."
       },

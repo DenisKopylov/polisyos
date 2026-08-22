@@ -1,0 +1,49 @@
+id = "2026-08-21-ds8a-run-paper"
+title = "Add the replay-bound run paper projection"
+type = "added"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Expose a content-bound run paper packet, including an explicit unavailable case record, and add resolver-backed report links to the Cycle Board."
+evidence = [
+  "docs/superpowers/journals/2026-08-21-ds8-case-evidence-workspace.md",
+  "tests/unit/runtime/http/test_run_paper_api.py",
+  "tests/unit/runtime/http/test_cycle_board_projection_service.py",
+  "tests/unit/runtime/http/test_runtime_openapi_hardening.py",
+  "schemas/runtime_api_v1.openapi.json",
+]
+compatibility = "The additive run-paper operation and DTO family require regeneration of both generated TypeScript client families. Existing run and Cycle Board fields remain compatible."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime run paper projection"
+migration = "Regenerate both runtime API client families. Preserve the complete four-pin replay tuple when following report_href; treat the case-record-not-run-bound arm as typed producer_missing, never as empty case data."
+api = "GET /api/v1/runs/{run_id}/paper returns the governed run-paper packet and supports exact complete-tuple replay."
+limitations = "The DesignRecord-backed available case arm is frozen but unproducible until team-runtime closes case-record-not-run-bound in DS8-B."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "run-paper-projection"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: GET /api/v1/runs/{run_id}/paper"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Runtime clients can retrieve and replay a content-bound run paper packet with typed case availability and canonical report addresses."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-api-client-run-paper"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "Both generated TypeScript families add getRunPaper and the strict run-paper DTO union."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []

@@ -68,7 +68,7 @@ function GovernanceTabContent({ runId }: { runId: string }) {
       <ReviewCursorLayer cursors={collaboration.cursors} />
       <GovernanceReport data={governanceQuery.data.debug} />
       <DisputeRegistryPanel issues={governanceIssues} runId={runId} />
-      <PublicSectorReadinessPanel />
+      <PublicSectorReadinessPanel runId={runId} />
     </div>
   );
 }

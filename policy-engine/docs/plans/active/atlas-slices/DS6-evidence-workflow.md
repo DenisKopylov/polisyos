@@ -767,6 +767,23 @@ owner counts, not a composed readiness result.
 
 ### Task 11 — DS6-C11: instrument the seven Atlas health metrics
 
+**Revision 3.22 closure repair status: the P38 test repair candidate is
+implemented and the focused suite is GREEN 22/22. Its release remains
+`not_established` until the containing commit's attached-branch readback.**
+
+The measured closure cut is one mechanism path plus this plan and the journal
+as mandatory record companions. On a clean attached revision, red-first was
+21/22: the sole failure expected `pyproject.toml` and `uv.lock` in
+`replay.non_revision_paths`, although both files exist in `HEAD` and their
+current bytes match it. The producer defines the authoritative six-file
+`HEALTH_IMPLEMENTATION_PATHS` tuple, and this governed test already asserts
+that exact persisted tuple directly. The repair removes only the transient
+revision-state expectation. It does not assert an empty replay set or weaken
+replay semantics: the absent-path witness, clean-versus-absent exact result,
+and inconsistent status/path-set rejection remain exercised. P40 is **0/2**;
+P39 subtracts the two record companions and leaves one mechanism path, within
+C11's declared cap of 12.
+
 **Status: review repair implemented and verified 2026-08-16; not orchestrated.
 Exact declared repair path set: ten paths, below the declared cap of 12.**
 
@@ -895,31 +912,159 @@ Capability truth is `contract_only` with `producer_missing`,
 `artifact_missing`, `bridge_missing`, `consumer_missing`, actual-evidence
 `verification_missing`, and `surface_missing`.
 
+### Revision 3.22 debt-row execution — DS5 run-deck residual
+
+**Status: honestly stopped before mechanism entry. Live measurement disproves
+the recorded border-box-height cause; no CSS or snapshot byte changed.**
+
+The closed DS5 owner's residual is executable under Revision 3.22 without
+transferring correctness ownership. The governed no-update Chromium comparator
+reproduced 1,094×820 expected against 1,094×821 actual with 4,178 differing
+pixels. The independent no-writer diagnostic then established that the live
+evidence slide is already an exact 1,094×820 CSS border box: computed and
+offset height are 820 px, `box-sizing` is `border-box`, client and scroll
+height are both 818 px, and direct-child content overflow is zero. At DPR 1,
+the box starts and ends at fractional Y coordinates 3,920.75/4,740.75; the
+in-memory locator PNG is 1,094×821. The divergence is therefore fractional
+screenshot clipping/rasterization, not a border-box-height defect.
+
+The authorized repair condition is false, so CSS adjustment would be a P38
+proxy repair. The run-deck residual remains open, no three-match closure wave
+is run, and the governed snapshot remains byte-unchanged. P40 is **0/2**
+because no mechanism was entered. P39 arithmetic is zero mechanism paths plus
+this plan and the journal as mandatory record companions. The visual lane was
+explicitly relinquished after the stopped measurement.
+
 ### Task 13 — DS6-C13: independently verify DS8 adjacent print export
 
-**Owner-discovered path set declared before the browser lane:**
+**2026-08-20 pinned-main re-entry: stopped at the required DS8 design
+escalation before mechanism entry.** The lane entered clean at `8275e321c`,
+merged the explicitly pinned `main` commit `0dda8be51` as `66d13fdb`, and
+bound `0dda8be51` as its immutable merge base. The post-merge
+`corepack pnpm install --frozen-lockfile` gate completed exit 0 with pnpm
+10.33.2 before any TypeScript-derived evidence.
 
-1. this plan
-2. the DS6 journal
+The requested panel-owner census finds that `OperatorCraftPanel` is not
+affordance-only. Alongside seven rendered-control JSX source sites, it renders
+browser-persisted annotation body/target/snapshot hash, threshold and impact
+values, saved evidence references, and onboarding progress/evidence
+references/completion duration. `AmbientTelemetryHud` adds one control site;
+the route also has a sibling diagnostic disclosure. Whether this recorded
+reviewer state belongs on paper is therefore the design question named by the
+task, not a classification DS6 may make. DS8/`team-design` still owes that
+paper-semantics adjudication; Revision 3.22 permits the live co-owner to
+execute but does not waive the absent owner's decision.
 
-**Declared path cap: 6; measured candidate set: 2.** Consume DS8's shipped
-surface without editing it. The unique real-browser owner is the filtered
-`run detail A4 print` case in `e2e/runtime-dashboard.visual.spec.ts`; the
-static snapshot checker proves only markers and image shape, not link/report
-non-overlap. Run the real Chromium comparison once under the supplied 2,400 s
-ceiling. If it is RED, preserve expected/actual/diff evidence and stop: the
-closure conjunction is already falsified. If it is GREEN, a second no-update
-capture is required for repeatability and semantic non-overlap still needs an
-independent verifier.
+No CSS, product component, test, semantic guard, snapshot, or governed
+register-family byte changed. The visual lane and register-family lock were
+never acquired. The generic whole-tree no-rendered-interactive-control guard
+is designed but deliberately not implemented: its projection predicate
+depends on whether DS8 chooses whole-panel exclusion, control-only exclusion,
+or a dedicated noninteractive paper projection.
 
-The current readiness-ledger and disposition-register owners are contended and
-therefore unavailable. Ignored Playwright output plus this reviewed record are
-the strongest honest result in C13; no governed readiness/audit transition is
-written. Failure returns evidence to DS8 and does not authorize a DS6 product
-repair. The capability remains `consumer_missing`/`surface_missing` until the
-serialized owner family is released and C10/C14 reconcile the evidence.
+The architect's adjudication is recorded as **`institutionally_supplied`**:
+724×2,113 is a **bulk-publish placeholder never derived against this
+surface**, so a future replacement is a **first derivation, not a
+re-baseline**. Its 724→770 branch is unsupported and closed because the active
+770-pixel shell rule predates the PNG by six weeks. Q4, the post-repair height
+composition, the growth mutation, the
+expectation derivation receipt, and the two stable captures were not entered
+after the mandatory escalation.
+
+C13's predicates remain independent: a complete print-scope repair release
+and the whole-tree no-interactive-control property are both
+`not_established` and fail closed. The stable-pair predicate is `recomputed`
+false because the first admitted no-update comparison is RED; no new capture
+was run in this stopped re-entry. The existing signed-target non-overlap
+remains a narrower true result and cannot stand in for the missing print-scope
+property. Their conjunction is false, so C13 makes no governed transition and
+C14 remains not executable. DS6 remains open.
+
+**Revision 3.22 execution status: the scoped product repair is released at
+`1fc07ed01a3cd3d5cfd9dc4a04b1ad89d0d141cd` after attached-branch
+readback, and its narrow current-surface semantic guard is GREEN. DS8/
+`team-design` design adjudication remains owed, and the governed A4 comparison
+is RED. The C13 governed transition therefore remains blocked, C14 is not
+executable, and DS6 remains open.**
+
+**Current measured path set:**
+
+1. `apps/runtime-dashboard/src/styles/print.css`
+2. `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`
+3. this plan
+4. the DS6 journal
+
+**Declared path cap: 6.** Revision 3.22's debt-row execution rule supersedes
+the older no-product-edit fence for this registered co-owned row: DS6 may
+execute its independently verifiable closure signal while DS8/`team-design`
+retains correctness ownership and still owes design adjudication. P39
+arithmetic is two mechanism paths plus two mandatory record companions. The
+CSS repair and its generic real-browser semantic verifier are mechanism; this
+plan and the journal are companions outside the mechanism count. Two mechanism
+paths fit the cap.
+
+The complete current rendered link set under the print surface contains one
+17,206-byte `/public/decisions/` target. The landed scoped rule suppresses
+only that target's pseudo-content and preserves every current rendered
+ordinary printed destination. Its independent Chromium guard is GREEN. For
+this measured surface, the sole generated signed-target string is absent and
+therefore cannot overlap the report; this is not an unbounded claim about
+future target patterns or direct URL text in report content. Measurement
+nevertheless falsified the prior claim that this target caused the whole
+13,269-pixel height: suppressing it yields 12,966 pixels, and even suppressing
+every link target yields 12,918. The governed expected image remains 724×2,113,
+so the first post-repair no-update capture is a completed RED receipt and no
+second capture is run. The snapshot is not rewritten and no report content is
+hidden to fit it.
+
+**THE PIXEL CASCADE ABOVE IS SUPERSEDED, AND THE CURRENT VALUE IS UNMEASURED
+(architect, 2026-08-21).** Every figure in this section — `13,269`, `12,966`,
+`12,918` — was measured on a tree carrying *at most one* of the two changes
+that have since landed. DS7's strangle removed the stale in-panel run-detail
+renderer and DS7's own visual lane measured **`770×12,949`** on a tree that
+had the strangle but **not** this cluster's scoped signed-target suppression.
+So there are now four states and only three are measured:
+
+| tree | A4 actual |
+| --- | --- |
+| neither change | `770×13,269` |
+| this cluster's scoped repair only (`1fc07ed01`) | `770×12,966` |
+| DS7's strangle only | `770×12,949` |
+| **both, which is what `main` now is (`fffd9013a`)** | **`not_established`** |
+
+Do **not** subtract the two contributions to predict the fourth cell. `303`
+px of signed target and roughly `320` px of removed chrome are separately
+measured deltas against different baselines, and nothing establishes that they
+are disjoint regions of the same layout. The next actor on this surface —
+DS8 — must **measure** the combined value, not derive it.
+
+None of this changes the C13 verdict below. The capture conjunct is false
+because the expectation is a placeholder, and a placeholder stays wrong at
+every one of these four heights.
+
+C13 requires all three conjuncts: a content-bound scoped repair release,
+independently established semantic non-overlap, and two consecutive GREEN
+no-update A4 captures. The repair-release predicate is `recomputed` and true
+at the commit above. The narrow current-surface signed-target predicate is
+`recomputed` and true: the complete rendered denominator has one generated
+signed target and its pseudo-content is absent. The capture predicate is
+`recomputed` and false: the first no-update comparison is RED, so no second
+capture is run. Therefore no register, readiness-ledger, report, or status
+transition is authorized, the register family remains released, and the
+capability remains `consumer_missing`/`surface_missing`. C14 cannot close DS6
+while this remains true.
+
+The closing owner reread is unchanged: disposition register
+`c50bd201…c00a`, report `f5b80c7f…f4bc`, status inventory
+`25430ee8…d80`, baseline manifest `8c86ea3e…ff55`, and readiness ledger
+`4b64f092…ae13`. C13 did not acquire the family lock because its capture gate
+was already false.
 
 ### Task 14 — DS6-C14: close the evidence workflow slice
+
+**Revision 3.22 status: not executable. C13's capture conjunct is false, so no
+closure battery, family write, or slice-close claim is authorized. DS6 remains
+open.**
 
 **Declared path cap: 6.** Run the full serialized closure battery, corruption
 probes, readiness reconciliation, duplication census, and independent review;
@@ -1294,6 +1439,69 @@ two active `attr(href)` print emitters stay registered as DS8-owned duplicate
 debt rather than being changed here. The exact candidate remains six paths;
 the commit and post-commit branch readback are pending.
 
+### Task 19 — DS6-C19: widen the non-count plural-agreement rule
+
+**Status: CLOSED in mechanism commit
+`c552d5b5ccce077b24f5126deb699400263186e9`. Declared mechanism-path cap:
+5.** The mechanism is exactly three paths: the parity owner plus active `en`
+and `uk` catalogs. This plan, the DS6 journal, and the master-plan debt-row
+transition are mandatory P39 record companions and stay outside the count.
+
+C19 is the continuously numbered re-cut requested by the registered debt. It
+does not reopen C01: C01's `{count}` repair remains correct, while C19 closes
+the adjacent variable class that C01's literal-key collector never admitted.
+Before adjudication, two independent complete ICU-AST walks agreed on the
+active denominator: 2,451 string leaves per locale; 244 non-`{count}` message
+paths per locale (488 locale-message records); 360 path-variable points per
+locale (720 locale instances); 149 variable names; zero parse failures; and
+sorted point-set SHA-256
+`f463ac23dddb4b9fa743870f0081515fff8c1d23d16d3993340fe0d0ee10a362`.
+The owner declares 71 quantitative-capable and 78 nonquantitative variables;
+the disjoint 149-name union is fingerprinted and every undeclared future name
+fails closed.
+
+The exact quantitative-use denominator is 183 path-variable points in each
+active locale. Each was manually adjudicated against the words agreeing with
+that variable. Each locale audit classifies four points as requiring cardinal
+agreement and 179 as not requiring it. The four are
+`common.lineageGraph.threshold#{nodes}`,
+`pages.dashboard.narrativeAttentionBody#{blocked}`,
+`phase34.blockers.slowReview#{target}`, and
+`shared.charts.quantileDotplot.tailSummary#{bins}`. Exact point-use
+declarations retain a reason for every point. The repaired dashboard message
+now gives `blocked` its own cardinal plural without creating a count-by-blocked
+cross-product; English proves one/other and Ukrainian proves
+one/few/many/other plus their nonnumeric fallbacks. A message using an invented
+numeric variable fails `variable-kind-undeclared`; a number/plural node that
+contradicts a nonnumeric owner declaration fails `numeric-kind-conflict`; a
+genuine no-agreement message remains accepted; and all existing `{count}`
+coverage stays green.
+
+`panels.reviewCollaboration.reviewers` takes the permitted explicit outcome
+**`declared, unenforced`**: the present caller selects it only above one
+participant and uses `solo` for singular, but no behavioral witness binds that
+guard. The Russian catalog remains `legacy_continuity_frozen` and byte
+unchanged.
+
+P37/P40 bounds one residual rather than laundering declaration provenance into
+a recomputed fact. The 78-name nonnumeric classification is
+`institutionally_supplied`; no complete typed producer-to-message argument
+manifest or call graph exists. The worked mixed-use example is `target`, which
+is cardinal at `phase34.blockers.slowReview#{target}` but string/identifier
+elsewhere. Falsifier: wire bare `phase33.stress.diff#{diff}` to a formatted
+numeric delta without changing its declared name; the present gate cannot
+recompute that producer type. The missing typed manifest/call graph is the
+smallest capability that closes this residual.
+
+The red-first focused receipt had exactly the two intended failures—the live
+`blocked = 1` copy and the invented-variable omission—while the no-agreement
+and existing `{count}` cases remained green. The frozen mechanism then passes
+38/38 focused parity tests, targeted ESLint, and the dashboard app TypeScript
+check. No browser process or visual lane was needed. The debt row closes, but
+DS6 does not: C13 and C14 remain gated on the owed DS8 paper-semantics
+adjudication. DS7 Task 8 must make every new active `en`/`uk` message satisfy
+this widened declared-variable rule; no new variable is grandfathered.
+
 ## Expected cluster commits
 
 | Cluster | Expected subject | Max files |
@@ -1319,6 +1527,7 @@ the commit and post-commit branch readback are pending.
 | C16 | `DS6-C16 close deferred-lane diagnostics` | 7 |
 | C17 | `DS6-C17 reconcile C15-R1 visual baselines` | 5 |
 | C18 | `DS6-C18 fix visual fixture and re-anchor C15-R1 deltas` | 6 |
+| C19 | `DS6-C19 widen plural agreement gate` | 5 |
 
 ## Deferred execution package
 
@@ -1329,6 +1538,13 @@ receipts below supersede the earlier waiting state without authorizing any
 governed write.
 
 ### Contended governed writes after DS5-C21
+
+> **EXECUTED — architect, 2026-08-21.** Everything specified in this section for `C03`,
+> `C04` and `C06` **has been carried out** and merged at `b0249e82d`. The instructions below
+> are retained as the executed specification, not as pending work; do not re-run them. The
+> `C13` hold at the end of *Contended-package readiness* is the only part of this package
+> still standing, and it is still a `NO WRITE` hold.
+
 
 **I18n lifecycle, DS6-C03.** Apply through the existing producer/checker, not a
 hand edit:
@@ -1493,6 +1709,28 @@ that distinction.
 
 ## Slice standing (recorded 2026-08-18)
 
+> **SUPERSEDED IN PART — architect, 2026-08-21.** The table and Landed list below are the
+> 2026-08-18 record and are kept as written. Four entries have since moved and the current
+> standing is here:
+>
+> - **`C03`, `C04`, `C06` are LANDED and MERGED** — the three append-only register
+>   transitions ran at `b0249e82d` on 2026-08-20, and the artifact confirms it in this very
+>   tree: `frontend-baseline-debt-manifest.json` reads `vitest.disposition = resolved`. The
+>   blocker row below that holds them on DS5-`C21` is spent; `C21`'s release happened.
+> - **`C19` is LANDED** — mechanism `c552d5b5c`, records `71b6189de`, merged to `main` at
+>   `fffd9013a`. The `i18n-plural-rule-covers-only-{count}` debt row is struck.
+> - **`C10` is settled, not stopped** — `C10-R2` landed in `main` at `fa1f3e4d0`. See the
+>   correction under *Not yet* below.
+> - **The blocked set is now exactly `C13`'s governed transition and `C14`**, both on the
+>   same single unmet conjunct: two consecutive green no-update A4 captures. DS6 cannot
+>   supply it, because the `724×2113` expectation was never a capture of this surface, so a
+>   replacement is a **first derivation** and it waits on DS8's paper-semantics adjudication.
+>
+> DS6's executable set really is exhausted — but by a shorter route than the table shows:
+> the slice already executed the part it could when it released the scoped print repair at
+> `1fc07ed01` under Revision 3.22's debt-row execution rule, rather than waiting for DS8 to
+> be entered.
+
 **DS6's executable set is exhausted. The slice is `blocked_on_another_plan`, not closed, and its
 closure cluster `C14` is deliberately not entered.**
 
@@ -1524,13 +1762,28 @@ governed transition follows. `C14` closes after both.
 - The `scenario composer dark theme` visual-lane instability, and the DS8 A4 print baseline, both
   under their own owners.
 
+> **C11 supersession — 2026-08-22.** The carried clean-worktree test pin above
+> closed at `da1ff0398`; a fresh clean-tree run on bound `0440f0a8d` is 22/22
+> green and readback shows the exact ordered six-path implementation set is
+> asserted directly. Remove `atlas-health-metric-replay-pins-uncommitted-paths`
+> from carried DS6 debt. This is a test-debt closure only: C11 remains
+> `implemented_but_not_orchestrated`, with `consumer_missing` and
+> `surface_missing`.
+
 ## Not yet
 
 - No typed contrast row or i18n baseline removal until DS5 releases the
   contended governed owner. C03's green-receipt gate is discharged; C04 and
   C06 now wait only on that release.
-- No landed readiness-ledger CI validator. C10 is a stopped, checkpointed,
-  forward-reverted attempt and C10-R1 requires its own clean-tree session. C11
+- ~~No landed readiness-ledger CI validator. C10 is a stopped, checkpointed,
+  forward-reverted attempt and C10-R1 requires its own clean-tree session.~~
+  **CORRECTED 2026-08-21:** this bullet contradicted this plan's own Task 10 status and
+  closure ledger. `C10-R2` landed in `main` at `fa1f3e4d0`, controlling for the per-claim CI
+  gate and the governed Core CAS claim-basis audit projection, with mechanism frozen at
+  `c186885010ad`. `C10-R1` needs no clean-tree session; it was superseded, not deferred.
+  What remains true is the narrower statement: neither surface grants a `stable`/`implemented`
+  claim or an aggregate reconciliation result, and `transitive-runner-closure-unbound` stays
+  `absent/unallocated`. C11
   now persists six instrumented measurements plus the seventh C12 seam; INT-R3
   content, observations, and every honesty threshold remain
   `not_established`.
@@ -1546,3 +1799,97 @@ governed transition follows. `C14` closes after both.
   deterministically re-anchors the three DS6-attributed PNGs. Its commit is
   pending. The DS8 print baseline remains byte-unmodified and RED under its
   existing owner.
+
+## C13/C14 closure supersession — 2026-08-22
+
+This section supersedes the stale Task 13, Task 14, *Slice standing*, and *Not
+yet* statements above without rewriting their historical receipts. DS8-A
+landed the paper repair at `69aca1e25`; DS6 then executed the previously held
+conjunction from immutable product revision `0440f0a8d`.
+
+**C13 is complete.** Two separate Chromium invocations used distinct output
+directories, `--retries=0`, and `--update-snapshots=none`. Each passed the
+same three tests. The committed expectation remained 746×84, 19,197 bytes,
+SHA-256 `26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a`
+immediately before, between, and after the runs. The commit, host, browser, and
+font tuple was identical at canonical digest
+`8488ff998678e867e1ac44fcea64fb3c58f68e5e64e03f60c03b7c74c82e1130`.
+Independent PDF parsing returned 5 base pages and 30 grown pages in both runs;
+all MediaBox/CropBox dimensions were portrait A4 within 0.5 pt, with maximum
+deltas 0.31564 pt wide and 0.03018 pt high. The complete semantic predicate
+also passed: `/report` alone emitted paper; `/overview` emitted none; visible
+print DOM contained zero controls, browser-local state, HUD/Craft chrome,
+signed targets, or synthetic links; visible links exactly matched the admitted
+packet; MACHINE bytes equalled the single response body; growth added pages;
+and the bounded identity matched after font readiness. Every deciding
+predicate is `recomputed`.
+
+Under one Atlas family lock window, the canonical producer transitioned
+`adjacent-print-export` from `rebind_pending/pending` to
+`rebind_pending/strangled` with successor `run-report-paper-projection` and
+regenerated the report plus induced status anchor. Opening SHA-256 identities
+were register `91eb301c…e5ab1`, report `827595c6…f8089`, status
+`23208946…d1f`, baseline `2ce65c9f…1cf1`, and readiness
+`4b64f092…ae13`. Closing identities are register `c1181a07…be11`, report
+`1bc9a2d3…dde`, status `42b6ac0d…d1e2`, with baseline and readiness unchanged.
+This transition closes the admitted run-detail paper predecessor and the
+`adjacent-print-export` debt row by DS6's independent verification. It does
+not promote the broader print/PNG/CSV/JSON/server family, which remains
+DS8/team-design-owned `rebind_pending`.
+
+**C14 is complete and DS6 is closed.** Its predicate-by-predicate battery is:
+
+- canonical register check plus corruption probes: PASS; 261 roots, 59
+  supplemental findings, 10 censuses, 23 seeded negatives, and the 217-row
+  DS8 strangle map;
+- focused C13 transition class: 8/8; focused clean-checkout health suite:
+  22/22; the C21d corpus companion went red at its stale 155 pin and green at
+  the recomputed 143-occurrence / 119-distinct / 101-relocation-family set,
+  whose ordered digest is `6c0d327298bfa700900b1cf767960b3b076ce3ca5abf30c2421ac450aa5e6c8d`;
+- readiness reconciliation: 1/1 file and 33/33 tests, with five separate
+  `observed_by_reconciler/observed` claims and no aggregate readiness Boolean;
+- generated-client receipt census: zero errors over 1,387 candidates (1,185
+  JSON + 202 TOML), 18 anchor records, 34 construct identities, two recomputed
+  absence predicates, 34 navigation hints, and zero legacy line bindings;
+- status inventory: the exact inherited 13 diagnostics / 887 bytes / SHA-256
+  `511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`;
+- architecture guardrails: both generated families are clean (5/5 client
+  outputs and 1/1 dashboard output); the separately owned
+  `deep-import-baseline-stale` predicate remains a completed RED at its same
+  six edges, and no `guardrails sync` ran;
+- complete duplication census: 1,185 tracked dashboard paths, including all
+  13 CSS files; two global `attr(href)` emitters remain the DS8-owned
+  `duplicate_active` pair (`styles.css:1611`, `styles/print.css:85`) while
+  DS8-A's scoped admitted-packet emitter at `styles/print.css:97` is a
+  subordinate rule in the canonical print owner, not a third owner. The same
+  census derives 21 visual tests, 18 literal screenshot calls, 18 distinct
+  names, and 18 committed PNGs with exact one-to-one ownership.
+
+Exact retained capability labels are unchanged. C11 is
+`implemented_but_not_orchestrated`, `consumer_missing`, and `surface_missing`.
+`transitive-runner-closure-unbound` stays `absent/unallocated`. C12's primitive
+adoption, fail-closed fidelity, and audience enforcement are instrumented but
+`not_established/unknown`; machine parity is
+`instrumented/not_established/missing`; honesty comprehension remains
+`protocol_seam_only/not_established/missing`; every threshold is
+`not_established`. Surface closure is exactly
+`instrumented/recomputed/zero|measured`; evidence coverage is exactly
+`instrumented/recomputed/incomparable|zero|measured`. The five broad evidence
+roots remain `rebind_pending/pending` rather than being promoted by slice
+closure.
+
+DS6 therefore does **not** close the broad DS8 export family, the scenario
+composer dark-theme instability, or the absent transitive-runner closure.
+`C17` remains unentered because `C18` superseded it. The inherited 13 status
+diagnostics and six deep-import edges remain honest completed reds under their
+owners.
+
+P39 accounting is one C13 mechanism path—the canonical family checker—against
+cap 6. Its pinning test, execution-environment probe, raw receipts, generated
+family projections, this plan, the journal, the debt register, and the master
+plan are mandatory companions outside the mechanism count. C14 changes no
+product mechanism; its corrected C21d constant pin is likewise a mandatory
+companion to the already-landed DS8 corpus movement. C13 consumed 2/2 P40
+rounds (`status-hash-scheme-binding` and
+`execution-receipt-content-binding`); same-class deeper findings widened the
+second repair. C14 consumed 0/2 mechanism rounds.

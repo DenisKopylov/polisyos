@@ -11,6 +11,8 @@ export type JsonValue =
   | { [key: string]: JsonValue }
   | JsonValue[];
 
+export type AbsentFact = RuntimeApiComponents["schemas"]["AbsentFact"];
+
 export type AccessRef = RuntimeApiComponents["schemas"]["AccessRef"];
 
 export type AcquisitionRoutingPayload =
@@ -131,8 +133,59 @@ export type AuthMeResponse = RuntimeApiComponents["schemas"]["AuthMeResponse"];
 
 export type AuthoredText = RuntimeApiComponents["schemas"]["AuthoredText"];
 
+export type AuthorityBoundary =
+  RuntimeApiComponents["schemas"]["AuthorityBoundary"];
+
+export type AuthorityProfile =
+  RuntimeApiComponents["schemas"]["AuthorityProfile"];
+
+export type AuthoritySurface =
+  RuntimeApiComponents["schemas"]["AuthoritySurface"];
+
+export type AuthorityValueId =
+  RuntimeApiComponents["schemas"]["AuthorityValueId"];
+
+export type AvailableFact_CycleBoardAcquisitionEconomics_ =
+  RuntimeApiComponents["schemas"]["AvailableFact_CycleBoardAcquisitionEconomics_"];
+
+export type AvailableFact_DepthNAcquisitionRouteReference_ =
+  RuntimeApiComponents["schemas"]["AvailableFact_DepthNAcquisitionRouteReference_"];
+
+export type AvailableFact_DesignProblem_ =
+  RuntimeApiComponents["schemas"]["AvailableFact_DesignProblem_"];
+
+export type AvailableFact_RunTerminality_ =
+  RuntimeApiComponents["schemas"]["AvailableFact_RunTerminality_"];
+
+export type AvailableFact_SurfaceReadinessPayload_ =
+  RuntimeApiComponents["schemas"]["AvailableFact_SurfaceReadinessPayload_"];
+
+export type AvailableFact_float_ =
+  RuntimeApiComponents["schemas"]["AvailableFact_float_"];
+
+export type AvailableFact_int_ =
+  RuntimeApiComponents["schemas"]["AvailableFact_int_"];
+
+export type AvailableFact_str_ =
+  RuntimeApiComponents["schemas"]["AvailableFact_str_"];
+
+export type AvailableFact_tuple_str__________ =
+  RuntimeApiComponents["schemas"]["AvailableFact_tuple_str__________"];
+
 export type AvailableGovernedProjectionPacket =
   RuntimeApiComponents["schemas"]["AvailableGovernedProjectionPacket"];
+
+export type AvailableRunPaperCase =
+  RuntimeApiComponents["schemas"]["AvailableRunPaperCase"];
+
+export type AvailableRunPaperStageTrace =
+  RuntimeApiComponents["schemas"]["AvailableRunPaperStageTrace"];
+
+export type AxisFirewallStatus =
+  RuntimeApiComponents["schemas"]["AxisFirewallStatus"];
+
+export type AxisPositionDeclaration =
+  RuntimeApiComponents["schemas"]["AxisPositionDeclaration"];
 
 export type BasinEstimate = RuntimeApiComponents["schemas"]["BasinEstimate"];
 
@@ -183,6 +236,11 @@ export type CacheEntryInfo = RuntimeApiComponents["schemas"]["CacheEntryInfo"];
 export type CacheStatusResponse =
   RuntimeApiComponents["schemas"]["CacheStatusResponse"];
 
+export type CandidateLever = RuntimeApiComponents["schemas"]["CandidateLever"];
+
+export type CandidateLeverSpace =
+  RuntimeApiComponents["schemas"]["CandidateLeverSpace"];
+
 export type CapabilityFeatureInfo =
   RuntimeApiComponents["schemas"]["CapabilityFeatureInfo"];
 
@@ -213,6 +271,9 @@ export type CausalFrontierSAERequest =
 export type CausalFrontierSAEResponse =
   RuntimeApiComponents["schemas"]["CausalFrontierSAEResponse"];
 
+export type CertifiedOperationEnvelope =
+  RuntimeApiComponents["schemas"]["CertifiedOperationEnvelope"];
+
 export type ChannelRegistryEntry =
   RuntimeApiComponents["schemas"]["ChannelRegistryEntry"];
 
@@ -239,6 +300,8 @@ export type CompareRunResponse =
 
 export type ComparisonFrame =
   RuntimeApiComponents["schemas"]["ComparisonFrame"];
+
+export type ComponentId = RuntimeApiComponents["schemas"]["ComponentId"];
 
 export type ConnectorInfo = RuntimeApiComponents["schemas"]["ConnectorInfo"];
 
@@ -300,6 +363,23 @@ export type CounterfactualMetricsResponse =
   RuntimeApiComponents["schemas"]["CounterfactualMetricsResponse"];
 
 export type CursorPage = RuntimeApiComponents["schemas"]["CursorPage"];
+
+export type CycleBoardAcquisitionEconomics =
+  RuntimeApiComponents["schemas"]["CycleBoardAcquisitionEconomics"];
+
+export type CycleBoardCompositionSource =
+  RuntimeApiComponents["schemas"]["CycleBoardCompositionSource"];
+
+export type CycleBoardCoverageGap =
+  RuntimeApiComponents["schemas"]["CycleBoardCoverageGap"];
+
+export type CycleBoardMovementGap =
+  RuntimeApiComponents["schemas"]["CycleBoardMovementGap"];
+
+export type CycleBoardProjectionPacket =
+  RuntimeApiComponents["schemas"]["CycleBoardProjectionPacket"];
+
+export type CycleBoardRow = RuntimeApiComponents["schemas"]["CycleBoardRow"];
 
 export type DataCatalogSearchResponse =
   RuntimeApiComponents["schemas"]["DataCatalogSearchResponse"];
@@ -398,8 +478,17 @@ export type DeltaDistribution =
 
 export type DeltaQuantity = RuntimeApiComponents["schemas"]["DeltaQuantity"];
 
+export type DepthNAcquisitionEconomicsProjection =
+  RuntimeApiComponents["schemas"]["DepthNAcquisitionEconomicsProjection"];
+
+export type DepthNAcquisitionRouteReference =
+  RuntimeApiComponents["schemas"]["DepthNAcquisitionRouteReference"];
+
 export type DepthNCycleBoardPayload =
   RuntimeApiComponents["schemas"]["DepthNCycleBoardPayload"];
+
+export type DepthNCycleBoardPayloadV2 =
+  RuntimeApiComponents["schemas"]["DepthNCycleBoardPayloadV2"];
 
 export type DepthNDomainRunProjection =
   RuntimeApiComponents["schemas"]["DepthNDomainRunProjection"];
@@ -407,11 +496,26 @@ export type DepthNDomainRunProjection =
 export type DerivedArtifact =
   RuntimeApiComponents["schemas"]["DerivedArtifact"];
 
+export type DesignConstraint =
+  RuntimeApiComponents["schemas"]["DesignConstraint"];
+
+export type DesignObjective =
+  RuntimeApiComponents["schemas"]["DesignObjective"];
+
+export type DesignProblem = RuntimeApiComponents["schemas"]["DesignProblem"];
+
+export type DesignRecordV0 = RuntimeApiComponents["schemas"]["DesignRecordV0"];
+
+export type DesignStakeholder =
+  RuntimeApiComponents["schemas"]["DesignStakeholder"];
+
 export type DiscoveryCandidate =
   RuntimeApiComponents["schemas"]["DiscoveryCandidate"];
 
 export type EngineCensusPayload =
   RuntimeApiComponents["schemas"]["EngineCensusPayload"];
+
+export type EnvInfo = RuntimeApiComponents["schemas"]["EnvInfo"];
 
 export type EquilibriumBasinInterval =
   RuntimeApiComponents["schemas"]["EquilibriumBasinInterval"];
@@ -445,6 +549,13 @@ export type EvaluatorReportView =
 
 export type EvaluatorScoresView =
   RuntimeApiComponents["schemas"]["EvaluatorScoresView"];
+
+export type EvidenceAcquisitionNeeds =
+  RuntimeApiComponents["schemas"]["EvidenceAcquisitionNeeds"];
+
+export type EvidenceBasis = RuntimeApiComponents["schemas"]["EvidenceBasis"];
+
+export type EvidenceNeed = RuntimeApiComponents["schemas"]["EvidenceNeed"];
 
 export type ExecPlanRefInput =
   RuntimeApiComponents["schemas"]["ExecPlanRef-Input"];
@@ -516,6 +627,8 @@ export type ForkBRelationCensusPayload =
 export type GenerationCycleDispositionPayload =
   RuntimeApiComponents["schemas"]["GenerationCycleDispositionPayload"];
 
+export type GitInfo = RuntimeApiComponents["schemas"]["GitInfo"];
+
 export type GovernanceDebugResponse =
   RuntimeApiComponents["schemas"]["GovernanceDebugResponse"];
 
@@ -524,6 +637,12 @@ export type GovernanceDebugView =
 
 export type HTTPValidationError =
   RuntimeApiComponents["schemas"]["HTTPValidationError"];
+
+export type HistoricalDS4Disposition =
+  RuntimeApiComponents["schemas"]["HistoricalDS4Disposition"];
+
+export type HistoricalProducerAvailability =
+  RuntimeApiComponents["schemas"]["HistoricalProducerAvailability"];
 
 export type IndexStats = RuntimeApiComponents["schemas"]["IndexStats"];
 
@@ -541,6 +660,9 @@ export type InvalidGovernedProjectionPacket =
 
 export type IterationLifecycleView =
   RuntimeApiComponents["schemas"]["IterationLifecycleView"];
+
+export type JurisdictionTimeSemantics =
+  RuntimeApiComponents["schemas"]["JurisdictionTimeSemantics"];
 
 export type Layer3HealthMetricsPayload =
   RuntimeApiComponents["schemas"]["Layer3HealthMetricsPayload"];
@@ -652,6 +774,8 @@ export type N13AAcquisitionCensusPayload =
 export type N13ALiveProbeJournalPayload =
   RuntimeApiComponents["schemas"]["N13ALiveProbeJournalPayload"];
 
+export type NLProvenance = RuntimeApiComponents["schemas"]["NLProvenance"];
+
 export type NaturalLanguageRunRequest =
   RuntimeApiComponents["schemas"]["NaturalLanguageRunRequest"];
 
@@ -665,6 +789,9 @@ export type OperatorDiagnostic =
 
 export type OperatorProjectionStateLabel =
   RuntimeApiComponents["schemas"]["OperatorProjectionStateLabel"];
+
+export type OutcomeOfInterest =
+  RuntimeApiComponents["schemas"]["OutcomeOfInterest"];
 
 export type PolicyDesignCaseAudience =
   RuntimeApiComponents["schemas"]["PolicyDesignCaseAudience"];
@@ -709,6 +836,8 @@ export type PreflightDiagnosticView =
 
 export type PreflightReportView =
   RuntimeApiComponents["schemas"]["PreflightReportView"];
+
+export type ProducerInfo = RuntimeApiComponents["schemas"]["ProducerInfo"];
 
 export type ProductionApprovalEligibility =
   RuntimeApiComponents["schemas"]["ProductionApprovalEligibility"];
@@ -789,6 +918,9 @@ export type QuantityValueInput =
 export type QuantityValueOutput =
   RuntimeApiComponents["schemas"]["QuantityValue-Output"];
 
+export type RefusedAuthorityValue =
+  RuntimeApiComponents["schemas"]["RefusedAuthorityValue"];
+
 export type ReplayRef = RuntimeApiComponents["schemas"]["ReplayRef"];
 
 export type ReproducibilityView =
@@ -799,6 +931,9 @@ export type RetrievalPhaseTelemetry =
 
 export type RetrievalTelemetryView =
   RuntimeApiComponents["schemas"]["RetrievalTelemetryView"];
+
+export type RunAuthorityProjection =
+  RuntimeApiComponents["schemas"]["RunAuthorityProjection"];
 
 export type RunCompareResponse =
   RuntimeApiComponents["schemas"]["RunCompareResponse"];
@@ -858,6 +993,49 @@ export type RunOperatorDiagnostic =
 
 export type RunOperatorProjectionStateLabel =
   RuntimeApiComponents["schemas"]["RunOperatorProjectionStateLabel"];
+
+export type RunPaperAbstention =
+  RuntimeApiComponents["schemas"]["RunPaperAbstention"];
+
+export type RunPaperAdmissionState =
+  RuntimeApiComponents["schemas"]["RunPaperAdmissionState"];
+
+export type RunPaperArtifactLink =
+  RuntimeApiComponents["schemas"]["RunPaperArtifactLink"];
+
+export type RunPaperBlocker =
+  RuntimeApiComponents["schemas"]["RunPaperBlocker"];
+
+export type RunPaperCaseSourceVerification =
+  RuntimeApiComponents["schemas"]["RunPaperCaseSourceVerification"];
+
+export type RunPaperDesignRecordBinding =
+  RuntimeApiComponents["schemas"]["RunPaperDesignRecordBinding"];
+
+export type RunPaperGroundingState =
+  RuntimeApiComponents["schemas"]["RunPaperGroundingState"];
+
+export type RunPaperLimitation =
+  RuntimeApiComponents["schemas"]["RunPaperLimitation"];
+
+export type RunPaperObjection =
+  RuntimeApiComponents["schemas"]["RunPaperObjection"];
+
+export type RunPaperPacket = RuntimeApiComponents["schemas"]["RunPaperPacket"];
+
+export type RunPaperPromotionState =
+  RuntimeApiComponents["schemas"]["RunPaperPromotionState"];
+
+export type RunPaperReplayPins =
+  RuntimeApiComponents["schemas"]["RunPaperReplayPins"];
+
+export type RunPaperRun = RuntimeApiComponents["schemas"]["RunPaperRun"];
+
+export type RunPaperSourceBinding =
+  RuntimeApiComponents["schemas"]["RunPaperSourceBinding"];
+
+export type RunPaperVerifiedCaseSource =
+  RuntimeApiComponents["schemas"]["RunPaperVerifiedCaseSource"];
 
 export type RunQuantitiesResponse =
   RuntimeApiComponents["schemas"]["RunQuantitiesResponse"];
@@ -961,6 +1139,9 @@ export type SourceProfileInfo =
 export type SourceProfilesListResponse =
   RuntimeApiComponents["schemas"]["SourceProfilesListResponse"];
 
+export type SuppliedAuthorityValue =
+  RuntimeApiComponents["schemas"]["SuppliedAuthorityValue"];
+
 export type SurfaceReadinessPayload =
   RuntimeApiComponents["schemas"]["SurfaceReadinessPayload"];
 
@@ -989,7 +1170,17 @@ export type TemporalScope = RuntimeApiComponents["schemas"]["TemporalScope"];
 export type TemporalSurfaceCapability =
   RuntimeApiComponents["schemas"]["TemporalSurfaceCapability"];
 
+export type TimeFrequency = RuntimeApiComponents["schemas"]["TimeFrequency"];
+
+export type TimeSemantics = RuntimeApiComponents["schemas"]["TimeSemantics"];
+
 export type TypedGap = RuntimeApiComponents["schemas"]["TypedGap"];
+
+export type UnavailableRunPaperCase =
+  RuntimeApiComponents["schemas"]["UnavailableRunPaperCase"];
+
+export type UnavailableRunPaperStageTrace =
+  RuntimeApiComponents["schemas"]["UnavailableRunPaperStageTrace"];
 
 export type UnitRefInput = RuntimeApiComponents["schemas"]["UnitRef-Input"];
 
@@ -1001,6 +1192,9 @@ export type ValidationError =
 
 export type ValueGatePayload =
   RuntimeApiComponents["schemas"]["ValueGatePayload"];
+
+export type ValueRefusalCode =
+  RuntimeApiComponents["schemas"]["ValueRefusalCode"];
 
 export type VerificationMetadata =
   RuntimeApiComponents["schemas"]["VerificationMetadata"];
@@ -1406,6 +1600,38 @@ export class RuntimeApiClient {
     return this.request<ProjectionCatalogResponse>("GET", path, query);
   }
 
+  async getDepthNCycleBoardProjection(params: {
+    replay_target?: "raw_v1" | "composed_v2" | null;
+    artifact_content_hash?: string | null;
+    projection_hash?: string | null;
+    source_dependency_hash?: string | null;
+    source_as_of?: string | null;
+    projection_rule_version?: string | null;
+    composition_manifest_hash?: string | null;
+  }): Promise<
+    | AvailableGovernedProjectionPacket
+    | ArtifactMissingGovernedProjectionPacket
+    | InvalidGovernedProjectionPacket
+    | CycleBoardProjectionPacket
+  > {
+    const path = `/api/v1/exports/governed-projections/depth-n-cycle-board`;
+    const query = this.buildQuery({
+      replay_target: params.replay_target,
+      artifact_content_hash: params.artifact_content_hash,
+      projection_hash: params.projection_hash,
+      source_dependency_hash: params.source_dependency_hash,
+      source_as_of: params.source_as_of,
+      projection_rule_version: params.projection_rule_version,
+      composition_manifest_hash: params.composition_manifest_hash,
+    });
+    return this.request<
+      | AvailableGovernedProjectionPacket
+      | ArtifactMissingGovernedProjectionPacket
+      | InvalidGovernedProjectionPacket
+      | CycleBoardProjectionPacket
+    >("GET", path, query);
+  }
+
   async getGovernedProjection(params: {
     projection_id: ProjectionId;
     artifact_content_hash?: string | null;
@@ -1778,6 +2004,14 @@ export class RuntimeApiClient {
     return this.request<AgentPipelineResponse>("GET", path, query);
   }
 
+  async getRunAuthorityValues(params: {
+    run_id: string;
+  }): Promise<RunAuthorityProjection> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/authority-values`;
+    const query = undefined;
+    return this.request<RunAuthorityProjection>("GET", path, query);
+  }
+
   async getRunCompareCandidates(params: {
     run_id: string;
     limit?: number;
@@ -1912,6 +2146,23 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
     });
     return this.request<RunNodesResponse>("GET", path, query);
+  }
+
+  async getRunPaper(params: {
+    run_id: string;
+    manifest_artifact_id?: string | null;
+    manifest_schema_version?: string | null;
+    paper_projection_rule_version?: string | null;
+    paper_projection_hash?: string | null;
+  }): Promise<RunPaperPacket> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/paper`;
+    const query = this.buildQuery({
+      manifest_artifact_id: params.manifest_artifact_id,
+      manifest_schema_version: params.manifest_schema_version,
+      paper_projection_rule_version: params.paper_projection_rule_version,
+      paper_projection_hash: params.paper_projection_hash,
+    });
+    return this.request<RunPaperPacket>("GET", path, query);
   }
 
   async getRunQuantities(params: {

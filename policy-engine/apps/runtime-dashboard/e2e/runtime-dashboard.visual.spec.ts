@@ -1,3 +1,5 @@
+import { readFile } from "node:fs/promises";
+
 import {
   expect,
   test,
@@ -6,9 +8,13 @@ import {
   type Page,
 } from "@playwright/test";
 
+import type { components } from "../src/api/types";
+import { readPdfPageGeometry } from "./helpers/pdfGeometry";
 import {
   installDashboardTestState,
   readFixtureMetadata,
+  requireRunPaperFixtureMetadata,
+  type RunPaperFixtureMetadata,
   waitForDashboardSurface,
 } from "./helpers/runtime-dashboard";
 
@@ -18,7 +24,11 @@ const VISUAL_CLOCK_TIME = "2026-01-01T00:00:00.000Z";
 const BUREAUCRATIC_GENERATED_LINE =
   "Дата формування: 2026-01-01T00:00:00+00:00";
 const VISUAL_CONNECTOR_ID = "worldbank.wdi@1.0.0";
-let fixtureMetadata: ReturnType<typeof readFixtureMetadata>;
+const A4_WIDTH_POINTS = 595.2756;
+const A4_HEIGHT_POINTS = 841.8898;
+const A4_TOLERANCE_POINTS = 0.5;
+type RunPaperPacket = components["schemas"]["RunPaperPacket"];
+let fixtureMetadata: RunPaperFixtureMetadata;
 
 async function waitForVisualFonts(page: Page) {
   await page.evaluate(async () => {
@@ -59,6 +69,174 @@ async function waitForStableRender(locator: Locator, timeout = 15_000) {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isRunPaperResponse(url: string, runId: string) {
+  return (
+    new URL(url).pathname === `/api/v1/runs/${encodeURIComponent(runId)}/paper`
+  );
+}
+
+async function openRunPaper(page: Page, runId: string) {
+  const responsePromise = page.waitForResponse(
+    (response) =>
+      isRunPaperResponse(response.url(), runId) && response.status() === 200,
+  );
+  await page.goto(`/runs/${encodeURIComponent(runId)}/report`);
+  await expect(page.getByTestId("run-report-page")).toBeVisible();
+  const response = await responsePromise;
+  const rawBytes = await response.body();
+  const packet = (await response.json()) as RunPaperPacket;
+  expect(packet.packet_schema_version).toBe(
+    "policyos.runtime.run_paper_packet.v1",
+  );
+  expect(packet.run.run_id).toBe(runId);
+  return { packet, rawBytes };
+}
+
+async function waitForRunPaperPdfReady(page: Page) {
+  await waitForVisualFonts(page);
+  await waitForStableRender(page.getByTestId("run-paper-document"));
+}
+
+async function censusVisiblePrintEgress(page: Page) {
+  return page.evaluate(() => {
+    const visible = (element: Element) => {
+      const bounds = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return (
+        style.display !== "none" &&
+        style.visibility !== "hidden" &&
+        bounds.width > 0 &&
+        bounds.height > 0
+      );
+    };
+    const controls = Array.from(
+      document.querySelectorAll(
+        'button, input, select, textarea, [role="slider"], [contenteditable]:not([contenteditable="false"])',
+      ),
+    )
+      .filter(visible)
+      .map((element) => element.outerHTML);
+    const hudAndCraft = Array.from(
+      document.querySelectorAll(
+        '[data-testid="operator-craft-panel"], [data-testid="ambient-telemetry-hud"]',
+      ),
+    )
+      .filter(visible)
+      .map((element) => element.outerHTML);
+    const links = Array.from(document.querySelectorAll("a[href]"))
+      .filter(visible)
+      .map((element) => ({
+        artifactId: element.getAttribute("data-run-paper-artifact-link"),
+        href: element.getAttribute("href"),
+        paperEligible: element.getAttribute("data-paper-link-eligible"),
+        printedTarget: getComputedStyle(element, "::after").content,
+      }));
+    return {
+      controls,
+      hudAndCraft,
+      links,
+      text: document.body.innerText,
+    };
+  });
+}
+
+function expectedRunPaperFields(packet: RunPaperPacket) {
+  const fields: Array<[string, string]> = [
+    ["packet.schema_version", packet.packet_schema_version],
+    ["packet.projection_rule_version", packet.projection_rule_version],
+    ["packet.projection_hash", packet.projection_hash],
+    ["packet.intended_audiences", packet.intended_audiences.join(", ")],
+    ["replay.manifest_artifact_id", packet.replay_pins.manifest_artifact_id],
+    [
+      "replay.manifest_schema_version",
+      packet.replay_pins.manifest_schema_version,
+    ],
+    [
+      "replay.paper_projection_rule_version",
+      packet.replay_pins.paper_projection_rule_version,
+    ],
+    ["replay.paper_projection_hash", packet.replay_pins.paper_projection_hash],
+    ["run.status", packet.run.status],
+    ["run.run_terminality", packet.run.run_terminality],
+    ["run.source_kind", packet.run.source_kind],
+    ["run.tenant_id", packet.run.tenant_id],
+    ["case.availability", packet.case_record.availability],
+    ["stage_trace.availability", packet.stage_trace.availability],
+    ["stage_trace.owner_route", packet.stage_trace.owner_route],
+    [
+      "source.manifest_schema",
+      `${packet.source.manifest_schema_name}@${packet.source.manifest_schema_version}`,
+    ],
+    ["source.registry_bundle", packet.source.registry_bundle.artifact_id],
+    ["packet.replay_address", packet.replay_address],
+  ];
+  if (packet.run.started_at) {
+    fields.push(["run.started_at", packet.run.started_at]);
+  }
+  if (packet.run.cell_id) {
+    fields.push(["run.cell_id", packet.run.cell_id]);
+  }
+  if (packet.run.finished_at) {
+    fields.push(["run.finished_at", packet.run.finished_at]);
+  }
+  if (packet.run.duration_ms !== null && packet.run.duration_ms !== undefined) {
+    fields.push(["run.duration_ms", String(packet.run.duration_ms)]);
+  }
+  if (packet.source.producer) {
+    fields.push([
+      "source.producer",
+      `${packet.source.producer.component}@${packet.source.producer.version}`,
+    ]);
+  }
+  if (packet.source.environment) {
+    fields.push(
+      ["source.environment.python", packet.source.environment.python],
+      ["source.environment.platform", packet.source.environment.platform],
+      [
+        "source.environment.deps_lock_hash",
+        packet.source.environment.deps_lock_hash,
+      ],
+    );
+  }
+  if (packet.case_record.availability === "artifact_missing") {
+    fields.push(
+      ["case.capability_state", packet.case_record.capability_state],
+      ["case.reason_code", packet.case_record.reason_code],
+      ["case.owner_route", packet.case_record.owner_route],
+      ["case.closure_signal", packet.case_record.closure_signal],
+    );
+  }
+  if (packet.stage_trace.availability === "available") {
+    fields.push([
+      "stage_trace.artifact_id",
+      packet.stage_trace.trace_ref.artifact_id,
+    ]);
+  } else {
+    fields.push(["stage_trace.reason", packet.stage_trace.reason]);
+  }
+  return fields;
+}
+
+function expectEveryPdfPageToBeA4(
+  geometries: Awaited<ReturnType<typeof readPdfPageGeometry>>,
+) {
+  for (const geometry of geometries) {
+    for (const [boxName, box] of [
+      ["MediaBox", geometry.mediaBox],
+      ["CropBox", geometry.cropBox],
+    ] as const) {
+      expect(
+        Math.abs(box.width - A4_WIDTH_POINTS),
+        `page ${geometry.pageNumber} ${boxName} width`,
+      ).toBeLessThanOrEqual(A4_TOLERANCE_POINTS);
+      expect(
+        Math.abs(box.height - A4_HEIGHT_POINTS),
+        `page ${geometry.pageNumber} ${boxName} height`,
+      ).toBeLessThanOrEqual(A4_TOLERANCE_POINTS);
+    }
+  }
 }
 
 async function loadedConnectorIds(request: APIRequestContext) {
@@ -333,7 +511,9 @@ test.describe("runtime-dashboard visual baselines", () => {
   });
 
   test.beforeAll(async ({ request }) => {
-    fixtureMetadata = readFixtureMetadata();
+    const metadata = readFixtureMetadata();
+    requireRunPaperFixtureMetadata(metadata);
+    fixtureMetadata = metadata;
     await ensureDeterministicConnectorFixture(request);
   });
 
@@ -694,16 +874,201 @@ test.describe("runtime-dashboard visual baselines", () => {
     );
   });
 
-  test("run detail A4 print", async ({ page }) => {
-    const surface = await openPrintSurface(page, {
-      path: `/runs/${fixtureMetadata.core_run_id}/overview?trust=expanded`,
-      readyTestId: "run-detail-page",
-      selector: '[data-testid="run-detail-page"]',
+  test.describe("DS8 governed run paper", () => {
+    test("semantic DOM closes overview and report paper egress", async ({
+      page,
+    }) => {
+      const browserLocalSentinel = "DS8-BROWSER-LOCAL-MUST-NOT-PRINT";
+      let paperResponseCount = 0;
+      page.on("response", (response) => {
+        if (isRunPaperResponse(response.url(), fixtureMetadata.core_run_id)) {
+          paperResponseCount += 1;
+        }
+      });
+
+      await page.goto(
+        `/runs/${fixtureMetadata.core_run_id}/overview?trust=expanded`,
+      );
+      await expect(page.getByTestId("run-detail-page")).toBeVisible();
+      const annotationPanel = page.getByTestId("annotation-surface-panel");
+      await expect(annotationPanel).toBeVisible();
+      await annotationPanel.locator("textarea").fill(browserLocalSentinel);
+      await annotationPanel.locator('form button[type="submit"]').click();
+      await expect(
+        annotationPanel.getByText(browserLocalSentinel),
+      ).toBeVisible();
+
+      await page.emulateMedia({ media: "print" });
+      await expect(page.getByTestId("run-detail-page")).toBeHidden();
+      await expect(
+        page.locator('[data-paper-payload="run-paper"]'),
+      ).toHaveCount(0);
+      await expect(page.getByText(browserLocalSentinel)).toBeHidden();
+      const overviewEgress = await censusVisiblePrintEgress(page);
+      expect(overviewEgress.controls).toEqual([]);
+      expect(overviewEgress.hudAndCraft).toEqual([]);
+      expect(overviewEgress.links).toEqual([]);
+      expect(overviewEgress.text).not.toContain(browserLocalSentinel);
+
+      const { packet, rawBytes } = await openRunPaper(
+        page,
+        fixtureMetadata.core_run_id,
+      );
+      const documentRoot = page.getByTestId("run-paper-document");
+      await expect(documentRoot).toBeVisible();
+      await expect(documentRoot.getByText(browserLocalSentinel)).toHaveCount(0);
+      await expect(
+        documentRoot.locator(
+          'button, input, select, textarea, [role="slider"], [contenteditable]:not([contenteditable="false"])',
+        ),
+      ).toHaveCount(0);
+      await expect(
+        documentRoot.getByTestId("operator-craft-panel"),
+      ).toHaveCount(0);
+      await expect(
+        documentRoot.getByTestId("ambient-telemetry-hud"),
+      ).toHaveCount(0);
+      await expect(
+        documentRoot.locator('a[href^="/public/decisions/"]'),
+      ).toHaveCount(0);
+      expect(new TextDecoder().decode(rawBytes)).not.toContain(
+        browserLocalSentinel,
+      );
+
+      for (const [field, expectedValue] of expectedRunPaperFields(packet)) {
+        const fact = documentRoot.locator(`[data-run-paper-field="${field}"]`);
+        await expect(fact, `paper field ${field}`).toHaveCount(1);
+        await expect(fact.locator("dd"), `paper field ${field}`).toHaveText(
+          expectedValue,
+        );
+      }
+      expect(packet.case_record.availability).toBe("artifact_missing");
+      if (packet.case_record.availability !== "artifact_missing") {
+        throw new Error(
+          "visual fixture unexpectedly produced an available case",
+        );
+      }
+      expect(packet.case_record.reason_code).toBe("case-record-not-run-bound");
+      expect(packet.case_record.owner_route).toBe("team-runtime");
+      expect(
+        await documentRoot
+          .locator("[data-run-paper-case-denied-use]")
+          .allTextContents(),
+      ).toEqual(packet.case_record.may_not_use_for);
+
+      const reportEgress = await censusVisiblePrintEgress(page);
+      expect(reportEgress.controls).toEqual([]);
+      expect(reportEgress.hudAndCraft).toEqual([]);
+      expect(reportEgress.text).not.toContain(browserLocalSentinel);
+      expect(
+        reportEgress.links.filter((link) =>
+          link.href?.startsWith("/public/decisions/"),
+        ),
+      ).toEqual([]);
+      expect(reportEgress.links).toEqual(
+        packet.artifact_links.map((link) => ({
+          artifactId: link.artifact_ref.artifact_id,
+          href: link.href,
+          paperEligible: "true",
+          printedTarget: expect.stringContaining(link.href),
+        })),
+      );
+
+      await page.emulateMedia({ media: "screen" });
+      const downloadPromise = page.waitForEvent("download");
+      await page.getByRole("button", { name: "Export MACHINE packet" }).click();
+      const download = await downloadPromise;
+      const downloadPath = await download.path();
+      if (!downloadPath) {
+        throw new Error("MACHINE packet download did not produce a local file");
+      }
+      expect(await readFile(downloadPath)).toEqual(rawBytes);
+      expect(paperResponseCount).toBe(1);
     });
-    await expect(surface).toHaveScreenshot("run-detail-a4-print.png", {
-      animations: "disabled",
-      caret: "hide",
-      maxDiffPixels: 100,
+
+    test("PDF keeps every page A4 and admitted growth adds pages", async ({
+      page,
+    }, testInfo) => {
+      await page.emulateMedia({ media: "print" });
+      const empty = await openRunPaper(
+        page,
+        fixtureMetadata.run_paper_empty_run_id,
+      );
+      await waitForRunPaperPdfReady(page);
+      expect(empty.packet.artifact_links).toEqual([]);
+      await expect(page.locator("[data-run-paper-artifact-link]")).toHaveCount(
+        0,
+      );
+      await expect(page.getByTestId("run-paper-document")).not.toContainText(
+        "/api/v1/artifacts/",
+      );
+      expect((await censusVisiblePrintEgress(page)).links).toEqual([]);
+      const emptyPdf = await page.pdf({
+        preferCSSPageSize: true,
+        printBackground: true,
+      });
+      const emptyGeometry = await readPdfPageGeometry(emptyPdf);
+      expectEveryPdfPageToBeA4(emptyGeometry);
+      await testInfo.attach("run-paper-empty.pdf", {
+        body: emptyPdf,
+        contentType: "application/pdf",
+      });
+      await testInfo.attach("run-paper-empty-geometry.json", {
+        body: Buffer.from(JSON.stringify(emptyGeometry, null, 2)),
+        contentType: "application/json",
+      });
+
+      const growth = await openRunPaper(
+        page,
+        fixtureMetadata.run_paper_growth_run_id,
+      );
+      await waitForRunPaperPdfReady(page);
+      expect(growth.packet.artifact_links).toHaveLength(64);
+      expect((await censusVisiblePrintEgress(page)).links).toEqual(
+        growth.packet.artifact_links.map((link) => ({
+          artifactId: link.artifact_ref.artifact_id,
+          href: link.href,
+          paperEligible: "true",
+          printedTarget: expect.stringContaining(link.href),
+        })),
+      );
+      const growthPdf = await page.pdf({
+        preferCSSPageSize: true,
+        printBackground: true,
+      });
+      const growthGeometry = await readPdfPageGeometry(growthPdf);
+      expectEveryPdfPageToBeA4(growthGeometry);
+      expect(growthGeometry.length).toBeGreaterThan(emptyGeometry.length);
+      await testInfo.attach("run-paper-growth.pdf", {
+        body: growthPdf,
+        contentType: "application/pdf",
+      });
+      await testInfo.attach("run-paper-growth-geometry.json", {
+        body: Buffer.from(JSON.stringify(growthGeometry, null, 2)),
+        contentType: "application/json",
+      });
+    });
+
+    test("bounded identity A4 print", async ({ page }) => {
+      const identity = await openPrintSurface(page, {
+        path: `/runs/${fixtureMetadata.run_paper_empty_run_id}/report`,
+        readyTestId: "run-report-page",
+        selector: '[data-testid="run-paper-identity"]',
+      });
+      const bounds = await identity.boundingBox();
+      expect(bounds).not.toBeNull();
+      expect(bounds?.width).toBeGreaterThan(0);
+      expect(bounds?.height).toBeGreaterThan(0);
+      expect(bounds?.width).toBeLessThanOrEqual(794);
+      expect(bounds?.height).toBeLessThanOrEqual(1123);
+      await expect(identity).toHaveScreenshot(
+        "run-report-identity-a4-print.png",
+        {
+          animations: "disabled",
+          caret: "hide",
+          maxDiffPixels: 100,
+        },
+      );
     });
   });
 

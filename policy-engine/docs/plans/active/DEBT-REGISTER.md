@@ -136,7 +136,7 @@ drift it reports is therefore registered as a row to re-measure, never as a verd
 | `ds4-waist-decision-grade` | of the three DS4 canonical-waist vocabularies, only `DecisionGrade` is executable (real `Literal` at `pdc/_impl/layer2_readiness.py:39`); `CgfDisposition` is `producer_missing`; `CacheAge` retired as superseded | Group A executor | `open` | `DecisionGrade` swapped to the generated client vocabulary on the next regeneration |
 | `atlas-health-metric-replay-pins-uncommitted-paths` | `atlasHealthMetrics.test.ts:649` pins a transient working-tree state as a governed expectation; permanently red on a clean checkout (`P38`) | DS6 | `open` | assert the implementation set directly rather than through revision status |
 | `producer-availability-denominator` | DS3 measured 5 available / 7 `invalid_source` / 1 `artifact_missing` from a worktree **without** `production_data` | **needs re-owning — DS7 is closed** | `open` | re-measure on `main` with an appointed data root; see the `GY-N12` appointment precedent |
-| `canonical-venv-editable-target-deleted` | the shared environment `policy-engine/.venv` resolves `policy-engine 0.1.0` through an editable `.pth` pointing at `/Users/deniskopylov/polisyos/.worktrees/gy-gap1-obligation-instance-identity/policy-engine` — a worktree that **no longer exists**. `import polisyos` raises `ModuleNotFoundError` in the canonical interpreter; only `pytest` recovers, via rootdir insertion. Measured 2026-08-21 at `c270b46c5` | runtime/GY (env owner) | `open` | `<venv>/bin/python -c "import polisyos, tools"` exits zero from a checkout that is not the install target, **and** the editable target names a live path. Re-pointing a shared venv is a governance act: it changes which source every other lane's validators import |
+| ~~`canonical-venv-editable-target-deleted`~~ | the shared environment `policy-engine/.venv` resolves `policy-engine 0.1.0` through an editable `.pth` pointing at `/Users/deniskopylov/polisyos/.worktrees/gy-gap1-obligation-instance-identity/policy-engine` — a worktree that **no longer exists**. `import polisyos` raises `ModuleNotFoundError` in the canonical interpreter; only `pytest` recovers, via rootdir insertion. Measured 2026-08-21 at `c270b46c5` | runtime/GY (env owner) | `open` | `<venv>/bin/python -c "import polisyos, tools"` exits zero from a checkout that is not the install target, **and** the editable target names a live path. Re-pointing a shared venv is a governance act: it changes which source every other lane's validators import  **CLOSED 2026-08-21 by the architect, same day it was registered.** Cause confirmed: the root checkout's `.venv` carried editable `.pth` files pointing at `.worktrees/gy-gap1-obligation-instance-identity/policy-engine`, a worktree **I moved to Trash while freeing disk space** on 2026-08-20. `import polisyos` raised `ModuleNotFoundError`; only pytest recovered, via rootdir insertion, which is why four lanes measured green against a broken interpreter. Repaired by re-syncing the root venv; the editable target now reads `/Users/deniskopylov/polisyos/policy-engine` and `import polisyos` resolves to `…/policy-engine/src/polisyos/__init__.py`. Tracked tree untouched. **The lesson is not the repair.** Trashing a merged worktree is safe for git and unsafe for every editable install that bound its address — the same subject as `GY-DEF13` one level up. Any future worktree retirement must re-sync the root environment in the same action. |
 | `def9-witness-cannot-reach-its-discriminator` | `tests/repo_quality/tools/test_governed_owner_history_independence.py::test_real_governed_owner_bytes_ignore_incompatible_durable_history` — all **5/5** parameterized cases terminate `ConfidenceLedgerError: canonical_loaded_runtime_mismatch` inside `_run_owner`, **before** the fresh-versus-incompatible history byte comparison the witness exists to make. A falsifier that cannot fire | runtime/quality | `open` | the five cases reach their own assertions (`from_repo_calls == []`, fresh/incompatible governed bytes equal) and report pass or fail on **that** predicate, not on a deployment-identity prerequisite. Blocks the re-measurement of `GY-DEF9` |
 | `plugin-posture-witness-binds-cap-and-checkout` | `tests/unit/runtime/quality/test_second_domain_pack.py::test_real_plugin_postures_verify_n8_n10a_and_depth_n` hardcodes `REPO_ROOT/.venv/bin/python` and a bare `timeout=240` on its posture subprocess. It cannot run at all in a worktree without its own `.venv`, and it raised `subprocess.TimeoutExpired` on **both** a contended run (load ~7) and a serialized one (load ~1.9) at `c270b46c5` — so the cap is undersized for this host, not merely contended. This is `GY-DI4`'s own rule (a killed run measures the cap, not the lane) violated inside a witness | runtime/quality | `open` | the cap is **declared and measured** per `GY-DI2`/`GY-DI4` rather than literal, the interpreter is resolved rather than path-bound, and the witness returns a completed terminal on this host |
 | `confidence-ledger-check-red-at-base` | `check_layer3_gy_confidence_ledger --check` at `c270b46c5` completed the full milestone sequence through `frozen_contract_derived` / `stage_complete` and then terminated **`confidence_ledger_contract_drift`**, exit `1`, `real 3160.47` s. Frozen `deployment_identity` is `policy-engine-deployment:sha256:53618d6b…db03` (reissued at `f4e4522e4`, after `GY-DEFC-9`'s `f05a816f…5983955f`). Cites `GY-DEFC-9`, whose cold closure was `status=pass, issue_count=0` at `69f3fa39a` — this is a **new row for a later base**, not a reopening | runtime/quality | `open` | **The measurement is `not_established` canonically** and must be repeated first: it ran under a `PYTHONPATH` proxy because `canonical-venv-editable-target-deleted` blocks the real import path, and the authority import closure is exactly what the identity is computed over. Re-run through a live editable install; only then does the drift verdict bind |
@@ -201,6 +201,62 @@ git, and each block's own executable witness was located and run at `c270b46c5`.
   closing commits are subjects like `fix(gy-di4): admit a timing sample on completion, not on
   exit_code == 0` — lowercase kebab, not `GY-DI4`. All four are ancestors of `c270b46c5`. The scan
   reported "no matching commit" for an item with four of them.
+
+## H. Closure programme — grouped 2026-08-21
+
+Grouping is by **shared subject**, not by owner convenience. A group exists only where closing the
+items together is cheaper or more truthful than closing them apart; everything else stays a
+singleton.
+
+### β1 — the measurement layer (new task, first)
+
+`def9-witness-cannot-reach-its-discriminator` · `plugin-posture-witness-binds-cap-and-checkout` ·
+`confidence-ledger-check-red-at-base` · (~~`canonical-venv-editable-target-deleted`~~, closed)
+
+One subject: **a gate that cannot fire, or fires on a proxy.** `GY-DEF9`'s witness terminates
+before reaching its own discriminator; the plugin-posture witness times out serialized at load 1.9,
+undersized rather than contended, breaking `GY-DI4`'s own rule inside a witness four days after
+`GY-DI4` closed; the confidence-ledger red measured itself under a `PYTHONPATH` proxy while
+identity is computed over the import closure. All four surfaced from one task in one day.
+
+**This group goes first** because every other group's verification depends on witnesses that fire.
+
+### β2 — the authority-intake cluster (new task, after β1)
+
+`control-plane-fixture-drift` · `case-record-not-run-bound` · `GY-DEF23` · `GY-GAP8`
+
+One subject: **an authority boundary that trusts what it is handed, or was never wired at all.**
+`DecisionMonitoringContract` rejects fixture fields at the control-plane run paths; `DesignRecord`
+has a persistence helper with zero production callers and no run/case/tenant binding; Decision
+Validity accepts caller-supplied `status` and `dependency_keys` at its intake; the Claim Ledger
+lifecycle bridge has one definition and zero source calls.
+
+`GY-DEF23` and `GY-GAP8` are already sequenced by `GY-N12`'s plan as `C5-PREREQ-CLAIM-DV-LIFECYCLE`
+and arrive on `main` with that branch — they are the natural spine of this group, not additions to
+it. `case-record-not-run-bound` is the `GY-GAP4` shape one slice later: a producer route that
+exists but was never told it owns the binding.
+
+### γ — natural additions to open tasks; **do not schedule separately**
+
+| debt | absorbed by |
+| --- | --- |
+| `adjacent-print-export` | DS8-A `C08` — its composed A4 gate **is** the repair |
+| `run-lifecycle-terminal-fact` | DS8-A `C05` — **reported discharged**, strike on merge |
+| `ds4-waist-decision-grade` | the next client regeneration: DS15 or DS17 |
+| `atlas-health-metric-replay-pins-uncommitted-paths` | DS6, which is otherwise complete |
+
+### δ — needs an owner before it needs a schedule
+
+`producer-availability-denominator` — DS3 measured it, DS7 was to re-measure, **both are closed**.
+It now has a precedent it lacked: the `GY-N12` production-data appointment shows how to measure
+producer availability against an appointed read-only root instead of an absent one.
+
+### Singletons — closed alone, on their own evidence
+
+`deep-import-baseline-stale` is **not** an authority-intake defect; it is a governance decision
+about six named import edges, and grouping it would blur that. `GY-PA1`, `GY-GAP2`, `GY-GAP3`,
+`GY-GAP5`, `GY-GAP6`, `GY-DEF22`, `GY-DEF14` remain blocked or research-bound and are not
+scheduled.
 
 ## G. Closed
 

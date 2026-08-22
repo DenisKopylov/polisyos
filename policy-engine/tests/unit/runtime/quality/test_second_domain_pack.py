@@ -9,6 +9,7 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from pathlib import Path
 
 import pytest
@@ -136,6 +137,16 @@ def _git_head_sha(repo_root: Path) -> str:
     return result.stdout.strip()
 
 
+# Declared from measurement, not chosen. The full posture witness completed in
+# 611.9 s on 2026-08-22 at load ~6.0 (uptime pair recorded in the GY debt register).
+# The previous literal 240 s was 2.5x undersized and produced TimeoutExpired
+# non-receipts rather than results, which is the defect this constant closes.
+# The margin is the timing-budget registry's own 2x-over-maximum rule; binding this
+# lane into tools/quality/timing_budgets.json is the fuller form and is recorded as a
+# residual rather than done here, because that catalog carries its own validator.
+_POSTURE_WITNESS_TIMEOUT_SECONDS = 1224.0
+
+
 def _run_plugin_posture_witness(
     tmp_path: Path,
     *,
@@ -194,7 +205,7 @@ def _run_plugin_posture_witness(
     env["GY_DEFC9_GOVERNED_PROBE"] = "1" if governed_probe else "0"
     process = subprocess.run(
         [
-            str(REPO_ROOT / ".venv/bin/python"),
+            sys.executable,
             "-S",
             "-c",
             _PLUGIN_POSTURE_WITNESS_SCRIPT,
@@ -204,7 +215,7 @@ def _run_plugin_posture_witness(
         check=False,
         capture_output=True,
         text=True,
-        timeout=240,
+        timeout=_POSTURE_WITNESS_TIMEOUT_SECONDS,
     )
     if process.returncode != 0:
         raise AssertionError(

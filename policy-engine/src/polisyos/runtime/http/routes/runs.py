@@ -60,7 +60,13 @@ from polisyos.runtime.http.dependencies import (
     require_access_scope,
     set_authz_resource,
 )
-from polisyos.runtime.http.errors import bad_request, conflict, forbidden, unprocessable_entity
+from polisyos.runtime.http.errors import (
+    bad_request,
+    conflict,
+    forbidden,
+    not_found,
+    unprocessable_entity,
+)
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
     production_approval_scorecard_from_bound_request,
@@ -69,6 +75,10 @@ from polisyos.runtime.http.response_policies import add_run_link_relations
 from polisyos.runtime.http.services.authority_values import (
     RunAuthorityProjection,
     build_run_authority_projection,
+)
+from polisyos.runtime.http.services.case_inspection import CaseInspectionService
+from polisyos.runtime.http.services.case_inspection_contracts import (
+    CaseInspectionResponse,
 )
 from polisyos.runtime.http.services.channel_contracts import (
     RunDetailSnapshot,
@@ -128,6 +138,13 @@ _GET_RUN_PAPER_AUTHZ = require_action_permission(
     ResourceBindingSpec(
         source=ResourceBindingSource.TENANT_COLLECTION,
         resource_kind="runtime.run_paper",
+    ),
+)
+_GET_CASE_INSPECTION_AUTHZ = require_action_permission(
+    RuntimePermission.RUNS_REVIEW,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.case_inspection",
     ),
 )
 _GET_RUNS_BATCH_AUTHZ = require_action_permission(
@@ -595,6 +612,37 @@ async def _stream_payloads(
         await asyncio.sleep(sleep_seconds)
 
 
+def _resolve_replay_bound_paper_packet(
+    request: Request,
+    *,
+    run_id: str,
+    service: RunPaperProjectionService | CaseInspectionService,
+    replay_syntax_code: str,
+    replay_conflict_code: str,
+    source_invalid_code: str,
+) -> RunPaperPacket:
+    """Apply the one replay verifier to either authorized paper surface."""
+
+    try:
+        replay_query = RunPaperReplayQuery.from_query_items(request.query_params.multi_items())
+        return service.get(run_id, replay_query=replay_query)
+    except RunPaperReplaySyntaxError as exc:
+        raise unprocessable_entity(
+            str(exc),
+            code=replay_syntax_code,
+        ) from exc
+    except RunPaperReplayConflictError as exc:
+        raise conflict(
+            str(exc),
+            code=replay_conflict_code,
+        ) from exc
+    except RunPaperSourceError as exc:
+        raise conflict(
+            str(exc),
+            code=source_invalid_code,
+        ) from exc
+
+
 if router is not None:
 
     @router.get("", response_model=RunsListResponse, operation_id="list_runs")
@@ -882,25 +930,75 @@ if router is not None:
             run_index=ctx.run_index,
             tenant_id=run.details.tenant_id,
         )
-        try:
-            replay_query = RunPaperReplayQuery.from_query_items(
-                request.query_params.multi_items()
-            )
-            packet = service.get(run_id, replay_query=replay_query)
-        except RunPaperReplaySyntaxError as exc:
-            raise unprocessable_entity(
-                str(exc),
-                code="run_paper_replay_syntax_invalid",
-            ) from exc
-        except RunPaperReplayConflictError as exc:
-            raise conflict(str(exc), code="run_paper_replay_conflict") from exc
-        except RunPaperSourceError as exc:
-            raise conflict(str(exc), code="run_paper_source_invalid") from exc
+        packet = _resolve_replay_bound_paper_packet(
+            request,
+            run_id=run_id,
+            service=service,
+            replay_syntax_code="run_paper_replay_syntax_invalid",
+            replay_conflict_code="run_paper_replay_conflict",
+            source_invalid_code="run_paper_source_invalid",
+        )
         record_data_access_audit(
             request,
             resource_id=run_id,
             tenant_id=run.details.tenant_id,
             outcome="run_paper_projected",
+        )
+        add_run_link_relations(response, run_id=run_id)
+        return packet
+
+    @router.get(
+        "/{run_id}/case-inspection",
+        response_model=CaseInspectionResponse,
+        dependencies=[Depends(_GET_CASE_INSPECTION_AUTHZ)],
+        operation_id="get_case_inspection",
+        summary="Inspect the frozen case slot for one verified run",
+    )
+    def get_case_inspection(
+        run_id: str,
+        request: Request,
+        response: Response,
+        replay_query: Annotated[RunPaperReplayQuery, Depends()],
+        ctx: RuntimeApiContext = Depends(get_runtime_api_context),
+    ) -> CaseInspectionResponse:
+        try:
+            run = ctx.run_index.get_run(run_id)
+        except KeyError as exc:
+            raise not_found(
+                "Case inspection run was not found",
+                code="case_inspection_run_not_found",
+            ) from exc
+        enforce_run_tenant_access(request, ctx=ctx, run=run)
+        set_authz_resource(
+            request,
+            tenant_id=run.details.tenant_id,
+            kind="runtime.case_inspection",
+            artifact_id=(
+                str(run.details.manifest_ref.artifact_id)
+                if run.details.manifest_ref is not None
+                else None
+            ),
+        )
+        service = CaseInspectionService(
+            RunPaperProjectionService(
+                store=ctx.store,
+                run_index=ctx.run_index,
+                tenant_id=run.details.tenant_id,
+            )
+        )
+        packet = _resolve_replay_bound_paper_packet(
+            request,
+            run_id=run_id,
+            service=service,
+            replay_syntax_code="case_inspection_replay_syntax_invalid",
+            replay_conflict_code="case_inspection_replay_pin_mismatch",
+            source_invalid_code="case_inspection_source_invalid",
+        )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=run.details.tenant_id,
+            outcome="case_inspection_projected",
         )
         add_run_link_relations(response, run_id=run_id)
         return packet

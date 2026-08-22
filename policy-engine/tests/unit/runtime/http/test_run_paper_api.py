@@ -19,6 +19,7 @@ from polisyos.runtime.http.authorization import (
     get_route_action_permission_dependency,
 )
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.case_inspection_contracts import CaseInspectionResponse
 from polisyos.runtime.http.services.export_replay import (
     build_export_replay_address,
     hash_export_projection,
@@ -131,6 +132,18 @@ def _available_case_payload(packet: dict[str, object]) -> dict[str, object]:
             "as_of": None,
         }
 
+    def issue(kind: str, digest_character: str) -> dict[str, object]:
+        return {
+            "issue_id": f"{kind}.fixture",
+            "code": f"fixture.{kind}",
+            "kind": kind,
+            "status_vocabulary_ref": "polisyos.pdc.ObligationRecord.status",
+            "status": "accepted_as_limit" if kind == "limitation" else "open",
+            "statement": f"{kind} fixture statement",
+            "owner_route": f"team-{kind}",
+            "source_bindings": [source_binding(kind, digest_character, f"fixture.{kind}")],
+        }
+
     return {
         "availability": "available",
         "case_id": "case.fixture",
@@ -162,10 +175,10 @@ def _available_case_payload(packet: dict[str, object]) -> dict[str, object]:
             "source_binding": source_binding("promotion_state", "e", "fixture.promotion"),
             "state": "governed_promoted",
         },
-        "blockers": [],
-        "limitations": [],
-        "objections": [],
-        "abstentions": [],
+        "blockers": [issue("blocker", "f")],
+        "limitations": [issue("limitation", "0")],
+        "objections": [issue("objection", "1")],
+        "abstentions": [issue("abstention", "2")],
     }
 
 
@@ -203,6 +216,75 @@ def _packet_with_recomputed_case(
         build_export_replay_address(f"/runs/{run.run_id}/report", pins) + "#stage-trace"
     )
     return rebound
+
+
+def test_case_inspection_resolves_bound_case_graph_and_design_record(
+    runtime_api_env,
+) -> None:
+    """Structural witness only; production cannot construct the available arm."""
+
+    packet = (
+        runtime_api_env["client"].get(f"/api/v1/runs/{runtime_api_env['core_run_id']}/paper").json()
+    )
+    available = _available_case_payload(packet)
+
+    witness = CaseInspectionResponse.model_validate(_packet_with_recomputed_case(packet, available))
+
+    case = witness.case_record
+    assert case.availability == "available"
+    assert case.design_record_binding.content_digest == str(
+        case.design_record_binding.design_record_ref.artifact_id
+    )
+    assert case.design_record_binding.design_record_ref.kind == (
+        "policyos.layer2_s2.design_record_v0"
+    )
+    assert case.design_record_binding.design_record_ref.media_type == "application/json"
+    assert case.design_record_binding.schema_name == "policyos.layer2_s2.design_record_v0"
+    assert (
+        case.design_record_binding.schema_version
+        == "policyos.policy_design_case.layer2_readiness.v1"
+        == case.design_record.schema_version
+    )
+    assert (
+        case.case_id,
+        case.design_record.record_id,
+        case.design_record_binding.run_id,
+        case.design_record_binding.tenant_id,
+    ) == (
+        case.design_record_binding.case_id,
+        case.design_record_binding.design_record_record_id,
+        witness.run.run_id,
+        witness.run.tenant_id,
+    )
+    assert (
+        case.grounding_state.state,
+        case.admission_state.state,
+        case.promotion_state.state,
+    ) == ("current_valid", "admitted_to_claim", "governed_promoted")
+    assert case.grounding_state.vocabulary_ref == (
+        "polisyos.runtime.quality.generation_cycle.GroundingStatus"
+    )
+    assert case.admission_state.vocabulary_ref == (
+        "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState"
+    )
+    assert case.promotion_state.vocabulary_ref == (
+        "polisyos.runtime.quality.proving_ground.governed_promotion_gate."
+        "Layer3G4PromotionRecord.promotion_state"
+    )
+    assert [issue.kind for issue in case.blockers] == ["blocker"]
+    assert [issue.kind for issue in case.limitations] == ["limitation"]
+    assert [issue.kind for issue in case.objections] == ["objection"]
+    assert [issue.kind for issue in case.abstentions] == ["abstention"]
+
+    candidate_with_governed_promotion = deepcopy(available)
+    candidate_with_governed_promotion["admission_state"]["state"] = "candidate_unverified"
+    with pytest.raises(
+        ValidationError,
+        match="governed promotion requires an admitted authority state",
+    ):
+        CaseInspectionResponse.model_validate(
+            _packet_with_recomputed_case(packet, candidate_with_governed_promotion)
+        )
 
 
 def test_run_paper_returns_typed_case_unavailable_without_defaulting_case_facts(

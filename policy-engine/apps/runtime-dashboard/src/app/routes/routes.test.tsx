@@ -196,6 +196,22 @@ describe("APP_ROUTES", () => {
     );
   });
 
+  it("mounts the case workspace before the generic run routes", () => {
+    const rootRoute = APP_ROUTES.find((route) => route.path === "/");
+    const caseIndex =
+      rootRoute?.children?.findIndex(
+        (route) => route.path === "runs/:runId/case",
+      ) ?? -1;
+
+    expect(caseIndex).toBeGreaterThanOrEqual(0);
+    expect(rootRoute?.children?.[caseIndex]?.handle).toEqual(
+      expect.objectContaining({
+        routeId: "runs.caseWorkspace",
+        workspaceKey: "runsDecisions",
+      }),
+    );
+  });
+
   it("renders login routes without the shell and emits route view telemetry", async () => {
     const router = createMemoryRouter(APP_ROUTES, {
       initialEntries: ["/login"],

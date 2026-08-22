@@ -44,6 +44,10 @@ function productionPopulation(): string[] {
 }
 
 type ConsumerCensus = {
+  caseClientCalls: string[];
+  caseDirectFetchCalls: string[];
+  caseEndpointCalls: string[];
+  caseHookCalls: string[];
   directClientCalls: string[];
   hookCalls: string[];
   legacyDeclarations: string[];
@@ -108,6 +112,8 @@ function comesFrom(
 }
 
 type SymbolAliases = {
+  caseFetch: Set<ts.Symbol>;
+  caseHook: Set<ts.Symbol>;
   client: Set<ts.Symbol>;
   factory: Set<ts.Symbol>;
   hook: Set<ts.Symbol>;
@@ -120,6 +126,14 @@ type SymbolAliases = {
 };
 
 const canonicalSymbols = {
+  caseFetch: {
+    exportName: "fetchCaseInspection",
+    sourceSuffix: "/features/runs/api/useCaseInspection.ts",
+  },
+  caseHook: {
+    exportName: "useCaseInspection",
+    sourceSuffix: "/features/runs/api/useCaseInspection.ts",
+  },
   client: {
     exportName: "getDepthNCycleBoardProjection",
     sourceSuffix: "/packages/runtime-api-client/canonicalRuntimeApiClient.ts",
@@ -177,6 +191,8 @@ function collectLocalAliases(
   sources: readonly ts.SourceFile[],
 ) {
   const aliases: SymbolAliases = {
+    caseFetch: new Set(),
+    caseHook: new Set(),
     client: new Set(),
     factory: new Set(),
     hook: new Set(),
@@ -318,6 +334,10 @@ function inspectConsumers(files: string[]): ConsumerCensus {
   });
   const aliases = collectLocalAliases(checker, sources);
   const census: ConsumerCensus = {
+    caseClientCalls: [],
+    caseDirectFetchCalls: [],
+    caseEndpointCalls: [],
+    caseHookCalls: [],
     directClientCalls: [],
     hookCalls: [],
     legacyDeclarations: [],
@@ -338,6 +358,12 @@ function inspectConsumers(files: string[]): ConsumerCensus {
     const owner = relativeSource(file);
     const visit = (node: ts.Node) => {
       if (ts.isCallExpression(node)) {
+        if (matchesSymbol(checker, node.expression, "caseFetch", aliases)) {
+          census.caseDirectFetchCalls.push(owner);
+        }
+        if (matchesSymbol(checker, node.expression, "caseHook", aliases)) {
+          census.caseHookCalls.push(owner);
+        }
         if (matchesSymbol(checker, node.expression, "hook", aliases)) {
           census.hookCalls.push(owner);
         }
@@ -370,10 +396,27 @@ function inspectConsumers(files: string[]): ConsumerCensus {
           census.paperClientCalls.push(owner);
         }
         if (
+          ts.isPropertyAccessExpression(node.expression) &&
+          comesFrom(
+            checker,
+            node.expression.name,
+            "getCaseInspection",
+            "/features/runs/api/useCaseInspection.ts",
+          )
+        ) {
+          census.caseClientCalls.push(owner);
+        }
+        if (
           literalString(checker, node.arguments[0]) ===
           "/api/v1/runs/{run_id}/paper"
         ) {
           census.paperEndpointCalls.push(owner);
+        }
+        if (
+          literalString(checker, node.arguments[0]) ===
+          "/api/v1/runs/{run_id}/case-inspection"
+        ) {
+          census.caseEndpointCalls.push(owner);
         }
         if (
           matchesSymbol(checker, node.expression, "factory", aliases) &&
@@ -478,9 +521,11 @@ describe("Cycle Board production consumer census", () => {
       "features/runs/routes/RunReportPage.tsx",
     ]);
     expect(census.paperPresenterCalls).toEqual([
+      "features/runs/routes/CaseWorkspacePage.tsx",
       "features/runs/routes/RunReportPage.tsx",
     ]);
     expect(census.paperMachineExportCalls).toEqual([
+      "features/runs/routes/CaseWorkspacePage.tsx",
       "features/runs/routes/RunReportPage.tsx",
     ]);
     expect(census.paperRenderers).toEqual([
@@ -488,6 +533,21 @@ describe("Cycle Board production consumer census", () => {
     ]);
     expect(census.paperPayloadEmitters).toEqual([
       "features/runs/routes/RunReportPage.tsx",
+    ]);
+  }, 45_000);
+
+  it("has one case-inspection intake, workspace hook and exact-byte exporter", () => {
+    const census = inspectConsumers(productionPopulation());
+
+    expect(census.caseEndpointCalls).toEqual([
+      "features/runs/api/useCaseInspection.ts",
+    ]);
+    expect(census.caseClientCalls).toEqual([
+      "features/runs/api/useCaseInspection.ts",
+    ]);
+    expect(census.caseDirectFetchCalls).toEqual([]);
+    expect(census.caseHookCalls).toEqual([
+      "features/runs/routes/CaseWorkspacePage.tsx",
     ]);
   }, 45_000);
 });

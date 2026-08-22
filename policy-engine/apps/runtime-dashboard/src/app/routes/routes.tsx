@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent, useRef } from "react";
+import { lazy, useEffect, useEffectEvent, useRef } from "react";
 import type { RouteObject } from "react-router-dom";
 import {
   Navigate,
@@ -14,6 +14,7 @@ import { useTelemetry } from "@/app/providers/TelemetryProvider";
 import { RunsLiveProvider } from "@/app/providers/RunsLiveProvider";
 import { RuntimeApiProvider } from "@/app/providers/RuntimeApiProvider";
 import { RouteErrorElement } from "@/app/routes/RouteErrorElement";
+import { createRunPaperLoader } from "@/app/routes/loaders";
 import { WorkspaceBoundary } from "@/app/routes/WorkspaceBoundary";
 import { artifactRoute } from "@/features/artifacts/routes.public";
 import { loginRoute } from "@/features/auth";
@@ -34,6 +35,27 @@ import {
   setActiveRouteTelemetryContext,
   setActiveRouteViewTiming,
 } from "@/shared/telemetry/routeContext";
+
+const CaseWorkspacePage = lazy(
+  () => import("@/features/runs/routes/CaseWorkspacePage"),
+);
+
+const caseWorkspaceRoute: RouteObject = {
+  path: "runs/:runId/case",
+  loader: createRunPaperLoader("runs.caseWorkspace"),
+  handle: {
+    buildHref: (input?: { runId?: string }) =>
+      `/runs/${input?.runId ?? ""}/case`,
+    parseSearch: () => ({}),
+    routeId: "runs.caseWorkspace",
+    workspaceKey: "runsDecisions",
+  },
+  element: (
+    <WorkspaceBoundary workspaceKey="runsDecisions">
+      <CaseWorkspacePage />
+    </WorkspaceBoundary>
+  ),
+};
 
 function AppFrame() {
   const location = useLocation();
@@ -200,6 +222,7 @@ export const APP_ROUTES: RouteObject[] = [
         ),
       },
       composerRoute,
+      caseWorkspaceRoute,
       ...runsRoutes,
       artifactRoute,
       evidenceRoute,

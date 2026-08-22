@@ -1,0 +1,61 @@
+id = "2026-08-22-ds8b-case-workspace"
+title = "Add the typed-unavailable case workspace"
+type = "added"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Expose an authorized run-anchored case workspace that renders the frozen case union and preserves exact response bytes for MACHINE export."
+evidence = [
+  "docs/superpowers/journals/2026-08-21-ds8-case-evidence-workspace.md",
+  "tests/unit/runtime/http/test_case_inspection_api.py",
+  "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.parity.test.tsx",
+  "schemas/runtime_api_v1.openapi.json",
+]
+compatibility = "The additive case-inspection operation reuses the frozen RunPaperPacket ABI and requires regeneration of both generated TypeScript client families."
+change_class = "schema-openapi-abi"
+surface_classification = "public_stable: polisyos.runtime case inspection projection"
+migration = "Regenerate both runtime API client families. Treat artifact_missing / producer_missing / case-record-not-run-bound / team-runtime as a typed refusal, never as empty or negative case data."
+api = "GET /api/v1/runs/{run_id}/case-inspection returns the replay-bound RunPaperPacket used by the authorized Case Workspace."
+limitations = "Production cannot construct the available case arm until runtime/GY closes case-record-not-run-bound; the endpoint therefore returns the registered typed-unavailable arm today."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "case-inspection-operation"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: GET /api/v1/runs/{run_id}/case-inspection"
+owner = "team-runtime"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "Runtime clients can retrieve the replay-bound case slot without treating its typed producer gap as empty case data."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-api-client-case-inspection"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The generated runtime API client adds getCaseInspection over the existing strict RunPaperPacket union."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []
+
+[[compatibility_change]]
+id = "runtime-dashboard-api-types-case-inspection"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "internal: runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The runtime dashboard generated API types add the case-inspection operation without duplicating the frozen case DTO."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = []
+runbook_docs = []

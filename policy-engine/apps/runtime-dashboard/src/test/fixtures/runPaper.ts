@@ -58,7 +58,7 @@ export function availableRunPaperCaseFixture(): AvailableRunPaperCase {
   });
   const designDigest = digest("c");
   return {
-    abstentions: [issue("abstention", "i")],
+    abstentions: [issue("abstention", "2")],
     admission_state: {
       source_binding: verifiedCaseSource("admission_state", "d"),
       state: "admitted_to_claim",
@@ -122,8 +122,8 @@ export function availableRunPaperCaseFixture(): AvailableRunPaperCase {
       vocabulary_ref:
         "polisyos.runtime.quality.generation_cycle.GroundingStatus",
     },
-    limitations: [issue("limitation", "g")],
-    objections: [issue("objection", "h")],
+    limitations: [issue("limitation", "0")],
+    objections: [issue("objection", "1")],
     promotion_state: {
       source_binding: verifiedCaseSource("promotion_state", "e"),
       state: "governed_promoted",

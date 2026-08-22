@@ -528,6 +528,17 @@ export class RuntimeApiClient {
     return this.request("GET", path, query);
   }
 
+  async getCaseInspection(params) {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/case-inspection`;
+    const query = this.buildQuery({
+      manifest_artifact_id: params?.manifest_artifact_id,
+      manifest_schema_version: params?.manifest_schema_version,
+      paper_projection_rule_version: params?.paper_projection_rule_version,
+      paper_projection_hash: params?.paper_projection_hash,
+    });
+    return this.request("GET", path, query);
+  }
+
   async getRunCompareCandidates(params) {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/compare-candidates`;
     const query = this.buildQuery({

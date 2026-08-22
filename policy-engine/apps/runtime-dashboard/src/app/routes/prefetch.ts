@@ -165,6 +165,11 @@ export async function prefetchRouteHref(href: string) {
     return;
   }
 
+  if (resolved.entry.kind === "caseInspection") {
+    // Review authorization must settle before case authority is requested.
+    return;
+  }
+
   if (resolved.entry.kind === "runDeck" && resolved.params.runId) {
     await primeRunDetail(resolved.params.runId);
     return;

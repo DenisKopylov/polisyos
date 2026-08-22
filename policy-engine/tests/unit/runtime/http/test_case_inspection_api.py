@@ -121,6 +121,22 @@ def test_case_inspection_names_a_missing_run_at_its_public_boundary(
     assert response.json()["code"] == "case_inspection_run_not_found"
 
 
+def test_case_inspection_names_a_run_that_disappears_during_projection(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    def _disappeared_after_preflight(_service, _run_id: str, **_kwargs):
+        raise KeyError("run disappeared after authorization preflight")
+
+    monkeypatch.setattr(CaseInspectionService, "get", _disappeared_after_preflight)
+    response = runtime_api_env["client"].get(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}/case-inspection"
+    )
+
+    assert response.status_code == 404
+    assert response.json()["code"] == "case_inspection_run_not_found"
+
+
 def test_case_inspection_authorizes_before_resolving(
     runtime_api_env,
     monkeypatch: pytest.MonkeyPatch,

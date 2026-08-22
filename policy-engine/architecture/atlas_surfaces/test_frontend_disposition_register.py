@@ -6592,6 +6592,19 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
             )
 
     def test_status_companion_maps_only_the_two_regeneration_drifts(self) -> None:
+        prefix = checker._ds8_coordinate_prefix()
+        opening_register = checker._ds8_git_text(
+            "show",
+            f"{self.SOURCE_COMMIT}:{prefix}"
+            "architecture/atlas_surfaces/frontend-disposition-register.json",
+        )
+        opening_status = json.loads(
+            checker._ds8_git_text(
+                "show",
+                f"{self.SOURCE_COMMIT}:{prefix}"
+                "architecture/atlas_surfaces/status-retirement-inventory.json",
+            )
+        )
         original_register = REGISTER_PATH.read_text(encoding="utf-8")
         register_candidate = checker._ds8b_register_candidate_text(
             original_register,
@@ -6624,17 +6637,32 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
         debt = checker.status_checker._load_json(
             checker.status_checker.WAIST_DEBT_PATH
         )
-        opening = checker.status_checker.validate_inventory(original_status, debt)
+        original_status_sha256 = checker.status_checker._sha256
+        opening_register_hash = checker._ds8_digest(
+            opening_register.encode("utf-8")
+        )
+
+        def opening_sha256(path: Path) -> str:
+            if path == checker.status_checker.DS19_PATH:
+                return opening_register_hash
+            return original_status_sha256(path)
+
+        with mock.patch.object(
+            checker.status_checker,
+            "_sha256",
+            side_effect=opening_sha256,
+        ):
+            opening = checker.status_checker.validate_inventory(opening_status, debt)
+        live = checker.status_checker.validate_inventory(original_status, debt)
         regeneration_drifts = {
             "inventory_source_hash_drift:packages/runtime-api-client/"
             "canonicalRuntimeApiClient.ts",
             "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
         }
-        assert regeneration_drifts <= set(opening)  # noqa: S101
-        inherited = [row for row in opening if row not in regeneration_drifts]
-        payload = "".join(f"{row}\n" for row in inherited).encode()
+        assert Counter(opening) == Counter([*live, *regeneration_drifts])  # noqa: S101
+        payload = "".join(f"{row}\n" for row in live).encode()
         assert (  # noqa: S101
-            len(inherited),
+            len(live),
             len(payload),
             hashlib.sha256(payload).hexdigest(),
         ) == (

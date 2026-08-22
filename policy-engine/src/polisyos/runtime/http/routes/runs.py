@@ -620,12 +620,21 @@ def _resolve_replay_bound_paper_packet(
     replay_syntax_code: str,
     replay_conflict_code: str,
     source_invalid_code: str,
+    missing_run_code: str | None = None,
+    missing_run_message: str = "Run was not found",
 ) -> RunPaperPacket:
     """Apply the one replay verifier to either authorized paper surface."""
 
     try:
         replay_query = RunPaperReplayQuery.from_query_items(request.query_params.multi_items())
         return service.get(run_id, replay_query=replay_query)
+    except KeyError as exc:
+        if missing_run_code is None:
+            raise
+        raise not_found(
+            missing_run_message,
+            code=missing_run_code,
+        ) from exc
     except RunPaperReplaySyntaxError as exc:
         raise unprocessable_entity(
             str(exc),
@@ -993,6 +1002,8 @@ if router is not None:
             replay_syntax_code="case_inspection_replay_syntax_invalid",
             replay_conflict_code="case_inspection_replay_pin_mismatch",
             source_invalid_code="case_inspection_source_invalid",
+            missing_run_code="case_inspection_run_not_found",
+            missing_run_message="Case inspection run was not found",
         )
         record_data_access_audit(
             request,

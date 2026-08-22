@@ -7091,6 +7091,8 @@ REPORT_PROJECTION_END = "<!-- END DS19 REGISTER PROJECTION -->"
 DS8_STRANGLE_BASE_COMMIT = "9e6a43b53d11166e90df376940cb34ff15b77289"
 DS8_STRANGLE_SOURCE_COMMIT = "fd43342f87fda34c6123a8f5f4791f8e3236b4f9"
 DS8_STRANGLE_WRITER_HEAD_COMMIT = "c393090ab35c242b03314cd2095d195c4e188fc3"
+DS8B_TRANSITION_BASE_COMMIT = "23a2c797bececb1757253aa4f1e8ef5999c81601"
+DS8B_TRANSITION_SOURCE_COMMIT = "40226aafe0f668d87aa52fda696cc72fec0be0b5"
 DS8_STRANGLE_ROOTS = (
     "apps/runtime-dashboard/src/features/runs",
     "apps/runtime-dashboard/src/features/artifacts",
@@ -7170,6 +7172,17 @@ def _sha256(path: Path) -> str:
 
 def _ds8_digest(payload: bytes) -> str:
     return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _ds8_json_digest(value: object) -> str:
+    return _ds8_digest(
+        json.dumps(
+            value,
+            ensure_ascii=False,
+            separators=(",", ":"),
+            sort_keys=True,
+        ).encode("utf-8")
+    )
 
 
 def _ds8_git_bytes(*arguments: str) -> bytes:
@@ -7300,8 +7313,8 @@ def _ds8_live_sources() -> dict[str, bytes]:
         and path.suffix in DS8_STRANGLE_EXTENSIONS
     }
     tracked_output = subprocess.run(  # noqa: S603 - fixed repository command
-        [
-            "git",  # noqa: S607 - controlled toolchain executable
+        [  # noqa: S607 - controlled toolchain executable
+            "git",
             "ls-files",
             "--cached",
             "--others",
@@ -7721,6 +7734,314 @@ def ds8_strangle_corruption_probes(
         if expected_error not in errors:
             failures.append(name)
     return failures
+
+
+def build_ds8b_post_freeze_transition(
+    *,
+    baseline_commit: str,
+    source_commit: str,
+    historical_coverage: Mapping[str, Any],
+    require_live_source_match: bool = False,
+) -> dict[str, Any]:
+    """Derive only DS8-B's post-C07 delta without rewriting C07 history."""
+    historical_errors = validate_ds8_strangle_coverage(historical_coverage)
+    if historical_errors:
+        raise ValueError(
+            "DS8-B historical coverage is not exact: "
+            + ";".join(historical_errors)
+        )
+    historical_assignments = list(historical_coverage["assignments"])
+    historical_deferred = [
+        row
+        for row in historical_assignments
+        if row["disposition"] == "surface_out_of_scope"
+    ]
+    if len(historical_assignments) != 217 or len(historical_deferred) != 137:
+        raise ValueError("DS8-B historical 217/137 denominator drift")
+
+    baseline = _ds8_git_tree_sources(baseline_commit)
+    source = _ds8_git_tree_sources(source_commit)
+    if baseline != _ds8_archive_sources(baseline_commit):
+        raise ValueError("DS8-B baseline ls-tree/archive reconciliation failed")
+    if source != _ds8_archive_sources(source_commit):
+        raise ValueError("DS8-B source ls-tree/archive reconciliation failed")
+    ancestry = subprocess.run(  # noqa: S603 - fixed repository command
+        ["git", "merge-base", "--is-ancestor", baseline_commit, source_commit],  # noqa: S607
+        cwd=REPO_ROOT.parent,
+        check=False,
+    )
+    if ancestry.returncode != 0:
+        raise ValueError("DS8-B source freeze does not descend from its base")
+    if require_live_source_match and source != _ds8_live_sources():
+        raise ValueError("DS8-B source-freeze/live-worktree byte reconciliation failed")
+
+    removed_paths = sorted(set(baseline) - set(source))
+    if removed_paths:
+        raise ValueError(f"DS8-B source freeze removed paths: {removed_paths}")
+    changed_existing_paths = sorted(
+        path
+        for path in set(baseline) & set(source)
+        if baseline[path] != source[path]
+    )
+    new_paths = sorted(set(source) - set(baseline))
+    transition_paths = sorted([*changed_existing_paths, *new_paths])
+    rows = []
+    for path in transition_paths:
+        role = _ds8_role(path)
+        is_new = path in new_paths
+        if is_new:
+            disposition = "new_in_slice"
+        elif role == "production":
+            disposition = "in_scope_rebound"
+        elif role == "test":
+            disposition = "verification_companion_rebound"
+        else:
+            disposition = "retained_rebound"
+        rows.append(
+            {
+                "path": path,
+                "feature": _ds8_feature(path),
+                "role": role,
+                "origin": "source_freeze" if is_new else "opening_base",
+                "disposition": disposition,
+                "closure_cluster": "C03",
+                "baseline_content_sha256": (
+                    None if is_new else _ds8_digest(baseline[path])
+                ),
+                "source_content_sha256": _ds8_digest(source[path]),
+            }
+        )
+    prefix = _ds8_coordinate_prefix()
+    return {
+        "coverage_id": "ds8b-case-workspace-post-freeze-transition",
+        "predicate_provenance": "independently_reconciled",
+        "transition_complete": True,
+        "baseline": _ds8_snapshot(baseline_commit, baseline),
+        "source_freeze": _ds8_snapshot(source_commit, source),
+        "historical_binding": {
+            "coverage_id": historical_coverage["coverage_id"],
+            "coverage_sha256": _ds8_json_digest(historical_coverage),
+            "assignment_count": len(historical_assignments),
+            "assignment_path_manifest_sha256": _ds8_path_manifest(
+                (str(row["path"]) for row in historical_assignments),
+                prefix=prefix,
+            ),
+            "deferred_count": len(historical_deferred),
+            "deferred_rows_sha256": _ds8_json_digest(historical_deferred),
+        },
+        "changed_existing_path_count": len(changed_existing_paths),
+        "new_path_count": len(new_paths),
+        "transition_path_count": len(transition_paths),
+        "transition_path_manifest_sha256": _ds8_path_manifest(
+            transition_paths, prefix=prefix
+        ),
+        "assignments": rows,
+        "closure_receipt": {
+            "cluster": "C03",
+            "source_commit": source_commit,
+            "paths": transition_paths,
+            "file_count": len(transition_paths),
+            "path_content_manifest_sha256": _ds8_content_manifest(
+                source, transition_paths
+            ),
+        },
+        "reconciliation": {
+            "baseline_git_tree_vs_archive": "exact",
+            "source_git_tree_vs_archive": "exact",
+            "baseline_vs_source_history": "ancestor",
+            "historical_217_map": "byte_preserved",
+            "historical_137_deferrals": "byte_preserved",
+            "live_tree_disposition": "outside_frozen_transition",
+        },
+    }
+
+
+def validate_ds8b_post_freeze_transition(
+    transition: Mapping[str, Any],
+    historical_coverage: Mapping[str, Any],
+    *,
+    expected_baseline_commit: str = DS8B_TRANSITION_BASE_COMMIT,
+    expected_source_commit: str = DS8B_TRANSITION_SOURCE_COMMIT,
+) -> list[str]:
+    """Reject missing, duplicate, stale, or nonexistent DS8-B rows."""
+    try:
+        expected = build_ds8b_post_freeze_transition(
+            baseline_commit=expected_baseline_commit,
+            source_commit=expected_source_commit,
+            historical_coverage=historical_coverage,
+        )
+    except (OSError, subprocess.SubprocessError, ValueError) as exc:
+        return [f"ds8b_transition_reconciliation_failed:{exc}"]
+    assignments = transition.get("assignments")
+    if not isinstance(assignments, list):
+        return ["ds8b_transition_assignments_missing"]
+    expected_rows = {row["path"]: row for row in expected["assignments"]}
+    actual_paths = [
+        str(row.get("path", ""))
+        for row in assignments
+        if isinstance(row, Mapping)
+    ]
+    counts = Counter(actual_paths)
+    errors: list[str] = []
+    errors.extend(
+        f"ds8b_transition_duplicate_assignment:{path}"
+        for path, count in sorted(counts.items())
+        if count > 1
+    )
+    errors.extend(
+        f"ds8b_transition_missing_assignment:{path}"
+        for path in sorted(set(expected_rows) - set(actual_paths))
+    )
+    errors.extend(
+        f"ds8b_transition_nonexistent_assignment:{path}"
+        for path in sorted(set(actual_paths) - set(expected_rows))
+    )
+    actual_by_path = {
+        str(row.get("path")): row
+        for row in assignments
+        if isinstance(row, Mapping) and counts[str(row.get("path"))] == 1
+    }
+    errors.extend(
+        f"ds8b_transition_stale_assignment:{path}"
+        for path in sorted(set(expected_rows) & set(actual_by_path))
+        if actual_by_path[path] != expected_rows[path]
+    )
+    for key, expected_value in expected.items():
+        if key == "assignments":
+            continue
+        if transition.get(key) != expected_value:
+            errors.append(f"ds8b_transition_metadata_stale:{key}")
+    errors.extend(
+        f"ds8b_transition_unknown_property:{key}"
+        for key in sorted(set(transition) - set(expected))
+    )
+    return errors
+
+
+def ds8b_post_freeze_corruption_probes(
+    transition: Mapping[str, Any],
+    historical_coverage: Mapping[str, Any],
+    *,
+    expected_baseline_commit: str = DS8B_TRANSITION_BASE_COMMIT,
+    expected_source_commit: str = DS8B_TRANSITION_SOURCE_COMMIT,
+) -> list[str]:
+    """Return named DS8-B mutations that escaped its generic validator."""
+    first_path = str(transition["assignments"][0]["path"])
+    probes: list[tuple[str, dict[str, Any], str]] = []
+    missing = copy.deepcopy(transition)
+    removed = missing["assignments"].pop(0)
+    probes.append(
+        (
+            "missing",
+            missing,
+            f"ds8b_transition_missing_assignment:{removed['path']}",
+        )
+    )
+    duplicate = copy.deepcopy(transition)
+    duplicate["assignments"].append(copy.deepcopy(duplicate["assignments"][0]))
+    probes.append(
+        (
+            "duplicate",
+            duplicate,
+            f"ds8b_transition_duplicate_assignment:{first_path}",
+        )
+    )
+    stale = copy.deepcopy(transition)
+    stale["assignments"][0]["source_content_sha256"] = "sha256:" + "0" * 64
+    probes.append(
+        ("stale", stale, f"ds8b_transition_stale_assignment:{first_path}")
+    )
+    nonexistent = copy.deepcopy(transition)
+    nonexistent["assignments"][0]["path"] = (
+        "apps/runtime-dashboard/src/features/runs/nonexistent-ds8b.ts"
+    )
+    probes.append(
+        (
+            "nonexistent",
+            nonexistent,
+            "ds8b_transition_nonexistent_assignment:"
+            "apps/runtime-dashboard/src/features/runs/nonexistent-ds8b.ts",
+        )
+    )
+    historical = copy.deepcopy(transition)
+    historical["historical_binding"]["deferred_rows_sha256"] = (
+        "sha256:" + "0" * 64
+    )
+    probes.append(
+        (
+            "historical-deferrals",
+            historical,
+            "ds8b_transition_metadata_stale:historical_binding",
+        )
+    )
+    failures: list[str] = []
+    for name, mutation, expected_error in probes:
+        errors = validate_ds8b_post_freeze_transition(
+            mutation,
+            historical_coverage,
+            expected_baseline_commit=expected_baseline_commit,
+            expected_source_commit=expected_source_commit,
+        )
+        if expected_error not in errors:
+            failures.append(name)
+    return failures
+
+
+def _ds8b_register_candidate_text(
+    original_text: str, transition: Mapping[str, Any]
+) -> str:
+    """Surgically add DS8-B's transition while preserving C07 byte history."""
+    original = json.loads(original_text)
+    candidate = original_text
+    old_version = (
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
+        '  "schema_version": "1.1",'
+    )
+    new_version = (
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
+        '  "schema_version": "1.2",'
+    )
+    if candidate.count(old_version) == 1:
+        candidate = candidate.replace(old_version, new_version, 1)
+    elif candidate.count(new_version) != 1:
+        raise ValueError("DS8-B register schema-version preimage is ambiguous")
+
+    key_marker = '  "ds8b_post_freeze_transition": '
+    rendered = json.dumps(transition, indent=2, ensure_ascii=False).replace(
+        "\n", "\n  "
+    )
+    if key_marker in candidate:
+        if candidate.count(key_marker) != 1:
+            raise ValueError("DS8-B transition key is duplicated")
+        value_start = candidate.index(key_marker) + len(key_marker)
+        _stored, relative_end = json.JSONDecoder().raw_decode(
+            candidate[value_start:]
+        )
+        candidate = (
+            candidate[:value_start]
+            + rendered
+            + candidate[value_start + relative_end :]
+        )
+    else:
+        insertion_marker = '  "seeded_negative_lifecycle": ['
+        if candidate.count(insertion_marker) != 1:
+            raise ValueError("DS8-B register insertion point is ambiguous")
+        candidate = candidate.replace(
+            insertion_marker,
+            key_marker + rendered + ",\n" + insertion_marker,
+            1,
+        )
+    parsed = json.loads(candidate)
+    if parsed.get("ds8b_post_freeze_transition") != transition:
+        raise ValueError("DS8-B transition surgical insertion changed value")
+    original_without = copy.deepcopy(original)
+    original_without.pop("ds8b_post_freeze_transition", None)
+    original_without["schema_version"] = "1.2"
+    candidate_without = copy.deepcopy(parsed)
+    candidate_without.pop("ds8b_post_freeze_transition", None)
+    if candidate_without != original_without:
+        raise ValueError("DS8-B writer changed an unrelated register value")
+    return candidate
 
 
 def _ds8_register_candidate_text(
@@ -8295,8 +8616,8 @@ def _ds8_writer_fence() -> None:
         if ancestry.returncode != 0:
             raise ValueError(f"DS8 {label} is not an ancestor of writer HEAD")
     source_status = subprocess.run(  # noqa: S603 - fixed repository command
-        [
-            "git",  # noqa: S607 - controlled toolchain executable
+        [  # noqa: S607 - controlled toolchain executable
+            "git",
             "status",
             "--porcelain=v1",
             "--untracked-files=all",
@@ -8409,6 +8730,173 @@ def _write_ds8_strangle_family() -> dict[str, Any]:
         pre_promote=final_pre_promote_fence,
     )
     return coverage
+
+
+def _ds8b_writer_fence() -> None:
+    """Require DS8-B's branch, source freeze, clean family, and free index."""
+    branch = _ds8_git_text("symbolic-ref", "-q", "HEAD").strip()
+    if branch != "refs/heads/codex/atlas-ds8-b-case-workspace":
+        raise ValueError(f"DS8-B writer branch fence failed: {branch}")
+    head = _ds8_git_text("rev-parse", "HEAD").strip()
+    ancestry = subprocess.run(  # noqa: S603 - fixed Git command
+        [  # noqa: S607 - controlled toolchain executable
+            "git",
+            "merge-base",
+            "--is-ancestor",
+            DS8B_TRANSITION_SOURCE_COMMIT,
+            head,
+        ],
+        cwd=REPO_ROOT.parent,
+        check=False,
+    )
+    if ancestry.returncode != 0:
+        raise ValueError("DS8-B source freeze is not an ancestor of writer HEAD")
+    source = _ds8_git_tree_sources(DS8B_TRANSITION_SOURCE_COMMIT)
+    if source != _ds8_live_sources():
+        raise ValueError("DS8-B feature roots changed after C03 source freeze")
+    governed_paths = (
+        REGISTER_PATH,
+        SCHEMA_PATH,
+        REPORT_PATH,
+        STATUS_INVENTORY_PATH,
+        BASELINE_PATH,
+        DS1_PATH,
+        Path(__file__).resolve(),
+        ATLAS_DIR / "test_frontend_disposition_register.py",
+    )
+    tracked_status = subprocess.run(  # noqa: S603 - fixed Git command
+        [  # noqa: S607 - controlled toolchain executable
+            "git",
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=no",
+            "--",
+            *(str(path.relative_to(REPO_ROOT)) for path in governed_paths),
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if tracked_status.returncode != 0 or tracked_status.stdout:
+        raise ValueError("DS8-B writer requires a clean governed family")
+    index_lock_ref = _ds8_git_text("rev-parse", "--git-path", "index.lock").strip()
+    index_lock = Path(index_lock_ref)
+    if not index_lock.is_absolute():
+        index_lock = REPO_ROOT.parent / index_lock
+    if index_lock.exists():
+        raise ValueError(f"DS8-B writer found live index lock: {index_lock}")
+
+
+def _write_ds8b_transition_family() -> dict[str, Any]:
+    """Atomically bind the post-C07 transition without rewriting C07 rows."""
+    _ds8b_writer_fence()
+    original_register = REGISTER_PATH.read_text(encoding="utf-8")
+    original_report = REPORT_PATH.read_text(encoding="utf-8")
+    original_status = STATUS_INVENTORY_PATH.read_text(encoding="utf-8")
+    original_baseline = BASELINE_PATH.read_text(encoding="utf-8")
+    original_readiness = DS1_PATH.read_text(encoding="utf-8")
+    opening_hashes = {
+        REGISTER_PATH: (
+            "sha256:c1181a07efc38273aa4b4ec1c6f46a1f"
+            "183c1e197b67b96c8796d575da75be11"
+        ),
+        REPORT_PATH: (
+            "sha256:1bc9a2d378ca42dbe7721769ede7369b"
+            "bbef1a88ecc0939e36201663df1c6dde"
+        ),
+        STATUS_INVENTORY_PATH: (
+            "sha256:42b6ac0dd5e1cf9614570357c5dbaed1"
+            "5a2a814ce40227fb047ad974284cd1e2"
+        ),
+    }
+    original_texts = {
+        REGISTER_PATH: original_register,
+        REPORT_PATH: original_report,
+        STATUS_INVENTORY_PATH: original_status,
+    }
+    for path, original in original_texts.items():
+        if _ds8_digest(original.encode("utf-8")) != opening_hashes[path]:
+            raise ValueError(f"DS8-B governed preimage drift: {path}")
+
+    register_data = json.loads(original_register)
+    historical = register_data["ds8_strangle_coverage"]
+    transition = build_ds8b_post_freeze_transition(
+        baseline_commit=DS8B_TRANSITION_BASE_COMMIT,
+        source_commit=DS8B_TRANSITION_SOURCE_COMMIT,
+        historical_coverage=historical,
+        require_live_source_match=True,
+    )
+    register_candidate = _ds8b_register_candidate_text(
+        original_register, transition
+    )
+    candidate_data = json.loads(register_candidate)
+    pre_errors = validate_register(
+        candidate_data,
+        live_probes=False,
+        report_parity=False,
+    )
+    if pre_errors:
+        raise ValueError("DS8-B register candidate rejected: " + ";".join(pre_errors))
+    report_candidate = render_report(candidate_data)
+    status_candidate = _c13_status_inventory_candidate_text(
+        original_status,
+        register_bytes=register_candidate.encode("utf-8"),
+    )
+    status_data = json.loads(status_candidate)
+    debt = status_checker._load_json(status_checker.WAIST_DEBT_PATH)
+    expected_status = (
+        13,
+        887,
+        "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
+    )
+    if _c13_status_receipt(status_data, debt) != expected_status:
+        raise ValueError("DS8-B status diagnostic identity drift")
+    if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+        raise ValueError("DS8-B baseline moved while building candidates")
+    if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
+        raise ValueError("DS8-B readiness ledger moved while building candidates")
+
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+        STATUS_INVENTORY_PATH: status_candidate,
+    }
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        for path, expected_text in candidates.items():
+            if path.read_text(encoding="utf-8") != expected_text:
+                errors.append(f"ds8b_family_readback_drift:{path}")
+        errors.extend(validate_register(_load_json(REGISTER_PATH)))
+        if _c13_status_receipt(_load_json(STATUS_INVENTORY_PATH), debt) != (
+            expected_status
+        ):
+            errors.append("ds8b_status_diagnostic_identity_drift")
+        if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+            errors.append("ds8b_baseline_readback_drift")
+        if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
+            errors.append("ds8b_readiness_readback_drift")
+        return errors
+
+    def final_pre_promote_fence() -> None:
+        _ds8b_writer_fence()
+        for path, expected_text in original_texts.items():
+            if path.read_text(encoding="utf-8") != expected_text:
+                raise ValueError(
+                    f"DS8-B governed preimage moved before promotion: {path}"
+                )
+        if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+            raise ValueError("DS8-B baseline moved before promotion")
+        if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
+            raise ValueError("DS8-B readiness ledger moved before promotion")
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=final_pre_promote_fence,
+    )
+    return transition
 
 
 def _path_from_ref(value: str) -> Path:
@@ -9570,7 +10058,7 @@ def build_seed_register() -> dict[str, Any]:
     ]
     return {
         "$schema": "./frontend-disposition-register.schema.json",
-        "schema_version": "1.1",
+        "schema_version": "1.2",
         "register_id": "atlas-ds19-frontend-disposition",
         "as_of": REGISTER_AS_OF,
         "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
@@ -9660,6 +10148,14 @@ def build_seed_register() -> dict[str, Any]:
         "ds8_strangle_coverage": build_ds8_strangle_coverage(
             baseline_commit=DS8_STRANGLE_BASE_COMMIT,
             source_commit=DS8_STRANGLE_SOURCE_COMMIT,
+        ),
+        "ds8b_post_freeze_transition": build_ds8b_post_freeze_transition(
+            baseline_commit=DS8B_TRANSITION_BASE_COMMIT,
+            source_commit=DS8B_TRANSITION_SOURCE_COMMIT,
+            historical_coverage=build_ds8_strangle_coverage(
+                baseline_commit=DS8_STRANGLE_BASE_COMMIT,
+                source_commit=DS8_STRANGLE_SOURCE_COMMIT,
+            ),
         ),
         "seeded_negative_lifecycle": _seeded_negatives(),
     }
@@ -11890,6 +12386,16 @@ def validate_register(
         errors.append("ds8_strangle_coverage_missing")
     else:
         errors.extend(validate_ds8_strangle_coverage(ds8_coverage))
+    ds8b_transition = data.get("ds8b_post_freeze_transition")
+    if not isinstance(ds8b_transition, Mapping):
+        errors.append("ds8b_post_freeze_transition_missing")
+    elif isinstance(ds8_coverage, Mapping):
+        errors.extend(
+            validate_ds8b_post_freeze_transition(
+                ds8b_transition,
+                ds8_coverage,
+            )
+        )
     _validate_storage_construction_census(data, errors)
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
@@ -12589,6 +13095,16 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
         failures.extend(ds8_strangle_corruption_probes(ds8_coverage))
     else:
         failures.append("ds8-strangle-coverage-missing")
+    ds8b_transition = data.get("ds8b_post_freeze_transition")
+    if isinstance(ds8b_transition, Mapping) and isinstance(ds8_coverage, Mapping):
+        failures.extend(
+            ds8b_post_freeze_corruption_probes(
+                ds8b_transition,
+                ds8_coverage,
+            )
+        )
+    else:
+        failures.append("ds8b-post-freeze-transition-missing")
     direct_sources = _typescript_production_sources(RAW_TRANSPORT_SCAN_ROOTS)
     benign_sources = {
         **direct_sources,
@@ -12941,6 +13457,46 @@ def _ds8_strangle_report_projection(coverage: Mapping[str, Any]) -> str:
     return "\n".join(lines)
 
 
+def _ds8b_transition_report_projection(
+    transition: Mapping[str, Any],
+) -> str:
+    """Render every row in DS8-B's separately frozen post-C07 transition."""
+    historical = transition["historical_binding"]
+    lines = [
+        "### DS8-B post-freeze transition",
+        "",
+        (
+            f"Predicate provenance: `{transition['predicate_provenance']}`. "
+            f"Transition complete: "
+            f"`{str(transition['transition_complete']).lower()}`."
+        ),
+        "",
+        (
+            f"Historical map preserved: **{historical['assignment_count']} rows** "
+            f"including **{historical['deferred_count']} deferrals**, bound by "
+            f"`{historical['coverage_sha256']}`."
+        ),
+        "",
+        (
+            f"Immutable base `{transition['baseline']['commit']}` to source freeze "
+            f"`{transition['source_freeze']['commit']}`: "
+            f"**{transition['changed_existing_path_count']} changed existing + "
+            f"{transition['new_path_count']} new = "
+            f"{transition['transition_path_count']} transition rows**."
+        ),
+        "",
+        "| Path | Feature | Role | Origin | Disposition | Source bytes |",
+        "| --- | --- | --- | --- | --- | --- |",
+    ]
+    for row in transition["assignments"]:
+        lines.append(
+            f"| `{row['path']}` | `{row['feature']}` | `{row['role']}` | "
+            f"`{row['origin']}` | `{row['disposition']}` | "
+            f"`{row['source_content_sha256']}` |"
+        )
+    return "\n".join(lines)
+
+
 def _report_projection(data: Mapping[str, Any]) -> str:
     entries = data["entries"]
     censuses = {row["census_id"]: row for row in data["reference_censuses"]}
@@ -13208,7 +13764,16 @@ def _report_projection(data: Mapping[str, Any]) -> str:
         lines.append(
             f"| `{row['unit_id']}` | `{row['evidence_link']['ds1_entry_id']}` | {len(row['evidence_link']['ds2_adoption_ids'])} | `{row['disposition']}` | `{row['strangle_status']}` | `{row['owner_slice']}` | `{terminal}` |"
         )
-    lines.extend(["", _ds8_strangle_report_projection(data["ds8_strangle_coverage"])])
+    lines.extend(
+        [
+            "",
+            _ds8_strangle_report_projection(data["ds8_strangle_coverage"]),
+            "",
+            _ds8b_transition_report_projection(
+                data["ds8b_post_freeze_transition"]
+            ),
+        ]
+    )
     return "\n".join(lines)
 
 
@@ -13386,6 +13951,7 @@ def _report_projection_errors(data: Mapping[str, Any]) -> list[str]:
 def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
     persistence = data["storage_construction_census"]
     ds8 = data["ds8_strangle_coverage"]
+    ds8b = data["ds8b_post_freeze_transition"]
     dispositions = Counter(row["disposition"] for row in ds8["assignments"])
     return {
         "root_entries": len(data["entries"]),
@@ -13403,6 +13969,8 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
         "ds8_strangle_assignments": len(ds8["assignments"]),
         "ds8_strangle_dispositions": dict(sorted(dispositions.items())),
         "ds8_strangle_family_complete": ds8["family_complete"],
+        "ds8b_transition_assignments": len(ds8b["assignments"]),
+        "ds8b_transition_complete": ds8b["transition_complete"],
     }
 
 
@@ -13439,6 +14007,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--write-ds8-strangle-coverage",
         action="store_true",
         help="atomically materialize the DS8 coverage/register/report/status family",
+    )
+    parser.add_argument(
+        "--write-ds8b-post-freeze-transition",
+        action="store_true",
+        help="atomically add DS8-B coverage without rewriting C07 history",
     )
     parser.add_argument(
         "--migrate-c21b",
@@ -13488,6 +14061,42 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.write_ds8b_post_freeze_transition:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {
+            "write_ds8b_post_freeze_transition",
+            "write_report",
+        }:
+            sys.stderr.write(
+                "DS8-B post-freeze transition requires only --write-report\n"
+            )
+            return 1
+        try:
+            transition = _write_ds8b_transition_family()
+        except (OSError, ValueError, RuntimeError) as exc:
+            sys.stderr.write(f"DS8-B transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("materialized DS8-B post-freeze register family\n")
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "assignments": len(transition["assignments"]),
+                    "changed_existing_paths": transition[
+                        "changed_existing_path_count"
+                    ],
+                    "new_paths": transition["new_path_count"],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
 
     if args.write_c13_adjacent_print_export_resolution:
         selected = {

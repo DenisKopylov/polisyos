@@ -6494,5 +6494,110 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             self.assertEqual(1, projection.count(f"`{row['path']}`"))
 
 
+class DS8BPostFreezeTransitionTests(unittest.TestCase):
+    """Pin DS8-B's own delta without absorbing post-C07 estate changes."""
+
+    BASE_COMMIT = "23a2c797bececb1757253aa4f1e8ef5999c81601"
+    SOURCE_COMMIT = "40226aafe0f668d87aa52fda696cc72fec0be0b5"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.historical = json.loads(
+            REGISTER_PATH.read_text(encoding="utf-8")
+        )["ds8_strangle_coverage"]
+        cls.transition = checker.build_ds8b_post_freeze_transition(
+            baseline_commit=cls.BASE_COMMIT,
+            source_commit=cls.SOURCE_COMMIT,
+            historical_coverage=cls.historical,
+        )
+
+    def test_complete_delta_and_historical_binding_are_exact(self) -> None:
+        transition = self.transition
+        assert transition["transition_complete"]  # noqa: S101
+        assert transition["changed_existing_path_count"] == 1  # noqa: S101
+        assert transition["new_path_count"] == 5  # noqa: S101
+        assert transition["transition_path_count"] == 6  # noqa: S101
+        assert (  # noqa: S101
+            transition["historical_binding"]["assignment_count"] == 217
+        )
+        assert (  # noqa: S101
+            transition["historical_binding"]["deferred_count"] == 137
+        )
+        assert [  # noqa: S101
+            row["path"] for row in transition["assignments"]
+        ] == [
+            "apps/runtime-dashboard/src/features/runs/api/"
+            "useCaseInspection.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/api/useCaseInspection.ts",
+            "apps/runtime-dashboard/src/features/runs/routes/"
+            "CaseWorkspacePage.parity.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/"
+            "CaseWorkspacePage.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/"
+            "CaseWorkspacePage.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/"
+            "CycleBoardConsumerCensus.test.ts",
+        ]
+        assert not checker.validate_ds8b_post_freeze_transition(  # noqa: S101
+            transition,
+            self.historical,
+            expected_baseline_commit=self.BASE_COMMIT,
+            expected_source_commit=self.SOURCE_COMMIT,
+        )
+
+    def test_generic_walk_rejects_all_required_corruptions(self) -> None:
+        assert not checker.ds8b_post_freeze_corruption_probes(  # noqa: S101
+            self.transition,
+            self.historical,
+            expected_baseline_commit=self.BASE_COMMIT,
+            expected_source_commit=self.SOURCE_COMMIT,
+        )
+
+    def test_surgical_writer_preserves_the_217_row_historical_value(self) -> None:
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        original_data = json.loads(original)
+        original_history = copy.deepcopy(original_data["ds8_strangle_coverage"])
+        once = checker._ds8b_register_candidate_text(original, self.transition)
+        twice = checker._ds8b_register_candidate_text(once, self.transition)
+        assert once == twice  # noqa: S101
+        parsed = json.loads(once)
+        assert parsed["schema_version"] == "1.2"  # noqa: S101
+        assert (  # noqa: S101
+            parsed["ds8_strangle_coverage"] == original_history
+        )
+        assert not checker._schema_errors(  # noqa: S101
+            parsed, checker.SCHEMA_PATH
+        )
+        parsed.pop("ds8b_post_freeze_transition")
+        parsed["schema_version"] = original_data["schema_version"]
+        assert parsed == original_data  # noqa: S101
+
+    def test_writer_live_fence_rejects_post_freeze_source_drift(self) -> None:
+        poisoned = dict(checker._ds8_live_sources())
+        target = next(iter(poisoned))
+        poisoned[target] += b"// post-DS8-B drift\n"
+        with (
+            mock.patch.object(
+                checker,
+                "_ds8_live_sources",
+                return_value=poisoned,
+            ),
+            pytest.raises(ValueError, match="byte reconciliation failed"),
+        ):
+            checker.build_ds8b_post_freeze_transition(
+                baseline_commit=self.BASE_COMMIT,
+                source_commit=self.SOURCE_COMMIT,
+                historical_coverage=self.historical,
+                require_live_source_match=True,
+            )
+
+    def test_complete_transition_projection_is_reported(self) -> None:
+        projection = checker._ds8b_transition_report_projection(self.transition)
+        assert "**217 rows**" in projection  # noqa: S101
+        assert "**137 deferrals**" in projection  # noqa: S101
+        for row in self.transition["assignments"]:
+            assert projection.count(f"`{row['path']}`") == 1  # noqa: S101
+
+
 if __name__ == "__main__":
     unittest.main()

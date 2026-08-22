@@ -1,6 +1,6 @@
 {
   "$schema": "./frontend-disposition-register.schema.json",
-  "schema_version": "1.1",
+  "schema_version": "1.2",
   "register_id": "atlas-ds19-frontend-disposition",
   "as_of": "2026-08-09T11:35:00+03:00",
   "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
@@ -10240,6 +10240,285 @@
       "source_git_tree_vs_archive": "exact",
       "source_freeze_vs_writer_history": "ancestor",
       "live_tree_disposition": "outside_frozen_coverage"
+    }
+  },
+  "ds8b_post_freeze_transition": {
+    "coverage_id": "ds8b-case-workspace-post-freeze-transition",
+    "predicate_provenance": "independently_reconciled",
+    "transition_complete": true,
+    "baseline": {
+      "commit": "23a2c797bececb1757253aa4f1e8ef5999c81601",
+      "coordinate_prefix": "policy-engine/",
+      "roots": [
+        "apps/runtime-dashboard/src/features/runs",
+        "apps/runtime-dashboard/src/features/artifacts",
+        "apps/runtime-dashboard/src/features/evidence"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx"
+      ],
+      "classifier": "stories_then_tests_then_production",
+      "all": {
+        "files": 221,
+        "physical_lines": 41073
+      },
+      "production": {
+        "files": 149,
+        "physical_lines": 27451
+      },
+      "tests": {
+        "files": 67,
+        "physical_lines": 13155
+      },
+      "stories": {
+        "files": 5,
+        "physical_lines": 467
+      },
+      "features": {
+        "runs": {
+          "all": {
+            "files": 141,
+            "physical_lines": 28058
+          },
+          "production": {
+            "files": 90,
+            "physical_lines": 17621
+          },
+          "tests": {
+            "files": 48,
+            "physical_lines": 10225
+          },
+          "stories": {
+            "files": 3,
+            "physical_lines": 212
+          }
+        },
+        "artifacts": {
+          "all": {
+            "files": 63,
+            "physical_lines": 8332
+          },
+          "production": {
+            "files": 48,
+            "physical_lines": 6525
+          },
+          "tests": {
+            "files": 13,
+            "physical_lines": 1552
+          },
+          "stories": {
+            "files": 2,
+            "physical_lines": 255
+          }
+        },
+        "evidence": {
+          "all": {
+            "files": 17,
+            "physical_lines": 4683
+          },
+          "production": {
+            "files": 11,
+            "physical_lines": 3305
+          },
+          "tests": {
+            "files": 6,
+            "physical_lines": 1378
+          },
+          "stories": {
+            "files": 0,
+            "physical_lines": 0
+          }
+        }
+      },
+      "path_manifest_sha256": "sha256:d3bb4245f0d25fc062e63af0ee0458734ab7296690b5760852ae0b2e1d52d9e5",
+      "production_path_manifest_sha256": "sha256:ebd325ae847cace436143d5f31ab56ddc6730a4da553b099ad5febe5014f4916",
+      "content_manifest_sha256": "sha256:56175b231c057076552e0d78177ad7f7ca4324252cc1892176fd4811452d9cc7"
+    },
+    "source_freeze": {
+      "commit": "40226aafe0f668d87aa52fda696cc72fec0be0b5",
+      "coordinate_prefix": "policy-engine/",
+      "roots": [
+        "apps/runtime-dashboard/src/features/runs",
+        "apps/runtime-dashboard/src/features/artifacts",
+        "apps/runtime-dashboard/src/features/evidence"
+      ],
+      "extensions": [
+        ".ts",
+        ".tsx"
+      ],
+      "classifier": "stories_then_tests_then_production",
+      "all": {
+        "files": 226,
+        "physical_lines": 41897
+      },
+      "production": {
+        "files": 151,
+        "physical_lines": 27858
+      },
+      "tests": {
+        "files": 70,
+        "physical_lines": 13572
+      },
+      "stories": {
+        "files": 5,
+        "physical_lines": 467
+      },
+      "features": {
+        "runs": {
+          "all": {
+            "files": 146,
+            "physical_lines": 28882
+          },
+          "production": {
+            "files": 92,
+            "physical_lines": 18028
+          },
+          "tests": {
+            "files": 51,
+            "physical_lines": 10642
+          },
+          "stories": {
+            "files": 3,
+            "physical_lines": 212
+          }
+        },
+        "artifacts": {
+          "all": {
+            "files": 63,
+            "physical_lines": 8332
+          },
+          "production": {
+            "files": 48,
+            "physical_lines": 6525
+          },
+          "tests": {
+            "files": 13,
+            "physical_lines": 1552
+          },
+          "stories": {
+            "files": 2,
+            "physical_lines": 255
+          }
+        },
+        "evidence": {
+          "all": {
+            "files": 17,
+            "physical_lines": 4683
+          },
+          "production": {
+            "files": 11,
+            "physical_lines": 3305
+          },
+          "tests": {
+            "files": 6,
+            "physical_lines": 1378
+          },
+          "stories": {
+            "files": 0,
+            "physical_lines": 0
+          }
+        }
+      },
+      "path_manifest_sha256": "sha256:1d9d0dcefbac8dbc6fe71329b1c7cdaa840e07e71e7fac7bf7bc9f6cd4d6242b",
+      "production_path_manifest_sha256": "sha256:d3b9f3477e5ba708b62d23aefd03bdead5a9e3f4544e70befb3d3da5aa6a9574",
+      "content_manifest_sha256": "sha256:96be4fbaefda90f8bcf97f67c8f732d056da7c0bd8e6d672a0130716650202d3"
+    },
+    "historical_binding": {
+      "coverage_id": "ds8-case-evidence-strangle-coverage",
+      "coverage_sha256": "sha256:cf9418fe75bf3b735c4fccc3625f029942391b797d88be3f76ae3ecb9c764424",
+      "assignment_count": 217,
+      "assignment_path_manifest_sha256": "sha256:6f788ac379d17b68af010ec853527b051e5c8cc4f128bb68964908128cf6e379",
+      "deferred_count": 137,
+      "deferred_rows_sha256": "sha256:4524ae331a5c94dd26ea735c954febf0cf074d86333681ea479f095bf92aed04"
+    },
+    "changed_existing_path_count": 1,
+    "new_path_count": 5,
+    "transition_path_count": 6,
+    "transition_path_manifest_sha256": "sha256:bb504feb38fa8d73ffc05e05292fce571ffd1ffd635278271311dc8ad0b286bf",
+    "assignments": [
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useCaseInspection.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice",
+        "closure_cluster": "C03",
+        "baseline_content_sha256": null,
+        "source_content_sha256": "sha256:0f417de3f1ff29866e40b44dd94cf2049b0a25af8c024f13a33e885bd79270db"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/api/useCaseInspection.ts",
+        "feature": "runs",
+        "role": "production",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice",
+        "closure_cluster": "C03",
+        "baseline_content_sha256": null,
+        "source_content_sha256": "sha256:4a32387a1edaa6482833c7f120f3dc3724944a27a594c8f8e10bab30ae316bfa"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.parity.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice",
+        "closure_cluster": "C03",
+        "baseline_content_sha256": null,
+        "source_content_sha256": "sha256:31368fc553fce60ba85243a6d45d60fc05d68d617db70855ae28053ac33a932a"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.test.tsx",
+        "feature": "runs",
+        "role": "test",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice",
+        "closure_cluster": "C03",
+        "baseline_content_sha256": null,
+        "source_content_sha256": "sha256:257a8780be09d0aff06936cf08f7e5a6badd0d293f353f27ec0966ff0cc84aa5"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+        "feature": "runs",
+        "role": "production",
+        "origin": "source_freeze",
+        "disposition": "new_in_slice",
+        "closure_cluster": "C03",
+        "baseline_content_sha256": null,
+        "source_content_sha256": "sha256:8051cb0e1d56e5a367c5bc442a1205cff19c6303ca39aa16ed3a73e0385c1f77"
+      },
+      {
+        "path": "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts",
+        "feature": "runs",
+        "role": "test",
+        "origin": "opening_base",
+        "disposition": "verification_companion_rebound",
+        "closure_cluster": "C03",
+        "baseline_content_sha256": "sha256:71230ad134e762cdc07dbca3b741e33328755986c6d47cc61f38da6e313e6193",
+        "source_content_sha256": "sha256:fbab50bb0c66e62c2636db2c1d3a31c258b892a4bfce4685a8f73d250f158e40"
+      }
+    ],
+    "closure_receipt": {
+      "cluster": "C03",
+      "source_commit": "40226aafe0f668d87aa52fda696cc72fec0be0b5",
+      "paths": [
+        "apps/runtime-dashboard/src/features/runs/api/useCaseInspection.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/api/useCaseInspection.ts",
+        "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.parity.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.test.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts"
+      ],
+      "file_count": 6,
+      "path_content_manifest_sha256": "sha256:0f1e409a2c3b312534d7ba80c92614f85b447563562f51d2f64389c8250dfa6f"
+    },
+    "reconciliation": {
+      "baseline_git_tree_vs_archive": "exact",
+      "source_git_tree_vs_archive": "exact",
+      "baseline_vs_source_history": "ancestor",
+      "historical_217_map": "byte_preserved",
+      "historical_137_deferrals": "byte_preserved",
+      "live_tree_disposition": "outside_frozen_transition"
     }
   },
   "seeded_negative_lifecycle": [

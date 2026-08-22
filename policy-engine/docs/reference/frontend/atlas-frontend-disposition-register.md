@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **55766**
-- Application lines deleted: **20859**
-- Net application LOC reduction: **-34907**
+- Application lines added: **56836**
+- Application lines deleted: **20928**
+- Net application LOC reduction: **-35908**
 - Application files deleted: **90**
 
 ## Wave-end full verification
@@ -847,10 +847,34 @@ T0 `9e6a43b53d11166e90df376940cb34ff15b77289`: `sha256:b3f088e2b5abf2699b1da970e
 | `apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.ts` | `runs` | `production` | `source_freeze` | `new_in_slice` | `C06` | — |
 | `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.parity.test.tsx` | `runs` | `test` | `source_freeze` | `new_in_slice` | `—` | — |
 | `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx` | `runs` | `test` | `source_freeze` | `new_in_slice` | `—` | — |
+
+### DS8-B post-freeze transition
+
+Predicate provenance: `independently_reconciled`. Transition complete: `true`.
+
+Historical map preserved: **217 rows** including **137 deferrals**, bound by `sha256:cf9418fe75bf3b735c4fccc3625f029942391b797d88be3f76ae3ecb9c764424`.
+
+Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `40226aafe0f668d87aa52fda696cc72fec0be0b5`: **1 changed existing + 5 new = 6 transition rows**.
+
+| Path | Feature | Role | Origin | Disposition | Source bytes |
+| --- | --- | --- | --- | --- | --- |
+| `apps/runtime-dashboard/src/features/runs/api/useCaseInspection.test.tsx` | `runs` | `test` | `source_freeze` | `new_in_slice` | `sha256:0f417de3f1ff29866e40b44dd94cf2049b0a25af8c024f13a33e885bd79270db` |
+| `apps/runtime-dashboard/src/features/runs/api/useCaseInspection.ts` | `runs` | `production` | `source_freeze` | `new_in_slice` | `sha256:4a32387a1edaa6482833c7f120f3dc3724944a27a594c8f8e10bab30ae316bfa` |
+| `apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.parity.test.tsx` | `runs` | `test` | `source_freeze` | `new_in_slice` | `sha256:31368fc553fce60ba85243a6d45d60fc05d68d617db70855ae28053ac33a932a` |
+| `apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.test.tsx` | `runs` | `test` | `source_freeze` | `new_in_slice` | `sha256:257a8780be09d0aff06936cf08f7e5a6badd0d293f353f27ec0966ff0cc84aa5` |
+| `apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx` | `runs` | `production` | `source_freeze` | `new_in_slice` | `sha256:8051cb0e1d56e5a367c5bc442a1205cff19c6303ca39aa16ed3a73e0385c1f77` |
+| `apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts` | `runs` | `test` | `opening_base` | `verification_companion_rebound` | `sha256:fbab50bb0c66e62c2636db2c1d3a31c258b892a4bfce4685a8f73d250f158e40` |
 <!-- END DS19 REGISTER PROJECTION -->
 
 ## Commits
 
+- `0a22d86e9 fix(atlas): target DS8-B status reanchor`
+- `c6a565637 fix(atlas): reanchor DS8-B status companions`
+- `ba987a3be test(atlas): govern DS8-B post-freeze coverage`
+- `40226aafe feat(atlas): land typed-unavailable case workspace`
+- `23a2c797b plan(atlas): record Revision 3.31 — DS6 closed, and the two architect errors it found`
+- `176276ef0 merge(atlas): land DS6 — C13 independently verified, C14 closes the slice`
+- `f1334a0f4 close(atlas): complete DS6 C13 and C14`
 - `d3d2e7fef feat(atlas): bind DS6 C13 verification receipt`
 - `5255eaf4e docs(atlas): retain DS6 C13 raw verification receipts`
 - `0440f0a8d plan(debt): close run-lifecycle-terminal-fact; the print repair lands and DS6 owns its closure`

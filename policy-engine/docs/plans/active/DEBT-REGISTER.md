@@ -258,6 +258,102 @@ about six named import edges, and grouping it would blur that. `GY-PA1`, `GY-GAP
 `GY-GAP5`, `GY-GAP6`, `GY-DEF22`, `GY-DEF14` remain blocked or research-bound and are not
 scheduled.
 
+## I. Execution record — 2026-08-22, architect
+
+### β1.1 — `def9-witness-cannot-reach-its-discriminator`: **hypothesis disproved, row stays open**
+
+Re-run at `bcd5ae0e9` on a worktree with a correct editable install. **All 5/5 cases still
+terminate `canonical_loaded_runtime_mismatch`** inside `_run_owner`. The venv danglement was *not*
+the cause. That is a result, not a failure, and it is recorded because a disproved hypothesis is
+worth as much as a confirmed one.
+
+Two further mechanism hypotheses of mine were also disproved before I could record them:
+
+- *the editable extension distributions split the import root* — false: this environment carries
+  only `_editable_impl_policy_engine.pth`, no extension packages;
+- *`PYTHONPATH` loses to the editable install* — false: the traceback shows `confidence_ledger.py`
+  loading from the witness's temp checkout, so `PYTHONPATH` wins.
+
+What is established: the witness clones the product tree to a temp checkout, sets `PYTHONPATH` to
+it, and launches the worker with `sys.executable`. The mismatch is between `repo_root` (the temp
+checkout) and the import-time manifest. **Naming which of those two is wrong is the owner's
+repair, not this re-measurement**, and the row is left open with the narrowing recorded.
+
+### β1.2 — `confidence-ledger-check-red-at-base`: measurement in flight
+
+Ceiling declared at **4,200 s** from the prior 3,160.47 s measurement, `uptime` pair recorded,
+launched on the repaired canonical environment rather than a `PYTHONPATH` proxy. A kill is a
+non-receipt; a completed non-zero exit is a receipt.
+
+### β1.3 — `plugin-posture-witness-binds-cap-and-checkout`: **repaired**
+
+Landed at `1c9829fb8`. Red-first: `integration` and `gy-def22` have no `.venv/bin/python`, so the
+hardcoded path made the witness unrunnable there; where it runs, `sys.executable` is
+byte-identical, so the substitution only widens where it works. **Measured 611.9 s, exit 0** at
+load ~6.0 — the literal `240 s` was **2.5× undersized**, which is why it timed out *serialized*
+rather than under contention.
+
+Two residuals recorded rather than hidden:
+
+- binding the lane into `tools/quality/timing_budgets.json` is the fuller form; that catalog
+  enforces `recommended_timeout_ms == 2 × measured_p95_ms` and carries its own validator, which is
+  wider than this repair;
+- the witness asserts exactly one installed `polisyos-foundry-method-example`, and that
+  distribution is **neither a `uv.lock` entry nor a workspace member** — no canonical `uv sync`
+  provides it. The witness binds an environment fact instead of establishing it, the same class as
+  the interpreter binding.
+
+### β2 — `control-plane-fixture-drift`: **diagnosed, not repaired**
+
+The discriminating input is exact: `IndexedRunRecord.decision_packet_ref` is `None`.
+
+- `services/feedback.py:165` raises `decision_packet_missing` on `run.decision_packet_ref is None`;
+- `core/contracts/runtime.py:1912` declares it a plain `ArtifactRef | None = None` — **no
+  derivation from run outputs**;
+- `tests/_helpers/runtime_http.py:1140` attaches the packet with `run.add_output(...)` and never
+  populates the field.
+
+So the fixture supplies the artifact and the contract reads a field nobody sets. **Which side is
+wrong is the owner's ruling** — populate the field in the fixture, or derive it from outputs by
+kind. Zero production bytes changed; `git diff` shows no path under `src/`.
+
+`case-record-not-run-bound`, `GY-DEF23` and `GY-GAP8` are untouched and sequenced behind
+`GY-N12`'s merge.
+
+### γ — all four absorptions **verified**, not asserted
+
+| debt | verification |
+| --- | --- |
+| `adjacent-print-export` | DS8-A resumed and advanced. On its branch `run-detail-a4-print-chromium-darwin.png` is **retired** and `run-report-identity-a4-print-chromium-darwin.png` added — a first derivation under a **new name**, not a re-baseline of the old one. Absorbed. |
+| `run-lifecycle-terminal-fact` | **Verified discharged**: 10 occurrences across four production files, including `RunsListPage.tsx` (3), `validators.ts` (4), `RunReportPage.tsx` (2), `useRunPaper.ts` (1). Strike on DS8-A's merge. |
+| `ds4-waist-decision-grade` | **Still open, and an opportunity was missed**: `DecisionGrade` is a real `Literal` at `pdc/_impl/layer2_readiness.py:39` with **zero** occurrences in the generated client, and a regeneration (`40bbafa18`) has since passed without taking the swap. |
+| `atlas-health-metric-replay-pins-uncommitted-paths` | Assertion still live at `atlasHealthMetrics.test.ts:519`; DS6 still owns it. |
+
+**A method note worth keeping.** γ.2's first measurement returned *zero* production consumers —
+the same result that correctly caught DS7. It was wrong, twice, from my own git path prefixing:
+once searching `policy-engine/apps/...` where the tree wanted `apps/...`, then `git show <branch>:<path>`
+where the path wanted the `policy-engine/` prefix back. **A zero from a path-shaped query is a
+claim about the query until the query is proven**, and `git rev-parse --show-prefix` settles it.
+
+### δ — `producer-availability-denominator`: **measured with a control**
+
+Denominator confirmed as the 13 governed-projection definitions, matching DS3's `5 + 7 + 1`.
+
+| tree | available | `invalid_source` | `artifact_missing` |
+| --- | ---: | ---: | ---: |
+| DS3, no `production_data` | 5 | 7 | 1 |
+| current `main`, **no** appointment (control) | 8 | 4 | 1 |
+| current `main`, **appointed** read-only root | **10** | **2** | **1** |
+
+The control isolates the appointment's contribution to **exactly two** producers —
+`n13a-acquisition-census` and `n13a-live-probe-journal` — which were **unmeasurable, not absent**.
+The rise from 5 to 8 is intervening work; 8 to 10 is the appointment alone.
+
+**Three are genuinely unavailable regardless of data**: `generation-cycle-disposition` and
+`capability-reality` (`invalid_source`), and `surface-readiness` (`artifact_missing`). That is the
+split the row asked for, and the residual is those three with their real owners — not a
+denominator question any more.
+
 ## G. Closed
 
 ### G.1 Two-axis closures — re-measured 2026-08-21 (Rev 2)

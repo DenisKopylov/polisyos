@@ -8519,7 +8519,7 @@ def _write_c13_print_family() -> dict[str, Any]:
     if pre_errors:
         raise ValueError("C13 register candidate rejected: " + ";".join(pre_errors))
     report_candidate = render_report(register_data)
-    status_candidate = _ds8_status_inventory_candidate_text(
+    status_candidate = _c13_status_inventory_candidate_text(
         original_status,
         register_bytes=register_candidate.encode("utf-8"),
     )
@@ -8839,7 +8839,7 @@ def _write_ds8b_transition_family() -> dict[str, Any]:
     if pre_errors:
         raise ValueError("DS8-B register candidate rejected: " + ";".join(pre_errors))
     report_candidate = render_report(candidate_data)
-    status_candidate = _c13_status_inventory_candidate_text(
+    status_candidate = _ds8_status_inventory_candidate_text(
         original_status,
         register_bytes=register_candidate.encode("utf-8"),
     )

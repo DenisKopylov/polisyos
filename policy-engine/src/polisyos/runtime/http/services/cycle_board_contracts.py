@@ -197,6 +197,7 @@ class CycleBoardCompositionSource(_StrictModel):
         "control_plane_evidence",
         "historical_owner_record",
         "run_summary_lookup",
+        "run_paper_projection",
     ]
     source_ref: str | None = None
     availability: Literal[

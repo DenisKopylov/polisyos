@@ -5,6 +5,7 @@ import { Navigate, useParams } from "react-router-dom";
 import type { AppRouteModule } from "@/app/routes/contracts";
 import {
   createRunDetailLoader,
+  createRunPaperLoader,
   createRunTabLoader,
   createWorkspaceLoader,
 } from "@/app/routes/loaders";
@@ -165,7 +166,7 @@ export const cycleBoardLoader = createWorkspaceLoader(
   cycleBoardRouteHandle.routeId,
   cycleBoardRouteHandle.prefetch,
 );
-export const runReportLoader = createRunDetailLoader(
+export const runReportLoader = createRunPaperLoader(
   runReportRouteHandle.routeId,
 );
 export const runDeckLoader = createRunDetailLoader(runDeckRouteHandle.routeId);

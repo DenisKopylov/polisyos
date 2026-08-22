@@ -16,16 +16,20 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
 import posixpath
 import re
 import subprocess
 import sys
+import tarfile
+import tempfile
 import tomllib
 import unittest
 from collections import Counter, defaultdict
+from collections.abc import Callable, Iterable, Mapping, Sequence
 from functools import lru_cache
 from pathlib import Path, PurePosixPath
-from typing import Any, Iterable, Mapping, Sequence
+from typing import Any
 
 try:
     from jsonschema import Draft202012Validator, FormatChecker
@@ -47,6 +51,7 @@ BASELINE_SCHEMA_PATH = ATLAS_DIR / "frontend-baseline-debt.schema.json"
 REPORT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-frontend-disposition-register.md"
 AUDIT_PATH = REPO_ROOT / "docs/reference/frontend/atlas-live-application-audit.md"
 STATUS_CHECKER_PATH = ATLAS_DIR / "check_status_retirement_inventory.py"
+STATUS_INVENTORY_PATH = ATLAS_DIR / "status-retirement-inventory.json"
 
 _STATUS_SPEC = importlib.util.spec_from_file_location(
     "frontend_disposition_status_checker", STATUS_CHECKER_PATH
@@ -2770,12 +2775,12 @@ _C21C_STRUCTURED_HINTS = {
     "architecture/atlas_surfaces/ds4-waist-debt-register.json:16": (
         "json",
         "/entries[debt_id=ds4-waist-cgf-disposition]",
-        "b503e66f352769e60481dc523209b1a26fc76db7925efb901098cf7a9d9c8b1b",
+        "c70f0656487e81fc889b19d3f5198eb930eac5e9289d85d99c445cd4785868af",
     ),
     "architecture/atlas_surfaces/ds4-waist-debt-register.json:37": (
         "json",
         "/entries[debt_id=ds4-waist-decision-grade]",
-        "399e89a188beb761be92339723ce1f399f80da100aa23d32201c18f38a319248",
+        "621616705e0a72e62ca87bb18a23aba5b1e60dbff8d6ddadd365c31eb32d0fee",
     ),
     "schemas/runtime_api_v1.openapi.json:2221": (
         "json",
@@ -3528,6 +3533,20 @@ DS6_REGISTER_TRANSITION_FINDING_IDS = {
     "baseline-test-a11y-rendered-contrast-incomplete-debt",
 }
 
+DS8_QUERY_KEYS_IDENTITY = (
+    "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
+    "aGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6"
+    "cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1"
+    "ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtl"
+    "eXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI1YzY4MzcyYjFlZGY5YzEwNWE3M2E3NzFl"
+    "OThmOTIzOGViNGQ1N2FmNWZlZjg3NzVhYTdmMGJjZjAyYWRlZDVmIiwicm9sZSI6InZhcmlhYmxl"
+    "X2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9h"
+    "cGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJW"
+    "YXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNp"
+    "b24iOjF9"
+)
+
+
 PRODUCER_BINDING_DEBT_DESCRIPTORS = {
     "authority-issuer-generated-semantic-id-coverage": {
         "finding_kind": "producer_binding_debt",
@@ -3726,18 +3745,7 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "cHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS9ob29rcy91c2VBdXRoTW"
                 "UudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ"
             ),
-            (
-                "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
-                "aGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6"
-                "cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1"
-                "ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtl"
-                "eXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxNmU5M2RhYjk3Y2RmYTJhMmRiYzk1ZTM1"
-                "M2Y0ODg4N2YzZWE5NGQwZTc3YzNkZjM5MzU0MzljNjk2NmFmOWU4Iiwicm9sZSI6InZhcmlhYmxl"
-                "X2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9h"
-                "cGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJW"
-                "YXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNp"
-                "b24iOjF9"
-            ),
+            DS8_QUERY_KEYS_IDENTITY,
         ],
         "rationale": (
             "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, "
@@ -4453,14 +4461,14 @@ BENIGN_BADGE_BASES = (
 BENIGN_BADGE_CLASS_COUNTS: dict[str, int] = {
     "interaction_or_editor_state": 13,
     "transport_or_runtime_health": 20,
-    "workflow_or_lifecycle_display_without_terminality_inference": 24,
+    "workflow_or_lifecycle_display_without_terminality_inference": 25,
     "layout_or_counts": 21,
     "opaque_metadata_or_taxonomy": 25,
 }
 
 if set(BENIGN_BADGE_CLASS_COUNTS) != set(BENIGN_BADGE_BASES):
     raise RuntimeError("benign Badge class vocabulary drift")
-if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 103:
+if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 104:
     raise RuntimeError("benign Badge class count drift")
 
 AUTHORITY_PRESENTATION_DEBT_SPECS = {
@@ -4476,10 +4484,10 @@ AUTHORITY_PRESENTATION_DEBT_SPECS.update(
 )
 
 AUTHORITY_PRESENTATION_COUNTS = {
-    "badge_total": 161,
+    "badge_total": 159,
     "badge_branded": 2,
-    "badge_debt": 56,
-    "badge_benign": 103,
+    "badge_debt": 53,
+    "badge_benign": 104,
     "prop_total": 18,
     "prop_branded": 2,
     "prop_debt": 11,
@@ -4490,7 +4498,7 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:f5cb1209582b31775758692e1ad97c4427667e0d18ce6fca9bd86957ce83f347"
+    "sha256:494022a38caeeefc138901cff8385a4d207a26595b7c62412c8c116cbb055649"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
     "sha256:69ba5f8de385f401dea85a9997dcd19081dc0a4d7688381e5db7dd11fa414e3a"
@@ -4880,6 +4888,8 @@ def _authority_evidence_identities(scan: Mapping[str, Any]) -> dict[tuple[str, i
     debt_sites_by_group = _authority_badge_sites_by_debt_group(scan)
     for group_id in AUTHORITY_BADGE_DEBT_SPECS:
         sites = debt_sites_by_group[group_id]
+        if not sites:
+            continue
         first = sites[0]
         anchors.append(
             {"path": first["componentDeclarationPath"], "line": first["componentDeclarationLine"], "role": "named_declaration", "discriminator": first["component"]}
@@ -5900,6 +5910,55 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS: dict[
 }
 # C21B_FROZEN_AUTHORITY_IDENTITIES_END
 
+DS8_REMOVED_AUTHORITY_BADGE_IDENTITIES = frozenset(
+    {
+        "32cab7325fba8b2f585fc0214ccf345bbf32b0ed4dafab55e94022336f809cba",
+        "3da0a4081081e0d98676b5857cc23316a01eb91b4ad3042e154ff6bf73edf38f",
+        "5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c",
+        "575992477f68b27fab1317f1688153b5afaced24c268c22dd2fd2b6f8c49ec76",
+        "775183902635829ee7a634e09e77c411ad11cbe0cfff43ee743cebaf17288e25",
+        "7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695",
+        "892350aac1cb253283d156a1952c835fc1d2a8d73327b0feea81fce21d67ad24",
+        "a4a0f209ac5afc0587dbeec512266e6543cc61ba7e05f95e5b88ad141c01f9ed",
+        "c240d2feaa07748f063fcff49d11df7617c812f95f3341136ca14d54f644c66b",
+        "dbe9710ceb60817af97733abdfa27ca081c78b89a98e2242ffc4f6166567e256",
+    }
+)
+DS8_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    "3e7cc757db7eddb95fe154ec05b066c4cccf23a240e0943f0675a40eba9f87a4": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    "4c06f4fadf11ce470b22bb90b672256d6968ba462efc0972de32570a3de34d7a": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "733a0be941f37521e2e274d3ae1002cdd671f1835b931f33f4f78d7e4d9a48b9": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "7b1d2e11c323bace1ce55613fb354b597bae8a240d144d85b302d0cd3b156d5a": (
+        "debt:badge-preflight-readiness"
+    ),
+    "91670222405793ddbb75edddf1eadf419dde7e4b57aefbf01c7ae6cdce0c89a9": (
+        "benign:transport_or_runtime_health"
+    ),
+    "c022809e1cbe4280802c442f8f3a1e5867f5dfecf68b2e57f51a7f18d64008c1": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "c7099772e56dfb77319548ebdd3dd1b17f41c38fbfda1d1295cd8b5c43bd8198": (
+        "debt:badge-preflight-readiness"
+    ),
+    "e8b7a946aac35f592f9723ee7e896716d5bed248e926322a0aedc08a271b036d": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+}
+FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    **{
+        identity: classification
+        for identity, classification in FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.items()
+        if identity not in DS8_REMOVED_AUTHORITY_BADGE_IDENTITIES
+    },
+    **DS8_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
+}
+
 AUTHORITY_BADGE_CLASSIFICATIONS = FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
 
 
@@ -6023,6 +6082,35 @@ def _authority_presentation_rows(
 
     for group_id, spec in sorted(AUTHORITY_BADGE_DEBT_SPECS.items()):
         badge_sites = debt_badge_sites_by_group[group_id]
+        finding_id = "authority-presentation-" + group_id
+        if not badge_sites:
+            rows.append(
+                {
+                    "finding_id": finding_id,
+                    "finding_kind": "authority_presentation_debt",
+                    "disposition": "rebind_pending",
+                    "status": "open_debt",
+                    "evidence_refs": [AUTHORITY_PRESENTATION_PLAN_REF],
+                    "owner_slice": spec["owner_slice"],
+                    "decision_date": DS5_C01A_DECISION_DATE,
+                    "rationale": (
+                        "The live census establishes that this authority-debt "
+                        "group has no remaining direct Badge consumer. Its "
+                        "producer and bridge capability debt remains open "
+                        "without preserving a stale sink."
+                    ),
+                    "capability_states": spec["capability_states"],
+                    "closure_signal": spec["closure_signal"],
+                    "authority_sink_absence": {
+                        "sink_kind": "direct_badge_group",
+                        "descriptor_id": group_id,
+                        "consumer_count": 0,
+                        "predicate_provenance": "recomputed",
+                        "reason": "no_live_consumer_sites",
+                    },
+                }
+            )
+            continue
         first = badge_sites[0]
         component_identity = (
             first["component"],
@@ -6051,7 +6139,6 @@ def _authority_presentation_rows(
             )
             for site in badge_sites
         ]
-        finding_id = "authority-presentation-" + group_id
         rows.append(
             {
                 "finding_id": finding_id,
@@ -6348,6 +6435,77 @@ EXPECTED_FINDING_IDS = (
 REPORT_PROJECTION_START = "<!-- BEGIN DS19 REGISTER PROJECTION -->"
 REPORT_PROJECTION_END = "<!-- END DS19 REGISTER PROJECTION -->"
 
+DS8_STRANGLE_BASE_COMMIT = "9e6a43b53d11166e90df376940cb34ff15b77289"
+DS8_STRANGLE_SOURCE_COMMIT = "fd43342f87fda34c6123a8f5f4791f8e3236b4f9"
+DS8_STRANGLE_WRITER_HEAD_COMMIT = "c393090ab35c242b03314cd2095d195c4e188fc3"
+DS8_STRANGLE_ROOTS = (
+    "apps/runtime-dashboard/src/features/runs",
+    "apps/runtime-dashboard/src/features/artifacts",
+    "apps/runtime-dashboard/src/features/evidence",
+)
+DS8_STRANGLE_EXTENSIONS = (".ts", ".tsx")
+DS8_BASELINE_CONTENT_REANCHORS = frozenset(
+    {
+        (
+            "C06",
+            "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        ),
+        (
+            "C08",
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "DataIntelligencePanel.test.tsx",
+        ),
+        (
+            "C08",
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "DataIntelligencePanel.tsx",
+        ),
+    }
+)
+DS8_COMPANION_REFERENCE_PATHS = {
+    "c06-cgf-public-vocabulary-producer-debt": (
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+    ),
+    "c06-decision-grade-generated-contract-debt": (
+        "architecture/atlas_surfaces/ds4-waist-debt-register.json"
+    ),
+    "c08b-auth-session-revision-producer-debt": (
+        "apps/runtime-dashboard/src/api/queryKeys.ts"
+    ),
+}
+DS8_STRANGLE_IN_SCOPE = frozenset(
+    {
+        "apps/runtime-dashboard/src/features/runs/route.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+        "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+        "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+    }
+)
+DS8_STRANGLE_CLOSURE_PATHS = {
+    "C04": (
+        "apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx",
+        "apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx",
+        "apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx",
+        "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+    ),
+    "C05": (
+        "apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx",
+    ),
+    "C06": (
+        "apps/runtime-dashboard/src/features/runs/route.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+        "apps/runtime-dashboard/src/features/runs/api/useRunPaper.ts",
+        "apps/runtime-dashboard/src/features/runs/components/runPaperExport.ts",
+        "apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.ts",
+    ),
+}
+DS8_DEFERRED_EXIT_CONDITION = "approved_named_successor_slice_moves_row"
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -6355,6 +6513,1035 @@ def _load_json(path: Path) -> dict[str, Any]:
 
 def _sha256(path: Path) -> str:
     return "sha256:" + hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def _ds8_digest(payload: bytes) -> str:
+    return "sha256:" + hashlib.sha256(payload).hexdigest()
+
+
+def _ds8_git_bytes(*arguments: str) -> bytes:
+    completed = subprocess.run(  # noqa: S603 - fixed repository command
+        ["git", *arguments],  # noqa: S607 - controlled toolchain executable
+        cwd=REPO_ROOT.parent,
+        capture_output=True,
+        check=False,
+    )
+    if completed.returncode != 0:
+        raise ValueError(
+            "DS8 Git census failed: "
+            + completed.stderr.decode("utf-8", errors="replace").strip()
+        )
+    return completed.stdout
+
+
+def _ds8_git_text(*arguments: str) -> str:
+    return _ds8_git_bytes(*arguments).decode("utf-8")
+
+
+@lru_cache(maxsize=1)
+def _ds8_coordinate_prefix() -> str:
+    completed = subprocess.run(  # noqa: S603 - fixed repository command
+        ["git", "rev-parse", "--show-prefix"],  # noqa: S607
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise ValueError(
+            "DS8 Git prefix query failed: " + completed.stderr.strip()
+        )
+    prefix = completed.stdout.strip()
+    if prefix != "policy-engine/":
+        raise ValueError(f"DS8 Git coordinate prefix drift: {prefix!r}")
+    return prefix
+
+
+def _ds8_role(path: str) -> str:
+    if re.search(r"\.stories\.(?:ts|tsx)$", path):
+        return "story"
+    if re.search(r"\.(?:test|spec)\.(?:ts|tsx)$", path):
+        return "test"
+    return "production"
+
+
+def _ds8_feature(path: str) -> str:
+    for feature in ("runs", "artifacts", "evidence"):
+        marker = f"/features/{feature}/"
+        if marker in path:
+            return feature
+    raise ValueError(f"DS8 path escaped feature denominator: {path}")
+
+
+def _ds8_is_source(path: str) -> bool:
+    return path.endswith(DS8_STRANGLE_EXTENSIONS) and any(
+        path == root or path.startswith(root + "/")
+        for root in DS8_STRANGLE_ROOTS
+    )
+
+
+@lru_cache(maxsize=4)
+def _ds8_git_tree_sources(commit: str) -> dict[str, bytes]:
+    resolved = _ds8_git_text("rev-parse", f"{commit}^{{commit}}").strip()
+    if resolved != commit:
+        raise ValueError(f"DS8 commit is not a full immutable identity: {commit}")
+    prefix = _ds8_coordinate_prefix()
+    top_roots = [prefix + root for root in DS8_STRANGLE_ROOTS]
+    path_output = _ds8_git_bytes(
+        "ls-tree",
+        "-r",
+        "-z",
+        "--name-only",
+        commit,
+        "--",
+        *top_roots,
+    )
+    top_paths = [
+        raw.decode("utf-8")
+        for raw in path_output.split(b"\0")
+        if raw
+    ]
+    paths = sorted(
+        top_path[len(prefix) :]
+        for top_path in top_paths
+        if top_path.startswith(prefix)
+        and _ds8_is_source(top_path[len(prefix) :])
+    )
+    return {
+        path: _ds8_git_bytes("show", f"{commit}:{prefix}{path}")
+        for path in paths
+    }
+
+
+@lru_cache(maxsize=4)
+def _ds8_archive_sources(commit: str) -> dict[str, bytes]:
+    prefix = _ds8_coordinate_prefix()
+    archive = _ds8_git_bytes(
+        "archive",
+        "--format=tar",
+        commit,
+        "--",
+        *(prefix + root for root in DS8_STRANGLE_ROOTS),
+    )
+    sources: dict[str, bytes] = {}
+    with tarfile.open(fileobj=io.BytesIO(archive), mode="r:") as bundle:
+        for member in bundle.getmembers():
+            if not member.isfile() or not member.name.startswith(prefix):
+                continue
+            path = member.name[len(prefix) :]
+            if not _ds8_is_source(path):
+                continue
+            extracted = bundle.extractfile(member)
+            if extracted is None:
+                raise ValueError(f"DS8 archive member unreadable: {member.name}")
+            sources[path] = extracted.read()
+    return dict(sorted(sources.items()))
+
+
+def _ds8_live_sources() -> dict[str, bytes]:
+    physical = {
+        path.relative_to(REPO_ROOT).as_posix(): path.read_bytes()
+        for root in DS8_STRANGLE_ROOTS
+        for path in (REPO_ROOT / root).rglob("*")
+        if path.is_file()
+        and path.suffix in DS8_STRANGLE_EXTENSIONS
+    }
+    tracked_output = subprocess.run(  # noqa: S603 - fixed repository command
+        [
+            "git",  # noqa: S607 - controlled toolchain executable
+            "ls-files",
+            "--cached",
+            "--others",
+            "--exclude-standard",
+            "-z",
+            "--",
+            *DS8_STRANGLE_ROOTS,
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+    )
+    if tracked_output.returncode != 0:
+        raise ValueError(
+            "DS8 live source census failed: "
+            + tracked_output.stderr.decode("utf-8", errors="replace").strip()
+        )
+    tracked = {
+        raw.decode("utf-8")
+        for raw in tracked_output.stdout.split(b"\0")
+        if raw and _ds8_is_source(raw.decode("utf-8"))
+    }
+    if set(physical) != tracked:
+        raise ValueError(
+            "DS8 physical/Git live path drift: "
+            f"physical_only={sorted(set(physical) - tracked)}:"
+            f"git_only={sorted(tracked - set(physical))}"
+        )
+    return dict(sorted(physical.items()))
+
+
+def _ds8_path_manifest(paths: Iterable[str], *, prefix: str) -> str:
+    payload = "".join(f"{prefix}{path}\n" for path in sorted(paths)).encode()
+    return _ds8_digest(payload)
+
+
+def _ds8_content_manifest(
+    sources: Mapping[str, bytes], paths: Iterable[str]
+) -> str:
+    payload = b"".join(
+        path.encode()
+        + b"\0"
+        + hashlib.sha256(sources[path]).hexdigest().encode()
+        + b"\n"
+        for path in sorted(paths)
+    )
+    return _ds8_digest(payload)
+
+
+def _ds8_count(sources: Mapping[str, bytes], paths: Iterable[str]) -> dict[str, int]:
+    selected = list(paths)
+    return {
+        "files": len(selected),
+        "physical_lines": sum(sources[path].count(b"\n") for path in selected),
+    }
+
+
+def _ds8_snapshot(
+    commit: str, sources: Mapping[str, bytes]
+) -> dict[str, Any]:
+    paths = sorted(sources)
+    roles = {role: [path for path in paths if _ds8_role(path) == role] for role in (
+        "production",
+        "test",
+        "story",
+    )}
+    features = {
+        feature: {
+            "all": _ds8_count(
+                sources, [path for path in paths if _ds8_feature(path) == feature]
+            ),
+            "production": _ds8_count(
+                sources,
+                [
+                    path
+                    for path in roles["production"]
+                    if _ds8_feature(path) == feature
+                ],
+            ),
+            "tests": _ds8_count(
+                sources,
+                [path for path in roles["test"] if _ds8_feature(path) == feature],
+            ),
+            "stories": _ds8_count(
+                sources,
+                [path for path in roles["story"] if _ds8_feature(path) == feature],
+            ),
+        }
+        for feature in ("runs", "artifacts", "evidence")
+    }
+    prefix = _ds8_coordinate_prefix()
+    return {
+        "commit": commit,
+        "coordinate_prefix": prefix,
+        "roots": list(DS8_STRANGLE_ROOTS),
+        "extensions": list(DS8_STRANGLE_EXTENSIONS),
+        "classifier": "stories_then_tests_then_production",
+        "all": _ds8_count(sources, paths),
+        "production": _ds8_count(sources, roles["production"]),
+        "tests": _ds8_count(sources, roles["test"]),
+        "stories": _ds8_count(sources, roles["story"]),
+        "features": features,
+        "path_manifest_sha256": _ds8_path_manifest(paths, prefix=prefix),
+        "production_path_manifest_sha256": _ds8_path_manifest(
+            roles["production"], prefix=prefix
+        ),
+        "content_manifest_sha256": _ds8_content_manifest(sources, paths),
+    }
+
+
+def _ds8_assignment(
+    path: str,
+    *,
+    origin: str,
+    disposition: str,
+    cluster: str | None = None,
+) -> dict[str, Any]:
+    row: dict[str, Any] = {
+        "path": path,
+        "feature": _ds8_feature(path),
+        "role": _ds8_role(path),
+        "origin": origin,
+        "disposition": disposition,
+    }
+    if cluster is not None:
+        row["closure_cluster"] = cluster
+    if disposition == "surface_out_of_scope":
+        row.update(
+            {
+                "owner_team": "team-design",
+                "capability_state": "surface_out_of_scope",
+                "exit_condition": DS8_DEFERRED_EXIT_CONDITION,
+                "successor_slice": None,
+            }
+        )
+    return row
+
+
+def build_ds8_strangle_coverage(
+    *,
+    baseline_commit: str,
+    source_commit: str,
+    writer_preimage_commit: str = DS8_STRANGLE_WRITER_HEAD_COMMIT,
+    require_live_source_match: bool = False,
+) -> dict[str, Any]:
+    """Derive the complete DS8 assignment map from two independent Git walks."""
+    baseline = _ds8_git_tree_sources(baseline_commit)
+    source = _ds8_git_tree_sources(source_commit)
+    if baseline != _ds8_archive_sources(baseline_commit):
+        raise ValueError("DS8 baseline ls-tree/archive reconciliation failed")
+    if source != _ds8_archive_sources(source_commit):
+        raise ValueError("DS8 source ls-tree/archive reconciliation failed")
+    ancestry = subprocess.run(  # noqa: S603 - fixed repository command
+        ["git", "merge-base", "--is-ancestor", source_commit, writer_preimage_commit],  # noqa: S607
+        cwd=REPO_ROOT.parent,
+        check=False,
+    )
+    if ancestry.returncode != 0:
+        raise ValueError("DS8 source freeze is not an ancestor of writer preimage")
+    if require_live_source_match and source != _ds8_live_sources():
+        raise ValueError("DS8 source-freeze/live-worktree byte reconciliation failed")
+    if not set(baseline) <= set(source):
+        raise ValueError(
+            "DS8 source freeze removed opening paths: "
+            + repr(sorted(set(baseline) - set(source)))
+        )
+
+    baseline_production = {
+        path for path in baseline if _ds8_role(path) == "production"
+    }
+    if not DS8_STRANGLE_IN_SCOPE <= baseline_production:
+        raise ValueError("DS8 declared in-scope path is absent from T0 production")
+    deferred = baseline_production - DS8_STRANGLE_IN_SCOPE
+    changed_baseline = sorted(
+        path for path in baseline if baseline[path] != source[path]
+    )
+    changed_production = {
+        path for path in changed_baseline if _ds8_role(path) == "production"
+    }
+    if changed_production != DS8_STRANGLE_IN_SCOPE:
+        raise ValueError(
+            "DS8 changed production set escaped the approved eight paths: "
+            f"missing={sorted(DS8_STRANGLE_IN_SCOPE - changed_production)}:"
+            f"extra={sorted(changed_production - DS8_STRANGLE_IN_SCOPE)}"
+        )
+    if any(baseline[path] != source[path] for path in deferred):
+        raise ValueError("DS8 deferred production source changed after T0")
+
+    cluster_by_path = {
+        path: cluster
+        for cluster, paths in DS8_STRANGLE_CLOSURE_PATHS.items()
+        for path in paths
+    }
+    new_paths = sorted(set(source) - set(baseline))
+    governed_mechanism_paths = DS8_STRANGLE_IN_SCOPE | {
+        path for path in new_paths if _ds8_role(path) == "production"
+    }
+    if set(cluster_by_path) != governed_mechanism_paths:
+        raise ValueError("DS8 closure receipts do not partition mechanism paths")
+
+    assignments: list[dict[str, Any]] = []
+    for path in sorted(baseline):
+        role = _ds8_role(path)
+        if path in DS8_STRANGLE_IN_SCOPE:
+            disposition = "in_scope"
+        elif role == "production":
+            disposition = "surface_out_of_scope"
+        elif role == "test":
+            disposition = "verification_companion"
+        else:
+            disposition = "retained"
+        assignments.append(
+            _ds8_assignment(
+                path,
+                origin="opening_base",
+                disposition=disposition,
+                cluster=cluster_by_path.get(path),
+            )
+        )
+    assignments.extend(
+        _ds8_assignment(
+            path,
+            origin="source_freeze",
+            disposition="new_in_slice",
+            cluster=cluster_by_path.get(path),
+        )
+        for path in new_paths
+    )
+    closure_receipts = [
+        {
+            "cluster": cluster,
+            "source_commit": source_commit,
+            "paths": list(paths),
+            "file_count": len(paths),
+            "path_content_manifest_sha256": _ds8_content_manifest(source, paths),
+        }
+        for cluster, paths in DS8_STRANGLE_CLOSURE_PATHS.items()
+    ]
+    prefix = _ds8_coordinate_prefix()
+    return {
+        "coverage_id": "ds8-case-evidence-strangle-coverage",
+        "predicate_provenance": "independently_reconciled",
+        "family_complete": False,
+        "baseline": _ds8_snapshot(baseline_commit, baseline),
+        "source_freeze": _ds8_snapshot(source_commit, source),
+        "writer_preimage_commit": writer_preimage_commit,
+        "opening_production_partition": {
+            "total": len(baseline_production),
+            "in_scope": len(DS8_STRANGLE_IN_SCOPE),
+            "deferred": len(deferred),
+            "in_scope_path_manifest_sha256": _ds8_path_manifest(
+                DS8_STRANGLE_IN_SCOPE, prefix=prefix
+            ),
+            "deferred_path_manifest_sha256": _ds8_path_manifest(
+                deferred, prefix=prefix
+            ),
+            "deferred_unchanged_content_manifest_sha256": _ds8_content_manifest(
+                baseline, deferred
+            ),
+        },
+        "new_path_count": len(new_paths),
+        "new_path_manifest_sha256": _ds8_path_manifest(new_paths, prefix=prefix),
+        "changed_baseline_paths": changed_baseline,
+        "assignments": assignments,
+        "closure_receipts": closure_receipts,
+        "reconciliation": {
+            "baseline_git_tree_vs_archive": "exact",
+            "source_git_tree_vs_archive": "exact",
+            "source_freeze_vs_writer_history": "ancestor",
+            "live_tree_disposition": "outside_frozen_coverage",
+        },
+    }
+
+
+def validate_ds8_strangle_coverage(
+    coverage: Mapping[str, Any],
+    *,
+    expected_baseline_commit: str = DS8_STRANGLE_BASE_COMMIT,
+    expected_source_commit: str = DS8_STRANGLE_SOURCE_COMMIT,
+) -> list[str]:
+    """Reject every missing, duplicate, stale, or nonexistent DS8 row."""
+    try:
+        expected = build_ds8_strangle_coverage(
+            baseline_commit=expected_baseline_commit,
+            source_commit=expected_source_commit,
+        )
+    except (OSError, subprocess.SubprocessError, ValueError) as exc:
+        return [f"ds8_strangle_reconciliation_failed:{exc}"]
+    assignments = coverage.get("assignments")
+    if not isinstance(assignments, list):
+        return ["ds8_strangle_assignments_missing"]
+    expected_rows = {row["path"]: row for row in expected["assignments"]}
+    actual_paths = [
+        str(row.get("path", ""))
+        for row in assignments
+        if isinstance(row, Mapping)
+    ]
+    counts = Counter(actual_paths)
+    errors: list[str] = []
+    errors.extend(
+        f"ds8_strangle_duplicate_assignment:{path}"
+        for path, count in sorted(counts.items())
+        if count > 1
+    )
+    errors.extend(
+        f"ds8_strangle_missing_assignment:{path}"
+        for path in sorted(set(expected_rows) - set(actual_paths))
+    )
+    errors.extend(
+        f"ds8_strangle_nonexistent_assignment:{path}"
+        for path in sorted(set(actual_paths) - set(expected_rows))
+    )
+    actual_by_path = {
+        str(row.get("path")): row
+        for row in assignments
+        if isinstance(row, Mapping) and counts[str(row.get("path"))] == 1
+    }
+    errors.extend(
+        f"ds8_strangle_stale_assignment:{path}"
+        for path in sorted(set(expected_rows) & set(actual_by_path))
+        if actual_by_path[path] != expected_rows[path]
+    )
+    for key, expected_value in expected.items():
+        if key == "assignments":
+            continue
+        if coverage.get(key) != expected_value:
+            errors.append(f"ds8_strangle_metadata_stale:{key}")
+    errors.extend(
+        f"ds8_strangle_unknown_property:{key}"
+        for key in sorted(set(coverage) - set(expected))
+    )
+    return errors
+
+
+def ds8_strangle_corruption_probes(
+    coverage: Mapping[str, Any],
+    *,
+    expected_baseline_commit: str = DS8_STRANGLE_BASE_COMMIT,
+    expected_source_commit: str = DS8_STRANGLE_SOURCE_COMMIT,
+) -> list[str]:
+    """Return named DS8 mutations that escaped the generic validator."""
+    probes: list[tuple[str, dict[str, Any], str]] = []
+    first_path = str(coverage["assignments"][0]["path"])
+
+    missing = copy.deepcopy(coverage)
+    removed = missing["assignments"].pop(0)
+    probes.append(
+        (
+            "missing",
+            missing,
+            f"ds8_strangle_missing_assignment:{removed['path']}",
+        )
+    )
+    duplicate = copy.deepcopy(coverage)
+    duplicate["assignments"].append(copy.deepcopy(duplicate["assignments"][0]))
+    probes.append(
+        (
+            "duplicate",
+            duplicate,
+            f"ds8_strangle_duplicate_assignment:{first_path}",
+        )
+    )
+    stale = copy.deepcopy(coverage)
+    stale["assignments"][0]["disposition"] = "new_in_slice"
+    probes.append(
+        ("stale", stale, f"ds8_strangle_stale_assignment:{first_path}")
+    )
+    nonexistent = copy.deepcopy(coverage)
+    nonexistent["assignments"][0]["path"] = (
+        "apps/runtime-dashboard/src/features/runs/nonexistent.ts"
+    )
+    probes.append(
+        (
+            "nonexistent",
+            nonexistent,
+            "ds8_strangle_nonexistent_assignment:"
+            "apps/runtime-dashboard/src/features/runs/nonexistent.ts",
+        )
+    )
+    deferred_index = next(
+        index
+        for index, row in enumerate(coverage["assignments"])
+        if row["disposition"] == "surface_out_of_scope"
+    )
+    deferred_path = str(coverage["assignments"][deferred_index]["path"])
+    for field, value in (
+        ("owner_team", "team-runtime"),
+        ("capability_state", "implemented_but_not_orchestrated"),
+        ("exit_condition", "count_reaches_zero"),
+        ("successor_slice", "DS9"),
+    ):
+        mutation = copy.deepcopy(coverage)
+        mutation["assignments"][deferred_index][field] = value
+        probes.append(
+            (
+                f"deferred-{field}",
+                mutation,
+                f"ds8_strangle_stale_assignment:{deferred_path}",
+            )
+        )
+    removed_property = copy.deepcopy(coverage)
+    removed_property.pop("closure_receipts")
+    probes.append(
+        (
+            "remove-property-keep-counts",
+            removed_property,
+            "ds8_strangle_metadata_stale:closure_receipts",
+        )
+    )
+    failures: list[str] = []
+    for name, mutation, expected_error in probes:
+        errors = validate_ds8_strangle_coverage(
+            mutation,
+            expected_baseline_commit=expected_baseline_commit,
+            expected_source_commit=expected_source_commit,
+        )
+        if expected_error not in errors:
+            failures.append(name)
+    return failures
+
+
+def _ds8_register_candidate_text(
+    original_text: str, coverage: Mapping[str, Any]
+) -> str:
+    """Surgically add or refresh only the DS8 coverage and schema version."""
+    original = json.loads(original_text)
+    candidate = original_text
+    old_version = (
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
+        '  "schema_version": "1.0",'
+    )
+    new_version = (
+        '{\n  "$schema": "./frontend-disposition-register.schema.json",\n'
+        '  "schema_version": "1.1",'
+    )
+    if candidate.count(old_version) == 1:
+        candidate = candidate.replace(old_version, new_version, 1)
+    elif candidate.count(new_version) != 1:
+        raise ValueError("DS8 register schema-version preimage is ambiguous")
+
+    key_marker = '  "ds8_strangle_coverage": '
+    rendered = json.dumps(coverage, indent=2, ensure_ascii=False).replace(
+        "\n", "\n  "
+    )
+    if key_marker in candidate:
+        if candidate.count(key_marker) != 1:
+            raise ValueError("DS8 coverage key is duplicated")
+        value_start = candidate.index(key_marker) + len(key_marker)
+        _stored, relative_end = json.JSONDecoder().raw_decode(
+            candidate[value_start:]
+        )
+        candidate = (
+            candidate[:value_start]
+            + rendered
+            + candidate[value_start + relative_end :]
+        )
+    else:
+        insertion_marker = '  "seeded_negative_lifecycle": ['
+        if candidate.count(insertion_marker) != 1:
+            raise ValueError("DS8 register insertion point is ambiguous")
+        candidate = candidate.replace(
+            insertion_marker,
+            key_marker + rendered + ",\n" + insertion_marker,
+            1,
+        )
+    parsed = json.loads(candidate)
+    if parsed.get("ds8_strangle_coverage") != coverage:
+        raise ValueError("DS8 coverage surgical insertion changed value")
+    original_without_ds8 = copy.deepcopy(original)
+    original_without_ds8.pop("ds8_strangle_coverage", None)
+    original_without_ds8["schema_version"] = "1.1"
+    candidate_without_ds8 = copy.deepcopy(parsed)
+    candidate_without_ds8.pop("ds8_strangle_coverage", None)
+    if candidate_without_ds8 != original_without_ds8:
+        raise ValueError("DS8 coverage writer changed an unrelated register value")
+    return candidate
+
+
+def _replace_unique_text(
+    text: str, *, old: str, new: str, label: str
+) -> str:
+    if text.count(old) == 1:
+        return text.replace(old, new, 1)
+    if text.count(new) == 1:
+        return text
+    raise ValueError(f"DS8 status preimage is ambiguous: {label}")
+
+
+def _ds8_baseline_manifest_candidate_text(original_text: str) -> str:
+    """Re-anchor exactly three DS8-touched lint-resolution source receipts."""
+    match = re.search(
+        r'^    "resolution_content_bindings":\s*(\[)',
+        original_text,
+        re.MULTILINE,
+    )
+    if match is None:
+        raise ValueError("DS8 baseline resolution bindings are missing")
+    array_start = match.start(1)
+    array_end = _json_container_end(original_text, array_start)
+    index = array_start + 1
+    spans: list[tuple[tuple[str, str], int, int, Mapping[str, Any]]] = []
+    while index < array_end:
+        while index < array_end and (
+            original_text[index].isspace() or original_text[index] == ","
+        ):
+            index += 1
+        if index >= array_end:
+            break
+        if original_text[index] != "{":
+            raise ValueError("DS8 baseline resolution row is malformed")
+        object_end = _json_container_end(original_text, index)
+        row = json.loads(original_text[index : object_end + 1])
+        key = (str(row.get("cluster_id")), str(row.get("path")))
+        spans.append((key, index, object_end, row))
+        index = object_end + 1
+
+    counts = Counter(key for key, _start, _end, _row in spans)
+    if any(counts[key] != 1 for key in DS8_BASELINE_CONTENT_REANCHORS):
+        raise ValueError("DS8 baseline resolution target cardinality drift")
+    replacements: list[tuple[int, int, str]] = []
+    for key, object_start, object_end, row in spans:
+        if key not in DS8_BASELINE_CONTENT_REANCHORS:
+            continue
+        source_path = REPO_ROOT / key[1]
+        if not source_path.is_file():
+            raise ValueError(f"DS8 baseline source is missing: {key[1]}")
+        old = f'"sha256": "{row["sha256"]}"'
+        new = f'"sha256": "{hashlib.sha256(source_path.read_bytes()).hexdigest()}"'
+        object_text = original_text[object_start : object_end + 1]
+        if object_text.count(old) != 1:
+            raise ValueError(f"DS8 baseline hash span is ambiguous: {key}")
+        relative_start = object_text.index(old)
+        replacements.append(
+            (
+                object_start + relative_start,
+                object_start + relative_start + len(old),
+                new,
+            )
+        )
+    candidate = original_text
+    for start, end, replacement in sorted(replacements, reverse=True):
+        candidate = candidate[:start] + replacement + candidate[end:]
+    candidate_data = json.loads(candidate)
+    errors = validate_baseline_manifest(candidate_data)
+    if errors:
+        raise ValueError("DS8 baseline candidate rejected: " + ";".join(errors))
+    return candidate
+
+
+def _ds8_status_inventory_candidate_text(
+    original_text: str, *, register_bytes: bytes
+) -> str:
+    """Re-anchor four exact DS8-induced status receipts without reformatting."""
+    stored = json.loads(original_text)
+    generated = stored["sources"]["generated_client"]
+    candidate = _replace_unique_text(
+        original_text,
+        old=f'"canonical_sha256": "{generated["canonical_sha256"]}"',
+        new=(
+            '"canonical_sha256": "'
+            + _sha256(REPO_ROOT / generated["canonical_path"])
+            + '"'
+        ),
+        label="generated canonical hash",
+    )
+    candidate = _replace_unique_text(
+        candidate,
+        old=f'"types_sha256": "{generated["types_sha256"]}"',
+        new=(
+            '"types_sha256": "'
+            + _sha256(REPO_ROOT / generated["types_path"])
+            + '"'
+        ),
+        label="generated types hash",
+    )
+    candidate = _replace_unique_text(
+        candidate,
+        old=(
+            '"path": "apps/runtime-dashboard/src/features/evidence/components/'
+            'DataIntelligencePanel.tsx",\n          "line": 1211,\n'
+            '          "kind": "prop"'
+        ),
+        new=(
+            '"path": "apps/runtime-dashboard/src/features/evidence/components/'
+            'DataIntelligencePanel.tsx",\n          "line": 1212,\n'
+            '          "kind": "prop"'
+        ),
+        label="DataIntelligencePanel consumer line",
+    )
+    stored = json.loads(candidate)
+    old_register_hash = str(stored["sources"]["ds19"]["sha256"])
+    new_register_hash = _ds8_digest(register_bytes)
+    candidate = _replace_unique_text(
+        candidate,
+        old=f'"sha256": "{old_register_hash}"',
+        new=f'"sha256": "{new_register_hash}"',
+        label="DS19 register hash",
+    )
+    parsed = json.loads(candidate)
+    if parsed["sources"]["ds19"]["sha256"] != new_register_hash:
+        raise ValueError("DS8 status register hash did not bind candidate bytes")
+    return candidate
+
+
+def _status_line_leaf_count(value: Any, path: tuple[str, ...] = ()) -> int:
+    governed_keys = {
+        "line",
+        "start_line",
+        "end_line",
+        "canonical_line",
+        "schema_line",
+    }
+    governed_inline = {
+        ("denominators", "current_inline"),
+        ("denominators", "ds1_inline"),
+    }
+    if isinstance(value, Mapping):
+        return sum(
+            (
+                1
+                if type(child) is int  # noqa: E721 - bool must be excluded
+                and (key in governed_keys or path + (str(key),) in governed_inline)
+                else _status_line_leaf_count(child, path + (str(key),))
+            )
+            for key, child in value.items()
+        )
+    if isinstance(value, list):
+        return sum(
+            _status_line_leaf_count(child, path + (str(index),))
+            for index, child in enumerate(value)
+        )
+    return 0
+
+
+def _string_leaf_count(value: Any, marker: str) -> int:
+    if isinstance(value, Mapping):
+        return sum(_string_leaf_count(child, marker) for child in value.values())
+    if isinstance(value, list):
+        return sum(_string_leaf_count(child, marker) for child in value)
+    return int(isinstance(value, str) and marker in value)
+
+
+def _ds8_status_candidate_errors(
+    inventory: Mapping[str, Any], *, register_bytes: bytes
+) -> list[str]:
+    errors = status_checker._schema_errors(  # type: ignore[attr-defined]
+        inventory,
+        status_checker.INVENTORY_SCHEMA_PATH,
+        "status-retirement-inventory",
+    )
+    if inventory["sources"]["ds19"]["sha256"] != _ds8_digest(register_bytes):
+        errors.append("ds8_status_register_candidate_hash_drift")
+    generated = inventory["sources"]["generated_client"]
+    for key in ("canonical", "types"):
+        source_path = REPO_ROOT / generated[f"{key}_path"]
+        if generated[f"{key}_sha256"] != _sha256(source_path):
+            errors.append(f"ds8_status_generated_{key}_hash_drift")
+    if _status_line_leaf_count(inventory) != 387:
+        errors.append("ds8_status_line_leaf_count_drift")
+    if _string_leaf_count(inventory, "#ts-identity=") != 30:
+        errors.append("ds8_status_ts_identity_count_drift")
+    status_row = next(
+        row
+        for row in inventory["entries"]
+        if row["unit_id"] == "status-inline-review-surface"
+    )
+    data_consumer = next(
+        row
+        for row in status_row["consumers"]
+        if row["path"].endswith("/DataIntelligencePanel.tsx")
+    )
+    if data_consumer["line"] != 1212:
+        errors.append("ds8_status_DataIntelligencePanel_line_drift")
+    return errors
+
+
+def _stage_same_directory(path: Path, payload: bytes) -> Path:
+    descriptor, temporary = tempfile.mkstemp(
+        prefix=f".{path.name}.ds8-", suffix=".tmp", dir=path.parent
+    )
+    temporary_path = Path(temporary)
+    owned_descriptor = descriptor
+    try:
+        os.fchmod(owned_descriptor, path.stat().st_mode & 0o7777)
+        handle = os.fdopen(owned_descriptor, "wb", closefd=True)
+        owned_descriptor = -1
+        with handle:
+            handle.write(payload)
+            handle.flush()
+            os.fsync(handle.fileno())
+    except BaseException:
+        if owned_descriptor >= 0:
+            os.close(owned_descriptor)
+        temporary_path.unlink(missing_ok=True)
+        raise
+    return temporary_path
+
+
+def _fsync_directory(path: Path) -> None:
+    descriptor = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(descriptor)
+    finally:
+        os.close(descriptor)
+
+
+def _failure_atomic_write_texts(
+    candidates: Mapping[Path, str],
+    *,
+    validate_after: Callable[[], Sequence[str]],
+    pre_promote: Callable[[], None] | None = None,
+) -> None:
+    """Promote a prevalidated family and restore it on handled failure."""
+    ordered = list(candidates)
+    originals = {path: path.read_bytes() for path in ordered}
+    staged: dict[Path, Path] = {}
+    rollback: dict[Path, Path] = {}
+    promoted: list[Path] = []
+    try:
+        for path in ordered:
+            staged[path] = _stage_same_directory(
+                path, candidates[path].encode("utf-8")
+            )
+        for path in ordered:
+            rollback[path] = _stage_same_directory(path, originals[path])
+        if pre_promote is not None:
+            pre_promote()
+        for path in ordered:
+            os.replace(staged[path], path)
+            promoted.append(path)
+            _fsync_directory(path.parent)
+        post_errors = list(validate_after())
+        if post_errors:
+            raise ValueError("DS8 post-promotion validation failed: " + ";".join(post_errors))
+    except BaseException as original_error:
+        rollback_errors: list[str] = []
+        for path in reversed(promoted):
+            try:
+                os.replace(rollback[path], path)
+                _fsync_directory(path.parent)
+            except BaseException as rollback_error:  # pragma: no cover - hard stop
+                rollback_errors.append(
+                    f"{path}:{rollback_error}:recovery={rollback[path]}"
+                )
+        for temporary in staged.values():
+            temporary.unlink(missing_ok=True)
+        if rollback_errors:
+            raise RuntimeError(
+                "DS8 rollback incomplete; readable recovery files retained: "
+                + ";".join(rollback_errors)
+            ) from original_error
+        for temporary in rollback.values():
+            temporary.unlink(missing_ok=True)
+        raise
+    for temporary in staged.values():
+        temporary.unlink(missing_ok=True)
+    for temporary in rollback.values():
+        temporary.unlink(missing_ok=True)
+
+
+def _ds8_writer_fence() -> None:
+    branch = _ds8_git_text("symbolic-ref", "-q", "HEAD").strip()
+    if branch != "refs/heads/codex/atlas-ds8-planning":
+        raise ValueError(f"DS8 writer branch fence failed: {branch}")
+    head = _ds8_git_text("rev-parse", "HEAD").strip()
+    if head != DS8_STRANGLE_WRITER_HEAD_COMMIT:
+        raise ValueError(f"DS8 writer source HEAD drift: {head}")
+    for ancestor, label in (
+        (DS8_STRANGLE_BASE_COMMIT, "immutable base"),
+        (DS8_STRANGLE_SOURCE_COMMIT, "source freeze"),
+    ):
+        ancestry = subprocess.run(  # noqa: S603 - fixed repository command
+            ["git", "merge-base", "--is-ancestor", ancestor, head],  # noqa: S607
+            cwd=REPO_ROOT.parent,
+            check=False,
+        )
+        if ancestry.returncode != 0:
+            raise ValueError(f"DS8 {label} is not an ancestor of writer HEAD")
+    source_status = subprocess.run(  # noqa: S603 - fixed repository command
+        [
+            "git",  # noqa: S607 - controlled toolchain executable
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=all",
+            "--",
+            *DS8_STRANGLE_ROOTS,
+        ],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if source_status.returncode != 0 or source_status.stdout:
+        raise ValueError("DS8 source roots changed after C06 freeze")
+
+
+def _write_ds8_strangle_family() -> dict[str, Any]:
+    """Materialize baseline, register, report, and status in one lock window."""
+    _ds8_writer_fence()
+    coverage = build_ds8_strangle_coverage(
+        baseline_commit=DS8_STRANGLE_BASE_COMMIT,
+        source_commit=DS8_STRANGLE_SOURCE_COMMIT,
+        writer_preimage_commit=DS8_STRANGLE_WRITER_HEAD_COMMIT,
+    )
+    original_register = REGISTER_PATH.read_text(encoding="utf-8")
+    original_report = REPORT_PATH.read_text(encoding="utf-8")
+    original_status = STATUS_INVENTORY_PATH.read_text(encoding="utf-8")
+    original_baseline = BASELINE_PATH.read_text(encoding="utf-8")
+    opening_hashes = {
+        REGISTER_PATH: "sha256:4cc97abd7e0984e6dea28f77c5f046a34709e768a141aa5bb08c44cd371b8b61",
+        REPORT_PATH: "sha256:b2e25ddea0169c6b3643c88e53fbc4d28798e8a5427cf9619b3aecb008cca36d",
+        STATUS_INVENTORY_PATH: "sha256:9a6eddd187bd20bf88f773f944e7f717480d9a9c1750e7c79fad29ee60aca8b5",
+        BASELINE_PATH: "sha256:e060069e7fcae2226b332634338da1be96348c29390d1498080ba87cfa33d5c5",
+    }
+    original_texts = {
+        REGISTER_PATH: original_register,
+        REPORT_PATH: original_report,
+        STATUS_INVENTORY_PATH: original_status,
+        BASELINE_PATH: original_baseline,
+    }
+    baseline_candidate = _ds8_baseline_manifest_candidate_text(
+        original_baseline
+    )
+    baseline_data = json.loads(baseline_candidate)
+    refreshed_register = _refresh_supplemental_findings_text(original_register)
+    register_candidate = _ds8_register_candidate_text(
+        refreshed_register, coverage
+    )
+    register_data = json.loads(register_candidate)
+    pre_errors = validate_register(
+        register_data,
+        report_parity=False,
+        baseline_manifest=baseline_data,
+    )
+    if pre_errors:
+        raise ValueError("DS8 register candidate rejected: " + ";".join(pre_errors))
+    report_candidate = render_report(register_data)
+    status_candidate = _ds8_status_inventory_candidate_text(
+        original_status, register_bytes=register_candidate.encode("utf-8")
+    )
+    pre_errors.extend(
+        _ds8_status_candidate_errors(
+            json.loads(status_candidate),
+            register_bytes=register_candidate.encode("utf-8"),
+        )
+    )
+    if pre_errors:
+        raise ValueError("DS8 family candidate rejected: " + ";".join(pre_errors))
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+        STATUS_INVENTORY_PATH: status_candidate,
+        BASELINE_PATH: baseline_candidate,
+    }
+    for path, original in original_texts.items():
+        original_hash = _ds8_digest(original.encode("utf-8"))
+        candidate_hash = _ds8_digest(candidates[path].encode("utf-8"))
+        if original_hash not in {opening_hashes[path], candidate_hash}:
+            raise ValueError(f"DS8 governed preimage drift: {path}")
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        for path, expected_text in candidates.items():
+            if path.read_text(encoding="utf-8") != expected_text:
+                errors.append(f"ds8_family_readback_drift:{path}")
+        stored_register = _load_json(REGISTER_PATH)
+        errors.extend(validate_register(stored_register))
+        stored_status = _load_json(STATUS_INVENTORY_PATH)
+        debt = status_checker._load_json(status_checker.WAIST_DEBT_PATH)
+        diagnostics = status_checker.validate_inventory(stored_status, debt)
+        receipt = "".join(f"{diagnostic}\n" for diagnostic in diagnostics).encode()
+        if len(diagnostics) != 13:
+            errors.append(f"ds8_status_diagnostic_count:{len(diagnostics)}")
+        if len(receipt) != 887:
+            errors.append(f"ds8_status_diagnostic_bytes:{len(receipt)}")
+        if hashlib.sha256(receipt).hexdigest() != (
+            "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9"
+        ):
+            errors.append("ds8_status_diagnostic_identity_drift")
+        return errors
+
+    def final_pre_promote_fence() -> None:
+        _ds8_writer_fence()
+        for path, expected_text in original_texts.items():
+            if path.read_text(encoding="utf-8") != expected_text:
+                raise ValueError(f"DS8 governed preimage moved before promotion: {path}")
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=final_pre_promote_fence,
+    )
+    return coverage
 
 
 def _path_from_ref(value: str) -> Path:
@@ -7516,7 +8703,7 @@ def build_seed_register() -> dict[str, Any]:
     ]
     return {
         "$schema": "./frontend-disposition-register.schema.json",
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "register_id": "atlas-ds19-frontend-disposition",
         "as_of": REGISTER_AS_OF,
         "controlled_vocabulary_source": "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
@@ -7603,6 +8790,10 @@ def build_seed_register() -> dict[str, Any]:
             },
         ],
         "supplemental_findings": _supplemental_findings(),
+        "ds8_strangle_coverage": build_ds8_strangle_coverage(
+            baseline_commit=DS8_STRANGLE_BASE_COMMIT,
+            source_commit=DS8_STRANGLE_SOURCE_COMMIT,
+        ),
         "seeded_negative_lifecycle": _seeded_negatives(),
     }
 
@@ -9764,6 +10955,7 @@ def validate_register(
     schema: bool = True,
     report_parity: bool = True,
     direct_transport_sources: Mapping[str, str] | None = None,
+    baseline_manifest: Mapping[str, Any] | None = None,
 ) -> list[str]:
     """Return all schema, parity, composition, and live-census failures."""
     errors: list[str] = []
@@ -9812,6 +11004,11 @@ def validate_register(
         errors.extend(_schema_errors(data, SCHEMA_PATH))
         if any(error.startswith("schema:") for error in errors):
             return errors
+    ds8_coverage = data.get("ds8_strangle_coverage")
+    if not isinstance(ds8_coverage, Mapping):
+        errors.append("ds8_strangle_coverage_missing")
+    else:
+        errors.extend(validate_ds8_strangle_coverage(ds8_coverage))
     _validate_storage_construction_census(data, errors)
     ds1 = _load_json(DS1_PATH)
     ds2 = _load_json(DS2_PATH)
@@ -9997,7 +11194,11 @@ def validate_register(
     if not BASELINE_PATH.exists() or not BASELINE_SCHEMA_PATH.exists():
         errors.append("baseline_debt_manifest_missing")
     else:
-        baseline = _load_json(BASELINE_PATH)
+        baseline = (
+            baseline_manifest
+            if baseline_manifest is not None
+            else _load_json(BASELINE_PATH)
+        )
         errors.extend(
             "baseline_" + error for error in validate_baseline_manifest(baseline)
         )
@@ -10478,6 +11679,11 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
             )
 
     failures: list[str] = []
+    ds8_coverage = data.get("ds8_strangle_coverage")
+    if isinstance(ds8_coverage, Mapping):
+        failures.extend(ds8_strangle_corruption_probes(ds8_coverage))
+    else:
+        failures.append("ds8-strangle-coverage-missing")
     direct_sources = _typescript_production_sources(RAW_TRANSPORT_SCAN_ROOTS)
     benign_sources = {
         **direct_sources,
@@ -10744,6 +11950,90 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     ):
         failures.append("ui-patterns-searchable-list-consumerless-promotion")
     return failures
+
+
+def _ds8_strangle_report_projection(coverage: Mapping[str, Any]) -> str:
+    """Render the complete DS8 assignment map without sampled path summaries."""
+    assignments = list(coverage["assignments"])
+    baseline_rows = [row for row in assignments if row["origin"] == "opening_base"]
+    lines = [
+        "### DS8 case/evidence strangle coverage",
+        "",
+        (
+            f"Predicate provenance: `{coverage['predicate_provenance']}`. "
+            f"Family complete: `{str(coverage['family_complete']).lower()}`."
+        ),
+        "",
+        "| Feature | Opening production | In scope | Deferred |",
+        "| --- | ---: | ---: | ---: |",
+    ]
+    totals = Counter()
+    for feature in ("runs", "artifacts", "evidence"):
+        rows = [
+            row
+            for row in baseline_rows
+            if row["feature"] == feature and row["role"] == "production"
+        ]
+        in_scope = sum(row["disposition"] == "in_scope" for row in rows)
+        deferred = sum(
+            row["disposition"] == "surface_out_of_scope" for row in rows
+        )
+        totals.update(total=len(rows), in_scope=in_scope, deferred=deferred)
+        lines.append(f"| {feature} | {len(rows)} | {in_scope} | {deferred} |")
+    lines.extend(
+        [
+            (
+                f"| **Total** | **{totals['total']}** | "
+                f"**{totals['in_scope']}** | **{totals['deferred']}** |"
+            ),
+            "",
+            (
+                f"Opening companions: **{coverage['baseline']['tests']['files']} "
+                "tests** and "
+                f"**{coverage['baseline']['stories']['files']} stories**. "
+                f"Source-freeze additions: **{coverage['new_path_count']} paths**."
+            ),
+            "",
+            (
+                f"T0 `{coverage['baseline']['commit']}`: "
+                f"`{coverage['baseline']['path_manifest_sha256']}`; source freeze "
+                f"`{coverage['source_freeze']['commit']}`: "
+                f"`{coverage['source_freeze']['path_manifest_sha256']}`."
+            ),
+            "",
+            "| Closure cluster | Files | Source commit | Path/content receipt |",
+            "| --- | ---: | --- | --- |",
+        ]
+    )
+    for receipt in coverage["closure_receipts"]:
+        lines.append(
+            f"| `{receipt['cluster']}` | {receipt['file_count']} | "
+            f"`{receipt['source_commit']}` | "
+            f"`{receipt['path_content_manifest_sha256']}` |"
+        )
+    lines.extend(
+        [
+            "",
+            "#### Complete DS8 path projection",
+            "",
+            "| Path | Feature | Role | Origin | Disposition | Closure | Owner / exit |",
+            "| --- | --- | --- | --- | --- | --- | --- |",
+        ]
+    )
+    for row in assignments:
+        closure = row.get("closure_cluster", "—")
+        owner = (
+            f"`{row['owner_team']}` / `{row['capability_state']}` / "
+            f"`{row['exit_condition']}` / successor `null`"
+            if row["disposition"] == "surface_out_of_scope"
+            else "—"
+        )
+        lines.append(
+            f"| `{row['path']}` | `{row['feature']}` | `{row['role']}` | "
+            f"`{row['origin']}` | `{row['disposition']}` | `{closure}` | "
+            f"{owner} |"
+        )
+    return "\n".join(lines)
 
 
 def _report_projection(data: Mapping[str, Any]) -> str:
@@ -11013,6 +12303,7 @@ def _report_projection(data: Mapping[str, Any]) -> str:
         lines.append(
             f"| `{row['unit_id']}` | `{row['evidence_link']['ds1_entry_id']}` | {len(row['evidence_link']['ds2_adoption_ids'])} | `{row['disposition']}` | `{row['strangle_status']}` | `{row['owner_slice']}` | `{terminal}` |"
         )
+    lines.extend(["", _ds8_strangle_report_projection(data["ds8_strangle_coverage"])])
     return "\n".join(lines)
 
 
@@ -11189,6 +12480,8 @@ def _report_projection_errors(data: Mapping[str, Any]) -> list[str]:
 
 def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
     persistence = data["storage_construction_census"]
+    ds8 = data["ds8_strangle_coverage"]
+    dispositions = Counter(row["disposition"] for row in ds8["assignments"])
     return {
         "root_entries": len(data["entries"]),
         "root_dispositions": dict(sorted(Counter(entry["disposition"] for entry in data["entries"]).items())),
@@ -11202,6 +12495,9 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
         "storage_construction_files": persistence["production_file_count"],
         "storage_construction_sites": persistence["site_count"],
         "storage_production_sources": persistence["production_source_count"],
+        "ds8_strangle_assignments": len(ds8["assignments"]),
+        "ds8_strangle_dispositions": dict(sorted(dispositions.items())),
+        "ds8_strangle_family_complete": ds8["family_complete"],
     }
 
 
@@ -11228,6 +12524,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--write-c11b-query-memory-root",
         action="store_true",
         help="surgically produce the exact C11b query-memory root transition",
+    )
+    parser.add_argument(
+        "--write-ds8-strangle-coverage",
+        action="store_true",
+        help="atomically materialize the DS8 coverage/register/report/status family",
     )
     parser.add_argument(
         "--migrate-c21b",
@@ -11277,6 +12578,54 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.write_ds8_strangle_coverage:
+        incompatible = any(
+            (
+                args.check,
+                args.write_seed,
+                args.write_supplemental,
+                args.write_c03_vitest_resolution,
+                args.write_c06_rendered_contrast_resolution,
+                args.write_c11b_query_memory_root,
+                args.migrate_c21b,
+                args.migrate_c21c,
+                args.print_c21b_authority_partition_hashes,
+                args.print_c21b_authority_identity_literals,
+                args.print_c21b_descriptor_identities,
+                args.corruption_probes,
+                args.verify_baseline_source_bytes,
+                args.lint_results is not None,
+                args.vitest_results is not None,
+                args.architecture_results is not None,
+            )
+        )
+        if incompatible or not args.write_report:
+            sys.stderr.write(
+                "DS8 strangle transition requires only --write-report\n"
+            )
+            return 1
+        try:
+            coverage = _write_ds8_strangle_family()
+        except (OSError, ValueError, RuntimeError) as exc:
+            sys.stderr.write(f"DS8 strangle transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("materialized DS8 strangle/register/status family\n")
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "assignments": len(coverage["assignments"]),
+                    "opening_production": coverage[
+                        "opening_production_partition"
+                    ],
+                    "new_paths": coverage["new_path_count"],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
 
     if args.write_c06_rendered_contrast_resolution:
         incompatible = any(

@@ -1,4 +1,4 @@
-import { render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter, Route, Routes, useLocation } from "react-router-dom";
 
@@ -93,6 +93,7 @@ describe("RunsListPage", () => {
                     has_workflow_report: true,
                     root_artifact_count: 2,
                     run_id: "run-002",
+                    run_terminality: "not_established",
                     source_kind: "policy",
                     started_at: new Date("2026-03-09T11:00:00Z").toISOString(),
                     status: "completed",
@@ -109,6 +110,7 @@ describe("RunsListPage", () => {
                     has_workflow_report: false,
                     root_artifact_count: 0,
                     run_id: "run-001",
+                    run_terminality: "not_established",
                     source_kind: "etl",
                     started_at: new Date("2026-03-09T10:00:00Z").toISOString(),
                     status: "running",
@@ -123,6 +125,7 @@ describe("RunsListPage", () => {
                     has_workflow_report: true,
                     root_artifact_count: 2,
                     run_id: "run-002",
+                    run_terminality: "not_established",
                     source_kind: "policy",
                     started_at: new Date("2026-03-09T11:00:00Z").toISOString(),
                     status: "completed",
@@ -173,6 +176,7 @@ describe("RunsListPage", () => {
             duration_ms: 1_200,
             root_artifact_count: 0,
             run_id: "run-opaque",
+            run_terminality: "not_established",
             source_kind: "core_run",
             started_at: "2026-03-09T10:00:00Z",
             status: "awaiting_external_attestation",
@@ -181,6 +185,7 @@ describe("RunsListPage", () => {
             duration_ms: 1_400,
             root_artifact_count: 0,
             run_id: "run-known-shaped",
+            run_terminality: "not_established",
             source_kind: "core_run",
             started_at: "2026-03-09T10:00:01Z",
             status: "completed",
@@ -201,6 +206,63 @@ describe("RunsListPage", () => {
       expect(status).toHaveClass("bg-white/65", "text-muted");
     }
     expect(screen.getAllByText("common.unavailable")).toHaveLength(2);
+  });
+
+  it("renders all three run_terminality states without substitution", async () => {
+    useRunsMock.mockReturnValue({
+      data: {
+        page: {
+          count: 3,
+          cursor: null,
+          limit: 50,
+          next_cursor: null,
+          total: 3,
+        },
+        runs: [
+          {
+            duration_ms: 1,
+            root_artifact_count: 0,
+            run_id: "run-alpha",
+            run_terminality: "terminal",
+            source_kind: "core_run",
+            started_at: "2026-08-21T10:00:00Z",
+            status: "still-running-looking",
+          },
+          {
+            duration_ms: 2,
+            root_artifact_count: 0,
+            run_id: "run-beta",
+            run_terminality: "non_terminal",
+            source_kind: "core_run",
+            started_at: "2026-08-21T10:00:01Z",
+            status: "completed-looking",
+          },
+          {
+            duration_ms: 3,
+            root_artifact_count: 0,
+            run_id: "run-gamma",
+            run_terminality: "not_established",
+            source_kind: "core_run",
+            started_at: "2026-08-21T10:00:02Z",
+            status: "terminal-shaped-but-unowned",
+          },
+        ],
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+
+    renderRunsListPage();
+
+    for (const [runId, runTerminality] of [
+      ["run-alpha", "terminal"],
+      ["run-beta", "non_terminal"],
+      ["run-gamma", "not_established"],
+    ] as const) {
+      const row = await screen.findByRole("row", { name: new RegExp(runId) });
+      expect(within(row).getByText(runTerminality, { exact: true })).toBeVisible();
+    }
   });
 
   it("supports j/k navigation and Enter to open the active run when a row is focused", async () => {
@@ -250,6 +312,7 @@ describe("RunsListPage", () => {
           has_workflow_report: false,
           root_artifact_count: index % 3,
           run_id: `run-${String(index + 1).padStart(3, "0")}`,
+          run_terminality: "not_established",
           source_kind: index % 2 === 0 ? "workflow" : "policy",
           started_at: new Date(
             `2026-03-09T${String(index % 24).padStart(2, "0")}:00:00Z`,

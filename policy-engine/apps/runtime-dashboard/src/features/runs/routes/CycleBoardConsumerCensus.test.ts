@@ -48,6 +48,14 @@ type ConsumerCensus = {
   hookCalls: string[];
   legacyDeclarations: string[];
   legacyProps: string[];
+  paperClientCalls: string[];
+  paperDirectFetchCalls: string[];
+  paperEndpointCalls: string[];
+  paperHookCalls: string[];
+  paperMachineExportCalls: string[];
+  paperPayloadEmitters: string[];
+  paperPresenterCalls: string[];
+  paperRenderers: string[];
   renderers: string[];
 };
 
@@ -103,6 +111,11 @@ type SymbolAliases = {
   client: Set<ts.Symbol>;
   factory: Set<ts.Symbol>;
   hook: Set<ts.Symbol>;
+  paperExport: Set<ts.Symbol>;
+  paperFetch: Set<ts.Symbol>;
+  paperHook: Set<ts.Symbol>;
+  paperPresenter: Set<ts.Symbol>;
+  paperRenderer: Set<ts.Symbol>;
   renderer: Set<ts.Symbol>;
 };
 
@@ -118,6 +131,26 @@ const canonicalSymbols = {
   hook: {
     exportName: "useDepthNCycleBoardProjection",
     sourceSuffix: "/features/runs/api/useDepthNCycleBoardProjection.ts",
+  },
+  paperExport: {
+    exportName: "downloadRunPaperPacket",
+    sourceSuffix: "/features/runs/components/runPaperExport.ts",
+  },
+  paperFetch: {
+    exportName: "fetchRunPaper",
+    sourceSuffix: "/features/runs/api/useRunPaper.ts",
+  },
+  paperHook: {
+    exportName: "useRunPaper",
+    sourceSuffix: "/features/runs/api/useRunPaper.ts",
+  },
+  paperPresenter: {
+    exportName: "presentRunPaper",
+    sourceSuffix: "/features/runs/domain/runPaperPresentation.ts",
+  },
+  paperRenderer: {
+    exportName: "RunPaperDocument",
+    sourceSuffix: "/features/runs/routes/RunReportPage.tsx",
   },
   renderer: {
     exportName: "CycleBoard",
@@ -147,6 +180,11 @@ function collectLocalAliases(
     client: new Set(),
     factory: new Set(),
     hook: new Set(),
+    paperExport: new Set(),
+    paperFetch: new Set(),
+    paperHook: new Set(),
+    paperPresenter: new Set(),
+    paperRenderer: new Set(),
     renderer: new Set(),
   };
   let changed = true;
@@ -242,6 +280,17 @@ function propertyName(node: ts.Node | undefined) {
   return null;
 }
 
+function literalString(checker: ts.TypeChecker, node: ts.Node | undefined) {
+  if (!node) {
+    return null;
+  }
+  if (ts.isStringLiteralLike(node)) {
+    return node.text;
+  }
+  const type = checker.getTypeAtLocation(node);
+  return type.isStringLiteral() ? type.value : null;
+}
+
 function inspectConsumers(files: string[]): ConsumerCensus {
   const configPath = path.join(applicationRoot, "tsconfig.app.json");
   const config = ts.readConfigFile(configPath, ts.sys.readFile);
@@ -273,6 +322,14 @@ function inspectConsumers(files: string[]): ConsumerCensus {
     hookCalls: [],
     legacyDeclarations: [],
     legacyProps: [],
+    paperClientCalls: [],
+    paperDirectFetchCalls: [],
+    paperEndpointCalls: [],
+    paperHookCalls: [],
+    paperMachineExportCalls: [],
+    paperPayloadEmitters: [],
+    paperPresenterCalls: [],
+    paperRenderers: [],
     renderers: [],
   };
 
@@ -287,6 +344,37 @@ function inspectConsumers(files: string[]): ConsumerCensus {
         if (matchesSymbol(checker, node.expression, "client", aliases)) {
           census.directClientCalls.push(owner);
         }
+        if (matchesSymbol(checker, node.expression, "paperFetch", aliases)) {
+          census.paperDirectFetchCalls.push(owner);
+        }
+        if (matchesSymbol(checker, node.expression, "paperHook", aliases)) {
+          census.paperHookCalls.push(owner);
+        }
+        if (
+          matchesSymbol(checker, node.expression, "paperPresenter", aliases)
+        ) {
+          census.paperPresenterCalls.push(owner);
+        }
+        if (matchesSymbol(checker, node.expression, "paperExport", aliases)) {
+          census.paperMachineExportCalls.push(owner);
+        }
+        if (
+          ts.isPropertyAccessExpression(node.expression) &&
+          comesFrom(
+            checker,
+            node.expression.name,
+            "getRunPaper",
+            "/features/runs/api/useRunPaper.ts",
+          )
+        ) {
+          census.paperClientCalls.push(owner);
+        }
+        if (
+          literalString(checker, node.arguments[0]) ===
+          "/api/v1/runs/{run_id}/paper"
+        ) {
+          census.paperEndpointCalls.push(owner);
+        }
         if (
           matchesSymbol(checker, node.expression, "factory", aliases) &&
           node.arguments[0] &&
@@ -294,12 +382,39 @@ function inspectConsumers(files: string[]): ConsumerCensus {
         ) {
           census.renderers.push(owner);
         }
+        if (
+          matchesSymbol(checker, node.expression, "factory", aliases) &&
+          node.arguments[0] &&
+          matchesSymbol(checker, node.arguments[0], "paperRenderer", aliases)
+        ) {
+          census.paperRenderers.push(owner);
+        }
       }
       if (
         (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
         matchesSymbol(checker, node.tagName, "renderer", aliases)
       ) {
         census.renderers.push(owner);
+      }
+      if (
+        (ts.isJsxOpeningElement(node) || ts.isJsxSelfClosingElement(node)) &&
+        matchesSymbol(checker, node.tagName, "paperRenderer", aliases)
+      ) {
+        census.paperRenderers.push(owner);
+      }
+      if (
+        ts.isJsxAttribute(node) &&
+        propertyName(node.name) === "data-paper-payload" &&
+        literalString(checker, node.initializer) === "run-paper"
+      ) {
+        census.paperPayloadEmitters.push(owner);
+      }
+      if (
+        ts.isPropertyAssignment(node) &&
+        propertyName(node.name) === "data-paper-payload" &&
+        literalString(checker, node.initializer) === "run-paper"
+      ) {
+        census.paperPayloadEmitters.push(owner);
       }
       if (
         (ts.isFunctionDeclaration(node) ||
@@ -347,5 +462,32 @@ describe("Cycle Board production consumer census", () => {
     ]);
     expect(census.legacyDeclarations).toEqual([]);
     expect(census.legacyProps).toEqual([]);
+  }, 45_000);
+
+  it("has one run-paper intake and one report-only emitter", () => {
+    const census = inspectConsumers(productionPopulation());
+
+    expect(census.paperEndpointCalls).toEqual([
+      "features/runs/api/useRunPaper.ts",
+    ]);
+    expect(census.paperClientCalls).toEqual([
+      "features/runs/api/useRunPaper.ts",
+    ]);
+    expect(census.paperDirectFetchCalls).toEqual([]);
+    expect(census.paperHookCalls).toEqual([
+      "features/runs/routes/RunReportPage.tsx",
+    ]);
+    expect(census.paperPresenterCalls).toEqual([
+      "features/runs/routes/RunReportPage.tsx",
+    ]);
+    expect(census.paperMachineExportCalls).toEqual([
+      "features/runs/routes/RunReportPage.tsx",
+    ]);
+    expect(census.paperRenderers).toEqual([
+      "features/runs/routes/RunReportPage.tsx",
+    ]);
+    expect(census.paperPayloadEmitters).toEqual([
+      "features/runs/routes/RunReportPage.tsx",
+    ]);
   }, 45_000);
 });

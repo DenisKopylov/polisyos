@@ -8,6 +8,7 @@ from hashlib import sha256
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any
+from urllib.parse import parse_qs, urlsplit
 
 from polisyos.core.contracts.runtime import RunSummary
 from polisyos.core.trace.record import RunTerminality
@@ -361,21 +362,121 @@ def _service(
     packets: dict[ProjectionId, Any] | None = None,
     summaries: dict[str, object] | None = None,
     n13b_global_signal: N13BGlobalMovementSignal | None = None,
+    stage_trace_resolver: object | None = None,
 ):
     raw = _RawProjectionStub(packets or _component_packets())
     index = _RunIndexStub(summaries)
+    stage_trace_kwargs = (
+        {"stage_trace_resolver": stage_trace_resolver}
+        if stage_trace_resolver is not None
+        else {}
+    )
     service = CycleBoardProjectionService(
         projection_service=raw,
         run_index=index,
         repository_root=REPO_ROOT,
         clock=lambda: OBSERVED_AT,
         n13b_global_signal=n13b_global_signal,
+        **stage_trace_kwargs,
     )
     return service, raw, index
 
 
+class _StageTraceResolverStub:
+    def __init__(self, projections: dict[str, SimpleNamespace]) -> None:
+        self.projections = projections
+        self.requested: list[str] = []
+
+    def resolve(self, run_id: str):
+        self.requested.append(run_id)
+        return self.projections.get(run_id)
+
+
 def _row(packet: Any, role: str):
     return next(row for row in packet.payload.rows if row.domain_role == role)
+
+
+def _paper_stage_trace_resolution(
+    run_id: str,
+    *,
+    projection_hash: str | None = None,
+) -> SimpleNamespace:
+    manifest_artifact_id = "sha256:" + "1" * 64
+    resolved_hash = projection_hash or "sha256:" + "2" * 64
+    rule_version = "policyos.runtime.run_paper.v1"
+    pins = {
+        "manifest_artifact_id": manifest_artifact_id,
+        "manifest_schema_version": "0.1.0",
+        "paper_projection_hash": resolved_hash,
+        "paper_projection_rule_version": rule_version,
+    }
+    query = "&".join(f"{key}={value}" for key, value in sorted(pins.items()))
+    return SimpleNamespace(
+        href=f"/runs/{run_id}/report?{query}#stage-trace",
+        manifest_artifact_id=manifest_artifact_id,
+        manifest_schema_version="0.1.0",
+        paper_projection_hash=resolved_hash,
+        paper_projection_rule_version=rule_version,
+    )
+
+
+def test_cycle_board_stage_trace_href_is_available_only_for_resolved_packet() -> None:
+    resolver = _StageTraceResolverStub(
+        {"cycle-first_vertical": _paper_stage_trace_resolution("cycle-first_vertical")}
+    )
+    service, _, _ = _service(stage_trace_resolver=resolver)
+
+    packet = service.get()
+    first = _row(packet, "first_vertical")
+    education = _row(packet, "education")
+
+    assert first.stage_trace_href.availability == "available"
+    assert first.stage_trace_href.value.endswith("#stage-trace")
+    assert education.stage_trace_href.availability == "not_established"
+    assert "value" not in education.stage_trace_href.model_dump()
+    assert set(resolver.requested) == {f"cycle-{role}" for role in N10_ORDER}
+    paper_sources = [
+        source
+        for source in packet.composition_manifest
+        if source.source_kind == "run_paper_projection"
+    ]
+    assert len(paper_sources) == 1
+    assert paper_sources[0].source_id == "run-paper:cycle-first_vertical"
+    assert paper_sources[0].artifact_content_hash == "sha256:" + "1" * 64
+    assert paper_sources[0].source_dependency_hash == "sha256:" + "2" * 64
+
+
+def test_cycle_board_stage_trace_href_serializes_complete_packet_pins() -> None:
+    first_resolution = _paper_stage_trace_resolution("cycle-first_vertical")
+    resolver = _StageTraceResolverStub({"cycle-first_vertical": first_resolution})
+    service, _, _ = _service(stage_trace_resolver=resolver)
+
+    packet = service.get()
+    href = _row(packet, "first_vertical").stage_trace_href.value
+    split = urlsplit(href)
+
+    assert split.fragment == "stage-trace"
+    assert parse_qs(split.query) == {
+        "manifest_artifact_id": [first_resolution.manifest_artifact_id],
+        "manifest_schema_version": [first_resolution.manifest_schema_version],
+        "paper_projection_hash": [first_resolution.paper_projection_hash],
+        "paper_projection_rule_version": [
+            first_resolution.paper_projection_rule_version
+        ],
+    }
+
+    changed_resolver = _StageTraceResolverStub(
+        {
+            "cycle-first_vertical": _paper_stage_trace_resolution(
+                "cycle-first_vertical",
+                projection_hash="sha256:" + "3" * 64,
+            )
+        }
+    )
+    changed_service, _, _ = _service(stage_trace_resolver=changed_resolver)
+    changed_packet = changed_service.get()
+    assert changed_packet.composition_manifest_hash != packet.composition_manifest_hash
+    assert changed_packet.projection_hash != packet.projection_hash
 
 
 def _assert_composed_route_equals_owner(

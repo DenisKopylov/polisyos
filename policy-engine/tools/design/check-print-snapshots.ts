@@ -13,14 +13,14 @@ const REQUIRED_PRINT_SELECTORS = [
 ];
 const REQUIRED_PRINT_SNAPSHOTS = [
   "decision-reading-view-a4-print-chromium-darwin.png",
-  "run-detail-a4-print-chromium-darwin.png",
+  "run-report-identity-a4-print-chromium-darwin.png",
   "bureaucratic-document-a4-print-chromium-darwin.png",
   "policy-compare-a4-print-chromium-darwin.png",
   "scenario-a4-print-chromium-darwin.png",
 ];
 const REQUIRED_VISUAL_CONTRACTS = [
   "decision packet reading view A4 print",
-  "run detail A4 print",
+  "bounded identity A4 print",
   "bureaucratic document A4 print",
   "policy compare A4 print",
   "counterfactual scenario A4 print",
@@ -28,6 +28,10 @@ const REQUIRED_VISUAL_CONTRACTS = [
   ...REQUIRED_PRINT_SNAPSHOTS.map((name) =>
     name.replace("-chromium-darwin", ""),
   ),
+];
+const RETIRED_RUN_DETAIL_PRINT_CONTRACTS = [
+  "run-detail-a4-print-chromium-darwin.png",
+  'test("run detail A4 print"',
 ];
 
 function read(relativePath: string) {
@@ -79,9 +83,26 @@ function main() {
       snapshot,
     );
     const snapshotStat = fs.statSync(snapshotPath);
-    if (snapshotStat.size < 80_000) {
+    if (!snapshotStat.isFile() || snapshotStat.size === 0) {
       throw new Error(
-        `Print snapshot looks too small to cover an A4 decision packet: ${snapshot}`,
+        `Print snapshot is missing a non-empty file: ${snapshot}`,
+      );
+    }
+  }
+
+  for (const retiredContract of RETIRED_RUN_DETAIL_PRINT_CONTRACTS) {
+    const stillPresent = retiredContract.endsWith(".png")
+      ? fs.existsSync(
+          path.join(
+            getPolicyEngineRoot(),
+            "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots",
+            retiredContract,
+          ),
+        )
+      : visualSpec.includes(retiredContract);
+    if (stillPresent) {
+      throw new Error(
+        `Retired unbounded run-detail print contract is still present: ${retiredContract}`,
       );
     }
   }

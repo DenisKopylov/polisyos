@@ -21,6 +21,7 @@
     "entries",
     "subunits",
     "supplemental_findings",
+    "ds8_strangle_coverage",
     "seeded_negative_lifecycle"
   ],
   "properties": {
@@ -28,7 +29,7 @@
       "const": "./frontend-disposition-register.schema.json"
     },
     "schema_version": {
-      "const": "1.0"
+      "const": "1.1"
     },
     "register_id": {
       "const": "atlas-ds19-frontend-disposition"
@@ -131,6 +132,9 @@
       "items": {
         "$ref": "#/$defs/supplementalFinding"
       }
+    },
+    "ds8_strangle_coverage": {
+      "$ref": "#/$defs/ds8StrangleCoverage"
     },
     "seeded_negative_lifecycle": {
       "type": "array",
@@ -1217,6 +1221,24 @@
         }
       ]
     },
+    "authoritySinkAbsence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "sink_kind",
+        "descriptor_id",
+        "consumer_count",
+        "predicate_provenance",
+        "reason"
+      ],
+      "properties": {
+        "sink_kind": { "const": "direct_badge_group" },
+        "descriptor_id": { "$ref": "#/$defs/id" },
+        "consumer_count": { "const": 0 },
+        "predicate_provenance": { "const": "recomputed" },
+        "reason": { "const": "no_live_consumer_sites" }
+      }
+    },
     "rawTransportDriftReceipt": {
       "type": "object",
       "additionalProperties": false,
@@ -1360,6 +1382,9 @@
         "authority_sink": {
           "$ref": "#/$defs/authoritySinkDescriptor"
         },
+        "authority_sink_absence": {
+          "$ref": "#/$defs/authoritySinkAbsence"
+        },
         "raw_transport_receipt": {
           "$ref": "#/$defs/rawTransportDriftReceipt"
         },
@@ -1396,7 +1421,8 @@
                 { "required": ["closure_signal"] },
                 { "required": ["owner_team"] },
                 { "required": ["integrate_contract"] },
-                { "required": ["authority_sink"] }
+                { "required": ["authority_sink"] },
+                { "required": ["authority_sink_absence"] }
               ]
             }
           }
@@ -1428,10 +1454,24 @@
             "required": ["finding_kind"]
           },
           "then": {
-            "required": ["authority_sink"]
+            "oneOf": [
+              {
+                "required": ["authority_sink"],
+                "not": { "required": ["authority_sink_absence"] }
+              },
+              {
+                "required": ["authority_sink_absence"],
+                "not": { "required": ["authority_sink"] }
+              }
+            ]
           },
           "else": {
-            "not": {"required": ["authority_sink"]}
+            "not": {
+              "anyOf": [
+                { "required": ["authority_sink"] },
+                { "required": ["authority_sink_absence"] }
+              ]
+            }
         }
       },
       {
@@ -1460,6 +1500,250 @@
       }
     ]
   },
+    "fileLineCount": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["files", "physical_lines"],
+      "properties": {
+        "files": { "type": "integer", "minimum": 0 },
+        "physical_lines": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "ds8FeatureCounts": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["all", "production", "tests", "stories"],
+      "properties": {
+        "all": { "$ref": "#/$defs/fileLineCount" },
+        "production": { "$ref": "#/$defs/fileLineCount" },
+        "tests": { "$ref": "#/$defs/fileLineCount" },
+        "stories": { "$ref": "#/$defs/fileLineCount" }
+      }
+    },
+    "ds8Snapshot": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "commit",
+        "coordinate_prefix",
+        "roots",
+        "extensions",
+        "classifier",
+        "all",
+        "production",
+        "tests",
+        "stories",
+        "features",
+        "path_manifest_sha256",
+        "production_path_manifest_sha256",
+        "content_manifest_sha256"
+      ],
+      "properties": {
+        "commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "coordinate_prefix": { "const": "policy-engine/" },
+        "roots": {
+          "type": "array",
+          "prefixItems": [
+            { "const": "apps/runtime-dashboard/src/features/runs" },
+            { "const": "apps/runtime-dashboard/src/features/artifacts" },
+            { "const": "apps/runtime-dashboard/src/features/evidence" }
+          ],
+          "items": false,
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "extensions": {
+          "type": "array",
+          "prefixItems": [{ "const": ".ts" }, { "const": ".tsx" }],
+          "items": false,
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "classifier": { "const": "stories_then_tests_then_production" },
+        "all": { "$ref": "#/$defs/fileLineCount" },
+        "production": { "$ref": "#/$defs/fileLineCount" },
+        "tests": { "$ref": "#/$defs/fileLineCount" },
+        "stories": { "$ref": "#/$defs/fileLineCount" },
+        "features": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["runs", "artifacts", "evidence"],
+          "properties": {
+            "runs": { "$ref": "#/$defs/ds8FeatureCounts" },
+            "artifacts": { "$ref": "#/$defs/ds8FeatureCounts" },
+            "evidence": { "$ref": "#/$defs/ds8FeatureCounts" }
+          }
+        },
+        "path_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "production_path_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "content_manifest_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "ds8Assignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "feature", "role", "origin", "disposition"],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "feature": { "enum": ["runs", "artifacts", "evidence"] },
+        "role": { "enum": ["production", "test", "story"] },
+        "origin": { "enum": ["opening_base", "source_freeze"] },
+        "disposition": {
+          "enum": [
+            "in_scope",
+            "surface_out_of_scope",
+            "verification_companion",
+            "retained",
+            "new_in_slice"
+          ]
+        },
+        "closure_cluster": { "enum": ["C04", "C05", "C06"] },
+        "owner_team": { "const": "team-design" },
+        "capability_state": { "const": "surface_out_of_scope" },
+        "exit_condition": {
+          "const": "approved_named_successor_slice_moves_row"
+        },
+        "successor_slice": { "type": "null" }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "disposition": { "const": "surface_out_of_scope" }
+            },
+            "required": ["disposition"]
+          },
+          "then": {
+            "required": [
+              "owner_team",
+              "capability_state",
+              "exit_condition",
+              "successor_slice"
+            ]
+          },
+          "else": {
+            "not": {
+              "anyOf": [
+                { "required": ["owner_team"] },
+                { "required": ["capability_state"] },
+                { "required": ["exit_condition"] },
+                { "required": ["successor_slice"] }
+              ]
+            }
+          }
+        }
+      ]
+    },
+    "ds8ClosureReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cluster",
+        "source_commit",
+        "paths",
+        "file_count",
+        "path_content_manifest_sha256"
+      ],
+      "properties": {
+        "cluster": { "enum": ["C04", "C05", "C06"] },
+        "source_commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+        "paths": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/pathRef" }
+        },
+        "file_count": { "type": "integer", "minimum": 1 },
+        "path_content_manifest_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "ds8StrangleCoverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage_id",
+        "predicate_provenance",
+        "family_complete",
+        "baseline",
+        "source_freeze",
+        "writer_preimage_commit",
+        "opening_production_partition",
+        "new_path_count",
+        "new_path_manifest_sha256",
+        "changed_baseline_paths",
+        "assignments",
+        "closure_receipts",
+        "reconciliation"
+      ],
+      "properties": {
+        "coverage_id": { "const": "ds8-case-evidence-strangle-coverage" },
+        "predicate_provenance": { "const": "independently_reconciled" },
+        "family_complete": { "const": false },
+        "baseline": { "$ref": "#/$defs/ds8Snapshot" },
+        "source_freeze": { "$ref": "#/$defs/ds8Snapshot" },
+        "writer_preimage_commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "opening_production_partition": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "total",
+            "in_scope",
+            "deferred",
+            "in_scope_path_manifest_sha256",
+            "deferred_path_manifest_sha256",
+            "deferred_unchanged_content_manifest_sha256"
+          ],
+          "properties": {
+            "total": { "const": 145 },
+            "in_scope": { "const": 8 },
+            "deferred": { "const": 137 },
+            "in_scope_path_manifest_sha256": { "$ref": "#/$defs/sha256" },
+            "deferred_path_manifest_sha256": { "$ref": "#/$defs/sha256" },
+            "deferred_unchanged_content_manifest_sha256": {
+              "$ref": "#/$defs/sha256"
+            }
+          }
+        },
+        "new_path_count": { "const": 10 },
+        "new_path_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "changed_baseline_paths": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/pathRef" }
+        },
+        "assignments": {
+          "type": "array",
+          "minItems": 217,
+          "maxItems": 217,
+          "items": { "$ref": "#/$defs/ds8Assignment" }
+        },
+        "closure_receipts": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/ds8ClosureReceipt" }
+        },
+        "reconciliation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "baseline_git_tree_vs_archive",
+            "source_git_tree_vs_archive",
+            "source_freeze_vs_writer_history",
+            "live_tree_disposition"
+          ],
+          "properties": {
+            "baseline_git_tree_vs_archive": { "const": "exact" },
+            "source_git_tree_vs_archive": { "const": "exact" },
+            "source_freeze_vs_writer_history": { "const": "ancestor" },
+            "live_tree_disposition": { "const": "outside_frozen_coverage" }
+          }
+        }
+      }
+    },
     "seededNegative": {
       "type": "object",
       "additionalProperties": false,

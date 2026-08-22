@@ -133,6 +133,9 @@ export type AuthMeResponse = RuntimeApiComponents["schemas"]["AuthMeResponse"];
 
 export type AuthoredText = RuntimeApiComponents["schemas"]["AuthoredText"];
 
+export type AuthorityBoundary =
+  RuntimeApiComponents["schemas"]["AuthorityBoundary"];
+
 export type AuthorityProfile =
   RuntimeApiComponents["schemas"]["AuthorityProfile"];
 
@@ -171,6 +174,18 @@ export type AvailableFact_tuple_str__________ =
 
 export type AvailableGovernedProjectionPacket =
   RuntimeApiComponents["schemas"]["AvailableGovernedProjectionPacket"];
+
+export type AvailableRunPaperCase =
+  RuntimeApiComponents["schemas"]["AvailableRunPaperCase"];
+
+export type AvailableRunPaperStageTrace =
+  RuntimeApiComponents["schemas"]["AvailableRunPaperStageTrace"];
+
+export type AxisFirewallStatus =
+  RuntimeApiComponents["schemas"]["AxisFirewallStatus"];
+
+export type AxisPositionDeclaration =
+  RuntimeApiComponents["schemas"]["AxisPositionDeclaration"];
 
 export type BasinEstimate = RuntimeApiComponents["schemas"]["BasinEstimate"];
 
@@ -256,6 +271,9 @@ export type CausalFrontierSAERequest =
 export type CausalFrontierSAEResponse =
   RuntimeApiComponents["schemas"]["CausalFrontierSAEResponse"];
 
+export type CertifiedOperationEnvelope =
+  RuntimeApiComponents["schemas"]["CertifiedOperationEnvelope"];
+
 export type ChannelRegistryEntry =
   RuntimeApiComponents["schemas"]["ChannelRegistryEntry"];
 
@@ -282,6 +300,8 @@ export type CompareRunResponse =
 
 export type ComparisonFrame =
   RuntimeApiComponents["schemas"]["ComparisonFrame"];
+
+export type ComponentId = RuntimeApiComponents["schemas"]["ComponentId"];
 
 export type ConnectorInfo = RuntimeApiComponents["schemas"]["ConnectorInfo"];
 
@@ -484,6 +504,8 @@ export type DesignObjective =
 
 export type DesignProblem = RuntimeApiComponents["schemas"]["DesignProblem"];
 
+export type DesignRecordV0 = RuntimeApiComponents["schemas"]["DesignRecordV0"];
+
 export type DesignStakeholder =
   RuntimeApiComponents["schemas"]["DesignStakeholder"];
 
@@ -492,6 +514,8 @@ export type DiscoveryCandidate =
 
 export type EngineCensusPayload =
   RuntimeApiComponents["schemas"]["EngineCensusPayload"];
+
+export type EnvInfo = RuntimeApiComponents["schemas"]["EnvInfo"];
 
 export type EquilibriumBasinInterval =
   RuntimeApiComponents["schemas"]["EquilibriumBasinInterval"];
@@ -528,6 +552,8 @@ export type EvaluatorScoresView =
 
 export type EvidenceAcquisitionNeeds =
   RuntimeApiComponents["schemas"]["EvidenceAcquisitionNeeds"];
+
+export type EvidenceBasis = RuntimeApiComponents["schemas"]["EvidenceBasis"];
 
 export type EvidenceNeed = RuntimeApiComponents["schemas"]["EvidenceNeed"];
 
@@ -600,6 +626,8 @@ export type ForkBRelationCensusPayload =
 
 export type GenerationCycleDispositionPayload =
   RuntimeApiComponents["schemas"]["GenerationCycleDispositionPayload"];
+
+export type GitInfo = RuntimeApiComponents["schemas"]["GitInfo"];
 
 export type GovernanceDebugResponse =
   RuntimeApiComponents["schemas"]["GovernanceDebugResponse"];
@@ -809,6 +837,8 @@ export type PreflightDiagnosticView =
 export type PreflightReportView =
   RuntimeApiComponents["schemas"]["PreflightReportView"];
 
+export type ProducerInfo = RuntimeApiComponents["schemas"]["ProducerInfo"];
+
 export type ProductionApprovalEligibility =
   RuntimeApiComponents["schemas"]["ProductionApprovalEligibility"];
 
@@ -964,6 +994,49 @@ export type RunOperatorDiagnostic =
 export type RunOperatorProjectionStateLabel =
   RuntimeApiComponents["schemas"]["RunOperatorProjectionStateLabel"];
 
+export type RunPaperAbstention =
+  RuntimeApiComponents["schemas"]["RunPaperAbstention"];
+
+export type RunPaperAdmissionState =
+  RuntimeApiComponents["schemas"]["RunPaperAdmissionState"];
+
+export type RunPaperArtifactLink =
+  RuntimeApiComponents["schemas"]["RunPaperArtifactLink"];
+
+export type RunPaperBlocker =
+  RuntimeApiComponents["schemas"]["RunPaperBlocker"];
+
+export type RunPaperCaseSourceVerification =
+  RuntimeApiComponents["schemas"]["RunPaperCaseSourceVerification"];
+
+export type RunPaperDesignRecordBinding =
+  RuntimeApiComponents["schemas"]["RunPaperDesignRecordBinding"];
+
+export type RunPaperGroundingState =
+  RuntimeApiComponents["schemas"]["RunPaperGroundingState"];
+
+export type RunPaperLimitation =
+  RuntimeApiComponents["schemas"]["RunPaperLimitation"];
+
+export type RunPaperObjection =
+  RuntimeApiComponents["schemas"]["RunPaperObjection"];
+
+export type RunPaperPacket = RuntimeApiComponents["schemas"]["RunPaperPacket"];
+
+export type RunPaperPromotionState =
+  RuntimeApiComponents["schemas"]["RunPaperPromotionState"];
+
+export type RunPaperReplayPins =
+  RuntimeApiComponents["schemas"]["RunPaperReplayPins"];
+
+export type RunPaperRun = RuntimeApiComponents["schemas"]["RunPaperRun"];
+
+export type RunPaperSourceBinding =
+  RuntimeApiComponents["schemas"]["RunPaperSourceBinding"];
+
+export type RunPaperVerifiedCaseSource =
+  RuntimeApiComponents["schemas"]["RunPaperVerifiedCaseSource"];
+
 export type RunQuantitiesResponse =
   RuntimeApiComponents["schemas"]["RunQuantitiesResponse"];
 
@@ -1102,6 +1175,12 @@ export type TimeFrequency = RuntimeApiComponents["schemas"]["TimeFrequency"];
 export type TimeSemantics = RuntimeApiComponents["schemas"]["TimeSemantics"];
 
 export type TypedGap = RuntimeApiComponents["schemas"]["TypedGap"];
+
+export type UnavailableRunPaperCase =
+  RuntimeApiComponents["schemas"]["UnavailableRunPaperCase"];
+
+export type UnavailableRunPaperStageTrace =
+  RuntimeApiComponents["schemas"]["UnavailableRunPaperStageTrace"];
 
 export type UnitRefInput = RuntimeApiComponents["schemas"]["UnitRef-Input"];
 
@@ -2067,6 +2146,23 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
     });
     return this.request<RunNodesResponse>("GET", path, query);
+  }
+
+  async getRunPaper(params: {
+    run_id: string;
+    manifest_artifact_id?: string | null;
+    manifest_schema_version?: string | null;
+    paper_projection_rule_version?: string | null;
+    paper_projection_hash?: string | null;
+  }): Promise<RunPaperPacket> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/paper`;
+    const query = this.buildQuery({
+      manifest_artifact_id: params.manifest_artifact_id,
+      manifest_schema_version: params.manifest_schema_version,
+      paper_projection_rule_version: params.paper_projection_rule_version,
+      paper_projection_hash: params.paper_projection_hash,
+    });
+    return this.request<RunPaperPacket>("GET", path, query);
   }
 
   async getRunQuantities(params: {

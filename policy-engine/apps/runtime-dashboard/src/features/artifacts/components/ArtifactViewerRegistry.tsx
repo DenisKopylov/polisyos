@@ -244,6 +244,12 @@ function extractRelatedRefs(preview: unknown): ArtifactViewerRelatedRef[] {
 function PreflightReportViewer({ preview }: { preview: unknown }) {
   const { t, label } = useI18n();
   const report = asRecord(preview);
+  const readyToRun =
+    report?.ready_to_run === true
+      ? "ready"
+      : report?.ready_to_run === false
+        ? "blocked"
+        : "unavailable";
   const diagnostics = asArray(report?.diagnostics)
     .map((item) => asRecord(item))
     .filter(Boolean) as Array<Record<string, unknown>>;
@@ -266,10 +272,12 @@ function PreflightReportViewer({ preview }: { preview: unknown }) {
           {
             label: t("pages.artifacts.viewers.readyToRun"),
             value: (
-              <Badge kind={report?.ready_to_run === true ? "ok" : "warn"}>
-                {report?.ready_to_run === true
+              <Badge kind="neutral" data-preview-readiness={readyToRun}>
+                {readyToRun === "ready"
                   ? t("common.ready")
-                  : t("common.blocked")}
+                  : readyToRun === "blocked"
+                    ? t("common.blocked")
+                    : t("common.unavailable")}
               </Badge>
             ),
           },
@@ -309,7 +317,12 @@ function PreflightReportViewer({ preview }: { preview: unknown }) {
                   <p className="font-semibold">
                     {asString(diagnostic.code) ?? `diagnostic_${index + 1}`}
                   </p>
-                  <Badge kind="warn">
+                  <Badge
+                    kind="neutral"
+                    data-preview-severity={
+                      asString(diagnostic.severity) ?? "info"
+                    }
+                  >
                     {label(
                       "governanceSeverity",
                       asString(diagnostic.severity),

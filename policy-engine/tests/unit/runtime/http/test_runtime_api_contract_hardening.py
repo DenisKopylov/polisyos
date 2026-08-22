@@ -30,6 +30,10 @@ from polisyos.runtime.http.services.export_replay import (
     hash_export_projection,
 )
 from polisyos.runtime.http.services.governed_projections import GovernedProjectionService
+from polisyos.runtime.http.services.run_paper_contracts import (
+    RunPaperPacket,
+    build_run_paper_semantic_projection,
+)
 from tools.ops_runners.runtime import generate_runtime_client
 
 OPENAPI_TYPESCRIPT_VERSION = "7.13.0"
@@ -39,6 +43,25 @@ def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
     schema = export_runtime_openapi_schema()
     violations = validate_runtime_openapi_contract(schema)
     assert violations == []
+
+
+def test_run_paper_success_example_recomputes_its_declared_projection_hash() -> None:
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/runs/{run_id}/paper"]["get"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"][
+        "default"
+    ]["value"]
+    packet = RunPaperPacket.model_validate(example)
+
+    semantic_projection = build_run_paper_semantic_projection(
+        run=packet.run,
+        case_record=packet.case_record,
+        stage_trace=packet.stage_trace,
+        artifact_links=packet.artifact_links,
+        source=packet.source,
+    )
+
+    assert hash_export_projection(semantic_projection) == packet.projection_hash
 
 
 def test_cycle_board_success_example_is_a_strict_composed_absence_packet() -> None:

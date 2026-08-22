@@ -25,11 +25,8 @@ import { metricIdentifiability } from "@/shared/lib/domain/decision";
 import { LEGACY_RUN_DETAIL_TAB_MAP } from "@/features/runs/routes/useRunDetailSummary";
 import { buildEvidenceHref } from "@/features/evidence";
 import {
-  buildRunDeckSnapshot,
-  buildRunReportSnapshot,
-} from "@/features/runs/domain/compare";
-import {
   buildRunDeckHref,
+  buildRunReportHref,
   parseRunDetailLegacySearchParams,
 } from "@/features/runs/domain/searchParams";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -58,6 +55,20 @@ import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
 import { UncertaintyBand } from "@/shared/charts";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
+import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
+
+function humanizeScreenToken(value: string) {
+  return value
+    .replace(/[_-]+/g, " ")
+    .trim()
+    .replace(/\b\w/g, (match) => match.toUpperCase());
+}
+
+function formatScreenPercent(value: number | null | undefined) {
+  return typeof value === "number" && Number.isFinite(value)
+    ? `${Math.round(value * 100)}%`
+    : "Unknown";
+}
 
 function runDetailProvenance(
   summary: ReturnType<typeof useRunInspector>,
@@ -106,7 +117,12 @@ function RunBootstrapState({ runId }: { runId: string }) {
   });
 
   return (
-    <div className="space-y-5" data-testid="run-detail-page">
+    <div
+      className="space-y-5"
+      data-print-hidden="true"
+      data-run-detail-screen-only="true"
+      data-testid="run-detail-page"
+    >
       <Card
         className="space-y-4"
         data-authored-exempt="true"
@@ -159,14 +175,53 @@ function RunInspectorContent() {
   const authzDecision = useAuthzDecision(),
     { flags } = useFeatureFlags();
   const summary = useRunInspector();
-  const decisionPacket = useMemo(
-    () => buildRunReportSnapshot(summary, []),
-    [summary],
-  );
+  const screenDecision = useMemo(() => {
+    const strongestEvidence = summary.selectedPromotion
+      ? {
+          body: `${humanizeScreenToken(summary.selectedPromotion.datasetId)} is queued on ${humanizeScreenToken(summary.selectedPromotion.sourceLane)} with ${formatScreenPercent(summary.selectedPromotion.confidence)} confidence.`,
+          provenance: `${summary.selectedPromotion.connectorId} / ${summary.selectedPromotion.promotionId}`,
+          title: "Promotion lane signal",
+        }
+      : summary.selectedPlan
+        ? {
+            body: `${humanizeScreenToken(summary.selectedPlan.datasetId)} maps ${summary.selectedPlan.matchedNeedIds.length} needs through ${humanizeScreenToken(summary.selectedPlan.sourceLane)}.`,
+            provenance: `${summary.selectedPlan.connectorId} / ${summary.selectedPlan.planId}`,
+            title: "Evidence plan match",
+          }
+        : summary.selectedNeed
+          ? {
+              body: `${humanizeScreenToken(summary.selectedNeed.metric)} spans ${summary.selectedNeed.timeStart} to ${summary.selectedNeed.timeEnd} at ${humanizeScreenToken(summary.selectedNeed.granularity)} resolution.`,
+              provenance: `Need ${summary.selectedNeed.needId}`,
+              title: "Run-scoped need",
+            }
+          : {
+              body: "Runtime has not attached a specific promotion, plan, or need to this run yet.",
+              provenance: "Run context",
+              title: "Evidence pending",
+            };
+    return {
+      blockerCount: summary.blockerCount,
+      decisionConfidence: summary.decisionView?.confidence ?? null,
+      decisionHeadline: summary.decisionHeadline,
+      impactRows: [] as Array<{
+        label: string;
+        quantity: QuantityValueOutput;
+      }>,
+      mainUncertainty:
+        summary.primaryIssue?.message?.trim() ||
+        "No runtime or governance diagnostic was returned.",
+      primaryVerdict:
+        summary.decisionView?.verdict ??
+        summary.pipeline?.evaluator?.verdict ??
+        null,
+      strongestEvidence,
+      transportStatus: summary.transportStatus,
+    };
+  }, [summary]);
   const evaluatorGrade = presentDecisionGradeLabel(
     summary.pipeline?.evaluator?.verdict ?? summary.decisionView?.verdict,
   );
-  const packetGrade = presentDecisionGradeLabel(decisionPacket.primaryVerdict);
+  const packetGrade = presentDecisionGradeLabel(screenDecision.primaryVerdict);
   const primaryUncertaintyMetric = useMemo(() => {
     const metric = summary.decisionView?.keyMetrics.find(
       (candidate) =>
@@ -196,10 +251,24 @@ function RunInspectorContent() {
       unit: metric.unit,
     };
   }, [summary.decisionView?.keyMetrics]);
-  const deckSnapshot = useMemo(
-    () => buildRunDeckSnapshot(summary, decisionPacket),
-    [decisionPacket, summary],
-  );
+  const screenDependencies = useMemo(() => {
+    const dependencies = [
+      ...summary.artifactRefs
+        .slice(0, 2)
+        .map((ref) => (ref.kind ? humanizeScreenToken(ref.kind) : null)),
+      summary.selectedPromotion
+        ? `${summary.selectedPromotion.status} promotion review`
+        : null,
+      summary.transportStatus || null,
+    ].filter((value): value is string => Boolean(value));
+    return dependencies.length > 0
+      ? dependencies
+      : ["No downstream dependency string was returned for this run."];
+  }, [
+    summary.artifactRefs,
+    summary.selectedPromotion,
+    summary.transportStatus,
+  ]);
   const tabs = getVisibleRunInspectorTabs(capabilitiesQuery.data, {
     canAccessTab: (tab) => {
       const permission = getRunReviewTabPermission(tab);
@@ -214,6 +283,8 @@ function RunInspectorContent() {
     authzDecision.kind === "verified" && authzDecision.can("evidence.view");
   const canLaunchRuns =
     authzDecision.kind === "verified" && authzDecision.can("runs.launch");
+  const canReviewRuns =
+    authzDecision.kind === "verified" && authzDecision.can("runs.review");
   const { highlightMode } = useAuthorship();
   const readingViewHref = useMemo(() => {
     if (!summary.primaryDecisionArtifactId) {
@@ -277,7 +348,12 @@ function RunInspectorContent() {
   }
   if (summary.runDetailsQuery.isError) {
     return (
-      <div className="space-y-5" data-testid="run-detail-page">
+      <div
+        className="space-y-5"
+        data-print-hidden="true"
+        data-run-detail-screen-only="true"
+        data-testid="run-detail-page"
+      >
         <ApiErrorAlert
           title={t("pages.runs.loadRunDetailsError")}
           error={summary.runDetailsQuery.error}
@@ -291,7 +367,7 @@ function RunInspectorContent() {
 
   const run = summary.run;
   const pipelineState = summary.pipeline?.iteration_lifecycle?.state ?? null;
-  const decisionPacketTimestamp =
+  const screenDecisionTimestamp =
     summary.decisionView?.generatedAt ??
     run.finished_at ??
     run.started_at ??
@@ -309,7 +385,7 @@ function RunInspectorContent() {
         maximumFractionDigits: 3,
       }),
     }),
-    time: { valid_at: decisionPacketTimestamp },
+    time: { valid_at: screenDecisionTimestamp },
   });
   const blockerCountQuantity = untracedDecisionQuantity({
     point: summary.blockerCount,
@@ -318,18 +394,23 @@ function RunInspectorContent() {
       count: formatNumber(summary.blockerCount),
     }),
     unit: { code: "{blocker}", system: "ucum", display: "blockers" },
-    time: { valid_at: decisionPacketTimestamp },
+    time: { valid_at: screenDecisionTimestamp },
   });
-  const decisionPacketBlockerQuantity = untracedDecisionQuantity({
-    point: decisionPacket.blockerCount,
+  const screenDecisionBlockerQuantity = untracedDecisionQuantity({
+    point: screenDecision.blockerCount,
     metricId: "decision_packet_blocker_count",
     label: t("pages.runs.blockerStateLabel"),
     unit: { code: "{blocker}", system: "ucum", display: "blockers" },
-    time: { valid_at: decisionPacketTimestamp },
+    time: { valid_at: screenDecisionTimestamp },
   });
 
   return (
-    <div className="space-y-5" data-testid="run-detail-page">
+    <div
+      className="space-y-5"
+      data-print-hidden="true"
+      data-run-detail-screen-only="true"
+      data-testid="run-detail-page"
+    >
       <AmbientTelemetryHud
         activeTab={activeTab}
         runId={runId}
@@ -460,13 +541,24 @@ function RunInspectorContent() {
                       {t("pages.runs.openEvidence")}
                     </Button>
                   )}
-                  <PrefetchButton
-                    to={`/runs/${runId}/report`}
-                    prefetch="intent"
-                    variant="ghost"
-                  >
-                    {t("pages.runs.auditReport")}
-                  </PrefetchButton>
+                  {canReviewRuns ? (
+                    <PrefetchButton
+                      to={buildRunReportHref(runId)}
+                      prefetch="intent"
+                      variant="ghost"
+                    >
+                      {t("pages.runs.auditReport")}
+                    </PrefetchButton>
+                  ) : (
+                    <Button
+                      type="button"
+                      disabled
+                      title={t("common.accessDenied")}
+                      variant="ghost"
+                    >
+                      {t("pages.runs.auditReport")}
+                    </Button>
+                  )}
                   <PrefetchButton
                     to={buildRunDeckHref(runId)}
                     prefetch="intent"
@@ -593,7 +685,7 @@ function RunInspectorContent() {
                     </p>
                     <h3>{t("pages.runs.decisionPacketHeading")}</h3>
                   </div>
-                  <Badge kind="neutral">{decisionPacket.transportStatus}</Badge>
+                  <Badge kind="neutral">{screenDecision.transportStatus}</Badge>
                 </div>
 
                 <div className="grid gap-3 md:grid-cols-3">
@@ -612,18 +704,18 @@ function RunInspectorContent() {
                         {packetGrade.ownerLabel ?? t("common.unknown")}
                       </span>
                     }
-                    meta={decisionPacket.decisionHeadline}
+                    meta={screenDecision.decisionHeadline}
                   />
                   <MetricCard
                     label={t("pages.runs.confidenceLabel")}
                     value={
-                      decisionPacket.decisionConfidence ?? t("common.unknown")
+                      screenDecision.decisionConfidence ?? t("common.unknown")
                     }
                     meta={t("pages.runs.report.decisionScore")}
                   />
                   <MetricCard
                     label={t("pages.runs.blockerStateLabel")}
-                    value={<Quantity value={decisionPacketBlockerQuantity} />}
+                    value={<Quantity value={screenDecisionBlockerQuantity} />}
                     meta={t("pages.runs.governance")}
                   />
                 </div>
@@ -638,8 +730,8 @@ function RunInspectorContent() {
                       {t("pages.runs.impactDeltasTitle")}
                     </p>
                     <div className="mt-4 space-y-3">
-                      {decisionPacket.impactRows.length > 0 ? (
-                        decisionPacket.impactRows.slice(0, 4).map((row) => (
+                      {screenDecision.impactRows.length > 0 ? (
+                        screenDecision.impactRows.slice(0, 4).map((row) => (
                           <div
                             key={row.label}
                             className="flex items-center justify-between gap-3"
@@ -659,7 +751,7 @@ function RunInspectorContent() {
                         <AuthoredText
                           author="human"
                           className="text-muted text-sm"
-                          timestamp={decisionPacketTimestamp}
+                          timestamp={screenDecisionTimestamp}
                         >
                           {t("pages.runs.impactDeltasEmpty")}
                         </AuthoredText>
@@ -676,16 +768,16 @@ function RunInspectorContent() {
                       {t("pages.runs.strongestEvidenceTitle")}
                     </p>
                     <strong className="mt-4 block text-base">
-                      {decisionPacket.strongestEvidence.title}
+                      {screenDecision.strongestEvidence.title}
                     </strong>
                     <AuthoredText
                       author="citation"
                       className="mt-3 text-sm leading-6 text-[var(--ink)]"
                       sourceHref={strongestEvidenceHref}
-                      sourceRef={decisionPacket.strongestEvidence.provenance}
-                      timestamp={decisionPacketTimestamp}
+                      sourceRef={screenDecision.strongestEvidence.provenance}
+                      timestamp={screenDecisionTimestamp}
                     >
-                      {decisionPacket.strongestEvidence.body}
+                      {screenDecision.strongestEvidence.body}
                     </AuthoredText>
                   </section>
 
@@ -700,9 +792,9 @@ function RunInspectorContent() {
                     <AuthoredText
                       author="formalizer"
                       className="mt-4 text-sm leading-6 font-semibold"
-                      timestamp={decisionPacketTimestamp}
+                      timestamp={screenDecisionTimestamp}
                     >
-                      {decisionPacket.mainUncertainty}
+                      {screenDecision.mainUncertainty}
                     </AuthoredText>
                     {primaryUncertaintyMetric ? (
                       <div
@@ -773,7 +865,7 @@ function RunInspectorContent() {
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      {deckSnapshot.close.downstreamDependencies.map((item) => (
+                      {screenDependencies.map((item) => (
                         <Badge key={item} kind="neutral">
                           {item}
                         </Badge>

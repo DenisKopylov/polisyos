@@ -1415,6 +1415,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/paper": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get the replay-bound paper projection for one verified run */
+        get: operations["get_run_paper"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/production-approval": {
         parameters: {
             query?: never;
@@ -2507,6 +2524,37 @@ export interface components {
             text: string;
         };
         /**
+         * AuthorityBoundary
+         * @description Purpose-scoped authority boundary carried by Layer 2 records.
+         */
+        AuthorityBoundary: {
+            /** Authoritative For */
+            authoritative_for: string[];
+            /** Boundary Id */
+            boundary_id?: string | null;
+            /** Decision Grade */
+            decision_grade?: ("unsupported" | "descriptive_only" | "advisory_admissible" | "decision_admissible") | null;
+            evidence_basis?: components["schemas"]["EvidenceBasis"] | null;
+            /** Evidence Kind */
+            evidence_kind?: ("measurement" | "derivation" | "proxy" | "transport" | "bounds" | "simulation" | "elicitation" | "incomparable_meet") | null;
+            /** Known Limits */
+            known_limits?: string[];
+            /** May Not Use For */
+            may_not_use_for: string[];
+            /**
+             * Posture
+             * @enum {string}
+             */
+            posture: "shadow" | "advisory" | "governed" | "production";
+            /** Rule Version Refs */
+            rule_version_refs: string[];
+            /**
+             * Source Authority
+             * @enum {string}
+             */
+            source_authority: "deterministic_producer" | "governed_config" | "human_governance" | "llm_candidate" | "llm_critic" | "llm_drafter";
+        };
+        /**
          * AuthorityProfile
          * @description Record requester authority and mandate context for the problem.
          */
@@ -2718,6 +2766,92 @@ export interface components {
             source_schema_version?: string | null;
             /** Stable Address */
             stable_address: string;
+        };
+        /**
+         * AvailableRunPaperCase
+         * @description Frozen DS8-B slot for a future verified run-bound DesignRecord.
+         */
+        AvailableRunPaperCase: {
+            /** Abstentions */
+            abstentions: components["schemas"]["RunPaperAbstention"][];
+            admission_state: components["schemas"]["RunPaperAdmissionState"];
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            availability: "available";
+            /** Blockers */
+            blockers: components["schemas"]["RunPaperBlocker"][];
+            /** Case Id */
+            case_id: string;
+            design_record: components["schemas"]["DesignRecordV0"];
+            design_record_binding: components["schemas"]["RunPaperDesignRecordBinding"];
+            grounding_state: components["schemas"]["RunPaperGroundingState"];
+            /** Limitations */
+            limitations: components["schemas"]["RunPaperLimitation"][];
+            /** Objections */
+            objections: components["schemas"]["RunPaperObjection"][];
+            promotion_state: components["schemas"]["RunPaperPromotionState"];
+        };
+        /** AvailableRunPaperStageTrace */
+        AvailableRunPaperStageTrace: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            availability: "available";
+            /**
+             * Owner Route
+             * @default core RunManifest.trace_ref
+             * @constant
+             */
+            owner_route: "core RunManifest.trace_ref";
+            /**
+             * Section Id
+             * @default stage-trace
+             * @constant
+             */
+            section_id: "stage-trace";
+            trace_ref: components["schemas"]["ArtifactRef-Output"];
+        };
+        /**
+         * AxisFirewallStatus
+         * @description Fail-closed or predictive firewall status for one axis.
+         */
+        AxisFirewallStatus: {
+            /** Cell Ref */
+            cell_ref: string;
+            /** Maturity */
+            maturity?: ("fail_closed" | "predictive") | null;
+            /** Pattern Ids */
+            pattern_ids?: string[];
+            /** Reason */
+            reason: string;
+            /** Rule Version Ref */
+            rule_version_ref: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "not_applicable" | "pass" | "warn" | "limit" | "block";
+        };
+        /**
+         * AxisPositionDeclaration
+         * @description A declared position on a universal designer cluster axis.
+         */
+        AxisPositionDeclaration: {
+            /** Authority Purpose */
+            authority_purpose: string;
+            /** Axis */
+            axis: string;
+            /** Cluster */
+            cluster: string;
+            /** Evidence Refs */
+            evidence_refs?: string[];
+            /** Position */
+            position: string;
+            /** Rule Version Ref */
+            rule_version_ref: string;
         };
         /**
          * BasinEstimate
@@ -3533,6 +3667,32 @@ export interface components {
             };
         };
         /**
+         * CertifiedOperationEnvelope
+         * @description Certified operation envelope attached to a design record.
+         */
+        CertifiedOperationEnvelope: {
+            /** Actor Scopes */
+            actor_scopes: string[];
+            /** Certified For */
+            certified_for: string[];
+            /** Cluster Authority Dimension Refs */
+            cluster_authority_dimension_refs?: string[];
+            /** Domains */
+            domains: string[];
+            /** Envelope Id */
+            envelope_id: string;
+            /** Epistemic Regime Scopes */
+            epistemic_regime_scopes?: ("risk" | "uncertainty" | "ambiguity" | "ignorance" | "contested_model")[];
+            /** Method Scopes */
+            method_scopes: string[];
+            /** Not Certified For */
+            not_certified_for: string[];
+            /** Posture Scopes */
+            posture_scopes: ("shadow" | "advisory" | "governed" | "production")[];
+            /** Rule Version Ref */
+            rule_version_ref: string;
+        };
+        /**
          * ChannelRegistryEntry
          * @description Govern a non-OpenAPI realtime channel and its existing security contract.
          */
@@ -3751,6 +3911,11 @@ export interface components {
              */
             unit_policy: "canonical" | "source" | "mixed";
         };
+        /**
+         * ComponentId
+         * @description Component identifier: dot.path.name@semver.
+         */
+        ComponentId: string;
         /**
          * ConnectorInfo
          * @description Describe one discovered connector and the datasets/profiles it exposes.
@@ -4346,7 +4511,7 @@ export interface components {
              * Source Kind
              * @enum {string}
              */
-            source_kind: "governed_projection" | "control_plane_evidence" | "historical_owner_record" | "run_summary_lookup";
+            source_kind: "governed_projection" | "control_plane_evidence" | "historical_owner_record" | "run_summary_lookup" | "run_paper_projection";
             /** Source Ref */
             source_ref?: string | null;
         };
@@ -5569,6 +5734,41 @@ export interface components {
             stakeholders?: components["schemas"]["DesignStakeholder"][];
         };
         /**
+         * DesignRecordV0
+         * @description Minimal narrow-waist design record carried from S2 onward.
+         */
+        DesignRecordV0: {
+            authority_boundary: components["schemas"]["AuthorityBoundary"];
+            /** Axis Positions */
+            axis_positions?: components["schemas"]["AxisPositionDeclaration"][];
+            /** Candidate Ref */
+            candidate_ref: string;
+            /**
+             * Candidate Source
+             * @enum {string}
+             */
+            candidate_source: "deterministic_producer" | "governed_config" | "human_governance" | "llm_candidate" | "llm_critic" | "llm_drafter";
+            envelope: components["schemas"]["CertifiedOperationEnvelope"];
+            /** Firewall Status */
+            firewall_status?: components["schemas"]["AxisFirewallStatus"][];
+            /** Ledger Refs */
+            ledger_refs?: string[];
+            /** Projection Audiences */
+            projection_audiences: ("PUBLIC" | "REVIEWER" | "EXPERT" | "MACHINE")[];
+            /**
+             * Projection Status
+             * @enum {string}
+             */
+            projection_status: "shadow" | "advisory" | "governed" | "production";
+            /** Record Id */
+            record_id: string;
+            /**
+             * Schema Version
+             * @default policyos.policy_design_case.layer2_readiness.v1
+             */
+            schema_version: string;
+        };
+        /**
          * DesignStakeholder
          * @description Represent an affected stakeholder shared across projections.
          */
@@ -5661,6 +5861,18 @@ export interface components {
             verb_gap_consistency: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
+        };
+        /**
+         * EnvInfo
+         * @description Summarize the runtime environment fingerprint persisted with a manifest.
+         */
+        EnvInfo: {
+            /** Deps Lock Hash */
+            deps_lock_hash: string;
+            /** Platform */
+            platform: string;
+            /** Python */
+            python: string;
         };
         /**
          * EquilibriumBasinInterval
@@ -5956,6 +6168,20 @@ export interface components {
         EvidenceAcquisitionNeeds: {
             /** Needs */
             needs?: components["schemas"]["EvidenceNeed"][];
+        };
+        /**
+         * EvidenceBasis
+         * @description Producer evidence used by the GY authority lattice.
+         */
+        EvidenceBasis: {
+            /** Calibration Refs */
+            calibration_refs?: unknown[];
+            /** Counterexamples Closed */
+            counterexamples_closed?: unknown[];
+            /** Method Refs */
+            method_refs?: string[];
+            /** Producer Roots */
+            producer_roots?: unknown[];
         };
         /**
          * EvidenceNeed
@@ -6580,6 +6806,19 @@ export interface components {
             tasks: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
+        };
+        /**
+         * GitInfo
+         * @description Capture producer git provenance attached to a manifest.
+         */
+        GitInfo: {
+            /** Commit */
+            commit: string;
+            /**
+             * Dirty
+             * @default false
+             */
+            dirty: boolean;
         };
         /**
          * GovernanceDebugResponse
@@ -8765,6 +9004,17 @@ export interface components {
             report_ref?: components["schemas"]["ArtifactRef-Output"] | null;
         };
         /**
+         * ProducerInfo
+         * @description Identify the component/version that produced an artifact.
+         */
+        ProducerInfo: {
+            /** Component */
+            component: components["schemas"]["ComponentId"] | string;
+            git?: components["schemas"]["GitInfo"] | null;
+            /** Version */
+            version: string;
+        };
+        /**
          * ProductionApprovalEligibility
          * @description Machine-readable production approval eligibility projection.
          */
@@ -10057,6 +10307,391 @@ export interface components {
              */
             state: "draft" | "projection_only" | "redacted" | "stale" | "contested" | "projected" | "blocked" | "readiness_closed" | "approved" | "rejected" | "published_blocked" | "publishable";
         };
+        /** RunPaperAbstention */
+        RunPaperAbstention: {
+            /** Code */
+            code: string;
+            /** Issue Id */
+            issue_id: string;
+            /**
+             * Kind
+             * @default abstention
+             * @constant
+             */
+            kind: "abstention";
+            /** Owner Route */
+            owner_route: string;
+            /** Source Bindings */
+            source_bindings: components["schemas"]["RunPaperVerifiedCaseSource"][];
+            /** Statement */
+            statement: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "resolved" | "escalated" | "accepted_as_limit";
+            /**
+             * Status Vocabulary Ref
+             * @default polisyos.pdc.ObligationRecord.status
+             * @constant
+             */
+            status_vocabulary_ref: "polisyos.pdc.ObligationRecord.status";
+        };
+        /**
+         * RunPaperAdmissionState
+         * @description Admission state using the hypothesis-ledger owner's closed vocabulary.
+         */
+        RunPaperAdmissionState: {
+            source_binding: components["schemas"]["RunPaperVerifiedCaseSource"];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "candidate_unverified" | "rejected_speculation" | "typed_blocker" | "limitation" | "admitted_to_obligation" | "admitted_to_claim";
+            /**
+             * Vocabulary Ref
+             * @default polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState
+             * @constant
+             */
+            vocabulary_ref: "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState";
+        };
+        /**
+         * RunPaperArtifactLink
+         * @description One content-addressed ordinary link admitted from manifest outputs.
+         */
+        RunPaperArtifactLink: {
+            artifact_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Href */
+            href: string;
+            /**
+             * Relation
+             * @default run_output
+             * @constant
+             */
+            relation: "run_output";
+        };
+        /** RunPaperBlocker */
+        RunPaperBlocker: {
+            /** Code */
+            code: string;
+            /** Issue Id */
+            issue_id: string;
+            /**
+             * Kind
+             * @default blocker
+             * @constant
+             */
+            kind: "blocker";
+            /** Owner Route */
+            owner_route: string;
+            /** Source Bindings */
+            source_bindings: components["schemas"]["RunPaperVerifiedCaseSource"][];
+            /** Statement */
+            statement: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "resolved" | "escalated" | "accepted_as_limit";
+            /**
+             * Status Vocabulary Ref
+             * @default polisyos.pdc.ObligationRecord.status
+             * @constant
+             */
+            status_vocabulary_ref: "polisyos.pdc.ObligationRecord.status";
+        };
+        /**
+         * RunPaperCaseSourceVerification
+         * @description Verifier-written binding between authority bytes and one case/run identity.
+         */
+        RunPaperCaseSourceVerification: {
+            /** Bound Artifact Content Hash */
+            bound_artifact_content_hash: string;
+            /** Bound Case Id */
+            bound_case_id: string;
+            /** Bound Design Record Record Id */
+            bound_design_record_record_id: string;
+            /** Bound Run Id */
+            bound_run_id: string;
+            /** Bound Tenant Id */
+            bound_tenant_id: string;
+            /**
+             * Status
+             * @default passed
+             * @constant
+             */
+            status: "passed";
+            /** Validator Id */
+            validator_id: string;
+            /** Validator Version */
+            validator_version: string;
+        };
+        /**
+         * RunPaperDesignRecordBinding
+         * @description Future content-bound DesignRecord identity; DS8-A never constructs it.
+         */
+        RunPaperDesignRecordBinding: {
+            /** Case Id */
+            case_id: string;
+            /** Content Digest */
+            content_digest: string;
+            /** Design Record Record Id */
+            design_record_record_id: string;
+            design_record_ref: components["schemas"]["ArtifactRef-Output"];
+            producer: components["schemas"]["ProducerInfo"];
+            /** Run Id */
+            run_id: string;
+            /**
+             * Schema Name
+             * @default policyos.layer2_s2.design_record_v0
+             * @constant
+             */
+            schema_name: "policyos.layer2_s2.design_record_v0";
+            /**
+             * Schema Version
+             * @default policyos.policy_design_case.layer2_readiness.v1
+             * @constant
+             */
+            schema_version: "policyos.policy_design_case.layer2_readiness.v1";
+            /** Tenant Id */
+            tenant_id: string;
+        };
+        /**
+         * RunPaperGroundingState
+         * @description Grounding state using the generation-cycle owner's closed vocabulary.
+         */
+        RunPaperGroundingState: {
+            source_binding: components["schemas"]["RunPaperVerifiedCaseSource"];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "current_valid" | "grounded_shadow" | "grounding_gap" | "grounding_failed" | "grounding_unavailable";
+            /**
+             * Vocabulary Ref
+             * @default polisyos.runtime.quality.generation_cycle.GroundingStatus
+             * @constant
+             */
+            vocabulary_ref: "polisyos.runtime.quality.generation_cycle.GroundingStatus";
+        };
+        /** RunPaperLimitation */
+        RunPaperLimitation: {
+            /** Code */
+            code: string;
+            /** Issue Id */
+            issue_id: string;
+            /**
+             * Kind
+             * @default limitation
+             * @constant
+             */
+            kind: "limitation";
+            /** Owner Route */
+            owner_route: string;
+            /** Source Bindings */
+            source_bindings: components["schemas"]["RunPaperVerifiedCaseSource"][];
+            /** Statement */
+            statement: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "resolved" | "escalated" | "accepted_as_limit";
+            /**
+             * Status Vocabulary Ref
+             * @default polisyos.pdc.ObligationRecord.status
+             * @constant
+             */
+            status_vocabulary_ref: "polisyos.pdc.ObligationRecord.status";
+        };
+        /** RunPaperObjection */
+        RunPaperObjection: {
+            /** Code */
+            code: string;
+            /** Issue Id */
+            issue_id: string;
+            /**
+             * Kind
+             * @default objection
+             * @constant
+             */
+            kind: "objection";
+            /** Owner Route */
+            owner_route: string;
+            /** Source Bindings */
+            source_bindings: components["schemas"]["RunPaperVerifiedCaseSource"][];
+            /** Statement */
+            statement: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "open" | "resolved" | "escalated" | "accepted_as_limit";
+            /**
+             * Status Vocabulary Ref
+             * @default polisyos.pdc.ObligationRecord.status
+             * @constant
+             */
+            status_vocabulary_ref: "polisyos.pdc.ObligationRecord.status";
+        };
+        /**
+         * RunPaperPacket
+         * @description One replay-addressed paper and MACHINE packet for a verified run.
+         */
+        RunPaperPacket: {
+            /** Artifact Links */
+            artifact_links: components["schemas"]["RunPaperArtifactLink"][];
+            /** Case Record */
+            case_record: components["schemas"]["AvailableRunPaperCase"] | components["schemas"]["UnavailableRunPaperCase"];
+            /**
+             * Intended Audiences
+             * @default [
+             *       "reviewer",
+             *       "expert"
+             *     ]
+             */
+            intended_audiences: [
+                "reviewer",
+                "expert"
+            ];
+            /**
+             * Packet Schema Version
+             * @default policyos.runtime.run_paper_packet.v1
+             * @constant
+             */
+            packet_schema_version: "policyos.runtime.run_paper_packet.v1";
+            /** Projection Hash */
+            projection_hash: string;
+            /**
+             * Projection Rule Version
+             * @default policyos.runtime.run_paper.v1
+             * @constant
+             */
+            projection_rule_version: "policyos.runtime.run_paper.v1";
+            /** Replay Address */
+            replay_address: string;
+            replay_pins: components["schemas"]["RunPaperReplayPins"];
+            /** Report Href */
+            report_href: string;
+            run: components["schemas"]["RunPaperRun"];
+            source: components["schemas"]["RunPaperSourceBinding"];
+            /** Stable Address */
+            stable_address: string;
+            /** Stage Trace */
+            stage_trace: components["schemas"]["AvailableRunPaperStageTrace"] | components["schemas"]["UnavailableRunPaperStageTrace"];
+        };
+        /**
+         * RunPaperPromotionState
+         * @description Promotion state using the governed G4 promotion owner's vocabulary.
+         */
+        RunPaperPromotionState: {
+            source_binding: components["schemas"]["RunPaperVerifiedCaseSource"];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "governed_promoted" | "promotion_blocked";
+            /**
+             * Vocabulary Ref
+             * @default polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state
+             * @constant
+             */
+            vocabulary_ref: "polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state";
+        };
+        /**
+         * RunPaperReplayPins
+         * @description Complete immutable identity for one run-paper projection.
+         */
+        RunPaperReplayPins: {
+            /** Manifest Artifact Id */
+            manifest_artifact_id: string;
+            /**
+             * Manifest Schema Version
+             * @default 0.1.0
+             * @constant
+             */
+            manifest_schema_version: "0.1.0";
+            /** Paper Projection Hash */
+            paper_projection_hash: string;
+            /**
+             * Paper Projection Rule Version
+             * @default policyos.runtime.run_paper.v1
+             * @constant
+             */
+            paper_projection_rule_version: "policyos.runtime.run_paper.v1";
+        };
+        /** RunPaperRun */
+        RunPaperRun: {
+            /** Cell Id */
+            cell_id?: string | null;
+            /** Duration Ms */
+            duration_ms?: number | null;
+            /** Finished At */
+            finished_at?: string | null;
+            /** Run Id */
+            run_id: string;
+            /**
+             * Run Terminality
+             * @enum {string}
+             */
+            run_terminality: "terminal" | "non_terminal" | "not_established";
+            /**
+             * Source Kind
+             * @default core_run
+             * @constant
+             */
+            source_kind: "core_run";
+            /** Started At */
+            started_at?: string | null;
+            /** Status */
+            status: string;
+            /** Tenant Id */
+            tenant_id: string;
+        };
+        /**
+         * RunPaperSourceBinding
+         * @description Exact verified manifest and producer provenance used by the projection.
+         */
+        RunPaperSourceBinding: {
+            environment: components["schemas"]["EnvInfo"] | null;
+            manifest_ref: components["schemas"]["ArtifactRef-Output"];
+            /**
+             * Manifest Schema Name
+             * @default polisyos.core.RunManifest
+             * @constant
+             */
+            manifest_schema_name: "polisyos.core.RunManifest";
+            /**
+             * Manifest Schema Version
+             * @default 0.1.0
+             * @constant
+             */
+            manifest_schema_version: "0.1.0";
+            producer: components["schemas"]["ProducerInfo"] | null;
+            registry_bundle: components["schemas"]["ArtifactRef-Output"];
+        };
+        /**
+         * RunPaperVerifiedCaseSource
+         * @description Content-bound, verifier-proven source for one case authority role.
+         */
+        RunPaperVerifiedCaseSource: {
+            /** As Of */
+            as_of?: string | null;
+            /**
+             * Authority Purpose
+             * @enum {string}
+             */
+            authority_purpose: "grounding_state" | "admission_state" | "promotion_state" | "blocker" | "limitation" | "objection" | "abstention";
+            producer: components["schemas"]["ProducerInfo"];
+            /** Source Digest */
+            source_digest: string;
+            source_ref: components["schemas"]["ArtifactRef-Output"];
+            /** Source Schema Name */
+            source_schema_name: string;
+            /** Source Schema Version */
+            source_schema_version: string;
+            verification: components["schemas"]["RunPaperCaseSourceVerification"];
+        };
         /**
          * RunQuantitiesResponse
          * @description Response envelope returned by the run quantity inventory endpoint.
@@ -11117,6 +11752,75 @@ export interface components {
              * @enum {string}
              */
             status: "untraced" | "unknown_quality" | "restricted" | "non_replayable" | "unsupported_temporal_scope";
+        };
+        /**
+         * UnavailableRunPaperCase
+         * @description Typed absence for the registered run-to-DesignRecord producer gap.
+         */
+        UnavailableRunPaperCase: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            availability: "artifact_missing";
+            /**
+             * Capability State
+             * @default producer_missing
+             * @constant
+             */
+            capability_state: "producer_missing";
+            /**
+             * Closure Signal
+             * @default case-record-not-run-bound
+             * @constant
+             */
+            closure_signal: "case-record-not-run-bound";
+            /**
+             * May Not Use For
+             * @default [
+             *       "case_identity",
+             *       "design_record",
+             *       "grounding_state",
+             *       "admission_state",
+             *       "promotion_state",
+             *       "blockers",
+             *       "limitations",
+             *       "objections",
+             *       "abstentions"
+             *     ]
+             */
+            may_not_use_for: string[];
+            /**
+             * Owner Route
+             * @default team-runtime
+             * @constant
+             */
+            owner_route: "team-runtime";
+            /**
+             * Reason Code
+             * @default case-record-not-run-bound
+             * @constant
+             */
+            reason_code: "case-record-not-run-bound";
+        };
+        /** UnavailableRunPaperStageTrace */
+        UnavailableRunPaperStageTrace: {
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            availability: "invalid_source" | "not_established";
+            /**
+             * Owner Route
+             * @default core RunManifest.trace_ref
+             * @constant
+             */
+            owner_route: "core RunManifest.trace_ref";
+            /**
+             * Reason
+             * @default verified run manifest carries no trace reference
+             */
+            reason: string;
         };
         /**
          * UnitRef
@@ -18737,6 +19441,97 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["RunNodesResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_paper: {
+        parameters: {
+            query?: {
+                manifest_artifact_id?: string | null;
+                manifest_schema_version?: string | null;
+                paper_projection_rule_version?: string | null;
+                paper_projection_hash?: string | null;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RunPaperPacket"];
                 };
             };
             /** @description Malformed request payload or parameters. */

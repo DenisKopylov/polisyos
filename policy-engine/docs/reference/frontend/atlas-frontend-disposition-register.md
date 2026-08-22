@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **48707**
-- Application lines deleted: **20441**
-- Net application LOC reduction: **-28266**
+- Application lines added: **55808**
+- Application lines deleted: **20856**
+- Net application LOC reduction: **-34952**
 - Application files deleted: **89**
 
 ## Wave-end full verification
@@ -273,7 +273,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `authority-presentation-badge-compound-decision-grade` | `authority_presentation_debt` | `rebind_pending` | `DS5` | `bridge_missing`, `surface_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after C06 generated DecisionGrade and a private exhaustive issuer make raw grade assignment fail typecheck | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-control-approval-quality` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated approval, calibration, and gate DTOs use weakest-boundary mixed-outcome tests | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-decision-confidence` | `authority_presentation_debt` | `rebind_pending` | `DS16` | `artifact_missing`, `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
-| `authority-presentation-badge-evidence-source-freshness` | `authority_presentation_debt` | `rebind_pending` | `DS8` | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after owner source_as_of and freshness fields enforce oldest-input veto without local SLA authority | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
+| `authority-presentation-badge-evidence-source-freshness` | `authority_presentation_debt` | `rebind_pending` | `DS8` | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after owner source_as_of and freshness fields enforce oldest-input veto without local SLA authority | `open_debt` — The live census establishes that this authority-debt group has no remaining direct Badge consumer. Its producer and bridge capability debt remains open without preserving a stale sink. |
 | `authority-presentation-badge-explainability-governance-counts` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a typed governance summary proves counts cannot synthesize composed authority | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-governance-issue-severity` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated owner severity field enters a branded issuer with runtime novelty | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-governed-projection-availability` | `authority_presentation_debt` | `rebind_pending` | `DS7` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated availability union enters an exhaustive issuer and novel values render unrecognized | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
@@ -604,28 +604,316 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `evidence-e2e-journeys` | `evidence-e2e-journeys` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `evidence-visual` | `evidence-visual` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `evidence-manual-at` | `evidence-manual-at` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
+
+### DS8 case/evidence strangle coverage
+
+Predicate provenance: `independently_reconciled`. Family complete: `false`.
+
+| Feature | Opening production | In scope | Deferred |
+| --- | ---: | ---: | ---: |
+| runs | 86 | 4 | 82 |
+| artifacts | 48 | 2 | 46 |
+| evidence | 11 | 2 | 9 |
+| **Total** | **145** | **8** | **137** |
+
+Opening companions: **57 tests** and **5 stories**. Source-freeze additions: **10 paths**.
+
+T0 `9e6a43b53d11166e90df376940cb34ff15b77289`: `sha256:b3f088e2b5abf2699b1da970e8f4aaeeb529c4a0fc6bddd3707679eca8e4c8b5`; source freeze `fd43342f87fda34c6123a8f5f4791f8e3236b4f9`: `sha256:6f788ac379d17b68af010ec853527b051e5c8cc4f128bb68964908128cf6e379`.
+
+| Closure cluster | Files | Source commit | Path/content receipt |
+| --- | ---: | --- | --- |
+| `C04` | 4 | `fd43342f87fda34c6123a8f5f4791f8e3236b4f9` | `sha256:ddf10b7ac37089b9ebe96e269cbc19aebc30b72477fa5e5e1c4e50a0f9303da4` |
+| `C05` | 1 | `fd43342f87fda34c6123a8f5f4791f8e3236b4f9` | `sha256:a9f5a4021e3dd7efd1651caafba7421e44a744f8d8738b457b52fc29412d277d` |
+| `C06` | 6 | `fd43342f87fda34c6123a8f5f4791f8e3236b4f9` | `sha256:4541d9ca8734e26845d2fd748b509f64ba44ba7a65e41855fe901a89e1c67569` |
+
+#### Complete DS8 path projection
+
+| Path | Feature | Role | Origin | Disposition | Closure | Owner / exit |
+| --- | --- | --- | --- | --- | --- | --- |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.a11y.test.tsx` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.stories.tsx` | `artifacts` | `story` | `opening_base` | `retained` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.test.tsx` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticArtifactView.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticGenrePicker.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticTemplateBadge.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.test.ts` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/bureaucratic-document-ast.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/epistemic-map.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/numbering.test.ts` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/ast/numbering.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-docx.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-html.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/export-pdf.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/parity-check.test.ts` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/export/parity-check.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/AnalitichnaZapyskaRenderer.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/ExpertVysnovokRenderer.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/PostanovaKMURenderer.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/ZakonoproektRenderer.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BaseBureaucraticRenderer.test.tsx` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BaseBureaucraticRenderer.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticHeader.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticNumbering.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/BureaucraticWatermark.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/EpistemicLegend.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/SignatureBlock.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/bureaucratic/renderers/shared/bureaucratic-tokens.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.test.tsx` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/components/ArtifactViewerRegistry.tsx` | `artifacts` | `production` | `opening_base` | `in_scope` | `C04` | — |
+| `apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.tsx` | `artifacts` | `production` | `opening_base` | `in_scope` | `C04` | — |
+| `apps/runtime-dashboard/src/features/artifacts/components/MetricValidationComparisonTable.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/simulation/CalibrationReport.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/simulation/DistributionalPanel.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/simulation/MetricsPanel.test.tsx` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/components/simulation/MetricsPanel.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/simulation/SimulationResultsViewer.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/simulation/UncertaintyOverlay.test.tsx` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/components/simulation/UncertaintyOverlay.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/trinity/InterventionDetail.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/trinity/TrinityCard.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/trinity/TrinityDiff.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/domain/searchParams.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/domain/typedPreview.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/index.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/DefinitionList.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/Footnote.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/MarginNotes.test.tsx` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/MarginNotes.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.stories.tsx` | `artifacts` | `story` | `opening_base` | `retained` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.test.tsx` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/MonographLayout.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/PullQuote.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/ReadingViewToggle.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/TableOfContentsGlyphed.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useMarginNoteAnchors.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/hooks/useReadingProgress.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/reading-view/reading-view-tokens.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/route.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/routes.public.ts` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.test.tsx` | `artifacts` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/artifacts/routes/ArtifactInspectorPage.tsx` | `artifacts` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/evidence/components/ConnectorCharacterCards.tsx` | `evidence` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.test.tsx` | `evidence` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx` | `evidence` | `production` | `opening_base` | `in_scope` | `C04` | — |
+| `apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.tsx` | `evidence` | `production` | `opening_base` | `in_scope` | `C04` | — |
+| `apps/runtime-dashboard/src/features/evidence/domain/context.test.ts` | `evidence` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/evidence/domain/context.ts` | `evidence` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/evidence/domain/productionSlice.test.ts` | `evidence` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/evidence/domain/productionSlice.ts` | `evidence` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/evidence/domain/searchParams.ts` | `evidence` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.test.tsx` | `evidence` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/evidence/hooks/useLivePromotionDecision.ts` | `evidence` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/evidence/index.ts` | `evidence` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/evidence/route.tsx` | `evidence` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/evidence/routes.public.ts` | `evidence` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.test.tsx` | `evidence` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx` | `evidence` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/api/useDepthNCycleBoardProjection.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/api/useRunsSample.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/api/useRunsSample.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/CausalDeltaStrip.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/CompareCommandDialog.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/ComparisonFramePanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/PolicyDiffLayout.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/compare/PolicyDiffLayout.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.a11y.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.stories.tsx` | `runs` | `story` | `opening_base` | `retained` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/compare/PolicyDiffView.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/compare-math.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/compare/compare-math.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/compare-types.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/delta-widgets/AssumptionDiff.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/delta-widgets/BudgetFlowDiff.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/delta-widgets/DistributionDelta.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/delta-widgets/GovernanceRadarDiff.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/compare/delta-widgets/GovernanceRadarDiff.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/delta-widgets/IdentifiabilityTrajectory.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/delta-widgets/OutcomeDelta.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/delta-widgets/ProvenanceDrift.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/delta-widgets/SubgroupDeltaMatrix.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/fixtures.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/index.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/route.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/useCompareRuns.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/compare/useDiffData.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/AgentPipelinePanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.stories.tsx` | `runs` | `story` | `opening_base` | `retained` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/AtlasRunDeck.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/AuditTimeline.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/CycleBoard.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/CycleBoard.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/EffectComparisonForest.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/GovernanceComparison.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/MetricCard.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/ParameterDiff.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.a11y.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/PublicSectorReadinessPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/PublicationPacketPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/PublicationReadinessPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/ReproduceRunButton.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/RunBreadcrumbs.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/RunChoreographyPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/RunComparisonVisual.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/RunExplainabilityPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.a11y.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/ScientificDepthPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/WorkflowDagPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/cycleBoardExport.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/cycleBoardPresentation.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/cycleBoardPresentation.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/debug/ErrorsPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/debug/NodeDebugPanel.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/narrative/RunNarrativeView.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/narrative/index.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/narrative/shared/InsightCallout.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/narrative/shared/NarrativeChapter.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/narrative/shared/NarrativeTransition.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/components/pipelinePanels.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/readinessScientificContainment.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/context/RunInspectorContext.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/context/RunInspectorContext.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/compare.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/domain/compare.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/deckTemplate.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/disputes.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/domain/disputes.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/publicationPacket.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/runChoreography.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/domain/runChoreography.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/runDetailTabs.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/searchParams.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/domain/searchParams.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/status.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/domain/status.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/domain/tabs.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/index.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/live/useRunLiveUpdates.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/live/useRunLiveUpdates.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/route.tsx` | `runs` | `production` | `opening_base` | `in_scope` | `C06` | — |
+| `apps/runtime-dashboard/src/features/runs/routes.public.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/CycleBoardConsumerCensus.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.parity.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/CycleBoardPage.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/PublicDecisionViewerPage.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/RunComparePage.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/RunDeckPage.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx` | `runs` | `production` | `opening_base` | `in_scope` | `C06` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx` | `runs` | `production` | `opening_base` | `in_scope` | `C06` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/RunsListPage.stories.tsx` | `runs` | `story` | `opening_base` | `retained` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/RunsListPage.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/RunsListPage.tsx` | `runs` | `production` | `opening_base` | `in_scope` | `C05` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/runDetailSurfaces.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/tabs/AgentsTab.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/tabs/ArtifactsTab.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/tabs/DebugTab.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/tabs/EvidenceTab.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/tabs/GovernanceTab.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/tabs/WorkflowTab.tsx` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.test.tsx` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/useRunDetailSummary.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/state/useRunsListUiStore.test.ts` | `runs` | `test` | `opening_base` | `verification_companion` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/state/useRunsListUiStore.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/runs/workspaces.public.ts` | `runs` | `production` | `opening_base` | `surface_out_of_scope` | `—` | `team-design` / `surface_out_of_scope` / `approved_named_successor_slice_moves_row` / successor `null` |
+| `apps/runtime-dashboard/src/features/artifacts/components/DecisionCardView.test.tsx` | `artifacts` | `test` | `source_freeze` | `new_in_slice` | `—` | — |
+| `apps/runtime-dashboard/src/features/evidence/components/FreshnessBraidPanel.test.tsx` | `evidence` | `test` | `source_freeze` | `new_in_slice` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/api/useRunPaper.test.tsx` | `runs` | `test` | `source_freeze` | `new_in_slice` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/api/useRunPaper.ts` | `runs` | `production` | `source_freeze` | `new_in_slice` | `C06` | — |
+| `apps/runtime-dashboard/src/features/runs/components/runPaperExport.test.ts` | `runs` | `test` | `source_freeze` | `new_in_slice` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/components/runPaperExport.ts` | `runs` | `production` | `source_freeze` | `new_in_slice` | `C06` | — |
+| `apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.test.ts` | `runs` | `test` | `source_freeze` | `new_in_slice` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/domain/runPaperPresentation.ts` | `runs` | `production` | `source_freeze` | `new_in_slice` | `C06` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.parity.test.tsx` | `runs` | `test` | `source_freeze` | `new_in_slice` | `—` | — |
+| `apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx` | `runs` | `test` | `source_freeze` | `new_in_slice` | `—` | — |
 <!-- END DS19 REGISTER PROJECTION -->
 
 ## Commits
 
+- `c393090ab merge(main): advance DS8-A C07 continuation base`
+- `a9e0bc869 chore(atlas): preserve DS8 C07 invariant stop`
+- `c270b46c5 plan(debt): add the unified debt register — 15 of 47 GY debts measure ambiguous`
+- `fd43342f8 fix(atlas): derive governed A4 paper projection`
+- `c3b85a422 plan(atlas): Revision 3.30 — close the readiness producer-binding breach; DS16's authority half is landed`
+- `1f03d2cda merge(atlas): land DS16's authority half — the value bridge, reconciled`
+- `b021c9fe4 fix(atlas): consume run terminality and preserve P15 negatives`
+- `4af58be9c refactor(atlas): rebind DS8 artifact and evidence support components`
+- `ec151ede6 chore(runtime): regenerate run paper clients`
+- `aadf18f8c feat(runtime): freeze replay-bound run paper contract`
+- `40bbafa18 merge(main): reconcile DS16 authority-value branch`
+- `f26fb442f test(atlas): freeze DS8-A paper and terminality reds`
+- `51b68c2b0 docs(atlas): allocate DS8-A mechanism rounds`
+- `0a6e45645 Merge main baseline for DS8-A execution`
+- `9e6a43b53 plan(atlas): Revision 3.29 — register case-record-not-run-bound; re-cut DS8 into A and B`
+- `8aa2c6cf4 docs(atlas): record DS8 artifact-missing stop`
+- `09841908c Merge main baseline for DS8 execution`
+- `d7068d41f docs(atlas): bind DS8 measured slice plan`
+- `6049bf450 plan(atlas): Revision 3.28 — E13 gains the regeneration token; auto-merged generated files are the hazard`
+- `3d44989c6 plan(atlas): Revision 3.27 — close GY-DEF21; one row only looked discharged by DS7`
+- `3baa666d4 merge(gy): close GY-DEF21 — generated-client line addresses are no longer semantic bindings`
+- `dd3fbb58b fix(atlas): close remaining generated client anchors`
+- `0e02b8c0b fix(atlas): migrate status anchors to identities`
+- `34f4df5fb plan(atlas): Revision 3.26 — a too-broad stop rule, and the real red it uncovered`
+- `04fa1b3b0 plan(atlas): Revision 3.25 — close GY-DEF20; GY-DEF21's migration is unblocked, not blocked`
+- `518e04da5 merge(gy): land GY-DEF20 and the GY-DEF21 mechanism`
+- `bf65cbd14 plan(atlas): Revision 3.24 — refresh DS6's stale standing; four A4 states, three measured`
+- `fffd9013a merge(atlas): land DS6-C19 — the plural-agreement gate stops keying on {count}`
+- `60f089143 fix(architecture): bind generated client anchors by identity`
+- `efa4d3911 plan(atlas): Revision 3.23 — DS7's three carried items; a nameless debt row cost a lane`
+- `74f26ca2d merge(atlas): land DS7 — the Cycle Board hero on a static composed-v2 seam`
+- `6e1dfd95f docs(ds7): mark cycle board slice closed`
+- `b5796e55d docs(ds7): record Task 10 closeout evidence`
+- `df0484301 chore(atlas): reconcile DS7 authority presentation receipts`
 - `b6f12ed48 Merge branch 'main' into codex/atlas-ds7-cycle-board`
 - `7f2c734c9 docs(ds7): record Task 9 parity closure`
 - `eb45c76c6 feat(dashboard): prove cycle board DOM and export parity`
 - `14cd33bee docs(ds7): record task 8 hero closure`
+- `390c754a8 fix(architecture): require generated client freshness`
 - `5ef38f34e feat(dashboard): add cycle board hero`
+- `71b6189de DS6-C19 record plural rule closure`
 - `3870c83e7 docs(atlas): record DS7 hero RED boundary`
 - `932b720a9 test(atlas): freeze DS7 hero RED basis`
+- `c552d5b5c DS6-C19 widen plural agreement gate`
 - `1e78542f1 plan(atlas): record Group A preparation — DEF20 early, DEF21 split, waist vocabularies into three states`
 - `449c41a42 docs(ds7): record task 6 lock release`
+- `506de9bad Merge commit 'b20cae45b843fb6465d6385c0818345026003a44' into codex/atlas-ds6-closure`
 - `fea50aadd feat(runtime): expose governed cycle board v2 client`
 - `b20cae45b plan(atlas): record the DS8 print-projection entry question with a starting hypothesis`
+- `c3413d7b7 docs: record DS6 print-scope escalation`
+- `66d13fdbc Merge commit '0dda8be515c588b326bb5253ca40eb825f0d46f2' into codex/atlas-ds6-closure`
 - `d17ecd36e fix(runtime): bind cycle board routes to owner artifacts`
 - `0dda8be51 plan(gy): fold GY-GAP7 into GY-PA1 as its first cluster; re-measure PA1 executability`
+- `8275e321c docs(atlas): diagnose A4 expectation provenance`
 - `2014e18fe plan(gy): Rev 55 — GY-DEF19 closed; an architect environment confound corrected`
 - `3eee16e75 merge(gy): close GY-DEF19 — ranked-value authority stops deciding on a substring`
+- `4f5baa699 docs(atlas): preserve open DS6 closure gates`
 - `a70a72b3e Merge commit '0b721454e2f246e89bd084d5e19039c6a1e3d4c5' into codex/atlas-ds7-cycle-board`
 - `0184d0bd7 test(runtime): close DS7 owner equality receipt`
 - `286600139 docs: correct GY-DEF19 artifact attribution`
+- `ae24c478a docs(atlas): record run deck visual stop`
+- `da1ff0398 test(atlas): bind C11 implementation paths`
+- `1fc07ed01 fix(atlas): scope signed print targets`
 - `6f9662eb2 feat(runtime): compose DS7 cycle board projection`
 - `0b721454e plan(atlas): Revision 3.22 — DS6 transitions landed; debt-row execution rule corrects a sequencing error`
 - `b0249e82d merge(atlas): land DS6 C03/C04/C06 — the three append-only register transitions`
@@ -820,6 +1108,24 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 - `e3c533d91 Merge branch 'main' into codex/gy-defc-3-retry`
 - `5b2c2173b feat(gy): accept confidence ledger reissue`
 - `21ae2ba65 plan(atlas): Revision 3.16 — DS16's authority half closed, and DS5 inherits the register reconciliation`
+- `f560f2aa9 plan(ds16): close the slice as blocked_on_ds5, with the DS5 handoff written out`
+- `8fc54f0d5 plan(ds16): record the C11/C12 stop, the closure statement, and the successor`
+- `49efb9df0 fix(ds16-c11): rebind the two baseline content hashes DS16's own edits drifted`
+- `454b7c7dd plan(ds16): C08/C09/C10 measured, not built — a terminal for the grammar body`
+- `6810f0745 plan(ds16): record C07 — the served-vs-bridge decision and three dependencies`
+- `23fc4cee8 feat(ds16-c07): the set-valued value viz family, satisfying C01's negatives`
+- `df2678aec plan(ds16): record the C05/C06 outcome, the rendering decision, and the twin`
+- `38c65bf52 feat(ds16-c06): MACHINE twin with surface-to-twin parity`
+- `fa325dcfe feat(ds16-c05): bind both panels to the producer, retire the ancestor`
+- `382615c3f plan(ds16): record the eleven-member inventory, its dispositions, and the merge hold`
+- `3cabf424c feat(ds16-c03,c04): typed producer contract for the retired C23 inventory, and its bridge`
+- `229869606 plan(ds16): rule on the label channel, and record C02's outcome`
+- `1e3fd6606 test(ds16-c02): the successor containment gate, over the real panel files`
+- `545408bd3 plan(ds16): record C01's outcome, and correct the C10 provenance triple`
+- `b70c384b8 fix(ds16-c01): render fixture copy as key-shaped tokens, not product prose`
+- `f1245238b test(ds16-c01): the successor authority negative, by construction`
+- `e0ac1f0fd test(ds16-c01): five value-grammar negatives, each proven red on demand`
+- `1b0100c6e plan(ds16): task plan — the containment gate is the specification, not the obstacle`
 - `88210076e merge(gy): land the GY-DI timing lane — durable substrate, honest admission, derived catalog`
 - `e9079bade plan(gy): Rev 42 — close the two items GY-INFRA-2 carried; INFRA-2 itself was already closed`
 - `1c6e36067 feat(gy-infra-2b): make a delta package state what it excludes`

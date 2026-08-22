@@ -297,9 +297,11 @@ describe("DataIntelligencePanel", () => {
 
     await user.click(screen.getByTestId("evidence-resolve"));
     await user.click(screen.getByTestId("evidence-discover"));
-    await user.click(
-      screen.getByRole("button", { name: "panels.dataIntelligence.preview" }),
-    );
+    const previewButton = screen.getByRole("button", {
+      name: "panels.dataIntelligence.preview",
+    });
+    expect(previewButton).toHaveClass("rounded-[var(--radius-pill)]");
+    await user.click(previewButton);
 
     await user.type(
       screen.getByLabelText("panels.dataIntelligence.decisionReason"),

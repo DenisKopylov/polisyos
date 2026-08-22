@@ -75,6 +75,18 @@ class _RunIndex(Protocol):
     def get_run(self, run_id: str) -> _IndexedRunRecord: ...
 
 
+class _StageTraceResolution(Protocol):
+    href: str
+    manifest_artifact_id: str
+    manifest_schema_version: str
+    paper_projection_rule_version: str
+    paper_projection_hash: str
+
+
+class _StageTraceResolver(Protocol):
+    def resolve(self, run_id: str) -> _StageTraceResolution | None: ...
+
+
 def _absent(
     availability: Literal["not_established", "artifact_missing", "invalid_source"],
     *,
@@ -317,6 +329,7 @@ def _capstone_rows(
     n13a_packet: GovernedProjectionPacket,
     readiness: ReadinessFact,
     run_index: _RunIndex,
+    stage_trace_resolver: _StageTraceResolver | None,
 ) -> tuple[tuple[CycleBoardRow, ...], tuple[CycleBoardCompositionSource, ...]]:
     if not isinstance(depth_packet, AvailableGovernedProjectionPacket):
         return (), ()
@@ -338,6 +351,39 @@ def _capstone_rows(
             raw_run.generation_cycle_run_id,
         )
         lifecycle_entries.append(lifecycle_entry)
+        stage_resolution = (
+            stage_trace_resolver.resolve(raw_run.generation_cycle_run_id)
+            if stage_trace_resolver is not None
+            else None
+        )
+        if stage_resolution is None:
+            stage_trace_href: StringFact = _absent(
+                "not_established",
+                reason="no verified run-paper projection is bound to this row",
+                owner_route="DS8-A run-paper stage-trace resolver",
+            )
+        else:
+            stage_trace_href = _available(
+                stage_resolution.href,
+                source_ref=f"run-paper:{raw_run.generation_cycle_run_id}",
+                source_as_of=None,
+            )
+            lifecycle_entries.append(
+                CycleBoardCompositionSource(
+                    source_id=f"run-paper:{raw_run.generation_cycle_run_id}",
+                    source_kind="run_paper_projection",
+                    source_ref=stage_resolution.href,
+                    availability="available",
+                    artifact_content_hash=stage_resolution.manifest_artifact_id,
+                    source_dependency_hash=stage_resolution.paper_projection_hash,
+                    authoritative_for=("stage_trace_href",),
+                    may_not_use_for=(
+                        "case_identity",
+                        "design_record_stage_authority",
+                        "case_promotion_authority",
+                    ),
+                )
+            )
         missing_link_value = n13a_links.get(role)
         if missing_link_value is not None:
             missing_link: StringFact = _available(
@@ -421,11 +467,7 @@ def _capstone_rows(
                 acquisition_route=acquisition_route,
                 acquisition_economics=acquisition_economics,
                 responsible_slices=("GY-N10", "GY-N13a", "DS7"),
-                stage_trace_href=_absent(
-                    "not_established",
-                    reason="DS8 has not bound a stage-trace route for this row",
-                    owner_route="DS8 stage-trace drill-down",
-                ),
+                stage_trace_href=stage_trace_href,
                 surface_readiness=readiness,
                 explanation_code="cycle_board.refusal_with_path",
                 explanation_inputs={
@@ -506,12 +548,14 @@ class CycleBoardProjectionService:
         repository_root: Path,
         clock: Callable[[], datetime] | None = None,
         n13b_global_signal: N13BGlobalMovementSignal | None = None,
+        stage_trace_resolver: _StageTraceResolver | None = None,
     ) -> None:
         self._projection_service = projection_service
         self._run_index = run_index
         self._repository_root = repository_root
         self._clock = clock or (lambda: datetime.now(UTC))
         self._n13b_global_signal = n13b_global_signal
+        self._stage_trace_resolver = stage_trace_resolver
 
     def get(
         self,
@@ -612,6 +656,7 @@ class CycleBoardProjectionService:
             packets[ProjectionId.N13A_ACQUISITION_CENSUS],
             readiness,
             self._run_index,
+            self._stage_trace_resolver,
         )
         legacy = _legacy_rows(packets[ProjectionId.LEGACY_PROVING_GROUND], readiness)
         rows = (*capstones, *legacy)

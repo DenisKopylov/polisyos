@@ -23,8 +23,11 @@ import { Button, Select } from "@polisyos/atlas-ui";
 import { DecisionCard, ProvenanceStrip, chartTheme } from "@/shared/ui";
 import { UncertaintyBand } from "@/shared/charts";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
-import type { DecisionCardViewModel } from "@/shared/lib/domain/decision";
-import { parseDecisionCardPayload } from "@/shared/lib/domain/decision";
+import {
+  metricIdentifiability,
+  parseDecisionCardPayload,
+  type DecisionCardViewModel,
+} from "@/shared/lib/domain/decision";
 import { useGlobalShortcut } from "@/shared/lib/hooks/useKeyboardShortcuts";
 import { formatDate, formatDuration } from "@/shared/lib/utils";
 import { triggerPrint } from "@/shared/export/printExport";
@@ -314,11 +317,7 @@ export default function DecisionCardView({
                     })}
                     unit={metric.unit ? ` ${metric.unit}` : ""}
                     disputed={Boolean(metric.assumptionWarnings?.length)}
-                    identifiability={
-                      metric.assumptionWarnings?.length
-                        ? "estimated"
-                        : "identified"
-                    }
+                    identifiability={metricIdentifiability(metric)}
                     className="mt-3"
                     height={78}
                   />

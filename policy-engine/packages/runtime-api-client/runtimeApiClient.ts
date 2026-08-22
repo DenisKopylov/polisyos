@@ -433,6 +433,19 @@ export type AuthoredText = {
   text: string;
 };
 
+export type AuthorityBoundary = {
+  authoritative_for: Array<string>;
+  boundary_id?: string | null;
+  decision_grade?: "unsupported" | "descriptive_only" | "advisory_admissible" | "decision_admissible" | null;
+  evidence_basis?: EvidenceBasis | null;
+  evidence_kind?: "measurement" | "derivation" | "proxy" | "transport" | "bounds" | "simulation" | "elicitation" | "incomparable_meet" | null;
+  known_limits?: Array<string>;
+  may_not_use_for: Array<string>;
+  posture: "shadow" | "advisory" | "governed" | "production";
+  rule_version_refs: Array<string>;
+  source_authority: "deterministic_producer" | "governed_config" | "human_governance" | "llm_candidate" | "llm_critic" | "llm_drafter";
+};
+
 export type AuthorityProfile = {
   authority_refs?: Array<string>;
   mandate: string;
@@ -527,6 +540,45 @@ export type AvailableGovernedProjectionPacket = {
   source_rule_version?: string | null;
   source_schema_version?: string | null;
   stable_address: string;
+};
+
+export type AvailableRunPaperCase = {
+  abstentions: Array<RunPaperAbstention>;
+  admission_state: RunPaperAdmissionState;
+  availability?: string;
+  blockers: Array<RunPaperBlocker>;
+  case_id: string;
+  design_record: DesignRecordV0;
+  design_record_binding: RunPaperDesignRecordBinding;
+  grounding_state: RunPaperGroundingState;
+  limitations: Array<RunPaperLimitation>;
+  objections: Array<RunPaperObjection>;
+  promotion_state: RunPaperPromotionState;
+};
+
+export type AvailableRunPaperStageTrace = {
+  availability?: string;
+  owner_route?: string;
+  section_id?: string;
+  trace_ref: ArtifactRefOutput;
+};
+
+export type AxisFirewallStatus = {
+  cell_ref: string;
+  maturity?: "fail_closed" | "predictive" | null;
+  pattern_ids?: Array<string>;
+  reason: string;
+  rule_version_ref: string;
+  status: "not_applicable" | "pass" | "warn" | "limit" | "block";
+};
+
+export type AxisPositionDeclaration = {
+  authority_purpose: string;
+  axis: string;
+  cluster: string;
+  evidence_refs?: Array<string>;
+  position: string;
+  rule_version_ref: string;
 };
 
 export type BasinEstimate = {
@@ -875,6 +927,19 @@ export type CausalFrontierSAEResponse = {
 };
 };
 
+export type CertifiedOperationEnvelope = {
+  actor_scopes: Array<string>;
+  certified_for: Array<string>;
+  cluster_authority_dimension_refs?: Array<string>;
+  domains: Array<string>;
+  envelope_id: string;
+  epistemic_regime_scopes?: Array<"risk" | "uncertainty" | "ambiguity" | "ignorance" | "contested_model">;
+  method_scopes: Array<string>;
+  not_certified_for: Array<string>;
+  posture_scopes: Array<"shadow" | "advisory" | "governed" | "production">;
+  rule_version_ref: string;
+};
+
 export type ChannelRegistryEntry = {
   auth_class: string;
   capability_state?: string;
@@ -976,6 +1041,8 @@ export type ComparisonFrame = {
   temporal_scope?: TemporalScope | null;
   unit_policy?: "canonical" | "source" | "mixed";
 };
+
+export type ComponentId = string;
 
 export type ConnectorInfo = {
   available_profiles?: Array<string>;
@@ -1253,7 +1320,7 @@ export type CycleBoardCompositionSource = {
   may_not_use_for: Array<string>;
   source_dependency_hash?: string | null;
   source_id: string;
-  source_kind: "governed_projection" | "control_plane_evidence" | "historical_owner_record" | "run_summary_lookup";
+  source_kind: "governed_projection" | "control_plane_evidence" | "historical_owner_record" | "run_summary_lookup" | "run_paper_projection";
   source_ref?: string | null;
 };
 
@@ -1779,6 +1846,20 @@ export type DesignProblem = {
   stakeholders?: Array<DesignStakeholder>;
 };
 
+export type DesignRecordV0 = {
+  authority_boundary: AuthorityBoundary;
+  axis_positions?: Array<AxisPositionDeclaration>;
+  candidate_ref: string;
+  candidate_source: "deterministic_producer" | "governed_config" | "human_governance" | "llm_candidate" | "llm_critic" | "llm_drafter";
+  envelope: CertifiedOperationEnvelope;
+  firewall_status?: Array<AxisFirewallStatus>;
+  ledger_refs?: Array<string>;
+  projection_audiences: Array<"PUBLIC" | "REVIEWER" | "EXPERT" | "MACHINE">;
+  projection_status: "shadow" | "advisory" | "governed" | "production";
+  record_id: string;
+  schema_version?: string;
+};
+
 export type DesignStakeholder = {
   name: string;
   role?: string | null;
@@ -1826,6 +1907,12 @@ export type EngineCensusPayload = {
   verb_gap_consistency: {
   [key: string]: ProjectionJsonValue;
 };
+};
+
+export type EnvInfo = {
+  deps_lock_hash: string;
+  platform: string;
+  python: string;
 };
 
 export type EquilibriumBasinInterval = {
@@ -1944,6 +2031,13 @@ export type EvaluatorScoresView = {
 
 export type EvidenceAcquisitionNeeds = {
   needs?: Array<EvidenceNeed>;
+};
+
+export type EvidenceBasis = {
+  calibration_refs?: Array<unknown>;
+  counterexamples_closed?: Array<unknown>;
+  method_refs?: Array<string>;
+  producer_roots?: Array<unknown>;
 };
 
 export type EvidenceNeed = {
@@ -2244,6 +2338,11 @@ export type GenerationCycleDispositionPayload = {
   tasks: {
   [key: string]: ProjectionJsonValue;
 };
+};
+
+export type GitInfo = {
+  commit: string;
+  dirty?: boolean;
 };
 
 export type GovernanceDebugResponse = {
@@ -3119,6 +3218,12 @@ export type PreflightReportView = {
   report_ref?: ArtifactRefOutput | null;
 };
 
+export type ProducerInfo = {
+  component: ComponentId | string;
+  git?: GitInfo | null;
+  version: string;
+};
+
 export type ProductionApprovalEligibility = {
   blocking_failure_count: number;
   conflict_blocking?: boolean;
@@ -3697,6 +3802,152 @@ export type RunOperatorProjectionStateLabel = {
   state: "draft" | "projection_only" | "redacted" | "stale" | "contested" | "projected" | "blocked" | "readiness_closed" | "approved" | "rejected" | "published_blocked" | "publishable";
 };
 
+export type RunPaperAbstention = {
+  code: string;
+  issue_id: string;
+  kind?: string;
+  owner_route: string;
+  source_bindings: Array<RunPaperVerifiedCaseSource>;
+  statement: string;
+  status: "open" | "resolved" | "escalated" | "accepted_as_limit";
+  status_vocabulary_ref?: string;
+};
+
+export type RunPaperAdmissionState = {
+  source_binding: RunPaperVerifiedCaseSource;
+  state: "candidate_unverified" | "rejected_speculation" | "typed_blocker" | "limitation" | "admitted_to_obligation" | "admitted_to_claim";
+  vocabulary_ref?: string;
+};
+
+export type RunPaperArtifactLink = {
+  artifact_ref: ArtifactRefOutput;
+  href: string;
+  relation?: string;
+};
+
+export type RunPaperBlocker = {
+  code: string;
+  issue_id: string;
+  kind?: string;
+  owner_route: string;
+  source_bindings: Array<RunPaperVerifiedCaseSource>;
+  statement: string;
+  status: "open" | "resolved" | "escalated" | "accepted_as_limit";
+  status_vocabulary_ref?: string;
+};
+
+export type RunPaperCaseSourceVerification = {
+  bound_artifact_content_hash: string;
+  bound_case_id: string;
+  bound_design_record_record_id: string;
+  bound_run_id: string;
+  bound_tenant_id: string;
+  status?: string;
+  validator_id: string;
+  validator_version: string;
+};
+
+export type RunPaperDesignRecordBinding = {
+  case_id: string;
+  content_digest: string;
+  design_record_record_id: string;
+  design_record_ref: ArtifactRefOutput;
+  producer: ProducerInfo;
+  run_id: string;
+  schema_name?: string;
+  schema_version?: string;
+  tenant_id: string;
+};
+
+export type RunPaperGroundingState = {
+  source_binding: RunPaperVerifiedCaseSource;
+  state: "current_valid" | "grounded_shadow" | "grounding_gap" | "grounding_failed" | "grounding_unavailable";
+  vocabulary_ref?: string;
+};
+
+export type RunPaperLimitation = {
+  code: string;
+  issue_id: string;
+  kind?: string;
+  owner_route: string;
+  source_bindings: Array<RunPaperVerifiedCaseSource>;
+  statement: string;
+  status: "open" | "resolved" | "escalated" | "accepted_as_limit";
+  status_vocabulary_ref?: string;
+};
+
+export type RunPaperObjection = {
+  code: string;
+  issue_id: string;
+  kind?: string;
+  owner_route: string;
+  source_bindings: Array<RunPaperVerifiedCaseSource>;
+  statement: string;
+  status: "open" | "resolved" | "escalated" | "accepted_as_limit";
+  status_vocabulary_ref?: string;
+};
+
+export type RunPaperPacket = {
+  artifact_links: Array<RunPaperArtifactLink>;
+  case_record: AvailableRunPaperCase | UnavailableRunPaperCase;
+  intended_audiences?: Array<unknown>;
+  packet_schema_version?: string;
+  projection_hash: string;
+  projection_rule_version?: string;
+  replay_address: string;
+  replay_pins: RunPaperReplayPins;
+  report_href: string;
+  run: RunPaperRun;
+  source: RunPaperSourceBinding;
+  stable_address: string;
+  stage_trace: AvailableRunPaperStageTrace | UnavailableRunPaperStageTrace;
+};
+
+export type RunPaperPromotionState = {
+  source_binding: RunPaperVerifiedCaseSource;
+  state: "governed_promoted" | "promotion_blocked";
+  vocabulary_ref?: string;
+};
+
+export type RunPaperReplayPins = {
+  manifest_artifact_id: string;
+  manifest_schema_version?: string;
+  paper_projection_hash: string;
+  paper_projection_rule_version?: string;
+};
+
+export type RunPaperRun = {
+  cell_id?: string | null;
+  duration_ms?: number | null;
+  finished_at?: string | null;
+  run_id: string;
+  run_terminality: "terminal" | "non_terminal" | "not_established";
+  source_kind?: string;
+  started_at?: string | null;
+  status: string;
+  tenant_id: string;
+};
+
+export type RunPaperSourceBinding = {
+  environment: EnvInfo | null;
+  manifest_ref: ArtifactRefOutput;
+  manifest_schema_name?: string;
+  manifest_schema_version?: string;
+  producer: ProducerInfo | null;
+  registry_bundle: ArtifactRefOutput;
+};
+
+export type RunPaperVerifiedCaseSource = {
+  as_of?: string | null;
+  authority_purpose: "grounding_state" | "admission_state" | "promotion_state" | "blocker" | "limitation" | "objection" | "abstention";
+  producer: ProducerInfo;
+  source_digest: string;
+  source_ref: ArtifactRefOutput;
+  source_schema_name: string;
+  source_schema_version: string;
+  verification: RunPaperCaseSourceVerification;
+};
+
 export type RunQuantitiesResponse = {
   coverage?: QuantityCoverageSummary;
   entries?: Array<QuantityCoverageEntry>;
@@ -4146,6 +4397,21 @@ export type TypedGap = {
   retention_alternative?: string | null;
   source_reason?: string | null;
   status: "untraced" | "unknown_quality" | "restricted" | "non_replayable" | "unsupported_temporal_scope";
+};
+
+export type UnavailableRunPaperCase = {
+  availability?: string;
+  capability_state?: string;
+  closure_signal?: string;
+  may_not_use_for?: Array<string>;
+  owner_route?: string;
+  reason_code?: string;
+};
+
+export type UnavailableRunPaperStageTrace = {
+  availability?: "not_established" | "invalid_source";
+  owner_route?: string;
+  reason?: string;
 };
 
 export type UnitRefInput = {
@@ -5164,6 +5430,23 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
     });
     return this.request<RunNodesResponse>("GET", path, query);
+  }
+
+  async getRunPaper(params: {
+    run_id: string;
+    manifest_artifact_id?: string | null;
+    manifest_schema_version?: string | null;
+    paper_projection_rule_version?: string | null;
+    paper_projection_hash?: string | null;
+  }): Promise<RunPaperPacket> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/paper`;
+    const query = this.buildQuery({
+      manifest_artifact_id: params.manifest_artifact_id,
+      manifest_schema_version: params.manifest_schema_version,
+      paper_projection_rule_version: params.paper_projection_rule_version,
+      paper_projection_hash: params.paper_projection_hash,
+    });
+    return this.request<RunPaperPacket>("GET", path, query);
   }
 
   async getRunQuantities(params: {

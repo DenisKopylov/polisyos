@@ -6591,6 +6591,58 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
                 require_live_source_match=True,
             )
 
+    def test_status_companion_maps_only_the_two_regeneration_drifts(self) -> None:
+        original_register = REGISTER_PATH.read_text(encoding="utf-8")
+        register_candidate = checker._ds8b_register_candidate_text(
+            original_register,
+            self.transition,
+        )
+        original_status = checker._load_json(checker.STATUS_INVENTORY_PATH)
+        status_candidate = json.loads(
+            checker._ds8_status_inventory_candidate_text(
+                checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8"),
+                register_bytes=register_candidate.encode("utf-8"),
+            )
+        )
+        expected = copy.deepcopy(original_status)
+        expected["sources"]["ds19"]["sha256"] = checker._ds8_digest(
+            register_candidate.encode("utf-8")
+        )
+        generated = expected["sources"]["generated_client"]
+        generated["canonical_sha256"] = checker._sha256(
+            checker.REPO_ROOT / generated["canonical_path"]
+        )
+        generated["types_sha256"] = checker._sha256(
+            checker.REPO_ROOT / generated["types_path"]
+        )
+        assert status_candidate == expected  # noqa: S101
+        assert not checker._ds8_status_candidate_errors(  # noqa: S101
+            status_candidate,
+            register_bytes=register_candidate.encode("utf-8"),
+        )
+
+        debt = checker.status_checker._load_json(
+            checker.status_checker.WAIST_DEBT_PATH
+        )
+        opening = checker.status_checker.validate_inventory(original_status, debt)
+        regeneration_drifts = {
+            "inventory_source_hash_drift:packages/runtime-api-client/"
+            "canonicalRuntimeApiClient.ts",
+            "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
+        }
+        assert regeneration_drifts <= set(opening)  # noqa: S101
+        inherited = [row for row in opening if row not in regeneration_drifts]
+        payload = "".join(f"{row}\n" for row in inherited).encode()
+        assert (  # noqa: S101
+            len(inherited),
+            len(payload),
+            hashlib.sha256(payload).hexdigest(),
+        ) == (
+            13,
+            887,
+            "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
+        )
+
     def test_complete_transition_projection_is_reported(self) -> None:
         projection = checker._ds8b_transition_report_projection(self.transition)
         assert "**217 rows**" in projection  # noqa: S101

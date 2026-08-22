@@ -8519,7 +8519,7 @@ def _write_c13_print_family() -> dict[str, Any]:
     if pre_errors:
         raise ValueError("C13 register candidate rejected: " + ";".join(pre_errors))
     report_candidate = render_report(register_data)
-    status_candidate = _c13_status_inventory_candidate_text(
+    status_candidate = _ds8_status_inventory_candidate_text(
         original_status,
         register_bytes=register_candidate.encode("utf-8"),
     )
@@ -8850,8 +8850,42 @@ def _write_ds8b_transition_family() -> dict[str, Any]:
         887,
         "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
     )
-    if _c13_status_receipt(status_data, debt) != expected_status:
-        raise ValueError("DS8-B status diagnostic identity drift")
+    status_errors = _ds8_status_candidate_errors(
+        status_data,
+        register_bytes=register_candidate.encode("utf-8"),
+    )
+    if status_errors:
+        raise ValueError(
+            "DS8-B status candidate rejected: " + ";".join(status_errors)
+        )
+    opening_diagnostics = status_checker.validate_inventory(
+        json.loads(original_status), debt
+    )
+    regeneration_drifts = {
+        "inventory_source_hash_drift:packages/runtime-api-client/"
+        "canonicalRuntimeApiClient.ts",
+        "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
+    }
+    if not regeneration_drifts <= set(opening_diagnostics):
+        raise ValueError("DS8-B opening generated-source diagnostic mapping drift")
+    inherited_diagnostics = [
+        diagnostic
+        for diagnostic in opening_diagnostics
+        if diagnostic not in regeneration_drifts
+    ]
+    inherited_payload = "".join(
+        f"{diagnostic}\n" for diagnostic in inherited_diagnostics
+    ).encode()
+    inherited_status = (
+        len(inherited_diagnostics),
+        len(inherited_payload),
+        hashlib.sha256(inherited_payload).hexdigest(),
+    )
+    if inherited_status != expected_status:
+        raise ValueError(
+            "DS8-B opening status receipt is not inherited 13 plus the two "
+            "mapped generated-source drifts"
+        )
     if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
         raise ValueError("DS8-B baseline moved while building candidates")
     if DS1_PATH.read_text(encoding="utf-8") != original_readiness:

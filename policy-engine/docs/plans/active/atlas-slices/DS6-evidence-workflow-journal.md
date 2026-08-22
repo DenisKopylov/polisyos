@@ -5675,3 +5675,379 @@ adjudication now recorded in the DS8 section. DS7 Task 8 is downstream of the
 widened rule: every new authored `en`/active `uk` message must declare its
 interpolation variables and satisfy exact point-use/cardinal-ownership checks;
 no new variable passes by omission.
+
+## 2026-08-22 — C13 independent print verification (pre-transition receipt)
+
+### Entry, toolchain, and lock discipline
+
+The fresh closure worktree was created from immutable `main` revision
+`0440f0a8d6b64c254c37b64144461e5091e2b1db`, attached to
+`codex/atlas-ds6-final-closure`, and clean. `git merge-base HEAD 0440f0a8d`
+returned that exact revision and `git rev-parse --show-prefix` returned
+`policy-engine/`. Revision 3.24's supersessions were read before execution;
+Revision 3.30 remains the current Atlas revision and was not changed here.
+
+The TypeScript baseline gate was declared before evidence. `corepack pnpm
+install --frozen-lockfile` completed with pnpm 10.33.2 and 1,215 packages.
+The worktree-local Python environment was then provisioned from the lock. The
+first `uv sync --offline --frozen --extra test` attempt was a setup
+**non-receipt** because `jaxlib==0.8.2` was not cached; the same locked sync
+without `--offline` completed and installed 150 packages.
+
+Ports 6006, 5173, and 8000 were free and the process census contained no
+repository Playwright, Vite, Storybook, or fixture-server process, so DS6
+explicitly acquired the visual lane. The lane was held only across the two
+browser invocations below. The register-family lock was not held at the same
+time.
+
+### Two independent no-writer captures
+
+From `apps/runtime-dashboard`, DS6 ran this command twice, substituting a
+distinct output directory ending in `ds6-c13-verification-1` and
+`ds6-c13-verification-2`:
+
+```text
+CI=1 PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 UV_PROJECT_ENVIRONMENT=${POLICY_ENGINE_ROOT}/.venv UV_NO_SYNC=1 PYTHONPATH=${POLICY_ENGINE_ROOT}/src corepack pnpm exec playwright test --config=playwright.visual.config.ts --project=chromium --grep='DS8 governed run paper' --workers=1 --retries=0 --timeout=90000 --global-timeout=240000 --update-snapshots=none --output=<distinct-output>
+```
+
+The first pair completed green, but mechanism review found that its prose/JSON
+summary did not content-bind the raw runner output. It is diagnostic evidence,
+not the controlling closure receipt. DS6 therefore widened the evidence
+mechanism and ran a final pair with the Playwright JSON reporter retained under
+`docs/plans/active/atlas-slices/receipts/ds6-c13-raw/`; the JSON embeds the
+actual PDF and geometry attachments. Final run one completed exit 0 with 3/3
+passed in 56.0 seconds. Final run two completed exit 0 with 3/3 passed in 55.1
+seconds. Neither invocation retried and neither
+had writer authority. Immediately before run one, between the runs, and after
+run two, the governed expectation SHA-256 was identically
+`26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a`.
+It remained 19,197 bytes at 746×84.
+
+The independently read PDF receipts agree across both invocations: the base
+packet is 5 pages and the admitted growth packet is 30 pages. Every MediaBox
+and CropBox is portrait `594.95996 × 841.91998 pt`, with maximum A4 deltas
+`0.31564 pt` wide and `0.03018 pt` high, both below 0.5 pt. Run-one PDF
+SHA-256 identities were `1bfa91972ae62b24c3f71b746a99fc6cfaf047fd98ec0eb0da4564ab03ab932b`
+(85,703-byte base) and
+`78314c26daef2f18180447ff299e90ea00f73eca9b050219c952e1c6ac8968f0`
+(381,620-byte growth). Run two produced the same byte counts and independently
+rendered hashes `ce2d714fbf8962d6d953effaad4bf25ddc52848d676aecf383db18c76281efc0`
+and `66d9956491b0329b92ade5c5cb047b40a19f34498d7c25621f332a5baf08db5b`.
+The page counts and box deltas exactly reconcile DS8-A's supplied values; the
+PDF bytes themselves are independently rendered rather than asserted equal.
+
+The environment tuple was identical before, between, and after: commit
+`0440f0a8d`; host `MacBook-Air-Denis.local`; macOS 26.5.2 build 25F84;
+Darwin 25.5.0; arm64 Apple M2; Playwright 1.59.1; Chromium
+147.0.7727.15; Manrope 5.2.8 across 148 files at tree SHA-256
+`cf76bd50ef127d9a8019fc98b72ebda6f8e8eb6f2737abcdb2d9366437e7c3df`;
+and IBM Plex Mono 5.2.7 across 243 files at tree SHA-256
+`80fe419a5ee77cf65cc4565657770a81f275dab4fa9a48bf9c9b3d8dfe77de9e`.
+Its canonical tuple digest is
+`8488ff998678e867e1ac44fcea64fb3c58f68e5e64e03f60c03b7c74c82e1130`.
+
+The composed gate evaluated each remaining conjunct independently on both
+runs: `/report` was the sole paper emitter; `/overview` emitted no paper
+payload; the visible print DOM contained zero controls, browser-local state,
+HUD/Craft chrome, signed targets, or synthetic links; visible links equalled
+exactly the admitted packet links; MACHINE bytes equalled the exact single
+response body; the base and grown PDFs met portrait-A4 geometry and growth
+increased page count; and the bounded identity region matched after font
+readiness. All predicates are typed **`recomputed`**. The snapshot matcher has
+its governed 100-pixel comparison threshold; the no-writer property proven by
+the three SHA receipts is that the expectation file itself did not move.
+
+After run two, the three governed ports were again free and the process census
+contained no repository runner. DS6 explicitly relinquished the visual lane.
+
+The exact machine-readable admission receipt follows. Its source population
+is the complete current producer/verifier set named by the DS8 repair and the
+new bounded expectation, not a sample.
+
+<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:START -->
+{
+  "captures": [
+    {
+      "capture_id": "ds6-c13-verification-1",
+      "environment_sha256": "8488ff998678e867e1ac44fcea64fb3c58f68e5e64e03f60c03b7c74c82e1130",
+      "exit_code": 0,
+      "output": "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-1",
+      "pdfs": {
+        "base_bytes": 85703,
+        "base_page_count": 5,
+        "base_sha256": "1bfa91972ae62b24c3f71b746a99fc6cfaf047fd98ec0eb0da4564ab03ab932b",
+        "box_height_pt": 841.91998,
+        "box_width_pt": 594.95996,
+        "grown_bytes": 381620,
+        "grown_page_count": 30,
+        "grown_sha256": "78314c26daef2f18180447ff299e90ea00f73eca9b050219c952e1c6ac8968f0",
+        "max_height_delta_pt": 0.03018,
+        "max_width_delta_pt": 0.31564
+      },
+      "reported_duration": "56.0s",
+      "retries": 0,
+      "tests": {
+        "failed": 0,
+        "passed": 3,
+        "skipped": 0,
+        "total": 3
+      }
+    },
+    {
+      "capture_id": "ds6-c13-verification-2",
+      "environment_sha256": "8488ff998678e867e1ac44fcea64fb3c58f68e5e64e03f60c03b7c74c82e1130",
+      "exit_code": 0,
+      "output": "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-2",
+      "pdfs": {
+        "base_bytes": 85703,
+        "base_page_count": 5,
+        "base_sha256": "ce2d714fbf8962d6d953effaad4bf25ddc52848d676aecf383db18c76281efc0",
+        "box_height_pt": 841.91998,
+        "box_width_pt": 594.95996,
+        "grown_bytes": 381620,
+        "grown_page_count": 30,
+        "grown_sha256": "66d9956491b0329b92ade5c5cb047b40a19f34498d7c25621f332a5baf08db5b",
+        "max_height_delta_pt": 0.03018,
+        "max_width_delta_pt": 0.31564
+      },
+      "reported_duration": "55.1s",
+      "retries": 0,
+      "tests": {
+        "failed": 0,
+        "passed": 3,
+        "skipped": 0,
+        "total": 3
+      }
+    }
+  ],
+  "command": {
+    "global_timeout_ms": 240000,
+    "grep": "DS8 governed run paper",
+    "include_run_paper_fixtures": true,
+    "project": "chromium",
+    "reporter": "json",
+    "retries": 0,
+    "timeout_ms": 90000,
+    "update_snapshots": "none",
+    "workers": 1
+  },
+  "environment": {
+    "architecture": "arm64 Apple M2",
+    "browser": "Chromium 147.0.7727.15",
+    "commit": "0440f0a8d6b64c254c37b64144461e5091e2b1db",
+    "fonts": {
+      "@fontsource/ibm-plex-mono": {
+        "file_count": 243,
+        "tree_sha256": "80fe419a5ee77cf65cc4565657770a81f275dab4fa9a48bf9c9b3d8dfe77de9e",
+        "version": "5.2.7"
+      },
+      "@fontsource/manrope": {
+        "file_count": 148,
+        "tree_sha256": "cf76bd50ef127d9a8019fc98b72ebda6f8e8eb6f2737abcdb2d9366437e7c3df",
+        "version": "5.2.8"
+      }
+    },
+    "host": "MacBook-Air-Denis.local",
+    "kernel": "darwin 25.5.0",
+    "os": "macOS 26.5.2 (25F84)",
+    "playwright": "1.59.1"
+  },
+  "environment_probe_producer": {
+    "path": "architecture/atlas_surfaces/capture_c13_execution_environment.mjs",
+    "sha256": "a5fe832d9ed686a1d808b6307a8bf3123139b7fe5338652fd094e9e980c7e434"
+  },
+  "environment_sha256_receipts": [
+    "8488ff998678e867e1ac44fcea64fb3c58f68e5e64e03f60c03b7c74c82e1130",
+    "8488ff998678e867e1ac44fcea64fb3c58f68e5e64e03f60c03b7c74c82e1130",
+    "8488ff998678e867e1ac44fcea64fb3c58f68e5e64e03f60c03b7c74c82e1130"
+  ],
+  "evidence_revision": "5255eaf4ef683d964b0a73a277751f8b9873ab41",
+  "predicate_provenance": "recomputed",
+  "raw_artifacts": [
+    {
+      "bytes": 642266,
+      "path": "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-1/results.json",
+      "sha256": "93719c847245805e71c90e03f6b184aad1d361d42d801306c4f744a21fdc07a1"
+    },
+    {
+      "bytes": 45,
+      "path": "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-1/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "bytes": 642257,
+      "path": "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-2/results.json",
+      "sha256": "e56cd212f02a5423260432552b48134a267190bec595ba98b3af2d48f13c72e1"
+    },
+    {
+      "bytes": 45,
+      "path": "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-2/.last-run.json",
+      "sha256": "91d1c43004802cd49950d78eb11c8fa7d05da8ffffe219a8b13b2f561bc00903"
+    },
+    {
+      "bytes": 865,
+      "path": "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/environment-before.json",
+      "sha256": "42f416d0ac3d2401816abd0d32a88a1f20decb2d7b2ca4a9069bc501738ca59f"
+    },
+    {
+      "bytes": 866,
+      "path": "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/environment-between.json",
+      "sha256": "22ed17c393b58d819d9d1f5086e482ffa3083537549406a6809cf6168edab63d"
+    },
+    {
+      "bytes": 864,
+      "path": "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/environment-after.json",
+      "sha256": "5e68443f86904255412373d0d1c5e9b45f3cdb575d10f642b0510e7f231bc51d"
+    }
+  ],
+  "receipt_id": "ds6-c13-independent-run-paper-closure",
+  "repair_commit": "69aca1e25921e145fecdf57eac5a73f638f11db4",
+  "schema_version": "1.0",
+  "semantic_conjunction": {
+    "bounded_identity_matches_after_font_readiness": true,
+    "browser_local_state": 0,
+    "hud_craft_chrome": 0,
+    "machine_bytes_equal_exact_single_response_body": true,
+    "overview_paper_payload_count": 0,
+    "report_is_sole_paper_emitter": true,
+    "signed_targets": 0,
+    "synthetic_links": 0,
+    "visible_controls": 0,
+    "visible_links_equal_admitted_packet_links": true
+  },
+  "snapshot": {
+    "bytes": 19197,
+    "derivation": "first_derivation_under_new_name",
+    "height": 84,
+    "path": "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/run-report-identity-a4-print-chromium-darwin.png",
+    "sha256": "26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a",
+    "sha256_receipts": [
+      "26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a",
+      "26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a",
+      "26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a"
+    ],
+    "width": 746
+  },
+  "source_bindings": [
+    {
+      "path": "apps/runtime-dashboard/src/styles/print.css",
+      "sha256": "b087aebb054c89c24196db8b2feeccdeca1095e7c0bb44053aa545bfff4ae9dc"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+      "sha256": "232392b06df5bbaca4380a20fd669554d9ddd0f132396c8f290dea5804faf740"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
+      "sha256": "687a831dce4165393622ed37d60e4269f61b3dd424589b62fb3ae924b1196b66"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+      "sha256": "514ddff6df513859ec99e2b429e50b7e6bf5c6417b320f416c2a576a744777df"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+      "sha256": "4bb0bea6d71ad045d3d129dc9455cb0f4786d723199d77d95a372de2c22542bb"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.parity.test.tsx",
+      "sha256": "59d5eed9242d7bacd58ddfa8a5f61fe71efad62f129c25ac4312fddeae07146e"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
+      "sha256": "d3b5819eb8e3a0390d4c7bc4f261457ddf2583d504424feaad2584c04ad5b6dd"
+    },
+    {
+      "path": "apps/runtime-dashboard/src/features/runs/route.tsx",
+      "sha256": "710e301c25a11af2a41f169b2571a6f0bb1f68afda370d0248d044b2c6b11d1c"
+    },
+    {
+      "path": "apps/runtime-dashboard/e2e/helpers/pdfGeometry.ts",
+      "sha256": "f91afff757dffbb1b8d8ea42f1dc879bbcf18fe9ae428e4b4ba02118fe754f07"
+    },
+    {
+      "path": "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+      "sha256": "c472f411f4ee512a9e1a54057b8c5a3a64130d6df8a6d79a6c09a4e5efeca8d9"
+    },
+    {
+      "path": "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/run-report-identity-a4-print-chromium-darwin.png",
+      "sha256": "26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a"
+    }
+  ],
+  "test_titles": [
+    "semantic DOM closes overview and report paper egress",
+    "PDF keeps every page A4 and admitted growth adds pages",
+    "bounded identity A4 print"
+  ],
+  "verified_revision": "0440f0a8d6b64c254c37b64144461e5091e2b1db"
+}
+<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:END -->
+
+The product/verifier `source_bindings` resolve byte-for-byte at the verified
+product revision `0440f0a8d`. The environment producer did not exist at that
+revision and is therefore not misrepresented as product-state provenance: it
+and all seven raw artifacts are durably committed at evidence revision
+`5255eaf4ef683d964b0a73a277751f8b9873ab41`. Admission independently resolves
+the eleven product bindings from the verified revision and the producer/raw
+bindings from the evidence revision, then requires both revisions in the
+attached branch's ancestry.
+
+The repair owner remains DS8/team-design. C13's independent verification closes
+the admitted run-report paper predecessor only; it does not waive DS8's design
+authority or claim that the broad print/PNG/CSV/JSON/server readiness unit is
+fully implemented. The family transition and C14 closeout are deliberately not
+claimed in this pre-transition receipt.
+
+### C11 clean-checkout pin reconciliation
+
+The task handoff's statement that the historical line-649 P38 assertion
+remained live was stale on the pinned tree. `git merge-base --is-ancestor
+da1ff0398 HEAD`
+completed exit 0, and the current test directly asserts the exact ordered six
+paths in `HEALTH_IMPLEMENTATION_PATHS`; replay semantics remain separately
+covered by missing-path degradation, clean-versus-absent byte comparison, and
+inconsistent status/path-set rejection. A fresh focused Vitest run completed
+1/1 file and 22/22 tests green in 41.40 seconds. The debt row therefore closes
+against mechanism commit `da1ff0398`, with no new test byte in this cluster.
+It remains a test-debt repair only: the health capability label stays
+`implemented_but_not_orchestrated`, with `consumer_missing` and
+`surface_missing` unchanged.
+
+While checking history from `apps/runtime-dashboard`, an initially prefixed
+Git path produced an empty result. `git rev-parse --show-prefix` exposed the
+double-prefix error; the receipt was recomputed with `:(top)` coordinates.
+This procedural correction changed no product or test outcome.
+
+### P40 and P39 accounting before transition
+
+C13 entered review at **0/2** mechanism rounds. Planned extension of the
+canonical disposition producer is implementation work, not a review finding.
+Review then returned two Blocking findings, each classified as a new mechanism
+class before repair: `status-hash-scheme-binding` found the induced DS19 anchor
+encoded as bare hex instead of `sha256:<hex>`; and
+`execution-receipt-content-binding` found that the first journal receipt
+summarised results without retaining the raw runner/PDF/environment bodies.
+The first repair reuses the status inventory's canonical digest scheme and
+recomputes its exact inherited 13-diagnostic receipt. The second widens the
+evidence mechanism to the raw Playwright JSON with embedded PDFs and geometry,
+plus three content-bound environment probes and exact source bytes. These
+consume **2/2**. The checker is the mechanism path. Its behavioral test is a
+mandatory mechanism-pinning companion; the DS6 plan, journal, master plan,
+DEBT register, generated report, register projection, and induced status
+anchor are mandatory record/projection companions under P39 and sit outside
+the mechanism-path count. C11 is a record-only **0/2** closure in this cluster:
+no C11 mechanism/test byte or test outcome changed.
+
+The first delta review of the widened receipt proposed a different-commit
+escape. The fixed-mechanism falsifier changed all three environment tuples and
+their receipt hashes while holding the checker bytes fixed; admission rejected
+it through the frozen whole-receipt digest, so the reviewer retracted that
+finding as not reproducible. A second reviewer did reproduce a different
+same-class, one-level-deeper provenance defect: the new probe was falsely
+listed among sources at `0440f0a8d`, where it did not exist, and its raw outputs
+were not yet durable. Under P40 this does not spend a third round; it widens the
+existing `execution-receipt-content-binding` repair. Product sources now bind
+to `0440f0a8d`, while the probe and raw artifacts bind separately to committed
+evidence revision `5255eaf4e`. The falsifier is either a source missing or
+byte-different at its declared revision, or an evidence revision outside the
+attached branch ancestry; each must fail admission.

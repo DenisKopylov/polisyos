@@ -18,6 +18,8 @@ from pathlib import Path
 from typing import ClassVar
 from unittest import mock
 
+import pytest
+
 ATLAS_DIR = Path(__file__).resolve().parent
 CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
 REGISTER_PATH = ATLAS_DIR / "frontend-disposition-register.json"
@@ -2646,6 +2648,241 @@ class DS6RegisterTransitionTests(unittest.TestCase):
                 _expect = f"ds6_register_transition_drift:{stored['finding_id']}"
                 if _expect not in errors:
                     raise AssertionError(f"stored C03 {field} drift escaped: {errors}")
+
+
+class DS6C13PrintTransitionTests(unittest.TestCase):
+    """Prove C13 closes only the independently verified run-paper predecessor."""
+
+    @staticmethod
+    def _require(value: object) -> None:
+        if not value:
+            raise AssertionError
+
+    @staticmethod
+    def _receipt_source(receipt: object) -> str:
+        return (
+            f"{checker.C13_RECEIPT_START}\n"
+            + json.dumps(receipt)
+            + f"\n{checker.C13_RECEIPT_END}\n"
+        )
+
+    def test_independent_receipt_binds_the_full_conjunction_and_current_bytes(
+        self,
+    ) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        self._require(receipt["predicate_provenance"] == "recomputed")
+        self._require([row["exit_code"] for row in receipt["captures"]] == [0, 0])
+        self._require(
+            [
+                [
+                    capture["pdfs"]["base_page_count"],
+                    capture["pdfs"]["grown_page_count"],
+                ]
+                for capture in receipt["captures"]
+            ]
+            == [[5, 30], [5, 30]]
+        )
+        checker._c13_verify_current_print_evidence(receipt)
+
+    def test_independent_receipt_fails_closed_on_each_decisive_class(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        mutations: dict[str, tuple[tuple[object, ...], object]] = {
+            "writer": (("command", "update_snapshots"), "changed"),
+            "retry": (("captures", 1, "retries"), 1),
+            "snapshot": (("snapshot", "sha256_receipts", 1), "0" * 64),
+            "semantic": (("semantic_conjunction", "visible_controls"), 1),
+            "geometry": (("captures", 0, "pdfs", "max_width_delta_pt"), 0.5),
+            "growth": (("captures", 0, "pdfs", "grown_page_count"), 5),
+            "second-growth": (("captures", 1, "pdfs", "grown_page_count"), 5),
+            "environment": (("captures", 1, "environment_sha256"), "0" * 64),
+        }
+
+        for name, (coordinates, value) in mutations.items():
+            mutation = copy.deepcopy(receipt)
+            target = mutation
+            for coordinate in coordinates[:-1]:
+                target = target[coordinate]
+            target[coordinates[-1]] = value
+            with (
+                self.subTest(name=name),
+                pytest.raises(ValueError, match="C13 independent receipt rejected"),
+            ):
+                checker._c13_independent_print_receipt(self._receipt_source(mutation))
+
+    def test_independent_receipt_rejects_every_wrong_test_population(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        populations = {
+            "missing": checker.C13_TEST_TITLES[:-1],
+            "duplicate": [
+                checker.C13_TEST_TITLES[0],
+                checker.C13_TEST_TITLES[1],
+                checker.C13_TEST_TITLES[1],
+            ],
+            "substituted": [
+                checker.C13_TEST_TITLES[0],
+                checker.C13_TEST_TITLES[1],
+                "unrelated passing test",
+            ],
+        }
+        for name, titles in populations.items():
+            mutation = copy.deepcopy(receipt)
+            mutation["test_titles"] = titles
+            with self.subTest(name=name):
+                self._require(
+                    "test_title_population"
+                    in checker._c13_receipt_shape_errors(mutation)
+                )
+
+    def test_current_source_byte_drift_invalidates_the_receipt(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        evidence = {
+            row["path"]: (checker.REPO_ROOT / row["path"]).read_bytes()
+            for row in receipt["source_bindings"]
+        }
+        source_ref = next(iter(evidence))
+        evidence[source_ref] += b"\n// drift\n"
+        with pytest.raises(ValueError, match="C13 current evidence drift"):
+            checker._c13_verify_current_print_evidence(receipt, evidence_bytes=evidence)
+
+    def test_raw_playwright_and_environment_artifacts_are_the_receipt(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        raw = checker._c13_raw_execution_receipt(receipt)
+        self._require(raw["test_titles"] == receipt["test_titles"])
+        self._require(raw["page_counts"] == [[5, 30], [5, 30]])
+        self._require(raw["environment_tuple_count"] == 1)
+
+        artifacts = {
+            row["path"]: (checker.REPO_ROOT / row["path"]).read_bytes()
+            for row in receipt["raw_artifacts"]
+        }
+        result_path = receipt["raw_artifacts"][0]["path"]
+        artifacts[result_path] = artifacts[result_path].replace(
+            b"semantic DOM closes overview and report paper egress",
+            b"unrelated passing test                            ",
+            1,
+        )
+        receipt["raw_artifacts"][0]["sha256"] = hashlib.sha256(
+            artifacts[result_path]
+        ).hexdigest()
+        with pytest.raises(ValueError, match="C13 raw execution rejected"):
+            checker._c13_raw_execution_receipt(receipt, artifacts=artifacts)
+
+    def test_transition_is_surgical_idempotent_and_keeps_broad_debt_open(
+        self,
+    ) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        candidate = checker._c13_print_transition_text(original, receipt=receipt)
+        self._require(
+            candidate
+            == checker._c13_print_transition_text(candidate, receipt=receipt)
+        )
+        _original_start, _original_end, original_row = (
+            checker._json_entry_object_span(original, "adjacent-print-export")
+        )
+        _candidate_start, _candidate_end, candidate_row = (
+            checker._json_entry_object_span(candidate, "adjacent-print-export")
+        )
+        self._require(original_row == checker._c13_print_open_entry())
+        self._require(candidate_row == checker._c13_print_closed_entry(receipt))
+        self._require(candidate_row["disposition"] == "rebind_pending")
+        self._require(candidate_row["strangle_status"] == "strangled")
+        self._require(candidate_row["owner_slice"] == "DS8")
+
+        original_without_target = json.loads(original)
+        candidate_without_target = json.loads(candidate)
+        original_without_target["entries"] = [
+            row
+            for row in original_without_target["entries"]
+            if row["unit_id"] != "adjacent-print-export"
+        ]
+        candidate_without_target["entries"] = [
+            row
+            for row in candidate_without_target["entries"]
+            if row["unit_id"] != "adjacent-print-export"
+        ]
+        self._require(candidate_without_target == original_without_target)
+
+    def test_transition_rejects_open_and_closed_drift(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        closed = checker._c13_print_transition_text(original, receipt=receipt)
+        for source, field, value in (
+            (original, "owner_slice", "DS6"),
+            (closed, "strangle_status", "pending"),
+            (closed, "disposition", "use_as_is"),
+        ):
+            data = json.loads(source)
+            row = next(r for r in data["entries"] if r["unit_id"] == "adjacent-print-export")
+            row[field] = value
+            mutation = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+            with (
+                self.subTest(field=field),
+                pytest.raises(ValueError, match="C13 print transition rejected"),
+            ):
+                checker._c13_print_transition_text(mutation, receipt=receipt)
+
+    def test_status_candidate_reanchors_only_the_register_source(self) -> None:
+        receipt = checker._c13_independent_print_receipt()
+        register_candidate = checker._c13_print_transition_text(
+            REGISTER_PATH.read_text(encoding="utf-8"),
+            receipt=receipt,
+        )
+        original_text = checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8")
+        candidate_text = checker._c13_status_inventory_candidate_text(
+            original_text,
+            register_bytes=register_candidate.encode("utf-8"),
+        )
+        original = json.loads(original_text)
+        candidate = json.loads(candidate_text)
+        expected = copy.deepcopy(original)
+        expected["sources"]["ds19"]["sha256"] = "sha256:" + hashlib.sha256(
+            register_candidate.encode("utf-8")
+        ).hexdigest()
+        self._require(candidate == expected)
+        self._require(
+            checker._c13_status_candidate_errors(
+                candidate,
+                register_bytes=register_candidate.encode("utf-8"),
+            )
+            == []
+        )
+        debt = checker.status_checker._load_json(checker.status_checker.WAIST_DEBT_PATH)
+        original_sha256 = checker.status_checker._sha256
+        original_load_json = checker.status_checker._load_json
+
+        def candidate_sha256(path: Path) -> str:
+            if path == checker.status_checker.DS19_PATH:
+                return expected["sources"]["ds19"]["sha256"]
+            return original_sha256(path)
+
+        def candidate_load_json(path: Path) -> dict[str, object]:
+            if path == checker.status_checker.DS19_PATH:
+                return json.loads(register_candidate)
+            return original_load_json(path)
+
+        with (
+            mock.patch.object(
+                checker.status_checker,
+                "_sha256",
+                side_effect=candidate_sha256,
+            ),
+            mock.patch.object(
+                checker.status_checker,
+                "_load_json",
+                side_effect=candidate_load_json,
+            ),
+        ):
+            diagnostics = checker.status_checker.validate_inventory(candidate, debt)
+        payload = "".join(f"{diagnostic}\n" for diagnostic in diagnostics).encode()
+        self._require(
+            (len(diagnostics), len(payload), hashlib.sha256(payload).hexdigest())
+            == (
+                13,
+                887,
+                "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
+            )
+        )
 
 
 class RawTransportDriftTests(unittest.TestCase):

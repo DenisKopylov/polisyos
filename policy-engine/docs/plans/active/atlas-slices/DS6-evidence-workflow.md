@@ -1762,6 +1762,14 @@ governed transition follows. `C14` closes after both.
 - The `scenario composer dark theme` visual-lane instability, and the DS8 A4 print baseline, both
   under their own owners.
 
+> **C11 supersession — 2026-08-22.** The carried clean-worktree test pin above
+> closed at `da1ff0398`; a fresh clean-tree run on bound `0440f0a8d` is 22/22
+> green and readback shows the exact ordered six-path implementation set is
+> asserted directly. Remove `atlas-health-metric-replay-pins-uncommitted-paths`
+> from carried DS6 debt. This is a test-debt closure only: C11 remains
+> `implemented_but_not_orchestrated`, with `consumer_missing` and
+> `surface_missing`.
+
 ## Not yet
 
 - No typed contrast row or i18n baseline removal until DS5 releases the

@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **55808**
-- Application lines deleted: **20856**
-- Net application LOC reduction: **-34952**
-- Application files deleted: **89**
+- Application lines added: **55766**
+- Application lines deleted: **20859**
+- Net application LOC reduction: **-34907**
+- Application files deleted: **90**
 
 ## Wave-end full verification
 
@@ -595,7 +595,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `derivation-composer-readiness` | `derivation-composer-readiness` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `derivation-whatif-validation` | `derivation-whatif-validation` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `adjacent-cli-styleguide` | `adjacent-cli-styleguide` | 0 | `rebind_pending` | `pending` | `DS4` | `—` |
-| `adjacent-print-export` | `adjacent-print-export` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
+| `adjacent-print-export` | `adjacent-print-export` | 0 | `rebind_pending` | `strangled` | `DS8` | `run-report-paper-projection` |
 | `adjacent-email-og` | `adjacent-email-og` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
 | `evidence-unit-tests` | `evidence-unit-tests` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `evidence-stories` | `evidence-stories` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
@@ -851,6 +851,21 @@ T0 `9e6a43b53d11166e90df376940cb34ff15b77289`: `sha256:b3f088e2b5abf2699b1da970e
 
 ## Commits
 
+- `d3d2e7fef feat(atlas): bind DS6 C13 verification receipt`
+- `5255eaf4e docs(atlas): retain DS6 C13 raw verification receipts`
+- `0440f0a8d plan(debt): close run-lifecycle-terminal-fact; the print repair lands and DS6 owns its closure`
+- `69aca1e25 merge(atlas): land DS8-A — the paper projection, the composed A4 gate, and the strangle map`
+- `f9592e98b plan(debt): re-type the producer denominator and register what its measurement actually left`
+- `f62f279b7 plan(debt): record the β1 verdicts — one repair landed, one red re-typed as real`
+- `efb708fd3 merge(debt): land the β1 measurement-layer repair`
+- `c8b6593da plan(debt): record the β1/β2/γ/δ execution — one hypothesis disproved, one absorption verified, one denominator split`
+- `1c9829fb8 fix(quality): resolve the plugin-posture witness interpreter and declare its cap`
+- `bcd5ae0e9 plan(debt): close the venv danglement and record the grouped closure programme`
+- `874f97394 merge(debt): land the ambiguous-fifteen re-measurement — 14 resolved, and a broken canonical environment`
+- `4bbdbe129 plan(debt): correct the cited-commit denominator to 28 of 29`
+- `7811588bc plan(debt): Rev 2 — re-measure the fifteen ambiguous GY debts against their witnesses`
+- `f96627656 feat(atlas): govern run paper expectation`
+- `bb818dbbc chore(atlas): materialize DS8 strangle coverage`
 - `c393090ab merge(main): advance DS8-A C07 continuation base`
 - `a9e0bc869 chore(atlas): preserve DS8 C07 invariant stop`
 - `c270b46c5 plan(debt): add the unified debt register — 15 of 47 GY debts measure ambiguous`

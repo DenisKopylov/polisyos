@@ -2771,11 +2771,16 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
         self,
     ) -> None:
         receipt = checker._c13_independent_print_receipt()
-        original = REGISTER_PATH.read_text(encoding="utf-8")
+        original = checker._c03_git_bytes(
+            "show",
+            f"{checker.C13_VERIFIED_REVISION}:policy-engine/"
+            "architecture/atlas_surfaces/frontend-disposition-register.json",
+        ).decode("utf-8")
         candidate = checker._c13_print_transition_text(original, receipt=receipt)
+        current = REGISTER_PATH.read_text(encoding="utf-8")
+        self._require(candidate == current)
         self._require(
-            candidate
-            == checker._c13_print_transition_text(candidate, receipt=receipt)
+            current == checker._c13_print_transition_text(current, receipt=receipt)
         )
         _original_start, _original_end, original_row = (
             checker._json_entry_object_span(original, "adjacent-print-export")
@@ -4906,7 +4911,7 @@ it("second", () => {
         )
 
     def test_c21d_live_register_identity_census_preserves_every_distinct_binding(self) -> None:
-        """Derive C21d's collision-safe identity census from every stored TypeScript ref."""
+        """Derive C21d's collision-safe identity census after DS8 sink retirement."""
         data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
         references = DS5LineAddressCensusTests._live_references(data)
         identity_references = [
@@ -4923,16 +4928,16 @@ it("second", () => {
         hybrid_keys = checker._typescript_reference_hybrid_keys(identities)
 
         self.assertEqual(  # noqa: PT009
-            155, len(identity_references), "ds5_c21d_identity_reference_drift"
+            143, len(identity_references), "ds5_c21d_identity_reference_drift"
         )
         self.assertEqual(  # noqa: PT009
-            128, len(distinct_references), "ds5_c21d_distinct_identity_drift"
+            119, len(distinct_references), "ds5_c21d_distinct_identity_drift"
         )
         self.assertEqual(  # noqa: PT009
-            107, len(relocation_families), "ds5_c21d_relocation_family_drift"
+            101, len(relocation_families), "ds5_c21d_relocation_family_drift"
         )
         self.assertEqual(  # noqa: PT009
-            128, len(set(hybrid_keys)), "ds5_c21d_hybrid_identity_merge"
+            119, len(set(hybrid_keys)), "ds5_c21d_hybrid_identity_merge"
         )
 
     def test_def21_additive_role_preserves_ds5_identity_bytes(self) -> None:

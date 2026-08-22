@@ -6051,3 +6051,225 @@ to `0440f0a8d`, while the probe and raw artifacts bind separately to committed
 evidence revision `5255eaf4e`. The falsifier is either a source missing or
 byte-different at its declared revision, or an evidence revision outside the
 attached branch ancestry; each must fail admission.
+
+## DS6-C13 governed transition and C14 slice closeout — 2026-08-22
+
+### One family-lock window and atomic C13 transition
+
+After the pre-transition receipt above was durably committed, DS6 acquired the
+whole Atlas register-family lock at attached commit
+`d3d2e7fefe45a1265202217dc71736ca370e09c2`. The visual lane had already been
+relinquished, so the two serialized resources did not overlap. Opening SHA-256
+identities were:
+
+| family member | opening identity |
+| --- | --- |
+| disposition register | `91eb301c64a827ed18d2dc5a51c89f1a25dfcc2c3e2d82dee04ca147149e5ab1` |
+| generated report | `827595c6f95b5d712985dcff4ab59acb5c20c259a3996369f6658006de7f8089` |
+| status inventory | `23208946eac0b961a0c612967f7290352b2db92082283b6ff290cc5a1efc0d1f` |
+| baseline manifest | `2ce65c9f09fe0a960bcbae8d249c3a60bb826a50868b78daaa4576531ab61cf1` |
+| readiness ledger | `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13` |
+
+The canonical command ran under a fixed 360-second ceiling with an uptime pair:
+
+```text
+.venv/bin/python architecture/atlas_surfaces/check_frontend_disposition_register.py --write-c13-adjacent-print-export-resolution --write-report
+```
+
+It completed exit 0. Before writing, it validated the complete content-bound
+receipt, exact predecessor, candidate register bytes, report projection, and
+candidate status-inventory receipt. The write is failure-atomic: a changed
+receipt, source, raw artifact, predecessor, peer row, hash scheme, or inherited
+status signature stops before any family member changes. Re-running the exact
+transition over its repaired state is byte-idempotent.
+
+The admitted row retains `disposition=rebind_pending`, DS8/team-design owner,
+and the broad-family scope. It changes only `strangle_status` from `pending` to
+`strangled`, records the independent C13 rationale, and names successor
+`run-report-paper-projection` with its five consumer refs. This closes the
+run-detail paper predecessor; it does not claim broad print, PNG, CSV, JSON, or
+server export readiness.
+
+Closing candidate identities, read directly from the attached worktree after
+the atomic write, are:
+
+| family member | closing identity |
+| --- | --- |
+| disposition register | `c1181a07efc38273aa4b4ec1c6f46a1f183c1e197b67b96c8796d575da75be11` |
+| generated report | `1bc9a2d378ca42dbe7721769ede7369bbbef1a88ecc0939e36201663df1c6dde` |
+| status inventory | `42b6ac0dd5e1cf9614570357c5dbaed15a2a814ce40227fb047ad974284cd1e2` |
+| baseline manifest | `2ce65c9f09fe0a960bcbae8d249c3a60bb826a50868b78daaa4576531ab61cf1` |
+| readiness ledger | `4b64f0920154803fa87e96f27f0c97afb8933e17c2dcd78a958a99af78e2ae13` |
+
+The baseline and readiness fences are byte-identical to their opening values.
+The family lock stays held only through the final family commit and its
+attached-branch byte readback; that readback is the explicit release boundary.
+
+### C14 predicate-by-predicate battery
+
+The full register checker with `--check --corruption-probes` completed inside
+its fixed 600-second ceiling and reported `corruption probes: PASS`. It
+recomputed 261 roots, 59 supplemental findings, 10 reference censuses, 23
+seeded negatives, and 36 storage sites. Its DS8 coverage projection has 217
+assignments split as 8 `in_scope`, 10 `new_in_slice`, 5 `retained`, 137
+`surface_out_of_scope`, and 57 `verification_companion`; an independent walk
+found 217 unique paths and no duplicate assignment. `family_complete=false`
+remains honest.
+
+The focused C13 transition class initially returned 7/8 after the transition:
+one test still loaded the current register as though it were the open
+predecessor. That was a mandatory test companion, not a mechanism finding. It
+now loads the exact open register from verified revision `0440f0a8d`, proves
+the transition equals current bytes, and proves current-state idempotence. The
+rerun passed 8/8. Its current-source, raw-artifact, source-revision, receipt,
+semantic, snapshot, PDF, surgery, hash, and status-retention negatives remain
+unchanged.
+
+Readiness reconciliation ran through the fixed launcher rather than a supplied
+report or exit code. Focused Vitest passed 1/1 file and 33/33 tests in 63.84
+seconds. The launcher emitted five separate schema-2.0.0 claims—route redirect
+launch, sources, data, lex, and health. Each has
+`predicate_provenance=recomputed`, basis `observed_by_reconciler`, observation
+status `observed`, a passed canonical assertion, and recomputed owner
+validation. No conjunction is persisted or reported as an aggregate readiness
+PASS. Two successful launcher invocations had different complete stdout hashes
+because the report content-binds process/environment-specific Vite/Vitest
+source identities; no byte-stability claim is made over those runtime reports.
+
+The inherited status command completed exit 1 under its fixed 120-second
+ceiling. Its own predicate is unchanged: zero stdout and exactly 13 stderr
+diagnostics / 887 bytes / SHA-256
+`511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`.
+This is a completed inherited RED receipt, not a non-receipt or a current-only
+diagnostic.
+
+The derivable generated-client census—not a remembered anchor list—completed
+exit 0 with zero errors. Its stdout is 64,069 bytes at SHA-256
+`ed59be6f60e7426410d77d4cc73a6e317de62a64861282607f4126f12d9f964c`.
+The complete candidate population is 1,387 files = 1,185 JSON + 202 TOML.
+It reconciles 18 primary and 18 independently found anchor records, 34
+construct identities, two recomputed absence predicates, 36 semantic
+bindings, 34 navigation hints, 38 navigation-only references, and zero legacy
+line bindings.
+
+The live DS5 identity corpus was recomputed from every `observed_refs` and
+`evidence_refs` member rather than copied from the master-plan prose. It is 143
+identity occurrences, 119 distinct references, 101 relocation families, and
+119 distinct hybrid keys; the exact ordered byte digest is
+`6c0d327298bfa700900b1cf767960b3b076ce3ca5abf30c2421ac450aa5e6c8d`.
+The count-free digest test already carried this current value, while its
+neighboring C21d partition test still pinned the superseded 155/128/107/128
+tuple. Red-first execution returned one failure exactly at `155 != 143`; the
+four derived companion constants were corrected to 143/119/101/119 and the
+same two-test command returned 2/2. No identity resolver or register mechanism
+byte changed.
+
+The architecture guardrail command ran with `UV_NO_SYNC=1` under a fixed
+900-second ceiling; `guardrails sync` was never invoked. It completed exit 1
+with 110 stdout lines / 6,106 bytes / SHA-256
+`06b4bc397ab0cd81203aa920d5406f50fb743d9f9c44303a8918edf04c532e98`.
+The bundled predicates were separated: generated freshness is clean for the
+runtime API client (5/5 generator-observed outputs) and dashboard API types
+(1/1), while `deep-import-baseline-stale` remains red at its exact six
+registered runtime/GY-owned creep edges in channel contracts, Lex pipeline,
+Lex search projection, and scientist checkpoint. No DS6 changed path owns one
+of those edges, and the inherited row is not relabelled green.
+
+### Complete duplication and screenshot ownership census
+
+A read-only Git + TypeScript AST + PostCSS + filesystem walk covered all 1,185
+tracked dashboard paths. The complete CSS denominator is 13 files. It finds
+three `content: ... attr(href) ...` declarations, whose ownership partition is
+important: the two unscoped global emitters at `src/styles.css:1611` and
+`src/styles/print.css:85` remain the DS8-owned `duplicate_active` pair, with
+`styles.css` still the strangle target; DS8-A's
+`[data-run-paper-document=true] a[data-paper-link-eligible=true]` declaration
+at `src/styles/print.css:97` is the scoped admitted-packet behavior under the
+same canonical print owner, not a third duplicated owner. This supersedes the
+older shorthand “two active emitters,” which counted duplicate owners rather
+than all declarations.
+
+The same complete visual census derives 21 Playwright `test(...)` calls, 18
+literal `toHaveScreenshot(...)` calls, 18 distinct screenshot names, and 18
+committed PNGs. Missing and extra sets are both empty, so snapshot ownership is
+exactly one-to-one. No browser process was started for this source census.
+
+### Exact labels, non-receipts, and slice boundary
+
+C13 closes `adjacent-print-export` by independent verification, while its
+canonical root honestly remains `rebind_pending/strangled` because the broad
+DS8 family is not complete. C08's evidence capture and C11's health
+measurement remain `implemented_but_not_orchestrated`, `consumer_missing`,
+and `surface_missing`. The five broad evidence roots—unit tests, stories,
+component accessibility, browser accessibility, and end-to-end journeys—stay
+`rebind_pending/pending`. C12 remains descriptive: primitive adoption,
+fail-closed fidelity, and audience enforcement are
+`instrumented/not_established/unknown`; surface closure is
+`instrumented/recomputed/zero|measured`, and evidence coverage is
+`instrumented/recomputed/incomparable|zero|measured`. Machine parity is
+`instrumented/not_established/missing`; honesty comprehension is
+`protocol_seam_only/not_established/missing`; every threshold is
+`not_established`. `transitive-runner-closure-unbound` remains
+`absent/unallocated`.
+
+Current-session non-receipts are named rather than normalized:
+
+1. the first locked Python bootstrap used `--offline` and could not obtain
+   `jaxlib==0.8.2`; the subsequent same-lock online sync succeeded;
+2. the first readiness wrapper used a worktree-root `.venv/bin/python` path
+   while running from the dashboard and exited 127 before Vitest; the corrected
+   `../../.venv/bin/python` wrapper produced the 33/33 receipt;
+3. the first status wrapper's PTY session identifier was not retained, so its
+   terminal output was unavailable even though the process completed; the
+   command was rerun under the same fixed ceiling for the controlling 13/887
+   receipt; and
+4. the first duplication script resolved `typescript` from the repository
+   root and terminated `MODULE_NOT_FOUND`; the corrected complete walk resolved
+   the dashboard's installed package and produced the denominator above.
+
+DS8-A's earlier five-minute killed composite register attempt is superseded by
+this session's completed 600-second corruption matrix. The six deep-import
+edges and 13 status diagnostics are completed failures, not non-receipts.
+Global suites outside the targeted C14 blast radius are unmeasured here and
+are not called green.
+
+DS6 is **closed** after C13 and C14. It does not close the broad DS8 export
+family, the scenario composer dark-theme instability, or the absent
+transitive-runner closure; each keeps its recorded owner and label. C17 stays
+unentered because C18 superseded it. The C11 test debt is closed, while its
+capability labels above remain unchanged.
+
+C13 consumed **2/2** P40 mechanism rounds on the two new classes already
+recorded above; same-class deeper receipt/provenance findings widened the
+second repair rather than spending a third round. C14 consumed **0/2**
+mechanism rounds. The C21d constant update changes a stale companion test from
+red to green, so it is not described as a no-outcome record edit; it consumes
+no mechanism round because no C13/C14 mechanism byte changed. Under P39, the
+canonical checker is C13's one mechanism path against cap 6. Its pinning test,
+environment probe, raw receipt set, generated register/report/status
+projections, this plan, this journal, the debt register, and the master-plan
+supersession are mandatory companions outside that count. C14 has zero product
+mechanism paths.
+
+### Source freeze, independent review, and final static receipts
+
+The 57,248-byte total delta was not sent through one over-ceiling review. It
+was split by concern into three complete packets below the 28 KB ceiling:
+family/test/projection at 9,726 bytes, debt/master records at 27,108 bytes,
+and plan/journal records at 20,414 bytes. Independent read-only review returned
+READY on the first two. The third returned one Important **record-only**
+finding: the new summary had compressed two C12 tuples into a non-existent
+“surface-missing closure” phrase. No mechanism byte or test outcome changed.
+The plan and journal now retain the exact values—surface closure
+`instrumented/recomputed/zero|measured` and evidence coverage
+`instrumented/recomputed/incomparable|zero|measured`—and delta re-review
+returned READY.
+
+After that correction, the final combined focused command passed 10/10: the
+eight C13 transition tests plus the two live DS5 corpus tests, in 21.860
+seconds. Python compilation of the checker and its test, Node syntax checking
+of the environment probe, `git diff --check`, and the unmerged-path census all
+passed. Changed-line Ruff filtering covered every modified Python line and
+returned zero diagnostics; the whole legacy test file was not called green.
+Readback also proved line 7 of both the Atlas master plan and this DS6 plan
+byte-identical to bound `0440f0a8d`.

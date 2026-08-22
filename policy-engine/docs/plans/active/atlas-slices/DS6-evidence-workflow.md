@@ -1799,3 +1799,97 @@ governed transition follows. `C14` closes after both.
   deterministically re-anchors the three DS6-attributed PNGs. Its commit is
   pending. The DS8 print baseline remains byte-unmodified and RED under its
   existing owner.
+
+## C13/C14 closure supersession — 2026-08-22
+
+This section supersedes the stale Task 13, Task 14, *Slice standing*, and *Not
+yet* statements above without rewriting their historical receipts. DS8-A
+landed the paper repair at `69aca1e25`; DS6 then executed the previously held
+conjunction from immutable product revision `0440f0a8d`.
+
+**C13 is complete.** Two separate Chromium invocations used distinct output
+directories, `--retries=0`, and `--update-snapshots=none`. Each passed the
+same three tests. The committed expectation remained 746×84, 19,197 bytes,
+SHA-256 `26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a`
+immediately before, between, and after the runs. The commit, host, browser, and
+font tuple was identical at canonical digest
+`8488ff998678e867e1ac44fcea64fb3c58f68e5e64e03f60c03b7c74c82e1130`.
+Independent PDF parsing returned 5 base pages and 30 grown pages in both runs;
+all MediaBox/CropBox dimensions were portrait A4 within 0.5 pt, with maximum
+deltas 0.31564 pt wide and 0.03018 pt high. The complete semantic predicate
+also passed: `/report` alone emitted paper; `/overview` emitted none; visible
+print DOM contained zero controls, browser-local state, HUD/Craft chrome,
+signed targets, or synthetic links; visible links exactly matched the admitted
+packet; MACHINE bytes equalled the single response body; growth added pages;
+and the bounded identity matched after font readiness. Every deciding
+predicate is `recomputed`.
+
+Under one Atlas family lock window, the canonical producer transitioned
+`adjacent-print-export` from `rebind_pending/pending` to
+`rebind_pending/strangled` with successor `run-report-paper-projection` and
+regenerated the report plus induced status anchor. Opening SHA-256 identities
+were register `91eb301c…e5ab1`, report `827595c6…f8089`, status
+`23208946…d1f`, baseline `2ce65c9f…1cf1`, and readiness
+`4b64f092…ae13`. Closing identities are register `c1181a07…be11`, report
+`1bc9a2d3…dde`, status `42b6ac0d…d1e2`, with baseline and readiness unchanged.
+This transition closes the admitted run-detail paper predecessor and the
+`adjacent-print-export` debt row by DS6's independent verification. It does
+not promote the broader print/PNG/CSV/JSON/server family, which remains
+DS8/team-design-owned `rebind_pending`.
+
+**C14 is complete and DS6 is closed.** Its predicate-by-predicate battery is:
+
+- canonical register check plus corruption probes: PASS; 261 roots, 59
+  supplemental findings, 10 censuses, 23 seeded negatives, and the 217-row
+  DS8 strangle map;
+- focused C13 transition class: 8/8; focused clean-checkout health suite:
+  22/22; the C21d corpus companion went red at its stale 155 pin and green at
+  the recomputed 143-occurrence / 119-distinct / 101-relocation-family set,
+  whose ordered digest is `6c0d327298bfa700900b1cf767960b3b076ce3ca5abf30c2421ac450aa5e6c8d`;
+- readiness reconciliation: 1/1 file and 33/33 tests, with five separate
+  `observed_by_reconciler/observed` claims and no aggregate readiness Boolean;
+- generated-client receipt census: zero errors over 1,387 candidates (1,185
+  JSON + 202 TOML), 18 anchor records, 34 construct identities, two recomputed
+  absence predicates, 34 navigation hints, and zero legacy line bindings;
+- status inventory: the exact inherited 13 diagnostics / 887 bytes / SHA-256
+  `511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`;
+- architecture guardrails: both generated families are clean (5/5 client
+  outputs and 1/1 dashboard output); the separately owned
+  `deep-import-baseline-stale` predicate remains a completed RED at its same
+  six edges, and no `guardrails sync` ran;
+- complete duplication census: 1,185 tracked dashboard paths, including all
+  13 CSS files; two global `attr(href)` emitters remain the DS8-owned
+  `duplicate_active` pair (`styles.css:1611`, `styles/print.css:85`) while
+  DS8-A's scoped admitted-packet emitter at `styles/print.css:97` is a
+  subordinate rule in the canonical print owner, not a third owner. The same
+  census derives 21 visual tests, 18 literal screenshot calls, 18 distinct
+  names, and 18 committed PNGs with exact one-to-one ownership.
+
+Exact retained capability labels are unchanged. C11 is
+`implemented_but_not_orchestrated`, `consumer_missing`, and `surface_missing`.
+`transitive-runner-closure-unbound` stays `absent/unallocated`. C12's primitive
+adoption, fail-closed fidelity, and audience enforcement are instrumented but
+`not_established/unknown`; machine parity is
+`instrumented/not_established/missing`; honesty comprehension remains
+`protocol_seam_only/not_established/missing`; every threshold is
+`not_established`. Surface closure is exactly
+`instrumented/recomputed/zero|measured`; evidence coverage is exactly
+`instrumented/recomputed/incomparable|zero|measured`. The five broad evidence
+roots remain `rebind_pending/pending` rather than being promoted by slice
+closure.
+
+DS6 therefore does **not** close the broad DS8 export family, the scenario
+composer dark-theme instability, or the absent transitive-runner closure.
+`C17` remains unentered because `C18` superseded it. The inherited 13 status
+diagnostics and six deep-import edges remain honest completed reds under their
+owners.
+
+P39 accounting is one C13 mechanism path—the canonical family checker—against
+cap 6. Its pinning test, execution-environment probe, raw receipts, generated
+family projections, this plan, the journal, the debt register, and the master
+plan are mandatory companions outside the mechanism count. C14 changes no
+product mechanism; its corrected C21d constant pin is likewise a mandatory
+companion to the already-landed DS8 corpus movement. C13 consumed 2/2 P40
+rounds (`status-hash-scheme-binding` and
+`execution-receipt-content-binding`); same-class deeper findings widened the
+second repair. C14 consumed 0/2 mechanism rounds.

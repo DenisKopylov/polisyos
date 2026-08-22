@@ -5517,12 +5517,22 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS8",
       "decision_date": "2026-07-17",
       "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "Reason: C19b real-browser verification exposes run-detail-a4-print as an open product regression: the global a[href]::after print rules emit the full long public-decision URL into the report, overlap content, and prevent a stable A4 capture. DS8 owns the product repair; DS6 owns independent visual and semantic verification. Closure signal: no generated link URL overlaps the report and two consecutive no-update real-browser A4 captures are stable; until then the run-detail expectation remains unmodified and may not count green."
+      "rationale": "DS8-A repaired the run-report paper projection at 69aca1e25; DS6-C13 independently recomputed the complete semantic egress predicate and two separate zero-retry, no-writer Chromium captures at 0440f0a8d. The snapshot stayed 26cca8a75e61cfcf across all three receipts, both PDFs were portrait A4 within 0.5 pt at 5 and 30 pages, admitted growth added pages, and the font-ready bounded identity matched. This strangles only the run-detail print predecessor; the broader print/PNG/CSV/JSON/server unit remains rebind_pending, and DS8/team-design ownership is unchanged.",
+      "successor": {
+        "unit_id": "run-report-paper-projection",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+          "apps/runtime-dashboard/src/features/runs/route.tsx",
+          "apps/runtime-dashboard/src/styles/print.css",
+          "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+          "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/run-report-identity-a4-print-chromium-darwin.png"
+        ]
+      }
     },
     {
       "unit_id": "adjacent-email-og",

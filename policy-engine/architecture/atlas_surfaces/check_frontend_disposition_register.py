@@ -173,6 +173,63 @@ C06_CONTRAST_CURRENT_EVIDENCE_SHA256 = {
 C06_RENDERED_CONTRAST_FINDING_ID = (
     "baseline-test-a11y-rendered-contrast-incomplete-debt"
 )
+C13_RECEIPT_START = "<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:START -->"
+C13_RECEIPT_END = "<!-- DS6-C13-INDEPENDENT-PRINT-RECEIPT:END -->"
+C13_VERIFIED_REVISION = "0440f0a8d6b64c254c37b64144461e5091e2b1db"
+C13_REPAIR_COMMIT = "69aca1e25921e145fecdf57eac5a73f638f11db4"
+C13_EVIDENCE_REVISION = "5255eaf4ef683d964b0a73a277751f8b9873ab41"
+C13_RECEIPT_SHA256 = "bae570619054115e08d81fa04044869e19b06f4281249d3ec5b677addd6cc854"
+C13_PRINT_ROOT_ID = "adjacent-print-export"
+C13_PRINT_SUCCESSOR_ID = "run-report-paper-projection"
+C13_TEST_TITLES = [
+    "semantic DOM closes overview and report paper egress",
+    "PDF keeps every page A4 and admitted growth adds pages",
+    "bounded identity A4 print",
+]
+C13_SOURCE_REFS = [
+    "apps/runtime-dashboard/src/styles/print.css",
+    "apps/runtime-dashboard/src/features/runs/components/AmbientTelemetryHud.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/OperatorCraftPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.parity.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.test.tsx",
+    "apps/runtime-dashboard/src/features/runs/route.tsx",
+    "apps/runtime-dashboard/e2e/helpers/pdfGeometry.ts",
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/"
+    "run-report-identity-a4-print-chromium-darwin.png",
+]
+C13_ENVIRONMENT_PRODUCER_REF = (
+    "architecture/atlas_surfaces/capture_c13_execution_environment.mjs"
+)
+C13_PRINT_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/features/runs/routes/RunReportPage.tsx",
+    "apps/runtime-dashboard/src/features/runs/route.tsx",
+    "apps/runtime-dashboard/src/styles/print.css",
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/run-report-identity-a4-print-chromium-darwin.png",
+]
+C13_PRINT_OPEN_RATIONALE = (
+    "Reason: C19b real-browser verification exposes run-detail-a4-print as an "
+    "open product regression: the global a[href]::after print rules emit the "
+    "full long public-decision URL into the report, overlap content, and prevent "
+    "a stable A4 capture. DS8 owns the product repair; DS6 owns independent "
+    "visual and semantic verification. Closure signal: no generated link URL "
+    "overlaps the report and two consecutive no-update real-browser A4 captures "
+    "are stable; until then the run-detail expectation remains unmodified and "
+    "may not count green."
+)
+C13_PRINT_RATIONALE = (
+    "DS8-A repaired the run-report paper projection at 69aca1e25; DS6-C13 "
+    "independently recomputed the complete semantic egress predicate and two "
+    "separate zero-retry, no-writer Chromium captures at 0440f0a8d. The "
+    "snapshot stayed 26cca8a75e61cfcf across all three receipts, both PDFs "
+    "were portrait A4 within 0.5 pt at 5 and 30 pages, admitted growth added "
+    "pages, and the font-ready bounded identity matched. This strangles only "
+    "the run-detail print predecessor; the broader print/PNG/CSV/JSON/server "
+    "unit remains rebind_pending, and DS8/team-design ownership is unchanged."
+)
 V4_COUNTERPART_RE = re.compile(r"\[v4_counterpart=([^;\]]+)")
 NEGATIVE_ID_RE = re.compile(r"`(DS1-N0(?:0[1-9]|1[0-9]|2[0-3]))`")
 
@@ -6289,6 +6346,602 @@ def _json_entry_object_span(
     return start, start + relative_end, row
 
 
+def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
+    """Evaluate every independently observed C13 conjunct without collapsing it."""
+    errors: list[str] = []
+    if (
+        receipt.get("receipt_id") != "ds6-c13-independent-run-paper-closure"
+        or receipt.get("schema_version") != "1.0"
+        or receipt.get("predicate_provenance") != "recomputed"
+        or receipt.get("verified_revision") != C13_VERIFIED_REVISION
+        or receipt.get("evidence_revision") != C13_EVIDENCE_REVISION
+        or receipt.get("repair_commit") != C13_REPAIR_COMMIT
+    ):
+        errors.append("identity")
+    if receipt.get("test_titles") != C13_TEST_TITLES:
+        errors.append("test_title_population")
+    command = receipt.get("command", {})
+    if not isinstance(command, Mapping) or any(
+        command.get(field) != expected
+        for field, expected in {
+            "global_timeout_ms": 240000,
+            "grep": "DS8 governed run paper",
+            "include_run_paper_fixtures": True,
+            "project": "chromium",
+            "reporter": "json",
+            "workers": 1,
+            "retries": 0,
+            "timeout_ms": 90000,
+            "update_snapshots": "none",
+        }.items()
+    ):
+        errors.append("command_not_no_writer_single_worker")
+    captures = receipt.get("captures")
+    if not isinstance(captures, list) or len(captures) != 2:
+        return [*errors, "capture_cardinality"]
+    outputs = [capture.get("output") for capture in captures]
+    expected_outputs = [
+        "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-1",
+        "docs/plans/active/atlas-slices/receipts/ds6-c13-raw/run-2",
+    ]
+    if outputs != expected_outputs or [
+        capture.get("capture_id") for capture in captures
+    ] != ["ds6-c13-verification-1", "ds6-c13-verification-2"]:
+        errors.append("capture_output_not_distinct")
+    environment = receipt.get("environment")
+    environment_sha256 = _canonical_sha256(environment)
+    if (
+        not isinstance(environment, Mapping)
+        or environment.get("commit") != C13_VERIFIED_REVISION
+        or receipt.get("environment_sha256_receipts")
+        != [environment_sha256] * 3
+    ):
+        errors.append("capture_environment_drift")
+    environment_producer = receipt.get("environment_probe_producer")
+    if not isinstance(environment_producer, Mapping) or (
+        environment_producer.get("path") != C13_ENVIRONMENT_PRODUCER_REF
+        or not re.fullmatch(
+            r"[0-9a-f]{64}", str(environment_producer.get("sha256", ""))
+        )
+    ):
+        errors.append("environment_probe_producer")
+    for index, capture in enumerate(captures, 1):
+        if (
+            capture.get("exit_code") != 0
+            or capture.get("retries") != 0
+            or capture.get("environment_sha256") != environment_sha256
+        ):
+            errors.append(f"capture_{index}_not_zero_exit_no_retry")
+        if capture.get("tests") != {
+            "total": 3,
+            "passed": 3,
+            "failed": 0,
+            "skipped": 0,
+        }:
+            errors.append(f"capture_{index}_test_population")
+        pdfs = capture.get("pdfs")
+        if not isinstance(pdfs, Mapping):
+            errors.append(f"capture_{index}_pdf_missing")
+            continue
+        base_count = pdfs.get("base_page_count")
+        grown_count = pdfs.get("grown_page_count")
+        if (
+            type(base_count) is not int
+            or type(grown_count) is not int
+            or (base_count, grown_count) != (5, 30)
+        ):
+            errors.append(f"capture_{index}_growth_not_admitted")
+        for field in ("max_width_delta_pt", "max_height_delta_pt"):
+            delta = pdfs.get(field)
+            if (
+                not isinstance(delta, (int, float))
+                or isinstance(delta, bool)
+                or delta >= 0.5
+            ):
+                errors.append(f"capture_{index}_{field}")
+        width = pdfs.get("box_width_pt")
+        height = pdfs.get("box_height_pt")
+        if (
+            not isinstance(width, (int, float))
+            or not isinstance(height, (int, float))
+            or isinstance(width, bool)
+            or isinstance(height, bool)
+            or width >= height
+        ):
+            errors.append(f"capture_{index}_not_portrait")
+
+    snapshot = receipt.get("snapshot", {})
+    if not isinstance(snapshot, Mapping) or (
+        snapshot.get("sha256")
+        != "26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a"
+        or snapshot.get("bytes") != 19197
+        or (snapshot.get("width"), snapshot.get("height")) != (746, 84)
+        or snapshot.get("sha256_receipts") != [snapshot.get("sha256")] * 3
+    ):
+        errors.append("snapshot_receipt_drift")
+    semantics = receipt.get("semantic_conjunction", {})
+    false_counts = (
+        "overview_paper_payload_count",
+        "visible_controls",
+        "browser_local_state",
+        "hud_craft_chrome",
+        "signed_targets",
+        "synthetic_links",
+    )
+    true_predicates = (
+        "report_is_sole_paper_emitter",
+        "visible_links_equal_admitted_packet_links",
+        "machine_bytes_equal_exact_single_response_body",
+        "bounded_identity_matches_after_font_readiness",
+    )
+    if not isinstance(semantics, Mapping) or any(
+        semantics.get(field) != 0 for field in false_counts
+    ) or any(semantics.get(field) is not True for field in true_predicates):
+        errors.append("semantic_conjunction_false")
+    bindings = receipt.get("source_bindings")
+    if (
+        not isinstance(bindings, list)
+        or [
+            row.get("path") for row in bindings if isinstance(row, Mapping)
+        ]
+        != C13_SOURCE_REFS
+        or any(
+            not isinstance(row, Mapping)
+            or not isinstance(row.get("path"), str)
+            or not re.fullmatch(r"[0-9a-f]{64}", str(row.get("sha256", "")))
+            for row in bindings
+        )
+    ):
+        errors.append("source_population")
+    observed = hashlib.sha256(
+        json.dumps(receipt, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    if observed != C13_RECEIPT_SHA256:
+        errors.append(f"receipt_identity:{observed}")
+    return errors
+
+
+def _c13_independent_print_receipt(
+    source_text: str | None = None,
+) -> dict[str, Any]:
+    """Admit exactly the independently recomputed two-run journal receipt."""
+    if source_text is None:
+        source_text = (
+            REPO_ROOT
+            / "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
+        ).read_text(encoding="utf-8")
+    if (
+        source_text.count(C13_RECEIPT_START) != 1
+        or source_text.count(C13_RECEIPT_END) != 1
+    ):
+        raise ValueError("C13 independent receipt rejected:marker cardinality")
+    payload = source_text.split(C13_RECEIPT_START, 1)[1].split(
+        C13_RECEIPT_END, 1
+    )[0]
+    try:
+        receipt = json.loads(payload)
+    except json.JSONDecodeError as exc:
+        raise ValueError("C13 independent receipt rejected:invalid JSON") from exc
+    if not isinstance(receipt, dict):
+        raise ValueError("C13 independent receipt rejected:not an object")
+    shape_errors = _c13_receipt_shape_errors(receipt)
+    if shape_errors:
+        raise ValueError("C13 independent receipt rejected:" + ";".join(shape_errors))
+    return receipt
+
+
+def _c13_raw_specs(suites: Sequence[Mapping[str, Any]]) -> list[Mapping[str, Any]]:
+    specs: list[Mapping[str, Any]] = []
+    for suite in suites:
+        specs.extend(
+            spec for spec in suite.get("specs", []) if isinstance(spec, Mapping)
+        )
+        children = suite.get("suites", [])
+        if isinstance(children, list):
+            specs.extend(
+                _c13_raw_specs(
+                    [child for child in children if isinstance(child, Mapping)]
+                )
+            )
+    return specs
+
+
+def _c13_pdf_geometry(
+    pdf_bytes: bytes, geometry_bytes: bytes, *, expected_pages: int
+) -> dict[str, Any]:
+    """Recompute page count and A4 boxes from the retained raw PDF attachment."""
+    page_count = len(re.findall(rb"/Type\s*/Page\b", pdf_bytes))
+    boxes = [
+        tuple(float(value) for value in match.groups())
+        for match in re.finditer(
+            rb"/MediaBox\s*\[\s*([-0-9.]+)\s+([-0-9.]+)\s+"
+            rb"([-0-9.]+)\s+([-0-9.]+)\s*\]",
+            pdf_bytes,
+        )
+    ]
+    if page_count != expected_pages or len(boxes) != page_count:
+        raise ValueError("C13 raw execution rejected:PDF page population")
+    expected_width = 595.2756
+    expected_height = 841.8898
+    deltas: list[tuple[float, float]] = []
+    for x0, y0, x1, y1 in boxes:
+        width, height = x1 - x0, y1 - y0
+        if width >= height:
+            raise ValueError("C13 raw execution rejected:PDF not portrait")
+        deltas.append((abs(width - expected_width), abs(height - expected_height)))
+    try:
+        geometry = json.loads(geometry_bytes)
+    except json.JSONDecodeError as exc:
+        raise ValueError("C13 raw execution rejected:geometry JSON") from exc
+    if not isinstance(geometry, list) or len(geometry) != page_count:
+        raise ValueError("C13 raw execution rejected:geometry population")
+    for page_number, row in enumerate(geometry, 1):
+        if not isinstance(row, Mapping) or row.get("pageNumber") != page_number:
+            raise ValueError("C13 raw execution rejected:geometry page identity")
+        for box_name in ("mediaBox", "cropBox"):
+            box = row.get(box_name)
+            if not isinstance(box, Mapping) or any(
+                box.get(field) != expected
+                for field, expected in {
+                    "x": 0,
+                    "y": 0,
+                    "width": 594.95996,
+                    "height": 841.91998,
+                }.items()
+            ):
+                raise ValueError(f"C13 raw execution rejected:{box_name}")
+    max_width = max(width for width, _height in deltas)
+    max_height = max(height for _width, height in deltas)
+    if max_width >= 0.5 or max_height >= 0.5:
+        raise ValueError("C13 raw execution rejected:A4 tolerance")
+    return {
+        "page_count": page_count,
+        "max_width_delta_pt": round(max_width, 5),
+        "max_height_delta_pt": round(max_height, 5),
+    }
+
+
+def _c13_raw_execution_receipt(
+    receipt: Mapping[str, Any],
+    *,
+    artifacts: Mapping[str, bytes] | None = None,
+) -> dict[str, Any]:
+    """Resolve the two raw Playwright results and three environment probes."""
+    root = "docs/plans/active/atlas-slices/receipts/ds6-c13-raw"
+    expected_paths = [
+        f"{root}/run-1/results.json",
+        f"{root}/run-1/.last-run.json",
+        f"{root}/run-2/results.json",
+        f"{root}/run-2/.last-run.json",
+        f"{root}/environment-before.json",
+        f"{root}/environment-between.json",
+        f"{root}/environment-after.json",
+    ]
+    rows = receipt.get("raw_artifacts")
+    if not isinstance(rows, list) or [
+        row.get("path") for row in rows if isinstance(row, Mapping)
+    ] != expected_paths:
+        raise ValueError("C13 raw execution rejected:artifact population")
+    expected_hashes = {str(row["path"]): str(row["sha256"]) for row in rows}
+    expected_sizes = {str(row["path"]): row.get("bytes") for row in rows}
+    if artifacts is None:
+        artifacts = {path: (REPO_ROOT / path).read_bytes() for path in expected_paths}
+    if set(artifacts) != set(expected_paths):
+        raise ValueError("C13 raw execution rejected:artifact set")
+    for path, expected_sha256 in expected_hashes.items():
+        if (
+            len(artifacts[path]) != expected_sizes[path]
+            or hashlib.sha256(artifacts[path]).hexdigest() != expected_sha256
+        ):
+            raise ValueError(f"C13 raw execution rejected:artifact bytes:{path}")
+
+    environments: list[Mapping[str, Any]] = []
+    for phase in ("before", "between", "after"):
+        path = f"{root}/environment-{phase}.json"
+        environment = json.loads(artifacts[path])
+        execution_tuple = environment.get("tuple")
+        if (
+            environment.get("schema_version") != "1.0"
+            or environment.get("phase") != phase
+            or not isinstance(execution_tuple, Mapping)
+            or environment.get("tuple_sha256") != _canonical_sha256(execution_tuple)
+        ):
+            raise ValueError(f"C13 raw execution rejected:environment:{phase}")
+        environments.append(execution_tuple)
+    if environments != [receipt.get("environment")] * 3:
+        raise ValueError("C13 raw execution rejected:environment drift")
+
+    capture_receipts: list[dict[str, Any]] = []
+    for index in (1, 2):
+        result_path = f"{root}/run-{index}/results.json"
+        last_path = f"{root}/run-{index}/.last-run.json"
+        result = json.loads(artifacts[result_path])
+        last_run = json.loads(artifacts[last_path])
+        config = result.get("config", {})
+        stats = result.get("stats", {})
+        projects = config.get("projects", [])
+        chromium = next(
+            (
+                project
+                for project in projects
+                if isinstance(project, Mapping) and project.get("name") == "chromium"
+            ),
+            {},
+        )
+        output_suffix = f"/{root}/run-{index}"
+        if (
+            result.get("errors") != []
+            or last_run != {"status": "passed", "failedTests": []}
+            or config.get("version") != receipt["environment"]["playwright"]
+            or config.get("globalTimeout") != 240000
+            or config.get("updateSnapshots") != "none"
+            or config.get("workers") != 1
+            or config.get("reporter") != [["json"]]
+            or chromium.get("retries") != 0
+            or chromium.get("timeout") != 90000
+            or not str(chromium.get("outputDir", "")).endswith(output_suffix)
+            or any(stats.get(field) != expected for field, expected in {
+                "expected": 3,
+                "skipped": 0,
+                "unexpected": 0,
+                "flaky": 0,
+            }.items())
+        ):
+            raise ValueError(f"C13 raw execution rejected:run {index} metadata")
+        specs = _c13_raw_specs(result.get("suites", []))
+        if [spec.get("title") for spec in specs] != C13_TEST_TITLES:
+            raise ValueError(f"C13 raw execution rejected:run {index} titles")
+        results: dict[str, Mapping[str, Any]] = {}
+        for spec in specs:
+            tests = spec.get("tests", [])
+            if len(tests) != 1 or tests[0].get("projectName") != "chromium":
+                raise ValueError(f"C13 raw execution rejected:run {index} test")
+            test_results = tests[0].get("results", [])
+            if (
+                tests[0].get("status") != "expected"
+                or len(test_results) != 1
+                or test_results[0].get("status") != "passed"
+                or test_results[0].get("retry") != 0
+            ):
+                raise ValueError(f"C13 raw execution rejected:run {index} result")
+            results[str(spec["title"])] = test_results[0]
+        pdf_result = results[C13_TEST_TITLES[1]]
+        attachments = {
+            str(row.get("name")): row
+            for row in pdf_result.get("attachments", [])
+            if isinstance(row, Mapping)
+        }
+        expected_attachments = {
+            "run-paper-empty.pdf",
+            "run-paper-empty-geometry.json",
+            "run-paper-growth.pdf",
+            "run-paper-growth-geometry.json",
+        }
+        expected_content_types = {
+            "run-paper-empty.pdf": "application/pdf",
+            "run-paper-empty-geometry.json": "application/json",
+            "run-paper-growth.pdf": "application/pdf",
+            "run-paper-growth-geometry.json": "application/json",
+        }
+        if set(attachments) != expected_attachments or any(
+            "body" not in attachment
+            or attachment.get("contentType") != expected_content_types[name]
+            for name, attachment in attachments.items()
+        ):
+            raise ValueError(f"C13 raw execution rejected:run {index} attachments")
+        decoded = {
+            name: base64.b64decode(str(attachment["body"]), validate=True)
+            for name, attachment in attachments.items()
+        }
+        empty = _c13_pdf_geometry(
+            decoded["run-paper-empty.pdf"],
+            decoded["run-paper-empty-geometry.json"],
+            expected_pages=5,
+        )
+        grown = _c13_pdf_geometry(
+            decoded["run-paper-growth.pdf"],
+            decoded["run-paper-growth-geometry.json"],
+            expected_pages=30,
+        )
+        capture_receipts.append(
+            {
+                "base_page_count": empty["page_count"],
+                "grown_page_count": grown["page_count"],
+                "base_sha256": hashlib.sha256(
+                    decoded["run-paper-empty.pdf"]
+                ).hexdigest(),
+                "grown_sha256": hashlib.sha256(
+                    decoded["run-paper-growth.pdf"]
+                ).hexdigest(),
+                "max_width_delta_pt": max(
+                    empty["max_width_delta_pt"], grown["max_width_delta_pt"]
+                ),
+                "max_height_delta_pt": max(
+                    empty["max_height_delta_pt"], grown["max_height_delta_pt"]
+                ),
+            }
+        )
+    return {
+        "captures": capture_receipts,
+        "environment_tuple_count": len({_canonical_sha256(row) for row in environments}),
+        "page_counts": [
+            [row["base_page_count"], row["grown_page_count"]]
+            for row in capture_receipts
+        ],
+        "test_titles": list(C13_TEST_TITLES),
+    }
+
+
+def _c13_verify_current_print_evidence(
+    receipt: Mapping[str, Any],
+    *,
+    evidence_bytes: Mapping[str, bytes] | None = None,
+) -> None:
+    """Content-bind the admitted execution to the exact current property owners."""
+    if _c13_receipt_shape_errors(receipt):
+        raise ValueError("C13 current evidence drift:receipt")
+    raw_receipt = _c13_raw_execution_receipt(receipt)
+    for captured, recorded in zip(raw_receipt["captures"], receipt["captures"]):
+        for field, actual in captured.items():
+            if recorded["pdfs"].get(field) != actual:
+                raise ValueError(f"C13 current evidence drift:raw {field}")
+    for row in receipt["raw_artifacts"]:
+        source_ref = str(row["path"])
+        committed_bytes = _c03_git_bytes(
+            "show",
+            f"{C13_EVIDENCE_REVISION}:policy-engine/{source_ref}",
+        )
+        if hashlib.sha256(committed_bytes).hexdigest() != row["sha256"]:
+            raise ValueError(f"C13 current evidence drift:raw history:{source_ref}")
+    bindings = {
+        str(row["path"]): str(row["sha256"])
+        for row in receipt["source_bindings"]
+    }
+    if evidence_bytes is None:
+        evidence_bytes = {
+            source_ref: (REPO_ROOT / source_ref).read_bytes()
+            for source_ref in bindings
+        }
+    if set(evidence_bytes) != set(bindings):
+        raise ValueError("C13 current evidence drift:source population")
+    for source_ref, expected_sha256 in bindings.items():
+        observed_sha256 = hashlib.sha256(evidence_bytes[source_ref]).hexdigest()
+        if observed_sha256 != expected_sha256:
+            raise ValueError(f"C13 current evidence drift:{source_ref}")
+        verified_bytes = _c03_git_bytes(
+            "show",
+            f"{C13_VERIFIED_REVISION}:policy-engine/{source_ref}",
+        )
+        if hashlib.sha256(verified_bytes).hexdigest() != expected_sha256:
+            raise ValueError(f"C13 current evidence drift:history:{source_ref}")
+
+    producer = receipt["environment_probe_producer"]
+    producer_ref = str(producer["path"])
+    producer_bytes = (REPO_ROOT / producer_ref).read_bytes()
+    if hashlib.sha256(producer_bytes).hexdigest() != producer["sha256"]:
+        raise ValueError("C13 current evidence drift:environment producer")
+    committed_producer = _c03_git_bytes(
+        "show",
+        f"{C13_EVIDENCE_REVISION}:policy-engine/{producer_ref}",
+    )
+    if hashlib.sha256(committed_producer).hexdigest() != producer["sha256"]:
+        raise ValueError("C13 current evidence drift:environment producer history")
+
+    snapshot = receipt["snapshot"]
+    snapshot_bytes = evidence_bytes[str(snapshot["path"])]
+    if len(snapshot_bytes) != snapshot["bytes"]:
+        raise ValueError("C13 current evidence drift:snapshot bytes")
+    if snapshot_bytes[:8] != b"\x89PNG\r\n\x1a\n" or len(snapshot_bytes) < 24:
+        raise ValueError("C13 current evidence drift:snapshot format")
+    width = int.from_bytes(snapshot_bytes[16:20], "big")
+    height = int.from_bytes(snapshot_bytes[20:24], "big")
+    if (width, height) != (snapshot["width"], snapshot["height"]):
+        raise ValueError("C13 current evidence drift:snapshot dimensions")
+    legacy_snapshot = (
+        REPO_ROOT
+        / "apps/runtime-dashboard/e2e/"
+        "runtime-dashboard.visual.spec.ts-snapshots/"
+        "run-detail-a4-print-chromium-darwin.png"
+    )
+    if legacy_snapshot.exists():
+        raise ValueError("C13 current evidence drift:legacy snapshot restored")
+
+    for ancestor, descendant, label in (
+        (C13_REPAIR_COMMIT, C13_VERIFIED_REVISION, "repair"),
+        (C13_VERIFIED_REVISION, C13_EVIDENCE_REVISION, "evidence"),
+        (C13_EVIDENCE_REVISION, "HEAD", "evidence revision"),
+    ):
+        ancestry = subprocess.run(  # noqa: S603 - fixed Git command
+            ["git", "merge-base", "--is-ancestor", ancestor, descendant],  # noqa: S607
+            cwd=REPO_ROOT.parent,
+            check=False,
+        )
+        if ancestry.returncode != 0:
+            raise ValueError(f"C13 current evidence drift:{label} ancestry")
+    snapshot_at_repair = _c03_git_bytes(
+        "show",
+        f"{C13_REPAIR_COMMIT}:policy-engine/{snapshot['path']}",
+    )
+    if hashlib.sha256(snapshot_at_repair).hexdigest() != snapshot["sha256"]:
+        raise ValueError("C13 current evidence drift:first derivation bytes")
+    legacy_at_repair = subprocess.run(  # noqa: S603 - fixed Git command
+        [  # noqa: S607
+            "git",
+            "cat-file",
+            "-e",
+            f"{C13_REPAIR_COMMIT}:policy-engine/apps/runtime-dashboard/e2e/"
+            "runtime-dashboard.visual.spec.ts-snapshots/"
+            "run-detail-a4-print-chromium-darwin.png",
+        ],
+        cwd=REPO_ROOT.parent,
+        capture_output=True,
+        check=False,
+    )
+    if legacy_at_repair.returncode == 0:
+        raise ValueError("C13 current evidence drift:legacy present at repair")
+
+
+def _c13_print_open_entry() -> dict[str, Any]:
+    """Return the sole admitted predecessor for the C13 transition."""
+    return {
+        "unit_id": C13_PRINT_ROOT_ID,
+        "evidence_link": {
+            "ds1_entry_id": C13_PRINT_ROOT_ID,
+            "ds2_adoption_ids": [],
+        },
+        "disposition": "rebind_pending",
+        "strangle_status": "pending",
+        "owner": "team-design",
+        "owner_slice": "DS8",
+        "decision_date": DECISION_DATE,
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": C13_PRINT_OPEN_RATIONALE,
+    }
+
+
+def _c13_print_closed_entry(
+    receipt: Mapping[str, Any] | None = None,
+) -> dict[str, Any]:
+    """Produce the narrow strangled predecessor without closing the broad unit."""
+    if receipt is None:
+        receipt = _c13_independent_print_receipt()
+    _c13_verify_current_print_evidence(receipt)
+    closed = _c13_print_open_entry()
+    closed["strangle_status"] = "strangled"
+    closed["successor"] = {
+        "unit_id": C13_PRINT_SUCCESSOR_ID,
+        "consumer_refs": list(C13_PRINT_SUCCESSOR_REFS),
+    }
+    closed["rationale"] = C13_PRINT_RATIONALE
+    return closed
+
+
+def _c13_print_transition_text(
+    text: str,
+    *,
+    receipt: Mapping[str, Any] | None = None,
+) -> str:
+    """Surgically strangle the exact admitted print predecessor, once."""
+    if receipt is None:
+        receipt = _c13_independent_print_receipt()
+    start, end, stored = _json_entry_object_span(text, C13_PRINT_ROOT_ID)
+    admitted_open = _c13_print_open_entry()
+    admitted_closed = _c13_print_closed_entry(receipt)
+    if stored == admitted_closed:
+        return text
+    if stored != admitted_open:
+        raise ValueError(
+            "C13 print transition rejected:predecessor:"
+            + hashlib.sha256(
+                json.dumps(stored, sort_keys=True, separators=(",", ":")).encode()
+            ).hexdigest()
+        )
+    rendered = json.dumps(admitted_closed, indent=2, ensure_ascii=False).replace(
+        "\n", "\n    "
+    )
+    return text[:start] + rendered + text[end:]
+
+
 def _c11b_query_memory_transition_text(text: str) -> str:
     """Surgically produce C11b's exact owner-bound query-memory transition."""
     start, end, source = _json_entry_object_span(
@@ -7253,6 +7906,29 @@ def _ds8_status_inventory_candidate_text(
     return candidate
 
 
+def _c13_status_inventory_candidate_text(
+    original_text: str, *, register_bytes: bytes
+) -> str:
+    """Re-anchor only the register source induced by the C13 root transition."""
+    stored = json.loads(original_text)
+    old_register_hash = str(stored["sources"]["ds19"]["sha256"])
+    new_register_hash = _ds8_digest(register_bytes)
+    candidate = _replace_unique_text(
+        original_text,
+        old=f'"sha256": "{old_register_hash}"',
+        new=f'"sha256": "{new_register_hash}"',
+        label="C13 DS19 register hash",
+    )
+    parsed = json.loads(candidate)
+    if parsed["sources"]["ds19"]["sha256"] != new_register_hash:
+        raise ValueError("C13 status register hash did not bind candidate bytes")
+    expected = copy.deepcopy(stored)
+    expected["sources"]["ds19"]["sha256"] = new_register_hash
+    if parsed != expected:
+        raise ValueError("C13 status candidate changed an unrelated value")
+    return candidate
+
+
 def _status_line_leaf_count(value: Any, path: tuple[str, ...] = ()) -> int:
     governed_keys = {
         "line",
@@ -7407,6 +8083,197 @@ def _failure_atomic_write_texts(
         temporary.unlink(missing_ok=True)
     for temporary in rollback.values():
         temporary.unlink(missing_ok=True)
+
+
+def _c13_writer_fence() -> None:
+    """Require the bound branch, clean governed family, and a free index."""
+    branch = _c03_git_text("symbolic-ref", "-q", "HEAD").strip()
+    if branch != "refs/heads/codex/atlas-ds6-final-closure":
+        raise ValueError(f"C13 writer branch fence failed: {branch}")
+    head = _c03_git_text("rev-parse", "HEAD").strip()
+    ancestry = subprocess.run(  # noqa: S603 - fixed Git command
+        [  # noqa: S607
+            "git",
+            "merge-base",
+            "--is-ancestor",
+            C13_VERIFIED_REVISION,
+            head,
+        ],
+        cwd=REPO_ROOT.parent,
+        check=False,
+    )
+    if ancestry.returncode != 0:
+        raise ValueError("C13 verified revision is not an ancestor of writer HEAD")
+    tracked_status = subprocess.run(
+        [
+            "git",
+            "status",
+            "--porcelain=v1",
+            "--untracked-files=no",
+            "--",
+            *(
+                str(path.relative_to(REPO_ROOT))
+                for path in (
+                    REGISTER_PATH,
+                    REPORT_PATH,
+                    STATUS_INVENTORY_PATH,
+                    BASELINE_PATH,
+                    DS1_PATH,
+                )
+            ),
+        ],  # noqa: S607
+        cwd=REPO_ROOT,
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if tracked_status.returncode != 0 or tracked_status.stdout:
+        raise ValueError("C13 writer requires a clean governed family")
+    index_lock_ref = _c03_git_text("rev-parse", "--git-path", "index.lock").strip()
+    index_lock = Path(index_lock_ref)
+    if not index_lock.is_absolute():
+        index_lock = REPO_ROOT.parent / index_lock
+    if index_lock.exists():
+        raise ValueError(f"C13 writer index lock is live: {index_lock}")
+
+
+def _c13_status_receipt(
+    inventory: Mapping[str, Any], debt: Mapping[str, Any]
+) -> tuple[int, int, str]:
+    diagnostics = status_checker.validate_inventory(inventory, debt)
+    payload = "".join(f"{diagnostic}\n" for diagnostic in diagnostics).encode()
+    return len(diagnostics), len(payload), hashlib.sha256(payload).hexdigest()
+
+
+def _c13_status_candidate_errors(
+    inventory: Mapping[str, Any], *, register_bytes: bytes
+) -> list[str]:
+    """Validate a status candidate against the register bytes promoted with it."""
+    errors = status_checker._schema_errors(  # type: ignore[attr-defined]
+        inventory,
+        status_checker.INVENTORY_SCHEMA_PATH,
+        "status-retirement-inventory",
+    )
+    if inventory["sources"]["ds19"]["sha256"] != _ds8_digest(register_bytes):
+        errors.append("c13_status_register_candidate_hash_drift")
+    return errors
+
+
+def _write_c13_print_family() -> dict[str, Any]:
+    """Atomically transition the print root, report, and induced status anchor."""
+    _c13_writer_fence()
+    journal_path = (
+        REPO_ROOT
+        / "docs/plans/active/atlas-slices/DS6-evidence-workflow-journal.md"
+    )
+    original_journal = journal_path.read_text(encoding="utf-8")
+    receipt = _c13_independent_print_receipt(original_journal)
+    evidence_paths = {
+        *(str(row["path"]) for row in receipt["source_bindings"]),
+        *(str(row["path"]) for row in receipt["raw_artifacts"]),
+        str(receipt["environment_probe_producer"]["path"]),
+    }
+    original_evidence = {
+        REPO_ROOT / source_ref: (REPO_ROOT / source_ref).read_bytes()
+        for source_ref in evidence_paths
+    }
+    original_register = REGISTER_PATH.read_text(encoding="utf-8")
+    original_report = REPORT_PATH.read_text(encoding="utf-8")
+    original_status = STATUS_INVENTORY_PATH.read_text(encoding="utf-8")
+    original_baseline = BASELINE_PATH.read_text(encoding="utf-8")
+    original_readiness = DS1_PATH.read_text(encoding="utf-8")
+    original_texts = {
+        REGISTER_PATH: original_register,
+        REPORT_PATH: original_report,
+        STATUS_INVENTORY_PATH: original_status,
+    }
+    register_candidate = _c13_print_transition_text(
+        original_register,
+        receipt=receipt,
+    )
+    register_data = json.loads(register_candidate)
+    pre_errors = validate_register(
+        register_data, live_probes=False, report_parity=False
+    )
+    if pre_errors:
+        raise ValueError("C13 register candidate rejected: " + ";".join(pre_errors))
+    report_candidate = render_report(register_data)
+    status_candidate = _c13_status_inventory_candidate_text(
+        original_status,
+        register_bytes=register_candidate.encode("utf-8"),
+    )
+    status_data = json.loads(status_candidate)
+    debt = status_checker._load_json(status_checker.WAIST_DEBT_PATH)
+    expected_status = (
+        13,
+        887,
+        "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
+    )
+    status_errors = _c13_status_candidate_errors(
+        status_data,
+        register_bytes=register_candidate.encode("utf-8"),
+    )
+    if status_errors:
+        raise ValueError("C13 status candidate rejected: " + ";".join(status_errors))
+    if _c13_status_receipt(json.loads(original_status), debt) != expected_status:
+        raise ValueError("C13 opening status diagnostic identity drift")
+    if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+        raise ValueError("C13 baseline moved while building candidates")
+    if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
+        raise ValueError("C13 readiness ledger moved while building candidates")
+
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+        STATUS_INVENTORY_PATH: status_candidate,
+    }
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        for governed_path, expected_text in candidates.items():
+            if governed_path.read_text(encoding="utf-8") != expected_text:
+                errors.append(f"c13_family_readback_drift:{governed_path}")
+        errors.extend(validate_register(_load_json(REGISTER_PATH), live_probes=False))
+        if _c13_status_receipt(_load_json(STATUS_INVENTORY_PATH), debt) != (
+            expected_status
+        ):
+            errors.append("c13_status_diagnostic_identity_drift")
+        if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+            errors.append("c13_baseline_readback_drift")
+        if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
+            errors.append("c13_readiness_readback_drift")
+        if journal_path.read_text(encoding="utf-8") != original_journal:
+            errors.append("c13_receipt_readback_drift")
+        for evidence_path, expected_bytes in original_evidence.items():
+            if evidence_path.read_bytes() != expected_bytes:
+                errors.append(f"c13_evidence_readback_drift:{evidence_path}")
+        return errors
+
+    def final_pre_promote_fence() -> None:
+        _c13_writer_fence()
+        for governed_path, expected_text in original_texts.items():
+            if governed_path.read_text(encoding="utf-8") != expected_text:
+                raise ValueError(
+                    f"C13 governed preimage moved before promotion: {governed_path}"
+                )
+        if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+            raise ValueError("C13 baseline moved before promotion")
+        if DS1_PATH.read_text(encoding="utf-8") != original_readiness:
+            raise ValueError("C13 readiness ledger moved before promotion")
+        if journal_path.read_text(encoding="utf-8") != original_journal:
+            raise ValueError("C13 receipt moved before promotion")
+        for evidence_path, expected_bytes in original_evidence.items():
+            if evidence_path.read_bytes() != expected_bytes:
+                raise ValueError(
+                    f"C13 evidence moved before promotion: {evidence_path}"
+                )
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=final_pre_promote_fence,
+    )
+    return receipt
 
 
 def _ds8_writer_fence() -> None:
@@ -10832,6 +11699,20 @@ def _validate_c11b_query_memory_root(
         errors.append("c11b_query_memory_root_drift:successor.consumer_refs")
 
 
+def _validate_c13_print_export_root(
+    entries: Mapping[str, Mapping[str, Any]], errors: list[str]
+) -> None:
+    """Bind the exact C13 predecessor closure to its independent receipt."""
+    try:
+        receipt = _c13_independent_print_receipt()
+        expected = _c13_print_closed_entry(receipt)
+    except (OSError, ValueError) as exc:
+        errors.append(f"c13_print_receipt_invalid:{exc}")
+        return
+    if entries.get(C13_PRINT_ROOT_ID) != expected:
+        errors.append("c13_print_export_root_drift")
+
+
 def _validate_storage_construction_census(
     data: Mapping[str, Any], errors: list[str]
 ) -> None:
@@ -11120,6 +12001,7 @@ def validate_register(
         live_probes=live_probes,
     )
     _validate_c11b_query_memory_root(entry_by_id, errors)
+    _validate_c13_print_export_root(entry_by_id, errors)
     _validate_c23_containment_roots(entry_by_id, errors)
     for unit in [*entries, *data["subunits"]]:
         _validate_composition(unit, censuses, errors)
@@ -11586,6 +12468,29 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     c06_duplicate = copy.deepcopy(data)
     c06_duplicate["supplemental_findings"].append(copy.deepcopy(c06_row))
     probes.append(("c06-rendered-contrast-duplicate", c06_duplicate))
+
+    c13_regressions = {
+        "pending": ("strangle_status", "pending"),
+        "broad-close": ("disposition", "use_as_is"),
+        "owner-transfer": ("owner_slice", "DS6"),
+        "rationale": ("rationale", "fabricated"),
+    }
+    for name, (field, value) in c13_regressions.items():
+        mutation = copy.deepcopy(data)
+        row = next(
+            entry
+            for entry in mutation["entries"]
+            if entry["unit_id"] == C13_PRINT_ROOT_ID
+        )
+        row[field] = value
+        probes.append((f"c13-print-{name}", mutation))
+    c13_missing_successor = copy.deepcopy(data)
+    next(
+        entry
+        for entry in c13_missing_successor["entries"]
+        if entry["unit_id"] == C13_PRINT_ROOT_ID
+    ).pop("successor", None)
+    probes.append(("c13-print-missing-successor", c13_missing_successor))
 
     missing_negative = copy.deepcopy(data)
     missing_negative["seeded_negative_lifecycle"].pop()
@@ -12526,6 +13431,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="surgically produce the exact C11b query-memory root transition",
     )
     parser.add_argument(
+        "--write-c13-adjacent-print-export-resolution",
+        action="store_true",
+        help="atomically close the independently verified C13 print predecessor",
+    )
+    parser.add_argument(
         "--write-ds8-strangle-coverage",
         action="store_true",
         help="atomically materialize the DS8 coverage/register/report/status family",
@@ -12579,6 +13489,40 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     args = parser.parse_args(argv)
 
+    if args.write_c13_adjacent_print_export_resolution:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {
+            "write_c13_adjacent_print_export_resolution",
+            "write_report",
+        }:
+            sys.stderr.write(
+                "C13 print transition requires only --write-report\n"
+            )
+            return 1
+        try:
+            receipt = _write_c13_print_family()
+        except (OSError, ValueError, RuntimeError) as exc:
+            sys.stderr.write(f"C13 print transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("closed the independently verified C13 print predecessor\n")
+        sys.stdout.write(
+            json.dumps(
+                {
+                    "capture_count": len(receipt["captures"]),
+                    "receipt_id": receipt["receipt_id"],
+                    "snapshot_sha256": receipt["snapshot"]["sha256"],
+                },
+                indent=2,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        return 0
+
     if args.write_ds8_strangle_coverage:
         incompatible = any(
             (
@@ -12588,6 +13532,7 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.write_c03_vitest_resolution,
                 args.write_c06_rendered_contrast_resolution,
                 args.write_c11b_query_memory_root,
+                args.write_c13_adjacent_print_export_resolution,
                 args.migrate_c21b,
                 args.migrate_c21c,
                 args.print_c21b_authority_partition_hashes,
@@ -12635,6 +13580,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.write_supplemental,
                 args.write_c03_vitest_resolution,
                 args.write_c11b_query_memory_root,
+                args.write_c13_adjacent_print_export_resolution,
+                args.write_ds8_strangle_coverage,
                 args.migrate_c21b,
                 args.migrate_c21c,
                 args.print_c21b_authority_partition_hashes,

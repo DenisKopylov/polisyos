@@ -1,7 +1,7 @@
 ---
 title: PolicyOS Debt Register
 created: 2026-08-21
-revised: 2026-08-21 (Rev 1 - first unified census; 15 of 47 GY debts measured AMBIGUOUS)
+revised: 2026-08-21 (Rev 2 - the fifteen AMBIGUOUS debts re-measured against their own executable witnesses; 14 of 15 resolved, GY-DEF9 stays ambiguous on a witness that cannot reach its own discriminator; four broken/blocked witnesses registered as new rows)
 owner: architect
 status: authoritative
 ---
@@ -61,6 +61,16 @@ Two further findings the census produced:
 | `ambiguous` | status not determinable from evidence; **requires re-measurement** |
 | `foreign` | owned by a lane outside this programme's scheduling |
 
+**Three terms Rev 2 needed and could not find — proposed, not adopted.** Each was forced into an
+existing token plus prose; the vocabulary gained `ambiguous`, `folded` and `foreign` this week
+precisely because forcing fits loses information.
+
+| proposed | meaning | what forced it |
+| --- | --- | --- |
+| `closed_by_successor` | the closure signal is met, but by a **named later debt row**, not by this row's own work. `closed_by` would name a debt id rather than a commit | `GY-DEFC-1`'s cold axis (met by `GY-DEFC-6`), `GY-DEFC-8`'s (by `GY-DEFC-9`), `GY-DEFC-7`'s writer axis (by `GY-DEF15`). Recording these as plain `closed` credits the wrong row and hides that the objective travelled; recording them `open` is false |
+| `closed_per_axis` | the row is two-axis and its axes differ, with each axis carrying its own status and evidence | The `GY-DEFC` family header declares the split and `GY-DEF6` is the precedent, yet `status` is a single token. Rev 2 had to widen the table to two columns instead. Any single token here re-commits the original error — collapsing two axes so a table stays tidy is how `executed` came to read as `closed` |
+| `closed_unreproducible` | the closure signal was met and receipted at a named head, and is **not re-derivable at the current base** because a prerequisite environment or witness is broken — distinct from `ambiguous`, which never had a verdict | `GY-DEFC-9`'s cold axis: `status=pass, issue_count=0` at `69f3fa39a` with receipt `d53184b8…`, while a base `--check` reports drift and `canonical-venv-editable-target-deleted` blocks the canonical re-run. Rev 2 used `closed` plus a new section-A row, which the register's own rule permits — but that rule assumes a *regression*, and an unrunnable verifier is not a regression |
+
 ## Census provenance
 
 Three independent sources were reconciled; a verdict was recorded only where at least two agree,
@@ -69,6 +79,48 @@ and every disagreement or silence became `ambiguous`:
 - **A** — last recorded standing in the owning plan's text.
 - **B** — targeted per-identifier closing-commit scan of `main` (exact-ID match, not a verb scan).
 - **C** — merges the architect performed and verified in session, 2026-08-01 … 2026-08-21.
+
+**Rev 2 — 2026-08-21, re-measurement of the fifteen `ambiguous` items.** Base `main`
+`c270b46c5`, bound as the merge base of a fresh attached worktree on `codex/debt-register-census`;
+`main`'s tip was never used. Read-only until the register was written; no GY-plan standing was
+edited, no defect was repaired, and line 7 of both plans was not touched. Prose was **not** an
+admissible source. The two sources reconciled per item were:
+
+- **B′ — cited-evidence verification.** Every commit, branch and path a block cites was resolved
+  against git. **29 unique commits are cited across these blocks and their immediate neighbours;
+  all 29 resolve and 28 are ancestors of `c270b46c5`.** The one exception is `ba5946ebc`, which the
+  plan itself declares *not* an ancestor — so the blocks' cited evidence checks out, including
+  where it claims a negative. Structural claims reproduce
+  exactly where they are checkable: `70a3f3d15` = 61 commits / 29 paths; `GY-DI4`'s lane = 15 files
+  / 0 under `src/`; `GY-DEFC-4`'s delta = 0 paths under `src/polisyos/data_forge/`; and
+  `88210076e` is `21ae2ba65^1`, the docs-only parent the `GY-DEFC-8` block says it is.
+- **W — the block's own executable witness, run at `c270b46c5`.** Receipts: `test_gy_waist_contracts.py`
+  **54/54** exit `0` (`real 12.29`); `test_value_gate.py` **86/86** exit `0`; the seven `test_n11_*`
+  projection identities **11/11** (`real 498.35`); the `GY-DI4` predicate set **12/12** (`real 10.76`);
+  the `GY-DEF16` `P29` pair **2/2**; and a full base `check_layer3_gy_confidence_ledger --check`
+  that reached `owner_bundle_loaded` and `frozen_contract_derived` before terminating
+  `confidence_ledger_contract_drift` (`real 3160.47`, exit `1`).
+
+**Environment appointed, not modified.** The fresh worktree carried neither `production_data` nor a
+`.venv`, and 29 of 29 `test_second_domain_pack.py` failures were a single `OwnerDataUnavailableError`.
+Both were appointed by **git-ignored symlinks** to the main tree — the `GY-N12` appointment
+precedent named in `producer-availability-denominator`. `git status` stayed clean throughout; no
+tracked byte moved for measurement. The canonical interpreter is `policy-engine/.venv`; results
+taken on the homebrew interpreter were discarded and re-run, since it holds no `polisyos`
+distribution at all.
+
+**Non-receipts, recorded as such.** A killed or capped run measures the cap, not the lane
+(`GY-DI4`): a 10-minute wrapper kill on the first batch; `test_layer3_gy_confidence_ledger_contract.py`
+killed after 77 minutes with no terminal; and `test_real_plugin_postures_verify_n8_n10a_and_depth_n`
+`TimeoutExpired` at load ~7 **and** at load ~1.9. Only the last is a finding — a cap that fails
+serialized is undersized, not contended. Every bundled gate was judged by its own predicate, never
+by a composite exit code.
+
+**One measurement is `not_established` and says so.** `canonical-venv-editable-target-deleted`
+means the canonical validators cannot be imported the canonical way, so the `--check` above ran
+under a `PYTHONPATH` proxy. Because deployment identity is computed over the **authority import
+closure**, that proxy can change the very quantity being compared — the `P38` shape exactly. The
+drift it reports is therefore registered as a row to re-measure, never as a verdict.
 
 ---
 
@@ -84,6 +136,10 @@ and every disagreement or silence became `ambiguous`:
 | `ds4-waist-decision-grade` | of the three DS4 canonical-waist vocabularies, only `DecisionGrade` is executable (real `Literal` at `pdc/_impl/layer2_readiness.py:39`); `CgfDisposition` is `producer_missing`; `CacheAge` retired as superseded | Group A executor | `open` | `DecisionGrade` swapped to the generated client vocabulary on the next regeneration |
 | `atlas-health-metric-replay-pins-uncommitted-paths` | `atlasHealthMetrics.test.ts:649` pins a transient working-tree state as a governed expectation; permanently red on a clean checkout (`P38`) | DS6 | `open` | assert the implementation set directly rather than through revision status |
 | `producer-availability-denominator` | DS3 measured 5 available / 7 `invalid_source` / 1 `artifact_missing` from a worktree **without** `production_data` | **needs re-owning — DS7 is closed** | `open` | re-measure on `main` with an appointed data root; see the `GY-N12` appointment precedent |
+| `canonical-venv-editable-target-deleted` | the shared environment `policy-engine/.venv` resolves `policy-engine 0.1.0` through an editable `.pth` pointing at `/Users/deniskopylov/polisyos/.worktrees/gy-gap1-obligation-instance-identity/policy-engine` — a worktree that **no longer exists**. `import polisyos` raises `ModuleNotFoundError` in the canonical interpreter; only `pytest` recovers, via rootdir insertion. Measured 2026-08-21 at `c270b46c5` | runtime/GY (env owner) | `open` | `<venv>/bin/python -c "import polisyos, tools"` exits zero from a checkout that is not the install target, **and** the editable target names a live path. Re-pointing a shared venv is a governance act: it changes which source every other lane's validators import |
+| `def9-witness-cannot-reach-its-discriminator` | `tests/repo_quality/tools/test_governed_owner_history_independence.py::test_real_governed_owner_bytes_ignore_incompatible_durable_history` — all **5/5** parameterized cases terminate `ConfidenceLedgerError: canonical_loaded_runtime_mismatch` inside `_run_owner`, **before** the fresh-versus-incompatible history byte comparison the witness exists to make. A falsifier that cannot fire | runtime/quality | `open` | the five cases reach their own assertions (`from_repo_calls == []`, fresh/incompatible governed bytes equal) and report pass or fail on **that** predicate, not on a deployment-identity prerequisite. Blocks the re-measurement of `GY-DEF9` |
+| `plugin-posture-witness-binds-cap-and-checkout` | `tests/unit/runtime/quality/test_second_domain_pack.py::test_real_plugin_postures_verify_n8_n10a_and_depth_n` hardcodes `REPO_ROOT/.venv/bin/python` and a bare `timeout=240` on its posture subprocess. It cannot run at all in a worktree without its own `.venv`, and it raised `subprocess.TimeoutExpired` on **both** a contended run (load ~7) and a serialized one (load ~1.9) at `c270b46c5` — so the cap is undersized for this host, not merely contended. This is `GY-DI4`'s own rule (a killed run measures the cap, not the lane) violated inside a witness | runtime/quality | `open` | the cap is **declared and measured** per `GY-DI2`/`GY-DI4` rather than literal, the interpreter is resolved rather than path-bound, and the witness returns a completed terminal on this host |
+| `confidence-ledger-check-red-at-base` | `check_layer3_gy_confidence_ledger --check` at `c270b46c5` completed the full milestone sequence through `frozen_contract_derived` / `stage_complete` and then terminated **`confidence_ledger_contract_drift`**, exit `1`, `real 3160.47` s. Frozen `deployment_identity` is `policy-engine-deployment:sha256:53618d6b…db03` (reissued at `f4e4522e4`, after `GY-DEFC-9`'s `f05a816f…5983955f`). Cites `GY-DEFC-9`, whose cold closure was `status=pass, issue_count=0` at `69f3fa39a` — this is a **new row for a later base**, not a reopening | runtime/quality | `open` | **The measurement is `not_established` canonically** and must be repeated first: it ran under a `PYTHONPATH` proxy because `canonical-venv-editable-target-deleted` blocks the real import path, and the authority import closure is exactly what the identity is computed over. Re-run through a live editable install; only then does the drift verdict bind |
 
 ## B. Open, not executable
 
@@ -120,25 +176,77 @@ and every disagreement or silence became `ambiguous`:
 | id | folded into | date |
 | --- | --- | --- |
 | `GY-GAP7` | `GY-PA1`, as its first cluster | 2026-08-20 |
+| `GY-DEFC-3` | `GY-DEFC-4`, which carried its unmet objective and both unspent allowances | 2026-08-21 |
 
 ## F. AMBIGUOUS — status not determinable; re-measurement required
 
-These fifteen are the census result, not a backlog. **None may be reported open or closed until
-re-measured against its own executable witness.**
+**Rev 2, 2026-08-21 — re-measured. 14 of the 15 resolved; one remains.** Each resolved item is
+below in section **G** (or **E** for `GY-DEFC-3`) with both of its agreeing sources named. The
+method was not re-reading the prose: every block's cited commits and branches were checked against
+git, and each block's own executable witness was located and run at `c270b46c5`.
 
-`GY-DEF9` · `GY-DEF10` · `GY-DEF13` · `GY-DEF15` · `GY-DEF16` · `GY-DEFC-1` · `GY-DEFC-2` ·
-`GY-DEFC-3` · `GY-DEFC-4` · `GY-DEFC-5` · `GY-DEFC-6` · `GY-DEFC-7` · `GY-DEFC-8` · `GY-DEFC-9` ·
-`GY-DI4`
+| id | status | why it could not be settled |
+| --- | --- | --- |
+| `GY-DEF9` | `ambiguous` | Its two sources **disagree**. Source 1 agrees with the standing: the witness commit `3af775d8e` ("test: witness governed owner history independence") is an ancestor of `c270b46c5` and adds the parameterized witness. Source 2 refuses: run at `c270b46c5` on the canonical interpreter, **all 5/5 cases terminate `ConfidenceLedgerError: canonical_loaded_runtime_mismatch`** inside `_run_owner`, *before* the fresh-versus-incompatible governed-byte comparison that is DEF9's actual predicate. A completed failure would be a receipt; this is a failure of a **prerequisite**, so the DEF9 predicate was never evaluated and neither `open` nor `closed` is supportable. Blocking rows: `def9-witness-cannot-reach-its-discriminator` and `canonical-venv-editable-target-deleted` (section A). **Do not read this as a regression** — the standing's own repair (`_for_verification` injection) was not exercised either way |
 
-Per-item cause: `DEF13` two-axis standing with only one axis recorded; `DEF16` plan claims closure
-by `GY-DEFC-9` with no matching closing commit; `DEFC-3` … `DEFC-6` carry no standing marker at
-all; `DEFC-9` and `DEF9`/`DEF10`/`DEF15`/`DEFC-1` have a closing commit the plan text does not
-confirm; `DI4` is declared closed in prose with no matching commit.
+**What the Rev-1 census's two proxies actually missed**, measured while resolving these — both are
+`P38` at their own boundary and both are cheap to fix:
 
-## G. Closed — 22 GY + 8 Atlas
+- **Source A (last recorded standing) keys on one marker spelling.** `GY-DEF10`'s standing opens
+  **CLOSED at `431bcd798`**, and `GY-DEF13`'s opens **Execution standing (`f015e6631`,
+  2026-08-10): `defect_standing = closed`**. Neither begins **STANDING RECORDED**, so both read as
+  "no standing marker at all". Five of the fifteen were ambiguous for this reason alone — the
+  standings were present and correct.
+- **Source B (exact-ID closing-commit scan) misses the repo's own commit idiom.** `GY-DI4`'s four
+  closing commits are subjects like `fix(gy-di4): admit a timing sample on completion, not on
+  exit_code == 0` — lowercase kebab, not `GY-DI4`. All four are ancestors of `c270b46c5`. The scan
+  reported "no matching commit" for an item with four of them.
+
+## G. Closed
+
+### G.1 Two-axis closures — re-measured 2026-08-21 (Rev 2)
+
+The `GY-DEFC` family header declares the split: *"a source repair may exist on the isolated
+successor branch while its governed artifact and cold closeout remain unproved."* `GY-DEF6` is the
+precedent — *"closed on the source-defect axis at `e708e8f77`, and closed on that axis only."*
+**An item closed on one axis and open on the other is not closed**, so both are reported.
+Where an axis was closed by a *successor*, the successor is named rather than the row taking credit.
+
+| id | source-defect axis @ `c270b46c5` | governed-artifact / cold-closeout axis | the two agreeing sources |
+| --- | --- | --- | --- |
+| `GY-DEF13` | `closed` | `closed` — its blocker is gone | (1) `f015e6631` is an ancestor; the frozen `layer3_gy_value_gate_contract.json` carries `direct_url_sha256: null` with `source_byte_closure: "not_established"` on **both** entry points — the exact smallest correct closure (record the fact, do not gate on the install path). (2) `test_value_gate.py` **86/86 passed**, exit `0`; and DEF13's three named failure codes (`catalog_ambient_discovery_manifest_mismatch`, `catalog_entry_point_distribution_manifest_mismatch`, `catalog_provenance_manifest_mismatch`) occur **zero** times in a full base run that reached `frozen_contract_derived` |
+| `GY-DEFC-1` | `closed` — the two class owners landed | `closed` **by `GY-DEFC-6`**, not by this row | (1) `e18861d12` and `8d87624db` are ancestors; the frozen artifact carries `predicate_admission_policy` admitting only `recomputed`/`independently_reconciled` and rejecting `consumer_asserted`/`institutionally_supplied` with `reject_or_quarantine`, `governed_discovery.unbound_inputs: []`, and `runtime_backend_identity`. (2) `test_value_gate.py` 86/86. Its own standing says *"the two class owners landed; the objective did NOT"* — that objective is closed below |
+| `GY-DEFC-2` | `closed` | **not applicable — genuinely single-axis** | (1) The instrumentation is in source and matches its "done when" exactly: `_GyOperationalDriftDiagnostic` (`gy_waist.py:526`) carries `admission_arm`, `changed_leaves` (`min_length=1`), `expected_frozen`/`live_replayed` operand identities and `recording_role`, and `safe_detail` is documented and built as an **identity-only** payload — role, leaf and both identities, no raw values. (2) `test_gy_waist_contracts.py` **54/54 passed**, exit `0`, `real 12.29`. It reissued no artifact and consumed no cold allowance, so there is no second axis to report; its required classification (`not_established`, next discriminator named) is delivered inside `GY-DEF13` |
+| `GY-DEFC-4` | `closed` for the three members it landed | `closed` for those three artifacts; 4th member carried to `GY-DEFC-5` | (1) `7d02818a0`, `482c204d9`, `d15681e5d`, `ba18ad7d7` are all ancestors, and the delta's decisive negative claim reproduces exactly — **0 paths** under `src/polisyos/data_forge/`. (2) `test_value_gate.py` 86/86 over the predicate it repaired. **This row does not close `GY-DEF14`**, the class it was named for; `GY-DEF14` stays `open` in section B |
+| `GY-DEFC-5` | `closed` for the three members it landed | `closed` for those three artifacts; Depth carried to `GY-DEFC-6` | (1) `7a259daa6` is an ancestor and sits on the linear chain `ba18ad7d7 → 7a259daa6 → ca9bc59b0 → 70a3f3d15 → 18f081933 → c270b46c5`. (2) The Depth stop is recorded as a **borrowed-cap non-receipt** (`GY-DI2`, third occurrence), and `GY-DI4` — the row that makes that classification executable — is closed with witnesses green (G.2) |
+| `GY-DEFC-6` | `closed` | `closed` — **the objective, independently reproduced** | (1) `ca9bc59b0` is an ancestor; `owner_bundle_loaded` exists as a real milestone (`check_layer3_gy_confidence_ledger.py:219`, reported at `:1267`). (2) **Reproduced at `c270b46c5` by this census**: a base `--check` emitted `owner_bundle_loaded` and continued through `real_ledger_receipt_validated`, `frozen_contract_derived` and `stage_complete`. This is the strongest verdict in the set — the second source is a fresh run, not a document |
+| `GY-DEFC-7` | `closed` — it delivered its classification | `closed` **by `GY-DEFC-8`/`GY-DEF15`**; the writer it probed was RED at the time | (1) Its `29`-path branch denominator reproduces exactly: `70a3f3d15^1...70a3f3d15^2` is **29 paths**. (2) Its result is behavioural and now carried by a green witness — the writer defect it left open is `GY-DEF15`, closed at `2789b49ea` with **11/11** witnesses green (G.2). Its truncated "executed, blocker…" standing is resolved: blocker moved, writer red, successor closed it |
+| `GY-DEFC-8` | `closed` | `closed` **by `GY-DEFC-9`**, which spent the cold allowance it stopped before | (1) The cited merge shape reproduces **exactly** — `70a3f3d15` is `61` commits and `29` paths, as claimed, on `codex/gy-defc-3-retry` (branch still present); `3f9c817b2`, `2789b49ea` and `5b2c2173b` are all ancestors. (2) `test_gy_waist_contracts.py` 54/54 plus the seven `test_n11_*` witnesses **11/11**. Its own stop is correctly framed by the plan as a `main` condition, which became `GY-DEF16` — also closed below |
+| `GY-DEFC-9` | `closed` | `closed` at head `69f3fa39a`, receipt `d53184b8…4eb86` | (1) `0f6c88add → 69f3fa39a → 18f081933 → c270b46c5` is a verified ancestor chain, and the deployment identity it records is confirmed **in the tree at its own merge**: `18f081933` carries `policy-engine-deployment:sha256:f05a816f…`. (2) The typed consumer it shipped is green — `test_n8_transport_gap_consumes_the_typed_governing_subset` and `test_n8_transport_gap_fails_closed_on_a_typed_governing_issue` both **passed**, and `test_value_gate.py` 86/86. **Caveat, and it is a new row not a reopening:** the artifact was reissued after this closure at `f4e4522e4` (identity now `53618d6b…`), and a base `--check` reports `confidence_ledger_contract_drift` — registered as `confidence-ledger-check-red-at-base`, whose own measurement is `not_established` until the canonical import path is restored |
+
+### G.2 Single-axis closures — re-measured 2026-08-21 (Rev 2)
+
+Each of these repairs a comparator, predicate or projection owner and reissues no governed
+artifact of its own, so it genuinely has one axis. Stated, per the task's requirement, with why.
+
+| id | status | the two agreeing sources |
+| --- | --- | --- |
+| `GY-DEF10` | `closed`, `closed_by: 431bcd798` | (1) `431bcd798` is an ancestor, and all four named owners exist in `src/polisyos/pdc/_impl/gy_waist.py` — `strip_gy_volatile_fields` (`:616`), `gy_content_hash` (`:630`), `gy_artifact_self_identity_projection` (`:779`), `reconcile_gy_operational_leaves` (`:816`). The plan's `:176/:190/:200/:219` line numbers have drifted; the identities have not. (2) `test_gy_waist_contracts.py` **54/54 passed**, exit `0`. One axis: it repairs *what equal means* in the shared waist owner and reissues nothing — the plan says so twice, at `GY-DEF15` ("`GY-DEF10` stays closed at `431bcd798`") and at `GY-DEFC-4` ("explicitly not in this batch — it is closed") |
+| `GY-DEF15` | `closed`, `closed_by: 2789b49ea` | (1) `2789b49ea` is an ancestor and is contained in `70a3f3d15`. (2) Its **complete** closure signal ran green at base: the seven `test_n11_*` identities in `tests/repo_quality/tools/test_layer3_gy_confidence_ledger_contract.py` — `…null_survives_all_projection_boundaries`, `…construction_and_validation_share_identity_projection`, `…non_null_comparison_identity_remains_diagnosable`, `…explicit_null_comparison_identity_fails_both_intakes`, `…round_trip_preserves_complete_required_null_denominator`, `…absent_required_nullable_member_fails_closed`, `…unknown_or_malformed_representation_stays_governing` — **11/11 passed**, `real 498.35`. Its "cold verification still unspent" is now spent: `GY-DEFC-9` exercised this projection cold |
+| `GY-DEF16` | `closed`, `closed_by: 18f081933` | (1) `18f081933` is an ancestor — the Rev-1 census's "no matching closing commit" is refuted — and the amplifier is gone in source: `_n8_transport_gap_closure` (`check_layer3_gy_second_domain_pack.py:6059`) now calls `n8.validate_payload_result(payload)` and branches on `validation.governing_issues`, not on the whole issue set, with no issue-code allowlist. (2) Its `P29` pair — one witness that must stay green, one that must go red — **both passed**: `test_n8_transport_gap_consumes_the_typed_governing_subset` and `test_n8_transport_gap_fails_closed_on_a_typed_governing_issue`. Its third witness is a non-receipt and is registered as `plugin-posture-witness-binds-cap-and-checkout`; the `P29` pair alone satisfies the recorded closure signal |
+| `GY-DI4` | `closed`, `closed_by: ee44c5e8d` (lane `15b41f960` · `ee44c5e8d` · `ec1a8f055` · `7e745391f`) | (1) All four commits are ancestors, and the lane's shape reproduces **exactly**: `15b41f960^..7e745391f` is **15 files with 0 under `src/`**, as claimed, so no artifact replay was priced. The closure shape is real and complete — `TIMING_HEALTHY_TERMINAL_EXIT_CODES` is declared in exactly **seven** tool modules, matching "the seven declarations", and read by `tools/lib/timing.py`. (2) The lane's own predicates are green: **12/12 passed**, `real 10.76` — `test_salvaged_corrupt_lane_run_at_exit_one_is_admitted_as_a_sample`, `test_killed_run_stays_inadmissible_even_when_its_exit_code_is_declared_healthy`, `test_non_terminal_records_stay_inadmissible_under_a_maximally_wide_declaration`, `test_every_corrupt_drift_lane_is_classified_and_declares_its_own_healthy_terminal`, `test_lane_summary_counts_a_declared_nonzero_terminal_as_an_admitted_run`, `test_catalog_rejects_an_unknown_predicate_or_regime`. One axis: 0 files under `src/` means there is no governed artifact to verify |
+
+### G.3 Carried closed set
+
+Closed before Rev 2 and not re-measured by this census.
 
 GY: `DEF1` `DEF2` `DEF3` `DEF4` `DEF5` `DEF6` `DEF7` `DEF8` `DEF11` `DEF12` `DEF17` `DEF18`
 `DEF19` `DEF20` `DEF21` `DI1` `DI2` `DI3` `GAP1` `GAP4` `PA2` `PA3`
+
+Added by Rev 2, each with two agreeing sources in G.1/G.2 above — GY: `DEF10` `DEF13` `DEF15`
+`DEF16` `DEFC-1` `DEFC-2` `DEFC-4` `DEFC-5` `DEFC-6` `DEFC-7` `DEFC-8` `DEFC-9` `DI4`.
+`GY-DEFC-3` is `folded` (section E), and `GY-DEF9` remains `ambiguous` (section F).
+**GY closed count: 22 → 35**, with one ambiguous and one folded.
 
 Atlas: quantity-lint · inherited-Vitest · i18n-plural-rule · dashboard-architecture-layer ·
 readiness/scientific-depth producer binding · four axe-`incomplete` clusters · plus `GY-DEF20`

@@ -21,10 +21,24 @@ ATLAS_PATH = Path("docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTE
 DISPOSITION_PATH = Path("architecture/atlas_surfaces/frontend-disposition-register.json")
 LEDGER_PATH = Path("docs/plans/active/LEDGER.md")
 PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/plans"))
-PUBLISHED_DENOMINATORS = {"register": 54, "gy": 36, "atlas": 13, "frontend": 217}
-REGISTER_STATUSES = frozenset({"open", "open_unmerged", "blocked", "folded", "closed", "ambiguous", "foreign"})
+PUBLISHED_DENOMINATORS = {"register": 55, "gy": 36, "atlas": 22, "frontend": 217}
+REGISTER_STATUSES = frozenset(
+    {"open", "open_unmerged", "blocked", "folded", "closed", "ambiguous", "foreign"}
+)
 GY_STATUSES = frozenset({"blocked_on_product_decision", "prose_only"})
-CAPABILITY_STATES = ("absent/unallocated", "contract_only", "producer_missing", "artifact_missing", "bridge_missing", "consumer_missing", "verification_missing", "implemented_but_not_orchestrated", "surface_missing", "surface_out_of_scope", "semantic_test_missing")
+CAPABILITY_STATES = (
+    "absent/unallocated",
+    "contract_only",
+    "producer_missing",
+    "artifact_missing",
+    "bridge_missing",
+    "consumer_missing",
+    "verification_missing",
+    "implemented_but_not_orchestrated",
+    "surface_missing",
+    "surface_out_of_scope",
+    "semantic_test_missing",
+)
 CAPABILITY_PATTERN = "|".join(map(re.escape, CAPABILITY_STATES))
 CANONICAL_GY_RE = re.compile(r"GY-(?:DEF\d+|DEFC-\d+|GAP\d+)$")
 ANY_GY_HEADING_RE = re.compile(r"^- \*\*(GY-(?:DEF\d+|DEFC-\d+|GAP\d+|DI\d+|PA\d+))\s+—")
@@ -36,7 +50,10 @@ _DebtRow = namedtuple("_DebtRow", "debt_id status owner section heading raw bran
 _StandingBlock = namedtuple("_StandingBlock", "debt_id status line hit_count heading raw")
 _AtlasDebt = namedtuple("_AtlasDebt", "debt_id status owner line heading raw")
 _WorkRow = namedtuple("_WorkRow", "slice_id stage basis heading branch")
-_Snapshot = namedtuple("_Snapshot", "debts gy atlas_debts work plan_ids explicit_nonclosures frontend_rows frontend_statuses ds5_rows ds5_planless irregular_branches carried_closed branch_states")
+_Snapshot = namedtuple(
+    "_Snapshot",
+    "debts gy atlas_debts work plan_ids explicit_nonclosures frontend_rows frontend_statuses ds5_rows ds5_planless irregular_branches carried_closed branch_states",
+)
 AuditReport = namedtuple("AuditReport", "findings metrics ledger_text")
 
 
@@ -62,7 +79,9 @@ def _anchor(heading: str) -> str:
 
 def _status_token(text: str) -> str | None:
     statuses = REGISTER_STATUSES | GY_STATUSES
-    return next((token for token in re.findall(r"`([^`]+)`", text) if token in statuses), None) or next((status for status in statuses if re.search(rf"\b{re.escape(status)}\b", text)), None)
+    return next(
+        (token for token in re.findall(r"`([^`]+)`", text) if token in statuses), None
+    ) or next((status for status in statuses if re.search(rf"\b{re.escape(status)}\b", text)), None)
 
 
 def _parse_register(text: str) -> tuple[list[_DebtRow], list[str]]:
@@ -94,9 +113,19 @@ def _parse_register(text: str) -> tuple[list[_DebtRow], list[str]]:
         else:
             status = _status_token(line) or "ambiguous"
         owner_index = {"A": 2, "B": 2, "C": 2, "D": 1}.get(section)
-        owner = _plain(cells[owner_index]) if owner_index is not None and len(cells) > owner_index else "—"
+        owner = (
+            _plain(cells[owner_index])
+            if owner_index is not None and len(cells) > owner_index
+            else "—"
+        )
         branches = re.findall(r"`(codex/[^`]+)`", line)
-        branch = branches[-1] if branches else rows[-1].branch if section == "C" and "same branch" in line.lower() else None
+        branch = (
+            branches[-1]
+            if branches
+            else rows[-1].branch
+            if section == "C" and "same branch" in line.lower()
+            else None
+        )
         rows.append(_DebtRow(debt_id, status, owner, section, heading, line, branch))
     return rows, irregular
 
@@ -112,7 +141,11 @@ def _standing_status(span: str) -> str:
     plain = _plain(span).lower()
     defect = re.search(r"defect_standing\s*=\s*([a-z_]+)", plain)
     tail = plain.split("):", 1)[-1].strip()
-    token = defect.group(1) if defect else (match.group(1) if (match := re.match(r"([a-z_]+)", tail)) else "")
+    token = (
+        defect.group(1)
+        if defect
+        else (match.group(1) if (match := re.match(r"([a-z_]+)", tail)) else "")
+    )
     if token in {"closed", "executed"}:
         return "closed"
     if token in REGISTER_STATUSES | GY_STATUSES:
@@ -132,7 +165,10 @@ def _standing_hits(lines: list[str], offset: int) -> tuple[list[tuple[int, str, 
             status = _standing_status(span)
         elif stripped.startswith(("**EXECUTED", "**SUPERSEDED", "**Final superseding closure")):
             status = "closed"
-        elif (stripped.startswith("**Execution standing (") and re.search(r"`defect_standing\s*=\s*[a-z_]+`", span)) or re.fullmatch(r"`defect_standing`\s*=\s*`[a-z_]+`", stripped):
+        elif (
+            stripped.startswith("**Execution standing (")
+            and re.search(r"`defect_standing\s*=\s*[a-z_]+`", span)
+        ) or re.fullmatch(r"`defect_standing`\s*=\s*`[a-z_]+`", stripped):
             status = _standing_status(span)
         elif stripped.startswith("**`defect_standing`:"):
             status = "ambiguous"
@@ -140,7 +176,9 @@ def _standing_hits(lines: list[str], offset: int) -> tuple[list[tuple[int, str, 
             status = "closed"
         elif stripped.startswith("**Standing after execution ("):
             status = "ambiguous" if "did not" in span.lower() else "closed"
-        elif re.match(r"^\*\*(?:STANDING|Standing|Execution standing|GY-DEFC-9 .* standing)", stripped):
+        elif re.match(
+            r"^\*\*(?:STANDING|Standing|Execution standing|GY-DEFC-9 .* standing)", stripped
+        ):
             candidates.append((offset + index, "ambiguous", False, span))
             continue
         else:
@@ -176,8 +214,17 @@ def _parse_gy(text: str) -> list[_StandingBlock]:
 
 def _parse_atlas_debts(text: str) -> list[_AtlasDebt]:
     lines = text.splitlines()
-    start = next((i for i, line in enumerate(lines) if line.startswith("| Debt | Measured | Owner |")), -1)
-    heading = next((_plain(re.sub(r"^#+\s+", "", line)) for line in reversed(lines[:start]) if re.match(r"^#{1,6}\s+", line)), "Atlas plan")
+    start = next(
+        (i for i, line in enumerate(lines) if line.startswith("| Debt | Measured | Owner |")), -1
+    )
+    heading = next(
+        (
+            _plain(re.sub(r"^#+\s+", "", line))
+            for line in reversed(lines[:start])
+            if re.match(r"^#{1,6}\s+", line)
+        ),
+        "Atlas plan",
+    )
     rows: list[_AtlasDebt] = []
     for index in range(start + 2, len(lines)) if start >= 0 else ():
         cells = _cells(lines[index])
@@ -187,7 +234,11 @@ def _parse_atlas_debts(text: str) -> list[_AtlasDebt]:
         leading = re.match(r"^(?:~~)?(?:\*\*)?`([^`]+)`", cells[0])
         title = re.match(r"^(?:~~)?\*\*([^*`]+)", cells[0])
         seed = leading.group(1) if leading else title.group(1) if title else _plain(cells[0])
-        debt_id = seed if leading else re.sub(r"[^a-z0-9]+", "-", seed.lower().replace("&", " and ")).strip("-")
+        debt_id = (
+            seed
+            if leading
+            else re.sub(r"[^a-z0-9]+", "-", seed.lower().replace("&", " and ")).strip("-")
+        )
         owner = _plain(cells[2]) if len(cells) > 2 else "—"
         rows.append(_AtlasDebt(debt_id, status, owner, index + 1, heading, lines[index]))
     return rows
@@ -233,7 +284,9 @@ def _explicit_nonclosures(repo_root: Path, paths: list[Path]) -> list[tuple[str,
 
 def _slice_state(cells: list[str]) -> str:
     fields = [_plain(cell).lower() for cell in cells[1:3]]
-    closed = fields[1].startswith("closed") or any(re.search(r"\bclosed\s*(?:&|and)\s*merged\b", field) for field in fields)
+    closed = fields[1].startswith("closed") or any(
+        re.search(r"\bclosed\s*(?:&|and)\s*merged\b", field) for field in fields
+    )
     merged = closed or any(re.match(r"(?:whole[- ]slice\s+)?merged\b", field) for field in fields)
     return "closed" if closed else "merged" if merged else "open"
 
@@ -245,7 +298,14 @@ def _parse_work(text: str, plan_ids: set[str], branches: dict[str, str]) -> list
         match = re.match(r"^#### (DS\d+)\s+—\s+(.+)$", line)
         if match:
             headings[match.group(1)] = f"{match.group(1)} — {match.group(2)}"
-    start = next((i for i, line in enumerate(lines) if line.startswith("| Slice | Theme | Gate / prereqs |")), -1)
+    start = next(
+        (
+            i
+            for i, line in enumerate(lines)
+            if line.startswith("| Slice | Theme | Gate / prereqs |")
+        ),
+        -1,
+    )
     rows: list[_WorkRow] = []
     for index in range(start + 2, len(lines)) if start >= 0 else ():
         cells = _cells(lines[index])
@@ -257,7 +317,9 @@ def _parse_work(text: str, plan_ids: set[str], branches: dict[str, str]) -> list
             continue
         if slice_id == "DS16":
             stage = "unblocked"
-            basis = '"a surface exists that renders values rather than refusals" — measured 2026-08-21'
+            basis = (
+                '"a surface exists that renders values rather than refusals" — measured 2026-08-21'
+            )
         elif slice_id in UNBLOCKED_PLANLESS:
             stage = "unblocked"
             basis = "unblocking property `not_established` — measured 2026-08-22; no plan file in either plan root"
@@ -281,7 +343,9 @@ def _ds5_metrics(repo_root: Path, plan_ids: set[str]) -> tuple[int, int]:
     if not path.is_file():
         return 0, 0
     lines = path.read_text(encoding="utf-8").splitlines()
-    start = next((i for i, line in enumerate(lines) if line.startswith("| Direct-`Badge` debt group |")), -1)
+    start = next(
+        (i for i, line in enumerate(lines) if line.startswith("| Direct-`Badge` debt group |")), -1
+    )
     rows = 0
     planless = 0
     for index in range(start + 2, len(lines)) if start >= 0 else ():
@@ -296,7 +360,10 @@ def _ds5_metrics(repo_root: Path, plan_ids: set[str]) -> tuple[int, int]:
 
 
 def _branch_state(repo_root: Path, branch: str) -> str:
-    for ref, state in ((f"refs/remotes/origin/{branch}", "published"), (f"refs/heads/{branch}", "local-only")):
+    for ref, state in (
+        (f"refs/remotes/origin/{branch}", "published"),
+        (f"refs/heads/{branch}", "local-only"),
+    ):
         result = subprocess.run(("git", "show-ref", "--verify", "--quiet", ref), cwd=repo_root)
         if result.returncode == 0:
             return state
@@ -315,18 +382,30 @@ def _snapshot(repo_root: Path) -> _Snapshot:
     ds5_rows, ds5_planless = _ds5_metrics(repo_root, plan_ids)
     marker = "### G.3 Carried closed set"
     carried_text = register_text.split(marker, 1)[1] if marker in register_text else ""
-    carried_closed = {f"GY-{item}" for item in re.findall(r"(?<![A-Z-])(DEF\d+|DEFC-\d+|GAP\d+)\b", carried_text)}
+    carried_closed = {
+        f"GY-{item}" for item in re.findall(r"(?<![A-Z-])(DEF\d+|DEFC-\d+|GAP\d+)\b", carried_text)
+    }
     gy_rows = tuple(_parse_gy(gy_text))
     atlas_rows = tuple(_parse_atlas_debts(atlas_text))
     work = tuple(_parse_work(atlas_text, plan_ids, branches))
     branch_names = {row.branch for row in debts} | {row.branch for row in work}
-    branch_states = tuple(sorted((name, _branch_state(repo_root, name)) for name in branch_names if name))
+    branch_states = tuple(
+        sorted((name, _branch_state(repo_root, name)) for name in branch_names if name)
+    )
     return _Snapshot(
-        debts=tuple(debts), gy=gy_rows, atlas_debts=atlas_rows, work=work, plan_ids=frozenset(plan_ids),
+        debts=tuple(debts),
+        gy=gy_rows,
+        atlas_debts=atlas_rows,
+        work=work,
+        plan_ids=frozenset(plan_ids),
         explicit_nonclosures=tuple(_explicit_nonclosures(repo_root, paths)),
-        frontend_rows=len(assignments), frontend_statuses=tuple(sorted(frontend_statuses.items())),
-        ds5_rows=ds5_rows, ds5_planless=ds5_planless, irregular_branches=tuple(irregular),
-        carried_closed=frozenset(carried_closed), branch_states=branch_states,
+        frontend_rows=len(assignments),
+        frontend_statuses=tuple(sorted(frontend_statuses.items())),
+        ds5_rows=ds5_rows,
+        ds5_planless=ds5_planless,
+        irregular_branches=tuple(irregular),
+        carried_closed=frozenset(carried_closed),
+        branch_states=branch_states,
     )
 
 
@@ -361,14 +440,28 @@ def _owner_cells(row: _DebtRow, plan_ids: frozenset[str]) -> tuple[str, str]:
     subject = cells[1] if len(cells) > 1 else ""
     label = re.search(rf"(?i)reality-bar label:\s*(?:\*\*)?`?({CAPABILITY_PATTERN})", subject)
     stated = re.search(r"(?i)\bstates:\s*([^.;]+)", subject)
-    scopes = [label.group(1)] if label else [stated.group(1)] if stated else [row.owner, subject if row.section != "Atlas" else ""]
+    scopes = (
+        [label.group(1)]
+        if label
+        else [stated.group(1)]
+        if stated
+        else [row.owner, subject if row.section != "Atlas" else ""]
+    )
     sibling = rf"`([^`]+)`\s+(?:is|returns|—\s*re-typed)\s+`?({CAPABILITY_PATTERN})`?"
     for member, state in re.findall(sibling, subject, flags=re.IGNORECASE):
         if _key(member) == _key(row.debt_id):
             scopes.append(state)
     scopes = [re.sub(sibling, "", scope, flags=re.IGNORECASE) for scope in scopes]
-    states = [state for state in CAPABILITY_STATES if any(re.search(rf"(?<![\w/]){re.escape(state)}(?![\w/])", scope) for scope in scopes)]
-    raw_states = [state for state in CAPABILITY_STATES if re.search(rf"(?<![\w/]){re.escape(state)}(?![\w/])", raw)]
+    states = [
+        state
+        for state in CAPABILITY_STATES
+        if any(re.search(rf"(?<![\w/]){re.escape(state)}(?![\w/])", scope) for scope in scopes)
+    ]
+    raw_states = [
+        state
+        for state in CAPABILITY_STATES
+        if re.search(rf"(?<![\w/]){re.escape(state)}(?![\w/])", raw)
+    ]
     slices = {f"DS{item}" for item in re.findall(r"\bDS(\d+)\b", row.owner)}
     if "candidate" in row.owner.lower() or slices - plan_ids:
         states.append("candidate")
@@ -381,11 +474,17 @@ def _projected_debts(snapshot: _Snapshot) -> list[_DebtRow]:
     rows = [row for row in snapshot.debts if row.status != "closed"]
     authority = {_key(row.debt_id) for row in snapshot.debts}
     for row in snapshot.gy:
-        if _key(row.debt_id) not in authority and row.debt_id not in snapshot.carried_closed and row.status != "closed":
+        if (
+            _key(row.debt_id) not in authority
+            and row.debt_id not in snapshot.carried_closed
+            and row.status != "closed"
+        ):
             rows.append(_DebtRow(row.debt_id, row.status, "—", "GY", row.heading, row.raw, None))
     for row in snapshot.atlas_debts:
         if _key(row.debt_id) not in authority and row.status != "closed":
-            rows.append(_DebtRow(row.debt_id, row.status, row.owner, "Atlas", row.heading, row.raw, None))
+            rows.append(
+                _DebtRow(row.debt_id, row.status, row.owner, "Atlas", row.heading, row.raw, None)
+            )
     return rows
 
 
@@ -406,6 +505,7 @@ def render_ledger(snapshot: _Snapshot) -> str:
 
     def summary(values: Sequence[str]) -> str:
         return ", ".join(f"{key}={value}" for key, value in sorted(Counter(values).items()))
+
     branch_states = dict(snapshot.branch_states)
     lines = [
         "# PolicyOS Open Work and Debt Ledger",
@@ -452,16 +552,53 @@ def render_ledger(snapshot: _Snapshot) -> str:
             "",
             "| source | published | observed | indexed here | status distribution |",
             "| --- | ---: | ---: | ---: | --- |",
-            f"| `DEBT-REGISTER.md` | 54 | {len(register_ids)} | {sum(_key(item) in open_keys for item in register_ids)} | {summary([row.status for row in snapshot.debts])} |",
-            f"| `GY-engine-subordination.md` | 36 | {len(gy_ids)} | {sum(_key(item) in open_keys for item in gy_ids)} | {summary([row.status for row in snapshot.gy])} |",
-            f"| Atlas master debt table | 13 | {len(snapshot.atlas_debts)} | {sum(_key(item) in open_keys for item in atlas_keys)} | {summary([row.status for row in snapshot.atlas_debts])} |",
-            f"| `frontend-disposition-register.json` | 217 | {snapshot.frontend_rows} | 0 | {summary([key for key, count in snapshot.frontend_statuses for _ in range(count)]) or 'none'} |",
+            f"| `DEBT-REGISTER.md` | {PUBLISHED_DENOMINATORS['register']} | {len(register_ids)} | {sum(_key(item) in open_keys for item in register_ids)} | {summary([row.status for row in snapshot.debts])} |",
+            f"| `GY-engine-subordination.md` | {PUBLISHED_DENOMINATORS['gy']} | {len(gy_ids)} | {sum(_key(item) in open_keys for item in gy_ids)} | {summary([row.status for row in snapshot.gy])} |",
+            f"| Atlas master debt table | {PUBLISHED_DENOMINATORS['atlas']} | {len(snapshot.atlas_debts)} | {sum(_key(item) in open_keys for item in atlas_keys)} | {summary([row.status for row in snapshot.atlas_debts])} |",
+            f"| `frontend-disposition-register.json` | {PUBLISHED_DENOMINATORS['frontend']} | {snapshot.frontend_rows} | 0 | {summary([key for key, count in snapshot.frontend_statuses for _ in range(count)]) or 'none'} |",
             "",
             f"GY standing receipts (recognized hits/final line): {receipts or 'none'}.",
+            "",
+            "## Task-census coverage",
+            "",
+            "| ladder | task ids | indexed here | why |",
+            "| --- | ---: | ---: | --- |",
+            f"| Atlas slice sequence | 21 | {len(snapshot.work)} | open slices only; closed ones stay in the master plan |",
+            "| `GY-engine-subordination.md` | 37 | 0 | **29 of 37 task bullets carry only a `Done when:` and no per-task status.** Status lives in one narrative note, so indexing would yield 29 `ambiguous` rows. Registered as `gy-plan-records-no-per-task-status`. |",
+            "| 16 further plans (Foundry, Fabric, Scientist, UPDC, Layer2/3, …) | 213 | 0 | dormant lanes; out of the declared scope, counted so the remainder is visible |",
+            "",
+            "Measured 2026-08-23 across `docs/plans/active/**`: **271 task ids in 18 plans**. This ledger",
+            "indexes the Atlas ladder only. The census is complete against that declared scope and the",
+            "remainder is enumerated rather than unknown.",
             f"Section-E irregular branch rows retained as branch records, not debt ids: {', '.join(f'`{item}`' for item in snapshot.irregular_branches) or 'none'}.",
         ]
     )
     return "\n".join(lines) + "\n"
+
+
+_TERMINAL = {"closed", "folded"}
+_UNSTATED = {"ambiguous", "prose_only", "none"}
+# String inequality is a proxy for contradiction and misclassifies at its own
+# boundary (P38): `foreign` and `open` are both true of one row, and `blocked`
+# is `open` with a named blocker. Only a terminal/non-terminal split conflicts.
+_RELATION_FINDING = {
+    "conflict": "source_status_conflict",
+    "register_supplies_standing": "register_supplies_missing_standing",
+    "source_supplies_standing": "register_withholds_source_standing",
+}
+
+
+def _status_relation(register: str, source: str) -> str:
+    if register == source:
+        return "agree"
+    if source in _UNSTATED:
+        return "register_supplies_standing"
+    if register in _UNSTATED:
+        # Informational, not a lag: the register may deliberately withhold a
+        # verdict the source asserts (GY-DEF9 stays `ambiguous` because its
+        # witness cannot reach its own discriminator). Its row states the reason.
+        return "source_supplies_standing"
+    return "conflict" if (register in _TERMINAL) != (source in _TERMINAL) else "compatible"
 
 
 def _key(value: str) -> str:
@@ -492,27 +629,53 @@ def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
     }
     for source, expected in PUBLISHED_DENOMINATORS.items():
         if observed[source] != expected:
-            findings.append(Finding(f"{source}_denominator_mismatch", f"published={expected}, observed={observed[source]}"))
+            findings.append(
+                Finding(
+                    f"{source}_denominator_mismatch",
+                    f"published={expected}, observed={observed[source]}",
+                )
+            )
     by_id: dict[str, list[_DebtRow]] = {}
     for row in snapshot.debts:
         by_id.setdefault(row.debt_id, []).append(row)
     for debt_id, rows in by_id.items():
-        if any(row.section == "G" for row in rows) and any(row.section != "G" and row.status != "closed" for row in rows):
+        if any(row.section == "G" for row in rows) and any(
+            row.section != "G" and row.status != "closed" for row in rows
+        ):
             findings.append(Finding("closed_open_conflict", debt_id))
-    closed_sources = [("register", row.debt_id, row.raw) for row in snapshot.debts if row.status == "closed"]
-    closed_sources += [("GY", row.debt_id, row.raw) for row in snapshot.gy if row.status == "closed"]
-    closed_sources += [("Atlas", row.debt_id, row.raw) for row in snapshot.atlas_debts if row.status == "closed"]
+    closed_sources = [
+        ("register", row.debt_id, row.raw) for row in snapshot.debts if row.status == "closed"
+    ]
+    closed_sources += [
+        ("GY", row.debt_id, row.raw) for row in snapshot.gy if row.status == "closed"
+    ]
+    closed_sources += [
+        ("Atlas", row.debt_id, row.raw) for row in snapshot.atlas_debts if row.status == "closed"
+    ]
     for source, debt_id, raw in closed_sources:
-        lead = r"closed(?:_by)?(?:\s+\d{4}-\d{2}-\d{2})?|merged?|landed|executed" + ("|at" if source == "GY" else "")
+        lead = r"closed(?:_by)?(?:\s+\d{4}-\d{2}-\d{2})?|merged?|landed|executed" + (
+            "|at" if source == "GY" else ""
+        )
         citation = rf"(?i)\b(?:{lead})(?:\s+(?:by|at|head|merge))*[\s(:;,]*`?([0-9a-f]{{7,40}})"
         for commit in dict.fromkeys(re.findall(citation, raw)):
             ancestor = _git_commit_is_ancestor(repo_root, commit)
             if ancestor is not True:
-                findings.append(Finding("closure_commit_not_on_main", f"{source}:{debt_id}: {commit}"))
+                findings.append(
+                    Finding("closure_commit_not_on_main", f"{source}:{debt_id}: {commit}")
+                )
     for row in snapshot.debts:
         slices = {f"DS{item}" for item in re.findall(r"\bDS(\d+)\b", row.owner)}
-        if slices - snapshot.plan_ids and "candidate" not in row.owner.lower() and row.status != "closed":
-            findings.append(Finding("planless_slice_named_owner", f"{row.debt_id}: {sorted(slices - snapshot.plan_ids)}"))
+        if (
+            slices - snapshot.plan_ids
+            and "candidate" not in row.owner.lower()
+            and row.status != "closed"
+        ):
+            findings.append(
+                Finding(
+                    "planless_slice_named_owner",
+                    f"{row.debt_id}: {sorted(slices - snapshot.plan_ids)}",
+                )
+            )
     atlas_text = (repo_root / ATLAS_PATH).read_text(encoding="utf-8")
     for line_no, line in enumerate(atlas_text.splitlines(), 1):
         cells = _cells(line)
@@ -530,15 +693,35 @@ def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
     for debt_id in sorted(expected_debts.keys() & ledger_debts.keys()):
         actual = _status_token(ledger_debts[debt_id][1]) if len(ledger_debts[debt_id]) > 1 else None
         if actual != expected_debts[debt_id].status:
-            findings.append(Finding("ledger_status_mismatch", f"{debt_id}: source={expected_debts[debt_id].status}, ledger={actual}"))
+            findings.append(
+                Finding(
+                    "ledger_status_mismatch",
+                    f"{debt_id}: source={expected_debts[debt_id].status}, ledger={actual}",
+                )
+            )
     ledger_keys = {_key(debt_id): debt_id for debt_id in ledger_debts}
     authority = {_key(row.debt_id): row for row in snapshot.debts}
-    secondary = [(row.debt_id, row.status, "GY") for row in snapshot.gy] + [(row.debt_id, row.status, "Atlas") for row in snapshot.atlas_debts]
+    secondary = [(row.debt_id, row.status, "GY") for row in snapshot.gy] + [
+        (row.debt_id, row.status, "Atlas") for row in snapshot.atlas_debts
+    ]
     for debt_id, status, source in secondary:
         key = _key(debt_id)
-        authority_status = authority[key].status if key in authority else "closed" if source == "GY" and debt_id in snapshot.carried_closed else None
-        if authority_status is not None and authority_status != status:
-            findings.append(Finding("source_status_disagreement", f"{source}:{debt_id}: register={authority_status}, source={status}"))
+        authority_status = (
+            authority[key].status
+            if key in authority
+            else "closed"
+            if source == "GY" and debt_id in snapshot.carried_closed
+            else None
+        )
+        name = (
+            _RELATION_FINDING.get(_status_relation(authority_status, status))
+            if authority_status is not None
+            else None
+        )
+        if name:
+            findings.append(
+                Finding(name, f"{source}:{debt_id}: register={authority_status}, source={status}")
+            )
         source_is_open = status != "closed" and authority_status != "closed"
         if source_is_open and key not in ledger_keys:
             findings.append(Finding("ledger_missing_source_id", f"{source}:{debt_id}"))
@@ -560,12 +743,16 @@ def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
         "frontend_disposition_rows": observed["frontend"],
         "gy_history_blocks": sum(row.hit_count > 1 for row in snapshot.gy),
         "gy_absent_from_register": len(absent),
-        "gy_absent_from_register_closed": sum(row.debt_id in snapshot.carried_closed for row in absent),
+        "gy_absent_from_register_closed": sum(
+            row.debt_id in snapshot.carried_closed for row in absent
+        ),
         "ds5_nonclosure_rows": snapshot.ds5_rows,
         "ds5_planless_routes": snapshot.ds5_planless,
         "irregular_section_e_branch_rows": len(snapshot.irregular_branches),
     }
-    return AuditReport(tuple(sorted(findings, key=lambda item: (item.code, item.detail))), metrics, expected_text)
+    return AuditReport(
+        tuple(sorted(findings, key=lambda item: (item.code, item.detail))), metrics, expected_text
+    )
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -574,7 +761,9 @@ def _build_parser() -> argparse.ArgumentParser:
     mode.add_argument("--check", action="store_true", help="reconcile the committed ledger")
     mode.add_argument("--write", action="store_true", help="regenerate the committed ledger")
     parser.add_argument("--repo-root", type=Path, default=REPO_ROOT)
-    parser.add_argument("--report-only", action="store_true", help="print findings without a red exit")
+    parser.add_argument(
+        "--report-only", action="store_true", help="print findings without a red exit"
+    )
     return parser
 
 

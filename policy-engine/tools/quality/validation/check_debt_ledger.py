@@ -291,6 +291,39 @@ def _slice_state(cells: list[str]) -> str:
     return "closed" if closed else "merged" if merged else "open"
 
 
+_GY_TASK_ROW = re.compile(
+    r"^\| `(GY-[A-Za-z0-9-]+)` \| (\S+) \| \*{0,2}`?([a-z_]+)`?\*{0,2} \| (.+?) \| (.+?) \|$"
+)
+
+
+def _parse_gy_tasks(text: str) -> list[_WorkRow]:
+    """Read the GY plan's authoritative task-standing table.
+
+    Task status is recorded there and nowhere else: the revision log is history,
+    not state. A row whose status is `executed`, `not_executable` or `not_started`
+    is terminal or not yet begun and stays out of the open-work table; only
+    `in_flight` and anything unrecognised surface as open work.
+    """
+    rows: list[_WorkRow] = []
+    for line in text.splitlines():
+        match = _GY_TASK_ROW.match(line)
+        if not match:
+            continue
+        task_id, phase, status, evidence, gates = match.groups()
+        if status in {"executed", "not_executable", "not_started"}:
+            continue
+        rows.append(
+            _WorkRow(
+                slice_id=task_id,
+                stage=status,
+                basis=f"phase {phase}; {_plain(evidence)}",
+                heading=f"{task_id} — {_plain(gates)}",
+                branch=None,
+            )
+        )
+    return rows
+
+
 def _parse_work(text: str, plan_ids: set[str], branches: dict[str, str]) -> list[_WorkRow]:
     lines = text.splitlines()
     headings: dict[str, str] = {}
@@ -387,7 +420,7 @@ def _snapshot(repo_root: Path) -> _Snapshot:
     }
     gy_rows = tuple(_parse_gy(gy_text))
     atlas_rows = tuple(_parse_atlas_debts(atlas_text))
-    work = tuple(_parse_work(atlas_text, plan_ids, branches))
+    work = tuple(_parse_work(atlas_text, plan_ids, branches)) + tuple(_parse_gy_tasks(gy_text))
     branch_names = {row.branch for row in debts} | {row.branch for row in work}
     branch_states = tuple(
         sorted((name, _branch_state(repo_root, name)) for name in branch_names if name)
@@ -518,7 +551,11 @@ def render_ledger(snapshot: _Snapshot) -> str:
         "| --- | --- | --- | --- | --- |",
     ]
     for row in sorted(snapshot.work, key=lambda item: (item.stage, item.slice_id)):
-        source = f"[master plan](POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#{_anchor(row.heading)})"
+        source = (
+            "[GY plan §8.5](layer3-slices/GY-engine-subordination.md#85-task-standing-authoritative)"
+            if row.slice_id.startswith("GY-")
+            else f"[master plan](POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#{_anchor(row.heading)})"
+        )
         lines.append(
             f"| `{row.slice_id}` | `{row.stage}` | {cell(row.basis)} | {source} | {_branch_link(row.branch, branch_states)} |"
         )
@@ -564,7 +601,7 @@ def render_ledger(snapshot: _Snapshot) -> str:
             "| ladder | task ids | indexed here | why |",
             "| --- | ---: | ---: | --- |",
             f"| Atlas slice sequence | 21 | {len(snapshot.work)} | open slices only; closed ones stay in the master plan |",
-            "| `GY-engine-subordination.md` | 37 | 0 | **29 of 37 task bullets carry only a `Done when:` and no per-task status.** Status lives in one narrative note, so indexing would yield 29 `ambiguous` rows. Registered as `gy-plan-records-no-per-task-status`. |",
+            f"| `GY-engine-subordination.md` | 37 | {sum(1 for row in snapshot.work if row.slice_id.startswith('GY-'))} | indexed from the authoritative task-standing table (§8.5), censused 2026-08-23: 24 `executed`, 1 `in_flight`, 1 `not_executable`, 11 `not_started`, 0 `ambiguous`. Only non-terminal rows are listed above. |",
             "| 16 further plans (Foundry, Fabric, Scientist, UPDC, Layer2/3, …) | 213 | 0 | dormant lanes; out of the declared scope, counted so the remainder is visible |",
             "",
             "Measured 2026-08-23 across `docs/plans/active/**`: **271 task ids in 18 plans**. This ledger",

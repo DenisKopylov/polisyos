@@ -480,12 +480,41 @@ def _run_real_first_vertical_cycle() -> Any:
     )
 
 
-def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
+def build_payload(
+    repo_root: Path | None = None,
+    *,
+    expected_source_freeze: str,
+) -> dict[str, Any]:
     """Build the byte-stable N8 v2 Fork-B contract from canonical owners."""
 
     repo_root = (repo_root or _repo_root()).resolve()
     _ensure_src_path(repo_root)
-    denominators = _quiet_call(_catalog_denominators)
+    denominators = _quiet_call(
+        lambda: _catalog_denominators(
+            expected_source_freeze,
+            repo_root,
+        )
+    )
+    dependency_authority = denominators["catalog_dependency_authority"]
+    payload: dict[str, Any] = {
+        "schema_version": SCHEMA_VERSION,
+        "rule_version": VALUE_GATE_RULE_VERSION,
+        "gy_lifecycle_marker": SCHEMA_VERSION,
+        "produced_by": "tools/quality/validation/check_layer3_gy_value_gate_contract.py",
+        "status": "not_established",
+        "catalog_dependency_authority": dependency_authority,
+        "retained_capability_label": "producer_missing",
+    }
+    payload["contract_content_hash"] = _content_hash(payload)
+    return payload
+
+
+def _build_historical_candidate_payload(repo_root: Path) -> dict[str, Any]:
+    """Build the private pre-authority projection for legacy mutation witnesses."""
+
+    repo_root = repo_root.resolve()
+    _ensure_src_path(repo_root)
+    denominators = _candidate_catalog_denominators()
     production_run = _quiet_call(_run_real_first_vertical_cycle)
     education_observation = _quiet_call(_run_real_education_value_refusal)
     production_refusal = _normalized_first_vertical_data_gap_receipt(production_run)
@@ -585,7 +614,9 @@ def build_payload(repo_root: Path | None = None) -> dict[str, Any]:
 
 
 @cache
-def _catalog_denominator_evidence_cached() -> tuple[dict[str, Any], dict[str, object]]:
+def _candidate_catalog_denominator_evidence_cached() -> tuple[
+    dict[str, Any], dict[str, object]
+]:
     from polisyos.foundry.extensions.discovery import (
         discover_foundry_method_components,
     )
@@ -593,7 +624,7 @@ def _catalog_denominator_evidence_cached() -> tuple[dict[str, Any], dict[str, ob
         controlled_builtin_foundry_method_registry_scope,
     )
     from polisyos.foundry.methods.catalog.snapshot import (
-        build_method_catalog_provenance_manifest,
+        _build_candidate_method_catalog_provenance_manifest,
         build_method_catalog_snapshot,
     )
     from polisyos.foundry.methods.selection import reachable_value_method_fqns
@@ -710,7 +741,7 @@ def _catalog_denominator_evidence_cached() -> tuple[dict[str, Any], dict[str, ob
         ],
         "native_contract_families": ["native_contract_family_taxonomy_derivation"],
     }
-    catalog_provenance = build_method_catalog_provenance_manifest(
+    catalog_provenance = _build_candidate_method_catalog_provenance_manifest(
         first,
         registry_report=registry_report,
         ambient_manifest=ambient_report.manifest,
@@ -724,16 +755,77 @@ def _catalog_denominator_evidence_cached() -> tuple[dict[str, Any], dict[str, ob
 
 
 @cache
-def _catalog_denominators_cached() -> dict[str, Any]:
-    return _catalog_denominator_evidence_cached()[0]
+def _candidate_catalog_denominators_cached() -> dict[str, Any]:
+    return _candidate_catalog_denominator_evidence_cached()[0]
 
 
-def _catalog_denominators() -> dict[str, Any]:
-    return json.loads(json.dumps(_catalog_denominators_cached(), sort_keys=True))
+def _candidate_catalog_denominators() -> dict[str, Any]:
+    return json.loads(json.dumps(_candidate_catalog_denominators_cached(), sort_keys=True))
+
+
+@cache
+def _catalog_denominator_evidence_cached(
+    expected_source_freeze: str,
+    repo_root: Path,
+) -> tuple[dict[str, Any], dict[str, object]]:
+    """Resolve the Foundry owner and stop at its exact typed non-receipt."""
+
+    from polisyos.foundry.methods.catalog.dependency_authority import (
+        AbsoluteRequestPath,
+        MethodCatalogDependencyAuthorityRequest,
+    )
+    from polisyos.foundry.methods.catalog.snapshot import (
+        build_method_catalog_provenance_manifest,
+        build_method_catalog_runtime_identity,
+    )
+
+    resolved_root = repo_root.resolve()
+    request = MethodCatalogDependencyAuthorityRequest(
+        authority_purpose="n8_method_catalog_reconstruction",
+        expected_source_freeze_commit=expected_source_freeze,
+        production_data_root=AbsoluteRequestPath(
+            value=resolved_root / "production_data"
+        ),
+        environment_root=AbsoluteRequestPath(value=resolved_root / ".venv"),
+    )
+    sentinel = object()
+    runtime_result = build_method_catalog_runtime_identity(
+        sentinel,  # type: ignore[arg-type]
+        dependency_authority_request=request,
+    )
+    provenance_result = build_method_catalog_provenance_manifest(
+        sentinel,  # type: ignore[arg-type]
+        registry_report=sentinel,  # type: ignore[arg-type]
+        ambient_manifest=sentinel,  # type: ignore[arg-type]
+        dependency_authority_request=request,
+    )
+    if runtime_result != provenance_result:
+        raise RuntimeError("catalog_dependency_authority_builder_disagreement")
+    return (
+        {
+            "catalog_dependency_authority": runtime_result.model_dump(mode="json"),
+        },
+        {},
+    )
+
+
+def _catalog_denominators(
+    expected_source_freeze: str,
+    repo_root: Path,
+) -> dict[str, Any]:
+    return json.loads(
+        json.dumps(
+            _catalog_denominator_evidence_cached(
+                expected_source_freeze,
+                repo_root,
+            )[0],
+            sort_keys=True,
+        )
+    )
 
 
 def _reachable_value_methods() -> tuple[str, ...]:
-    return tuple(_catalog_denominators_cached()["value_capable_methods"])
+    return tuple(_candidate_catalog_denominators_cached()["value_capable_methods"])
 
 
 def _fork_b_census_receipt(repo_root: Path) -> dict[str, Any]:
@@ -3376,81 +3468,60 @@ def _governed_value_gate_projection(payload: Mapping[str, Any]) -> dict[str, Any
     return projection
 
 
-def run_rederive_audit_result(repo_root: Path) -> ValueGateValidationResult:
+def run_rederive_audit_result(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
     """Recompute N8 while retaining ambient diagnostics in the audit result."""
 
     _ensure_src_path(repo_root)
+    if expected_source_freeze is None:
+        return ValueGateValidationResult(
+            governing_issues=({"code": "catalog_dependency_source_freeze_not_supplied"},),
+            ambient_findings=(),
+        )
     started = time.monotonic()
-    expected = build_payload(repo_root)
-    expected_result = validate_payload_result(expected)
+    expected = build_payload(
+        repo_root,
+        expected_source_freeze=expected_source_freeze,
+    )
+    expected_result = validate_payload_result(
+        expected,
+        expected_source_freeze=expected_source_freeze,
+    )
     issues = list(expected_result.governing_issues)
     ambient_findings = list(expected_result.ambient_findings)
     path = repo_root / OUTPUT_PATH
     if not path.exists():
         issues.append({"code": "artifact_missing", "path": OUTPUT_PATH})
-        actual: Mapping[str, Any] = {}
     else:
         actual = _load_json(path)
-        actual_result = validate_payload_result(actual)
+        actual_result = validate_payload_result(
+            actual,
+            expected_source_freeze=expected_source_freeze,
+        )
         issues.extend(actual_result.governing_issues)
         ambient_findings.extend(actual_result.ambient_findings)
-        for section in (
-            "denominators",
-            "fork_b_census_receipt",
-            "production_refusal",
-            "acquisition_routing",
-            "education_refusal",
-            "native_projector_contract_proofs",
-            "projector_refusal_proofs",
-            "transport_component_proofs",
-        ):
-            recorded_section = actual.get(section)
-            expected_section = expected.get(section)
-            if section == "denominators":
-                try:
-                    section_drift = _governed_denominators_projection(
-                        recorded_section
-                    ) != _governed_denominators_projection(expected_section)
-                except (RuntimeError, TypeError, ValueError):
-                    section_drift = True
-            else:
-                section_drift = recorded_section != expected_section
-            if section_drift:
-                issues.append(
-                    {
-                        "code": "live_rederive_section_drift",
-                        "section": section,
-                    }
-                )
-    production = expected["production_refusal"]
-    education = expected["education_refusal"]
+        if actual != expected:
+            issues.append(
+                {
+                    "code": "live_rederive_section_drift",
+                    "section": "catalog_dependency_authority",
+                }
+            )
+    authority = expected["catalog_dependency_authority"]
+    if authority["result_kind"] == "runtime_cutoff_not_established":
+        authority_failure = authority["preflight_refusal"]["failure"]
+    else:
+        authority_failure = authority["failure"]
     print(
         json.dumps(
             {
                 "status": "pass" if not issues else "fail",
                 "wall_time_ms": round((time.monotonic() - started) * 1000.0, 3),
-                "catalog_method_count": expected["denominators"][
-                    "registered_method_count"
-                ],
-                "value_capable_method_count": expected["denominators"][
-                    "value_capable_method_count"
-                ],
-                "production": {
-                    "selected_method_fqn": production["selected_method_fqn"],
-                    "status": production["status"],
-                    "authority_blockers": production["authority_blockers"],
-                    "value_receipt": production["value_receipt"],
-                },
-                "education": {
-                    "selected_method_fqn": education["selected_method_fqn"],
-                    "status": education["status"],
-                    "authority_blockers": education["authority_blockers"],
-                    "value_receipt": education["value_receipt"],
-                },
-                "native_contract_families": [
-                    row["family"]
-                    for row in expected["native_projector_contract_proofs"]
-                ],
+                "catalog_dependency_result_kind": authority["result_kind"],
+                "catalog_dependency_failure_code": authority_failure["failure_code"],
                 "ambient_findings": list(
                     _deduplicate_findings(ambient_findings)
                 ),
@@ -3464,10 +3535,17 @@ def run_rederive_audit_result(repo_root: Path) -> ValueGateValidationResult:
     )
 
 
-def run_rederive_audit(repo_root: Path) -> tuple[dict[str, Any], ...]:
+def run_rederive_audit(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> tuple[dict[str, Any], ...]:
     """Return governing rederive failures for backward-compatible consumers."""
 
-    return run_rederive_audit_result(repo_root).governing_issues
+    return run_rederive_audit_result(
+        repo_root,
+        expected_source_freeze=expected_source_freeze,
+    ).governing_issues
 
 
 def _content_hash(payload: Mapping[str, Any]) -> str:
@@ -3775,7 +3853,11 @@ def _catalog_provenance_issues(
     ).governing_issues
 
 
-def validate_payload_result(payload: Mapping[str, Any]) -> ValueGateValidationResult:
+def validate_payload_result(
+    payload: Mapping[str, Any],
+    *,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
     """Validate N8 and retain non-decisive ambient findings separately."""
 
     issues: list[dict[str, Any]] = []
@@ -3784,13 +3866,108 @@ def validate_payload_result(payload: Mapping[str, Any]) -> ValueGateValidationRe
         issues.append({"code": "schema_version_mismatch"})
     if payload.get("rule_version") != VALUE_GATE_RULE_VERSION:
         issues.append({"code": "rule_version_mismatch"})
+    authority_payload = payload.get("catalog_dependency_authority")
+    if isinstance(authority_payload, Mapping):
+        from pydantic import TypeAdapter
+
+        from polisyos.foundry.methods.catalog.dependency_authority import (
+            MethodCatalogDependencyAuthorityResult,
+            SourceRejectedMethodCatalogDependencyProfile,
+            SourceUnestablishedMethodCatalogDependencyProfile,
+            UnestablishedMethodCatalogDependencyProfile,
+        )
+
+        try:
+            authority_result = TypeAdapter(
+                MethodCatalogDependencyAuthorityResult
+            ).validate_json(
+                json.dumps(
+                    authority_payload,
+                    sort_keys=True,
+                    separators=(",", ":"),
+                ),
+                strict=True,
+            )
+        except ValidationError:
+            issues.append({"code": "catalog_dependency_authority_invalid"})
+        else:
+            if isinstance(
+                authority_result,
+                UnestablishedMethodCatalogDependencyProfile,
+            ):
+                refusal = authority_result.preflight_refusal
+                if (
+                    refusal.failure.failure_code.value
+                    != "owner_enforced_runtime_subtree_cutoff_not_established"
+                    or refusal.persistence.status != "not_established"
+                    or refusal.persistence.missing_capability
+                    != "owner_resolved_resolution_receipt_store"
+                ):
+                    issues.append({"code": "catalog_dependency_authority_refusal_drift"})
+                recorded_freeze = (
+                    refusal.request.pre_source_request.expected_source_freeze_commit
+                )
+            elif isinstance(
+                authority_result,
+                (
+                    SourceRejectedMethodCatalogDependencyProfile,
+                    SourceUnestablishedMethodCatalogDependencyProfile,
+                ),
+            ):
+                if (
+                    authority_result.persistence.status != "not_established"
+                    or authority_result.persistence.missing_capability
+                    != "owner_resolved_resolution_receipt_store"
+                ):
+                    issues.append({"code": "catalog_dependency_authority_refusal_drift"})
+                if isinstance(
+                    authority_result,
+                    SourceRejectedMethodCatalogDependencyProfile,
+                ):
+                    recorded_freeze = (
+                        authority_result.request.pre_source_request.expected_source_freeze_commit
+                    )
+                else:
+                    recorded_freeze = (
+                        authority_result.request.expected_source_freeze_commit
+                    )
+            else:  # pragma: no cover - closed union guarded by the TypeAdapter
+                issues.append({"code": "catalog_dependency_authority_variant_unknown"})
+                recorded_freeze = None
+            if recorded_freeze is not None:
+                if expected_source_freeze is None:
+                    issues.append({"code": "catalog_dependency_source_freeze_not_supplied"})
+                elif recorded_freeze != expected_source_freeze:
+                    issues.append({"code": "catalog_dependency_source_freeze_mismatch"})
+        if payload.get("status") != "not_established":
+            issues.append({"code": "catalog_dependency_status_promoted"})
+        if payload.get("retained_capability_label") != "producer_missing":
+            issues.append({"code": "catalog_dependency_capability_label_promoted"})
+        allowed = {
+            "schema_version",
+            "rule_version",
+            "gy_lifecycle_marker",
+            "produced_by",
+            "status",
+            "catalog_dependency_authority",
+            "retained_capability_label",
+            "contract_content_hash",
+        }
+        if set(payload) != allowed:
+            issues.append({"code": "catalog_dependency_nonreceipt_shape_drift"})
+        if payload.get("contract_content_hash") != _content_hash(payload):
+            issues.append({"code": "contract_content_hash_mismatch"})
+        return ValueGateValidationResult(
+            governing_issues=_deduplicate_findings(issues),
+            ambient_findings=(),
+        )
     for key in sorted(LEGACY_POSITIVE_KEYS & set(payload)):
         issues.append({"code": "legacy_positive_key_forbidden", "key": key})
     denominators = payload.get("denominators")
     if not isinstance(denominators, Mapping):
         issues.append({"code": "denominators_missing"})
     else:
-        expected_denominators = _catalog_denominators_cached()
+        expected_denominators = _candidate_catalog_denominators_cached()
         provenance_result = _catalog_provenance_validation_result(
             denominators.get("catalog_provenance"),
             expected_denominators["catalog_provenance"],
@@ -4558,13 +4735,24 @@ def _catalog_provenance_reissue_payload(
     return payload
 
 
-def check_catalog_provenance(repo_root: Path) -> tuple[dict[str, Any], ...]:
+def check_catalog_provenance(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> tuple[dict[str, Any], ...]:
     """Validate the frozen payload against live canonical catalog provenance."""
 
-    return check_catalog_provenance_result(repo_root).governing_issues
+    return check_catalog_provenance_result(
+        repo_root,
+        expected_source_freeze=expected_source_freeze,
+    ).governing_issues
 
 
-def check_catalog_provenance_result(repo_root: Path) -> ValueGateValidationResult:
+def check_catalog_provenance_result(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
     """Validate frozen catalog provenance and retain ambient diagnostics."""
 
     path = repo_root / OUTPUT_PATH
@@ -4573,16 +4761,30 @@ def check_catalog_provenance_result(repo_root: Path) -> ValueGateValidationResul
             governing_issues=({"code": "artifact_missing", "path": OUTPUT_PATH},),
             ambient_findings=(),
         )
-    return validate_payload_result(_load_json(path))
+    return validate_payload_result(
+        _load_json(path),
+        expected_source_freeze=expected_source_freeze,
+    )
 
 
-def check(repo_root: Path) -> tuple[dict[str, Any], ...]:
+def check(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> tuple[dict[str, Any], ...]:
     """Return governing full-contract failures for legacy callers."""
 
-    return check_result(repo_root).governing_issues
+    return check_result(
+        repo_root,
+        expected_source_freeze=expected_source_freeze,
+    ).governing_issues
 
 
-def check_result(repo_root: Path) -> ValueGateValidationResult:
+def check_result(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> ValueGateValidationResult:
     """Compare the full frozen N8 contract through its governed projection."""
 
     path = repo_root / OUTPUT_PATH
@@ -4591,9 +4793,20 @@ def check_result(repo_root: Path) -> ValueGateValidationResult:
             governing_issues=({"code": "artifact_missing", "path": OUTPUT_PATH},),
             ambient_findings=(),
         )
-    expected = build_payload(repo_root)
+    if expected_source_freeze is None:
+        return ValueGateValidationResult(
+            governing_issues=({"code": "catalog_dependency_source_freeze_not_supplied"},),
+            ambient_findings=(),
+        )
+    expected = build_payload(
+        repo_root,
+        expected_source_freeze=expected_source_freeze,
+    )
     actual = _load_json(path)
-    result = validate_payload_result(actual)
+    result = validate_payload_result(
+        actual,
+        expected_source_freeze=expected_source_freeze,
+    )
     issues = list(result.governing_issues)
     try:
         artifact_drift = _governed_value_gate_projection(
@@ -4609,67 +4822,70 @@ def check_result(repo_root: Path) -> ValueGateValidationResult:
     )
 
 
-def corrupt_field_drift_check(repo_root: Path) -> int:
-    base = build_payload(repo_root)
+def corrupt_field_drift_check(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str,
+) -> int:
+    base = build_payload(
+        repo_root,
+        expected_source_freeze=expected_source_freeze,
+    )
     cases: list[tuple[str, dict[str, Any], str]] = []
 
-    fabricated = json.loads(json.dumps(base))
-    fabricated["production_refusal"]["status"] = "value_ready"
-    fabricated["production_refusal"]["value_receipt"] = {"fabricated": True}
-    fabricated["contract_content_hash"] = _content_hash(fabricated)
-    cases.append(("fabricated_value_ready", fabricated, "fabricated_production_value_ready"))
-
-    missing_route = json.loads(json.dumps(base))
-    missing_route.pop("acquisition_routing", None)
-    missing_route["contract_content_hash"] = _content_hash(missing_route)
+    promoted = json.loads(json.dumps(base))
+    promoted["status"] = "value_ready"
+    promoted["contract_content_hash"] = _content_hash(promoted)
     cases.append(
         (
-            "missing_acquisition_route",
-            missing_route,
-            "value_input_acquisition_route_missing",
+            "dependency_status_promoted",
+            promoted,
+            "catalog_dependency_status_promoted",
         )
     )
 
-    legacy = json.loads(json.dumps(base))
-    legacy["frozen_positive_receipt"] = {"status": "value_ready"}
-    legacy["contract_content_hash"] = _content_hash(legacy)
-    cases.append(("legacy_positive_alias", legacy, "legacy_positive_key_forbidden"))
-
-    malformed_ambient_admission = json.loads(json.dumps(base))
-    catalog_provenance = malformed_ambient_admission["denominators"][
-        "catalog_provenance"
-    ]
-    catalog_provenance["ambient_discovery"].pop("admission", None)
-    from polisyos.foundry.methods.catalog.snapshot import method_catalog_provenance_id
-
-    catalog_provenance["provenance_id"] = method_catalog_provenance_id(
-        catalog_provenance
-    )
-    malformed_ambient_admission["contract_content_hash"] = _content_hash(
-        malformed_ambient_admission
-    )
+    forged_code = json.loads(json.dumps(base))
+    forged_authority = forged_code["catalog_dependency_authority"]
+    if forged_authority["result_kind"] == "runtime_cutoff_not_established":
+        forged_failure = forged_authority["preflight_refusal"]["failure"]
+    else:
+        forged_failure = forged_authority["failure"]
+    forged_failure["failure_code"] = "dependency_environment_receipt_not_established"
+    forged_code["contract_content_hash"] = _content_hash(forged_code)
     cases.append(
         (
-            "missing_ambient_admission",
-            malformed_ambient_admission,
-            "catalog_ambient_input_not_quarantined",
+            "dependency_failure_code_forged",
+            forged_code,
+            "catalog_dependency_authority_invalid",
         )
     )
 
-    production_contract = json.loads(json.dumps(base))
-    production_contract["native_projector_contract_proofs"][0]["production_value_eligible"] = True
-    production_contract["contract_content_hash"] = _content_hash(production_contract)
+    wrong_freeze = json.loads(json.dumps(base))
+    wrong_authority = wrong_freeze["catalog_dependency_authority"]
+    if wrong_authority["result_kind"] == "runtime_cutoff_not_established":
+        wrong_request = wrong_authority["preflight_refusal"]["request"][
+            "pre_source_request"
+        ]
+    elif wrong_authority["result_kind"] == "source_rejected":
+        wrong_request = wrong_authority["request"]["pre_source_request"]
+    else:
+        wrong_request = wrong_authority["request"]
+    wrong_request["expected_source_freeze_commit"] = "0" * 40
+    wrong_freeze["contract_content_hash"] = _content_hash(wrong_freeze)
     cases.append(
         (
-            "contract_projection_claimed_production",
-            production_contract,
-            "contract_projection_claimed_production_authority",
+            "dependency_source_freeze_substituted",
+            wrong_freeze,
+            "catalog_dependency_source_freeze_mismatch",
         )
     )
 
     results = []
     for case_id, payload, expected_code in cases:
-        issues = validate_payload(payload)
+        issues = validate_payload_result(
+            payload,
+            expected_source_freeze=expected_source_freeze,
+        ).governing_issues
         codes = {str(issue.get("code")) for issue in issues}
         results.append(
             {
@@ -4701,14 +4917,21 @@ def main(argv: list[str] | None = None) -> int:
     modes.add_argument("--corrupt-field-drift-check", action="store_true")
     modes.add_argument("--rederive-audit", action="store_true")
     modes.add_argument("--source-flip-mutations", action="store_true")
+    parser.add_argument("--expected-source-freeze", required=True)
     parser.add_argument("--output-format", choices=("text", "json"), default="text")
     args = parser.parse_args(argv)
     repo_root = _repo_root()
     _ensure_src_path(repo_root)
     if args.corrupt_field_drift_check:
-        return corrupt_field_drift_check(repo_root)
+        return corrupt_field_drift_check(
+            repo_root,
+            expected_source_freeze=args.expected_source_freeze,
+        )
     if args.rederive_audit:
-        result = run_rederive_audit_result(repo_root)
+        result = run_rederive_audit_result(
+            repo_root,
+            expected_source_freeze=args.expected_source_freeze,
+        )
         if result.governing_issues:
             print(
                 json.dumps(
@@ -4727,7 +4950,10 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"results": list(results)}, sort_keys=True))
         return 1 if failures else 0
     if args.check_catalog_provenance:
-        result = check_catalog_provenance_result(repo_root)
+        result = check_catalog_provenance_result(
+            repo_root,
+            expected_source_freeze=args.expected_source_freeze,
+        )
         if result.governing_issues:
             print(
                 json.dumps(
@@ -4753,60 +4979,31 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 0
     if args.reissue_catalog_provenance:
-        path = repo_root / OUTPUT_PATH
-        if not path.exists():
-            print(json.dumps({"status": "fail", "code": "artifact_missing"}, sort_keys=True))
-            return 1
-        recorded = _load_json(path)
-        if recorded.get("contract_content_hash") != _content_hash(recorded):
-            print(
-                json.dumps(
-                    {"status": "fail", "code": "contract_content_hash_mismatch"},
-                    sort_keys=True,
-                )
-            )
-            return 1
-        try:
-            live_denominators, live_ambient_manifest_content = (
-                _catalog_denominator_evidence_cached()
-            )
-            payload = _catalog_provenance_reissue_payload(
-                recorded,
-                json.loads(json.dumps(live_denominators, sort_keys=True)),
-                live_ambient_manifest_content,
-            )
-        except ValueError as exc:
-            print(json.dumps({"status": "fail", "code": str(exc)}, sort_keys=True))
-            return 1
-        issues = validate_payload(payload)
-        if issues:
-            print(json.dumps({"status": "fail", "issues": list(issues)}, sort_keys=True))
-            return 1
-        _write_json(path, payload)
         print(
             json.dumps(
                 {
-                    "status": "written",
-                    "path": OUTPUT_PATH,
-                    "scope": "catalog_provenance_and_source_flip_witness",
+                    "status": "not_established",
+                    "code": "catalog_dependency_authority_not_established",
                 },
                 sort_keys=True,
             )
         )
-        return 0
+        return 1
     if args.write:
-        payload = build_payload(repo_root)
-        issues = validate_payload(payload)
-        if issues:
-            print(json.dumps({"status": "fail", "issues": list(issues)}, sort_keys=True))
-            return 1
-        _write_json(repo_root / OUTPUT_PATH, payload)
-        if args.output_format == "json":
-            print(json.dumps({"status": "written", "path": OUTPUT_PATH}, sort_keys=True))
-        else:
-            print(f"wrote {OUTPUT_PATH}")
-        return 0
-    result = check_result(repo_root)
+        print(
+            json.dumps(
+                {
+                    "status": "not_established",
+                    "code": "catalog_dependency_authority_not_established",
+                },
+                sort_keys=True,
+            )
+        )
+        return 1
+    result = check_result(
+        repo_root,
+        expected_source_freeze=args.expected_source_freeze,
+    )
     if result.governing_issues:
         print(
             json.dumps(

@@ -48,6 +48,11 @@ from polisyos.foundry.methods.backends.runtime_fingerprint import (
 from polisyos.foundry.methods.base import ComputeBackend
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog.causal.capabilities import build_causal_capability_contract
+from polisyos.foundry.methods.catalog.dependency_authority import (
+    DependencyProfileResolutionFailure,
+    MethodCatalogDependencyAuthorityRequest,
+    build_production_method_catalog_dependency_authority,
+)
 from polisyos.foundry.methods.components.value_evidence import (
     resolve_method_value_projection_capabilities,
 )
@@ -396,8 +401,26 @@ def _build_method_catalog_snapshot_from_admitted_registry(
 
 def build_method_catalog_runtime_identity(
     snapshot: MethodCatalogSnapshot,
+    *,
+    dependency_authority_request: MethodCatalogDependencyAuthorityRequest,
+) -> DependencyProfileResolutionFailure:
+    """Return the Foundry owner's current typed dependency-authority result.
+
+    The snapshot is intentionally not inspected before the owner resolves the
+    request.  V1 has no positive public arm, so ambient runtime projection is
+    unreachable from this boundary.
+    """
+
+    del snapshot
+    return build_production_method_catalog_dependency_authority().resolve(
+        dependency_authority_request
+    )
+
+
+def _build_candidate_method_catalog_runtime_identity(
+    snapshot: MethodCatalogSnapshot,
 ) -> dict[str, Any]:
-    """Build a named package/backend identity from snapshot-owned runtime posture."""
+    """Build non-authoritative candidate runtime posture for internal tests."""
     bindings: list[dict[str, Any]] = []
     package_versions: dict[str, set[str]] = {}
     backend_fingerprints: set[tuple[str, str]] = set()
@@ -479,10 +502,28 @@ def build_method_catalog_provenance_manifest(
     *,
     registry_report: FoundryExtensionRegistryReport,
     ambient_manifest: ComponentDiscoveryManifest,
+    dependency_authority_request: MethodCatalogDependencyAuthorityRequest,
+    additional_predicate_provenance: Sequence[Mapping[str, object]] = (),
+    predicate_bindings: Mapping[str, Sequence[str]] | None = None,
+) -> DependencyProfileResolutionFailure:
+    """Return the same owner result before reading candidate provenance inputs."""
+
+    del snapshot, registry_report, ambient_manifest
+    del additional_predicate_provenance, predicate_bindings
+    return build_production_method_catalog_dependency_authority().resolve(
+        dependency_authority_request
+    )
+
+
+def _build_candidate_method_catalog_provenance_manifest(
+    snapshot: MethodCatalogSnapshot,
+    *,
+    registry_report: FoundryExtensionRegistryReport,
+    ambient_manifest: ComponentDiscoveryManifest,
     additional_predicate_provenance: Sequence[Mapping[str, object]] = (),
     predicate_bindings: Mapping[str, Sequence[str]] | None = None,
 ) -> dict[str, Any]:
-    """Bind discovery, runtime identity, and consumer-specific gate predicates."""
+    """Bind candidate discovery/runtime posture without authority promotion."""
     governed_manifest = registry_report.discovery_manifest
     if governed_manifest is None or not governed_manifest.is_bound:
         raise MethodCatalogDiscoveryProvenanceError("catalog_governed_discovery_manifest_unbound")
@@ -644,7 +685,7 @@ def build_method_catalog_provenance_manifest(
                 "fail_closed_action": "quarantine",
             },
         },
-        "runtime_backend_identity": build_method_catalog_runtime_identity(snapshot),
+        "runtime_backend_identity": _build_candidate_method_catalog_runtime_identity(snapshot),
         "predicate_provenance": predicate_provenance,
         "predicate_bindings": canonical_bindings,
         "predicate_admission_policy": [

@@ -21,6 +21,16 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
 
+@pytest.fixture(autouse=True)
+def _isolate_polisyos_cache(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep catalog caches out of the appointed hermetic tooling home."""
+
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "polisyos-cache").as_posix())
+
+
 class _LocalOPAStub:
     """Serve canonical Rego decisions through the real OPA HTTP client path."""
 
@@ -1006,6 +1016,42 @@ def test_production_data_static_reports_missing_manifest_cleanly(tmp_path: Path)
     assert result["status"] == "fail"
     assert result["code"] == "production_data_manifest_missing"
     assert result["details"]["issues"][0]["code"] == "production_data_manifest_missing"
+
+
+def test_n10a_preserves_the_exact_n8_dependency_authority_nonreceipt() -> None:
+    import subprocess
+
+    from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
+    from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
+
+    repo_root = Path(__file__).resolve().parents[3]
+    source_freeze = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=repo_root,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    payload = n8.build_payload(
+        repo_root,
+        expected_source_freeze=source_freeze,
+    )
+    authority = payload["catalog_dependency_authority"]
+    if authority["result_kind"] == "runtime_cutoff_not_established":
+        expected_code = authority["preflight_refusal"]["failure"]["failure_code"]
+    else:
+        expected_code = authority["failure"]["failure_code"]
+
+    evidence = n10a._n8_transport_gap_closure(
+        payload,
+        expected_education_covariates=(),
+        expected_source_freeze=source_freeze,
+    )
+
+    assert evidence["closed"] is False
+    assert evidence["reason_code"] == expected_code
+    assert evidence["reason_code"] != "n8_value_contract_invalid"
+    assert evidence["result_kind"] == authority["result_kind"]
 
 
 def test_production_data_static_exports_compatibility_projection_findings(

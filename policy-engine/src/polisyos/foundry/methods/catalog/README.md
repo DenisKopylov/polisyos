@@ -17,6 +17,11 @@ by domain family and registered into the shared `MethodRegistry`.
 - **Flat public surface** - high-level packages remain importable without deep legacy shims.
 - **Causal is largest** - discovery, estimation, transportability, policy learning and strategic response families live there.
 - **Optional dependencies** - families can degrade gracefully when scientific stacks are unavailable.
+- **Dependency authority** - tracked Foundry registries bind the N8 root,
+  extras, lock, resolver, digest domains, and source-freeze predicate. The
+  production boundary currently returns the typed
+  `owner_enforced_runtime_subtree_cutoff_not_established` refusal before any
+  environment sync or candidate projection.
 
 ## Public API
 
@@ -28,11 +33,17 @@ by domain family and registered into the shared `MethodRegistry`.
 | `ensure_optimization_methods_registered()` | Registers optimization methods.           |
 | `ensure_ml_methods_registered()`           | Registers ml methods.                     |
 | `ensure_simulation_methods_registered()`   | Registers simulation methods.             |
+| `MethodCatalogDependencyAuthorityRequest`  | Supplies only purpose, source freeze, and absolute request coordinates. |
+| `build_method_catalog_runtime_identity()`  | Resolves the negative-only Foundry dependency authority. |
+| `build_method_catalog_provenance_manifest()` | Resolves the same authority before candidate provenance. |
 
 → Full reference: [docs/reference/foundry/index.md](../../../../../docs/reference/foundry/index.md)
 
 ## Current State
 
-- Last updated: 2026-04-03
-- Files: 197 Python files
-- Exports: 17
+- Last updated: 2026-08-22
+- GY-DEF22 remains `producer_missing`; Foundry correctness adjudication is owed.
+- Refusal persistence is `not_established` because the owner-resolved,
+  request-bound receipt store is `absent/unallocated`.
+- Runtime-subtree cutoff authority is `absent/unallocated`; two matching walks
+  would remain candidate observations rather than an authority-grade cutoff.

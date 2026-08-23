@@ -1,0 +1,989 @@
+schema_version = "polisyos.foundry.digest-domain-registry.v1"
+
+[[domains]]
+domain_id = "raw-blob"
+prefix_hex = "706f6c6973796f732e666f756e6472792e7261772d626c6f622e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "exact_bytes"
+derivation_evidence = ["generic:ExactBytes"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "canonical-source-authority"
+prefix_hex = "706f6c6973796f732e666f756e6472792e63616e6f6e6963616c2d736f757263652d617574686f726974792e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["CanonicalFoundrySourceAuthorityStatement"]
+phase = "resolution"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "dependency-profile-registry"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d70726f66696c652d72656769737472792e763100"
+algebra_id = "tracked_toml_v1"
+preimage_kind = "tracked_toml"
+producer_id = "tracked_toml_v1"
+verifier_id = "reparse_tracked_toml_v1"
+ordering_rule = "toml_utf8_canon_v1"
+derivation_rule = "tracked_toml"
+derivation_evidence = ["architecture/production_quality/method_catalog_dependency_profiles.toml"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "dependency-authority-registry"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d617574686f726974792d72656769737472792e763100"
+algebra_id = "tracked_toml_v1"
+preimage_kind = "tracked_toml"
+producer_id = "tracked_toml_v1"
+verifier_id = "reparse_tracked_toml_v1"
+ordering_rule = "toml_utf8_canon_v1"
+derivation_rule = "tracked_toml"
+derivation_evidence = ["architecture/production_quality/method_catalog_dependency_authority.toml"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "digest-domain-registry"
+prefix_hex = "706f6c6973796f732e666f756e6472792e6469676573742d646f6d61696e2d72656769737472792e763100"
+algebra_id = "tracked_toml_v1"
+preimage_kind = "tracked_toml"
+producer_id = "tracked_toml_v1"
+verifier_id = "reparse_tracked_toml_v1"
+ordering_rule = "toml_utf8_canon_v1"
+derivation_rule = "tracked_toml"
+derivation_evidence = ["architecture/production_quality/method_catalog_dependency_digest_domains.toml"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "dependency-profile-declaration"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d70726f66696c652d6465636c61726174696f6e2e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["MethodCatalogDependencyProfileDeclaration"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "profile-admission"
+prefix_hex = "706f6c6973796f732e666f756e6472792e70726f66696c652d61646d697373696f6e2e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["MethodCatalogProfileAdmission"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "pyproject-blob"
+prefix_hex = "706f6c6973796f732e666f756e6472792e707970726f6a6563742d626c6f622e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "exact_bytes"
+derivation_evidence = ["pyproject.toml:exact-bytes"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "uv-lock-blob"
+prefix_hex = "706f6c6973796f732e666f756e6472792e75762d6c6f636b2d626c6f622e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "exact_bytes"
+derivation_evidence = ["uv.lock:exact-bytes"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-selected-artifact"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d73656c65637465642d61727469666163742e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["ToolchainArtifactAdmission.selected_artifact_ref"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-executable-blob"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d65786563757461626c652d626c6f622e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["ToolchainArtifactAdmission.executable_blob_ref"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-runtime-installation"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d72756e74696d652d696e7374616c6c6174696f6e2e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["PythonRuntimeManifestStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-runtime-observed"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d72756e74696d652d6f627365727665642e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["ObservedPythonRuntimeStatement"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-runtime-root-resolution"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d72756e74696d652d726f6f742d7265736f6c7574696f6e2e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["PythonRuntimeRootResolutionStatement"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-runtime-root-token"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d72756e74696d652d726f6f742d746f6b656e2e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["PosixRuntimeRootIdentityStatement"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-runtime-root-path"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d72756e74696d652d726f6f742d706174682e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "exact_bytes"
+derivation_evidence = ["plan:os.fsencode(realpath)"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-runtime-source-binding"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d72756e74696d652d736f757263652d62696e64696e672e763100"
+algebra_id = "relation_v1"
+preimage_kind = "relation"
+producer_id = "relation_v1"
+verifier_id = "recompute_relation_v1"
+ordering_rule = "ordered_framed_relation_v1"
+derivation_rule = "computed_relation"
+derivation_evidence = ["PythonRuntimeSourceBindingStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-runtime-root-installation-receipt"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d72756e74696d652d726f6f742d696e7374616c6c6174696f6e2d726563656970742e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["PythonRuntimeInstallationStatement"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "toolchain-runtime-verification"
+prefix_hex = "706f6c6973796f732e666f756e6472792e746f6f6c636861696e2d72756e74696d652d766572696669636174696f6e2e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["PythonRuntimeVerificationReceiptStatement"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "trust-material"
+prefix_hex = "706f6c6973796f732e666f756e6472792e74727573742d6d6174657269616c2e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["TrustMaterialStatement"]
+phase = "stable"
+signature_requirement = "signed"
+required_signer_role = "foundry_trust_root"
+
+[[domains]]
+domain_id = "trust-revocation"
+prefix_hex = "706f6c6973796f732e666f756e6472792e74727573742d7265766f636174696f6e2e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["TrustRevocationStatement"]
+phase = "stable"
+signature_requirement = "signed"
+required_signer_role = "foundry_trust_root"
+
+[[domains]]
+domain_id = "trust-resolution-receipt"
+prefix_hex = "706f6c6973796f732e666f756e6472792e74727573742d7265736f6c7574696f6e2d726563656970742e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["TrustResolutionReceiptStatement"]
+phase = "resolution"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "production-data-trust-policy"
+prefix_hex = "706f6c6973796f732e666f756e6472792e70726f64756374696f6e2d646174612d74727573742d706f6c6963792e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["ProductionDataTrustPolicyStatement"]
+phase = "stable"
+signature_requirement = "signed"
+required_signer_role = "foundry_trust_root"
+
+[[domains]]
+domain_id = "verifier-provenance"
+prefix_hex = "706f6c6973796f732e666f756e6472792e76657269666965722d70726f76656e616e63652e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["VerifierProvenanceStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "production-data-manifest"
+prefix_hex = "706f6c6973796f732e666f756e6472792e70726f64756374696f6e2d646174612d6d616e69666573742e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "exact_bytes"
+derivation_evidence = ["ProductionDataManifestPresent.exact_bytes"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "production-data-appointment"
+prefix_hex = "706f6c6973796f732e666f756e6472792e70726f64756374696f6e2d646174612d6170706f696e746d656e742e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["ProductionDataInputAppointmentStatement"]
+phase = "stable"
+signature_requirement = "signed"
+required_signer_role = "appointment_issuer"
+
+[[domains]]
+domain_id = "production-data-custody"
+prefix_hex = "706f6c6973796f732e666f756e6472792e70726f64756374696f6e2d646174612d637573746f64792e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["ProductionDataCustodyStatement"]
+phase = "stable"
+signature_requirement = "signed"
+required_signer_role = "custody_verifier"
+
+[[domains]]
+domain_id = "root-access-nonce"
+prefix_hex = "706f6c6973796f732e666f756e6472792e726f6f742d6163636573732d6e6f6e63652e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["ProductionDataRootAccessChallenge.challenge_nonce"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "root-access-challenge"
+prefix_hex = "706f6c6973796f732e666f756e6472792e726f6f742d6163636573732d6368616c6c656e67652e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["ProductionDataRootAccessChallenge"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "root-mount-request"
+prefix_hex = "706f6c6973796f732e666f756e6472792e726f6f742d6d6f756e742d726571756573742e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["DependencyAuthorityPreSourceRequestStatement.production_data_request_token"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "root-mount-resolution"
+prefix_hex = "706f6c6973796f732e666f756e6472792e726f6f742d6d6f756e742d7265736f6c7574696f6e2e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["ProductionDataMountResolutionStatement"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "production-data-root-access"
+prefix_hex = "706f6c6973796f732e666f756e6472792e70726f64756374696f6e2d646174612d726f6f742d6163636573732e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["RootAccessAttestationStatement"]
+phase = "instance"
+signature_requirement = "signed"
+required_signer_role = "root_access_attestor"
+
+[[domains]]
+domain_id = "locked-source"
+prefix_hex = "706f6c6973796f732e666f756e6472792e6c6f636b65642d736f757263652e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["SelectedDistributionArtifactEvidence.locked_source_ref"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "selected-distribution-artifact"
+prefix_hex = "706f6c6973796f732e666f756e6472792e73656c65637465642d646973747269627574696f6e2d61727469666163742e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["SelectedDistributionArtifactEvidence"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "selected-wheel-blob"
+prefix_hex = "706f6c6973796f732e666f756e6472792e73656c65637465642d776865656c2d626c6f622e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["SelectedWheelArtifactEvidence.wheel_blob_ref"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "selected-source-artifact"
+prefix_hex = "706f6c6973796f732e666f756e6472792e73656c65637465642d736f757263652d61727469666163742e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["SelectedBuiltArtifactEvidence.source_blob_ref"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "wheel-record-manifest"
+prefix_hex = "706f6c6973796f732e666f756e6472792e776865656c2d7265636f72642d6d616e69666573742e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["WheelRecordManifestStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "source-tree-manifest"
+prefix_hex = "706f6c6973796f732e666f756e6472792e736f757263652d747265652d6d616e69666573742e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["SourceTreeManifestStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "build-profile"
+prefix_hex = "706f6c6973796f732e666f756e6472792e6275696c642d70726f66696c652e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["BuildProfileStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "build-argv"
+prefix_hex = "706f6c6973796f732e666f756e6472792e6275696c642d617267762e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["BuildLineageStatement.normalized_argv_hash"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "build-environment"
+prefix_hex = "706f6c6973796f732e666f756e6472792e6275696c642d656e7669726f6e6d656e742e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["BuildLineageStatement.build_environment_hash"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "build-lineage-receipt"
+prefix_hex = "706f6c6973796f732e666f756e6472792e6275696c642d6c696e656167652d726563656970742e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["BuildLineageStatement"]
+phase = "stable"
+signature_requirement = "signed"
+required_signer_role = "build_verifier"
+
+[[domains]]
+domain_id = "installed-tree-stable"
+prefix_hex = "706f6c6973796f732e666f756e6472792e696e7374616c6c65642d747265652d737461626c652e763100"
+algebra_id = "ordered_rows_v1"
+preimage_kind = "ordered_rows"
+producer_id = "ordered_rows_v1"
+verifier_id = "recompute_ordered_rows_v1"
+ordering_rule = "lexicographic_framed_rows_v1"
+derivation_rule = "ordered_rows"
+derivation_evidence = ["StableInstalledFileRow"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "installed-tree-instance"
+prefix_hex = "706f6c6973796f732e666f756e6472792e696e7374616c6c65642d747265652d696e7374616e63652e763100"
+algebra_id = "ordered_rows_v1"
+preimage_kind = "ordered_rows"
+producer_id = "ordered_rows_v1"
+verifier_id = "recompute_ordered_rows_v1"
+ordering_rule = "lexicographic_framed_rows_v1"
+derivation_rule = "ordered_rows"
+derivation_evidence = ["InstalledInstanceFileRow"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "installed-source-binding"
+prefix_hex = "706f6c6973796f732e666f756e6472792e696e7374616c6c65642d736f757263652d62696e64696e672e763100"
+algebra_id = "relation_v1"
+preimage_kind = "relation"
+producer_id = "relation_v1"
+verifier_id = "recompute_relation_v1"
+ordering_rule = "ordered_framed_relation_v1"
+derivation_rule = "computed_relation"
+derivation_evidence = ["InstalledSourceBindingStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "distribution-set"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646973747269627574696f6e2d7365742e763100"
+algebra_id = "ordered_rows_v1"
+preimage_kind = "ordered_rows"
+producer_id = "ordered_rows_v1"
+verifier_id = "recompute_ordered_rows_v1"
+ordering_rule = "lexicographic_framed_rows_v1"
+derivation_rule = "ordered_rows"
+derivation_evidence = ["ResolvedMethodCatalogDependencyProfile.distributions"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "required-content-set-stable"
+prefix_hex = "706f6c6973796f732e666f756e6472792e72657175697265642d636f6e74656e742d7365742d737461626c652e763100"
+algebra_id = "ordered_rows_v1"
+preimage_kind = "ordered_rows"
+producer_id = "ordered_rows_v1"
+verifier_id = "recompute_ordered_rows_v1"
+ordering_rule = "lexicographic_framed_rows_v1"
+derivation_rule = "ordered_rows"
+derivation_evidence = ["StableInstalledFileRow"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "required-content-set-instance"
+prefix_hex = "706f6c6973796f732e666f756e6472792e72657175697265642d636f6e74656e742d7365742d696e7374616e63652e763100"
+algebra_id = "ordered_rows_v1"
+preimage_kind = "ordered_rows"
+producer_id = "ordered_rows_v1"
+verifier_id = "recompute_ordered_rows_v1"
+ordering_rule = "lexicographic_framed_rows_v1"
+derivation_rule = "ordered_rows"
+derivation_evidence = ["InstalledInstanceFileRow"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "dependency-closure"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d636c6f737572652e763100"
+algebra_id = "relation_v1"
+preimage_kind = "relation"
+producer_id = "relation_v1"
+verifier_id = "recompute_relation_v1"
+ordering_rule = "ordered_framed_relation_v1"
+derivation_rule = "computed_relation"
+derivation_evidence = ["ResolvedMethodCatalogDependencyProfile"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "derived-uv-argv"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646572697665642d75762d617267762e763100"
+algebra_id = "relation_v1"
+preimage_kind = "relation"
+producer_id = "relation_v1"
+verifier_id = "recompute_relation_v1"
+ordering_rule = "ordered_framed_relation_v1"
+derivation_rule = "computed_relation"
+derivation_evidence = ["sync_dependency_profile:derive-uv-argv"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "environment-instance"
+prefix_hex = "706f6c6973796f732e666f756e6472792e656e7669726f6e6d656e742d696e7374616e63652e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["DependencyEnvironmentMarkerStatement.environment_creation_nonce"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "dependency-environment-marker"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d656e7669726f6e6d656e742d6d61726b65722e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["DependencyEnvironmentMarkerStatement"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "dependency-environment-receipt"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d656e7669726f6e6d656e742d726563656970742e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["DependencyProfileEnvironmentStatement"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "dependency-authority-capsule"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d617574686f726974792d63617073756c652e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["FoundryDependencyAuthorityCapsuleStatement"]
+phase = "resolution"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "dependency-resolution-request"
+prefix_hex = "706f6c6973796f732e666f756e6472792e646570656e64656e63792d7265736f6c7574696f6e2d726571756573742e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["DependencyAuthorityPreSourceRequestStatement|DependencyAuthorityResolvedSourceRequestStatement"]
+phase = "instance"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "detached-signature-evidence"
+prefix_hex = "706f6c6973796f732e666f756e6472792e64657461636865642d7369676e61747572652d65766964656e63652e763100"
+algebra_id = "canonical_statement_v1"
+preimage_kind = "canonical_statement"
+producer_id = "canonical_statement_v1"
+verifier_id = "recompute_canonical_statement_v1"
+ordering_rule = "canon_json_v1"
+derivation_rule = "statement_class"
+derivation_evidence = ["ExactSignedArtifactEvidenceStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "signed-record-binding"
+prefix_hex = "706f6c6973796f732e666f756e6472792e7369676e65642d7265636f72642d62696e64696e672e763100"
+algebra_id = "relation_v1"
+preimage_kind = "relation"
+producer_id = "relation_v1"
+verifier_id = "recompute_relation_v1"
+ordering_rule = "ordered_framed_relation_v1"
+derivation_rule = "computed_relation"
+derivation_evidence = ["SignedFoundryRecordBindingStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "signed-binding-index"
+prefix_hex = "706f6c6973796f732e666f756e6472792e7369676e65642d62696e64696e672d696e6465782e763100"
+algebra_id = "relation_v1"
+preimage_kind = "relation"
+producer_id = "relation_v1"
+verifier_id = "recompute_relation_v1"
+ordering_rule = "ordered_framed_relation_v1"
+derivation_rule = "computed_relation"
+derivation_evidence = ["SignedRecordBindingIndexStatement"]
+phase = "stable"
+signature_requirement = "unsigned"
+required_signer_role = "none"
+
+[[domains]]
+domain_id = "verifier-appointment"
+prefix_hex = "706f6c6973796f732e666f756e6472792e76657269666965722d6170706f696e746d656e742e763100"
+algebra_id = "raw_blob_v1"
+preimage_kind = "raw_blob"
+producer_id = "raw_blob_v1"
+verifier_id = "rehash_raw_blob_v1"
+ordering_rule = "raw_bytes_identity"
+derivation_rule = "carried_value"
+derivation_evidence = ["ExternalAuthorityRef.resolver_appointment_ref"]
+phase = "stable"
+signature_requirement = "signed"
+required_signer_role = "foundry_trust_root"
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "canonical_source_freeze"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["canonical-source-authority"]
+rejected_code = "source_freeze_mismatch"
+rejected_requirement_kind = "source_freeze_relation"
+rejected_evidence_domains = ["canonical-source-authority"]
+not_established_code = "canonical_foundry_source_not_established"
+not_established_evidence_domains = ["canonical-source-authority"]
+
+[[predicates]]
+branch_shape = "not_established_only"
+predicate_id = "owner_enforced_runtime_subtree_cutoff"
+not_established_code = "owner_enforced_runtime_subtree_cutoff_not_established"
+capability_id = "owner_enforced_runtime_subtree_cutoff"
+capability_state = "absent/unallocated"
+candidate_evidence_rule = "orthogonal_present_or_not_requested"
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "authority_registry"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["dependency-authority-registry"]
+rejected_code = "dependency_authority_registry_invalid"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["dependency-authority-registry"]
+not_established_code = "dependency_authority_registry_not_established"
+not_established_evidence_domains = ["dependency-authority-registry"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "purpose_profile_admission"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["profile-admission", "dependency-profile-declaration"]
+rejected_code = "dependency_profile_input_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["profile-admission", "dependency-profile-declaration"]
+not_established_code = "dependency_profile_not_admitted_for_purpose"
+not_established_evidence_domains = ["profile-admission"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "trust_signature"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["trust-material", "trust-revocation", "verifier-provenance"]
+rejected_code = "dependency_trust_signature_invalid"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["detached-signature-evidence", "trust-material"]
+not_established_code = "dependency_trust_material_not_established"
+not_established_evidence_domains = ["trust-material", "trust-revocation"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "production_data_appointment"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["production-data-appointment", "trust-resolution-receipt"]
+rejected_code = "production_data_appointment_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["production-data-appointment"]
+not_established_code = "production_data_appointment_not_established"
+not_established_evidence_domains = ["production-data-appointment", "trust-resolution-receipt"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "fresh_root_access"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["production-data-root-access", "root-access-challenge"]
+rejected_code = "production_data_root_access_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["production-data-root-access", "root-mount-resolution"]
+not_established_code = "production_data_root_access_not_established"
+not_established_evidence_domains = ["production-data-root-access"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "production_data_manifest"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["production-data-manifest"]
+rejected_code = "production_data_manifest_content_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["production-data-manifest"]
+not_established_code = "production_data_manifest_missing"
+not_established_evidence_domains = ["production-data-manifest"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "selected_distribution_artifact"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["selected-distribution-artifact", "selected-wheel-blob", "selected-source-artifact"]
+rejected_code = "selected_distribution_artifact_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["selected-distribution-artifact"]
+not_established_code = "selected_distribution_artifact_not_established"
+not_established_evidence_domains = ["selected-distribution-artifact"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "build_lineage"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["build-lineage-receipt", "build-profile", "build-argv", "build-environment"]
+rejected_code = "build_lineage_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["build-lineage-receipt"]
+not_established_code = "build_lineage_not_established"
+not_established_evidence_domains = ["build-lineage-receipt"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "python_runtime"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["toolchain-runtime-verification", "toolchain-runtime-source-binding"]
+rejected_code = "python_runtime_manifest_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["toolchain-runtime-verification"]
+not_established_code = "python_runtime_not_established"
+not_established_evidence_domains = ["toolchain-runtime-installation"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "uv_executable"
+admitted_classes = ["recomputed"]
+satisfied_evidence_domains = ["toolchain-selected-artifact", "toolchain-executable-blob"]
+rejected_code = "resolver_executable_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["toolchain-executable-blob"]
+not_established_code = "resolver_executable_not_established"
+not_established_evidence_domains = ["toolchain-selected-artifact"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "installed_source_binding"
+admitted_classes = ["recomputed", "independently_reconciled"]
+satisfied_evidence_domains = ["installed-source-binding", "locked-source"]
+rejected_code = "required_distribution_source_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["installed-source-binding"]
+not_established_code = "installed_source_binding_not_established"
+not_established_evidence_domains = ["installed-source-binding"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "installed_content"
+admitted_classes = ["recomputed", "independently_reconciled"]
+satisfied_evidence_domains = ["installed-tree-stable", "required-content-set-stable"]
+rejected_code = "required_distribution_content_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["installed-tree-instance", "required-content-set-instance"]
+not_established_code = "installed_content_not_established"
+not_established_evidence_domains = ["installed-tree-stable"]
+
+[[predicates]]
+branch_shape = "bidirectional"
+predicate_id = "environment_receipt"
+admitted_classes = ["recomputed", "independently_reconciled"]
+satisfied_evidence_domains = ["dependency-environment-receipt", "dependency-environment-marker"]
+rejected_code = "dependency_environment_receipt_mismatch"
+rejected_requirement_kind = "domain_evidence"
+rejected_evidence_domains = ["dependency-environment-receipt"]
+not_established_code = "dependency_environment_receipt_not_established"
+not_established_evidence_domains = ["dependency-environment-receipt"]

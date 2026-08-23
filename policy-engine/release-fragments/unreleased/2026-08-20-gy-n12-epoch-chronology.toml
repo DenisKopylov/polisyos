@@ -1,0 +1,39 @@
+id = "2026-08-20-gy-n12-epoch-chronology"
+title = "Expose the Foundry dependency-authority refusal"
+type = "changed"
+component = "foundry"
+owner = "team-foundry"
+summary = "Add content-bound dependency-profile registries and make both method-catalog identity builders resolve the Foundry-owned negative-only authority before consulting ambient runtime posture."
+evidence = [
+  "tests/unit/foundry/methods/test_dependency_profile.py",
+  "tests/unit/foundry/methods/test_catalog_snapshot.py",
+  "tests/typecheck/foundry/dependency_authority_covariance.py",
+]
+compatibility = "The two public method-catalog builders now require a MethodCatalogDependencyAuthorityRequest and return a typed failure union; v1 deliberately has no positive dictionary arm."
+change_class = "python-public-api"
+surface_classification = "public_experimental: polisyos.foundry"
+migration = "Construct the request from the fixed N8 purpose, source-freeze commit, production-data root, and environment root; stop on every returned negative variant."
+api = "Adds MethodCatalogDependencyAuthorityRequest and DependencyProfileResolutionFailure, and changes build_method_catalog_runtime_identity and build_method_catalog_provenance_manifest to return that negative-only union."
+limitations = "GY-DEF22 remains producer_missing with artifact_missing, semantic_test_missing, and surface_missing. Runtime cutoff authority and a request-bound refusal-receipt store are absent/unallocated, so refusal persistence is not_established and Foundry adjudication remains owed."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/foundry/methods/catalog/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "foundry-method-catalog-dependency-authority"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_experimental: polisyos.foundry method-catalog dependency authority"
+owner = "team-foundry"
+version_owner = "team-foundry"
+deprecation_window = "not_applicable"
+release_note = "Method-catalog identity builders now fail closed through the Foundry-owned dependency-authority request and typed v1 refusal union."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/foundry/methods/catalog/README.md",
+]
+runbook_docs = []

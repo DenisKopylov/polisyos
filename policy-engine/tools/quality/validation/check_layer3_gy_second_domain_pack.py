@@ -432,6 +432,7 @@ def declared_outputs() -> list[str]:
 def build_live_bundle(
     repo_root: Path,
     *,
+    expected_source_freeze: str | None = None,
     allow_live_n4_capture: bool = False,
     n4_capture_journal: Path | None = None,
 ) -> dict[str, Any]:
@@ -440,6 +441,7 @@ def build_live_bundle(
     with _temporary_environment(_CONTROLLED_N7_ENV):
         return _build_live_bundle(
             repo_root,
+            expected_source_freeze=expected_source_freeze,
             allow_live_n4_capture=allow_live_n4_capture,
             n4_capture_journal=n4_capture_journal,
         )
@@ -448,6 +450,7 @@ def build_live_bundle(
 def _build_live_bundle(
     repo_root: Path,
     *,
+    expected_source_freeze: str | None = None,
     allow_live_n4_capture: bool = False,
     n4_capture_journal: Path | None = None,
 ) -> dict[str, Any]:
@@ -476,10 +479,16 @@ def _build_live_bundle(
         root,
         smoke_problem,
         cycle_substrate_context=cycle_substrate_context,
+        expected_source_freeze=expected_source_freeze,
         allow_live_n4_capture=allow_live_n4_capture,
         n4_capture_journal=n4_capture_journal,
     )
-    gaps = _build_gap_report(root, source_facts, cycle_trace)
+    gaps = _build_gap_report(
+        root,
+        source_facts,
+        cycle_trace,
+        expected_source_freeze=expected_source_freeze,
+    )
     pack = _build_pack(
         root,
         census,
@@ -506,7 +515,12 @@ def _build_live_bundle(
     }
 
 
-def validate_bundle_payloads(bundle: Mapping[str, Any], repo_root: Path) -> list[dict[str, Any]]:
+def validate_bundle_payloads(
+    bundle: Mapping[str, Any],
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> list[dict[str, Any]]:
     """Validate frozen content, owner evidence, distinctness, and terminal honesty."""
 
     root = repo_root.resolve()
@@ -541,12 +555,23 @@ def validate_bundle_payloads(bundle: Mapping[str, Any], repo_root: Path) -> list
     _validate_coverage_denominators(census, pack, gaps, issues)
     _validate_gap_witnesses(root, gaps, issues)
     _validate_smoke_terminal(smoke_problem, cycle_trace, issues)
-    _validate_stage_1_cycle_receipts(root, pack, cycle_trace, gaps, issues)
+    _validate_stage_1_cycle_receipts(
+        root,
+        pack,
+        cycle_trace,
+        gaps,
+        issues,
+        expected_source_freeze=expected_source_freeze,
+    )
     _validate_zero_engine_code(root, pack, issues)
     return issues
 
 
-def validate(repo_root: Path) -> dict[str, Any]:
+def validate(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> dict[str, Any]:
     """Validate frozen artifacts without reopening external owner stores."""
 
     started = time.monotonic()
@@ -559,7 +584,11 @@ def validate(repo_root: Path) -> dict[str, Any]:
             "issues": [{"code": "second_domain_pack_artifact_missing", "error": str(exc)}],
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         }
-    issues = validate_bundle_payloads(bundle, root)
+    issues = validate_bundle_payloads(
+        bundle,
+        root,
+        expected_source_freeze=expected_source_freeze,
+    )
     census_metrics = _mapping(_mapping(bundle.get("census")).get("runtime_metrics"))
     return {
         "status": "pass" if not issues else "fail",
@@ -569,21 +598,32 @@ def validate(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def rederive_audit(repo_root: Path) -> dict[str, Any]:
+def rederive_audit(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> dict[str, Any]:
     """Rebuild owner facts and require byte-for-byte agreement with frozen output."""
 
     started = time.monotonic()
     root = repo_root.resolve()
     try:
         frozen = _load_frozen_bundle(root)
-        live = build_live_bundle(root)
+        live = build_live_bundle(
+            root,
+            expected_source_freeze=expected_source_freeze,
+        )
     except OwnerDataUnavailableError as exc:
         return {
             "status": "fail",
             "issues": [{"code": "owner_data_unavailable", "error": str(exc)}],
             "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
         }
-    issues = validate_bundle_payloads(live, root)
+    issues = validate_bundle_payloads(
+        live,
+        root,
+        expected_source_freeze=expected_source_freeze,
+    )
     _preserve_frozen_operational_metrics(live, root)
     for name in ("census", "pack", "smoke_problem", "cycle_trace", "gaps"):
         if _content_bound_canonical_json(live[name]) != _content_bound_canonical_json(frozen[name]):
@@ -603,7 +643,11 @@ def rederive_audit(repo_root: Path) -> dict[str, Any]:
     }
 
 
-def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
+def corrupt_field_drift_check(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str | None = None,
+) -> dict[str, Any]:
     """Exercise owner provenance, distinctness, terminal, and code-scope mutations."""
 
     started = time.monotonic()
@@ -726,12 +770,20 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         "manifest_content_hash",
         excluded_fields=("runtime_metrics",),
     )
-    issues = validate_bundle_payloads(corrupted, root)
+    issues = validate_bundle_payloads(
+        corrupted,
+        root,
+        expected_source_freeze=expected_source_freeze,
+    )
     mutation_results: list[dict[str, Any]] = []
     per_mutation_missing: set[str] = set()
     all_issues = list(issues)
     for mutation_id, mutation in _cycle_substrate_corruption_bundles(bundle):
-        mutation_issues = validate_bundle_payloads(mutation, root)
+        mutation_issues = validate_bundle_payloads(
+            mutation,
+            root,
+            expected_source_freeze=expected_source_freeze,
+        )
         mutation_codes = sorted(
             {str(issue.get("code")) for issue in mutation_issues if issue.get("code")}
         )
@@ -744,7 +796,11 @@ def corrupt_field_drift_check(repo_root: Path) -> dict[str, Any]:
         all_issues.extend(mutation_issues)
     smoke_mutation_results: list[dict[str, Any]] = []
     for mutation_id, mutation in _smoke_terminal_corruption_bundles(bundle):
-        mutation_issues = validate_bundle_payloads(mutation, root)
+        mutation_issues = validate_bundle_payloads(
+            mutation,
+            root,
+            expected_source_freeze=expected_source_freeze,
+        )
         mutation_codes = sorted(
             {str(issue.get("code")) for issue in mutation_issues if issue.get("code")}
         )
@@ -1029,6 +1085,7 @@ def _rehash_cycle_substrate_mutation(bundle: dict[str, Any]) -> None:
 def write(
     repo_root: Path,
     *,
+    expected_source_freeze: str | None = None,
     allow_live_n4_capture: bool = False,
     n4_capture_journal: Path | None = None,
     expected_transition_manifest: Mapping[str, Any] | None = None,
@@ -1041,11 +1098,16 @@ def write(
     _require_n10a_source_scope_clean(root)
     bundle = build_live_bundle(
         root,
+        expected_source_freeze=expected_source_freeze,
         allow_live_n4_capture=allow_live_n4_capture,
         n4_capture_journal=n4_capture_journal,
     )
     _preserve_frozen_operational_metrics(bundle, root)
-    issues = validate_bundle_payloads(bundle, root)
+    issues = validate_bundle_payloads(
+        bundle,
+        root,
+        expected_source_freeze=expected_source_freeze,
+    )
     if issues:
         return {
             "status": "fail",
@@ -2492,6 +2554,7 @@ def _build_cycle_trace(
     root: Path,
     smoke_problem: Mapping[str, Any],
     *,
+    expected_source_freeze: str | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
     n4_owner_capture: Mapping[str, Any] | None = None,
     allow_live_n4_capture: bool = False,
@@ -2690,6 +2753,7 @@ def _build_cycle_trace(
     n8_transport_evidence = _n8_transport_gap_closure_from_root(
         root,
         expected_education_covariates=expected_transport_covariates,
+        expected_source_freeze=expected_source_freeze,
     )
     raw_run_payload = run_result.model_dump(mode="json")
     run_payload, runtime_metrics = _normalize_n6_run_payload(raw_run_payload)
@@ -4262,6 +4326,8 @@ def _build_gap_report(
     root: Path,
     facts: Mapping[str, Any],
     cycle_trace: Mapping[str, Any],
+    *,
+    expected_source_freeze: str | None = None,
 ) -> dict[str, Any]:
     seam_witnesses = {
         gap_id: _resolve_gap_witness(root, spec) for gap_id, spec in GAP_WITNESS_SPECS.items()
@@ -4283,6 +4349,7 @@ def _build_gap_report(
                 if row.get("canonical_var")
             )
         ),
+        expected_source_freeze=expected_source_freeze,
     )
     gaps = [
         {
@@ -5659,6 +5726,8 @@ def _validate_stage_1_cycle_receipts(
     cycle_trace: Mapping[str, Any],
     gaps: Mapping[str, Any],
     issues: list[dict[str, Any]],
+    *,
+    expected_source_freeze: str | None = None,
 ) -> None:
     """Cross-check every Stage-1 receipt against persisted native owner evidence."""
 
@@ -5830,6 +5899,7 @@ def _validate_stage_1_cycle_receipts(
                 if row.get("canonical_var")
             )
         ),
+        expected_source_freeze=expected_source_freeze,
     )
     if n8_transport_evidence.get("closed") is True:
         expected_closed.add("n8_transport_tuple_hardcode")
@@ -6060,12 +6130,22 @@ def _n8_transport_gap_closure(
     payload: Mapping[str, Any],
     *,
     expected_education_covariates: Sequence[str],
+    expected_source_freeze: str | None,
 ) -> dict[str, Any]:
     """Recompute whether N8 closed the pack transport bridge generically."""
 
     from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
 
-    validation = n8.validate_payload_result(payload)
+    if "catalog_dependency_authority" in payload and expected_source_freeze is None:
+        return {
+            "closed": False,
+            "reason_code": "n8_expected_source_freeze_not_supplied",
+            "receipt_ref": None,
+        }
+    validation = n8.validate_payload_result(
+        payload,
+        expected_source_freeze=expected_source_freeze,
+    )
     if validation.governing_issues:
         return {
             "closed": False,
@@ -6077,6 +6157,31 @@ def _n8_transport_gap_closure(
                     if issue.get("code")
                 }
             ),
+            "receipt_ref": None,
+        }
+    dependency_authority = payload.get("catalog_dependency_authority")
+    if isinstance(dependency_authority, Mapping):
+        result_kind = str(dependency_authority.get("result_kind") or "")
+        if result_kind == "runtime_cutoff_not_established":
+            failure = _mapping(
+                _mapping(dependency_authority.get("preflight_refusal")).get("failure")
+            )
+        else:
+            failure = _mapping(dependency_authority.get("failure"))
+        failure_code = str(failure.get("failure_code") or "")
+        if not failure_code:
+            return {
+                "closed": False,
+                "reason_code": "n8_dependency_authority_cause_missing",
+                "result_kind": result_kind,
+                "receipt_ref": None,
+            }
+        return {
+            "closed": False,
+            "reason_code": failure_code,
+            "result_kind": result_kind,
+            "predicate_id": failure.get("predicate_id"),
+            "predicate_class": failure.get("predicate_class"),
             "receipt_ref": None,
         }
     proofs = _mapping(payload.get("transport_component_proofs"))
@@ -6141,6 +6246,7 @@ def _n8_transport_gap_closure_from_root(
     root: Path,
     *,
     expected_education_covariates: Sequence[str],
+    expected_source_freeze: str | None,
 ) -> dict[str, Any]:
     """Load the frozen N8 contract and fail closed when it is unavailable."""
 
@@ -6154,6 +6260,7 @@ def _n8_transport_gap_closure_from_root(
     return _n8_transport_gap_closure(
         _read_json(path),
         expected_education_covariates=expected_education_covariates,
+        expected_source_freeze=expected_source_freeze,
     )
 
 
@@ -7060,6 +7167,7 @@ def main(argv: list[str] | None = None) -> int:
 
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--repo-root", type=Path, default=Path.cwd())
+    parser.add_argument("--expected-source-freeze", required=True)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
     parser.add_argument("--measure-write-transition", action="store_true")
@@ -7119,6 +7227,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.measure_write_transition:
             report = write(
                 root,
+                expected_source_freeze=args.expected_source_freeze,
                 allow_live_n4_capture=args.capture_stage1_n4,
                 n4_capture_journal=args.accept_stage1_n4_journal,
                 persist=False,
@@ -7126,28 +7235,40 @@ def main(argv: list[str] | None = None) -> int:
         elif args.accept_stage1_n4_journal is not None:
             report = write(
                 root,
+                expected_source_freeze=args.expected_source_freeze,
                 n4_capture_journal=args.accept_stage1_n4_journal,
                 expected_transition_manifest=expected_manifest,
             )
         elif args.capture_stage1_n4:
             report = write(
                 root,
+                expected_source_freeze=args.expected_source_freeze,
                 allow_live_n4_capture=True,
                 expected_transition_manifest=expected_manifest,
             )
         elif args.write:
             report = write(
                 root,
+                expected_source_freeze=args.expected_source_freeze,
                 allow_live_n4_capture=args.capture_stage1_n4,
                 n4_capture_journal=args.accept_stage1_n4_journal,
                 expected_transition_manifest=expected_manifest,
             )
         elif args.rederive_audit:
-            report = rederive_audit(root)
+            report = rederive_audit(
+                root,
+                expected_source_freeze=args.expected_source_freeze,
+            )
         elif args.corrupt_field_drift_check:
-            report = corrupt_field_drift_check(root)
+            report = corrupt_field_drift_check(
+                root,
+                expected_source_freeze=args.expected_source_freeze,
+            )
         else:
-            report = validate(root)
+            report = validate(
+                root,
+                expected_source_freeze=args.expected_source_freeze,
+            )
     except GapWitnessTargetMissingError as exc:
         report = {
             "status": "fail",

@@ -746,3 +746,116 @@ creation for runs that never emitted one, Lex/Composer/Clerk authority repair,
 or DS16 scientific depth. DS9 remains gated because the DS8 Closure Contract
 is not yet satisfied. `run-lifecycle-terminal-fact` remains discharged by
 C05; no other inherited debt is absorbed.
+
+## C03 cap-9 continuation — public example repaired; closeout stops on a second preimage witness
+
+The slice owner approved one narrowly scoped continuation: C03's mechanism cap
+moved from eight to nine paths, with
+`src/polisyos/runtime/http/openapi_contract.py` as the only ninth path; one
+OpenAPI/client regeneration cycle; and review round **3/3** for that repair
+alone. C04 remained inherited from ancestor `4af58be9c` and consumed **0/2**
+additional rounds.
+
+The controlling red was replayed before the repair and completed **0/1** in
+11.40 seconds under 120 seconds:
+
+```text
+GET /api/v1/runs/{run_id}/case-inspection: missing success response example
+```
+
+The source repair is one registry row:
+
+```python
+"get_case_inspection": _RUN_PAPER_TYPED_UNAVAILABLE_SAMPLE,
+```
+
+It deliberately reuses the frozen production-constructible unavailable arm:
+`artifact_missing / producer_missing / case-record-not-run-bound /
+team-runtime`, all nine `may_not_use_for` values, and no available-arm key.
+An available example would falsely document an authority path production
+cannot construct. No route-local example, second DTO, second projection,
+builder, mock authority or hand edit of generated output was introduced. The
+focused test then passed **1/1**; after generation, the full hardening file
+passed **18/18** in 29.44 seconds under 120 seconds.
+
+The regeneration token was acquired for one cycle. OpenAPI export completed in
+6.68 seconds under 60 seconds, runtime-api-client generation in 3.68 seconds
+under 60 seconds, and dashboard type generation in 2.36 seconds under 60
+seconds. The six TypeScript/JavaScript client outputs regenerated
+byte-identically; the governed diff is only the source registry row plus the
+OpenAPI response example. GY-DEF20 was judged predicate-by-predicate under a
+900-second ceiling: runtime-api-client is clean at **5/5** and
+runtime-dashboard-api-types at **1/1**. The composite remained red only for the
+six registered `deep-import-baseline-stale` edges; `guardrails sync` was not
+run. The regeneration token was explicitly released before review, and no
+register or visual token was held.
+
+The final generated-client census first had a launcher non-receipt because the
+repository root was absent from the subprocess `PYTHONPATH`; no JSON or product
+predicate was produced. The corrected same census completed green in 12.43
+seconds: **1,388 = 1,185 JSON + 203 TOML** candidates, 18 primary and 18
+independently derived anchors, 34 identity bindings, two recomputed absence
+predicates, zero legacy line bindings, zero errors. Complete stdout is 64,069
+bytes at SHA-256
+`69eaf6529c8f188c2f6d8b79dc0a2e6434800dfeda39e847234a50038e6a5b5d`.
+
+Commit `643227059` contains exactly the source row and its generated OpenAPI
+companion. Three read-only reviewers examined that frozen delta as the granted
+round **3/3** and all returned GO: no Blocking/Important finding, no new or
+same-class-deeper escape, exact cap-9 scope, no C13 drift, and no unjustified
+duplication. One reviewer test collection initially lacked `PYTHONPATH=.` and
+was a tooling non-receipt; its corrected focused run passed 3/3.
+
+The earlier 21-file ESLint kill remains a named non-receipt, now superseded by
+two ownership partitions at the unchanged 120-second ceiling: the 13-path C03
+partition passed in about 37 seconds and the eight-path inherited C04
+partition passed in about 32 seconds. The full register/report/status checker
+with `--check --corruption-probes` ran once after source freeze under the fixed
+600-second ceiling; uptime moved from `08:32 up 3 days, 11:04` to
+`08:34 up 3 days, 11:06`. It reported `corruption probes: PASS`, 261 roots, 59
+supplemental findings, 10 censuses, 23 seeded negatives, 36 storage sites and
+zero escaped corruption. The DS8 map remains **217 assignments**, including
+exactly **137 `surface_out_of_scope`** deferrals; the six-row DS8-B transition
+is complete and `family_complete=false` remains honest.
+
+The final aggregate `DS8BPostFreezeTransitionTests` is a completed red receipt,
+not a tooling non-receipt: **5/6** in 26.98 seconds under 120 seconds. The
+failing
+`test_surgical_writer_preserves_the_217_row_historical_value` reads the live
+postimage from `REGISTER_PATH`, proves the writer idempotent over that value,
+then removes `ds8b_post_freeze_transition` and compares the predecessor-shaped
+result to the unmodified live postimage, which still contains the transition.
+The assertion therefore reports exactly one extra current key. Git blame binds
+the witness to `ba987a3be8`; it is not introduced or invalidated by the OpenAPI
+repair.
+
+P40 classification before any repair is **SAME-CLASS-DEEPER** in C03 round
+two's already-recorded temporal-preimage/postimage test class. It is a second
+witness that the class was not structurally widened across all transition
+tests. The cap-9 continuation permits review round 3/3 only for the P01/P29
+public-example repair and makes a finding in any other class a stop. No fourth
+round, test patch or register write was attempted. Closure therefore remains
+blocked on an owner-approved structural preimage fixture (or an explicitly
+bounded residual with its falsifier) for this test class; the generic register
+property itself is green in the completed corruption matrix.
+
+All four DS6 C13-bound blobs remain byte-identical to immutable base
+`23a2c797b`: `RunReportPage.tsx`
+`4bb0bea6d71ad045d3d129dc9455cb0f4786d723199d77d95a372de2c22542bb`,
+`features/runs/route.tsx`
+`710e301c25a11af2a41f169b2571a6f0bb1f68afda370d0248d044b2c6b11d1c`,
+`print.css`
+`b087aebb054c89c24196db8b2feeccdeca1095e7c0bb44053aa545bfff4ae9dc`,
+and the 19,197-byte governed PNG
+`26cca8a75e61cfcf8873cfc7417b6bb0c7f2cacdd8490bfa45d256422513041a`.
+The regenerated schema touched none of them.
+
+DS8 still does **not** close the full 207-file legacy-family migration, public
+case publication, frontend-signed public decisions, approval authority, local
+reviewer-note persistence, global case indexing, canonical DesignRecord
+creation for runs that never emitted one, Lex/Composer/Clerk authority repair,
+or DS16 scientific depth. `run-lifecycle-terminal-fact` remains discharged by
+C05. C03 has consumed **3/3** review rounds including the granted repair round;
+C04 consumed **0/2** additional rounds. DS9 remains gated because the Closure
+Contract cannot be called green at 5/6. No register lock or visual lane was
+acquired during this continuation; the regeneration token is released.

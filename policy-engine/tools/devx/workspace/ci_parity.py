@@ -15,6 +15,7 @@ Last-mile CI-parity gates:
   - directory_health.py no-regression ratchet
   - report_test_ratchets.py mirror/property/helper topology ratchets
   - architecture_report_only_contracts.py phase6-1 and module-size contracts
+  - check_debt_ledger.py reporting-only reconciliation
   - check_extension_examples.py install/discovery/smoke coverage
   - generate_adr_index.py --check when docs checks are enabled
 """
@@ -217,6 +218,18 @@ def _last_mile_policy_commands(*, skip_docs: bool) -> list[CommandSpec]:
                 "--json-output",
                 "_build/.tmp/last-mile/module-size.json",
                 "--fail-on-contract-errors",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
+            label="report debt ledger reconciliation",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/check_debt_ledger.py",
+                "--check",
+                "--report-only",
             ),
             cwd=PRODUCT_ROOT,
         ),

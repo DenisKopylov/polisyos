@@ -221,14 +221,24 @@ connection = duckdb.connect(":memory:")
 try:
     connection.execute("SET autoinstall_known_extensions = false")
     connection.execute("LOAD fts")
+    fts_row = connection.execute(
+        "SELECT loaded, installed, install_path FROM duckdb_extensions() "
+        "WHERE extension_name = 'fts'"
+    ).fetchone()
+    assert fts_row is not None
+    assert fts_row[0] is True and fts_row[1] is True
+    fts_real_path = Path(str(fts_row[2])).resolve(strict=True)
+    assert str(fts_real_path) == tool_rows[0]["realpath"]
 finally:
     connection.close()
 opa = subprocess.run(["opa", "version"], check=True, capture_output=True, text=True)
-assert "Version: 1.15.2" in opa.stdout
+opa_version_lines = opa.stdout.splitlines()
+assert opa_version_lines and opa_version_lines[0] == "Version: 1.15.2"
 print(
     json.dumps(
         {
             "appointment_sha256": expected_receipt_sha256,
+            "duckdb_fts_realpath": str(fts_real_path),
             "duckdb_version": metadata.version("duckdb"),
             "opa_version": "1.15.2",
             "status": "pass",
@@ -262,15 +272,21 @@ The executor may create the worktree-local `production_data` link only from an
 explicitly authorized read-only source; this plan does not nominate the parent
 checkout or a sibling as that source. The operator supplies both the appointed
 root and its content-bound custody receipt before admission; the worktree link
-must resolve exactly to that root. The later Foundry resolver verifies the
-receipt, root identity, manifest bytes and source-freeze binding and rejects a
-writable, moved, sibling/unappointed or changed target. These shell checks are
-toolchain preconditions, not product evidence. Current tracked source supplies
-no such manifest. No authorized source, unreadable manifest, absent/mismatched
-uv binary, uv cache miss, wrong Python/uv/Node, installed
-torch or identity disagreement is a tooling/typed-
-input non-receipt. It is never repaired with `research`, a writable data copy, a
-backend ignore, a machine pin or a package allowlist.
+must resolve exactly to that root. The operator separately supplies the tooling
+appointment: it exposes only the appointed empty `HOME` tree and appointed
+`bin`, and grants no product authority. `GY_N12_RUN` rechecks the tooling
+receipt, exact tree, versions, resolved targets, digests and loaded/executed
+behavior before use. The later Foundry resolver verifies the data receipt, root
+identity, manifest bytes and source-freeze binding and rejects a writable,
+moved, sibling/unappointed or changed target. These shell checks are toolchain
+preconditions, not product evidence. Current tracked source supplies no such
+data manifest. No authorized source, unreadable manifest, missing tooling
+receipt/tree, tooling digest/version/behavior mismatch, absent/mismatched uv
+binary, uv cache miss, wrong Python/uv/Node, installed torch or identity
+disagreement is a tooling/typed-input non-receipt. It is never repaired with
+`research`, a writable data copy, ambient `HOME`, a broader `PATH`, a copied
+tool, network installation/fallback, a backend ignore, a machine pin or a
+package allowlist.
 
 For every task below:
 
@@ -431,12 +447,15 @@ def derive_status_manifest() -> Receipt:
     return freeze_receipt(serialize_M_C_O_S_R(...), packets)
 ```
 
-The `GY_N12_RUN` zsh array is the source-first **tooling** wrapper. Python,
-pytest, Ruff, epoch-validator, transition-controller and writer commands expand
-it as `"${GY_N12_RUN[@]}"`; architecture guardrails run as
+The `GY_N12_RUN` zsh array is the source-first **tooling** wrapper. It carries
+only the two appointed coordinates—an otherwise empty `HOME` and the appointed
+`bin`—and its admission probe content-binds and rechecks both tools before the
+Task-1.2 full-file use. Python, pytest, Ruff, epoch-validator,
+transition-controller and writer commands expand it as `"${GY_N12_RUN[@]}"`;
+architecture guardrails run as
 `"${GY_N12_RUN[@]}" -m tools.cli architecture guardrails check`. Terminal
-N8/N10a modes use the separately defined, receipt-bound `GY_N12_N8_RUN`; the
-two site-package roots may never be combined. Bare
+N8/N10a modes use the separately defined, receipt-bound `GY_N12_N8_RUN`; the two
+site-package roots may never be combined. Bare
 `.venv/bin/python`, `uv run`, console entry points, `eval`, `zsh -c` and a
 shell-inherited Python are non-receipts.
 The shell-level torch absence check protects this local toolchain only. It is

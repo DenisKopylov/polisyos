@@ -4413,9 +4413,16 @@ resolvers, never content proof.
 
 `FOUNDRY_STATEMENT_CODECS` is the sole schema-version/domain decoder. Every
 registry row with `preimage_kind=canonical_statement` maps to exactly one strict
-statement class (a discriminated union counts as one codec); raw-blob and
-derived-relation rows map to their one raw/derived builder instead. The mapping
-is a bijection across the complete `DigestDomain` enum. This includes the
+statement class (a discriminated union counts as one codec); rows of every other
+`DigestPreimageKind` — `raw_blob`, `relation`, `tracked_toml` and `ordered_rows`
+— map to their one builder of that kind instead, and each row's `preimage_kind`
+is **derived from how this plan uses the domain**, never chosen by the
+implementation: a domain that names its own statement class is
+`canonical_statement`; a domain carried as a digest, ref, token or nonce field
+inside another statement is `raw_blob`; a domain computed from other domains is
+`relation`. A domain whose kind cannot be derived from this plan's text is a
+specification stop. The mapping is a bijection across the complete
+`DigestDomain` enum. This includes the
 profile/authority/digest registries, canonical source, verifier provenance,
 trust/revocation/resolution, manifest/appointment/custody/mount/challenge,
 selected-evidence union, wheel/source/build records, stable/instance/source-

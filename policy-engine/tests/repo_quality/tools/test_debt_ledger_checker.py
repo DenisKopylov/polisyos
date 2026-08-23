@@ -197,7 +197,7 @@ def test_write_projects_source_only_open_debts_but_not_reconciled_closures(
     assert "`GY-GAP3`" in written
     assert "`atlas-source-only-debt`" in written
     assert "GY-engine-subordination.md#" in written
-    assert "POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#slice-sequence-overview" in written
+    assert "POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#per-slice-detail" in written
 
 
 def test_falsifier_status_flip_is_rejected(tmp_path: Path) -> None:
@@ -235,7 +235,7 @@ def test_nonancestor_closure_commit_is_checked_in_gy_and_atlas(tmp_path: Path) -
     gy = repo / "docs/plans/active/layer3-slices/GY-engine-subordination.md"
     gy.write_text(
         "# GY\n- **GY-DEF1 — closed elsewhere.**\n\n"
-        f"  **CLOSED at `{side_commit}`.**\n"
+        f"  **STANDING RECORDED (fixture at {side_commit}): closed.**\n"
     )
     atlas = repo / "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
     atlas.write_text(
@@ -244,7 +244,7 @@ def test_nonancestor_closure_commit_is_checked_in_gy_and_atlas(tmp_path: Path) -
             "| --- | --- | --- | --- |\n",
             "| Debt | Measured | Owner | Closure expectation |\n"
             "| --- | --- | --- | --- |\n"
-            f"| ~~Atlas closed elsewhere~~ | measured | team | CLOSED `{side_commit}` |\n",
+            f"| ~~Atlas closed elsewhere~~ | measured | team | CLOSED ({side_commit}) |\n",
             1,
         )
     )
@@ -322,6 +322,24 @@ def test_merged_slice_property_is_recognized_across_the_entire_row(tmp_path: Pat
 
     assert "merged_slice_not_closed" in {finding.code for finding in report.findings}
     assert checker._snapshot(repo).work[0].stage == "merged"
+
+
+def test_slice_state_distinguishes_closure_from_partial_merge_prose(tmp_path: Path) -> None:
+    checker = _checker()
+    repo = _fixture(
+        tmp_path,
+        atlas_slice_rows=(
+            "| DS1 | Theme CLOSED and MERGED | completed | A |\n"
+            "| DS2 | Authority half merged / successor planned | evidence | A |"
+        ),
+    )
+
+    report = checker.audit_repository(repo)
+    work = {row.slice_id: row.stage for row in checker._snapshot(repo).work}
+
+    assert "merged_slice_not_closed" not in {finding.code for finding in report.findings}
+    assert "DS1" not in work
+    assert work["DS2"] == "named"
 
 
 def test_falsifier_declared_nonclosure_missing_from_ledger_is_rejected(
@@ -417,6 +435,33 @@ def test_gy_parser_lets_the_last_unknown_candidate_win_and_parses_status_generic
     assert defect.status == "open"
 
 
+def test_gy_parser_uses_exact_status_tokens_and_ignores_explanatory_mentions() -> None:
+    checker = _checker()
+    text = """# GY
+- **GY-GAP3 — blocked.**
+
+  **STANDING RECORDED (fixture): blocked.**
+
+  Explanatory prose mentions `defect_standing` after the final standing.
+- **GY-GAP4 — unmerged.**
+
+  **STANDING RECORDED (fixture): open_unmerged.**
+- **GY-GAP5 — foreign.**
+
+  **STANDING RECORDED (fixture): foreign.**
+- **GY-GAP6 — folded.**
+
+  **STANDING RECORDED (fixture): folded.**
+"""
+
+    rows = {row.debt_id: row for row in checker._parse_gy(text)}
+
+    assert rows["GY-GAP3"].status == "blocked"
+    assert rows["GY-GAP4"].status == "open_unmerged"
+    assert rows["GY-GAP5"].status == "foreign"
+    assert rows["GY-GAP6"].status == "folded"
+
+
 def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     checker = _checker()
     snapshot = checker._snapshot(REPO_ROOT)
@@ -441,6 +486,24 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     assert "bridge_missing" not in gap8
     assert "| `DEBT-REGISTER.md` | 54 | 54 | 34 |" in rendered
     assert "| Atlas master debt table | 13 | 22 | 10 |" in rendered
+
+
+def test_capability_states_require_evidence_scoped_to_the_debt_subject() -> None:
+    checker = _checker()
+    rendered = checker.render_ledger(checker._snapshot(REPO_ROOT))
+
+    decision = next(line for line in rendered.splitlines() if "[`ds4-waist-decision-grade`]" in line)
+    unavailable = next(
+        line for line in rendered.splitlines() if "[`three-unavailable-governed-producers`]" in line
+    )
+    atlas = next(
+        line for line in rendered.splitlines() if "[`ds4-three-canonical-waist-vocabularies`]" in line
+    )
+
+    assert "`not_established`" in decision and "producer_missing" not in decision
+    assert "`not_established`" in unavailable and "artifact_missing" not in unavailable
+    assert "`not_established`" in atlas and "producer_missing" not in atlas
+    assert "#per-slice-detail" in atlas
 
 
 def test_open_work_records_property_posture_and_branch_relevance() -> None:

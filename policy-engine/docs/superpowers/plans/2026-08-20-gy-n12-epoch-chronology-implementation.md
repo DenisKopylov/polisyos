@@ -452,8 +452,28 @@ only the two appointed coordinates—an otherwise empty `HOME` and the appointed
 `bin`—and its admission probe content-binds and rechecks both tools before the
 Task-1.2 full-file use. Python, pytest, Ruff, epoch-validator,
 transition-controller and writer commands expand it as `"${GY_N12_RUN[@]}"`;
-architecture guardrails run as
-`"${GY_N12_RUN[@]}" -m tools.cli architecture guardrails check`. Terminal
+architecture guardrails split by what the wrapper can honestly make hermetic.
+The non-generated predicates run inside it as
+`"${GY_N12_RUN[@]}" -m tools.cli architecture guardrails check --skip-generated-checks`.
+The **generated-artifact freshness check runs outside
+`GY_N12_RUN`**, with the repository's ordinary toolchain, exactly as
+`core-runtime-release-gate.yml` invokes it, and requires
+`corepack pnpm install --frozen-lockfile` first. Both must pass, and where their
+predicates overlap they must agree.
+
+**Reason, recorded so it is not re-litigated:** the freshness check runs
+TypeScript generators out of `node_modules`. Appointing `corepack` and `node`
+would pin the package manager while the generators, the lockfile and the
+dependency tree stayed unappointed—hermetic in form only. The check is
+content-bound by construction: it regenerates and compares bytes, so a wrong
+toolchain yields a false red, never a false green. `pnpm@10.33.2` is pinned by
+`package.json` and enforced by corepack.
+
+**Declared residual:** the generated-freshness toolchain is ambient. This is
+stated rather than covered by a partial appointment, and it is not evidence of
+an owner-enforced runtime subtree cutoff.
+
+Terminal
 N8/N10a modes use the separately defined, receipt-bound `GY_N12_N8_RUN`; the two
 site-package roots may never be combined. Bare
 `.venv/bin/python`, `uv run`, console entry points, `eval`, `zsh -c` and a

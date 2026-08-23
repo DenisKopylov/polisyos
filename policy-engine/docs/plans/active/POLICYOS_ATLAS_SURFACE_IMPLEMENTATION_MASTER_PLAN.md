@@ -592,9 +592,9 @@ roughly chronological; the DAG, not the numbers, governs start order.
 | DS19 | False-substrate strangle wave + frontend disposition register | **CLOSED** (merged f9f69e807: 33 files / −4,005 LOC; register live) | B |
 | DS4 | Status-grammar rebinding & test harness (12 families / 47 statuses) | **CLOSED** (merged 7f450eb7b: 89 components at 27 package / 41 rebind / 18 use-as-is / 3 retire; lint 75→0, architecture 36→0, status retirement 19→0; DTCG token projection; harness + real-panel proof) | B |
 | DS20 | **Server authorization enforcement (NEW, Rev 3 — split from DS5)** | **CLOSED** (merged 03ebc1ce8: DS20 29/29-op action-permission floor + step-up + fixture-identity removal + 33-value vocabulary; DS20-B B1 Rego bridge + B2 probe identity + B4 verifier provenance closed, deployment-authority attestation architect-reviewed) | B |
-| DS5 | Enforcement waist: lints, audience mapping, cache discipline, flags | DS4; DS20 vocabulary | B |
-| DS6 | Evidence workflow & instrumentation | DS4 | B |
-| DS7 | **Cycle Board** (hero) | DS5 | C |
+| DS5 | Enforcement waist: lints, audience mapping, cache discipline, flags | **CLOSED** (merged `c77888b7c`) | B |
+| DS6 | Evidence workflow & instrumentation | **CLOSED & MERGED 2026-08-22 `176276ef0`**; C13 independently verified against DS8-A's repair | B |
+| DS7 | **Cycle Board** (hero) | **CLOSED** (merged `74f26ca2d`: the Cycle Board hero on a static composed-v2 seam) | C |
 | DS8 | Case & evidence workspace: stage-trace drill-down (strangling) — **CLOSED & MERGED 2026-08-22 `c8fff1e0b`**; production emits only the typed unavailable arm, `family_complete` false, six declared non-closures registered in the debt register | DS7 | C |
 | DS9 | Human decision integrity | DS8; DS20 | C |
 | DS10 | Capability discovery | DS5 + disposition-ledger/census content | C |

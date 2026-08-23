@@ -589,3 +589,160 @@ committed raster after font readiness; and the raster SHA-256 is unchanged
 before, between and after the two invocations. The immutable-commit capture
 receipts are returned in the hand-back so recording them cannot change the
 commit they attest.
+
+## DS8-B continuation — C03/C04 and budget stop
+
+DS8-B opened in a fresh attached worktree on branch
+`codex/atlas-ds8-b-case-workspace`, bound immutably to
+`23a2c797bececb1757253aa4f1e8ef5999c81601`. The C03 source freeze is
+`40226aafe0f668d87aa52fda696cc72fec0be0b5`; the reviewed repair head before
+this journal entry is `103d2b097b797cc90b49fc4c65468625af835a15`.
+
+### C03 — honest typed-unavailable workspace
+
+The red-first frontend tests initially failed at module/route resolution because
+`useCaseInspection.ts` and `CaseWorkspacePage.tsx` did not exist. Backend
+collection likewise named the missing case-inspection service/contract surface.
+The landed cluster uses exactly its cap of **eight production mechanism paths**:
+
+1. `src/polisyos/runtime/http/routes/runs.py`
+2. `src/polisyos/runtime/http/services/case_inspection.py`
+3. `src/polisyos/runtime/http/services/case_inspection_contracts.py`
+4. `apps/runtime-dashboard/src/app/routes/routes.tsx`
+5. `apps/runtime-dashboard/src/app/routes/routeManifest.ts`
+6. `apps/runtime-dashboard/src/app/routes/prefetch.ts`
+7. `apps/runtime-dashboard/src/features/runs/api/useCaseInspection.ts`
+8. `apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.tsx`
+
+The contract aliases the frozen paper ABI rather than defining a second DTO:
+`CaseInspectionResponse = RunPaperPacket` and
+`CaseInspectionReplayQuery = RunPaperReplayQuery`. The service delegates to the
+one `RunPaperProjectionService`; the authorized route returns that exact packet;
+the hook retains the exact one-response bytes; and the page reuses the existing
+presenter, semantic roster, rendered-DOM decoder and byte exporter. `/case` has
+its own `caseInspection` route kind and carries neither `data-paper-payload` nor
+`data-print-document`, so it does not reopen DS6's C13 predecessor.
+
+Every production response retains the frozen typed refusal:
+`artifact_missing / producer_missing / case-record-not-run-bound /
+team-runtime`, all nine denied uses, and no available-arm keys. The available
+arm test is a **structural witness over a test-appointed fixture**: it proves
+digest/ref/kind/media/schema binding; case/record/run/tenant identity; closed
+grounding/admission/promotion vocabularies; distinct blocker/limitation/
+objection/abstention objects; and rejection of governed promotion on a
+candidate admission. It does not install a builder, mock authority, global
+index or production resolver. A production available-arm E2E remains blocked
+by registered debt `case-record-not-run-bound`, owner `team-runtime` behind
+GY-N12.
+
+Two review rounds were consumed. Round one found independent classes in the
+C13 emitter boundary, route-kind proxy, public error vocabulary, structural
+witness and post-freeze register coverage; the batch repaired those classes.
+Round two found (a) the public not-found class one level deeper when the run
+disappears between authorization preflight and delegated projection and (b) a
+new temporal-preimage/postimage test class. The shared replay-emission boundary
+now maps the complete delegated miss, with an adversarial test, and the status
+transition proof reads its opening bytes from immutable `40226aafe` while
+checking the live postimage separately. Both focused repairs passed. C03 is
+therefore at its hard **2/2** review-round ceiling.
+
+Independent complete AST and Git/physical walkers agree on **2,569** tracked
+and physical `src/**/*.py` files. The AST population has zero
+`AvailableRunPaperCase(...)` calls, one `UnavailableRunPaperCase(...)` call,
+one class each for `RunPaperPacket`, `RunPaperProjectionService` and
+`CaseInspectionService`, one `load_bound_terminal_manifest` definition, one
+`get_case_inspection` operation id, and the two aliases above. This is the
+duplication receipt: no second DTO, verifier, projection, exporter or available
+authority constructor was introduced. Lexical `rg` remains a lines/occurrences
+cross-check, not the call census.
+
+### C04 — inherited support-only rebind
+
+Commit `4af58be9c` is an ancestor of the immutable DS8-B base and contains the
+four named support-only component rebinds. Their focused receipt remains
+**14/14**. DS8-B changes zero C04 production paths: the four component blobs are
+identical to base, no route/field/view/MACHINE claim moved, and none of the 137
+deferred rows moved. This continuation consumed **0/2 additional C04 rounds**;
+the original C04 record remains exhausted at **2/2**.
+
+The historical C07 object remains 217 rows / 217 unique paths and opening
+**145 = 8 in scope + 137 deferrals**. All 137 retain exactly
+`team-design / surface_out_of_scope /
+approved_named_successor_slice_moves_row / null`. A separate DS8-B transition
+reconciles immutable base `23a2c797b` to freeze `40226aafe`: one changed
+existing test and five new paths, six assignments total, without rewriting
+C07 history. Its generic validator covers missing, duplicate, stale,
+nonexistent and historical-deferral corruptions. The final temporal-preimage
+test passed **1/1**; the other five transition tests had passed before that
+test-only correction, but no final aggregate 6/6 claim is made after the stop.
+
+### Completed closeout evidence and non-receipts
+
+The frozen post-review wave produced these completed receipts:
+
+- backend case/paper capability: **20/20**;
+- Cycle Board resolver/href seam: **2/2**;
+- compatibility-release gates: **6/6**;
+- dashboard typecheck: clean;
+- targeted backend Ruff and `git diff --check`: clean;
+- combined frontend run: **14 files / 52 tests green**, plus one complete
+  45-second timeout in the whole-production consumer census; isolated under
+  the same test and 120-second outer ceilings, that complete census passed
+  **3/3 in 40.41 seconds**;
+- independent review frontend packages stayed below 28 KB and reported no
+  Blocking/Important finding after round two;
+- final status postimage remains the inherited **13 lines / 887 bytes /
+  `511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`**;
+  no generated-client or DS19 hash drift remains in that postimage.
+
+Named tooling non-receipts are: worktree-environment offline bootstrap could
+not provision unavailable `jaxlib` and verification used the read-only
+repository environment; one reviewer aggregation lost its output channel;
+one reviewer six-test invocation was killed near 60 seconds; and the final
+21-file ESLint aggregation was killed at its fixed 120-second ceiling. That
+ESLint ceiling was not widened. Earlier unchanged-source targeted ESLint was
+green, but it is not relabeled as a final aggregate receipt. The fixed
+600-second disposition-register `--check --corruption-probes`, final
+GY-DEF20 replay, final generated-client census and final aggregate six-test
+DS8-B transition run were not started after the stop and are not receipts.
+
+### Budget stop — missing public success example
+
+The public ABI hardening command completed **17/18** and is a red receipt, not
+a tooling failure:
+
+```text
+GET /api/v1/runs/{run_id}/case-inspection: missing success response example
+```
+
+Root-cause tracing is exact. `validate_runtime_openapi_contract()` requires a
+success example for every operation. `augment_runtime_openapi()` sources those
+examples from the central `_SUCCESS_EXAMPLES_BY_OPERATION` registry;
+`get_run_paper` is registered there, while `get_case_inspection` is not. The
+route's strict `RunPaperPacket` schema is present, but a schema reference is not
+the governed example predicate.
+
+P40 classifies this as **NEW — P01/P29 public-contract example completeness**,
+not a third instance of not-found vocabulary. The smallest correct repair is
+to register `get_case_inspection` centrally against the existing typed-
+unavailable paper sample, then perform one authorized OpenAPI/client
+regeneration and re-prove both GY-DEF20 family predicates. A route-local example
+would duplicate the frozen contract, and hand-editing generated bytes is
+forbidden. `openapi_contract.py` would be a ninth C03 production mechanism path;
+C03 is already at cap 8 and review budget 2/2. The stop owner is the DS8 slice
+owner with `team-architecture` approval for a one-path cap re-cut and the
+regeneration-token window. No repair or regeneration was attempted.
+
+This stops Closure Contract completion. The long register gate and remaining
+closeout predicates must not be interpreted as failed; they are **not run after
+the budget stop**. No register lock, regeneration token or visual-lane token is
+held. The DS6 print predecessor and governed 746 x 84 snapshot were neither
+reopened nor rewritten.
+
+DS8 still does **not** close the full 207-file legacy-family migration, public
+case publication, frontend-signed public decisions, approval authority, local
+reviewer-note persistence, global case indexing, canonical DesignRecord
+creation for runs that never emitted one, Lex/Composer/Clerk authority repair,
+or DS16 scientific depth. DS9 remains gated because the DS8 Closure Contract
+is not yet satisfied. `run-lifecycle-terminal-fact` remains discharged by
+C05; no other inherited debt is absorbed.

@@ -1920,6 +1920,13 @@ class LockedDistributionIdentity(FoundryAuthorityModel):
     expected_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_BINDING]]
     marker_expression: MarkerExpressionText | None
 
+The selected-evidence statements carry no reference to their installed binding. The content
+order is `selected_artifact_ref` → `installed_source_binding_ref` → `LockedDistributionIdentity`,
+which is the sole join of the two; a selected-evidence statement referencing its own binding
+would make both digests mutually self-referential and is forbidden by the non-self-reference
+rule above. `PythonRuntimeVerificationReceiptStatement.expected_source_binding_ref` binds the
+distinct `TOOLCHAIN_RUNTIME_BINDING` domain and is unaffected.
+
 class StablePayloadFileRow(FoundryAuthorityModel):
     row_kind: Literal["payload"]
     logical_root: Literal["purelib", "platlib", "scripts", "data", "headers"]
@@ -2038,7 +2045,6 @@ class SelectedWheelArtifactEvidence(FoundryAuthorityModel):
     wheel_blob_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_WHEEL]]
     wheel_record_manifest_ref: FoundryRecordRef[Literal[DigestDomain.WHEEL_RECORD]]
     expected_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
-    expected_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_BINDING]]
 
 class SelectedBuiltArtifactEvidence(FoundryAuthorityModel):
     artifact_kind: Literal["built_source"]
@@ -2050,7 +2056,6 @@ class SelectedBuiltArtifactEvidence(FoundryAuthorityModel):
     build_lineage: PersistedBuildLineageEvidence
     output_wheel_ref: FoundryRecordRef[Literal[DigestDomain.SELECTED_WHEEL]]
     expected_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
-    expected_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_BINDING]]
 
 class SelectedSourceTreeEvidence(FoundryAuthorityModel):
     artifact_kind: Literal["source_tree"]
@@ -2061,7 +2066,6 @@ class SelectedSourceTreeEvidence(FoundryAuthorityModel):
     tracked_source_commit: GitCommitId
     source_tree_manifest_ref: FoundryRecordRef[Literal[DigestDomain.SOURCE_TREE]]
     expected_stable_manifest_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_STABLE]]
-    expected_source_binding_ref: FoundryRecordRef[Literal[DigestDomain.INSTALLED_BINDING]]
 
 SelectedDistributionArtifactEvidence = Annotated[
     SelectedWheelArtifactEvidence | SelectedBuiltArtifactEvidence | SelectedSourceTreeEvidence,

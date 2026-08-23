@@ -795,7 +795,7 @@ verify_replay
 ## `polisyos.lex`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.lex`
+- Supported entrypoints: `polisyos.lex`, `polisyos.lex.knowledge`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/lex/README.md`

@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.contracts.runtime import ApiMeta  # noqa: TC001 - Pydantic resolves at runtime.
-from polisyos.lex.knowledge.types import LegalFactResult
+from polisyos.core import contracts as core_contracts  # noqa: TC001 - Pydantic runtime type
+from polisyos.lex.knowledge import LegalFactResult
 
 
 class LexSearchResultItem(LegalFactResult):
@@ -17,7 +17,7 @@ class LexSearchResponse(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    meta: ApiMeta
+    meta: core_contracts.ApiMeta
     query: str
     results: list[LexSearchResultItem] = Field(default_factory=list)
     total: int = 0

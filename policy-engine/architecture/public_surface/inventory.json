@@ -857,7 +857,8 @@
       "readme": "src/polisyos/lex/README.md",
       "reference_doc": "docs/reference/public-surface.md",
       "supported_entrypoints": [
-        "polisyos.lex"
+        "polisyos.lex",
+        "polisyos.lex.knowledge"
       ],
       "major_subsystem": true,
       "export_count": 53,

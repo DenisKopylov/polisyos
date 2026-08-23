@@ -6,13 +6,13 @@ from typing import Annotated, Literal
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, TypeAdapter
 
-from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001 - Pydantic runtime type
-from polisyos.core.contracts.decision_validity import (  # noqa: TC001 - Pydantic runtime type
-    DecisionValidityStatus,
+from polisyos.core import (  # noqa: TC001 - Runtime Pydantic type.
+    artifacts as core_artifacts,
 )
-from polisyos.runtime.http.services.adapters import (  # noqa: TC001 - Pydantic runtime type
-    RunTerminality,
+from polisyos.core import (  # noqa: TC001 - Runtime Pydantic type.
+    contracts as core_contracts,
 )
+from polisyos.runtime.http.services.adapters import RunTerminality  # noqa: TC001
 
 RUNS_CHANNEL_DATA_EVENT_CONTRACT = "policyos.runtime.runs_channel_data_event.v2"
 
@@ -39,7 +39,7 @@ class RunsListSnapshotRun(_StrictOutboundChannelModel):
     finished_at: AwareDatetime | None = None
     duration_ms: int | None = Field(default=None, ge=0)
     root_artifact_count: int = Field(ge=0)
-    decision_validity_status: DecisionValidityStatus | None = None
+    decision_validity_status: core_contracts.DecisionValidityStatus | None = None
     decision_review_required: bool
 
 
@@ -81,9 +81,9 @@ class RunDetailSnapshot(_StrictOutboundChannelModel):
     agent_steps: int = Field(ge=0)
     governance_issues: int = Field(ge=0)
     transport_status: str | None = None
-    decision_validity_status: DecisionValidityStatus | None = None
+    decision_validity_status: core_contracts.DecisionValidityStatus | None = None
     decision_review_required: bool
-    decision_superseded_by_ref: ArtifactRef | None = None
+    decision_superseded_by_ref: core_artifacts.ArtifactRef | None = None
     generated_at: AwareDatetime
 
 

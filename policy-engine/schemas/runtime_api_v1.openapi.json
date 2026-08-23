@@ -49211,6 +49211,80 @@
           "200": {
             "content": {
               "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_case_inspection response example",
+                    "value": {
+                      "artifact_links": [],
+                      "case_record": {
+                        "availability": "artifact_missing",
+                        "capability_state": "producer_missing",
+                        "closure_signal": "case-record-not-run-bound",
+                        "may_not_use_for": [
+                          "case_identity",
+                          "design_record",
+                          "grounding_state",
+                          "admission_state",
+                          "promotion_state",
+                          "blockers",
+                          "limitations",
+                          "objections",
+                          "abstentions"
+                        ],
+                        "owner_route": "team-runtime",
+                        "reason_code": "case-record-not-run-bound"
+                      },
+                      "intended_audiences": [
+                        "reviewer",
+                        "expert"
+                      ],
+                      "packet_schema_version": "policyos.runtime.run_paper_packet.v1",
+                      "projection_hash": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                      "projection_rule_version": "policyos.runtime.run_paper.v1",
+                      "replay_address": "/api/v1/runs/R_core_api_001/paper?manifest_artifact_id=sha256%3Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&manifest_schema_version=0.1.0&paper_projection_hash=sha256%3A853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa&paper_projection_rule_version=policyos.runtime.run_paper.v1",
+                      "replay_pins": {
+                        "manifest_artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "manifest_schema_version": "0.1.0",
+                        "paper_projection_hash": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                        "paper_projection_rule_version": "policyos.runtime.run_paper.v1"
+                      },
+                      "report_href": "/runs/R_core_api_001/report?manifest_artifact_id=sha256%3Aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa&manifest_schema_version=0.1.0&paper_projection_hash=sha256%3A853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa&paper_projection_rule_version=policyos.runtime.run_paper.v1#stage-trace",
+                      "run": {
+                        "cell_id": null,
+                        "duration_ms": null,
+                        "finished_at": null,
+                        "run_id": "R_core_api_001",
+                        "run_terminality": "terminal",
+                        "source_kind": "core_run",
+                        "started_at": null,
+                        "status": "completed",
+                        "tenant_id": "tenant-fixture"
+                      },
+                      "source": {
+                        "environment": null,
+                        "manifest_ref": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "core.run_manifest",
+                          "media_type": "application/json"
+                        },
+                        "manifest_schema_name": "polisyos.core.RunManifest",
+                        "manifest_schema_version": "0.1.0",
+                        "producer": null,
+                        "registry_bundle": {
+                          "artifact_id": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "kind": "core.registry_bundle",
+                          "media_type": "application/json"
+                        }
+                      },
+                      "stable_address": "/api/v1/runs/R_core_api_001/paper",
+                      "stage_trace": {
+                        "availability": "not_established",
+                        "owner_route": "core RunManifest.trace_ref",
+                        "reason": "verified run manifest carries no trace reference"
+                      }
+                    }
+                  }
+                },
                 "schema": {
                   "$ref": "#/components/schemas/RunPaperPacket"
                 }

@@ -859,3 +859,98 @@ C05. C03 has consumed **3/3** review rounds including the granted repair round;
 C04 consumed **0/2** additional rounds. DS9 remains gated because the Closure
 Contract cannot be called green at 5/6. No register lock or visual lane was
 acquired during this continuation; the regeneration token is released.
+
+## Round 4/4 — immutable writer preimage and DS8 closure
+
+The slice owner granted one final round, scoped only to the already-classified
+temporal-preimage/postimage class. The prior **5/6** aggregate remained the
+controlling red receipt and was not re-derived before repair.
+
+Commit `91fda1570` changes exactly the red DS8-B writer test plus its mandatory
+debt-register companion. The test now obtains the register preimage with the
+established prefix-aware Git reader:
+
+```python
+prefix = checker._ds8_coordinate_prefix()
+base_register = checker._ds8_git_text(
+    "show",
+    f"{self.BASE_COMMIT}:{prefix}"
+    "architecture/atlas_surfaces/frontend-disposition-register.json",
+)
+```
+
+`BASE_COMMIT` is immutable `23a2c797bececb1757253aa4f1e8ef5999c81601`.
+The writer is applied to those base bytes, reapplied to prove idempotence, and
+the complete resulting `ds8_strangle_coverage` object is compared recursively
+to the base object. Removing `ds8b_post_freeze_transition` from both live-
+derived sides was explicitly rejected: it would recreate the original
+tautology and prove nothing about preservation. Exact object equality is
+stronger than a separate `len == 217` assertion: any added, dropped, reordered,
+duplicated, substituted or field-mutated historical row makes it fail.
+
+The focused writer test passed **1/1** in 8.45 seconds under 120 seconds. A
+whole-file Ruff invocation is a completed legacy red, not a non-receipt: 427
+diagnostics. Parent and repaired source were then run through Ruff via stdin;
+both populations are exactly 427 with the identical rule partition, and the
+changed region has zero diagnostics. No file-wide lint cleanup was absorbed.
+
+The broader measured pattern is registered, not repaired, as
+`register-tests-source-live-state-as-preimage`: 54 test methods use the live
+register as a writer preimage; two DS8-B instances have moved to pinned Git
+preimages; the other 52 remain owned by whoever next extends the register
+checker. Its P38 closure signal requires pinned-commit preimages plus a
+falsifier that fails when a writer does not preserve historical rows.
+
+Round **4/4** used three read-only reviewers. Two returned GO immediately. One
+initially requested a separate 217-count assertion, then withdrew the finding
+after the mutation test established that recursive equality already includes
+the count and every row's content. Final review is three GOs, with no open
+Blocking/Important finding and no finding in another class.
+
+The only invalidated aggregate was then rerun once. The complete
+`DS8BPostFreezeTransitionTests` class passed **6/6** in 26.74 seconds under the
+unchanged 120-second ceiling; uptime moved from `08:59 up 3 days, 11:31` to
+`09:00 up 3 days, 11:32`. Its status companion also retains the exact inherited
+**13 diagnostics / 887 bytes /
+`511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9`**.
+
+All other closeout receipts were deliberately reused because this round
+changed only one test and the debt register, intersecting none of their input
+bytes: backend case/paper 20/20; Cycle Board 2/2; compatibility 6/6; C04 14/14;
+dashboard typecheck; targeted production Ruff; frontend 52/53 plus isolated
+consumer census 3/3; OpenAPI hardening 18/18; the one regeneration cycle and
+its byte-identical six generated outputs; GY-DEF20 5/5 and 1/1; the 1,388-file
+generated-client census at 18/34/2/0; both fixed-ceiling ESLint partitions; and
+the completed 600-second register/report/status corruption wave with 261 roots
+and zero escaped corruptions. Repeating one of those would confirm unchanged
+bytes rather than exercise this repair.
+
+Named non-receipts remain explicit: the worktree bootstrap could not provision
+offline `jaxlib`; one reviewer aggregation lost its output channel; one early
+reviewer six-test command was killed near 60 seconds; the 21-file ESLint
+aggregate was killed at 120 seconds and is superseded by two green partitions;
+the first generated-census launcher omitted `PYTHONPATH` and emitted no JSON;
+and one reviewer test collection likewise omitted `PYTHONPATH` before its
+corrected 3/3 run. The six deep-import diagnostics and the exact 13 status
+diagnostics are completed inherited reds, not non-receipts. The 5/6 transition
+run is a superseded completed failure, not a non-receipt.
+
+Closeout labels remain truthful. The typed-unavailable Case Workspace, route,
+exact-byte MACHINE export and real-DOM parity are shipped; the production
+available case/DesignRecord arm remains `artifact_missing / producer_missing`
+under `case-record-not-run-bound`, owned by `team-runtime`. C04 is support-only
+and creates no route, field, shipped-view or MACHINE claim. The broad legacy
+family remains `rebind_pending`, the 137 deferred production paths remain
+`surface_out_of_scope` under `team-design`, and `family_complete=false`.
+`run-lifecycle-terminal-fact` remains discharged by C05;
+`adjacent-print-export` remains closed by DS6's independent verification and
+was not reopened.
+
+DS8 now satisfies its re-cut Closure Contract and closes; DS9's DS8 gate is
+discharged. DS8 does **not** close the full 207-file legacy-family migration,
+public case publication, frontend-signed public decisions, approval authority,
+local reviewer-note persistence, global case indexing, canonical DesignRecord
+creation for runs that never emitted one, Lex/Composer/Clerk authority repair,
+or DS16 scientific depth. C03 consumed **4/4** review rounds; C04 consumed
+**0/2** additional rounds. No register lock, regeneration token or visual lane
+was acquired in round four; the earlier regeneration token remains released.

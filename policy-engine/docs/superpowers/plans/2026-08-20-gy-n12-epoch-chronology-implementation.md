@@ -111,6 +111,14 @@ GY_N12_PY="$GY_N12_PRODUCT/.venv/bin/python"
 GY_N12_SITE="$GY_N12_PRODUCT/.venv/lib/python3.14/site-packages"
 test -x "$GY_N12_PY"
 test -d "$GY_N12_SITE"
+GY_N12_TOOLING_APPOINTMENT=~/.polisyos-appointments/gy-n12-tooling-appointment.json
+GY_N12_TOOLING=~/.polisyos-appointments/gy-n12-tooling
+test -f "$GY_N12_TOOLING_APPOINTMENT"
+test "$(stat -f '%Lp' "$GY_N12_TOOLING_APPOINTMENT")" = 444
+test "sha256:$(shasum -a 256 "$GY_N12_TOOLING_APPOINTMENT" | awk '{print $1}')" = \
+  sha256:31f20dd6bc6561d6b731b64f692b28989f9a87cad5cdb35338480ba2eefbfb11
+test -d "$GY_N12_TOOLING/home"
+test -d "$GY_N12_TOOLING/bin"
 : "${GY_N12_AUTHORIZED_DATA_ROOT:?operator must supply the appointed read-only data root}"
 : "${GY_N12_DATA_APPOINTMENT_RECEIPT:?operator must supply its custody receipt}"
 test "${GY_N12_AUTHORIZED_DATA_ROOT#/}" != "$GY_N12_AUTHORIZED_DATA_ROOT"
@@ -130,10 +138,106 @@ GY_N12_RUN=(
   LANG=C.UTF-8 LC_ALL=C.UTF-8
   JAX_PLATFORMS=cpu PYTHONHASHSEED=0 PYTHONNOUSERSITE=1
   PYTHONDONTWRITEBYTECODE=1
-  PATH="$GY_N12_PRODUCT/.venv/bin:/usr/bin:/bin"
+  HOME="$GY_N12_TOOLING/home"
+  PATH="$GY_N12_TOOLING/bin:$GY_N12_PRODUCT/.venv/bin:/usr/bin:/bin"
   PYTHONPATH="$GY_N12_PRODUCT/src:$GY_N12_PRODUCT:$GY_N12_SITE"
   "$GY_N12_PY" -S
 )
+"${GY_N12_RUN[@]}" - "$GY_N12_TOOLING_APPOINTMENT" "$GY_N12_TOOLING" <<'PY'
+from __future__ import annotations
+
+import hashlib
+import importlib.metadata as metadata
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+
+receipt_path = Path(sys.argv[1])
+tooling_root = Path(sys.argv[2])
+
+
+def _sha256(target: Path) -> str:
+    digest = hashlib.sha256()
+    with target.open("rb") as stream:
+        for block in iter(lambda: stream.read(1024 * 1024), b""):
+            digest.update(block)
+    return "sha256:" + digest.hexdigest()
+
+
+expected_receipt_sha256 = (
+    "sha256:31f20dd6bc6561d6b731b64f692b28989f9a87cad5cdb35338480ba2eefbfb11"
+)
+assert _sha256(receipt_path) == expected_receipt_sha256
+receipt = json.loads(receipt_path.read_text(encoding="utf-8"))
+assert receipt["appointed_root"] == str(tooling_root)
+assert receipt["appointed_home"] == os.environ["HOME"]
+assert receipt["appointed_bin"] == os.environ["PATH"].split(os.pathsep, 1)[0]
+
+expected_entries = {
+    "bin",
+    "bin/opa",
+    "home",
+    "home/.duckdb",
+    "home/.duckdb/extensions",
+    "home/.duckdb/extensions/v1.4.3",
+    "home/.duckdb/extensions/v1.4.3/osx_arm64",
+    "home/.duckdb/extensions/v1.4.3/osx_arm64/fts.duckdb_extension",
+}
+assert {
+    target.relative_to(tooling_root).as_posix()
+    for target in tooling_root.rglob("*")
+} == expected_entries
+
+relative_tools = {
+    "duckdb-fts-extension": Path(
+        "home/.duckdb/extensions/v1.4.3/osx_arm64/fts.duckdb_extension"
+    ),
+    "opa": Path("bin/opa"),
+}
+tool_rows = receipt["appointed_tools"]
+assert [row["name"] for row in tool_rows] == ["duckdb-fts-extension", "opa"]
+observed_tools = []
+for row in tool_rows:
+    appointed_path = tooling_root / relative_tools[row["name"]]
+    assert appointed_path.is_symlink()
+    real_path = appointed_path.resolve(strict=True)
+    assert str(real_path) == row["realpath"]
+    observed_sha256 = _sha256(real_path)
+    assert observed_sha256 == row["sha256"]
+    observed_tools.append(
+        {
+            "name": row["name"],
+            "realpath": str(real_path),
+            "sha256": observed_sha256,
+        }
+    )
+
+assert metadata.version("duckdb") == "1.4.3"
+import duckdb
+
+connection = duckdb.connect(":memory:")
+try:
+    connection.execute("SET autoinstall_known_extensions = false")
+    connection.execute("LOAD fts")
+finally:
+    connection.close()
+opa = subprocess.run(["opa", "version"], check=True, capture_output=True, text=True)
+assert "Version: 1.15.2" in opa.stdout
+print(
+    json.dumps(
+        {
+            "appointment_sha256": expected_receipt_sha256,
+            "duckdb_version": metadata.version("duckdb"),
+            "opa_version": "1.15.2",
+            "status": "pass",
+            "tools": observed_tools,
+        },
+        sort_keys=True,
+    )
+)
+PY
 "${GY_N12_RUN[@]}" - "$GY_N12_ROOT" <<'PY'
 import importlib.metadata as metadata
 from pathlib import Path

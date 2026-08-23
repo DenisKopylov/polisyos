@@ -6554,10 +6554,15 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
         )
 
     def test_surgical_writer_preserves_the_217_row_historical_value(self) -> None:
-        original = REGISTER_PATH.read_text(encoding="utf-8")
-        original_data = json.loads(original)
-        original_history = copy.deepcopy(original_data["ds8_strangle_coverage"])
-        once = checker._ds8b_register_candidate_text(original, self.transition)
+        prefix = checker._ds8_coordinate_prefix()
+        base_register = checker._ds8_git_text(
+            "show",
+            f"{self.BASE_COMMIT}:{prefix}"
+            "architecture/atlas_surfaces/frontend-disposition-register.json",
+        )
+        base_data = json.loads(base_register)
+        original_history = copy.deepcopy(base_data["ds8_strangle_coverage"])
+        once = checker._ds8b_register_candidate_text(base_register, self.transition)
         twice = checker._ds8b_register_candidate_text(once, self.transition)
         assert once == twice  # noqa: S101
         parsed = json.loads(once)
@@ -6569,8 +6574,8 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
             parsed, checker.SCHEMA_PATH
         )
         parsed.pop("ds8b_post_freeze_transition")
-        parsed["schema_version"] = original_data["schema_version"]
-        assert parsed == original_data  # noqa: S101
+        parsed["schema_version"] = base_data["schema_version"]
+        assert parsed == base_data  # noqa: S101
 
     def test_writer_live_fence_rejects_post_freeze_source_drift(self) -> None:
         poisoned = dict(checker._ds8_live_sources())

@@ -124,6 +124,68 @@ drift it reports is therefore registered as a row to re-measure, never as a verd
 
 ---
 
+**Rev 3 — 2026-08-22, full four-source enumeration ahead of the generated ledger.** Base `main`
+`c9397d147` on `architect/debt-ledger-census`. Purpose: publish the denominator **before** a
+checker is written, so the checker is measured against a known count and not the reverse.
+
+**Counts.** `DEBT-REGISTER.md`: **51 distinct ids** across 59 row-instances — four ids
+(`adjacent-print-export`, `atlas-health-metric-replay-pins-uncommitted-paths`,
+`ds4-waist-decision-grade`, `run-lifecycle-terminal-fact`) appear in three sections each
+(A + H + I). Section A holds 7 live and 7 struck. GY plan: **36 heading-defined ids**.
+Atlas master plan debt table: 13. Disposition register: 217 rows (machine-checked; paths,
+not debt ids).
+
+**GY plan canonical status, taking the LAST standing per block:** 26 closed · 7 ambiguous
+(`GY-DEF14`, `GY-DEF15`, `GY-DEF22`, `GY-DEFC-1`, `GY-GAP5`, `GY-GAP6`, `GY-GAP7`) · 1 open
+(`GY-GAP3`) · `GY-GAP2` `blocked_on_product_decision` · `GY-DEF19` prose-only.
+
+**Two architect measurement errors, corrected here rather than carried.**
+
+1. **First-match reading of standings is wrong and this file already said so.** Source **A**
+   above is defined as the *last* recorded standing. A first-match parser built today flipped
+   `GY-DEF1`, `GY-DEF2`, `GY-DEF3`, `GY-DEF4` and `GY-GAP1` from `closed` to `open` — five
+   false opens out of 36 — because **6 of 36 blocks carry a standing history**. The rule was
+   written; I did not apply it. Any future parser reports the hit count per block so a history
+   is visible.
+2. **The cross-register gap in GY ids is ZERO, not ten.** 15 GY ids appear in the GY plan and
+   not here, and **all 15 are closed** — correctly omitted. The reconciliation printed exactly
+   that, and I then contradicted it by reading `GY-DEF15` from the plan text alone and
+   registering it as open. It is **`closed`, `closed_by: 2789b49ea`**, already recorded in §G
+   by the Rev-2 census with a stronger receipt than the plan's own text carries: the commit is
+   an ancestor and the complete closure signal — seven `test_n11_*` identities — ran green at
+   base. **The register held the verdict the GY plan lacks.** The erroneous row was removed.
+   It survived roughly four minutes: the distinct-id arithmetic read 54 against an expected 55
+   and named the duplicate immediately. That is precisely the check the generated ledger's
+   denominator footer is for, and it caught its author.
+
+**Six standing forms are in use in the GY plan**, not one: `STANDING RECORDED (…): <status>`
+(20 uses) · none (7) · `EXECUTED`/`SUPERSEDED` (5) · `STANDING EXECUTED (…): <status>` (2) ·
+`` `defect_standing` = `<status>` `` (1) · `CLOSED at \`<commit>\`` (1) ·
+`Standing after execution (merged \`<commit>\`)` (1). A single form should be adopted going
+forward; six forms in one ledger is the condition that made this census necessary.
+
+**Rev 3 harvest — non-closures of the four slices that closed before the rule existed.**
+`DS4`, `DS5`, `DS6`, `DS16` read by hand; `DS8`'s six were registered 2026-08-22.
+
+- **`DS5`** carries the best form in the programme: **27 structured non-closure rows over 58
+  sites**, each with a successor slice and typed capability labels. The defect is not the form
+  but the routing — **11 of 27 point at slices with no plan file anywhere**. Registered as one
+  row, not eleven: DS5's table is the detail, the register indexes it.
+- **`DS6`** declares four; three were already covered (`DS8` export family,
+  `atlas-health-metric-replay-pins…`, the DS8 A4 baseline) and **two were prose-only in the
+  Atlas master plan and absent here** — `transitive-runner-closure-unbound` (L1286) and the
+  `scenario composer dark theme` visual-lane instability (L1291). Both now registered; the
+  second has **no owner named in any plan**.
+- **`DS16`**'s non-closure is the grammar body `C07`–`C10`, already a registered successor with
+  a property-shaped re-entry condition. No new row.
+- **`DS4`**'s *"does not close or order them"* is a scope statement about deliberately opaque
+  extensions, not a debt. No row.
+
+**Method correction found mid-harvest:** a slice's plan may live in `atlas-slices/` **or**
+`superpowers/plans/` — `DS7` has one only in the latter. A plan-existence test searching one
+directory reported `DS7` as unowned and inflated DS5's unowned count from 11 to 15. Any checker
+searches both.
+
 ## A. Open and executable now
 
 | id | subject | owner | status | closure signal |
@@ -160,6 +222,9 @@ drift it reports is therefore registered as a row to re-measure, never as a verd
 | `ds8-public-case-publication` | DS8 routes public case publication to DS12. **DS12 has no slice plan** — `atlas-slices/` holds plans for DS0-DS6, DS8, DS16, DS19, DS20 only, and DS12 is a one-line slice-table row. | DS12 is a **candidate, not an owner** | `blocked` | DS12 acquires a scope and this row moves into it. Per the `GY-GAP3` precedent, routing to a lane that does not own a capability leaves it unowned |
 | `ds8-approval-authority` | DS8 routes approval authority to DS9 ("mutations DS9"). **DS9 has no slice plan and no scope section** — it is a slice-table row and a dependency edge. `approval authority` itself has zero occurrences in the master plan. | DS9 is a **candidate, not an owner** | `blocked` | DS9 acquires a scope and this row moves into it |
 | `ds8-lex-clerk-authority-repair` | DS8 routes Lex to DS10 and Clerk to DS14; neither has a slice plan. **A direct inconsistency is carried here:** DS8's plan says "Lex DS10", while the Atlas slice table describes DS10 as **Capability discovery**. One of the two is wrong and the routing means nothing until it is resolved. | DS10 / DS14 are **candidates, not owners** | `blocked` | the DS10 description conflict is adjudicated, then the named slices acquire scopes and these rows move into them |
+| `transitive-runner-closure-unbound` | `observed_by_reconciler` attests **intake** closure, not runner integrity under local code modification. Closing needs an **out-of-band runner identity**; a falsifier over all **9,870** tracked files found none in this repository, so the label is **earned, not assumed**. Prose-only in the Atlas master plan (L1286) until the Rev-3 census. | `absent/unallocated` | `open` | an out-of-band runner identity exists and is bound; until then the label is the honest result and re-measuring the falsifier is the only work |
+| `scenario-composer-dark-theme-visual-instability` | visual-lane instability on the scenario composer dark theme, carried by DS6 as *"open under their own owners"* and named in the Atlas master plan (L1291) in prose only. **The owner is named nowhere.** | `absent/unallocated` — no owner is stated in any plan | `open` | an owner is named, then the instability is reproduced under a declared ceiling and either repaired or typed as a bounded residual with its falsifier |
+| `ds5-waist-successors-routed-to-unscoped-slices` | DS5's enforcement-waist table declares **27 structured non-closure rows over 58 sites**, each with a successor slice and typed capability labels — a better form than prose. But **11 of the 27 route to slices with no plan file in either `atlas-slices/` or `superpowers/plans/`**: DS9 (5), DS12 (3), DS15, DS14, DS18. The table is the detail; this row is the routing defect. | those five slices are **candidates, not owners** | `blocked` | each named slice acquires a plan, and its DS5 rows move into that plan's scope. `GY-GAP3` rule: routing to a lane that does not own a capability leaves it unowned |
 
 ## C. Registered only on an unmerged branch
 

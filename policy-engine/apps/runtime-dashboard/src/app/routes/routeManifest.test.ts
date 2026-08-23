@@ -12,6 +12,22 @@ describe("route prefetch manifest", () => {
     });
   });
 
+  it("classifies case inspection before the generic run tab", () => {
+    const resolved = resolveRoutePrefetchEntry("/runs/run-42/case");
+    expect(resolved).toMatchObject({
+      entry: { kind: "caseInspection", pattern: "/runs/:runId/case" },
+      params: { runId: "run-42" },
+    });
+    const caseIndex = ROUTE_PREFETCH_MANIFEST.findIndex(
+      (entry) => entry.pattern === "/runs/:runId/case",
+    );
+    const dynamicIndex = ROUTE_PREFETCH_MANIFEST.findIndex(
+      (entry) => entry.pattern === "/runs/:runId/:tab",
+    );
+    expect(caseIndex).toBeGreaterThanOrEqual(0);
+    expect(caseIndex).toBeLessThan(dynamicIndex);
+  });
+
   it("resolves the Cycle Board as a static capability-only workspace route", () => {
     const resolved = resolveRoutePrefetchEntry("/runs/cycle-board");
 

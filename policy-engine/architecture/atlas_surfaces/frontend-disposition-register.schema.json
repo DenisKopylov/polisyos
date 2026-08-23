@@ -22,6 +22,7 @@
     "subunits",
     "supplemental_findings",
     "ds8_strangle_coverage",
+    "ds8b_post_freeze_transition",
     "seeded_negative_lifecycle"
   ],
   "properties": {
@@ -29,7 +30,7 @@
       "const": "./frontend-disposition-register.schema.json"
     },
     "schema_version": {
-      "const": "1.1"
+      "const": "1.2"
     },
     "register_id": {
       "const": "atlas-ds19-frontend-disposition"
@@ -135,6 +136,9 @@
     },
     "ds8_strangle_coverage": {
       "$ref": "#/$defs/ds8StrangleCoverage"
+    },
+    "ds8b_post_freeze_transition": {
+      "$ref": "#/$defs/ds8bPostFreezeTransition"
     },
     "seeded_negative_lifecycle": {
       "type": "array",
@@ -1740,6 +1744,141 @@
             "source_git_tree_vs_archive": { "const": "exact" },
             "source_freeze_vs_writer_history": { "const": "ancestor" },
             "live_tree_disposition": { "const": "outside_frozen_coverage" }
+          }
+        }
+      }
+    },
+    "ds8bTransitionAssignment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "path",
+        "feature",
+        "role",
+        "origin",
+        "disposition",
+        "closure_cluster",
+        "baseline_content_sha256",
+        "source_content_sha256"
+      ],
+      "properties": {
+        "path": { "$ref": "#/$defs/pathRef" },
+        "feature": { "enum": ["runs", "artifacts", "evidence"] },
+        "role": { "enum": ["production", "test", "story"] },
+        "origin": { "enum": ["opening_base", "source_freeze"] },
+        "disposition": {
+          "enum": [
+            "in_scope_rebound",
+            "verification_companion_rebound",
+            "retained_rebound",
+            "new_in_slice"
+          ]
+        },
+        "closure_cluster": { "const": "C03" },
+        "baseline_content_sha256": {
+          "oneOf": [{ "$ref": "#/$defs/sha256" }, { "type": "null" }]
+        },
+        "source_content_sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "ds8bPostFreezeTransition": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "coverage_id",
+        "predicate_provenance",
+        "transition_complete",
+        "baseline",
+        "source_freeze",
+        "historical_binding",
+        "changed_existing_path_count",
+        "new_path_count",
+        "transition_path_count",
+        "transition_path_manifest_sha256",
+        "assignments",
+        "closure_receipt",
+        "reconciliation"
+      ],
+      "properties": {
+        "coverage_id": {
+          "const": "ds8b-case-workspace-post-freeze-transition"
+        },
+        "predicate_provenance": { "const": "independently_reconciled" },
+        "transition_complete": { "const": true },
+        "baseline": { "$ref": "#/$defs/ds8Snapshot" },
+        "source_freeze": { "$ref": "#/$defs/ds8Snapshot" },
+        "historical_binding": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "coverage_id",
+            "coverage_sha256",
+            "assignment_count",
+            "assignment_path_manifest_sha256",
+            "deferred_count",
+            "deferred_rows_sha256"
+          ],
+          "properties": {
+            "coverage_id": { "const": "ds8-case-evidence-strangle-coverage" },
+            "coverage_sha256": { "$ref": "#/$defs/sha256" },
+            "assignment_count": { "const": 217 },
+            "assignment_path_manifest_sha256": { "$ref": "#/$defs/sha256" },
+            "deferred_count": { "const": 137 },
+            "deferred_rows_sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "changed_existing_path_count": { "const": 1 },
+        "new_path_count": { "const": 5 },
+        "transition_path_count": { "const": 6 },
+        "transition_path_manifest_sha256": { "$ref": "#/$defs/sha256" },
+        "assignments": {
+          "type": "array",
+          "minItems": 6,
+          "maxItems": 6,
+          "items": { "$ref": "#/$defs/ds8bTransitionAssignment" }
+        },
+        "closure_receipt": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "cluster",
+            "source_commit",
+            "paths",
+            "file_count",
+            "path_content_manifest_sha256"
+          ],
+          "properties": {
+            "cluster": { "const": "C03" },
+            "source_commit": { "type": "string", "pattern": "^[a-f0-9]{40}$" },
+            "paths": {
+              "type": "array",
+              "minItems": 6,
+              "maxItems": 6,
+              "uniqueItems": true,
+              "items": { "$ref": "#/$defs/pathRef" }
+            },
+            "file_count": { "const": 6 },
+            "path_content_manifest_sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "reconciliation": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "baseline_git_tree_vs_archive",
+            "source_git_tree_vs_archive",
+            "baseline_vs_source_history",
+            "historical_217_map",
+            "historical_137_deferrals",
+            "live_tree_disposition"
+          ],
+          "properties": {
+            "baseline_git_tree_vs_archive": { "const": "exact" },
+            "source_git_tree_vs_archive": { "const": "exact" },
+            "baseline_vs_source_history": { "const": "ancestor" },
+            "historical_217_map": { "const": "byte_preserved" },
+            "historical_137_deferrals": { "const": "byte_preserved" },
+            "live_tree_disposition": { "const": "outside_frozen_transition" }
           }
         }
       }

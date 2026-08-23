@@ -720,6 +720,7 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         },
         "absence_reason": None,
     },
+    "get_case_inspection": _RUN_PAPER_TYPED_UNAVAILABLE_SAMPLE,
     "get_depth_n_cycle_board_projection": _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE,
     "get_run_paper": _RUN_PAPER_TYPED_UNAVAILABLE_SAMPLE,
     "get_runtime_channel_registry": {

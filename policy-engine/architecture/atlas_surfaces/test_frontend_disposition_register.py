@@ -6494,5 +6494,195 @@ class DS8StrangleCoverageTests(unittest.TestCase):
             self.assertEqual(1, projection.count(f"`{row['path']}`"))
 
 
+class DS8BPostFreezeTransitionTests(unittest.TestCase):
+    """Pin DS8-B's own delta without absorbing post-C07 estate changes."""
+
+    BASE_COMMIT = "23a2c797bececb1757253aa4f1e8ef5999c81601"
+    SOURCE_COMMIT = "40226aafe0f668d87aa52fda696cc72fec0be0b5"
+
+    @classmethod
+    def setUpClass(cls) -> None:
+        cls.historical = json.loads(
+            REGISTER_PATH.read_text(encoding="utf-8")
+        )["ds8_strangle_coverage"]
+        cls.transition = checker.build_ds8b_post_freeze_transition(
+            baseline_commit=cls.BASE_COMMIT,
+            source_commit=cls.SOURCE_COMMIT,
+            historical_coverage=cls.historical,
+        )
+
+    def test_complete_delta_and_historical_binding_are_exact(self) -> None:
+        transition = self.transition
+        assert transition["transition_complete"]  # noqa: S101
+        assert transition["changed_existing_path_count"] == 1  # noqa: S101
+        assert transition["new_path_count"] == 5  # noqa: S101
+        assert transition["transition_path_count"] == 6  # noqa: S101
+        assert (  # noqa: S101
+            transition["historical_binding"]["assignment_count"] == 217
+        )
+        assert (  # noqa: S101
+            transition["historical_binding"]["deferred_count"] == 137
+        )
+        assert [  # noqa: S101
+            row["path"] for row in transition["assignments"]
+        ] == [
+            "apps/runtime-dashboard/src/features/runs/api/"
+            "useCaseInspection.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/api/useCaseInspection.ts",
+            "apps/runtime-dashboard/src/features/runs/routes/"
+            "CaseWorkspacePage.parity.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/"
+            "CaseWorkspacePage.test.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/"
+            "CaseWorkspacePage.tsx",
+            "apps/runtime-dashboard/src/features/runs/routes/"
+            "CycleBoardConsumerCensus.test.ts",
+        ]
+        assert not checker.validate_ds8b_post_freeze_transition(  # noqa: S101
+            transition,
+            self.historical,
+            expected_baseline_commit=self.BASE_COMMIT,
+            expected_source_commit=self.SOURCE_COMMIT,
+        )
+
+    def test_generic_walk_rejects_all_required_corruptions(self) -> None:
+        assert not checker.ds8b_post_freeze_corruption_probes(  # noqa: S101
+            self.transition,
+            self.historical,
+            expected_baseline_commit=self.BASE_COMMIT,
+            expected_source_commit=self.SOURCE_COMMIT,
+        )
+
+    def test_surgical_writer_preserves_the_217_row_historical_value(self) -> None:
+        prefix = checker._ds8_coordinate_prefix()
+        base_register = checker._ds8_git_text(
+            "show",
+            f"{self.BASE_COMMIT}:{prefix}"
+            "architecture/atlas_surfaces/frontend-disposition-register.json",
+        )
+        base_data = json.loads(base_register)
+        original_history = copy.deepcopy(base_data["ds8_strangle_coverage"])
+        once = checker._ds8b_register_candidate_text(base_register, self.transition)
+        twice = checker._ds8b_register_candidate_text(once, self.transition)
+        assert once == twice  # noqa: S101
+        parsed = json.loads(once)
+        assert parsed["schema_version"] == "1.2"  # noqa: S101
+        assert (  # noqa: S101
+            parsed["ds8_strangle_coverage"] == original_history
+        )
+        assert not checker._schema_errors(  # noqa: S101
+            parsed, checker.SCHEMA_PATH
+        )
+        parsed.pop("ds8b_post_freeze_transition")
+        parsed["schema_version"] = base_data["schema_version"]
+        assert parsed == base_data  # noqa: S101
+
+    def test_writer_live_fence_rejects_post_freeze_source_drift(self) -> None:
+        poisoned = dict(checker._ds8_live_sources())
+        target = next(iter(poisoned))
+        poisoned[target] += b"// post-DS8-B drift\n"
+        with (
+            mock.patch.object(
+                checker,
+                "_ds8_live_sources",
+                return_value=poisoned,
+            ),
+            pytest.raises(ValueError, match="byte reconciliation failed"),
+        ):
+            checker.build_ds8b_post_freeze_transition(
+                baseline_commit=self.BASE_COMMIT,
+                source_commit=self.SOURCE_COMMIT,
+                historical_coverage=self.historical,
+                require_live_source_match=True,
+            )
+
+    def test_status_companion_maps_only_the_two_regeneration_drifts(self) -> None:
+        prefix = checker._ds8_coordinate_prefix()
+        opening_register = checker._ds8_git_text(
+            "show",
+            f"{self.SOURCE_COMMIT}:{prefix}"
+            "architecture/atlas_surfaces/frontend-disposition-register.json",
+        )
+        opening_status = json.loads(
+            checker._ds8_git_text(
+                "show",
+                f"{self.SOURCE_COMMIT}:{prefix}"
+                "architecture/atlas_surfaces/status-retirement-inventory.json",
+            )
+        )
+        original_register = REGISTER_PATH.read_text(encoding="utf-8")
+        register_candidate = checker._ds8b_register_candidate_text(
+            original_register,
+            self.transition,
+        )
+        original_status = checker._load_json(checker.STATUS_INVENTORY_PATH)
+        status_candidate = json.loads(
+            checker._ds8_status_inventory_candidate_text(
+                checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8"),
+                register_bytes=register_candidate.encode("utf-8"),
+            )
+        )
+        expected = copy.deepcopy(original_status)
+        expected["sources"]["ds19"]["sha256"] = checker._ds8_digest(
+            register_candidate.encode("utf-8")
+        )
+        generated = expected["sources"]["generated_client"]
+        generated["canonical_sha256"] = checker._sha256(
+            checker.REPO_ROOT / generated["canonical_path"]
+        )
+        generated["types_sha256"] = checker._sha256(
+            checker.REPO_ROOT / generated["types_path"]
+        )
+        assert status_candidate == expected  # noqa: S101
+        assert not checker._ds8_status_candidate_errors(  # noqa: S101
+            status_candidate,
+            register_bytes=register_candidate.encode("utf-8"),
+        )
+
+        debt = checker.status_checker._load_json(
+            checker.status_checker.WAIST_DEBT_PATH
+        )
+        original_status_sha256 = checker.status_checker._sha256
+        opening_register_hash = checker._ds8_digest(
+            opening_register.encode("utf-8")
+        )
+
+        def opening_sha256(path: Path) -> str:
+            if path == checker.status_checker.DS19_PATH:
+                return opening_register_hash
+            return original_status_sha256(path)
+
+        with mock.patch.object(
+            checker.status_checker,
+            "_sha256",
+            side_effect=opening_sha256,
+        ):
+            opening = checker.status_checker.validate_inventory(opening_status, debt)
+        live = checker.status_checker.validate_inventory(original_status, debt)
+        regeneration_drifts = {
+            "inventory_source_hash_drift:packages/runtime-api-client/"
+            "canonicalRuntimeApiClient.ts",
+            "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
+        }
+        assert Counter(opening) == Counter([*live, *regeneration_drifts])  # noqa: S101
+        payload = "".join(f"{row}\n" for row in live).encode()
+        assert (  # noqa: S101
+            len(live),
+            len(payload),
+            hashlib.sha256(payload).hexdigest(),
+        ) == (
+            13,
+            887,
+            "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
+        )
+
+    def test_complete_transition_projection_is_reported(self) -> None:
+        projection = checker._ds8b_transition_report_projection(self.transition)
+        assert "**217 rows**" in projection  # noqa: S101
+        assert "**137 deferrals**" in projection  # noqa: S101
+        for row in self.transition["assignments"]:
+            assert projection.count(f"`{row['path']}`") == 1  # noqa: S101
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -12,6 +12,7 @@ export type RoutePrefetchManifestEntry = {
   handle: RouteManifestHandle;
   kind:
     | "artifact"
+    | "caseInspection"
     | "evidence"
     | "runDeck"
     | "runPaper"
@@ -77,6 +78,11 @@ export const ROUTE_PREFETCH_MANIFEST: RoutePrefetchManifestEntry[] = [
     handle: workspaceHandle("runs.report", "runsDecisions"),
     kind: "runPaper",
     pattern: "/runs/:runId/report",
+  },
+  {
+    handle: workspaceHandle("runs.caseWorkspace", "runsDecisions"),
+    kind: "caseInspection",
+    pattern: "/runs/:runId/case",
   },
   {
     handle: workspaceHandle("runs.deck", "runsDecisions"),

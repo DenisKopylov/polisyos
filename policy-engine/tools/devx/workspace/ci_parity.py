@@ -221,6 +221,18 @@ def _last_mile_policy_commands(*, skip_docs: bool) -> list[CommandSpec]:
             cwd=PRODUCT_ROOT,
         ),
         CommandSpec(
+            label="report debt ledger reconciliation",
+            argv=(
+                *uv,
+                "run",
+                "python",
+                "tools/quality/validation/check_debt_ledger.py",
+                "--check",
+                "--report-only",
+            ),
+            cwd=PRODUCT_ROOT,
+        ),
+        CommandSpec(
             label="check extension example installability",
             argv=(
                 *uv,

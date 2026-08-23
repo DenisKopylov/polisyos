@@ -49,6 +49,33 @@ Two further findings the census produced:
 6. **Supersessions append.** Never rewrite a recorded standing; add a dated line beneath it.
 7. **An unreadable cell is `ambiguous`, never a guess and never a zero.**
 
+### Task lifecycle
+
+`named → planned → unblocked → in-flight → handed-back → verified → merged → closed`
+
+| state | loss mode | gate to the next state |
+| --- | --- | --- |
+| `named` | a name is mistaken for scoped work | a plan file declares scope, exclusions, owner, and acceptance signal |
+| `planned` | a dependency edge is mistaken for readiness | the enabling property is measured and dated; the edge itself is not evidence |
+| `unblocked` | ready work has no attached execution identity | an attached branch and first committed boundary exist |
+| `in-flight` | uncommitted or detached work is reported as durable | the attached branch is handed back with exact commits and a clean readback |
+| `handed-back` | a delivery claim outruns its receipts | falsifiers, targeted verification, and review receipts bind the handed-back head |
+| `verified` | verification of a staging area is mistaken for branch state | the verified commit is re-read from the attached branch before integration |
+| `merged` | ancestry is mistaken for lifecycle closure | the merge commit is an ancestor of `main` and the master-plan row says `CLOSED` |
+| `closed` | a closed obligation disappears or is silently reopened | the source row and closure receipt remain; a regression gets a new id citing it |
+
+### Debt lifecycle
+
+`observed → registered → owned → executable → closed`
+
+| state | loss mode | gate to the next state |
+| --- | --- | --- |
+| `observed` | the finding survives only in plan prose or failure memory | a distinct id, evidence, status, and executable-or-blocked reason enter this register |
+| `registered` | routing to a candidate is presented as ownership | the named owner has a real plan/scope; otherwise ownership stays `absent/unallocated` or `candidate` |
+| `owned` | responsibility is assigned but no closure can be run | the row names a behavioral command or predicate and its negative witness |
+| `executable` | work lands without a source/status transition | the closure signal passes and its cited commit is an ancestor of `main` |
+| `closed` | later prose reopens or erases a historical verdict | the row stays in its source, leaves the open ledger, and any regression receives a new id |
+
 ## Status vocabulary
 
 | status | meaning |

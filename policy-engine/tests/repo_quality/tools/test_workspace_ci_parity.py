@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -93,6 +94,19 @@ def test_workspace_ci_parity_owns_broad_last_mile_policy_gates(
     assert "check extension example installability" in labels
     assert "check ADR thematic index freshness" in labels
     assert "Last-mile CI-parity gates:" in ci_parity._build_parser().format_help()
+
+
+def test_debt_ledger_reconciliation_is_reporting_only() -> None:
+    commands = ci_parity._last_mile_policy_commands(skip_docs=False)
+    command = next(item for item in commands if item.label == "report debt ledger reconciliation")
+
+    assert command.argv[-2:] == ("--check", "--report-only")
+    payload = tomllib.loads(
+        (REPO_ROOT / "architecture/gates/report_only.toml").read_text(encoding="utf-8")
+    )
+    gate = next(item for item in payload["gate"] if item["id"] == "debt-ledger-reconciliation")
+    assert gate["mode"] == "report_only"
+    assert "two or three real slice closures" in gate["promotion_condition"]
 
 
 def test_repository_sota_closeout_declares_final_acceptance_owners() -> None:

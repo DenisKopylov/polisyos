@@ -17,6 +17,22 @@ source_contracts = ["architecture/packages/*.toml"]
 target_fail_closed_not_before = "2026-10-01"
 
 [[gate]]
+id = "debt-ledger-reconciliation"
+area = "documentation_governance"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/check_debt_ledger.py --check --report-only"
+evidence = "docs/plans/active/LEDGER.md"
+source_contracts = [
+  "docs/plans/active/DEBT-REGISTER.md",
+  "docs/plans/active/layer3-slices/GY-engine-subordination.md",
+  "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+  "architecture/atlas_surfaces/frontend-disposition-register.json",
+]
+target_fail_closed_not_before = "2026-10-01"
+promotion_condition = "Fail-closed eligibility requires clean observation across two or three real slice closures."
+
+[[gate]]
 id = "compatibility-release-gates"
 area = "release"
 owner = "team-release"

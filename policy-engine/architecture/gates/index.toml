@@ -542,6 +542,15 @@ mode = "report_only"
 command = "uv run python tools/quality/validation/architecture_report_only_contracts.py --report packages"
 
 [[gate]]
+id = "debt-ledger-reconciliation"
+family = "report-only"
+source_contract = "architecture/gates/report_only.toml"
+table = "gate"
+owner = "team-architecture"
+mode = "report_only"
+command = "uv run python tools/quality/validation/check_debt_ledger.py --check --report-only"
+
+[[gate]]
 id = "compatibility-release-gates"
 family = "report-only"
 source_contract = "architecture/gates/report_only.toml"

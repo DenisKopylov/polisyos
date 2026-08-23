@@ -93,7 +93,9 @@ def test_workspace_ci_parity_owns_broad_last_mile_policy_gates(
     assert "check validator module-size budget" in labels
     assert "check extension example installability" in labels
     assert "check ADR thematic index freshness" in labels
+    assert "report debt ledger reconciliation" in labels
     assert "Last-mile CI-parity gates:" in ci_parity._build_parser().format_help()
+    assert "check_debt_ledger.py" in ci_parity._build_parser().format_help()
 
 
 def test_debt_ledger_reconciliation_is_reporting_only() -> None:
@@ -107,6 +109,15 @@ def test_debt_ledger_reconciliation_is_reporting_only() -> None:
     gate = next(item for item in payload["gate"] if item["id"] == "debt-ledger-reconciliation")
     assert gate["mode"] == "report_only"
     assert "two or three real slice closures" in gate["promotion_condition"]
+    assert {
+        "docs/plans/active/atlas-slices/*.md",
+        "docs/superpowers/plans/*.md",
+    } <= set(gate["source_contracts"])
+    index = tomllib.loads((REPO_ROOT / "architecture/gates/index.toml").read_text())
+    indexed = next(item for item in index["gate"] if item["id"] == gate["id"])
+    assert indexed["source_contract"] == "architecture/gates/report_only.toml"
+    assert indexed["mode"] == "report_only"
+    assert indexed["command"] == gate["command"]
 
 
 def test_repository_sota_closeout_declares_final_acceptance_owners() -> None:

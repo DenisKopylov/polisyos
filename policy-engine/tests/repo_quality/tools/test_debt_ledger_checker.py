@@ -174,6 +174,32 @@ def test_secondary_source_ids_and_statuses_are_reconciled(tmp_path: Path) -> Non
     assert "source_status_disagreement" in _codes(checker, repo)
 
 
+def test_write_projects_source_only_open_debts_but_not_reconciled_closures(
+    tmp_path: Path,
+) -> None:
+    checker = _checker()
+    gy = """# GY
+- **GY-GAP3 — source-only debt.**
+
+  **STANDING RECORDED (fixture): open.**
+"""
+    repo = _fixture(
+        tmp_path,
+        a_rows="",
+        atlas_debt_rows="| Atlas source-only debt | measured | team | open |",
+        gy=gy,
+        ledger=_ledger(),
+    )
+
+    assert checker.main(["--write", "--report-only", "--repo-root", str(repo)]) == 0
+    written = (repo / "docs/plans/active/LEDGER.md").read_text()
+
+    assert "`GY-GAP3`" in written
+    assert "`atlas-source-only-debt`" in written
+    assert "GY-engine-subordination.md#" in written
+    assert "POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md#slice-sequence-overview" in written
+
+
 def test_falsifier_status_flip_is_rejected(tmp_path: Path) -> None:
     checker = _checker()
     repo = _fixture(tmp_path, ledger=_ledger(row=_debt_row(status="blocked")))
@@ -199,6 +225,40 @@ def test_falsifier_nonancestor_closure_commit_is_rejected(tmp_path: Path) -> Non
     assert "closure_commit_not_on_main" in _codes(checker, repo)
 
 
+def test_nonancestor_closure_commit_is_checked_in_gy_and_atlas(tmp_path: Path) -> None:
+    checker = _checker()
+    repo = _fixture(tmp_path, a_rows="", ledger=_ledger())
+    _git(repo, "switch", "-c", "side")
+    _git(repo, "commit", "--allow-empty", "-m", "secondary closure")
+    side_commit = _git(repo, "rev-parse", "HEAD")
+    _git(repo, "switch", "main")
+    gy = repo / "docs/plans/active/layer3-slices/GY-engine-subordination.md"
+    gy.write_text(
+        "# GY\n- **GY-DEF1 — closed elsewhere.**\n\n"
+        f"  **CLOSED at `{side_commit}`.**\n"
+    )
+    atlas = repo / "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md"
+    atlas.write_text(
+        atlas.read_text().replace(
+            "| Debt | Measured | Owner | Closure expectation |\n"
+            "| --- | --- | --- | --- |\n",
+            "| Debt | Measured | Owner | Closure expectation |\n"
+            "| --- | --- | --- | --- |\n"
+            f"| ~~Atlas closed elsewhere~~ | measured | team | CLOSED `{side_commit}` |\n",
+            1,
+        )
+    )
+
+    details = [
+        finding.detail
+        for finding in checker.audit_repository(repo).findings
+        if finding.code == "closure_commit_not_on_main"
+    ]
+
+    assert any(detail.startswith("GY:GY-DEF1:") for detail in details)
+    assert any(detail.startswith("Atlas:atlas-closed-elsewhere:") for detail in details)
+
+
 def test_falsifier_planless_slice_cannot_be_owner(tmp_path: Path) -> None:
     checker = _checker()
     source_row = "| `open-debt` | subject | DS9 | `open` | predicate |"
@@ -216,6 +276,16 @@ def test_falsifier_missing_file_line_citation_is_rejected(tmp_path: Path) -> Non
     repo = _fixture(
         tmp_path,
         ledger=_ledger(row=_debt_row(source="`missing/source.py:9`")),
+    )
+
+    assert "ledger_file_reference_missing" in _codes(checker, repo)
+
+
+def test_falsifier_missing_basename_line_citation_is_rejected(tmp_path: Path) -> None:
+    checker = _checker()
+    repo = _fixture(
+        tmp_path,
+        ledger=_ledger(row=_debt_row(source="`missing.py:9`")),
     )
 
     assert "ledger_file_reference_missing" in _codes(checker, repo)
@@ -239,6 +309,19 @@ def test_falsifier_merged_slice_without_closed_marker_is_rejected(tmp_path: Path
     )
 
     assert "merged_slice_not_closed" in _codes(checker, repo)
+
+
+def test_merged_slice_property_is_recognized_across_the_entire_row(tmp_path: Path) -> None:
+    checker = _checker()
+    repo = _fixture(
+        tmp_path,
+        atlas_slice_rows="| DS1 | MERGED delivery | evidence; merged `HEAD`; verified | A |",
+    )
+
+    report = checker.audit_repository(repo)
+
+    assert "merged_slice_not_closed" in {finding.code for finding in report.findings}
+    assert checker._snapshot(repo).work[0].stage == "merged"
 
 
 def test_falsifier_declared_nonclosure_missing_from_ledger_is_rejected(
@@ -310,6 +393,84 @@ def test_real_gy_parser_covers_all_six_forms_and_last_hit_wins() -> None:
         "blocked_on_product_decision": 1,
         "prose_only": 1,
     }
+
+
+def test_gy_parser_lets_the_last_unknown_candidate_win_and_parses_status_generically() -> None:
+    checker = _checker()
+    unknown_last = """# GY
+- **GY-GAP3 — witness.**
+
+  **STANDING RECORDED (fixture): open.**
+
+  **Standing: unknown.**
+"""
+    defect_open = """# GY
+- **GY-GAP3 — witness.**
+
+  `defect_standing` = `open`
+"""
+
+    unknown = checker._parse_gy(unknown_last)[0]
+    defect = checker._parse_gy(defect_open)[0]
+
+    assert unknown.status == "ambiguous" and unknown.line == 6
+    assert defect.status == "open"
+
+
+def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
+    checker = _checker()
+    snapshot = checker._snapshot(REPO_ROOT)
+    rendered = checker.render_ledger(snapshot)
+
+    for row in snapshot.gy:
+        assert f"`{row.debt_id}`={row.hit_count}@{row.line}" in rendered
+
+    expected_states = {
+        "GY-PA1": "producer_missing",
+        "GY-GAP3": "absent/unallocated",
+        "GY-GAP5": "absent/unallocated",
+        "GY-DEF23": "producer_missing",
+        "GY-GAP8": "implemented_but_not_orchestrated",
+    }
+    for debt_id, state in expected_states.items():
+        row = next(line for line in rendered.splitlines() if f"[`{debt_id}`]" in line)
+        assert f"`{state}`" in row
+    gap3 = next(line for line in rendered.splitlines() if "[`GY-GAP3`]" in line)
+    gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
+    assert "contract_only" not in gap3
+    assert "bridge_missing" not in gap8
+    assert "| `DEBT-REGISTER.md` | 54 | 54 | 34 |" in rendered
+    assert "| Atlas master debt table | 13 | 22 | 10 |" in rendered
+
+
+def test_open_work_records_property_posture_and_branch_relevance() -> None:
+    checker = _checker()
+    rendered = checker.render_ledger(checker._snapshot(REPO_ROOT))
+
+    for slice_id in ("DS9", "DS10", "DS12", "DS14", "DS15", "DS17"):
+        row = next(line for line in rendered.splitlines() if f"| `{slice_id}` |" in line)
+        assert "unblocking property `not_established`" in row
+        assert "measured 2026-08-22" in row
+        assert "no plan file in either plan root" in row
+    ds16 = next(line for line in rendered.splitlines() if "| `DS16` |" in line)
+    assert '"a surface exists that renders values rather than refusals"' in ds16
+    assert "codex/atlas-ds16-value-grammar" not in ds16
+    branch_row = next(line for line in rendered.splitlines() if "[`GY-DEF23`]" in line)
+    assert "local-only" in branch_row
+    assert "https://github.com" not in branch_row
+
+
+def test_reconciled_secondary_closures_are_not_reported_as_missing() -> None:
+    checker = _checker()
+    report = checker.audit_repository(REPO_ROOT)
+
+    missing = [item.detail for item in report.findings if item.code == "ledger_missing_source_id"]
+
+    assert "GY:GY-DEF15" not in missing
+    assert "GY:GY-DEF19" not in missing
+    assert "GY:GY-DEFC-1" not in missing
+    assert "Atlas:producer-availability-denominator" not in missing
+    assert "Atlas:run-lifecycle-terminal-fact" not in missing
 
 
 def test_report_only_preserves_findings_but_returns_zero(

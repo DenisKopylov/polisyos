@@ -27,6 +27,8 @@ source_contracts = [
   "docs/plans/active/DEBT-REGISTER.md",
   "docs/plans/active/layer3-slices/GY-engine-subordination.md",
   "docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md",
+  "docs/plans/active/atlas-slices/*.md",
+  "docs/superpowers/plans/*.md",
   "architecture/atlas_surfaces/frontend-disposition-register.json",
 ]
 target_fail_closed_not_before = "2026-10-01"

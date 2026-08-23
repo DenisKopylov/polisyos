@@ -185,6 +185,7 @@ drift it reports is therefore registered as a row to re-measure, never as a verd
 | --- | --- | --- |
 | `GY-GAP7` | `GY-PA1`, as its first cluster | 2026-08-20 |
 | `GY-DEFC-3` | `GY-DEFC-4`, which carried its unmet objective and both unspent allowances | 2026-08-21 |
+| `codex/gy-def6-e11` (branch, 82 commits, last touched 2026-08-09) | the `GY-DEFC` lineage. Its merge-base `e708e8f77` **is** the commit that closed `GY-DEF6`; everything after is the cascade block the GY plan records as "outside the GY-DEF6 closure and outside the main sequence... it schedules and repairs nothing", and states verbatim: **"evidence and a starting point, not a closure; nothing on it is reverted and nothing on it is claimed."** Its findings were harvested as `GY-DEF7`–`GY-DEF12`, each closed by an **independent** implementation (`431bcd798`, `44276ccd5`); its successors merged (`8d87624db`, `e18861d12`) and the lineage ran on through `GY-DEFC-2`…`GY-DEFC-8`. 63 of 82 commits are `chore` receipt churn — this is the lane that produced economics gates `E11`–`E14`. **Do not merge** (conflicts across 11+ files incl. all seven governed contract JSONs; 21 of its 22 files moved independently in `main`, and merging would resurrect superseded implementations). **Do not delete** — the GY plan cites it by name at four places as evidence. | 2026-08-22 |
 
 ## F. AMBIGUOUS — status not determinable; re-measurement required
 

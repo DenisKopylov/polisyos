@@ -1086,6 +1086,27 @@ def test_production_gate_rejects_unsigned_basis_with_typed_refusal(tmp_path: Pat
     assert _human_decision_record_ids(fixture.base.store) == set()
 
 
+@pytest.mark.parametrize(
+    "changed_field",
+    [
+        pytest.param("source_ref", id="source-ref"),
+        pytest.param("basis_ref", id="basis-ref"),
+        pytest.param("basis_digest", id="basis-digest"),
+    ],
+)
+def test_production_gate_requires_one_exact_source_basis_cas_ref(
+    tmp_path: Path,
+    changed_field: str,
+) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+
+    gate = fixture.resolve(**{changed_field: "sha256:" + "0" * 64})
+
+    assert gate.status == "invalid_source"
+    assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(gate)
+    assert _human_decision_record_ids(fixture.base.store) == set()
+
+
 def test_production_gate_blocks_requester_self_review(tmp_path: Path) -> None:
     fixture = _signed_current_production_gate_fixture(tmp_path)
     self_review_basis = fixture.basis.model_copy(

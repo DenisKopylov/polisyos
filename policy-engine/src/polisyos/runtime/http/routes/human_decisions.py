@@ -410,7 +410,7 @@ if router is not None:
             production_packet_ref=production_packet_ref,
             decision_request_ref=decision_request_ref,
             decision_request_digest=None,
-            basis_ref=None,
+            basis_ref=source_ref if source_kind == "production_approval" else None,
             principal_binding_ref=principal_binding_ref,
             reviewer_separation_ref=reviewer_separation_ref,
             presentation_contract_ref=presentation_contract_ref,

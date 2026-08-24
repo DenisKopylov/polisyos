@@ -174,7 +174,7 @@ def _reconcile_predicates(
 class QualificationConsumer:
     """Resolve owner policy and qualify one candidate through the real verifier."""
 
-    __slots__ = ("_creator_pid", "_generation", "_owner")
+    __slots__ = ("_creator_pid", "_generation", "_owner", "_policy_authority_unallocated")
 
     def __init__(self) -> None:
         raise TypeError("use QualificationConsumer.from_current_owner_container()")
@@ -192,6 +192,24 @@ class QualificationConsumer:
         consumer._owner = owner
         consumer._generation = registry._generation
         consumer._creator_pid = os.getpid()
+        consumer._policy_authority_unallocated = False
+        return consumer
+
+    @classmethod
+    def from_unallocated_policy_authority(cls) -> QualificationConsumer:
+        """Construct the fail-closed production consumer for an unappointed signer.
+
+        This constructor accepts no store, verifier, policy, admission, or
+        provenance dependency.  It can only derive the query's selection key
+        and return ``policy_admission_missing`` before candidate reconciliation.
+        """
+
+        registry = chronology_proof._PERSISTENCE_REGISTRY
+        consumer = object.__new__(cls)
+        consumer._owner = None
+        consumer._generation = registry._generation
+        consumer._creator_pid = os.getpid()
+        consumer._policy_authority_unallocated = True
         return consumer
 
     def qualify(
@@ -202,16 +220,25 @@ class QualificationConsumer:
     ) -> contract.NativeChronologyQualificationResult:
         """Qualify one native candidate without taking family authority."""
         registry = chronology_proof._PERSISTENCE_REGISTRY
-        owner = self._owner
-        if (
-            owner is None
-            or self._creator_pid != os.getpid()
-            or self._generation is not registry._generation
-            or not registry._owner_is_current(owner)
-        ):
+        if self._creator_pid != os.getpid() or self._generation is not registry._generation:
             return _entry_generation_failure(request)
 
         key = _selection_key(request)
+        if self._policy_authority_unallocated:
+            return _policy_failure(
+                request=request,
+                failure=contract.PolicyAdmissionMissingFailure(
+                    code="policy_admission_missing",
+                    status="not_established",
+                    key=key,
+                    requested_query_context_ref=request.requested_query_context_ref,
+                ),
+            )
+
+        owner = self._owner
+        if owner is None or not registry._owner_is_current(owner):
+            return _entry_generation_failure(request)
+
         context = contract.PredicatePolicyResolutionContext(query=request, key=key)
         try:
             admission_refs = owner._admission_index.enumerate_admission_refs(key=key)
@@ -457,9 +484,9 @@ class QualificationConsumer:
                 proof_result=proof_result,
             )
 
-        # Cluster 2 intentionally has no family-projection receipt producer or
-        # production family call site.  The common consumer therefore ends at
-        # the exact family-owned custody gap; C4 owns the first positive path.
+        # The family-projection producer remains outside Cluster 2.  Cluster 4
+        # invokes this consumer but its absent policy authority returns before
+        # candidate reconciliation; no positive projection receipt is minted.
         return contract.NativeProjectionCustodyGap(
             result_kind="projection_custody_gap",
             status="native_not_established",

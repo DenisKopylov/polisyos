@@ -75,6 +75,14 @@ def test_qualification_module_exposes_only_the_two_internal_composition_symbols(
         )
         == set()
     )
+    assert (
+        set(
+            inspect.signature(
+                chronology_qualification.QualificationConsumer.from_unallocated_policy_authority
+            ).parameters
+        )
+        == set()
+    )
     with pytest.raises(TypeError, match="from_current_owner_container"):
         chronology_qualification.QualificationConsumer()
 
@@ -89,6 +97,20 @@ def test_absent_owner_generation_refuses_before_adapter_or_store_access() -> Non
     assert isinstance(result, contract.NativeQualificationProcessGenerationNotEstablished)
     assert result.result_kind == "qualification_process_generation_not_established"
     assert result.query == query
+    assert adapter.calls == 0
+
+
+def test_policy_free_production_runtime_reports_missing_admission_without_adapter() -> None:
+    adapter = _ExplodingAdapter()
+    query = _query()
+    consumer = chronology_qualification.QualificationConsumer.from_unallocated_policy_authority()
+
+    result = consumer.qualify(adapter=adapter, request=query)
+
+    assert isinstance(result, contract.NativeChronologyPolicyResolutionFailed)
+    assert result.failure.code == "policy_admission_missing"
+    assert result.failure.key.family == query.domain.family
+    assert result.failure.requested_query_context_ref == query.requested_query_context_ref
     assert adapter.calls == 0
 
 

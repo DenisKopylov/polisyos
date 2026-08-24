@@ -717,3 +717,127 @@ def test_blocking_authorization_resolver_does_not_stall_event_loop(
     assert health_elapsed < 0.20
     assert mutation.status_code == 200, mutation.text
     assert executed == [True]
+
+
+def test_human_decision_exposure_is_a_top_level_completed_event(tmp_path) -> None:
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.artifacts.signing import (
+        Ed25519Signer,
+        Ed25519Verifier,
+        KeyPair,
+        SignatureVerificationStatus,
+    )
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+    from polisyos.core.canon import from_canonical_bytes
+    from polisyos.runtime.http.access_audit import (
+        HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,
+        HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION,
+        HumanDecisionExposureAuditEvent,
+        RuntimeDataAccessAuditTrail,
+        persist_human_decision_exposure_event,
+    )
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.quality.diagnostic_events import DiagnosticEvent
+    from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
+
+    artifact_store = FileSystemCAS(tmp_path / "cas").for_tenant(
+        "tenant-a", cell_id="cell-a"
+    )
+    control_store = ControlPlaneStore(
+        backend="sqlite",
+        sqlite_path=tmp_path / "control.sqlite3",
+    )
+    event_log = RuntimeDiagnosticEventLog(
+        store=control_store,
+        artifact_store=artifact_store,
+    )
+    custody_identity = "service://runtime/human-decision-custody"
+    custody_pair = KeyPair.generate()
+    custody_signer = Ed25519Signer(custody_pair.private_key)
+    verifier = Ed25519Verifier(strict_identity=True)
+    verifier.add_trusted_key(
+        custody_pair.public_key,
+        identity=custody_identity,
+    )
+    delivered_body = b'{"opened":"exact evidence bytes"}'
+    delivered_ref = artifact_store.put_bytes(
+        delivered_body,
+        ArtifactWriteOptions(
+            kind="test.human_decision.exposed_content",
+            media_type="application/json",
+        ),
+    )
+    delivered_id = str(delivered_ref.artifact_id)
+    unsigned_core = HumanDecisionExposureAuditEvent(
+        timestamp=1.0,
+        event_id="exposure-1",
+        event_ref="runtime://human-decision/exposure-events/exposure-1",
+        event_receipt_ref=None,
+        tenant_id="tenant-a",
+        actor_ref="principal-a",
+        run_id="run-a",
+        request_ref="sha256:" + "a" * 64,
+        request_digest="sha256:" + "b" * 64,
+        basis_digest="sha256:" + "c" * 64,
+        session_ref="sha256:" + "d" * 64,
+        artifact_id=delivered_id,
+        content_digest=delivered_id,
+        delivered_bytes=len(delivered_body),
+        verifier_epoch="ds9-test-epoch",
+    )
+    path = tmp_path / "access.jsonl"
+    completed = persist_human_decision_exposure_event(
+        trail=RuntimeDataAccessAuditTrail(path=path),
+        event=unsigned_core,
+        artifact_store=artifact_store,
+        event_log=event_log,
+        signer=custody_signer,
+        signer_identity=custody_identity,
+        verifier=verifier,
+    )
+    rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+
+    assert len(rows) == 1
+    persisted = HumanDecisionExposureAuditEvent.model_validate(rows[0])
+    assert persisted == completed
+    assert persisted.event_type == "runtime.human_decision.exposure"
+    assert "outcome" not in persisted.model_dump(mode="json")
+    assert persisted.event_receipt_ref is not None
+
+    receipt_id = ArtifactID.model_validate(persisted.event_receipt_ref)
+    manifest = artifact_store.get_manifest(receipt_id)
+    assert manifest.kind == HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND
+    assert manifest.artifact_schema is not None
+    assert manifest.artifact_schema.name == "polisyos.runtime.HumanDecisionExposureAuditEvent"
+    assert (
+        manifest.artifact_schema.version
+        == HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION
+    )
+    assert manifest.authority is not None
+
+    signed_core = HumanDecisionExposureAuditEvent.model_validate(
+        from_canonical_bytes(artifact_store.get_bytes(receipt_id))
+    )
+    assert signed_core == unsigned_core
+    assert persisted.model_copy(update={"event_receipt_ref": None}) == signed_core
+
+    signature = artifact_store.get_signature(receipt_id)
+    assert signature is not None
+    assert signature.artifact_id == str(receipt_id)
+    assert signature.signer_identity == custody_identity
+    verification = artifact_store.verify_signature(
+        receipt_id,
+        verifier,
+        strict_identity=True,
+    )
+    assert verification.status == SignatureVerificationStatus.VALID
+    assert verification.signer_identity == custody_identity
+
+    diagnostic_ref = manifest.authority.diagnostic_event_ref
+    diagnostic = DiagnosticEvent.model_validate(
+        from_canonical_bytes(artifact_store.get_bytes(diagnostic_ref))
+    )
+    durable = control_store.list_diagnostic_events(event_id=diagnostic.event_id)
+    assert len(durable) == 1
+    assert durable[0].event == diagnostic

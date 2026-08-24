@@ -727,7 +727,7 @@ def test_wrong_role_human_click_is_persisted_and_never_fires_effect(tmp_path: Pa
     )
 
 
-def test_signed_five_rights_record_is_the_only_out_of_envelope_override(
+def test_human_decision_v1_replays_as_revalidation_required(
     tmp_path: Path,
 ) -> None:
     harness = _harness(tmp_path)
@@ -761,14 +761,16 @@ def test_signed_five_rights_record_is_the_only_out_of_envelope_override(
         bindings=(binding,),
         human_decision_refs={request.request_ref: record_ref},
     )
-    result = _dispatch(
+    decision = _assert_refused_with_zero_effect(
+        harness,
         gateway=gateway,
         operation=operation,
         invocation=invocation,
         intent=intent,
+        effects=effects,
+        expected_reason="DS9-DECISION-V1-REVALIDATION",
     )
-    assert result == "search"
-    assert effects == ["search"]
+    assert decision.human_decision_record_ref is None
 
 
 def test_persisted_but_unsigned_human_record_never_fires_effect(tmp_path: Path) -> None:

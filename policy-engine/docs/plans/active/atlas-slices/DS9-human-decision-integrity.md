@@ -2,13 +2,14 @@
 plan_id: atlas-ds9-human-decision-integrity
 title: "DS9 - Human Decision Integrity"
 type: slice-plan
-status: awaiting_owner_approval_no_implementation
+status: execution_authorized_in_progress
 created: 2026-08-23
-last_verified: 2026-08-23
-stability: measured_review_ready_plan
+last_verified: 2026-08-24
+stability: execution_in_progress
 slice: DS9
 baseline_commit: 3c89f008f83f50461d1eb364b502925e2d1b4a13
-execution_base_commit: 3c89f008f83f50461d1eb364b502925e2d1b4a13
+execution_base_commit: 5a6de66ce123ed56ff7e2d5c7368d4869ed3b141
+execution_main_commit: 715c25f1e48859a6b1b932b3db81199c8beeadfc
 master_plan: ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
 surface_constitution: ../../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
 identity_boundary: ../../../system-design-decisions/policyos-identity-and-custody-boundary.md
@@ -21,6 +22,7 @@ audiences: [REVIEWER, EXPERT, MACHINE]
 backend_co_owner: team-runtime
 feature_flags: none
 review_cycles_used: 3_of_3
+branch: codex/ds9-human-decision-integrity-plan
 depends_on:
   - ../POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTER_PLAN.md
   - ../../../system-design-decisions/policyos-atlas-surface-constitution-and-frontend-vision.md
@@ -73,7 +75,7 @@ refusal; no fixture, builder, or inferred role supplies production authority.
 DS9 closes only when every checkbox below has its named receipt. No cluster may
 define a second closure contract.
 
-- [ ] **CC01** Approval, a debt-checker-green execution base, attached branch,
+- [ ] **CC01** Approval, a debt-gate-green execution base, attached branch,
       root-only writer, and every path fence are re-read before each commit.
 - [ ] **CC02** One strict source union resolves signed GY-PA2 or production input;
       its complete status-permutation test never defaults a missing arm green.
@@ -131,24 +133,24 @@ define a second closure contract.
 
 | input | reverified receipt |
 | --- | --- |
-| main / execution base | `3c89f008f83f50461d1eb364b502925e2d1b4a13`; attached plan branch; no mechanism change |
-| debt checker | Baseline `uv run python tools/quality/validation/check_debt_ledger.py --check` exits 1: `ledger_render_drift`, eight `register_supplies_missing_standing` GY rows, and one `register_withholds_source_standing` GY row. Because C00 later changes the checker/register/ledger input family, P41 classifies this `not_established`, not inherited. |
+| main / execution base | current `main` `715c25f1e48859a6b1b932b3db81199c8beeadfc` merged append-only into attached branch at clean execution base `5a6de66ce123ed56ff7e2d5c7368d4869ed3b141`; branch-only delta before C00 was this approved plan |
+| debt gate | On exact main parent `715c25f1e`, semantic predicates are green: zero `source_status_conflict`, zero `*_denominator_mismatch`, zero `ledger_render_drift`, register=55. Strict exit 1 is non-authoritative because it also reports the planless DS9 owner and informational complementarity: ten `register_supplies_missing_standing` plus one `register_withholds_source_standing`. The clean merge commit adds only this plan to the ledger input, so its pre-C00 render drift is the admission C00 must reconcile, not a foreign baseline defect. |
 | DS8 | `c8fff1e0b` is an ancestor; its typed DesignRecord unavailable arm stays honest |
 | DS20 | `03ebc1ce8` is an ancestor; structural step-up/authz is available |
 | GY-PA2 | `82474845a` is an ancestor; both S7 JSON packets exist |
 | downstream | DS11 and DS14 wait on DS9; DS14 also waits on the Phase-6 O-block |
 
-Before C00 spends a round or acquires the register lock, replay the exact debt
-check on the approved execution base. Any finding stops with zero writes and
-routes the receipt to the GY/register owner; DS9 may not suppress, reclassify, or
-repair those foreign standings. Resume only from a green descendant whose
-opening receipt is exactly `published=observed=55`, `indexed=34`, and
-`ambiguous=1, blocked=8, closed=21, folded=2, foreign=6, open=15,
-open_unmerged=2`; otherwise remeasure and obtain an owner-approved plan
-amendment before any mechanism edit.
-The complete baseline finding set is ledger drift plus register-supplies-standing
-for `GY-DEF14`, `GY-DEF15`, `GY-DEF19`, `GY-DEF22`, `GY-DEFC-1`, `GY-GAP5`,
-`GY-GAP6`, and `GY-GAP7`, and register-withholds-standing for `GY-DEF9`.
+Before C00 spends a round or acquires the register lock, replay the checker on
+the exact current-main parent and adjudicate its findings by predicate, never by
+composite exit. Any `source_status_conflict`, `*_denominator_mismatch`, or
+`ledger_render_drift`, or register count other than 55, stops with zero writes.
+Informational standing complementarity does not fail that gate and DS9 may not
+suppress or reclassify it. Opening receipt is `published=observed=55`,
+`indexed=34`, and `ambiguous=1, blocked=8, closed=21, folded=2, foreign=6,
+open=17`; otherwise remeasure and obtain an owner-approved amendment. The ten
+register-supplies rows are `GY-DEF14`, `GY-DEF15`, `GY-DEF19`, `GY-DEF22`,
+`GY-DEF23`, `GY-DEFC-1`, `GY-GAP5`, `GY-GAP6`, `GY-GAP7`, and `GY-GAP8`;
+register-withholds remains `GY-DEF9`.
 
 ### Corrected complete census
 
@@ -533,21 +535,24 @@ and `apps/runtime-dashboard/src/features/runs/components/HumanDecisionReviewEffe
 `apps/runtime-dashboard/src/features/runs/routes/CaseWorkspacePage.test.tsx` to
 pin the red MACHINE/authorization behavior before C06.
 
-**Named red:** the pre-lock `DS9-DEBT-BASE-NOT-GREEN` command, then
+**Named red:** the pre-lock `DS9-DEBT-BASE-NOT-GREEN` predicate, then
 `test_human_decision_wrong_role_is_blocked_with_reason`,
 `test_human_decision_expired_request_is_blocked_with_reason`,
 `test_human_decision_rejects_search_authority_for_data_request`,
 `test_human_decision_rubber_stamp_without_mandate_or_evidence_is_blocked`, and
 `CaseWorkspacePage MACHINE > export bytes equal the one response bytes`.
-**Acceptance:** the exact pre-lock debt check first exits zero on the recorded
-execution base; a nonzero result consumes no round and performs no write. Under
-one later post-approval register lock, plan discovery overrides the static
+**Acceptance:** on exact main parent, the pre-lock checker has zero source-status
+conflicts, denominator mismatches, and ledger drift, with register=55; its strict
+exit is ignored because informational classes share that exit. The clean merge
+commit's plan-only render drift is then admitted by C00. Under one later
+post-approval register lock, plan discovery overrides the static
 planless fallback; debts split/claim exactly as measured; DS5 aggregate
 recomputes; `PUBLISHED_DENOMINATORS["register"]` and
 `test_real_census_replays_published_invariants` move 55→56. The generated ledger
 must report published=observed=56, indexed=35, and
 exact distribution `ambiguous=1, blocked=7, closed=21, folded=2, foreign=6,
-open=17, open_unmerged=2`. Writer/check/test pass; release lock before bootstrap. Red failures
+open=19`. Writer/readback/test and the semantic predicate gate pass; strict mode
+retains informational exit 1 as architect-owned debt. Release lock before bootstrap. Red failures
 reach the real seams and the sole mechanism edit is the owner-census checker.
 
 ```bash
@@ -904,7 +909,7 @@ close `ds8-approval-authority` and
 `DS20-B-scorecard-provenance-intake-effect`; preserve ops,
 notes, and DS12 rows. Writer/check/test ledger, commit bookkeeping, read back
 again, and require published=observed=56, indexed=33, with `closed=23` and
-`open=15` while every other C00 distribution count is unchanged. The debt write
+`open=17` while every other C00 distribution count is unchanged. The debt write
 proves CC19; final readback proves CC24; only then check all 24.
 
 Final debt transition repeats C00's exact debt writer/check/test commands; no
@@ -981,7 +986,7 @@ Never split one mechanism across commits to fit its cap.
 | `DS9-AUTHZ-ALLOW-NOT-SUCCESS` | allow lacks persisted record; review incomplete |
 | `DS9-MACHINE-BYTE-DRIFT` | export differs from supplying response; fail |
 | `DS9-REGISTER-DRIFT` / `DS9-GENERATED-FRESHNESS` | complete set or derived bytes differ; fail |
-| `DS9-DEBT-BASE-NOT-GREEN` | pre-C00 debt check has any finding; zero-write stop for register/GY owner |
+| `DS9-DEBT-BASE-NOT-GREEN` | pre-C00 main-parent check has a source conflict, denominator mismatch, ledger drift, or register != 55; informational standing rows alone do not fail |
 
 ## DS11/DS14 testable handoff
 

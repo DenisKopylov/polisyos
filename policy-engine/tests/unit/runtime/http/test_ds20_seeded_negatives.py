@@ -27,6 +27,18 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
 )
 
 
+def test_ds9_human_decision_mutation_is_structurally_authorized(
+    runtime_api_env,
+) -> None:
+    route = next(
+        route
+        for route in _live_mutating_routes(runtime_api_env["app"])
+        if route.path == "/api/v1/runs/{run_id}/human-decisions"
+    )
+
+    assert _action_permission_dependencies(route)
+
+
 def test_ds1_n009_generic_action_authorization_is_structural_and_fail_closed(
     runtime_api_env,
 ) -> None:

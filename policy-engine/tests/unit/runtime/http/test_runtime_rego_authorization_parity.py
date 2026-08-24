@@ -143,12 +143,25 @@ def test_rego_permission_vocabulary_matches_canonical_server_enum() -> None:
     rego_permissions = set(_opa_eval("data.polisyos.authz.action_permission.permission_vocabulary"))
     server_permissions = {permission.value for permission in RuntimePermission}
 
-    assert len(server_permissions) == 33
+    assert len(server_permissions) == 34
     assert rego_permissions == server_permissions
     service_read_contracts = _opa_eval(
         "data.polisyos.authz.action_permission.service_read_contracts"
     )
     assert set(service_read_contracts) == {RuntimePermission.RUNS_VIEW.value}
+
+
+def test_human_decision_permission_and_owned_resource_match_rego(
+    runtime_api_env,
+) -> None:
+    contracts = _live_action_contracts(runtime_api_env["app"])
+
+    assert contracts["runs.human_decisions.create"] == {
+        "runtime.run.human_decision": {"ownership_verified"}
+    }
+    assert _opa_eval("data.polisyos.authz.action_permission.action_contracts")[
+        "runs.human_decisions.create"
+    ] == {"runtime.run.human_decision": ["ownership_verified"]}
 
 
 def test_rego_action_resource_contracts_match_live_mutating_router(

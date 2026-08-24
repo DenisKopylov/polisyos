@@ -35,10 +35,11 @@ _HIGH_STAKES_OPERATIONS = {
         "POST",
         "/api/v1/runs/{run_id}/production-approval",
     ): "production_approval",
+    ("POST", "/api/v1/runs/{run_id}/human-decisions"): "human_decision",
 }
 
 
-def test_step_up_vocabulary_is_exactly_five_classes_and_six_permissions() -> None:
+def test_step_up_vocabulary_includes_human_decision_as_a_distinct_class() -> None:
     from polisyos.runtime.http.step_up import (
         HIGH_STAKES_PERMISSION_CLASSES,
         StepUpClass,
@@ -50,6 +51,7 @@ def test_step_up_vocabulary_is_exactly_five_classes_and_six_permissions() -> Non
         "publication",
         "revocation",
         "acquisition_approval",
+        "human_decision",
     }
     assert {
         permission.value: step_up_class.value
@@ -61,7 +63,122 @@ def test_step_up_vocabulary_is_exactly_five_classes_and_six_permissions() -> Non
         "decisions.validity.publish": "publication",
         "runs.reissue": "revocation",
         "runs.production_approval.create": "production_approval",
+        "runs.human_decisions.create": "human_decision",
     }
+
+
+def test_human_decision_openapi_projects_distinct_step_up_class(runtime_api_env) -> None:
+    schema = runtime_api_env["app"].openapi()
+
+    operation = schema["paths"]["/api/v1/runs/{run_id}/human-decisions"]["post"]
+
+    assert operation["x-polisyos-step-up-class"] == "human_decision"
+
+
+def test_human_decision_requires_fresh_single_use_step_up(
+    runtime_api_env,
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.security.identity import PolicyOSRole
+    from polisyos.runtime.http.security import RuntimeSecurityConfig
+    from polisyos.runtime.http.services.control_plane_store import ControlPlaneStore
+    from polisyos.runtime.http.step_up import StepUpAssertionVerification
+    from tests.unit.runtime.http.test_runtime_api_authz import (
+        _AllowOPA,
+        _build_secure_client,
+        _claims,
+        _fixture_bearer,
+    )
+
+    now = int(time.time())
+
+    class _Verifier:
+        def verify(self, encoded_assertion: str, verification_context):
+            assert encoded_assertion == "signed-human-decision-step-up"
+            return StepUpAssertionVerification(
+                context=verification_context,
+                assertion_id="human-decision-single-use-jti",
+                issuer="https://step-up.example",
+                audience="polisyos-runtime-step-up",
+                issued_at=now - 1,
+                expires_at=now + 60,
+                assurance="fresh_mfa",
+            )
+
+    bearer = _fixture_bearer("human-decision-single-use")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=_AllowOPA(),
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-human-decision-single-use",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+    existing_security = client.app.state.runtime_security
+    assert isinstance(existing_security, RuntimeSecurityConfig)
+    configured = replace(
+        existing_security,
+        step_up_verifier=_Verifier(),
+        step_up_replay_store=ControlPlaneStore(
+            backend="sqlite",
+            sqlite_path=tmp_path / "human-decision-step-up.sqlite3",
+        ),
+    )
+    client.app.state.runtime_security = configured
+    client.app.state.runtime_container.runtime_security = configured
+    digest = "sha256:" + "a" * 64
+    body = {
+        "source_kind": "production_approval",
+        "source_ref": digest,
+        "decision_request_ref": digest,
+        "decision_request_digest": digest,
+        "basis_ref": digest,
+        "basis_digest": digest,
+        "action": "approve",
+        "decision_mode": "ordinary",
+        "accountability_statement": "I accept accountability for this exact action.",
+        "dissent_statement": "No dissent was recorded.",
+    }
+    headers = {
+        "Authorization": f"Bearer {bearer}",
+        "X-Tenant-ID": runtime_api_env["tenant_a"],
+        "X-PolicyOS-Step-Up": "signed-human-decision-step-up",
+        "X-PolicyOS-Human-Decision-Exposure": "signed-exposure-session",
+    }
+    store = FileSystemCAS(runtime_api_env["cas_root"])
+
+    def _record_ids() -> set[str]:
+        return {
+            str(artifact_id)
+            for artifact_id in store.iter_artifact_ids()
+            if store.get_manifest(artifact_id).kind == "runtime_quality.agent_action_human_decision"
+        }
+
+    before = _record_ids()
+    first = client.post(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}/human-decisions",
+        headers=headers,
+        json=body,
+    )
+    replay = client.post(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}/human-decisions",
+        headers=headers,
+        json=body,
+    )
+
+    assert first.status_code == 409, first.text
+    assert not str(first.json().get("code", "")).startswith("step_up_")
+    assert replay.status_code == 403, replay.text
+    assert replay.json()["code"] == "step_up_replayed"
+    assert _record_ids() == before
 
 
 def _dependency_calls(node: Any) -> Iterator[object]:

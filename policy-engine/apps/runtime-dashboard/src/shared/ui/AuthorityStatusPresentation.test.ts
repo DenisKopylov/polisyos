@@ -14,12 +14,12 @@ describe("AuthorityStatusPresentation", () => {
   it("weakest mixed outcome wins and novelty is unrecognized", () => {
     const mixed = issueApprovalAvailabilityPresentation(
       [true, false],
-      "approval_ready",
+      "test-owner",
     );
     const novel = issueOpaqueAuthorityStatusPresentation("future-owner-state");
 
     expect(mixed).toMatchObject({
-      ownerLabel: "approval_ready",
+      ownerLabel: "test-owner",
       recognition: "recognized",
       tone: "fail",
     });

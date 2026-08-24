@@ -2230,6 +2230,73 @@ def test_human_decision_persists_custody_signature_not_actor_signature(
     assert created.record.custody_signer_identity == fixture.custody_identity
 
 
+def test_human_decision_command_admits_reasoned_override_and_blocking_shapes(
+    tmp_path: Path,
+) -> None:
+    contracts = _contracts()
+    gate_input = _signed_current_gate_fixture(tmp_path).adapter_input
+    common = {
+        "gate_input": gate_input,
+        "accountability_statement": "I accept accountability for this bounded action.",
+        "dissent_statement": "Disconfirming evidence was reviewed and retained.",
+    }
+
+    override = contracts.HumanDecisionCreateCommand(
+        **common,
+        decision_action="approve",
+        decision_mode="override",
+        override_reason="The declared exception is necessary and remains accountable.",
+    )
+    blocking = contracts.HumanDecisionCreateCommand(
+        **common,
+        decision_action="reject",
+        decision_mode="blocking",
+        blocking_reason="The signed evidence does not admit this action.",
+    )
+
+    assert (override.decision_action, override.override_reason) == (
+        "approve",
+        "The declared exception is necessary and remains accountable.",
+    )
+    assert (blocking.decision_action, blocking.blocking_reason) == (
+        "reject",
+        "The signed evidence does not admit this action.",
+    )
+
+
+@pytest.mark.parametrize(
+    ("decision_action", "decision_mode", "override_reason", "blocking_reason"),
+    [
+        ("approve", "override", None, None),
+        ("reject", "override", "cross-action override", None),
+        ("approve", "override", "reasoned override", "cross-mode block"),
+        ("reject", "blocking", None, None),
+        ("approve", "blocking", None, "cross-action block"),
+        ("reject", "blocking", "cross-mode override", "reasoned block"),
+    ],
+)
+def test_human_decision_command_rejects_cross_or_reasonless_special_modes(
+    tmp_path: Path,
+    decision_action: str,
+    decision_mode: str,
+    override_reason: str | None,
+    blocking_reason: str | None,
+) -> None:
+    contracts = _contracts()
+    gate_input = _signed_current_gate_fixture(tmp_path).adapter_input
+
+    with pytest.raises(ValueError, match=r"override|blocking"):
+        contracts.HumanDecisionCreateCommand(
+            gate_input=gate_input,
+            decision_action=decision_action,
+            decision_mode=decision_mode,
+            accountability_statement="I accept accountability for this bounded action.",
+            dissent_statement="Disconfirming evidence was reviewed and retained.",
+            override_reason=override_reason,
+            blocking_reason=blocking_reason,
+        )
+
+
 def test_human_decision_read_normalizes_missing_artifact_to_public_resolution_error(
     tmp_path: Path,
 ) -> None:

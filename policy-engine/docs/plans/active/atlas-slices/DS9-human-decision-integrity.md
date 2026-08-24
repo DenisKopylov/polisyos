@@ -2,10 +2,10 @@
 plan_id: atlas-ds9-human-decision-integrity
 title: "DS9 - Human Decision Integrity"
 type: slice-plan
-status: execution_authorized_in_progress
+status: implementation_complete_pending_debt_transition
 created: 2026-08-23
 last_verified: 2026-08-24
-stability: execution_in_progress
+stability: source_frozen_pending_final_bookkeeping
 slice: DS9
 baseline_commit: 3c89f008f83f50461d1eb364b502925e2d1b4a13
 execution_base_commit: 5a6de66ce123ed56ff7e2d5c7368d4869ed3b141
@@ -75,54 +75,54 @@ refusal; no fixture, builder, or inferred role supplies production authority.
 DS9 closes only when every checkbox below has its named receipt. No cluster may
 define a second closure contract.
 
-- [ ] **CC01** Approval, a debt-gate-green execution base, attached branch,
+- [x] **CC01** Approval, a debt-gate-green execution base, attached branch,
       root-only writer, and every path fence are re-read before each commit.
-- [ ] **CC02** One strict source union resolves signed GY-PA2 or production input;
+- [x] **CC02** One strict source union resolves signed GY-PA2 or production input;
       its complete status-permutation test never defaults a missing arm green.
-- [ ] **CC03** Existing `HumanDecisionRecord` is dual-read/write-v2, and the
+- [x] **CC03** Existing `HumanDecisionRecord` is dual-read/write-v2, and the
       durable SQLite race test admits exactly one live record per action key.
       The unavailable PostgreSQL lane remains an explicitly unproven residual;
       its strict command and owner are carried through C08 rather than inferred
       green from a missing DSN.
-- [ ] **CC04** V2 separates verified human-act evidence from PolicyOS custody
+- [x] **CC04** V2 separates verified human-act evidence from PolicyOS custody
       signing; forged actor/custodian substitution tests fail.
-- [ ] **CC05** Every gate predicate has a frozen P37 class/source; falsifying a
+- [x] **CC05** Every gate predicate has a frozen P37 class/source; falsifying a
       declaration while keeping its shape cannot admit authority.
-- [ ] **CC06** Wrong role, expired TTL, and search authority reused for
+- [x] **CC06** Wrong role, expired TTL, and search authority reused for
       `data_request` each render `blocked` with stable reason and no record.
-- [ ] **CC07** Exact delivered evidence bytes create completed exposure events in
+- [x] **CC07** Exact delivered evidence bytes create completed exposure events in
       the existing trail; cross-request/run/basis, stale, partial, and replay fail.
-- [ ] **CC08** Approval/override/blocking reuse `approve`/`reject` plus typed mode
+- [x] **CC08** Approval/override/blocking reuse `approve`/`reject` plus typed mode
       and mandatory reason; no universal action enum is added.
-- [ ] **CC09** An unbound `Appeal here` control neither renders nor submits.
-- [ ] **CC10** Issuer-qualified principal binding and separately signed reviewer
+- [x] **CC09** An unbound `Appeal here` control neither renders nor submits.
+- [x] **CC10** Issuer-qualified principal binding and separately signed reviewer
       separation are required; raw identifier inequality/equality proves neither.
-- [ ] **CC11** The POST has one Python/Rego permission, owned-run resource,
+- [x] **CC11** The POST has one Python/Rego permission, owned-run resource,
       pre-OPA digest binding, structural step-up, and single-use replay protection.
-- [ ] **CC12** Offline/stale submission returns revalidation-required, persists
+- [x] **CC12** Offline/stale submission returns revalidation-required, persists
       nothing, and never enters the frontend mutation queue.
-- [ ] **CC13** Production approval freshly resolves scorecard, signed production
+- [x] **CC13** Production approval freshly resolves scorecard, signed production
       basis, and current v2 record; stale raw fields/refs cannot emit `approved*`.
-- [ ] **CC14** Production approval and `approve_data_promotion` remain distinct;
+- [x] **CC14** Production approval and `approve_data_promotion` remain distinct;
       absent foreign producers remain typed unavailable.
-- [ ] **CC15** Review effectiveness scans only the existing access trail and
+- [x] **CC15** Review effectiveness scans only the existing access trail and
       reports parsed/schema/malformed/retention coverage without treating allow as success.
-- [ ] **CC16** `human_review.py` keeps threshold result separate from advisory
+- [x] **CC16** `human_review.py` keeps threshold result separate from advisory
       posture; rubber-stamp `fail + advisory` never renders effective/pass.
-- [ ] **CC17** REVIEWER/EXPERT DOM and internal MACHINE export are projections of
+- [x] **CC17** REVIEWER/EXPERT DOM and internal MACHINE export are projections of
       one response; response/export hash equality is green.
-- [ ] **CC18** The generic frontend checker adjudicates 13 root objects plus five
+- [x] **CC18** The generic frontend checker adjudicates 13 root objects plus five
       supplemental findings once each from the complete opening denominator.
 - [ ] **CC19** C00/C08 debt writes produce exactly the claimed, split, declined,
       and retained rows below; writer/check/test and ledger diff are green.
-- [ ] **CC20** OpenAPI, five runtime-client files, dashboard types, and Python
+- [x] **CC20** OpenAPI, five runtime-client files, dashboard types, and Python
       public-surface inventory regenerate once and reproduce from scratch; the
       generic supported-entrypoint inventory contains the changed quality export.
-- [ ] **CC21** Named semantic, mixed-status, corruption, a11y, and visual tests
+- [x] **CC21** Named semantic, mixed-status, corruption, a11y, and visual tests
       complete under their fixed command ceilings.
-- [ ] **CC22** DS11 receives the immutable status/provenance/telemetry/exact-byte
+- [x] **CC22** DS11 receives the immutable status/provenance/telemetry/exact-byte
       receipt bundle without public-decision authority.
-- [ ] **CC23** DS14 receives a strict `source_kind` adapter union: its PA2 arm
+- [x] **CC23** DS14 receives a strict `source_kind` adapter union: its PA2 arm
       re-resolves the S7/v2 chain without a production packet, while its
       production arm requires the packet ref and concrete resolver; both
       re-resolve before effect and reject cross-arm fields.
@@ -197,6 +197,7 @@ failed threshold with advisory top-level `pass`.
 | `ds8-local-reviewer-note-persistence` | **DECLINE.** Generic notes are case-management/CRM state, not facts needed to keep a PolicyOS signature honest; row remains `absent/unallocated`. |
 | `DS20-B scorecard producer provenance` | **CLAIM integration; DECLINE producer.** C00 splits it into `DS20-B-scorecard-provenance-intake-effect` (`DS9/open`) and `DS20-B-scorecard-provenance-producer-trust` (`ops/foreign`). The intake child uses the same pre-debt eligibility rule; only the verified integration/effect child closes. |
 | `ds8-signed-public-decision-surface` | **DECLINE.** Internal MACHINE twin is not public rendering; DS12 owns the row. |
+| `decision-validity-fixed-temp-concurrency` | **OBSERVE / REGISTER OUT OF SCOPE.** Both authoritative C08 visual runs exposed the same fixed-`.tmp` atomic-replace collision in Scientist Decision Validity. GY-N12 Cluster 4 Task 4.4 owns that persistence path; DS9 records the row and does not cross the owner transaction. |
 | DS5 successor aggregate | **CLAIM DS9 denominator only.** C00 changes 11/27 planless rows to 6/27 and five planless slices to four; all other successors retain owners. |
 
 ### Ambiguous and typed-missing inputs
@@ -510,7 +511,7 @@ Second finding of one class triggers P40 widening or a bounded residual/falsifie
 | C05 | Make supported-entrypoint inventory real, then regenerate frozen ABI and public facade atomically. | 1 | 1 |
 | C06 | Land Case Workspace gate, contestability, telemetry, and MACHINE twin. | 12 | 2 |
 | C07 | Rebind presentation and adjudicate all 18 register objects. | 8 | 2 |
-| C08 | Freeze/review/visual/closeout/readback, then close receipt-backed debts. | 0 | 0 |
+| C08 | Freeze/review/visual/closeout/readback, then close receipt-backed debts. | 0 declared; seven CC-required observations, three new within the 78-path slice ceiling | 1 safe-GET widening |
 
 ### C00 — approved admission and red bind
 
@@ -914,8 +915,24 @@ projection; surgical writer then no-writer/corruption checker accounts for all
 
 ### C08 — visual lane, closeout, and debt transition
 
+**Modify (CC-required mechanism):**
+`apps/runtime-dashboard/src/features/runs/api/useCaseInspection.ts`,
+`apps/runtime-dashboard/src/features/runs/api/useHumanDecisions.ts`,
+`apps/runtime-dashboard/src/features/runs/components/HumanDecisionGate.tsx`,
+`apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts`,
+`src/polisyos/runtime/http/authorization.py`,
+`src/polisyos/runtime/http/routes/governed_projections.py`, and
+`src/polisyos/runtime/http/routes/runs.py`. These are the approved execution-rule
+cases: three new unique mechanisms and four reopens take the slice to **65/78**.
+The journal names each CC, rejected seam, and narrowing/widening disposition.
+
 **Modify (P39):**
-`apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts` and
+`apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`,
+`apps/runtime-dashboard/src/features/runs/api/useCaseInspection.test.tsx`,
+`apps/runtime-dashboard/src/shared/ui/AuthorityStatusPresentation.test.ts`,
+`tests/unit/runtime/http/test_human_decision_service.py`,
+`tests/unit/runtime/http/test_runtime_api_authz.py`,
+regenerated `schemas/runtime_api_v1.openapi.json`, and
 `docs/plans/active/atlas-slices/DS9-human-decision-integrity.md` execution/receipt
 fields. **Add (P39):**
 `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts-snapshots/ds9-human-decision-gate-available-chromium-darwin.png`,
@@ -934,12 +951,47 @@ only after CC01-CC18 + CC20-CC23 and the pre-debt half of CC24 are evidenced,
 close `ds8-approval-authority` and
 `DS20-B-scorecard-provenance-intake-effect`; preserve ops,
 notes, and DS12 rows. Writer/check/test ledger, commit bookkeeping, read back
-again, and require published=observed=56, indexed=33, with `closed=23` and
-`open=17` while every other C00 distribution count is unchanged. The debt write
+again, and require published=observed=57, indexed=34, with `closed=23`,
+`open=17`, and `open_unmerged=1`; the one-row increase is the newly observed
+out-of-focus `decision-validity-fixed-temp-concurrency`, registered on this
+local-only branch under Rule 5, while `ambiguous=1`, `blocked=7`, `folded=2`,
+and `foreign=6` remain unchanged. The debt write
 proves CC19; final readback proves CC24; only then check all 24.
 
 Final debt transition repeats C00's exact debt writer/check/test commands; no
 other writer runs. First visual red suppresses the second no-writer comparison.
+
+#### Pre-debt closeout receipt
+
+Source froze after the final review narrowings. C08 observes seven mechanism
+paths, adds three unique paths, and closes at **65/78**. The one explicit
+safe-GET declaration widens a permitted safe read, bringing genuine widening
+rounds to **13/18**; all other C08 repairs only remove bypasses or make declared
+properties executable.
+
+The authoritative visual writer passed 4/4 in 52.6 seconds; one fresh no-writer
+comparison passed 4/4 in 53.4 seconds with unchanged snapshot SHA-1 values
+`44b983c428592a9e84d87501b98be4650ddd06c6` and
+`5782f1863575094d607d0b6d37158b37f7e08aef`. The first visual red suppresses the
+second comparison. The complete approval strangle re-proved
+**18 mechanisms + 47 companions + 16 retained = 81**, with no unclassified or
+classified-but-untracked path.
+
+OpenAPI was regenerated after the safe-route change. All five runtime-client
+outputs and dashboard types reproduce byte-for-byte from two fresh scratch
+roots, and the runtime contract is green. The full closeout command completed
+failure only on the inherited IR schema-reference-catalog drift: an exact
+execution-base replay reproduces it and the complete generator input denominator
+has zero DS9 changes. That is the already carried `abi-schema-snapshots` family,
+not a DS9 green or a new row.
+
+The complete receipt, per-cluster paths, signed-input removal falsifiers,
+18-object dispositions, DS11/DS14 bundle, ceilings/uptime pairs, and residuals
+are in
+`docs/superpowers/journals/2026-08-23-ds9-human-decision-integrity.md`.
+CC01-CC18 and CC20-CC23 are green. CC19 and the final half of CC24 remain open
+until the closeout commit is read back, the register family is freshly locked,
+and final bookkeeping is committed and read back.
 
 Serialized resources and ceilings:
 

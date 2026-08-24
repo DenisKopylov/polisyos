@@ -143,6 +143,7 @@ _GET_RUN_PAPER_AUTHZ = require_action_permission(
     ResourceBindingSpec(
         source=ResourceBindingSource.TENANT_COLLECTION,
         resource_kind="runtime.run_paper",
+        allow_empty_body=True,
     ),
 )
 _GET_CASE_INSPECTION_AUTHZ = require_action_permission(
@@ -150,6 +151,7 @@ _GET_CASE_INSPECTION_AUTHZ = require_action_permission(
     ResourceBindingSpec(
         source=ResourceBindingSource.TENANT_COLLECTION,
         resource_kind="runtime.case_inspection",
+        allow_empty_body=True,
     ),
 )
 _GET_RUNS_BATCH_AUTHZ = require_action_permission(

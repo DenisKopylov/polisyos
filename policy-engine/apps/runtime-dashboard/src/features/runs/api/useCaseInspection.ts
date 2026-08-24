@@ -9,6 +9,7 @@ import {
   type CapturedRunPaper,
   narrowCapturedRunPaper,
 } from "@/features/runs/api/useRunPaper";
+import { withoutHumanDecisionOwnedQuery } from "@/features/runs/api/useHumanDecisions";
 import { API_BASE_URL } from "@/shared/lib/constants";
 
 export type CaseInspectionClient = Readonly<{
@@ -25,9 +26,10 @@ export async function fetchCaseInspection(
   rawSearch: string,
   fetchImpl: CaseInspectionFetch = authAwareRuntimeFetch,
 ): Promise<CapturedRunPaper> {
-  const serializedQuery = rawSearch.startsWith("?")
-    ? rawSearch.slice(1)
-    : rawSearch;
+  const caseSearch = withoutHumanDecisionOwnedQuery(rawSearch);
+  const serializedQuery = caseSearch.startsWith("?")
+    ? caseSearch.slice(1)
+    : caseSearch;
   const applicationOrigin =
     typeof window === "undefined" ? "http://localhost" : window.location.origin;
   const baseUrl = API_BASE_URL
@@ -66,15 +68,16 @@ export function caseInspectionQueryOptions(
   runId: string,
   rawSearch: string,
 ) {
+  const caseSearch = withoutHumanDecisionOwnedQuery(rawSearch);
   return {
     queryKey: [
       "runtime",
       "run",
       runId,
       "case-inspection",
-      { rawReplaySearch: rawSearch },
+      { rawReplaySearch: caseSearch },
     ] as const,
-    queryFn: () => client.getCaseInspection(runId, rawSearch),
+    queryFn: () => client.getCaseInspection(runId, caseSearch),
   };
 }
 

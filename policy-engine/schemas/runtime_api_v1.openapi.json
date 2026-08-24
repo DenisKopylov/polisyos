@@ -43837,6 +43837,7 @@
         ],
         "x-polisyos-action-permission": "runs.review",
         "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
           "resource_kind": "runtime.governed_projection.depth_n_cycle_board",
           "source": "tenant_collection"
         }
@@ -52120,6 +52121,7 @@
         ],
         "x-polisyos-action-permission": "runs.review",
         "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
           "resource_kind": "runtime.case_inspection",
           "source": "tenant_collection"
         }
@@ -57438,6 +57440,7 @@
         ],
         "x-polisyos-action-permission": "runs.review",
         "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
           "resource_kind": "runtime.run_paper",
           "source": "tenant_collection"
         }

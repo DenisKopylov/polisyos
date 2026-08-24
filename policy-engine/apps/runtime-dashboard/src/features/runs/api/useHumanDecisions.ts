@@ -59,6 +59,43 @@ const SELECTOR_QUERY_KEYS = [
   "source_ref",
 ] as const;
 
+export const HUMAN_DECISION_OWNED_QUERY_KEYS = Object.freeze([
+  "source_kind",
+  ...SELECTOR_QUERY_KEYS,
+  "appeal_case_id",
+] as const);
+
+const humanDecisionOwnedQueryKeySet = new Set<string>(
+  HUMAN_DECISION_OWNED_QUERY_KEYS,
+);
+
+function decodedQueryKey(segment: string): string | null {
+  const separator = segment.indexOf("=");
+  const encoded = separator === -1 ? segment : segment.slice(0, separator);
+  try {
+    return decodeURIComponent(encoded.replace(/\+/g, " "));
+  } catch {
+    return null;
+  }
+}
+
+/** Removes only query items owned by the human-decision workspace. */
+export function withoutHumanDecisionOwnedQuery(rawSearch: string): string {
+  const prefixed = rawSearch.startsWith("?");
+  const serialized = prefixed ? rawSearch.slice(1) : rawSearch;
+  if (!serialized) {
+    return "";
+  }
+  const retained = serialized.split("&").filter((segment) => {
+    const key = decodedQueryKey(segment);
+    return key === null || !humanDecisionOwnedQueryKeySet.has(key);
+  });
+  if (retained.length === 0) {
+    return "";
+  }
+  return `${prefixed ? "?" : ""}${retained.join("&")}`;
+}
+
 function gateResponseMatchesSelector(
   packet: HumanDecisionGate,
   selector: GateQuery,

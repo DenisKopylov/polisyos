@@ -800,8 +800,26 @@ def assert_mutating_route_authorization_contract(app: _Application) -> None:
 
 
 def install_route_authorization_openapi_contract(app: object) -> None:
-    """Project every unsafe route's typed requirement into OpenAPI."""
+    """Project every guarded route's typed requirement into OpenAPI."""
     application = cast("Any", app)
+    safe_body_violations: list[str] = []
+    for candidate in application.routes:
+        if _APIRoute is None or not isinstance(candidate, _APIRoute):
+            continue
+        candidate_methods = set(candidate.methods)
+        guarded_safe_methods = candidate_methods - _UNSAFE_HTTP_METHODS
+        route = cast("_Route", cast("object", candidate))
+        if not guarded_safe_methods or not route_action_permission_dependencies(route):
+            continue
+        requirement = get_route_authorization_requirement(route)
+        if not requirement.resource_binding.allow_empty_body:
+            safe_body_violations.extend(
+                f"{method} {candidate.path}" for method in sorted(guarded_safe_methods)
+            )
+    if safe_body_violations:
+        details = "\n".join(f"- {violation}" for violation in safe_body_violations)
+        raise RuntimeError("guarded safe route must declare allow_empty_body=True:\n" + details)
+
     original_openapi = application.openapi
     cached: dict[str, Any] | None = None
 

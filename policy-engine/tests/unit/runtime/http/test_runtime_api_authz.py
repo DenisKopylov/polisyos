@@ -1357,6 +1357,39 @@ def test_mutating_route_without_action_permission_fails_app_contract() -> None:
         authorization.assert_mutating_route_authorization_contract(app)
 
 
+def test_guarded_safe_route_requires_explicit_empty_body_contract() -> None:
+    authorization = __import__(
+        "polisyos.runtime.http.authorization",
+        fromlist=[
+            "ResourceBindingSource",
+            "ResourceBindingSpec",
+            "install_route_authorization_openapi_contract",
+            "require_action_permission",
+        ],
+    )
+    dependency = authorization.require_action_permission(
+        RuntimePermission.RUNS_REVIEW,
+        authorization.ResourceBindingSpec(
+            source=authorization.ResourceBindingSource.TENANT_COLLECTION,
+            resource_kind="runtime.ds9.guarded_safe",
+        ),
+    )
+    app = FastAPI()
+
+    @app.get(
+        "/api/v1/ds9/guarded-safe",
+        dependencies=[Depends(dependency)],
+    )
+    def _guarded_safe() -> dict[str, bool]:
+        return {"guarded": True}
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"GET /api/v1/ds9/guarded-safe",
+    ):
+        authorization.install_route_authorization_openapi_contract(app)
+
+
 def test_mutating_route_with_duplicate_action_permissions_fails_app_contract() -> None:
     authorization = __import__(
         "polisyos.runtime.http.authorization",

@@ -1561,7 +1561,7 @@ note is itself the evidence. Anything else is `ambiguous` with its line number �
 | `GY-N10a` | 5 | `executed` | `88bcb5b26` | second-domain pack (before N10) |
 | `GY-N10` | 5 | `executed` | `7e035a426` | depth-N universality — Phase-A activation |
 | `GY-N11` | 5 | `executed` | `f41d49071` | confidence ledger — gates DS17 |
-| `GY-N12` | 5 | **in_flight** | branch `codex/gy-n12-c1-foundry`, 11 ahead of `main` | **the last Phase-5 task** — gates DS18 and the whole of Phase 6 |
+| `GY-N12` | 5 | **in_flight** | **Cluster 1 merged 2026-08-23 `911657027`** (feature commit `f2c202997`, tree `a9beb17f`, 22 paths); Clusters 2–4 remain | **the last Phase-5 task** — gates DS18 and the whole of Phase 6 |
 | `GY-N13a` | 5 | `executed` | `719d7a35a` | acquisition census — gates DS15 read parts |
 | `GY-N13b` | 5 | `executed` | `b3f11e587` | acquisition executor — gates DS15 live loop |
 | `GY-PA1` | 5 | **not_executable** | Rev 53: *“GY-PA1 IS NOT EXECUTABLE and that is a COMPLETE result, not a deferral”* | a completed negative, not pending work |
@@ -2345,6 +2345,24 @@ re-architecting.
   post-hoc narrowing a controlled release **fails** the check rather than passing it, and an unknown
   **external** copy **limits** the claim rather than being silently treated as complete or as a full
   block. `P07`/`P08`/`P29`.
+  **Cycle-6 final delivery boundary (no revision assignment).** GY-N12 delivers **Clusters 1–4**:
+  it executes GY-DEF22 through the Foundry-owned N8 producer/N10a consumer with Foundry correctness
+  adjudication recorded as owed; builds the fixed policy-free full-prefix protocol and its
+  non-epoch opaque conformance witness; implements the epoch acceptance/verification machinery with
+  the epoch holder honestly `not_established`; and delivers the epoch/OpenWorldRisk/cascade plus
+  Decision Validity and Claim Ledger owner bridges. `GY-GAP3`, `GY-GAP5` and `GY-GAP6`
+  remain separate owner-bound tasks. `GY-GAP2` is a fourth deferred candidate consumer that fits
+  the protocol shape but remains `blocked_on_product_decision` and unscheduled; it does not add a
+  confidence family number or authority head here. `GY-DEF23` and `GY-GAP8` are the named
+  Cluster-4 prerequisites. The 128-property basis remains programme-wide and unchanged; this narrow
+  delivery must never report `128/128` implementation. The approved post-Cluster-2 allocation is
+  frozen as source data at
+  `architecture/production_quality/chronology_capability_allocation.toml`: common protocol and
+  generic qualification are `implemented_but_not_orchestrated`; the epoch producer is
+  `producer_missing`; release/run/movement/confidence producers plus acceptance consumer and holder
+  are `absent/unallocated`; the family projection is `surface_missing`; whole-history authenticity
+  is the property result `not_established`. Task 2.4 installs that exact machine-readable record;
+  code topology may verify it but may not infer or mint the allocation.
 - **GY-N13a — Acquisition-layer reality census (data + sampled-live probes; NEW, Rev 16).**
   census task, GY-0-class, zero engine-behavior change. The acquisition layer exists but is dark
   to the runtime: the DCAT catalog (`production_data/datasets_full_phase3full_20260327_183054/
@@ -4200,9 +4218,59 @@ and cold closeout remain unproved.
   **Forbidden closures:** pinning one machine's environment; an allowlist of known-good package sets;
   widening the identity to ignore the runtime backend; recording the profile only in prose.
 
+  **Cycle-6 execution ruling (no revision assignment):** GY-N12's lane executes this repair inside
+  its Cluster 1 because it already pays the N8/N10a reconstruction and replay cost. That changes the
+  lane and moment of execution, not correctness ownership: Foundry catalog/discovery remains the
+  canonical owner, N8 remains producer, N10a remains consumer, and Foundry adjudication of the exact
+  resolver/falsifier packet is owed before closure. N12 cannot mint or absorb the environment
+  identity.
+
+  **Executable discriminator:** Foundry owns the authority-purpose-to-profile relation. N8 supplies
+  only `n8_method_catalog_reconstruction`; one Foundry sync tool derives the frozen uv argv into a
+  fresh task-local environment and issues the environment receipt, and N8/N10a independently read
+  that bound environment. A receipt actually issued for `research` cannot be relabelled as N8 even
+  when the required subsets overlap; an unrelated package outside a genuinely admitted closure
+  remains non-decisive. Tracked source and appointed read-only production data are separate roots;
+  the latter requires its exact custody/source-freeze receipt. Missing **or unreadable**
+  `manifest.json` emits only `production_data_manifest_missing` publicly. Caller-selected profile
+  ids, shell torch checks and shaped installed-distribution lists cannot carry the gate.
+
   **Standing:** `open`. Registered from an adjudication, not a repair attempt. It does **not** block
   `GY-N12` — `GY-DI1`'s journal records the reconstruction and it is reusable — but N12 sits on the
   same chain and will pay the same tax until this closes.
+
+- **GY-DEF23 — Decision Validity trusts caller-supplied status and dependency keys at its authority
+  intake (NEW, GY-N12 Cycle-5b measurement; registered 2026-08-20).** Owner:
+  **Scientist Decision Validity**, with runtime projection/status readers as consumers. Pattern:
+  **`P37`/`P38`**. `DecisionDependencyEvent` accepts caller-provided `status`,
+  `dependency_keys`, `source_ref` and an untyped payload; `record_dependency_event` writes
+  caller dedupe before it resolves targets and then applies that supplied status. The live intake has
+  no typed epoch identity, native query coordinate, authority purpose, provenance class, signature or
+  verifier binding. `projection_semantics.py` and `status_deficits.py` then consume the resulting
+  owner status, so a shaped event can cross the exact gate it should not control.
+
+  **Label: `producer_missing`** for an authority-grade epoch transition; deficits:
+  `artifact_missing + verification_missing + semantic_test_missing`. The generic Decision Validity
+  service remains implemented and production-orchestrated; that does not make the missing epoch
+  producer or its owner admission real. This is not `bridge_missing`.
+
+  **Closure signal (`C5-PREREQ-DV-EPOCH-ADMISSION`):** a content-bound epoch transition carries
+  scope, explicit authority purpose, requested query context, complete manifest/basis, bundle and
+  old/new member refs, affected-target denominator, profiles, signature and verifier provenance.
+  Decision Validity resolves and verifies it before dedupe or mutation, derives event identity and
+  every native status itself, and persists a complete-denominator pending freeze before the first
+  target write. Every authority/public read composes that freeze without reopening a stricter
+  withdrawn/revoked/stale status. Wrong purpose/context, a fake verifier, authentic-old rollback,
+  supplied status/key, unregistered target and pre-poisoned dedupe leave no state. A crash after the
+  first of two writes keeps both targets authority-blocked; retry reconciles both exactly once before
+  completion. The run-index cache binds Decision Validity's owner generation or overlays the owner
+  read on every request, so a stable run-directory fingerprint cannot retain a pre-batch green after
+  phase one or restart. The gate is also installed in the canonical core generation controller,
+  not only HTTP: before every N9 attempt it compares packet-bound epoch/current native head and both
+  complete dependency/adjudication denominators against the last completed binding. A direct core
+  call, an old packet after a prior head advance, or a new adjudication under an unchanged epoch
+  cannot receive a no-transition pass. `P29` requires the real core and public read paths, not marker
+  presence, to demonstrate the gate.
 
 
 - **GY-DEFC-9 — close the N11 suffix: make the frozen family verifiable in the canonical environment,
@@ -4717,6 +4785,14 @@ nothing.
   dormant research `INT-GAP-01` delivers a selection-valid local theorem — engineering this gap
   alone would not suffice.
 
+  **Cycle-6 chronology-candidate ruling (no revision assignment):** the fixed GY-N12 full-prefix
+  protocol can serve this family as a deferred candidate without inspecting risk arithmetic. It
+  would supply only a commitment head over opaque confidence-owner members; the confidence owner
+  would still reconcile its vector of existing per-scope current heads, caps and assumptions, and
+  no new family authority head or parent scope is created. This fit does not schedule GAP2, assign a
+  family number or change `blocked_on_product_decision`. It makes the non-epoch conformance witness
+  in N12 Cluster 2 more load-bearing, not a GAP2 producer.
+
   **STANDING RECORDED (Rev 46, transcribed from the revision history):
   `blocked_on_product_decision`.** Registered in Rev 23: the confidence ledger keys its budget on
   `design-problem:<design_problem_id>` and has **no** cross-scope composition at all. Rev 24 corrected
@@ -4890,6 +4966,36 @@ nothing.
   label and its closure signal are unchanged and still real. What changes is that it is read as work
   `GY-PA1`'s lane performs first, not as an external gate `GY-PA1` waits behind. Whether that lane can
   perform it is a separate question answered in the `GY-PA1` entry.
+
+- **GY-GAP8 — the Claim Ledger lifecycle bridge is implemented in isolation but has no production
+  Decision Validity intake (NEW, GY-N12 Cycle-5b measurement; registered 2026-08-20).** Owner:
+  **Scientist governance / Claim Ledger lifecycle**. The existing
+  `bridge_governance_events_to_claim_lifecycle` maps compatible stale, review, invalidation,
+  supersession, reissue and withdrawal vocabulary and
+  `persist_lifecycle_bridge_result` writes its sidecar. A complete 2,561-source-Python AST walk
+  parses cleanly and finds one definition and **zero source calls** for both; the bridge explicitly
+  disclaims detector-signal truth and accepts open monitor metadata/affected claim ids.
+
+  **Label: `implemented_but_not_orchestrated`.** It is not `bridge_missing`: the component,
+  artifact and tests exist. Raw chronology or monitor metadata cannot be promoted into the missing
+  producer/authority chain, and automatic derivation-recipe execution remains
+  `absent/unallocated` with each canonical artifact producer.
+
+  **Closure signal (`C5-PREREQ-CLAIM-DV-LIFECYCLE`):** after GY-DEF23 closes, a production call
+  resolves a persisted **completed** Decision Validity batch receipt and its verified transitions,
+  binds decision lineage, exact claims, old/new ledger and run refs, epoch evidence, authority
+  purpose, requested query context and immutable old/new member-admission contexts, then lets Claim
+  Ledger validate and append the native action without deleting the old claim. Wrong lineage, raw
+  monitor metadata, an incomplete/pending batch, missing epoch evidence or supplied status fails
+  with zero append. A Claim-Ledger-owned current-head index atomically compare-and-advances the
+  append-only ledger plus bridge refs so a second batch cannot fork from the packet's original
+  ledger. A data-owned complete dependency-field registry reconciles every current ClaimRecord
+  reference path and fails on an unregistered/malformed/new field; no six-field or all-claims
+  fallback is permitted. An exact `claim_bridge_pending` limitation spans DV completion to Claim
+  Ledger head advance (and crash/retry), so an old or unresolved ledger cannot remain publicly
+  current in that window. Every public/sibling export resolves the owner head and rejects a stale
+  caller ledger. The persisted bridge result binds every input/result ref and the public projection
+  proves the stale claim cannot appear as current.
 
 ### Phase 6 — Deployed-Policy Learning Loop (the world model grows; greenfield horizon)
 

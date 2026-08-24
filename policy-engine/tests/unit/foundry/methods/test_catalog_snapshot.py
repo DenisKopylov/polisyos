@@ -2,7 +2,9 @@ from __future__ import annotations
 
 import copy
 import importlib.util
+import subprocess
 from dataclasses import replace
+from pathlib import Path
 
 import pytest
 
@@ -13,6 +15,11 @@ from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.catalog import snapshot as snapshot_module
 from polisyos.foundry.methods.catalog.bayesian.regression import (
     BayesianLinearRegressionEstimator,
+)
+from polisyos.foundry.methods.catalog.dependency_authority import (
+    AbsoluteRequestPath,
+    MethodCatalogDependencyAuthorityRequest,
+    validate_negative_only_dependency_authority_abi,
 )
 from polisyos.foundry.methods.catalog.snapshot import (
     MethodCatalogDiscoveryProvenanceError,
@@ -26,6 +33,31 @@ from polisyos.foundry.methods.selection import reachable_value_method_fqns
 from polisyos.foundry.methods.selection.registry import MethodRegistry, registry_scope
 
 _Y0_INSTALLED = importlib.util.find_spec("y0") is not None
+
+
+@pytest.fixture(autouse=True)
+def _isolate_polisyos_cache(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep catalog caches out of the appointed hermetic tooling home."""
+
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "polisyos-cache").as_posix())
+
+
+def _dependency_request() -> MethodCatalogDependencyAuthorityRequest:
+    head = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+    return MethodCatalogDependencyAuthorityRequest(
+        authority_purpose="n8_method_catalog_reconstruction",
+        expected_source_freeze_commit=head,
+        production_data_root=AbsoluteRequestPath(value=Path("/tmp/production-data")),
+        environment_root=AbsoluteRequestPath(value=Path("/tmp/environment")),
+    )
 
 
 def test_governed_snapshot_consumes_supplied_builtin_provenance_without_rediscovery(
@@ -225,7 +257,7 @@ def test_catalog_provenance_rejects_false_ambient_policy_and_binds_registry() ->
         MethodCatalogDiscoveryProvenanceError,
         match="catalog_ambient_source_policy_mismatch",
     ):
-        build_method_catalog_provenance_manifest(
+        snapshot_module._build_candidate_method_catalog_provenance_manifest(
             snapshot,
             registry_report=report,
             ambient_manifest=report.discovery_manifest,
@@ -237,7 +269,7 @@ def test_catalog_provenance_rejects_false_ambient_policy_and_binds_registry() ->
         include_dev_scan=True,
     )
     assert ambient_report.manifest is not None
-    provenance = build_method_catalog_provenance_manifest(
+    provenance = snapshot_module._build_candidate_method_catalog_provenance_manifest(
         snapshot,
         registry_report=report,
         ambient_manifest=ambient_report.manifest,
@@ -272,7 +304,7 @@ def test_governed_provenance_projection_keeps_ambient_custody_non_decisive() -> 
         include_dev_scan=True,
     )
     assert ambient_report.manifest is not None
-    recorded = build_method_catalog_provenance_manifest(
+    recorded = snapshot_module._build_candidate_method_catalog_provenance_manifest(
         snapshot,
         registry_report=report,
         ambient_manifest=ambient_report.manifest,
@@ -341,7 +373,7 @@ def test_governed_provenance_projection_fails_closed_on_invalid_admission(
         include_dev_scan=True,
     )
     assert ambient_report.manifest is not None
-    provenance = build_method_catalog_provenance_manifest(
+    provenance = snapshot_module._build_candidate_method_catalog_provenance_manifest(
         snapshot,
         registry_report=report,
         ambient_manifest=ambient_report.manifest,
@@ -379,7 +411,7 @@ def test_catalog_runtime_identity_names_packages_and_backend_fingerprints() -> N
             require_bound_discovery=True,
         )
 
-    identity = build_method_catalog_runtime_identity(snapshot)
+    identity = snapshot_module._build_candidate_method_catalog_runtime_identity(snapshot)
 
     assert identity["schema_version"] == "policyos.method_catalog_runtime_identity.v1"
     assert identity["identity_id"].startswith("method_catalog_runtime_identity_")
@@ -425,7 +457,28 @@ def test_catalog_runtime_identity_fails_closed_without_policy_engine_package(
         MethodCatalogDiscoveryProvenanceError,
         match="catalog_runtime_package_identity_missing:policy-engine",
     ):
-        build_method_catalog_runtime_identity(snapshot)
+        snapshot_module._build_candidate_method_catalog_runtime_identity(snapshot)
+
+
+def test_public_catalog_builders_and_all_callers_are_inside_negative_graph() -> None:
+    validate_negative_only_dependency_authority_abi()
+    request = _dependency_request()
+    sentinel = object()
+
+    runtime = build_method_catalog_runtime_identity(
+        sentinel,  # type: ignore[arg-type]
+        dependency_authority_request=request,
+    )
+    provenance = build_method_catalog_provenance_manifest(
+        sentinel,  # type: ignore[arg-type]
+        registry_report=sentinel,  # type: ignore[arg-type]
+        ambient_manifest=sentinel,  # type: ignore[arg-type]
+        dependency_authority_request=request,
+    )
+
+    assert runtime.status in {"rejected", "not_established"}
+    assert provenance.status in {"rejected", "not_established"}
+    assert runtime == provenance
 
 
 def test_method_catalog_snapshot_contains_stable_entries() -> None:

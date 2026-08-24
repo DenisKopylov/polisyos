@@ -723,8 +723,12 @@
         "polisyos.foundry.execute"
       ],
       "major_subsystem": true,
-      "export_count": 4,
+      "export_count": 8,
       "exports": [
+        "DependencyProfileResolutionFailure",
+        "MethodCatalogDependencyAuthorityRequest",
+        "build_method_catalog_provenance_manifest",
+        "build_method_catalog_runtime_identity",
         "compile",
         "compile_program",
         "execute",

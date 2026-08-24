@@ -94,7 +94,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.method_requirement` | `internal` | `eager_exports` | 14 | `team-policyos-runtime` | `src/polisyos/method_requirement/README.md` |
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/fabric/README.md` |
-| `polisyos.foundry` | `public_stable` | `lazy_facade` | 4 | `team-polisyos` | `src/polisyos/foundry/README.md` |
+| `polisyos.foundry` | `public_stable` | `lazy_facade` | 8 | `team-polisyos` | `src/polisyos/foundry/README.md` |
 | `polisyos.scientist` | `public_stable` | `lazy_facade` | 18 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
@@ -680,9 +680,13 @@ world
 - Notes: Stable compile/execute facade over the compute and method stack. Phase 6 keeps root public exports in polisyos.foundry.api and narrow public subpackages; moved legacy FQN are compatibility shims registered in architecture/shims.toml.
 - Summary: Expose the stable Foundry compile/execute entrypoints behind lazy imports.
 
-<details><summary>Supported exports (4)</summary>
+<details><summary>Supported exports (8)</summary>
 
 ```text
+DependencyProfileResolutionFailure
+MethodCatalogDependencyAuthorityRequest
+build_method_catalog_provenance_manifest
+build_method_catalog_runtime_identity
 compile
 compile_program
 execute

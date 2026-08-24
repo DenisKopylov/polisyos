@@ -6,9 +6,11 @@ snapshots. Exports stay lazy so CLI/docs imports do not eagerly load JAX,
 solver, or optional catalog backends unless `compile()` or `execute()` is
 actually called.
 
-The stable public surface of this package is intentionally narrow:
-`compile`, `compile_program` (compatibility alias), `execute`, and W7 method
-requirement selection.
+The stable public surface of this package is intentionally narrow.  Alongside
+compile/execute and W7 method selection, it exposes the Foundry-owned N8
+dependency-authority request, its negative-only result union, and the two
+catalog boundaries that resolve that authority before reading candidate
+runtime posture.
 """
 
 from __future__ import annotations
@@ -19,6 +21,10 @@ import threading
 import types
 
 __all__ = [
+    "DependencyProfileResolutionFailure",
+    "MethodCatalogDependencyAuthorityRequest",
+    "build_method_catalog_provenance_manifest",
+    "build_method_catalog_runtime_identity",
     "compile",
     "compile_program",
     "execute",
@@ -26,6 +32,22 @@ __all__ = [
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
+    "DependencyProfileResolutionFailure": (
+        "polisyos.foundry.methods.catalog.dependency_authority",
+        "DependencyProfileResolutionFailure",
+    ),
+    "MethodCatalogDependencyAuthorityRequest": (
+        "polisyos.foundry.methods.catalog.dependency_authority",
+        "MethodCatalogDependencyAuthorityRequest",
+    ),
+    "build_method_catalog_provenance_manifest": (
+        "polisyos.foundry.methods.catalog.snapshot",
+        "build_method_catalog_provenance_manifest",
+    ),
+    "build_method_catalog_runtime_identity": (
+        "polisyos.foundry.methods.catalog.snapshot",
+        "build_method_catalog_runtime_identity",
+    ),
     "compile": ("polisyos.foundry.api", "compile"),
     "compile_program": ("polisyos.foundry.api", "compile_program"),
     "execute": ("polisyos.foundry.api", "execute"),

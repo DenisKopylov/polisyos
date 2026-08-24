@@ -660,6 +660,23 @@ class PolicyOwnerRelationRejected(_ChronologyModel):
     evidence_ref: ArtifactRef
 
 
+class PolicyOwnerDenominatorMismatchFailure(_ChronologyModel):
+    """Owner relation rejected before qualification on a denominator mismatch."""
+
+    code: Literal["native_denominator_mismatch"]
+    status: Literal["rejected"]
+    key: PredicatePolicySelectionKey
+    requested_query_context_ref: Digest
+    expected_denominator_ref: Digest
+    observed_denominator_ref: Digest
+
+    @model_validator(mode="after")
+    def _is_mismatch(self) -> PolicyOwnerDenominatorMismatchFailure:
+        if self.expected_denominator_ref == self.observed_denominator_ref:
+            raise ValueError("denominator mismatch requires unequal refs")
+        return self
+
+
 class PolicyOwnerRelationNotEstablished(_ChronologyModel):
     """Independent owner relation could not be established."""
 
@@ -671,7 +688,9 @@ class PolicyOwnerRelationNotEstablished(_ChronologyModel):
 
 
 PredicatePolicyOwnerRelationFailure = Annotated[
-    PolicyOwnerRelationRejected | PolicyOwnerRelationNotEstablished,
+    PolicyOwnerRelationRejected
+    | PolicyOwnerDenominatorMismatchFailure
+    | PolicyOwnerRelationNotEstablished,
     Field(discriminator="code"),
 ]
 
@@ -1711,22 +1730,6 @@ class NativeSchemaProfileRejected(_ChronologyModel):
         return self
 
 
-class NativeDenominatorRejected(_ChronologyModel):
-    """Candidate denominator differs from independently reconciled owner denominator."""
-
-    result_kind: Literal["denominator_rejected"]
-    code: Literal["native_denominator_mismatch"]
-    owner_context: NativeChronologyOwnerContext
-    expected_denominator_ref: Digest
-    observed_denominator_ref: Digest
-
-    @model_validator(mode="after")
-    def _is_mismatch(self) -> NativeDenominatorRejected:
-        if self.expected_denominator_ref == self.observed_denominator_ref:
-            raise ValueError("denominator rejection requires an actual mismatch")
-        return self
-
-
 class NativePredicateRejected(_ChronologyModel):
     """Applicable owner predicate denominator was not authority-positive."""
 
@@ -1746,10 +1749,7 @@ class NativeFullPrefixProofRejected(_ChronologyModel):
 
 
 type NativeChronologyCandidateRejected = (
-    NativeSchemaProfileRejected
-    | NativeDenominatorRejected
-    | NativePredicateRejected
-    | NativeFullPrefixProofRejected
+    NativeSchemaProfileRejected | NativePredicateRejected | NativeFullPrefixProofRejected
 )
 
 
@@ -1855,7 +1855,6 @@ NativeChronologyQualificationResult = Annotated[
     NativeChronologyQualified
     | NativeFullPrefixBuildRejected
     | NativeSchemaProfileRejected
-    | NativeDenominatorRejected
     | NativePredicateRejected
     | NativeFullPrefixProofRejected
     | NativeExteriorNotEstablished
@@ -2130,7 +2129,6 @@ __all__ = [
     "NativeChronologyQualified",
     "NativeChronologyQuery",
     "NativeChronologyReconciliation",
-    "NativeDenominatorRejected",
     "NativeExteriorAndAuthorityHeadNotEstablished",
     "NativeExteriorNotEstablished",
     "NativeFullPrefixBuildRejected",
@@ -2147,6 +2145,7 @@ __all__ = [
     "PolicyAdmissionMissingFailure",
     "PolicyBindingMismatchFailure",
     "PolicyBytesMissingFailure",
+    "PolicyOwnerDenominatorMismatchFailure",
     "PolicyOwnerRelationNotEstablished",
     "PolicyOwnerRelationRejected",
     "PolicyQueryBindingMismatchFailure",

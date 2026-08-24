@@ -8,6 +8,7 @@ import pytest
 from pydantic import BaseModel, TypeAdapter, ValidationError
 
 import polisyos.core as core
+import polisyos.core.contracts as core_contracts
 from polisyos.core.artifacts import ArtifactID, ArtifactRef, FileSystemCAS
 from polisyos.core.contracts import chronology as contract
 
@@ -215,12 +216,21 @@ def test_every_wire_model_is_strict_frozen_and_schema_rebuilt() -> None:
 def test_wire_dtos_and_operations_are_reexported_only_through_core_root() -> None:
     assert core.ChronologyProofDomain is contract.ChronologyProofDomain
     assert core.NativeChronologyQualificationResult is contract.NativeChronologyQualificationResult
+    assert (
+        core.PolicyOwnerDenominatorMismatchFailure is contract.PolicyOwnerDenominatorMismatchFailure
+    )
+    assert "NativeDenominatorRejected" not in core.__all__
+    assert (
+        core_contracts.PolicyOwnerDenominatorMismatchFailure
+        is contract.PolicyOwnerDenominatorMismatchFailure
+    )
+    assert "NativeDenominatorRejected" not in core_contracts.__all__
     assert core.FullPrefixVerificationResult is contract.FullPrefixVerificationResult
     assert core.build_full_prefix_bundle.__module__ == "polisyos.core.security.full_prefix"
     assert core.FullPrefixVerifier.__module__ == "polisyos.core.security.full_prefix"
 
 
-def test_entry_process_generation_failure_is_a_query_bound_fourteenth_arm() -> None:
+def test_entry_process_generation_failure_is_a_query_bound_thirteenth_arm() -> None:
     query = _query()
     result = contract.NativeQualificationProcessGenerationNotEstablished(
         result_kind="qualification_process_generation_not_established",
@@ -233,7 +243,7 @@ def test_entry_process_generation_failure_is_a_query_bound_fourteenth_arm() -> N
     parsed = adapter.validate_python(result.model_dump(mode="python"))
 
     assert parsed == result
-    assert len(adapter.json_schema()["oneOf"]) == 14
+    assert len(adapter.json_schema()["oneOf"]) == 13
     assert set(result.__class__.model_fields) == {
         "result_kind",
         "status",
@@ -243,6 +253,71 @@ def test_entry_process_generation_failure_is_a_query_bound_fourteenth_arm() -> N
     with pytest.raises(ValidationError):
         contract.NativeQualificationProcessGenerationNotEstablished.model_validate(
             {**result.model_dump(mode="python"), "owner_context": object()}
+        )
+
+
+def test_denominator_mismatch_is_a_pre_positive_query_bound_failure() -> None:
+    query = _query()
+    failure = contract.PolicyOwnerDenominatorMismatchFailure(
+        code="native_denominator_mismatch",
+        status="rejected",
+        key=_policy_statement(required_native_head_role=None).key,
+        requested_query_context_ref=query.requested_query_context_ref,
+        expected_denominator_ref=_digest("1"),
+        observed_denominator_ref=_digest("2"),
+    )
+    result = contract.NativeChronologyPolicyResolutionFailed(
+        result_kind="policy_resolution_failed",
+        query=query,
+        failure=failure,
+    )
+
+    parsed = TypeAdapter(contract.NativeChronologyQualificationResult).validate_python(
+        result.model_dump(mode="python")
+    )
+
+    assert parsed == result
+    assert parsed.failure.expected_denominator_ref == _digest("1")
+    assert parsed.failure.observed_denominator_ref == _digest("2")
+    qualification_schema = TypeAdapter(contract.NativeChronologyQualificationResult).json_schema()
+    assert set(qualification_schema["discriminator"]["mapping"]) == {
+        "build_rejected",
+        "native_authority_head_not_established",
+        "native_exterior_and_authority_head_not_established",
+        "native_exterior_not_established",
+        "persistence_failed",
+        "policy_resolution_failed",
+        "predicate_denominator_persistence_failed",
+        "predicate_rejected",
+        "profile_rejected",
+        "projection_custody_gap",
+        "proof_rejected",
+        "qualification_process_generation_not_established",
+        "qualified",
+    }
+    owner_failure_schema = TypeAdapter(contract.PredicatePolicyOwnerRelationFailure).json_schema()
+    assert set(owner_failure_schema["discriminator"]["mapping"]) == {
+        "native_denominator_mismatch",
+        "policy_owner_relation_not_established",
+        "policy_owner_relation_rejected",
+    }
+    assert len(TypeAdapter(contract.NativeChronologyCandidateRejected).json_schema()["anyOf"]) == 3
+    assert "NativeDenominatorRejected" not in contract.__all__
+    assert "PolicyOwnerDenominatorMismatchFailure" in contract.__all__
+    with pytest.raises(
+        ValidationError, match="policy failure carries a different query coordinate"
+    ):
+        contract.NativeChronologyPolicyResolutionFailed(
+            result_kind="policy_resolution_failed",
+            query=_query(context_fill="4"),
+            failure=failure,
+        )
+    with pytest.raises(ValidationError, match="denominator mismatch requires unequal refs"):
+        contract.PolicyOwnerDenominatorMismatchFailure(
+            **{
+                **failure.model_dump(mode="python"),
+                "observed_denominator_ref": failure.expected_denominator_ref,
+            }
         )
 
 

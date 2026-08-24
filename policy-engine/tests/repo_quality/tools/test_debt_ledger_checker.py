@@ -501,8 +501,8 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
     assert "bridge_missing" not in gap8
-    assert "| `DEBT-REGISTER.md` | 55 | 55 | 34 |" in rendered
-    assert "| Atlas master debt table | 22 | 22 | 10 |" in rendered
+    assert "| `DEBT-REGISTER.md` | 55 | 55 | 33 |" in rendered
+    assert "| Atlas master debt table | 22 | 22 | 9 |" in rendered
 
 
 def test_capability_states_require_evidence_scoped_to_the_debt_subject() -> None:

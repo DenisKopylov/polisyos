@@ -165,6 +165,14 @@ def _human_decision_record_ids(store: Any) -> set[str]:
     }
 
 
+def _production_approval_packet_ids(store: Any) -> set[str]:
+    return {
+        str(artifact_id)
+        for artifact_id in store.iter_artifact_ids()
+        if store.get_manifest(artifact_id).kind == "runtime.production_approval_" + "packet"
+    }
+
+
 def _reason_codes(gate: Any) -> set[str]:
     return {reason.code for reason in gate.reasons}
 
@@ -1251,6 +1259,155 @@ def test_signed_packet_stale_replayed_or_wrong_consumer_is_rejected(tmp_path: Pa
                 expected_audience="polisyos-runtime",
                 **attempt,
             )
+
+
+def test_production_packet_without_custody_signature_is_typed_refusal(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    contracts = _contracts()
+    created = fixture.base.service.create_record(
+        contracts.HumanDecisionCreateCommand(
+            gate_input=fixture.gate_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement="I accept accountability for this production approval.",
+            dissent_statement="No dissent after reviewing all required evidence.",
+        ),
+        bound_permission=fixture.base.bound_permission,
+        write_context=fixture.base.write_context,
+    )
+    inputs = fixture.base.service.resolve_production_approval_inputs(
+        tenant_id="tenant-a",
+        run_id="run-gy-pa2",
+        scorecard_ref=fixture.scorecard_ref,
+        scorecard_binding_digest=fixture.scorecard_binding_digest,
+        production_basis_ref=fixture.basis_ref,
+        human_decision_record_ref=created.record_ref,
+        evaluated_at=NOW,
+    )
+    from polisyos.runtime.quality import approval
+
+    authority = approval._ResolvedProductionApprovalAuthority(
+        inputs=inputs,
+        expected_consumer="polisyos.runtime.quality.agent_action_authority",
+        expected_audience="polisyos-runtime",
+        evaluated_at=NOW,
+        _seal=approval._RESOLVER_SEAL,
+    )
+    packet_builder = getattr(
+        approval,
+        "build_resolved_production_" + "approval_" + "packet",
+    )
+    packet = packet_builder(authority)
+    unsigned_ref = _persist_unsigned_gate_model(
+        fixture.base,
+        packet,
+        kind="runtime.production_approval_" + "packet",
+        schema_name="polisyos.runtime.ProductionApprovalPacket",
+        schema_version="2.0",
+    )
+
+    with pytest.raises(
+        _service_module().HumanDecisionOperationalResolutionError,
+    ) as exc_info:
+        fixture.base.service.resolve_production_decision_packet(
+            packet_ref=unsigned_ref,
+            tenant_id="tenant-a",
+            run_id="run-gy-pa2",
+            expected_consumer="polisyos.runtime.quality.agent_action_authority",
+            expected_audience="polisyos-runtime",
+            evaluated_at=NOW,
+        )
+
+    assert exc_info.value.code == "DS9-DECISION-SOURCE-INVALID"
+
+
+def test_production_resolver_rejects_unsigned_basis_with_zero_packet(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    contracts = _contracts()
+    created = fixture.base.service.create_record(
+        contracts.HumanDecisionCreateCommand(
+            gate_input=fixture.gate_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement="I accept accountability for this production approval.",
+            dissent_statement="No dissent after reviewing all required evidence.",
+        ),
+        bound_permission=fixture.base.bound_permission,
+        write_context=fixture.base.write_context,
+    )
+    unsigned_basis = fixture.basis.model_copy(
+        update={
+            "basis_id": "production-basis-unsigned-direct-resolution",
+            "basis_ref": "operations://production-basis/unsigned-direct-resolution",
+        }
+    )
+    unsigned_ref = fixture.base.sign_production_basis(unsigned_basis, False)
+    packets_before = _production_approval_packet_ids(fixture.base.store)
+
+    with pytest.raises(
+        _service_module().HumanDecisionOperationalResolutionError,
+    ) as exc_info:
+        fixture.base.service.resolve_production_approval_inputs(
+            tenant_id="tenant-a",
+            run_id="run-gy-pa2",
+            scorecard_ref=fixture.scorecard_ref,
+            scorecard_binding_digest=fixture.scorecard_binding_digest,
+            production_basis_ref=unsigned_ref,
+            human_decision_record_ref=created.record_ref,
+            evaluated_at=NOW,
+        )
+
+    assert exc_info.value.code == "DS9-DECISION-SOURCE-INVALID"
+    assert _production_approval_packet_ids(fixture.base.store) == packets_before
+
+
+def test_production_resolver_rejects_unsigned_record_with_zero_packet(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    contracts = _contracts()
+    created = fixture.base.service.create_record(
+        contracts.HumanDecisionCreateCommand(
+            gate_input=fixture.gate_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement="I accept accountability for this production approval.",
+            dissent_statement="No dissent after reviewing all required evidence.",
+        ),
+        bound_permission=fixture.base.bound_permission,
+        write_context=fixture.base.write_context,
+    )
+    unsigned_record = created.record.model_copy(
+        update={"record_id": "human-decision-record-unsigned-production-resolution"}
+    )
+    unsigned_ref = _persist_unsigned_gate_model(
+        fixture.base,
+        unsigned_record,
+        kind=contracts.HUMAN_DECISION_RECORD_ARTIFACT_KIND,
+        schema_name="polisyos.runtime.HumanDecisionRecord",
+        schema_version=contracts.HUMAN_DECISION_RECORD_MANIFEST_VERSION,
+    )
+    packets_before = _production_approval_packet_ids(fixture.base.store)
+
+    with pytest.raises(
+        _service_module().HumanDecisionOperationalResolutionError,
+    ) as exc_info:
+        fixture.base.service.resolve_production_approval_inputs(
+            tenant_id="tenant-a",
+            run_id="run-gy-pa2",
+            scorecard_ref=fixture.scorecard_ref,
+            scorecard_binding_digest=fixture.scorecard_binding_digest,
+            production_basis_ref=fixture.basis_ref,
+            human_decision_record_ref=unsigned_ref,
+            evaluated_at=NOW,
+        )
+
+    assert exc_info.value.code == "DS9-DECISION-SOURCE-INVALID"
+    assert _production_approval_packet_ids(fixture.base.store) == packets_before
 
 
 def test_human_decision_status_precedence_is_permutation_invariant() -> None:

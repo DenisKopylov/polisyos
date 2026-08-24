@@ -2,10 +2,10 @@
 plan_id: atlas-ds9-human-decision-integrity
 title: "DS9 - Human Decision Integrity"
 type: slice-plan
-status: implementation_complete_pending_debt_transition
+status: implementation_receipts_complete_unmerged
 created: 2026-08-23
-last_verified: 2026-08-24
-stability: source_frozen_pending_final_bookkeeping
+last_verified: 2026-08-25
+stability: verified_unmerged
 slice: DS9
 baseline_commit: 3c89f008f83f50461d1eb364b502925e2d1b4a13
 execution_base_commit: 5a6de66ce123ed56ff7e2d5c7368d4869ed3b141
@@ -113,7 +113,7 @@ define a second closure contract.
       one response; response/export hash equality is green.
 - [x] **CC18** The generic frontend checker adjudicates 13 root objects plus five
       supplemental findings once each from the complete opening denominator.
-- [ ] **CC19** C00/C08 debt writes produce exactly the claimed, split, declined,
+- [x] **CC19** C00/C08 debt writes produce exactly the claimed, split, declined,
       and retained rows below; writer/check/test and ledger diff are green.
 - [x] **CC20** OpenAPI, five runtime-client files, dashboard types, and Python
       public-surface inventory regenerate once and reproduce from scratch; the
@@ -126,7 +126,7 @@ define a second closure contract.
       re-resolves the S7/v2 chain without a production packet, while its
       production arm requires the packet ref and concrete resolver; both
       re-resolve before effect and reject cross-arm fields.
-- [ ] **CC24** DS9 never crosses GY-N12's DV/Claim transaction; closeout and final
+- [x] **CC24** DS9 never crosses GY-N12's DV/Claim transaction; closeout and final
       bookkeeping commits, changed-file sets, and all 24 receipts are read back.
 
 ## Measured entry receipts
@@ -198,6 +198,7 @@ failed threshold with advisory top-level `pass`.
 | `DS20-B scorecard producer provenance` | **CLAIM integration; DECLINE producer.** C00 splits it into `DS20-B-scorecard-provenance-intake-effect` (`DS9/open`) and `DS20-B-scorecard-provenance-producer-trust` (`ops/foreign`). The intake child uses the same pre-debt eligibility rule; only the verified integration/effect child closes. |
 | `ds8-signed-public-decision-surface` | **DECLINE.** Internal MACHINE twin is not public rendering; DS12 owns the row. |
 | `decision-validity-fixed-temp-concurrency` | **OBSERVE / REGISTER OUT OF SCOPE.** Both authoritative C08 visual runs exposed the same fixed-`.tmp` atomic-replace collision in Scientist Decision Validity. GY-N12 Cluster 4 Task 4.4 owns that persistence path; DS9 records the row and does not cross the owner transaction. |
+| `case-workspace-route-bypasses-feature-barrel` | **OBSERVE / REGISTER OUT OF SCOPE.** The exact route import edge reproduces at the execution base and closeout, but P41 ownership is `not_established` because DS9 changed another path inside the dashboard checker denominator. Repair would expand the runs feature barrel and app-route surface without a DS9 CC; `team-frontend` owns it. |
 | DS5 successor aggregate | **CLAIM DS9 denominator only.** C00 changes 11/27 planless rows to 6/27 and five planless slices to four; all other successors retain owners. |
 
 ### Ambiguous and typed-missing inputs
@@ -347,7 +348,7 @@ and advisory posture remain separate.
 
 ## Strangle denominator and scope decision
 
-The raw approval semantic family spans all 6,756 tracked code files (5,589 Py,
+At the pinned opening, the raw approval semantic family spans all 6,756 tracked code files (5,589 Py,
 463 TS, 658 TSX, 5 JS, 32 MJS, 9 CJS). The complete base command returns 445
 lines in 81 paths:
 
@@ -375,10 +376,22 @@ are `apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.ts
 `src/polisyos/scientist/validation/decision_artifact_quality.py`;
 `tools/ops_runners/runtime/canary_evidence.py`; and
 `tools/ops_runners/runtime/replay_canary_bundle.py`.
-The 47 companions are generated
+
+At C08 closeout the tracked code denominator is 6,788 and the raw grep returns
+82 paths because the generic verifier names its own search tokens. Its one
+explicit self-exemption removes only itself and re-proves the opening 81-path
+product set. The later P39 signature-falsifier edit makes its existing test file
+the 48th companion, so the final current raw grep is 83 including the verifier
+and the honest product partition is **18 + 48 + 16 = 82**. No path is
+unclassified; the journal records the language counts, P33 falsifier, and
+current digest.
+The opening and C08-closeout 47 companions are generated
 `apps/runtime-dashboard/src/api/types.ts`,
 `packages/runtime-api-client/runtimeApiClient.ts`, and
 `packages/runtime-api-client/types.ts`, plus all 44 returned test/e2e paths.
+The final current set adds
+`tests/unit/runtime/http/test_human_decision_service.py` as the 45th test/e2e
+companion.
 The 16 retained paths are
 `src/polisyos/runtime/http/services/control/workspace_loop_transition.py`;
 `src/polisyos/runtime/quality/assurance_case.py`;
@@ -481,7 +494,7 @@ Frontend/browser identities:
 At least one test corrupts valid-looking CAS bytes while preserving markers; one
 falsifies an exposure declaration; one adds a sibling unsafe route; one replaces
 persistence with an allow event; and one seeds stale approved/ref/packet fields
-across the complete 81-path family.
+across the complete opening 81-path family.
 
 Exact first red lanes (C00 records selected count, exit, elapsed, and ceiling):
 
@@ -511,7 +524,7 @@ Second finding of one class triggers P40 widening or a bounded residual/falsifie
 | C05 | Make supported-entrypoint inventory real, then regenerate frozen ABI and public facade atomically. | 1 | 1 |
 | C06 | Land Case Workspace gate, contestability, telemetry, and MACHINE twin. | 12 | 2 |
 | C07 | Rebind presentation and adjudicate all 18 register objects. | 8 | 2 |
-| C08 | Freeze/review/visual/closeout/readback, then close receipt-backed debts. | 0 declared; seven CC-required observations, three new within the 78-path slice ceiling | 1 safe-GET widening |
+| C08 | Freeze/review/visual/closeout/readback, then close receipt-backed debts. | 0 declared; eight CC-required observations (seven pre-debt plus the C00 checker reopen), three new within the 78-path slice ceiling | 1 safe-GET widening |
 
 ### C00 — approved admission and red bind
 
@@ -925,6 +938,10 @@ projection; surgical writer then no-writer/corruption checker accounts for all
 `src/polisyos/runtime/http/routes/runs.py`. These are the approved execution-rule
 cases: three new unique mechanisms and four reopens take the slice to **65/78**.
 The journal names each CC, rejected seam, and narrowing/widening disposition.
+Final bookkeeping reopens the existing C00 mechanism
+`tools/quality/validation/check_debt_ledger.py` for CC19's 56→58 denominator;
+therefore C08 observes eight mechanisms in total, but remains **65/78 unique**
+and **13/18 widening rounds**.
 
 **Modify (P39):**
 `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts`,
@@ -951,9 +968,10 @@ only after CC01-CC18 + CC20-CC23 and the pre-debt half of CC24 are evidenced,
 close `ds8-approval-authority` and
 `DS20-B-scorecard-provenance-intake-effect`; preserve ops,
 notes, and DS12 rows. Writer/check/test ledger, commit bookkeeping, read back
-again, and require published=observed=57, indexed=34, with `closed=23`,
-`open=17`, and `open_unmerged=1`; the one-row increase is the newly observed
-out-of-focus `decision-validity-fixed-temp-concurrency`, registered on this
+again, and require published=observed=58, indexed=35, with `closed=23`,
+`open=17`, and `open_unmerged=2`; the two new rows are
+`decision-validity-fixed-temp-concurrency` and
+`case-workspace-route-bypasses-feature-barrel`, both registered on this
 local-only branch under Rule 5, while `ambiguous=1`, `blocked=7`, `folded=2`,
 and `foreign=6` remain unchanged. The debt write
 proves CC19; final readback proves CC24; only then check all 24.
@@ -963,8 +981,10 @@ other writer runs. First visual red suppresses the second no-writer comparison.
 
 #### Pre-debt closeout receipt
 
-Source froze after the final review narrowings. C08 observes seven mechanism
-paths, adds three unique paths, and closes at **65/78**. The one explicit
+Source froze after the final review narrowings. The pre-debt C08 commit observes
+seven mechanism paths and adds three unique paths; CC19 bookkeeping reopens the
+C00 denominator checker as the eighth observation, so the slice closes at
+**65/78**. The one explicit
 safe-GET declaration widens a permitted safe read, bringing genuine widening
 rounds to **13/18**; all other C08 repairs only remove bypasses or make declared
 properties executable.
@@ -973,9 +993,20 @@ The authoritative visual writer passed 4/4 in 52.6 seconds; one fresh no-writer
 comparison passed 4/4 in 53.4 seconds with unchanged snapshot SHA-1 values
 `44b983c428592a9e84d87501b98be4650ddd06c6` and
 `5782f1863575094d607d0b6d37158b37f7e08aef`. The first visual red suppresses the
-second comparison. The complete approval strangle re-proved
+second comparison. The complete approval strangle at the C08 closeout commit re-proved
 **18 mechanisms + 47 companions + 16 retained = 81**, with no unclassified or
-classified-but-untracked path.
+classified-but-untracked path. Post-closeout P39 signature falsifiers add one
+test companion, not a mechanism: the final current partition is
+**18 + 48 + 16 = 82**.
+
+The final tree contains **6,788 tracked code files**: 5,605 Python, 469 TS,
+668 TSX, 5 JS, 32 MJS, and 9 CJS. At C08 closeout the raw approval-token walk
+returns 82 paths;
+the generic verifier explicitly and genuinely self-exempts only
+`tests/repo_quality/tools/test_ds9_approval_semantic_strangle.py`, leaving the
+81-path product denominator above. At final current HEAD the raw walk returns
+83 and excludes only that verifier, leaving the 82-path product denominator.
+This supplements rather than rewrites the 6,756-file opening receipt.
 
 OpenAPI was regenerated after the safe-route change. All five runtime-client
 outputs and dashboard types reproduce byte-for-byte from two fresh scratch
@@ -989,15 +1020,19 @@ The complete receipt, per-cluster paths, signed-input removal falsifiers,
 18-object dispositions, DS11/DS14 bundle, ceilings/uptime pairs, and residuals
 are in
 `docs/superpowers/journals/2026-08-23-ds9-human-decision-integrity.md`.
-CC01-CC18 and CC20-CC23 are green. CC19 and the final half of CC24 remain open
-until the closeout commit is read back, the register family is freshly locked,
-and final bookkeeping is committed and read back.
+All CC01-CC24 receipts are green. Closeout `8697fe1a`, debt transition
+`2c798e620`, provenance corrections `ea1a886f5` and `6555ce7b0`, the P39
+production-signature proof `60ed5de5f`, live-denominator prose correction
+`33334e8f2`, and honest companion classification `63de3e82c` were each re-read
+from the attached branch. `fa6845af1` remains visible as the superseded P33
+token-hiding false green. The final plan/journal commit is itself re-read before
+hand-back.
 
 Serialized resources and ceilings:
 
 | resource | cluster / fixed ceiling |
 | --- | --- |
-| register-family lock | C00, C07, C08 as three separate acquisitions; DS-INFRA-2 119.66s → 240s each |
+| register-family lock | C00, C07, C08, and final denominator-prose audit as four separate acquisitions; 240s each |
 | regeneration token | C05 governed writers only; DS-INFRA-2 supplies a completed timing for every exact writer, post-release checker, scratch generator, and comparison loop before C05, each frozen at `max(30s, 2x measured)`; absent command receipt blocks C05 |
 | visual lane | C08 only; DS-INFRA-2-supplied Playwright ceilings: per-test 90s, invocation 240s; exactly one writer then two no-writers |
 | PostgreSQL proof lane | C01/C08 residual; no DSN is installed in this execution environment, so the strict command is an honest non-receipt and concurrent PostgreSQL reservation remains unproven; DS-INFRA-2 owns a reachable disposable database with create/drop-schema privilege, after which freeze at `max(60s, 2x measured)` and require selected > 0 with zero skips |
@@ -1127,18 +1162,25 @@ closure items pass.
 
 ## Commit Sequence
 
-1. `docs(atlas): bind DS9 measured slice plan` — this document only.
-2. `chore(governance): admit DS9 owner plan and pin red controls` — C00, after approval.
-3. `feat(runtime): persist custodied human decision records` — C01.
-4. `feat(runtime): enforce human decision routes and step-up` — C02.
-5. `fix(runtime): bind production approval to decision integrity` — C03.
-6. `feat(runtime): project review effectiveness from access audit` — C04.
-7. `fix(architecture): inventory and regenerate DS9 public surfaces` — C05
-   generic entrypoint owner plus atomic generated set.
-8. `feat(atlas): land accountable human decision workspace` — C06.
-9. `fix(atlas): close DS9 authority presentation and register scope` — C07.
-10. `docs(atlas): record DS9 verification and consumer handoff` — C08 closeout.
-11. `chore(governance): close receipt-backed DS9 debts` — C08 fresh-lock bookkeeping.
+1. `b9aec624c` `docs(atlas): bind DS9 measured slice plan` — approved plan.
+2. `76be63c1f` `chore(governance): admit DS9 owner plan and pin red controls` — C00.
+3. `3b1a87fd0` `feat(runtime): persist custodied human decision records` — C01.
+4. `587de3599` `feat(runtime): enforce human decision routes and step-up` — C02.
+5. `20467fceb` `fix(runtime): bind production approval to decision integrity` — C03.
+6. `09d6b8d1a` `feat(runtime): project review effectiveness from access audit` — C04.
+7. `17a36756c` `fix(architecture): inventory and regenerate DS9 public surfaces` — C05.
+8. `9791abd99` `feat(atlas): land accountable human decision workspace` — C06.
+9. `b7006c2b2` `fix(atlas): bind production gate GET to signed basis` — C02 narrowing correction.
+10. `04ec7914e` `fix(atlas): close DS9 authority presentation and register scope` — C07.
+11. `8697fe1aa` `docs(atlas): record DS9 verification and consumer handoff` — C08 closeout.
+12. `2c798e620` `chore(governance): close receipt-backed DS9 debts` — C08 fresh-lock transition.
+13. `ea1a886f5` `docs(governance): correct DS9 debt provenance` — P41 wording correction.
+14. `6555ce7b0` `docs(governance): bind DS9 debt closure receipts` — explicit unmerged `closed_by` receipt.
+15. `60ed5de5f` `test(runtime): prove DS9 production signature refusals` — P39 falsifier completion.
+16. `fa6845af1` `test(runtime): preserve DS9 strangle denominator` — superseded P33 token-hiding false green, retained in append-only history.
+17. `33334e8f2` `docs(atlas): correct live debt denominator` — 55→58 register prose correction under the final lock.
+18. `63de3e82c` `test(runtime): classify DS9 approval companion honestly` — restore semantic names and classify the 48th companion.
+19. `docs(atlas): close DS9 execution receipts` — final plan/journal readback commit.
 
 Before every commit run `git status -sb` and `git symbolic-ref -q HEAD`. No
 merge/push/rebase/stash storage. History remains append-only under repository rules.

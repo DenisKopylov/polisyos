@@ -36,6 +36,10 @@ export const queryKeys = {
     ] as const,
   runPaper: (runId: string, rawReplaySearch: string) =>
     ["runtime", "run", runId, "paper", { rawReplaySearch }] as const,
+  humanDecisionGate: (runId: string, selectorKey: string) =>
+    ["runtime", "run", runId, "human-decision-gate", { selectorKey }] as const,
+  humanDecisionReviewEffectiveness: (runId: string) =>
+    ["runtime", "run", runId, "human-decision-review-effectiveness"] as const,
   runTimeline: (runId: string, temporalScope?: TemporalScope | null) =>
     [
       "runtime",

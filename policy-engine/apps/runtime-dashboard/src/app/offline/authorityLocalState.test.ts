@@ -25,11 +25,7 @@ const scope = {
 
 const codec: AuthorityLocalStateCodec<StoredValue> = {
   decode(value) {
-    if (
-      !value ||
-      typeof value !== "object" ||
-      Array.isArray(value)
-    ) {
+    if (!value || typeof value !== "object" || Array.isArray(value)) {
       return null;
     }
     const candidate = value as Partial<StoredValue>;
@@ -68,7 +64,10 @@ describe("authority local state", () => {
   });
 
   it("binds the physical key and strict envelope to the verified scope and logical slot", () => {
-    const family = makeFamily("operator-craft.threshold", () => new Date("2026-08-13T10:00:00.000Z"));
+    const family = makeFamily(
+      "operator-craft.threshold",
+      () => new Date("2026-08-13T10:00:00.000Z"),
+    );
     const value = { label: "threshold", revision: 1 };
 
     expect(family.write({ scope, slot: "profile", value })).toBe(true);
@@ -159,7 +158,10 @@ describe("authority local state", () => {
       const cases: Array<[string, unknown]> = [
         ["legacy payload", valid.encodedPayload],
         ["malformed JSON", "{"],
-        ["expired envelope", { ...valid, expiresAt: "2026-08-13T09:59:59.999Z" }],
+        [
+          "expired envelope",
+          { ...valid, expiresAt: "2026-08-13T09:59:59.999Z" },
+        ],
         ["prior tenant", { ...valid, tenantId: "tenant-prior" }],
         ["prior user", { ...valid, userId: "reviewer-prior" }],
         ["copied slot", { ...valid, slot: "run-37" }],
@@ -173,12 +175,22 @@ describe("authority local state", () => {
                 : "operator-craft.threshold",
           },
         ],
-        ["runtime novel family", { ...valid, family: "operator-craft.runtime-novel" }],
+        [
+          "runtime novel family",
+          { ...valid, family: "operator-craft.runtime-novel" },
+        ],
+        [
+          "human-decision authority family",
+          { ...valid, family: "human-decision.authority" },
+        ],
         ["extra envelope field", { ...valid, extra: true }],
       ];
 
       for (const [label, raw] of cases) {
-        window.localStorage.setItem(key!, typeof raw === "string" ? raw : JSON.stringify(raw));
+        window.localStorage.setItem(
+          key!,
+          typeof raw === "string" ? raw : JSON.stringify(raw),
+        );
         expect(
           family.read({ fallback, scope, slot: "run-36" }),
           `${familyName}: ${label}`,
@@ -192,7 +204,10 @@ describe("authority local state", () => {
 
   it("uses the owner clock and fixed TTL, never writes without complete scope, and leaves preferences alone", () => {
     let instant = "2026-08-13T10:00:00.000Z";
-    const family = makeFamily("operator-craft.onboarding", () => new Date(instant));
+    const family = makeFamily(
+      "operator-craft.onboarding",
+      () => new Date(instant),
+    );
     const key = family.key({ scope, slot: "run-36" });
     const fallback = { label: "fallback", revision: 0 };
     window.localStorage.setItem("polisyos.runtime.theme", "dark");
@@ -206,7 +221,13 @@ describe("authority local state", () => {
     ).toBe(false);
     expect(window.localStorage.getItem(key!)).toBeNull();
 
-    expect(family.write({ scope, slot: "run-36", value: { label: "saved", revision: 1 } })).toBe(true);
+    expect(
+      family.write({
+        scope,
+        slot: "run-36",
+        value: { label: "saved", revision: 1 },
+      }),
+    ).toBe(true);
     instant = "2026-08-13T10:00:01.000Z";
     expect(family.read({ fallback, scope, slot: "run-36" })).toEqual(fallback);
     expect(window.localStorage.getItem("polisyos.runtime.theme")).toBe("dark");
@@ -254,18 +275,17 @@ describe("authority local state", () => {
       },
     ]) {
       window.localStorage.setItem(key!, JSON.stringify(tampered));
-      expect(family.read({ fallback, scope, slot: "profile" })).toEqual(fallback);
+      expect(family.read({ fallback, scope, slot: "profile" })).toEqual(
+        fallback,
+      );
     }
 
-    const throwingClock = makeFamily(
-      "operator-craft.threshold",
-      () => {
-        throw new Error("clock unavailable");
-      },
+    const throwingClock = makeFamily("operator-craft.threshold", () => {
+      throw new Error("clock unavailable");
+    });
+    expect(throwingClock.read({ fallback, scope, slot: "profile" })).toEqual(
+      fallback,
     );
-    expect(
-      throwingClock.read({ fallback, scope, slot: "profile" }),
-    ).toEqual(fallback);
     expect(
       throwingClock.write({
         scope,
@@ -305,7 +325,10 @@ describe("authority local state", () => {
   });
 
   it("accepts reordered fields because field content, not JSON formatting, establishes identity", () => {
-    const family = makeFamily("operator-craft.evidence-wallet", () => new Date("2026-08-13T10:00:00.000Z"));
+    const family = makeFamily(
+      "operator-craft.evidence-wallet",
+      () => new Date("2026-08-13T10:00:00.000Z"),
+    );
     const key = family.key({ scope, slot: "wallet" });
     window.localStorage.setItem(
       key!,

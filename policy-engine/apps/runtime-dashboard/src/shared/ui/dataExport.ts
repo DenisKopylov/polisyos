@@ -69,6 +69,25 @@ function downloadTextFile(filename: string, content: string, mimeType: string) {
   URL.revokeObjectURL(url);
 }
 
+/** Download one captured response without parsing or reserializing its bytes. */
+export function exportCapturedResponseBytes(
+  filename: string,
+  bytes: Uint8Array,
+  mimeType = "application/octet-stream",
+) {
+  if (typeof document === "undefined") {
+    return;
+  }
+  const exactBytes = new Uint8Array(bytes);
+  const blob = new Blob([exactBytes.buffer], { type: mimeType });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+  link.download = filename;
+  link.href = url;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 async function copyText(text: string) {
   if (typeof navigator !== "undefined" && navigator.clipboard) {
     await navigator.clipboard.writeText(text);

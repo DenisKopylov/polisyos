@@ -6,6 +6,11 @@ import CaseWorkspacePage from "@/features/runs/routes/CaseWorkspacePage";
 import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
 import { renderWithProviders } from "@/test/render";
 import { server } from "@/test/msw/server";
+import {
+  humanDecisionReviewEffectivenessFixture,
+  humanDecisionSourceRef,
+  producerMissingHumanDecisionGate,
+} from "@/test/fixtures/humanDecision";
 
 vi.mock("@/app/authz/AuthzProvider", async (importOriginal) => {
   const actual =
@@ -20,7 +25,7 @@ vi.mock("@/app/authz/AuthzProvider", async (importOriginal) => {
   };
 });
 
-const sourceRef = `sha256:${"a".repeat(64)}`;
+const sourceRef = humanDecisionSourceRef;
 
 describe("HumanDecisionReviewEffectivenessPanel", () => {
   it("allow without record is incomplete", async () => {
@@ -30,30 +35,13 @@ describe("HumanDecisionReviewEffectivenessPanel", () => {
         HttpResponse.json(runPaperPacketFixture()),
       ),
       http.get("*/api/v1/runs/:runId/human-decision-gate", () =>
-        HttpResponse.json({
-          status: "producer_missing",
-          reason_codes: ["DS9-DECISION-PRODUCER-MISSING"],
-          source_kind: "agent_action_authority",
-          source_ref: sourceRef,
-        }),
+        HttpResponse.json(producerMissingHumanDecisionGate()),
       ),
       http.get(
         "*/api/v1/runs/:runId/human-decisions/review-effectiveness",
         () => {
           reads += 1;
-          return HttpResponse.json({
-            status: "incomplete",
-            reason_codes: ["DS9-AUTHZ-ALLOW-NOT-SUCCESS"],
-            coverage: {
-              total_events: 2,
-              parsed_events: 2,
-              schema_valid_events: 2,
-              malformed_events: 0,
-              retained_events: 2,
-              joined_record_events: 0,
-            },
-            advisory_posture: "insufficient_basis",
-          });
+          return HttpResponse.json(humanDecisionReviewEffectivenessFixture());
         },
       ),
     );
@@ -64,7 +52,7 @@ describe("HumanDecisionReviewEffectivenessPanel", () => {
       </Routes>,
       {
         initialEntries: [
-          `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(sourceRef)}`,
+          `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(sourceRef)}&action_kind=data_request`,
         ],
       },
     );
@@ -74,7 +62,9 @@ describe("HumanDecisionReviewEffectivenessPanel", () => {
       "human-decision-review-effectiveness",
     );
     expect(panel).toHaveTextContent("incomplete");
-    expect(panel).toHaveTextContent("DS9-AUTHZ-ALLOW-NOT-SUCCESS");
+    expect(panel).toHaveTextContent(
+      "human_decision_review_coverage_incomplete",
+    );
     expect(within(panel).queryByText(/^effective$/i)).not.toBeInTheDocument();
   });
 });

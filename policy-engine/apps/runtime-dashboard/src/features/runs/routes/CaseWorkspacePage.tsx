@@ -2,14 +2,24 @@ import { useLocation, useParams } from "react-router-dom";
 
 import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import { useCaseInspection } from "@/features/runs/api/useCaseInspection";
+import {
+  fetchHumanDecisionEvidence,
+  useCreateHumanDecision,
+  useHumanDecisionGate,
+  useHumanDecisionReviewEffectiveness,
+} from "@/features/runs/api/useHumanDecisions";
 import type { RunPaperPacket } from "@/features/runs/api/useRunPaper";
+import { HumanDecisionGate } from "@/features/runs/components/HumanDecisionGate";
+import { HumanDecisionReviewEffectivenessPanel } from "@/features/runs/components/HumanDecisionReviewEffectivenessPanel";
 import { downloadRunPaperPacket } from "@/features/runs/components/runPaperExport";
+import { buildHumanDecisionMutation } from "@/features/runs/domain/humanDecisionPresentation";
 import {
   buildRunPaperSemanticRoster,
   presentRunPaper,
   type RunPaperSemanticNode,
 } from "@/features/runs/domain/runPaperPresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import { exportCapturedResponseBytes } from "@/shared/ui/dataExport";
 import { Button, Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 
 function semanticNodeValue(node: RunPaperSemanticNode): string {
@@ -78,11 +88,7 @@ function CaseRecordSummary({
   }
 
   const issueGroups = [
-    [
-      "blocker",
-      "pages.runs.report.paper.groups.blockers",
-      caseRecord.blockers,
-    ],
+    ["blocker", "pages.runs.report.paper.groups.blockers", caseRecord.blockers],
     [
       "limitation",
       "pages.runs.report.paper.groups.limitations",
@@ -160,9 +166,7 @@ function CaseWorkspaceDocument({ packet }: { packet: RunPaperPacket }) {
       data-testid="case-workspace-document"
     >
       <header className="space-y-2">
-        <p className="eyebrow">
-          {t("pages.runs.report.paper.caseTitle")}
-        </p>
+        <p className="eyebrow">{t("pages.runs.report.paper.caseTitle")}</p>
         <h1 className="text-3xl font-semibold">
           {t("pages.runs.report.paper.runHeading", {
             runId: paper.run.run_id,
@@ -238,10 +242,20 @@ function CaseWorkspaceDocument({ packet }: { packet: RunPaperPacket }) {
   );
 }
 
-function AuthorizedCaseWorkspace({ runId }: { runId: string }) {
+function AuthorizedCaseWorkspace({
+  canCreateHumanDecision,
+  runId,
+}: {
+  canCreateHumanDecision: boolean;
+  runId: string;
+}) {
   const { t } = useI18n();
   const location = useLocation();
   const query = useCaseInspection(runId, location.search);
+  const gateQuery = useHumanDecisionGate(runId, location.search);
+  const createDecision = useCreateHumanDecision(runId);
+  const reviewEffectiveness = useHumanDecisionReviewEffectiveness(runId);
+  const capturedGate = gateQuery.data;
 
   if (query.isLoading) return <PanelSkeleton rows={8} />;
   if (query.isError || !query.data) {
@@ -266,8 +280,86 @@ function AuthorizedCaseWorkspace({ runId }: { runId: string }) {
         >
           {t("pages.runs.report.exportMachine")}
         </Button>
+        {capturedGate ? (
+          <Button
+            data-testid="human-decision-machine-export"
+            type="button"
+            variant="ghost"
+            onClick={() =>
+              exportCapturedResponseBytes(
+                `policyos-run-${runId}-human-decision.json`,
+                capturedGate.rawPacketBytes,
+                "application/json",
+              )
+            }
+          >
+            {t("pages.runs.report.humanDecision.machineExport")}
+          </Button>
+        ) : null}
       </div>
       <CaseWorkspaceDocument packet={query.data.packet} />
+      {gateQuery.hasSelector && gateQuery.isLoading ? (
+        <PanelSkeleton rows={6} />
+      ) : null}
+      {gateQuery.hasSelector && gateQuery.isError ? (
+        <Card data-testid="human-decision-gate-error">
+          <EmptyState
+            body={t("pages.runs.report.humanDecision.unavailableBody")}
+            title={t("pages.runs.report.humanDecision.unavailableTitle")}
+          />
+        </Card>
+      ) : null}
+      {capturedGate ? (
+        <HumanDecisionGate
+          canMutate={canCreateHumanDecision}
+          captured={capturedGate}
+          onOpenEvidence={async (artifactDigest) => {
+            const current = gateQuery.data?.packet;
+            const continuation = current?.continuation;
+            const exposureSessionRef = current?.exposure.exposure_session_ref;
+            if (!continuation || !exposureSessionRef) {
+              throw new TypeError("DS9-EVIDENCE-REVALIDATION-SELECTOR-MISSING");
+            }
+            const evidence = await fetchHumanDecisionEvidence(
+              runId,
+              artifactDigest,
+              exposureSessionRef,
+            );
+            exportCapturedResponseBytes(
+              `policyos-run-${runId}-evidence-${artifactDigest.replace(":", "-")}`,
+              evidence.bytes,
+              evidence.mediaType,
+            );
+            await gateQuery.revalidate(continuation);
+          }}
+          onSubmit={async (input) => {
+            const continuation = gateQuery.data?.packet.continuation;
+            if (!continuation) {
+              throw new TypeError(
+                "DS9-SUBMISSION-REVALIDATION-SELECTOR-MISSING",
+              );
+            }
+            const fresh = await gateQuery.revalidate(continuation);
+            const exposureSessionRef =
+              fresh.packet.exposure.exposure_session_ref;
+            if (!exposureSessionRef) {
+              throw new TypeError("DS9-EXPOSURE-SESSION-MISSING");
+            }
+            const body = buildHumanDecisionMutation(fresh.packet, input);
+            await createDecision.mutateAsync({
+              body,
+              exposureSessionRef,
+              runId,
+            });
+            gateQuery.clear();
+          }}
+        />
+      ) : null}
+      {reviewEffectiveness.data ? (
+        <HumanDecisionReviewEffectivenessPanel
+          report={reviewEffectiveness.data}
+        />
+      ) : null}
     </div>
   );
 }
@@ -307,5 +399,10 @@ export default function CaseWorkspacePage() {
       </Card>
     );
   }
-  return <AuthorizedCaseWorkspace runId={runId} />;
+  return (
+    <AuthorizedCaseWorkspace
+      canCreateHumanDecision={authzDecision.can("runs.human_decisions.create")}
+      runId={runId}
+    />
+  );
 }

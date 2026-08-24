@@ -4,6 +4,7 @@ import {
   copyCell,
   copyRow,
   copyShareLink,
+  exportCapturedResponseBytes,
   exportCsv,
   exportJson,
 } from "@/shared/ui/dataExport";
@@ -15,6 +16,16 @@ function readBlobText(blob: Blob): Promise<string> {
       reject(reader.error ?? new Error("Failed to read blob text"));
     reader.onload = () => resolve(String(reader.result));
     reader.readAsText(blob);
+  });
+}
+
+function readBlobBytes(blob: Blob): Promise<Uint8Array> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () =>
+      reject(reader.error ?? new Error("Failed to read blob bytes"));
+    reader.onload = () => resolve(new Uint8Array(reader.result as ArrayBuffer));
+    reader.readAsArrayBuffer(blob);
   });
 }
 
@@ -121,6 +132,33 @@ describe("dataExport", () => {
     expect(jsonBlob).toBeInstanceOf(Blob);
     await expect(readBlobText(jsonBlob as Blob)).resolves.toContain(
       '"rows": [',
+    );
+  });
+
+  it("exports captured response bytes without JSON reserialization", async () => {
+    const captured = new TextEncoder().encode('{ "z": 1,\n"a": [2] }');
+    const createObjectUrlMock = vi
+      .spyOn(URL, "createObjectURL")
+      .mockReturnValue("blob:machine");
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    const clickMock = vi
+      .spyOn(HTMLAnchorElement.prototype, "click")
+      .mockImplementation(() => undefined);
+
+    exportCapturedResponseBytes(
+      "human-decision.json",
+      captured,
+      "application/json",
+    );
+    captured.fill(0);
+
+    expect(clickMock).toHaveBeenCalledTimes(1);
+    const blob = createObjectUrlMock.mock.calls[0]?.[0];
+    expect(blob).toBeInstanceOf(Blob);
+    await expect(
+      readBlobBytes(blob as Blob).then((bytes) => Array.from(bytes)),
+    ).resolves.toEqual(
+      Array.from(new TextEncoder().encode('{ "z": 1,\n"a": [2] }')),
     );
   });
 

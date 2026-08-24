@@ -7,6 +7,11 @@ import CaseWorkspacePage from "@/features/runs/routes/CaseWorkspacePage";
 import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
 import { renderWithProviders } from "@/test/render";
 import { server } from "@/test/msw/server";
+import {
+  humanDecisionReviewEffectivenessFixture,
+  humanDecisionSourceRef,
+  producerMissingHumanDecisionGate,
+} from "@/test/fixtures/humanDecision";
 
 vi.mock("@/app/authz/AuthzProvider", async (importOriginal) => {
   const actual =
@@ -21,7 +26,7 @@ vi.mock("@/app/authz/AuthzProvider", async (importOriginal) => {
   };
 });
 
-const sourceRef = `sha256:${"a".repeat(64)}`;
+const sourceRef = humanDecisionSourceRef;
 
 describe("HumanDecisionGate accessibility", () => {
   it("has no violations while surfacing a typed producer refusal", async () => {
@@ -30,12 +35,11 @@ describe("HumanDecisionGate accessibility", () => {
         HttpResponse.json(runPaperPacketFixture()),
       ),
       http.get("*/api/v1/runs/:runId/human-decision-gate", () =>
-        HttpResponse.json({
-          status: "producer_missing",
-          reason_codes: ["DS9-DECISION-PRODUCER-MISSING"],
-          source_kind: "agent_action_authority",
-          source_ref: sourceRef,
-        }),
+        HttpResponse.json(producerMissingHumanDecisionGate()),
+      ),
+      http.get(
+        "*/api/v1/runs/:runId/human-decisions/review-effectiveness",
+        () => HttpResponse.json(humanDecisionReviewEffectivenessFixture()),
       ),
     );
     const view = renderWithProviders(
@@ -44,12 +48,18 @@ describe("HumanDecisionGate accessibility", () => {
       </Routes>,
       {
         initialEntries: [
-          `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(sourceRef)}`,
+          `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(sourceRef)}&action_kind=data_request`,
         ],
       },
     );
 
     await screen.findByTestId("human-decision-gate");
-    expect((await axe(view.container)).violations).toHaveLength(0);
+    const result = await axe(view.container);
+    expect(
+      result.violations.map((violation) => ({
+        id: violation.id,
+        nodes: violation.nodes.map((node) => node.target),
+      })),
+    ).toEqual([]);
   });
 });

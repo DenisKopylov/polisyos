@@ -7,6 +7,12 @@ import CaseWorkspacePage from "@/features/runs/routes/CaseWorkspacePage";
 import { runPaperPacketFixture } from "@/test/fixtures/runPaper";
 import { renderWithProviders } from "@/test/render";
 import { server } from "@/test/msw/server";
+import {
+  availableHumanDecisionGate,
+  humanDecisionEvidenceDigest,
+  humanDecisionReviewEffectivenessFixture,
+  humanDecisionSourceRef,
+} from "@/test/fixtures/humanDecision";
 
 vi.mock("@/app/authz/AuthzProvider", async (importOriginal) => {
   const actual =
@@ -21,38 +27,8 @@ vi.mock("@/app/authz/AuthzProvider", async (importOriginal) => {
   };
 });
 
-const digest = (character: string) => `sha256:${character.repeat(64)}`;
-const sourceRef = digest("a");
-const gate = {
-  status: "available",
-  reason_codes: [],
-  source_kind: "agent_action_authority",
-  source_ref: sourceRef,
-  decision_request: {
-    case_id: "case.fixture",
-    delegation_contract_ref: "pdc://s7/contract",
-    decision_rights_matrix_ref: "pdc://s7/rights",
-    required_role: "data_steward",
-    available_actions: ["approve", "reject", "request_evidence"],
-    decidable_until: "2026-08-24T12:30:00Z",
-    five_rights_requirements: {
-      right_decision: "data_request",
-      right_person: "data_steward",
-      right_information: "evidence://opened",
-      right_format_channel: "reviewer_console",
-      right_time: "before TTL",
-    },
-  },
-  mandate: {
-    mandate_record_ref: "mandate://fixture",
-    operation_id: "data_request",
-    valid_until: "2026-08-24T12:30:00Z",
-  },
-  exposure: {
-    required_artifact_digests: [digest("e")],
-    completed_artifact_digests: [digest("e")],
-  },
-};
+const sourceRef = humanDecisionSourceRef;
+const gate = availableHumanDecisionGate();
 
 describe("humanDecisionPresentation", () => {
   it("keeps contract rights mandate evidence TTL and actions in pre-action order", async () => {
@@ -62,6 +38,10 @@ describe("humanDecisionPresentation", () => {
       ),
       http.get("*/api/v1/runs/:runId/human-decision-gate", () =>
         HttpResponse.json(gate),
+      ),
+      http.get(
+        "*/api/v1/runs/:runId/human-decisions/review-effectiveness",
+        () => HttpResponse.json(humanDecisionReviewEffectivenessFixture()),
       ),
     );
     const ui = createElement(
@@ -74,7 +54,7 @@ describe("humanDecisionPresentation", () => {
     );
     renderWithProviders(ui, {
       initialEntries: [
-        `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(sourceRef)}`,
+        `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(sourceRef)}&action_kind=data_request`,
       ],
     });
 
@@ -90,8 +70,8 @@ describe("humanDecisionPresentation", () => {
       expect(position).toBeGreaterThan(index === 0 ? -1 : spine[index - 1]);
     }
     const actionIndex = spine.at(-1) ?? -1;
-    expect(text.indexOf(digest("e"))).toBeGreaterThan(-1);
-    expect(text.indexOf(digest("e"))).toBeLessThan(actionIndex);
+    expect(text.indexOf(humanDecisionEvidenceDigest)).toBeGreaterThan(-1);
+    expect(text.indexOf(humanDecisionEvidenceDigest)).toBeLessThan(actionIndex);
     expect(text.indexOf("2026-08-24T12:30:00Z")).toBeGreaterThan(-1);
     expect(text.indexOf("2026-08-24T12:30:00Z")).toBeLessThan(actionIndex);
   });

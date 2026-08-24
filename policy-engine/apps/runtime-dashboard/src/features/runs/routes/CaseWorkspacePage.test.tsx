@@ -9,6 +9,12 @@ import {
   runPaperPacketFixture,
 } from "@/test/fixtures/runPaper";
 import { server } from "@/test/msw/server";
+import {
+  availableHumanDecisionGate,
+  humanDecisionReviewEffectivenessFixture,
+  humanDecisionSourceRef,
+  producerMissingHumanDecisionGate,
+} from "@/test/fixtures/humanDecision";
 
 const {
   downloadRunPaperPacketMock,
@@ -63,6 +69,12 @@ describe("CaseWorkspacePage", () => {
       can: (permission: string) => permission === "runs.review",
       kind: "verified",
     });
+    server.use(
+      http.get(
+        "*/api/v1/runs/:runId/human-decisions/review-effectiveness",
+        () => HttpResponse.json(humanDecisionReviewEffectivenessFixture()),
+      ),
+    );
   });
 
   afterEach(() => {
@@ -70,19 +82,18 @@ describe("CaseWorkspacePage", () => {
   });
 
   it("authorizes before human-decision query and mutation", async () => {
-    const sourceRef = `sha256:${"a".repeat(64)}`;
+    const sourceRef = humanDecisionSourceRef;
     let reads = 0;
     let writes = 0;
     server.use(
       http.get("*/api/v1/runs/:runId/human-decision-gate", () => {
         reads += 1;
-        return HttpResponse.json({
-          status: "producer_missing",
-          reason_codes: ["DS9-DECISION-PRODUCER-MISSING"],
-          source_kind: "agent_action_authority",
-          source_ref: sourceRef,
-        });
+        return HttpResponse.json(producerMissingHumanDecisionGate());
       }),
+      http.get(
+        "*/api/v1/runs/:runId/human-decisions/review-effectiveness",
+        () => HttpResponse.json(humanDecisionReviewEffectivenessFixture()),
+      ),
       http.post("*/api/v1/runs/:runId/human-decisions", () => {
         writes += 1;
         return HttpResponse.json({}, { status: 201 });
@@ -90,7 +101,7 @@ describe("CaseWorkspacePage", () => {
     );
     const entry =
       `/runs/run-1/case?source_kind=agent_action_authority&source_ref=` +
-      encodeURIComponent(sourceRef);
+      `${encodeURIComponent(sourceRef)}&action_kind=data_request`;
 
     useAuthzDecisionMock.mockReturnValue({ kind: "unknown" });
     const unsettled = renderCase(entry);
@@ -131,13 +142,8 @@ describe("CaseWorkspacePage", () => {
   });
 
   it("MACHINE export bytes equal the one human-decision response bytes", async () => {
-    const sourceRef = `sha256:${"a".repeat(64)}`;
-    const packet = {
-      status: "producer_missing",
-      reason_codes: ["DS9-DECISION-PRODUCER-MISSING"],
-      source_kind: "agent_action_authority",
-      source_ref: sourceRef,
-    };
+    const sourceRef = humanDecisionSourceRef;
+    const packet = producerMissingHumanDecisionGate();
     const wire = ` ${JSON.stringify(packet)}\n`;
     let reads = 0;
     server.use(
@@ -148,6 +154,10 @@ describe("CaseWorkspacePage", () => {
           headers: { "content-type": "application/json" },
         });
       }),
+      http.get(
+        "*/api/v1/runs/:runId/human-decisions/review-effectiveness",
+        () => HttpResponse.json(humanDecisionReviewEffectivenessFixture()),
+      ),
     );
     useCaseInspectionMock.mockReturnValue({
       data: {
@@ -168,7 +178,7 @@ describe("CaseWorkspacePage", () => {
     );
 
     renderCase(
-      `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(sourceRef)}`,
+      `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(sourceRef)}&action_kind=data_request`,
     );
     const user = userEvent.setup();
     await user.click(
@@ -188,6 +198,104 @@ describe("CaseWorkspacePage", () => {
     expect(Array.from(new Uint8Array(bytes))).toEqual(
       Array.from(new TextEncoder().encode(wire)),
     );
+  });
+
+  it("downloads verified evidence bytes before revalidating the action gate", async () => {
+    const digest =
+      "sha256:2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824";
+    const opened = availableHumanDecisionGate();
+    opened.decision_request!.five_rights_binding.required_information_refs = [
+      digest,
+    ];
+    opened.exposure.required_artifact_digests = [
+      opened.continuation!.basis_digest,
+      digest,
+    ];
+    opened.exposure.completed_artifact_digests = [
+      opened.continuation!.basis_digest,
+      digest,
+    ];
+    const blocked = structuredClone(opened);
+    blocked.exposure.completed_artifact_digests = [
+      blocked.continuation!.basis_digest,
+    ];
+    blocked.status = "blocked";
+    blocked.reasons = [
+      {
+        code: "DS9-EVIDENCE-EXPOSURE-INCOMPLETE",
+        message: "Evidence must be opened.",
+        status: "blocked",
+      },
+    ];
+    blocked.reason_codes = ["DS9-EVIDENCE-EXPOSURE-INCOMPLETE"];
+    blocked.submission = null;
+    const events: string[] = [];
+    let gateReads = 0;
+    server.use(
+      http.get("*/api/v1/runs/:runId/human-decision-gate", () => {
+        gateReads += 1;
+        if (gateReads > 1) events.push("revalidate");
+        return HttpResponse.json(gateReads === 1 ? blocked : opened);
+      }),
+      http.get(
+        "*/api/v1/runs/:runId/human-decision-evidence/:digest/content",
+        () => {
+          events.push("evidence");
+          return new HttpResponse("hello", {
+            headers: {
+              "Cache-Control": "no-store",
+              "Content-Encoding": "identity",
+              "Content-Type": "text/plain",
+              ETag: `"${digest}"`,
+              "X-Content-Type-Options": "nosniff",
+              "X-PolicyOS-Exposure-Session":
+                opened.exposure.exposure_session_ref!,
+            },
+          });
+        },
+      ),
+      http.get(
+        "*/api/v1/runs/:runId/human-decisions/review-effectiveness",
+        () => HttpResponse.json(humanDecisionReviewEffectivenessFixture()),
+      ),
+    );
+    useCaseInspectionMock.mockReturnValue({
+      data: {
+        packet: runPaperPacketFixture(),
+        rawPacketBytes: new TextEncoder().encode("{}"),
+      },
+      isError: false,
+      isLoading: false,
+    });
+    let evidenceBlob: Blob | null = null;
+    vi.spyOn(URL, "createObjectURL").mockImplementation((blob) => {
+      evidenceBlob = blob as Blob;
+      events.push("download");
+      return "blob:evidence";
+    });
+    vi.spyOn(URL, "revokeObjectURL").mockImplementation(() => undefined);
+    vi.spyOn(HTMLAnchorElement.prototype, "click").mockImplementation(
+      () => undefined,
+    );
+
+    renderCase(
+      `/runs/run-1/case?source_kind=agent_action_authority&source_ref=${encodeURIComponent(humanDecisionSourceRef)}&action_kind=data_request`,
+    );
+    await userEvent
+      .setup()
+      .click(await screen.findByRole("button", { name: /openEvidence/i }));
+
+    await waitFor(() => expect(gateReads).toBe(2));
+    expect(events).toEqual(["evidence", "download", "revalidate"]);
+    expect(evidenceBlob).not.toBeNull();
+    const bytes = await new Promise<ArrayBuffer>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () =>
+        reject(reader.error ?? new Error("evidence blob read failed"));
+      reader.onload = () => resolve(reader.result as ArrayBuffer);
+      reader.readAsArrayBuffer(evidenceBlob!);
+    });
+    expect(new TextDecoder().decode(bytes)).toBe("hello");
   });
 
   it("authorizes before query", () => {
@@ -264,7 +372,13 @@ describe("CaseWorkspacePage", () => {
       "run-1",
       "?paper_projection_hash=pin",
     );
-    expect(useCaseInspectionMock).toHaveBeenCalledTimes(1);
+    expect(useCaseInspectionMock).toHaveBeenCalled();
+    expect(
+      useCaseInspectionMock.mock.calls.every(
+        ([runId, search]) =>
+          runId === "run-1" && search === "?paper_projection_hash=pin",
+      ),
+    ).toBe(true);
   });
 
   it("keeps available authority states and negative object kinds distinct", () => {

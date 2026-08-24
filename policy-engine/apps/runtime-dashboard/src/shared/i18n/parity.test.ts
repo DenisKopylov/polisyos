@@ -40,10 +40,7 @@ const COUNT_MESSAGE_ALLOWLIST = new Map<string, string>([
     "pages.runs.activeRunAnnouncement",
     "Count is the total denominator in “row … of”; it has no agreeing noun.",
   ],
-  [
-    "pages.runs.pageCount",
-    "Machine-readable `name=value` pagination metric.",
-  ],
+  ["pages.runs.pageCount", "Machine-readable `name=value` pagination metric."],
   [
     "pages.runs.pageCountWithTotal",
     "Machine-readable pagination metric paired with a total.",
@@ -72,10 +69,7 @@ const COUNT_MESSAGE_ALLOWLIST = new Map<string, string>([
     "panels.dataIntelligence.discoverCandidates",
     "Parenthesized action badge; the action label does not agree with count.",
   ],
-  [
-    "panels.agentPipeline.diagnostics",
-    "Colon-delimited diagnostic metric.",
-  ],
+  ["panels.agentPipeline.diagnostics", "Colon-delimited diagnostic metric."],
   [
     "panels.agentPipeline.iteration",
     "Iteration identifier, not a noun quantity.",
@@ -121,7 +115,10 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
   ["budget", "Quantitative budget denominator."],
   ["candidates", "Candidate cardinality."],
   ["completed", "Progress numerator."],
-  ["completeness", "Preview completeness proportion formatted as a percentage."],
+  [
+    "completeness",
+    "Preview completeness proportion formatted as a percentage.",
+  ],
   ["confidence", "Confidence percentage or out-of-100 quantity."],
   ["cost", "Price per million."],
   ["depth", "Graph or workflow depth."],
@@ -130,7 +127,10 @@ const NUMERIC_VARIABLE_REASONS = new Map<string, string>([
   ["durationMs", "Duration in milliseconds."],
   ["eValue", "E-value scalar."],
   ["events", "Event cardinality."],
-  ["fallbacks", "Fallback-plan cardinality derived from the caller array length."],
+  [
+    "fallbacks",
+    "Fallback-plan cardinality derived from the caller array length.",
+  ],
   ["fps", "Frames-per-second quantity."],
   ["index", "Ordinal section, note, or timeline position."],
   ["info", "Informational-issue tally."],
@@ -270,11 +270,11 @@ const NON_NUMERIC_VARIABLE_KEY_SET_SHA256 =
   "b5b3aa0106b331d5b639b53c929748417e2fc9fbe1932a4384df81047327c7d3";
 const INTERPOLATION_VARIABLE_KEY_SET_SHA256 =
   "c6e55dde50b11769f4babae1c8c2d835ce9b671340aa8afbd452fc70da4c1f70";
-const ACTIVE_LOCALE_LEAF_COUNT = 2451;
-const NON_COUNT_MESSAGE_COUNT = 244;
-const NON_COUNT_VARIABLE_USE_COUNT = 360;
+const ACTIVE_LOCALE_LEAF_COUNT = 2610;
+const NON_COUNT_MESSAGE_COUNT = 245;
+const NON_COUNT_VARIABLE_USE_COUNT = 361;
 const NON_COUNT_VARIABLE_USE_KEY_SET_SHA256 =
-  "f463ac23dddb4b9fa743870f0081515fff8c1d23d16d3993340fe0d0ee10a362";
+  "791057b29c0cd78eebd831c2f86285316d1a204ebb893f9598df693dff84417d";
 
 type NumericUseClassification = "pluralized" | "invariant";
 
@@ -456,7 +456,8 @@ const NUMERIC_AGREEMENT_COHORT_DECLARATIONS = new Map<
     "causal.pipeline.stageProgress#{total}",
     {
       classification: "invariant",
-      reason: "Progress numerator and denominator each use a separate stage label.",
+      reason:
+        "Progress numerator and denominator each use a separate stage label.",
     },
   ],
   [
@@ -484,7 +485,8 @@ const NUMERIC_AGREEMENT_COHORT_DECLARATIONS = new Map<
     "pages.dashboard.narrativeAttentionBody#{blocked}",
     {
       classification: "pluralized",
-      reason: "Blocked count selects the packet agreement independently of the run count.",
+      reason:
+        "Blocked count selects the packet agreement independently of the run count.",
     },
   ],
   [
@@ -505,14 +507,16 @@ const NUMERIC_AGREEMENT_COHORT_DECLARATIONS = new Map<
     "pages.dashboard.narrativeThroughputBody#{success}",
     {
       classification: "invariant",
-      reason: "Independent success and total axes use metric labels instead of a plural cross-product.",
+      reason:
+        "Independent success and total axes use metric labels instead of a plural cross-product.",
     },
   ],
   [
     "pages.dashboard.narrativeThroughputBody#{total}",
     {
       classification: "invariant",
-      reason: "Independent success and total axes use metric labels instead of a plural cross-product.",
+      reason:
+        "Independent success and total axes use metric labels instead of a plural cross-product.",
     },
   ],
   [
@@ -790,11 +794,10 @@ function collectUnjustifiedCountMessages(
   exemptions: ReadonlyMap<string, string> = COUNT_MESSAGE_ALLOWLIST,
 ): string[] {
   return collectCountMessages(catalog)
-    .filter(
-      ([path, message]) =>
-        isPluralMessage(message)
-          ? !isValidPluralMessage(message)
-          : !exemptions.get(path)?.trim(),
+    .filter(([path, message]) =>
+      isPluralMessage(message)
+        ? !isValidPluralMessage(message)
+        : !exemptions.get(path)?.trim(),
     )
     .map(([path]) => path)
     .sort(comparePaths);
@@ -845,11 +848,7 @@ function collectAstVariables(
         explicitNumericVariables.add(element.value);
       }
       for (const option of Object.values(element.options)) {
-        collectAstVariables(
-          option.value,
-          variables,
-          explicitNumericVariables,
-        );
+        collectAstVariables(option.value, variables, explicitNumericVariables);
       }
       continue;
     }
@@ -917,8 +916,10 @@ function collectVariableKindDeclarationFailures(
   catalog: unknown,
   locale: string,
   numericDeclarations: ReadonlyMap<string, string> = NUMERIC_VARIABLE_REASONS,
-  nonNumericDeclarations: ReadonlyMap<string, string> =
-    NON_NUMERIC_VARIABLE_REASONS,
+  nonNumericDeclarations: ReadonlyMap<
+    string,
+    string
+  > = NON_NUMERIC_VARIABLE_REASONS,
 ): string[] {
   const intlLocale = locale === "uk" ? "uk-UA" : "en-US";
   const scan = collectMessageVariables(catalog, intlLocale);
@@ -928,28 +929,27 @@ function collectVariableKindDeclarationFailures(
     ...scan.parseFailurePaths.map(
       (path) => `${locale}:${path}:message_parse_failed`,
     ),
-    ...scan.uses
-      .flatMap(([path, variable]) => {
-        const identity = `${path}#{${variable}}`;
-        const numericReason = numericDeclarations.get(variable);
-        const nonNumericReason = nonNumericDeclarations.get(variable);
-        const declaredNumeric = numericDeclarations.has(variable);
-        const declaredNonNumeric = nonNumericDeclarations.has(variable);
+    ...scan.uses.flatMap(([path, variable]) => {
+      const identity = `${path}#{${variable}}`;
+      const numericReason = numericDeclarations.get(variable);
+      const nonNumericReason = nonNumericDeclarations.get(variable);
+      const declaredNumeric = numericDeclarations.has(variable);
+      const declaredNonNumeric = nonNumericDeclarations.has(variable);
 
-        if (!declaredNumeric && !declaredNonNumeric) {
-          return [`${locale}:${identity}:variable-kind-undeclared`];
-        }
-        if (declaredNumeric && declaredNonNumeric) {
-          return [`${locale}:${identity}:variable-kind-conflict`];
-        }
-        if (!(numericReason ?? nonNumericReason)?.trim()) {
-          return [`${locale}:${identity}:variable-kind-reason-missing`];
-        }
-        if (declaredNonNumeric && explicitNumericUseKeySet.has(identity)) {
-          return [`${locale}:${identity}:numeric-kind-conflict`];
-        }
-        return [];
-      }),
+      if (!declaredNumeric && !declaredNonNumeric) {
+        return [`${locale}:${identity}:variable-kind-undeclared`];
+      }
+      if (declaredNumeric && declaredNonNumeric) {
+        return [`${locale}:${identity}:variable-kind-conflict`];
+      }
+      if (!(numericReason ?? nonNumericReason)?.trim()) {
+        return [`${locale}:${identity}:variable-kind-reason-missing`];
+      }
+      if (declaredNonNumeric && explicitNumericUseKeySet.has(identity)) {
+        return [`${locale}:${identity}:numeric-kind-conflict`];
+      }
+      return [];
+    }),
   ].sort(comparePaths);
 }
 
@@ -1048,8 +1048,10 @@ function collectNumericUseDeclarationFailures(
   catalog: unknown,
   locale: string,
   intlLocale: string,
-  declarations: ReadonlyMap<string, NumericUseDeclaration> =
-    QUANTITATIVE_USE_DECLARATIONS,
+  declarations: ReadonlyMap<
+    string,
+    NumericUseDeclaration
+  > = QUANTITATIVE_USE_DECLARATIONS,
 ): string[] {
   const failures: string[] = [];
   const scan = collectMessageVariables(catalog, intlLocale);
@@ -1090,10 +1092,7 @@ function collectNumericUseDeclarationFailures(
       failures.push(`${failureIdentity}:declaration_stale`);
       continue;
     }
-    if (
-      typeof declaration.reason !== "string" ||
-      !declaration.reason.trim()
-    ) {
+    if (typeof declaration.reason !== "string" || !declaration.reason.trim()) {
       failures.push(`${failureIdentity}:reason_missing`);
       continue;
     }
@@ -1153,23 +1152,31 @@ describe("locale catalogs", () => {
     ).toBe(LEGACY_CONTINUITY_RU_KEY_SET_SHA256);
     expect(ruKeys).toHaveLength(LEGACY_CONTINUITY_RU_KEY_COUNT);
     expect(
-      crypto.createHash("sha256").update(JSON.stringify(ruLeaves)).digest("hex"),
+      crypto
+        .createHash("sha256")
+        .update(JSON.stringify(ruLeaves))
+        .digest("hex"),
     ).toBe(LEGACY_CONTINUITY_RU_LEAF_VALUE_SHA256);
   });
 
   it("justifies exactly every active non-ICU count-message identity", () => {
-    const activeNonIcuCountPaths = [...new Set(
-      [en, uk]
-        .flatMap((catalog) => collectCountMessages(catalog))
-        .filter(([, message]) => !isPluralMessage(message))
-        .map(([path]) => path),
-    )].sort(comparePaths);
+    const activeNonIcuCountPaths = [
+      ...new Set(
+        [en, uk]
+          .flatMap((catalog) => collectCountMessages(catalog))
+          .filter(([, message]) => !isPluralMessage(message))
+          .map(([path]) => path),
+      ),
+    ].sort(comparePaths);
 
     expect([...COUNT_MESSAGE_ALLOWLIST.keys()].sort(comparePaths)).toEqual(
       activeNonIcuCountPaths,
     );
     for (const [path, reason] of COUNT_MESSAGE_ALLOWLIST) {
-      expect(reason.trim(), `${path} needs a non-empty exemption reason`).not.toBe("");
+      expect(
+        reason.trim(),
+        `${path} needs a non-empty exemption reason`,
+      ).not.toBe("");
     }
   });
 
@@ -1187,21 +1194,39 @@ describe("locale catalogs", () => {
     [
       "pages.dashboard.narrativeAttentionBody",
       { blocked: "7" },
-      ["1 active run needs immediate review posture; blocked packets: 7.", "2 active runs need immediate review posture; blocked packets: 7."],
-      ["1 активний запуск уже вимагає review posture; 7 заблокованих packet.", "2 активні запуски уже вимагають review posture; 7 заблокованих packet.", "5 активних запусків уже вимагають review posture; 7 заблокованих packet."],
+      [
+        "1 active run needs immediate review posture; blocked packets: 7.",
+        "2 active runs need immediate review posture; blocked packets: 7.",
+      ],
+      [
+        "1 активний запуск уже вимагає review posture; 7 заблокованих packet.",
+        "2 активні запуски уже вимагають review posture; 7 заблокованих packet.",
+        "5 активних запусків уже вимагають review posture; 7 заблокованих packet.",
+      ],
       {
-        grouped: "Активні запуски: 1 001; уже потрібна review posture; 7 заблокованих packet.",
-        unavailable: "Активні запуски: unavailable; уже потрібна review posture; 7 заблокованих packet.",
+        grouped:
+          "Активні запуски: 1 001; уже потрібна review posture; 7 заблокованих packet.",
+        unavailable:
+          "Активні запуски: unavailable; уже потрібна review posture; 7 заблокованих packet.",
       },
     ],
     [
       "pages.dashboard.narrativeQueueBody",
       {},
-      ["1 decision-bearing run is ready to open from the fleet.", "2 decision-bearing runs are ready to open from the fleet."],
-      ["1 decision-bearing запуск уже готовий відкриватися з fleet.", "2 decision-bearing запуски вже готові відкриватися з fleet.", "5 decision-bearing запусків уже готові відкриватися з fleet."],
+      [
+        "1 decision-bearing run is ready to open from the fleet.",
+        "2 decision-bearing runs are ready to open from the fleet.",
+      ],
+      [
+        "1 decision-bearing запуск уже готовий відкриватися з fleet.",
+        "2 decision-bearing запуски вже готові відкриватися з fleet.",
+        "5 decision-bearing запусків уже готові відкриватися з fleet.",
+      ],
       {
-        grouped: "Decision-bearing запуски, готові до відкриття з fleet: 1 001.",
-        unavailable: "Decision-bearing запуски, готові до відкриття з fleet: unavailable.",
+        grouped:
+          "Decision-bearing запуски, готові до відкриття з fleet: 1 001.",
+        unavailable:
+          "Decision-bearing запуски, готові до відкриття з fleet: unavailable.",
       },
     ],
     [
@@ -1228,21 +1253,33 @@ describe("locale catalogs", () => {
       "pages.composer.curatedConstraints",
       {},
       ["1 curated constraint", "2 curated constraints"],
-      ["1 curated constraint", "2 curated constraints", "5 curated constraints"],
+      [
+        "1 curated constraint",
+        "2 curated constraints",
+        "5 curated constraints",
+      ],
       undefined,
     ],
     [
       "pages.composer.capabilitiesVisible",
       {},
       ["1 runtime capability visible", "2 runtime capabilities visible"],
-      ["1 runtime capability видно", "2 runtime capabilities видно", "5 runtime capabilities видно"],
+      [
+        "1 runtime capability видно",
+        "2 runtime capabilities видно",
+        "5 runtime capabilities видно",
+      ],
       undefined,
     ],
     [
       "pages.evidence.totalProfiles",
       {},
       ["1 total curated profile", "2 total curated profiles"],
-      ["1 curated profile загалом", "2 curated profiles загалом", "5 curated profiles загалом"],
+      [
+        "1 curated profile загалом",
+        "2 curated profiles загалом",
+        "5 curated profiles загалом",
+      ],
       undefined,
     ],
     [
@@ -1254,7 +1291,13 @@ describe("locale catalogs", () => {
     ],
   ] as const)(
     "formats repaired plural message %s with locale-specific count forms",
-    (path, values, englishExpected, ukrainianExpected, ukrainianOtherWitness) => {
+    (
+      path,
+      values,
+      englishExpected,
+      ukrainianExpected,
+      ukrainianOtherWitness,
+    ) => {
       expect(
         [1, 2].map((count) =>
           formatIcuMessage(getMessage(en, path), "en", { ...values, count }),
@@ -1308,20 +1351,18 @@ describe("locale catalogs", () => {
       "1 активний запуск уже вимагає review posture; 2 заблоковані packet.",
       "1 активний запуск уже вимагає review posture; 5 заблокованих packet.",
     ]);
-    expect(
-      [
-        formatIcuMessage(
-          getMessage(en, "pages.dashboard.narrativeAttentionBody"),
-          "en",
-          { blocked: "unavailable", count: "unavailable" },
-        ),
-        formatIcuMessage(
-          getMessage(uk, "pages.dashboard.narrativeAttentionBody"),
-          "uk",
-          { blocked: "unavailable", count: "unavailable" },
-        ),
-      ],
-    ).toEqual([
+    expect([
+      formatIcuMessage(
+        getMessage(en, "pages.dashboard.narrativeAttentionBody"),
+        "en",
+        { blocked: "unavailable", count: "unavailable" },
+      ),
+      formatIcuMessage(
+        getMessage(uk, "pages.dashboard.narrativeAttentionBody"),
+        "uk",
+        { blocked: "unavailable", count: "unavailable" },
+      ),
+    ]).toEqual([
       "unavailable active runs need immediate review posture; blocked packets: unavailable.",
       "Активні запуски: unavailable; уже потрібна review posture; Заблоковані packet: unavailable.",
     ]);
@@ -1349,11 +1390,7 @@ describe("locale catalogs", () => {
       dashboard.narrativeAttentionBody = wrongMessage;
 
       expect(
-        collectNumericUseDeclarationFailures(
-          catalog,
-          locale,
-          intlLocale,
-        ),
+        collectNumericUseDeclarationFailures(catalog, locale, intlLocale),
       ).toEqual([
         `${locale}:pages.dashboard.narrativeAttentionBody#{blocked}:plural_ownership_missing`,
       ]);
@@ -1474,7 +1511,9 @@ describe("locale catalogs", () => {
   it("rejects omitted and whitespace-only count-message exemption reasons", () => {
     const message = { synthetic: { count: "{count} synthetic records" } };
 
-    expect(collectUnjustifiedCountMessages(message)).toEqual(["synthetic.count"]);
+    expect(collectUnjustifiedCountMessages(message)).toEqual([
+      "synthetic.count",
+    ]);
     expect(
       collectUnjustifiedCountMessages(
         message,
@@ -1486,11 +1525,15 @@ describe("locale catalogs", () => {
   it("rejects a new active count-message identity until it has a reason", () => {
     const message = { synthetic: { newCount: "{count} new records" } };
 
-    expect(collectUnjustifiedCountMessages(message)).toEqual(["synthetic.newCount"]);
+    expect(collectUnjustifiedCountMessages(message)).toEqual([
+      "synthetic.newCount",
+    ]);
     expect(
       collectUnjustifiedCountMessages(
         message,
-        new Map([["synthetic.newCount", "Synthetic metric with an invariant label."]]),
+        new Map([
+          ["synthetic.newCount", "Synthetic metric with an invariant label."],
+        ]),
       ),
     ).toEqual([]);
   });
@@ -1512,10 +1555,7 @@ describe("locale catalogs", () => {
       "Synthetic measure: {inventedAxis, number}",
     ]) {
       expect(
-        collectVariableKindDeclarationFailures(
-          { synthetic: { metric } },
-          "en",
-        ),
+        collectVariableKindDeclarationFailures({ synthetic: { metric } }, "en"),
       ).toEqual([
         "en:synthetic.metric#{inventedAxis}:variable-kind-undeclared",
       ]);
@@ -1533,9 +1573,7 @@ describe("locale catalogs", () => {
           ],
         ]),
       ),
-    ).toEqual([
-      "en:synthetic.metric#{inventedAxis}:numeric-kind-conflict",
-    ]);
+    ).toEqual(["en:synthetic.metric#{inventedAxis}:numeric-kind-conflict"]);
   });
 
   it("accepts numeric variables that control no agreeing word", () => {
@@ -1591,15 +1629,11 @@ describe("locale catalogs", () => {
     const dashboard = pages.dashboard as Catalog;
     dashboard.c15R1NewQuantitativeUse = "Events: {events}; events";
 
-    expect(collectVariableKindDeclarationFailures(catalogWithNewUse, "en")).toEqual(
-      [],
-    );
     expect(
-      collectNumericUseDeclarationFailures(
-        catalogWithNewUse,
-        "en",
-        "en-US",
-      ),
+      collectVariableKindDeclarationFailures(catalogWithNewUse, "en"),
+    ).toEqual([]);
+    expect(
+      collectNumericUseDeclarationFailures(catalogWithNewUse, "en", "en-US"),
     ).toEqual([
       "en:pages.dashboard.c15R1NewQuantitativeUse#{events}:declaration_missing",
     ]);
@@ -1629,17 +1663,9 @@ describe("locale catalogs", () => {
     choreography.laneMeta = "Тривалість: {duration}";
 
     expect(
-      collectNumericUseDeclarationFailures(
-        ukWithoutEventUse,
-        "uk",
-        "uk-UA",
-      ),
-    ).toEqual([
-      "uk:phase32.choreography.laneMeta#{events}:declaration_stale",
-    ]);
-    expect(
-      collectNumericUseDeclarationFailures(en, "en", "en-US"),
-    ).toEqual([]);
+      collectNumericUseDeclarationFailures(ukWithoutEventUse, "uk", "uk-UA"),
+    ).toEqual(["uk:phase32.choreography.laneMeta#{events}:declaration_stale"]);
+    expect(collectNumericUseDeclarationFailures(en, "en", "en-US")).toEqual([]);
   });
 
   it("derives point-use membership from ICU semantics, not brace markers", () => {
@@ -1649,14 +1675,8 @@ describe("locale catalogs", () => {
     choreography.laneMeta = "Events: '{events}' · {duration}";
 
     expect(
-      collectNumericUseDeclarationFailures(
-        enWithQuotedMarker,
-        "en",
-        "en-US",
-      ),
-    ).toEqual([
-      "en:phase32.choreography.laneMeta#{events}:declaration_stale",
-    ]);
+      collectNumericUseDeclarationFailures(enWithQuotedMarker, "en", "en-US"),
+    ).toEqual(["en:phase32.choreography.laneMeta#{events}:declaration_stale"]);
   });
 
   it("does not let a plural for one variable protect a different agreeing variable", () => {
@@ -1671,7 +1691,8 @@ describe("locale catalogs", () => {
         "synthetic.nested#{events}",
         {
           classification: "pluralized" as const,
-          reason: "`events` selects the agreeing noun independently of `count`.",
+          reason:
+            "`events` selects the agreeing noun independently of `count`.",
         },
       ],
     ]);
@@ -1790,9 +1811,7 @@ describe("locale catalogs", () => {
         "uk-UA",
         declarations,
       ),
-    ).toEqual([
-      "uk:synthetic.agreement#{events}:plural_categories_missing",
-    ]);
+    ).toEqual(["uk:synthetic.agreement#{events}:plural_categories_missing"]);
   });
 
   it("does not let same-variable select or ordinal selectors launder ownership", () => {
@@ -1819,9 +1838,7 @@ describe("locale catalogs", () => {
           "en-US",
           declarations,
         ),
-      ).toEqual([
-        "en:synthetic.selector#{events}:plural_ownership_missing",
-      ]);
+      ).toEqual(["en:synthetic.selector#{events}:plural_ownership_missing"]);
     }
   });
 
@@ -1852,13 +1869,13 @@ describe("locale catalogs", () => {
       whitespaceReason,
     ]) {
       expect(
-      collectNumericUseDeclarationFailures(
-        message,
-        "en",
-        "en-US",
+        collectNumericUseDeclarationFailures(
+          message,
+          "en",
+          "en-US",
           declarations,
-      ),
-    ).toEqual(["en:synthetic.agreement#{events}:reason_missing"]);
+        ),
+      ).toEqual(["en:synthetic.agreement#{events}:reason_missing"]);
     }
   });
 
@@ -1886,17 +1903,21 @@ describe("locale catalogs", () => {
       collectMessageVariables(en, "en-US"),
       collectMessageVariables(uk, "uk-UA"),
     ];
-    const activeNumericUseKeys = [...new Set(
-      activeScans
-        .flatMap((scan) => scan.uses)
-        .filter(([, variable]) => NUMERIC_VARIABLE_REASONS.has(variable))
-        .map(([path, variable]) => `${path}#{${variable}}`),
-    )].sort(comparePaths);
-    const activeVariableNames = [...new Set(
-      activeScans
-        .flatMap((scan) => scan.uses)
-        .map(([, variable]) => variable),
-    )].sort(comparePaths);
+    const activeNumericUseKeys = [
+      ...new Set(
+        activeScans
+          .flatMap((scan) => scan.uses)
+          .filter(([, variable]) => NUMERIC_VARIABLE_REASONS.has(variable))
+          .map(([path, variable]) => `${path}#{${variable}}`),
+      ),
+    ].sort(comparePaths);
+    const activeVariableNames = [
+      ...new Set(
+        activeScans
+          .flatMap((scan) => scan.uses)
+          .map(([, variable]) => variable),
+      ),
+    ].sort(comparePaths);
     const declaredVariableNames = [
       ...NUMERIC_VARIABLE_REASONS.keys(),
       ...NON_NUMERIC_VARIABLE_REASONS.keys(),
@@ -1924,7 +1945,9 @@ describe("locale catalogs", () => {
       }),
       { pluralized: 0, invariant: 0 },
     );
-    const allClassifications = [...QUANTITATIVE_USE_DECLARATIONS.values()].reduce(
+    const allClassifications = [
+      ...QUANTITATIVE_USE_DECLARATIONS.values(),
+    ].reduce(
       (counts, declaration) => ({
         ...counts,
         [declaration.classification]: counts[declaration.classification] + 1,
@@ -1970,7 +1993,9 @@ describe("locale catalogs", () => {
     expect(
       crypto
         .createHash("sha256")
-        .update([...NUMERIC_VARIABLE_REASONS.keys()].sort(comparePaths).join("\n"))
+        .update(
+          [...NUMERIC_VARIABLE_REASONS.keys()].sort(comparePaths).join("\n"),
+        )
         .digest("hex"),
     ).toBe(NUMERIC_VARIABLE_KEY_SET_SHA256);
     expect(
@@ -2021,7 +2046,10 @@ describe("locale catalogs", () => {
     expect(labelGuidedPaths.size).toBe(19);
     for (const identity of NUMERIC_AGREEMENT_COHORT_DECLARATIONS.keys()) {
       const parsedIdentity = parseNumericUseIdentity(identity);
-      expect(parsedIdentity, `${identity} must be a valid point-of-use key`).toBeDefined();
+      expect(
+        parsedIdentity,
+        `${identity} must be a valid point-of-use key`,
+      ).toBeDefined();
       expect(
         NUMERIC_VARIABLE_REASONS.has(parsedIdentity![1]),
         `${identity} must use a declared numeric variable`,
@@ -2047,7 +2075,10 @@ describe("locale catalogs", () => {
     }
     for (const [identity, declaration] of NUMERIC_INVARIANT_USE_DECLARATIONS) {
       const parsedIdentity = parseNumericUseIdentity(identity);
-      expect(parsedIdentity, `${identity} must be a valid point-of-use key`).toBeDefined();
+      expect(
+        parsedIdentity,
+        `${identity} must be a valid point-of-use key`,
+      ).toBeDefined();
       expect(
         NUMERIC_VARIABLE_REASONS.has(parsedIdentity![1]),
         `${identity} must use a declared numeric variable`,
@@ -2066,7 +2097,9 @@ describe("locale catalogs", () => {
   ] as const)(
     "requires complete active %s quantitative-use declarations",
     (locale, intlLocale, catalog) => {
-      expect(collectVariableKindDeclarationFailures(catalog, locale)).toEqual([]);
+      expect(collectVariableKindDeclarationFailures(catalog, locale)).toEqual(
+        [],
+      );
       expect(
         collectNumericUseDeclarationFailures(
           catalog,

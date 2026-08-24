@@ -165,11 +165,11 @@ def _human_decision_record_ids(store: Any) -> set[str]:
     }
 
 
-def _production_packet_ids(store: Any) -> set[str]:
+def _production_approval_packet_ids(store: Any) -> set[str]:
     return {
         str(artifact_id)
         for artifact_id in store.iter_artifact_ids()
-        if store.get_manifest(artifact_id).kind == "runtime.production_approval_" + "packet"
+        if store.get_manifest(artifact_id).kind == "runtime.production_approval_packet"
     }
 
 
@@ -1213,11 +1213,7 @@ def test_signed_packet_stale_replayed_or_wrong_consumer_is_rejected(tmp_path: Pa
         evaluated_at=NOW,
         _seal=approval._RESOLVER_SEAL,
     )
-    packet_builder = getattr(
-        approval,
-        "build_resolved_production_" + "approval_" + "packet",
-    )
-    packet = packet_builder(authority)
+    packet = approval.build_resolved_production_approval_packet(authority)
     receipt = fixture.base.service._persist_production_decision_packet(
         packet,
         write_context=fixture.base.write_context,
@@ -1295,15 +1291,11 @@ def test_production_packet_without_custody_signature_is_typed_refusal(
         evaluated_at=NOW,
         _seal=approval._RESOLVER_SEAL,
     )
-    packet_builder = getattr(
-        approval,
-        "build_resolved_production_" + "approval_" + "packet",
-    )
-    packet = packet_builder(authority)
+    packet = approval.build_resolved_production_approval_packet(authority)
     unsigned_ref = _persist_unsigned_gate_model(
         fixture.base,
         packet,
-        kind="runtime.production_approval_" + "packet",
+        kind="runtime.production_approval_packet",
         schema_name="polisyos.runtime.ProductionApprovalPacket",
         schema_version="2.0",
     )
@@ -1346,7 +1338,7 @@ def test_production_resolver_rejects_unsigned_basis_with_zero_packet(
         }
     )
     unsigned_ref = fixture.base.sign_production_basis(unsigned_basis, False)
-    packets_before = _production_packet_ids(fixture.base.store)
+    packets_before = _production_approval_packet_ids(fixture.base.store)
 
     with pytest.raises(
         _service_module().HumanDecisionOperationalResolutionError,
@@ -1362,7 +1354,7 @@ def test_production_resolver_rejects_unsigned_basis_with_zero_packet(
         )
 
     assert exc_info.value.code == "DS9-DECISION-SOURCE-INVALID"
-    assert _production_packet_ids(fixture.base.store) == packets_before
+    assert _production_approval_packet_ids(fixture.base.store) == packets_before
 
 
 def test_production_resolver_rejects_unsigned_record_with_zero_packet(
@@ -1391,7 +1383,7 @@ def test_production_resolver_rejects_unsigned_record_with_zero_packet(
         schema_name="polisyos.runtime.HumanDecisionRecord",
         schema_version=contracts.HUMAN_DECISION_RECORD_MANIFEST_VERSION,
     )
-    packets_before = _production_packet_ids(fixture.base.store)
+    packets_before = _production_approval_packet_ids(fixture.base.store)
 
     with pytest.raises(
         _service_module().HumanDecisionOperationalResolutionError,
@@ -1407,7 +1399,7 @@ def test_production_resolver_rejects_unsigned_record_with_zero_packet(
         )
 
     assert exc_info.value.code == "DS9-DECISION-SOURCE-INVALID"
-    assert _production_packet_ids(fixture.base.store) == packets_before
+    assert _production_approval_packet_ids(fixture.base.store) == packets_before
 
 
 def test_human_decision_status_precedence_is_permutation_invariant() -> None:

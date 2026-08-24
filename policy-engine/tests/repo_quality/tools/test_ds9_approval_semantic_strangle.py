@@ -117,9 +117,9 @@ def test_raw_approval_semantic_denominator_classifies_complete_tracked_set() -> 
     assert not ((_MECHANISMS | _RETAINED) & companions)
     assert (len(_MECHANISMS), len(companions), len(_RETAINED), len(tracked)) == (
         18,
-        47,
+        48,
         16,
-        81,
+        82,
     )
 
 

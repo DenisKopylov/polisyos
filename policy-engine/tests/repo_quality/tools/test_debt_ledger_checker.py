@@ -404,7 +404,7 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 56
+    assert metrics["register_ids"] == 58
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_rows"] == 217
@@ -526,7 +526,7 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
     assert "bridge_missing" not in gap8
-    assert "| `DEBT-REGISTER.md` | 56 | 56 | 35 |" in rendered
+    assert "| `DEBT-REGISTER.md` | 58 | 58 | 35 |" in rendered
     assert "| Atlas master debt table | 22 | 22 | 10 |" in rendered
 
 
@@ -580,7 +580,7 @@ def test_ds9_claims_and_splits_only_approved_debt_scope() -> None:
 
     approval = rows["ds8-approval-authority"]
     assert approval.section == "A"
-    assert approval.status == "open"
+    assert approval.status == "closed"
     assert approval.owner == "DS9"
 
     notes = rows["ds8-local-reviewer-note-persistence"]
@@ -596,12 +596,28 @@ def test_ds9_claims_and_splits_only_approved_debt_scope() -> None:
     assert "DS20-B scorecard producer provenance" not in rows
     intake = rows["DS20-B-scorecard-provenance-intake-effect"]
     assert intake.section == "A"
-    assert intake.status == "open"
+    assert intake.status == "closed"
     assert intake.owner == "DS9"
     trust = rows["DS20-B-scorecard-provenance-producer-trust"]
     assert trust.section == "D"
     assert trust.status == "foreign"
     assert trust.owner == "ops config"
+
+    concurrency = rows["decision-validity-fixed-temp-concurrency"]
+    assert concurrency.section == "C"
+    assert concurrency.status == "open_unmerged"
+    assert concurrency.owner == "Scientist Decision Validity / GY-N12 Cluster 4 Task 4.4"
+
+    dashboard_import = rows["case-workspace-route-bypasses-feature-barrel"]
+    assert dashboard_import.section == "C"
+    assert dashboard_import.status == "open_unmerged"
+    assert dashboard_import.owner == "team-frontend"
+
+    rendered = checker.render_ledger(checker._snapshot(REPO_ROOT))
+    assert "[`ds8-approval-authority`]" not in rendered
+    assert "[`DS20-B-scorecard-provenance-intake-effect`]" not in rendered
+    assert "[`decision-validity-fixed-temp-concurrency`]" in rendered
+    assert "[`case-workspace-route-bypasses-feature-barrel`]" in rendered
 
 
 def test_reconciled_secondary_closures_are_not_reported_as_missing() -> None:

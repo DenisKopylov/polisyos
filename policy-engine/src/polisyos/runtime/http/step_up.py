@@ -66,6 +66,7 @@ class StepUpClass(StrEnum):
     PUBLICATION = "publication"
     REVOCATION = "revocation"
     ACQUISITION_APPROVAL = "acquisition_approval"
+    HUMAN_DECISION = "human_decision"
 
 
 class StepUpAssertionVerificationError(ValueError):
@@ -117,9 +118,7 @@ class StepUpVerificationContext:
             ("scorecard_ref", self.scorecard_ref),
             ("scorecard_sha256", self.scorecard_sha256),
         ):
-            if value is not None and (
-                not isinstance(value, str) or not value.strip()
-            ):
+            if value is not None and (not isinstance(value, str) or not value.strip()):
                 raise TypeError(f"{field_name} must be None or a non-empty string")
         scorecard_values = (self.scorecard_ref, self.scorecard_sha256)
         if self.step_up_class is StepUpClass.PRODUCTION_APPROVAL:
@@ -207,8 +206,7 @@ class JWTStepUpAssertionVerifier:
         if not issuer.strip() or not audience.strip():
             raise ValueError("step-up issuer and audience must be non-empty")
         if not algorithms or any(
-            not algorithm.strip() or algorithm.lower() == "none"
-            for algorithm in algorithms
+            not algorithm.strip() or algorithm.lower() == "none" for algorithm in algorithms
         ):
             raise ValueError("step-up algorithms must be an explicit trusted set")
         if type(maximum_age_seconds) is not int or maximum_age_seconds <= 0:
@@ -355,15 +353,12 @@ class JWTStepUpAssertionVerifier:
             "scorecard_sha256": context.scorecard_sha256,
         }
         mismatched = tuple(
-            name
-            for name, expected in expected_bindings.items()
-            if payload.get(name) != expected
+            name for name, expected in expected_bindings.items() if payload.get(name) != expected
         )
         if mismatched:
             raise StepUpAssertionVerificationError(
                 "step_up_binding_mismatch",
-                "Step-up assertion binding does not match the request: "
-                + ", ".join(mismatched),
+                "Step-up assertion binding does not match the request: " + ", ".join(mismatched),
             )
         assertion_id = payload.get("jti")
         if not isinstance(assertion_id, str) or not assertion_id.strip():
@@ -447,19 +442,16 @@ def _optional_int_claim(payload: object, claim: str) -> int | None:
     return value
 
 
-HIGH_STAKES_PERMISSION_CLASSES: Mapping[RuntimePermission, StepUpClass] = (
-    MappingProxyType(
-        {
-            RuntimePermission.EVIDENCE_ACQUIRE: StepUpClass.ACQUISITION_APPROVAL,
-            RuntimePermission.EVIDENCE_PROMOTIONS_APPROVE: StepUpClass.PROMOTION,
-            RuntimePermission.EVIDENCE_PROMOTIONS_REJECT: StepUpClass.PROMOTION,
-            RuntimePermission.DECISIONS_VALIDITY_PUBLISH: StepUpClass.PUBLICATION,
-            RuntimePermission.RUNS_REISSUE: StepUpClass.REVOCATION,
-            RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE: (
-                StepUpClass.PRODUCTION_APPROVAL
-            ),
-        }
-    )
+HIGH_STAKES_PERMISSION_CLASSES: Mapping[RuntimePermission, StepUpClass] = MappingProxyType(
+    {
+        RuntimePermission.EVIDENCE_ACQUIRE: StepUpClass.ACQUISITION_APPROVAL,
+        RuntimePermission.EVIDENCE_PROMOTIONS_APPROVE: StepUpClass.PROMOTION,
+        RuntimePermission.EVIDENCE_PROMOTIONS_REJECT: StepUpClass.PROMOTION,
+        RuntimePermission.DECISIONS_VALIDITY_PUBLISH: StepUpClass.PUBLICATION,
+        RuntimePermission.RUNS_REISSUE: StepUpClass.REVOCATION,
+        RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE: (StepUpClass.PRODUCTION_APPROVAL),
+        RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE: StepUpClass.HUMAN_DECISION,
+    }
 )
 
 
@@ -615,10 +607,7 @@ class StepUpDependency:
                 "The step-up assertion verifier failed closed",
                 code="step_up_verifier_failed",
             ) from exc
-        if (
-            type(verification) is not StepUpAssertionVerification
-            or verification.context != context
-        ):
+        if type(verification) is not StepUpAssertionVerification or verification.context != context:
             raise service_unavailable(
                 "The step-up verifier returned an invalid bound proof",
                 code="step_up_verifier_contract_invalid",
@@ -774,9 +763,7 @@ def get_route_step_up_dependency(
     action_dependency: ActionPermissionDependency | None = None,
 ) -> StepUpDependency | None:
     """Return the exact direct step-up declaration or reject route drift."""
-    action = action_dependency or get_route_action_permission_dependency(
-        cast("Any", route)
-    )
+    action = action_dependency or get_route_action_permission_dependency(cast("Any", route))
     expected_class = HIGH_STAKES_PERMISSION_CLASSES.get(action.requirement.permission)
     dependency_calls = tuple(iter_route_dependency_calls(cast("Any", route)))
     impostors = tuple(
@@ -786,15 +773,11 @@ def get_route_step_up_dependency(
         and type(dependency) is not StepUpDependency
     )
     dependencies = tuple(
-        dependency
-        for dependency in dependency_calls
-        if type(dependency) is StepUpDependency
+        dependency for dependency in dependency_calls if type(dependency) is StepUpDependency
     )
     direct_calls = tuple(child.call for child in route.dependant.dependencies)
     direct_dependencies = tuple(
-        dependency
-        for dependency in direct_calls
-        if type(dependency) is StepUpDependency
+        dependency for dependency in direct_calls if type(dependency) is StepUpDependency
     )
     unsafe_methods = set(route.methods) & {"POST", "PUT", "PATCH", "DELETE"}
     label = f"{','.join(sorted(unsafe_methods))} {route.path}"
@@ -880,9 +863,7 @@ def install_step_up_openapi_contract(app: object) -> None:
                 continue
             for method in methods:
                 operation = schema["paths"][candidate.path][method.lower()]
-                operation["x-polisyos-step-up-class"] = (
-                    dependency.requirement.step_up_class.value
-                )
+                operation["x-polisyos-step-up-class"] = dependency.requirement.step_up_class.value
         cached = schema
         return schema
 

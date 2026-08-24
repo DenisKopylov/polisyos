@@ -18,34 +18,49 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     HUMAN_DECISION_RECORD_V2,
     DecisionAction,
     DecisionRole,
+    FiveRightsRequirement,
+    HumanDecisionFiveRightsBinding,
+    HumanDecisionRecord,
 )
 
 HUMAN_DECISION_RECORD_MANIFEST_VERSION = "2.0"
 HUMAN_DECISION_RECORD_ARTIFACT_KIND = "runtime_quality.agent_action_human_decision"
 
-HUMAN_DECISION_PRINCIPAL_BINDING_V1 = "policyos.runtime.human_decision_principal_binding.v1"
+HUMAN_DECISION_PRINCIPAL_BINDING_V1: Literal[
+    "policyos.runtime.human_decision_principal_binding.v1"
+] = "policyos.runtime.human_decision_principal_binding.v1"
 HUMAN_DECISION_PRINCIPAL_BINDING_MANIFEST_VERSION = "1.0"
 HUMAN_DECISION_PRINCIPAL_BINDING_ARTIFACT_KIND = "runtime_quality.human_decision_principal_binding"
 
-REVIEWER_SEPARATION_CREDENTIAL_V1 = "policyos.runtime.reviewer_separation_credential.v1"
+REVIEWER_SEPARATION_CREDENTIAL_V1: Literal["policyos.runtime.reviewer_separation_credential.v1"] = (
+    "policyos.runtime.reviewer_separation_credential.v1"
+)
 REVIEWER_SEPARATION_CREDENTIAL_MANIFEST_VERSION = "1.0"
 REVIEWER_SEPARATION_CREDENTIAL_ARTIFACT_KIND = "runtime_quality.reviewer_separation_credential"
 
-HUMAN_DECISION_PRESENTATION_CONTRACT_V1 = "policyos.runtime.human_decision_presentation_contract.v1"
+HUMAN_DECISION_PRESENTATION_CONTRACT_V1: Literal[
+    "policyos.runtime.human_decision_presentation_contract.v1"
+] = "policyos.runtime.human_decision_presentation_contract.v1"
 HUMAN_DECISION_PRESENTATION_CONTRACT_MANIFEST_VERSION = "1.0"
 HUMAN_DECISION_PRESENTATION_CONTRACT_ARTIFACT_KIND = (
     "runtime_quality.human_decision_presentation_contract"
 )
 
-PRODUCTION_HUMAN_DECISION_BASIS_V1 = "policyos.runtime.production_human_decision_basis.v1"
+PRODUCTION_HUMAN_DECISION_BASIS_V1: Literal[
+    "policyos.runtime.production_human_decision_basis.v1"
+] = "policyos.runtime.production_human_decision_basis.v1"
 PRODUCTION_HUMAN_DECISION_BASIS_MANIFEST_VERSION = "1.0"
 PRODUCTION_HUMAN_DECISION_BASIS_ARTIFACT_KIND = "runtime_quality.production_human_decision_basis"
 
-HUMAN_DECISION_EXPOSURE_SESSION_V1 = "policyos.runtime.human_decision_exposure_session.v1"
+HUMAN_DECISION_EXPOSURE_SESSION_V1: Literal[
+    "policyos.runtime.human_decision_exposure_session.v1"
+] = "policyos.runtime.human_decision_exposure_session.v1"
 HUMAN_DECISION_EXPOSURE_SESSION_MANIFEST_VERSION = "1.0"
 HUMAN_DECISION_EXPOSURE_SESSION_ARTIFACT_KIND = "runtime_quality.human_decision_exposure_session"
 
-HUMAN_DECISION_EXPOSURE_EVENT_V1 = "policyos.runtime.human_decision_exposure_event.v1"
+HUMAN_DECISION_EXPOSURE_EVENT_V1: Literal["policyos.runtime.human_decision_exposure_event.v1"] = (
+    "policyos.runtime.human_decision_exposure_event.v1"
+)
 HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION = "1.0"
 HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND = "runtime_quality.human_decision_exposure_event"
 
@@ -316,6 +331,9 @@ class HumanDecisionExposureSession(Layer2ReadinessModel):
     session_ref: str = Field(min_length=1, max_length=300)
     tenant_id: str = Field(min_length=1, max_length=200)
     run_id: str = Field(min_length=1, max_length=200)
+    principal_binding_ref: str = Field(pattern=_SHA256_PATTERN)
+    principal_binding_digest: str = Field(pattern=_SHA256_PATTERN)
+    principal_subject: str = Field(min_length=1, max_length=300)
     actor_ref: str = Field(min_length=1, max_length=300)
     decision_request_ref: str = Field(min_length=1, max_length=300)
     decision_request_digest: str = Field(pattern=_SHA256_PATTERN)
@@ -338,6 +356,8 @@ class HumanDecisionExposureSession(Layer2ReadinessModel):
     def _valid_interval(self) -> Self:
         if self.valid_until <= self.valid_from:
             raise ValueError("exposure session validity interval is empty")
+        if self.principal_binding_ref != self.principal_binding_digest:
+            raise ValueError("exposure session principal binding digest changed")
         return self
 
 
@@ -362,6 +382,7 @@ class HumanDecisionExposureAuditEvent(Layer2ReadinessModel):
     artifact_id: str = Field(pattern=_SHA256_PATTERN)
     content_digest: str = Field(pattern=_SHA256_PATTERN)
     delivered_bytes: int = Field(gt=0)
+    allowed_multiplicity: int = Field(gt=0, le=80)
     verifier_epoch: str = Field(min_length=1, max_length=200)
 
 
@@ -388,6 +409,8 @@ class _HumanDecisionGateInputBase(Layer2ReadinessModel):
     tenant_id: str = Field(min_length=1, max_length=200)
     run_id: str = Field(min_length=1, max_length=200)
     decision_request_ref: str | None = Field(default=None, min_length=1, max_length=300)
+    decision_request_digest: str | None = Field(default=None, pattern=_SHA256_PATTERN)
+    basis_ref: str | None = Field(default=None, min_length=1, max_length=300)
     principal_binding_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
     reviewer_separation_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
     presentation_contract_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
@@ -438,6 +461,108 @@ class HumanDecisionGateResult(Layer2ReadinessModel):
     def _status_matches_reasons(self) -> Self:
         if self.status != select_human_decision_gate_status(self.reasons):
             raise ValueError("human-decision gate status does not match its reasons")
+        return self
+
+
+class HumanDecisionRequestSurface(Layer2ReadinessModel):
+    """Signed request fields required to understand the offered action."""
+
+    case_id: str = Field(min_length=1, max_length=200)
+    delegation_contract_ref: str = Field(min_length=1, max_length=300)
+    decision_rights_matrix_ref: str = Field(min_length=1, max_length=300)
+    required_role: DecisionRole
+    available_actions: tuple[DecisionAction, ...]
+    requested_at: AwareDatetime
+    decision_due_at: AwareDatetime | None = None
+    decidable_until: AwareDatetime | None = None
+    five_rights_requirements: FiveRightsRequirement
+    five_rights_binding: HumanDecisionFiveRightsBinding
+
+
+class HumanDecisionMandateSurface(Layer2ReadinessModel):
+    """Mandate-owner envelope shown before any decision action."""
+
+    mandate_record_ref: str = Field(min_length=1, max_length=300)
+    mandate_owner_ref: str = Field(min_length=1, max_length=300)
+    operation_id: str = Field(min_length=1, max_length=200)
+    action_kind: str = Field(min_length=1, max_length=120)
+    valid_from: AwareDatetime
+    valid_until: AwareDatetime
+
+
+class HumanDecisionExposureSurface(Layer2ReadinessModel):
+    """Exact evidence-session and completed-delivery projection."""
+
+    exposure_session_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
+    required_artifact_digests: tuple[str, ...]
+    completed_artifact_digests: tuple[str, ...]
+    renderer_id: str | None = Field(default=None, min_length=1, max_length=240)
+    renderer_version: str | None = Field(default=None, min_length=1, max_length=80)
+    channel: str | None = Field(default=None, min_length=1, max_length=160)
+    representation: Literal["full", "redacted", "truncated"] | None = None
+
+
+class HumanDecisionContestabilitySurface(Layer2ReadinessModel):
+    """Case/source-bound internal appeal navigation; never an appeal outcome."""
+
+    case_id: str = Field(min_length=1, max_length=200)
+    source_ref: str = Field(pattern=_SHA256_PATTERN)
+    href: str = Field(min_length=1, max_length=1_000)
+
+
+class HumanDecisionGateResponse(Layer2ReadinessModel):
+    """REVIEWER/EXPERT/MACHINE projection of one freshly resolved gate."""
+
+    status: HumanDecisionGateStatus
+    reasons: tuple[HumanDecisionGateReason, ...]
+    reason_codes: tuple[str, ...]
+    source_kind: HumanDecisionSourceKind
+    source_ref: str | None = Field(default=None, pattern=_SHA256_PATTERN)
+    tenant_id: str
+    run_id: str
+    decision_request_ref: str | None
+    decision_request_digest: str | None = Field(default=None, pattern=_SHA256_PATTERN)
+    governed_action_key: str | None = Field(default=None, pattern=_SHA256_PATTERN)
+    decision_request: HumanDecisionRequestSurface | None = None
+    mandate: HumanDecisionMandateSurface | None = None
+    exposure: HumanDecisionExposureSurface
+    contestability: HumanDecisionContestabilitySurface | None = None
+    resolved_at: AwareDatetime
+    verifier_epoch: str
+    operational_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _surface_matches_gate(self) -> Self:
+        if self.status != select_human_decision_gate_status(self.reasons):
+            raise ValueError("human-decision surface status does not match reasons")
+        if self.reason_codes != tuple(reason.code for reason in self.reasons):
+            raise ValueError("human-decision surface reason codes changed order")
+        if self.contestability is not None and (
+            self.source_ref != self.contestability.source_ref
+            or self.decision_request is None
+            or self.decision_request.case_id != self.contestability.case_id
+        ):
+            raise ValueError("contestability requires exact case/source binding")
+        return self
+
+
+class HumanDecisionCreateResponse(Layer2ReadinessModel):
+    """Durable v2 readback returned only after custody reconciliation."""
+
+    run_id: str = Field(min_length=1, max_length=200)
+    record_ref: str = Field(pattern=_SHA256_PATTERN)
+    record_digest: str = Field(pattern=_SHA256_PATTERN)
+    record: HumanDecisionRecord
+    durable_event_id: str = Field(min_length=1, max_length=300)
+    reservation_id: str = Field(min_length=1, max_length=200)
+    reservation_version: int = Field(ge=1)
+
+    @model_validator(mode="after")
+    def _exact_record_ref(self) -> Self:
+        if self.record_ref != self.record_digest:
+            raise ValueError("human-decision response record ref/digest changed")
+        if self.record.record_ref != self.record_ref:
+            raise ValueError("human-decision response record readback changed")
         return self
 
 
@@ -567,14 +692,19 @@ __all__ = [
     "REVIEWER_SEPARATION_CREDENTIAL_ARTIFACT_KIND",
     "REVIEWER_SEPARATION_CREDENTIAL_MANIFEST_VERSION",
     "REVIEWER_SEPARATION_CREDENTIAL_V1",
+    "HumanDecisionContestabilitySurface",
     "HumanDecisionCreateCommand",
+    "HumanDecisionCreateResponse",
     "HumanDecisionExposureAuditEvent",
     "HumanDecisionExposureSession",
+    "HumanDecisionExposureSurface",
     "HumanDecisionGateInput",
     "HumanDecisionGateReason",
+    "HumanDecisionGateResponse",
     "HumanDecisionGateResult",
     "HumanDecisionGateStatus",
     "HumanDecisionGatewayAdapterInput",
+    "HumanDecisionMandateSurface",
     "HumanDecisionMode",
     "HumanDecisionPA2GateInput",
     "HumanDecisionPA2GatewayAdapterInput",
@@ -584,6 +714,7 @@ __all__ = [
     "HumanDecisionPrincipalBinding",
     "HumanDecisionProductionGateInput",
     "HumanDecisionProductionGatewayAdapterInput",
+    "HumanDecisionRequestSurface",
     "HumanDecisionResolverPolicy",
     "HumanDecisionSourceKind",
     "HumanDecisionTrustPolicy",

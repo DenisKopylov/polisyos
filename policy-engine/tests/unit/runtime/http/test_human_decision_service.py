@@ -3,8 +3,10 @@
 from __future__ import annotations
 
 import importlib
+import json
+from collections import Counter
 from collections.abc import Callable
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from itertools import combinations, permutations
 from pathlib import Path
@@ -62,6 +64,80 @@ class _SignedGateFixture:
         )
 
 
+def _bound_read_permission(
+    fixture: _SignedGateFixture,
+    *,
+    resource_kind: str,
+    selectors: dict[str, str],
+) -> Any:
+    from polisyos.runtime.http.authorization import (
+        _BOUND_ACTION_PERMISSION_SEAL,
+        ActionPermissionVerification,
+        BoundActionPermissionVerification,
+        ResourceBindingSource,
+        ResourceBindingSpec,
+        RouteAuthorizationRequirement,
+    )
+    from polisyos.runtime.http.permissions import RuntimePermission
+    from polisyos.runtime.http.resource_binding import (
+        BindingAuthority,
+        BoundAuthorizationResource,
+    )
+
+    source = fixture.bound_permission.verification
+    requirement = RouteAuthorizationRequirement(
+        permission=RuntimePermission.RUNS_REVIEW,
+        resource_binding=ResourceBindingSpec(
+            source=ResourceBindingSource.OWNED_EXISTING_PATH,
+            resource_kind=resource_kind,
+            path_parameter="run_id",
+            path_selector_parameters=(
+                ("artifact_id",) if resource_kind == "runtime.run.human_decision_evidence" else ()
+            ),
+            query_selector_parameters=(
+                ("source_kind",) if resource_kind == "runtime.run.human_decision_gate" else ()
+            ),
+            allow_empty_body=True,
+        ),
+    )
+    verification = ActionPermissionVerification(
+        requirement=requirement,
+        subject=source.subject,
+        tenant_id=source.tenant_id,
+        jwt_id=source.jwt_id,
+        roles=source.roles,
+        authorization_source=source.authorization_source,
+        granted_permissions=(
+            RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
+            RuntimePermission.RUNS_REVIEW,
+        ),
+    )
+    canonical_selectors = tuple(
+        sorted(
+            (
+                name,
+                json.dumps(value, ensure_ascii=False, separators=(",", ":")),
+            )
+            for name, value in selectors.items()
+        )
+    )
+    return BoundActionPermissionVerification(
+        verification=verification,
+        bound_resource=BoundAuthorizationResource(
+            requirement=requirement,
+            tenant_id=source.tenant_id,
+            resource_kind=f"{resource_kind}.ownership_verified",
+            resource_id=("urn:polisyos:runtime-authorization-resource:v1:sha256:" + "e" * 64),
+            resource_digest="sha256:" + "e" * 64,
+            authority=BindingAuthority.OWNERSHIP_VERIFIED,
+            body_sha256="sha256:" + "b" * 64,
+            query_sha256="sha256:" + "c" * 64,
+            canonical_selectors=canonical_selectors,
+        ),
+        _seal=_BOUND_ACTION_PERMISSION_SEAL,
+    )
+
+
 def _human_decision_record_ids(store: Any) -> set[str]:
     return {
         str(artifact_id)
@@ -101,7 +177,13 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
     services = _service_module()
     authority = importlib.import_module("polisyos.runtime.quality.agent_action_authority")
     from polisyos.core.security.identity import PolicyOSRole
+    from polisyos.runtime.http.access_audit import (
+        PreparedHumanDecisionExposureEvent,
+        complete_human_decision_exposure_event,
+        reserve_human_decision_exposure_event,
+    )
     from polisyos.runtime.http.authorization import (
+        _BOUND_ACTION_PERMISSION_SEAL,
         ActionPermissionVerification,
         BoundActionPermissionVerification,
         ResourceBindingSource,
@@ -231,6 +313,9 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
                 dict.fromkeys([*request.provenance_refs, contract_ref, evidence_ref])
             ),
             "disconfirming_evidence_refs": [evidence_ref],
+            "five_rights_binding": request.five_rights_binding.model_copy(
+                update={"required_information_refs": (evidence_ref,)}
+            ),
         }
     )
     source_decision = source_decision.model_copy(update={"human_decision_request": request})
@@ -246,6 +331,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
             signer_identity=MANDATE_OWNER_REF,
             sign=sign,
         )
+
     audit_path = tmp_path / "access.jsonl"
     empty_audit_path = tmp_path / "empty-access.jsonl"
     empty_audit_path.touch()
@@ -261,9 +347,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         "actor_ref": MANDATE_OWNER_REF,
         "actor_key_id": actor_signer.key_id,
         "decision_roles": ["mandate_owner"],
-        # C02 owns the new permission vocabulary. C01 exercises the generic
-        # signed-permission property with an existing high-stakes permission.
-        "permissions": [RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE.value],
+        "permissions": [RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE.value],
         "valid_from": NOW - timedelta(minutes=5),
         "valid_until": NOW + timedelta(hours=1),
         "verifier_epoch": "ds9-test-epoch",
@@ -303,6 +387,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         current_source: Any,
         *,
         basis_ref: str = contract_ref,
+        principal_ref_override: str | None = None,
         separation_update: dict[str, object] | None = None,
         presentation_update: dict[str, object] | None = None,
         session_update: dict[str, object] | None = None,
@@ -314,6 +399,8 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         sign_session: bool = True,
         sign_events: bool = True,
     ) -> dict[str, str]:
+        audit_path.write_text("", encoding="utf-8")
+        effective_principal_ref = principal_ref_override or principal_ref
         current_digest = authority.agent_action_content_hash(current_request)
         source_ref = _persist_model(
             current_source,
@@ -389,6 +476,9 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
             session_ref=f"runtime://human-decision/exposure/{current_digest[7:]}",
             tenant_id="tenant-a",
             run_id="run-gy-pa2",
+            principal_binding_ref=effective_principal_ref,
+            principal_binding_digest=effective_principal_ref,
+            principal_subject="human-reviewer-1",
             actor_ref=MANDATE_OWNER_REF,
             decision_request_ref=current_request.request_ref,
             decision_request_digest=current_digest,
@@ -421,9 +511,8 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
             sign=sign_session,
         )
         trail = RuntimeDataAccessAuditTrail(path=audit_path)
-        for index, artifact_ref in enumerate(
-            event_artifact_refs or (basis_ref, evidence_ref)
-        ):
+        artifact_multiplicity = Counter(event_artifact_refs or (basis_ref, evidence_ref))
+        for index, artifact_ref in enumerate(event_artifact_refs or (basis_ref, evidence_ref)):
             event = contracts.HumanDecisionExposureAuditEvent(
                 timestamp=event_timestamp.timestamp(),
                 event_id=f"exposure-{current_digest[7:19]}-{index}",
@@ -439,6 +528,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
                 artifact_id=artifact_ref,
                 content_digest=artifact_ref,
                 delivered_bytes=len(harness.store.get_bytes(artifact_ref)),
+                allowed_multiplicity=artifact_multiplicity[artifact_ref],
                 verifier_epoch="ds9-test-epoch",
             )
             if event_update:
@@ -452,15 +542,35 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
                 schema_version=contracts.HUMAN_DECISION_EXPOSURE_EVENT_MANIFEST_VERSION,
                 sign=sign_events,
             )
-            trail.append(
-                event.model_copy(update={"event_receipt_ref": event_receipt_ref}).model_dump(
-                    mode="json"
-                )
+            prepared = PreparedHumanDecisionExposureEvent(
+                unsigned_event=event,
+                completed_event=event.model_copy(update={"event_receipt_ref": event_receipt_ref}),
+                receipt_ref=event_receipt_ref,
             )
+            if sign_events:
+                reserved = reserve_human_decision_exposure_event(
+                    trail=trail,
+                    prepared=prepared,
+                    artifact_store=harness.store,
+                    signer=signers["custody"],
+                    signer_identity=producer_identities["custody"],
+                    verifier=harness.verifier,
+                )
+                complete_human_decision_exposure_event(
+                    trail=trail,
+                    reserved=reserved,
+                    artifact_store=harness.store,
+                    signer=signers["custody"],
+                    signer_identity=producer_identities["custody"],
+                    verifier=harness.verifier,
+                )
+            else:
+                reserved = trail._reserve_exposure_delivery(prepared)
+                trail._append_reserved_exposure(reserved)
         return {
             "source_ref": source_ref,
             "decision_request_ref": current_request.request_ref,
-            "principal_binding_ref": principal_ref,
+            "principal_binding_ref": effective_principal_ref,
             "reviewer_separation_ref": separation_ref,
             "presentation_contract_ref": presentation_ref,
             "exposure_session_ref": exposure_session_ref,
@@ -532,7 +642,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         expected_audience="polisyos-runtime",
         principal_audience="polisyos-runtime",
         expected_agent_operation=operation.operation_id,
-        required_permission=RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE.value,
+        required_permission=RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE.value,
     )
     reservation_store = harness.control_store
     custody = DeploymentHumanDecisionCustody(
@@ -562,7 +672,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         return services.HumanDecisionService(access_audit_path=path, **service_kwargs)
 
     requirement = RouteAuthorizationRequirement(
-        permission=RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE,
+        permission=RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
         resource_binding=ResourceBindingSpec(
             source=ResourceBindingSource.OWNED_EXISTING_PATH,
             resource_kind="runtime.run.human_decision",
@@ -576,7 +686,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         jwt_id="jwt-human-reviewer-1",
         roles=frozenset({PolicyOSRole.ANALYST}),
         authorization_source="runtime.jwt+opa",
-        granted_permissions=(RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE,),
+        granted_permissions=(RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,),
     )
     bound_permission = BoundActionPermissionVerification(
         verification=verification,
@@ -591,6 +701,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
             query_sha256="sha256:" + "c" * 64,
             canonical_selectors=(("run_id", '"run-gy-pa2"'),),
         ),
+        _seal=_BOUND_ACTION_PERMISSION_SEAL,
     )
     adapter_input = contracts.HumanDecisionPA2GateInput(
         tenant_id="tenant-a",
@@ -605,6 +716,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         *,
         source_update: dict[str, object] | None = None,
         basis_ref: str = contract_ref,
+        principal_ref_override: str | None = None,
         separation_update: dict[str, object] | None = None,
         presentation_update: dict[str, object] | None = None,
         session_update: dict[str, object] | None = None,
@@ -626,6 +738,7 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
             current_request,
             current_source,
             basis_ref=basis_ref,
+            principal_ref_override=principal_ref_override,
             separation_update=separation_update,
             presentation_update=presentation_update,
             session_update=session_update,
@@ -696,6 +809,23 @@ def test_human_decision_status_precedence_is_permutation_invariant() -> None:
                 assert contracts.select_human_decision_gate_status(reasons) == expected
 
 
+def test_unbound_contestability_is_omitted_despite_signed_case_strings(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_gate_fixture(tmp_path)
+
+    response = fixture.service.resolve_gate_response(
+        fixture.adapter_input,
+        bound_permission=fixture.bound_permission,
+    )
+
+    assert response.status == "available"
+    assert response.source_ref is not None
+    assert response.decision_request is not None
+    assert response.decision_request.case_id
+    assert response.contestability is None
+
+
 def test_human_decision_wrong_role_is_blocked_with_reason(tmp_path: Path) -> None:
     fixture = _signed_current_gate_fixture(tmp_path)
     before = _human_decision_record_ids(fixture.store)
@@ -707,9 +837,15 @@ def test_human_decision_wrong_role_is_blocked_with_reason(tmp_path: Path) -> Non
     }
     wrong_role_ref = fixture.sign_principal(wrong_role)
 
-    gate = fixture.resolve(principal_binding_ref=wrong_role_ref)
+    request = fixture.source_decision.human_decision_request
+    assert request is not None
+    rebound = fixture.resign_request_bundle(
+        request,
+        principal_ref_override=wrong_role_ref,
+    )
+    gate = fixture.resolve(**rebound)
 
-    assert gate.status == "blocked"
+    assert gate.status == "blocked", gate.reasons
     assert "DS9-WRONG-ROLE" in _reason_codes(gate)
     assert _human_decision_record_ids(fixture.store) == before
 
@@ -736,6 +872,140 @@ def test_human_decision_expired_request_is_blocked_with_reason(
     assert gate.status == "blocked"
     assert "DS9-DECISION-TTL-EXPIRED" in _reason_codes(gate)
     assert _human_decision_record_ids(fixture.store) == before
+
+
+def test_human_decision_stale_basis_requires_online_revalidation(
+    tmp_path: Path,
+) -> None:
+    """Recoverable signed-input staleness cannot collapse into invalid or blocked."""
+
+    fixture = _signed_current_gate_fixture(tmp_path)
+    stale_principal_ref = fixture.sign_principal(
+        {
+            **fixture.principal_payload,
+            "binding_id": "principal-binding-stale",
+            "binding_ref": "identity://bindings/principal-stale",
+            "valid_from": NOW - timedelta(hours=2),
+            "valid_until": NOW - timedelta(seconds=1),
+        }
+    )
+
+    gate = fixture.resolve(principal_binding_ref=stale_principal_ref)
+
+    assert gate.status == "revalidation_required"
+    assert "DS9-DECISION-REVALIDATION-REQUIRED" in _reason_codes(gate)
+    assert "DS9-DECISION-SOURCE-INVALID" not in _reason_codes(gate)
+
+
+def test_exposure_session_is_issued_for_and_resolved_by_exact_live_subject(
+    tmp_path: Path,
+) -> None:
+    """Removing the subject join would let a same-tenant reviewer steal a session."""
+
+    fixture = _signed_current_gate_fixture(tmp_path)
+    gate_input = fixture.adapter_input.model_copy(update={"exposure_session_ref": None})
+    gate_permission = _bound_read_permission(
+        fixture,
+        resource_kind="runtime.run.human_decision_gate",
+        selectors={
+            "run_id": gate_input.run_id,
+            "source_kind": gate_input.source_kind,
+        },
+    )
+
+    issued = fixture.service.issue_exposure_session(
+        gate_input,
+        bound_permission=gate_permission,
+    )
+
+    assert issued.session.principal_subject == gate_permission.verification.subject
+    assert issued.session.principal_binding_ref == gate_input.principal_binding_ref
+    assert issued.session_ref == issued.session_digest
+    artifact_ref = issued.session.required_artifact_digests[0]
+    evidence_permission = _bound_read_permission(
+        fixture,
+        resource_kind="runtime.run.human_decision_evidence",
+        selectors={"run_id": gate_input.run_id, "artifact_id": artifact_ref},
+    )
+    delivery = fixture.service.resolve_exposure_delivery(
+        session_ref=issued.session_ref,
+        artifact_ref=artifact_ref,
+        tenant_id=gate_input.tenant_id,
+        run_id=gate_input.run_id,
+        bound_permission=evidence_permission,
+    )
+    assert delivery.session == issued.session
+    assert delivery.artifact_ref == artifact_ref
+    assert delivery.content == fixture.store.get_bytes(artifact_ref)
+
+    other_verification = replace(
+        evidence_permission.verification,
+        subject="same-tenant-session-thief",
+        jwt_id="jwt-same-tenant-session-thief",
+    )
+    other_permission = replace(
+        evidence_permission,
+        verification=other_verification,
+    )
+    services = _service_module()
+    with pytest.raises(
+        services.HumanDecisionOperationalResolutionError,
+        match="DS9-EXPOSURE-SUBJECT-MISMATCH",
+    ):
+        fixture.service.resolve_exposure_delivery(
+            session_ref=issued.session_ref,
+            artifact_ref=artifact_ref,
+            tenant_id=gate_input.tenant_id,
+            run_id=gate_input.run_id,
+            bound_permission=other_permission,
+        )
+
+    fixture.service.prepare_exposure_audit_event(delivery)
+    with pytest.raises(
+        services.HumanDecisionOperationalResolutionError,
+        match="DS9-EXPOSURE-REVALIDATION-REQUIRED",
+    ):
+        fixture.service.prepare_exposure_audit_event(delivery)
+
+
+def test_exposure_session_rejects_sealed_proof_from_wrong_route_binding(
+    tmp_path: Path,
+) -> None:
+    from polisyos.runtime.http.authorization import ResourceBindingSpec
+
+    fixture = _signed_current_gate_fixture(tmp_path)
+    gate_input = fixture.adapter_input.model_copy(update={"exposure_session_ref": None})
+    proof = _bound_read_permission(
+        fixture,
+        resource_kind="runtime.run.human_decision_gate",
+        selectors={"run_id": gate_input.run_id, "source_kind": gate_input.source_kind},
+    )
+    wrong_binding = ResourceBindingSpec(
+        source=proof.verification.requirement.resource_binding.source,
+        resource_kind="runtime.run.human_decision_gate",
+        path_parameter="run_id",
+        path_selector_parameters=("source_kind",),
+        allow_empty_body=True,
+    )
+    wrong_requirement = replace(
+        proof.verification.requirement,
+        resource_binding=wrong_binding,
+    )
+    wrong_proof = replace(
+        proof,
+        verification=replace(proof.verification, requirement=wrong_requirement),
+        bound_resource=replace(proof.bound_resource, requirement=wrong_requirement),
+    )
+    services = _service_module()
+
+    with pytest.raises(
+        services.HumanDecisionOperationalResolutionError,
+        match="DS9-DECISION-PERMISSION-UNVERIFIED",
+    ):
+        fixture.service.issue_exposure_session(
+            gate_input,
+            bound_permission=wrong_proof,
+        )
 
 
 def test_human_decision_requires_attested_principal_to_signing_key_binding(
@@ -826,6 +1096,44 @@ def test_human_decision_binds_source_to_exact_contract_bytes(tmp_path: Path) -> 
     assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(gate)
 
 
+def test_human_decision_caller_selectors_must_match_signed_packet(
+    tmp_path: Path,
+) -> None:
+    contracts = _contracts()
+    fixture = _signed_current_gate_fixture(tmp_path)
+    request = fixture.source_decision.human_decision_request
+    assert request is not None
+    request_digest = "sha256:" + "e" * 64
+    basis_ref = "sha256:" + "f" * 64
+
+    wrong_request = contracts.HumanDecisionPA2GateInput.model_validate(
+        {
+            **fixture.adapter_input.model_dump(mode="json"),
+            "decision_request_digest": request_digest,
+        }
+    )
+    wrong_basis = contracts.HumanDecisionPA2GateInput.model_validate(
+        {
+            **fixture.adapter_input.model_dump(mode="json"),
+            "basis_ref": basis_ref,
+        }
+    )
+
+    request_gate = fixture.service.resolve_gate(
+        wrong_request,
+        bound_permission=fixture.bound_permission,
+    )
+    basis_gate = fixture.service.resolve_gate(
+        wrong_basis,
+        bound_permission=fixture.bound_permission,
+    )
+
+    assert request_gate.status == "invalid_source"
+    assert basis_gate.status == "invalid_source"
+    assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(request_gate)
+    assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(basis_gate)
+
+
 def test_human_decision_rejects_arbitrary_source_refusal(tmp_path: Path) -> None:
     """A human approval cannot convert an unrelated producer refusal into authority."""
 
@@ -889,6 +1197,44 @@ def test_human_decision_requires_pre_action_human_request_shape(tmp_path: Path) 
     assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(gate)
 
 
+def test_human_decision_five_rights_binding_cannot_diverge_from_signed_request(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_gate_fixture(tmp_path)
+    request = fixture.source_decision.human_decision_request
+    assert request is not None
+    tampered = request.model_copy(
+        update={
+            "five_rights_binding": request.five_rights_binding.model_copy(
+                update={"required_information_refs": ()}
+            )
+        }
+    )
+    resigned = fixture.resign_request_bundle(tampered)
+
+    gate = fixture.resolve(**resigned)
+
+    assert gate.status == "invalid_source"
+    assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(gate)
+
+
+def test_human_decision_format_channel_must_match_signed_rights_binding(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_gate_fixture(tmp_path)
+    request = fixture.source_decision.human_decision_request
+    assert request is not None
+    resigned = fixture.resign_request_bundle(
+        request,
+        presentation_update={"channel": "governed_review"},
+    )
+
+    gate = fixture.resolve(**resigned)
+
+    assert gate.status == "blocked"
+    assert "DS9-PRESENTATION-CONTRACT-INVALID" in _reason_codes(gate)
+
+
 def test_human_decision_requires_exact_live_delegation_envelope(tmp_path: Path) -> None:
     fixture = _signed_current_gate_fixture(tmp_path)
     request = fixture.source_decision.human_decision_request
@@ -917,11 +1263,7 @@ def test_human_decision_expired_signed_envelope_is_blocked(tmp_path: Path) -> No
     contract = fixture.contract.model_copy(update={"action_envelopes": (envelope,)})
     contract_ref = fixture.persist_contract(contract, True)
     request = request.model_copy(
-        update={
-            "provenance_refs": list(
-                dict.fromkeys([*request.provenance_refs, contract_ref])
-            )
-        }
+        update={"provenance_refs": list(dict.fromkeys([*request.provenance_refs, contract_ref]))}
     )
     resigned = fixture.resign_request_bundle(
         request,
@@ -1363,6 +1705,36 @@ def test_human_decision_record_model_rejects_duplicate_exposure_receipts(
         created.record.__class__.model_validate(payload)
 
 
+def test_human_decision_v2_five_rights_are_derived_from_typed_receipts(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_gate_fixture(tmp_path)
+    contracts = _contracts()
+    created = fixture.service.create_record(
+        contracts.HumanDecisionCreateCommand(
+            gate_input=fixture.adapter_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement="I accept accountability for this bounded action.",
+            dissent_statement="Disconfirming evidence was reviewed and retained.",
+            override_reason=None,
+            blocking_reason=None,
+        ),
+        bound_permission=fixture.bound_permission,
+        write_context=fixture.write_context,
+    )
+    payload = created.record.model_dump(mode="json")
+    receipts = payload["predicate_receipts"]
+    assert isinstance(receipts, list)
+    evidence_receipt = next(
+        receipt for receipt in receipts if receipt["predicate"] == "evidence_exposure"
+    )
+    evidence_receipt["provenance"] = "recomputed"
+
+    with pytest.raises(ValueError, match="predicate provenance or rule version"):
+        created.record.__class__.model_validate(payload)
+
+
 def test_human_decision_reissued_source_uses_one_stable_action_reservation(
     tmp_path: Path,
     monkeypatch: pytest.MonkeyPatch,
@@ -1544,9 +1916,7 @@ def test_human_decision_hard_crash_reconciles_null_ref_signed_orphan_before_v2(
     manifest = fixture.store.get_manifest(record_ref)
     assert manifest.authority is not None
     event_ref = manifest.authority.diagnostic_event_ref
-    event = DiagnosticEvent.model_validate(
-        from_canonical_bytes(fixture.store.get_bytes(event_ref))
-    )
+    event = DiagnosticEvent.model_validate(from_canonical_bytes(fixture.store.get_bytes(event_ref)))
     assert fixture.harness.event_log.list_events(event_id=event.event_id) == []
 
     recovery_time = NOW + timedelta(seconds=61)

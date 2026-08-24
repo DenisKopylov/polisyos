@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import re
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING, Literal, cast, get_args
 
 from pydantic import (
     AwareDatetime,
@@ -25,11 +25,15 @@ from polisyos.runtime.http.security import (  # noqa: TC001 - Pydantic runtime t
 if TYPE_CHECKING:
     from collections.abc import Mapping, Sequence
 
-LAYER2_S7_DELEGATION_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s7_delegation.v1"
-LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION = (
+LAYER2_S7_DELEGATION_SCHEMA_VERSION: Literal[
+    "policyos.policy_design_case.layer2_s7_delegation.v1"
+] = "policyos.policy_design_case.layer2_s7_delegation.v1"
+LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION: Literal[
     "policyos.policy_design_case.layer2_s7_delegation.v2"
+] = "policyos.policy_design_case.layer2_s7_delegation.v2"
+HUMAN_DECISION_RECORD_V2: Literal["policyos.runtime.human_decision_record.v2"] = (
+    "policyos.runtime.human_decision_record.v2"
 )
-HUMAN_DECISION_RECORD_V2 = "policyos.runtime.human_decision_record.v2"
 
 DelegationInteractionMode = Literal[
     "ai_follow",
@@ -71,6 +75,14 @@ HumanDecisionRecordSourceKind = Literal[
     "agent_action_authority",
     "production_approval",
 ]
+AuthoritySource = Literal[
+    "deterministic_producer",
+    "governed_config",
+    "human_governance",
+    "llm_candidate",
+    "llm_critic",
+    "llm_drafter",
+]
 HumanDecisionRecordPredicate = Literal[
     "identity_permission",
     "role_mandate_or_basis",
@@ -86,6 +98,9 @@ HumanDecisionRecordPredicateProvenance = Literal[
     "recomputed",
     "independently_reconciled",
 ]
+FiveRightsTimeRule = Literal["intersection_of_signed_validity_intervals_pre_action"]
+FiveRightsChannel = Literal["reviewer_console", "governed_review"]
+FiveRightsRepresentation = Literal["full"]
 DecisionNeedReason = Literal[
     "high_stakes",
     "value_laden",
@@ -132,6 +147,20 @@ _HUMAN_DECISION_PREDICATES: tuple[HumanDecisionRecordPredicate, ...] = (
     "evidence_exposure",
     "presentation_format_channel",
     "source_producer_trust",
+)
+_HUMAN_DECISION_PREDICATE_PROVENANCE: tuple[
+    HumanDecisionRecordPredicateProvenance,
+    ...,
+] = (
+    "recomputed",
+    "independently_reconciled",
+    "recomputed",
+    "recomputed",
+    "recomputed",
+    "independently_reconciled",
+    "independently_reconciled",
+    "independently_reconciled",
+    "independently_reconciled",
 )
 _HUMAN_DECISION_V2_EXTENSION_FIELDS = (
     "tenant_id",
@@ -410,6 +439,19 @@ class FiveRightsRequirement(Layer2ReadinessModel):
     right_time: str = Field(..., min_length=1, max_length=300)
 
 
+class HumanDecisionFiveRightsBinding(Layer2ReadinessModel):
+    """Typed signed inputs used to reconcile the five rights without prose parsing."""
+
+    schema_version: str = LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION
+    decision_class_id: str = Field(..., min_length=1, max_length=120)
+    decision_rights_matrix_ref: str = Field(..., min_length=1, max_length=300)
+    required_role: DecisionRole
+    required_information_refs: tuple[str, ...] = Field(default=(), max_length=20)
+    required_channel: FiveRightsChannel
+    required_representation: FiveRightsRepresentation
+    time_rule: FiveRightsTimeRule
+
+
 class FiveRightsCheck(Layer2ReadinessModel):
     """Boolean S7 five-rights check attached to a human decision record."""
 
@@ -469,6 +511,7 @@ class HumanDecisionRequest(Layer2ReadinessModel):
     value_stakes_impact: str = Field(..., min_length=1, max_length=500)
     what_changes_under_each_choice: list[str] = Field(default_factory=list, max_length=20)
     five_rights_requirements: FiveRightsRequirement
+    five_rights_binding: HumanDecisionFiveRightsBinding
     available_actions: list[DecisionAction] = Field(default_factory=list, max_length=5)
     attention_cost_rank: int = Field(ge=1)
     voi_rank: int = Field(ge=1)
@@ -477,6 +520,25 @@ class HumanDecisionRequest(Layer2ReadinessModel):
     authority_boundary: AuthorityBoundary
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
+
+    @model_validator(mode="after")
+    def _validate_five_rights_binding(self) -> HumanDecisionRequest:
+        binding = self.five_rights_binding
+        if (
+            binding.decision_class_id != self.decision_class_id
+            or binding.decision_rights_matrix_ref != self.decision_rights_matrix_ref
+            or binding.required_role != self.required_role
+            or binding.required_information_refs != tuple(self.disconfirming_evidence_refs)
+        ):
+            raise ValueError("human-decision five-rights binding differs from the request")
+        if not self.material_limitations or not self.what_changes_under_each_choice:
+            raise ValueError("human-decision information right lacks limitations or consequences")
+        option_actions = [option.action for option in self.decision_options]
+        if option_actions != self.available_actions or len(option_actions) != len(
+            set(option_actions)
+        ):
+            raise ValueError("human-decision options do not exactly bind the offered actions")
+        return self
 
 
 class HumanDecisionCanonicalActor(Layer2ReadinessModel):
@@ -498,7 +560,41 @@ class HumanDecisionPredicateReceipt(Layer2ReadinessModel):
     satisfied: Literal[True]
     provenance: HumanDecisionRecordPredicateProvenance
     evidence_refs: tuple[str, ...] = Field(..., min_length=1, max_length=80)
+    reason_code: str = Field(..., min_length=1, max_length=160)
     reason: str = Field(..., min_length=1, max_length=500)
+    rule_version_ref: str = Field(..., min_length=1, max_length=300)
+
+
+def derive_five_rights_check(
+    receipts: Sequence[HumanDecisionPredicateReceipt],
+) -> FiveRightsCheck:
+    """Derive compatibility booleans only from the exact reconciled receipt set."""
+
+    by_predicate = {receipt.predicate: receipt for receipt in receipts}
+
+    def _has(
+        predicate: HumanDecisionRecordPredicate,
+        provenance: HumanDecisionRecordPredicateProvenance,
+    ) -> bool:
+        receipt = by_predicate.get(predicate)
+        return receipt is not None and receipt.provenance == provenance
+
+    return FiveRightsCheck(
+        right_decision=(
+            _has("role_mandate_or_basis", "independently_reconciled")
+            and _has("operation_accountability", "recomputed")
+            and _has("right_decision_time", "recomputed")
+        ),
+        right_person=(
+            _has("identity_permission", "recomputed")
+            and _has("reviewer_independence_change", "independently_reconciled")
+        ),
+        right_information=_has("evidence_exposure", "independently_reconciled"),
+        right_format_channel=_has("presentation_format_channel", "independently_reconciled"),
+        right_time=(
+            _has("currentness", "recomputed") and _has("right_decision_time", "recomputed")
+        ),
+    )
 
 
 class HumanDecisionRecord(Layer2ReadinessModel):
@@ -662,6 +758,16 @@ class HumanDecisionRecord(Layer2ReadinessModel):
             raise ValueError("human-decision v2 invariant fields are missing")
         if tuple(receipt.predicate for receipt in receipts) != _HUMAN_DECISION_PREDICATES:
             raise ValueError("human-decision v2 requires all nine ordered predicates")
+        if tuple(
+            receipt.provenance for receipt in receipts
+        ) != _HUMAN_DECISION_PREDICATE_PROVENANCE or any(
+            receipt.rule_version_ref != self.rule_version_ref for receipt in receipts
+        ):
+            raise ValueError(
+                "human-decision v2 predicate provenance or rule version is not reconciled"
+            )
+        if self.five_rights_check != derive_five_rights_check(receipts):
+            raise ValueError("human-decision five-rights check is not receipt-derived")
         if actor.actor_ref != self.actor_ref or actor.tenant_id != self.tenant_id:
             raise ValueError("canonical actor does not match record identity binding")
         if self.actor_role not in actor.signed_roles:
@@ -742,7 +848,7 @@ class HumanDecisionRecord(Layer2ReadinessModel):
         self,
         handler: SerializerFunctionWrapHandler,
     ) -> dict[str, object]:
-        payload = handler(self)
+        payload = cast("dict[str, object]", handler(self))
         if self.schema_version == LAYER2_S7_DELEGATION_SCHEMA_VERSION:
             for field_name in _HUMAN_DECISION_V2_EXTENSION_FIELDS:
                 payload.pop(field_name, None)
@@ -935,6 +1041,9 @@ def build_human_decision_request(
     disposition: DelegationDisposition = (
         "no_interrupt" if no_interrupt else "request_human_decision"
     )
+    disconfirming_evidence_refs = (
+        f"pdc://layer2/s7/{slug}/disconfirming-evidence/{decision_class_id}",
+    )
     return HumanDecisionRequest(
         request_id=f"layer2.s7.request.{slug}.{decision_class_id}",
         request_ref=f"pdc://layer2/s7/{slug}/human-decision-request/{decision_class_id}",
@@ -956,9 +1065,7 @@ def build_human_decision_request(
         material_limitations=[
             "S7 can route and record a decision, but cannot grant production authority.",
         ],
-        disconfirming_evidence_refs=[
-            f"pdc://layer2/s7/{slug}/disconfirming-evidence/{decision_class_id}"
-        ],
+        disconfirming_evidence_refs=list(disconfirming_evidence_refs),
         value_stakes_impact=(
             "Decision routing affects governance accountability and mandate bounds."
         ),
@@ -973,6 +1080,15 @@ def build_human_decision_request(
             right_information="Limitations, disconfirming evidence, options, and consequences.",
             right_format_channel="reviewer_console",
             right_time="Before the design route can no longer change.",
+        ),
+        five_rights_binding=HumanDecisionFiveRightsBinding(
+            decision_class_id=decision_class_id,
+            decision_rights_matrix_ref=contract.decision_rights_matrix_ref,
+            required_role=row.required_role,
+            required_information_refs=disconfirming_evidence_refs,
+            required_channel="reviewer_console",
+            required_representation="full",
+            time_rule="intersection_of_signed_validity_intervals_pre_action",
         ),
         available_actions=list(row.available_actions),
         attention_cost_rank=max(1, voi_rank),
@@ -991,8 +1107,8 @@ def record_human_decision(
     case_id: str,
     request: HumanDecisionRequest,
     actor_ref: str,
-    actor_role: str,
-    decision_action_exercised: str,
+    actor_role: DecisionRole,
+    decision_action_exercised: DecisionAction,
     evidence_summary_ref: str | None,
     disconfirming_evidence_refs: Sequence[str],
     active_choice: bool | None,
@@ -1073,7 +1189,12 @@ def evaluate_delegation_for_case(
     """Evaluate S7 delegation routing for one corpus or negative-control case."""
 
     slug = _slug(case_id)
-    expected_reasons = [str(item) for item in expert_label.get("expected_need_reasons", [])]
+    raw_expected_reasons = expert_label.get("expected_need_reasons", [])
+    expected_reasons = (
+        [str(item) for item in cast("Sequence[object]", raw_expected_reasons)]
+        if isinstance(raw_expected_reasons, (list, tuple))
+        else []
+    )
     need_reasons = expected_reasons or _derive_need_reasons(case_signals)
     requested_mode = str(case_signals.get("requested_interaction_mode", "request_driven"))
     mandate_disposition = str(
@@ -1099,7 +1220,10 @@ def evaluate_delegation_for_case(
         fallback_disposition = (
             "no_interrupt" if "low_voi_no_interrupt" in need_reasons else "request_human_decision"
         )
-        disposition = str(expert_label.get("expected_disposition", fallback_disposition))
+        disposition = cast(
+            "DelegationDisposition",
+            str(expert_label.get("expected_disposition", fallback_disposition)),
+        )
         status = "pass" if disposition in {"recorded_valid_decision", "no_interrupt"} else "limit"
         block_reason = ""
         request_emitted = bool(
@@ -1190,7 +1314,7 @@ def _authority_boundary(
     rule_version_ref: str,
     *,
     authoritative_for: Sequence[str],
-    source_authority: str = "deterministic_producer",
+    source_authority: AuthoritySource = "deterministic_producer",
 ) -> AuthorityBoundary:
     return AuthorityBoundary(
         authoritative_for=list(authoritative_for),
@@ -1206,7 +1330,7 @@ def _matrix_row(
     slug: str,
     governance_decision_class: GovernanceDecisionClass,
     mode: DelegationInteractionMode,
-    role: str,
+    role: DecisionRole,
     delegated_autonomous_allowed: bool,
 ) -> DecisionRightsMatrixRow:
     return DecisionRightsMatrixRow(
@@ -1231,17 +1355,20 @@ def _mode_for_decision_class(decision_class_id: str) -> DelegationInteractionMod
     return "request_driven"
 
 
-def _role_for_decision_class(decision_class_id: str, fallback: str) -> str:
-    return {
-        "a_spec_gap": "policy_design_governance_reviewer",
-        "budget_use": "budget_owner",
-        "acquisition": "legal_approver",
-        "final_choice": "governance_board",
-        "value_authorization": "principal",
-        "mandate_boundary": "mandate_owner",
-        "data_access": "data_steward",
-        "routine_in_envelope": "domain_expert",
-    }.get(decision_class_id, fallback)
+def _role_for_decision_class(decision_class_id: str, fallback: str) -> DecisionRole:
+    return cast(
+        "DecisionRole",
+        {
+            "a_spec_gap": "policy_design_governance_reviewer",
+            "budget_use": "budget_owner",
+            "acquisition": "legal_approver",
+            "final_choice": "governance_board",
+            "value_authorization": "principal",
+            "mandate_boundary": "mandate_owner",
+            "data_access": "data_steward",
+            "routine_in_envelope": "domain_expert",
+        }.get(decision_class_id, fallback),
+    )
 
 
 def _row_for_decision_class(
@@ -1313,8 +1440,8 @@ def _derive_need_reasons(case_signals: Mapping[str, object]) -> list[str]:
 
 
 def _typed_need_reasons(reasons: Sequence[str]) -> list[DecisionNeedReason]:
-    allowed = set(DecisionNeedReason.__args__)
-    return [reason for reason in reasons if reason in allowed]
+    allowed = set(get_args(DecisionNeedReason))
+    return [cast("DecisionNeedReason", reason) for reason in reasons if reason in allowed]
 
 
 def _false_clear_count(rows: Sequence[Mapping[str, object]], probe_key: str) -> int:

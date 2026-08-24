@@ -79,9 +79,11 @@ define a second closure contract.
       root-only writer, and every path fence are re-read before each commit.
 - [ ] **CC02** One strict source union resolves signed GY-PA2 or production input;
       its complete status-permutation test never defaults a missing arm green.
-- [ ] **CC03** Existing `HumanDecisionRecord` is dual-read/write-v2, and durable
-      SQLite/PostgreSQL race tests admit exactly one live record per action key;
-      the PostgreSQL receipt selects tests and reports zero skips.
+- [ ] **CC03** Existing `HumanDecisionRecord` is dual-read/write-v2, and the
+      durable SQLite race test admits exactly one live record per action key.
+      The unavailable PostgreSQL lane remains an explicitly unproven residual;
+      its strict command and owner are carried through C08 rather than inferred
+      green from a missing DSN.
 - [ ] **CC04** V2 separates verified human-act evidence from PolicyOS custody
       signing; forged actor/custodian substitution tests fail.
 - [ ] **CC05** Every gate predicate has a frozen P37 class/source; falsifying a
@@ -493,14 +495,16 @@ corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run src/features/
 Caps count production mechanism paths. Tests, this plan/journal, generated and
 release files, register/debt/ledger records, and snapshots are P39 companions
 outside the cap. Each implementation cluster gets one implementation and one
-widening round; C00/C05 get one transaction round and C08 none: **14 total**.
+widening round; C00/C05 get one transaction round and C08 none. The approved
+execution amendment raises the slice ceiling from 14 to **18 genuine widening
+rounds**; narrowing repairs consume none.
 Second finding of one class triggers P40 widening or a bounded residual/falsifier.
 
 | cluster | property | cap | rounds |
 | --- | --- | ---: | ---: |
 | C00 | Admit the approved owner plan and pin real red witnesses. | 1 | 1 |
 | C01 | Version record/trust contracts; compose existing writer/event; reserve one live action durably. | 10 | 2 |
-| C02 | Add strict routes, exact exposure, permission/resource/Rego, pre-OPA bind, and step-up. | 10 | 2 |
+| C02 | Add strict routes, exact exposure, permission/resource/Rego, pre-OPA bind, and step-up. | 12 | 2 |
 | C03 | Bind production approval to record/basis/scorecard, install one attested resolver, and strangle raw derivatives. | 23 | 2 |
 | C04 | Derive review effectiveness from existing trail and records. | 5 | 2 |
 | C05 | Make supported-entrypoint inventory real, then regenerate frozen ABI and public facade atomically. | 1 | 1 |
@@ -571,6 +575,23 @@ corepack pnpm install --frozen-lockfile
 
 ### C01 — record and trusted-source service
 
+The approved C02 entry amendment may reopen
+`services/human_decision_contracts.py`, `services/human_decisions.py`,
+`container.py`, and `deployment_security.py` to bind exposure sessions to the
+authenticated subject and emit the already-declared `revalidation_required`
+state. These are narrowing repairs on C01's existing unique paths; they do not
+raise C01's unique-path cap or consume a widening round.
+
+CC05 also requires reopening
+`runtime/quality/design_axes/mandate_bounded_delegation.py` and
+`runtime/quality/agent_action_authority.py`, both already counted C01 mechanism
+paths: the rejected seam was the caller-constructible aggregate
+`FiveRightsCheck`/gate projection, which cannot prove five independently
+reconciled signed predicates. The same authority path reloads and content-binds
+the exact persisted action decision before an effect; an in-memory decision plus
+an unrelated durable receipt is rejected. Both changes only remove authority
+bypasses and consume no widening round.
+
 **Add:** `src/polisyos/runtime/http/services/human_decision_contracts.py`,
 `src/polisyos/runtime/http/services/human_decisions.py`.
 
@@ -625,7 +646,9 @@ POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN="$DS9_PG_DSN" uv run --extra test
 `src/polisyos/runtime/http/openapi_contract.py`,
 `src/polisyos/runtime/http/dependencies.py`,
 `src/polisyos/runtime/http/access_audit.py`, and
-`ops/policy/policies/action_permission.rego`.
+`ops/policy/policies/action_permission.rego`, plus the approved exact permission
+and middleware homes `src/polisyos/runtime/http/authorization.py` and
+`src/polisyos/runtime/http/authz_middleware.py`.
 
 **Modify (P39):** `src/polisyos/runtime/http/routes/README.md`,
 `tests/unit/runtime/http/test_runtime_permission_vocabulary.py`,
@@ -636,7 +659,10 @@ POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN="$DS9_PG_DSN" uv run --extra test
 `tests/unit/runtime/http/test_runtime_authorization_access_audit.py`,
 `tests/unit/runtime/http/test_runtime_api_observability.py`,
 `tests/unit/runtime/http/test_artifact_inspector_api.py`, and
-`tests/unit/runtime/http/test_artifact_surface_safety.py`; reuse C00 API tests.
+`tests/unit/runtime/http/test_artifact_surface_safety.py` and
+`tests/unit/runtime/http/test_ds20_seeded_negatives.py`; reuse C00 API/service
+tests. Subject-theft, safe-binding, replay-race, partial-send, and stale-
+revalidation falsifiers are P39 companions.
 
 **Named red:** `test_human_decision_requires_fresh_single_use_step_up`,
 `test_exposure_manifest_only_cross_run_cross_basis_stale_and_replay_block`,
@@ -922,7 +948,7 @@ Serialized resources and ceilings:
 | register-family lock | C00, C07, C08 as three separate acquisitions; DS-INFRA-2 119.66s → 240s each |
 | regeneration token | C05 governed writers only; DS-INFRA-2 supplies a completed timing for every exact writer, post-release checker, scratch generator, and comparison loop before C05, each frozen at `max(30s, 2x measured)`; absent command receipt blocks C05 |
 | visual lane | C08 only; DS-INFRA-2-supplied Playwright ceilings: per-test 90s, invocation 240s; exactly one writer then two no-writers |
-| PostgreSQL proof lane | C01; DS-INFRA-2 supplies a reachable disposable database with create/drop-schema privilege and a completed timing before the proof; freeze at `max(60s, 2x measured)`; absent DSN/timing or any skip blocks CC03 |
+| PostgreSQL proof lane | C01/C08 residual; no DSN is installed in this execution environment, so the strict command is an honest non-receipt and concurrent PostgreSQL reservation remains unproven; DS-INFRA-2 owns a reachable disposable database with create/drop-schema privilege, after which freeze at `max(60s, 2x measured)` and require selected > 0 with zero skips |
 | focused dashboard | ordinary lane; DS-INFRA-2 14.417s → 30s |
 | backend decision/auth | DS-INFRA-2 supplies 300s for each of the two exact C00 backend commands; after each first completion, its later runs freeze at `max(30s, 2x measured)` |
 | full closeout | `python3 -m tools.cli workspace ci-parity --skip-browser`; DS-INFRA-2 754.20s → 1,510s |
@@ -956,8 +982,13 @@ CI=1 PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 corepack pnpm 
 | presentation/register | private issuer plus six consumers; disposition checker/register/report |
 | governance records | debt checker/register, generated ledger, DS9 journal and this plan |
 
-An unlisted production path requires a stopped, owner-approved cap/path amendment.
-Never split one mechanism across commits to fit its cap.
+A production path outside a cluster's list is pre-authorized only when a named
+closure item requires it and no existing seam satisfies that item. The cluster
+receipt names the CC, the path, and the rejected seam. A narrowing repair that
+only removes a way the system can be fooled consumes no widening round. The
+original declared caps total 70 unique production paths; approved slack ends at
+the hard **78-path slice ceiling**. Reaching 78 stops execution. Never split one
+mechanism across commits to fit a cap.
 
 ## Issue Codes
 
@@ -978,7 +1009,7 @@ Never split one mechanism across commits to fit its cap.
 | `DS9-OFFLINE-REVALIDATION` | no queue/persistence; fresh online gate required |
 | `DS9-OVERLAPPING-REISSUE` | one live action reservation already exists |
 | `DS9-RESERVATION-RECOVERY-REQUIRED` | partial attempt must reconcile before reuse |
-| `DS9-PG-PROOF-NONRECEIPT` | DSN/provisioning/test absent or skipped; CC03 remains open |
+| `DS9-PG-PROOF-NONRECEIPT` | DSN/provisioning/test absent or skipped; carry an unproven residual owned by DS-INFRA-2 with the strict discharge command; never call it green |
 | `DS9-SCORECARD-PROVENANCE-MISSING` | foreign trust unverified; production approval blocked |
 | `DS9-PRODUCTION-PACKET-STALE` | v1/expired/drifted packet is historical only |
 | `DS9-RAW-APPROVAL-NOT-AUTHORITY` | raw field/ref/projection lacks fresh resolver; refuse |
@@ -1073,7 +1104,8 @@ merge/push/rebase/stash storage. History remains append-only under repository ru
 - No public rendering/signing, generic notes, or promotion-approval convergence.
 - No universal GY-PA2 coverage claim; DS14 retains outward orchestration.
 - No DV/Claim edit during GY-N12 Cluster 4's owner transaction.
-- No unlisted production path, mid-run ceiling widening, hand-edited generated output, or dual resource hold.
+- No unreported CC-required production path, path 79, mid-run ceiling widening,
+  hand-edited generated output, or dual resource hold.
 - No DS9 edit suppresses or reclassifies the baseline GY debt findings; C00 starts only after their owner supplies a green base.
 - No master-plan line-7 edit/revision bump; no merge or push to main.
 

@@ -12,8 +12,6 @@ default deployment_service_read_request := false
 
 default service_read_allow := false
 
-unsafe_methods := {"POST", "PUT", "PATCH", "DELETE"}
-
 # This set is a policy projection of RuntimePermission. The Python parity gate
 # evaluates this rule and requires exact equality with the server enum.
 permission_vocabulary := {
@@ -44,6 +42,7 @@ permission_vocabulary := {
 	"platform.view",
 	"runs.batch.read",
 	"runs.feedback.evaluate",
+	"runs.human_decisions.create",
 	"runs.launch",
 	"runs.production_approval.create",
 	"runs.reissue",
@@ -65,7 +64,9 @@ authorization_source_vocabulary := {
 	"deployment_service_principal",
 }
 
-# Every admitted unsafe route has one exact permission/resource/authority
+unsafe_methods := {"POST", "PUT", "PATCH", "DELETE"}
+
+# Every admitted action-guarded route has one exact permission/resource/authority
 # combination. Known values in a novel combination remain denied.
 action_contracts := {
 	"analysis.execute": {
@@ -96,12 +97,22 @@ action_contracts := {
 	},
 	"runs.batch.read": {"runtime.run.batch": {"ownership_verified"}},
 	"runs.feedback.evaluate": {"runtime.run.feedback_evaluation": {"ownership_verified"}},
+	"runs.human_decisions.create": {"runtime.run.human_decision": {"ownership_verified"}},
 	"runs.launch": {
 		"runtime.run_collection": {"tenant_collection"},
 		"runtime.run_collection.nl": {"tenant_collection"},
 	},
 	"runs.production_approval.create": {"runtime.run.production_approval": {"ownership_verified"}},
 	"runs.reissue": {"runtime.run.reissue": {"ownership_verified"}},
+	"runs.review": {
+		"runtime.case_inspection": {"tenant_collection"},
+		"runtime.governed_projection.depth_n_cycle_board": {"tenant_collection"},
+		"runtime.run.human_decision_evidence": {"ownership_verified"},
+		"runtime.run.human_decision_gate": {"ownership_verified"},
+		"runtime.run.human_decision_record": {"ownership_verified"},
+		"runtime.run.human_decision_review_effectiveness": {"ownership_verified"},
+		"runtime.run_paper": {"tenant_collection"},
+	},
 	"scenarios.create": {"runtime.run.scenario.candidate": {"candidate", "ownership_verified"}},
 }
 
@@ -119,6 +130,10 @@ service_read_contracts := {
 resource_class_vocabulary contains resource_class if {
 	some permission in permission_vocabulary
 	some resource_class, _authorities in action_contracts[permission]
+}
+
+action_request if {
+	object.get(input, "action", null) != null
 }
 
 action_request if {

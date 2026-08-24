@@ -25,6 +25,7 @@ from polisyos.pdc import (
     OperationInvocationRecord,
 )
 from polisyos.runtime.http.authorization import (
+    _BOUND_ACTION_PERMISSION_SEAL,
     ActionPermissionVerification,
     BoundActionPermissionVerification,
     ResourceBindingSource,
@@ -130,6 +131,7 @@ def _proof(
     return BoundActionPermissionVerification(
         verification=verification,
         bound_resource=resource,
+        _seal=_BOUND_ACTION_PERMISSION_SEAL,
     )
 
 
@@ -845,9 +847,7 @@ def _prepared_v2_human_decision(
         _signed_current_gate_fixture,
     )
 
-    contracts = importlib.import_module(
-        "polisyos.runtime.http.services.human_decision_contracts"
-    )
+    contracts = importlib.import_module("polisyos.runtime.http.services.human_decision_contracts")
     fixture = _signed_current_gate_fixture(tmp_path)
     source = fixture.source_decision
     gate_input = fixture.adapter_input
@@ -874,9 +874,7 @@ def _prepared_v2_human_decision(
             gate_input=gate_input,
             decision_action="approve",
             decision_mode="ordinary",
-            accountability_statement=(
-                "I accept accountability for this exact bounded action."
-            ),
+            accountability_statement=("I accept accountability for this exact bounded action."),
             dissent_statement="Disconfirming evidence remains visible and retained.",
             override_reason=None,
             blocking_reason=None,
@@ -886,9 +884,7 @@ def _prepared_v2_human_decision(
     )
     record = receipt.record
     envelope = next(
-        row
-        for row in fixture.contract.action_envelopes
-        if row.envelope_id == source.envelope_id
+        row for row in fixture.contract.action_envelopes if row.envelope_id == source.envelope_id
     )
     adapter = contracts.HumanDecisionPA2GatewayAdapterInput(
         tenant_id=record.tenant_id,
@@ -1612,6 +1608,52 @@ def test_envelope_is_decisive_while_happy_path_remains_valid(tmp_path: Path) -> 
     assert effects == ["search"]
 
 
+def test_effect_rejects_allowed_model_with_unrelated_persisted_receipt(
+    tmp_path: Path,
+) -> None:
+    authority = _authority_module()
+    harness = _harness(tmp_path)
+    effects: list[str] = []
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    binding = _binding(operation, effects)
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+    )
+    allowed = _produce(
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+    )
+    unrelated = allowed.model_copy(update={"decision_id": "decision.unrelated-receipt"})
+    unrelated_persisted = gateway.persist_decision(unrelated)
+    forged = authority.PersistedAgentActionDecision(
+        decision=allowed,
+        write_result=unrelated_persisted.write_result,
+        durable_event_id=unrelated_persisted.durable_event_id,
+    )
+
+    with pytest.raises(
+        authority.AgentActionAuthorityRecordingError,
+        match="exact persisted decision",
+    ):
+        gateway.execute_bound_effect(
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            persisted=forged,
+        )
+
+    assert effects == []
+
+
 def test_new_action_row_and_binding_free_grow_without_action_kind_code_change(
     tmp_path: Path,
 ) -> None:
@@ -1802,9 +1844,7 @@ def test_human_approval_cannot_replay_after_invocation_content_changes(
     )
     assert fixture.effects == ["search"]
 
-    changed_invocation = fixture.invocation.model_copy(
-        update={"parameters": {"limit": 1_000_000}}
-    )
+    changed_invocation = fixture.invocation.model_copy(update={"parameters": {"limit": 1_000_000}})
     changed_gateway, _, _ = _prepare_gateway(
         fixture.harness,
         contract=fixture.contract,
@@ -1845,6 +1885,7 @@ def test_malformed_inner_ds20_proof_is_persisted_as_refusal(tmp_path: Path) -> N
     malformed = BoundActionPermissionVerification(
         verification=malformed_verification,
         bound_resource=valid.bound_resource,
+        _seal=_BOUND_ACTION_PERMISSION_SEAL,
     )
     operation = _operation()
     invocation = _invocation(operation)

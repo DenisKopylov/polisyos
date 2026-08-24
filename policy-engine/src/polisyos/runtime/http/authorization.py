@@ -71,6 +71,7 @@ else:
 
 _UNSAFE_HTTP_METHODS = frozenset({"POST", "PUT", "PATCH", "DELETE"})
 _VERIFICATION_STATE_FIELD = "action_permission_verification"
+_BOUND_ACTION_PERMISSION_SEAL = object()
 CANONICAL_ROLE_AUTHORIZATION_SOURCE = "canonical_role_permissions"
 DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE = "deployment_service_principal"
 
@@ -90,9 +91,7 @@ class DeploymentPrincipalGrantResolver:
 
     def __init__(
         self,
-        bindings: Iterable[
-            tuple[_DeploymentPrincipalKey, Iterable[RuntimePermission]]
-        ],
+        bindings: Iterable[tuple[_DeploymentPrincipalKey, Iterable[RuntimePermission]]],
     ) -> None:
         permissions_by_identity: dict[
             _DeploymentPrincipalKey,
@@ -103,9 +102,7 @@ class DeploymentPrincipalGrantResolver:
                 not isinstance(identity_key, tuple)
                 or len(identity_key) != 5
                 or any(
-                    not isinstance(value, str)
-                    or not value
-                    or value != value.strip()
+                    not isinstance(value, str) or not value or value != value.strip()
                     for value in identity_key
                 )
                 or identity_key[0] != identity_key[0].rstrip("/")
@@ -116,12 +113,9 @@ class DeploymentPrincipalGrantResolver:
                 )
             permissions = frozenset(raw_permissions)
             if not permissions or any(
-                not isinstance(permission, RuntimePermission)
-                for permission in permissions
+                not isinstance(permission, RuntimePermission) for permission in permissions
             ):
-                raise TypeError(
-                    "deployment principal grants must contain RuntimePermission values"
-                )
+                raise TypeError("deployment principal grants must contain RuntimePermission values")
             if identity_key in permissions_by_identity:
                 raise ValueError("duplicate exact deployment principal binding")
             permissions_by_identity[identity_key] = permissions
@@ -240,7 +234,9 @@ def _validate_binding_token(value: str | None, *, field_name: str) -> None:
 class ResourceBindingSpec:
     """Describe the only admissible pre-policy binding strategy for a route.
 
-    ``body_field`` names a top-level array/identifier field for batch sources.
+    ``path_selector_parameters`` names additional path values that must be
+    content-bound after the primary owned path is resolved. ``body_field``
+    names a top-level array/identifier field for batch sources.
     ``parent_field`` names an optional owned parent carried in a request body.
     ``selector_fields`` identifies the request fields that form a canonical
     composite or candidate target. ``required_selector_fields`` is the closed
@@ -256,6 +252,8 @@ class ResourceBindingSpec:
     source: ResourceBindingSource
     resource_kind: str
     path_parameter: str | None = None
+    path_selector_parameters: tuple[str, ...] = ()
+    query_selector_parameters: tuple[str, ...] = ()
     body_field: str | None = None
     parent_field: str | None = None
     selector_fields: tuple[str, ...] = ()
@@ -269,6 +267,26 @@ class ResourceBindingSpec:
             raise TypeError("resource binding source must be a ResourceBindingSource")
         _validate_binding_token(self.resource_kind, field_name="resource_kind")
         _validate_binding_token(self.path_parameter, field_name="path_parameter")
+        if not isinstance(self.path_selector_parameters, tuple):
+            raise TypeError("path_selector_parameters must be an immutable tuple")
+        for parameter in self.path_selector_parameters:
+            _validate_binding_token(
+                parameter,
+                field_name="path_selector_parameters entry",
+            )
+        if len(set(self.path_selector_parameters)) != len(self.path_selector_parameters):
+            raise ValueError("path_selector_parameters must not contain duplicates")
+        if self.path_parameter in self.path_selector_parameters:
+            raise ValueError("path_selector_parameters must not repeat path_parameter")
+        if not isinstance(self.query_selector_parameters, tuple):
+            raise TypeError("query_selector_parameters must be an immutable tuple")
+        for parameter in self.query_selector_parameters:
+            _validate_binding_token(
+                parameter,
+                field_name="query_selector_parameters entry",
+            )
+        if len(set(self.query_selector_parameters)) != len(self.query_selector_parameters):
+            raise ValueError("query_selector_parameters must not contain duplicates")
         _validate_binding_token(self.body_field, field_name="body_field")
         _validate_binding_token(self.parent_field, field_name="parent_field")
         if not isinstance(self.selector_fields, tuple):
@@ -276,9 +294,7 @@ class ResourceBindingSpec:
         if not isinstance(self.required_selector_fields, tuple):
             raise TypeError("required_selector_fields must be an immutable tuple")
         if not isinstance(self.required_selector_alternatives, tuple):
-            raise TypeError(
-                "required_selector_alternatives must be an immutable tuple"
-            )
+            raise TypeError("required_selector_alternatives must be an immutable tuple")
         if not isinstance(self.parent_required, bool):
             raise TypeError("parent_required must be a bool")
         if not isinstance(self.allow_empty_body, bool):
@@ -292,9 +308,7 @@ class ResourceBindingSpec:
             )
         for alternative in self.required_selector_alternatives:
             if not isinstance(alternative, tuple) or not alternative:
-                raise TypeError(
-                    "required_selector_alternatives entries must be non-empty tuples"
-                )
+                raise TypeError("required_selector_alternatives entries must be non-empty tuples")
             for selector in alternative:
                 _validate_binding_token(
                     selector,
@@ -309,9 +323,7 @@ class ResourceBindingSpec:
         if len(set(self.required_selector_fields)) != len(self.required_selector_fields):
             raise ValueError("required_selector_fields must not contain duplicates")
         if not set(self.required_selector_fields).issubset(self.selector_fields):
-            raise ValueError(
-                "required_selector_fields must be a subset of selector_fields"
-            )
+            raise ValueError("required_selector_fields must be a subset of selector_fields")
         if len(set(self.required_selector_alternatives)) != len(
             self.required_selector_alternatives
         ):
@@ -320,9 +332,7 @@ class ResourceBindingSpec:
             not set(alternative).issubset(self.selector_fields)
             for alternative in self.required_selector_alternatives
         ):
-            raise ValueError(
-                "required_selector_alternatives must be subsets of selector_fields"
-            )
+            raise ValueError("required_selector_alternatives must be subsets of selector_fields")
 
         self._validate_source_fields()
 
@@ -342,6 +352,10 @@ class ResourceBindingSpec:
                 "required_selector_alternatives",
                 "parent_required",
             )
+            if source is ResourceBindingSource.RESOLVED_SELECTOR and (
+                self.path_selector_parameters or self.query_selector_parameters
+            ):
+                raise ValueError("resolved_selector cannot use owned-path selector parameters")
             return
 
         if source in {
@@ -352,6 +366,8 @@ class ResourceBindingSpec:
                 raise ValueError(f"{source.value} requires body_field")
             self._reject_fields(
                 "path_parameter",
+                "path_selector_parameters",
+                "query_selector_parameters",
                 "parent_field",
                 "selector_fields",
                 "required_selector_fields",
@@ -363,6 +379,10 @@ class ResourceBindingSpec:
         if source is ResourceBindingSource.CANDIDATE_TARGET_SLOT:
             if self.body_field is not None or self.parent_field is not None:
                 raise ValueError("candidate_target_slot cannot use body_field or parent_field")
+            if self.path_selector_parameters:
+                raise ValueError("candidate_target_slot cannot use path_selector_parameters")
+            if self.query_selector_parameters:
+                raise ValueError("candidate_target_slot cannot use query_selector_parameters")
             if self.parent_required:
                 raise ValueError("candidate_target_slot cannot require a body parent")
             if self.path_parameter is None and not self.selector_fields:
@@ -372,7 +392,12 @@ class ResourceBindingSpec:
         if source is ResourceBindingSource.OWNED_PARENT_OR_REQUEST_COMPOSITE:
             if self.parent_field is None:
                 raise ValueError("owned_parent_or_request_composite requires parent_field")
-            self._reject_fields("path_parameter", "body_field")
+            self._reject_fields(
+                "path_parameter",
+                "path_selector_parameters",
+                "query_selector_parameters",
+                "body_field",
+            )
             return
 
         if source is ResourceBindingSource.REQUEST_COMPOSITE:
@@ -380,6 +405,8 @@ class ResourceBindingSpec:
                 raise ValueError("request_composite requires selector_fields")
             self._reject_fields(
                 "path_parameter",
+                "path_selector_parameters",
+                "query_selector_parameters",
                 "body_field",
                 "parent_field",
                 "parent_required",
@@ -389,6 +416,8 @@ class ResourceBindingSpec:
         if source is ResourceBindingSource.TENANT_COLLECTION:
             self._reject_fields(
                 "path_parameter",
+                "path_selector_parameters",
+                "query_selector_parameters",
                 "body_field",
                 "parent_field",
                 "selector_fields",
@@ -440,12 +469,15 @@ class BoundActionPermissionVerification:
 
     verification: ActionPermissionVerification
     bound_resource: object
+    _seal: object = field(repr=False, compare=False)
 
     def __post_init__(self) -> None:
         if type(self.verification) is not ActionPermissionVerification:
             raise TypeError("verification must be an ActionPermissionVerification")
         if self.bound_resource is None:
             raise TypeError("bound_resource must be the exact frozen resource object")
+        if self._seal is not _BOUND_ACTION_PERMISSION_SEAL:
+            raise TypeError("bound action-permission proof must originate in the route dependency")
 
 
 @dataclass(frozen=True, slots=True)
@@ -603,8 +635,7 @@ class ActionPermissionDependency:
                 if (
                     frozen_resource is not existing.bound_resource
                     or not getattr(state, "authz_resource_frozen", False)
-                    or getattr(frozen_resource, "requirement", None)
-                    is not self.requirement
+                    or getattr(frozen_resource, "requirement", None) is not self.requirement
                 ):
                     raise forbidden(
                         "The action-permission proof is not bound to the frozen resource",
@@ -627,8 +658,7 @@ class ActionPermissionDependency:
                 if (
                     frozen_resource is None
                     or frozen_resource is not sealed_resource
-                    or getattr(frozen_resource, "requirement", None)
-                    is not self.requirement
+                    or getattr(frozen_resource, "requirement", None) is not self.requirement
                 ):
                     raise forbidden(
                         "The action-permission proof cannot consume the frozen resource",
@@ -637,6 +667,7 @@ class ActionPermissionDependency:
                 consumed = BoundActionPermissionVerification(
                     verification=existing,
                     bound_resource=frozen_resource,
+                    _seal=_BOUND_ACTION_PERMISSION_SEAL,
                 )
                 setattr(state, _VERIFICATION_STATE_FIELD, consumed)
                 return consumed
@@ -782,10 +813,17 @@ def install_route_authorization_openapi_contract(app: object) -> None:
         for candidate in application.routes:
             if _APIRoute is None or not isinstance(candidate, _APIRoute):
                 continue
-            unsafe_methods = set(candidate.methods) & _UNSAFE_HTTP_METHODS
-            if not unsafe_methods:
-                continue
+            candidate_methods = set(candidate.methods)
+            unsafe_methods = candidate_methods & _UNSAFE_HTTP_METHODS
             route = cast("_Route", cast("object", candidate))
+            guarded_safe_methods = (
+                candidate_methods - _UNSAFE_HTTP_METHODS
+                if route_action_permission_dependencies(route)
+                else set()
+            )
+            protected_methods = unsafe_methods | guarded_safe_methods
+            if not protected_methods:
+                continue
             requirement = get_route_authorization_requirement(route)
             binding = requirement.resource_binding
             binding_payload = {
@@ -794,6 +832,16 @@ def install_route_authorization_openapi_contract(app: object) -> None:
                 **(
                     {"path_parameter": binding.path_parameter}
                     if binding.path_parameter is not None
+                    else {}
+                ),
+                **(
+                    {"path_selector_parameters": list(binding.path_selector_parameters)}
+                    if binding.path_selector_parameters
+                    else {}
+                ),
+                **(
+                    {"query_selector_parameters": list(binding.query_selector_parameters)}
+                    if binding.query_selector_parameters
                     else {}
                 ),
                 **({"body_field": binding.body_field} if binding.body_field is not None else {}),
@@ -808,11 +856,7 @@ def install_route_authorization_openapi_contract(app: object) -> None:
                     else {}
                 ),
                 **(
-                    {
-                        "required_selector_fields": list(
-                            binding.required_selector_fields
-                        )
-                    }
+                    {"required_selector_fields": list(binding.required_selector_fields)}
                     if binding.required_selector_fields
                     else {}
                 ),
@@ -829,7 +873,7 @@ def install_route_authorization_openapi_contract(app: object) -> None:
                 **({"parent_required": True} if binding.parent_required else {}),
                 **({"allow_empty_body": True} if binding.allow_empty_body else {}),
             }
-            for method in unsafe_methods:
+            for method in protected_methods:
                 operation = schema["paths"][candidate.path][method.lower()]
                 operation["x-polisyos-action-permission"] = requirement.permission.value
                 operation["x-polisyos-resource-binding"] = binding_payload

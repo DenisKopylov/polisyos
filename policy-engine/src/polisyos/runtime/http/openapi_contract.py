@@ -3199,6 +3199,25 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
 }
 
 
+def _first_success_response(
+    responses: dict[str, Any],
+) -> tuple[str, dict[str, Any]] | None:
+    """Return the lowest declared 2xx response without assuming every write is 200."""
+    candidates: list[tuple[int, str, dict[str, Any]]] = []
+    for status_code, response in responses.items():
+        if (
+            isinstance(status_code, str)
+            and status_code.isdigit()
+            and 200 <= int(status_code) < 300
+            and isinstance(response, dict)
+        ):
+            candidates.append((int(status_code), status_code, response))
+    if not candidates:
+        return None
+    _numeric, status_code, response = min(candidates, key=lambda item: item[0])
+    return status_code, response
+
+
 def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
     """Augment runtime openapi helper."""
     mutated = deepcopy(schema)
@@ -3245,9 +3264,10 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
                     }
                 }
 
-        success_response = responses.get("200")
-        if not isinstance(success_response, dict):
+        success_pair = _first_success_response(responses)
+        if success_pair is None:
             continue
+        _success_status, success_response = success_pair
         success_content = success_response.get("content")
         if not isinstance(success_content, dict):
             continue
@@ -3296,7 +3316,8 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
             violations.append(f"{method.upper()} {path}: missing responses object")
             continue
 
-        success = responses.get("200")
+        success_pair = _first_success_response(responses)
+        success = success_pair[1] if success_pair is not None else None
         success_example_found = False
         if isinstance(success, dict):
             content = success.get("content")
@@ -3313,7 +3334,7 @@ def validate_runtime_openapi_contract(schema: dict[str, Any]) -> list[str]:
                 elif content:
                     success_example_found = True
         if not success_example_found:
-            violations.append(f"{method.upper()} {path}: missing success response example")
+            violations.append(f"{method.upper()} {path}: missing 2xx success response example")
         operation_id = operation.get("operationId")
         if isinstance(operation_id, str):
             required_links = _SUCCESS_LINKS_BY_OPERATION.get(operation_id, {})

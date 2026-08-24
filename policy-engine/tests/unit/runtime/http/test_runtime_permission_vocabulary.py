@@ -40,6 +40,7 @@ _EXPECTED_RUNTIME_PERMISSION_VALUES = (
     "platform.view",
     "runs.batch.read",
     "runs.feedback.evaluate",
+    "runs.human_decisions.create",
     "runs.launch",
     "runs.production_approval.create",
     "runs.reissue",
@@ -56,6 +57,7 @@ _ADMIN_ONLY_PERMISSION_VALUES: frozenset[str] = frozenset(
         "runs.reissue",
     }
 )
+_HUMAN_DECISION_PERMISSION_VALUE = "runs.human_decisions.create"
 _EXPECTED_ROLE_PERMISSION_VALUES: dict[PolicyOSRole, frozenset[str]] = {
     PolicyOSRole.ADMIN: _ALL_RUNTIME_PERMISSION_VALUES,
     PolicyOSRole.ANALYST: _ALL_RUNTIME_PERMISSION_VALUES
@@ -78,10 +80,10 @@ _EXPECTED_ROLE_PERMISSION_VALUES: dict[PolicyOSRole, frozenset[str]] = {
     ),
     PolicyOSRole.SERVICE: _ALL_RUNTIME_PERMISSION_VALUES
     - _ADMIN_ONLY_PERMISSION_VALUES
-    - {"evidence.acquire", "scenarios.create"},
+    - {"evidence.acquire", "scenarios.create", _HUMAN_DECISION_PERMISSION_VALUE},
     PolicyOSRole.SYSTEM: _ALL_RUNTIME_PERMISSION_VALUES
     - _ADMIN_ONLY_PERMISSION_VALUES
-    - {"evidence.acquire", "scenarios.create"},
+    - {"evidence.acquire", "scenarios.create", _HUMAN_DECISION_PERMISSION_VALUE},
 }
 
 
@@ -131,6 +133,17 @@ def test_non_admin_roles_never_gain_admin_only_authority() -> None:
     for role in PolicyOSRole:
         if role is not PolicyOSRole.ADMIN:
             assert ROLE_PERMISSION_GRANTS[role].isdisjoint(admin_only_permissions)
+
+
+def test_human_decision_create_is_only_granted_to_accountable_human_roles() -> None:
+    permission = RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE
+
+    assert permission in ROLE_PERMISSION_GRANTS[PolicyOSRole.ADMIN]
+    assert permission in ROLE_PERMISSION_GRANTS[PolicyOSRole.ANALYST]
+    assert all(
+        permission not in ROLE_PERMISSION_GRANTS[role]
+        for role in (PolicyOSRole.VIEWER, PolicyOSRole.SERVICE, PolicyOSRole.SYSTEM)
+    )
 
 
 def test_http_auth_me_response_preserves_core_shape_except_permission_type() -> None:

@@ -288,6 +288,19 @@ class PersistedApplicablePredicateDenominator(_ChronologyModel):
     denominator_content_hash: Digest
     statement: ApplicablePredicateDenominatorStatement
 
+    @model_validator(mode="after")
+    def _bind_persisted_identities(self) -> PersistedApplicablePredicateDenominator:
+        statement_bytes = _frame_record(_canonical_raw_bytes(_raw_model_mapping(self.statement)))
+        expected_artifact_id = ArtifactID.from_sha256_hex(content_hash(statement_bytes))
+        if self.denominator_content_hash != _denominator_content_hash(self.statement):
+            raise ValueError("denominator semantic identity differs from statement")
+        if (
+            self.cas_raw_bytes_hash != str(expected_artifact_id)
+            or self.artifact_ref.artifact_id != expected_artifact_id
+        ):
+            raise ValueError("denominator raw identity differs from statement")
+        return self
+
 
 class PredicatePolicyAdmissionStatement(_ChronologyModel):
     """Owner admission binding a query coordinate to exact policy bytes."""
@@ -1591,6 +1604,30 @@ class PersistedChronologyProof(_ChronologyModel):
     verifier_result_content_hash: Digest
     verification_statement: FullPrefixVerificationStatement
 
+    @model_validator(mode="after")
+    def _bind_persisted_copies(self) -> PersistedChronologyProof:
+        statement = self.verification_statement
+        if not isinstance(statement.result, FullPrefixVerified):
+            raise ValueError("persisted proof result differs from verified proof")
+        if statement.bundle_ref != self.artifact_ref:
+            raise ValueError("persisted proof bundle ref differs from statement")
+        if self.cas_raw_bytes_hash != str(self.artifact_ref.artifact_id):
+            raise ValueError("persisted proof raw identity differs from bundle ref")
+        if (
+            self.protocol_bundle_content_hash != statement.result.bundle_content_hash
+            or statement.expected_bundle_content_hash != self.protocol_bundle_content_hash
+        ):
+            raise ValueError("persisted proof protocol hash differs from statement")
+        if self.parsed_header != statement.result.parsed_header:
+            raise ValueError("persisted proof parsed header differs from statement")
+        statement_bytes = _frame_record(_canonical_raw_bytes(_raw_model_mapping(statement)))
+        expected_sidecar_id = ArtifactID.from_sha256_hex(content_hash(statement_bytes))
+        if self.verifier_result_ref.artifact_id != expected_sidecar_id:
+            raise ValueError("persisted proof sidecar ref differs from statement")
+        if self.verifier_result_content_hash != _verification_statement_content_hash(statement):
+            raise ValueError("persisted proof sidecar hash differs from statement")
+        return self
+
 
 class ChronologyPersistenceManifestMismatch(_ChronologyModel):
     """First-writer manifest differs from the fixed chronology contract."""
@@ -1682,6 +1719,12 @@ class NativeChronologyOwnerContext(_ChronologyModel):
     def _same_query(self) -> NativeChronologyOwnerContext:
         if self.owner_qualified_candidate.candidate.query != self.query:
             raise ValueError("owner context query differs from qualified candidate")
+        policy = self.owner_qualified_candidate.owner_relation_verification.policy_owner_provenance
+        if (
+            self.predicate_admission_policy_ref != policy.policy_ref
+            or self.predicate_admission_policy_content_hash != policy.policy_content_hash
+        ):
+            raise ValueError("owner context policy identity differs from owner receipt")
         return self
 
 
@@ -1700,7 +1743,55 @@ class NativeChronologyReconciliation(_ChronologyModel):
             for member in candidate.ordered_members
         ):
             raise ValueError("reconciliation profile differs from a member profile")
+        denominator = self.applicable_predicate_denominator.statement
+        if (
+            denominator.policy_ref != self.owner_context.predicate_admission_policy_ref
+            or denominator.policy_content_hash
+            != self.owner_context.predicate_admission_policy_content_hash
+        ):
+            raise ValueError("denominator policy identity differs from owner context")
+        member_refs = tuple(member.member_ref for member in candidate.ordered_members)
+        if denominator.member_subject_refs != member_refs:
+            raise ValueError("denominator member sequence differs from owner candidate")
         return self
+
+
+def _proof_header_matches_reconciliation(
+    *,
+    header: ChronologyBundleHeader,
+    reconciliation: NativeChronologyReconciliation,
+) -> bool:
+    """Return whether a parsed proof header binds the exact reconciliation."""
+    query = reconciliation.owner_context.query
+    candidate = reconciliation.owner_context.owner_qualified_candidate.candidate
+    domain = query.domain
+    return (
+        header.format == domain.format
+        and header.profile == domain.profile
+        and header.proof_domain == domain.proof_domain
+        and header.family == domain.family
+        and header.scope_ref == domain.scope_ref
+        and header.authority_purpose == domain.authority_purpose
+        and header.native_schema_profile == reconciliation.authoritative_native_schema_profile
+        and header.declared_denominator_ref == candidate.declared_denominator_ref
+        and header.requested_cutoff_ref == query.requested_cutoff_ref
+        and header.requested_query_context_ref == query.requested_query_context_ref
+        and header.member_count == len(candidate.ordered_members)
+        and header.native_bytes_total
+        == sum(len(member.native_bytes) for member in candidate.ordered_members)
+    )
+
+
+def _require_proof_header_matches_reconciliation(
+    *,
+    header: ChronologyBundleHeader,
+    reconciliation: NativeChronologyReconciliation,
+) -> None:
+    if not _proof_header_matches_reconciliation(
+        header=header,
+        reconciliation=reconciliation,
+    ):
+        raise ValueError("proof header differs from reconciliation")
 
 
 class NativeChronologyQualified(_ChronologyModel):
@@ -1711,6 +1802,21 @@ class NativeChronologyQualified(_ChronologyModel):
     proof_result: FullPrefixVerified
     persisted_proof: PersistedChronologyProof
 
+    @model_validator(mode="after")
+    def _bind_verified_and_persisted_proof(self) -> NativeChronologyQualified:
+        _require_proof_header_matches_reconciliation(
+            header=self.proof_result.parsed_header,
+            reconciliation=self.reconciliation,
+        )
+        persisted = self.persisted_proof
+        if (
+            persisted.verification_statement.result != self.proof_result
+            or persisted.parsed_header != self.proof_result.parsed_header
+            or persisted.protocol_bundle_content_hash != self.proof_result.bundle_content_hash
+        ):
+            raise ValueError("persisted proof differs from verified proof")
+        return self
+
 
 class NativeFullPrefixBuildRejected(_ChronologyModel):
     """Profile-capacity failure after positive owner reconciliation."""
@@ -1718,6 +1824,15 @@ class NativeFullPrefixBuildRejected(_ChronologyModel):
     result_kind: Literal["build_rejected"]
     reconciliation: NativeChronologyReconciliation
     build_result: FullPrefixBuildRejected
+
+    @model_validator(mode="after")
+    def _bind_build_request(self) -> NativeFullPrefixBuildRejected:
+        candidate = self.reconciliation.owner_context.owner_qualified_candidate.candidate
+        if self.build_result.domain != self.reconciliation.owner_context.query.domain:
+            raise ValueError("build rejection domain differs from reconciliation")
+        if self.build_result.requested_member_count != len(candidate.ordered_members):
+            raise ValueError("build rejection member count differs from reconciliation")
+        return self
 
 
 class NativeSchemaProfileRejected(_ChronologyModel):
@@ -1744,6 +1859,16 @@ class NativePredicateRejected(_ChronologyModel):
     owner_context: NativeChronologyOwnerContext
     evidence_refs: tuple[ArtifactRef, ...]
 
+    @model_validator(mode="after")
+    def _bind_owner_evidence(self) -> NativePredicateRejected:
+        receipt = self.owner_context.owner_qualified_candidate.owner_relation_verification
+        owner_evidence_refs = tuple(
+            row.evidence_ref for row in receipt.predicate_evidence if row.evidence_ref is not None
+        )
+        if any(ref not in owner_evidence_refs for ref in self.evidence_refs):
+            raise ValueError("predicate rejection evidence is absent from owner receipt")
+        return self
+
 
 class NativeFullPrefixProofRejected(_ChronologyModel):
     """Real common verifier rejected the built native prefix."""
@@ -1752,6 +1877,15 @@ class NativeFullPrefixProofRejected(_ChronologyModel):
     code: Literal["full_prefix_proof_rejected"]
     reconciliation: NativeChronologyReconciliation
     proof_result: FullPrefixRejected
+
+    @model_validator(mode="after")
+    def _bind_parsed_header(self) -> NativeFullPrefixProofRejected:
+        if self.proof_result.parsed_header is not None:
+            _require_proof_header_matches_reconciliation(
+                header=self.proof_result.parsed_header,
+                reconciliation=self.reconciliation,
+            )
+        return self
 
 
 type NativeChronologyCandidateRejected = (
@@ -1768,6 +1902,17 @@ class NativeExteriorNotEstablished(_ChronologyModel):
     exterior_limitation_code: str = Field(min_length=1)
     proof_result: FullPrefixVerified
 
+    @model_validator(mode="after")
+    def _bind_limitation_mask(self) -> NativeExteriorNotEstablished:
+        _require_proof_header_matches_reconciliation(
+            header=self.proof_result.parsed_header,
+            reconciliation=self.reconciliation,
+        )
+        candidate = self.reconciliation.owner_context.owner_qualified_candidate.candidate
+        if candidate.exterior_limitation_code != self.exterior_limitation_code:
+            raise ValueError("limitation mask differs from exterior-only leaf")
+        return self
+
 
 class NativeAuthorityHeadNotEstablished(_ChronologyModel):
     """Verified prefix whose family requires but lacks a native authority head."""
@@ -1777,6 +1922,17 @@ class NativeAuthorityHeadNotEstablished(_ChronologyModel):
     reconciliation: NativeChronologyReconciliation
     required_native_head_role: str = Field(min_length=1)
     proof_result: FullPrefixVerified
+
+    @model_validator(mode="after")
+    def _bind_limitation_mask(self) -> NativeAuthorityHeadNotEstablished:
+        _require_proof_header_matches_reconciliation(
+            header=self.proof_result.parsed_header,
+            reconciliation=self.reconciliation,
+        )
+        candidate = self.reconciliation.owner_context.owner_qualified_candidate.candidate
+        if candidate.exterior_limitation_code is not None or candidate.native_authority_head_refs:
+            raise ValueError("limitation mask differs from head-only leaf")
+        return self
 
 
 class NativeExteriorAndAuthorityHeadNotEstablished(_ChronologyModel):
@@ -1788,6 +1944,20 @@ class NativeExteriorAndAuthorityHeadNotEstablished(_ChronologyModel):
     required_native_head_role: str = Field(min_length=1)
     proof_result: FullPrefixVerified
 
+    @model_validator(mode="after")
+    def _bind_limitation_mask(self) -> NativeExteriorAndAuthorityHeadNotEstablished:
+        _require_proof_header_matches_reconciliation(
+            header=self.proof_result.parsed_header,
+            reconciliation=self.reconciliation,
+        )
+        candidate = self.reconciliation.owner_context.owner_qualified_candidate.candidate
+        if (
+            candidate.exterior_limitation_code != self.exterior_limitation_code
+            or candidate.native_authority_head_refs
+        ):
+            raise ValueError("limitation mask differs from combined leaf")
+        return self
+
 
 class NativeProjectionCustodyGap(_ChronologyModel):
     """Verified native terminal lacks its family projection custody receipt."""
@@ -1798,6 +1968,17 @@ class NativeProjectionCustodyGap(_ChronologyModel):
     reconciliation: NativeChronologyReconciliation
     proof_result: FullPrefixVerified
     missing_projection_receipt_role: Literal["native_projection_receipt"]
+
+    @model_validator(mode="after")
+    def _bind_zero_limitation_mask(self) -> NativeProjectionCustodyGap:
+        _require_proof_header_matches_reconciliation(
+            header=self.proof_result.parsed_header,
+            reconciliation=self.reconciliation,
+        )
+        candidate = self.reconciliation.owner_context.owner_qualified_candidate.candidate
+        if candidate.exterior_limitation_code is not None:
+            raise ValueError("limitation mask differs from projection leaf")
+        return self
 
 
 class NativeQualificationProcessGenerationNotEstablished(_ChronologyModel):
@@ -1856,6 +2037,13 @@ class NativeChronologyPersistenceFailed(_ChronologyModel):
     def _same_query(self) -> NativeChronologyPersistenceFailed:
         if self.failure.query != self.reconciliation.owner_context.query:
             raise ValueError("persistence failure has a different query")
+        if isinstance(self.failure, ChronologyPersistenceVerificationMismatch):
+            parsed_header = self.failure.proof_result.parsed_header
+            if parsed_header is not None:
+                _require_proof_header_matches_reconciliation(
+                    header=parsed_header,
+                    reconciliation=self.reconciliation,
+                )
         return self
 
 

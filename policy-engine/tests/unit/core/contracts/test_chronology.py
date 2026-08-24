@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
@@ -79,9 +80,14 @@ def _member(
     )
 
 
-def _owner_qualified_candidate() -> contract.OwnerQualifiedNativeCandidate:
+def _owner_qualified_candidate(
+    *,
+    query: contract.NativeChronologyQuery | None = None,
+    exterior_limitation_code: str | None = None,
+    native_authority_head_refs: tuple[contract.Digest, ...] = (),
+) -> contract.OwnerQualifiedNativeCandidate:
     member = _member()
-    query = _query()
+    resolved_query = query or _query()
     policy_owner_provenance = contract.VerifiedPolicyOwnerProvenance(
         policy_ref=_ref("a", kind="predicate-policy"),
         policy_content_hash=_digest("a"),
@@ -95,7 +101,7 @@ def _owner_qualified_candidate() -> contract.OwnerQualifiedNativeCandidate:
         predicate_class="independently_reconciled",
     )
     candidate = contract.NativeChronologyCandidate(
-        query=query,
+        query=resolved_query,
         declared_denominator_ref=_digest("1"),
         native_denominator_artifact_ref=_ref("b", kind="native-denominator"),
         native_denominator_content_hash=_digest("1"),
@@ -104,12 +110,12 @@ def _owner_qualified_candidate() -> contract.OwnerQualifiedNativeCandidate:
         ordered_members=(member,),
         member_predicates=(),
         query_predicates=(),
-        exterior_limitation_code=None,
-        native_authority_head_refs=(),
+        exterior_limitation_code=exterior_limitation_code,
+        native_authority_head_refs=native_authority_head_refs,
     )
     candidate_hash = contract._native_candidate_content_hash(candidate)
     owner_relation = contract.VerifiedPredicatePolicyOwnerRelation(
-        query=query,
+        query=resolved_query,
         owner_relation_ref=_ref("5", kind="owner-relation"),
         owner_relation_content_hash=_digest("5"),
         owner_verifier_provenance_ref=_ref("4", kind="owner-verifier"),
@@ -130,7 +136,7 @@ def _owner_qualified_candidate() -> contract.OwnerQualifiedNativeCandidate:
         ),
         query_context_identity=contract.VerifiedNativeSubjectIdentity(
             subject_kind="query_context",
-            subject_ref=query.requested_query_context_ref,
+            subject_ref=resolved_query.requested_query_context_ref,
             artifact_ref=candidate.query_context_artifact_ref,
             raw_cas_hash=_digest("c"),
             semantic_content_hash=candidate.query_context_content_hash,
@@ -155,6 +161,140 @@ def _owner_qualified_candidate() -> contract.OwnerQualifiedNativeCandidate:
         candidate_content_hash=candidate_hash,
         owner_relation_verification=owner_relation,
     )
+
+
+def _raw_artifact_ref(payload: bytes, *, kind: str) -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id=ArtifactID(f"sha256:{hashlib.sha256(payload).hexdigest()}"),
+        kind=kind,
+        media_type="application/octet-stream",
+    )
+
+
+def _owner_context(
+    qualified: contract.OwnerQualifiedNativeCandidate,
+) -> contract.NativeChronologyOwnerContext:
+    policy = qualified.owner_relation_verification.policy_owner_provenance
+    return contract.NativeChronologyOwnerContext(
+        query=qualified.candidate.query,
+        owner_qualified_candidate=qualified,
+        policy_admission_ref=_ref("d", kind="policy-admission"),
+        policy_admission_content_hash=_digest("d"),
+        predicate_admission_policy_ref=policy.policy_ref,
+        predicate_admission_policy_content_hash=policy.policy_content_hash,
+    )
+
+
+def _self_consistent_denominator(
+    statement: contract.ApplicablePredicateDenominatorStatement,
+) -> contract.PersistedApplicablePredicateDenominator:
+    raw_statement = contract._canonical_raw_bytes(contract._raw_model_mapping(statement))
+    artifact_ref = _raw_artifact_ref(
+        contract._frame_record(raw_statement),
+        kind="core.chronology.applicable_predicate_denominator",
+    )
+    return contract.PersistedApplicablePredicateDenominator(
+        artifact_ref=artifact_ref,
+        cas_raw_bytes_hash=str(artifact_ref.artifact_id),
+        denominator_content_hash=contract._denominator_content_hash(statement),
+        statement=statement,
+    )
+
+
+def _reconciliation(
+    tmp_path: Path,
+    *,
+    qualified: contract.OwnerQualifiedNativeCandidate | None = None,
+) -> contract.NativeChronologyReconciliation:
+    resolved = qualified or _owner_qualified_candidate()
+    policy = resolved.owner_relation_verification.policy_owner_provenance
+    statement = contract.ApplicablePredicateDenominatorStatement(
+        schema_version="polisyos.chronology.applicable-predicate-denominator.v1",
+        policy_ref=policy.policy_ref,
+        policy_content_hash=policy.policy_content_hash,
+        member_subject_refs=tuple(
+            member.member_ref for member in resolved.candidate.ordered_members
+        ),
+        required_member_predicate_pairs=(),
+        required_query_predicate_ids=(),
+    )
+    persisted = contract.ChronologyApplicablePredicateDenominatorArtifacts(
+        store=FileSystemCAS(tmp_path / "reconciliation-cas")
+    ).persist_and_verify(
+        query=resolved.candidate.query,
+        statement=statement,
+        owner_qualified_candidate=resolved,
+    )
+    assert isinstance(persisted, contract.PersistedApplicablePredicateDenominator)
+    return contract.NativeChronologyReconciliation(
+        owner_context=_owner_context(resolved),
+        authoritative_native_schema_profile="conformance.native@1",
+        applicable_predicate_denominator=persisted,
+    )
+
+
+@dataclass(frozen=True)
+class _VerifiedCase:
+    bundle: contract.EncodedChronologyBundle
+    result: contract.FullPrefixVerified
+    persisted: contract.PersistedChronologyProof
+
+
+def _verified_case(
+    reconciliation: contract.NativeChronologyReconciliation,
+    *,
+    requested_query_context_ref: contract.Digest | None = None,
+) -> _VerifiedCase:
+    candidate = reconciliation.owner_context.owner_qualified_candidate.candidate
+    query = reconciliation.owner_context.query
+    request = contract.ChronologyBundleRequest(
+        domain=query.domain,
+        native_schema_profile=reconciliation.authoritative_native_schema_profile,
+        declared_denominator_ref=candidate.declared_denominator_ref,
+        requested_cutoff_ref=query.requested_cutoff_ref,
+        requested_query_context_ref=(
+            requested_query_context_ref or query.requested_query_context_ref
+        ),
+        members=candidate.ordered_members,
+    )
+    bundle = core.build_full_prefix_bundle(request)
+    assert isinstance(bundle, contract.EncodedChronologyBundle)
+    result = core.FullPrefixVerifier().verify_bundle(
+        bundle.bundle_bytes,
+        expected_domain=request.domain,
+        expected_bundle_content_hash=bundle.bundle_content_hash,
+    )
+    assert isinstance(result, contract.FullPrefixVerified)
+    bundle_ref = _raw_artifact_ref(
+        bundle.bundle_bytes,
+        kind="core.chronology.full_prefix.bundle",
+    )
+    statement = contract.FullPrefixVerificationStatement(
+        schema_version="polisyos.chronology.full-prefix-verification-result.v1",
+        bundle_ref=bundle_ref,
+        expected_domain=request.domain,
+        expected_prefix=None,
+        expected_bundle_content_hash=bundle.bundle_content_hash,
+        result=result,
+    )
+    statement_bytes = contract._frame_record(
+        contract._canonical_raw_bytes(contract._raw_model_mapping(statement))
+    )
+    verifier_result_ref = _raw_artifact_ref(
+        statement_bytes,
+        kind="core.chronology.full_prefix.verification_result",
+    )
+    persisted = contract.PersistedChronologyProof(
+        result_kind="persisted",
+        artifact_ref=bundle_ref,
+        cas_raw_bytes_hash=str(bundle_ref.artifact_id),
+        protocol_bundle_content_hash=bundle.bundle_content_hash,
+        parsed_header=bundle.header,
+        verifier_result_ref=verifier_result_ref,
+        verifier_result_content_hash=contract._verification_statement_content_hash(statement),
+        verification_statement=statement,
+    )
+    return _VerifiedCase(bundle=bundle, result=result, persisted=persisted)
 
 
 def test_zero_member_golden_vector_is_byte_exact() -> None:
@@ -655,3 +795,340 @@ def test_denominator_adapter_persists_reloads_and_detects_live_store_corruption(
     assert isinstance(corrupted, contract.ApplicablePredicateDenominatorArtifactFailure)
     assert corrupted.status == "not_established"
     assert corrupted.evidence_ref == persisted.artifact_ref
+
+
+def test_owner_context_rejects_policy_identity_not_bound_by_owner_receipt() -> None:
+    qualified = _owner_qualified_candidate()
+    context = _owner_context(qualified)
+
+    with pytest.raises(ValidationError, match="policy identity differs from owner receipt"):
+        contract.NativeChronologyOwnerContext.model_validate(
+            {
+                **context.model_dump(mode="python"),
+                "predicate_admission_policy_ref": _ref("f", kind="predicate-policy"),
+            }
+        )
+
+
+@pytest.mark.parametrize("changed_copy", ["semantic_hash", "raw_identity"])
+def test_persisted_denominator_rejects_self_inconsistent_identity_copies(
+    tmp_path: Path,
+    changed_copy: str,
+) -> None:
+    persisted = _reconciliation(tmp_path).applicable_predicate_denominator
+    payload = persisted.model_dump(mode="python")
+    if changed_copy == "semantic_hash":
+        payload["denominator_content_hash"] = _digest("f")
+    else:
+        payload["cas_raw_bytes_hash"] = _digest("f")
+
+    with pytest.raises(ValidationError, match=r"denominator .* identity"):
+        contract.PersistedApplicablePredicateDenominator.model_validate(payload)
+
+
+@pytest.mark.parametrize("changed_relation", ["policy", "members"])
+def test_reconciliation_rejects_denominator_not_bound_to_owner_candidate(
+    tmp_path: Path,
+    changed_relation: str,
+) -> None:
+    reconciliation = _reconciliation(tmp_path)
+    statement_payload = reconciliation.applicable_predicate_denominator.statement.model_dump(
+        mode="python"
+    )
+    if changed_relation == "policy":
+        statement_payload["policy_ref"] = _ref("f", kind="predicate-policy")
+        statement_payload["policy_content_hash"] = _digest("f")
+    else:
+        statement_payload["member_subject_refs"] = (_digest("f"),)
+    statement = contract.ApplicablePredicateDenominatorStatement.model_validate(statement_payload)
+    internally_consistent = _self_consistent_denominator(statement)
+
+    with pytest.raises(ValidationError, match=r"denominator .* differs"):
+        contract.NativeChronologyReconciliation(
+            owner_context=reconciliation.owner_context,
+            authoritative_native_schema_profile=(
+                reconciliation.authoritative_native_schema_profile
+            ),
+            applicable_predicate_denominator=internally_consistent,
+        )
+
+
+def test_predicate_rejection_rejects_evidence_absent_from_owner_receipt() -> None:
+    context = _owner_context(_owner_qualified_candidate())
+
+    with pytest.raises(ValidationError, match="evidence is absent from owner receipt"):
+        contract.NativePredicateRejected(
+            result_kind="predicate_rejected",
+            code="native_predicate_inadmissible",
+            owner_context=context,
+            evidence_refs=(_ref("f", kind="predicate-evidence"),),
+        )
+
+
+def test_build_rejection_binds_domain_and_member_count_to_reconciliation(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    reconciliation = _reconciliation(tmp_path)
+    candidate = reconciliation.owner_context.owner_qualified_candidate.candidate
+    foreign_domain = _domain(family="inventory", scope_fill="f")
+    request = contract.ChronologyBundleRequest(
+        domain=foreign_domain,
+        native_schema_profile=reconciliation.authoritative_native_schema_profile,
+        declared_denominator_ref=candidate.declared_denominator_ref,
+        requested_cutoff_ref=reconciliation.owner_context.query.requested_cutoff_ref,
+        requested_query_context_ref=(
+            reconciliation.owner_context.query.requested_query_context_ref
+        ),
+        members=candidate.ordered_members,
+    )
+    monkeypatch.setattr(contract, "FULL_PREFIX_MAX_MEMBERS", 0)
+    rejected = core.build_full_prefix_bundle(request)
+    assert isinstance(rejected, contract.FullPrefixBuildRejected)
+
+    with pytest.raises(
+        ValidationError,
+        match=r"build rejection .* differs from reconciliation",
+    ):
+        contract.NativeFullPrefixBuildRejected(
+            result_kind="build_rejected",
+            reconciliation=reconciliation,
+            build_result=rejected,
+        )
+
+
+def _foreign_prefix_rejection(
+    reconciliation: contract.NativeChronologyReconciliation,
+) -> contract.FullPrefixExpectedPrefixRejected:
+    foreign = _verified_case(
+        reconciliation,
+        requested_query_context_ref=_digest("f"),
+    )
+    rejected = core.FullPrefixVerifier().verify_bundle(
+        foreign.bundle.bundle_bytes,
+        expected_domain=reconciliation.owner_context.query.domain,
+        expected_prefix=contract.ExpectedCommitmentPrefix(
+            domain=reconciliation.owner_context.query.domain,
+            member_count=foreign.bundle.header.member_count,
+            commitment_head=_digest("e"),
+        ),
+        expected_bundle_content_hash=foreign.bundle.bundle_content_hash,
+    )
+    assert isinstance(rejected, contract.FullPrefixExpectedPrefixRejected)
+    return rejected
+
+
+def test_native_proof_rejection_binds_parsed_header_to_reconciliation(tmp_path: Path) -> None:
+    reconciliation = _reconciliation(tmp_path)
+    rejected = _foreign_prefix_rejection(reconciliation)
+
+    with pytest.raises(ValidationError, match="proof header differs from reconciliation"):
+        contract.NativeFullPrefixProofRejected(
+            result_kind="proof_rejected",
+            code="full_prefix_proof_rejected",
+            reconciliation=reconciliation,
+            proof_result=rejected,
+        )
+
+
+@pytest.mark.parametrize(
+    "terminal_kind",
+    ["qualified", "exterior", "head", "combined", "projection"],
+)
+def test_verified_terminal_proof_header_binds_reconciliation(
+    tmp_path: Path,
+    terminal_kind: str,
+) -> None:
+    exterior = "owner-exterior" if terminal_kind in {"exterior", "combined"} else None
+    reconciliation = _reconciliation(
+        tmp_path,
+        qualified=_owner_qualified_candidate(exterior_limitation_code=exterior),
+    )
+    foreign = _verified_case(
+        reconciliation,
+        requested_query_context_ref=_digest("f"),
+    )
+
+    with pytest.raises(ValidationError, match="proof header differs from reconciliation"):
+        if terminal_kind == "qualified":
+            contract.NativeChronologyQualified(
+                result_kind="qualified",
+                reconciliation=reconciliation,
+                proof_result=foreign.result,
+                persisted_proof=foreign.persisted,
+            )
+        elif terminal_kind == "exterior":
+            contract.NativeExteriorNotEstablished(
+                result_kind="native_exterior_not_established",
+                code="native_exterior_not_established",
+                reconciliation=reconciliation,
+                exterior_limitation_code="owner-exterior",
+                proof_result=foreign.result,
+            )
+        elif terminal_kind == "head":
+            contract.NativeAuthorityHeadNotEstablished(
+                result_kind="native_authority_head_not_established",
+                code="native_authority_head_not_established",
+                reconciliation=reconciliation,
+                required_native_head_role="owner-head",
+                proof_result=foreign.result,
+            )
+        elif terminal_kind == "combined":
+            contract.NativeExteriorAndAuthorityHeadNotEstablished(
+                result_kind="native_exterior_and_authority_head_not_established",
+                reconciliation=reconciliation,
+                exterior_limitation_code="owner-exterior",
+                required_native_head_role="owner-head",
+                proof_result=foreign.result,
+            )
+        else:
+            contract.NativeProjectionCustodyGap(
+                result_kind="projection_custody_gap",
+                status="native_not_established",
+                code="native_projection_custody_gap",
+                reconciliation=reconciliation,
+                proof_result=foreign.result,
+                missing_projection_receipt_role="native_projection_receipt",
+            )
+
+
+@pytest.mark.parametrize(
+    "mask_fabrication",
+    [
+        "exterior_absent",
+        "exterior_changed",
+        "head_present",
+        "head_with_exterior",
+        "combined_exterior_absent",
+        "combined_head_present",
+        "projection_with_exterior",
+    ],
+)
+def test_native_limitation_leaves_reject_carrier_observable_inverse_masks(
+    tmp_path: Path,
+    mask_fabrication: str,
+) -> None:
+    candidate_exterior = (
+        "owner-exterior"
+        if mask_fabrication
+        in {
+            "exterior_changed",
+            "head_with_exterior",
+            "combined_head_present",
+            "projection_with_exterior",
+        }
+        else None
+    )
+    candidate_heads = (
+        (_digest("e"),) if mask_fabrication in {"head_present", "combined_head_present"} else ()
+    )
+    reconciliation = _reconciliation(
+        tmp_path,
+        qualified=_owner_qualified_candidate(
+            exterior_limitation_code=candidate_exterior,
+            native_authority_head_refs=candidate_heads,
+        ),
+    )
+    proof = _verified_case(reconciliation).result
+
+    with pytest.raises(ValidationError, match="limitation mask"):
+        if mask_fabrication in {"exterior_absent", "exterior_changed"}:
+            contract.NativeExteriorNotEstablished(
+                result_kind="native_exterior_not_established",
+                code="native_exterior_not_established",
+                reconciliation=reconciliation,
+                exterior_limitation_code="claimed-exterior",
+                proof_result=proof,
+            )
+        elif mask_fabrication in {"head_present", "head_with_exterior"}:
+            contract.NativeAuthorityHeadNotEstablished(
+                result_kind="native_authority_head_not_established",
+                code="native_authority_head_not_established",
+                reconciliation=reconciliation,
+                required_native_head_role="owner-head",
+                proof_result=proof,
+            )
+        elif mask_fabrication in {"combined_exterior_absent", "combined_head_present"}:
+            contract.NativeExteriorAndAuthorityHeadNotEstablished(
+                result_kind="native_exterior_and_authority_head_not_established",
+                reconciliation=reconciliation,
+                exterior_limitation_code="owner-exterior",
+                required_native_head_role="owner-head",
+                proof_result=proof,
+            )
+        else:
+            contract.NativeProjectionCustodyGap(
+                result_kind="projection_custody_gap",
+                status="native_not_established",
+                code="native_projection_custody_gap",
+                reconciliation=reconciliation,
+                proof_result=proof,
+                missing_projection_receipt_role="native_projection_receipt",
+            )
+
+
+@pytest.mark.parametrize(
+    "persisted_fabrication",
+    ["protocol_hash", "parsed_header", "bundle_ref", "sidecar_hash"],
+)
+def test_persisted_proof_rejects_self_inconsistent_copies(
+    tmp_path: Path,
+    persisted_fabrication: str,
+) -> None:
+    reconciliation = _reconciliation(tmp_path)
+    verified = _verified_case(reconciliation)
+    payload = verified.persisted.model_dump(mode="python")
+    if persisted_fabrication == "protocol_hash":
+        payload["protocol_bundle_content_hash"] = _digest("f")
+    elif persisted_fabrication == "parsed_header":
+        payload["parsed_header"] = _verified_case(
+            reconciliation,
+            requested_query_context_ref=_digest("f"),
+        ).bundle.header
+    elif persisted_fabrication == "bundle_ref":
+        statement = verified.persisted.verification_statement.model_copy(
+            update={"bundle_ref": _ref("f", kind="full-prefix-bundle")}
+        )
+        payload["verification_statement"] = statement
+    else:
+        payload["verifier_result_content_hash"] = _digest("f")
+
+    with pytest.raises(ValidationError, match=r"persisted proof .* differs"):
+        contract.PersistedChronologyProof.model_validate(payload)
+
+
+def test_qualified_leaf_rejects_a_different_persisted_verified_proof(tmp_path: Path) -> None:
+    reconciliation = _reconciliation(tmp_path)
+    base = _verified_case(reconciliation)
+    foreign = _verified_case(
+        reconciliation,
+        requested_query_context_ref=_digest("f"),
+    )
+
+    with pytest.raises(ValidationError, match="persisted proof differs from verified proof"):
+        contract.NativeChronologyQualified(
+            result_kind="qualified",
+            reconciliation=reconciliation,
+            proof_result=base.result,
+            persisted_proof=foreign.persisted,
+        )
+
+
+def test_persistence_verification_failure_binds_parsed_header_to_reconciliation(
+    tmp_path: Path,
+) -> None:
+    reconciliation = _reconciliation(tmp_path)
+    rejected = _foreign_prefix_rejection(reconciliation)
+    failure = contract.ChronologyPersistenceVerificationMismatch(
+        failure_kind="verification_mismatch",
+        disposition="rejected",
+        query=reconciliation.owner_context.query,
+        proof_result=rejected,
+    )
+
+    with pytest.raises(ValidationError, match="proof header differs from reconciliation"):
+        contract.NativeChronologyPersistenceFailed(
+            result_kind="persistence_failed",
+            reconciliation=reconciliation,
+            failure=failure,
+        )

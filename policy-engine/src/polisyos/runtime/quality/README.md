@@ -51,6 +51,14 @@ Boundary notes:
   reader establishes only CAS integrity plus the declared commitment prefix;
   family completeness, acceptance, native authority heads and custody remain
   family-owned and are not inferred from a green proof or audit sidecar.
+- `chronology_qualification.py` is the production-internal, owner-qualified
+  composition consumer. It resolves the one appointed admission/provenance
+  container, independently reconciles native owner truth, and invokes the real
+  full-prefix builder and verifier. Cluster 2 has no production family adapter,
+  projection receipt, allocation writer, or call site: the consumer is
+  `implemented_but_not_orchestrated` and its positive proof path terminates at
+  `NativeProjectionCustodyGap`. The strict allocation history records those
+  retained labels without promoting whole-history authenticity.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
 

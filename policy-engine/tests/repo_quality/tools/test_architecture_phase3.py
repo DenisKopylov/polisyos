@@ -12,6 +12,14 @@ import yaml
 from tools.devx.architecture import guardrails, scaffold
 
 
+@pytest.fixture(scope="module")
+def current_deep_import_edges() -> tuple[guardrails.DeepImportEdge, ...]:
+    policies = guardrails._parse_public_surface(
+        guardrails.REPO_ROOT / "architecture/public_surface/contract.toml"
+    )
+    return tuple(guardrails.collect_deep_import_edges(policies))
+
+
 def test_scaffold_governance_pass_writes_expected_templates(tmp_path: Path) -> None:
     source = tmp_path / "sample_pass.py"
     tests = tmp_path / "test_sample_pass.py"
@@ -98,6 +106,71 @@ def test_guardrails_detects_new_deep_import_creep(tmp_path: Path) -> None:
 
     assert len(violations) == 1
     assert "New deep-import creep detected" in violations[0].message
+
+
+@pytest.mark.parametrize(
+    ("source_module", "private_target"),
+    [
+        (
+            "polisyos.runtime.http.services.channel_contracts",
+            "polisyos.core.artifacts.manifest",
+        ),
+        (
+            "polisyos.runtime.http.services.channel_contracts",
+            "polisyos.core.contracts.decision_validity",
+        ),
+        (
+            "polisyos.runtime.http.services.control.lex_pipeline",
+            "polisyos.lex.knowledge.store",
+        ),
+        (
+            "polisyos.runtime.http.services.control.lex_search_projection",
+            "polisyos.core.contracts.runtime",
+        ),
+        (
+            "polisyos.runtime.http.services.control.lex_search_projection",
+            "polisyos.lex.knowledge.types",
+        ),
+        (
+            "polisyos.scientist.orchestration.engine.checkpoint",
+            "polisyos.core.security.tenant_context",
+        ),
+    ],
+)
+def test_adjudicated_consumer_does_not_bypass_selected_route(
+    source_module: str,
+    private_target: str,
+    current_deep_import_edges: tuple[guardrails.DeepImportEdge, ...],
+) -> None:
+    edge_keys = {edge.key for edge in current_deep_import_edges}
+
+    assert f"{source_module}->{private_target}" not in edge_keys
+
+
+def test_runtime_lex_projection_has_no_unregistered_core_or_lex_edge(
+    current_deep_import_edges: tuple[guardrails.DeepImportEdge, ...],
+) -> None:
+    targets = {
+        edge.target_module
+        for edge in current_deep_import_edges
+        if edge.source_module == "polisyos.runtime.http.services.control.lex_search_projection"
+        and edge.target_root in {"core", "lex"}
+    }
+
+    assert targets == set()
+
+
+def test_checkpoint_scope_uses_candidate_security_route(
+    current_deep_import_edges: tuple[guardrails.DeepImportEdge, ...],
+) -> None:
+    security_targets = {
+        edge.target_module
+        for edge in current_deep_import_edges
+        if edge.source_module == "polisyos.scientist.orchestration.engine.checkpoint"
+        and edge.target_module.startswith("polisyos.core.security")
+    }
+
+    assert security_targets == {"polisyos.core.security"}
 
 
 def test_guardrails_exception_registry_requires_declared_id(

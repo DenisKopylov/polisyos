@@ -283,18 +283,18 @@ class LexPipelineMixin:
         try:
             import duckdb
 
-            from polisyos.lex.knowledge.store import LegalKnowledgeStore
+            from polisyos.lex import LegalKnowledgeGraph
 
-            store = LegalKnowledgeStore(db_path=db_path, index_dir=Path(request.output_dir))
+            graph = LegalKnowledgeGraph(db_path=db_path, index_dir=Path(request.output_dir))
             try:
-                raw_results = store.text_search_facts(
+                raw_results = graph.text_search(
                     request.query,
                     top_k=request.top_k,
                     trust_tier=None,
                     include_candidates=False,
                 )
             finally:
-                store.close()
+                graph.close()
 
             items = [
                 LexSearchResultItem.model_validate(result.model_dump(mode="python"))

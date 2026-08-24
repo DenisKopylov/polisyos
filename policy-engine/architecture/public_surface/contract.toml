@@ -271,7 +271,7 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/lex/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.lex"]
+supported_entrypoints = ["polisyos.lex", "polisyos.lex.knowledge"]
 major_subsystem = true
 notes = "Stable runtime Lex facade for NormPack assembly, legal evaluation, simulator, interventions, and read-only legal knowledge APIs. Offline legal preprocessing is owned by polisyos.data_forge.domains.legal."
 

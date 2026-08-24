@@ -12729,13 +12729,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.runtime.http.execution_policy",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/execution_policy.py",
-      "target_module": "polisyos.core.security.identity",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.runtime.http.jwt_auth_middleware",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/jwt_auth_middleware.py",
@@ -12943,20 +12936,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/routes/review.py",
       "target_module": "polisyos.core.security.router",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.routes.runs",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/routes/runs.py",
-      "target_module": "polisyos.core.artifacts.ids",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.routes.runs",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/routes/runs.py",
-      "target_module": "polisyos.core.canon",
       "target_root": "core"
     },
     {
@@ -24010,6 +23989,13 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/checkpoint.py",
       "target_module": "polisyos.core.errors",
+      "target_root": "core"
+    },
+    {
+      "source_module": "polisyos.scientist.orchestration.engine.checkpoint",
+      "source_root": "scientist",
+      "source_file": "src/polisyos/scientist/orchestration/engine/checkpoint.py",
+      "target_module": "polisyos.core.security",
       "target_root": "core"
     },
     {

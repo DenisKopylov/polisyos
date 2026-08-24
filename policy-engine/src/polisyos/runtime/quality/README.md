@@ -44,6 +44,13 @@ Boundary notes:
 - `runtime.quality` does not eagerly export G0, G5, G6, G7, or G8 modules. Import these
   internal audit producers by canonical module path when a validator or
   reference workflow needs them.
+- `chronology_proof.py` is the sealed persistence adapter for the common
+  policy-free full-prefix bytes. It derives fixed `ArtifactStore` manifests
+  from an owner-qualified native reconciliation, reloads and reruns the real
+  verifier, and keeps its one-shot process continuation private. The public
+  reader establishes only CAS integrity plus the declared commitment prefix;
+  family completeness, acceptance, native authority heads and custody remain
+  family-owned and are not inferred from a green proof or audit sidecar.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
 

@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **56836**
-- Application lines deleted: **20928**
-- Net application LOC reduction: **-35908**
+- Application lines added: **65988**
+- Application lines deleted: **24527**
+- Net application LOC reduction: **-41461**
 - Application files deleted: **90**
 
 ## Wave-end full verification
@@ -234,7 +234,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `storage-site-e3197d69b09afa722469ce0e22e3bf01adf7038eddd75de070c1b27c3f64bdef` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Storage.setItem` / `setItem` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `394ffec7e8ff` / `9254211607da` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `clerk-chat-sessions-v1`; authority flow `not_established` |
 | `storage-site-978eef015dbbda52cd406bfc44b44295c9384bb63d93531bff09dcb357604878` | `scoped_authority` | `zustand/middleware::persist` / `persist` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `apps/runtime-dashboard/src/features/clerk/state/useChatStore.ts` | `394ffec7e8ff` / `e8de1ebe950f` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `clerk-chat-sessions-v1`; authority flow `not_established` |
 | `storage-site-c6193aadc4f6a0e690999f7db6d3f30f21872a3c15ce5eb604fed46f020e9d4f` | `interaction_benign` | `zustand/middleware::persist` / `persist` | `apps/runtime-dashboard/src/features/dashboard/state/useDashboardLayoutStore.ts` | `apps/runtime-dashboard/src/features/dashboard/state/useDashboardLayoutStore.ts` | `9cd24ad38d84` / `3b84ad9036f5` | `ui_preference` |
-| `storage-site-f51ff807af1565a3557c7e53a8d6c2e4a29f4b66a8dc86806c34ae8ea6e98f70` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts` | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts` | `03fe198af004` / `4e4aa8087062` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `dispute-topology-v1`; authority flow `not_established` |
+| `storage-site-f51ff807af1565a3557c7e53a8d6c2e4a29f4b66a8dc86806c34ae8ea6e98f70` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts` | `apps/runtime-dashboard/src/features/runs/domain/disputes.ts` | `2ef56540cfb7` / `4e4aa8087062` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `dispute-topology-v1`; authority flow `not_established` |
 | `storage-site-b502f3a54daa6a55ed0116c0556dc83893818684e3743285e82e1aa7b0a30c40` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts` | `apps/runtime-dashboard/src/features/runs/domain/operatorCraft.ts` | `c899d4a2acc9` / `f93e6557153c` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `operator-craft-family-codecs-v1`; authority flow `not_established` |
 | `storage-site-28c02183482a1769a8cdf4e5a4d82e0e4792aa344ee1035b4d41ffcb121706bc` | `scoped_authority` | `typescript/lib/lib.dom.d.ts::Window.localStorage` / `acquire` | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx` | `apps/runtime-dashboard/src/features/runs/routes/tabs/CausalTab.tsx` | `9d5af744104b` / `4e4aa8087062` | `apps/runtime-dashboard/src/app/offline/authorityLocalState.ts` / `causal-draft-v1`; authority flow `not_established` |
 | `storage-site-6e4acc5199d026aaa88c5f2a1c0a0d26a5c49928b150227a5452ff60090dabec` | `interaction_benign` | `typescript/lib/lib.dom.d.ts::Storage.getItem` / `getItem` | `apps/runtime-dashboard/src/shared/i18n/locale.ts` | `apps/runtime-dashboard/src/shared/i18n/locale.ts` | `aab3839c5166` / `eede4f6d129d` | `locale` |
@@ -266,16 +266,16 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `run-lifecycle-terminal-fact` | `producer_binding_debt` | `rebind_pending` | `DS7` | `consumer_missing`, `surface_missing`, `semantic_test_missing` | DS7 renders the producer-signed RunSummary.run_terminality value without status/timestamp derivation, renders an unbound lifecycle fact as absent rather than false, and keeps the C22 semantic negatives plus DS5 ownership lint green. | `open_debt` — GAP4 now supplies producer-owned lifecycle terminality through RunSummary and both generated clients. The DS7 hero consumer and its absence/proxy semantic tests have not landed yet. |
 | `g4-complete-audience-projection-contract` | `integrate_contract_debt` | `rebind_pending` | `team-runtime-quality` | `implemented_but_not_orchestrated`, `bridge_missing`, `consumer_missing`, `surface_missing`, `semantic_test_missing` | uv run python tools/quality/validation/check_policy_design_case_layer3_g4_readiness.py --repo-root . --output-format json exits 0 after owner corruptions prove the canonical projection ID and exact fields, public_export_bundle_route_registered=true, an implemented non-reference-only hook, atomic EXPERT mode.analyst denial, content hashes, owner time, and runtime novelty behavior | `open_debt` — The G4 owner publishes only reduced reference projections; DS5 may not invent or route the complete eight-field audience projection. |
 | `authority-presentation-badge-artifact-pipeline-decision-grade` | `authority_presentation_debt` | `rebind_pending` | `DS5` | `producer_missing`, `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after C06 exports DecisionGrade through the generated client and a private exhaustive issuer handles runtime novelty | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
-| `authority-presentation-badge-bureaucratic-legal-review` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `consumer_missing`, `verification_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated legal-review union enters an exhaustive issuer and runtime novelty renders unrecognized | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
+| `authority-presentation-badge-bureaucratic-legal-review` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `producer_missing`, `bridge_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after an owner-generated legal-review union replaces the local AST vocabulary already entering the exhaustive issuer | `open_debt` — DS9 C07 routes every direct Badge consumer in this group through one privately issued projection with explicit runtime novelty behavior. The producer and bridge gaps remain open under the existing owner and closure signal. |
 | `authority-presentation-badge-candidate-declared-authority-purpose` | `authority_presentation_debt` | `rebind_pending` | `DS8` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a candidate-purpose issuer cannot grant governed authority | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-candidate-refusal-markers` | `authority_presentation_debt` | `rebind_pending` | `DS8` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after typed candidate and refusal postures cannot be presented as governed output | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-comparability` | `authority_presentation_debt` | `rebind_pending` | `DS16` | `consumer_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated comparability union uses an incomparable veto and runtime-novelty tests | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-compound-decision-grade` | `authority_presentation_debt` | `rebind_pending` | `DS5` | `bridge_missing`, `surface_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after C06 generated DecisionGrade and a private exhaustive issuer make raw grade assignment fail typecheck | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
-| `authority-presentation-badge-control-approval-quality` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated approval, calibration, and gate DTOs use weakest-boundary mixed-outcome tests | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
+| `authority-presentation-badge-control-approval-quality` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `producer_missing`, `bridge_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated approval, calibration, and gate DTOs bind the weakest-boundary issuer already covered by mixed-outcome tests | `open_debt` — DS9 C07 routes every direct Badge consumer in this group through one privately issued projection with explicit runtime novelty behavior. The producer and bridge gaps remain open under the existing owner and closure signal. |
 | `authority-presentation-badge-decision-confidence` | `authority_presentation_debt` | `rebind_pending` | `DS16` | `artifact_missing`, `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a typed quantity and uncertainty artifact replaces arbitrary ReactNode confidence | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-evidence-source-freshness` | `authority_presentation_debt` | `rebind_pending` | `DS8` | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after owner source_as_of and freshness fields enforce oldest-input veto without local SLA authority | `open_debt` — The live census establishes that this authority-debt group has no remaining direct Badge consumer. Its producer and bridge capability debt remains open without preserving a stale sink. |
-| `authority-presentation-badge-explainability-governance-counts` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a typed governance summary proves counts cannot synthesize composed authority | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
-| `authority-presentation-badge-governance-issue-severity` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated owner severity field enters a branded issuer with runtime novelty | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
+| `authority-presentation-badge-explainability-governance-counts` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `producer_missing`, `bridge_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a producer-owned governance summary binds the informational count issuer that cannot synthesize composed authority | `open_debt` — DS9 C07 routes every direct Badge consumer in this group through one privately issued projection with explicit runtime novelty behavior. The producer and bridge gaps remain open under the existing owner and closure signal. |
+| `authority-presentation-badge-governance-issue-severity` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `producer_missing`, `bridge_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated closed owner severity field replaces the open string already preserved as unrecognized by the issuer | `open_debt` — DS9 C07 routes every direct Badge consumer in this group through one privately issued projection with explicit runtime novelty behavior. The producer and bridge gaps remain open under the existing owner and closure signal. |
 | `authority-presentation-badge-governed-projection-availability` | `authority_presentation_debt` | `rebind_pending` | `DS7` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated availability union enters an exhaustive issuer and novel values render unrecognized | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-negative-certificate-blocker` | `authority_presentation_debt` | `rebind_pending` | `DS8` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated blocker issuer prevents non-blockers from occupying the slot | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-operator-blocker-overridability` | `authority_presentation_debt` | `rebind_pending` | `DS14` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated decision or boolean issuer owns clothing and raw slot assignment fails typecheck | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
@@ -286,7 +286,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `authority-presentation-badge-public-anti-authority-role` | `authority_presentation_debt` | `rebind_pending` | `DS12` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a branded refusal from packet authorityRole cannot be upgraded to authority | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-public-integrity-result` | `authority_presentation_debt` | `rebind_pending` | `DS12` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a verifier-private integrity presentation remains explicitly outside closeout authority | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-public-packet-authority-framing` | `authority_presentation_debt` | `rebind_pending` | `DS12` | `producer_missing`, `artifact_missing`, `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after generated packet authority, confidence, and rights fields retain a rights-bar mixed-veto test | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
-| `authority-presentation-badge-review-required-aggregate` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `consumer_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a generated review-required fact enters a private issuer and missing or denied inputs cannot present positive | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
+| `authority-presentation-badge-review-required-aggregate` | `authority_presentation_debt` | `rebind_pending` | `DS9` | `producer_missing`, `bridge_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after signed review-required facts bind the generated run projection that already enters the private issuer | `open_debt` — DS9 C07 routes every direct Badge consumer in this group through one privately issued projection with explicit runtime novelty behavior. The producer and bridge gaps remain open under the existing owner and closure signal. |
 | `authority-presentation-badge-run-deck-authority-summary` | `authority_presentation_debt` | `rebind_pending` | `DS7` | `producer_missing`, `bridge_missing`, `consumer_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a live typed run-deck contract rejects fixture_only and prevents local authority synthesis | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-threshold-unavailable` | `authority_presentation_debt` | `rebind_pending` | `DS16` | `artifact_missing`, `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a typed unavailable or refusal artifact replaces the static caller-owned threshold token | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
 | `authority-presentation-badge-uncertainty-dispute` | `authority_presentation_debt` | `rebind_pending` | `DS16` | `bridge_missing`, `semantic_test_missing` | python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after an owner uncertainty artifact keeps disputed as a mixed-case veto or warning | `open_debt` — C01a classifies this direct authority-bearing Badge group as unbranded typed debt; its owner must replace caller-chosen clothing with the existing private-issuer brand pattern. |
@@ -605,6 +605,31 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `evidence-visual` | `evidence-visual` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `evidence-manual-at` | `evidence-manual-at` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 
+### DS9 C07 human-decision adjudication
+
+Predicate provenance: `independently_reconciled`. Family complete: `false`.
+
+| Object | Kind | DS9 semantic scope | Formal disposition | Owner / residual |
+| --- | --- | --- | --- | --- |
+| `route-run-governance` | root | `in_scope` | `rebind_pending` / `pending` | `DS9` |
+| `cache-local-disputes` | root | `in_scope` | `rebind_pending` / `strangled` | `DS9` |
+| `cache-review-attention` | root | `in_scope_tombstone` | `deleted` / `strangled` | `DS9` |
+| `cache-operator-craft` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `feature-evidence` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `api-op-list-data-promotion-candidates` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `api-op-approve-data-promotion` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `api-op-reject-data-promotion` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `route-compose` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `feature-composer` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `api-op-launch-run` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `api-op-get-governance-debug` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `derivation-composer-readiness` | root | `surface_out_of_scope` | `rebind_pending` / `pending` | `DS9` |
+| `authority-presentation-badge-bureaucratic-legal-review` | authority support | `in_scope` | `rebind_pending` / `open_debt` | `DS9`; `producer_missing`, `bridge_missing` |
+| `authority-presentation-badge-control-approval-quality` | authority support | `in_scope` | `rebind_pending` / `open_debt` | `DS9`; `producer_missing`, `bridge_missing` |
+| `authority-presentation-badge-explainability-governance-counts` | authority support | `in_scope` | `rebind_pending` / `open_debt` | `DS9`; `producer_missing`, `bridge_missing` |
+| `authority-presentation-badge-governance-issue-severity` | authority support | `in_scope` | `rebind_pending` / `open_debt` | `DS9`; `producer_missing`, `bridge_missing` |
+| `authority-presentation-badge-review-required-aggregate` | authority support | `in_scope` | `rebind_pending` / `open_debt` | `DS9`; `producer_missing`, `bridge_missing` |
+
 ### DS8 case/evidence strangle coverage
 
 Predicate provenance: `independently_reconciled`. Family complete: `false`.
@@ -868,9 +893,50 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `b7006c2b2 fix(atlas): bind production gate GET to signed basis`
+- `9791abd99 feat(atlas): land accountable human decision workspace`
+- `17a36756c fix(architecture): inventory and regenerate DS9 public surfaces`
+- `09d6b8d1a feat(runtime): project review effectiveness from access audit`
+- `20467fceb fix(runtime): bind production approval to decision integrity`
+- `587de3599 feat(runtime): enforce human decision routes and step-up`
+- `3b1a87fd0 feat(runtime): persist custodied human decision records`
+- `76be63c1f chore(governance): admit DS9 owner plan and pin red controls`
+- `5a6de66ce Merge branch 'main' into codex/ds9-human-decision-integrity-plan`
+- `715c25f1e plan(gy): record Cluster 1 landing and reconcile what its merge moved`
+- `911657027 merge(gy): land GY-N12 Cluster 1 — the Foundry owner boundary, refusing honestly`
+- `b9aec624c docs(atlas): bind DS9 measured slice plan`
+- `f2c202997 feat(foundry): bind and carry admitted dependency profile identity`
+- `52e450a2b docs(gy-n12): split generated guardrail execution`
+- `48845eb63 docs(gy-n12): content-bind appointed tooling`
+- `c92b143c7 docs(gy-n12): appoint hermetic task tooling`
+- `3c89f008f merge(gy): land the task-standing census — one open-work list across both lanes`
+- `ede915c59 plan(gy): record task standing for all 37 tasks, and index them`
+- `e70850a48 fix(debt): close the five ledger findings, four of which were mine`
+- `45e290532 merge(debt): land the generated ledger and its report-only checker`
+- `1d76893ac docs(gy-n12): break the selected-binding digest cycle`
+- `50a29a784 fix: bind debt ledger evidence structurally`
+- `3a573e723 fix: reconcile debt ledger source projections`
+- `109d17fc1 feat: add published-denominator debt ledger`
+- `4f2c8b6e6 docs(gy-n12): derive digest preimage kinds from plan usage`
+- `7f4c9ae6f docs: plan debt ledger checker`
+- `94cdbd345 merge(debt): land the Rev 3 census — the denominator before the checker`
+- `62ac6d66e plan(debt): Rev 3 census — publish the denominator, register three missing debts`
+- `c9397d147 plan(debt): record the disposition of codex/gy-def6-e11 as spent evidence`
+- `4fcdaed66 plan(atlas): mark DS5, DS6 and DS7 closed in the slice table`
+- `3d34d887d plan(atlas): close DS8 at Revision 3.32 and register its six unowned non-closures`
+- `c8fff1e0b merge(atlas): land DS8-B — the Case Workspace closes DS8`
+- `892aa1c9a docs(atlas): close DS8-B slice`
+- `91fda1570 test(atlas): pin DS8-B writer preimage`
+- `a46a0e4b5 docs(atlas): preserve DS8-B closeout stop receipt`
+- `643227059 fix(runtime): publish case inspection success example`
+- `fc0b133f7 docs(atlas): record DS8-B budget stop`
+- `103d2b097 fix(atlas): close DS8-B review escapes`
+- `e49f447be chore(atlas): materialize DS8-B closeout coverage`
 - `0a22d86e9 fix(atlas): target DS8-B status reanchor`
 - `c6a565637 fix(atlas): reanchor DS8-B status companions`
 - `ba987a3be test(atlas): govern DS8-B post-freeze coverage`
+- `1362c499c Merge branch 'main' into codex/gy-n12-epoch-chronology`
+- `bc1cd8488 docs(gy-n12): retire the bootstrap harness and correct the execution contract`
 - `40226aafe feat(atlas): land typed-unavailable case workspace`
 - `23a2c797b plan(atlas): record Revision 3.31 — DS6 closed, and the two architect errors it found`
 - `176276ef0 merge(atlas): land DS6 — C13 independently verified, C14 closes the slice`
@@ -894,6 +960,7 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `a9e0bc869 chore(atlas): preserve DS8 C07 invariant stop`
 - `c270b46c5 plan(debt): add the unified debt register — 15 of 47 GY debts measure ambiguous`
 - `fd43342f8 fix(atlas): derive governed A4 paper projection`
+- `023ff19d1 docs(gy-n12): finalize cycle 6 implementation plan`
 - `c3b85a422 plan(atlas): Revision 3.30 — close the readiness producer-binding breach; DS16's authority half is landed`
 - `1f03d2cda merge(atlas): land DS16's authority half — the value bridge, reconciled`
 - `b021c9fe4 fix(atlas): consume run terminality and preserve P15 negatives`
@@ -941,8 +1008,10 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `b20cae45b plan(atlas): record the DS8 print-projection entry question with a starting hypothesis`
 - `c3413d7b7 docs: record DS6 print-scope escalation`
 - `66d13fdbc Merge commit '0dda8be515c588b326bb5253ca40eb825f0d46f2' into codex/atlas-ds6-closure`
+- `7445bd48c Merge commit '0dda8be515c588b326bb5253ca40eb825f0d46f2' into codex/gy-n12-epoch-chronology`
 - `d17ecd36e fix(runtime): bind cycle board routes to owner artifacts`
 - `0dda8be51 plan(gy): fold GY-GAP7 into GY-PA1 as its first cluster; re-measure PA1 executability`
+- `787a41e26 docs: decide GY-N12 chronology profile and custody`
 - `8275e321c docs(atlas): diagnose A4 expectation provenance`
 - `2014e18fe plan(gy): Rev 55 — GY-DEF19 closed; an architect environment confound corrected`
 - `3eee16e75 merge(gy): close GY-DEF19 — ranked-value authority stops deciding on a substring`
@@ -959,8 +1028,11 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `95d4d9419 DS6-C06 close rendered-contrast evidence debt`
 - `80127b654 Merge commit '1360b1cb592be6a19c162a3ec3ddb5a2e87986c7' into codex/atlas-ds7-cycle-board`
 - `39a19c078 DS6-C04 admit rendered-contrast evidence debt`
+- `0febe4748 docs(gy-n12): complete cycle 4 specification`
 - `86a2cc1f7 DS6-C03 rebind i18n baseline lifecycle`
+- `505ee0b4c docs(gy-n12): complete cycle 3 unification verdict`
 - `0f99f740f docs: record GY-DEF19 stopped reissue`
+- `4e4258626 docs(gy-n12): complete cycle 2 prior art`
 - `a2a804bec fix: seal ranked archive minting seams`
 - `7a269b2fb test: cover ranked archive compatibility delegates`
 - `8b91774a6 test: include deprecated archive copy seam`
@@ -970,6 +1042,7 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `5e9331209 docs: register missing S8 schedule owner`
 - `47d6d62c2 fix: fail closed without value schedule resolver`
 - `21699a504 docs: close DS7 task 4 RED basis`
+- `2db85fd4d docs(gy-n12): complete cycle 1 substrate census`
 - `288ca1d93 test: expose ranked value authority proxy`
 - `38654406f docs: record DS7 task 4c RED receipt`
 - `a2b2e113a test: freeze DS7 cycle board loading REDs`

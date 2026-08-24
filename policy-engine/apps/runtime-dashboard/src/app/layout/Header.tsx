@@ -20,6 +20,10 @@ import { formatTime } from "@/shared/lib/utils";
 import { JanusGlyph } from "@/shared/brand/JanusGlyph";
 import { Badge, Button } from "@polisyos/atlas-ui";
 import { TrustViewToggle } from "@/shared/ui/trust-view";
+import {
+  authorityStatusBadgeProps,
+  issueReviewRequiredPresentation,
+} from "@/shared/ui/AuthorityStatusPresentation";
 
 function resolveHealthBadge(status: string | undefined, unavailable: string) {
   if (status) {
@@ -48,6 +52,9 @@ export default function Header() {
   const reviewRuns = (runsQuery.data?.runs ?? []).filter(
     (run) => run.decision_review_required === true,
   ).length;
+  const reviewPresentation = issueReviewRequiredPresentation(
+    runsQuery.data?.runs.map((run) => run.decision_review_required),
+  );
   const navigation = getWorkspaceNavigationWithOptions(flags, {
     isAllowed: (ws) =>
       authzDecision.kind === "verified" &&
@@ -114,10 +121,12 @@ export default function Header() {
             <Badge kind="neutral">
               {t("shell.header.capabilities")}: {activeFeatures}
             </Badge>
-            <Badge kind={reviewRuns > 0 ? "warn" : "ok"}>
-              {reviewRuns > 0
-                ? t("shell.header.runsInReview", { count: reviewRuns })
-                : t("shell.header.queueStable")}
+            <Badge {...authorityStatusBadgeProps(reviewPresentation)}>
+              {reviewPresentation.recognition === "unrecognized"
+                ? t("shell.header.checking")
+                : reviewRuns > 0
+                  ? t("shell.header.runsInReview", { count: reviewRuns })
+                  : t("shell.header.queueStable")}
             </Badge>
           </>
         )}

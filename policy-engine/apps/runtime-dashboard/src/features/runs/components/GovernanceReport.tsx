@@ -7,6 +7,10 @@ import {
 } from "@/shared/lib/domain/governance";
 import { LocalizedJsonPreview as JsonPreview } from "@/shared/ui/LocalizedJsonPreview";
 import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
+import {
+  authorityStatusBadgeProps,
+  issueOpaqueAuthorityStatusPresentation,
+} from "@/shared/ui/AuthorityStatusPresentation";
 import { Badge } from "@polisyos/atlas-ui";
 
 type GovernanceReportProps = {
@@ -192,8 +196,10 @@ export default function GovernanceReport({ data }: GovernanceReportProps) {
                 <div className="flex flex-wrap items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Badge
+                      {...authorityStatusBadgeProps(
+                        issueOpaqueAuthorityStatusPresentation(issue.severity),
+                      )}
                       data-owner-severity={issue.severity ?? undefined}
-                      kind="neutral"
                     >
                       {issue.severity ?? t("common.unknown")}
                     </Badge>

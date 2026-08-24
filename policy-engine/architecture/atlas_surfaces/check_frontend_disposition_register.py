@@ -3591,16 +3591,16 @@ DS6_REGISTER_TRANSITION_FINDING_IDS = {
 }
 
 DS8_QUERY_KEYS_IDENTITY = (
-    "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlvbl9j"
-    "aGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVzb2x2ZWQ6"
-    "cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvYXBpL3F1"
-    "ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJxdWVyeUtl"
-    "eXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI1YzY4MzcyYjFlZGY5YzEwNWE3M2E3NzFl"
-    "OThmOTIzOGViNGQ1N2FmNWZlZjg3NzVhYTdmMGJjZjAyYWRlZDVmIiwicm9sZSI6InZhcmlhYmxl"
-    "X2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9h"
-    "cGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRoIjpbIkZpcnN0U3RhdGVtZW50OjMiLCJW"
-    "YXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFyaWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNp"
-    "b24iOjF9"
+    "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlv"
+    "bl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVz"
+    "b2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9z"
+    "cmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0"
+    "b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJmOThhM2JkMWZi"
+    "YjM2NTFjYjNlNDFkZTcwMmQwNTQ4YTFjN2YxOTcwMjBiMzdiZTY4NzIwYmQ4MGQ2NmJhZDc2"
+    "Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1"
+    "bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRo"
+    "IjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFy"
+    "aWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
 )
 
 
@@ -4332,16 +4332,18 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
 AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     "badge-review-required-aggregate": {
         "owner_slice": "DS9",
-        "capability_states": ["consumer_missing", "semantic_test_missing"],
+        "capability_states": ["producer_missing", "bridge_missing"],
         "closure_signal": _authority_closure(
-            "a generated review-required fact enters a private issuer and missing or denied inputs cannot present positive"
+            "signed review-required facts bind the generated run projection "
+            "that already enters the private issuer"
         ),
     },
     "badge-bureaucratic-legal-review": {
         "owner_slice": "DS9",
-        "capability_states": ["consumer_missing", "verification_missing", "semantic_test_missing"],
+        "capability_states": ["producer_missing", "bridge_missing"],
         "closure_signal": _authority_closure(
-            "a generated legal-review union enters an exhaustive issuer and runtime novelty renders unrecognized"
+            "an owner-generated legal-review union replaces the local AST vocabulary "
+            "already entering the exhaustive issuer"
         ),
     },
     "badge-preflight-readiness": {
@@ -4360,9 +4362,10 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     },
     "badge-control-approval-quality": {
         "owner_slice": "DS9",
-        "capability_states": ["producer_missing", "bridge_missing", "consumer_missing", "semantic_test_missing"],
+        "capability_states": ["producer_missing", "bridge_missing"],
         "closure_signal": _authority_closure(
-            "generated approval, calibration, and gate DTOs use weakest-boundary mixed-outcome tests"
+            "generated approval, calibration, and gate DTOs bind the weakest-boundary "
+            "issuer already covered by mixed-outcome tests"
         ),
     },
     "badge-promotion-candidate-status": {
@@ -4409,9 +4412,10 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     },
     "badge-governance-issue-severity": {
         "owner_slice": "DS9",
-        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "capability_states": ["producer_missing", "bridge_missing"],
         "closure_signal": _authority_closure(
-            "a generated owner severity field enters a branded issuer with runtime novelty"
+            "a generated closed owner severity field replaces the open string already "
+            "preserved as unrecognized by the issuer"
         ),
     },
     "badge-public-packet-authority-framing": {
@@ -4465,9 +4469,10 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     },
     "badge-explainability-governance-counts": {
         "owner_slice": "DS9",
-        "capability_states": ["bridge_missing", "semantic_test_missing"],
+        "capability_states": ["producer_missing", "bridge_missing"],
         "closure_signal": _authority_closure(
-            "a typed governance summary proves counts cannot synthesize composed authority"
+            "a producer-owned governance summary binds the informational count issuer "
+            "that cannot synthesize composed authority"
         ),
     },
     "badge-negative-certificate-blocker": {
@@ -4507,6 +4512,166 @@ AUTHORITY_BADGE_DEBT_SPECS: dict[str, dict[str, Any]] = {
     },
 }
 
+DS9_C07_DECISION_DATE = "2026-08-24"
+DS9_C07_ROOT_SCOPE = {
+    "route-run-governance": "in_scope",
+    "cache-local-disputes": "in_scope",
+    "cache-review-attention": "in_scope_tombstone",
+    "cache-operator-craft": "surface_out_of_scope",
+    "feature-evidence": "surface_out_of_scope",
+    "api-op-list-data-promotion-candidates": "surface_out_of_scope",
+    "api-op-approve-data-promotion": "surface_out_of_scope",
+    "api-op-reject-data-promotion": "surface_out_of_scope",
+    "route-compose": "surface_out_of_scope",
+    "feature-composer": "surface_out_of_scope",
+    "api-op-launch-run": "surface_out_of_scope",
+    "api-op-get-governance-debug": "surface_out_of_scope",
+    "derivation-composer-readiness": "surface_out_of_scope",
+}
+DS9_C07_SCOPE_SEED_RULE = {
+    "in_scope": "ds9_c07_human_decision_in_scope",
+    "in_scope_tombstone": "ds9_c07_human_decision_in_scope_tombstone",
+    "surface_out_of_scope": "ds9_c07_human_decision_surface_out_of_scope",
+}
+DS9_C07_OPENING_SEED_RULE = {
+    **{
+        unit_id: "ds1_incomplete_rebind_pending"
+        for unit_id in DS9_C07_ROOT_SCOPE
+        if unit_id != "cache-review-attention"
+    },
+    "cache-review-attention": "ds5_c17b_review_attention_deletion",
+}
+DS9_C07_OPENING_ROOT_RATIONALES = {
+    **{
+        unit_id: (
+            "DS1 does not record this narrow unit as implemented; its owning "
+            "slice must rebind or retire it without creating a parallel owner."
+        )
+        for unit_id in DS9_C07_ROOT_SCOPE
+        if unit_id not in {"cache-local-disputes", "cache-review-attention"}
+    },
+    "cache-local-disputes": (
+        "C16b-R2 replaces unscoped raw dispute bytes with the canonical "
+        "tenant/user/run-bound authority-local-state envelope, a writer-owned "
+        "24-hour TTL, a strict topology-only codec that omits actor and status "
+        "and rehydrates reviewer/open interaction state, receipt-gated fail-closed "
+        "storage, clock, codec, and getter handling, and synchronous remove "
+        "ordering; DS9 server, epoch, rule-version, and dispute-authority semantics "
+        "remain unclaimed."
+    ),
+    "cache-review-attention": (
+        "DS4 commit bc1d01001 deleted the review-attention storage owner; C17b "
+        "re-proves the exact source path absent and every static, barrel, namespace, "
+        "relative, dynamic, and composition import form at zero without claiming "
+        "DS9 semantics."
+    ),
+}
+DS9_C07_ROOT_RATIONALES = {
+    unit_id: (
+        f"DS9 C07 adjudicates semantic_scope={scope} for human-decision "
+        "integrity while preserving the root's formal disposition, owner, "
+        "successor, and census. This is not a family-complete claim. Prior "
+        f"receipt: {DS9_C07_OPENING_ROOT_RATIONALES[unit_id]}"
+    )
+    for unit_id, scope in DS9_C07_ROOT_SCOPE.items()
+}
+DS9_C07_ROOT_FORMAL = {
+    **{
+        unit_id: {
+            "disposition": "rebind_pending",
+            "strangle_status": "pending",
+            "owner": "team-design",
+            "owner_slice": "DS9",
+            "successor_unit_id": None,
+            "reference_census_id": None,
+        }
+        for unit_id in DS9_C07_ROOT_SCOPE
+        if unit_id not in {"cache-local-disputes", "cache-review-attention"}
+    },
+    "cache-local-disputes": {
+        "disposition": "rebind_pending",
+        "strangle_status": "strangled",
+        "owner": "team-design",
+        "owner_slice": "DS9",
+        "successor_unit_id": "dashboard-dispute-scoped-local-state",
+        "reference_census_id": None,
+    },
+    "cache-review-attention": {
+        "disposition": "deleted",
+        "strangle_status": "strangled",
+        "owner": "team-design",
+        "owner_slice": "DS9",
+        "successor_unit_id": None,
+        "reference_census_id": "census-review-attention-delete",
+    },
+}
+DS9_C07_LOCAL_DISPUTE_SUCCESSOR_REFS = [
+    "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+    "apps/runtime-dashboard/src/features/runs/domain/disputes.test.ts",
+    "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.tsx",
+    "apps/runtime-dashboard/src/features/runs/components/DisputeRegistryPanel.test.tsx",
+]
+DS9_C07_AUTHORITY_FINDING_IDS = frozenset(
+    {
+        "authority-presentation-badge-bureaucratic-legal-review",
+        "authority-presentation-badge-control-approval-quality",
+        "authority-presentation-badge-explainability-governance-counts",
+        "authority-presentation-badge-governance-issue-severity",
+        "authority-presentation-badge-review-required-aggregate",
+    }
+)
+DS9_C07_INDUCED_SUPPLEMENTAL_RECEIPT_IDS = frozenset(
+    {
+        "authority-presentation-prop-control-approval-readiness",
+        "authority-presentation-prop-explainability-verdict",
+        "c08b-auth-session-revision-producer-debt",
+    }
+)
+DS9_C07_REFRESH_FINDING_IDS = (
+    DS9_C07_AUTHORITY_FINDING_IDS | DS9_C07_INDUCED_SUPPLEMENTAL_RECEIPT_IDS
+)
+DS9_C07_OPENING_FAMILY_SHA256 = {
+    REGISTER_PATH: "f75d358b005886c8e4f6166b855b9de0f979c86a98c83bec8c3d46f8c19b8a63",
+    REPORT_PATH: "28341305151cdfc1c8057f18277b0c8019414259a46f8431824f0070e09361db",
+    STATUS_INVENTORY_PATH: ("0dbe4aade5a58a9bd3ee7f3fe5fc8d4a05a406e063da7f034dcbd5bc2c66d5b5"),
+}
+DS9_C07_SUPERSEDED_FAMILY_SHA256 = {
+    REGISTER_PATH: "0641f14347061ef9efdf2355534910dd81046f458117bdb829e54ddb16d403be",
+    REPORT_PATH: "3733dcdc0e9548a2507a75e2583a089b9153fae3480461c0a9353d46ad13e760",
+    STATUS_INVENTORY_PATH: ("4a54b0b4a5558574c718aa4050daeaa2dd8010565fa9df30777250c997bed196"),
+}
+DS9_C07_AUTHORITY_SOURCE_PATHS = (
+    Path(__file__).resolve(),
+    REPO_ROOT / "apps/runtime-dashboard/src/api/queryKeys.ts",
+    REPO_ROOT / "apps/runtime-dashboard/src/shared/ui/AuthorityStatusPresentation.ts",
+    REPO_ROOT / "apps/runtime-dashboard/src/app/layout/Header.tsx",
+    REPO_ROOT
+    / "apps/runtime-dashboard/src/features/artifacts/bureaucratic/BureaucraticTemplateBadge.tsx",
+    REPO_ROOT / "apps/runtime-dashboard/src/features/clerk/components/ControlFailurePanel.tsx",
+    REPO_ROOT / "apps/runtime-dashboard/src/shared/ui/compounds/ExplainabilityCard.tsx",
+    REPO_ROOT / "apps/runtime-dashboard/src/features/runs/components/GovernanceReport.tsx",
+    REPO_ROOT / "apps/runtime-dashboard/src/features/runs/routes/tabs/OverviewTab.tsx",
+    REPO_ROOT / "apps/runtime-dashboard/src/features/runs/components/HumanDecisionGate.tsx",
+    REPO_ROOT
+    / (
+        "apps/runtime-dashboard/src/features/runs/components/"
+        "HumanDecisionReviewEffectivenessPanel.tsx"
+    ),
+    REPO_ROOT / "apps/runtime-dashboard/src/features/runs/domain/disputes.ts",
+)
+DS9_C07_STORAGE_FACTORY_ID = (
+    "authority-factory-6e3f26a1bcb469ffcbc97bd425b5e85de835d4a97573ed958f27bc9a8ae90d34"
+)
+DS9_C07_STORAGE_SITE_ID = (
+    "storage-site-f51ff807af1565a3557c7e53a8d6c2e4a29f4b66a8dc86806c34ae8ea6e98f70"
+)
+DS9_C07_STORAGE_SOURCE_PATH = "apps/runtime-dashboard/src/features/runs/domain/disputes.ts"
+DS9_C07_STORAGE_OPENING_SOURCE_SHA256 = (
+    "sha256:03fe198af004454eea0e16f8b1749216e8217bc1e868a784d3d4b339ae40fe6e"
+)
+if len(DS9_C07_ROOT_SCOPE) + len(DS9_C07_AUTHORITY_FINDING_IDS) != 18:
+    raise RuntimeError("DS9 C07 adjudication denominator drift")
+
 BENIGN_BADGE_BASES = (
     "interaction_or_editor_state",
     "transport_or_runtime_health",
@@ -4541,8 +4706,8 @@ AUTHORITY_PRESENTATION_DEBT_SPECS.update(
 )
 
 AUTHORITY_PRESENTATION_COUNTS = {
-    "badge_total": 159,
-    "badge_branded": 2,
+    "badge_total": 163,
+    "badge_branded": 6,
     "badge_debt": 53,
     "badge_benign": 104,
     "prop_total": 18,
@@ -4555,10 +4720,10 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:494022a38caeeefc138901cff8385a4d207a26595b7c62412c8c116cbb055649"
+    "sha256:467214c3fad4b257a06aa7103a4c71015d741d074d1f3bd677cd8caa272b393c"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
-    "sha256:69ba5f8de385f401dea85a9997dcd19081dc0a4d7688381e5db7dd11fa414e3a"
+    "sha256:7f75fcc3b2ce0011713eee1b18259c76b45ec2d3eda6a66b78507982641ee5f9"
 )
 
 
@@ -4591,7 +4756,7 @@ def _badge_classification_errors(
     scan: Mapping[str, Any],
     classifications: Mapping[str, str] | None = None,
 ) -> list[str]:
-    """Validate the exact 161-site Badge partition as a finite set property."""
+    """Validate the exact 163-site Badge partition as a finite set property."""
     errors: list[str] = []
     sites = scan.get("badgeSites", [])
     if not isinstance(sites, list):
@@ -6016,6 +6181,146 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
     **DS8_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
 }
 
+DS9_REMOVED_AUTHORITY_BADGE_IDENTITIES = frozenset(
+    {
+        "078599fe50e49c45b6b69803352191205b7409a7e9f382d25019887b1e56fab1",
+        "0d01fe86a863e406d0bfb676b74f4637a2102952207f1721aa1be40a332cf55e",
+        "14fbd20acffc634f412e1e4619831144afdf0698b8c60afa76a91ef16251f12f",
+        "168d23a2e7bbd0b65d5239812cf87afad12e77f4c5ab14c8a58ec9d1d276b415",
+        "3823875dc79983dac784b51fe1932918d182d7b8546e1dca9db7c9809f8b435c",
+        "489584ca817c00d7766e9d474efd1ee37d3ae7335b1a19f41f2918042e5cfb69",
+        "4966df28f2ae3778e52ac1226bded6b2b94a35c845a6b5e0dd729106e5f09acb",
+        "71ad7ea43a1e8dc3e3df4f67f00cc4fad983b2b6b7a0acdfc6db3daaccd8aa28",
+        "77d4937a8a4ae3861a3d7ca0d409f1dcb5357b59fed592b6f1da55998c74415d",
+        "89b13db33efc33ad01d076818b832f51aed4a1a2dc5bc3465376b8ff1cc42dae",
+        "8d1d1b0a3f1bd470d97feec2780c3f3ecace0182e30b9dc4ab6fe918eea698de",
+        "9b58b688994af67d93522e5dadaef6b0f2df21b8efc7ff8633e86db147099413",
+        "b22524f2bb0c743cad0ba903c0913378f1755770798e5296e1eb2fd290a44a96",
+        "b4ca75d2e9ab64059d514160e709e532f1c9033afba163d5e387bdb902d205a6",
+        "b8a7958e5eadceb9bb9ed7b720e1a4efb9a20bd8bced7dfdea519b92eaf82dca",
+        "bbfc4140d1b606629556acde90334230a32a304f848211c89f60b73c6bd19947",
+        "cc2bd39aaf90f8648705a1f6490ebf6cf38639a5a6096b1d5466a6e3e6d1f3d8",
+        "d6e518e4dcafece66b74ce39b0d7cffb9ef46e95722e93ca7a37047f5b2f903a",
+        "f4d4f3e59310e146c58a0ca3952caab54ef348745db6044d0097138675dd94ba",
+        "f9376c6dc6670e77368e91b72ef7de90fd69f4b5290e4352c4a7dbea5d9a00dc",
+        "ff08cad30b4d331f3ba7cfb3757d527f2763dff5608e03f2230e6f4e3c1440b4",
+    }
+)
+DS9_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    "04025b6bf48105eed8ea13c99dc413d3a6d6a3917d541870d6f8912f4758cbf7": (
+        "branded:authority_status_presentation"
+    ),
+    "4f12cdfee9d341d301c7ba1a8e6bbe166667d1c9adf82c650a3d8c3b35a67efe": (
+        "branded:authority_status_presentation"
+    ),
+    "8e09a2ca59c5c80c6d1188a4a8697877e3d8548e18ea256f9e0d3c01d44682ac": (
+        "branded:authority_status_presentation"
+    ),
+    "d9b92336a27cee1f90a6765042ea1bda5febcc95093654f271cd1a19f6b3a767": (
+        "branded:authority_status_presentation"
+    ),
+    "cd7f10d2c4f7fe348faf702e069a558eb9de0112132f54462100b1dd75940b3d": (
+        "benign:transport_or_runtime_health"
+    ),
+    "7ec5da17defbdffea479ee9d86066b2fb0bf9f1a336c62873b9dcc6081d9947e": (
+        "benign:transport_or_runtime_health"
+    ),
+    "e397caa6296a1426824057fd84d1ec20834c509d6aab426791063225c64e31eb": ("benign:layout_or_counts"),
+    "fe00676ab49a1587a9e9689da3190f2c8db4913c8fa3578c43da54d8888c834e": (
+        "debt:badge-review-required-aggregate"
+    ),
+    "9a9defa8990c1504a4e7aa76b7b265e16ac7e304ba6e719573b04277acfaec4f": (
+        "debt:badge-bureaucratic-legal-review"
+    ),
+    "2453b5ee6ff35f5be307a4d31be26c4d819165e99cdc572f1a0848ba80241a58": (
+        "debt:badge-control-approval-quality"
+    ),
+    "304aab74f1ed934ab1736d820e5fdddb1c58a9430c9571504a7063c88436ac7e": (
+        "debt:badge-control-approval-quality"
+    ),
+    "9244672b0c344b0bba51e3d665ca986e41c5c8f61a08202b8a4b7479679a9823": (
+        "debt:badge-control-approval-quality"
+    ),
+    "733902ba89957c4105f0e95e8a652c9744c9e1462a9e1c1b936aceaf3a14f4c2": (
+        "debt:badge-control-approval-quality"
+    ),
+    "b2de49c5ca2e5e496943c35af17a47fe0cc850a34d54cc71ef914c1afefe27c2": (
+        "debt:badge-control-approval-quality"
+    ),
+    "e33b2b38a48939e6caffc4aab37c04f6a9e38b8b9d7bfb096aaa8ce3255fa8e7": (
+        "debt:badge-control-approval-quality"
+    ),
+    "2b1ab574b39db4736faee9298d98a381e34c95c21f05c36334464ea17f91e73f": (
+        "debt:badge-control-approval-quality"
+    ),
+    "36ae711bb22ec6a20fb4c564aabc7278fb3bf99697095db0abf6ceb0042a30de": (
+        "debt:badge-control-approval-quality"
+    ),
+    "e687da7f2c74cd1771dcb374fb71d0330d36a798369426add33030ed29ae1483": (
+        "debt:badge-control-approval-quality"
+    ),
+    "6fd2a29c46c7bdb52f93face7c5560ab5dd4e1c5e38f49f01919468f3142a5c6": (
+        "debt:badge-control-approval-quality"
+    ),
+    "203456c009ff458adbe0569074746a6ab5b6cd0096e4cb658c2bb912afdcf2ee": (
+        "debt:badge-control-approval-quality"
+    ),
+    "5c8a75192491067d28b0fbfb83c500f1fb99552055ef425a777f7eb17b0b7fcc": (
+        "debt:badge-governance-issue-severity"
+    ),
+    "c82c402aa4ea1090ec5c565e2435e54b3fa702c83f544a382958be1ff5b17066": (
+        "debt:badge-governance-issue-severity"
+    ),
+    "1c0a0d455520112d27a5a13111ce2a21999d29d3fe2f0f5cd671e4e6f5047aff": (
+        "debt:badge-explainability-governance-counts"
+    ),
+    "2f642cf73142de1b962e24381583b2bec41e202861d9cd298072574b4d36b58a": (
+        "debt:badge-explainability-governance-counts"
+    ),
+    "576bf7f83cf3c8d713dd8cf03a8b84558074431596c86c7a1478f6ed225d63db": (
+        "debt:badge-explainability-governance-counts"
+    ),
+}
+FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    **{
+        identity: classification
+        for identity, classification in FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.items()
+        if identity not in DS9_REMOVED_AUTHORITY_BADGE_IDENTITIES
+    },
+    **DS9_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
+}
+
+DS9_REMOVED_AUTHORITY_PROP_IDENTITIES = frozenset(
+    {
+        "39f8c143570efef26b5c310b1bf429389358d39fe5bf936a40c19ee6c7211c79",
+        "ef2b25e842386c37d954cb282e8d2a14cb69b22cdb689c4a273de5cd35d80911",
+    }
+)
+DS9_ADDED_AUTHORITY_PROP_IDENTITIES = {
+    "a744741ffdfd3f839b5cb7445ab35c347601b5da0ff8ee2584d53efb68643bbf": [
+        {
+            "classification": "debt",
+            "descriptor_id": "prop-control-approval-readiness",
+            "role": "component_declaration",
+        }
+    ],
+    "b3656572cf8086db28db2e169bd4efd4c1172fe2857d0c59fd885bd9cb62f780": [
+        {
+            "classification": "debt",
+            "descriptor_id": "prop-explainability-verdict",
+            "role": "component_declaration",
+        }
+    ],
+}
+FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS = {
+    **{
+        identity: records
+        for identity, records in FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.items()
+        if identity not in DS9_REMOVED_AUTHORITY_PROP_IDENTITIES
+    },
+    **DS9_ADDED_AUTHORITY_PROP_IDENTITIES,
+}
+
 AUTHORITY_BADGE_CLASSIFICATIONS = FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
 
 
@@ -6140,6 +6445,8 @@ def _authority_presentation_rows(
     for group_id, spec in sorted(AUTHORITY_BADGE_DEBT_SPECS.items()):
         badge_sites = debt_badge_sites_by_group[group_id]
         finding_id = "authority-presentation-" + group_id
+        ds9_c07_support = finding_id in DS9_C07_AUTHORITY_FINDING_IDS
+        decision_date = DS9_C07_DECISION_DATE if ds9_c07_support else DS5_C01A_DECISION_DATE
         if not badge_sites:
             rows.append(
                 {
@@ -6149,12 +6456,20 @@ def _authority_presentation_rows(
                     "status": "open_debt",
                     "evidence_refs": [AUTHORITY_PRESENTATION_PLAN_REF],
                     "owner_slice": spec["owner_slice"],
-                    "decision_date": DS5_C01A_DECISION_DATE,
+                    "decision_date": decision_date,
                     "rationale": (
-                        "The live census establishes that this authority-debt "
-                        "group has no remaining direct Badge consumer. Its "
-                        "producer and bridge capability debt remains open "
-                        "without preserving a stale sink."
+                        (
+                            "DS9 C07 proves the direct consumer absent after "
+                            "routing the supported surface through the private "
+                            "issuer; producer and bridge debt remains open."
+                        )
+                        if ds9_c07_support
+                        else (
+                            "The live census establishes that this authority-debt "
+                            "group has no remaining direct Badge consumer. Its "
+                            "producer and bridge capability debt remains open "
+                            "without preserving a stale sink."
+                        )
                     ),
                     "capability_states": spec["capability_states"],
                     "closure_signal": spec["closure_signal"],
@@ -6213,11 +6528,21 @@ def _authority_presentation_rows(
                     ),
                 ],
                 "owner_slice": spec["owner_slice"],
-                "decision_date": DS5_C01A_DECISION_DATE,
+                "decision_date": decision_date,
                 "rationale": (
-                    "C01a classifies this direct authority-bearing Badge group "
-                    "as unbranded typed debt; its owner must replace caller-chosen "
-                    "clothing with the existing private-issuer brand pattern."
+                    (
+                        "DS9 C07 routes every direct Badge consumer in this group "
+                        "through one privately issued projection with explicit "
+                        "runtime novelty behavior. The producer and bridge gaps "
+                        "remain open under the existing owner and closure signal."
+                    )
+                    if ds9_c07_support
+                    else (
+                        "C01a classifies this direct authority-bearing Badge group "
+                        "as unbranded typed debt; its owner must replace "
+                        "caller-chosen clothing with the existing private-issuer "
+                        "brand pattern."
+                    )
                 ),
                 "capability_states": spec["capability_states"],
                 "closure_signal": spec["closure_signal"],
@@ -6344,6 +6669,355 @@ def _json_entry_object_span(
     if not isinstance(row, Mapping) or row.get("unit_id") != unit_id:
         raise ValueError(f"root_entry_span_mismatch:{unit_id}")
     return start, start + relative_end, row
+
+
+def _render_root_entry(row: Mapping[str, Any]) -> str:
+    """Render one root object at the register's existing array indentation."""
+    rendered = json.dumps(row, indent=2, ensure_ascii=False)
+    lines = rendered.splitlines()
+    return lines[0] + "\n" + "\n".join("    " + line for line in lines[1:])
+
+
+def _json_top_level_object_span(text: str, key: str) -> tuple[int, int, Mapping[str, Any]]:
+    """Locate one top-level object value without normalizing adjacent bytes."""
+    needle = f"  {json.dumps(key, ensure_ascii=False)}: "
+    positions = [match.start() for match in re.finditer(re.escape(needle), text)]
+    if len(positions) != 1:
+        raise ValueError(f"top_level_object_span_ambiguous:{key}")
+    start = positions[0] + len(needle)
+    row, relative_end = json.JSONDecoder().raw_decode(text[start:])
+    if not isinstance(row, Mapping):
+        raise ValueError(f"top_level_object_span_mismatch:{key}")
+    return start, start + relative_end, row
+
+
+def _render_top_level_object(row: Mapping[str, Any]) -> str:
+    """Render one top-level object at the register's existing indentation."""
+    rendered = json.dumps(row, indent=2, ensure_ascii=False)
+    lines = rendered.splitlines()
+    return lines[0] + "\n" + "\n".join("  " + line for line in lines[1:])
+
+
+def _json_object_span_by_identity(
+    text: str,
+    *,
+    field: str,
+    value: str,
+    within: tuple[int, int],
+) -> tuple[int, int, Mapping[str, Any]]:
+    """Locate one nested JSON object by an exact identity field and value."""
+    within_start, within_end = within
+    needle = f"{json.dumps(field)}: {json.dumps(value)}"
+    positions = [
+        match.start()
+        for match in re.finditer(re.escape(needle), text[within_start:within_end])
+    ]
+    if len(positions) != 1:
+        raise ValueError(f"json_identity_span_ambiguous:{field}:{value}")
+    identity_start = within_start + positions[0]
+    object_starts = [
+        match.start()
+        for match in re.finditer(r"\{", text[within_start:identity_start])
+    ]
+    for relative_start in reversed(object_starts):
+        start = within_start + relative_start
+        try:
+            row, relative_end = json.JSONDecoder().raw_decode(text[start:])
+        except json.JSONDecodeError:
+            continue
+        end = start + relative_end
+        if (
+            end <= within_end
+            and isinstance(row, Mapping)
+            and row.get(field) == value
+        ):
+            return start, end, row
+    raise ValueError(f"json_identity_object_missing:{field}:{value}")
+
+
+def _json_field_value_span(
+    text: str,
+    *,
+    field: str,
+    within: tuple[int, int],
+) -> tuple[int, int, Any]:
+    """Locate one JSON field value inside a previously bounded object."""
+    within_start, within_end = within
+    needle = f"{json.dumps(field)}: "
+    positions = [
+        match.start()
+        for match in re.finditer(re.escape(needle), text[within_start:within_end])
+    ]
+    if len(positions) != 1:
+        raise ValueError(f"json_field_value_span_ambiguous:{field}")
+    start = within_start + positions[0] + len(needle)
+    value, relative_end = json.JSONDecoder().raw_decode(text[start:])
+    end = start + relative_end
+    if end > within_end:
+        raise ValueError(f"json_field_value_span_outside_object:{field}")
+    return start, end, value
+
+
+def _ds9_c07_storage_target_spans(
+    text: str,
+) -> list[tuple[str, int, int, Any]]:
+    """Locate only the four storage receipt scalars that C07 may rewrite."""
+    census_start, census_end, _census = _json_top_level_object_span(
+        text, "storage_construction_census"
+    )
+    census_bounds = (census_start, census_end)
+    factory_start, factory_end, _factory = _json_object_span_by_identity(
+        text,
+        field="factory_site_id",
+        value=DS9_C07_STORAGE_FACTORY_ID,
+        within=census_bounds,
+    )
+    site_start, site_end, _site = _json_object_span_by_identity(
+        text,
+        field="site_id",
+        value=DS9_C07_STORAGE_SITE_ID,
+        within=census_bounds,
+    )
+    targets = []
+    for label, field, bounds in (
+        (
+            "induced:storage_factory_source_fingerprint",
+            "source_fingerprint",
+            (factory_start, factory_end),
+        ),
+        (
+            "induced:storage_site_source_fingerprint",
+            "source_fingerprint",
+            (site_start, site_end),
+        ),
+        (
+            "induced:storage_authority_factory_receipts_sha256",
+            "authority_factory_receipts_sha256",
+            census_bounds,
+        ),
+        ("induced:storage_rows_sha256", "rows_sha256", census_bounds),
+    ):
+        start, end, value = _json_field_value_span(
+            text,
+            field=field,
+            within=bounds,
+        )
+        targets.append((label, start, end, value))
+    return sorted(targets, key=lambda item: item[1])
+
+
+def _ds9_c07_storage_transition_text(text: str) -> str:
+    """Re-anchor only the two C06-touched dispute source receipts and digests."""
+    _start, _end, stored = _json_top_level_object_span(
+        text, "storage_construction_census"
+    )
+    candidate = copy.deepcopy(dict(stored))
+    factory_receipts = candidate.get("authority_factory_receipts")
+    sites = candidate.get("sites")
+    if not isinstance(factory_receipts, list) or not isinstance(sites, list):
+        raise ValueError("DS9 C07 storage census container drift")
+    factories = [
+        row
+        for row in factory_receipts
+        if isinstance(row, dict) and row.get("factory_site_id") == DS9_C07_STORAGE_FACTORY_ID
+    ]
+    storage_sites = [
+        row
+        for row in sites
+        if isinstance(row, dict) and row.get("site_id") == DS9_C07_STORAGE_SITE_ID
+    ]
+    if len(factories) != 1 or len(storage_sites) != 1:
+        raise ValueError("DS9 C07 dispute storage receipt cardinality drift")
+    live_source_sha256 = _sha256(REPO_ROOT / DS9_C07_STORAGE_SOURCE_PATH)
+    factory_source_preimage = factories[0].get("source_fingerprint")
+    site_source_preimage = storage_sites[0].get("source_fingerprint")
+    opening_factory_digest = "sha256:" + _canonical_sha256(factory_receipts)
+    opening_rows_digest = "sha256:" + _canonical_sha256(sites)
+    for row in (*factories, *storage_sites):
+        if row.get("path") != DS9_C07_STORAGE_SOURCE_PATH:
+            raise ValueError("DS9 C07 dispute storage source path drift")
+        if row.get("source_fingerprint") not in {
+            DS9_C07_STORAGE_OPENING_SOURCE_SHA256,
+            live_source_sha256,
+        }:
+            raise ValueError("DS9 C07 dispute storage source preimage drift")
+        row["source_fingerprint"] = live_source_sha256
+    candidate["authority_factory_receipts_sha256"] = "sha256:" + _canonical_sha256(factory_receipts)
+    candidate["rows_sha256"] = "sha256:" + _canonical_sha256(sites)
+    targets = {
+        label: (start, end, value)
+        for label, start, end, value in _ds9_c07_storage_target_spans(text)
+    }
+    expected_preimages = {
+        "induced:storage_factory_source_fingerprint": factory_source_preimage,
+        "induced:storage_site_source_fingerprint": site_source_preimage,
+        "induced:storage_authority_factory_receipts_sha256": opening_factory_digest,
+        "induced:storage_rows_sha256": opening_rows_digest,
+    }
+    replacements = {
+        "induced:storage_factory_source_fingerprint": live_source_sha256,
+        "induced:storage_site_source_fingerprint": live_source_sha256,
+        "induced:storage_authority_factory_receipts_sha256": candidate[
+            "authority_factory_receipts_sha256"
+        ],
+        "induced:storage_rows_sha256": candidate["rows_sha256"],
+    }
+    for label, expected in expected_preimages.items():
+        if targets[label][2] != expected:
+            raise ValueError(f"DS9 C07 storage scalar preimage drift:{label}")
+    result = text
+    for label, (start, end, _value) in sorted(
+        targets.items(), key=lambda item: item[1][0], reverse=True
+    ):
+        result = result[:start] + json.dumps(replacements[label]) + result[end:]
+    return result
+
+
+def _ds9_c07_root_transition_text(text: str) -> str:
+    """Adjudicate exactly 13 DS9 roots without normalizing peer bytes."""
+    replacements: list[tuple[int, int, str]] = []
+    for unit_id, scope in DS9_C07_ROOT_SCOPE.items():
+        start, end, stored = _json_entry_object_span(text, unit_id)
+        formal = DS9_C07_ROOT_FORMAL[unit_id]
+        successor = stored.get("successor")
+        successor_unit_id = successor.get("unit_id") if isinstance(successor, Mapping) else None
+        observed_formal = {
+            "disposition": stored.get("disposition"),
+            "strangle_status": stored.get("strangle_status"),
+            "owner": stored.get("owner"),
+            "owner_slice": stored.get("owner_slice"),
+            "successor_unit_id": successor_unit_id,
+            "reference_census_id": stored.get("reference_census_id"),
+        }
+        if observed_formal != formal:
+            raise ValueError(f"DS9 C07 root formal preimage drift:{unit_id}")
+        if unit_id == "cache-local-disputes" and (
+            not isinstance(successor, Mapping)
+            or successor.get("consumer_refs") != DS9_C07_LOCAL_DISPUTE_SUCCESSOR_REFS
+        ):
+            raise ValueError("DS9 C07 local-dispute successor preimage drift")
+        opening_metadata = {
+            "decision_date": "2026-07-17",
+            "seed_rule": DS9_C07_OPENING_SEED_RULE[unit_id],
+            "rationale": DS9_C07_OPENING_ROOT_RATIONALES[unit_id],
+        }
+        candidate_metadata = {
+            "decision_date": DS9_C07_DECISION_DATE,
+            "seed_rule": DS9_C07_SCOPE_SEED_RULE[scope],
+            "rationale": DS9_C07_ROOT_RATIONALES[unit_id],
+        }
+        observed_metadata = {key: stored.get(key) for key in candidate_metadata}
+        if observed_metadata not in (opening_metadata, candidate_metadata):
+            raise ValueError(f"DS9 C07 root metadata preimage drift:{unit_id}")
+        candidate_row = dict(stored)
+        candidate_row.update(candidate_metadata)
+        replacements.append((start, end, _render_root_entry(candidate_row)))
+
+    candidate = text
+    for start, end, replacement in sorted(replacements, reverse=True):
+        candidate = candidate[:start] + replacement + candidate[end:]
+    return candidate
+
+
+def _ds9_c07_supplemental_transition_text(
+    text: str,
+    *,
+    scan: Mapping[str, Any] | None = None,
+) -> str:
+    """Refresh five adjudications and three receipts induced by DS9 source moves."""
+    expected_rows = {row["finding_id"]: row for row in _supplemental_findings()}
+    expected_rows.update({row["finding_id"]: row for row in _authority_presentation_rows(scan)})
+    if not DS9_C07_REFRESH_FINDING_IDS.issubset(expected_rows):
+        raise ValueError("DS9 C07 generated supplemental denominator drift")
+    _start, _end, spans = _supplemental_section_spans(text)
+    span_by_id = {
+        finding_id: (object_start, object_end)
+        for finding_id, object_start, object_end in spans
+        if finding_id in DS9_C07_REFRESH_FINDING_IDS
+    }
+    if set(span_by_id) != DS9_C07_REFRESH_FINDING_IDS:
+        raise ValueError("DS9 C07 supplemental target cardinality drift")
+    candidate = text
+    for finding_id, (start, end) in sorted(
+        span_by_id.items(), key=lambda item: item[1][0], reverse=True
+    ):
+        replacement = _render_supplemental_finding(expected_rows[finding_id])
+        candidate = candidate[:start] + replacement + candidate[end + 1 :]
+    return candidate
+
+
+def _ds9_c07_target_spans(
+    text: str,
+) -> list[tuple[str, int, int]]:
+    """Locate every surgical target with exclusive end offsets."""
+    spans: list[tuple[str, int, int]] = [
+        (label, start, end)
+        for label, start, end, _value in _ds9_c07_storage_target_spans(text)
+    ]
+    for unit_id in DS9_C07_ROOT_SCOPE:
+        start, end, _row = _json_entry_object_span(text, unit_id)
+        spans.append((f"root:{unit_id}", start, end))
+    _start, _end, supplemental = _supplemental_section_spans(text)
+    for finding_id, start, end in supplemental:
+        if finding_id in DS9_C07_REFRESH_FINDING_IDS:
+            spans.append((f"supplemental:{finding_id}", start, end + 1))
+    expected_labels = {
+        "induced:storage_factory_source_fingerprint",
+        "induced:storage_site_source_fingerprint",
+        "induced:storage_authority_factory_receipts_sha256",
+        "induced:storage_rows_sha256",
+        *(f"root:{unit_id}" for unit_id in DS9_C07_ROOT_SCOPE),
+        *(f"supplemental:{finding_id}" for finding_id in DS9_C07_REFRESH_FINDING_IDS),
+    }
+    if {label for label, _start, _end in spans} != expected_labels:
+        raise ValueError("DS9 C07 preservation target denominator drift")
+    return sorted(spans, key=lambda item: item[1])
+
+
+def _ds9_c07_preservation_errors(original_text: str, candidate_text: str) -> list[str]:
+    """Prove every byte outside the adjudications and induced receipts is unchanged."""
+    try:
+        original_spans = _ds9_c07_target_spans(original_text)
+        candidate_spans = _ds9_c07_target_spans(candidate_text)
+    except (json.JSONDecodeError, ValueError) as exc:
+        return [f"ds9_c07_preservation_span_invalid:{exc}"]
+    original_labels = [label for label, _start, _end in original_spans]
+    candidate_labels = [label for label, _start, _end in candidate_spans]
+    if original_labels != candidate_labels:
+        return ["ds9_c07_preservation_target_order_drift"]
+
+    def gaps(text: str, spans: Sequence[tuple[str, int, int]]) -> list[str]:
+        result: list[str] = []
+        previous = 0
+        for _label, start, end in spans:
+            result.append(text[previous:start])
+            previous = end
+        result.append(text[previous:])
+        return result
+
+    if gaps(original_text, original_spans) != gaps(candidate_text, candidate_spans):
+        return ["ds9_c07_non_target_byte_drift"]
+    return []
+
+
+def _ds9_c07_register_candidate_text(
+    original_text: str,
+    *,
+    scan: Mapping[str, Any] | None = None,
+) -> str:
+    """Build and self-check the complete DS9 C07 surgical register candidate."""
+    candidate = _ds9_c07_storage_transition_text(original_text)
+    candidate = _ds9_c07_root_transition_text(candidate)
+    candidate = _ds9_c07_supplemental_transition_text(candidate, scan=scan)
+    preservation_errors = _ds9_c07_preservation_errors(original_text, candidate)
+    if preservation_errors:
+        raise ValueError(";".join(preservation_errors))
+    repeated = _ds9_c07_storage_transition_text(candidate)
+    repeated = _ds9_c07_root_transition_text(repeated)
+    repeated = _ds9_c07_supplemental_transition_text(repeated, scan=scan)
+    if repeated != candidate:
+        raise ValueError("DS9 C07 register candidate is not idempotent")
+    return candidate
 
 
 def _c13_receipt_shape_errors(receipt: Mapping[str, Any]) -> list[str]:
@@ -8478,6 +9152,126 @@ def _c13_status_candidate_errors(
     if inventory["sources"]["ds19"]["sha256"] != _ds8_digest(register_bytes):
         errors.append("c13_status_register_candidate_hash_drift")
     return errors
+
+
+def _ds9_c07_writer_fence(
+    candidate_texts: Mapping[Path, str],
+) -> None:
+    """Require DS9's attached branch, one admitted family state, and a free index."""
+    branch = _c03_git_text("symbolic-ref", "-q", "HEAD").strip()
+    if branch != "refs/heads/codex/ds9-human-decision-integrity-plan":
+        raise ValueError(f"DS9 C07 writer branch fence failed: {branch}")
+    if set(candidate_texts) != set(DS9_C07_OPENING_FAMILY_SHA256):
+        raise ValueError("DS9 C07 writer candidate family denominator drift")
+
+    observed = {
+        path: hashlib.sha256(path.read_bytes()).hexdigest()
+        for path in DS9_C07_OPENING_FAMILY_SHA256
+    }
+    candidate_hashes = {
+        path: hashlib.sha256(candidate_texts[path].encode("utf-8")).hexdigest()
+        for path in candidate_texts
+    }
+    admitted_states = (
+        DS9_C07_OPENING_FAMILY_SHA256,
+        DS9_C07_SUPERSEDED_FAMILY_SHA256,
+        candidate_hashes,
+    )
+    if not any(
+        all(observed[path] == expected[path] for path in candidate_texts)
+        for expected in admitted_states
+    ):
+        raise ValueError("DS9 C07 governed family is mixed or has unknown bytes")
+
+    index_lock_ref = _c03_git_text("rev-parse", "--git-path", "index.lock").strip()
+    index_lock = Path(index_lock_ref)
+    if not index_lock.is_absolute():
+        index_lock = REPO_ROOT.parent / index_lock
+    if index_lock.exists():
+        raise ValueError(f"DS9 C07 writer found live index lock: {index_lock}")
+
+
+def _write_ds9_human_decision_integrity_family() -> dict[str, int]:
+    """Atomically adjudicate DS9 roots, authority rows, report, and status anchor."""
+    original_texts = {
+        REGISTER_PATH: REGISTER_PATH.read_text(encoding="utf-8"),
+        REPORT_PATH: REPORT_PATH.read_text(encoding="utf-8"),
+        STATUS_INVENTORY_PATH: STATUS_INVENTORY_PATH.read_text(encoding="utf-8"),
+    }
+    original_sources = {path: path.read_bytes() for path in DS9_C07_AUTHORITY_SOURCE_PATHS}
+    scan = _authority_presentation_scan()
+    register_candidate = _ds9_c07_register_candidate_text(
+        original_texts[REGISTER_PATH],
+        scan=scan,
+    )
+    register_data = json.loads(register_candidate)
+    pre_errors = validate_register(
+        register_data,
+        live_probes=False,
+        report_parity=False,
+    )
+    if pre_errors:
+        raise ValueError("DS9 C07 register candidate rejected: " + ";".join(pre_errors))
+    report_candidate = render_report(register_data)
+    status_candidate = _c13_status_inventory_candidate_text(
+        original_texts[STATUS_INVENTORY_PATH],
+        register_bytes=register_candidate.encode("utf-8"),
+    )
+    status_errors = _c13_status_candidate_errors(
+        json.loads(status_candidate),
+        register_bytes=register_candidate.encode("utf-8"),
+    )
+    if status_errors:
+        raise ValueError("DS9 C07 status candidate rejected: " + ";".join(status_errors))
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+        STATUS_INVENTORY_PATH: status_candidate,
+    }
+    _ds9_c07_writer_fence(candidates)
+    for path, original_text in original_texts.items():
+        if path.read_text(encoding="utf-8") != original_text:
+            raise ValueError(f"DS9 C07 governed preimage moved: {path}")
+    for path, original_bytes in original_sources.items():
+        if path.read_bytes() != original_bytes:
+            raise ValueError(f"DS9 C07 authority source moved: {path}")
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        for path, expected_text in candidates.items():
+            if path.read_text(encoding="utf-8") != expected_text:
+                errors.append(f"ds9_c07_family_readback_drift:{path}")
+        errors.extend(validate_register(_load_json(REGISTER_PATH)))
+        errors.extend(
+            _c13_status_candidate_errors(
+                _load_json(STATUS_INVENTORY_PATH),
+                register_bytes=REGISTER_PATH.read_bytes(),
+            )
+        )
+        for path, expected_bytes in original_sources.items():
+            if path.read_bytes() != expected_bytes:
+                errors.append(f"ds9_c07_authority_source_readback_drift:{path}")
+        return errors
+
+    def final_pre_promote_fence() -> None:
+        _ds9_c07_writer_fence(candidates)
+        for path, expected_text in original_texts.items():
+            if path.read_text(encoding="utf-8") != expected_text:
+                raise ValueError(f"DS9 C07 governed preimage moved before promotion: {path}")
+        for path, expected_bytes in original_sources.items():
+            if path.read_bytes() != expected_bytes:
+                raise ValueError(f"DS9 C07 authority source moved before promotion: {path}")
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=final_pre_promote_fence,
+    )
+    return {
+        "root_objects": len(DS9_C07_ROOT_SCOPE),
+        "authority_findings": len(DS9_C07_AUTHORITY_FINDING_IDS),
+        "objects": len(DS9_C07_ROOT_SCOPE) + len(DS9_C07_AUTHORITY_FINDING_IDS),
+    }
 
 
 def _write_c13_print_family() -> dict[str, Any]:
@@ -12359,6 +13153,78 @@ def _validate_storage_construction_census(
         errors.append("storage_construction_class_distribution_drift")
 
 
+def _validate_ds9_c07_adjudication(
+    data: Mapping[str, Any],
+    entries: Mapping[str, Mapping[str, Any]],
+    errors: list[str],
+) -> None:
+    """Bind every one of the 13 root and five authority rulings."""
+    for unit_id, scope in DS9_C07_ROOT_SCOPE.items():
+        entry = entries.get(unit_id)
+        if not isinstance(entry, Mapping):
+            errors.append(f"ds9_c07_root_missing:{unit_id}")
+            continue
+        formal = DS9_C07_ROOT_FORMAL[unit_id]
+        successor = entry.get("successor")
+        successor_unit_id = successor.get("unit_id") if isinstance(successor, Mapping) else None
+        observed = {
+            "disposition": entry.get("disposition"),
+            "strangle_status": entry.get("strangle_status"),
+            "owner": entry.get("owner"),
+            "owner_slice": entry.get("owner_slice"),
+            "successor_unit_id": successor_unit_id,
+            "reference_census_id": entry.get("reference_census_id"),
+        }
+        if observed != formal:
+            errors.append(f"ds9_c07_root_formal_drift:{unit_id}")
+        expected_metadata = {
+            "decision_date": DS9_C07_DECISION_DATE,
+            "seed_rule": DS9_C07_SCOPE_SEED_RULE[scope],
+            "rationale": DS9_C07_ROOT_RATIONALES[unit_id],
+        }
+        for field, expected in expected_metadata.items():
+            if entry.get(field) != expected:
+                errors.append(f"ds9_c07_root_scope_drift:{unit_id}:{field}")
+        if entry.get("family_complete") is not None:
+            errors.append(f"ds9_c07_root_family_complete_claim:{unit_id}")
+    local_successor = entries.get("cache-local-disputes", {}).get("successor")
+    if (
+        not isinstance(local_successor, Mapping)
+        or local_successor.get("consumer_refs") != DS9_C07_LOCAL_DISPUTE_SUCCESSOR_REFS
+    ):
+        errors.append("ds9_c07_local_dispute_successor_drift")
+
+    supplemental = data.get("supplemental_findings", [])
+    if not isinstance(supplemental, list):
+        errors.append("ds9_c07_supplemental_container_invalid")
+        return
+    counts = Counter(
+        str(row.get("finding_id"))
+        for row in supplemental
+        if isinstance(row, Mapping) and row.get("finding_id") in DS9_C07_AUTHORITY_FINDING_IDS
+    )
+    if set(counts) != DS9_C07_AUTHORITY_FINDING_IDS or any(count != 1 for count in counts.values()):
+        errors.append("ds9_c07_authority_finding_denominator_drift")
+    for row in supplemental:
+        if (
+            not isinstance(row, Mapping)
+            or row.get("finding_id") not in DS9_C07_AUTHORITY_FINDING_IDS
+        ):
+            continue
+        finding_id = str(row["finding_id"])
+        expected = {
+            "decision_date": DS9_C07_DECISION_DATE,
+            "disposition": "rebind_pending",
+            "owner_slice": "DS9",
+            "status": "open_debt",
+        }
+        for field, value in expected.items():
+            if row.get(field) != value:
+                errors.append(f"ds9_c07_authority_finding_drift:{finding_id}:{field}")
+    if len(DS9_C07_ROOT_SCOPE) + len(counts) != 18:
+        errors.append("ds9_c07_adjudication_denominator_drift")
+
+
 def validate_register(
     data: Mapping[str, Any],
     *,
@@ -12456,6 +13322,7 @@ def validate_register(
     if len(entry_ids) != len(set(entry_ids)):
         errors.append("register_duplicate_unit")
     entry_by_id = {entry["unit_id"]: entry for entry in entries}
+    _validate_ds9_c07_adjudication(data, entry_by_id, errors)
     for entry in entries:
         if (
             "aggregate_disposition_receipt" in entry
@@ -13255,11 +14122,115 @@ def _corruption_probes(data: Mapping[str, Any]) -> list[str]:
     row["decision_date"] = DECISION_DATE
     probes.append(("authority-presentation-decision-date-backdate", new_row_backdate))
 
+    ds9_root_id = "route-run-governance"
+    ds9_missing_root = copy.deepcopy(data)
+    ds9_missing_root["entries"] = [
+        row for row in ds9_missing_root["entries"] if row["unit_id"] != ds9_root_id
+    ]
+    probes.append(("ds9-c07-root-removal", ds9_missing_root))
+
+    ds9_scope_swap = copy.deepcopy(data)
+    ds9_scope_row = next(row for row in ds9_scope_swap["entries"] if row["unit_id"] == ds9_root_id)
+    ds9_scope_row["seed_rule"] = DS9_C07_SCOPE_SEED_RULE["surface_out_of_scope"]
+    probes.append(("ds9-c07-scope-swap", ds9_scope_swap))
+
+    ds9_tombstone_erased = copy.deepcopy(data)
+    ds9_tombstone = next(
+        row for row in ds9_tombstone_erased["entries"] if row["unit_id"] == "cache-review-attention"
+    )
+    ds9_tombstone["seed_rule"] = DS9_C07_SCOPE_SEED_RULE["in_scope"]
+    probes.append(("ds9-c07-tombstone-erased", ds9_tombstone_erased))
+
+    ds9_out_of_scope_owner = copy.deepcopy(data)
+    ds9_out_of_scope = next(
+        row for row in ds9_out_of_scope_owner["entries"] if row["unit_id"] == "cache-operator-craft"
+    )
+    ds9_out_of_scope["owner"] = "team-runtime"
+    probes.append(("ds9-c07-out-of-scope-owner", ds9_out_of_scope_owner))
+
+    ds9_authority_id = sorted(DS9_C07_AUTHORITY_FINDING_IDS)[0]
+    ds9_authority_row = next(
+        row for row in data["supplemental_findings"] if row["finding_id"] == ds9_authority_id
+    )
+    ds9_missing_authority = copy.deepcopy(data)
+    ds9_missing_authority["supplemental_findings"] = [
+        row
+        for row in ds9_missing_authority["supplemental_findings"]
+        if row["finding_id"] != ds9_authority_id
+    ]
+    probes.append(("ds9-c07-authority-removal", ds9_missing_authority))
+    ds9_duplicate_authority = copy.deepcopy(data)
+    ds9_duplicate_authority["supplemental_findings"].append(copy.deepcopy(ds9_authority_row))
+    probes.append(("ds9-c07-authority-duplicate", ds9_duplicate_authority))
+    for field, value in (("status", "repaired"), ("owner_slice", "DS12")):
+        mutation = copy.deepcopy(data)
+        target = next(
+            row
+            for row in mutation["supplemental_findings"]
+            if row["finding_id"] == ds9_authority_id
+        )
+        target[field] = value
+        probes.append((f"ds9-c07-authority-{field}", mutation))
+
     for name, mutation in probes:
         if not validate_register(mutation, live_probes=False, report_parity=False):
             failures.append(name)
 
     authority_scan = _authority_presentation_scan()
+    register_text = REGISTER_PATH.read_text(encoding="utf-8")
+    try:
+        candidate_text = _ds9_c07_register_candidate_text(
+            register_text,
+            scan=authority_scan,
+        )
+        normalized = (
+            json.dumps(
+                json.loads(candidate_text),
+                indent=2,
+                ensure_ascii=False,
+                sort_keys=True,
+            )
+            + "\n"
+        )
+        if not _ds9_c07_preservation_errors(register_text, normalized):
+            failures.append("ds9-c07-full-register-reserialization")
+        storage_start, storage_end, _storage = _json_top_level_object_span(
+            candidate_text,
+            "storage_construction_census",
+        )
+        storage_anchor = '"semantic_class_provenance":'
+        storage_anchor_count = candidate_text.count(
+            storage_anchor,
+            storage_start,
+            storage_end,
+        )
+        if storage_anchor_count != 1:
+            failures.append("ds9-c07-storage-nontarget-probe-anchor")
+        else:
+            anchor_end = candidate_text.index(
+                storage_anchor,
+                storage_start,
+                storage_end,
+            ) + len(storage_anchor)
+            storage_byte_mutation = (
+                candidate_text[:anchor_end]
+                + " "
+                + candidate_text[anchor_end:]
+            )
+            if not _ds9_c07_preservation_errors(
+                register_text,
+                storage_byte_mutation,
+            ):
+                failures.append("ds9-c07-storage-nontarget-byte-drift")
+        repeated = _ds9_c07_register_candidate_text(
+            candidate_text,
+            scan=authority_scan,
+        )
+        if repeated != candidate_text:
+            failures.append("ds9-c07-transition-not-idempotent")
+    except (json.JSONDecodeError, OSError, ValueError):
+        failures.append("ds9-c07-transition-probe-invalid")
+
     reclassified = dict(AUTHORITY_BADGE_CLASSIFICATIONS)
     debt_location = next(
         location
@@ -13527,6 +14498,35 @@ def _ds8b_transition_report_projection(
             f"| `{row['path']}` | `{row['feature']}` | `{row['role']}` | "
             f"`{row['origin']}` | `{row['disposition']}` | "
             f"`{row['source_content_sha256']}` |"
+        )
+    return "\n".join(lines)
+
+
+def _ds9_c07_report_projection(data: Mapping[str, Any]) -> str:
+    """Render all 18 adjudicated objects without implying family completion."""
+    entries = {row["unit_id"]: row for row in data["entries"]}
+    findings = {row["finding_id"]: row for row in data["supplemental_findings"]}
+    lines = [
+        "### DS9 C07 human-decision adjudication",
+        "",
+        "Predicate provenance: `independently_reconciled`. Family complete: `false`.",
+        "",
+        "| Object | Kind | DS9 semantic scope | Formal disposition | Owner / residual |",
+        "| --- | --- | --- | --- | --- |",
+    ]
+    for unit_id, scope in DS9_C07_ROOT_SCOPE.items():
+        row = entries[unit_id]
+        lines.append(
+            f"| `{unit_id}` | root | `{scope}` | `{row['disposition']}` / "
+            f"`{row['strangle_status']}` | `{row['owner_slice']}` |"
+        )
+    for finding_id in sorted(DS9_C07_AUTHORITY_FINDING_IDS):
+        row = findings[finding_id]
+        states = ", ".join(f"`{state}`" for state in row["capability_states"])
+        lines.append(
+            f"| `{finding_id}` | authority support | `in_scope` | "
+            f"`{row['disposition']}` / `{row['status']}` | "
+            f"`{row['owner_slice']}`; {states} |"
         )
     return "\n".join(lines)
 
@@ -13801,6 +14801,8 @@ def _report_projection(data: Mapping[str, Any]) -> str:
     lines.extend(
         [
             "",
+            _ds9_c07_report_projection(data),
+            "",
             _ds8_strangle_report_projection(data["ds8_strangle_coverage"]),
             "",
             _ds8b_transition_report_projection(
@@ -14048,6 +15050,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="atomically add DS8-B coverage without rewriting C07 history",
     )
     parser.add_argument(
+        "--write-ds9-human-decision-integrity",
+        action="store_true",
+        help="atomically adjudicate the exact DS9 C07 register family",
+    )
+    parser.add_argument(
         "--migrate-c21b",
         action="store_true",
         help="surgically migrate gated TypeScript reference strings to C21a identities",
@@ -14095,6 +15102,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.write_ds9_human_decision_integrity:
+        selected = {
+            name for name, value in vars(args).items() if value is not None and value is not False
+        }
+        if selected != {"write_ds9_human_decision_integrity"}:
+            sys.stderr.write(
+                "DS9 C07 transition requires only --write-ds9-human-decision-integrity\n"
+            )
+            return 1
+        try:
+            summary = _write_ds9_human_decision_integrity_family()
+        except (OSError, ValueError, RuntimeError) as exc:
+            sys.stderr.write(f"DS9 C07 transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("materialized DS9 C07 register/report/status family\n")
+        sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        return 0
 
     if args.write_ds8b_post_freeze_transition:
         selected = {

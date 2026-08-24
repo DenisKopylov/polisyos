@@ -5,7 +5,15 @@ import {
   type OperatorDiagnosticView,
 } from "@/shared/ui/OperatorDiagnosticPanel";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
-import { Badge, type BadgeTone } from "@polisyos/atlas-ui";
+import {
+  authorityStatusBadgeProps,
+  issueApprovalAvailabilityPresentation,
+  issueAuthorityInformationPresentation,
+  issueOpaqueAuthorityStatusPresentation,
+  issueOverrideRequirementPresentation,
+  issueReviewDisagreementPresentation,
+} from "@/shared/ui/AuthorityStatusPresentation";
+import { Badge } from "@polisyos/atlas-ui";
 
 type ControlFailureEnvelope = components["schemas"]["ControlFailureEnvelope"];
 type ControlJobResponse = components["schemas"]["ControlJobResponse"];
@@ -107,19 +115,7 @@ function numberFromUnknown(value: unknown): number | null {
 }
 
 function booleanFromUnknown(value: unknown): boolean | null {
-  if (typeof value === "boolean") {
-    return value;
-  }
-  if (typeof value === "string") {
-    const normalized = value.trim().toLowerCase();
-    if (["true", "yes", "1"].includes(normalized)) {
-      return true;
-    }
-    if (["false", "no", "0"].includes(normalized)) {
-      return false;
-    }
-  }
-  return null;
+  return typeof value === "boolean" ? value : null;
 }
 
 function stringsFromUnknown(value: unknown): string[] {
@@ -226,52 +222,25 @@ function evidencePathFromJob(
   );
 }
 
-function qualityBadgeKind(status: string | null | undefined): BadgeTone {
-  if (status === "fail") {
-    return "fail";
-  }
-  if (status === "warn") {
-    return "warn";
-  }
-  if (status === "pass") {
-    return "ok";
-  }
-  return "neutral";
+function approvalAvailabilityProps(
+  ownerFacts: readonly unknown[],
+  ownerValue: unknown,
+) {
+  return authorityStatusBadgeProps(
+    issueApprovalAvailabilityPresentation(ownerFacts, ownerValue),
+  );
 }
 
-function approvalBadgeKind(readiness: ApprovalReadiness): BadgeTone {
-  if (readiness.eligible === true || readiness.state === "approval_ready") {
-    return "ok";
-  }
-  if (readiness.state?.includes("warn")) {
-    return "warn";
-  }
-  if (readiness.state) {
-    return "fail";
-  }
-  return "neutral";
+function authorityInformationProps(ownerValue: unknown) {
+  return authorityStatusBadgeProps(
+    issueAuthorityInformationPresentation(ownerValue),
+  );
 }
 
-function gateBadgeKind(status: string | null | undefined): BadgeTone {
-  if (status === "fail") {
-    return "fail";
-  }
-  if (status === "warn") {
-    return "warn";
-  }
-  return "neutral";
-}
-
-function performanceIssueBadgeKind(
-  status: string | null | undefined,
-): BadgeTone {
-  if (status === "fail" || status === "failed") {
-    return "fail";
-  }
-  if (status === "over_budget" || status === "warn" || status === "warning") {
-    return "warn";
-  }
-  return "neutral";
+function opaqueAuthorityStatusProps(ownerValue: unknown) {
+  return authorityStatusBadgeProps(
+    issueOpaqueAuthorityStatusPresentation(ownerValue),
+  );
 }
 
 function formatMilliseconds(value: number | null): string {
@@ -365,9 +334,12 @@ function performanceBudgetIssueFromUnknown(
     (observedValueMs !== null && budgetMs !== null && observedValueMs > budgetMs
       ? "over_budget"
       : null);
-  const status = rawStatus?.toLowerCase() ?? "warn";
+  if (!rawStatus) {
+    return null;
+  }
+  const status = rawStatus.toLowerCase();
   const isBudgetIssue =
-    ["over_budget", "warn", "warning", "fail", "failed"].includes(status) ||
+    !["ok", "pass", "passed", "within_budget"].includes(status) ||
     (observedValueMs !== null &&
       budgetMs !== null &&
       observedValueMs > budgetMs);
@@ -501,11 +473,6 @@ function approvalReadinessFromJob(
       : approvalReady === false
         ? "not_ready"
         : null);
-  const eligible =
-    booleanFromUnknown(approvalProjection?.eligible) ??
-    booleanFromUnknown(eligibility?.eligible) ??
-    approvalReady ??
-    (state ? state === "approval_ready" : null);
   const gapCommands = authorityGaps
     .map((gap) => stringFromUnknown(gap.next_diagnostic_command))
     .filter((command): command is string => command !== null);
@@ -518,6 +485,16 @@ function approvalReadinessFromJob(
   const projectionAuthority =
     stringFromUnknown(projectionSourceRecord?.authority_level) ??
     stringFromUnknown(projectionSourceRecord?.projection_policy);
+  const projectionBindingValid =
+    stringFromUnknown(approvalProjection?.source_surface) ===
+      "runtime.control_job" &&
+    stringFromUnknown(approvalProjection?.authority_level) ===
+      "projection_only" &&
+    projectionSource === "runtime.control_job" &&
+    projectionAuthority === "projection_only";
+  const eligible = projectionBindingValid
+    ? booleanFromUnknown(approvalProjection?.eligible)
+    : null;
   const seriousProfile = ["governed", "production", "research"].includes(
     job?.effective_execution_profile ?? "",
   );
@@ -627,9 +604,7 @@ function shouldRenderApproval(
   job: ControlJobResponse | null | undefined,
   readiness: ApprovalReadiness | null,
 ) {
-  return Boolean(
-    readiness && job?.state === "completed",
-  );
+  return Boolean(readiness && job?.state === "completed");
 }
 
 function approvalGateIssuesFromJob(
@@ -637,7 +612,7 @@ function approvalGateIssuesFromJob(
 ): ApprovalGateIssue[] {
   const gates = job?.quality_gates ?? [];
   const gateIssues = gates
-    .filter((gate) => gate.status === "fail" || gate.status === "warn")
+    .filter((gate) => gate.status !== "pass")
     .map((gate) => ({
       name: gate.name,
       code: gate.code ?? null,
@@ -729,8 +704,7 @@ function shouldRenderScientistProgress(
   progress: ScientistWorkflowProgress | null,
 ) {
   return Boolean(
-    progress &&
-    (job?.state === "pending" || job?.state === "running"),
+    progress && (job?.state === "pending" || job?.state === "running"),
   );
 }
 
@@ -757,21 +731,38 @@ function ControlApprovalPanel({
       className="border-l-2 border-[var(--color-status-rejected)] bg-[color-mix(in_srgb,var(--color-status-rejected)_6%,transparent)] px-3 py-2 text-sm"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <Badge kind={approvalBadgeKind(readiness)}>
+        <Badge
+          {...approvalAvailabilityProps([readiness.eligible], readiness.state)}
+        >
           {t("controlJob.approvalBadge", {
             status: readiness.state ?? "unknown",
           })}
         </Badge>
-        <Badge kind={readiness.eligible ? "ok" : "warn"}>
+        <Badge
+          {...approvalAvailabilityProps(
+            [readiness.eligible],
+            readiness.eligible === true
+              ? "available"
+              : readiness.eligible === false
+                ? "blocked"
+                : null,
+          )}
+        >
           {readiness.eligible
             ? t("controlJob.approvalReady")
             : t("controlJob.notApprovalReady")}
         </Badge>
         {readiness.requiresOverride ? (
-          <Badge kind="warn">{t("controlJob.overrideRequired")}</Badge>
+          <Badge
+            {...authorityStatusBadgeProps(
+              issueOverrideRequirementPresentation(readiness.requiresOverride),
+            )}
+          >
+            {t("controlJob.overrideRequired")}
+          </Badge>
         ) : null}
         {calibration ? (
-          <Badge kind="neutral">
+          <Badge {...opaqueAuthorityStatusProps(calibration.status)}>
             {t("controlJob.humanReviewBadge", {
               status: calibration.status ?? "unknown",
             })}
@@ -779,7 +770,7 @@ function ControlApprovalPanel({
         ) : null}
         {calibration?.agreementRate !== null &&
         calibration?.agreementRate !== undefined ? (
-          <Badge kind="neutral">
+          <Badge {...authorityInformationProps(calibration.agreementRate)}>
             {t("controlJob.humanReviewAgreement", {
               value: formatPercent(calibration.agreementRate) ?? "",
             })}
@@ -787,7 +778,7 @@ function ControlApprovalPanel({
         ) : null}
         {calibration?.overrideRate !== null &&
         calibration?.overrideRate !== undefined ? (
-          <Badge kind="neutral">
+          <Badge {...authorityInformationProps(calibration.overrideRate)}>
             {t("controlJob.humanReviewOverrideRate", {
               value: formatPercent(calibration.overrideRate) ?? "",
             })}
@@ -795,7 +786,9 @@ function ControlApprovalPanel({
         ) : null}
         {calibration?.reviewerBurdenMinutes !== null &&
         calibration?.reviewerBurdenMinutes !== undefined ? (
-          <Badge kind="neutral">
+          <Badge
+            {...authorityInformationProps(calibration.reviewerBurdenMinutes)}
+          >
             {t("controlJob.humanReviewBurden", {
               value: formatMinutes(calibration.reviewerBurdenMinutes) ?? "",
             })}
@@ -803,7 +796,13 @@ function ControlApprovalPanel({
         ) : null}
         {calibration?.unresolvedDisagreementCount !== null &&
         calibration?.unresolvedDisagreementCount !== undefined ? (
-          <Badge kind="warn">
+          <Badge
+            {...authorityStatusBadgeProps(
+              issueReviewDisagreementPresentation(
+                calibration.unresolvedDisagreementCount,
+              ),
+            )}
+          >
             {t("controlJob.humanReviewUnresolved", {
               count: String(calibration.unresolvedDisagreementCount),
             })}
@@ -884,7 +883,7 @@ function ControlApprovalPanel({
                     className="border-border/60 rounded border bg-white/55 px-2 py-1"
                   >
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge kind={gateBadgeKind(issue.status)}>
+                      <Badge {...opaqueAuthorityStatusProps(issue.status)}>
                         {issue.status}
                       </Badge>
                       <span className="font-medium break-words">
@@ -917,7 +916,7 @@ function ControlApprovalPanel({
                 className="border-border/60 rounded border bg-white/55 px-2 py-1"
               >
                 <div className="flex flex-wrap items-center gap-2">
-                  <Badge kind={performanceIssueBadgeKind(issue.status)}>
+                  <Badge {...opaqueAuthorityStatusProps(issue.status)}>
                     {issue.status}
                   </Badge>
                   <span className="font-medium break-words">{issue.phase}</span>
@@ -1089,7 +1088,7 @@ function ControlQualityPanel({ job }: { job: ControlJobResponse }) {
       className="border-l-2 border-[var(--color-status-pending)] bg-[color-mix(in_srgb,var(--color-status-pending)_8%,transparent)] px-3 py-2 text-sm"
     >
       <div className="flex flex-wrap items-center gap-2">
-        <Badge kind={qualityBadgeKind(job.quality_status)}>
+        <Badge {...opaqueAuthorityStatusProps(job.quality_status)}>
           {t("controlJob.qualityBadge", {
             status: job.quality_status ?? "",
           })}

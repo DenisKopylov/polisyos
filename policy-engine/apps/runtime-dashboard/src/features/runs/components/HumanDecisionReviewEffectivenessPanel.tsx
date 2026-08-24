@@ -2,6 +2,10 @@ import { Badge, Card } from "@polisyos/atlas-ui";
 
 import type { HumanDecisionReviewEffectiveness } from "@/features/runs/api/useHumanDecisions";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  authorityStatusBadgeProps,
+  issueHumanDecisionReviewCoveragePresentation,
+} from "@/shared/ui/AuthorityStatusPresentation";
 
 export function HumanDecisionReviewEffectivenessPanel({
   report,
@@ -21,7 +25,13 @@ export function HumanDecisionReviewEffectivenessPanel({
             {t("pages.runs.report.humanDecision.review.title")}
           </h2>
         </div>
-        <Badge kind={report.coverage_status === "complete" ? "ok" : "warn"}>
+        <Badge
+          {...authorityStatusBadgeProps(
+            issueHumanDecisionReviewCoveragePresentation(
+              report.coverage_status,
+            ),
+          )}
+        >
           {report.coverage_status}
         </Badge>
       </div>

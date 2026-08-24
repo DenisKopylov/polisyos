@@ -5,7 +5,7 @@ import { untracedDecisionQuantity } from "@/shared/ui/quantity";
 
 describe("ExplainabilityCard accessibility", () => {
   it("has no WCAG AA violations", async () => {
-    await expectNoA11yViolations(
+    const view = await expectNoA11yViolations(
       <ExplainabilityCard
         level="summary"
         verdict={{
@@ -36,5 +36,17 @@ describe("ExplainabilityCard accessibility", () => {
         expandTo="deep"
       />,
     );
+
+    const governanceCounts = view.container.querySelectorAll(
+      '[data-authority-source="governance_count"]',
+    );
+    expect(governanceCounts).toHaveLength(3);
+    for (const count of governanceCounts) {
+      expect(count).toHaveAttribute(
+        "data-authority-recognition",
+        "informational",
+      );
+      expect(count).toHaveAttribute("data-presentation-tone", "outline");
+    }
   });
 });

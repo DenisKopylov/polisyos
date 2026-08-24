@@ -34,6 +34,10 @@ import { Badge, Card, EmptyState, PanelSkeleton } from "@polisyos/atlas-ui";
 import { AuthoredText } from "@/shared/ui/authored-text";
 import { Quantity, untracedDecisionQuantity } from "@/shared/ui/quantity";
 import { presentDecisionGradeLabel } from "@/shared/ui/compounds/decisionGradePresentation";
+import {
+  authorityStatusBadgeProps,
+  issueOpaqueAuthorityStatusPresentation,
+} from "@/shared/ui/AuthorityStatusPresentation";
 import { RunExplainabilityPanel } from "@/features/runs/components/RunExplainabilityPanel";
 
 function DecisionPanelContent({ artifactId }: { artifactId: string }) {
@@ -184,10 +188,12 @@ function GovernancePanelContent({ runId }: { runId: string }) {
             <div className="flex items-center justify-between gap-3">
               <strong>{issue.message}</strong>
               <Badge
+                {...authorityStatusBadgeProps(
+                  issueOpaqueAuthorityStatusPresentation(issue.severity),
+                )}
                 data-owner-severity={issue.severity ?? undefined}
                 data-presentation="owner-label-neutral"
                 data-testid={`overview-governance-severity-${issue.code}`}
-                kind="neutral"
               >
                 {issue.severity ?? t("common.unknown")}
               </Badge>

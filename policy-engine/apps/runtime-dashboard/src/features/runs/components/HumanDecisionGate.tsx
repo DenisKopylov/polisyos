@@ -18,6 +18,11 @@ import {
   type HumanDecisionFormInput,
 } from "@/features/runs/domain/humanDecisionPresentation";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
+import {
+  authorityStatusBadgeProps,
+  issueHumanDecisionEvidencePresentation,
+  issueHumanDecisionGatePresentation,
+} from "@/shared/ui/AuthorityStatusPresentation";
 
 type HumanDecisionGateProps = Readonly<{
   canMutate: boolean;
@@ -39,13 +44,6 @@ function surfacedErrorCode(error: unknown, fallback: string): string {
     return error.message;
   }
   return fallback;
-}
-
-function statusTone(status: CapturedHumanDecisionGate["packet"]["status"]) {
-  if (status === "available") return "ok" as const;
-  if (status === "blocked" || status === "revalidation_required")
-    return "warn" as const;
-  return "fail" as const;
 }
 
 function buildEvidenceRows(required: string[], completed: string[]) {
@@ -146,7 +144,13 @@ export function HumanDecisionGate({
             {t("pages.runs.report.humanDecision.gate.title")}
           </h2>
         </div>
-        <Badge kind={statusTone(gate.status)}>{gate.status}</Badge>
+        <Badge
+          {...authorityStatusBadgeProps(
+            issueHumanDecisionGatePresentation(gate.status),
+          )}
+        >
+          {gate.status}
+        </Badge>
       </div>
 
       {request ? (
@@ -283,7 +287,11 @@ export function HumanDecisionGate({
               >
                 <span className="font-mono text-xs break-all">{digest}</span>
                 {opened ? (
-                  <Badge kind="ok">
+                  <Badge
+                    {...authorityStatusBadgeProps(
+                      issueHumanDecisionEvidencePresentation(true),
+                    )}
+                  >
                     {t("pages.runs.report.humanDecision.gate.opened")}
                   </Badge>
                 ) : gate.continuation && gate.exposure.exposure_session_ref ? (
@@ -296,7 +304,11 @@ export function HumanDecisionGate({
                     {t("pages.runs.report.humanDecision.gate.openEvidence")}
                   </Button>
                 ) : (
-                  <Badge kind="fail">
+                  <Badge
+                    {...authorityStatusBadgeProps(
+                      issueHumanDecisionEvidencePresentation(false),
+                    )}
+                  >
                     {t("pages.runs.report.humanDecision.gate.unavailable")}
                   </Badge>
                 )}

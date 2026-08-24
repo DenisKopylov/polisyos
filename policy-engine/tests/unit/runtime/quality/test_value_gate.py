@@ -3,6 +3,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import subprocess
 import sys
 from dataclasses import dataclass, replace
 from datetime import UTC, datetime
@@ -140,8 +141,27 @@ from .test_cycle_substrate import _world_record as _lane0_world_record
 from .test_generation_cycle import _Atom, _Candidate, _problem
 
 
+@pytest.fixture(autouse=True)
+def _isolate_polisyos_cache(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep catalog caches out of the appointed hermetic tooling home."""
+
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "polisyos-cache").as_posix())
+
+
 def _hash(char: str) -> str:
     return "sha256:" + char * 64
+
+
+def _source_freeze() -> str:
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
 
 
 def _posterior_method_result(report: object) -> MethodResult:
@@ -652,82 +672,39 @@ def test_n8_first_vertical_real_cycle_routes_owner_data_gap_through_n7() -> None
     assert record.claim_ref == f"value-claim:{cycle.selected_candidate_ref}"
 
 
-def test_n8_v2_frozen_payload_records_only_honest_fork_b_terminals() -> None:
-    payload = value_contract.build_payload(value_contract._repo_root())
+def test_n8_v2_frozen_payload_records_only_dependency_authority_nonreceipt() -> None:
+    source_freeze = _source_freeze()
+    payload = value_contract.build_payload(
+        value_contract._repo_root(),
+        expected_source_freeze=source_freeze,
+    )
 
     assert payload["schema_version"].endswith(".v2")
-    assert "frozen_positive_receipt" not in payload
-    assert "frozen_value_receipts" not in payload
-    assert "decisive_mutations" not in payload
-    assert {row["mutation_id"] for row in payload["decisive_mutation_expectations"]} == set(
-        value_contract.EXPECTED_MUTATION_IDS
-    )
-    assert all(
-        row["expected_result"] == "RED" and "observed_result" not in row and "result" not in row
-        for row in payload["decisive_mutation_expectations"]
-    )
-    expected_denominators = value_contract._catalog_denominators()
-    assert payload["denominators"] == expected_denominators
-    assert (
-        payload["denominators"]["registered_method_count"]
-        == payload["denominators"]["catalog_entry_count"]
-    )
-    assert payload["denominators"]["value_capable_method_count"] == len(
-        payload["denominators"]["value_capable_methods"]
-    )
-    provenance = payload["denominators"]["catalog_provenance"]
-    assert provenance["governed_discovery"]["source_policy"] == {
-        "include_builtins": True,
-        "include_entry_points": False,
-        "include_dev_scan": False,
+    assert payload["status"] == "not_established"
+    assert payload["retained_capability_label"] == "producer_missing"
+    assert "denominators" not in payload
+    assert "production_refusal" not in payload
+    authority = payload["catalog_dependency_authority"]
+    assert authority["result_kind"] in {
+        "source_rejected",
+        "source_not_established",
+        "runtime_cutoff_not_established",
     }
-    ambient_admission = provenance["ambient_discovery"]["admission"]
-    assert ambient_admission["status"] in {
-        "quarantined_unbound",
-        "declared_not_admitted",
+    refusal = authority.get("preflight_refusal", authority)
+    assert refusal["persistence"] == {
+        "status": "not_established",
+        "missing_capability": "owner_resolved_resolution_receipt_store",
+        "missing_capability_state": "absent/unallocated",
     }
-    assert ambient_admission["included_in_governed_denominator"] is False
-    assert ambient_admission["fail_closed_action"] == "quarantine"
-    assert len(payload["native_projector_contract_proofs"]) == 6
-    assert {proof["family"] for proof in payload["native_projector_contract_proofs"]} == {
-        "posterior",
-        "econometric",
-        "forecasting",
-        "distributional",
-        "partial_identification",
-        "transport",
-    }
-    assert all(
-        proof["authority_scope"] == "contract_only_nonproduction"
-        and proof["production_value_eligible"] is False
-        and proof["status"].startswith("contract_projection_")
-        and "value_outer_set" not in proof
-        and "value_gate_receipt" not in proof
-        for proof in payload["native_projector_contract_proofs"]
-    )
-    production = payload["production_refusal"]
-    assert production["status"] == "value_blocked"
-    assert production["authority_blockers"] == ["acquire_data:value_panel_data_missing"]
-    assert production["selection_stage"] == "not_reached_owner_data_unavailable"
-    assert production["selected_method_fqn"] is None
-    assert production["method_selection_receipt"] is None
-    assert production["owner_availability"]["variable_id"] == ("employment_retention")
-    assert production["value_receipt"] is None
-    route = payload["acquisition_routing"]
-    assert route["terminal_kind"] == "acquisition_required"
-    assert route["simulated_reentry"] is False
-    assert route["acquisition_receipt"] is None
-    assert route["requirement_gap"]["metadata"]["source"] == ("l1_dcat_variable_availability")
-    assert route["planner_report"]["status"] == "pass"
-    assert (
-        route["planner_report"]["acquisition_records"][0]["recommended_strategy"]
-        == "production_snapshot_build"
-    )
-    education = payload["education_refusal"]
-    assert education["status"] == "value_blocked"
-    assert education["authority_blockers"] == ["method_estimand_binding_mismatch"]
-    assert education["method_selection_receipt"] is not None
-    assert education["value_receipt"] is None
+    if authority["result_kind"] == "runtime_cutoff_not_established":
+        assert (
+            refusal["failure"]["failure_code"]
+            == "owner_enforced_runtime_subtree_cutoff_not_established"
+        )
+    assert value_contract.validate_payload_result(
+        payload,
+        expected_source_freeze=source_freeze,
+    ).governing_issues == ()
 
 
 def _catalog_provenance_comparison_fixture() -> dict[str, Any]:
@@ -894,7 +871,7 @@ def test_n8_validation_result_reports_canonical_ambient_drift_without_governing_
         finding["code"] for finding in result.ambient_findings
     } == {
         "catalog_ambient_discovery_manifest_mismatch",
-        "catalog_ambient_component_manifest_mismatch",
+        "catalog_entry_point_distribution_manifest_mismatch",
         "catalog_ambient_unbound_input_manifest_mismatch",
         "catalog_predicate_provenance_mismatch",
     }
@@ -959,16 +936,33 @@ def test_n8_full_check_and_rederive_compare_the_governed_projection(
     """Sibling paths retain ambient evidence without restoring it as the gate."""
 
     root = value_contract._repo_root()
+    source_freeze = _source_freeze()
 
-    result = value_contract.run_rederive_audit_result(root)
-    assert value_contract.check(root) == ()
-    assert result.governing_issues == ()
+    result = value_contract.run_rederive_audit_result(
+        root,
+        expected_source_freeze=source_freeze,
+    )
+    assert value_contract.check(
+        root,
+        expected_source_freeze=source_freeze,
+    ) == (
+        {
+            "code": "artifact_drift",
+            "path": value_contract.OUTPUT_PATH,
+        },
+    )
+    assert result.governing_issues == (
+        {
+            "code": "live_rederive_section_drift",
+            "section": "catalog_dependency_authority",
+        },
+    )
     assert {
         (finding["code"], finding.get("predicate"))
         for finding in result.ambient_findings
     } == {
         ("catalog_ambient_discovery_manifest_mismatch", None),
-        ("catalog_ambient_component_manifest_mismatch", None),
+        ("catalog_entry_point_distribution_manifest_mismatch", None),
         ("catalog_ambient_unbound_input_manifest_mismatch", None),
         (
             "catalog_predicate_provenance_mismatch",
@@ -981,9 +975,12 @@ def test_n8_full_check_and_rederive_compare_the_governed_projection(
     monkeypatch.setattr(
         value_contract,
         "run_rederive_audit_result",
-        lambda _root: result,
+        lambda _root, *, expected_source_freeze: result,
     )
-    assert value_contract.run_rederive_audit(root) == ()
+    assert value_contract.run_rederive_audit(
+        root,
+        expected_source_freeze=source_freeze,
+    ) == result.governing_issues
 
 
 def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
@@ -1004,7 +1001,7 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
     )
     from polisyos.foundry.extensions.registry import bootstrap_foundry_method_registry
     from polisyos.foundry.methods.catalog.snapshot import (
-        build_method_catalog_provenance_manifest,
+        _build_candidate_method_catalog_provenance_manifest,
         build_method_catalog_snapshot,
     )
     from polisyos.foundry.methods.selection.registry import registry_scope
@@ -1101,7 +1098,7 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
             registry_report=governed_report,
             require_bound_discovery=True,
         )
-    first = build_method_catalog_provenance_manifest(
+    first = _build_candidate_method_catalog_provenance_manifest(
         snapshot,
         registry_report=governed_report,
         ambient_manifest=_ambient_manifest(
@@ -1111,7 +1108,7 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
             }
         ),
     )
-    second = build_method_catalog_provenance_manifest(
+    second = _build_candidate_method_catalog_provenance_manifest(
         snapshot,
         registry_report=governed_report,
         ambient_manifest=_ambient_manifest(
@@ -1162,7 +1159,7 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
     assert first["provenance_id"] == second["provenance_id"]
     assert value_contract._catalog_provenance_issues(first, second) == ()
 
-    first_bound = build_method_catalog_provenance_manifest(
+    first_bound = _build_candidate_method_catalog_provenance_manifest(
         snapshot,
         registry_report=governed_report,
         ambient_manifest=_ambient_manifest(
@@ -1173,7 +1170,7 @@ def test_n8_catalog_provenance_accepts_same_editable_source_from_two_paths(
             }
         ),
     )
-    second_bound = build_method_catalog_provenance_manifest(
+    second_bound = _build_candidate_method_catalog_provenance_manifest(
         snapshot,
         registry_report=governed_report,
         ambient_manifest=_ambient_manifest(
@@ -1457,20 +1454,23 @@ def test_n8_catalog_provenance_check_uses_the_frozen_payload(
     monkeypatch.setattr(
         value_contract,
         "validate_payload_result",
-        lambda payload: (
+        lambda payload, *, expected_source_freeze: (
             observed.append(payload)
             or value_contract.ValueGateValidationResult((), ())
         ),
     )
 
-    assert value_contract.check_catalog_provenance(tmp_path) == ()
+    assert value_contract.check_catalog_provenance(
+        tmp_path,
+        expected_source_freeze=_source_freeze(),
+    ) == ()
     assert observed == [{"frozen": True}]
 
 
 def test_n8_catalog_provenance_reports_environment_without_masking_count_drift(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    expected_denominators = value_contract._catalog_denominators()
+    expected_denominators = value_contract._candidate_catalog_denominators()
     recorded_denominators = copy.deepcopy(expected_denominators)
     entry_points = recorded_denominators["catalog_provenance"]["ambient_discovery"][
         "entry_points"
@@ -1500,7 +1500,7 @@ def test_n8_catalog_provenance_reports_environment_without_masking_count_drift(
     )
     monkeypatch.setattr(
         value_contract,
-        "_catalog_denominators_cached",
+        "_candidate_catalog_denominators_cached",
         lambda: expected_denominators,
     )
     payload = {
@@ -1549,12 +1549,12 @@ def test_n8_catalog_provenance_recomputes_recorded_manifest_identity(
     destination: str,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    expected_denominators = value_contract._catalog_denominators()
+    expected_denominators = value_contract._candidate_catalog_denominators()
     recorded_denominators = copy.deepcopy(expected_denominators)
     recorded_denominators["catalog_provenance"][section][field] = corrupt_value
     monkeypatch.setattr(
         value_contract,
-        "_catalog_denominators_cached",
+        "_candidate_catalog_denominators_cached",
         lambda: expected_denominators,
     )
     payload = {
@@ -1576,7 +1576,7 @@ def test_n8_catalog_provenance_recomputes_recorded_manifest_identity(
 
 
 def test_n8_catalog_predicate_bindings_cover_every_denominator_field() -> None:
-    denominators = value_contract._catalog_denominators()
+    denominators = value_contract._candidate_catalog_denominators()
     provenance = denominators["catalog_provenance"]
     bindings = provenance["predicate_bindings"]
     predicate_names = {
@@ -1771,27 +1771,26 @@ def test_n8_source_flip_runner_rejects_ambiguous_mutation_target(tmp_path: Path)
     assert source.read_text(encoding="utf-8") == "guard = True\nguard = True\n"
 
 
-def test_n8_v2_validator_rejects_fabricated_positive_and_contract_authority() -> None:
-    payload = value_contract.build_payload(value_contract._repo_root())
-    payload["production_refusal"]["status"] = "value_ready"
-    payload["production_refusal"]["value_receipt"] = {"fabricated": True}
-    payload["native_projector_contract_proofs"][0]["production_value_eligible"] = True
-    first_transport = payload["transport_component_proofs"]["first_vertical"]
-    first_transport["candidate_id"] = "candidate_transplanted"
-    first_transport["proof_content_hash"] = value_contract.gy_content_hash(
-        {
-            key: value
-            for key, value in first_transport.items()
-            if key != "proof_content_hash"
-        }
+def test_n8_v2_validator_rejects_dependency_authority_promotion() -> None:
+    source_freeze = _source_freeze()
+    payload = value_contract.build_payload(
+        value_contract._repo_root(),
+        expected_source_freeze=source_freeze,
     )
+    payload["status"] = "value_ready"
+    payload["retained_capability_label"] = "implemented"
     payload["contract_content_hash"] = value_contract._content_hash(payload)
 
-    codes = {issue["code"] for issue in value_contract.validate_payload(payload)}
+    codes = {
+        issue["code"]
+        for issue in value_contract.validate_payload_result(
+            payload,
+            expected_source_freeze=source_freeze,
+        ).governing_issues
+    }
 
-    assert "fabricated_production_value_ready" in codes
-    assert "contract_projection_claimed_production_authority" in codes
-    assert "first_vertical_transport_receipt_unbound" in codes
+    assert "catalog_dependency_status_promoted" in codes
+    assert "catalog_dependency_capability_label_promoted" in codes
 
 
 def _world_record(char: str = "1") -> WorldModelRecord:

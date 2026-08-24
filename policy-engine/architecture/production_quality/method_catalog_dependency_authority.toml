@@ -1,0 +1,28 @@
+schema_version = "polisyos.foundry.dependency-authority-registry.v1"
+toolchain_admissions = []
+launcher_profiles = []
+root_keys = []
+production_data_trust_policies = []
+
+[[purpose_admissions]]
+authority_purpose = "n8_method_catalog_reconstruction"
+profile_id = "n8-method-catalog-reconstruction-py314-uv0921-v1"
+declaration_artifact_id = "sha256:08daf17764605fd45b65f70935b7647fea9015f3b84146d299ee362f6108d5a5"
+declaration_semantic_hash = "sha256:688edd557430b2c0c4b91d93aff70b8ecd941617f265a53d0b160eca8826b960"
+predicate_class = "recomputed"
+
+[[capabilities]]
+capability_id = "owner_enforced_runtime_subtree_cutoff"
+state = "absent/unallocated"
+
+[[capabilities]]
+capability_id = "owner_resolved_resolution_receipt_store"
+state = "absent/unallocated"
+
+[[capabilities]]
+capability_id = "platform_toolchain_admission"
+state = "absent/unallocated"
+
+[[capabilities]]
+capability_id = "production_data_trust_policy"
+state = "absent/unallocated"

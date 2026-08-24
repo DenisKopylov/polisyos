@@ -7,9 +7,10 @@ import asyncio
 import copy
 import json
 import os
-import shutil
+import re
 import subprocess
 import sys
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -28,11 +29,32 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 N10A_BASE_COMMIT = "26cc7cc03efc9da44362dc2914a5bde8ac8f7e73"
 N10A_PROOF_HEAD_COMMIT = "d8a8cf076da6233c66b0a90010647c0d437e81c4"
 
+
+@pytest.fixture(autouse=True)
+def _isolate_polisyos_cache(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Keep catalog caches out of the appointed hermetic tooling home."""
+
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "polisyos-cache").as_posix())
+
+
+def _source_freeze() -> str:
+    return subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd=REPO_ROOT,
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout.strip()
+
 _PLUGIN_POSTURE_WITNESS_SCRIPT = r"""
 import copy
 import json
 import os
 import site
+import subprocess
 from pathlib import Path
 
 site.addsitedir(os.environ["GY_DEFC9_SITE_PACKAGES"])
@@ -49,6 +71,13 @@ from tools.quality.validation import check_layer3_gy_second_domain_pack as n10a
 from tools.quality.validation import check_layer3_gy_value_gate_contract as n8
 
 root = Path(os.environ["GY_DEFC9_REPO_ROOT"])
+source_freeze = subprocess.run(
+    ["git", "rev-parse", "HEAD"],
+    cwd=root,
+    check=True,
+    capture_output=True,
+    text=True,
+).stdout.strip()
 discovery = discover_foundry_method_components(
     include_builtins=False,
     include_entry_points=True,
@@ -66,20 +95,25 @@ example_errors = [
     if row.item == "example.weighted_average"
 ]
 
-n8_result = n8.check_result(root)
-n10a_result = n10a.validate(root)
+n8_artifact_result = n8.check_result(root, expected_source_freeze=source_freeze)
+n10a_result = n10a.validate(root, expected_source_freeze=source_freeze)
 depth_result = depth._derive_provenance_stability(root.as_posix())
 recorded_n8 = json.loads((root / n8.OUTPUT_PATH).read_text(encoding="utf-8"))
+n8_semantic_result = n8.validate_payload_result(
+    recorded_n8,
+    expected_source_freeze=source_freeze,
+)
 recorded_catalog = recorded_n8["denominators"]["catalog_provenance"]
-live_catalog = n8._catalog_denominators_cached()["catalog_provenance"]
+live_catalog = n8._candidate_catalog_denominators_cached()["catalog_provenance"]
 
 result = {
     "component_count": len(component_ids),
     "example_resolved": "example.summary.weighted_average@1.0.0" in component_ids,
     "example_entry_points": example_entry_points,
     "example_errors": example_errors,
-    "n8_governing_issues": list(n8_result.governing_issues),
-    "n8_ambient_findings": list(n8_result.ambient_findings),
+    "n8_artifact_issues": list(n8_artifact_result.governing_issues),
+    "n8_semantic_governing_issues": list(n8_semantic_result.governing_issues),
+    "n8_ambient_findings": list(n8_semantic_result.ambient_findings),
     "n10a_status": n10a_result["status"],
     "n10a_issues": n10a_result["issues"],
     "depth_status": depth_result["status"],
@@ -101,10 +135,14 @@ if os.environ.get("GY_DEFC9_GOVERNED_PROBE") == "1":
     )
     governed_payload["contract_content_hash"] = n8._content_hash(governed_payload)
 
-    governed_n8 = n8.validate_payload_result(governed_payload)
+    governed_n8 = n8.validate_payload_result(
+        governed_payload,
+        expected_source_freeze=source_freeze,
+    )
     governed_n10a = n10a._n8_transport_gap_closure(
         governed_payload,
         expected_education_covariates=("education_spending", "school_quality"),
+        expected_source_freeze=source_freeze,
     )
     original_read_json = depth._read_json
 
@@ -147,6 +185,70 @@ def _git_head_sha(repo_root: Path) -> str:
 _POSTURE_WITNESS_TIMEOUT_SECONDS = 1224.0
 
 
+def _materialize_tracked_example_dist_info(isolated_site: Path) -> Path:
+    """Derive the example distribution declaration from its tracked project."""
+
+    example_root = REPO_ROOT / "examples/extensions/foundry_method"
+    pyproject_path = example_root / "pyproject.toml"
+    try:
+        pyproject = tomllib.loads(pyproject_path.read_text(encoding="utf-8"))
+    except (OSError, UnicodeError, tomllib.TOMLDecodeError) as exc:
+        raise AssertionError("tracked example pyproject is unreadable") from exc
+    project = pyproject.get("project")
+    if not isinstance(project, dict):
+        raise AssertionError("tracked example project declaration is missing")
+    name = project.get("name")
+    version = project.get("version")
+    entry_point_groups = project.get("entry-points")
+    if (
+        not isinstance(name, str)
+        or not name
+        or not isinstance(version, str)
+        or not version
+        or not isinstance(entry_point_groups, dict)
+        or not entry_point_groups
+    ):
+        raise AssertionError("tracked example distribution declaration is incomplete")
+
+    rendered_groups: list[str] = []
+    for group, entries in sorted(entry_point_groups.items()):
+        if not isinstance(group, str) or not group or not isinstance(entries, dict) or not entries:
+            raise AssertionError("tracked example entry-point declaration is invalid")
+        rendered_entries: list[str] = []
+        for entry_name, entry_value in sorted(entries.items()):
+            if (
+                not isinstance(entry_name, str)
+                or not entry_name
+                or not isinstance(entry_value, str)
+                or not entry_value
+            ):
+                raise AssertionError("tracked example entry-point row is invalid")
+            rendered_entries.append(f"{entry_name} = {entry_value}\n")
+        rendered_groups.append(f"[{group}]\n{''.join(rendered_entries)}")
+
+    normalized_name = re.sub(r"[-_.]+", "_", name)
+    dist_info = isolated_site / f"{normalized_name}-{version}.dist-info"
+    dist_info.mkdir()
+    (dist_info / "METADATA").write_text(
+        f"Metadata-Version: 2.4\nName: {name}\nVersion: {version}\n",
+        encoding="utf-8",
+    )
+    (dist_info / "entry_points.txt").write_text(
+        "\n".join(rendered_groups),
+        encoding="utf-8",
+    )
+    (dist_info / "direct_url.json").write_text(
+        json.dumps(
+            {"dir_info": {"editable": True}, "url": example_root.as_uri()},
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    return dist_info
+
+
 def _run_plugin_posture_witness(
     tmp_path: Path,
     *,
@@ -156,35 +258,25 @@ def _run_plugin_posture_witness(
     """Run N8, N10a, and Depth-N in one real isolated plugin environment."""
 
     dependency_site = Path(pytest.__file__).resolve().parents[1]
-    example_dist_infos = tuple(
-        dependency_site.glob("polisyos_foundry_method_example-*.dist-info")
-    )
-    if len(example_dist_infos) != 1:
-        raise AssertionError(
-            "expected one installed polisyos-foundry-method-example distribution, "
-            f"found {len(example_dist_infos)}"
-        )
-
     posture_name = "importable" if importable else "missing_target"
     posture_root = tmp_path / posture_name
     isolated_site = posture_root / "site-packages"
     isolated_site.mkdir(parents=True)
     excluded_names = {
-        example_dist_infos[0].name,
         "_editable_impl_polisyos_foundry_method_example.pth",
         "_editable_impl_policy_engine.pth",
     }
     for entry in sorted(dependency_site.iterdir(), key=lambda path: path.name):
-        if entry.name in excluded_names:
+        if entry.name in excluded_names or (
+            entry.name.startswith("polisyos_foundry_method_example-")
+            and entry.name.endswith(".dist-info")
+        ):
             continue
         (isolated_site / entry.name).symlink_to(
             entry,
             target_is_directory=entry.is_dir(),
         )
-    shutil.copytree(
-        example_dist_infos[0],
-        isolated_site / example_dist_infos[0].name,
-    )
+    _materialize_tracked_example_dist_info(isolated_site)
     (isolated_site / "00_policy_engine_worktree.pth").write_text(
         f"{REPO_ROOT}\n{REPO_ROOT / 'src'}\n",
         encoding="utf-8",
@@ -203,6 +295,7 @@ def _run_plugin_posture_witness(
     env["GY_DEFC9_SITE_PACKAGES"] = isolated_site.as_posix()
     env["GY_DEFC9_REPO_ROOT"] = REPO_ROOT.as_posix()
     env["GY_DEFC9_GOVERNED_PROBE"] = "1" if governed_probe else "0"
+    env["POLISYOS_CACHE_HOME"] = (posture_root / "cache").as_posix()
     process = subprocess.run(
         [
             sys.executable,
@@ -291,7 +384,10 @@ def _historical_census_payload() -> dict[str, object]:
 def live_bundle() -> dict[str, object]:
     """Build the expensive owner-derived bundle once for this focused module."""
 
-    return second_domain_pack.build_live_bundle(REPO_ROOT)
+    return second_domain_pack.build_live_bundle(
+        REPO_ROOT,
+        expected_source_freeze=_source_freeze(),
+    )
 
 
 def test_pack_rederives_owner_facts_and_is_content_addressed(
@@ -303,27 +399,55 @@ def test_pack_rederives_owner_facts_and_is_content_addressed(
 
     assert bundle["census"]["decision"]["chosen_candidate"] == "education"
     assert bundle["pack"]["manifest_content_hash"].startswith("sha256:")
-    assert not second_domain_pack.validate_bundle_payloads(bundle, REPO_ROOT)
+    assert not second_domain_pack.validate_bundle_payloads(
+            bundle,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
 
 
-def test_n10a_recomputation_never_opens_the_authority_ledger(
-    monkeypatch: pytest.MonkeyPatch,
-) -> None:
+def test_n10a_recomputation_never_opens_the_authority_ledger() -> None:
     """N10a must exercise N9 through isolated, non-authorizing state."""
 
-    def reject_authority_state(*args: object, **kwargs: object) -> object:
-        del args, kwargs
-        raise AssertionError("n10a opened ConfidenceLedgerSession.from_repo")
+    from_repo_code = ConfidenceLedgerSession.from_repo.__func__.__code__
+    authority_calls: list[str] = []
+    monitoring_tool = sys.monitoring.PROFILER_ID
+    if sys.monitoring.get_tool(monitoring_tool) is not None:
+        raise AssertionError("Python profiler monitoring slot is already in use")
 
-    monkeypatch.setattr(ConfidenceLedgerSession, "from_repo", reject_authority_state)
-    second_domain_pack._CYCLE_TRACE_CACHE.clear()
-    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
-    trace = second_domain_pack._build_cycle_trace(
-        REPO_ROOT,
-        frozen["smoke_problem"],
+    def observe_from_repo(code: object, _instruction_offset: int) -> None:
+        authority_calls.append(getattr(code, "co_qualname", "unknown"))
+
+    sys.monitoring.use_tool_id(monitoring_tool, "gy-n12-from-repo-observer")
+    sys.monitoring.register_callback(
+        monitoring_tool,
+        sys.monitoring.events.PY_START,
+        observe_from_repo,
     )
+    sys.monitoring.set_local_events(
+        monitoring_tool,
+        from_repo_code,
+        sys.monitoring.events.PY_START,
+    )
+    try:
+        second_domain_pack._CYCLE_TRACE_CACHE.clear()
+        frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+        trace = second_domain_pack._build_cycle_trace(
+            REPO_ROOT,
+            frozen["smoke_problem"],
+            expected_source_freeze=_source_freeze(),
+        )
+    finally:
+        sys.monitoring.set_local_events(monitoring_tool, from_repo_code, 0)
+        sys.monitoring.register_callback(
+            monitoring_tool,
+            sys.monitoring.events.PY_START,
+            None,
+        )
+        sys.monitoring.free_tool_id(monitoring_tool)
     promotion = trace["generation_cycle_run"]["promotion_port"]
 
+    assert authority_calls == []
     assert promotion["status"] == "not_promoted"
     assert promotion["reason"] == "verification_n9_sequence_non_consumer"
     assert promotion["receipts"]
@@ -349,11 +473,39 @@ def test_live_bundle_replays_verified_historical_n4_bytes_on_provenance_drift(
     assert [row["raw_response_hash"] for row in refreshed["responses"]] == [
         row["raw_response_hash"] for row in historical_capture["responses"]
     ]
-    assert refreshed["owner_result_projection"] != historical_capture["owner_result_projection"]
-    assert refreshed["historical_replay_receipt"] == historical_capture["historical_replay_receipt"]
-    assert refreshed["input_binding"]["design_problem_ref"] == gy_content_hash(
+    current_problem = DesignProblem.model_validate(
         live_bundle["smoke_problem"]["design_problem"]
     )
+    assert (
+        second_domain_pack._historical_n4_replay_receipt_issues(
+            refreshed,
+            problem=current_problem,
+        )
+        == []
+    )
+    current_problem_ref = gy_content_hash(current_problem.model_dump(mode="json"))
+    assert refreshed["input_binding"]["design_problem_ref"] == current_problem_ref
+    assert refreshed["owner_result_projection"]["design_problem_ref"] == current_problem_ref
+    assert refreshed["owner_result_projection"]["exact_call_prompt_hashes"] == [
+        row["prompt_hash"] for row in refreshed["responses"]
+    ]
+
+    wrong_problem = copy.deepcopy(refreshed)
+    wrong_receipt = wrong_problem["historical_replay_receipt"]
+    wrong_receipt["current_design_problem_ref"] = "sha256:" + "0" * 64
+    wrong_receipt["receipt_content_hash"] = second_domain_pack._hash(
+        {
+            key: value
+            for key, value in wrong_receipt.items()
+            if key != "receipt_content_hash"
+        }
+    )
+    assert second_domain_pack._historical_n4_replay_receipt_issues(
+        wrong_problem,
+        problem=current_problem,
+    ) == [
+        "n4_owner_historical_replay_problem_ref_mismatch"
+    ]
 
 
 def test_historical_n4_capture_validation_uses_frozen_trace_l6_identity(
@@ -531,6 +683,7 @@ def test_n8_transport_gap_closes_from_pack_and_unseen_behavioral_proofs() -> Non
     evidence = second_domain_pack._n8_transport_gap_closure(
         payload,
         expected_education_covariates=("education_spending", "school_quality"),
+        expected_source_freeze=_source_freeze(),
     )
 
     assert evidence["closed"] is True
@@ -557,7 +710,7 @@ def test_n8_transport_gap_consumes_the_typed_governing_subset(
     monkeypatch.setattr(
         n8,
         "validate_payload_result",
-        lambda _payload: n8.ValueGateValidationResult(
+        lambda _payload, *, expected_source_freeze: n8.ValueGateValidationResult(
             governing_issues=(),
             ambient_findings=({"code": "real_ambient_posture_difference"},),
         ),
@@ -573,6 +726,7 @@ def test_n8_transport_gap_consumes_the_typed_governing_subset(
     evidence = second_domain_pack._n8_transport_gap_closure(
         payload,
         expected_education_covariates=("education_spending", "school_quality"),
+        expected_source_freeze=_source_freeze(),
     )
 
     assert evidence["closed"] is True
@@ -594,7 +748,7 @@ def test_n8_transport_gap_fails_closed_on_a_typed_governing_issue(
     monkeypatch.setattr(
         n8,
         "validate_payload_result",
-        lambda _payload: n8.ValueGateValidationResult(
+        lambda _payload, *, expected_source_freeze: n8.ValueGateValidationResult(
             governing_issues=({"code": "governed_catalog_change"},),
             ambient_findings=({"code": "real_ambient_posture_difference"},),
         ),
@@ -603,6 +757,7 @@ def test_n8_transport_gap_fails_closed_on_a_typed_governing_issue(
     evidence = second_domain_pack._n8_transport_gap_closure(
         payload,
         expected_education_covariates=("education_spending", "school_quality"),
+        expected_source_freeze=_source_freeze(),
     )
 
     assert evidence == {
@@ -656,8 +811,11 @@ def test_real_plugin_postures_verify_n8_n10a_and_depth_n(
             "recorded_governed_provenance_id"
         ]
 
+    assert missing_target["n8_artifact_issues"] == importable[
+        "n8_artifact_issues"
+    ]
     for result in (missing_target, importable):
-        assert result["n8_governing_issues"] == []
+        assert result["n8_semantic_governing_issues"] == []
         assert result["n10a_status"] == "pass"
         assert result["n10a_issues"] == []
         assert result["depth_status"] == "stable"
@@ -711,6 +869,7 @@ def test_n8_transport_gap_refuses_a_valid_but_wrong_pack_vocabulary() -> None:
     evidence = second_domain_pack._n8_transport_gap_closure(
         payload,
         expected_education_covariates=("state_capacity",),
+        expected_source_freeze=_source_freeze(),
     )
 
     assert evidence["closed"] is False
@@ -727,10 +886,17 @@ def test_n6_single_terminal_gap_closes_only_from_live_coherent_run() -> None:
         ).read_text(encoding="utf-8")
     )
     run = second_domain_pack.GenerationCycleRun.model_validate(trace["generation_cycle_run"])
+    comparison_plan = second_domain_pack._cycle_trace_plan_from_manifest(trace).relative_to(
+        ("generation_cycle_run",)
+    )
 
-    positive = second_domain_pack._n6_single_terminal_gap_closure(run)
+    positive = second_domain_pack._n6_single_terminal_gap_closure(
+        run,
+        comparison_plan=comparison_plan,
+    )
     empty = second_domain_pack._n6_single_terminal_gap_closure(
-        run.model_copy(update={"cycles": ()})
+        run.model_copy(update={"cycles": ()}),
+        comparison_plan=comparison_plan,
     )
 
     assert positive["closed"] is True
@@ -747,6 +913,7 @@ def test_education_cycle_attempts_exact_pack_levers_before_honest_terminal() -> 
     trace = second_domain_pack._build_cycle_trace(
         REPO_ROOT,
         frozen["smoke_problem"],
+        expected_source_freeze=_source_freeze(),
     )
     stage = trace["stage_attempts"]
     expected_levers = {
@@ -1136,7 +1303,11 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
         "build_live_bundle",
         lambda *_args, **_kwargs: copy.deepcopy(live),
     )
-    monkeypatch.setattr(second_domain_pack, "validate_bundle_payloads", lambda *_args: [])
+    monkeypatch.setattr(
+        second_domain_pack,
+        "validate_bundle_payloads",
+        lambda *_args, **_kwargs: [],
+    )
     monkeypatch.setattr(
         second_domain_pack,
         "_git",
@@ -1151,7 +1322,12 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
         relative_path: (tmp_path / relative_path).read_bytes()
         for relative_path in second_domain_pack.ARTIFACT_OUTPUTS
     }
-    measurement = second_domain_pack.write(tmp_path, persist=False)
+    source_freeze = _source_freeze()
+    measurement = second_domain_pack.write(
+        tmp_path,
+        expected_source_freeze=source_freeze,
+        persist=False,
+    )
     assert measurement["status"] == "pass"
     assert measurement["write_performed"] is False
     assert all(
@@ -1175,6 +1351,7 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
     with pytest.raises(ValueError, match="n10a_expected_transition_manifest_mismatch"):
         second_domain_pack.write(
             tmp_path,
+            expected_source_freeze=source_freeze,
             expected_transition_manifest=forged,
         )
     assert all(
@@ -1184,6 +1361,7 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
 
     accepted = second_domain_pack.write(
         tmp_path,
+        expected_source_freeze=source_freeze,
         expected_transition_manifest=measurement["transition_manifest"],
     )
     assert accepted["status"] == "pass"
@@ -1199,7 +1377,11 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
         ),
     )
     with pytest.raises(ValueError, match="n10a_source_scope_not_clean"):
-        second_domain_pack.write(tmp_path, persist=False)
+        second_domain_pack.write(
+            tmp_path,
+            expected_source_freeze=source_freeze,
+            persist=False,
+        )
 
     census_path = tmp_path / second_domain_pack.CENSUS_OUTPUT
     corrupt = json.loads(census_path.read_text(encoding="utf-8"))
@@ -1244,6 +1426,8 @@ def test_measure_transition_supports_each_capture_mode(
             [
                 "--repo-root",
                 str(tmp_path),
+                "--expected-source-freeze",
+                _source_freeze(),
                 "--measure-write-transition",
                 *modifier,
                 "--output-format",
@@ -1252,7 +1436,13 @@ def test_measure_transition_supports_each_capture_mode(
         )
         == 0
     )
-    assert calls == [{**expected, "persist": False}]
+    assert calls == [
+        {
+            **expected,
+            "expected_source_freeze": _source_freeze(),
+            "persist": False,
+        }
+    ]
 
 
 def test_n6_normalization_does_not_trust_an_unvalidated_verification_declaration() -> None:
@@ -1341,9 +1531,8 @@ def test_n10a_trace_keeps_full_projection_beside_owner_bound_comparison_identity
         live_receipts,
         strict=True,
     ):
-        migrated = copy.deepcopy(live_receipt)
-        semantic = migrated.pop("confidence_ledger_semantic_projection")
-        assert migrated == frozen_receipt
+        assert live_receipt == frozen_receipt
+        semantic = live_receipt["confidence_ledger_semantic_projection"]
         assert semantic["projection_scope"] == "n9_promotion_semantic_receipt"
     assert all(receipt["confidence_ledger_projection"] for receipt in live_receipts)
 
@@ -1360,6 +1549,15 @@ def test_n10a_trace_keeps_full_projection_beside_owner_bound_comparison_identity
         governing_shift,
         plan,
     )
+    missing_semantic = copy.deepcopy(trace)
+    del missing_semantic["generation_cycle_run"]["promotion_port"]["receipts"][0][
+        "confidence_ledger_semantic_projection"
+    ]
+    with pytest.raises(ValueError, match="promotion_comparison_semantic_ledger_missing"):
+        second_domain_pack._cycle_trace_comparison_content_hash(
+            missing_semantic,
+            plan,
+        )
 
 
 def test_rederive_audit_applies_writer_operational_normalization_before_comparison(
@@ -1412,14 +1610,21 @@ def test_rederive_audit_applies_writer_operational_normalization_before_comparis
     live["cycle_trace"]["generation_cycle_run"]["cycles"][0]["acquisition_routing_report"][
         "generated_at"
     ] = "2026-07-15T00:00:00Z"
-    monkeypatch.setattr(second_domain_pack, "build_live_bundle", lambda _root: live)
+    monkeypatch.setattr(
+        second_domain_pack,
+        "build_live_bundle",
+        lambda _root, **_kwargs: live,
+    )
     monkeypatch.setattr(
         second_domain_pack,
         "validate_bundle_payloads",
-        lambda _bundle, _root: [],
+        lambda _bundle, _root, **_kwargs: [],
     )
 
-    report = second_domain_pack.rederive_audit(tmp_path)
+    report = second_domain_pack.rederive_audit(
+        tmp_path,
+        expected_source_freeze=_source_freeze(),
+    )
 
     assert report["status"] == "pass"
     assert report["issues"] == []
@@ -1526,7 +1731,11 @@ def test_cycle_registry_intake_rejects_shaped_or_repointed_evidence(
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert expected_code in codes
@@ -1591,7 +1800,11 @@ def test_cycle_registry_query_evidence_is_bound_to_independent_census() -> None:
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "cycle_substrate_registry_query_census_mismatch" in codes
@@ -1615,7 +1828,11 @@ def test_current_census_owner_query_is_recomputed_not_self_attested() -> None:
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "cycle_substrate_registry_query_census_mismatch" in codes
@@ -1695,7 +1912,11 @@ def test_cycle_registry_intake_rederives_the_live_s0_owner() -> None:
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "cycle_substrate_registry_owner_rederive_mismatch" in codes
@@ -1745,7 +1966,11 @@ def test_cycle_registry_intake_rejects_another_valid_l2_entry() -> None:
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "cycle_substrate_registry_selected_entry_not_query_owner" in codes
@@ -1778,7 +2003,11 @@ def test_cycle_registry_intake_rejects_l5_observation_as_lever_owner() -> None:
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "cycle_substrate_registry_selected_entry_not_l2" in codes
@@ -1801,7 +2030,11 @@ def test_cycle_registry_intake_rejects_a_repointed_lever_binding() -> None:
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "cycle_substrate_lever_registry_binding_mismatch" in codes
@@ -1935,7 +2168,11 @@ def test_cached_n7_receipt_rejects_an_invalid_input_key(mutation: str) -> None:
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "n7_attempt_input_content_hash_mismatch" in codes
@@ -1974,7 +2211,11 @@ def test_cached_n7_receipt_rejects_effective_owner_config_drift() -> None:
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "n7_attempt_effective_owner_config_mismatch" in codes
@@ -1994,7 +2235,10 @@ def test_live_bundle_never_reads_current_pack_as_n7_cache_authority(
 
     monkeypatch.setattr(second_domain_pack, "_read_json", _reject_current_pack)
 
-    bundle = second_domain_pack.build_live_bundle(REPO_ROOT)
+    bundle = second_domain_pack.build_live_bundle(
+        REPO_ROOT,
+        expected_source_freeze=_source_freeze(),
+    )
 
     assert bundle["pack"]["n7_acquisition"]["receipt_content_hash"] == (
         "sha256:6b523c44caaa2894a8447d9e4bba9f6c115b200fca727151a59bbfb6011b2da2"
@@ -2031,7 +2275,11 @@ def test_pack_content_addressing_rejects_moving_or_tampered_inputs(
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert expected_code in codes
@@ -2040,7 +2288,10 @@ def test_pack_content_addressing_rejects_moving_or_tampered_inputs(
 def test_corrupt_drift_covers_cycle_registry_and_historical_identity() -> None:
     """Keep the checker-level corruption denominator aligned with cycle intake."""
 
-    report = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    report = second_domain_pack.corrupt_field_drift_check(
+        REPO_ROOT,
+        expected_source_freeze=_source_freeze(),
+    )
     detected = set(report["issues"][0]["detected"])
 
     assert {
@@ -2091,7 +2342,10 @@ def test_corrupt_drift_requires_each_mutation_to_hit_its_own_witness(
         _drop_query_witness,
     )
 
-    report = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    report = second_domain_pack.corrupt_field_drift_check(
+        REPO_ROOT,
+        expected_source_freeze=_source_freeze(),
+    )
     missing = {
         item
         for issue in report["issues"]
@@ -2114,7 +2368,10 @@ def test_corrupt_drift_isolates_promotion_boundary_from_terminal_early_return(
         "_load_frozen_bundle",
         lambda _root: copy.deepcopy(live_bundle),
     )
-    report = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    report = second_domain_pack.corrupt_field_drift_check(
+        REPO_ROOT,
+        expected_source_freeze=_source_freeze(),
+    )
     results = {
         item["mutation_id"]: set(item["detected_codes"])
         for item in report["smoke_terminal_mutation_results"]
@@ -2148,7 +2405,10 @@ def test_corrupt_drift_isolates_promotion_boundary_from_terminal_early_return(
         _remove_promotion_property_keep_markers,
     )
 
-    removed = second_domain_pack.corrupt_field_drift_check(REPO_ROOT)
+    removed = second_domain_pack.corrupt_field_drift_check(
+        REPO_ROOT,
+        expected_source_freeze=_source_freeze(),
+    )
     missing = {
         item
         for issue in removed["issues"]
@@ -2187,7 +2447,11 @@ def test_n10a_receipt_rebased_to_moving_head_is_rejected(moving_head: str) -> No
     payloads["pack"]["zero_engine_code"]["proof_head_commit"] = moving_head
     _rehash_pack_manifest(payloads)
 
-    issues = second_domain_pack.validate_bundle_payloads(payloads, REPO_ROOT)
+    issues = second_domain_pack.validate_bundle_payloads(
+            payloads,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
 
     assert "historical_receipt_rebased_to_moving_head" in {issue["code"] for issue in issues}
 
@@ -2222,7 +2486,11 @@ def test_hand_authored_entry_is_rejected(live_bundle: dict[str, object]) -> None
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "pack_entry_not_owner_derived" in codes
@@ -2239,7 +2507,11 @@ def test_owner_projection_drift_is_rejected(live_bundle: dict[str, object]) -> N
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "pack_entry_owner_projection_drift" in codes
@@ -2316,7 +2588,11 @@ def test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable(
     assert second_domain_pack._content_bound_canonical_json(pack) == (
         second_domain_pack._content_bound_canonical_json(shifted_pack)
     )
-    assert not second_domain_pack.validate_bundle_payloads(shifted_bundle, REPO_ROOT)
+    assert not second_domain_pack.validate_bundle_payloads(
+            shifted_bundle,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
 
 
 def test_capture_time_reentering_content_projection_is_rejected(
@@ -2332,7 +2608,11 @@ def test_capture_time_reentering_content_projection_is_rejected(
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "capture_time_content_bound" in codes
@@ -2415,7 +2695,11 @@ def test_missing_gap_witness_target_fails_closed_for_every_gap(
         _rehash_gap_report_and_pack(corrupted)
         codes = {
             str(issue["code"])
-            for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+            for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
         }
         assert "gap_witness_target_missing" in codes
 
@@ -2430,7 +2714,11 @@ def test_absolute_gap_witness_source_is_rejected(live_bundle: dict[str, object])
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "source_hash_checkout_path_dependent" in codes
@@ -2484,7 +2772,11 @@ def test_first_vertical_contamination_is_rejected(live_bundle: dict[str, object]
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "distinctness_outcome_overlap" in codes
@@ -2652,7 +2944,11 @@ def test_crash_or_mismatch_trace_cannot_be_labeled_honest(
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "smoke_terminal_not_honest" in codes
@@ -2669,7 +2965,11 @@ def test_smoke_trace_requires_isolated_verification_promotion(
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "smoke_promotion_verification_boundary_invalid" in codes
@@ -2686,7 +2986,11 @@ def test_smoke_trace_must_bind_the_frozen_design_problem(
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "smoke_design_problem_ref_drift" in codes
@@ -2701,7 +3005,11 @@ def test_non_pack_diff_scope_is_rejected(live_bundle: dict[str, object]) -> None
 
     codes = {
         str(issue["code"])
-        for issue in second_domain_pack.validate_bundle_payloads(corrupted, REPO_ROOT)
+        for issue in second_domain_pack.validate_bundle_payloads(
+            corrupted,
+            REPO_ROOT,
+            expected_source_freeze=_source_freeze(),
+        )
     }
 
     assert "free_grow_violated_by_scope_change" in codes

@@ -130,7 +130,20 @@ def ensure_all_methods_registered(
     )
 
 
+from polisyos.foundry.methods.catalog.dependency_authority import (
+    DependencyProfileResolutionFailure,
+    MethodCatalogDependencyAuthorityRequest,
+)
+from polisyos.foundry.methods.catalog.snapshot import (
+    build_method_catalog_provenance_manifest,
+    build_method_catalog_runtime_identity,
+)
+
 __all__ = [
+    "DependencyProfileResolutionFailure",
+    "MethodCatalogDependencyAuthorityRequest",
+    "build_method_catalog_provenance_manifest",
+    "build_method_catalog_runtime_identity",
     "ensure_all_methods_registered",
     "ensure_bayesian_methods_registered",
     "ensure_causal_methods_registered",

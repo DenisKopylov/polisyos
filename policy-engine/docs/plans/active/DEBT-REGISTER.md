@@ -155,7 +155,7 @@ drift it reports is therefore registered as a row to re-measure, never as a verd
 `c9397d147` on `architect/debt-ledger-census`. Purpose: publish the denominator **before** a
 checker is written, so the checker is measured against a known count and not the reverse.
 
-**Counts (Rev 3 as measured; the live published denominator is now 55 — see the ledger footer, which fails closed when a row is added without moving it).** `DEBT-REGISTER.md`: **51 distinct ids** across 59 row-instances — four ids
+**Counts (Rev 3 historical measurement; the live published denominator is now 58 — see the ledger footer, which fails closed when a row is added without moving it).** `DEBT-REGISTER.md`: **51 distinct ids** across 59 row-instances — four ids
 (`adjacent-print-export`, `atlas-health-metric-replay-pins-uncommitted-paths`,
 `ds4-waist-decision-grade`, `run-lifecycle-terminal-fact`) appear in three sections each
 (A + H + I). Section A holds 7 live and 7 struck. GY plan: **36 heading-defined ids**.

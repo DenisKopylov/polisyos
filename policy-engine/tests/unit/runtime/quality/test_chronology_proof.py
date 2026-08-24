@@ -84,6 +84,44 @@ class _Case:
         )
 
 
+@dataclass(frozen=True, slots=True)
+class _AdmissionIndexDouble:
+    marker: object = dataclasses.field(default_factory=object)
+
+    def enumerate_admission_refs(
+        self, *, key: contract.PredicatePolicySelectionKey
+    ) -> tuple[ArtifactRef, ...]:
+        del key
+        return ()
+
+
+@dataclass(frozen=True, slots=True)
+class _OwnerProvenanceVerifierDouble:
+    marker: object = dataclasses.field(default_factory=object)
+
+    def verify_owner_relation(
+        self,
+        *,
+        query: contract.NativeChronologyQuery,
+        admission: contract.PredicatePolicyAdmissionStatement,
+        policy: contract.PersistedPredicateAdmissionPolicy,
+        policy_owner_provenance_bytes: bytes,
+        owner_relation_bytes: bytes,
+        candidate: contract.NativeChronologyCandidate,
+    ) -> (
+        contract.VerifiedPredicatePolicyOwnerRelation | contract.PredicatePolicyOwnerRelationFailure
+    ):
+        del (
+            query,
+            admission,
+            policy,
+            policy_owner_provenance_bytes,
+            owner_relation_bytes,
+            candidate,
+        )
+        raise AssertionError("owner verifier double was not expected to run")
+
+
 def _seed_case(root: Path, *, member_count: int = 1) -> _Case:
     store = FileSystemCAS(root)
     domain = contract.ChronologyProofDomain(
@@ -157,18 +195,14 @@ def _seed_case(root: Path, *, member_count: int = 1) -> _Case:
     policy_owner = contract.VerifiedPolicyOwnerProvenance(
         policy_ref=_dummy_ref("policy", kind="fixture.predicate-policy"),
         policy_content_hash=_digest("policy-content"),
-        owner_provenance_ref=_dummy_ref(
-            "policy-owner-provenance", kind="fixture.owner-provenance"
-        ),
+        owner_provenance_ref=_dummy_ref("policy-owner-provenance", kind="fixture.owner-provenance"),
         owner_provenance_content_hash=_digest("policy-owner-provenance-content"),
         trust_snapshot_ref=_dummy_ref("trust-snapshot", kind="fixture.trust-snapshot"),
         trust_snapshot_content_hash=_digest("trust-snapshot-content"),
         verification_receipt_ref=_dummy_ref(
             "policy-owner-verification", kind="fixture.policy-owner-verification"
         ),
-        verification_receipt_content_hash=_digest(
-            "policy-owner-verification-content"
-        ),
+        verification_receipt_content_hash=_digest("policy-owner-verification-content"),
         verifier_provenance_ref=_dummy_ref(
             "policy-owner-verifier", kind="fixture.verifier-provenance"
         ),
@@ -176,13 +210,9 @@ def _seed_case(root: Path, *, member_count: int = 1) -> _Case:
     )
     receipt = contract.VerifiedPredicatePolicyOwnerRelation(
         query=query,
-        owner_relation_ref=_dummy_ref(
-            "owner-relation", kind="fixture.owner-relation"
-        ),
+        owner_relation_ref=_dummy_ref("owner-relation", kind="fixture.owner-relation"),
         owner_relation_content_hash=_digest("owner-relation-content"),
-        owner_verifier_provenance_ref=_dummy_ref(
-            "owner-verifier", kind="fixture.owner-verifier"
-        ),
+        owner_verifier_provenance_ref=_dummy_ref("owner-verifier", kind="fixture.owner-verifier"),
         verification_receipt_ref=owner_receipt_artifact,
         verification_receipt_content_hash=str(owner_receipt_artifact.artifact_id),
         candidate_content_hash=candidate_hash,
@@ -245,15 +275,11 @@ def _seed_case(root: Path, *, member_count: int = 1) -> _Case:
         statement=denominator_statement,
         owner_qualified_candidate=qualified,
     )
-    assert isinstance(
-        persisted_denominator, contract.PersistedApplicablePredicateDenominator
-    )
+    assert isinstance(persisted_denominator, contract.PersistedApplicablePredicateDenominator)
     owner_context = contract.NativeChronologyOwnerContext(
         query=query,
         owner_qualified_candidate=qualified,
-        policy_admission_ref=_dummy_ref(
-            "policy-admission", kind="fixture.policy-admission"
-        ),
+        policy_admission_ref=_dummy_ref("policy-admission", kind="fixture.policy-admission"),
         policy_admission_content_hash=_digest("policy-admission-content"),
         predicate_admission_policy_ref=policy_owner.policy_ref,
         predicate_admission_policy_content_hash=policy_owner.policy_content_hash,
@@ -290,15 +316,66 @@ def _clear_process_appointment() -> Any:
     registry._clear_for_test()
 
 
-def _appointed_owner(store: Any) -> Any:
+def _appointed_owner(
+    store: Any,
+    *,
+    admission_index: contract.PredicatePolicyAdmissionIndex | None = None,
+    owner_provenance_verifier: (contract.PredicatePolicyOwnerProvenanceVerifier | None) = None,
+) -> Any:
     registry = _private("_PERSISTENCE_REGISTRY")
+    resolved_index = admission_index or _AdmissionIndexDouble()
+    resolved_owner_verifier = owner_provenance_verifier or _OwnerProvenanceVerifierDouble()
     registry._appoint_for_test(
         store_factory=lambda: store,
         verifier_factory=FullPrefixVerifier,
+        admission_index_factory=lambda: resolved_index,
+        owner_provenance_verifier_factory=lambda: resolved_owner_verifier,
     )
     owner = registry._resolve_current_owner()
     assert owner is not None
     return owner
+
+
+def test_owner_resolution_binds_exact_policy_dependencies(tmp_path: Path) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    verifier = FullPrefixVerifier()
+    admission_index = _AdmissionIndexDouble()
+    owner_verifier = _OwnerProvenanceVerifierDouble()
+    calls: list[str] = []
+    registry = _private("_PERSISTENCE_REGISTRY")
+    registry._appoint_for_test(
+        store_factory=lambda: calls.append("store") or store,
+        verifier_factory=lambda: calls.append("verifier") or verifier,
+        admission_index_factory=(lambda: calls.append("admission_index") or admission_index),
+        owner_provenance_verifier_factory=(
+            lambda: calls.append("owner_verifier") or owner_verifier
+        ),
+    )
+
+    owner = registry._resolve_current_owner()
+
+    assert owner is not None
+    assert owner._store is store
+    assert owner._verifier is verifier
+    assert owner._admission_index is admission_index
+    assert owner._owner_provenance_verifier is owner_verifier
+    assert calls == ["store", "verifier", "admission_index", "owner_verifier"]
+
+
+def test_clear_process_appointment_discards_all_dependency_factories(
+    tmp_path: Path,
+) -> None:
+    registry = _private("_PERSISTENCE_REGISTRY")
+    owner = _appointed_owner(FileSystemCAS(tmp_path / "cas"))
+
+    registry._clear_for_test()
+
+    assert registry._store_factory is None
+    assert registry._verifier_factory is None
+    assert registry._admission_index_factory is None
+    assert registry._owner_provenance_verifier_factory is None
+    assert registry._resolve_current_owner() is None
+    assert registry._owner_is_current(owner) is False
 
 
 def _persist(
@@ -483,9 +560,7 @@ def test_chronology_proof_module_exposes_only_the_named_reader_surface() -> None
     }
     tree = ast.parse(source)
     module_functions = [
-        node
-        for node in tree.body
-        if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef)
+        node for node in tree.body if isinstance(node, ast.FunctionDef | ast.AsyncFunctionDef)
     ]
     forbidden_parameters = {"store", "verifier", "reconciliation", "continuation"}
     assert {
@@ -549,9 +624,7 @@ def test_reader_reloads_raw_bytes_and_reruns_real_verifier(tmp_path: Path) -> No
     persisted = _persist(case)
     assert isinstance(persisted, contract.PersistedChronologyProof)
 
-    observed = chronology_proof.ChronologyProofArtifactReader(
-        store=case.store
-    ).load_and_verify(
+    observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
         query=case.query,
         bundle_ref=persisted.artifact_ref,
         expected_domain=case.query.domain,
@@ -566,9 +639,7 @@ def test_reader_reloads_raw_bytes_and_reruns_real_verifier(tmp_path: Path) -> No
 def test_reader_missing_result_is_query_bound(tmp_path: Path) -> None:
     case = _seed_case(tmp_path / "cas")
     missing = _dummy_ref("missing-bundle", kind="core.chronology.full_prefix.bundle")
-    observed = chronology_proof.ChronologyProofArtifactReader(
-        store=case.store
-    ).load_and_verify(
+    observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
         query=case.query,
         bundle_ref=missing,
         expected_domain=case.query.domain,
@@ -591,9 +662,7 @@ def test_reader_present_corruption_is_not_absence(tmp_path: Path) -> None:
     blob_path, _ = case.store.get_paths(persisted.artifact_ref.artifact_id)
     blob_path.write_bytes(b"present-but-corrupt")
 
-    observed = chronology_proof.ChronologyProofArtifactReader(
-        store=case.store
-    ).load_and_verify(
+    observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
         query=case.query,
         bundle_ref=persisted.artifact_ref,
         expected_domain=case.query.domain,
@@ -613,9 +682,7 @@ def test_reader_does_not_treat_audit_sidecar_as_a_green_input(tmp_path: Path) ->
     sidecar_blob, _ = case.store.get_paths(persisted.verifier_result_ref.artifact_id)
     sidecar_blob.write_bytes(b"substituted-audit-only-sidecar")
 
-    observed = chronology_proof.ChronologyProofArtifactReader(
-        store=case.store
-    ).load_and_verify(
+    observed = chronology_proof.ChronologyProofArtifactReader(store=case.store).load_and_verify(
         query=case.query,
         bundle_ref=persisted.artifact_ref,
         expected_domain=case.query.domain,
@@ -692,9 +759,7 @@ def test_wrong_first_writer_sidecar_lineage_is_rejected(tmp_path: Path) -> None:
         case.store,
         statement_bytes,
         kind="core.chronology.full_prefix.verification_result",
-        schema=SchemaInfo(
-            name="polisyos.chronology.FullPrefixVerificationResult", version="1"
-        ),
+        schema=SchemaInfo(name="polisyos.chronology.FullPrefixVerificationResult", version="1"),
         inputs=[
             InputRef(
                 artifact_id=_dummy_ref("substituted-bundle").artifact_id,
@@ -859,13 +924,9 @@ def test_role_correct_but_subject_wrong_member_fails_before_proof_write(
         b"different-native-subject",
         kind="fixture.native-member",
     )
-    identity = receipt.member_identities[0].model_copy(
-        update={"native_artifact_ref": wrong_native}
-    )
+    identity = receipt.member_identities[0].model_copy(update={"native_artifact_ref": wrong_native})
     forged_receipt = receipt.model_copy(update={"member_identities": (identity,)})
-    forged_qualified = qualified.model_copy(
-        update={"owner_relation_verification": forged_receipt}
-    )
+    forged_qualified = qualified.model_copy(update={"owner_relation_verification": forged_receipt})
     forged_context = case.reconciliation.owner_context.model_copy(
         update={"owner_qualified_candidate": forged_qualified}
     )
@@ -1059,6 +1120,8 @@ def test_fork_during_parent_factory_resolution_cannot_resume_factory_in_child(
     registry._appoint_for_test(
         store_factory=_store_factory,
         verifier_factory=FullPrefixVerifier,
+        admission_index_factory=_AdmissionIndexDouble,
+        owner_provenance_verifier_factory=_OwnerProvenanceVerifierDouble,
     )
     resolver = threading.Thread(
         target=lambda: parent_owner.append(registry._resolve_current_owner())
@@ -1100,6 +1163,11 @@ def test_fork_tombstones_inherited_owner_and_requires_child_local_appointment(
         os.close(read_fd)
         try:
             before = len(counting.calls)
+            registry = _private("_PERSISTENCE_REGISTRY")
+            dependencies_cleared = (
+                registry._admission_index_factory is None
+                and registry._owner_provenance_verifier_factory is None
+            )
             result = owner.persist(
                 query=case.query,
                 reconciliation=case.reconciliation,
@@ -1122,6 +1190,12 @@ def test_fork_tombstones_inherited_owner_and_requires_child_local_appointment(
                     str(len(counting.calls) - before),
                     str(fresh_owner._store is child_store),
                     str(fresh_owner._store is not owner._store),
+                    str(dependencies_cleared),
+                    str(fresh_owner._admission_index is not owner._admission_index),
+                    str(
+                        fresh_owner._owner_provenance_verifier
+                        is not owner._owner_provenance_verifier
+                    ),
                 )
             )
             os.write(write_fd, message.encode())
@@ -1135,7 +1209,7 @@ def test_fork_tombstones_inherited_owner_and_requires_child_local_appointment(
     _, status = os.waitpid(pid, 0)
 
     assert os.waitstatus_to_exitcode(status) == 0, message
-    assert message == "persistence_process_generation_not_established|0|True|True"
+    assert message == ("persistence_process_generation_not_established|0|True|True|True|True|True")
 
 
 @pytest.mark.skipif(not hasattr(os, "fork"), reason="requires POSIX fork")

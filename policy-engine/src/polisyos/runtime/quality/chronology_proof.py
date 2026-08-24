@@ -333,6 +333,8 @@ class _ChronologyPersistenceOwner:
     _registry: _ChronologyPersistenceRegistry
     _store: ArtifactStore
     _verifier: FullPrefixVerifier
+    _admission_index: contract.PredicatePolicyAdmissionIndex
+    _owner_provenance_verifier: contract.PredicatePolicyOwnerProvenanceVerifier
     _generation: _ChronologyProcessGeneration
     _creator_pid: int
     _valid: bool
@@ -385,9 +387,7 @@ class _ChronologyPersistenceOwner:
         try:
             report = self._store.verify(artifact_ref.artifact_id)
             if not report.ok:
-                raise _OwnerSourceArtifactRejectedError(
-                    "owner source integrity rejected"
-                )
+                raise _OwnerSourceArtifactRejectedError("owner source integrity rejected")
             payload = self._store.get_bytes(artifact_ref.artifact_id)
             manifest = self._store.get_manifest(artifact_ref.artifact_id)
         except _OwnerSourceArtifactRejectedError:
@@ -435,16 +435,14 @@ class _ChronologyPersistenceOwner:
                 "candidate member subjects differ from owner receipt"
             )
         if (
-            receipt.denominator_identity.subject_ref
-            != candidate.declared_denominator_ref
+            receipt.denominator_identity.subject_ref != candidate.declared_denominator_ref
             or receipt.denominator_identity.artifact_ref
             != candidate.native_denominator_artifact_ref
             or receipt.denominator_identity.semantic_content_hash
             != candidate.native_denominator_content_hash
             or receipt.query_context_identity.subject_ref
             != candidate.query.requested_query_context_ref
-            or receipt.query_context_identity.artifact_ref
-            != candidate.query_context_artifact_ref
+            or receipt.query_context_identity.artifact_ref != candidate.query_context_artifact_ref
             or receipt.query_context_identity.semantic_content_hash
             != candidate.query_context_content_hash
         ):
@@ -470,21 +468,15 @@ class _ChronologyPersistenceOwner:
             )
             for identity in receipt.member_identities
         )
-        if tuple(member.native_bytes for member in candidate.ordered_members) != (
-            member_bytes
-        ):
+        if tuple(member.native_bytes for member in candidate.ordered_members) != (member_bytes):
             raise _OwnerSourceArtifactRejectedError(
                 "candidate member bytes differ from owner sources"
             )
         if any(
             contract._native_content_hash(source_bytes) != identity.native_content_hash
-            for source_bytes, identity in zip(
-                member_bytes, receipt.member_identities, strict=True
-            )
+            for source_bytes, identity in zip(member_bytes, receipt.member_identities, strict=True)
         ):
-            raise _OwnerSourceArtifactRejectedError(
-                "owner member content hash rejected"
-            )
+            raise _OwnerSourceArtifactRejectedError("owner member content hash rejected")
         if not denominator_bytes or not query_bytes or not owner_receipt_bytes:
             raise _OwnerSourceArtifactRejectedError("owner source bytes are empty")
 
@@ -502,8 +494,7 @@ class _ChronologyPersistenceOwner:
         if (
             payload.query != query
             or payload.expected_domain != query.domain
-            or header.native_schema_profile
-            != reconciliation.authoritative_native_schema_profile
+            or header.native_schema_profile != reconciliation.authoritative_native_schema_profile
             or header.declared_denominator_ref != candidate.declared_denominator_ref
             or header.requested_cutoff_ref != query.requested_cutoff_ref
             or header.requested_query_context_ref != query.requested_query_context_ref
@@ -541,9 +532,8 @@ class _ChronologyPersistenceOwner:
 
     @staticmethod
     def _bundle_inputs(payload: _PersistencePayload) -> list[InputRef]:
-        receipt = (
-            payload.reconciliation.owner_context.owner_qualified_candidate.owner_relation_verification
-        )
+        owner_context = payload.reconciliation.owner_context
+        receipt = owner_context.owner_qualified_candidate.owner_relation_verification
         return [
             InputRef(
                 artifact_id=receipt.verification_receipt_ref.artifact_id,
@@ -755,30 +745,22 @@ class _ChronologyPersistenceOwner:
             expected_bundle_content_hash=payload.expected_bundle_content_hash,
             result=postwrite,
         )
-        statement_raw = contract._canonical_raw_bytes(
-            contract._raw_model_mapping(statement)
-        )
+        statement_raw = contract._canonical_raw_bytes(contract._raw_model_mapping(statement))
         sidecar = self._write_and_reload(
             query=payload.query,
             artifact_role="verification_result",
             payload=contract._frame_record(statement_raw),
             kind=_RESULT_KIND,
             schema=_RESULT_SCHEMA,
-            inputs=[
-                InputRef(artifact_id=bundle.ref.artifact_id, role="verified_bundle")
-            ],
+            inputs=[InputRef(artifact_id=bundle.ref.artifact_id, role="verified_bundle")],
             missing_code="verification_result_write_not_established",
         )
         if not isinstance(sidecar, _StoredArtifact):
             return self._wrap_write_failure(sidecar)
         sidecar_records = contract._split_framed_records(sidecar.payload)
         if len(sidecar_records) != 1:
-            raise RuntimeError(
-                "persisted chronology result sidecar has the wrong frame count"
-            )
-        reparsed = contract.FullPrefixVerificationStatement.model_validate_json(
-            sidecar_records[0]
-        )
+            raise RuntimeError("persisted chronology result sidecar has the wrong frame count")
+        reparsed = contract.FullPrefixVerificationStatement.model_validate_json(sidecar_records[0])
         if reparsed != statement:
             raise RuntimeError("persisted chronology result sidecar changed after reload")
         return contract.PersistedChronologyProof(
@@ -788,9 +770,7 @@ class _ChronologyPersistenceOwner:
             protocol_bundle_content_hash=contract._bundle_content_hash(bundle.payload),
             parsed_header=postwrite.parsed_header,
             verifier_result_ref=sidecar.ref,
-            verifier_result_content_hash=contract._verification_statement_content_hash(
-                reparsed
-            ),
+            verifier_result_content_hash=contract._verification_statement_content_hash(reparsed),
             verification_statement=reparsed,
         )
 
@@ -849,6 +829,12 @@ class _ChronologyPersistenceRegistry:
         self._generation = self._new_generation()
         self._store_factory: Callable[[], ArtifactStore] | None = None
         self._verifier_factory: Callable[[], FullPrefixVerifier] | None = None
+        self._admission_index_factory: (
+            Callable[[], contract.PredicatePolicyAdmissionIndex] | None
+        ) = None
+        self._owner_provenance_verifier_factory: (
+            Callable[[], contract.PredicatePolicyOwnerProvenanceVerifier] | None
+        ) = None
         self._owners: weakref.WeakSet[_ChronologyPersistenceOwner] = weakref.WeakSet()
         self._entries: weakref.WeakKeyDictionary[
             _QualificationPersistenceContinuation, _ContinuationEntry
@@ -878,6 +864,8 @@ class _ChronologyPersistenceRegistry:
         self._generation = self._new_generation()
         self._store_factory = None
         self._verifier_factory = None
+        self._admission_index_factory = None
+        self._owner_provenance_verifier_factory = None
         self._owners = weakref.WeakSet()
         self._entries = weakref.WeakKeyDictionary()
 
@@ -886,6 +874,10 @@ class _ChronologyPersistenceRegistry:
         *,
         store_factory: Callable[[], ArtifactStore],
         verifier_factory: Callable[[], FullPrefixVerifier],
+        admission_index_factory: Callable[[], contract.PredicatePolicyAdmissionIndex],
+        owner_provenance_verifier_factory: Callable[
+            [], contract.PredicatePolicyOwnerProvenanceVerifier
+        ],
     ) -> _ChronologyProcessGeneration:
         with self._lock:
             if self._entries:
@@ -896,6 +888,8 @@ class _ChronologyPersistenceRegistry:
             self._generation = self._new_generation()
             self._store_factory = store_factory
             self._verifier_factory = verifier_factory
+            self._admission_index_factory = admission_index_factory
+            self._owner_provenance_verifier_factory = owner_provenance_verifier_factory
             return self._generation
 
     def _clear_for_test(self) -> None:
@@ -905,6 +899,8 @@ class _ChronologyPersistenceRegistry:
             self._generation = self._new_generation()
             self._store_factory = None
             self._verifier_factory = None
+            self._admission_index_factory = None
+            self._owner_provenance_verifier_factory = None
             self._owners = weakref.WeakSet()
             self._entries = weakref.WeakKeyDictionary()
 
@@ -913,10 +909,19 @@ class _ChronologyPersistenceRegistry:
             generation = self._generation
             store_factory = self._store_factory
             verifier_factory = self._verifier_factory
-        if store_factory is None or verifier_factory is None:
+            admission_index_factory = self._admission_index_factory
+            owner_provenance_verifier_factory = self._owner_provenance_verifier_factory
+        if (
+            store_factory is None
+            or verifier_factory is None
+            or admission_index_factory is None
+            or owner_provenance_verifier_factory is None
+        ):
             return None
         store = store_factory()
         verifier = verifier_factory()
+        admission_index = admission_index_factory()
+        owner_provenance_verifier = owner_provenance_verifier_factory()
         if not isinstance(store, ArtifactStore):
             raise TypeError("appointed chronology store does not satisfy ArtifactStore")
         if not isinstance(verifier, FullPrefixVerifier):
@@ -928,6 +933,8 @@ class _ChronologyPersistenceRegistry:
             owner._registry = self
             owner._store = store
             owner._verifier = verifier
+            owner._admission_index = admission_index
+            owner._owner_provenance_verifier = owner_provenance_verifier
             owner._generation = generation
             owner._creator_pid = os.getpid()
             owner._valid = True
@@ -998,9 +1005,7 @@ def _bundle_member_rows(bundle_bytes: bytes) -> tuple[dict[str, object], ...]:
     for offset in range(1, len(records), 2):
         row = json.loads(records[offset])
         if not isinstance(row, dict):
-            raise _OwnerSourceArtifactRejectedError(
-                "bundle member row is not a mapping"
-            )
+            raise _OwnerSourceArtifactRejectedError("bundle member row is not a mapping")
         rows.append(row)
     return tuple(rows)
 

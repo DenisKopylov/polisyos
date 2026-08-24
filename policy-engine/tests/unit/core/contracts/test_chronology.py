@@ -5,7 +5,7 @@ from enum import StrEnum
 from pathlib import Path
 
 import pytest
-from pydantic import BaseModel, ValidationError
+from pydantic import BaseModel, TypeAdapter, ValidationError
 
 import polisyos.core as core
 from polisyos.core.artifacts import ArtifactID, ArtifactRef, FileSystemCAS
@@ -43,7 +43,29 @@ def _query(*, context_fill: str = "3") -> contract.NativeChronologyQuery:
     )
 
 
-def _member(*, ordinal: int = 0, native_bytes: bytes = b"epoch-0") -> contract.ChronologyMemberInput:
+def _policy_statement(
+    *, required_native_head_role: str | None
+) -> contract.PredicateAdmissionPolicyStatement:
+    return contract.PredicateAdmissionPolicyStatement(
+        schema_version="polisyos.chronology.predicate-policy.v1",
+        key=contract.PredicatePolicySelectionKey(
+            family="epoch",
+            proof_domain="conformance",
+            scope_ref=_digest("0"),
+            authority_purpose="publication",
+            requested_cutoff_ref=_digest("2"),
+        ),
+        native_schema_profile="conformance.native@1",
+        required_native_head_role=required_native_head_role,
+        rules=(),
+        owner_provenance_ref=_ref("9", kind="owner-provenance"),
+        owner_provenance_content_hash=_digest("a"),
+    )
+
+
+def _member(
+    *, ordinal: int = 0, native_bytes: bytes = b"epoch-0"
+) -> contract.ChronologyMemberInput:
     del ordinal
     return contract.ChronologyMemberInput(
         member_ref=_digest("4"),
@@ -198,6 +220,63 @@ def test_wire_dtos_and_operations_are_reexported_only_through_core_root() -> Non
     assert core.FullPrefixVerifier.__module__ == "polisyos.core.security.full_prefix"
 
 
+def test_entry_process_generation_failure_is_a_query_bound_fourteenth_arm() -> None:
+    query = _query()
+    result = contract.NativeQualificationProcessGenerationNotEstablished(
+        result_kind="qualification_process_generation_not_established",
+        status="not_established",
+        code="qualification_process_generation_not_established",
+        query=query,
+    )
+
+    adapter = TypeAdapter(contract.NativeChronologyQualificationResult)
+    parsed = adapter.validate_python(result.model_dump(mode="python"))
+
+    assert parsed == result
+    assert len(adapter.json_schema()["oneOf"]) == 14
+    assert set(result.__class__.model_fields) == {
+        "result_kind",
+        "status",
+        "code",
+        "query",
+    }
+    with pytest.raises(ValidationError):
+        contract.NativeQualificationProcessGenerationNotEstablished.model_validate(
+            {**result.model_dump(mode="python"), "owner_context": object()}
+        )
+
+
+def test_policy_head_requirement_is_required_nullable_and_canonical_null() -> None:
+    no_head = _policy_statement(required_native_head_role=None)
+    required_head = _policy_statement(required_native_head_role="epoch_authority_head")
+
+    raw_mapping = contract._raw_model_mapping(no_head)
+    canonical = contract._canonical_raw_bytes(raw_mapping)
+
+    assert "required_native_head_role" in raw_mapping
+    assert raw_mapping["required_native_head_role"] is None
+    assert contract.PredicateAdmissionPolicyStatement.model_fields[
+        "required_native_head_role"
+    ].is_required()
+    assert b'"required_native_head_role":null' in canonical
+    assert contract._predicate_policy_content_hash(no_head) == (
+        "sha256:d514a5a766a178ef4bd6b0035c48ac14922f5a88d23ece5730a012a305652a26"
+    )
+    assert contract._predicate_policy_content_hash(required_head) != (
+        contract._predicate_policy_content_hash(no_head)
+    )
+    with pytest.raises(ValidationError):
+        contract.PredicateAdmissionPolicyStatement.model_validate(
+            {
+                key: value
+                for key, value in no_head.model_dump(mode="python").items()
+                if key != "required_native_head_role"
+            }
+        )
+    with pytest.raises(ValidationError):
+        _policy_statement(required_native_head_role="")
+
+
 def test_lowercase_digest_and_nonnegative_counts_fail_closed() -> None:
     with pytest.raises(ValidationError):
         contract.ChronologyProofDomain(
@@ -262,6 +341,7 @@ def test_policy_and_denominator_reject_duplicate_rules_and_subjects_before_hashi
             schema_version="polisyos.chronology.predicate-policy.v1",
             key=key,
             native_schema_profile="conformance.native@1",
+            required_native_head_role=None,
             rules=(rule, rule),
             owner_provenance_ref=_ref("9"),
             owner_provenance_content_hash=_digest("a"),
@@ -269,9 +349,7 @@ def test_policy_and_denominator_reject_duplicate_rules_and_subjects_before_hashi
 
     with pytest.raises(ValidationError, match="duplicate member_subject_ref"):
         contract.ApplicablePredicateDenominatorStatement(
-            schema_version=(
-                "polisyos.chronology.applicable-predicate-denominator.v1"
-            ),
+            schema_version=("polisyos.chronology.applicable-predicate-denominator.v1"),
             policy_ref=_ref("9"),
             policy_content_hash=_digest("a"),
             member_subject_refs=(_digest("4"), _digest("4")),
@@ -358,7 +436,9 @@ def test_each_frozen_capacity_crossing_returns_the_one_profile_failure(
         native_frame_bytes=native_frame_bytes,
     )
     assert failure is not None
-    assert failure.failure_code is contract.FullPrefixBuildFailureCode.PROOF_PROFILE_CAPACITY_EXCEEDED
+    assert (
+        failure.failure_code is contract.FullPrefixBuildFailureCode.PROOF_PROFILE_CAPACITY_EXCEEDED
+    )
 
 
 def test_native_candidate_content_hash_binds_every_candidate_field() -> None:
@@ -451,9 +531,7 @@ def test_denominator_adapter_persists_reloads_and_detects_live_store_corruption(
     assert manifest.kind == "core.chronology.applicable_predicate_denominator"
     assert manifest.media_type == "application/octet-stream"
     assert manifest.artifact_schema is not None
-    assert manifest.artifact_schema.name == (
-        "polisyos.chronology.ApplicablePredicateDenominator"
-    )
+    assert manifest.artifact_schema.name == ("polisyos.chronology.ApplicablePredicateDenominator")
     assert manifest.artifact_schema.version == "1"
 
     blob, _ = store.get_paths(persisted.artifact_ref.artifact_id)

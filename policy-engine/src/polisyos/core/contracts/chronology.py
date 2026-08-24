@@ -39,9 +39,7 @@ PredicateClass = Literal[
     "institutionally_supplied",
     "not_established",
 ]
-FullPrefixCheckState = Literal[
-    "not_requested", "not_evaluated", "satisfied", "rejected"
-]
+FullPrefixCheckState = Literal["not_requested", "not_evaluated", "satisfied", "rejected"]
 
 FULL_PREFIX_FORMAT = "polisyos.chronology.full-prefix.v1"
 FULL_PREFIX_PROFILE = "full_prefix_canon_json_0_2_0_sha256_256_v1"
@@ -57,12 +55,8 @@ _BUNDLE_PREFIX = b"polisyos.chronology.bundle.v1\0"
 _POLICY_ADMISSION_PREFIX = b"polisyos.chronology.predicate-policy-admission.v1\0"
 _POLICY_PREFIX = b"polisyos.chronology.predicate-policy.v1\0"
 _DENOMINATOR_PREFIX = b"polisyos.chronology.applicable-predicate-denominator.v1\0"
-_OWNER_QUALIFIED_CANDIDATE_PREFIX = (
-    b"polisyos.chronology.owner-qualified-native-candidate.v1\0"
-)
-_VERIFICATION_RESULT_PREFIX = (
-    b"polisyos.chronology.full-prefix-verification-result.v1\0"
-)
+_OWNER_QUALIFIED_CANDIDATE_PREFIX = b"polisyos.chronology.owner-qualified-native-candidate.v1\0"
+_VERIFICATION_RESULT_PREFIX = b"polisyos.chronology.full-prefix-verification-result.v1\0"
 
 CHRONOLOGY_CANON_SPEC = CanonSpec(
     name="polisyos.canon.json",
@@ -211,9 +205,9 @@ class PredicateAdmissionRule(_ChronologyModel):
 
     predicate_id: str = Field(min_length=1)
     subject_kind: Literal["member", "query"]
-    admitted_classes: tuple[
-        Literal["recomputed", "independently_reconciled"], ...
-    ] = Field(min_length=1)
+    admitted_classes: tuple[Literal["recomputed", "independently_reconciled"], ...] = Field(
+        min_length=1
+    )
     require_evidence_ref: Literal[True] = True
 
     @model_validator(mode="after")
@@ -239,6 +233,7 @@ class PredicateAdmissionPolicyStatement(_ChronologyModel):
     schema_version: Literal["polisyos.chronology.predicate-policy.v1"]
     key: PredicatePolicySelectionKey
     native_schema_profile: str = Field(min_length=1)
+    required_native_head_role: str | None = Field(min_length=1)
     rules: tuple[PredicateAdmissionRule, ...]
     owner_provenance_ref: ArtifactRef
     owner_provenance_content_hash: Digest
@@ -262,9 +257,7 @@ class PersistedPredicateAdmissionPolicy(_ChronologyModel):
 class ApplicablePredicateDenominatorStatement(_ChronologyModel):
     """Complete owner-required predicate denominator for one query."""
 
-    schema_version: Literal[
-        "polisyos.chronology.applicable-predicate-denominator.v1"
-    ]
+    schema_version: Literal["polisyos.chronology.applicable-predicate-denominator.v1"]
     policy_ref: ArtifactRef
     policy_content_hash: Digest
     member_subject_refs: tuple[Digest, ...]
@@ -279,9 +272,7 @@ class ApplicablePredicateDenominatorStatement(_ChronologyModel):
             set(self.required_member_predicate_pairs)
         ):
             raise ValueError("duplicate required member predicate pair")
-        if len(self.required_query_predicate_ids) != len(
-            set(self.required_query_predicate_ids)
-        ):
+        if len(self.required_query_predicate_ids) != len(set(self.required_query_predicate_ids)):
             raise ValueError("duplicate required query predicate")
         member_refs = set(self.member_subject_refs)
         if any(ref not in member_refs for ref, _ in self.required_member_predicate_pairs):
@@ -301,9 +292,7 @@ class PersistedApplicablePredicateDenominator(_ChronologyModel):
 class PredicatePolicyAdmissionStatement(_ChronologyModel):
     """Owner admission binding a query coordinate to exact policy bytes."""
 
-    schema_version: Literal[
-        "polisyos.chronology.predicate-policy-admission.v1"
-    ]
+    schema_version: Literal["polisyos.chronology.predicate-policy-admission.v1"]
     key: PredicatePolicySelectionKey
     requested_query_context_ref: Digest
     native_schema_profile: str = Field(min_length=1)
@@ -435,8 +424,7 @@ class NativeChronologyCandidate(_ChronologyModel):
         if len(member_refs) != len(set(member_refs)):
             raise ValueError("duplicate candidate member_ref")
         predicate_keys = [
-            (row.member_ref, row.disposition.predicate_id)
-            for row in self.member_predicates
+            (row.member_ref, row.disposition.predicate_id) for row in self.member_predicates
         ]
         if len(predicate_keys) != len(set(predicate_keys)):
             raise ValueError("duplicate member predicate disposition")
@@ -450,9 +438,7 @@ class NativeChronologyCandidate(_ChronologyModel):
             for row in self.query_predicates
         ):
             raise ValueError("query predicate is bound to a different query context")
-        if len(self.native_authority_head_refs) != len(
-            set(self.native_authority_head_refs)
-        ):
+        if len(self.native_authority_head_refs) != len(set(self.native_authority_head_refs)):
             raise ValueError("duplicate native authority head")
         return self
 
@@ -501,8 +487,7 @@ class VerifiedPredicatePolicyOwnerRelation(_ChronologyModel):
         ):
             raise ValueError("verified member identities do not cover the ordered sequence")
         evidence_keys = [
-            (row.subject_kind, row.subject_ref, row.predicate_id)
-            for row in self.predicate_evidence
+            (row.subject_kind, row.subject_ref, row.predicate_id) for row in self.predicate_evidence
         ]
         if len(evidence_keys) != len(set(evidence_keys)):
             raise ValueError("duplicate verified predicate evidence")
@@ -630,9 +615,7 @@ class PolicyBytesMissingFailure(_ChronologyModel):
     status: Literal["not_established"]
     key: PredicatePolicySelectionKey
     requested_query_context_ref: Digest
-    artifact_role: Literal[
-        "admission", "policy", "policy_owner_provenance", "owner_relation"
-    ]
+    artifact_role: Literal["admission", "policy", "policy_owner_provenance", "owner_relation"]
     missing_ref: ArtifactRef | None
 
 
@@ -844,9 +827,7 @@ class ChronologyPredicatePolicyArtifacts:
         expected_content_hash: Digest,
         role: Literal["policy_owner_provenance", "owner_relation"],
     ) -> bytes | PredicatePolicyResolutionFailure:
-        payload = self._verified_bytes(
-            context=context, artifact_ref=artifact_ref, role=role
-        )
+        payload = self._verified_bytes(context=context, artifact_ref=artifact_ref, role=role)
         if not isinstance(payload, bytes):
             return payload
         if _sha256_digest(payload) != expected_content_hash:
@@ -884,19 +865,14 @@ class ChronologyPredicatePolicyArtifacts:
         artifact_ref: ArtifactRef,
         expected_content_hash: Digest | None,
         role: Literal["admission", "policy"],
-        model: (
-            type[PredicatePolicyAdmissionStatement]
-            | type[PredicateAdmissionPolicyStatement]
-        ),
+        model: (type[PredicatePolicyAdmissionStatement] | type[PredicateAdmissionPolicyStatement]),
         prefix: bytes,
     ) -> (
         PersistedPredicatePolicyAdmission
         | PersistedPredicateAdmissionPolicy
         | PredicatePolicyResolutionFailure
     ):
-        payload = self._verified_bytes(
-            context=context, artifact_ref=artifact_ref, role=role
-        )
+        payload = self._verified_bytes(context=context, artifact_ref=artifact_ref, role=role)
         if not isinstance(payload, bytes):
             return payload
         try:
@@ -915,10 +891,7 @@ class ChronologyPredicatePolicyArtifacts:
         if isinstance(statement, PredicatePolicyAdmissionStatement):
             if statement.key != context.key:
                 return self._mismatch(context, artifact_ref)
-            if (
-                statement.requested_query_context_ref
-                != context.query.requested_query_context_ref
-            ):
+            if statement.requested_query_context_ref != context.query.requested_query_context_ref:
                 return PolicyQueryBindingMismatchFailure(
                     code="policy_query_binding_mismatch",
                     status="rejected",
@@ -1100,8 +1073,7 @@ class ChronologyBundleRequest(_ChronologyModel):
     @model_validator(mode="after")
     def _member_profiles(self) -> ChronologyBundleRequest:
         if any(
-            member.native_schema_profile != self.native_schema_profile
-            for member in self.members
+            member.native_schema_profile != self.native_schema_profile for member in self.members
         ):
             raise ValueError("member native schema profile mismatch")
         refs = tuple(member.member_ref for member in self.members)
@@ -1297,9 +1269,7 @@ class FullPrefixFailureDescriptor:
     """Unique operation/phase/code/terminal identity for one failure."""
 
     operation: Literal["verify"]
-    phase: Literal[
-        "invocation", "envelope", "member", "consistency", "expected_prefix"
-    ]
+    phase: Literal["invocation", "envelope", "member", "consistency", "expected_prefix"]
     code: (
         FullPrefixInvocationFailureCode
         | FullPrefixEnvelopeFailureCode
@@ -1438,9 +1408,7 @@ class FullPrefixInvocationRejected(_FullPrefixResultModel):
     parsed_header: None = None
     verified_member_count: Literal[0] = 0
     commitment_head: None = None
-    failure_codes: Annotated[
-        tuple[FullPrefixInvocationFailureCode, ...], Field(min_length=1)
-    ]
+    failure_codes: Annotated[tuple[FullPrefixInvocationFailureCode, ...], Field(min_length=1)]
     evaluation_state: FullPrefixEvaluationState
 
 
@@ -1455,9 +1423,7 @@ class FullPrefixEnvelopeRejected(_FullPrefixResultModel):
     parsed_header: None = None
     verified_member_count: Literal[0] = 0
     commitment_head: None = None
-    failure_codes: Annotated[
-        tuple[FullPrefixEnvelopeFailureCode, ...], Field(min_length=1)
-    ]
+    failure_codes: Annotated[tuple[FullPrefixEnvelopeFailureCode, ...], Field(min_length=1)]
     evaluation_state: FullPrefixEvaluationState
 
 
@@ -1472,9 +1438,7 @@ class FullPrefixMemberRejected(_FullPrefixResultModel):
     parsed_header: ChronologyBundleHeader
     verified_member_count: int = Field(ge=0)
     commitment_head: Digest
-    failure_codes: Annotated[
-        tuple[FullPrefixMemberFailureCode, ...], Field(min_length=1)
-    ]
+    failure_codes: Annotated[tuple[FullPrefixMemberFailureCode, ...], Field(min_length=1)]
     evaluation_state: FullPrefixEvaluationState
 
 
@@ -1506,9 +1470,7 @@ class FullPrefixExpectedPrefixRejected(_FullPrefixResultModel):
     parsed_header: ChronologyBundleHeader
     verified_member_count: int = Field(ge=0)
     commitment_head: Digest
-    failure_codes: Annotated[
-        tuple[FullPrefixExpectedPrefixFailureCode, ...], Field(min_length=1)
-    ]
+    failure_codes: Annotated[tuple[FullPrefixExpectedPrefixFailureCode, ...], Field(min_length=1)]
     evaluation_state: FullPrefixEvaluationState
 
 
@@ -1540,9 +1502,7 @@ class FullPrefixVerificationStatement(_ChronologyModel):
     or successful parsing does not establish verification.
     """
 
-    schema_version: Literal[
-        "polisyos.chronology.full-prefix-verification-result.v1"
-    ]
+    schema_version: Literal["polisyos.chronology.full-prefix-verification-result.v1"]
     bundle_ref: ArtifactRef
     expected_domain: ChronologyProofDomain
     expected_prefix: ExpectedCommitmentPrefix | None
@@ -1583,8 +1543,7 @@ class FullPrefixVerificationStatement(_ChronologyModel):
                 raise ValueError("verified expected prefix is outside the verified range")
             if (
                 self.expected_prefix.member_count == 0
-                and self.expected_prefix.commitment_head
-                != _domain_genesis(self.expected_domain)
+                and self.expected_prefix.commitment_head != _domain_genesis(self.expected_domain)
             ):
                 raise ValueError("verified zero prefix differs from domain genesis")
             if (
@@ -1643,7 +1602,12 @@ class ChronologyPersistenceStoreIntegrityMismatch(_ChronologyModel):
 
 
 class ChronologyPersistenceNotEstablished(_ChronologyModel):
-    """Missing institutional/store evidence for proof persistence."""
+    """Mid-flight persistence evidence lost after reconciliation exists.
+
+    The process-generation code in this leaf applies only after qualification
+    has already constructed a native reconciliation. Entry into qualification
+    under a dead generation uses the separate query-bound result arm below.
+    """
 
     failure_kind: Literal["not_established"]
     disposition: Literal["not_established"]
@@ -1830,6 +1794,21 @@ class NativeProjectionCustodyGap(_ChronologyModel):
     missing_projection_receipt_role: Literal["native_projection_receipt"]
 
 
+class NativeQualificationProcessGenerationNotEstablished(_ChronologyModel):
+    """Qualification entry refused before any owner dependency is accessed.
+
+    This query-bound terminal is distinct from
+    ``persistence_process_generation_not_established``: the latter is a
+    mid-flight persistence failure and therefore requires a completed native
+    reconciliation, while this arm must not construct one.
+    """
+
+    result_kind: Literal["qualification_process_generation_not_established"]
+    status: Literal["not_established"]
+    code: Literal["qualification_process_generation_not_established"]
+    query: NativeChronologyQuery
+
+
 class NativeChronologyPolicyResolutionFailed(_ChronologyModel):
     """Query-bound failure before an owner-qualified candidate exists."""
 
@@ -1859,7 +1838,7 @@ class NativeApplicablePredicateDenominatorPersistenceFailed(_ChronologyModel):
 
 
 class NativeChronologyPersistenceFailed(_ChronologyModel):
-    """Post-projection common persistence failure."""
+    """Post-projection common persistence failure after reconciliation."""
 
     result_kind: Literal["persistence_failed"]
     reconciliation: NativeChronologyReconciliation
@@ -1883,6 +1862,7 @@ NativeChronologyQualificationResult = Annotated[
     | NativeAuthorityHeadNotEstablished
     | NativeExteriorAndAuthorityHeadNotEstablished
     | NativeProjectionCustodyGap
+    | NativeQualificationProcessGenerationNotEstablished
     | NativeChronologyPolicyResolutionFailed
     | NativeApplicablePredicateDenominatorPersistenceFailed
     | NativeChronologyPersistenceFailed,
@@ -1947,14 +1927,10 @@ def _evaluation_state(
     expected_prefix: FullPrefixInputMode,
 ) -> FullPrefixEvaluationState:
     hash_state: FullPrefixCheckState = (
-        "not_requested"
-        if expected_bundle_hash is FullPrefixInputMode.ABSENT
-        else "satisfied"
+        "not_requested" if expected_bundle_hash is FullPrefixInputMode.ABSENT else "satisfied"
     )
     later_prefix: FullPrefixCheckState = (
-        "not_requested"
-        if expected_prefix is FullPrefixInputMode.ABSENT
-        else "not_evaluated"
+        "not_requested" if expected_prefix is FullPrefixInputMode.ABSENT else "not_evaluated"
     )
     if result_kind == "invocation_rejected":
         return FullPrefixEvaluationState(
@@ -2003,9 +1979,7 @@ def _evaluation_state(
             members="satisfied",
             internal_consistency="satisfied",
             expected_prefix=(
-                "not_requested"
-                if expected_prefix is FullPrefixInputMode.ABSENT
-                else "satisfied"
+                "not_requested" if expected_prefix is FullPrefixInputMode.ABSENT else "satisfied"
             ),
         )
     raise ValueError(f"unknown full-prefix result kind: {result_kind}")
@@ -2019,15 +1993,11 @@ FULL_PREFIX_FAILURE_DESCRIPTORS: tuple[FullPrefixFailureDescriptor, ...] = (
         for code in FullPrefixInvocationFailureCode
     ),
     *(
-        FullPrefixFailureDescriptor(
-            "verify", "envelope", code, FullPrefixTerminalCheck.ENVELOPE
-        )
+        FullPrefixFailureDescriptor("verify", "envelope", code, FullPrefixTerminalCheck.ENVELOPE)
         for code in FullPrefixEnvelopeFailureCode
     ),
     *(
-        FullPrefixFailureDescriptor(
-            "verify", "member", code, FullPrefixTerminalCheck.MEMBERS
-        )
+        FullPrefixFailureDescriptor("verify", "member", code, FullPrefixTerminalCheck.MEMBERS)
         for code in FullPrefixMemberFailureCode
     ),
     *(
@@ -2050,23 +2020,19 @@ FULL_PREFIX_FAILURE_DESCRIPTORS: tuple[FullPrefixFailureDescriptor, ...] = (
     ),
 )
 
-FULL_PREFIX_TERMINAL_BY_RESULT_KIND: Mapping[str, FullPrefixTerminalCheck] = (
-    MappingProxyType(
-        {
-            "verified": FullPrefixTerminalCheck.VERIFIED,
-            "invocation_rejected": FullPrefixTerminalCheck.BUNDLE_CONTENT_HASH,
-            "envelope_rejected": FullPrefixTerminalCheck.ENVELOPE,
-            "member_rejected": FullPrefixTerminalCheck.MEMBERS,
-            "internal_consistency_rejected": FullPrefixTerminalCheck.INTERNAL_CONSISTENCY,
-            "expected_prefix_rejected": FullPrefixTerminalCheck.EXPECTED_PREFIX,
-        }
-    )
+FULL_PREFIX_TERMINAL_BY_RESULT_KIND: Mapping[str, FullPrefixTerminalCheck] = MappingProxyType(
+    {
+        "verified": FullPrefixTerminalCheck.VERIFIED,
+        "invocation_rejected": FullPrefixTerminalCheck.BUNDLE_CONTENT_HASH,
+        "envelope_rejected": FullPrefixTerminalCheck.ENVELOPE,
+        "member_rejected": FullPrefixTerminalCheck.MEMBERS,
+        "internal_consistency_rejected": FullPrefixTerminalCheck.INTERNAL_CONSISTENCY,
+        "expected_prefix_rejected": FullPrefixTerminalCheck.EXPECTED_PREFIX,
+    }
 )
 
 
-def _build_evaluation_table() -> Mapping[
-    FullPrefixEvaluationKey, FullPrefixEvaluationState
-]:
+def _build_evaluation_table() -> Mapping[FullPrefixEvaluationKey, FullPrefixEvaluationState]:
     rows: dict[FullPrefixEvaluationKey, FullPrefixEvaluationState] = {}
     for kind in FULL_PREFIX_TERMINAL_BY_RESULT_KIND:
         for hash_mode in FullPrefixInputMode:

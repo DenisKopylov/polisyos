@@ -7,27 +7,29 @@ import os
 import threading
 import weakref
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Literal, NoReturn
+from typing import TYPE_CHECKING, Literal, NoReturn, SupportsIndex
 
 from pydantic import BaseModel, ConfigDict
 
-from polisyos.core.artifacts import (
-    ArtifactID,
-    ArtifactManifest,
-    ArtifactRef,
-    ArtifactStore,
-    ArtifactWriteOptions,
-    CanonInfo,
-    InputRef,
-    IntegrityInfo,
-    SchemaInfo,
-)
-from polisyos.core.canon import content_hash
-from polisyos.core.contracts import chronology as contract
-from polisyos.core.security.full_prefix import FullPrefixVerifier
+from polisyos.core import FullPrefixVerifier
+from polisyos.core import artifacts as core_artifacts
+from polisyos.core import canon as core_canon
+from polisyos.core import contracts as core_contracts
+
+ArtifactID = core_artifacts.ArtifactID
+ArtifactManifest = core_artifacts.ArtifactManifest
+ArtifactRef = core_artifacts.ArtifactRef
+ArtifactStore = core_artifacts.ArtifactStore
+ArtifactWriteOptions = core_artifacts.ArtifactWriteOptions
+CanonInfo = core_artifacts.CanonInfo
+InputRef = core_artifacts.InputRef
+IntegrityInfo = core_artifacts.IntegrityInfo
+SchemaInfo = core_artifacts.SchemaInfo
+content_hash = core_canon.content_hash
+contract = core_contracts.chronology
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
+    from collections.abc import Callable, Mapping
     from datetime import datetime
 
 _BUNDLE_KIND = "core.chronology.full_prefix.bundle"
@@ -61,7 +63,7 @@ def _raw_cas_hash(payload: bytes) -> contract.Digest:
     return f"sha256:{content_hash(payload)}"
 
 
-def _hash_mapping(mapping: dict[str, object]) -> contract.Digest:
+def _hash_mapping(mapping: Mapping[str, object]) -> contract.Digest:
     raw = contract._canonical_raw_bytes(mapping)
     return contract._sha256_digest(contract._frame_record(raw))
 
@@ -277,7 +279,7 @@ class _ChronologyProcessGeneration:
 class _QualificationPersistenceContinuation:
     """Fieldless process-local continuation; never importable or serialized."""
 
-    def __reduce_ex__(self, protocol: int) -> NoReturn:
+    def __reduce_ex__(self, protocol: SupportsIndex) -> NoReturn:
         del protocol
         raise TypeError("chronology persistence continuations cannot be serialized")
 
@@ -339,7 +341,7 @@ class _ChronologyPersistenceOwner:
     _creator_pid: int
     _valid: bool
 
-    def __reduce_ex__(self, protocol: int) -> NoReturn:
+    def __reduce_ex__(self, protocol: SupportsIndex) -> NoReturn:
         del protocol
         raise TypeError("chronology persistence owners cannot be serialized")
 

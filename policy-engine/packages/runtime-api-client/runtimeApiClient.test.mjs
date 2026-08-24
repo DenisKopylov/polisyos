@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import { RuntimeApiClient } from "./runtimeApiClient.js";
+import { RuntimeApiClient as CanonicalRuntimeApiClient } from "./canonicalRuntimeApiClient.js";
 
 function createClient(calls, payload = { ok: true }) {
   return new RuntimeApiClient({
@@ -113,5 +114,58 @@ test("mobility POST methods forward request bodies to fetch", async () => {
       outcome: "upward",
       run_id: "run-1",
     }),
+  );
+});
+
+test("human decision methods bind the exact exposure header and POST body", async () => {
+  const calls = [];
+  const evidenceBytes = Uint8Array.from([0, 255, 17, 34]);
+  const client = new CanonicalRuntimeApiClient({
+    baseUrl: "https://runtime.test/",
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      if (init.method === "GET") {
+        return new Response(evidenceBytes, {
+          status: 200,
+          headers: { "Content-Type": "application/pdf" },
+        });
+      }
+      return new Response(JSON.stringify({ ok: true }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+  });
+  const exposure = "sha256:verified-exposure-session";
+
+  const delivered = await client.getRunHumanDecisionEvidenceContent({
+    run_id: "run-1",
+    artifact_id: "sha256:evidence",
+    "X-PolicyOS-Human-Decision-Exposure": exposure,
+  });
+  await client.createRunHumanDecision({
+    run_id: "run-1",
+    "X-PolicyOS-Human-Decision-Exposure": exposure,
+    body: { decision_action: "approve" },
+  });
+
+  assert.equal(calls.length, 2);
+  assert.deepEqual(new Uint8Array(delivered), evidenceBytes);
+  assert.equal(
+    new Headers(calls[0].init.headers).get(
+      "X-PolicyOS-Human-Decision-Exposure",
+    ),
+    exposure,
+  );
+  assert.equal(calls[1].init.method, "POST");
+  assert.equal(
+    new Headers(calls[1].init.headers).get(
+      "X-PolicyOS-Human-Decision-Exposure",
+    ),
+    exposure,
+  );
+  assert.equal(
+    calls[1].init.body,
+    JSON.stringify({ decision_action: "approve" }),
   );
 });

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import tomllib
 from pathlib import Path
 
 import pytest
@@ -10,6 +11,8 @@ from tools.ops_runners.release.build_release_notes import (
     validate_required_curated_sections,
 )
 from tools.ops_runners.release.check_release_version import resolve_release_fragments_dir
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
 
 
 def test_validate_required_curated_sections_accepts_complete_snapshot() -> None:
@@ -93,3 +96,30 @@ def test_structured_compatibility_changes_render_into_release_notes() -> None:
     assert changes[0]["change_class"] == "js-package-api"
     assert "## Structured Compatibility Changes" in notes
     assert "`js-package-api` / `additive`" in notes
+
+
+def test_ds9_fragment_separates_python_break_and_generated_addition() -> None:
+    path = (
+        REPO_ROOT
+        / "release-fragments/unreleased/2026-08-23-ds9-human-decision-integrity.toml"
+    )
+    fragment = tomllib.loads(path.read_text(encoding="utf-8"))
+
+    assert fragment["generated_client_compatibility"] == "requires_regeneration"
+    assert fragment["public_surface_inventory_reviewed"] is True
+    assert fragment["migration_docs"]
+    assert fragment["runbook_docs"]
+    rows = fragment["compatibility_change"]
+    assert [(row["change_class"], row["impact"]) for row in rows] == [
+        ("python-public-api", "breaking"),
+        ("schema-openapi-abi", "additive"),
+        ("js-package-api", "additive"),
+        ("js-package-api", "additive"),
+    ]
+    for row in rows:
+        assert row["owner"]
+        assert row["version_owner"]
+        assert row["deprecation_window"]
+        assert row["release_note"]
+        assert row["migration_docs"]
+        assert row["runbook_docs"]

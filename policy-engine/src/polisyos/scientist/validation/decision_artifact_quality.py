@@ -290,7 +290,7 @@ def _resolve_production_approval_currentness(
 ) -> bool:
     """Exercise the concrete resolver; public projections are always refused."""
 
-    from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
+    from polisyos.runtime.quality import ProductionApprovalPacketResolver
 
     if (
         type(resolver) is not ProductionApprovalPacketResolver

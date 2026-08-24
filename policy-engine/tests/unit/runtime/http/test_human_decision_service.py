@@ -1275,6 +1275,99 @@ def test_unbound_contestability_is_omitted_despite_signed_case_strings(
     assert response.contestability is None
 
 
+def test_available_gate_response_exposes_server_resolved_submission_binding(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_gate_fixture(tmp_path)
+    contracts = _contracts()
+
+    response = fixture.service.resolve_gate_response(
+        fixture.adapter_input,
+        bound_permission=fixture.bound_permission,
+    )
+
+    assert response.status == "available"
+    assert response.continuation is not None
+    assert response.submission is not None
+    selector = response.submission.selector
+    assert selector == response.continuation
+    assert selector.source_kind == "agent_action_authority"
+    assert selector.source_ref == fixture.adapter_input.source_ref
+    assert selector.basis_ref == fixture.source_decision.contract_ref
+    assert selector.basis_digest == fixture.source_decision.contract_ref
+    assert selector.principal_binding_ref == fixture.adapter_input.principal_binding_ref
+    assert selector.reviewer_separation_ref == fixture.adapter_input.reviewer_separation_ref
+    assert selector.presentation_contract_ref == fixture.adapter_input.presentation_contract_ref
+    assert selector.exposure_session_ref == fixture.adapter_input.exposure_session_ref
+    assert contracts.HumanDecisionPA2GateInput.model_validate(
+        {
+            **selector.model_dump(mode="json", exclude={"operational_authority"}),
+            "tenant_id": response.tenant_id,
+            "run_id": response.run_id,
+        }
+    ) == fixture.adapter_input.model_copy(
+        update={
+            "basis_ref": fixture.source_decision.contract_ref,
+            "basis_digest": fixture.source_decision.contract_ref,
+            "decision_request_digest": response.decision_request_digest,
+        }
+    )
+    assert {row.action for row in response.submission.allowed_decisions} == set(
+        response.decision_request.available_actions
+    )
+
+
+def test_nonavailable_gate_has_no_submission_binding(tmp_path: Path) -> None:
+    fixture = _signed_current_gate_fixture(tmp_path)
+
+    response = fixture.service.resolve_gate_response(
+        fixture.adapter_input.model_copy(update={"action_kind": "data_request.other"}),
+        bound_permission=fixture.bound_permission,
+    )
+
+    assert response.status == "blocked"
+    assert response.submission is None
+    assert response.continuation is None
+
+
+def test_missing_exposure_session_has_no_continuation_or_submission(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_gate_fixture(tmp_path)
+
+    response = fixture.service.resolve_gate_response(
+        fixture.adapter_input.model_copy(update={"exposure_session_ref": None}),
+        bound_permission=fixture.bound_permission,
+    )
+
+    assert response.status == "producer_missing"
+    assert "DS9-EXPOSURE-SESSION-PRODUCER-MISSING" in response.reason_codes
+    assert response.continuation is None
+    assert response.submission is None
+
+
+def test_evidence_only_block_exposes_verified_continuation_without_submission(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_gate_fixture(tmp_path)
+    service = fixture.service_with_audit(fixture.empty_audit_path)
+
+    response = service.resolve_gate_response(
+        fixture.adapter_input,
+        bound_permission=fixture.bound_permission,
+    )
+
+    assert response.status == "blocked"
+    assert set(response.reason_codes) == {
+        "DS9-MANDATE-NOT-SHOWN",
+        "DS9-EVIDENCE-NOT-OPENED",
+        "DS9-RUBBER-STAMP",
+    }
+    assert response.continuation is not None
+    assert response.continuation.exposure_session_ref == fixture.adapter_input.exposure_session_ref
+    assert response.submission is None
+
+
 def test_human_decision_wrong_role_is_blocked_with_reason(tmp_path: Path) -> None:
     fixture = _signed_current_gate_fixture(tmp_path)
     before = _human_decision_record_ids(fixture.store)
@@ -1386,6 +1479,7 @@ def test_exposure_session_is_issued_for_and_resolved_by_exact_live_subject(
     assert delivery.session == issued.session
     assert delivery.artifact_ref == artifact_ref
     assert delivery.content == fixture.store.get_bytes(artifact_ref)
+    assert delivery.media_type == "application/json"
 
     other_verification = replace(
         evidence_permission.verification,
@@ -1777,9 +1871,15 @@ def test_human_decision_exposure_session_cannot_understate_presentation_basis(
     )
 
     gate = fixture.resolve(**resigned)
+    response = fixture.service.resolve_gate_response(
+        fixture.adapter_input.model_copy(update=resigned),
+        bound_permission=fixture.bound_permission,
+    )
 
     assert gate.status == "blocked"
     assert "DS9-EXPOSURE-SESSION-INVALID" in _reason_codes(gate)
+    assert response.continuation is None
+    assert response.submission is None
 
 
 def test_human_decision_exposure_coverage_preserves_duplicate_requirements(
@@ -1803,7 +1903,7 @@ def test_human_decision_exposure_coverage_preserves_duplicate_requirements(
     gate = fixture.resolve(**resigned)
 
     assert gate.status == "blocked"
-    assert "DS9-EXPOSURE-SESSION-INVALID" in _reason_codes(gate)
+    assert "DS9-EVIDENCE-NOT-OPENED" in _reason_codes(gate)
 
 
 def test_human_decision_exposure_rejects_extra_completed_receipt(tmp_path: Path) -> None:
@@ -1949,9 +2049,15 @@ def test_human_decision_rejects_unsigned_source(tmp_path: Path) -> None:
     )
 
     gate = fixture.resolve(**resigned)
+    response = fixture.service.resolve_gate_response(
+        fixture.adapter_input.model_copy(update=resigned),
+        bound_permission=fixture.bound_permission,
+    )
 
     assert gate.status == "invalid_source"
     assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(gate)
+    assert response.continuation is None
+    assert response.submission is None
 
 
 def test_human_decision_rejects_unsigned_contract(tmp_path: Path) -> None:
@@ -2008,9 +2114,15 @@ def test_human_decision_rejects_unsigned_exposure_session(tmp_path: Path) -> Non
     )
 
     gate = fixture.resolve(**resigned)
+    response = fixture.service.resolve_gate_response(
+        fixture.adapter_input.model_copy(update=resigned),
+        bound_permission=fixture.bound_permission,
+    )
 
     assert gate.status == "invalid_source"
     assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(gate)
+    assert response.continuation is None
+    assert response.submission is None
 
 
 def test_human_decision_rejects_unsigned_exposure_events(tmp_path: Path) -> None:

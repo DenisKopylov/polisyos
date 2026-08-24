@@ -1813,7 +1813,7 @@ def _resolve_production_approval_currentness(
 ) -> bool:
     """Invoke the concrete resolver; mappings, DTOs, and callbacks fail closed."""
 
-    from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
+    from polisyos.runtime.quality import ProductionApprovalPacketResolver
 
     if type(resolver) is not ProductionApprovalPacketResolver or not packet_ref or not tenant_id:
         return False

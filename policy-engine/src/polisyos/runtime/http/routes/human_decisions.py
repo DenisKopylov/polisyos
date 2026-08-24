@@ -63,16 +63,17 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from fastapi import APIRouter, Depends, Query, Request, Response
+    from fastapi import APIRouter, Depends, Header, Query, Request, Response
     from starlette.types import Message, Receive, Scope, Send
 
     from polisyos.runtime.http.services.run_index import IndexedRunRecord
 else:
     try:  # pragma: no cover - optional runtime dependency
-        from fastapi import APIRouter, Depends, Query, Request, Response
+        from fastapi import APIRouter, Depends, Header, Query, Request, Response
     except ModuleNotFoundError:  # pragma: no cover
         APIRouter = cast("Any", None)
         Depends = cast("Any", None)
+        Header = cast("Any", None)
         Query = cast("Any", None)
         Request = cast("Any", Any)
         Response = cast("Any", Any)
@@ -490,6 +491,13 @@ if router is not None:
     def create_run_human_decision(
         run_id: str,
         body: HumanDecisionMutationRequest,
+        exposure_session_ref: Annotated[
+            str,
+            Header(
+                alias="X-PolicyOS-Human-Decision-Exposure",
+                pattern=_SHA256_PATTERN,
+            ),
+        ],
         request: Request,
         ctx: _RuntimeContextDependency,
         service: _HumanDecisionServiceDependency,
@@ -510,11 +518,11 @@ if router is not None:
             )
         bound_context = human_decision_create_from_bound_request(request)
         bound_body = bound_context.get("body")
-        exposure_session_ref = bound_context.get("exposure_session_ref")
+        bound_exposure_session_ref = bound_context.get("exposure_session_ref")
         if (
             not isinstance(bound_body, dict)
             or HumanDecisionMutationRequest.model_validate(bound_body) != body
-            or not isinstance(exposure_session_ref, str)
+            or bound_exposure_session_ref != exposure_session_ref
         ):
             raise forbidden(
                 "Human-decision body changed after authorization",
@@ -532,7 +540,7 @@ if router is not None:
             principal_binding_ref=body.principal_binding_ref,
             reviewer_separation_ref=body.reviewer_separation_ref,
             presentation_contract_ref=body.presentation_contract_ref,
-            exposure_session_ref=exposure_session_ref,
+            exposure_session_ref=bound_exposure_session_ref,
             basis_digest=body.basis_digest,
             action_kind=body.action_kind,
         )
@@ -684,10 +692,54 @@ if router is not None:
         response_class=Response,
         operation_id="get_run_human_decision_evidence_content",
         dependencies=[Depends(_EVIDENCE_AUTHZ)],
+        responses={
+            200: {
+                "description": (
+                    "Exact verified artifact bytes in their manifest-selected media type."
+                ),
+                "headers": {
+                    "Cache-Control": {
+                        "description": "Forbid storage of human-decision evidence bytes.",
+                        "schema": {"type": "string", "enum": ["no-store"]},
+                    },
+                    "Content-Encoding": {
+                        "description": "Preserve exact artifact bytes without transformation.",
+                        "schema": {"type": "string", "enum": ["identity"]},
+                    },
+                    "ETag": {
+                        "description": "Quoted exact CAS ref of the delivered artifact.",
+                        "schema": {
+                            "type": "string",
+                            "pattern": '^"sha256:[0-9a-f]{64}"$',
+                        },
+                    },
+                    "X-Content-Type-Options": {
+                        "description": "Prevent media-type sniffing.",
+                        "schema": {"type": "string", "enum": ["nosniff"]},
+                    },
+                    "X-PolicyOS-Exposure-Session": {
+                        "description": "Exact custody-signed exposure-session CAS ref.",
+                        "schema": {"type": "string", "pattern": _SHA256_PATTERN},
+                    },
+                },
+                "content": {
+                    "*/*": {
+                        "schema": {"type": "string", "format": "binary"},
+                    }
+                },
+            }
+        },
     )
     def get_run_human_decision_evidence_content(
         run_id: str,
         artifact_id: str,
+        exposure_session_ref: Annotated[
+            str,
+            Header(
+                alias="X-PolicyOS-Human-Decision-Exposure",
+                pattern=_SHA256_PATTERN,
+            ),
+        ],
         request: Request,
         ctx: _RuntimeContextDependency,
         service: _HumanDecisionServiceDependency,
@@ -701,20 +753,11 @@ if router is not None:
             artifact_id=artifact_id,
         )
         proof = _action_proof(request, _EVIDENCE_AUTHZ)
-        session_ref = request.headers.get(
-            "X-PolicyOS-Human-Decision-Exposure",
-            "",
-        ).strip()
-        if not session_ref:
-            raise conflict(
-                "Human-decision evidence requires an exact exposure session",
-                code="DS9-EXPOSURE-SESSION-PRODUCER-MISSING",
-            )
         try:
             delivery = service.resolve_exposure_delivery(
                 tenant_id=tenant_id,
                 run_id=run_id,
-                session_ref=session_ref,
+                session_ref=exposure_session_ref,
                 artifact_ref=artifact_id,
                 bound_permission=proof,
             )

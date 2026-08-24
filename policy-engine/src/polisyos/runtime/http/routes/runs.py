@@ -13,8 +13,6 @@ from datetime import UTC, datetime
 from time import monotonic
 from typing import TYPE_CHECKING, Annotated, Any, cast
 
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.control import (
     ProductionApprovalOverrideRequest,
     ProductionApprovalRequest,
@@ -935,11 +933,11 @@ if router is not None:
                 effective_mode_ref="runtime://production-approval/http",
             ),
         )
-        approval_packet_ref = ArtifactRef(
-            artifact_id=ArtifactID.model_validate(persisted.packet_ref),
-            kind="runtime.production_approval_packet",
-            media_type="application/json",
-        )
+        approval_packet_ref = {
+            "artifact_id": persisted.packet_ref,
+            "kind": "runtime.production_approval_packet",
+            "media_type": "application/json",
+        }
         record_approval_packet = getattr(
             control_service,
             "record_production_approval_packet",
@@ -960,13 +958,15 @@ if router is not None:
             outcome="approval_packet_created",
         )
         add_run_link_relations(response, run_id=run_id)
-        return ProductionApprovalResponse(
-            meta=build_meta(request, source_kinds=[run.source_kind]),
-            run_id=run_id,
-            decision=packet.decision,
-            packet=packet,
-            approval_packet_ref=approval_packet_ref,
-            evidence_bundle_packet_path=None,
+        return ProductionApprovalResponse.model_validate(
+            {
+                "meta": build_meta(request, source_kinds=[run.source_kind]),
+                "run_id": run_id,
+                "decision": packet.decision,
+                "packet": packet,
+                "approval_packet_ref": approval_packet_ref,
+                "evidence_bundle_packet_path": None,
+            }
         )
 
     @router.get(

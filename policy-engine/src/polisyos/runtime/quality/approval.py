@@ -1142,6 +1142,7 @@ __all__ = [
     "APPROVAL_PACKET_SCHEMA",
     "ProductionApprovalCurrentnessProjection",
     "ProductionApprovalIssuanceInput",
+    "ProductionApprovalPacket",
     "ProductionApprovalPacketResolver",
     "ProductionApprovalPersistence",
     "ProductionApprovalResolutionError",

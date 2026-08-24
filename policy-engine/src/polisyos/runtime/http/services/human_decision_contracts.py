@@ -545,6 +545,78 @@ class HumanDecisionContestabilitySurface(Layer2ReadinessModel):
     href: str = Field(min_length=1, max_length=1_000)
 
 
+class _HumanDecisionReplaySelectorBase(Layer2ReadinessModel):
+    """Verified selectors sufficient to re-run the pre-action gate."""
+
+    source_ref: str = Field(pattern=_SHA256_PATTERN)
+    decision_request_ref: str = Field(min_length=1, max_length=300)
+    decision_request_digest: str = Field(pattern=_SHA256_PATTERN)
+    basis_ref: str = Field(min_length=1, max_length=300)
+    basis_digest: str = Field(pattern=_SHA256_PATTERN)
+    principal_binding_ref: str = Field(pattern=_SHA256_PATTERN)
+    reviewer_separation_ref: str = Field(pattern=_SHA256_PATTERN)
+    presentation_contract_ref: str = Field(pattern=_SHA256_PATTERN)
+    exposure_session_ref: str = Field(pattern=_SHA256_PATTERN)
+    operational_authority: Literal[False] = False
+
+
+class HumanDecisionPA2ReplaySelector(_HumanDecisionReplaySelectorBase):
+    """Verified selector arm for one S7 delegation decision."""
+
+    source_kind: Literal["agent_action_authority"]
+    action_kind: str = Field(pattern=_ACTION_KIND_PATTERN, max_length=120)
+
+
+class HumanDecisionProductionReplaySelector(_HumanDecisionReplaySelectorBase):
+    """Verified selector arm for one production-basis decision."""
+
+    source_kind: Literal["production_approval"]
+
+
+HumanDecisionReplaySelector = Annotated[
+    HumanDecisionPA2ReplaySelector | HumanDecisionProductionReplaySelector,
+    Field(discriminator="source_kind"),
+]
+
+
+class HumanDecisionAllowedDecision(Layer2ReadinessModel):
+    """One signed offered action and the server-admitted decision modes."""
+
+    action: DecisionAction
+    decision_modes: tuple[HumanDecisionMode, ...] = Field(min_length=1, max_length=2)
+
+    @model_validator(mode="after")
+    def _modes_match_action(self) -> Self:
+        expected: tuple[HumanDecisionMode, ...]
+        if self.action == "approve":
+            expected = ("ordinary", "override")
+        elif self.action == "reject":
+            expected = ("blocking",)
+        else:
+            expected = ("ordinary",)
+        if self.decision_modes != expected:
+            raise ValueError("human-decision modes do not match the offered action")
+        return self
+
+
+class HumanDecisionSubmissionSurface(Layer2ReadinessModel):
+    """Non-authoritative verified selectors plus offered mutation shapes."""
+
+    selector: HumanDecisionReplaySelector
+    allowed_decisions: tuple[HumanDecisionAllowedDecision, ...] = Field(
+        min_length=1,
+        max_length=5,
+    )
+    operational_authority: Literal[False] = False
+
+    @model_validator(mode="after")
+    def _unique_offered_actions(self) -> Self:
+        actions = tuple(row.action for row in self.allowed_decisions)
+        if len(actions) != len(set(actions)):
+            raise ValueError("human-decision submission repeats an offered action")
+        return self
+
+
 class HumanDecisionGateResponse(Layer2ReadinessModel):
     """REVIEWER/EXPERT/MACHINE projection of one freshly resolved gate."""
 
@@ -562,6 +634,8 @@ class HumanDecisionGateResponse(Layer2ReadinessModel):
     mandate: HumanDecisionMandateSurface | None = None
     exposure: HumanDecisionExposureSurface
     contestability: HumanDecisionContestabilitySurface | None = None
+    continuation: HumanDecisionReplaySelector | None = None
+    submission: HumanDecisionSubmissionSurface | None = None
     resolved_at: AwareDatetime
     verifier_epoch: str
     operational_authority: Literal[False] = False
@@ -578,6 +652,31 @@ class HumanDecisionGateResponse(Layer2ReadinessModel):
             or self.decision_request.case_id != self.contestability.case_id
         ):
             raise ValueError("contestability requires exact case/source binding")
+        if (self.status == "available") != (self.submission is not None):
+            raise ValueError("only an available gate may expose a submission binding")
+        if self.submission is not None and self.submission.selector != self.continuation:
+            raise ValueError("submission binding differs from the replay continuation")
+        selector = self.continuation
+        if selector is not None:
+            if (
+                selector.source_kind != self.source_kind
+                or selector.source_ref != self.source_ref
+                or selector.decision_request_ref != self.decision_request_ref
+                or selector.decision_request_digest != self.decision_request_digest
+                or selector.exposure_session_ref != self.exposure.exposure_session_ref
+            ):
+                raise ValueError("replay continuation differs from the gate projection")
+            if (
+                isinstance(selector, HumanDecisionPA2ReplaySelector)
+                and (self.mandate is None or selector.action_kind != self.mandate.action_kind)
+            ):
+                raise ValueError("PA2 continuation differs from the resolved mandate action")
+        if self.submission is not None:
+            if self.decision_request is None:
+                raise ValueError("submission binding requires a signed decision request")
+            offered = tuple(row.action for row in self.submission.allowed_decisions)
+            if offered != self.decision_request.available_actions:
+                raise ValueError("submission binding changed the signed offered actions")
         return self
 
 
@@ -596,8 +695,9 @@ class HumanDecisionCreateResponse(Layer2ReadinessModel):
     def _exact_record_ref(self) -> Self:
         if self.record_ref != self.record_digest:
             raise ValueError("human-decision response record ref/digest changed")
-        if self.record.record_ref != self.record_ref:
-            raise ValueError("human-decision response record readback changed")
+        # ``record.record_ref`` is the signed human-action attempt address.  The
+        # outer ref/digest is the CAS address of those bytes; making a payload
+        # contain its own content hash would be an impossible fixed point.
         return self
 
 
@@ -856,6 +956,7 @@ __all__ = [
     "REVIEWER_SEPARATION_CREDENTIAL_ARTIFACT_KIND",
     "REVIEWER_SEPARATION_CREDENTIAL_MANIFEST_VERSION",
     "REVIEWER_SEPARATION_CREDENTIAL_V1",
+    "HumanDecisionAllowedDecision",
     "HumanDecisionContestabilitySurface",
     "HumanDecisionCreateCommand",
     "HumanDecisionCreateResponse",
@@ -872,16 +973,20 @@ __all__ = [
     "HumanDecisionMode",
     "HumanDecisionPA2GateInput",
     "HumanDecisionPA2GatewayAdapterInput",
+    "HumanDecisionPA2ReplaySelector",
     "HumanDecisionPredicate",
     "HumanDecisionPredicateProvenance",
     "HumanDecisionPresentationContract",
     "HumanDecisionPrincipalBinding",
     "HumanDecisionProductionGateInput",
     "HumanDecisionProductionGatewayAdapterInput",
+    "HumanDecisionProductionReplaySelector",
+    "HumanDecisionReplaySelector",
     "HumanDecisionRequestSurface",
     "HumanDecisionResolverPolicy",
     "HumanDecisionReviewEffectivenessResponse",
     "HumanDecisionSourceKind",
+    "HumanDecisionSubmissionSurface",
     "HumanDecisionTrustPolicy",
     "HumanDecisionTrustedProducer",
     "HumanDecisionWriteContext",

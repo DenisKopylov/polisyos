@@ -12,6 +12,11 @@ from polisyos.runtime.http._openapi_contract_helpers import (
 )
 from polisyos.runtime.http.permissions import permissions_for_roles
 from polisyos.runtime.http.security import PolicyOSRole
+from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+    HUMAN_DECISION_RECORD_V2,
+    LAYER2_S7_DELEGATION_SCHEMA_VERSION,
+    HumanDecisionRecord,
+)
 
 _ARTIFACT_ID_SAMPLE = "sha256:" + "a" * 64
 _SHA_PLAN = "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
@@ -585,7 +590,136 @@ _RUN_PAPER_TYPED_UNAVAILABLE_SAMPLE = {
 }
 
 
+_HUMAN_DECISION_PREDICATE_SAMPLE = (
+    ("identity_permission", "recomputed"),
+    ("role_mandate_or_basis", "independently_reconciled"),
+    ("operation_accountability", "recomputed"),
+    ("currentness", "recomputed"),
+    ("right_decision_time", "recomputed"),
+    ("reviewer_independence_change", "independently_reconciled"),
+    ("evidence_exposure", "independently_reconciled"),
+    ("presentation_format_channel", "independently_reconciled"),
+    ("source_producer_trust", "independently_reconciled"),
+)
+_HUMAN_DECISION_RECORD_SAMPLE: dict[str, Any] = {
+    "schema_version": "policyos.runtime.human_decision_record.v2",
+    "record_id": "human-decision-openapi-sample",
+    "record_ref": "runtime://human-decisions/openapi-sample",
+    "case_id": "case-openapi-sample",
+    "human_decision_request_ref": "runtime://human-decisions/requests/openapi-sample",
+    "actor_ref": "principal://reviewer/openapi-sample",
+    "actor_role": "mandate_owner",
+    "decided_at": _TS_SAMPLE,
+    "decision_action_exercised": "approve",
+    "evidence_summary_ref": "runtime://human-decisions/evidence/openapi-sample",
+    "disconfirming_evidence_refs": [_SHA_DATA],
+    "active_choice": True,
+    "accountability_statement": "I accept accountability for this bounded decision.",
+    "mandate_record_ref": "mandate://openapi-sample",
+    "mandate_source_refs": [_SHA_PLAN],
+    "five_rights_check": {
+        "right_decision": True,
+        "right_person": True,
+        "right_information": True,
+        "right_format_channel": True,
+        "right_time": True,
+    },
+    "responsibility_integrity": {
+        "status": "pass",
+        "pattern_ids": ["P26", "P05", "P37"],
+        "reason": "All nine gate predicates were recomputed or independently reconciled.",
+        "missing_requirements": [],
+        "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+    },
+    "authority_boundary": {
+        "authoritative_for": ["human_decision_act"],
+        "may_not_use_for": ["policyos_custody_signature", "publication_authority"],
+        "source_authority": "human_governance",
+        "posture": "governed",
+        "rule_version_refs": ["policyos.runtime.human-decision.openapi.v1"],
+        "known_limits": [],
+    },
+    "provenance_refs": [_ARTIFACT_ID_SAMPLE, _SHA_PLAN],
+    "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+    "created_at": _TS_SAMPLE,
+    "tenant_id": "tenant-openapi-sample",
+    "run_id": _RUN_ID_SAMPLE,
+    "decision_attempt_id": "human-decision-attempt-openapi-sample",
+    "governed_action_key": _SHA_BINDINGS,
+    "binding_sha256": _SHA_METHOD,
+    "source_kind": "agent_action_authority",
+    "source_ref": _ARTIFACT_ID_SAMPLE,
+    "source_digest": _ARTIFACT_ID_SAMPLE,
+    "decision_request_digest": _SHA_RUN_PAPER,
+    "basis_ref": _SHA_PLAN,
+    "basis_digest": _SHA_PLAN,
+    "principal_binding_ref": _SHA_REGISTRY,
+    "principal_binding_digest": _SHA_REGISTRY,
+    "reviewer_separation_ref": _SHA_METHOD,
+    "reviewer_separation_digest": _SHA_METHOD,
+    "presentation_contract_ref": _SHA_DATA,
+    "presentation_contract_digest": _SHA_DATA,
+    "exposure_session_ref": _SHA_BINDINGS,
+    "exposure_session_digest": _SHA_BINDINGS,
+    "canonical_actor": {
+        "issuer": "institution://identity/openapi-sample",
+        "audience": "polisyos-runtime",
+        "subject": "reviewer-openapi-sample",
+        "tenant_id": "tenant-openapi-sample",
+        "actor_ref": "principal://reviewer/openapi-sample",
+        "signing_key_id": _SHA_LINEAGE,
+        "signed_roles": ["mandate_owner"],
+    },
+    "decision_mode": "ordinary",
+    "dissent_statement": "Disconfirming evidence was reviewed and retained.",
+    "override_reason": None,
+    "blocking_reason": None,
+    "predicate_receipts": [
+        {
+            "predicate": predicate,
+            "satisfied": True,
+            "provenance": provenance,
+            "evidence_refs": [_ARTIFACT_ID_SAMPLE],
+            "reason_code": f"DS9-OPENAPI-{predicate.upper().replace('_', '-')}",
+            "reason": f"{predicate} passed against exact signed inputs.",
+            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+        }
+        for predicate, provenance in _HUMAN_DECISION_PREDICATE_SAMPLE
+    ],
+    "exposure_event_refs": [_SHA_DATA],
+    "exposure_artifact_digests": [_SHA_PLAN],
+    "verifier_epoch": "openapi-sample-epoch",
+    "requested_at": _TS_SAMPLE,
+    "observed_at": _TS_SAMPLE,
+    "recorded_at": _TS_SAMPLE,
+    "valid_from": _TS_SAMPLE,
+    "valid_until": "2026-02-11T13:00:00Z",
+    "reservation_id": "human-decision-reservation-openapi-sample",
+    "reservation_version": 1,
+    "custody_signer_identity": "service://runtime/human-decision-custody",
+    "custody_key_id": _SHA_RUN_PAPER,
+    "custody_boundary": {
+        "authoritative_for": ["human_decision_record_custody"],
+        "may_not_use_for": ["human_signature", "publication_authority"],
+        "source_authority": "deterministic_producer",
+        "posture": "governed",
+        "rule_version_refs": ["policyos.runtime.human-decision.openapi.v1"],
+        "known_limits": [],
+    },
+}
+_HUMAN_DECISION_CREATE_SAMPLE = {
+    "run_id": _RUN_ID_SAMPLE,
+    "record_ref": _SHA_RUN_PAPER,
+    "record_digest": _SHA_RUN_PAPER,
+    "record": _HUMAN_DECISION_RECORD_SAMPLE,
+    "durable_event_id": "event-human-decision-openapi-sample",
+    "reservation_id": "human-decision-reservation-openapi-sample",
+    "reservation_version": 1,
+}
+
+
 _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
+    "create_run_human_decision": _HUMAN_DECISION_CREATE_SAMPLE,
     "get_run_authority_values": {
         "run_id": "run-2026-08-17-001",
         "inventory_version": "ds16-c05.1",
@@ -721,6 +855,72 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "absence_reason": None,
     },
     "get_case_inspection": _RUN_PAPER_TYPED_UNAVAILABLE_SAMPLE,
+    "get_run_human_decision_gate": {
+        "status": "producer_missing",
+        "reasons": [
+            {
+                "code": "DS9-DECISION-PRODUCER-MISSING",
+                "message": "The deployment human-decision producer is unavailable.",
+                "status": "producer_missing",
+            }
+        ],
+        "reason_codes": ["DS9-DECISION-PRODUCER-MISSING"],
+        "source_kind": "agent_action_authority",
+        "source_ref": None,
+        "tenant_id": "tenant-openapi-sample",
+        "run_id": _RUN_ID_SAMPLE,
+        "decision_request_ref": None,
+        "decision_request_digest": None,
+        "governed_action_key": None,
+        "decision_request": None,
+        "mandate": None,
+        "exposure": {
+            "exposure_session_ref": None,
+            "required_artifact_digests": [],
+            "completed_artifact_digests": [],
+        },
+        "contestability": None,
+        "continuation": None,
+        "submission": None,
+        "resolved_at": _TS_SAMPLE,
+        "verifier_epoch": "producer-missing",
+        "operational_authority": False,
+    },
+    "get_run_human_decision_record": _HUMAN_DECISION_RECORD_SAMPLE,
+    "get_run_human_decision_review_effectiveness": {
+        "schema_version": "policyos.runtime.human_decision_review_effectiveness.v1",
+        "run_id": _RUN_ID_SAMPLE,
+        "coverage_status": "incomplete",
+        "trail_path_exists": False,
+        "nonblank_line_count": 0,
+        "parsed_object_count": 0,
+        "malformed_json_line_count": 0,
+        "nonobject_line_count": 0,
+        "audit_read_error_count": 0,
+        "authorization_allow_count": 0,
+        "candidate_human_decision_count": 0,
+        "completed_human_decision_count": 0,
+        "exact_join_count": 0,
+        "invalid_authorization_event_count": 0,
+        "invalid_record_event_count": 0,
+        "tenant_scope_unknown_record_event_count": 0,
+        "unmatched_authorization_count": 0,
+        "unmatched_record_event_count": 0,
+        "duplicate_authorization_request_count": 0,
+        "duplicate_record_request_count": 0,
+        "duplicate_record_event_count": 0,
+        "retained_or_missing_record_count": 0,
+        "review_count": 0,
+        "approval_count": 0,
+        "override_count": 0,
+        "blocking_count": 0,
+        "dissent_count": 0,
+        "reviewer_independence_rate": None,
+        "separation_of_duty_attestation_rate": None,
+        "review_time_not_established_count": 0,
+        "threshold_status": "warn",
+        "advisory_signal_codes": ["human_decision_review_coverage_incomplete"],
+    },
     "get_depth_n_cycle_board_projection": _CYCLE_BOARD_COMPOSED_ABSENCE_SAMPLE,
     "get_run_paper": _RUN_PAPER_TYPED_UNAVAILABLE_SAMPLE,
     "get_runtime_channel_registry": {
@@ -3227,6 +3427,26 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
         component_schemas["RuntimeApiProblem"] = RuntimeApiProblem.model_json_schema(
             ref_template="#/components/schemas/{model}"
         )
+    human_decision_record_schema = HumanDecisionRecord.model_json_schema(
+        ref_template="#/components/schemas/{model}"
+    )
+    human_decision_record_defs = human_decision_record_schema.pop("$defs", {})
+    if isinstance(human_decision_record_defs, dict):
+        for name, definition in human_decision_record_defs.items():
+            if isinstance(name, str) and isinstance(definition, dict):
+                component_schemas.setdefault(name, definition)
+    record_properties = human_decision_record_schema.get("properties")
+    if isinstance(record_properties, dict):
+        schema_version = record_properties.get("schema_version")
+        if isinstance(schema_version, dict):
+            schema_version["enum"] = [
+                LAYER2_S7_DELEGATION_SCHEMA_VERSION,
+                HUMAN_DECISION_RECORD_V2,
+            ]
+    record_required = human_decision_record_schema.setdefault("required", [])
+    if isinstance(record_required, list) and "schema_version" not in record_required:
+        record_required.append("schema_version")
+    component_schemas["HumanDecisionRecord"] = human_decision_record_schema
 
     for path, _, operation in iter_openapi_operations(mutated):
         operation_id = operation.get("operationId")

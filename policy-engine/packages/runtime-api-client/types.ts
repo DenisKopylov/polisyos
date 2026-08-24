@@ -1381,6 +1381,75 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Human Decision Evidence Content */
+        get: operations["get_run_human_decision_evidence_content"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/human-decision-gate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Human Decision Gate */
+        get: operations["get_run_human_decision_gate"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/human-decisions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Human Decision Record */
+        get: operations["get_run_human_decision_record"];
+        put?: never;
+        /** Create Run Human Decision */
+        post: operations["create_run_human_decision"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/runs/{run_id}/human-decisions/review-effectiveness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Get Run Human Decision Review Effectiveness */
+        get: operations["get_run_human_decision_review_effectiveness"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/runs/{run_id}/lineage": {
         parameters: {
             query?: never;
@@ -6761,6 +6830,48 @@ export interface components {
             status: "ok" | "insufficient_coverage" | "error";
         };
         /**
+         * FiveRightsCheck
+         * @description Boolean S7 five-rights check attached to a human decision record.
+         */
+        FiveRightsCheck: {
+            /** Right Decision */
+            right_decision: boolean;
+            /** Right Format Channel */
+            right_format_channel: boolean;
+            /** Right Information */
+            right_information: boolean;
+            /** Right Person */
+            right_person: boolean;
+            /** Right Time */
+            right_time: boolean;
+            /**
+             * Schema Version
+             * @default policyos.policy_design_case.layer2_s7_delegation.v1
+             */
+            schema_version: string;
+        };
+        /**
+         * FiveRightsRequirement
+         * @description Required S7 five-rights dimensions for a human decision request.
+         */
+        FiveRightsRequirement: {
+            /** Right Decision */
+            right_decision: string;
+            /** Right Format Channel */
+            right_format_channel: string;
+            /** Right Information */
+            right_information: string;
+            /** Right Person */
+            right_person: string;
+            /** Right Time */
+            right_time: string;
+            /**
+             * Schema Version
+             * @default policyos.policy_design_case.layer2_s7_delegation.v1
+             */
+            schema_version: string;
+        };
+        /**
          * ForkBRelationCensusPayload
          * @description Fork-B relation census projection without relation rows.
          */
@@ -6957,6 +7068,817 @@ export interface components {
             source_content_hash: string;
             /** Source Ref */
             source_ref: string;
+        };
+        /**
+         * HumanDecisionAllowedDecision
+         * @description One signed offered action and the server-admitted decision modes.
+         */
+        HumanDecisionAllowedDecision: {
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "request_evidence" | "approve" | "reject" | "revise_scope" | "escalate";
+            /** Decision Modes */
+            decision_modes: ("ordinary" | "override" | "blocking")[];
+        };
+        /**
+         * HumanDecisionCanonicalActor
+         * @description Actor identity derived only from a verified principal-binding artifact.
+         */
+        HumanDecisionCanonicalActor: {
+            /** Actor Ref */
+            actor_ref: string;
+            /** Audience */
+            audience: string;
+            /** Issuer */
+            issuer: string;
+            /** Signed Roles */
+            signed_roles: string[];
+            /** Signing Key Id */
+            signing_key_id: string;
+            /** Subject */
+            subject: string;
+            /** Tenant Id */
+            tenant_id: string;
+        };
+        /**
+         * HumanDecisionContestabilitySurface
+         * @description Case/source-bound internal appeal navigation; never an appeal outcome.
+         */
+        HumanDecisionContestabilitySurface: {
+            /** Case Id */
+            case_id: string;
+            /** Href */
+            href: string;
+            /** Source Ref */
+            source_ref: string;
+        };
+        /**
+         * HumanDecisionCreateResponse
+         * @description Durable v2 readback returned only after custody reconciliation.
+         */
+        HumanDecisionCreateResponse: {
+            /** Durable Event Id */
+            durable_event_id: string;
+            record: components["schemas"]["HumanDecisionRecord"];
+            /** Record Digest */
+            record_digest: string;
+            /** Record Ref */
+            record_ref: string;
+            /** Reservation Id */
+            reservation_id: string;
+            /** Reservation Version */
+            reservation_version: number;
+            /** Run Id */
+            run_id: string;
+        };
+        /**
+         * HumanDecisionExposureSurface
+         * @description Exact evidence-session and completed-delivery projection.
+         */
+        HumanDecisionExposureSurface: {
+            /** Channel */
+            channel?: string | null;
+            /** Completed Artifact Digests */
+            completed_artifact_digests: string[];
+            /** Exposure Session Ref */
+            exposure_session_ref?: string | null;
+            /** Renderer Id */
+            renderer_id?: string | null;
+            /** Renderer Version */
+            renderer_version?: string | null;
+            /** Representation */
+            representation?: ("full" | "redacted" | "truncated") | null;
+            /** Required Artifact Digests */
+            required_artifact_digests: string[];
+        };
+        /**
+         * HumanDecisionFiveRightsBinding
+         * @description Typed signed inputs used to reconcile the five rights without prose parsing.
+         */
+        HumanDecisionFiveRightsBinding: {
+            /** Decision Class Id */
+            decision_class_id: string;
+            /** Decision Rights Matrix Ref */
+            decision_rights_matrix_ref: string;
+            /**
+             * Required Channel
+             * @enum {string}
+             */
+            required_channel: "reviewer_console" | "governed_review";
+            /**
+             * Required Information Refs
+             * @default []
+             */
+            required_information_refs: string[];
+            /**
+             * Required Representation
+             * @constant
+             */
+            required_representation: "full";
+            /**
+             * Required Role
+             * @enum {string}
+             */
+            required_role: "principal" | "mandate_owner" | "legal_approver" | "budget_owner" | "data_steward" | "affected_person_representative" | "domain_expert" | "governance_board" | "policy_design_governance_reviewer" | "technical_reviewer";
+            /**
+             * Schema Version
+             * @default policyos.policy_design_case.layer2_s7_delegation.v2
+             */
+            schema_version: string;
+            /**
+             * Time Rule
+             * @constant
+             */
+            time_rule: "intersection_of_signed_validity_intervals_pre_action";
+        };
+        /**
+         * HumanDecisionGateReason
+         * @description One surfaced, typed reason contributing to a gate status.
+         */
+        HumanDecisionGateReason: {
+            /** Code */
+            code: string;
+            /** Message */
+            message: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "invalid_source" | "artifact_missing" | "producer_missing" | "revalidation_required" | "blocked" | "available";
+        };
+        /**
+         * HumanDecisionGateResponse
+         * @description REVIEWER/EXPERT/MACHINE projection of one freshly resolved gate.
+         */
+        HumanDecisionGateResponse: {
+            contestability?: components["schemas"]["HumanDecisionContestabilitySurface"] | null;
+            /** Continuation */
+            continuation?: (components["schemas"]["HumanDecisionPA2ReplaySelector"] | components["schemas"]["HumanDecisionProductionReplaySelector"]) | null;
+            decision_request?: components["schemas"]["HumanDecisionRequestSurface"] | null;
+            /** Decision Request Digest */
+            decision_request_digest?: string | null;
+            /** Decision Request Ref */
+            decision_request_ref: string | null;
+            exposure: components["schemas"]["HumanDecisionExposureSurface"];
+            /** Governed Action Key */
+            governed_action_key?: string | null;
+            mandate?: components["schemas"]["HumanDecisionMandateSurface"] | null;
+            /**
+             * Operational Authority
+             * @default false
+             * @constant
+             */
+            operational_authority: false;
+            /** Reason Codes */
+            reason_codes: string[];
+            /** Reasons */
+            reasons: components["schemas"]["HumanDecisionGateReason"][];
+            /**
+             * Resolved At
+             * Format: date-time
+             */
+            resolved_at: string;
+            /** Run Id */
+            run_id: string;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "agent_action_authority" | "production_approval";
+            /** Source Ref */
+            source_ref?: string | null;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "invalid_source" | "artifact_missing" | "producer_missing" | "revalidation_required" | "blocked" | "available";
+            submission?: components["schemas"]["HumanDecisionSubmissionSurface"] | null;
+            /** Tenant Id */
+            tenant_id: string;
+            /** Verifier Epoch */
+            verifier_epoch: string;
+        };
+        /**
+         * HumanDecisionMandateSurface
+         * @description Mandate-owner envelope shown before any decision action.
+         */
+        HumanDecisionMandateSurface: {
+            /** Action Kind */
+            action_kind: string;
+            /** Mandate Owner Ref */
+            mandate_owner_ref: string;
+            /** Mandate Record Ref */
+            mandate_record_ref: string;
+            /** Operation Id */
+            operation_id: string;
+            /**
+             * Valid From
+             * Format: date-time
+             */
+            valid_from: string;
+            /**
+             * Valid Until
+             * Format: date-time
+             */
+            valid_until: string;
+        };
+        /**
+         * HumanDecisionMutationRequest
+         * @description Strict caller-authored fields; authority and custody fields are forbidden.
+         */
+        HumanDecisionMutationRequest: {
+            /** Accountability Statement */
+            accountability_statement: string;
+            /**
+             * Action
+             * @enum {string}
+             */
+            action: "request_evidence" | "approve" | "reject" | "revise_scope" | "escalate";
+            /** Action Kind */
+            action_kind?: string | null;
+            /** Basis Digest */
+            basis_digest?: string | null;
+            /** Basis Ref */
+            basis_ref?: string | null;
+            /** Blocking Reason */
+            blocking_reason?: string | null;
+            /**
+             * Decision Mode
+             * @enum {string}
+             */
+            decision_mode: "ordinary" | "override" | "blocking";
+            /** Decision Request Digest */
+            decision_request_digest?: string | null;
+            /** Decision Request Ref */
+            decision_request_ref?: string | null;
+            /** Dissent Statement */
+            dissent_statement: string;
+            /** Override Reason */
+            override_reason?: string | null;
+            /** Presentation Contract Ref */
+            presentation_contract_ref?: string | null;
+            /** Principal Binding Ref */
+            principal_binding_ref?: string | null;
+            /** Production Packet Ref */
+            production_packet_ref?: string | null;
+            /** Reviewer Separation Ref */
+            reviewer_separation_ref?: string | null;
+            /**
+             * Source Kind
+             * @enum {string}
+             */
+            source_kind: "agent_action_authority" | "production_approval";
+            /** Source Ref */
+            source_ref?: string | null;
+        };
+        /**
+         * HumanDecisionPA2ReplaySelector
+         * @description Verified selector arm for one S7 delegation decision.
+         */
+        HumanDecisionPA2ReplaySelector: {
+            /** Action Kind */
+            action_kind: string;
+            /** Basis Digest */
+            basis_digest: string;
+            /** Basis Ref */
+            basis_ref: string;
+            /** Decision Request Digest */
+            decision_request_digest: string;
+            /** Decision Request Ref */
+            decision_request_ref: string;
+            /** Exposure Session Ref */
+            exposure_session_ref: string;
+            /**
+             * Operational Authority
+             * @default false
+             * @constant
+             */
+            operational_authority: false;
+            /** Presentation Contract Ref */
+            presentation_contract_ref: string;
+            /** Principal Binding Ref */
+            principal_binding_ref: string;
+            /** Reviewer Separation Ref */
+            reviewer_separation_ref: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            source_kind: "agent_action_authority";
+            /** Source Ref */
+            source_ref: string;
+        };
+        /**
+         * HumanDecisionPredicateReceipt
+         * @description One recomputed or independently reconciled pre-action predicate.
+         */
+        HumanDecisionPredicateReceipt: {
+            /** Evidence Refs */
+            evidence_refs: string[];
+            /**
+             * Predicate
+             * @enum {string}
+             */
+            predicate: "identity_permission" | "role_mandate_or_basis" | "operation_accountability" | "currentness" | "right_decision_time" | "reviewer_independence_change" | "evidence_exposure" | "presentation_format_channel" | "source_producer_trust";
+            /**
+             * Provenance
+             * @enum {string}
+             */
+            provenance: "recomputed" | "independently_reconciled";
+            /** Reason */
+            reason: string;
+            /** Reason Code */
+            reason_code: string;
+            /** Rule Version Ref */
+            rule_version_ref: string;
+            /**
+             * Satisfied
+             * @constant
+             */
+            satisfied: true;
+        };
+        /**
+         * HumanDecisionProductionReplaySelector
+         * @description Verified selector arm for one production-basis decision.
+         */
+        HumanDecisionProductionReplaySelector: {
+            /** Basis Digest */
+            basis_digest: string;
+            /** Basis Ref */
+            basis_ref: string;
+            /** Decision Request Digest */
+            decision_request_digest: string;
+            /** Decision Request Ref */
+            decision_request_ref: string;
+            /** Exposure Session Ref */
+            exposure_session_ref: string;
+            /**
+             * Operational Authority
+             * @default false
+             * @constant
+             */
+            operational_authority: false;
+            /** Presentation Contract Ref */
+            presentation_contract_ref: string;
+            /** Principal Binding Ref */
+            principal_binding_ref: string;
+            /** Reviewer Separation Ref */
+            reviewer_separation_ref: string;
+            /**
+             * @description discriminator enum property added by openapi-typescript
+             * @enum {string}
+             */
+            source_kind: "production_approval";
+            /** Source Ref */
+            source_ref: string;
+        };
+        /**
+         * HumanDecisionRecord
+         * @description Accountable S7 record of a human decision within a rights matrix.
+         */
+        HumanDecisionRecord: {
+            /** Accountability Statement */
+            accountability_statement: string;
+            /** Active Choice */
+            active_choice: boolean;
+            /** Actor Ref */
+            actor_ref: string;
+            /**
+             * Actor Role
+             * @enum {string}
+             */
+            actor_role: "principal" | "mandate_owner" | "legal_approver" | "budget_owner" | "data_steward" | "affected_person_representative" | "domain_expert" | "governance_board" | "policy_design_governance_reviewer" | "technical_reviewer";
+            authority_boundary: components["schemas"]["AuthorityBoundary"];
+            /**
+             * Basis Digest
+             * @default null
+             */
+            basis_digest: string | null;
+            /**
+             * Basis Ref
+             * @default null
+             */
+            basis_ref: string | null;
+            /**
+             * Binding Sha256
+             * @default null
+             */
+            binding_sha256: string | null;
+            /**
+             * Blocking Reason
+             * @default null
+             */
+            blocking_reason: string | null;
+            /** @default null */
+            canonical_actor: components["schemas"]["HumanDecisionCanonicalActor"] | null;
+            /** Case Id */
+            case_id: string;
+            /**
+             * Created At
+             * Format: date-time
+             * @default 2026-06-01T00:00:00Z
+             */
+            created_at: string;
+            /** @default null */
+            custody_boundary: components["schemas"]["AuthorityBoundary"] | null;
+            /**
+             * Custody Key Id
+             * @default null
+             */
+            custody_key_id: string | null;
+            /**
+             * Custody Signer Identity
+             * @default null
+             */
+            custody_signer_identity: string | null;
+            /**
+             * Decided At
+             * Format: date-time
+             */
+            decided_at: string;
+            /**
+             * Decision Action Exercised
+             * @enum {string}
+             */
+            decision_action_exercised: "request_evidence" | "approve" | "reject" | "revise_scope" | "escalate";
+            /**
+             * Decision Attempt Id
+             * @default null
+             */
+            decision_attempt_id: string | null;
+            /**
+             * Decision Mode
+             * @default null
+             */
+            decision_mode: ("ordinary" | "override" | "blocking") | null;
+            /**
+             * Decision Request Digest
+             * @default null
+             */
+            decision_request_digest: string | null;
+            /** Disconfirming Evidence Refs */
+            disconfirming_evidence_refs: string[];
+            /**
+             * Dissent Statement
+             * @default null
+             */
+            dissent_statement: string | null;
+            /** Evidence Summary Ref */
+            evidence_summary_ref: string;
+            /**
+             * Exposure Artifact Digests
+             * @default null
+             */
+            exposure_artifact_digests: string[] | null;
+            /**
+             * Exposure Event Refs
+             * @default null
+             */
+            exposure_event_refs: string[] | null;
+            /**
+             * Exposure Session Digest
+             * @default null
+             */
+            exposure_session_digest: string | null;
+            /**
+             * Exposure Session Ref
+             * @default null
+             */
+            exposure_session_ref: string | null;
+            five_rights_check: components["schemas"]["FiveRightsCheck"];
+            /**
+             * Governed Action Key
+             * @default null
+             */
+            governed_action_key: string | null;
+            /** Human Decision Request Ref */
+            human_decision_request_ref: string;
+            /** Mandate Record Ref */
+            mandate_record_ref: string;
+            /** Mandate Source Refs */
+            mandate_source_refs?: string[];
+            /**
+             * Observed At
+             * @default null
+             */
+            observed_at: string | null;
+            /**
+             * Override Reason
+             * @default null
+             */
+            override_reason: string | null;
+            /**
+             * Predicate Receipts
+             * @default null
+             */
+            predicate_receipts: components["schemas"]["HumanDecisionPredicateReceipt"][] | null;
+            /**
+             * Presentation Contract Digest
+             * @default null
+             */
+            presentation_contract_digest: string | null;
+            /**
+             * Presentation Contract Ref
+             * @default null
+             */
+            presentation_contract_ref: string | null;
+            /**
+             * Principal Binding Digest
+             * @default null
+             */
+            principal_binding_digest: string | null;
+            /**
+             * Principal Binding Ref
+             * @default null
+             */
+            principal_binding_ref: string | null;
+            /** Provenance Refs */
+            provenance_refs?: string[];
+            /** Record Id */
+            record_id: string;
+            /** Record Ref */
+            record_ref: string;
+            /**
+             * Recorded At
+             * @default null
+             */
+            recorded_at: string | null;
+            /**
+             * Requested At
+             * @default null
+             */
+            requested_at: string | null;
+            /**
+             * Reservation Id
+             * @default null
+             */
+            reservation_id: string | null;
+            /**
+             * Reservation Version
+             * @default null
+             */
+            reservation_version: number | null;
+            responsibility_integrity: components["schemas"]["ResponsibilityIntegrityCheck"];
+            /**
+             * Reviewer Separation Digest
+             * @default null
+             */
+            reviewer_separation_digest: string | null;
+            /**
+             * Reviewer Separation Ref
+             * @default null
+             */
+            reviewer_separation_ref: string | null;
+            /** Rule Version Ref */
+            rule_version_ref: string;
+            /**
+             * Run Id
+             * @default null
+             */
+            run_id: string | null;
+            /**
+             * Schema Version
+             * @default policyos.policy_design_case.layer2_s7_delegation.v1
+             * @enum {string}
+             */
+            schema_version: "policyos.policy_design_case.layer2_s7_delegation.v1" | "policyos.runtime.human_decision_record.v2";
+            /**
+             * Source Digest
+             * @default null
+             */
+            source_digest: string | null;
+            /**
+             * Source Kind
+             * @default null
+             */
+            source_kind: ("agent_action_authority" | "production_approval") | null;
+            /**
+             * Source Ref
+             * @default null
+             */
+            source_ref: string | null;
+            /**
+             * Tenant Id
+             * @default null
+             */
+            tenant_id: string | null;
+            /**
+             * Valid From
+             * @default null
+             */
+            valid_from: string | null;
+            /**
+             * Valid Until
+             * @default null
+             */
+            valid_until: string | null;
+            /**
+             * Verifier Epoch
+             * @default null
+             */
+            verifier_epoch: string | null;
+        };
+        /**
+         * HumanDecisionRequestSurface
+         * @description Signed request fields required to understand the offered action.
+         */
+        HumanDecisionRequestSurface: {
+            /** Available Actions */
+            available_actions: ("request_evidence" | "approve" | "reject" | "revise_scope" | "escalate")[];
+            /** Case Id */
+            case_id: string;
+            /** Decidable Until */
+            decidable_until?: string | null;
+            /** Decision Due At */
+            decision_due_at?: string | null;
+            /** Decision Rights Matrix Ref */
+            decision_rights_matrix_ref: string;
+            /** Delegation Contract Ref */
+            delegation_contract_ref: string;
+            five_rights_binding: components["schemas"]["HumanDecisionFiveRightsBinding"];
+            five_rights_requirements: components["schemas"]["FiveRightsRequirement"];
+            /**
+             * Requested At
+             * Format: date-time
+             */
+            requested_at: string;
+            /**
+             * Required Role
+             * @enum {string}
+             */
+            required_role: "principal" | "mandate_owner" | "legal_approver" | "budget_owner" | "data_steward" | "affected_person_representative" | "domain_expert" | "governance_board" | "policy_design_governance_reviewer" | "technical_reviewer";
+        };
+        /**
+         * HumanDecisionReviewEffectivenessResponse
+         * @description Coverage-explicit advisory projection over retained decision records.
+         */
+        HumanDecisionReviewEffectivenessResponse: {
+            /** Advisory Signal Codes */
+            advisory_signal_codes: string[];
+            /** Approval Count */
+            approval_count: number;
+            /**
+             * Audit Predicate Provenance
+             * @default institutionally_supplied
+             * @constant
+             */
+            audit_predicate_provenance: "institutionally_supplied";
+            /** Audit Read Error Count */
+            audit_read_error_count: number;
+            /**
+             * Authoritative For
+             * @default [
+             *       "review_effectiveness_measurement",
+             *       "future_policy_calibration",
+             *       "reviewer_load_observability"
+             *     ]
+             */
+            authoritative_for: ("review_effectiveness_measurement" | "future_policy_calibration" | "reviewer_load_observability")[];
+            /** Authorization Allow Count */
+            authorization_allow_count: number;
+            /** Blocking Count */
+            blocking_count: number;
+            /**
+             * Blocking Permitted
+             * @default false
+             * @constant
+             */
+            blocking_permitted: false;
+            /** Candidate Human Decision Count */
+            candidate_human_decision_count: number;
+            /** Completed Human Decision Count */
+            completed_human_decision_count: number;
+            /**
+             * Coverage Claim Scope
+             * @default retained_trail_bytes_only
+             * @constant
+             */
+            coverage_claim_scope: "retained_trail_bytes_only";
+            /**
+             * Coverage Status
+             * @enum {string}
+             */
+            coverage_status: "complete" | "incomplete";
+            /** Dissent Count */
+            dissent_count: number;
+            /** Duplicate Authorization Request Count */
+            duplicate_authorization_request_count: number;
+            /** Duplicate Record Event Count */
+            duplicate_record_event_count: number;
+            /** Duplicate Record Request Count */
+            duplicate_record_request_count: number;
+            /** Exact Join Count */
+            exact_join_count: number;
+            /** Invalid Authorization Event Count */
+            invalid_authorization_event_count: number;
+            /** Invalid Record Event Count */
+            invalid_record_event_count: number;
+            /** Malformed Json Line Count */
+            malformed_json_line_count: number;
+            /**
+             * May Not Use For
+             * @default [
+             *       "current_run_closeout_block",
+             *       "publication_block",
+             *       "claim_support_downgrade",
+             *       "authorization_writer_provenance",
+             *       "forensic_tamper_detection"
+             *     ]
+             */
+            may_not_use_for: ("current_run_closeout_block" | "publication_block" | "claim_support_downgrade" | "authorization_writer_provenance" | "forensic_tamper_detection")[];
+            /**
+             * Measurement Status
+             * @default partial
+             * @constant
+             */
+            measurement_status: "partial";
+            /** Nonblank Line Count */
+            nonblank_line_count: number;
+            /** Nonobject Line Count */
+            nonobject_line_count: number;
+            /** Override Count */
+            override_count: number;
+            /** Parsed Object Count */
+            parsed_object_count: number;
+            /**
+             * Report Status Effect
+             * @default pass_advisory_only
+             * @constant
+             */
+            report_status_effect: "pass_advisory_only";
+            /** Retained Or Missing Record Count */
+            retained_or_missing_record_count: number;
+            /** Review Count */
+            review_count: number;
+            /**
+             * Review Posture
+             * @default advisory
+             * @constant
+             */
+            review_posture: "advisory";
+            /**
+             * Review Time Established Count
+             * @default 0
+             * @constant
+             */
+            review_time_established_count: 0;
+            /** Review Time Not Established Count */
+            review_time_not_established_count: number;
+            /**
+             * Review Time Status
+             * @default not_established
+             * @constant
+             */
+            review_time_status: "not_established";
+            /** Reviewer Independence Rate */
+            reviewer_independence_rate?: number | null;
+            /** Run Id */
+            run_id: string;
+            /**
+             * Schema Version
+             * @default policyos.runtime.human_decision_review_effectiveness.v1
+             * @constant
+             */
+            schema_version: "policyos.runtime.human_decision_review_effectiveness.v1";
+            /** Separation Of Duty Attestation Rate */
+            separation_of_duty_attestation_rate?: number | null;
+            /** Tenant Scope Unknown Record Event Count */
+            tenant_scope_unknown_record_event_count: number;
+            /**
+             * Threshold Scope
+             * @default established_signals_only
+             * @constant
+             */
+            threshold_scope: "established_signals_only";
+            /**
+             * Threshold Status
+             * @enum {string}
+             */
+            threshold_status: "pass" | "warn" | "fail";
+            /** Trail Path Exists */
+            trail_path_exists: boolean;
+            /** Unmatched Authorization Count */
+            unmatched_authorization_count: number;
+            /** Unmatched Record Event Count */
+            unmatched_record_event_count: number;
+        };
+        /**
+         * HumanDecisionSubmissionSurface
+         * @description Non-authoritative verified selectors plus offered mutation shapes.
+         */
+        HumanDecisionSubmissionSurface: {
+            /** Allowed Decisions */
+            allowed_decisions: components["schemas"]["HumanDecisionAllowedDecision"][];
+            /**
+             * Operational Authority
+             * @default false
+             * @constant
+             */
+            operational_authority: false;
+            /** Selector */
+            selector: components["schemas"]["HumanDecisionPA2ReplaySelector"] | components["schemas"]["HumanDecisionProductionReplaySelector"];
         };
         /**
          * IndexStats
@@ -9128,40 +10050,93 @@ export interface components {
              * @enum {string}
              */
             decision: "approved" | "approved_with_override" | "blocked";
+            /** Decision Request Digest */
+            decision_request_digest?: string | null;
+            /** Decision Request Ref */
+            decision_request_ref?: string | null;
             eligibility: components["schemas"]["ProductionApprovalEligibility"];
             /** Evidence Refs */
             evidence_refs?: {
                 [key: string]: string;
             };
+            /** Expected Audience */
+            expected_audience?: string | null;
+            /** Expected Consumer */
+            expected_consumer?: string | null;
             /**
              * Generated At
              * Format: date-time
              */
             generated_at: string;
+            /** Governed Action Key */
+            governed_action_key?: string | null;
+            /**
+             * Historical Only
+             * @default true
+             */
+            historical_only: boolean;
+            /** Human Decision Record Digest */
+            human_decision_record_digest?: string | null;
+            /** Human Decision Record Ref */
+            human_decision_record_ref?: string | null;
             /** Job Id */
             job_id?: string | null;
+            /** Limitations */
+            limitations?: string[] | null;
+            /**
+             * Operational Authority
+             * @default false
+             * @constant
+             */
+            operational_authority: false;
             override?: components["schemas"]["ProductionApprovalOverridePacket"] | null;
+            /** Production Basis Digest */
+            production_basis_digest?: string | null;
+            /** Production Basis Producer Identity */
+            production_basis_producer_identity?: string | null;
+            /** Production Basis Ref */
+            production_basis_ref?: string | null;
+            /** Rule Version Ref */
+            rule_version_ref?: string | null;
             /** Run Id */
             run_id?: string | null;
             /**
              * Schema Version
              * @default policyos.production_approval_packet.v1
-             * @constant
+             * @enum {string}
              */
-            schema_version: "policyos.production_approval_packet.v1";
+            schema_version: "policyos.production_approval_packet.v1" | "policyos.production_approval_packet.v2";
             /** Scorecard Digest */
             scorecard_digest: string;
             /** Scorecard Generated At */
             scorecard_generated_at?: string | null;
+            /** Scorecard Producer Identity */
+            scorecard_producer_identity?: string | null;
             /** Scorecard Ref */
             scorecard_ref?: string | null;
+            /** Tenant Id */
+            tenant_id?: string | null;
+            /** Valid From */
+            valid_from?: string | null;
+            /** Valid Until */
+            valid_until?: string | null;
+            /** Verifier Epoch */
+            verifier_epoch?: string | null;
         };
         /**
          * ProductionApprovalRequest
          * @description Request to materialize a production approval packet for one run.
          */
         ProductionApprovalRequest: {
+            /** Human Decision Record Digest */
+            human_decision_record_digest?: string | null;
+            /** Human Decision Record Ref */
+            human_decision_record_ref?: string | null;
             override?: components["schemas"]["ProductionApprovalOverrideRequest"] | null;
+            /** Production Basis Digest */
+            production_basis_digest?: string | null;
+            /** Production Basis Ref */
+            production_basis_ref?: string | null;
             /** Quality Scorecard */
             quality_scorecard?: {
                 [key: string]: unknown;
@@ -9744,6 +10719,30 @@ export interface components {
             suggested_next_step?: string | null;
             /** Why Partial */
             why_partial?: string[];
+        };
+        /**
+         * ResponsibilityIntegrityCheck
+         * @description S7 responsibility-integrity result for P26 and adjacent firewalls.
+         */
+        ResponsibilityIntegrityCheck: {
+            /** Missing Requirements */
+            missing_requirements?: string[];
+            /** Pattern Ids */
+            pattern_ids?: string[];
+            /** Reason */
+            reason: string;
+            /** Rule Version Ref */
+            rule_version_ref: string;
+            /**
+             * Schema Version
+             * @default policyos.policy_design_case.layer2_s7_delegation.v1
+             */
+            schema_version: string;
+            /**
+             * Status
+             * @enum {string}
+             */
+            status: "pass" | "limit" | "block";
         };
         /**
          * RetrievalPhaseTelemetry
@@ -11096,7 +12095,7 @@ export interface components {
          * @description Closed action-permission vocabulary owned by the runtime server.
          * @enum {string}
          */
-        RuntimePermission: "analysis.execute" | "artifacts.batch.read" | "artifacts.render" | "dashboard.view" | "decisions.validity.publish" | "evidence.acquire" | "evidence.discover" | "evidence.preview" | "evidence.promotions.approve" | "evidence.promotions.reject" | "evidence.resolve" | "evidence.review" | "evidence.sae.analyze" | "evidence.view" | "fabric.impact.analyze" | "fabric.quality.read" | "fabric.trust.read" | "knowledge.search" | "knowledge.trigger" | "knowledge.view" | "lineage.batch.read" | "mobility.analyze" | "mode.analyst" | "platform.admin" | "platform.view" | "runs.batch.read" | "runs.feedback.evaluate" | "runs.launch" | "runs.production_approval.create" | "runs.reissue" | "runs.review" | "runs.view" | "scenarios.create";
+        RuntimePermission: "analysis.execute" | "artifacts.batch.read" | "artifacts.render" | "dashboard.view" | "decisions.validity.publish" | "evidence.acquire" | "evidence.discover" | "evidence.preview" | "evidence.promotions.approve" | "evidence.promotions.reject" | "evidence.resolve" | "evidence.review" | "evidence.sae.analyze" | "evidence.view" | "fabric.impact.analyze" | "fabric.quality.read" | "fabric.trust.read" | "knowledge.search" | "knowledge.trigger" | "knowledge.view" | "lineage.batch.read" | "mobility.analyze" | "mode.analyst" | "platform.admin" | "platform.view" | "runs.batch.read" | "runs.feedback.evaluate" | "runs.human_decisions.create" | "runs.launch" | "runs.production_approval.create" | "runs.reissue" | "runs.review" | "runs.view" | "scenarios.create";
         /**
          * ScenarioAssumption
          * @description Named scenario assumption with provenance.
@@ -19266,6 +20265,468 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["FabricDecisionDataResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_human_decision_evidence_content: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-PolicyOS-Human-Decision-Exposure": string;
+            };
+            path: {
+                run_id: string;
+                artifact_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Exact verified artifact bytes in their manifest-selected media type. */
+            200: {
+                headers: {
+                    /** @description Forbid storage of human-decision evidence bytes. */
+                    "Cache-Control"?: "no-store";
+                    /** @description Preserve exact artifact bytes without transformation. */
+                    "Content-Encoding"?: "identity";
+                    /** @description Quoted exact CAS ref of the delivered artifact. */
+                    ETag?: string;
+                    /** @description Prevent media-type sniffing. */
+                    "X-Content-Type-Options"?: "nosniff";
+                    /** @description Exact custody-signed exposure-session CAS ref. */
+                    "X-PolicyOS-Exposure-Session"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "*/*": string;
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_human_decision_gate: {
+        parameters: {
+            query: {
+                source_kind: "agent_action_authority" | "production_approval";
+                source_ref?: string | null;
+                production_packet_ref?: string | null;
+                decision_request_ref?: string | null;
+                principal_binding_ref?: string | null;
+                reviewer_separation_ref?: string | null;
+                presentation_contract_ref?: string | null;
+                exposure_session_ref?: string | null;
+                basis_digest?: string | null;
+                action_kind?: string | null;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HumanDecisionGateResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_human_decision_record: {
+        parameters: {
+            query: {
+                record_ref: string;
+            };
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HumanDecisionRecord"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    create_run_human_decision: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-PolicyOS-Human-Decision-Exposure": string;
+            };
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["HumanDecisionMutationRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HumanDecisionCreateResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
+    get_run_human_decision_review_effectiveness: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                run_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HumanDecisionReviewEffectivenessResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */

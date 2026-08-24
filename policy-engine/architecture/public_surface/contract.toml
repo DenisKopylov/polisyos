@@ -5,7 +5,7 @@ version_owner = "team-architecture"
 deprecation_window = "2 minor releases for public_stable removals; compatibility package rows use their explicit shim sunset date."
 release_fragment_change_class = "python-public-api"
 inventory = "architecture/public_surface/inventory.json"
-inventory_regenerate_command = "uv run polisyos-tools quality public-surface snapshot --all"
+inventory_regenerate_command = "uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline"
 inventory_review_owner = "team-architecture"
 inventory_review_policy = "Public-surface release fragments must declare surface_classification and set public_surface_inventory_reviewed=true after the committed inventory is regenerated or reviewed."
 last_mile_import_map = "architecture/shims.toml#last_mile_import_compatibility_map"
@@ -260,9 +260,20 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/runtime/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.runtime", "polisyos.runtime.quality"]
+supported_entrypoints = ["polisyos.runtime"]
 major_subsystem = true
 notes = "Replay and runtime-facing contracts. HTTP subpackages stay internal unless separately documented."
+
+[[package]]
+module = "polisyos.runtime.quality"
+classification = "public_experimental"
+facade_mode = "eager_exports"
+owner = "team-polisyos"
+readme = "src/polisyos/runtime/quality/README.md"
+reference_doc = "docs/reference/public-surface.md"
+supported_entrypoints = ["polisyos.runtime.quality"]
+major_subsystem = false
+notes = "Experimental runtime-quality contract facade; compatibility changes require an explicit release fragment and inventory review."
 
 [[package]]
 module = "polisyos.lex"

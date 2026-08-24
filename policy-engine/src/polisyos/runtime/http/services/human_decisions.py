@@ -22,7 +22,6 @@ from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common import logger as common_logger
 from polisyos.core import artifacts, canon
-from polisyos.core.contracts.control import ProductionApprovalPacket
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.human_decision_contracts import (
     HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,
@@ -39,6 +38,7 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     PRODUCTION_HUMAN_DECISION_BASIS_MANIFEST_VERSION,
     REVIEWER_SEPARATION_CREDENTIAL_ARTIFACT_KIND,
     REVIEWER_SEPARATION_CREDENTIAL_MANIFEST_VERSION,
+    HumanDecisionAllowedDecision,
     HumanDecisionCreateCommand,
     HumanDecisionExposureAuditEvent,
     HumanDecisionExposureSession,
@@ -52,16 +52,20 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionMandateSurface,
     HumanDecisionPA2GateInput,
     HumanDecisionPA2GatewayAdapterInput,
+    HumanDecisionPA2ReplaySelector,
     HumanDecisionPresentationContract,
     HumanDecisionPrincipalBinding,
     HumanDecisionProductionGateInput,
+    HumanDecisionProductionReplaySelector,
     HumanDecisionRequestSurface,
     HumanDecisionResolverPolicy,
+    HumanDecisionSubmissionSurface,
     HumanDecisionWriteContext,
     ProductionHumanDecisionBasis,
     ReviewerSeparationCredential,
     select_human_decision_gate_status,
 )
+from polisyos.runtime.quality.approval import ProductionApprovalPacket
 from polisyos.runtime.quality.authority import GovernanceMetadata
 from polisyos.runtime.quality.authority_reconciliation import (
     AuthorityReconciliationError,
@@ -324,14 +328,20 @@ class _ResolvedSignedArtifact:
 class _ResolvedGate:
     projection: HumanDecisionGateResult
     source: AgentActionAuthorityDecision | None = None
+    source_artifact_ref: str | None = None
     request: HumanDecisionRequest | None = None
     contract: DelegationContract | None = None
+    contract_artifact_ref: str | None = None
     production_basis: ProductionHumanDecisionBasis | None = None
     production_basis_ref: str | None = None
     principal: HumanDecisionPrincipalBinding | None = None
+    principal_artifact_ref: str | None = None
     separation: ReviewerSeparationCredential | None = None
+    separation_artifact_ref: str | None = None
     presentation: HumanDecisionPresentationContract | None = None
+    presentation_artifact_ref: str | None = None
     exposure_session: HumanDecisionExposureSession | None = None
+    exposure_session_artifact_ref: str | None = None
     exposure_events: tuple[HumanDecisionExposureAuditEvent, ...] = ()
     predicate_receipts: tuple[HumanDecisionPredicateReceipt, ...] = ()
     valid_from: datetime | None = None
@@ -713,13 +723,13 @@ def _exposure_binding_issues(
             issues.add("session")
     covered = Counter(valid_event_artifacts)
     expected = Counter(session_required)
-    if covered != expected:
+    if any(count > expected[artifact_ref] for artifact_ref, count in covered.items()):
         issues.add("session")
-    if covered[basis_ref] < Counter(presentation_required)[basis_ref]:
+    if covered[basis_ref] < expected[basis_ref]:
         issues.add("mandate")
     if any(
-        covered[ref] < Counter(presentation_required)[ref]
-        for ref in request.disconfirming_evidence_refs
+        artifact_ref != basis_ref and covered[artifact_ref] < required_count
+        for artifact_ref, required_count in expected.items()
     ):
         issues.add("evidence")
     return frozenset(issues)
@@ -959,7 +969,7 @@ class HumanDecisionService:
         presentation = resolved.presentation
         session = resolved.exposure_session
         exposure = HumanDecisionExposureSurface(
-            exposure_session_ref=getattr(gate_input, "exposure_session_ref", None),
+            exposure_session_ref=resolved.exposure_session_artifact_ref,
             required_artifact_digests=projection.required_artifact_digests,
             completed_artifact_digests=tuple(
                 event.artifact_id for event in resolved.exposure_events
@@ -973,12 +983,37 @@ class HumanDecisionService:
             raise HumanDecisionPersistenceError(
                 "resolved exposure session lost its exact caller reference"
             )
+        continuation = self._response_continuation(resolved)
+        submission = (
+            HumanDecisionSubmissionSurface(
+                selector=continuation,
+                allowed_decisions=tuple(
+                    HumanDecisionAllowedDecision(
+                        action=action,
+                        decision_modes=(
+                            ("ordinary", "override")
+                            if action == "approve"
+                            else ("blocking",)
+                            if action == "reject"
+                            else ("ordinary",)
+                        ),
+                    )
+                    for action in cast("HumanDecisionRequest", resolved.request).available_actions
+                ),
+            )
+            if projection.status == "available" and continuation is not None
+            else None
+        )
         return HumanDecisionGateResponse(
             status=projection.status,
             reasons=projection.reasons,
             reason_codes=tuple(reason.code for reason in projection.reasons),
             source_kind=projection.source_kind,
-            source_ref=getattr(gate_input, "source_ref", None),
+            source_ref=(
+                resolved.source_artifact_ref
+                if projection.source_kind == "agent_action_authority"
+                else resolved.production_basis_ref
+            ),
             tenant_id=projection.tenant_id,
             run_id=projection.run_id,
             decision_request_ref=projection.decision_request_ref,
@@ -990,8 +1025,78 @@ class HumanDecisionService:
             # No admitted live case/source producer exists. A signed request's
             # self-consistent case string is not an institutional case binding.
             contestability=None,
+            continuation=continuation,
+            submission=submission,
             resolved_at=projection.resolved_at,
             verifier_epoch=projection.verifier_epoch,
+        )
+
+    @staticmethod
+    def _response_continuation(
+        resolved: _ResolvedGate,
+    ) -> HumanDecisionPA2ReplaySelector | HumanDecisionProductionReplaySelector | None:
+        """Return verified replay selectors only for actionable or evidence-only gates."""
+
+        projection = resolved.projection
+        if projection.status not in {"available", "blocked"}:
+            return None
+        if projection.status == "blocked":
+            evidence_only_codes = {
+                "DS9-MANDATE-NOT-SHOWN",
+                "DS9-EVIDENCE-NOT-OPENED",
+                "DS9-RUBBER-STAMP",
+            }
+            if not {reason.code for reason in projection.reasons}.issubset(evidence_only_codes):
+                return None
+        common = (
+            resolved.request,
+            resolved.principal_artifact_ref,
+            resolved.separation_artifact_ref,
+            resolved.presentation_artifact_ref,
+            resolved.exposure_session_artifact_ref,
+        )
+        if any(value is None for value in common):
+            return None
+        request = cast("HumanDecisionRequest", resolved.request)
+        decision_request_digest = _sha256_ref(request.model_dump(mode="json"))
+        principal_binding_ref = cast("str", resolved.principal_artifact_ref)
+        reviewer_separation_ref = cast("str", resolved.separation_artifact_ref)
+        presentation_contract_ref = cast("str", resolved.presentation_artifact_ref)
+        exposure_session_ref = cast("str", resolved.exposure_session_artifact_ref)
+        if projection.source_kind == "agent_action_authority":
+            source = resolved.source
+            if (
+                source is None
+                or resolved.source_artifact_ref is None
+                or resolved.contract_artifact_ref is None
+            ):
+                return None
+            return HumanDecisionPA2ReplaySelector(
+                source_kind="agent_action_authority",
+                source_ref=resolved.source_artifact_ref,
+                basis_ref=resolved.contract_artifact_ref,
+                basis_digest=resolved.contract_artifact_ref,
+                action_kind=source.action_kind,
+                decision_request_ref=request.request_ref,
+                decision_request_digest=decision_request_digest,
+                principal_binding_ref=principal_binding_ref,
+                reviewer_separation_ref=reviewer_separation_ref,
+                presentation_contract_ref=presentation_contract_ref,
+                exposure_session_ref=exposure_session_ref,
+            )
+        if resolved.production_basis_ref is None:
+            return None
+        return HumanDecisionProductionReplaySelector(
+            source_kind="production_approval",
+            source_ref=resolved.production_basis_ref,
+            basis_ref=resolved.production_basis_ref,
+            basis_digest=resolved.production_basis_ref,
+            decision_request_ref=request.request_ref,
+            decision_request_digest=decision_request_digest,
+            principal_binding_ref=principal_binding_ref,
+            reviewer_separation_ref=reviewer_separation_ref,
+            presentation_contract_ref=presentation_contract_ref,
+            exposure_session_ref=exposure_session_ref,
         )
 
     def issue_exposure_session(
@@ -2560,11 +2665,23 @@ class HumanDecisionService:
             projection=projection,
             request=request,
             production_basis=basis,
-            production_basis_ref=gate_input.basis_ref if basis is not None else None,
+            production_basis_ref=(basis_artifact.ref if basis_artifact is not None else None),
             principal=principal,
+            principal_artifact_ref=(
+                resolved_principal.ref if resolved_principal is not None else None
+            ),
             separation=separation,
+            separation_artifact_ref=(
+                resolved_separation.ref if resolved_separation is not None else None
+            ),
             presentation=presentation,
+            presentation_artifact_ref=(
+                resolved_presentation.ref if resolved_presentation is not None else None
+            ),
             exposure_session=session,
+            exposure_session_artifact_ref=(
+                resolved_session.ref if resolved_session is not None else None
+            ),
             exposure_events=events,
             predicate_receipts=receipts,
             valid_from=valid_from,
@@ -2644,6 +2761,8 @@ class HumanDecisionService:
         envelope: DelegatedActionEnvelope | None = None
         events: tuple[HumanDecisionExposureAuditEvent, ...] = ()
         source_ref = gate_input.source_ref
+        source_artifact_ref: str | None = None
+        contract_artifact_ref: str | None = None
 
         try:
             resolved_source = self._read_signed_model(
@@ -2655,6 +2774,7 @@ class HumanDecisionService:
                 expected_tenant_id=gate_input.tenant_id,
                 expected_run_id=gate_input.run_id,
             )
+            source_artifact_ref = resolved_source.ref
             source = cast("AgentActionAuthorityDecision", cast("object", resolved_source.model))
             request = source.human_decision_request
             if source.outcome != "refused" or request is None:
@@ -2745,6 +2865,7 @@ class HumanDecisionService:
                     expected_tenant_id=gate_input.tenant_id,
                     expected_run_id=None,
                 )
+                contract_artifact_ref = resolved_contract.ref
                 contract = cast("DelegationContract", resolved_contract.model)
                 if (
                     resolved_contract.signer_identity != contract.mandate_owner_ref
@@ -3118,12 +3239,26 @@ class HumanDecisionService:
         return _ResolvedGate(
             projection=projection,
             source=source,
+            source_artifact_ref=source_artifact_ref,
             request=request,
             contract=contract,
+            contract_artifact_ref=contract_artifact_ref,
             principal=principal,
+            principal_artifact_ref=(
+                resolved_principal.ref if resolved_principal is not None else None
+            ),
             separation=separation,
+            separation_artifact_ref=(
+                resolved_separation.ref if resolved_separation is not None else None
+            ),
             presentation=presentation,
+            presentation_artifact_ref=(
+                resolved_presentation.ref if resolved_presentation is not None else None
+            ),
             exposure_session=session,
+            exposure_session_artifact_ref=(
+                resolved_session.ref if resolved_session is not None else None
+            ),
             exposure_events=events,
             predicate_receipts=receipts,
             valid_from=valid_from,

@@ -1258,6 +1258,11 @@ def test_exposure_partial_or_cancelled_send_never_emits_completed_receipt() -> N
         ),
         service=cast("Any", service),
     )
+    assert response.headers["cache-control"] == "no-store"
+    assert response.headers["content-encoding"] == "identity"
+    assert response.headers["etag"] == f'"sha256:{"a" * 64}"'
+    assert response.headers["x-content-type-options"] == "nosniff"
+    assert response.headers["x-policyos-exposure-session"] == "sha256:" + "b" * 64
 
     async def _receive() -> dict[str, object]:
         return {"type": "http.disconnect"}

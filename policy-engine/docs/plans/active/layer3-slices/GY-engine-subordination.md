@@ -1561,7 +1561,7 @@ note is itself the evidence. Anything else is `ambiguous` with its line number �
 | `GY-N10a` | 5 | `executed` | `88bcb5b26` | second-domain pack (before N10) |
 | `GY-N10` | 5 | `executed` | `7e035a426` | depth-N universality — Phase-A activation |
 | `GY-N11` | 5 | `executed` | `f41d49071` | confidence ledger — gates DS17 |
-| `GY-N12` | 5 | **in_flight** | branch `codex/gy-n12-c1-foundry`, 11 ahead of `main` | **the last Phase-5 task** — gates DS18 and the whole of Phase 6 |
+| `GY-N12` | 5 | **in_flight** | **Cluster 1 merged 2026-08-23 `911657027`** (feature commit `f2c202997`, tree `a9beb17f`, 22 paths); Clusters 2–4 remain | **the last Phase-5 task** — gates DS18 and the whole of Phase 6 |
 | `GY-N13a` | 5 | `executed` | `719d7a35a` | acquisition census — gates DS15 read parts |
 | `GY-N13b` | 5 | `executed` | `b3f11e587` | acquisition executor — gates DS15 live loop |
 | `GY-PA1` | 5 | **not_executable** | Rev 53: *“GY-PA1 IS NOT EXECUTABLE and that is a COMPLETE result, not a deferral”* | a completed negative, not pending work |

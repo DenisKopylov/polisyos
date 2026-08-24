@@ -379,7 +379,7 @@ def test_real_census_replays_published_invariants() -> None:
     metrics = report.metrics
 
     assert metrics["register_ids"] == 55
-    assert metrics["gy_ids"] == 36
+    assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_rows"] == 217
     assert metrics["gy_history_blocks"] == 6
@@ -418,9 +418,12 @@ def test_real_gy_parser_covers_all_six_forms_and_last_hit_wins() -> None:
     for ambiguous_id in ("GY-DEFC-1", "GY-DEF22"):
         assert rows[ambiguous_id].status == "ambiguous"
         assert rows[ambiguous_id].line > 0
+    # GY-DEF23 and GY-GAP8 landed on main with Cluster 1 (911657027); both parse as
+    # `ambiguous` because the GY plan states their standing in prose the six recognised
+    # forms do not cover. Merging registered them; it did not close them.
     assert Counter(row.status for row in rows.values()) == {
         "closed": 26,
-        "ambiguous": 7,
+        "ambiguous": 9,
         "open": 1,
         "blocked_on_product_decision": 1,
         "prose_only": 1,

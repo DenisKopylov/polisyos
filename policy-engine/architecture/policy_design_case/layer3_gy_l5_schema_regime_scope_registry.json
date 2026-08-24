@@ -1,0 +1,31 @@
+{
+  "schema_version": "polisyos.l5.schema-regime-scope-registry.v1",
+  "relations": [
+    {
+      "schema_regime_id": "ukraine_schema_v1",
+      "scope_identity_refs": [
+        "sha256:2c12cbc4f9ededd46ade04b8f40249b9ac59fd0255bdbdb8341fd38e3f44b72d"
+      ],
+      "relation_provenance_ref": {
+        "artifact_id": "sha256:b35defc2e3214b6baf41ed33e2fff808639059cb0f0ba31d56125765e74548ca",
+        "kind": "l5.schema_regime_scope_relation",
+        "media_type": "application/json"
+      },
+      "visibility_knowledge_from": "2015-09-01T00:00:00Z",
+      "purpose_admission_from": "2015-09-01T00:00:00Z"
+    },
+    {
+      "schema_regime_id": "ukraine_schema_v2",
+      "scope_identity_refs": [
+        "sha256:2c12cbc4f9ededd46ade04b8f40249b9ac59fd0255bdbdb8341fd38e3f44b72d"
+      ],
+      "relation_provenance_ref": {
+        "artifact_id": "sha256:b35defc2e3214b6baf41ed33e2fff808639059cb0f0ba31d56125765e74548ca",
+        "kind": "l5.schema_regime_scope_relation",
+        "media_type": "application/json"
+      },
+      "visibility_knowledge_from": "2022-02-01T00:00:00Z",
+      "purpose_admission_from": "2022-02-01T00:00:00Z"
+    }
+  ]
+}

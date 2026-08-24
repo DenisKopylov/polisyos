@@ -9,8 +9,10 @@ the ``WorldModelRecord`` lifecycle.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
+from datetime import date
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -19,6 +21,7 @@ if TYPE_CHECKING:
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core import contracts as core_contracts
 from polisyos.core.artifacts import ArtifactRef, FileSystemCAS, InputRef, PutOptions, SchemaInfo
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts import DataTrust, ValueOuterSet
@@ -34,8 +37,10 @@ from polisyos.runtime.quality.substrate_registry import (
     SubstrateRegistryError,
     build_substrate_registry_from_existing_catalogs,
     default_substrate_catalog_paths,
+    l5_owner_scope_identity_refs,
     load_l5_catalog_authority,
     persist_substrate_registry,
+    resolve_l5_schema_regime_projection,
 )
 from polisyos.runtime.quality.world_model_record import (
     BranchMode,
@@ -48,6 +53,10 @@ from polisyos.runtime.quality.world_model_record import (
     build_world_model_record,
     consume_world_model_record_for_simulation,
 )
+
+L5SchemaRegimeDenominatorReceipt = core_contracts.L5SchemaRegimeDenominatorReceipt
+ScopedSchemaRegimeProjection = core_contracts.ScopedSchemaRegimeProjection
+canonical_epoch_bytes = core_contracts.canonical_epoch_bytes
 
 DATA_STATE_SUBSTRATE_SCHEMA_VERSION = "policyos.runtime.data_state_substrate.v1"
 DEFAULT_L4_SNAPSHOT_ID = "ukraine_server_support_20260410"
@@ -263,10 +272,18 @@ def build_l5_family_binding_profile(
     families: Sequence[str],
     period_start: str,
     period_end: str,
+    scope_identity_ref: str | None = None,
 ) -> L5FamilyBindingProfile:
     """Build the L5 honesty profile for bound data-state families."""
 
     l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root))
+    owner_scopes = l5_owner_scope_identity_refs(l5)
+    if scope_identity_ref is None:
+        if len(owner_scopes) != 1:
+            raise DataStateSubstrateError("l5_scope_identity_not_established")
+        scope_identity_ref = owner_scopes[0]
+    elif scope_identity_ref not in owner_scopes:
+        raise DataStateSubstrateError("l5_scope_identity_not_owner_declared")
     resolved_families: list[L5FamilyAuthority] = []
     for family_id in families:
         family = str(family_id).strip()
@@ -292,8 +309,16 @@ def build_l5_family_binding_profile(
                 identification_registry_ref=f"{l5.identification_mode_registry_ref}#/{family}",
             )
         )
+    receipt, projection = resolve_l5_schema_regime_projection(
+        l5,
+        scope_identity_ref=scope_identity_ref,
+        valid_effect_value=date.fromisoformat(f"{period_end}-01"),
+        authority_purpose="data_state_binding",
+    )
     regime = _schema_regime_decision(
         l5,
+        receipt=receipt,
+        projection=projection,
         period_start=period_start,
         period_end=period_end,
     )
@@ -329,8 +354,7 @@ def materialize_l4_data_state_snapshot(
     paths = _default_data_state_paths(root)
     _require_paths(paths)
     availability = tuple(
-        l1_dcat_variable_availability(root, variable)
-        for variable in required_l1_variables
+        l1_dcat_variable_availability(root, variable) for variable in required_l1_variables
     )
     unavailable = [item.variable_id for item in availability if item.status == "unavailable"]
     if unavailable:
@@ -398,9 +422,7 @@ def materialize_l4_data_state_snapshot(
             "snapshot_id": snapshot_id,
             "source_mode": str(payload_with_meta["_policyos_data_state"]["source_mode"]),
             "bound_agent_count": bound_agent_count,
-            "l4_total_rows.agent_registry_full": int(
-                stats["l4_total_rows"]["agent_registry_full"]
-            ),
+            "l4_total_rows.agent_registry_full": int(stats["l4_total_rows"]["agent_registry_full"]),
             "l4_total_rows.budget_flows_monthly_sparse": int(
                 stats["l4_total_rows"]["budget_flows_monthly_sparse"]
             ),
@@ -874,8 +896,7 @@ def _payload_from_rows(
     firms_cell_id: list[int] = []
     firms_type_id: list[int] = []
     cell_accumulators = {
-        key: {"count": 0.0, "employment": 0.0, "output": 0.0, "distress": []}
-        for key in cell_keys
+        key: {"count": 0.0, "employment": 0.0, "output": 0.0, "distress": []} for key in cell_keys
     }
     for idx, row in enumerate(rows):
         (
@@ -929,10 +950,7 @@ def _payload_from_rows(
     cell_population = [float(cell_accumulators[key]["count"]) for key in cell_keys]
     cell_employment = [float(cell_accumulators[key]["employment"]) for key in cell_keys]
     cell_output = [float(cell_accumulators[key]["output"]) for key in cell_keys]
-    cell_distress = [
-        _mean_or_zero(cell_accumulators[key]["distress"])
-        for key in cell_keys
-    ]
+    cell_distress = [_mean_or_zero(cell_accumulators[key]["distress"]) for key in cell_keys]
 
     household_authority = l5_profile.family_authority("household_distribution")
     household_payload = _household_payload(
@@ -993,13 +1011,9 @@ def _payload_from_rows(
         "agent_registry_resolution_strategy": (
             "canonical_latest_record_then_ambiguous_region_sector_for_conflicts"
         ),
-        "selected_agent_registry_duplicate_count": sum(
-            1 for row in rows if int(row[11] or 0) > 1
-        ),
+        "selected_agent_registry_duplicate_count": sum(1 for row in rows if int(row[11] or 0) > 1),
         "selected_agent_registry_inconsistent_count": sum(
-            1
-            for row in rows
-            if int(row[12] or 0) > 1 or int(row[13] or 0) > 1
+            1 for row in rows if int(row[12] or 0) > 1 or int(row[13] or 0) > 1
         ),
         "ambiguous_region_agent_count": sum(
             1 for row in rows if str(row[2] or "") == "ambiguous_region"
@@ -1015,9 +1029,7 @@ def _payload_from_rows(
         "household_value_authority": household_authority.value_authority,
         "household_trust_tier": household_authority.trust_tier,
         "household_trust_cap": household_authority.trust_cap,
-        "household_proxy_bound_count": sum(
-            1 for width in household_interval_widths if width > 0.0
-        ),
+        "household_proxy_bound_count": sum(1 for width in household_interval_widths if width > 0.0),
         "household_point_tight_count": sum(
             1 for width in household_interval_widths if width == 0.0
         ),
@@ -1208,8 +1220,7 @@ def _write_data_forge_snapshot_binding(
         extra={
             "corpus_id": "ukraine-real-l4-data-state",
             "builder_revision": (
-                "polisyos.runtime.quality.data_state_substrate."
-                "materialize_l4_data_state_snapshot"
+                "polisyos.runtime.quality.data_state_substrate.materialize_l4_data_state_snapshot"
             ),
             "lineage_refs": [
                 payload_content_hash,
@@ -1315,8 +1326,7 @@ def _write_fabric_world_snapshot(
             as_of_tx_time="2026-05-01T00:00:00+00:00",
             provenance={
                 "producer": (
-                    "polisyos.runtime.quality.data_state_substrate."
-                    "_write_fabric_world_snapshot"
+                    "polisyos.runtime.quality.data_state_substrate._write_fabric_world_snapshot"
                 ),
                 "payload_hash": payload_hash,
             },
@@ -1351,6 +1361,8 @@ def _production_skg_ref(repo_root: Path, *, snapshot_id: str) -> SkgCausalPriorR
 def _schema_regime_decision(
     l5: L5CatalogAuthority,
     *,
+    receipt: L5SchemaRegimeDenominatorReceipt,
+    projection: ScopedSchemaRegimeProjection,
     period_start: str,
     period_end: str,
 ) -> dict[str, Any]:
@@ -1358,46 +1370,111 @@ def _schema_regime_decision(
     end_month = _month_ordinal(period_end)
     if start_month > end_month:
         raise DataStateSubstrateError("schema_regime_period_order_invalid")
-    v1 = l5.schema_regimes.get("ukraine_schema_v1")
-    v2 = l5.schema_regimes.get("ukraine_schema_v2")
-    if v1 is None or v2 is None:
-        raise DataStateSubstrateError("l5_schema_regime_missing")
-    changepoint_month = _month_ordinal(v2.effective_start or "2022-02")
-    boundary_buffer = max(v1.boundary_buffer_periods or 0, v2.boundary_buffer_periods or 0)
-    if start_month < changepoint_month <= end_month:
-        status = "spans_changepoint_flagged"
-        regime_ids = ("ukraine_schema_v1", "ukraine_schema_v2")
-    elif (
-        abs(start_month - changepoint_month) <= boundary_buffer
-        or abs(end_month - changepoint_month) <= boundary_buffer
+    if projection.status != "resolved":
+        raise DataStateSubstrateError("l5_schema_regime_projection_unresolved")
+    if (
+        l5.resolve_schema_regime_denominator(query=receipt.query) != receipt
+        or l5.project_scoped_schema_regimes(receipt=receipt) != projection
     ):
-        status = "boundary_buffer_flagged"
-        regime_ids = (
-            ("ukraine_schema_v1",)
-            if end_month < changepoint_month
-            else ("ukraine_schema_v2",)
+        raise DataStateSubstrateError("l5_schema_regime_projection_not_owner_recomputed")
+    regimes = []
+    for regime_id, observed_hash in zip(
+        projection.applicable_regime_ids,
+        projection.applicable_regime_content_hashes,
+        strict=True,
+    ):
+        regime = l5.schema_regimes.get(regime_id)
+        row = l5.schema_regime_rows.get(regime_id)
+        if regime is None or row is None:
+            raise DataStateSubstrateError("l5_schema_regime_projection_unknown", regime_id)
+        expected_hash = f"sha256:{hashlib.sha256(canonical_epoch_bytes(dict(row))).hexdigest()}"
+        if observed_hash != expected_hash:
+            raise DataStateSubstrateError(
+                "l5_schema_regime_projection_hash_mismatch",
+                regime_id,
+            )
+        regimes.append(regime)
+    selected = tuple(
+        regime
+        for regime in regimes
+        if (regime.effective_start is None or _month_ordinal(regime.effective_start) <= end_month)
+        and (regime.effective_end is None or _month_ordinal(regime.effective_end) >= start_month)
+    )
+    changepoints_by_ref = {
+        f"sha256:{hashlib.sha256(canonical_epoch_bytes(dict(row))).hexdigest()}": row
+        for row in l5.schema_regime_changepoints
+        if row.get("effective_date") is not None
+    }
+    if len(changepoints_by_ref) != len(
+        tuple(row for row in l5.schema_regime_changepoints if row.get("effective_date") is not None)
+    ):
+        raise DataStateSubstrateError("l5_schema_regime_changepoint_hash_ambiguous")
+    try:
+        changepoints = tuple(changepoints_by_ref[ref] for ref in projection.changepoint_refs)
+    except KeyError as exc:
+        raise DataStateSubstrateError("l5_schema_regime_changepoint_ref_unknown") from exc
+    crossing = tuple(
+        row
+        for row in changepoints
+        if start_month < _month_ordinal(str(row["effective_date"])) <= end_month
+    )
+    linked_ids = {
+        str(row[key])
+        for row in crossing
+        for key in ("from_schema_regime_id", "to_schema_regime_id")
+        if row.get(key) is not None
+    }
+    if linked_ids:
+        try:
+            linked = tuple(l5.schema_regimes[regime_id] for regime_id in linked_ids)
+        except KeyError as exc:
+            raise DataStateSubstrateError("l5_schema_regime_changepoint_target_unknown") from exc
+        selected = tuple(
+            sorted(
+                {row.schema_regime_id: row for row in (*selected, *linked)}.values(),
+                key=lambda row: row.effective_start or "",
+            )
         )
+    if not selected:
+        raise DataStateSubstrateError("l5_schema_regime_missing")
+    nearest = min(
+        changepoints,
+        key=lambda row: min(
+            abs(start_month - _month_ordinal(str(row["effective_date"]))),
+            abs(end_month - _month_ordinal(str(row["effective_date"]))),
+        ),
+        default=None,
+    )
+    boundary_buffer = max((regime.boundary_buffer_periods or 0 for regime in selected), default=0)
+    near_boundary = (
+        nearest is not None
+        and min(
+            abs(start_month - _month_ordinal(str(nearest["effective_date"]))),
+            abs(end_month - _month_ordinal(str(nearest["effective_date"]))),
+        )
+        <= boundary_buffer
+    )
+    if crossing or len(selected) > 1:
+        status = "spans_changepoint_flagged"
+    elif near_boundary:
+        status = "boundary_buffer_flagged"
     else:
         status = "single_regime"
-        regime_ids = (
-            ("ukraine_schema_v1",)
-            if end_month < changepoint_month
-            else ("ukraine_schema_v2",)
-        )
+    changepoint = crossing[0] if crossing else nearest
     return {
         "schema_regime_status": status,
-        "regime_ids": regime_ids,
-        "changepoint_id": "schema.2022_02_wartime",
-        "changepoint_period": "2022-02",
+        "regime_ids": tuple(regime.schema_regime_id for regime in selected),
+        "changepoint_id": None if changepoint is None else str(changepoint["changepoint_id"]),
+        "changepoint_period": (
+            None if changepoint is None else str(changepoint["effective_date"])[:7]
+        ),
         "boundary_buffer_periods": boundary_buffer,
     }
 
 
 def _default_data_state_paths(repo_root: Path) -> _DataStatePaths:
     base = (
-        repo_root
-        / "production_data/canonical/local_data_20260501/"
-        "ukraine_server_support_20260410"
+        repo_root / "production_data/canonical/local_data_20260501/ukraine_server_support_20260410"
     )
     normalized = base / "normalized_corpus/normalized"
     d3 = base / "runtime_calibration_internals/calibration/d3"
@@ -1405,9 +1482,7 @@ def _default_data_state_paths(repo_root: Path) -> _DataStatePaths:
     return _DataStatePaths(
         l1_dcat_path=l1,
         agent_registry_full=normalized / "edr_current/agent_registry_full.parquet",
-        firm_fundamentals_annual=(
-            normalized / "dps_financials/firm_fundamentals_annual.parquet"
-        ),
+        firm_fundamentals_annual=(normalized / "dps_financials/firm_fundamentals_annual.parquet"),
         budget_flows_monthly_sparse=(
             normalized / "spending_full/budget_flows_monthly_sparse.parquet"
         ),

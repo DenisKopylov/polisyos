@@ -67,6 +67,17 @@ Boundary notes:
   authenticity. The two trust-snapshot domains bind exact appointed bytes; the plan supplies no
   authority DTO for those bytes, so their institutional meaning remains a bounded owner-carrier
   residual rather than a locally invented contract.
+- `semantic_epoch.py` is the epoch-family producer and adapter over the common
+  full-prefix protocol. It derives sparse owner-native L5, Lex and acquisition
+  queries, preserves their complete denominators, and invokes the generic
+  qualification consumer from the production acquisition composition. No
+  predicate-policy signer is appointed, so that real call terminates at the
+  typed `policy_admission_missing` result; the invocation implements the
+  producer/consumer capability without establishing a positive epoch policy,
+  custody, projection or whole-history authenticity claim.
+- `semantic_epoch_store.py` is the epoch family's append-only native history
+  repository. Its compare-and-append head index and full-prefix reconstruction
+  never become a shared physical chronology log or an authority head.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
 

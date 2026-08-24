@@ -677,6 +677,42 @@ _CHRONOLOGY_EXPORTS = (
 )
 _MODULE_SYMBOLS[".chronology"] = _CHRONOLOGY_EXPORTS
 
+_MODULE_SYMBOLS[".epoch"] = (
+    "AcquisitionBoundaryResolutionQuery",
+    "AcquisitionNativeMemberAssessment",
+    "AcquisitionNativeMembershipReceipt",
+    "AcquisitionProjectionVerifierProvenance",
+    "AcquisitionSemanticBoundaryCandidate",
+    "AcquisitionSemanticBoundaryCandidateStatement",
+    "AcquisitionSemanticCandidateAssessment",
+    "AcquisitionSemanticCandidateDenominatorReceipt",
+    "AcquisitionSemanticProjectionVerificationReceipt",
+    "ActivatedOverlayAdmissionStatement",
+    "AdmittedAcquisitionBoundaryEvidence",
+    "Digest",
+    "L5SchemaRegimeAssessment",
+    "L5SchemaRegimeDenominatorReceipt",
+    "L5SchemaRegimeResolutionQuery",
+    "L5SchemaRegimeScopeRelation",
+    "LegalAmendmentWindowAssessment",
+    "LegalAmendmentWindowDenominatorReceipt",
+    "LegalAmendmentWindowResolutionQuery",
+    "OverlayNativeMemberKey",
+    "PendingOverlayAdmissionStatement",
+    "ScopedSchemaRegimeProjection",
+    "SemanticEpochProductionReceiptStatement",
+    "SemanticEpochStamp",
+    "acquisition_semantic_candidate_bytes",
+    "acquisition_semantic_candidate_content_hash",
+    "canonical_epoch_bytes",
+    "epoch_query_context_ref",
+    "epoch_semantic_content_hash",
+    "load_verified_epoch_statement",
+    "native_coordinate_ref",
+)
+
+_SUBMODULES = frozenset({"chronology", "epoch"})
+
 if TYPE_CHECKING:
     from .backtest import BacktestReportRef
     from .causal import (
@@ -1136,6 +1172,10 @@ del _rel_mod, _names, _full, _n
 
 
 def __getattr__(name: str) -> Any:
+    if name in _SUBMODULES:
+        module = importlib.import_module(f"polisyos.core.contracts.{name}")
+        globals()[name] = module
+        return module
     if name not in _LAZY_IMPORTS:
         raise AttributeError(f"module 'polisyos.core.contracts' has no attribute {name!r}")
     module = importlib.import_module(_LAZY_IMPORTS[name])
@@ -1150,6 +1190,8 @@ def __dir__() -> list[str]:
 
 __all__ = [
     *_CHRONOLOGY_EXPORTS,
+    "chronology",
+    "epoch",
     "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
     "OPTIONAL_ANALYTIC_NODE_KINDS",
     "POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION",

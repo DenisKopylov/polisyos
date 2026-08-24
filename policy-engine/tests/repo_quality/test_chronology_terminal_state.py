@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import ast
+import copy
 import os
 import subprocess
 import tomllib
@@ -155,6 +156,20 @@ INITIAL_STATE = (
     ),
 )
 
+CLUSTER4_TRANSITIONS = (
+    (
+        "common_protocol_primitive",
+        "implemented",
+        "cluster_4_epoch_composition",
+    ),
+    (
+        "generic_qualification_consumer",
+        "implemented",
+        "cluster_4_epoch_composition",
+    ),
+    ("epoch_family_producer", "implemented", "cluster_4_epoch_producer"),
+)
+
 GOLDEN_ENTRY_HASHES = (
     "sha256:98c3139f01d2c5f01581cda0e518f88a3c2f857e425301dab6ab5c3c72ae7b43",
     "sha256:0a57911f80ef2bc7007c2b94f6544e6102927be85ff3732936e1ba19f19bb6b9",
@@ -167,6 +182,9 @@ GOLDEN_ENTRY_HASHES = (
     "sha256:74a563ad786a10e526d9e42932c388a2d22cdb74fe904df9da8f1fd9960817f4",
     "sha256:4944f378e657fb167e2cb269a4f60ec7c8f0e3ac35270538b8c90445520d74f7",
     "sha256:058ec4a577e2fa6a15c449347e5dd0fb1d63221ba14277e43a916ce7edd35616",
+    "sha256:beef50dcfb95420814f05c52a6aa2a7b3dbdda6662529154923ad4b8e7126857",
+    "sha256:84f6e1a9855a14d00b97bb3ebf545cf18c4cb9926ce22dbdbf1ae2207d711870",
+    "sha256:ad10ee0430b8e839986c5e2dd734ccfc48564ff915729dcd49856c0fa1e21564",
 )
 
 ACTIVATION_BY_SUBJECT = {
@@ -188,6 +206,17 @@ ACTIVATION_BY_SUBJECT = {
     "family_audit_api_dashboard": {"family_surface_deferred"},
     "whole_history_authenticity": {"whole_history_holder_not_established"},
 }
+
+EXPECTED_EPOCH_RUNTIME_PATH = (
+    "src/polisyos/runtime/quality/acquisition_executor.py::"
+    "admit_acquisition_with_production_semantic_epoch",
+    "src/polisyos/runtime/quality/acquisition_executor.py::"
+    "admit_acquisition_with_semantic_epoch[epoch_service=service]",
+    "src/polisyos/runtime/quality/semantic_epoch.py::SemanticEpochService.finalize_admitted_epoch",
+    "src/polisyos/runtime/quality/semantic_epoch.py::SemanticEpochService._append_and_qualify",
+    "src/polisyos/runtime/quality/semantic_epoch.py::"
+    "SemanticEpochService._qualification_consumer.qualify",
+)
 
 
 def _payload_mapping(
@@ -389,15 +418,223 @@ def _parse_candidate_tree(paths: set[str]) -> tuple[dict[str, str], dict[str, as
     return roles, trees
 
 
-def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dict[str, object]:
-    def dotted_name(node: ast.expr) -> str | None:
-        if isinstance(node, ast.Name):
-            return node.id
-        if isinstance(node, ast.Attribute):
-            prefix = dotted_name(node.value)
-            return f"{prefix}.{node.attr}" if prefix is not None else node.attr
-        return None
+def _dotted_name(node: ast.expr) -> str | None:
+    if isinstance(node, ast.Name):
+        return node.id
+    if isinstance(node, ast.Attribute):
+        prefix = _dotted_name(node.value)
+        return f"{prefix}.{node.attr}" if prefix is not None else node.attr
+    return None
 
+
+def _top_level_functions(
+    production: dict[str, ast.Module],
+) -> dict[tuple[str, str], ast.FunctionDef | ast.AsyncFunctionDef]:
+    return {
+        (candidate, statement.name): statement
+        for candidate, tree in production.items()
+        for statement in tree.body
+        if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+
+
+def _semantic_epoch_service_methods(
+    production: dict[str, ast.Module],
+) -> tuple[
+    str,
+    dict[str, ast.FunctionDef | ast.AsyncFunctionDef],
+]:
+    matches = [
+        (candidate, statement)
+        for candidate, tree in production.items()
+        for statement in tree.body
+        if isinstance(statement, ast.ClassDef) and statement.name == "SemanticEpochService"
+    ]
+    if len(matches) != 1:
+        return "", {}
+    candidate, service = matches[0]
+    methods = {
+        statement.name: statement
+        for statement in service.body
+        if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
+    }
+    return candidate, methods
+
+
+def _epoch_runtime_paths(production: dict[str, ast.Module]) -> tuple[tuple[str, ...], ...]:
+    """Derive every production route from service construction to real qualification."""
+
+    top_level = _top_level_functions(production)
+    service_candidate, service_methods = _semantic_epoch_service_methods(production)
+    if not service_methods:
+        return ()
+
+    constructions: list[tuple[str, str, str]] = []
+    for (candidate, function_name), function in top_level.items():
+        for node in ast.walk(function):
+            if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+                continue
+            value = node.value
+            if not isinstance(value, ast.Call):
+                continue
+            called = _dotted_name(value.func)
+            if called is None or called.split(".")[-1] != "SemanticEpochService":
+                continue
+            targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
+            for target in targets:
+                if isinstance(target, ast.Name):
+                    constructions.append((candidate, function_name, target.id))
+
+    service_self_calls: dict[str, set[str]] = {name: set() for name in service_methods}
+    qualifier_methods: set[str] = set()
+    for method_name, method in service_methods.items():
+        for node in ast.walk(method):
+            if not isinstance(node, ast.Call):
+                continue
+            called = _dotted_name(node.func)
+            if called is None:
+                continue
+            if called.startswith("self.") and called.count(".") == 1:
+                target = called.split(".", 1)[1]
+                if target in service_methods:
+                    service_self_calls[method_name].add(target)
+            if called != "self._qualification_consumer.qualify":
+                continue
+            keywords = {keyword.arg: keyword.value for keyword in node.keywords}
+            adapter = keywords.get("adapter")
+            request = keywords.get("request")
+            if (
+                set(keywords) == {"adapter", "request"}
+                and isinstance(adapter, ast.Call)
+                and _dotted_name(adapter.func) == "self._chronology_adapter.for_history"
+                and request is not None
+            ):
+                qualifier_methods.add(method_name)
+
+    def routes_to_qualifier(start: str) -> tuple[tuple[str, ...], ...]:
+        routes: list[tuple[str, ...]] = []
+
+        def walk(current: str, route: tuple[str, ...]) -> None:
+            if current in route:
+                return
+            next_route = (*route, current)
+            if current in qualifier_methods:
+                routes.append(next_route)
+                return
+            for target in sorted(service_self_calls.get(current, ())):
+                walk(target, next_route)
+
+        walk(start, ())
+        return tuple(routes)
+
+    paths: list[tuple[str, ...]] = []
+    for candidate, production_function_name, variable_name in constructions:
+        production_function = top_level[(candidate, production_function_name)]
+        injections: list[tuple[str, str]] = []
+        for call in (node for node in ast.walk(production_function) if isinstance(node, ast.Call)):
+            called = _dotted_name(call.func)
+            if called is None:
+                continue
+            for keyword in call.keywords:
+                if (
+                    keyword.arg == "epoch_service"
+                    and isinstance(keyword.value, ast.Name)
+                    and keyword.value.id == variable_name
+                ):
+                    injections.append((called.split(".")[-1], keyword.arg))
+        for bridge_name, parameter_name in injections:
+            bridge_matches = [
+                (bridge_candidate, bridge)
+                for (bridge_candidate, name), bridge in top_level.items()
+                if name == bridge_name
+            ]
+            if len(bridge_matches) != 1:
+                continue
+            bridge_candidate, bridge = bridge_matches[0]
+            bridge_methods = {
+                node.func.attr
+                for node in ast.walk(bridge)
+                if isinstance(node, ast.Call)
+                and isinstance(node.func, ast.Attribute)
+                and isinstance(node.func.value, ast.Name)
+                and node.func.value.id == parameter_name
+                and node.func.attr in service_methods
+            }
+            for bridge_method in sorted(bridge_methods):
+                for service_route in routes_to_qualifier(bridge_method):
+                    paths.append(
+                        (
+                            f"{candidate}::{production_function_name}",
+                            f"{bridge_candidate}::{bridge_name}[{parameter_name}={variable_name}]",
+                            *(
+                                f"{service_candidate}::SemanticEpochService.{method}"
+                                for method in service_route
+                            ),
+                            f"{service_candidate}::"
+                            "SemanticEpochService._qualification_consumer.qualify",
+                        )
+                    )
+    return tuple(sorted(paths))
+
+
+def _assert_epoch_runtime_topology(topology: dict[str, object]) -> None:
+    assert topology["epoch_runtime_paths"] == (EXPECTED_EPOCH_RUNTIME_PATH,)
+
+
+def _remove_scoped_call(
+    trees: dict[str, ast.Module],
+    *,
+    candidate: str,
+    class_name: str | None,
+    function_name: str,
+    called_name: str,
+) -> tuple[dict[str, ast.Module], int]:
+    mutated = dict(trees)
+    mutated[candidate] = copy.deepcopy(trees[candidate])
+
+    class Remover(ast.NodeTransformer):
+        def __init__(self) -> None:
+            self.current_class: str | None = None
+            self.current_function: str | None = None
+            self.removed = 0
+
+        def visit_ClassDef(self, node: ast.ClassDef) -> ast.AST:
+            previous = self.current_class
+            self.current_class = node.name
+            rewritten = self.generic_visit(node)
+            self.current_class = previous
+            return rewritten
+
+        def visit_FunctionDef(self, node: ast.FunctionDef) -> ast.AST:
+            previous = self.current_function
+            self.current_function = node.name
+            rewritten = self.generic_visit(node)
+            self.current_function = previous
+            return rewritten
+
+        def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef) -> ast.AST:  # noqa: N802
+            previous = self.current_function
+            self.current_function = node.name
+            rewritten = self.generic_visit(node)
+            self.current_function = previous
+            return rewritten
+
+        def visit_Call(self, node: ast.Call) -> ast.AST:
+            if (
+                self.current_class == class_name
+                and self.current_function == function_name
+                and _dotted_name(node.func) == called_name
+            ):
+                self.removed += 1
+                return ast.copy_location(ast.Constant(value=None), node)
+            return self.generic_visit(node)
+
+    remover = Remover()
+    mutated[candidate] = remover.visit(mutated[candidate])  # type: ignore[assignment]
+    return mutated, remover.removed
+
+
+def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dict[str, object]:
     production = {
         candidate: trees[candidate]
         for candidate, role in roles.items()
@@ -406,7 +643,7 @@ def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dic
     consumer_definitions: list[str] = []
     consumer_imports: list[str] = []
     consumer_exports: list[str] = []
-    consumer_calls: list[str] = []
+    consumer_factory_calls: list[str] = []
     concrete_adapters: list[tuple[str, str]] = []
     common_definitions: Counter[str] = Counter()
     common_calls: dict[str, list[str]] = {
@@ -433,9 +670,9 @@ def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dic
                 ):
                     consumer_imports.append(candidate)
             if isinstance(node, ast.Call):
-                called = dotted_name(node.func)
+                called = _dotted_name(node.func)
                 if called is not None and "QualificationConsumer" in called.split("."):
-                    consumer_calls.append(candidate)
+                    consumer_factory_calls.append(candidate)
                 if called is not None:
                     for common_name in common_calls:
                         if called.split(".")[-1] == common_name:
@@ -468,7 +705,8 @@ def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dic
         "consumer_definitions": tuple(sorted(consumer_definitions)),
         "consumer_imports": tuple(sorted(consumer_imports)),
         "consumer_exports": tuple(sorted(consumer_exports)),
-        "consumer_calls": tuple(sorted(consumer_calls)),
+        "consumer_factory_calls": tuple(sorted(consumer_factory_calls)),
+        "epoch_runtime_paths": _epoch_runtime_paths(production),
         "concrete_adapters": tuple(sorted(concrete_adapters)),
         "common_definitions": dict(common_definitions),
         "common_calls": {name: tuple(sorted(paths)) for name, paths in common_calls.items()},
@@ -489,9 +727,9 @@ def test_allocation_genesis_normalizes_to_explicit_canonical_null() -> None:
         _load_history_mapping(missing_non_genesis)
 
 
-def test_allocation_history_hashes_and_complete_cluster2_vector_are_frozen() -> None:
+def test_allocation_history_hashes_and_cluster4_transitions_are_frozen() -> None:
     history = _load_history()
-    assert len(history.entries) == len(INITIAL_STATE) == 11
+    assert len(history.entries) == len(INITIAL_STATE) + len(CLUSTER4_TRANSITIONS) == 14
     observed = tuple(
         (
             entry.payload.subject_key,
@@ -500,9 +738,14 @@ def test_allocation_history_hashes_and_complete_cluster2_vector_are_frozen() -> 
         )
         for entry in history.entries
     )
-    assert observed == INITIAL_STATE
+    assert observed == (*INITIAL_STATE, *CLUSTER4_TRANSITIONS)
     assert tuple(entry.entry_hash for entry in history.entries) == GOLDEN_ENTRY_HASHES
-    assert all(entry.payload.effective_after_cluster == "cluster_2" for entry in history.entries)
+    assert all(
+        entry.payload.effective_after_cluster == "cluster_2" for entry in history.entries[:11]
+    )
+    assert all(
+        entry.payload.effective_after_cluster == "cluster_4" for entry in history.entries[11:]
+    )
 
 
 def test_allocation_decoder_rejects_chain_owner_and_type_corruption() -> None:
@@ -538,7 +781,7 @@ def test_allocation_decoder_rejects_chain_owner_and_type_corruption() -> None:
     assert raw["entries"][0]["ordinal"] == 0
 
 
-def test_cluster2_terminal_labels_match_source_derived_chain() -> None:
+def test_cluster4_terminal_labels_match_source_derived_chain() -> None:
     git_paths = _git_candidate_paths()
     filesystem_paths = _filesystem_candidate_paths()
     assert git_paths == filesystem_paths
@@ -557,20 +800,75 @@ def test_cluster2_terminal_labels_match_source_derived_chain() -> None:
     assert topology["consumer_exports"] == (
         "src/polisyos/runtime/quality/chronology_qualification.py",
     )
-    assert topology["consumer_imports"] == ()
-    assert topology["consumer_calls"] == ()
-    assert topology["concrete_adapters"] == ()
+    assert topology["consumer_imports"] == ("src/polisyos/runtime/quality/semantic_epoch.py",)
+    assert topology["consumer_factory_calls"] == (
+        "src/polisyos/runtime/quality/acquisition_executor.py",
+    ), topology
+    _assert_epoch_runtime_topology(topology)
+    marker_fields = (
+        "consumer_definitions",
+        "consumer_imports",
+        "consumer_exports",
+        "consumer_factory_calls",
+    )
+    topology_mutations = (
+        (
+            "src/polisyos/runtime/quality/acquisition_executor.py",
+            None,
+            "admit_acquisition_with_semantic_epoch",
+            "epoch_service.finalize_admitted_epoch",
+        ),
+        (
+            "src/polisyos/runtime/quality/semantic_epoch.py",
+            "SemanticEpochService",
+            "finalize_admitted_epoch",
+            "self._append_and_qualify",
+        ),
+        (
+            "src/polisyos/runtime/quality/semantic_epoch.py",
+            "SemanticEpochService",
+            "_append_and_qualify",
+            "self._qualification_consumer.qualify",
+        ),
+    )
+    for candidate, class_name, function_name, called_name in topology_mutations:
+        mutated_trees, removed = _remove_scoped_call(
+            trees,
+            candidate=candidate,
+            class_name=class_name,
+            function_name=function_name,
+            called_name=called_name,
+        )
+        assert removed == 1
+        mutated_topology = _source_topology(roles, mutated_trees)
+        assert {field: mutated_topology[field] for field in marker_fields} == {
+            field: topology[field] for field in marker_fields
+        }
+        with pytest.raises(AssertionError):
+            _assert_epoch_runtime_topology(mutated_topology)
+    assert topology["concrete_adapters"] == (
+        (
+            "src/polisyos/runtime/quality/semantic_epoch.py",
+            "SemanticEpochQualificationAdapter",
+        ),
+    ), topology
     assert topology["common_calls"] == {
-        "FullPrefixVerifier": ("src/polisyos/runtime/quality/chronology_proof.py",),
+        "FullPrefixVerifier": (
+            "src/polisyos/core/security/chronology_anchor.py",
+            "src/polisyos/core/security/chronology_anchor.py",
+            "src/polisyos/runtime/quality/chronology_proof.py",
+        ),
         "build_full_prefix_bundle": ("src/polisyos/runtime/quality/chronology_qualification.py",),
     }
 
     history = _load_history()
     state = {entry.payload.subject_key: entry.payload.status for entry in history.entries}
-    assert state == {subject: status for subject, status, _ in INITIAL_STATE}
-    assert state["common_protocol_primitive"] == "implemented_but_not_orchestrated"
-    assert state["generic_qualification_consumer"] == ("implemented_but_not_orchestrated")
-    assert state["epoch_family_producer"] == "producer_missing"
+    expected = {subject: status for subject, status, _ in INITIAL_STATE}
+    expected.update({subject: status for subject, status, _ in CLUSTER4_TRANSITIONS})
+    assert state == expected
+    assert state["common_protocol_primitive"] == "implemented"
+    assert state["generic_qualification_consumer"] == "implemented"
+    assert state["epoch_family_producer"] == "implemented"
     assert {
         state[subject]
         for subject in (

@@ -18,6 +18,11 @@ policy и search flows.
 - **Hybrid retrieval** — text, structured и vector search могут комбинироваться через `LegalKnowledgeGraph`.
 - **Graph traversal** — API умеет искать related entities и нормы, а не только keyword matches.
 - **Graceful degradation** — при отсутствии embeddings `hybrid_search()` и vector paths деградируют до text/structured search.
+- **Chronology owner query** — `LegalKnowledgeStore` enumerates the complete
+  `lex_amendments` denominator before applying sparse valid/effect and
+  knowledge/admission cutoffs. Missing valid/effect carriers stay in the
+  receipt as `amendment_valid_effect_window_unresolved`; transaction time is
+  never substituted for owner semantics.
 
 ## Public API
 

@@ -4,6 +4,16 @@ history_id = "gy-n12-clusters-2-4"
 # Bounded residual: Cluster 2 ships this strict history and its decoder, but no
 # allocation writer. Cluster 4 may append complete EOF tables; no row below
 # claims that a production writer is allocated or orchestrated.
+#
+# Bounded residual: no PolicyOS justification-custody institution is appointed
+# as the epoch-family predicate-policy admission signer. Cluster 4 invokes the
+# real epoch producer against the canonical empty admission index and receives
+# `policy_admission_missing`. The three Cluster-4 `implemented` transitions
+# below record production invocation only; they do not claim positive policy
+# admission, owner provenance, qualification or whole-history authenticity.
+# Closure requires an appointed signer other than the epoch producer to issue
+# content-bound policy, admission, owner-provenance and owner-relation bytes for
+# the complete selection key, followed by independent verification.
 
 [[entries]]
 ordinal = 0
@@ -173,3 +183,48 @@ status = "not_established"
 canonical_owner_ref = "epoch_history"
 routing_ref = "GY-N12-C3"
 activation_signal = "whole_history_holder_not_established"
+
+[[entries]]
+ordinal = 11
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:058ec4a577e2fa6a15c449347e5dd0fb1d63221ba14277e43a916ce7edd35616"
+entry_hash = "sha256:beef50dcfb95420814f05c52a6aa2a7b3dbdda6662529154923ad4b8e7126857"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "common_protocol_primitive"
+effective_after_cluster = "cluster_4"
+status = "implemented"
+canonical_owner_ref = "core.chronology"
+routing_ref = "GY-N12-C2"
+activation_signal = "cluster_4_epoch_composition"
+
+[[entries]]
+ordinal = 12
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:beef50dcfb95420814f05c52a6aa2a7b3dbdda6662529154923ad4b8e7126857"
+entry_hash = "sha256:84f6e1a9855a14d00b97bb3ebf545cf18c4cb9926ce22dbdbf1ae2207d711870"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "generic_qualification_consumer"
+effective_after_cluster = "cluster_4"
+status = "implemented"
+canonical_owner_ref = "runtime.quality.chronology_qualification"
+routing_ref = "GY-N12-C2"
+activation_signal = "cluster_4_epoch_composition"
+
+[[entries]]
+ordinal = 13
+predecessor_kind = "entry"
+previous_entry_hash = "sha256:84f6e1a9855a14d00b97bb3ebf545cf18c4cb9926ce22dbdbf1ae2207d711870"
+entry_hash = "sha256:ad10ee0430b8e839986c5e2dd734ccfc48564ff915729dcd49856c0fa1e21564"
+
+[entries.payload]
+row_kind = "capability"
+subject_key = "epoch_family_producer"
+effective_after_cluster = "cluster_4"
+status = "implemented"
+canonical_owner_ref = "runtime.quality.semantic_epoch"
+routing_ref = "GY-N12-C4"
+activation_signal = "cluster_4_epoch_producer"

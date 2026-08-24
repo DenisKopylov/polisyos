@@ -35,8 +35,7 @@ from polisyos.runtime.quality.substrate_registry import (
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 _CANONICAL_DATA_ROOT = (
-    Path("production_data/canonical/local_data_20260501/")
-    / "ukraine_server_support_20260410"
+    Path("production_data/canonical/local_data_20260501/") / "ukraine_server_support_20260410"
 )
 _L5_D2_DIR = _CANONICAL_DATA_ROOT / "runtime_calibration_internals/calibration/d2"
 _L5_D3_DIR = _CANONICAL_DATA_ROOT / "runtime_calibration_internals/calibration/d3"
@@ -58,7 +57,9 @@ def _compile_smoke_plan(store: FileSystemCAS, model_spec: object, registry_bundl
             problem_id="problem_real_l4_data_state_smoke",
             domain=ProblemDomain.FISCAL,
         ),
-        policy_spec=PolicySpec(policy_id="policy_real_l4_data_state_smoke", interventions=[intervention]),
+        policy_spec=PolicySpec(
+            policy_id="policy_real_l4_data_state_smoke", interventions=[intervention]
+        ),
         model_spec=model_spec,
     )
     trinity_ref = store.put_json(
@@ -105,10 +106,21 @@ def _repo_with_household_identification_mode(
     _symlink_dir(REPO_ROOT / _ACADEMIC_RUNTIME_DIR, temp_root / _ACADEMIC_RUNTIME_DIR)
     _symlink_dir(REPO_ROOT / _NORMALIZED_CORPUS_DIR, temp_root / _NORMALIZED_CORPUS_DIR)
     _symlink_dir(REPO_ROOT / _L5_D3_DIR, temp_root / _L5_D3_DIR)
+    for registry_name in (
+        "layer3_gy_l5_schema_regime_registry.json",
+        "layer3_gy_l5_schema_regime_scope_registry.json",
+    ):
+        registry_src = REPO_ROOT / "architecture/policy_design_case" / registry_name
+        registry_dst = temp_root / "architecture/policy_design_case" / registry_name
+        registry_dst.parent.mkdir(parents=True, exist_ok=True)
+        os.symlink(registry_src, registry_dst)
 
     d2_dst = temp_root / _L5_D2_DIR
     shutil.copytree(REPO_ROOT / _L5_D2_DIR, d2_dst)
     identification_path = d2_dst / "identification_mode_registry.json"
+    # The appointed production-data tree is read-only.  ``copytree`` preserves
+    # that mode, so make only this isolated test copy writable before mutation.
+    identification_path.chmod(0o600)
     identification = json.loads(identification_path.read_text(encoding="utf-8"))
     household = dict(identification["household_distribution"])
     household["selected_mode"] = selected_mode

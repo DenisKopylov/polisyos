@@ -5,7 +5,55 @@ from pathlib import Path
 import duckdb
 import pytest
 
+from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.lex.knowledge.store import LegalKnowledgeStore
+from polisyos.runtime.quality import semantic_epoch
+
+
+def _amendment_query(
+    *,
+    knowledge_cutoff: bytes,
+    admission_cutoff: bytes = b"2026-01-01T00:00:00Z",
+) -> epoch_contract.LegalAmendmentWindowResolutionQuery:
+    valid = b"2025-01-15"
+    profiles = {
+        "valid_effect": "epoch.coordinate.valid-date.v1",
+        "visibility_knowledge_cutoff": "epoch.coordinate.knowledge-time.v1",
+        "purpose_admission_cutoff": "epoch.coordinate.admission-time.v1",
+    }
+    return epoch_contract.LegalAmendmentWindowResolutionQuery(
+        jurisdiction="UA",
+        domain="fiscal",
+        authority_purpose="publication",
+        valid_effect_value=__import__("datetime").date.fromisoformat(valid.decode()),
+        valid_effect_coordinate_schema_profile=profiles["valid_effect"],
+        valid_effect_coordinate_ref=epoch_contract.native_coordinate_ref(
+            family="lex_amendment_window",
+            role="valid_effect",
+            schema_profile=profiles["valid_effect"],
+            coordinate_bytes=valid,
+        ),
+        visibility_knowledge_cutoff_schema_profile=(profiles["visibility_knowledge_cutoff"]),
+        visibility_knowledge_cutoff_bytes=knowledge_cutoff,
+        visibility_knowledge_cutoff_ref=epoch_contract.native_coordinate_ref(
+            family="lex_amendment_window",
+            role="visibility_knowledge_cutoff",
+            schema_profile=profiles["visibility_knowledge_cutoff"],
+            coordinate_bytes=knowledge_cutoff,
+        ),
+        purpose_admission_cutoff_schema_profile=profiles["purpose_admission_cutoff"],
+        purpose_admission_cutoff_bytes=admission_cutoff,
+        purpose_admission_cutoff_ref=epoch_contract.native_coordinate_ref(
+            family="lex_amendment_window",
+            role="purpose_admission_cutoff",
+            schema_profile=profiles["purpose_admission_cutoff"],
+            coordinate_bytes=admission_cutoff,
+        ),
+        requested_query_context_ref=(
+            "sha256:1111111111111111111111111111111111111111111111111111111111111111"
+        ),
+    )
 
 
 def test_legal_store_evidence_refs_ignore_physical_checkout_path(tmp_path) -> None:
@@ -181,6 +229,138 @@ def test_legal_knowledge_store_prefers_high_trust_layers(tmp_path) -> None:
         assert len(norms) == 1
     finally:
         store.close()
+
+
+def test_missing_native_table_is_blocked_not_empty(tmp_path: Path) -> None:
+    db_path = tmp_path / "missing-owner-tables.duckdb"
+    with duckdb.connect(str(db_path)):
+        pass
+    owner = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
+    artifacts = FileSystemCAS(tmp_path / "cas")
+    adapter = semantic_epoch.LexEpochBoundaryOwnerAdapter(
+        owner=owner,
+        artifacts=artifacts,
+    )
+    registration = semantic_epoch.EpochBoundarySourceRegistration(
+        registration_id="all-amendments",
+        owner_kind="lex_amendment_window",
+        owner_source_ref=(
+            "sha256:2222222222222222222222222222222222222222222222222222222222222222"
+        ),
+        opaque_scope_binding_ref=(
+            "sha256:3333333333333333333333333333333333333333333333333333333333333333"
+        ),
+    )
+    try:
+        batch = adapter.resolve_complete_batch(
+            registration=registration,
+            owner_query=_amendment_query(knowledge_cutoff=b"2025-03-01T00:00:00Z"),
+        )
+    finally:
+        owner.close()
+
+    assert batch.status == "unresolved"
+    assert batch.declared_member_count == 0
+    assert batch.assessments == ()
+    assert batch.failure_codes == ("amendment_owner_table_not_established",)
+    assert batch.owner_source_snapshot_ref is not None
+
+
+def test_retroactive_row_differs_before_and_after_knowledge_cutoff(
+    tmp_path: Path,
+) -> None:
+    db_path = tmp_path / "retroactive-amendment.duckdb"
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            """
+            CREATE TABLE lex_amendments (
+                amendment_id VARCHAR,
+                amended_doc_id VARCHAR,
+                target_anchor VARCHAR,
+                effective_from TIMESTAMP,
+                created_at TIMESTAMP
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_facts (
+                doc_id VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR
+            )
+            """
+        )
+        con.execute(
+            "INSERT INTO lex_amendments VALUES "
+            "('a-1', 'doc-1', 'article-1', '2025-01-01', '2025-02-01')"
+        )
+        con.execute("INSERT INTO lex_facts VALUES ('doc-1', 'UA', 'fiscal')")
+    store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
+    try:
+        before = store.resolve_amendment_window_denominator(
+            query=_amendment_query(knowledge_cutoff=b"2025-01-31T23:59:59Z")
+        )
+        after = store.resolve_amendment_window_denominator(
+            query=_amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
+        )
+    finally:
+        store.close()
+
+    assert before.owner_source_snapshot_ref == after.owner_source_snapshot_ref
+    assert before.declared_amendment_count == after.declared_amendment_count == 1
+    assert before.assessments[0].disposition == "not_applicable"
+    assert after.assessments[0].disposition == "applicable"
+    assert before.denominator_hash != after.denominator_hash
+
+
+def test_missing_amendment_effective_window_stays_in_complete_denominator(
+    tmp_path: Path,
+) -> None:
+    """An owner row without a valid/effect coordinate is unresolved, not omitted."""
+
+    db_path = tmp_path / "missing-amendment-window.duckdb"
+    with duckdb.connect(str(db_path)) as con:
+        con.execute(
+            """
+            CREATE TABLE lex_amendments (
+                amendment_id VARCHAR,
+                amended_doc_id VARCHAR,
+                target_anchor VARCHAR,
+                effective_from VARCHAR,
+                created_at TIMESTAMP
+            )
+            """
+        )
+        con.execute(
+            """
+            CREATE TABLE lex_facts (
+                doc_id VARCHAR,
+                jurisdiction VARCHAR,
+                top_domain VARCHAR
+            )
+            """
+        )
+        con.execute(
+            "INSERT INTO lex_amendments VALUES "
+            "('a-missing-window', 'doc-1', 'article-1', '', '2025-02-01')"
+        )
+        con.execute("INSERT INTO lex_facts VALUES ('doc-1', 'UA', 'fiscal')")
+    store = LegalKnowledgeStore(db_path=db_path, index_dir=tmp_path)
+    try:
+        receipt = store.resolve_amendment_window_denominator(
+            query=_amendment_query(knowledge_cutoff=b"2025-02-02T00:00:00Z")
+        )
+        snapshot = store.load_amendment_owner_snapshot(ref=receipt.owner_source_snapshot_ref)
+    finally:
+        store.close()
+
+    assert receipt.declared_amendment_count == len(receipt.assessments) == 1
+    assert receipt.status == "unresolved"
+    assert receipt.failure_codes == ("amendment_valid_effect_window_unresolved",)
+    assert receipt.assessments[0].effective_from is None
+    assert receipt.assessments[0].failure_code == ("amendment_valid_effect_window_unresolved")
+    assert b'"effective_from":""' in snapshot
 
 
 def test_legal_knowledge_store_supports_quality_band_and_fused_confidence_filters(tmp_path) -> None:

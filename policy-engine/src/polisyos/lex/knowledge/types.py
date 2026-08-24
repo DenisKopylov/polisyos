@@ -6,6 +6,17 @@ from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.core import contracts
+
+epoch_contract = contracts.epoch
+
+# Lex owns enumeration of the amendment-window denominator.  Re-export the
+# shared wire DTOs from its native read surface so chronology consumes an
+# owner API rather than reaching into the Lex store implementation.
+LegalAmendmentWindowResolutionQuery = epoch_contract.LegalAmendmentWindowResolutionQuery
+LegalAmendmentWindowAssessment = epoch_contract.LegalAmendmentWindowAssessment
+LegalAmendmentWindowDenominatorReceipt = epoch_contract.LegalAmendmentWindowDenominatorReceipt
+
 # ---------------------------------------------------------------------------
 # Graph entities and search contracts
 # ---------------------------------------------------------------------------

@@ -19,6 +19,12 @@ transportability layer over the dataset catalog built by the batch pipeline.
 - **Derivation catalog selection** - `derivation_catalog_selection.py` strictly loads
   purpose-addressable family policies and evaluates candidates against exact metric/canonical
   owner edges plus rights, alignment, binding, and completeness evidence.
+- **Semantic epoch overlay** - `CatalogAcquisitionOverlay` keeps operational
+  ordinals distinct from semantic epoch identity, records a complete native
+  membership relation for every baseline-union table, and exposes rows only
+  after a separately persisted production receipt activates the pending
+  admission. Legacy/null stamps and incomplete physical membership remain
+  audit-visible but fail closed for read visibility and positive chronology.
 
 ## Public API
 

@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "regimes": {
+    "ukraine_schema_v1": {
+      "schema_regime_id": "ukraine_schema_v1",
+      "source_version": "1.0",
+      "effective_start": "2015-09-01",
+      "effective_end": null,
+      "boundary_buffer_periods": 1,
+      "regime_id": "regime_a",
+      "source_id": null,
+      "publication_regime_notes": ["Part B initial real-data schema regime."]
+    },
+    "ukraine_schema_v2": {
+      "schema_regime_id": "ukraine_schema_v2",
+      "source_version": "2.0",
+      "effective_start": "2022-02-01",
+      "effective_end": null,
+      "boundary_buffer_periods": 1,
+      "regime_id": "regime_b",
+      "source_id": null,
+      "publication_regime_notes": ["wartime schema regime"]
+    }
+  },
+  "changepoints": [
+    {
+      "changepoint_id": "schema.2022_02_wartime",
+      "effective_date": "2022-02-01",
+      "from_schema_regime_id": "ukraine_schema_v1",
+      "to_schema_regime_id": "ukraine_schema_v2",
+      "notes": [],
+      "source_id": null,
+      "source_version": null
+    }
+  ]
+}

@@ -1,20 +1,23 @@
 id = "2026-08-20-gy-n12-epoch-chronology"
-title = "Expose the Foundry dependency-authority refusal"
+title = "Expose the Foundry refusal and policy-free chronology proof contract"
 type = "changed"
-component = "foundry"
-owner = "team-foundry"
-summary = "Add content-bound dependency-profile registries and make both method-catalog identity builders resolve the Foundry-owned negative-only authority before consulting ambient runtime posture."
+component = "core"
+owner = "team-polisyos"
+summary = "Keep the Foundry dependency-authority refusal explicit and add the fixed policy-free full-prefix chronology contract, builder, and verifier through the stable Core facade."
 evidence = [
   "tests/unit/foundry/methods/test_dependency_profile.py",
   "tests/unit/foundry/methods/test_catalog_snapshot.py",
   "tests/typecheck/foundry/dependency_authority_covariance.py",
+  "tests/unit/core/contracts/test_chronology.py",
+  "tests/unit/core/security/test_full_prefix.py",
+  "tests/repo_quality/test_gy_n12_cluster2_plan_paths.py",
 ]
 compatibility = "The two public method-catalog builders now require a MethodCatalogDependencyAuthorityRequest and return a typed failure union; v1 deliberately has no positive dictionary arm."
 change_class = "python-public-api"
 surface_classification = "public_experimental: polisyos.foundry"
 migration = "Construct the request from the fixed N8 purpose, source-freeze commit, production-data root, and environment root; stop on every returned negative variant."
-api = "Adds MethodCatalogDependencyAuthorityRequest and DependencyProfileResolutionFailure, and changes build_method_catalog_runtime_identity and build_method_catalog_provenance_manifest to return that negative-only union."
-limitations = "GY-DEF22 remains producer_missing with artifact_missing, semantic_test_missing, and surface_missing. Runtime cutoff authority and a request-bound refusal-receipt store are absent/unallocated, so refusal persistence is not_established and Foundry adjudication remains owed."
+api = "Adds MethodCatalogDependencyAuthorityRequest and DependencyProfileResolutionFailure, changes the two method-catalog builders to return that negative-only union, and adds the chronology wire DTOs, build_full_prefix_bundle, and FullPrefixVerifier to polisyos.core."
+limitations = "GY-DEF22 remains producer_missing with artifact_missing, semantic_test_missing, and surface_missing. Chronology native producers, acceptance, independent holder custody, and family surfaces are not delivered by this Core contract; whole-history authenticity remains not_established."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = [
@@ -35,5 +38,22 @@ generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = [
   "src/polisyos/foundry/methods/catalog/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "core-policy-free-full-prefix-chronology"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core chronology DTOs and full-prefix verifier"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "2 minor releases"
+release_note = "Core now exposes a fixed full-prefix chronology byte contract and verifier without native policy, acceptance, or authority-head semantics."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/core/contracts/README.md",
+  "src/polisyos/core/security/README.md",
 ]
 runbook_docs = []

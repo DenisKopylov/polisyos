@@ -87,7 +87,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
-| `polisyos.core` | `public_stable` | `lazy_facade` | 21 | `team-polisyos` | `src/polisyos/core/README.md` |
+| `polisyos.core` | `public_stable` | `lazy_facade` | 117 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 273 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
@@ -142,16 +142,112 @@ timestamps
 - Notes: Cross-layer contracts, CAS, registry, observability, and security primitives.
 - Summary: Expose the stable Core platform surface with lazy package imports.
 
-<details><summary>Supported exports (21)</summary>
+<details><summary>Supported exports (117)</summary>
 
 ```text
+FULL_PREFIX_EVALUATION_TABLE
+FULL_PREFIX_FAILURE_DESCRIPTORS
+FULL_PREFIX_TERMINAL_BY_RESULT_KIND
 SECRET_AND_PII_SCAN_SCOPES
 SECRET_PII_DETECTOR_VERSION
+ApplicablePredicateDenominatorArtifactFailure
+ApplicablePredicateDenominatorStatement
+ChronologyApplicablePredicateDenominatorArtifacts
+ChronologyBundleHeader
+ChronologyBundleRequest
+ChronologyMemberInput
+ChronologyPersistenceFailure
+ChronologyPersistenceManifestMismatch
+ChronologyPersistenceNotEstablished
+ChronologyPersistenceStoreIntegrityMismatch
+ChronologyPersistenceVerificationMismatch
+ChronologyPredicatePolicyArtifacts
+ChronologyProofDomain
+ChronologyProofPersistenceFailed
+ChronologyProofPersistenceResult
+Digest
+EncodedChronologyBundle
+ExpectedCommitmentPrefix
+FullPrefixBuildFailureCode
+FullPrefixBuildRejected
+FullPrefixBuildResult
+FullPrefixCheckState
+FullPrefixEnvelopeFailureCode
+FullPrefixEnvelopeRejected
+FullPrefixEvaluationKey
+FullPrefixEvaluationState
+FullPrefixExpectedPrefixFailureCode
+FullPrefixExpectedPrefixRejected
+FullPrefixFailureDescriptor
+FullPrefixInputMode
+FullPrefixInternalConsistencyFailureCode
+FullPrefixInternalConsistencyRejected
+FullPrefixInvocationFailureCode
+FullPrefixInvocationRejected
+FullPrefixMemberFailureCode
+FullPrefixMemberRejected
+FullPrefixRejected
+FullPrefixTerminalCheck
+FullPrefixVerificationResult
+FullPrefixVerificationStatement
+FullPrefixVerified
+FullPrefixVerifier
+MemberPredicateDisposition
+NativeApplicablePredicateDenominatorPersistenceFailed
+NativeAuthorityHeadNotEstablished
+NativeChronologyCandidate
+NativeChronologyCandidateRejected
+NativeChronologyOwnerContext
+NativeChronologyPersistenceFailed
+NativeChronologyPolicyResolutionFailed
+NativeChronologyQualificationResult
+NativeChronologyQualified
+NativeChronologyQuery
+NativeChronologyReconciliation
+NativeDenominatorRejected
+NativeExteriorAndAuthorityHeadNotEstablished
+NativeExteriorNotEstablished
+NativeFullPrefixBuildRejected
+NativeFullPrefixProofRejected
+NativePredicateRejected
+NativeProjectionCustodyGap
+NativeSchemaProfileRejected
+OwnerQualifiedNativeCandidate
+PersistedApplicablePredicateDenominator
+PersistedChronologyProof
+PersistedPredicateAdmissionPolicy
+PersistedPredicatePolicyAdmission
+PolicyAdmissionAmbiguousFailure
+PolicyAdmissionMissingFailure
+PolicyBindingMismatchFailure
+PolicyBytesMissingFailure
+PolicyOwnerRelationNotEstablished
+PolicyOwnerRelationRejected
+PolicyQueryBindingMismatchFailure
+PredicateAdmissionPolicyStatement
+PredicateAdmissionRule
+PredicateClass
+PredicateDisposition
+PredicatePolicyAdmissionIndex
+PredicatePolicyAdmissionStatement
+PredicatePolicyOwnerProvenanceVerifier
+PredicatePolicyOwnerRelationFailure
+PredicatePolicyResolutionContext
+PredicatePolicyResolutionFailure
+PredicatePolicySelectionKey
 PromptSanitizer
+QueryPredicateDisposition
+ResolvedPredicatePolicyAdmission
 SecretAndPIIScanReport
 SecretPIIScanResult
+VerifiedNativeMemberIdentity
+VerifiedNativeSubjectIdentity
+VerifiedOwnerPredicateEvidence
+VerifiedPolicyOwnerProvenance
+VerifiedPredicatePolicyOwnerRelation
 artifacts
 backends
+build_full_prefix_bundle
 cache
 canon
 components

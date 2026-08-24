@@ -6,6 +6,14 @@ from importlib import import_module
 from typing import TYPE_CHECKING, Any
 
 _EXPORTS: dict[str, tuple[str, str]] = {
+    "FullPrefixVerifier": (
+        "polisyos.core.security.full_prefix",
+        "FullPrefixVerifier",
+    ),
+    "build_full_prefix_bundle": (
+        "polisyos.core.security.full_prefix",
+        "build_full_prefix_bundle",
+    ),
     "CellAssignment": ("polisyos.core.security.cell", "CellAssignment"),
     "CellResolution": ("polisyos.core.security.registry", "CellResolution"),
     "CellSpec": ("polisyos.core.security.cell", "CellSpec"),
@@ -218,6 +226,10 @@ if TYPE_CHECKING:
         TenantNotFoundError,
         TokenValidationError,
     )
+    from polisyos.core.security.full_prefix import (
+        FullPrefixVerifier,
+        build_full_prefix_bundle,
+    )
     from polisyos.core.security.identity import (
         PIIAccessLevel,
         PolicyOSRole,
@@ -309,6 +321,7 @@ __all__ = [
     "DelegationTokenManager",
     "DelegationVerificationError",
     "DuckDBLegacyBackend",
+    "FullPrefixVerifier",
     "HotTierBackend",
     "IdentityError",
     "IdentityNotAvailableError",
@@ -345,6 +358,7 @@ __all__ = [
     "VulnerabilityRecord",
     "VulnerabilitySeverity",
     "build_default_audit_backends_from_env",
+    "build_full_prefix_bundle",
     "get_current_access_scope_or_none",
     "get_current_cell_id",
     "get_current_tenant_id",

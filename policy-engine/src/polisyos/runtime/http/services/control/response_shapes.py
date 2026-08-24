@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
+from collections.abc import Iterable, Mapping
 from datetime import UTC
 from decimal import Decimal
-from typing import Any, Mapping
+from typing import Any, cast
 
 from polisyos.core.contracts.control import (
     ControlApprovalProjection,
@@ -13,6 +14,7 @@ from polisyos.core.contracts.control import (
     ControlProjectionSource,
     DecisionValidityEventRequest,
     OperatorDiagnostic,
+    OperatorProjectionAuthority,
     OperatorProjectionState,
     OperatorProjectionStateLabel,
 )
@@ -74,7 +76,7 @@ def _build_scientist_v2_shadow_comparison(
     legacy_cost_usd: float,
     legacy_prompt_tokens: int,
     legacy_completion_tokens: int,
-    shadow_result: Any | None,
+    shadow_result: object | None,
 ) -> dict[str, Any] | None:
     if shadow_result is None:
         return None
@@ -113,7 +115,7 @@ def _build_scientist_v2_shadow_comparison(
     }
 
 
-def _canonicalize_numeric_payload(value: Any) -> Any:
+def _canonicalize_numeric_payload(value: object) -> object:
     if isinstance(value, float):
         return Decimal(str(value))
     if isinstance(value, dict):
@@ -149,7 +151,9 @@ def _decision_validity_dedupe_payload(
     )
 
 
-_DEFAULT_PROJECTION_LABELS: tuple[tuple[OperatorProjectionState, str, str], ...] = (
+_DEFAULT_PROJECTION_LABELS: tuple[
+    tuple[OperatorProjectionState, str, OperatorProjectionAuthority], ...
+] = (
     ("draft", "draft", "projection_only"),
     ("projection_only", "projection only", "projection_only"),
     ("redacted", "redacted", "projection_only"),
@@ -182,14 +186,14 @@ _LAYER_OWNER_DEFAULTS = {
 }
 
 
-def _text_or_none(value: Any) -> str | None:
+def _text_or_none(value: object) -> str | None:
     if isinstance(value, str):
         stripped = value.strip()
         return stripped or None
     return None
 
 
-def _string_map(value: Any) -> dict[str, str]:
+def _string_map(value: object) -> dict[str, str]:
     if not isinstance(value, Mapping):
         return {}
     result: dict[str, str] = {}
@@ -201,7 +205,7 @@ def _string_map(value: Any) -> dict[str, str]:
     return result
 
 
-def _string_list(value: Any) -> list[str]:
+def _string_list(value: object) -> list[str]:
     if not isinstance(value, list):
         return []
     result: list[str] = []
@@ -214,7 +218,7 @@ def _string_list(value: Any) -> list[str]:
 
 def build_control_job_projection_shape(
     *,
-    record: Any,
+    record: object,
     quality_status: str | None,
     quality_scorecard_ref: str | None,
     quality_gates: list[Any],
@@ -288,7 +292,7 @@ def build_control_job_projection_shape(
 def _approval_projection(
     *,
     progress: dict[str, Any],
-    record: Any,
+    record: object,
     quality_status: str | None,
     authority_gaps: list[ControlAuthorityGap],
     projection_source: ControlProjectionSource,
@@ -308,6 +312,12 @@ def _approval_projection(
         eligible = _bool_or_none(scorecard.get("approval_ready"))
     if eligible is None:
         eligible = state == "approval_ready" if state else False
+    if scorecard is not None and (
+        scorecard.get("approval_packet_ref") is not None
+        or scorecard.get("approval_projection_only") is True
+    ):
+        eligible = False
+        state = "approval_projection_only"
 
     reasons = _unique_strings(
         [
@@ -316,6 +326,8 @@ def _approval_projection(
             *[gap.code for gap in authority_gaps],
         ]
     )
+    if state == "approval_projection_only":
+        reasons.append("DS9-RAW-APPROVAL-NOT-AUTHORITY")
     serious = getattr(record, "effective_execution_profile", None) in (_SERIOUS_EXECUTION_PROFILES)
     if serious and (quality_status == "fail" or authority_gaps):
         eligible = False
@@ -598,9 +610,9 @@ def _first_nested_mapping(
 def _first_nested_value(
     payload: Mapping[str, Any],
     paths: tuple[tuple[str, ...], ...],
-) -> Any | None:
+) -> object | None:
     for path in paths:
-        value: Any = payload
+        value: object = payload
         for key in path:
             if not isinstance(value, Mapping):
                 value = None
@@ -611,18 +623,19 @@ def _first_nested_value(
     return None
 
 
-def _model_or_mapping(value: Any) -> dict[str, Any]:
-    if hasattr(value, "model_dump"):
-        payload = value.model_dump(mode="json", exclude_none=True)
+def _model_or_mapping(value: object) -> dict[str, Any]:
+    model_dump = getattr(value, "model_dump", None)
+    if callable(model_dump):
+        payload = model_dump(mode="json", exclude_none=True)
         return payload if isinstance(payload, dict) else {}
     return dict(value) if isinstance(value, Mapping) else {}
 
 
-def _dict_or_empty(value: Any) -> dict[str, Any]:
+def _dict_or_empty(value: object) -> dict[str, Any]:
     return dict(value) if isinstance(value, Mapping) else {}
 
 
-def _bool_or_none(value: Any) -> bool | None:
+def _bool_or_none(value: object) -> bool | None:
     if isinstance(value, bool):
         return value
     if isinstance(value, str):
@@ -634,7 +647,7 @@ def _bool_or_none(value: Any) -> bool | None:
     return None
 
 
-def _unique_strings(values: Any) -> list[str]:
+def _unique_strings(values: Iterable[object]) -> list[str]:
     result: list[str] = []
     for value in values:
         text = _text_or_none(value)
@@ -688,7 +701,7 @@ def _default_next_diagnostic_command(
     return "uv run pytest tests/unit/runtime/http/test_control_plane_store.py -q"
 
 
-def _projection_labels_from_payload(value: Any) -> list[OperatorProjectionStateLabel]:
+def _projection_labels_from_payload(value: object) -> list[OperatorProjectionStateLabel]:
     if not isinstance(value, list):
         return [
             OperatorProjectionStateLabel(state=state, label=label, authority=authority)
@@ -710,9 +723,9 @@ def _projection_labels_from_payload(value: Any) -> list[OperatorProjectionStateL
             authority = "projection_only"
         labels.append(
             OperatorProjectionStateLabel(
-                state=state,  # type: ignore[arg-type]
+                state=cast("OperatorProjectionState", state),
                 label=label,
-                authority=authority,  # type: ignore[arg-type]
+                authority=cast("OperatorProjectionAuthority", authority),
             )
         )
     return labels
@@ -851,7 +864,7 @@ def _operator_diagnostic_from_quality_payload(
 def _operator_diagnostic_from_source_truth_conflict(
     conflict: Mapping[str, Any],
     *,
-    record: Any,
+    record: object,
     authoritative_scorecard_ref: str | None,
 ) -> OperatorDiagnostic:
     evidence_refs = _string_list(conflict.get("cas_refs"))

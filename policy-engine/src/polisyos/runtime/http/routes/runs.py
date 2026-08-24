@@ -13,6 +13,8 @@ from datetime import UTC, datetime
 from time import monotonic
 from typing import TYPE_CHECKING, Annotated, Any, cast
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.contracts.control import (
     ProductionApprovalOverrideRequest,
     ProductionApprovalRequest,
@@ -51,10 +53,12 @@ from polisyos.runtime.http.authorization import (
     ResourceBindingSpec,
     require_action_permission,
 )
+from polisyos.runtime.http.container import resolve_production_approval_resolver
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     build_meta,
     enforce_run_tenant_access,
+    ensure_request_id,
     get_runtime_api_context,
     record_data_access_audit,
     require_access_scope,
@@ -65,11 +69,12 @@ from polisyos.runtime.http.errors import (
     conflict,
     forbidden,
     not_found,
+    service_unavailable,
     unprocessable_entity,
 )
 from polisyos.runtime.http.permissions import RuntimePermission
 from polisyos.runtime.http.resource_binding import (
-    production_approval_scorecard_from_bound_request,
+    production_approval_inputs_from_bound_request,
 )
 from polisyos.runtime.http.response_policies import add_run_link_relations
 from polisyos.runtime.http.services.authority_values import (
@@ -89,6 +94,7 @@ from polisyos.runtime.http.services.channel_contracts import (
     RunsStreamTimeout,
     validate_runs_channel_data_event,
 )
+from polisyos.runtime.http.services.human_decision_contracts import HumanDecisionWriteContext
 from polisyos.runtime.http.services.lineage import LineageSurfaceAdmissionError
 from polisyos.runtime.http.services.run_paper_contracts import (
     RunPaperPacket,
@@ -104,8 +110,9 @@ from polisyos.runtime.http.step_up import (
     require_step_up,
 )
 from polisyos.runtime.quality.approval import (
-    build_production_approval_packet,
-    persist_production_approval_packet,
+    ProductionApprovalIssuanceInput,
+    ProductionApprovalResolutionError,
+    build_resolved_production_approval_packet,
 )
 
 if TYPE_CHECKING:
@@ -846,34 +853,92 @@ if router is not None:
     ) -> ProductionApprovalResponse:
         run = ctx.run_index.get_run(run_id)
         enforce_run_tenant_access(request, ctx=ctx, run=run)
+        tenant_id = run.details.tenant_id
+        if tenant_id is None:
+            raise service_unavailable(
+                "The production approval run has no tenant authority binding",
+                code="DS9-RAW-APPROVAL-NOT-AUTHORITY",
+            )
         set_authz_resource(
             request,
-            tenant_id=run.details.tenant_id,
+            tenant_id=tenant_id,
             kind="runtime.production_approval",
         )
 
         control_service = _control_service_from_request(request)
-        scorecard = production_approval_scorecard_from_bound_request(
+        scorecard, scorecard_digest = production_approval_inputs_from_bound_request(
             request,
             run_id=run_id,
         )
         artifact_ownership = _artifact_ownership_evidence(
             ctx.store,
-            tenant_id=run.details.tenant_id,
+            tenant_id=tenant_id,
             cell_id=run.details.cell_id,
         )
-        packet = build_production_approval_packet(
-            scorecard=scorecard,
+        resolver = resolve_production_approval_resolver(request)
+        if resolver is None:
+            raise service_unavailable(
+                "The production approval resolver is not installed",
+                code="DS9-DECISION-PRODUCER-MISSING",
+            )
+        if (
+            body.production_basis_ref is None
+            or body.production_basis_digest is None
+            or body.human_decision_record_ref is None
+            or body.human_decision_record_digest is None
+        ):
+            raise service_unavailable(
+                "Signed production basis and human decision record are required",
+                code="DS9-DECISION-PRODUCER-MISSING",
+            )
+        try:
+            authority = resolver.authorize_issuance(
+                ProductionApprovalIssuanceInput(
+                    tenant_id=tenant_id,
+                    run_id=run_id,
+                    scorecard_ref=cast("str", scorecard.get("quality_scorecard_ref")),
+                    scorecard_digest=scorecard_digest,
+                    production_basis_ref=body.production_basis_ref,
+                    production_basis_digest=body.production_basis_digest,
+                    human_decision_record_ref=body.human_decision_record_ref,
+                    human_decision_record_digest=body.human_decision_record_digest,
+                    expected_consumer="polisyos.runtime.production_approval",
+                    expected_audience="polisyos-runtime",
+                )
+            )
+        except (ProductionApprovalResolutionError, ValueError) as exc:
+            raise service_unavailable(
+                "The production approval inputs are not independently verified",
+                code=getattr(exc, "code", "DS9-RAW-APPROVAL-NOT-AUTHORITY"),
+            ) from exc
+        packet = build_resolved_production_approval_packet(
+            authority,
             override=_validated_production_approval_override(request, body),
             artifact_ownership=artifact_ownership,
         )
-        persisted = persist_production_approval_packet(
+        scope = require_access_scope(request)
+        request_id = ensure_request_id(request)
+        persisted = resolver.persist_authorized_packet(
+            authority,
             packet,
-            store=ctx.store,
-            # Persisted artifacts are authority data, never host-filesystem commands.
-            # The HTTP boundary writes approval packets only to the configured CAS.
-            evidence_bundle_path=None,
-            artifact_ownership=artifact_ownership,
+            write_context=HumanDecisionWriteContext(
+                tenant_id=tenant_id,
+                cell_id=run.details.cell_id,
+                run_id=run_id,
+                job_id=f"production-approval-http-{request_id}",
+                trace_id=str(getattr(request.state, "trace_id", None) or f"trace-{request_id}"),
+                span_id=str(getattr(request.state, "span_id", None) or f"span-{request_id}"),
+                parent_span_id=None,
+                owner=scope.user_sub or scope.spiffe_id,
+                requested_execution_profile="governed",
+                effective_execution_profile="governed",
+                effective_mode_ref="runtime://production-approval/http",
+            ),
+        )
+        approval_packet_ref = ArtifactRef(
+            artifact_id=ArtifactID.model_validate(persisted.packet_ref),
+            kind="runtime.production_approval_packet",
+            media_type="application/json",
         )
         record_approval_packet = getattr(
             control_service,
@@ -883,7 +948,7 @@ if router is not None:
         if callable(record_approval_packet):
             record_approval_packet(
                 run_id=run_id,
-                approval_packet_ref=str(persisted.approval_packet_ref.artifact_id),
+                approval_packet_ref=persisted.packet_ref,
                 decision=packet.decision,
                 scorecard=scorecard,
                 approval_packet=packet.model_dump(mode="json", exclude_none=True),
@@ -891,7 +956,7 @@ if router is not None:
         record_data_access_audit(
             request,
             resource_id=run_id,
-            tenant_id=run.details.tenant_id,
+            tenant_id=tenant_id,
             outcome="approval_packet_created",
         )
         add_run_link_relations(response, run_id=run_id)
@@ -900,12 +965,8 @@ if router is not None:
             run_id=run_id,
             decision=packet.decision,
             packet=packet,
-            approval_packet_ref=persisted.approval_packet_ref,
-            evidence_bundle_packet_path=(
-                str(persisted.evidence_bundle_packet_path)
-                if persisted.evidence_bundle_packet_path is not None
-                else None
-            ),
+            approval_packet_ref=approval_packet_ref,
+            evidence_bundle_packet_path=None,
         )
 
     @router.get(

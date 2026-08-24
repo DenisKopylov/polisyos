@@ -65,12 +65,8 @@ def test_external_client_surface_requires_case_bound_runtime_envelope() -> None:
     validation = validate_external_client_surface_record(record)
 
     assert validation["status"] == "fail"
-    assert "policy_design_external_client_surface_identity_missing" in _issue_codes(
-        validation
-    )
-    assert "policy_design_external_client_surface_runtime_ref_missing" in _issue_codes(
-        validation
-    )
+    assert "policy_design_external_client_surface_identity_missing" in _issue_codes(validation)
+    assert "policy_design_external_client_surface_runtime_ref_missing" in _issue_codes(validation)
 
 
 def test_external_dependency_contract_blocks_revoked_provider_rights() -> None:
@@ -81,9 +77,7 @@ def test_external_dependency_contract_blocks_revoked_provider_rights() -> None:
     validation = validate_external_client_surface_record(record)
 
     assert validation["status"] == "fail"
-    assert "policy_design_external_dependency_provider_risk_blocked" in _issue_codes(
-        validation
-    )
+    assert "policy_design_external_dependency_provider_risk_blocked" in _issue_codes(validation)
 
 
 def test_offline_optimistic_mutation_cannot_mint_approval_authority() -> None:
@@ -97,6 +91,25 @@ def test_offline_optimistic_mutation_cannot_mint_approval_authority() -> None:
 
     assert validation["status"] == "fail"
     assert "policy_design_offline_mutation_authority_missing" in _issue_codes(validation)
+
+
+def test_offline_approval_is_rejected_pending_online_revalidation() -> None:
+    record = _valid_external_client_surface_record()
+    mutation = record["offline_mutation_authority"][0]
+    mutation["authority_state"] = "offline"
+    mutation["presented_as_authoritative"] = False
+    mutation["pending_authority_blocker_ref"] = sha("f")
+    mutation["offline_disposition"] = "rejected_pending_revalidation"
+    mutation["revalidation_required"] = True
+    mutation.pop("server_acceptance_ref")
+    mutation.pop("approval_packet_ref")
+
+    accepted = validate_external_client_surface_record(record)
+    mutation["revalidation_required"] = False
+    rejected = validate_external_client_surface_record(record)
+
+    assert "policy_design_offline_approval_revalidation_required" not in _issue_codes(accepted)
+    assert "policy_design_offline_approval_revalidation_required" in _issue_codes(rejected)
 
 
 def test_scorecard_blocks_missing_external_client_surface_record() -> None:
@@ -253,8 +266,4 @@ def _valid_external_client_surface_record() -> dict[str, object]:
 
 
 def _issue_codes(validation: dict[str, object]) -> set[str]:
-    return {
-        str(issue["code"])
-        for issue in validation.get("issues", [])
-        if isinstance(issue, dict)
-    }
+    return {str(issue["code"]) for issue in validation.get("issues", []) if isinstance(issue, dict)}

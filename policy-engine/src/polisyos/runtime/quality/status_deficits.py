@@ -196,7 +196,9 @@ _STATUS_CROSSWALK: Mapping[tuple[str, str], _AxisSpec] = {
     ("semantic_binding", "degraded"): _REVIEW,
     ("semantic_binding", "blocked"): _HARD_BLOCK,
     ("semantic_binding", "fail"): _HARD_BLOCK,
-    ("approval", "approval_ready"): _PASS,
+    # Raw scorecard vocabulary is candidate telemetry until the concrete
+    # production packet resolver establishes live currentness.
+    ("approval", "approval_ready"): _REVIEW,
     ("approval", "quality_warn"): _REVIEW,
     ("approval", "override_required"): _REVIEW,
     ("approval", "quality_failed"): _HARD_BLOCK,
@@ -543,9 +545,7 @@ def _entry_from_local_status(
     now: datetime,
 ) -> tuple[StatusEnvelopeEntry, list[StatusLifecycleIssue]]:
     family = _required_text(
-        status.get("status_family")
-        or status.get("family")
-        or status.get("local_status_family")
+        status.get("status_family") or status.get("family") or status.get("local_status_family")
     ).casefold()
     local_status = _required_text(
         status.get("local_status") or status.get("status") or status.get("decision")
@@ -716,13 +716,9 @@ def _summary(
 ) -> StatusEnvelopeSummary:
     severities = [entry.severity for entry in entries] or [SharedSeverity.INFO]
     blocking = [entry.blockingness for entry in entries] or [Blockingness.NON_BLOCKING]
-    publications = [entry.publication_effect for entry in entries] or [
-        PublicationEffect.UNAFFECTED
-    ]
+    publications = [entry.publication_effect for entry in entries] or [PublicationEffect.UNAFFECTED]
     reviews = [entry.review_action for entry in entries] or [ReviewAction.NONE]
-    closeouts = [entry.closeout_effect for entry in entries] or [
-        CloseoutEffect.CLOSEOUT_ALLOWED
-    ]
+    closeouts = [entry.closeout_effect for entry in entries] or [CloseoutEffect.CLOSEOUT_ALLOWED]
     if lifecycle_issues:
         severities.append(SharedSeverity.CRITICAL)
         blocking.append(Blockingness.HARD_BLOCKING)
@@ -752,8 +748,7 @@ def _summary(
                     *(
                         f"deficit:{row.disposition.value}"
                         for row in crosswalk
-                        if row.closeout_effect
-                        is not CloseoutEffect.CLOSEOUT_ALLOWED
+                        if row.closeout_effect is not CloseoutEffect.CLOSEOUT_ALLOWED
                     ),
                 }
             )
@@ -764,9 +759,7 @@ def _summary(
 def _deficit_gate(row: DeficitCrosswalkRow) -> dict[str, Any]:
     code = {
         DeficitDisposition.ACCEPTED_DEFICIT: "status_deficit_accepted",
-        DeficitDisposition.PUBLISH_WITH_LIMITATION: (
-            "status_deficit_publish_with_limitation"
-        ),
+        DeficitDisposition.PUBLISH_WITH_LIMITATION: ("status_deficit_publish_with_limitation"),
         DeficitDisposition.HUMAN_REVIEW_REQUIRED: "status_deficit_review_required",
         DeficitDisposition.EXPERT_REVIEW_REQUIRED: "status_deficit_review_required",
         DeficitDisposition.REISSUE_REQUIRED: "status_deficit_reissue_required",

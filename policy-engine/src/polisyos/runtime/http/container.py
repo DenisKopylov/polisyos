@@ -26,6 +26,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.execution_policy import ResolvedExecutionPolicy
     from polisyos.runtime.http.security import RuntimeSecurityConfig
     from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+    from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
 
 LifecycleStatus = Literal["created", "starting", "ready", "stopping", "stopped", "failed"]
 
@@ -104,6 +105,7 @@ class RuntimeServiceContainer:
     control_registry_providers: ControlRegistryProviders
     control_service: ControlPlaneService | None = None
     human_decision_service: HumanDecisionService | None = None
+    production_approval_resolver: ProductionApprovalPacketResolver | None = None
     lifecycle: RuntimeLifecycleState = field(default_factory=RuntimeLifecycleState)
 
     @classmethod
@@ -186,8 +188,9 @@ class RuntimeServiceContainer:
         """Transition the container to ready and initialize lazy services."""
         self.lifecycle.mark("starting")
         try:
-            if self.control_service is None:
-                self.control_service = ControlPlaneService(
+            control_service = self.control_service
+            if control_service is None:
+                control_service = ControlPlaneService(
                     cas_root=self.config.cas_root,
                     core_runs_root=self.config.core_runs_root,
                     metrics=self.runtime_metrics,
@@ -196,6 +199,7 @@ class RuntimeServiceContainer:
                     async_artifact_store=self.runtime_api_context.async_store,
                     registry_providers=self.control_registry_providers,
                 )
+                self.control_service = control_service
             custody = self._resolve_human_decision_custody(app)
             from polisyos.runtime.http.services.human_decision_contracts import (
                 HumanDecisionResolverPolicy,
@@ -204,7 +208,7 @@ class RuntimeServiceContainer:
 
             access_audit_path = self.config.cas_root / "runtime" / "audit" / "access.jsonl"
             self.human_decision_service = HumanDecisionService(
-                authority_sink=self.control_service.human_decision_sink,
+                authority_sink=control_service.human_decision_sink,
                 custody=custody,
                 resolver_policy=HumanDecisionResolverPolicy(
                     expected_consumer=("polisyos.runtime.quality.agent_action_authority"),
@@ -215,6 +219,38 @@ class RuntimeServiceContainer:
                 ),
                 access_audit_path=access_audit_path,
             )
+            from polisyos.runtime.quality.approval import (
+                _issue_production_decision_packet_resolver,
+            )
+
+            self.production_approval_resolver = _issue_production_decision_packet_resolver(
+                self.human_decision_service,
+                expected_audience="polisyos-runtime",
+                deployment_security=getattr(
+                    app.state,
+                    "runtime_deployment_security",
+                    None,
+                ),
+            )
+            from polisyos.runtime.http.deployment_security_attestation import (
+                DeploymentSecurityAttestationError,
+                _register_production_approval_resolver_installation,
+            )
+
+            try:
+                _register_production_approval_resolver_installation(
+                    app,
+                    container=self,
+                    service=self.human_decision_service,
+                    custody=self.human_decision_service.custody,
+                    verifier_epoch=self.production_approval_resolver.issuer_epoch,
+                    resolver=self.production_approval_resolver,
+                )
+            except DeploymentSecurityAttestationError:
+                # The existing request guard owns the typed 503 surface for a
+                # mutated deployment authority.  Keep startup observable while
+                # removing the unregistered resolver from every consumer seam.
+                self.production_approval_resolver = None
             self._bind_legacy_state(app)
             self.lifecycle.mark("ready")
         except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -248,6 +284,10 @@ class RuntimeServiceContainer:
             "review_collaboration_hub": _resource_state(self.review_collaboration_hub),
             "control_plane_service": _resource_state(self.control_service, pending_ok=True),
             "human_decision_service": _human_decision_resource_state(self.human_decision_service),
+            "production_approval_resolver": _resource_state(
+                self.production_approval_resolver,
+                pending_ok=True,
+            ),
             "runtime_metrics": _resource_state(self.runtime_metrics),
             "runtime_tracer": _resource_state(self.runtime_tracer),
             "runtime_access_audit": _resource_state(self.runtime_access_audit),
@@ -289,6 +329,10 @@ class RuntimeServiceContainer:
                     "runtime_access_audit",
                     "deployment_security",
                 ],
+                "production_approval_resolver": [
+                    "human_decision_service",
+                    "deployment_security",
+                ],
                 "mutation_policy": [
                     "runtime_rate_limiter",
                     "runtime_idempotency_store",
@@ -319,6 +363,7 @@ class RuntimeServiceContainer:
         app.state.runtime_review_opa_guard = self.runtime_review_opa_guard
         app.state._control_service = self.control_service
         app.state._human_decision_service = self.human_decision_service
+        app.state._production_approval_resolver = self.production_approval_resolver
 
     def _resolve_human_decision_custody(self, app: Any) -> Any:
         """Re-attest custody at service construction; aliases never carry authority."""
@@ -386,6 +431,34 @@ def resolve_human_decision_service(subject: Any) -> HumanDecisionService | None:
         return None
     service = container.human_decision_service
     return service if type(service) is HumanDecisionService else None
+
+
+def resolve_production_approval_resolver(
+    subject: Any,
+) -> ProductionApprovalPacketResolver | None:
+    """Resolve the sole deployment-issued production approval resolver."""
+
+    from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
+
+    container = get_runtime_container(subject)
+    if container is None:
+        return None
+    resolver = container.production_approval_resolver
+    if type(resolver) is not ProductionApprovalPacketResolver:
+        return None
+    from polisyos.runtime.http.deployment_security_attestation import (
+        DeploymentSecurityAttestationError,
+        require_installed_production_approval_resolver,
+    )
+
+    try:
+        registered = require_installed_production_approval_resolver(
+            subject,
+            candidate=resolver,
+        )
+    except DeploymentSecurityAttestationError:
+        return None
+    return resolver if registered is resolver else None
 
 
 def resolve_review_collaboration_hub(subject: Any) -> ReviewCollaborationHub | None:
@@ -474,6 +547,7 @@ __all__ = [
     "get_runtime_container",
     "resolve_control_service",
     "resolve_human_decision_service",
+    "resolve_production_approval_resolver",
     "resolve_review_collaboration_hub",
     "resolve_runtime_access_audit",
     "resolve_runtime_api_context",

@@ -517,12 +517,8 @@ class TestCapabilities:
         assert body["authoritative_scorecard_ref"] is None
         assert body["approval_projection"]["eligible"] is False
         assert body["approval_projection"]["state"] == "quality_failed"
-        assert body["unresolved_authority_gaps"][0]["code"] == (
-            "major_claim_missing_grounding"
-        )
-        assert body["unresolved_authority_gaps"][0]["next_diagnostic_command"] == (
-            next_command
-        )
+        assert body["unresolved_authority_gaps"][0]["code"] == ("major_claim_missing_grounding")
+        assert body["unresolved_authority_gaps"][0]["next_diagnostic_command"] == (next_command)
         assert next_command in body["next_diagnostic_commands"]
 
     def test_api_projection_source_truth_conflict_blocks_approval_ready_shape(
@@ -592,12 +588,8 @@ class TestCapabilities:
         assert "hds_source_truth_conflict" in gap_codes
         assert body["approval_projection"]["eligible"] is False
         assert body["approval_projection"]["state"] == "quality_failed"
-        assert body["operator_diagnostic"]["first_blocking_cause"] == (
-            "hds_source_truth_conflict"
-        )
-        assert body["operator_diagnostic"]["projection_source"] == (
-            "runtime_api_projection"
-        )
+        assert body["operator_diagnostic"]["first_blocking_cause"] == ("hds_source_truth_conflict")
+        assert body["operator_diagnostic"]["projection_source"] == ("runtime_api_projection")
 
     def test_failed_serious_run_exposes_operator_diagnostic_on_api_projections(
         self,
@@ -641,9 +633,7 @@ class TestCapabilities:
                             "layer": "scientist_policy_artifacts",
                             "phase": "policy_grounding",
                             "message": "Policy grounding matrix is missing.",
-                            "evidence_ref": (
-                                "quality_evidence/policy_grounding_matrix.json"
-                            ),
+                            "evidence_ref": ("quality_evidence/policy_grounding_matrix.json"),
                             "next_action": "Attach the policy grounding matrix ref.",
                             "next_diagnostic_command": next_command,
                             "owner": "team-policy-semantics",
@@ -662,9 +652,7 @@ class TestCapabilities:
                             "layer": "scientist_policy_artifacts",
                             "phase": "policy_grounding",
                             "message": "Policy grounding matrix is missing.",
-                            "evidence_ref": (
-                                "quality_evidence/policy_grounding_matrix.json"
-                            ),
+                            "evidence_ref": ("quality_evidence/policy_grounding_matrix.json"),
                             "next_action": "Attach the policy grounding matrix ref.",
                             "next_diagnostic_command": next_command,
                             "owner": "team-policy-semantics",
@@ -691,10 +679,7 @@ class TestCapabilities:
         for diagnostic in (control_diagnostic, run_diagnostic):
             assert diagnostic["owner"] == "team-policy-semantics"
             assert diagnostic["phase"] == "policy_grounding"
-            assert (
-                diagnostic["first_blocking_cause"]
-                == "policy_grounding_matrix_ref_missing"
-            )
+            assert diagnostic["first_blocking_cause"] == "policy_grounding_matrix_ref_missing"
             assert diagnostic["upstream_missing_input"] == "policy_grounding_matrix_ref"
             assert (
                 diagnostic["downstream_impact"]
@@ -705,10 +690,7 @@ class TestCapabilities:
             assert diagnostic["authority_refs"]["quality_scorecard"] == (
                 "quality_evidence/quality_scorecard.json"
             )
-            assert (
-                "quality_evidence/policy_grounding_matrix.json"
-                in diagnostic["evidence_refs"]
-            )
+            assert "quality_evidence/policy_grounding_matrix.json" in diagnostic["evidence_refs"]
             assert diagnostic["next_diagnostic_command"] == next_command
 
 
@@ -734,11 +716,14 @@ class TestProductionApproval:
         )
         runtime_store = runtime_api_env["app"].state.runtime_api_ctx.store
 
-        with tenant_scope(
-            None,
-            tenant_id=runtime_api_env["tenant_a"],
-            cell_id=runtime_api_env["cell_a"],
-        ), pytest.raises(ArtifactOwnershipError):
+        with (
+            tenant_scope(
+                None,
+                tenant_id=runtime_api_env["tenant_a"],
+                cell_id=runtime_api_env["cell_a"],
+            ),
+            pytest.raises(ArtifactOwnershipError),
+        ):
             runtime_store.get_bytes(tenant_b_ref.artifact_id)
 
         with tenant_scope(
@@ -750,7 +735,7 @@ class TestProductionApproval:
                 "tenant": "b-only"
             }
 
-    def test_create_run_production_approval_persists_packet_from_scorecard_ref(
+    def test_production_approval_blocks_missing_decision_producer(
         self,
         runtime_api_env,
         tmp_path,
@@ -779,28 +764,27 @@ class TestProductionApproval:
             response = client.post(
                 f"/api/v1/runs/{run_id}/production-approval",
                 headers=_with_fresh_step_up(client, headers),
-                json={"quality_scorecard_ref": scorecard_ref},
+                json={
+                    "quality_scorecard_ref": scorecard_ref,
+                    "production_basis_ref": _sha("b"),
+                    "production_basis_digest": _sha("b"),
+                    "human_decision_record_ref": _sha("c"),
+                    "human_decision_record_digest": _sha("c"),
+                },
             )
 
-        assert response.status_code == 200
+        assert response.status_code == 503
         body = response.json()
-        assert body["run_id"] == run_id
-        assert body["decision"] == "approved"
-        assert body["packet"]["eligibility"]["eligible"] is True
-        assert body["packet"]["scorecard_ref"] == scorecard_ref
-        assert "artifact_ownership_index" in body["packet"]["evidence_refs"]
-        assert body["approval_packet_ref"]["kind"] == "runtime.production_approval_packet"
-        assert body["evidence_bundle_packet_path"] is None
+        assert body["code"] == "DS9-DECISION-PRODUCER-MISSING"
         assert not (evidence_bundle / "production_approval_packet.json").exists()
 
         store = FileSystemCAS(runtime_api_env["cas_root"])
-        artifact_id = body["approval_packet_ref"]["artifact_id"]
-        assert store.has(artifact_id)
-        persisted = json.loads(store.get_bytes(artifact_id))
-        assert persisted["run_id"] == run_id
-        assert persisted["decision"] == "approved"
+        assert all(
+            store.get_manifest(artifact_id).kind != "runtime.production_approval_packet"
+            for artifact_id in store.iter_artifact_ids()
+        )
 
-    def test_create_run_production_approval_uses_persisted_control_progress(
+    def test_persisted_control_progress_does_not_bypass_producer_trust(
         self,
         runtime_api_env,
         tmp_path,
@@ -855,23 +839,23 @@ class TestProductionApproval:
             response = client.post(
                 f"/api/v1/runs/{run_id}/production-approval",
                 headers=_with_fresh_step_up(client, headers),
-                json={},
+                json={
+                    "production_basis_ref": _sha("b"),
+                    "production_basis_digest": _sha("b"),
+                    "human_decision_record_ref": _sha("c"),
+                    "human_decision_record_digest": _sha("c"),
+                },
             )
-            assert response.status_code == 200
+            assert response.status_code == 503
             body = response.json()
+            assert body["code"] == "DS9-DECISION-PRODUCER-MISSING"
             record = service._control_store.get_job("job_production_approval_progress")
             assert record is not None
             progress_scorecard = record.progress["quality_scorecard"]
-            assert body["packet"]["scorecard_ref"] == scorecard_ref
-            assert (
-                progress_scorecard["approval_packet_ref"]
-                == body["approval_packet_ref"]["artifact_id"]
-            )
-            assert (
-                progress_scorecard["evidence_refs"]["approval_packet_ref"]
-                == body["approval_packet_ref"]["artifact_id"]
-            )
-            assert progress_scorecard["approval_decision"] == "approved"
+            assert progress_scorecard["quality_scorecard_ref"] == scorecard_ref
+            assert "approval_packet_ref" not in progress_scorecard
+            assert "approval_packet_ref" not in progress_scorecard["evidence_refs"]
+            assert "approval_decision" not in progress_scorecard
 
     def test_run_production_approval_rejects_unpersisted_inline_scorecard(
         self,
@@ -926,6 +910,10 @@ class TestProductionApproval:
                 headers=_with_fresh_step_up(client, headers),
                 json={
                     "quality_scorecard_ref": scorecard_ref,
+                    "production_basis_ref": _sha("b"),
+                    "production_basis_digest": _sha("b"),
+                    "human_decision_record_ref": _sha("c"),
+                    "human_decision_record_digest": _sha("c"),
                     "override": {
                         "reviewer_identity": "user-1",
                     },
@@ -1464,9 +1452,12 @@ class TestDataIngestion:
             case_id="ingest-accepted",
         )
         IngestionResult(datasets_fetched=1)
-        with client, patch(
-            "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=None,
+        with (
+            client,
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=None,
+            ),
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
@@ -1558,9 +1549,12 @@ class TestSourceProfiles:
             role=PolicyOSRole.ANALYST,
             case_id="ingest-connection-profile",
         )
-        with client, patch(
-            "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=None,
+        with (
+            client,
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=None,
+            ),
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
@@ -1584,9 +1578,12 @@ class TestSourceProfiles:
             role=PolicyOSRole.ANALYST,
             case_id="ingest-response-fields",
         )
-        with client, patch(
-            "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=None,
+        with (
+            client,
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=None,
+            ),
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
@@ -1811,17 +1808,20 @@ class TestIngestStreamingWindowed:
             role=PolicyOSRole.ANALYST,
             case_id="ingest-streaming-windowed",
         )
-        with client, patch(
-            "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
-            return_value=[
-                {
-                    "chunk_index": 0,
-                    "row_count": 1,
-                    "is_first": True,
-                    "is_last": True,
-                    "data": [{"x": 1}],
-                }
-            ],
+        with (
+            client,
+            patch(
+                "polisyos.fabric.data_plane.modes._fetch_stream_for_dataset_async",
+                return_value=[
+                    {
+                        "chunk_index": 0,
+                        "row_count": 1,
+                        "is_first": True,
+                        "is_last": True,
+                        "data": [{"x": 1}],
+                    }
+                ],
+            ),
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
@@ -1848,9 +1848,12 @@ class TestIngestRecordReplay:
             role=PolicyOSRole.ANALYST,
             case_id="ingest-record-mode",
         )
-        with client, patch(
-            "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=None,
+        with (
+            client,
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=None,
+            ),
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",
@@ -1873,9 +1876,12 @@ class TestIngestRecordReplay:
             role=PolicyOSRole.ANALYST,
             case_id="ingest-record-binding-fields",
         )
-        with client, patch(
-            "polisyos.fabric.ingestion.run_connectors_ingestion",
-            return_value=None,
+        with (
+            client,
+            patch(
+                "polisyos.fabric.ingestion.run_connectors_ingestion",
+                return_value=None,
+            ),
         ):
             resp = client.post(
                 "/api/v1/control/data/ingest",

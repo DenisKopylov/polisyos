@@ -13,6 +13,7 @@ from typing import Annotated, Literal, Self
 
 from pydantic import AwareDatetime, Field, model_validator
 
+from polisyos.core import canon
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     HUMAN_DECISION_RECORD_V2,
@@ -21,6 +22,7 @@ from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     FiveRightsRequirement,
     HumanDecisionFiveRightsBinding,
     HumanDecisionRecord,
+    HumanDecisionRequest,
 )
 
 HUMAN_DECISION_RECORD_MANIFEST_VERSION = "2.0"
@@ -299,9 +301,14 @@ class ProductionHumanDecisionBasis(Layer2ReadinessModel):
     run_id: str = Field(min_length=1, max_length=200)
     case_id: str = Field(min_length=1, max_length=200)
     governed_action_key: str = Field(pattern=_SHA256_PATTERN)
+    decision_request: HumanDecisionRequest
+    requester_actor_ref: str = Field(min_length=1, max_length=300)
     decision_request_ref: str = Field(min_length=1, max_length=300)
     decision_request_digest: str = Field(pattern=_SHA256_PATTERN)
     mandate_record_ref: str = Field(min_length=1, max_length=300)
+    mandate_owner_ref: str = Field(min_length=1, max_length=300)
+    operation_id: str = Field(min_length=1, max_length=200)
+    action_kind: str = Field(pattern=_ACTION_KIND_PATTERN, max_length=120)
     decision_rights_matrix_ref: str = Field(min_length=1, max_length=300)
     required_role: str = Field(min_length=1, max_length=120)
     offered_actions: tuple[DecisionAction, ...] = Field(min_length=1, max_length=5)
@@ -318,6 +325,34 @@ class ProductionHumanDecisionBasis(Layer2ReadinessModel):
     def _valid_interval(self) -> Self:
         if self.valid_until <= self.valid_from:
             raise ValueError("production human-decision basis interval is empty")
+        request = self.decision_request
+        request_digest = "sha256:" + canon.content_hash(
+            canon.to_canonical_bytes(
+                request.model_dump(mode="json"),
+                canon.CanonSpec(forbid_floats=False),
+            )
+        )
+        if (
+            self.decision_request_ref != request.request_ref
+            or self.decision_request_digest != request_digest
+            or self.case_id != request.case_id
+            or self.mandate_record_ref != request.s6_mandate_record_ref
+            or self.decision_rights_matrix_ref != request.decision_rights_matrix_ref
+            or self.required_role != request.required_role
+            or self.offered_actions != tuple(request.available_actions)
+            or self.rule_version_ref != request.rule_version_ref
+            or self.authority_boundary != request.authority_boundary
+        ):
+            raise ValueError("production basis differs from its complete signed request")
+        decision_ends = tuple(
+            value
+            for value in (request.decision_due_at, request.decidable_until)
+            if value is not None
+        )
+        if self.valid_from < request.requested_at or any(
+            self.valid_until > boundary for boundary in decision_ends
+        ):
+            raise ValueError("production basis validity exceeds the request decision window")
         return self
 
 

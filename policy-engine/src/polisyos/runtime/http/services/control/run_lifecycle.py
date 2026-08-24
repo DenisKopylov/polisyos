@@ -451,19 +451,13 @@ class HumanDecisionAuthoritySink:
                 try:
                     manifest = self._artifact_store.get_manifest(artifact_id)
                 except Exception as exc:
-                    raise RuntimeError(
-                        "human-decision recovery CAS manifest scan failed"
-                    ) from exc
+                    raise RuntimeError("human-decision recovery CAS manifest scan failed") from exc
                 if manifest.kind != "runtime_quality.agent_action_human_decision":
                     continue
                 try:
-                    payload = from_canonical_bytes(
-                        self._artifact_store.get_bytes(artifact_id)
-                    )
+                    payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
                 except Exception as exc:
-                    raise RuntimeError(
-                        "human-decision recovery CAS readback failed"
-                    ) from exc
+                    raise RuntimeError("human-decision recovery CAS readback failed") from exc
                 if not isinstance(payload, Mapping):
                     raise RuntimeError("human-decision record payload is not an object")
                 if (
@@ -513,9 +507,7 @@ class HumanDecisionAuthoritySink:
             authority = manifest.authority
             if authority is None:
                 raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
-            event_ref = artifacts.ArtifactID.model_validate(
-                authority.diagnostic_event_ref
-            )
+            event_ref = artifacts.ArtifactID.model_validate(authority.diagnostic_event_ref)
             event_manifest = self._artifact_store.get_manifest(event_ref)
             event_schema = event_manifest.artifact_schema
             if (
@@ -536,10 +528,7 @@ class HumanDecisionAuthoritySink:
                 or event.tenant_id != tenant_id
                 or event.run_id != expected_run_id
                 or event.job_id != expected_job_id
-                or (
-                    expected_cell_id is not None
-                    and event.cell_id != expected_cell_id
-                )
+                or (expected_cell_id is not None and event.cell_id != expected_cell_id)
             ):
                 raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
             self._event_log.append(
@@ -704,9 +693,7 @@ class HumanDecisionAuthoritySink:
             artifacts.ArtifactID.model_validate(artifact_ref)
         )
 
-    def get_artifact_signature(
-        self, artifact_ref: str
-    ) -> artifacts.DetachedSignature | None:
+    def get_artifact_signature(self, artifact_ref: str) -> artifacts.DetachedSignature | None:
         """Return an existing detached signature without synthesizing one."""
 
         return self._signed_artifact_store().get_signature(
@@ -1436,13 +1423,16 @@ class ControlPlaneService(
 
         progress_scorecard["approval_packet_ref"] = approval_packet_ref
         progress_scorecard["approval_decision"] = decision
-        progress_scorecard["approval_ready"] = decision in {
-            "approved",
-            "approved_with_override",
-        }
+        # A stored packet is a historical projection. Every operational consumer
+        # must re-run the concrete resolver against the signed packet and inputs.
+        progress_scorecard["approval_ready"] = False
         progress_scorecard["approval_state"] = (
-            "approval_ready" if progress_scorecard["approval_ready"] else "approval_blocked"
+            "approval_projection_only"
+            if decision in {"approved", "approved_with_override"}
+            else "approval_blocked"
         )
+        progress_scorecard["approval_currentness"] = "resolver_required"
+        progress_scorecard["approval_projection_only"] = True
         progress_scorecard["evidence_refs"] = evidence_refs
         if approval_packet is not None:
             packet_payload = dict(approval_packet)

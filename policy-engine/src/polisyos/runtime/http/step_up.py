@@ -94,6 +94,10 @@ class StepUpVerificationContext:
     step_up_class: StepUpClass
     scorecard_ref: str | None
     scorecard_sha256: str | None
+    production_basis_ref: str | None = None
+    production_basis_sha256: str | None = None
+    human_decision_record_ref: str | None = None
+    human_decision_record_sha256: str | None = None
 
     def __post_init__(self) -> None:
         required = {
@@ -117,15 +121,26 @@ class StepUpVerificationContext:
         for field_name, value in (
             ("scorecard_ref", self.scorecard_ref),
             ("scorecard_sha256", self.scorecard_sha256),
+            ("production_basis_ref", self.production_basis_ref),
+            ("production_basis_sha256", self.production_basis_sha256),
+            ("human_decision_record_ref", self.human_decision_record_ref),
+            ("human_decision_record_sha256", self.human_decision_record_sha256),
         ):
             if value is not None and (not isinstance(value, str) or not value.strip()):
                 raise TypeError(f"{field_name} must be None or a non-empty string")
-        scorecard_values = (self.scorecard_ref, self.scorecard_sha256)
+        production_values = (
+            self.scorecard_ref,
+            self.scorecard_sha256,
+            self.production_basis_ref,
+            self.production_basis_sha256,
+            self.human_decision_record_ref,
+            self.human_decision_record_sha256,
+        )
         if self.step_up_class is StepUpClass.PRODUCTION_APPROVAL:
-            if any(value is None for value in scorecard_values):
-                raise ValueError("production approval step-up requires scorecard binding")
-        elif any(value is not None for value in scorecard_values):
-            raise ValueError("scorecard binding is exclusive to production approval")
+            if any(value is None for value in production_values):
+                raise ValueError("production approval step-up requires all three input bindings")
+        elif any(value is not None for value in production_values):
+            raise ValueError("production input bindings are exclusive to production approval")
 
 
 @dataclass(frozen=True, slots=True)
@@ -351,6 +366,10 @@ class JWTStepUpAssertionVerifier:
             "step_up_class": context.step_up_class.value,
             "scorecard_ref": context.scorecard_ref,
             "scorecard_sha256": context.scorecard_sha256,
+            "production_basis_ref": context.production_basis_ref,
+            "production_basis_sha256": context.production_basis_sha256,
+            "human_decision_record_ref": context.human_decision_record_ref,
+            "human_decision_record_sha256": context.human_decision_record_sha256,
         }
         mismatched = tuple(
             name for name, expected in expected_bindings.items() if payload.get(name) != expected
@@ -714,13 +733,34 @@ def _build_step_up_context(
     selectors = dict(bound_resource.canonical_selectors)
     scorecard_ref: str | None = None
     scorecard_sha256: str | None = None
+    production_basis_ref: str | None = None
+    production_basis_sha256: str | None = None
+    human_decision_record_ref: str | None = None
+    human_decision_record_sha256: str | None = None
     if requirement.step_up_class is StepUpClass.PRODUCTION_APPROVAL:
         scorecard_ref = _decoded_selector(selectors, "quality_scorecard_ref")
         scorecard_sha256 = _decoded_selector(selectors, "scorecard_sha256")
-        if scorecard_ref is None or scorecard_sha256 is None:
+        production_basis_ref = _decoded_selector(selectors, "production_basis_ref")
+        production_basis_sha256 = _decoded_selector(selectors, "production_basis_sha256")
+        human_decision_record_ref = _decoded_selector(selectors, "human_decision_record_ref")
+        human_decision_record_sha256 = _decoded_selector(
+            selectors,
+            "human_decision_record_sha256",
+        )
+        if any(
+            value is None
+            for value in (
+                scorecard_ref,
+                scorecard_sha256,
+                production_basis_ref,
+                production_basis_sha256,
+                human_decision_record_ref,
+                human_decision_record_sha256,
+            )
+        ):
             raise forbidden(
-                "Production approval step-up lacks a persisted scorecard binding",
-                code="step_up_scorecard_unbound",
+                "Production approval step-up lacks one of three persisted input bindings",
+                code="step_up_production_inputs_unbound",
             )
     return StepUpVerificationContext(
         subject=proof.subject,
@@ -736,6 +776,10 @@ def _build_step_up_context(
         step_up_class=requirement.step_up_class,
         scorecard_ref=scorecard_ref,
         scorecard_sha256=scorecard_sha256,
+        production_basis_ref=production_basis_ref,
+        production_basis_sha256=production_basis_sha256,
+        human_decision_record_ref=human_decision_record_ref,
+        human_decision_record_sha256=human_decision_record_sha256,
     )
 
 

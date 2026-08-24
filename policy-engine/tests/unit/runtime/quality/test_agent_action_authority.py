@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 
@@ -485,6 +486,7 @@ def _prepare_gateway(
     human_decision_refs: dict[str, str] | None = None,
     human_decision_service: Any | None = None,
     human_decision_adapters: dict[str, Any] | None = None,
+    production_approval_resolver: Any | None = None,
     bound_permission: object | None = None,
 ) -> tuple[object, str, str | None]:
     authority = _authority_module()
@@ -543,6 +545,7 @@ def _prepare_gateway(
         human_decision_refs_by_request_ref=human_decision_refs or {},
         human_decision_service=human_decision_service,
         human_decision_adapters_by_request_ref=human_decision_adapters or {},
+        production_approval_resolver=production_approval_resolver,
     )
     return gateway, contract_ref, admission_ref
 
@@ -836,6 +839,127 @@ def test_agent_gateway_rejects_cross_arm_fields() -> None:
                 "delegation_contract_ref": "sha256:" + "5" * 64,
             }
         )
+
+
+def test_agent_gateway_production_arm_requires_packet_ref_and_concrete_resolver(
+    tmp_path: Path,
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import resolve_production_approval_resolver
+    from polisyos.runtime.quality.approval import ProductionApprovalCurrentnessProjection
+    from tests.unit.runtime.http.test_runtime_deployment_security import (
+        _config_mapping_with_human_decision_custody,
+        _deployment_security_module,
+    )
+
+    harness = _harness(tmp_path / "gateway")
+    operation = _operation("agent.outside-envelope")
+    invocation = _invocation(operation)
+    intent = _intent("search")
+    effects: list[str] = []
+    binding = _binding(operation, effects)
+    contract = _contract(
+        _envelope(
+            valid_from=NOW - timedelta(minutes=5),
+            valid_until=NOW + timedelta(hours=1),
+        )
+    )
+    initial_gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=contract,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+    )
+    with patch.object(_authority_module(), "_utcnow", return_value=NOW):
+        source = _produce(
+            gateway=initial_gateway,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+        )
+    request = source.human_decision_request
+    assert request is not None
+    request_digest = _authority_module().agent_action_content_hash(request)
+    contracts = importlib.import_module("polisyos.runtime.http.services.human_decision_contracts")
+    adapter = contracts.HumanDecisionProductionGatewayAdapterInput(
+        tenant_id="tenant-a",
+        run_id="run-gy-pa2",
+        source_kind="production_approval",
+        decision_request_ref=request.request_ref,
+        decision_request_digest=request_digest,
+        record_ref="sha256:" + "2" * 64,
+        record_digest="sha256:" + "2" * 64,
+        source_ref="sha256:" + "3" * 64,
+        source_digest="sha256:" + "3" * 64,
+        basis_digest="sha256:" + "3" * 64,
+        record_schema_version="policyos.runtime.human_decision_record.v2",
+        rule_version_ref=RULE_VERSION_REF,
+        verifier_epoch="ds9-test-epoch",
+        valid_from=NOW - timedelta(minutes=1),
+        valid_until=NOW + timedelta(minutes=10),
+        expected_consumer="polisyos.runtime.quality.agent_action_authority",
+        expected_operation=operation.operation_id,
+        expected_audience="polisyos-runtime",
+        production_packet_ref="sha256:" + "7" * 64,
+        production_packet_digest="sha256:" + "7" * 64,
+    )
+    projection = ProductionApprovalCurrentnessProjection(
+        status="current",
+        packet_ref=adapter.production_packet_ref,
+        checked_at=NOW,
+        expected_consumer=adapter.expected_consumer,
+        expected_audience=adapter.expected_audience,
+    )
+    for candidate in (None, object(), projection):
+        with pytest.raises(TypeError, match="concrete approval resolver"):
+            _prepare_gateway(
+                harness,
+                contract=contract,
+                operation=operation,
+                invocation=invocation,
+                intent=intent,
+                bindings=(binding,),
+                human_decision_adapters={request.request_ref: adapter},
+                production_approval_resolver=candidate,
+            )
+
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(
+            _config_mapping_with_human_decision_custody(tmp_path / "runtime")
+        )
+    )
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "runtime-cas",
+        deployment_security=runtime,
+    )
+    with TestClient(app) as client:
+        resolver = resolve_production_approval_resolver(client.app)
+        assert resolver is not None
+        gateway, _, _ = _prepare_gateway(
+            harness,
+            contract=contract,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            bindings=(binding,),
+            human_decision_adapters={request.request_ref: adapter},
+            production_approval_resolver=resolver,
+        )
+        _assert_refused_with_zero_effect(
+            harness,
+            gateway=gateway,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            effects=effects,
+            expected_reason="DS9-DECISION-ARTIFACT-MISSING",
+        )
+    assert effects == []
 
 
 def _prepared_v2_human_decision(

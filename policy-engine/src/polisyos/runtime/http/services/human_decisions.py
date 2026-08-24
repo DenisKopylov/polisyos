@@ -16,12 +16,13 @@ from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from importlib import import_module
 from math import isfinite
-from typing import TYPE_CHECKING, Any, Protocol, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Literal, Protocol, TypeVar, cast
 
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.common import logger as common_logger
 from polisyos.core import artifacts, canon
+from polisyos.core.contracts.control import ProductionApprovalPacket
 from polisyos.pdc import AuthorityBoundary
 from polisyos.runtime.http.services.human_decision_contracts import (
     HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,
@@ -34,6 +35,8 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HUMAN_DECISION_PRINCIPAL_BINDING_MANIFEST_VERSION,
     HUMAN_DECISION_RECORD_ARTIFACT_KIND,
     HUMAN_DECISION_RECORD_MANIFEST_VERSION,
+    PRODUCTION_HUMAN_DECISION_BASIS_ARTIFACT_KIND,
+    PRODUCTION_HUMAN_DECISION_BASIS_MANIFEST_VERSION,
     REVIEWER_SEPARATION_CREDENTIAL_ARTIFACT_KIND,
     REVIEWER_SEPARATION_CREDENTIAL_MANIFEST_VERSION,
     HumanDecisionCreateCommand,
@@ -55,10 +58,14 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionRequestSurface,
     HumanDecisionResolverPolicy,
     HumanDecisionWriteContext,
+    ProductionHumanDecisionBasis,
     ReviewerSeparationCredential,
     select_human_decision_gate_status,
 )
 from polisyos.runtime.quality.authority import GovernanceMetadata
+from polisyos.runtime.quality.authority_reconciliation import (
+    AuthorityReconciliationError,
+)
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     HUMAN_DECISION_RECORD_V2,
     DelegatedActionEnvelope,
@@ -94,6 +101,16 @@ _SOURCE_SCHEMA_VERSION = "policyos.runtime.agent_action_authority.v1"
 _CONTRACT_ARTIFACT_KIND = "runtime_quality.agent_action_delegation_contract"
 _CONTRACT_SCHEMA_NAME = "polisyos.runtime.DelegationContract"
 _CONTRACT_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s7_delegation.v2"
+_PRODUCTION_BASIS_SCHEMA_NAME = "polisyos.runtime.ProductionHumanDecisionBasis"
+_PRODUCTION_APPROVAL_PACKET_KIND = "runtime.production_approval_" + "packet"
+_PRODUCTION_APPROVAL_PACKET_SCHEMA_NAME = "polisyos.runtime.ProductionApprovalPacket"
+_PRODUCTION_APPROVAL_PACKET_SCHEMA_VERSION = "2.0"
+_PRODUCTION_APPROVAL_PACKET_SCHEMA_ID = "policyos.production_approval_" + "packet.v2"
+_RAW_APPROVAL_READY = "approval_" + "ready"
+_RAW_APPROVAL_STATE_FIELD = "approval_" + "state"
+_QUALITY_SCORECARD_KIND = "runtime.quality_scorecard"
+_QUALITY_SCORECARD_SCHEMA_NAME = "polisyos.runtime.QualityScorecard"
+_QUALITY_SCORECARD_SCHEMA_VERSION = "1.0"
 _RESERVATION_LEASE_SECONDS = 60
 
 logger = common_logger.get_logger(__name__)
@@ -193,6 +210,30 @@ class HumanDecisionOperationalResolutionError(ValueError):
         super().__init__(code)
 
 
+class _SignedQualityScorecard(BaseModel):
+    """Minimum strict authority-bearing scorecard envelope.
+
+    Quality evidence remains extensible, but the identity fields that join the
+    production decision chain are exact and independently verified by the
+    signed-manifest reader.
+    """
+
+    model_config = ConfigDict(
+        extra="allow",
+        frozen=True,
+        populate_by_name=True,
+        strict=True,
+    )
+
+    schema_version: Literal["policyos.quality_scorecard.v1"]
+    run_id: str = Field(min_length=1)
+    quality_status: str = Field(min_length=1)
+    approval_posture: str = Field(
+        min_length=1,
+        alias=_RAW_APPROVAL_STATE_FIELD,
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class HumanDecisionRecordReceipt:
     """Exact record, signature, event, and reservation readback receipt."""
@@ -233,6 +274,44 @@ class HumanDecisionExposureDelivery:
 
 
 @dataclass(frozen=True, slots=True)
+class ResolvedProductionApprovalInputs:
+    """Independently reconciled inputs retained behind the concrete resolver."""
+
+    scorecard: Mapping[str, object]
+    scorecard_ref: str
+    scorecard_digest: str
+    scorecard_signer_identity: str
+    basis: ProductionHumanDecisionBasis
+    basis_ref: str
+    basis_signer_identity: str
+    record: HumanDecisionRecord
+    record_ref: str
+    valid_from: datetime
+    valid_until: datetime
+    verifier_epoch: str
+
+
+@dataclass(frozen=True, slots=True)
+class ResolvedProductionApprovalPacket:
+    """Signed packet plus freshly reconciled inputs, never an authority DTO."""
+
+    packet: ProductionApprovalPacket
+    packet_ref: str
+    inputs: ResolvedProductionApprovalInputs
+
+
+@dataclass(frozen=True, slots=True)
+class ProductionApprovalPacketReceipt:
+    """Custody signature, durable event, and exact readback for one V2 packet."""
+
+    packet: ProductionApprovalPacket
+    packet_ref: str
+    durable_event_id: str
+    custody_signer_identity: str
+    custody_key_id: str
+
+
+@dataclass(frozen=True, slots=True)
 class _ResolvedSignedArtifact:
     model: BaseModel
     ref: str
@@ -247,6 +326,8 @@ class _ResolvedGate:
     source: AgentActionAuthorityDecision | None = None
     request: HumanDecisionRequest | None = None
     contract: DelegationContract | None = None
+    production_basis: ProductionHumanDecisionBasis | None = None
+    production_basis_ref: str | None = None
     principal: HumanDecisionPrincipalBinding | None = None
     separation: ReviewerSeparationCredential | None = None
     presentation: HumanDecisionPresentationContract | None = None
@@ -525,7 +606,7 @@ def _pa2_governed_action_key(
 
 def _exposure_binding_issues(
     *,
-    source: AgentActionAuthorityDecision,
+    basis_ref: str,
     request: HumanDecisionRequest,
     principal: HumanDecisionPrincipalBinding,
     principal_ref: str,
@@ -553,11 +634,11 @@ def _exposure_binding_issues(
         issues.add("presentation")
     if presentation.valid_from > now or now >= presentation.valid_until:
         issues.add("presentation_current")
-    if source.contract_ref is None or Counter(presentation_required)[source.contract_ref] != 1:
+    if Counter(presentation_required)[basis_ref] != 1:
         issues.add("mandate")
     expected_presentation = Counter(
         (
-            *((source.contract_ref,) if source.contract_ref is not None else ()),
+            basis_ref,
             *rights_binding.required_information_refs,
         )
     )
@@ -581,7 +662,7 @@ def _exposure_binding_issues(
         or session.verifier_epoch != principal.verifier_epoch
         or session.decision_request_ref != request.request_ref
         or session.decision_request_digest != request_digest
-        or session.basis_digest != source.contract_ref
+        or session.basis_digest != basis_ref
         or session.presentation_contract_ref != presentation_ref
         or session.presentation_contract_digest != presentation_ref
         or presentation_required != session_required
@@ -634,8 +715,7 @@ def _exposure_binding_issues(
     expected = Counter(session_required)
     if covered != expected:
         issues.add("session")
-    mandate_ref = source.contract_ref
-    if mandate_ref is None or covered[mandate_ref] < Counter(presentation_required)[mandate_ref]:
+    if covered[basis_ref] < Counter(presentation_required)[basis_ref]:
         issues.add("mandate")
     if any(
         covered[ref] < Counter(presentation_required)[ref]
@@ -866,6 +946,16 @@ class HumanDecisionService:
                     valid_from=envelope.valid_from,
                     valid_until=envelope.valid_until,
                 )
+        elif resolved.production_basis is not None:
+            basis = resolved.production_basis
+            mandate_surface = HumanDecisionMandateSurface(
+                mandate_record_ref=basis.mandate_record_ref,
+                mandate_owner_ref=basis.mandate_owner_ref,
+                operation_id=basis.operation_id,
+                action_kind=basis.action_kind,
+                valid_from=basis.valid_from,
+                valid_until=basis.valid_until,
+            )
         presentation = resolved.presentation
         session = resolved.exposure_session
         exposure = HumanDecisionExposureSurface(
@@ -906,14 +996,12 @@ class HumanDecisionService:
 
     def issue_exposure_session(
         self,
-        gate_input: HumanDecisionPA2GateInput,
+        gate_input: HumanDecisionPA2GateInput | HumanDecisionProductionGateInput,
         *,
         bound_permission: ActionPermissionVerification | BoundActionPermissionVerification,
     ) -> HumanDecisionExposureSessionReceipt:
         """Issue one custody-signed session after exact pre-exposure resolution."""
 
-        if not isinstance(gate_input, HumanDecisionPA2GateInput):
-            raise HumanDecisionOperationalResolutionError("DS9-EXPOSURE-SESSION-PRODUCER-MISSING")
         if gate_input.exposure_session_ref is not None:
             raise HumanDecisionOperationalResolutionError("DS9-EXPOSURE-SESSION-ALREADY-ISSUED")
         resolved = self._resolve_gate(
@@ -926,9 +1014,7 @@ class HumanDecisionService:
         if reason_codes != expected_missing:
             raise HumanDecisionUnavailableError(resolved.projection)
         values = (
-            resolved.source,
             resolved.request,
-            resolved.contract,
             resolved.principal,
             resolved.separation,
             resolved.presentation,
@@ -939,9 +1025,7 @@ class HumanDecisionService:
             raise HumanDecisionPersistenceError(
                 "exposure-session producer lost a verified pre-action input"
             )
-        source = cast("AgentActionAuthorityDecision", resolved.source)
         request = cast("HumanDecisionRequest", resolved.request)
-        contract = cast("DelegationContract", resolved.contract)
         principal = cast("HumanDecisionPrincipalBinding", resolved.principal)
         separation = cast("ReviewerSeparationCredential", resolved.separation)
         presentation = cast("HumanDecisionPresentationContract", resolved.presentation)
@@ -964,20 +1048,39 @@ class HumanDecisionService:
             not in tuple(item.value for item in verification.granted_permissions)
         ):
             raise HumanDecisionOperationalResolutionError("DS9-EXPOSURE-SUBJECT-MISMATCH")
-        envelope = next(
-            (row for row in contract.action_envelopes if row.envelope_id == source.envelope_id),
-            None,
-        )
-        if envelope is None or source.contract_ref is None:
-            raise HumanDecisionPersistenceError(
-                "exposure-session producer lost the signed delegation basis"
+        if isinstance(gate_input, HumanDecisionPA2GateInput):
+            source = resolved.source
+            contract = resolved.contract
+            if source is None or contract is None:
+                raise HumanDecisionPersistenceError(
+                    "exposure-session producer lost the signed delegation basis"
+                )
+            envelope = next(
+                (row for row in contract.action_envelopes if row.envelope_id == source.envelope_id),
+                None,
             )
+            if envelope is None or source.contract_ref is None:
+                raise HumanDecisionPersistenceError(
+                    "exposure-session producer lost the signed delegation basis"
+                )
+            basis_ref = source.contract_ref
+            basis_valid_until = envelope.valid_until
+            source_input_refs = (gate_input.source_ref, basis_ref)
+        else:
+            production_basis = resolved.production_basis
+            basis_ref = resolved.production_basis_ref
+            if production_basis is None or basis_ref is None:
+                raise HumanDecisionPersistenceError(
+                    "exposure-session producer lost the signed production basis"
+                )
+            basis_valid_until = production_basis.valid_until
+            source_input_refs = (basis_ref,)
         now = self._now()
         ends = [
             principal.valid_until,
             separation.valid_until,
             presentation.valid_until,
-            envelope.valid_until,
+            basis_valid_until,
             now + timedelta(minutes=15),
         ]
         if request.decision_due_at is not None:
@@ -999,7 +1102,7 @@ class HumanDecisionService:
             actor_ref=principal.actor_ref,
             decision_request_ref=request.request_ref,
             decision_request_digest=_sha256_ref(request.model_dump(mode="json")),
-            basis_digest=source.contract_ref,
+            basis_digest=basis_ref,
             required_artifact_digests=presentation.required_artifact_digests,
             presentation_contract_ref=presentation_ref,
             presentation_contract_digest=presentation_ref,
@@ -1017,8 +1120,7 @@ class HumanDecisionService:
         input_refs = tuple(
             dict.fromkeys(
                 (
-                    gate_input.source_ref,
-                    source.contract_ref,
+                    *source_input_refs,
                     principal_ref,
                     cast("str", gate_input.reviewer_separation_ref),
                     presentation_ref,
@@ -1367,22 +1469,24 @@ class HumanDecisionService:
         source = resolved.source
         request = resolved.request
         contract = resolved.contract
+        production_basis = resolved.production_basis
+        production_basis_ref = resolved.production_basis_ref
         principal = resolved.principal
         separation = resolved.separation
         presentation = resolved.presentation
         session = resolved.exposure_session
-        if any(
-            value is None
-            for value in (source, request, contract, principal, separation, presentation, session)
-        ):
+        if any(value is None for value in (request, principal, separation, presentation, session)):
             raise HumanDecisionPersistenceError("available gate lost resolved inputs")
-        source = cast("AgentActionAuthorityDecision", source)
         request = cast("HumanDecisionRequest", request)
-        contract = cast("DelegationContract", contract)
         principal = cast("HumanDecisionPrincipalBinding", principal)
         separation = cast("ReviewerSeparationCredential", separation)
         presentation = cast("HumanDecisionPresentationContract", presentation)
         session = cast("HumanDecisionExposureSession", session)
+        if isinstance(command.gate_input, HumanDecisionPA2GateInput):
+            if source is None or contract is None:
+                raise HumanDecisionPersistenceError("available PA2 gate lost resolved inputs")
+        elif production_basis is None or production_basis_ref is None:
+            raise HumanDecisionPersistenceError("available production gate lost resolved inputs")
         if (
             write_context.tenant_id != command.gate_input.tenant_id
             or write_context.run_id != command.gate_input.run_id
@@ -1416,6 +1520,8 @@ class HumanDecisionService:
             )
         attempt_id = f"human-decision-attempt-{uuid.uuid4().hex}"
         if isinstance(command.gate_input, HumanDecisionPA2GateInput):
+            source = cast("AgentActionAuthorityDecision", source)
+            contract = cast("DelegationContract", contract)
             envelope = next(
                 (row for row in contract.action_envelopes if row.envelope_id == source.envelope_id),
                 None,
@@ -1432,7 +1538,10 @@ class HumanDecisionService:
                 run_id=command.gate_input.run_id,
             )
         else:
-            governed_action_key = resolved.projection.governed_action_key or ""
+            governed_action_key = cast(
+                "ProductionHumanDecisionBasis",
+                production_basis,
+            ).governed_action_key
         if governed_action_key != resolved.projection.governed_action_key:
             raise HumanDecisionPersistenceError(
                 "human-decision governed action key changed after gate resolution"
@@ -1441,7 +1550,11 @@ class HumanDecisionService:
             {
                 "tenant_id": command.gate_input.tenant_id,
                 "run_id": command.gate_input.run_id,
-                "source_ref": command.gate_input.source_ref,
+                "source_ref": (
+                    command.gate_input.source_ref
+                    if isinstance(command.gate_input, HumanDecisionPA2GateInput)
+                    else production_basis_ref
+                ),
                 "decision_request_digest": resolved.projection.decision_request_digest,
                 "basis_digest": command.gate_input.basis_digest,
                 "decision_action": command.decision_action,
@@ -1474,6 +1587,8 @@ class HumanDecisionService:
                 source=source,
                 request=request,
                 contract=contract,
+                production_basis=production_basis,
+                production_basis_ref=production_basis_ref,
                 principal=principal,
                 presentation=presentation,
                 session=session,
@@ -1693,6 +1808,286 @@ class HumanDecisionService:
             raise HumanDecisionOperationalResolutionError("DS9-DECISION-SOURCE-INVALID")
         return record
 
+    def resolve_production_approval_inputs(
+        self,
+        *,
+        tenant_id: str,
+        run_id: str,
+        scorecard_ref: str,
+        scorecard_binding_digest: str,
+        production_basis_ref: str,
+        human_decision_record_ref: str,
+        evaluated_at: datetime | None = None,
+    ) -> ResolvedProductionApprovalInputs:
+        """Re-resolve the three signed production inputs and their live joins.
+
+        This is deliberately not a public currentness verdict.  The final
+        deployment-issued resolver wraps this result in a module-private seal
+        before any route or operational consumer can use it.
+        """
+
+        now = self._now() if evaluated_at is None else evaluated_at
+        if now.tzinfo is None or now.utcoffset() is None:
+            raise HumanDecisionOperationalResolutionError("DS9-DECISION-SOURCE-INVALID")
+        try:
+            scorecard_artifact = self._read_signed_model(
+                scorecard_ref,
+                expected_kind=_QUALITY_SCORECARD_KIND,
+                expected_schema_name=_QUALITY_SCORECARD_SCHEMA_NAME,
+                expected_schema_version=_QUALITY_SCORECARD_SCHEMA_VERSION,
+                model_type=_SignedQualityScorecard,
+                expected_tenant_id=tenant_id,
+                expected_run_id=run_id,
+            )
+            basis_artifact = self._read_signed_model(
+                production_basis_ref,
+                expected_kind=PRODUCTION_HUMAN_DECISION_BASIS_ARTIFACT_KIND,
+                expected_schema_name=_PRODUCTION_BASIS_SCHEMA_NAME,
+                expected_schema_version=PRODUCTION_HUMAN_DECISION_BASIS_MANIFEST_VERSION,
+                model_type=ProductionHumanDecisionBasis,
+                expected_tenant_id=tenant_id,
+                expected_run_id=run_id,
+            )
+            record = self.read_record(
+                human_decision_record_ref,
+                tenant_id=tenant_id,
+                run_id=run_id,
+            )
+        except _ResolutionIssueError as exc:
+            raise HumanDecisionOperationalResolutionError(exc.reason.code) from exc
+
+        scorecard = cast("_SignedQualityScorecard", scorecard_artifact.model)
+        basis = cast("ProductionHumanDecisionBasis", basis_artifact.model)
+        from polisyos.runtime.http.production_approval_binding import (
+            production_approval_scorecard_binding_digest,
+        )
+
+        recomputed_scorecard_binding = production_approval_scorecard_binding_digest(
+            scorecard.model_dump(mode="json", by_alias=True),
+            ref=scorecard_ref,
+            run_id=run_id,
+        )
+        valid_from_candidates = (basis.valid_from, cast("datetime", record.valid_from))
+        valid_until_candidates = (basis.valid_until, cast("datetime", record.valid_until))
+        valid_from = max(valid_from_candidates)
+        valid_until = min(valid_until_candidates)
+        reservation = self._sink.get_reservation_generation(
+            tenant_id=tenant_id,
+            governed_action_key=record.governed_action_key or "",
+            reservation_version=record.reservation_version or 0,
+        )
+        if (
+            recomputed_scorecard_binding != scorecard_binding_digest
+            or basis.tenant_id != tenant_id
+            or basis.run_id != run_id
+            or basis.scorecard_ref != scorecard_ref
+            or basis.scorecard_digest != scorecard_ref
+            or record.source_kind != "production_approval"
+            or record.source_ref != production_basis_ref
+            or record.source_digest != production_basis_ref
+            or record.basis_ref != production_basis_ref
+            or record.basis_digest != production_basis_ref
+            or record.human_decision_request_ref != basis.decision_request_ref
+            or record.decision_request_digest != basis.decision_request_digest
+            or record.governed_action_key != basis.governed_action_key
+            or record.verifier_epoch != basis.verifier_epoch
+            or record.decision_action_exercised != "approve"
+            or scorecard.quality_status.casefold() not in {"pass", "passed", "ok", "success"}
+            or scorecard.approval_posture.casefold()
+            not in {_RAW_APPROVAL_READY, "approved", "ready"}
+            or reservation is None
+            or reservation.state != "committed"
+            or reservation.record_ref != human_decision_record_ref
+            or reservation.record_sha256 != human_decision_record_ref
+            or reservation.reservation_id != record.reservation_id
+            or reservation.binding_sha256 != record.binding_sha256
+            or now < valid_from
+            or now >= valid_until
+        ):
+            raise HumanDecisionOperationalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+        return ResolvedProductionApprovalInputs(
+            scorecard=scorecard.model_dump(mode="json", by_alias=True),
+            scorecard_ref=scorecard_ref,
+            scorecard_digest=scorecard_binding_digest,
+            scorecard_signer_identity=scorecard_artifact.signer_identity,
+            basis=basis,
+            basis_ref=production_basis_ref,
+            basis_signer_identity=basis_artifact.signer_identity,
+            record=record,
+            record_ref=human_decision_record_ref,
+            valid_from=valid_from,
+            valid_until=valid_until,
+            verifier_epoch=basis.verifier_epoch,
+        )
+
+    def resolve_production_decision_packet(
+        self,
+        *,
+        packet_ref: str,
+        tenant_id: str,
+        run_id: str,
+        expected_consumer: str,
+        expected_audience: str,
+        evaluated_at: datetime | None = None,
+    ) -> ResolvedProductionApprovalPacket:
+        """Verify one custody packet and re-resolve all authority-bearing inputs."""
+
+        now = self._now() if evaluated_at is None else evaluated_at
+        try:
+            signed = self._read_signed_model(
+                packet_ref,
+                expected_kind=_PRODUCTION_APPROVAL_PACKET_KIND,
+                expected_schema_name=_PRODUCTION_APPROVAL_PACKET_SCHEMA_NAME,
+                expected_schema_version=_PRODUCTION_APPROVAL_PACKET_SCHEMA_VERSION,
+                model_type=ProductionApprovalPacket,
+                expected_tenant_id=tenant_id,
+                expected_run_id=run_id,
+            )
+        except _ResolutionIssueError as exc:
+            raise HumanDecisionOperationalResolutionError(exc.reason.code) from exc
+        packet = cast("ProductionApprovalPacket", signed.model)
+        if (
+            packet.schema_version != _PRODUCTION_APPROVAL_PACKET_SCHEMA_ID
+            or packet.tenant_id != tenant_id
+            or packet.run_id != run_id
+            or packet.expected_consumer != expected_consumer
+            or packet.expected_audience != expected_audience
+            or packet.valid_from is None
+            or packet.valid_until is None
+            or now < packet.valid_from
+            or now >= packet.valid_until
+            or packet.decision not in {"approved", "approved_with_override"}
+            or packet.scorecard_ref is None
+            or packet.production_basis_ref is None
+            or packet.human_decision_record_ref is None
+            or packet.scorecard_digest is None
+        ):
+            raise HumanDecisionOperationalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+        inputs = self.resolve_production_approval_inputs(
+            tenant_id=tenant_id,
+            run_id=run_id,
+            scorecard_ref=packet.scorecard_ref,
+            scorecard_binding_digest=packet.scorecard_digest,
+            production_basis_ref=packet.production_basis_ref,
+            human_decision_record_ref=packet.human_decision_record_ref,
+            evaluated_at=now,
+        )
+        if (
+            packet.production_basis_digest != inputs.basis_ref
+            or packet.human_decision_record_digest != inputs.record_ref
+            or packet.decision_request_ref != inputs.basis.decision_request_ref
+            or packet.decision_request_digest != inputs.basis.decision_request_digest
+            or packet.governed_action_key != inputs.basis.governed_action_key
+            or packet.valid_from != inputs.valid_from
+            or packet.valid_until != inputs.valid_until
+            or packet.verifier_epoch != inputs.verifier_epoch
+            or packet.scorecard_producer_identity != inputs.scorecard_signer_identity
+            or packet.production_basis_producer_identity != inputs.basis_signer_identity
+            or packet.rule_version_ref != inputs.basis.rule_version_ref
+        ):
+            raise HumanDecisionOperationalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+        return ResolvedProductionApprovalPacket(
+            packet=packet,
+            packet_ref=packet_ref,
+            inputs=inputs,
+        )
+
+    def _persist_production_decision_packet(
+        self,
+        packet: ProductionApprovalPacket,
+        *,
+        write_context: HumanDecisionWriteContext,
+    ) -> ProductionApprovalPacketReceipt:
+        """Persist, custody-sign, reconcile, and read back one exact V2 packet."""
+
+        if (
+            type(packet) is not ProductionApprovalPacket
+            or packet.schema_version != _PRODUCTION_APPROVAL_PACKET_SCHEMA_ID
+            or packet.tenant_id != write_context.tenant_id
+            or packet.run_id != write_context.run_id
+        ):
+            raise HumanDecisionPersistenceError("production approval packet binding changed")
+        signer = self._custody.signer
+        verifier = self._custody.verifier
+        signer_identity = self._custody.signer_identity
+        if signer is None or verifier is None or signer_identity is None:
+            raise HumanDecisionPersistenceError("production approval custody is unavailable")
+        payload = packet.model_dump(mode="json")
+        packet_ref = _sha256_ref(payload)
+        input_refs = tuple(
+            ref
+            for ref in (
+                packet.scorecard_ref,
+                packet.production_basis_ref,
+                packet.human_decision_record_ref,
+                packet.decision_request_ref,
+            )
+            if ref is not None
+        )
+        result = self._sink.write_authority_artifact(
+            payload,
+            artifacts.ArtifactWriteOptions(
+                kind=_PRODUCTION_APPROVAL_PACKET_KIND,
+                media_type="application/json",
+                schema=artifacts.SchemaInfo(
+                    name=_PRODUCTION_APPROVAL_PACKET_SCHEMA_NAME,
+                    version=_PRODUCTION_APPROVAL_PACKET_SCHEMA_VERSION,
+                ),
+                producer=artifacts.ProducerInfo(
+                    component="polisyos.runtime.http.production_approval",
+                    version="2.0",
+                ),
+            ),
+            authority_fields=self._production_packet_authority_fields(
+                packet=packet,
+                context=write_context,
+                input_refs=input_refs,
+            ),
+        )
+        written_ref = str(result.cas_ref.artifact_id)
+        if written_ref != packet_ref or result.payload_sha256 != packet_ref[7:]:
+            raise HumanDecisionPersistenceError("production approval packet CAS digest changed")
+        if self._sink.get_artifact_signature(written_ref) is None:
+            self._sink.sign_artifact(
+                written_ref,
+                signer,
+                signer_identity=signer_identity,
+            )
+        verification = self._sink.verify_artifact_signature(
+            written_ref,
+            verifier,
+            strict_identity=True,
+        )
+        if (
+            not verification.ok
+            or verification.signer_identity != signer_identity
+            or verification.key_id != signer.key_id
+        ):
+            raise HumanDecisionPersistenceError(
+                "production approval custody signature did not verify"
+            )
+        loaded = ProductionApprovalPacket.model_validate(
+            canon.from_canonical_bytes(self._sink.get_artifact_bytes(written_ref))
+        )
+        if loaded != packet:
+            raise HumanDecisionPersistenceError("production approval packet readback changed")
+        report = self._sink.reconcile_authority_artifact(
+            written_ref,
+            expected_tenant_id=write_context.tenant_id,
+            expected_cell_id=write_context.cell_id,
+            expected_run_id=write_context.run_id,
+            expected_job_id=write_context.job_id,
+        )
+        if report.durable_event_id is None:
+            raise HumanDecisionPersistenceError("production approval durable event is missing")
+        return ProductionApprovalPacketReceipt(
+            packet=packet,
+            packet_ref=written_ref,
+            durable_event_id=report.durable_event_id,
+            custody_signer_identity=signer_identity,
+            custody_key_id=signer.key_id,
+        )
+
     def resolve_gateway_adapter(
         self,
         adapter: HumanDecisionGatewayAdapterInput,
@@ -1800,7 +2195,11 @@ class HumanDecisionService:
         require_bound_mutation: bool,
     ) -> _ResolvedGate:
         if isinstance(gate_input, HumanDecisionProductionGateInput):
-            return self._resolve_production_gate(gate_input)
+            return self._resolve_production_gate(
+                gate_input,
+                bound_permission=bound_permission,
+                require_bound_mutation=require_bound_mutation,
+            )
         return self._resolve_pa2_gate(
             gate_input,
             bound_permission=bound_permission,
@@ -1810,43 +2209,418 @@ class HumanDecisionService:
     def _resolve_production_gate(
         self,
         gate_input: HumanDecisionProductionGateInput,
+        *,
+        bound_permission: (ActionPermissionVerification | BoundActionPermissionVerification | None),
+        require_bound_mutation: bool,
     ) -> _ResolvedGate:
         reasons: list[HumanDecisionGateReason] = []
-        if gate_input.production_packet_ref is None and gate_input.source_ref is None:
+        now = self._now()
+        basis: ProductionHumanDecisionBasis | None = None
+        basis_artifact: _ResolvedSignedArtifact | None = None
+        principal: HumanDecisionPrincipalBinding | None = None
+        separation: ReviewerSeparationCredential | None = None
+        presentation: HumanDecisionPresentationContract | None = None
+        session: HumanDecisionExposureSession | None = None
+        events: tuple[HumanDecisionExposureAuditEvent, ...] = ()
+
+        supplied_refs = (
+            gate_input.source_ref,
+            gate_input.basis_ref,
+            gate_input.basis_digest,
+        )
+        if all(ref is None for ref in supplied_refs):
             reasons.append(
                 _reason(
                     "DS9-DECISION-PRODUCER-MISSING",
-                    "No verified production approval packet producer is installed.",
+                    "No verified production human-decision basis producer is installed.",
                     "producer_missing",
                 )
             )
-        else:
-            supplied_ref = gate_input.production_packet_ref or gate_input.source_ref
-            if supplied_ref is not None and not self._sink.has_artifact(supplied_ref):
-                reasons.append(
-                    _reason(
-                        "DS9-DECISION-ARTIFACT-MISSING",
-                        "The supplied production approval artifact does not resolve.",
-                        "artifact_missing",
-                    )
+        elif any(ref is None for ref in supplied_refs) or len(set(supplied_refs)) != 1:
+            reasons.append(
+                _reason(
+                    "DS9-DECISION-SOURCE-INVALID",
+                    "Production source, basis ref, and basis digest are not exact-bound.",
+                    "invalid_source",
                 )
-            else:
-                reasons.append(
-                    _reason(
-                        "DS9-DECISION-PRODUCER-MISSING",
-                        "Production approval intake is not installed until C03.",
-                        "producer_missing",
-                    )
-                )
-        return _ResolvedGate(
-            projection=self._projection(
-                gate_input,
-                reasons=reasons,
-                decision_request_ref=gate_input.decision_request_ref,
-                decision_request_digest=None,
-                governed_action_key=None,
             )
+        else:
+            supplied_ref = cast("str", gate_input.basis_ref)
+            try:
+                basis_artifact = self._read_signed_model(
+                    supplied_ref,
+                    expected_kind=PRODUCTION_HUMAN_DECISION_BASIS_ARTIFACT_KIND,
+                    expected_schema_name=_PRODUCTION_BASIS_SCHEMA_NAME,
+                    expected_schema_version=PRODUCTION_HUMAN_DECISION_BASIS_MANIFEST_VERSION,
+                    model_type=ProductionHumanDecisionBasis,
+                    expected_tenant_id=gate_input.tenant_id,
+                    expected_run_id=gate_input.run_id,
+                )
+                basis = cast("ProductionHumanDecisionBasis", basis_artifact.model)
+            except _ResolutionIssueError as exc:
+                reasons.append(exc.reason)
+            except Exception:
+                reasons.append(
+                    _reason(
+                        "DS9-DECISION-SOURCE-INVALID",
+                        "The signed production basis could not be verified and reconciled.",
+                        "invalid_source",
+                    )
+                )
+
+        if gate_input.production_packet_ref is not None:
+            reasons.append(
+                _reason(
+                    "DS9-DECISION-SOURCE-INVALID",
+                    "A post-action production packet cannot authorize its pre-action record.",
+                    "invalid_source",
+                )
+            )
+
+        request = basis.decision_request if basis is not None else None
+        if basis is not None and request is not None:
+            request_digest = _sha256_ref(request.model_dump(mode="json"))
+            if (
+                basis.tenant_id != gate_input.tenant_id
+                or basis.run_id != gate_input.run_id
+                or gate_input.decision_request_ref not in {None, request.request_ref}
+                or gate_input.decision_request_digest not in {None, request_digest}
+                or basis.decision_request_ref != request.request_ref
+                or basis.decision_request_digest != request_digest
+            ):
+                reasons.append(
+                    _reason(
+                        "DS9-DECISION-SOURCE-INVALID",
+                        "The production basis differs from its signed request selectors.",
+                        "invalid_source",
+                    )
+                )
+            if (
+                basis.verifier_epoch != self._verifier_epoch()
+                or basis.valid_from > now
+                or now >= basis.valid_until
+            ):
+                reasons.append(
+                    _reason(
+                        "DS9-DECISION-REVALIDATION-REQUIRED",
+                        "The signed production basis requires online revalidation.",
+                        "revalidation_required",
+                    )
+                )
+
+        resolved_principal = self._optional_signed_model(
+            gate_input.principal_binding_ref,
+            expected_kind=HUMAN_DECISION_PRINCIPAL_BINDING_ARTIFACT_KIND,
+            expected_schema_name="polisyos.runtime.HumanDecisionPrincipalBinding",
+            expected_schema_version=HUMAN_DECISION_PRINCIPAL_BINDING_MANIFEST_VERSION,
+            model_type=HumanDecisionPrincipalBinding,
+            expected_tenant_id=gate_input.tenant_id,
+            expected_run_id=gate_input.run_id,
+            missing_code="DS9-PRINCIPAL-BINDING-PRODUCER-MISSING",
+            reasons=reasons,
         )
+        principal = (
+            cast("HumanDecisionPrincipalBinding", resolved_principal.model)
+            if resolved_principal is not None
+            else None
+        )
+        if (
+            principal is not None
+            and resolved_principal is not None
+            and principal.principal_issuer != resolved_principal.signer_identity
+        ):
+            reasons.append(
+                _reason(
+                    "DS9-PRINCIPAL-SIGNING-KEY-MISMATCH",
+                    "The principal issuer differs from the verified binding signer.",
+                    "invalid_source",
+                )
+            )
+
+        resolved_separation = self._optional_signed_model(
+            gate_input.reviewer_separation_ref,
+            expected_kind=REVIEWER_SEPARATION_CREDENTIAL_ARTIFACT_KIND,
+            expected_schema_name="polisyos.runtime.ReviewerSeparationCredential",
+            expected_schema_version=REVIEWER_SEPARATION_CREDENTIAL_MANIFEST_VERSION,
+            model_type=ReviewerSeparationCredential,
+            expected_tenant_id=gate_input.tenant_id,
+            expected_run_id=gate_input.run_id,
+            missing_code="DS9-REVIEWER-SEPARATION-PRODUCER-MISSING",
+            reasons=reasons,
+        )
+        separation = (
+            cast("ReviewerSeparationCredential", resolved_separation.model)
+            if resolved_separation is not None
+            else None
+        )
+        if (
+            resolved_principal is not None
+            and resolved_separation is not None
+            and (
+                resolved_principal.signer_identity == resolved_separation.signer_identity
+                or resolved_principal.key_id == resolved_separation.key_id
+            )
+        ):
+            reasons.append(
+                _reason(
+                    "DS9-REVIEWER-INDEPENDENCE-CHANGE-AUTHORITY-MISSING",
+                    "Principal and reviewer-separation attestations are not independent.",
+                    "blocked",
+                )
+            )
+
+        resolved_presentation = self._optional_signed_model(
+            gate_input.presentation_contract_ref,
+            expected_kind=HUMAN_DECISION_PRESENTATION_CONTRACT_ARTIFACT_KIND,
+            expected_schema_name="polisyos.runtime.HumanDecisionPresentationContract",
+            expected_schema_version=HUMAN_DECISION_PRESENTATION_CONTRACT_MANIFEST_VERSION,
+            model_type=HumanDecisionPresentationContract,
+            expected_tenant_id=gate_input.tenant_id,
+            expected_run_id=gate_input.run_id,
+            missing_code="DS9-PRESENTATION-CONTRACT-PRODUCER-MISSING",
+            reasons=reasons,
+        )
+        presentation = (
+            cast("HumanDecisionPresentationContract", resolved_presentation.model)
+            if resolved_presentation is not None
+            else None
+        )
+        resolved_session = self._optional_signed_model(
+            gate_input.exposure_session_ref,
+            expected_kind=HUMAN_DECISION_EXPOSURE_SESSION_ARTIFACT_KIND,
+            expected_schema_name="polisyos.runtime.HumanDecisionExposureSession",
+            expected_schema_version=HUMAN_DECISION_EXPOSURE_SESSION_MANIFEST_VERSION,
+            model_type=HumanDecisionExposureSession,
+            expected_tenant_id=gate_input.tenant_id,
+            expected_run_id=gate_input.run_id,
+            missing_code="DS9-EXPOSURE-SESSION-PRODUCER-MISSING",
+            reasons=reasons,
+        )
+        session = (
+            cast("HumanDecisionExposureSession", resolved_session.model)
+            if resolved_session is not None
+            else None
+        )
+
+        if request is not None and principal is not None:
+            self._evaluate_principal(
+                gate_input,
+                request=request,
+                principal=principal,
+                bound_permission=bound_permission,
+                require_bound_mutation=require_bound_mutation,
+                now=now,
+                reasons=reasons,
+            )
+        elif bound_permission is None and require_bound_mutation:
+            reasons.append(
+                _reason(
+                    "DS9-DECISION-PERMISSION-UNVERIFIED",
+                    "No bound action-permission proof reached the gate.",
+                    "invalid_source",
+                )
+            )
+
+        if request is not None and separation is not None and principal is not None and basis:
+            request_digest = _sha256_ref(request.model_dump(mode="json"))
+            if (
+                separation.tenant_id != gate_input.tenant_id
+                or separation.run_id != gate_input.run_id
+                or separation.case_id != request.case_id
+                or separation.decision_request_ref != request.request_ref
+                or separation.decision_request_digest != request_digest
+                or separation.reviewer_actor_ref != principal.actor_ref
+                or basis.requester_actor_ref not in separation.reviewed_actor_refs
+                or basis.requester_actor_ref == principal.actor_ref
+                or principal.actor_ref in separation.reviewed_actor_refs
+                or not separation.independence_established
+                or not set(request.available_actions).issubset(separation.change_authority_actions)
+            ):
+                reasons.append(
+                    _reason(
+                        "DS9-REVIEWER-INDEPENDENCE-CHANGE-AUTHORITY-MISSING",
+                        "Reviewer independence or change authority is not established.",
+                        "blocked",
+                    )
+                )
+            if (
+                separation.verifier_epoch != self._verifier_epoch()
+                or separation.valid_from > now
+                or now >= separation.valid_until
+            ):
+                reasons.append(
+                    _reason(
+                        "DS9-DECISION-REVALIDATION-REQUIRED",
+                        "The signed reviewer-separation credential requires online revalidation.",
+                        "revalidation_required",
+                    )
+                )
+
+        if (
+            basis is not None
+            and basis_artifact is not None
+            and resolved_principal is not None
+            and basis_artifact.signer_identity == resolved_principal.signer_identity
+        ):
+            reasons.append(
+                _reason(
+                    "DS9-REVIEWER-INDEPENDENCE-CHANGE-AUTHORITY-MISSING",
+                    "The production basis producer and reviewer principal are not independent.",
+                    "blocked",
+                )
+            )
+
+        if (
+            session is not None
+            and gate_input.exposure_session_ref is not None
+            and gate_input.principal_binding_ref is not None
+            and principal is not None
+            and request is not None
+            and basis is not None
+            and gate_input.basis_ref is not None
+        ):
+            events = self._resolve_exposure_events(
+                session=session,
+                session_artifact_ref=gate_input.exposure_session_ref,
+                principal=principal,
+                request=request,
+                reasons=reasons,
+            )
+            exposure_issues = (
+                _exposure_binding_issues(
+                    basis_ref=gate_input.basis_ref,
+                    request=request,
+                    principal=principal,
+                    principal_ref=gate_input.principal_binding_ref,
+                    presentation=presentation,
+                    presentation_ref=cast("str", gate_input.presentation_contract_ref),
+                    session=session,
+                    session_ref=gate_input.exposure_session_ref,
+                    events=events,
+                    now=now,
+                )
+                if presentation is not None and gate_input.presentation_contract_ref is not None
+                else frozenset({"presentation", "session", "mandate", "evidence"})
+            )
+            self._append_exposure_gate_reasons(reasons, exposure_issues)
+
+        request_digest = (
+            _sha256_ref(request.model_dump(mode="json")) if request is not None else None
+        )
+        projection = self._projection(
+            gate_input,
+            reasons=reasons,
+            decision_request_ref=request.request_ref if request is not None else None,
+            decision_request_digest=request_digest,
+            governed_action_key=basis.governed_action_key if basis is not None else None,
+            required_artifact_digests=(
+                session.required_artifact_digests if session is not None else ()
+            ),
+            exposure_event_refs=tuple(
+                event.event_receipt_ref for event in events if event.event_receipt_ref is not None
+            ),
+        )
+        valid_from, valid_until = self._resolved_production_interval(
+            basis=basis,
+            request=request,
+            principal=principal,
+            separation=separation,
+            presentation=presentation,
+            session=session,
+        )
+        receipts = (
+            self._production_predicate_receipts(
+                gate_input=gate_input,
+                basis=basis,
+                request=request,
+                principal=principal,
+                separation=separation,
+                presentation=presentation,
+                events=events,
+            )
+            if projection.status == "available"
+            and all(
+                value is not None
+                for value in (
+                    basis,
+                    request,
+                    principal,
+                    separation,
+                    presentation,
+                    session,
+                    gate_input.basis_ref,
+                )
+            )
+            else ()
+        )
+        return _ResolvedGate(
+            projection=projection,
+            request=request,
+            production_basis=basis,
+            production_basis_ref=gate_input.basis_ref if basis is not None else None,
+            principal=principal,
+            separation=separation,
+            presentation=presentation,
+            exposure_session=session,
+            exposure_events=events,
+            predicate_receipts=receipts,
+            valid_from=valid_from,
+            valid_until=valid_until,
+        )
+
+    @staticmethod
+    def _append_exposure_gate_reasons(
+        reasons: list[HumanDecisionGateReason],
+        exposure_issues: frozenset[str],
+    ) -> None:
+        if "presentation" in exposure_issues:
+            reasons.append(
+                _reason(
+                    "DS9-PRESENTATION-CONTRACT-INVALID",
+                    "The signed presentation contract is not current for this request.",
+                    "blocked",
+                )
+            )
+        if exposure_issues & {"presentation_current", "session_current"}:
+            reasons.append(
+                _reason(
+                    "DS9-DECISION-REVALIDATION-REQUIRED",
+                    "The signed presentation or exposure session requires online revalidation.",
+                    "revalidation_required",
+                )
+            )
+        if "session" in exposure_issues:
+            reasons.append(
+                _reason(
+                    "DS9-EXPOSURE-SESSION-INVALID",
+                    "The signed exposure session/event relationship is invalid.",
+                    "blocked",
+                )
+            )
+        if "mandate" in exposure_issues:
+            reasons.append(
+                _reason(
+                    "DS9-MANDATE-NOT-SHOWN",
+                    "No completed exact-byte receipt proves the mandate was shown.",
+                    "blocked",
+                )
+            )
+        if "evidence" in exposure_issues:
+            reasons.append(
+                _reason(
+                    "DS9-EVIDENCE-NOT-OPENED",
+                    "Required evidence lacks completed exact-byte exposure receipts.",
+                    "blocked",
+                )
+            )
+        if exposure_issues & {"mandate", "evidence"}:
+            reasons.append(
+                _reason(
+                    "DS9-RUBBER-STAMP",
+                    "Approval cannot proceed without shown mandate and opened evidence.",
+                    "blocked",
+                )
+            )
 
     def _resolve_pa2_gate(
         self,
@@ -2211,7 +2985,7 @@ class HumanDecisionService:
             )
             exposure_issues = (
                 _exposure_binding_issues(
-                    source=source,
+                    basis_ref=cast("str", source.contract_ref),
                     request=request,
                     principal=principal,
                     principal_ref=gate_input.principal_binding_ref,
@@ -2223,6 +2997,7 @@ class HumanDecisionService:
                     now=now,
                 )
                 if source is not None
+                and source.contract_ref is not None
                 and presentation is not None
                 and gate_input.presentation_contract_ref is not None
                 else frozenset({"presentation", "session", "mandate", "evidence"})
@@ -2467,6 +3242,7 @@ class HumanDecisionService:
             HUMAN_DECISION_EXPOSURE_SESSION_ARTIFACT_KIND,
             HUMAN_DECISION_EXPOSURE_EVENT_ARTIFACT_KIND,
             HUMAN_DECISION_RECORD_ARTIFACT_KIND,
+            _PRODUCTION_APPROVAL_PACKET_KIND,
         }
         trusted_identity = (
             producer.signer_identity
@@ -2502,13 +3278,22 @@ class HumanDecisionService:
                     "invalid_source",
                 )
             )
-        report = self._sink.reconcile_authority_artifact(
-            ref,
-            expected_tenant_id=expected_tenant_id,
-            expected_cell_id=None,
-            expected_run_id=expected_run_id,
-            expected_job_id=None,
-        )
+        try:
+            report = self._sink.reconcile_authority_artifact(
+                ref,
+                expected_tenant_id=expected_tenant_id,
+                expected_cell_id=None,
+                expected_run_id=expected_run_id,
+                expected_job_id=None,
+            )
+        except AuthorityReconciliationError as exc:
+            raise _ResolutionIssueError(
+                _reason(
+                    "DS9-DECISION-SOURCE-INVALID",
+                    "Artifact authority linkage conflicts with the requested runtime identity.",
+                    "invalid_source",
+                )
+            ) from exc
         if report.durable_event_id is None:
             raise _ResolutionIssueError(
                 _reason(
@@ -2677,7 +3462,7 @@ class HumanDecisionService:
 
     def _evaluate_principal(
         self,
-        gate_input: HumanDecisionPA2GateInput,
+        gate_input: HumanDecisionPA2GateInput | HumanDecisionProductionGateInput,
         *,
         request: HumanDecisionRequest,
         principal: HumanDecisionPrincipalBinding,
@@ -2838,6 +3623,44 @@ class HumanDecisionService:
             ends.append(request.decidable_until)
         return max(starts), min(ends)
 
+    def _resolved_production_interval(
+        self,
+        *,
+        basis: ProductionHumanDecisionBasis | None,
+        request: HumanDecisionRequest | None,
+        principal: HumanDecisionPrincipalBinding | None,
+        separation: ReviewerSeparationCredential | None,
+        presentation: HumanDecisionPresentationContract | None,
+        session: HumanDecisionExposureSession | None,
+    ) -> tuple[datetime | None, datetime | None]:
+        if any(
+            value is None
+            for value in (basis, request, principal, separation, presentation, session)
+        ):
+            return None, None
+        typed_basis = cast("ProductionHumanDecisionBasis", basis)
+        typed_request = cast("HumanDecisionRequest", request)
+        starts = (
+            typed_basis.valid_from,
+            typed_request.requested_at,
+            cast("HumanDecisionPrincipalBinding", principal).valid_from,
+            cast("ReviewerSeparationCredential", separation).valid_from,
+            cast("HumanDecisionPresentationContract", presentation).valid_from,
+            cast("HumanDecisionExposureSession", session).valid_from,
+        )
+        ends = [
+            typed_basis.valid_until,
+            cast("HumanDecisionPrincipalBinding", principal).valid_until,
+            cast("ReviewerSeparationCredential", separation).valid_until,
+            cast("HumanDecisionPresentationContract", presentation).valid_until,
+            cast("HumanDecisionExposureSession", session).valid_until,
+        ]
+        if typed_request.decision_due_at is not None:
+            ends.append(typed_request.decision_due_at)
+        if typed_request.decidable_until is not None:
+            ends.append(typed_request.decidable_until)
+        return max(starts), min(ends)
+
     def _predicate_receipts(
         self,
         *,
@@ -2936,14 +3759,116 @@ class HumanDecisionService:
             for predicate, provenance, refs, reason_code in rows
         )
 
+    def _production_predicate_receipts(
+        self,
+        *,
+        gate_input: HumanDecisionProductionGateInput,
+        basis: ProductionHumanDecisionBasis | None,
+        request: HumanDecisionRequest | None,
+        principal: HumanDecisionPrincipalBinding | None,
+        separation: ReviewerSeparationCredential | None,
+        presentation: HumanDecisionPresentationContract | None,
+        events: Sequence[HumanDecisionExposureAuditEvent],
+    ) -> tuple[HumanDecisionPredicateReceipt, ...]:
+        if any(
+            value is None
+            for value in (basis, request, principal, separation, presentation, gate_input.basis_ref)
+        ):
+            return ()
+        typed_request = cast("HumanDecisionRequest", request)
+        typed_separation = cast("ReviewerSeparationCredential", separation)
+        typed_presentation = cast("HumanDecisionPresentationContract", presentation)
+        basis_ref = cast("str", gate_input.basis_ref)
+        evidence = tuple(
+            event.event_receipt_ref for event in events if event.event_receipt_ref is not None
+        )
+        rows: tuple[
+            tuple[
+                HumanDecisionRecordPredicate,
+                HumanDecisionRecordPredicateProvenance,
+                tuple[str | None, ...],
+                str,
+            ],
+            ...,
+        ] = (
+            (
+                "identity_permission",
+                "recomputed",
+                (gate_input.principal_binding_ref,),
+                "DS9-PREDICATE-IDENTITY-PERMISSION",
+            ),
+            (
+                "role_mandate_or_basis",
+                "independently_reconciled",
+                (basis_ref,),
+                "DS9-PREDICATE-ROLE-BASIS",
+            ),
+            (
+                "operation_accountability",
+                "recomputed",
+                (basis_ref,),
+                "DS9-PREDICATE-OPERATION-ACCOUNTABILITY",
+            ),
+            (
+                "currentness",
+                "recomputed",
+                (gate_input.exposure_session_ref, basis_ref),
+                "DS9-PREDICATE-CURRENTNESS",
+            ),
+            (
+                "right_decision_time",
+                "recomputed",
+                (typed_request.request_ref,),
+                "DS9-PREDICATE-RIGHT-DECISION-TIME",
+            ),
+            (
+                "reviewer_independence_change",
+                "independently_reconciled",
+                (gate_input.reviewer_separation_ref, typed_separation.credential_ref),
+                "DS9-PREDICATE-REVIEWER-INDEPENDENCE",
+            ),
+            (
+                "evidence_exposure",
+                "independently_reconciled",
+                evidence,
+                "DS9-PREDICATE-EVIDENCE-EXPOSURE",
+            ),
+            (
+                "presentation_format_channel",
+                "independently_reconciled",
+                (gate_input.presentation_contract_ref, typed_presentation.contract_ref),
+                "DS9-PREDICATE-PRESENTATION-FORMAT",
+            ),
+            (
+                "source_producer_trust",
+                "independently_reconciled",
+                (basis_ref,),
+                "DS9-PREDICATE-SOURCE-TRUST",
+            ),
+        )
+        return tuple(
+            HumanDecisionPredicateReceipt(
+                predicate=predicate,
+                satisfied=True,
+                provenance=provenance,
+                evidence_refs=tuple(ref for ref in refs if ref is not None),
+                reason_code=reason_code,
+                reason=f"{predicate} passed against exact signed production inputs.",
+                rule_version_ref=typed_request.rule_version_ref,
+            )
+            for predicate, provenance, refs, reason_code in rows
+        )
+
     def _build_record(
         self,
         *,
         command: HumanDecisionCreateCommand,
         resolved: _ResolvedGate,
-        source: AgentActionAuthorityDecision,
+        source: AgentActionAuthorityDecision | None,
         request: HumanDecisionRequest,
-        contract: DelegationContract,
+        contract: DelegationContract | None,
+        production_basis: ProductionHumanDecisionBasis | None,
+        production_basis_ref: str | None,
         principal: HumanDecisionPrincipalBinding,
         presentation: HumanDecisionPresentationContract,
         session: HumanDecisionExposureSession,
@@ -2966,6 +3891,20 @@ class HumanDecisionService:
             for event in resolved.exposure_events
             if event.event_receipt_ref is not None
         )
+        if isinstance(command.gate_input, HumanDecisionPA2GateInput):
+            if source is None or contract is None or source.contract_ref is None:
+                raise HumanDecisionPersistenceError("record builder lost its PA2 authority inputs")
+            resolved_source_ref = command.gate_input.source_ref
+            resolved_basis_ref = source.contract_ref
+            mandate_source_refs = [contract.contract_ref, source.contract_ref]
+        else:
+            if production_basis is None or production_basis_ref is None:
+                raise HumanDecisionPersistenceError(
+                    "record builder lost its production authority inputs"
+                )
+            resolved_source_ref = production_basis_ref
+            resolved_basis_ref = production_basis_ref
+            mandate_source_refs = [production_basis_ref]
         return HumanDecisionRecord(
             schema_version=HUMAN_DECISION_RECORD_V2,
             record_id=f"human-decision-{attempt_id[-32:]}",
@@ -2981,7 +3920,7 @@ class HumanDecisionService:
             active_choice=True,
             accountability_statement=command.accountability_statement,
             mandate_record_ref=request.s6_mandate_record_ref,
-            mandate_source_refs=[contract.contract_ref, source.contract_ref or ""],
+            mandate_source_refs=mandate_source_refs,
             five_rights_check=derive_five_rights_check(resolved.predicate_receipts),
             responsibility_integrity=ResponsibilityIntegrityCheck(
                 status="pass",
@@ -2992,7 +3931,7 @@ class HumanDecisionService:
             ),
             authority_boundary=_human_act_boundary(request.rule_version_ref),
             provenance_refs=[
-                cast("str", command.gate_input.source_ref),
+                resolved_source_ref,
                 request.request_ref,
                 command.gate_input.principal_binding_ref or "",
                 command.gate_input.reviewer_separation_ref or "",
@@ -3008,11 +3947,11 @@ class HumanDecisionService:
             governed_action_key=governed_action_key,
             binding_sha256=binding_sha256,
             source_kind=command.gate_input.source_kind,
-            source_ref=command.gate_input.source_ref,
-            source_digest=command.gate_input.source_ref,
+            source_ref=resolved_source_ref,
+            source_digest=resolved_source_ref,
             decision_request_digest=request_digest,
-            basis_ref=source.contract_ref,
-            basis_digest=source.contract_ref,
+            basis_ref=resolved_basis_ref,
+            basis_digest=resolved_basis_ref,
             principal_binding_ref=command.gate_input.principal_binding_ref,
             principal_binding_digest=command.gate_input.principal_binding_ref,
             reviewer_separation_ref=command.gate_input.reviewer_separation_ref,
@@ -3120,6 +4059,80 @@ class HumanDecisionService:
             "event_subject": f"run/{context.run_id}/job/{context.job_id}/human-decision",
             "state_after": "persisted",
             "canon_spec": canon.CanonSpec(),
+        }
+
+    def _production_packet_authority_fields(
+        self,
+        *,
+        packet: ProductionApprovalPacket,
+        context: HumanDecisionWriteContext,
+        input_refs: tuple[str, ...],
+    ) -> Mapping[str, object]:
+        """Build the existing authority-writer envelope for one V2 packet."""
+
+        closure_hash = _sha256_ref(
+            {
+                "tenant_id": context.tenant_id,
+                "run_id": context.run_id,
+                "job_id": context.job_id,
+                "input_refs": input_refs,
+                "governed_action_key": packet.governed_action_key,
+            }
+        )
+        generated_at = packet.generated_at.isoformat()
+        return {
+            "evidence_id": f"production-approval-{closure_hash[7:31]}",
+            "evidence_class": "authority_bearing",
+            "authority_role": "producer_authority",
+            "provenance_kind": "runtime_emitted",
+            "owner": context.owner,
+            "reader_contract": _PRODUCTION_APPROVAL_PACKET_KIND + ".reader",
+            "reader_contract_version": "2.0",
+            "tenant_id": context.tenant_id,
+            "cell_id": context.cell_id,
+            "run_id": context.run_id,
+            "job_id": context.job_id,
+            "trace_id": context.trace_id,
+            "span_id": context.span_id,
+            "parent_span_id": context.parent_span_id,
+            "requested_execution_profile": context.requested_execution_profile,
+            "effective_execution_profile": context.effective_execution_profile,
+            "phase": "production_approval_custody",
+            "generated_at": generated_at,
+            "as_of_time": generated_at,
+            "same_input_closure": {
+                "closure_id": f"production-approval.{closure_hash[7:31]}",
+                "status": "closed",
+                "run_id": context.run_id,
+                "job_id": context.job_id,
+                "tenant_id": context.tenant_id,
+                "cell_id": context.cell_id,
+                "effective_mode_ref": context.effective_mode_ref,
+                "degradation_ledger_ref": context.degradation_ledger_ref,
+                "evidence_input_refs": input_refs,
+                "closure_sha256": closure_hash,
+            },
+            "input_refs": input_refs,
+            "effective_mode_ref": context.effective_mode_ref,
+            "degradation_ledger_ref": context.degradation_ledger_ref,
+            "semantic_binding_ref": packet.governed_action_key,
+            "validation_status": "pass",
+            "blocking_status": "non_blocking",
+            "governance": GovernanceMetadata(
+                classification="restricted",
+                authority_boundary=_PRODUCTION_APPROVAL_PACKET_KIND + "_custody",
+                pii="identity_bound",
+                retention_policy="runtime-quality-90d",
+                review_status="runtime_verified",
+                override_policy="signed_reason_and_independent_reviewer_required",
+                approval_policy="concrete_resolver_currentness_required",
+            ),
+            "event_id": f"evt_production_approval_{closure_hash[7:31]}",
+            "event_source": "polisyos.runtime.http.production_approval",
+            "event_type": "polisyos.runtime.diagnostic.cas_write.v1",
+            "event_subject": f"run/{context.run_id}/job/{context.job_id}/production-approval",
+            "state_after": "persisted",
+            "canon_spec": canon.CanonSpec(forbid_floats=False),
         }
 
     def _freeze_failed_reservation(
@@ -3381,7 +4394,7 @@ class HumanDecisionService:
                 raise HumanDecisionOperationalResolutionError("DS9-DECISION-SOURCE-INVALID")
             events.append(event)
         exposure_issues = _exposure_binding_issues(
-            source=source,
+            basis_ref=adapter.basis_digest,
             request=request,
             principal=principal,
             principal_ref=record.principal_binding_ref,

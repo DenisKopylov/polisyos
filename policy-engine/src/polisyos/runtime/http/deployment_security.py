@@ -35,6 +35,7 @@ from polisyos.runtime.http.deployment_security_attestation import (
     DeploymentSecurityAttestationError,
     register_deployment_security_attestation,
     require_attested_deployment_component,
+    require_registered_deployment_component,
     require_registered_deployment_security,
 )
 from polisyos.runtime.http.deployment_security_attestation import (
@@ -488,24 +489,20 @@ class DeploymentHumanDecisionCustody:
             if self.trust_policy.verifier_epoch != self.verifier_epoch:
                 raise TypeError("human-decision custody verifier epoch changed")
             return
-        if (
-            any(
-                value is not None
-                for value in (
-                    self.signer,
-                    self.verifier,
-                    self.signer_identity,
-                    self.verifier_epoch,
-                    self.trust_policy,
-                    self.provenance,
-                )
+        if any(
+            value is not None
+            for value in (
+                self.signer,
+                self.verifier,
+                self.signer_identity,
+                self.verifier_epoch,
+                self.trust_policy,
+                self.provenance,
             )
-            or self.unavailability_code
-            not in {
-                "DS9-DECISION-PRODUCER-MISSING",
-                "DS9-DECISION-SOURCE-INVALID",
-            }
-        ):
+        ) or self.unavailability_code not in {
+            "DS9-DECISION-PRODUCER-MISSING",
+            "DS9-DECISION-SOURCE-INVALID",
+        }:
             raise TypeError("unavailable human-decision custody has authority state")
 
 
@@ -1013,6 +1010,28 @@ def require_factory_produced_deployment_security(
     return value
 
 
+def require_production_approval_resolver_issuer(
+    value: object,
+    *,
+    custody: object,
+    verifier_epoch: str,
+) -> RuntimeDeploymentSecurity:
+    """Bind resolver issuance to the exact registered custody and verifier epoch."""
+
+    runtime = require_factory_produced_deployment_security(value)
+    require_registered_deployment_component(
+        runtime,
+        component_name="human_decision_custody",
+        candidate=custody,
+    )
+    if (
+        runtime.human_decision_custody is not custody
+        or runtime.human_decision_custody.verifier_epoch != verifier_epoch
+    ):
+        raise TypeError("production approval resolver issuer epoch changed")
+    return runtime
+
+
 def require_installed_deployment_security(
     subject: object,
 ) -> RuntimeDeploymentSecurity | None:
@@ -1164,5 +1183,6 @@ __all__ = [
     "require_attested_deployment_component",
     "require_factory_produced_deployment_security",
     "require_installed_deployment_security",
+    "require_production_approval_resolver_issuer",
     "verify_exact_deployment_principal_token",
 ]

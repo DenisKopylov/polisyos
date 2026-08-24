@@ -52,6 +52,7 @@ if TYPE_CHECKING:
     from polisyos.runtime.http.authorization import BoundActionPermissionVerification
     from polisyos.runtime.http.resource_binding import BoundAuthorizationResource
     from polisyos.runtime.http.services.human_decision_contracts import (
+        HumanDecisionGatewayAdapterInput,
         HumanDecisionPA2GatewayAdapterInput,
     )
 
@@ -443,8 +444,9 @@ class AgentActionAuthorityGateway:
         effect_bindings: tuple[AgentActionEffectBinding, ...],
         human_decision_refs_by_request_ref: Mapping[str, str] | None = None,
         human_decision_service: _HumanDecisionServiceProtocol | None = None,
-        human_decision_adapters_by_request_ref: Mapping[str, HumanDecisionPA2GatewayAdapterInput]
+        human_decision_adapters_by_request_ref: Mapping[str, HumanDecisionGatewayAdapterInput]
         | None = None,
+        production_approval_resolver: object | None = None,
     ) -> None:
         if type(artifact_store) is not artifacts.FileSystemCAS:
             raise TypeError("agent action authority requires the concrete server CAS")
@@ -477,16 +479,34 @@ class AgentActionAuthorityGateway:
         if adapter_rows:
             from polisyos.runtime.http.services.human_decision_contracts import (
                 HumanDecisionPA2GatewayAdapterInput,
+                HumanDecisionProductionGatewayAdapterInput,
             )
             from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+            from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
 
-            if type(human_decision_service) is not HumanDecisionService:
+            has_pa2 = any(
+                type(adapter) is HumanDecisionPA2GatewayAdapterInput
+                for adapter in adapter_rows.values()
+            )
+            has_production = any(
+                type(adapter) is HumanDecisionProductionGatewayAdapterInput
+                for adapter in adapter_rows.values()
+            )
+            if has_pa2 and type(human_decision_service) is not HumanDecisionService:
                 raise TypeError("v2 human decisions require the concrete deployment resolver")
+            if has_production and type(production_approval_resolver) is not (
+                ProductionApprovalPacketResolver
+            ):
+                raise TypeError("production human decisions require the concrete approval resolver")
             for request_ref, adapter in adapter_rows.items():
                 if (
                     type(request_ref) is not str
                     or not request_ref
-                    or type(adapter) is not HumanDecisionPA2GatewayAdapterInput
+                    or type(adapter)
+                    not in {
+                        HumanDecisionPA2GatewayAdapterInput,
+                        HumanDecisionProductionGatewayAdapterInput,
+                    }
                     or adapter.decision_request_ref != request_ref
                 ):
                     raise TypeError("human-decision adapter mapping is not exact")
@@ -499,6 +519,7 @@ class AgentActionAuthorityGateway:
                 raise TypeError("human-decision service must be the concrete runtime type")
         self._human_decision_service = human_decision_service
         self._human_decision_adapters = MappingProxyType(adapter_rows)
+        self._production_approval_resolver = production_approval_resolver
         binding_map: dict[tuple[str, str, str], AgentActionEffectBinding] = {}
         for binding in effect_bindings:
             if type(binding) is not AgentActionEffectBinding:
@@ -627,6 +648,21 @@ class AgentActionAuthorityGateway:
 
         adapter = self._human_decision_adapters.get(request.request_ref)
         if adapter is not None:
+            from polisyos.runtime.http.services.human_decision_contracts import (
+                HumanDecisionPA2GatewayAdapterInput,
+                HumanDecisionProductionGatewayAdapterInput,
+            )
+
+            if type(adapter) is HumanDecisionProductionGatewayAdapterInput:
+                return self._resolve_production_human_decision(
+                    adapter,
+                    request=request,
+                    evaluated_at=evaluated_at,
+                    operation=operation,
+                    intent=intent,
+                )
+            if type(adapter) is not HumanDecisionPA2GatewayAdapterInput:
+                raise AgentActionAuthorityOwnerResolutionError("DS9-DECISION-PRODUCER-MISSING")
             from polisyos.runtime.http.services.human_decisions import (
                 HumanDecisionOperationalResolutionError,
                 _ResolvedPA2OperationalAuthority,
@@ -676,6 +712,86 @@ class AgentActionAuthorityGateway:
                 "human_decision_actor_signature_mismatch"
             )
         return record, ref, request
+
+    def _resolve_production_human_decision(
+        self,
+        adapter: object,
+        *,
+        request: HumanDecisionRequest,
+        evaluated_at: datetime,
+        operation: OperationContract,
+        intent: AgentActionIntent,
+    ) -> tuple[HumanDecisionRecord, str, HumanDecisionRequest]:
+        """Re-resolve a V2 packet and all signed inputs immediately before effect."""
+
+        from polisyos.runtime.http.services.human_decision_contracts import (
+            HumanDecisionProductionGatewayAdapterInput,
+        )
+        from polisyos.runtime.http.services.human_decisions import (
+            ResolvedProductionApprovalPacket,
+        )
+        from polisyos.runtime.quality.approval import (
+            ProductionApprovalPacketResolver,
+            ProductionApprovalResolutionError,
+            _ResolvedProductionApprovalCurrentness,
+        )
+
+        if type(adapter) is not HumanDecisionProductionGatewayAdapterInput:
+            raise AgentActionAuthorityOwnerResolutionError("DS9-DECISION-PRODUCER-MISSING")
+        typed_adapter = cast("HumanDecisionProductionGatewayAdapterInput", adapter)
+        resolver = self._production_approval_resolver
+        if type(resolver) is not ProductionApprovalPacketResolver:
+            raise AgentActionAuthorityOwnerResolutionError("DS9-DECISION-PRODUCER-MISSING")
+        if typed_adapter.expected_consumer != "polisyos.runtime.quality.agent_action_authority":
+            raise AgentActionAuthorityOwnerResolutionError("DS9-APPROVAL-WRONG-CONSUMER")
+        try:
+            currentness = resolver.require_currentness(
+                packet_ref=typed_adapter.production_packet_ref,
+                tenant_id=typed_adapter.tenant_id,
+                run_id=typed_adapter.run_id,
+                expected_consumer=typed_adapter.expected_consumer,
+                expected_audience=typed_adapter.expected_audience,
+                evaluated_at=evaluated_at,
+            )
+        except ProductionApprovalResolutionError as exc:
+            raise AgentActionAuthorityOwnerResolutionError(exc.code) from exc
+        if (
+            type(currentness) is not _ResolvedProductionApprovalCurrentness
+            or type(currentness.packet) is not ResolvedProductionApprovalPacket
+        ):
+            raise AgentActionAuthorityOwnerResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+        resolved = currentness.packet
+        inputs = resolved.inputs
+        basis = inputs.basis
+        record = inputs.record
+        signed_request = basis.decision_request
+        request_digest = _exact_hash(request)
+        if (
+            resolved.packet_ref != typed_adapter.production_packet_ref
+            or typed_adapter.production_packet_digest != resolved.packet_ref
+            or typed_adapter.source_ref != inputs.basis_ref
+            or typed_adapter.source_digest != inputs.basis_ref
+            or typed_adapter.basis_digest != inputs.basis_ref
+            or typed_adapter.record_ref != inputs.record_ref
+            or typed_adapter.record_digest != inputs.record_ref
+            or typed_adapter.decision_request_ref != basis.decision_request_ref
+            or typed_adapter.decision_request_digest != basis.decision_request_digest
+            or typed_adapter.decision_request_ref != request.request_ref
+            or typed_adapter.decision_request_digest != request_digest
+            or signed_request != request
+            or typed_adapter.rule_version_ref != basis.rule_version_ref
+            or typed_adapter.verifier_epoch != inputs.verifier_epoch
+            or typed_adapter.valid_from != inputs.valid_from
+            or typed_adapter.valid_until != inputs.valid_until
+            or not (inputs.valid_from <= evaluated_at < inputs.valid_until)
+            or typed_adapter.expected_operation != operation.operation_id
+            or basis.operation_id != operation.operation_id
+            or basis.action_kind != intent.action_kind
+            or record.source_kind != "production_approval"
+            or record.decision_action_exercised != "approve"
+        ):
+            raise AgentActionAuthorityOwnerResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+        return record, inputs.record_ref, signed_request
 
     def begin_dispatch(self, dispatch_binding_hash: str) -> str:
         """Reserve the invocation through the existing durable idempotency owner."""

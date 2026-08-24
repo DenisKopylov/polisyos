@@ -450,9 +450,7 @@ if router is not None:
                 verifier_epoch="producer-missing",
             )
         initial = service.resolve_gate(gate_input, bound_permission=proof)
-        if isinstance(gate_input, HumanDecisionPA2GateInput) and {
-            reason.code for reason in initial.reasons
-        } == {"DS9-EXPOSURE-SESSION-PRODUCER-MISSING"}:
+        if {reason.code for reason in initial.reasons} == {"DS9-EXPOSURE-SESSION-PRODUCER-MISSING"}:
             try:
                 issued = service.issue_exposure_session(
                     gate_input,

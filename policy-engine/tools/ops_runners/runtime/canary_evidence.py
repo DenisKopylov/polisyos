@@ -126,11 +126,7 @@ from polisyos.runtime.quality.scorecard import (
     scorecard_control_progress,
 )
 from polisyos.runtime.quality.semantic_binding import build_semantic_binding_ledger
-from polisyos.scientist.artifacts.decision_compiler import (
-    DecisionArtifactCompilationError,
-    compile_draft_decision_packet,
-    compile_publishable_decision_artifact,
-)
+from polisyos.scientist.artifacts.decision_compiler import compile_draft_decision_packet
 from polisyos.scientist.orchestration.llm.provider_quality import (
     DefaultProductionModelChoice,
     ProviderModelQualityObservation,
@@ -277,9 +273,7 @@ QUALITY_REPORT_KEY_BY_RUNTIME_REF = {
 LEGACY_MIGRATION_SANDBOX_BUNDLE_FILE = "migration_sandbox/legacy_migration_sandbox.json"
 EVIDENCE_PROVENANCE_MANIFEST = "quality_evidence/evidence_provenance_manifest.json"
 PUBLIC_EXPORT_BUNDLE_FILE = "quality_evidence/public_export_bundle.json"
-INVARIANT_PROOF_HARNESS_REPORT_FILE = (
-    "quality_evidence/invariant_proof_harness_report.json"
-)
+INVARIANT_PROOF_HARNESS_REPORT_FILE = "quality_evidence/invariant_proof_harness_report.json"
 PROVENANCE_REDACTION_POLICY = "sanitize_for_evidence.v1"
 PROVENANCE_PUBLIC_EXPORT_POLICY = "internal_only"
 
@@ -406,8 +400,7 @@ def sanitize_for_evidence(
         if redact_local_paths and (
             _is_path_like_key(key_hint)
             or any(
-                marker in redacted.replace("\\", "/").casefold()
-                for marker in LOCAL_PATH_MARKERS
+                marker in redacted.replace("\\", "/").casefold() for marker in LOCAL_PATH_MARKERS
             )
         ):
             return _redact_local_path_text(redacted)
@@ -943,8 +936,9 @@ def _authority_envelopes_from_quality_evidence(
             try:
                 deserialize_authority_envelope(envelope)
             except Exception:
-                continue
-            envelopes.append(deepcopy(envelope))
+                pass
+            else:
+                envelopes.append(deepcopy(envelope))
     return envelopes
 
 
@@ -983,6 +977,34 @@ def _public_runtime_orchestration_continuity_projection(
     }
 
 
+def _public_producer_pipeline_projection(
+    quality_evidence_payload: dict[str, Any],
+) -> dict[str, Any] | None:
+    """Project pipeline diagnostics without exporting its authority envelope."""
+
+    pipeline = quality_evidence_payload.get("producer_pipeline")
+    if not isinstance(pipeline, dict):
+        return None
+    summary = pipeline.get("producer_state_summary")
+    exit_gate = pipeline.get("compiled_requirement_exit_gate")
+    return {
+        "schema_version": pipeline.get("schema_version"),
+        "status": pipeline.get("status"),
+        "capability_reality_label": pipeline.get("capability_reality_label"),
+        "producer_state_summary": dict(summary) if isinstance(summary, dict) else None,
+        "compiled_requirement_exit_gate_status": (
+            exit_gate.get("status") if isinstance(exit_gate, dict) else None
+        ),
+        "authority_role": "projection_only",
+        "may_not_use_for": [
+            "producer_domain_truth",
+            "runtime_closeout_authority",
+            "scorecard_authority",
+            "approval_authority",
+        ],
+    }
+
+
 def _public_export_bundle_from_quality_evidence(
     *,
     run_id: Any,
@@ -994,7 +1016,7 @@ def _public_export_bundle_from_quality_evidence(
         "runtime_orchestration_continuity": _public_runtime_orchestration_continuity_projection(
             quality_evidence_payload
         ),
-        "producer_pipeline": quality_evidence_payload.get("producer_pipeline"),
+        "producer_pipeline": _public_producer_pipeline_projection(quality_evidence_payload),
         "producer_handshake_ledger": quality_evidence_payload.get("producer_handshake_ledger"),
         "replay_manifest": quality_evidence_payload.get("replay_manifest"),
         "semantic_binding_ledger": quality_evidence_payload.get("semantic_binding_ledger"),
@@ -1011,9 +1033,7 @@ def _public_export_bundle_from_quality_evidence(
         run_id=str(run_id or "unknown"),
         title="PolicyOS Wave 4 public audit projection",
         artifacts=artifacts,
-        authority_envelopes=_authority_envelopes_from_quality_evidence(
-            quality_evidence_payload
-        ),
+        authority_envelopes=_authority_envelopes_from_quality_evidence(quality_evidence_payload),
     )
     public_bundle["runtime_truth_preservation"] = {
         "schema_version": "policyos.runtime.public_export_truth_preservation.v1",
@@ -1210,12 +1230,8 @@ def _invariant_proof_harness_report_payload(
             "diagnostic_event_types": (
                 "architecture/production_quality/diagnostic_event_types.toml"
             ),
-            "source_truth_lattice": (
-                "architecture/production_quality/source_truth_lattice.toml"
-            ),
-            "schema_compatibility": (
-                "architecture/production_quality/schema_compatibility.toml"
-            ),
+            "source_truth_lattice": ("architecture/production_quality/source_truth_lattice.toml"),
+            "schema_compatibility": ("architecture/production_quality/schema_compatibility.toml"),
         },
         "verification_command": (
             "uv run python tools/quality/validation/check_honest_diagnostics_proof_harness.py "
@@ -1716,12 +1732,10 @@ def _authority_record_for_ref(
         report_key=report_key,
         artifact_kind=artifact_kind,
     )
-    schema_version = (
-        str((report or {}).get("schema_version") or envelope.get("schema_version") or "1.0")
+    schema_version = str(
+        (report or {}).get("schema_version") or envelope.get("schema_version") or "1.0"
     )
-    gate_name = (
-        QUALITY_REPORT_GATE_METADATA.get(report_key, (report_key or ref_key, "", ""))[0]
-    )
+    gate_name = QUALITY_REPORT_GATE_METADATA.get(report_key, (report_key or ref_key, "", ""))[0]
     reader_gate_version = f"runtime.scorecard.{gate_name}.v1"
     schema_compatibility_ref = _stable_authority_ref(
         ref_key,
@@ -1867,8 +1881,7 @@ def _authority_record_for_ref(
             "provenance_kind": envelope.get("provenance_kind") or "runtime_emitted",
             "evidence_class": envelope.get("evidence_class") or "authority_bearing",
             "producer_component": producer_component,
-            "producer_version": envelope.get("producer_version")
-            or "2026.05.16+wave6-closeout",
+            "producer_version": envelope.get("producer_version") or "2026.05.16+wave6-closeout",
             "runtime_event_ref": runtime_event_ref,
             "cas_ref": runtime_ref,
             "artifact_ref": runtime_ref,
@@ -2351,9 +2364,7 @@ def _optional_runtime_quality_ref_keys(*payloads: Any) -> set[str]:
             if not isinstance(optional_refs, dict):
                 continue
             keys.update(
-                str(key)
-                for key in optional_refs
-                if isinstance(key, str) and key.endswith("_ref")
+                str(key) for key in optional_refs if isinstance(key, str) and key.endswith("_ref")
             )
     return keys
 
@@ -2436,9 +2447,7 @@ def _provider_model_quality_ledger_from_payloads(
     upstream_spine_blocker_refs = _secondary_signal_upstream_blocker_refs(
         quality_evidence=quality_evidence,
     )
-    system_confounded = bool(
-        upstream_spine_blocker_refs and lane_kind == "quarantined_live"
-    )
+    system_confounded = bool(upstream_spine_blocker_refs and lane_kind == "quarantined_live")
     observations: list[ProviderModelQualityObservation] = []
     default_choices: list[DefaultProductionModelChoice] = []
 
@@ -2446,9 +2455,7 @@ def _provider_model_quality_ledger_from_payloads(
         provider = str(variant.get("provider") or "simulated")
         model_id = str(variant.get("model") or variant.get("model_id") or "unknown_model")
         fingerprint = str(
-            variant.get("model_fingerprint")
-            or variant.get("fingerprint")
-            or model_id
+            variant.get("model_fingerprint") or variant.get("fingerprint") or model_id
         )
         quality_score = (
             _nested_get(variant, "total_score")
@@ -2492,9 +2499,7 @@ def _provider_model_quality_ledger_from_payloads(
                 quarantined=lane_kind == "quarantined_live",
                 system_confounded=system_confounded,
                 confounding_signal=(
-                    "upstream_evidence_spine_incomplete"
-                    if system_confounded
-                    else None
+                    "upstream_evidence_spine_incomplete" if system_confounded else None
                 ),
                 upstream_spine_blocker_refs=(
                     list(upstream_spine_blocker_refs) if system_confounded else []
@@ -2623,8 +2628,7 @@ def _secondary_signal_scorecard_blocker_refs(
         if status not in {"fail", "failed", "blocked", "block"}:
             continue
         haystack = " ".join(
-            str(gate.get(key) or "")
-            for key in ("name", "phase", "code", "root_cause_class")
+            str(gate.get(key) or "") for key in ("name", "phase", "code", "root_cause_class")
         ).casefold()
         if any(needle in haystack for needle in needles):
             code = str(gate.get("code") or "upstream_spine_blocker")
@@ -2644,13 +2648,10 @@ def _with_prompt_tool_secondary_signal_findings(
     if not upstream_refs:
         return quality_evidence
     findings = [
-        dict(item)
-        for item in prompt_ledger.get("findings") or []
-        if isinstance(item, dict)
+        dict(item) for item in prompt_ledger.get("findings") or [] if isinstance(item, dict)
     ]
     existing_keys = {
-        (str(item.get("step_id")), str(item.get("validator_ref")))
-        for item in findings
+        (str(item.get("step_id")), str(item.get("validator_ref"))) for item in findings
     }
     for step in prompt_ledger.get("steps") or []:
         if not isinstance(step, dict):
@@ -2759,15 +2760,21 @@ def _with_wave7_producer_pipeline(
         or "run"
     )
     job_id = str((job_payload or {}).get("job_id") or "no-job")
-    target_context = _first_dict(
-        quality_evidence_payload.get("target_context"),
-        _nested_get(quality_evidence_payload.get("normative_evidence"), "target_context"),
-    ) or {}
-    request_context = _first_dict(
-        _nested_get(request_payload, "context"),
-        _nested_get(run_payload, "context"),
-        _nested_get(job_payload, "context"),
-    ) or {}
+    target_context = (
+        _first_dict(
+            quality_evidence_payload.get("target_context"),
+            _nested_get(quality_evidence_payload.get("normative_evidence"), "target_context"),
+        )
+        or {}
+    )
+    request_context = (
+        _first_dict(
+            _nested_get(request_payload, "context"),
+            _nested_get(run_payload, "context"),
+            _nested_get(job_payload, "context"),
+        )
+        or {}
+    )
     spine_context = {
         **request_context,
         **(
@@ -2821,9 +2828,7 @@ def _with_wave7_producer_pipeline(
             "candidate_methods",
         ),
         scholar_support_requirement_specs=scholar_specs,
-        scholar_evidence_bundle=_first_dict(
-            quality_evidence_payload.get("scholar_evidence_bundle")
-        )
+        scholar_evidence_bundle=_first_dict(quality_evidence_payload.get("scholar_evidence_bundle"))
         or None,
         participation_provenance_requirement_specs=participation_specs,
         participation_records=_wave7_requirement_sequence(
@@ -2840,9 +2845,7 @@ def _with_wave7_producer_pipeline(
             quality_evidence_payload.get("universal_grammar_compilation")
         ),
         obligation_graph=_first_dict(quality_evidence_payload.get("obligation_graph")),
-        claim_decomposition=_first_dict(
-            quality_evidence_payload.get("claim_decomposition")
-        ),
+        claim_decomposition=_first_dict(quality_evidence_payload.get("claim_decomposition")),
     )
     return merge_producer_pipeline_quality_evidence_surfaces(
         quality_evidence_payload,
@@ -2863,10 +2866,7 @@ def _wave7_requirement_sequence(
         return [dict(item) if isinstance(item, dict) else item for item in value]
     if isinstance(value, dict):
         if bundle_key and isinstance(value.get(bundle_key), list):
-            return [
-                dict(item) if isinstance(item, dict) else item
-                for item in value[bundle_key]
-            ]
+            return [dict(item) if isinstance(item, dict) else item for item in value[bundle_key]]
         return [dict(value)]
     return []
 
@@ -3160,9 +3160,7 @@ def _with_wave4_i4_closeout_reader_records(
                 {
                     "schema_version": "policyos.runtime.run_cost_proportionality.v1",
                     "status": "pass",
-                    "ledgers": [
-                        dict(item) for item in run_cost_rows if isinstance(item, dict)
-                    ],
+                    "ledgers": [dict(item) for item in run_cost_rows if isinstance(item, dict)],
                     "issues": [],
                 },
                 producer="polisyos.runtime.quality.run_cost_proportionality",
@@ -3255,9 +3253,7 @@ def _with_wave4_i4_closeout_verdict(
     run_id: str,
 ) -> dict[str, Any]:
     module_records = {
-        "i4_policy_design_case_graph": quality_evidence_payload.get(
-            "policy_design_case_i4_graph"
-        ),
+        "i4_policy_design_case_graph": quality_evidence_payload.get("policy_design_case_i4_graph"),
         "portfolio_effective_support": quality_evidence_payload.get(
             "policy_design_portfolio_effective_support"
         ),
@@ -3267,9 +3263,7 @@ def _with_wave4_i4_closeout_verdict(
         ),
         "formal_invariants": quality_evidence_payload.get("formal_invariants"),
         "source_truth": quality_evidence_payload.get("source_truth"),
-        "conflict_materialization": quality_evidence_payload.get(
-            "conflict_materialization"
-        ),
+        "conflict_materialization": quality_evidence_payload.get("conflict_materialization"),
         "attestation": quality_evidence_payload.get("attestation"),
         "closeout_compatibility": closeout_compatibility,
         "semantic_binding": quality_evidence_payload.get("semantic_binding_ledger"),
@@ -3279,9 +3273,7 @@ def _with_wave4_i4_closeout_verdict(
             "projection_publication_state"
         ),
         "complexity_self_fmea": quality_evidence_payload.get("run_cost_proportionality"),
-        "audit_verifier_ingestion": quality_evidence_payload.get(
-            "audit_verifier_ingestion"
-        ),
+        "audit_verifier_ingestion": quality_evidence_payload.get("audit_verifier_ingestion"),
     }
     verdict = build_can_i_closeout_verdict(
         run_id=run_id,
@@ -3721,9 +3713,7 @@ def _wave4_i4_portfolio_effective_support(
 ) -> dict[str, Any]:
     mass = dict(independence_map.get("effective_mass_report") or {})
     payload = {
-        "schema_version": (
-            "policyos.runtime.policy_design_case.portfolio_effective_support.v1"
-        ),
+        "schema_version": ("policyos.runtime.policy_design_case.portfolio_effective_support.v1"),
         "status": "pass",
         "run_id": run_id,
         "map_ref": independence_map.get("cas_ref") or independence_map.get("map_id"),
@@ -3734,16 +3724,12 @@ def _wave4_i4_portfolio_effective_support(
                 "effective_independent_evidence_count"
             ),
             "effective_support_mass": mass.get("effective_support_mass"),
-            "effective_counterevidence_mass": mass.get(
-                "effective_counterevidence_mass"
-            ),
+            "effective_counterevidence_mass": mass.get("effective_counterevidence_mass"),
             "collapse_reasons": mass.get("dominant_collapse_reasons") or [],
             "raw_count_display_policy": mass.get("raw_count_display_policy"),
             "rare_domain_scarcity": independence_map.get("rare_domain_scarcity"),
         },
-        "counterevidence_preserved": bool(
-            mass.get("effective_counterevidence_mass", 0.0)
-        ),
+        "counterevidence_preserved": bool(mass.get("effective_counterevidence_mass", 0.0)),
         "issues": [],
     }
     return _wave4_i4_runtime_reader_record(
@@ -3761,9 +3747,7 @@ def _wave4_i4_projection_publication_state(
 ) -> dict[str, Any]:
     status = "pass" if projection and projection_contract.get("status") == "pass" else "fail"
     payload = {
-        "schema_version": (
-            "policyos.runtime.policy_design_case.projection_publication_state.v1"
-        ),
+        "schema_version": ("policyos.runtime.policy_design_case.projection_publication_state.v1"),
         "status": status,
         "projection_ref": projection.get("cas_ref"),
         "projection_contract_ref": projection_contract.get("cas_ref"),
@@ -3915,9 +3899,7 @@ def _issues_from_report(report: Any) -> list[dict[str, Any]]:
         if isinstance(value, list):
             for item in value:
                 if isinstance(item, dict):
-                    severity = str(
-                        item.get("severity") or item.get("status") or ""
-                    ).casefold()
+                    severity = str(item.get("severity") or item.get("status") or "").casefold()
                     if severity in {"fail", "failed", "blocked", "block"} or key in {
                         "blocking_findings",
                         "blockers",
@@ -4094,9 +4076,7 @@ def _runtime_authority_sidecars_from_store(
     envelope_ref = _manifest_authority_ref(manifest, "authority_envelope_ref")
     event_ref = _manifest_authority_ref(manifest, "diagnostic_event_ref")
     envelope = (
-        _load_json_report_from_store(store, envelope_ref)
-        if envelope_ref is not None
-        else None
+        _load_json_report_from_store(store, envelope_ref) if envelope_ref is not None else None
     )
     diagnostic_event = (
         _load_json_report_from_store(store, event_ref) if event_ref is not None else None
@@ -4498,9 +4478,7 @@ def _decision_artifact_quality_from_payloads(
     if not final_claims and isinstance(grounding, dict):
         grounding_claims = grounding.get("claims")
         if isinstance(grounding_claims, list):
-            final_claims = [
-                dict(claim) for claim in grounding_claims if isinstance(claim, dict)
-            ]
+            final_claims = [dict(claim) for claim in grounding_claims if isinstance(claim, dict)]
     effective_scorecard = quality_scorecard or {
         "schema_version": "policyos.quality_scorecard.v1",
         "quality_status": "draft",
@@ -4531,43 +4509,29 @@ def _decision_artifact_quality_from_payloads(
         publishable
         and isinstance(effective_scorecard, dict)
         and str(effective_scorecard.get("quality_status") or "").casefold() == "pass"
-        and str(effective_scorecard.get("performance_status") or "").casefold()
-        not in {"", "pass"}
+        and str(effective_scorecard.get("performance_status") or "").casefold() not in {"", "pass"}
     )
     if performance_blocks_approval:
-        approval_state = "approval_ready"
-    artifact_issues: list[dict[str, Any]] = []
-    if publishable and not performance_blocks_approval:
-        try:
-            artifact = compile_publishable_decision_artifact(
-                run_id=str(run_id or "unknown"),
-                final_claims=final_claims,
-                policy_grounding_matrix=grounding,
-                quality_scorecard=decision_scorecard,
-                conflict_check=conflict_check,
-                approval_state=approval_state,
-                assurance_refs=assurance_refs,
-                performance_warnings=[],
-                claim_registry=claim_registry,
-                runtime_authority=runtime_authority,
-                policy_design_case=policy_design_case,
-            )
-        except DecisionArtifactCompilationError as exc:
-            artifact = dict(exc.draft_artifact)
-            artifact_issues = list(exc.issues)
-    else:
-        artifact = compile_draft_decision_packet(
-            run_id=str(run_id or "unknown"),
-            final_claims=final_claims,
-            policy_grounding_matrix=grounding,
-            quality_scorecard=decision_scorecard,
-            conflict_check=conflict_check,
-            approval_state=approval_state,
-            assurance_refs=assurance_refs,
-            performance_warnings=[],
-        )
-    if artifact_issues:
-        artifact.setdefault("compiler_issues", artifact_issues)
+        approval_state = "approval_blocked_unresolved_currentness"
+    # Canary assembly has no deployment-issued resolver or signed V2 packet.
+    # Its output is therefore a draft/historical witness even when the caller
+    # asks whether the run targets production.  Compiling a publishable
+    # artifact here would turn missing authority into a failed authority claim
+    # instead of retaining the honest projection boundary.
+    artifact = compile_draft_decision_packet(
+        run_id=str(run_id or "unknown"),
+        final_claims=final_claims,
+        policy_grounding_matrix=grounding,
+        quality_scorecard=decision_scorecard,
+        conflict_check=conflict_check,
+        approval_state=approval_state,
+        assurance_refs=assurance_refs,
+        performance_warnings=[],
+    )
+    artifact["approval_currentness"] = "producer_missing"
+    artifact["approval_projection_only"] = True
+    artifact["historical_only"] = True
+    artifact["publishability_target"] = "production" if publishable else "draft"
     report = build_decision_artifact_quality_report(
         compiled_artifact=artifact,
         final_claims=final_claims,
@@ -4580,7 +4544,11 @@ def _decision_artifact_quality_from_payloads(
         policy_grounding_matrix_ref=assurance_refs.get("policy_grounding_matrix_ref"),
         quality_scorecard_ref="quality_evidence/quality_scorecard.json",
         conflict_check_ref=assurance_refs.get("conflict_check_ref"),
+        approval_authority_mode="draft_historical",
     )
+    report["artifact_mode"] = "draft_historical"
+    report["approval_currentness"] = "producer_missing"
+    report["approval_projection_only"] = True
     if isinstance(existing_report, dict):
         for key in ("decision_artifact_quality_report_ref", "authority_envelope"):
             if key in existing_report:
@@ -4710,9 +4678,7 @@ def _quality_ref_resolution_evidence_with_generated_refs(
     if not include_generated_refs:
         return evidence
     refs = dict(evidence.get("refs") or {})
-    matches = [
-        dict(item) for item in evidence.get("matches", []) if isinstance(item, dict)
-    ]
+    matches = [dict(item) for item in evidence.get("matches", []) if isinstance(item, dict)]
     existing_match_keys = {str(match.get("key")) for match in matches}
     for key, value in generated_refs.items():
         refs.setdefault(key, value)
@@ -4731,8 +4697,7 @@ def _quality_ref_resolution_evidence_with_generated_refs(
     missing_evidence = [
         dict(item)
         for item in evidence.get("missing_evidence", [])
-        if isinstance(item, dict)
-        and str(item.get("missing_evidence_type") or "") in missing_set
+        if isinstance(item, dict) and str(item.get("missing_evidence_type") or "") in missing_set
     ]
     evidence.update(
         {
@@ -4769,9 +4734,7 @@ def assemble_canary_evidence(
     evidence_started_at = time.perf_counter()
     job_id = str((job_payload or {}).get("job_id") or "no-job")
     run_id = (job_payload or {}).get("run_id") or (run_payload or {}).get("run_id")
-    status = str(
-        (job_payload or {}).get("state") or (run_payload or {}).get("status") or "unknown"
-    )
+    status = str((job_payload or {}).get("state") or (run_payload or {}).get("status") or "unknown")
     root = Path(output_root)
     bundle_dir = Path(output_dir) if output_dir else root / f"{_utc_stamp()}_{job_id}"
     bundle_dir.mkdir(parents=True, exist_ok=True)
@@ -4920,10 +4883,14 @@ def assemble_canary_evidence(
         raw_quality_evidence_payload,
         canary_kind=canary_kind,
     )
-    if serious_bundle and isinstance(
-        merged_quality_evidence.get(PRIVACY_COMPLIANCE_REPORT_KEY),
-        dict,
-    ) and "privacy_compliance" not in raw_quality_evidence_payload:
+    if (
+        serious_bundle
+        and isinstance(
+            merged_quality_evidence.get(PRIVACY_COMPLIANCE_REPORT_KEY),
+            dict,
+        )
+        and "privacy_compliance" not in raw_quality_evidence_payload
+    ):
         quality_evidence_payload[PRIVACY_COMPLIANCE_REPORT_KEY] = dict(
             merged_quality_evidence[PRIVACY_COMPLIANCE_REPORT_KEY]
         )
@@ -5087,9 +5054,7 @@ def assemble_canary_evidence(
         ),
     }
     base_closeout_authority_envelope = (
-        _first_valid_authority_envelope(quality_evidence_payload)
-        if serious_bundle
-        else None
+        _first_valid_authority_envelope(quality_evidence_payload) if serious_bundle else None
     )
     if serious_bundle and base_closeout_authority_envelope is not None:
         scorecard_runtime_refs.update(
@@ -5145,15 +5110,13 @@ def assemble_canary_evidence(
             job_id=job_id,
             mode_ledger_ref=effective_mode_ref,
         )
-        quality_evidence_payload, closeout_authority_index = (
-            _with_closeout_authority_metadata(
-                preliminary_payload,
-                runtime_refs=scorecard_runtime_refs,
-                canary_kind=canary_kind,
-                run_id=run_id,
-                job_id=job_id,
-                base_authority_envelope=base_closeout_authority_envelope,
-            )
+        quality_evidence_payload, closeout_authority_index = _with_closeout_authority_metadata(
+            preliminary_payload,
+            runtime_refs=scorecard_runtime_refs,
+            canary_kind=canary_kind,
+            run_id=run_id,
+            job_id=job_id,
+            base_authority_envelope=base_closeout_authority_envelope,
         )
         quality_evidence_payload = _quality_evidence_with_closeout_authority_refs(
             quality_evidence_payload,
@@ -5429,15 +5392,13 @@ def assemble_canary_evidence(
             )
         )
         if closeout_authority_index is not None:
-            quality_evidence_payload, closeout_authority_index = (
-                _with_closeout_authority_metadata(
-                    quality_evidence_payload,
-                    runtime_refs=scorecard_runtime_refs,
-                    canary_kind=canary_kind,
-                    run_id=run_id,
-                    job_id=job_id,
-                    base_authority_envelope=base_closeout_authority_envelope,
-                )
+            quality_evidence_payload, closeout_authority_index = _with_closeout_authority_metadata(
+                quality_evidence_payload,
+                runtime_refs=scorecard_runtime_refs,
+                canary_kind=canary_kind,
+                run_id=run_id,
+                job_id=job_id,
+                base_authority_envelope=base_closeout_authority_envelope,
             )
             quality_evidence_payload = _quality_evidence_with_closeout_authority_refs(
                 quality_evidence_payload,
@@ -5469,11 +5430,9 @@ def assemble_canary_evidence(
             quality_scorecard_ref="quality_evidence/quality_scorecard.json",
             quality_evidence_bundle_path=str(bundle_dir),
         )
-    quality_evidence_payload["source_truth_conflicts"] = (
-        _source_truth_conflict_records_payload(
-            quality_scorecard=quality_scorecard,
-            quality_evidence_payload=quality_evidence_payload,
-        )
+    quality_evidence_payload["source_truth_conflicts"] = _source_truth_conflict_records_payload(
+        quality_scorecard=quality_scorecard,
+        quality_evidence_payload=quality_evidence_payload,
     )
     quality_evidence_payload["invariant_proof_harness_report"] = (
         _invariant_proof_harness_report_payload(
@@ -5570,13 +5529,11 @@ def assemble_canary_evidence(
                 else None,
             )
         )
-        quality_evidence_payload["replay_manifest"] = (
-            attach_replay_orchestration_continuity(
-                quality_evidence_payload.get("replay_manifest")
-                if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
-                else {},
-                quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
-            )
+        quality_evidence_payload["replay_manifest"] = attach_replay_orchestration_continuity(
+            quality_evidence_payload.get("replay_manifest")
+            if isinstance(quality_evidence_payload.get("replay_manifest"), dict)
+            else {},
+            quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
         )
         quality_evidence_payload["drift_explanation"] = explain_replay_drift(
             baseline_manifest=quality_evidence_payload["replay_manifest"],
@@ -5604,11 +5561,9 @@ def assemble_canary_evidence(
                 export_payload=quality_evidence_payload["public_export_bundle"],
             )
         )
-        quality_evidence_payload["replay_manifest"] = (
-            attach_replay_orchestration_continuity(
-                quality_evidence_payload["replay_manifest"],
-                quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
-            )
+        quality_evidence_payload["replay_manifest"] = attach_replay_orchestration_continuity(
+            quality_evidence_payload["replay_manifest"],
+            quality_evidence_payload[NL_REPLAY_ORCHESTRATION_RECORD_KEY],
         )
         quality_evidence_payload["drift_explanation"] = explain_replay_drift(
             baseline_manifest=quality_evidence_payload["replay_manifest"],

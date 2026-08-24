@@ -257,6 +257,23 @@ def _production_approval_test_context(
     }
 
 
+def _production_approval_body(
+    context: dict[str, Any],
+    **updates: object,
+) -> dict[str, object]:
+    basis_ref = "sha256:" + "b" * 64
+    record_ref = "sha256:" + "c" * 64
+    body: dict[str, object] = {
+        "quality_scorecard_ref": context["scorecard_ref"],
+        "production_basis_ref": basis_ref,
+        "production_basis_digest": basis_ref,
+        "human_decision_record_ref": record_ref,
+        "human_decision_record_digest": record_ref,
+    }
+    body.update(updates)
+    return body
+
+
 def _step_up_context():
     from polisyos.runtime.http.step_up import (
         StepUpClass,
@@ -308,6 +325,10 @@ def _signed_step_up_token(
         "step_up_class": context.step_up_class.value,
         "scorecard_ref": context.scorecard_ref,
         "scorecard_sha256": context.scorecard_sha256,
+        "production_basis_ref": context.production_basis_ref,
+        "production_basis_sha256": context.production_basis_sha256,
+        "human_decision_record_ref": context.human_decision_record_ref,
+        "human_decision_record_sha256": context.human_decision_record_sha256,
         "mfa_verified": True,
         "assurance": "fresh_mfa",
         "iat": issued_at,
@@ -601,7 +622,7 @@ def test_high_stakes_action_permission_without_step_up_is_denied(
             "Authorization": f"Bearer {context['bearer']}",
             "X-Tenant-ID": runtime_api_env["tenant_a"],
         },
-        json={"quality_scorecard_ref": context["scorecard_ref"]},
+        json=_production_approval_body(context),
     )
     packets_after = {
         str(artifact_id)
@@ -633,7 +654,7 @@ def test_missing_step_up_verifier_fails_closed(runtime_api_env) -> None:
             "X-Tenant-ID": runtime_api_env["tenant_a"],
             "X-PolicyOS-Step-Up": "signed-but-unverifiable",
         },
-        json={"quality_scorecard_ref": context["scorecard_ref"]},
+        json=_production_approval_body(context),
     )
     packets_after = {
         str(artifact_id)
@@ -684,7 +705,7 @@ def test_missing_step_up_replay_store_fails_closed(runtime_api_env) -> None:
             "X-Tenant-ID": runtime_api_env["tenant_a"],
             "X-PolicyOS-Step-Up": "externally-signed-step-up",
         },
-        json={"quality_scorecard_ref": context["scorecard_ref"]},
+        json=_production_approval_body(context),
     )
 
     assert response.status_code == 503, response.json()
@@ -758,7 +779,7 @@ def test_step_up_collaborator_failures_deny_before_mutation(
             "X-Tenant-ID": runtime_api_env["tenant_a"],
             "X-PolicyOS-Step-Up": "collaborator-failure-step-up",
         },
-        json={"quality_scorecard_ref": context["scorecard_ref"]},
+        json=_production_approval_body(context),
     )
     packets_after = {
         str(artifact_id)
@@ -817,7 +838,7 @@ def test_user_without_base_mfa_cannot_satisfy_human_step_up_class(
             "X-Tenant-ID": runtime_api_env["tenant_a"],
             "X-PolicyOS-Step-Up": "must-not-reach-verifier",
         },
-        json={"quality_scorecard_ref": context["scorecard_ref"]},
+        json=_production_approval_body(context),
     )
 
     assert response.status_code == 403, response.json()
@@ -976,8 +997,18 @@ def test_signed_step_up_assertion_denies_every_mismatched_request_binding(
     assert exc.value.code == "step_up_binding_mismatch"
 
 
-@pytest.mark.parametrize("claim_name", ["scorecard_ref", "scorecard_sha256"])
-def test_signed_production_approval_denies_mismatched_scorecard_binding(
+@pytest.mark.parametrize(
+    "claim_name",
+    [
+        "scorecard_ref",
+        "scorecard_sha256",
+        "production_basis_ref",
+        "production_basis_sha256",
+        "human_decision_record_ref",
+        "human_decision_record_sha256",
+    ],
+)
+def test_signed_production_approval_denies_each_mismatched_input_binding(
     claim_name: str,
 ) -> None:
     from dataclasses import replace as replace_dataclass
@@ -995,6 +1026,10 @@ def test_signed_production_approval_denies_mismatched_scorecard_binding(
         step_up_class=StepUpClass.PRODUCTION_APPROVAL,
         scorecard_ref="sha256:" + "3" * 64,
         scorecard_sha256="sha256:" + "4" * 64,
+        production_basis_ref="sha256:" + "5" * 64,
+        production_basis_sha256="sha256:" + "5" * 64,
+        human_decision_record_ref="sha256:" + "6" * 64,
+        human_decision_record_sha256="sha256:" + "6" * 64,
     )
     token = _signed_step_up_token(
         context,
@@ -1171,7 +1206,7 @@ def test_replayed_step_up_assertion_is_denied(runtime_api_env, tmp_path: Path) -
         "X-Tenant-ID": runtime_api_env["tenant_a"],
         "X-PolicyOS-Step-Up": "externally-signed-step-up",
     }
-    body = {"quality_scorecard_ref": context["scorecard_ref"]}
+    body = _production_approval_body(context)
 
     packets_before = {
         str(artifact_id)
@@ -1199,8 +1234,9 @@ def test_replayed_step_up_assertion_is_denied(runtime_api_env, tmp_path: Path) -
         if context["store"].get_manifest(artifact_id).kind == "runtime.production_approval_packet"
     }
 
-    assert first.status_code == 200, first.json()
-    assert packets_after_first > packets_before
+    assert first.status_code == 503, first.json()
+    assert first.json()["code"] == "DS9-DECISION-PRODUCER-MISSING"
+    assert packets_after_first == packets_before
     assert replay.status_code == 403, replay.json()
     assert replay.json()["code"] == "step_up_replayed"
     assert packets_after_replay == packets_after_first
@@ -1262,7 +1298,7 @@ def test_production_approval_binds_persisted_scorecard_in_step_up(
         step_up_replay_store=_ReplayStore(),
     )
     raw_body = json.dumps(
-        {"quality_scorecard_ref": context["scorecard_ref"]},
+        _production_approval_body(context),
         separators=(",", ":"),
     ).encode("utf-8")
 
@@ -1277,7 +1313,8 @@ def test_production_approval_binds_persisted_scorecard_in_step_up(
         content=raw_body,
     )
 
-    assert response.status_code == 200, response.json()
+    assert response.status_code == 503, response.json()
+    assert response.json()["code"] == "DS9-DECISION-PRODUCER-MISSING"
     assert len(verifier.contexts) == 1
     verified_context = verifier.contexts[0]
     normalized_scorecard = dict(context["scorecard_payload"])
@@ -1304,7 +1341,76 @@ def test_production_approval_binds_persisted_scorecard_in_step_up(
     expected_body_sha256 = "sha256:" + hashlib.sha256(raw_body).hexdigest()
     assert verified_context.scorecard_ref == context["scorecard_ref"]
     assert verified_context.scorecard_sha256 == expected_scorecard_sha256
+    assert verified_context.production_basis_ref == "sha256:" + "b" * 64
+    assert verified_context.production_basis_sha256 == "sha256:" + "b" * 64
+    assert verified_context.human_decision_record_ref == "sha256:" + "c" * 64
+    assert verified_context.human_decision_record_sha256 == "sha256:" + "c" * 64
     assert verified_context.body_sha256 == expected_body_sha256
+
+
+def test_production_approval_step_up_binds_all_three_input_digests(
+    runtime_api_env,
+) -> None:
+    from polisyos.runtime.http.security import RuntimeSecurityConfig
+    from polisyos.runtime.http.step_up import StepUpAssertionVerification
+
+    context = _production_approval_test_context(
+        runtime_api_env,
+        suffix="production-three-input-step-up",
+    )
+    now = int(time.time())
+    body = _production_approval_body(context)
+    basis_ref = str(body["production_basis_ref"])
+    record_ref = str(body["human_decision_record_ref"])
+
+    class _Verifier:
+        def __init__(self) -> None:
+            self.contexts: list[Any] = []
+
+        def verify(self, encoded_assertion: str, verification_context):
+            assert encoded_assertion == "three-input-step-up"
+            self.contexts.append(verification_context)
+            return StepUpAssertionVerification(
+                context=verification_context,
+                assertion_id="three-input-step-up-jti",
+                issuer="https://step-up.example",
+                audience="polisyos-runtime-step-up",
+                issued_at=now - 1,
+                expires_at=now + 60,
+                assurance="fresh_mfa",
+            )
+
+    class _ReplayStore:
+        def consume_step_up_assertion(self, *, assertion_id: str, expires_at: int) -> bool:
+            return assertion_id == "three-input-step-up-jti" and expires_at == now + 60
+
+    verifier = _Verifier()
+    security = context["client"].app.state.runtime_security
+    assert isinstance(security, RuntimeSecurityConfig)
+    context["client"].app.state.runtime_security = replace(
+        security,
+        step_up_verifier=verifier,
+        step_up_replay_store=_ReplayStore(),
+    )
+    response = context["client"].post(
+        f"/api/v1/runs/{runtime_api_env['core_run_id']}/production-approval",
+        headers={
+            "Authorization": f"Bearer {context['bearer']}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+            "X-PolicyOS-Step-Up": "three-input-step-up",
+        },
+        json=body,
+    )
+
+    assert response.status_code == 503, response.json()
+    assert response.json()["code"] == "DS9-DECISION-PRODUCER-MISSING"
+    assert len(verifier.contexts) == 1
+    verified = verifier.contexts[0]
+    assert verified.scorecard_sha256.startswith("sha256:")
+    assert verified.production_basis_ref == basis_ref
+    assert verified.production_basis_sha256 == basis_ref
+    assert verified.human_decision_record_ref == record_ref
+    assert verified.human_decision_record_sha256 == record_ref
 
 
 def test_concurrent_replay_allows_exactly_one_step_up_consumer(
@@ -1441,10 +1547,7 @@ def _assert_production_override_denied(
             "X-Tenant-ID": runtime_api_env["tenant_a"],
             "X-PolicyOS-Step-Up": assertion,
         },
-        json={
-            "quality_scorecard_ref": context["scorecard_ref"],
-            "override": override,
-        },
+        json=_production_approval_body(context, override=override),
     )
     packets_after = {
         str(artifact_id)

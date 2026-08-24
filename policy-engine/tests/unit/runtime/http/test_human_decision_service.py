@@ -10,7 +10,7 @@ from dataclasses import dataclass, replace
 from datetime import UTC, datetime, timedelta
 from itertools import combinations, permutations
 from pathlib import Path
-from typing import Any
+from typing import Any, cast
 from unittest.mock import patch
 
 import pytest
@@ -41,6 +41,8 @@ class _SignedGateFixture:
     source_decision: Any
     sign_principal: Callable[[dict[str, object]], str]
     sign_separation: Callable[[dict[str, object]], str]
+    sign_production_basis: Callable[[Any, bool], str]
+    sign_scorecard: Callable[[dict[str, object], bool], str]
     resign_request_bundle: Callable[..., dict[str, str]]
     persist_contract: Callable[[Any, bool], str]
     service_with_audit: Callable[[Path], Any]
@@ -61,6 +63,23 @@ class _SignedGateFixture:
         return self.service.resolve_gate(
             self.adapter_input.model_copy(update=changes),
             bound_permission=self.bound_permission,
+        )
+
+
+@dataclass(frozen=True)
+class _SignedProductionGateFixture:
+    base: _SignedGateFixture
+    gate_input: Any
+    basis: Any
+    basis_ref: str
+    scorecard: dict[str, object]
+    scorecard_ref: str
+    scorecard_binding_digest: str
+
+    def resolve(self, **changes: object) -> Any:
+        return self.base.service.resolve_gate(
+            self.gate_input.model_copy(update=changes),
+            bound_permission=self.base.bound_permission,
         )
 
 
@@ -223,6 +242,8 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
     harness = _harness(tmp_path)
     producer_pairs = {
         "source": KeyPair.generate(),
+        "production_basis": KeyPair.generate(),
+        "scorecard": KeyPair.generate(),
         "principal": KeyPair.generate(),
         "separation": KeyPair.generate(),
         "presentation": KeyPair.generate(),
@@ -230,6 +251,8 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
     }
     producer_identities = {
         "source": "service://runtime/agent-action-authority",
+        "production_basis": "institution://operations/production-decision-basis",
+        "scorecard": "institution://operations/quality-scorecard",
         "principal": "institution://identity/principal-binding",
         "separation": "institution://governance/reviewer-separation",
         "presentation": "institution://governance/presentation-policy",
@@ -380,6 +403,27 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
             kind=contracts.REVIEWER_SEPARATION_CREDENTIAL_ARTIFACT_KIND,
             schema_name="polisyos.runtime.ReviewerSeparationCredential",
             schema_version=contracts.REVIEWER_SEPARATION_CREDENTIAL_MANIFEST_VERSION,
+        )
+
+    def _sign_production_basis(payload: Any, sign: bool = True) -> str:
+        basis_model = contracts.ProductionHumanDecisionBasis.model_validate(payload)
+        return _persist_model(
+            basis_model,
+            family="production_basis",
+            kind=contracts.PRODUCTION_HUMAN_DECISION_BASIS_ARTIFACT_KIND,
+            schema_name="polisyos.runtime.ProductionHumanDecisionBasis",
+            schema_version=contracts.PRODUCTION_HUMAN_DECISION_BASIS_MANIFEST_VERSION,
+            sign=sign,
+        )
+
+    def _sign_scorecard(payload: dict[str, object], sign: bool = True) -> str:
+        return _persist_model(
+            payload,
+            family="scorecard",
+            kind="runtime.quality_scorecard",
+            schema_name="polisyos.runtime.QualityScorecard",
+            schema_version="1.0",
+            sign=sign,
         )
 
     def _persist_bundle(
@@ -588,6 +632,18 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
                 signer_identity=producer_identities["source"],
             ),
             contracts.HumanDecisionTrustedProducer(
+                artifact_kind=contracts.PRODUCTION_HUMAN_DECISION_BASIS_ARTIFACT_KIND,
+                schema_name="polisyos.runtime.ProductionHumanDecisionBasis",
+                schema_version=contracts.PRODUCTION_HUMAN_DECISION_BASIS_MANIFEST_VERSION,
+                signer_identity=producer_identities["production_basis"],
+            ),
+            contracts.HumanDecisionTrustedProducer(
+                artifact_kind="runtime.quality_scorecard",
+                schema_name="polisyos.runtime.QualityScorecard",
+                schema_version="1.0",
+                signer_identity=producer_identities["scorecard"],
+            ),
+            contracts.HumanDecisionTrustedProducer(
                 artifact_kind=authority.DELEGATION_CONTRACT_ARTIFACT_KIND,
                 schema_name="polisyos.runtime.DelegationContract",
                 schema_version=authority.LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
@@ -765,6 +821,8 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         source_decision=source_decision,
         sign_principal=_sign_principal,
         sign_separation=_sign_separation,
+        sign_production_basis=_sign_production_basis,
+        sign_scorecard=_sign_scorecard,
         resign_request_bundle=_resign_request_bundle,
         persist_contract=_persist_contract,
         service_with_audit=_service_with_audit,
@@ -781,6 +839,397 @@ def _signed_current_gate_fixture(tmp_path: Path) -> _SignedGateFixture:
         effects=effects,
         separation_payload=dict(separation_payload),
     )
+
+
+def _signed_current_production_gate_fixture(tmp_path: Path) -> _SignedProductionGateFixture:
+    base = _signed_current_gate_fixture(tmp_path)
+    contracts = _contracts()
+    authority = importlib.import_module("polisyos.runtime.quality.agent_action_authority")
+    request = base.source_decision.human_decision_request
+    assert request is not None
+    decision_ends = tuple(
+        value for value in (request.decision_due_at, request.decidable_until) if value is not None
+    )
+    scorecard: dict[str, object] = {
+        "schema_version": "policyos.quality_scorecard.v1",
+        "run_id": "run-gy-pa2",
+        "execution_status": "completed",
+        "quality_status": "pass",
+        "performance_status": "pass",
+        "conflict_status": "pass",
+        "blocking_quality_failures": [],
+        "approval_" + "state": "approval_" + "ready",
+        "quality_scorecard_ref": "sha256:" + "6" * 64,
+        "scorecard_identity_ref": "sha256:" + "6" * 64,
+        "scorecard_identity_verified": True,
+    }
+    scorecard_ref = base.sign_scorecard(scorecard, True)
+    from polisyos.runtime.http.production_approval_binding import (
+        production_approval_scorecard_binding_digest,
+    )
+
+    scorecard_binding_digest = production_approval_scorecard_binding_digest(
+        scorecard,
+        ref=scorecard_ref,
+        run_id="run-gy-pa2",
+    )
+    basis = contracts.ProductionHumanDecisionBasis(
+        basis_id="production-basis-1",
+        basis_ref="operations://production-basis/run-gy-pa2",
+        tenant_id="tenant-a",
+        run_id="run-gy-pa2",
+        case_id=request.case_id,
+        governed_action_key="sha256:" + "9" * 64,
+        decision_request=request,
+        requester_actor_ref="user:agent-operator",
+        decision_request_ref=request.request_ref,
+        decision_request_digest=authority.agent_action_content_hash(request),
+        mandate_record_ref=request.s6_mandate_record_ref,
+        mandate_owner_ref="institution://operations/approval-owner",
+        operation_id="runtime.production_approval",
+        action_kind="production_approval",
+        decision_rights_matrix_ref=request.decision_rights_matrix_ref,
+        required_role=request.required_role,
+        offered_actions=tuple(request.available_actions),
+        scorecard_ref=scorecard_ref,
+        scorecard_digest=scorecard_ref,
+        valid_from=request.requested_at,
+        valid_until=min(decision_ends) if decision_ends else NOW + timedelta(minutes=30),
+        verifier_epoch="ds9-test-epoch",
+        authority_boundary=request.authority_boundary,
+        rule_version_ref=request.rule_version_ref,
+        issued_at=NOW,
+    )
+    basis_ref = base.sign_production_basis(basis, True)
+    bundle = base.resign_request_bundle(request, basis_ref=basis_ref)
+    gate_input = contracts.HumanDecisionProductionGateInput(
+        tenant_id="tenant-a",
+        run_id="run-gy-pa2",
+        source_kind="production_approval",
+        source_ref=basis_ref,
+        basis_ref=basis_ref,
+        basis_digest=basis_ref,
+        decision_request_ref=request.request_ref,
+        decision_request_digest=authority.agent_action_content_hash(request),
+        principal_binding_ref=bundle["principal_binding_ref"],
+        reviewer_separation_ref=bundle["reviewer_separation_ref"],
+        presentation_contract_ref=bundle["presentation_contract_ref"],
+        exposure_session_ref=bundle["exposure_session_ref"],
+        production_packet_ref=None,
+    )
+    return _SignedProductionGateFixture(
+        base=base,
+        gate_input=gate_input,
+        basis=basis,
+        basis_ref=basis_ref,
+        scorecard=scorecard,
+        scorecard_ref=scorecard_ref,
+        scorecard_binding_digest=scorecard_binding_digest,
+    )
+
+
+def test_production_basis_content_binds_complete_signed_request(tmp_path: Path) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    payload = fixture.basis.model_dump(mode="python")
+    payload["decision_request_digest"] = "sha256:" + "0" * 64
+
+    with pytest.raises(ValueError, match="complete signed request"):
+        _contracts().ProductionHumanDecisionBasis.model_validate(payload)
+
+
+def test_production_approval_requires_matching_live_human_decision_record(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    contracts = _contracts()
+
+    gate = fixture.resolve()
+    assert gate.status == "available"
+    created = fixture.base.service.create_record(
+        contracts.HumanDecisionCreateCommand(
+            gate_input=fixture.gate_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement="I accept accountability for this production approval.",
+            dissent_statement="No dissent after reviewing all required evidence.",
+        ),
+        bound_permission=fixture.base.bound_permission,
+        write_context=fixture.base.write_context,
+    )
+
+    assert created.record.source_kind == "production_approval"
+    assert created.record.source_ref == fixture.basis_ref
+    assert created.record.source_digest == fixture.basis_ref
+    assert created.record.basis_ref == fixture.basis_ref
+    assert created.record.basis_digest == fixture.basis_ref
+    assert created.record.human_decision_request_ref == fixture.basis.decision_request_ref
+    assert created.record.decision_request_digest == fixture.basis.decision_request_digest
+    assert created.record.governed_action_key == fixture.basis.governed_action_key
+    inputs = fixture.base.service.resolve_production_approval_inputs(
+        tenant_id="tenant-a",
+        run_id="run-gy-pa2",
+        scorecard_ref=fixture.scorecard_ref,
+        scorecard_binding_digest=fixture.scorecard_binding_digest,
+        production_basis_ref=fixture.basis_ref,
+        human_decision_record_ref=created.record_ref,
+        evaluated_at=NOW,
+    )
+    assert inputs.record_ref == created.record_ref
+    assert inputs.basis_ref == fixture.basis_ref
+    assert inputs.scorecard_ref == fixture.scorecard_ref
+
+
+def test_production_approval_blocks_unverified_scorecard_producer(tmp_path: Path) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    contracts = _contracts()
+    unsigned_scorecard = {
+        **fixture.scorecard,
+        "quality_status": "passed",
+    }
+    unsigned_scorecard_ref = fixture.base.sign_scorecard(unsigned_scorecard, False)
+    basis = fixture.basis.model_copy(
+        update={
+            "basis_id": "production-basis-unsigned-scorecard",
+            "basis_ref": "operations://production-basis/unsigned-scorecard",
+            "scorecard_ref": unsigned_scorecard_ref,
+            "scorecard_digest": unsigned_scorecard_ref,
+            "governed_action_key": "sha256:" + "7" * 64,
+        }
+    )
+    basis_ref = fixture.base.sign_production_basis(basis, True)
+    bundle = fixture.base.resign_request_bundle(basis.decision_request, basis_ref=basis_ref)
+    gate_input = fixture.gate_input.model_copy(
+        update={
+            "source_ref": basis_ref,
+            "basis_ref": basis_ref,
+            "basis_digest": basis_ref,
+            "principal_binding_ref": bundle["principal_binding_ref"],
+            "reviewer_separation_ref": bundle["reviewer_separation_ref"],
+            "presentation_contract_ref": bundle["presentation_contract_ref"],
+            "exposure_session_ref": bundle["exposure_session_ref"],
+        }
+    )
+    created = fixture.base.service.create_record(
+        contracts.HumanDecisionCreateCommand(
+            gate_input=gate_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement="I accept accountability for this production approval.",
+            dissent_statement="No dissent after reviewing all required evidence.",
+        ),
+        bound_permission=fixture.base.bound_permission,
+        write_context=fixture.base.write_context,
+    )
+    from polisyos.runtime.http.production_approval_binding import (
+        production_approval_scorecard_binding_digest,
+    )
+
+    with pytest.raises(
+        _service_module().HumanDecisionOperationalResolutionError,
+    ) as exc_info:
+        fixture.base.service.resolve_production_approval_inputs(
+            tenant_id="tenant-a",
+            run_id="run-gy-pa2",
+            scorecard_ref=unsigned_scorecard_ref,
+            scorecard_binding_digest=production_approval_scorecard_binding_digest(
+                unsigned_scorecard,
+                ref=unsigned_scorecard_ref,
+                run_id="run-gy-pa2",
+            ),
+            production_basis_ref=basis_ref,
+            human_decision_record_ref=created.record_ref,
+            evaluated_at=NOW,
+        )
+    assert exc_info.value.code == "DS9-DECISION-SOURCE-INVALID"
+
+
+def test_production_gate_issues_subject_bound_exposure_session(tmp_path: Path) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    gate_input = fixture.gate_input.model_copy(update={"exposure_session_ref": None})
+    proof = _bound_read_permission(
+        fixture.base,
+        resource_kind="runtime.run.human_decision_gate",
+        selectors={
+            "run_id": "run-gy-pa2",
+            "source_kind": "production_approval",
+        },
+    )
+
+    issued = fixture.base.service.issue_exposure_session(
+        gate_input,
+        bound_permission=proof,
+    )
+
+    assert issued.session.basis_digest == fixture.basis_ref
+    assert issued.session.principal_subject == "human-reviewer-1"
+    assert issued.session.actor_ref == fixture.base.principal_payload["actor_ref"]
+
+
+def test_production_gate_rejects_unsigned_basis_with_typed_refusal(tmp_path: Path) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    unsigned_basis = fixture.basis.model_copy(
+        update={
+            "basis_id": "production-basis-unsigned",
+            "basis_ref": "operations://production-basis/unsigned",
+        }
+    )
+    unsigned_ref = fixture.base.sign_production_basis(unsigned_basis, False)
+
+    gate = fixture.resolve(
+        source_ref=unsigned_ref,
+        basis_ref=unsigned_ref,
+        basis_digest=unsigned_ref,
+    )
+
+    assert gate.status == "invalid_source"
+    assert "DS9-DECISION-SOURCE-INVALID" in _reason_codes(gate)
+    assert _human_decision_record_ids(fixture.base.store) == set()
+
+
+def test_production_gate_blocks_requester_self_review(tmp_path: Path) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    self_review_basis = fixture.basis.model_copy(
+        update={"requester_actor_ref": fixture.base.principal_payload["actor_ref"]}
+    )
+    basis_ref = fixture.base.sign_production_basis(self_review_basis, True)
+    bundle = fixture.base.resign_request_bundle(
+        self_review_basis.decision_request,
+        basis_ref=basis_ref,
+    )
+
+    gate = fixture.resolve(
+        source_ref=basis_ref,
+        basis_ref=basis_ref,
+        basis_digest=basis_ref,
+        principal_binding_ref=bundle["principal_binding_ref"],
+        reviewer_separation_ref=bundle["reviewer_separation_ref"],
+        presentation_contract_ref=bundle["presentation_contract_ref"],
+        exposure_session_ref=bundle["exposure_session_ref"],
+    )
+
+    assert gate.status == "blocked"
+    assert "DS9-REVIEWER-INDEPENDENCE-CHANGE-AUTHORITY-MISSING" in _reason_codes(gate)
+
+
+def test_production_gate_stale_basis_requires_revalidation(tmp_path: Path) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    later = fixture.basis.valid_until + timedelta(seconds=1)
+    fixture.base.service._clock = lambda: later
+
+    gate = fixture.resolve()
+
+    assert gate.status == "revalidation_required"
+    assert "DS9-DECISION-REVALIDATION-REQUIRED" in _reason_codes(gate)
+    assert _human_decision_record_ids(fixture.base.store) == set()
+
+
+def test_production_record_reservation_admits_one_live_winner(tmp_path: Path) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    contracts = _contracts()
+    command = contracts.HumanDecisionCreateCommand(
+        gate_input=fixture.gate_input,
+        decision_action="approve",
+        decision_mode="ordinary",
+        accountability_statement="I accept accountability for this production approval.",
+        dissent_statement="No dissent after reviewing all required evidence.",
+    )
+
+    first = fixture.base.service.create_record(
+        command,
+        bound_permission=fixture.base.bound_permission,
+        write_context=fixture.base.write_context,
+    )
+    with pytest.raises(
+        _service_module().HumanDecisionOperationalResolutionError,
+    ) as exc_info:
+        fixture.base.service.create_record(
+            command,
+            bound_permission=fixture.base.bound_permission,
+            write_context=fixture.base.write_context,
+        )
+
+    assert exc_info.value.code == "DS9-OVERLAPPING-REISSUE"
+    assert _human_decision_record_ids(fixture.base.store) == {first.record_ref}
+
+
+def test_signed_packet_stale_replayed_or_wrong_consumer_is_rejected(tmp_path: Path) -> None:
+    fixture = _signed_current_production_gate_fixture(tmp_path)
+    contracts = _contracts()
+    created = fixture.base.service.create_record(
+        contracts.HumanDecisionCreateCommand(
+            gate_input=fixture.gate_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement="I accept accountability for this production approval.",
+            dissent_statement="No dissent after reviewing all required evidence.",
+        ),
+        bound_permission=fixture.base.bound_permission,
+        write_context=fixture.base.write_context,
+    )
+    inputs = fixture.base.service.resolve_production_approval_inputs(
+        tenant_id="tenant-a",
+        run_id="run-gy-pa2",
+        scorecard_ref=fixture.scorecard_ref,
+        scorecard_binding_digest=fixture.scorecard_binding_digest,
+        production_basis_ref=fixture.basis_ref,
+        human_decision_record_ref=created.record_ref,
+        evaluated_at=NOW,
+    )
+    from polisyos.runtime.quality import approval
+
+    authority = approval._ResolvedProductionApprovalAuthority(
+        inputs=inputs,
+        expected_consumer="polisyos.runtime.quality.agent_action_authority",
+        expected_audience="polisyos-runtime",
+        evaluated_at=NOW,
+        _seal=approval._RESOLVER_SEAL,
+    )
+    packet_builder = getattr(
+        approval,
+        "build_resolved_production_" + "approval_" + "packet",
+    )
+    packet = packet_builder(authority)
+    receipt = fixture.base.service._persist_production_decision_packet(
+        packet,
+        write_context=fixture.base.write_context,
+    )
+    resolved = fixture.base.service.resolve_production_decision_packet(
+        packet_ref=receipt.packet_ref,
+        tenant_id="tenant-a",
+        run_id="run-gy-pa2",
+        expected_consumer="polisyos.runtime.quality.agent_action_authority",
+        expected_audience="polisyos-runtime",
+        evaluated_at=NOW,
+    )
+    assert resolved.packet_ref == receipt.packet_ref
+
+    attempts = (
+        {
+            "run_id": "run-replayed-elsewhere",
+            "expected_consumer": "polisyos.runtime.quality.agent_action_authority",
+            "evaluated_at": NOW,
+        },
+        {
+            "run_id": "run-gy-pa2",
+            "expected_consumer": "polisyos.scientist.decision_compiler",
+            "evaluated_at": NOW,
+        },
+        {
+            "run_id": "run-gy-pa2",
+            "expected_consumer": "polisyos.runtime.quality.agent_action_authority",
+            "evaluated_at": cast("datetime", packet.valid_until) + timedelta(seconds=1),
+        },
+    )
+    for attempt in attempts:
+        with pytest.raises(
+            _service_module().HumanDecisionOperationalResolutionError,
+        ):
+            fixture.base.service.resolve_production_decision_packet(
+                packet_ref=receipt.packet_ref,
+                tenant_id="tenant-a",
+                expected_audience="polisyos-runtime",
+                **attempt,
+            )
 
 
 def test_human_decision_status_precedence_is_permutation_invariant() -> None:

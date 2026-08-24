@@ -487,6 +487,33 @@ def production_approval_scorecard_from_bound_request(
     return dict(scorecard)
 
 
+def production_approval_inputs_from_bound_request(
+    request: Request,
+    *,
+    run_id: str,
+) -> tuple[dict[str, Any], str]:
+    """Return the scorecard plus its exact immutable pre-OPA digest."""
+
+    context = get_bound_resource_context(
+        request,
+        expected_kind=production_approval_context_kind(),
+    )
+    context_run_id = context.get("run_id")
+    scorecard = context.get("scorecard")
+    scorecard_digest = context.get("scorecard_sha256")
+    if (
+        context_run_id != run_id
+        or not isinstance(scorecard, Mapping)
+        or not isinstance(scorecard_digest, str)
+        or not scorecard_digest.startswith("sha256:")
+    ):
+        raise forbidden(
+            "The production-approval inputs are not bound to this run",
+            code="authorization_binding_scorecard_run_mismatch",
+        )
+    return dict(scorecard), scorecard_digest
+
+
 def bind_authorization_resource(
     request: Request,
     requirement: RouteAuthorizationRequirement,
@@ -694,6 +721,22 @@ def _bind_owned_existing_path(
             *selectors,
             ("quality_scorecard_ref", _canonical_json(resolved.reference)),
             ("scorecard_sha256", _canonical_json(resolved.payload_sha256)),
+            (
+                "production_basis_ref",
+                _canonical_json(body.get("production_basis_ref")),
+            ),
+            (
+                "production_basis_sha256",
+                _canonical_json(body.get("production_basis_digest")),
+            ),
+            (
+                "human_decision_record_ref",
+                _canonical_json(body.get("human_decision_record_ref")),
+            ),
+            (
+                "human_decision_record_sha256",
+                _canonical_json(body.get("human_decision_record_digest")),
+            ),
         )
         resolved_context_kind = production_approval_context_kind()
         resolved_context = resolved.context_bytes
@@ -1609,6 +1652,7 @@ __all__ = [
     "get_bound_resource_context",
     "human_decision_create_from_bound_request",
     "lineage_batch_from_bound_request",
+    "production_approval_inputs_from_bound_request",
     "production_approval_scorecard_from_bound_request",
     "scenario_target_from_bound_request",
 ]

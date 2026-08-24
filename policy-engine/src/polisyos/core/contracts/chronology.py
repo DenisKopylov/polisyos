@@ -22,6 +22,7 @@ from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactManifest,
     ArtifactRef,
+    ArtifactSigner,
     ArtifactStore,
     ArtifactWriteOptions,
     CanonInfo,
@@ -174,6 +175,12 @@ def _native_content_hash(native_bytes: bytes) -> Digest:
 
 def _bundle_content_hash(bundle_bytes: bytes) -> Digest:
     return _sha256_digest(_BUNDLE_PREFIX, bundle_bytes)
+
+
+def chronology_bundle_content_hash(bundle_bytes: bytes) -> Digest:
+    """Return the frozen Cluster-2 semantic identity for exact bundle bytes."""
+
+    return _bundle_content_hash(bundle_bytes)
 
 
 class NativeChronologyQuery(_ChronologyModel):
@@ -2249,6 +2256,845 @@ def _build_evaluation_table() -> Mapping[FullPrefixEvaluationKey, FullPrefixEval
 FULL_PREFIX_EVALUATION_TABLE = _build_evaluation_table()
 
 
+# ---------------------------------------------------------------------------
+# Cluster 3: role-separated accepted-anchor and retention/readback contracts.
+# ---------------------------------------------------------------------------
+
+
+class AnchorAcceptanceRequest(_ChronologyModel):
+    """Opaque request resolved entirely by the appointed acceptance owner."""
+
+    bundle_ref: ArtifactRef
+    expected_domain: ChronologyProofDomain
+    native_reconciliation_ref: ArtifactRef
+    authority_purpose: str = Field(min_length=1)
+    requested_query_context_ref: Digest
+    asserted_prior_acceptance_record_refs: tuple[ArtifactRef, ...]
+
+
+class OwnerDerivedAcceptedPrefix(_ChronologyModel):
+    """One owner-loaded accepted record and its verified commitment prefix."""
+
+    acceptance_record_ref: ArtifactRef
+    acceptance_record_content_hash: Digest
+    statement_evidence_ref: ArtifactRef
+    expected_prefix: ExpectedCommitmentPrefix
+
+
+class AnchorAcceptanceStatement(_ChronologyModel):
+    """Unsigned, non-self-referential owner acceptance statement."""
+
+    schema_version: Literal["polisyos.chronology.anchor-acceptance-statement.v1"] = (
+        "polisyos.chronology.anchor-acceptance-statement.v1"
+    )
+    accepting_owner_ref: str = Field(min_length=1)
+    bundle_ref: ArtifactRef
+    bundle_content_hash: Digest
+    parsed_header: ChronologyBundleHeader
+    native_reconciliation_ref: ArtifactRef
+    authority_purpose: str = Field(min_length=1)
+    requested_query_context_ref: Digest
+    admission_cutoff_ref: Digest
+    predicate_dispositions: tuple[PredicateDisposition, ...]
+    prior_acceptance_record_refs: tuple[ArtifactRef, ...]
+    derived_prior_prefixes: tuple[OwnerDerivedAcceptedPrefix, ...]
+    owner_lineage_state_content_hash: Digest
+    acceptance_appointment_ref: ArtifactRef
+    acceptance_appointment_content_hash: Digest
+    appointment_verification_receipt_ref: ArtifactRef
+    appointment_verification_receipt_content_hash: Digest
+    trust_snapshot_content_hash: Digest
+    verifier_provenance_ref: Digest
+
+
+class AnchorAcceptanceReceiptStatement(_ChronologyModel):
+    """Final positive statement binding candidate plus successful lineage append."""
+
+    schema_version: Literal["polisyos.chronology.anchor-acceptance-receipt.v1"] = (
+        "polisyos.chronology.anchor-acceptance-receipt.v1"
+    )
+    acceptance_digest: Digest
+    acceptance_record_ref: ArtifactRef
+    acceptance_record_content_hash: Digest
+    signed_statement_evidence_ref: ArtifactRef
+    lineage_append_receipt_ref: ArtifactRef
+    lineage_append_receipt_content_hash: Digest
+    lineage_key_ref: Digest
+    requested_query_context_ref: Digest
+    admission_cutoff_ref: Digest
+
+
+class SignedArtifactEvidenceRecord(_ChronologyModel):
+    """Exact immutable graph binding blob, manifest and detached signature bytes."""
+
+    schema_version: Literal["polisyos.signed-artifact-evidence-record.v1"] = (
+        "polisyos.signed-artifact-evidence-record.v1"
+    )
+    artifact_ref: ArtifactRef
+    raw_blob_bytes_hash: Digest
+    exact_manifest_raw_bytes_hash: Digest
+    signature_artifact_ref: ArtifactRef
+    signature_raw_bytes_hash: Digest
+    signing_profile_ref: ArtifactRef
+    signer_provenance_ref: ArtifactRef
+
+
+class PersistedSignedArtifactEvidence(_ChronologyModel):
+    """Persisted canonical evidence-record bytes; it carries no parsed twin."""
+
+    evidence_record_ref: ArtifactRef
+    evidence_record_content_hash: Digest
+    record_bytes: bytes
+
+    @model_validator(mode="after")
+    def _bind_exact_record_bytes(self) -> PersistedSignedArtifactEvidence:
+        if str(self.evidence_record_ref.artifact_id) != _sha256_digest(self.record_bytes):
+            raise ValueError("signed-evidence record ref does not bind record bytes")
+        expected = _sha256_digest(
+            b"polisyos.signed-artifact-evidence-record.v1\0", self.record_bytes
+        )
+        if self.evidence_record_content_hash != expected:
+            raise ValueError("signed-evidence semantic hash does not bind record bytes")
+        return self
+
+
+class SignedArtifactEvidence(_ChronologyModel):
+    """Exact evidence bytes required for independent signature verification."""
+
+    persisted: PersistedSignedArtifactEvidence
+    blob_bytes: bytes
+    exact_manifest_bytes: bytes
+    detached_signature_bytes: bytes
+
+
+class SignedArtifactEvidenceRepository(Protocol):
+    """Narrow exact-byte signed evidence port; a generic store cannot conform."""
+
+    def persist_signed(
+        self,
+        *,
+        blob_bytes: bytes,
+        write_options: ArtifactWriteOptions,
+        signer: ArtifactSigner,
+        signing_profile_ref: ArtifactRef,
+        signer_provenance_ref: ArtifactRef,
+    ) -> PersistedSignedArtifactEvidence: ...
+
+    def read_exact(self, *, evidence_record_ref: ArtifactRef) -> SignedArtifactEvidence: ...
+
+    def read_raw(self, *, artifact_ref: ArtifactRef) -> bytes: ...
+
+
+class AnchorAcceptanceReceipt(_ChronologyModel):
+    """Persisted final acceptance receipt and its exact signed bytes."""
+
+    receipt_record_ref: ArtifactRef
+    receipt_record_content_hash: Digest
+    statement_bytes: bytes
+    receipt_record_bytes: bytes
+    signed_receipt_evidence: SignedArtifactEvidence
+
+
+class AnchorAcceptanceRecord(_ChronologyModel):
+    """Authentic candidate record that is not accepted until owner append succeeds."""
+
+    schema_version: Literal["polisyos.chronology.anchor-acceptance-candidate.v1"] = (
+        "polisyos.chronology.anchor-acceptance-candidate.v1"
+    )
+    acceptance_digest: Digest
+    statement_artifact_ref: ArtifactRef
+    statement_content_hash: Digest
+    signed_statement_evidence_ref: ArtifactRef
+    prior_acceptance_record_refs: tuple[ArtifactRef, ...]
+
+
+class AcceptanceVerifierAppointmentStatement(_ChronologyModel):
+    """Institutionally supplied acceptance-verifier appointment statement."""
+
+    schema_version: Literal["polisyos.chronology.acceptance-appointment.v1"]
+    family: Literal["epoch"]
+    proof_domain: str = Field(min_length=1)
+    authority_purpose: str = Field(min_length=1)
+    accepting_owner_ref: str = Field(min_length=1)
+    trust_config_ref: ArtifactRef
+    trust_config_content_hash: Digest
+    appointment_basis_ref: ArtifactRef
+    verifier_provenance_ref: ArtifactRef
+
+
+class HolderVerifierAppointmentStatement(_ChronologyModel):
+    """Institutionally supplied writer-independent holder appointment statement."""
+
+    schema_version: Literal["polisyos.chronology.holder-appointment.v1"]
+    family: Literal["epoch"]
+    proof_domain: str = Field(min_length=1)
+    authority_purpose: str = Field(min_length=1)
+    holder_ref: str = Field(min_length=1)
+    trust_config_ref: ArtifactRef
+    trust_config_content_hash: Digest
+    custody_boundary_evidence_ref: ArtifactRef
+    verifier_provenance_ref: ArtifactRef
+
+
+class AcceptanceAppointmentVerificationStatement(_ChronologyModel):
+    """Independent verification of one acceptance appointment and trust snapshot."""
+
+    schema_version: Literal["polisyos.chronology.acceptance-appointment-verification.v1"]
+    appointment_ref: ArtifactRef
+    appointment_content_hash: Digest
+    trust_config_ref: ArtifactRef
+    trust_config_content_hash: Digest
+    appointment_evidence_record_ref: ArtifactRef
+    appointment_evidence_record_content_hash: Digest
+    verifier_provenance_ref: ArtifactRef
+    predicate_class: Literal["independently_reconciled"]
+
+
+class HolderAppointmentVerificationStatement(_ChronologyModel):
+    """Independent verification of one holder appointment and trust snapshot."""
+
+    schema_version: Literal["polisyos.chronology.holder-appointment-verification.v1"]
+    appointment_ref: ArtifactRef
+    appointment_content_hash: Digest
+    trust_config_ref: ArtifactRef
+    trust_config_content_hash: Digest
+    appointment_evidence_record_ref: ArtifactRef
+    appointment_evidence_record_content_hash: Digest
+    verifier_provenance_ref: ArtifactRef
+    predicate_class: Literal["independently_reconciled"]
+
+
+class VerifiedAcceptanceVerifierAppointment(_ChronologyModel):
+    """Verified exact-byte acceptance appointment; no parsed authority twin."""
+
+    appointment_ref: ArtifactRef
+    appointment_content_hash: Digest
+    statement_bytes: bytes
+    signed_appointment_evidence: SignedArtifactEvidence
+    trust_config_bytes: bytes
+    verification_statement_bytes: bytes
+    verification_receipt_ref: ArtifactRef
+    verification_receipt_content_hash: Digest
+    signed_verification_evidence: SignedArtifactEvidence
+
+
+class VerifiedHolderVerifierAppointment(_ChronologyModel):
+    """Verified exact-byte holder appointment; no parsed authority twin."""
+
+    appointment_ref: ArtifactRef
+    appointment_content_hash: Digest
+    statement_bytes: bytes
+    signed_appointment_evidence: SignedArtifactEvidence
+    trust_config_bytes: bytes
+    verification_statement_bytes: bytes
+    verification_receipt_ref: ArtifactRef
+    verification_receipt_content_hash: Digest
+    signed_verification_evidence: SignedArtifactEvidence
+
+
+class AnchorRetentionStatement(_ChronologyModel):
+    """Accepted object graph identity retained independently of writer storage."""
+
+    schema_version: Literal["polisyos.chronology.anchor-retention-statement.v1"] = (
+        "polisyos.chronology.anchor-retention-statement.v1"
+    )
+    family: str = Field(min_length=1)
+    proof_domain: str = Field(min_length=1)
+    authority_purpose: str = Field(min_length=1)
+    requested_query_context_ref: Digest
+    admission_cutoff_ref: Digest
+    bundle_ref: ArtifactRef
+    bundle_content_hash: Digest
+    native_reconciliation_ref: ArtifactRef
+    acceptance_receipt_ref: ArtifactRef
+    acceptance_receipt_content_hash: Digest
+    prior_acceptance_record_refs: tuple[ArtifactRef, ...]
+    acceptance_appointment_ref: ArtifactRef
+    acceptance_appointment_content_hash: Digest
+    holder_appointment_ref: ArtifactRef
+    holder_appointment_content_hash: Digest
+
+
+class AnchorRetentionPackage(_ChronologyModel):
+    """Exact retained object-graph bytes with raw and semantic identities."""
+
+    package_ref: Digest
+    package_content_hash: Digest
+    package_bytes: bytes
+
+    @model_validator(mode="after")
+    def _bind_package_bytes(self) -> AnchorRetentionPackage:
+        if self.package_ref != _sha256_digest(self.package_bytes):
+            raise ValueError("retention package raw ref does not bind package bytes")
+        expected = _sha256_digest(
+            b"polisyos.chronology.anchor-retention-package.v1\0",
+            self.package_bytes,
+        )
+        if self.package_content_hash != expected:
+            raise ValueError("retention package semantic hash does not bind package bytes")
+        return self
+
+
+class AnchorAcceptanceEvidenceBundle(_ChronologyModel):
+    """Complete exact-byte acceptance evidence embedded in a retention graph."""
+
+    acceptance_statement_evidence: SignedArtifactEvidence
+    acceptance_record_bytes: bytes
+    acceptance_receipt_bytes: bytes
+    acceptance_receipt_signed_evidence: SignedArtifactEvidence
+    lineage_append_receipt_bytes: bytes
+
+
+class AnchorRetentionObjectGraph(_ChronologyModel):
+    """Self-contained package verified without the writer repository."""
+
+    retention_statement_bytes: bytes
+    bundle_bytes: bytes
+    native_reconciliation_bytes: bytes
+    acceptance_evidence: AnchorAcceptanceEvidenceBundle
+    acceptance_appointment: VerifiedAcceptanceVerifierAppointment
+    holder_appointment: VerifiedHolderVerifierAppointment
+
+
+class AnchorCustodyReceiptStatement(_ChronologyModel):
+    """Holder-signed receipt for one exact retained package and version."""
+
+    schema_version: Literal["polisyos.chronology.anchor-custody-receipt.v1"] = (
+        "polisyos.chronology.anchor-custody-receipt.v1"
+    )
+    family: Literal["epoch"]
+    proof_domain: str = Field(min_length=1)
+    authority_purpose: str = Field(min_length=1)
+    holder_appointment_ref: ArtifactRef
+    holder_ref: str = Field(min_length=1)
+    package_ref: Digest
+    package_content_hash: Digest
+    object_version_ref: str = Field(min_length=1)
+    retention_policy_ref: ArtifactRef
+    requested_query_context_ref: Digest
+
+
+class AnchorCustodyReceiptRecord(_ChronologyModel):
+    """Non-self-referential record for one signed custody statement."""
+
+    statement_artifact_ref: ArtifactRef
+    statement_content_hash: Digest
+    signed_statement_evidence_ref: ArtifactRef
+    signed_statement_evidence_content_hash: Digest
+
+
+class AnchorCustodyReceipt(_ChronologyModel):
+    """Exact persisted holder custody receipt."""
+
+    receipt_record_ref: ArtifactRef
+    receipt_record_raw_bytes_hash: Digest
+    receipt_record_bytes: bytes
+    statement_bytes: bytes
+    signed_statement_evidence: SignedArtifactEvidence
+
+
+class AnchorAcceptanceLineageKey(_ChronologyModel):
+    """Owner-native lineage key; incomparable heads are preserved explicitly."""
+
+    family: Literal["epoch"]
+    proof_domain: str = Field(min_length=1)
+    scope_ref: Digest
+    authority_purpose: str = Field(min_length=1)
+
+
+class AnchorReadbackChallengeStatement(_ChronologyModel):
+    """Persisted, content-bound readback query to the appointed holder."""
+
+    schema_version: Literal["polisyos.chronology.anchor-readback-challenge.v1"] = (
+        "polisyos.chronology.anchor-readback-challenge.v1"
+    )
+    family: Literal["epoch"]
+    proof_domain: str = Field(min_length=1)
+    authority_purpose: str = Field(min_length=1)
+    lineage_key: AnchorAcceptanceLineageKey
+    holder_appointment_ref: ArtifactRef
+    package_ref: Digest
+    expected_package_content_hash: Digest
+    custody_receipt_record_ref: ArtifactRef
+    custody_receipt_record_raw_bytes_hash: Digest
+    expected_object_version_ref: str = Field(min_length=1)
+    requested_query_context_ref: Digest
+
+
+class PersistedAnchorReadbackChallenge(_ChronologyModel):
+    """Opaque persisted readback challenge handle plus exact statement bytes."""
+
+    challenge_record_ref: ArtifactRef
+    challenge_record_content_hash: Digest
+    statement_bytes: bytes
+
+
+class AnchorReadbackReceiptStatement(_ChronologyModel):
+    """Holder-signed response bound to challenge and prior custody receipt."""
+
+    schema_version: Literal["polisyos.chronology.anchor-readback-receipt.v1"] = (
+        "polisyos.chronology.anchor-readback-receipt.v1"
+    )
+    family: Literal["epoch"]
+    proof_domain: str = Field(min_length=1)
+    authority_purpose: str = Field(min_length=1)
+    holder_ref: str = Field(min_length=1)
+    holder_appointment_ref: ArtifactRef
+    challenge_record_ref: ArtifactRef
+    challenge_record_content_hash: Digest
+    custody_receipt_record_ref: ArtifactRef
+    custody_receipt_record_raw_bytes_hash: Digest
+    package_ref: Digest
+    package_content_hash: Digest
+    object_version_ref: str = Field(min_length=1)
+    retention_policy_ref: ArtifactRef
+    requested_query_context_ref: Digest
+
+
+class AnchorReadbackReceiptRecord(_ChronologyModel):
+    """Non-self-referential record for one signed readback statement."""
+
+    statement_artifact_ref: ArtifactRef
+    statement_content_hash: Digest
+    signed_statement_evidence_ref: ArtifactRef
+    signed_statement_evidence_content_hash: Digest
+
+
+class AnchorReadbackReceipt(_ChronologyModel):
+    """Exact holder-returned package plus custody/readback evidence."""
+
+    receipt_record_ref: ArtifactRef
+    receipt_record_raw_bytes_hash: Digest
+    receipt_record_bytes: bytes
+    statement_bytes: bytes
+    package_bytes: bytes
+    retention_receipt: AnchorCustodyReceipt
+    signed_statement_evidence: SignedArtifactEvidence
+
+
+class AcceptanceUnavailableNonReceipt(_ChronologyModel):
+    """No appointed or trusted acceptance owner exists for this exact query."""
+
+    status: Literal["not_established"]
+    component: Literal["acceptance"]
+    code: Literal[
+        "anchor_acceptance_owner_not_established",
+        "anchor_acceptance_trust_not_established",
+    ]
+    subject_artifact_ref: ArtifactRef
+    requested_query_context_ref: Digest
+    appointment_key_ref: Digest
+    resolved_appointment_ref: ArtifactRef | None
+    appointment_evidence_ref: ArtifactRef | None
+    resolver_provenance_ref: ArtifactRef
+    predicate_class: Literal["not_established"]
+
+
+class RetentionUnavailableNonReceipt(_ChronologyModel):
+    """No appointed/trusted holder or retention evidence exists for this query."""
+
+    status: Literal["not_established"]
+    component: Literal["retention"]
+    code: Literal[
+        "anchor_holder_not_established",
+        "anchor_holder_trust_not_established",
+        "anchor_retention_not_established",
+    ]
+    subject_artifact_ref: ArtifactRef
+    requested_query_context_ref: Digest
+    appointment_key_ref: Digest
+    resolved_appointment_ref: ArtifactRef | None
+    appointment_evidence_ref: ArtifactRef | None
+    resolver_provenance_ref: ArtifactRef
+    predicate_class: Literal["not_established"]
+
+
+class AcceptanceRejectedNonReceipt(_ChronologyModel):
+    """Independently reconciled rejection of supplied acceptance evidence."""
+
+    status: Literal["rejected"]
+    component: Literal["acceptance"]
+    code: Literal[
+        "anchor_signature_unverified",
+        "anchor_query_or_lineage_mismatch",
+        "accepted_anchor_lineage_conflict",
+    ]
+    subject_artifact_ref: ArtifactRef
+    requested_query_context_ref: Digest
+    appointment_ref: ArtifactRef
+    verifier_provenance_ref: ArtifactRef
+    decisive_evidence_refs: Annotated[tuple[ArtifactRef, ...], Field(min_length=1)]
+    predicate_class: Literal["independently_reconciled"]
+
+
+class RetentionRejectedNonReceipt(_ChronologyModel):
+    """Independently reconciled rejection of retention/readback evidence."""
+
+    status: Literal["rejected"]
+    component: Literal["retention"]
+    code: Literal[
+        "anchor_package_mismatch",
+        "anchor_signature_unverified",
+        "anchor_readback_mismatch",
+        "anchor_query_or_lineage_mismatch",
+    ]
+    subject_artifact_ref: ArtifactRef
+    requested_query_context_ref: Digest
+    appointment_ref: ArtifactRef
+    verifier_provenance_ref: ArtifactRef
+    decisive_evidence_refs: Annotated[tuple[ArtifactRef, ...], Field(min_length=1)]
+    predicate_class: Literal["independently_reconciled"]
+
+
+AcceptanceNonReceipt = Annotated[
+    AcceptanceUnavailableNonReceipt | AcceptanceRejectedNonReceipt,
+    Field(discriminator="status"),
+]
+RetentionNonReceipt = Annotated[
+    RetentionUnavailableNonReceipt | RetentionRejectedNonReceipt,
+    Field(discriminator="status"),
+]
+
+
+class VerifiedAnchorAcceptance(_ChronologyModel):
+    """Positive acceptance proven by owner append, exact appointment and lineage."""
+
+    acceptance_digest: Digest
+    acceptance_record_ref: ArtifactRef
+    acceptance_record_content_hash: Digest
+    acceptance_receipt_record_ref: ArtifactRef
+    acceptance_receipt_record_content_hash: Digest
+    lineage_append_receipt_ref: ArtifactRef
+    lineage_append_receipt_content_hash: Digest
+    lineage_state_content_hash: Digest
+    lineage_position: Literal["current", "historical_for_exact_query"]
+    accepting_owner_ref: str = Field(min_length=1)
+    statement_content_hash: Digest
+    signed_statement_evidence_ref: ArtifactRef
+    acceptance_appointment_ref: ArtifactRef
+    acceptance_appointment_content_hash: Digest
+    verifier_provenance_ref: ArtifactRef
+    requested_query_context_ref: Digest
+    admission_cutoff_ref: Digest
+    prior_acceptance_record_refs: tuple[ArtifactRef, ...]
+    predicate_class: Literal["independently_reconciled"]
+
+
+class VerifiedAnchorRetention(_ChronologyModel):
+    """Positive holder retention and fresh readback under exact appointment."""
+
+    holder_ref: str = Field(min_length=1)
+    custody_receipt_record_ref: ArtifactRef
+    custody_receipt_record_raw_bytes_hash: Digest
+    readback_receipt_record_ref: ArtifactRef
+    readback_receipt_record_raw_bytes_hash: Digest
+    challenge_record_ref: ArtifactRef
+    challenge_record_content_hash: Digest
+    package_ref: Digest
+    package_content_hash: Digest
+    object_version_ref: str = Field(min_length=1)
+    retention_policy_ref: ArtifactRef
+    holder_appointment_ref: ArtifactRef
+    holder_appointment_content_hash: Digest
+    verifier_provenance_ref: ArtifactRef
+    signed_evidence_record_refs: Annotated[
+        tuple[ArtifactRef, ...], Field(min_length=2, max_length=2)
+    ]
+    requested_query_context_ref: Digest
+    predicate_class: Literal["independently_reconciled"]
+
+
+class VerifiedAcceptanceOutcome(_ChronologyModel):
+    status: Literal["verified"]
+    value: VerifiedAnchorAcceptance
+
+
+class UnavailableAcceptanceOutcome(_ChronologyModel):
+    status: Literal["not_established"]
+    non_receipts: Annotated[tuple[AcceptanceUnavailableNonReceipt, ...], Field(min_length=1)]
+
+
+class RejectedAcceptanceOutcome(_ChronologyModel):
+    status: Literal["rejected"]
+    rejections: Annotated[tuple[AcceptanceRejectedNonReceipt, ...], Field(min_length=1)]
+
+
+class VerifiedRetentionOutcome(_ChronologyModel):
+    status: Literal["verified"]
+    value: VerifiedAnchorRetention
+
+
+class UnavailableRetentionOutcome(_ChronologyModel):
+    status: Literal["not_established"]
+    non_receipts: Annotated[tuple[RetentionUnavailableNonReceipt, ...], Field(min_length=1)]
+
+
+class RejectedRetentionOutcome(_ChronologyModel):
+    status: Literal["rejected"]
+    rejections: Annotated[tuple[RetentionRejectedNonReceipt, ...], Field(min_length=1)]
+
+
+AcceptanceOutcome = Annotated[
+    VerifiedAcceptanceOutcome | UnavailableAcceptanceOutcome | RejectedAcceptanceOutcome,
+    Field(discriminator="status"),
+]
+RetentionOutcome = Annotated[
+    VerifiedRetentionOutcome | UnavailableRetentionOutcome | RejectedRetentionOutcome,
+    Field(discriminator="status"),
+]
+
+
+class AnchorCustodyVerification(_ChronologyModel):
+    """Closed product of acceptance and retention; status is derived, never supplied."""
+
+    status: Literal["verified", "limited", "rejected"]
+    acceptance: AcceptanceOutcome
+    retention: RetentionOutcome
+
+    @model_validator(mode="after")
+    def _derive_product_status(self) -> AnchorCustodyVerification:
+        pair = (self.acceptance.status, self.retention.status)
+        expected = (
+            "rejected"
+            if "rejected" in pair
+            else "verified"
+            if pair == ("verified", "verified")
+            else "limited"
+        )
+        if self.status != expected:
+            raise ValueError("aggregate custody status differs from role outcomes")
+        return self
+
+
+class AcceptedAnchorRecordEntry(_ChronologyModel):
+    """One immutable historical candidate entry retained in owner lineage."""
+
+    acceptance_record_ref: ArtifactRef
+    acceptance_record_content_hash: Digest
+    acceptance_digest: Digest
+    signed_statement_evidence_ref: ArtifactRef
+    requested_query_context_ref: Digest
+    admission_cutoff_ref: Digest
+    predecessor_record_refs: tuple[ArtifactRef, ...]
+
+
+class AnchorAcceptanceLineageStateStatement(_ChronologyModel):
+    """Canonical complete owner lineage state and explicit current multi-head set."""
+
+    schema_version: Literal["polisyos.chronology.anchor-acceptance-lineage-state.v1"] = (
+        "polisyos.chronology.anchor-acceptance-lineage-state.v1"
+    )
+    key: AnchorAcceptanceLineageKey
+    current_record_refs: tuple[ArtifactRef, ...]
+    records: tuple[AcceptedAnchorRecordEntry, ...]
+
+    @model_validator(mode="after")
+    def _heads_exist_in_records(self) -> AnchorAcceptanceLineageStateStatement:
+        refs = {str(record.acceptance_record_ref.artifact_id) for record in self.records}
+        if any(str(head.artifact_id) not in refs for head in self.current_record_refs):
+            raise ValueError("lineage head is absent from retained records")
+        if len({str(head.artifact_id) for head in self.current_record_refs}) != len(
+            self.current_record_refs
+        ):
+            raise ValueError("duplicate lineage head")
+        return self
+
+
+class AnchorAcceptanceLineageState(_ChronologyModel):
+    """Exact canonical lineage-state bytes and their semantic hash."""
+
+    statement_bytes: bytes
+    state_content_hash: Digest
+
+    @model_validator(mode="after")
+    def _bind_statement_bytes(self) -> AnchorAcceptanceLineageState:
+        expected = _sha256_digest(
+            b"polisyos.chronology.anchor-acceptance-lineage-state.v1\0",
+            self.statement_bytes,
+        )
+        if self.state_content_hash != expected:
+            raise ValueError("lineage state hash does not bind statement bytes")
+        return self
+
+
+class AnchorAcceptanceAppendSuccessStatement(_ChronologyModel):
+    """Persisted successful/idempotent compare-and-append transaction."""
+
+    schema_version: Literal["polisyos.chronology.anchor-lineage-append.v1"] = (
+        "polisyos.chronology.anchor-lineage-append.v1"
+    )
+    status: Literal["appended", "idempotent"]
+    key: AnchorAcceptanceLineageKey
+    expected_head_refs: tuple[ArtifactRef, ...]
+    previous_head_refs: tuple[ArtifactRef, ...]
+    resulting_head_refs: tuple[ArtifactRef, ...]
+    acceptance_record_ref: ArtifactRef
+    resulting_state_content_hash: Digest
+
+
+class PersistedAnchorAcceptanceAppendSuccess(_ChronologyModel):
+    result_kind: Literal["append_success"]
+    append_receipt_ref: ArtifactRef
+    append_receipt_content_hash: Digest
+    statement_bytes: bytes
+
+
+class AnchorAcceptanceAppendConflict(_ChronologyModel):
+    result_kind: Literal["append_conflict"]
+    status: Literal["head_conflict"]
+    key: AnchorAcceptanceLineageKey
+    expected_head_refs: tuple[ArtifactRef, ...]
+    observed_head_refs: tuple[ArtifactRef, ...]
+    candidate_record_ref: ArtifactRef
+    failure_code: Literal["accepted_anchor_lineage_conflict"]
+
+
+AnchorAcceptanceAppendResult = Annotated[
+    PersistedAnchorAcceptanceAppendSuccess | AnchorAcceptanceAppendConflict,
+    Field(discriminator="result_kind"),
+]
+
+
+class AnchorAcceptanceLineageRepository(Protocol):
+    def resolve_lineage(
+        self, *, key: AnchorAcceptanceLineageKey
+    ) -> AnchorAcceptanceLineageState: ...
+
+    def append_if_current(
+        self,
+        *,
+        key: AnchorAcceptanceLineageKey,
+        expected_head_refs: tuple[ArtifactRef, ...],
+        record: AcceptedAnchorRecordEntry,
+    ) -> AnchorAcceptanceAppendResult: ...
+
+
+class AnchorReadbackChallengeRepository(Protocol):
+    def persist(
+        self, statement: AnchorReadbackChallengeStatement
+    ) -> PersistedAnchorReadbackChallenge: ...
+
+    def resolve(self, *, challenge_record_ref: ArtifactRef) -> PersistedAnchorReadbackChallenge: ...
+
+
+class ChronologyAcceptanceAuthority(Protocol):
+    def recompute_and_accept(
+        self, request: AnchorAcceptanceRequest
+    ) -> AnchorAcceptanceReceipt | AcceptanceNonReceipt: ...
+
+
+class AnchorHolder(Protocol):
+    def retain(
+        self, package: AnchorRetentionPackage
+    ) -> AnchorCustodyReceipt | RetentionNonReceipt: ...
+
+    def readback(
+        self, challenge: PersistedAnchorReadbackChallenge
+    ) -> AnchorReadbackReceipt | RetentionNonReceipt: ...
+
+
+class AnchorAcceptanceReceiptVerifier(Protocol):
+    def verify(
+        self,
+        *,
+        receipt: AnchorAcceptanceReceipt,
+        appointment: VerifiedAcceptanceVerifierAppointment,
+        evidence: AnchorAcceptanceEvidenceBundle,
+        lineage: AnchorAcceptanceLineageRepository,
+        requested_query_context_ref: Digest,
+    ) -> VerifiedAnchorAcceptance | AcceptanceNonReceipt: ...
+
+
+class AnchorHolderReceiptVerifier(Protocol):
+    def verify_retention_and_readback(
+        self,
+        *,
+        retention: AnchorCustodyReceipt,
+        readback: AnchorReadbackReceipt,
+        challenge: PersistedAnchorReadbackChallenge,
+        appointment: VerifiedHolderVerifierAppointment,
+    ) -> VerifiedAnchorRetention | RetentionNonReceipt: ...
+
+
+class EstablishedAcceptanceAppointment(_ChronologyModel):
+    status: Literal["established"]
+    appointment: VerifiedAcceptanceVerifierAppointment
+
+
+class UnavailableAcceptanceAppointment(_ChronologyModel):
+    status: Literal["not_established"]
+    non_receipt: AcceptanceUnavailableNonReceipt
+
+
+AcceptanceAppointmentResult = Annotated[
+    EstablishedAcceptanceAppointment | UnavailableAcceptanceAppointment,
+    Field(discriminator="status"),
+]
+
+
+class EstablishedHolderAppointment(_ChronologyModel):
+    status: Literal["established"]
+    appointment: VerifiedHolderVerifierAppointment
+
+
+class UnavailableHolderAppointment(_ChronologyModel):
+    status: Literal["not_established"]
+    non_receipt: RetentionUnavailableNonReceipt
+
+
+HolderAppointmentResult = Annotated[
+    EstablishedHolderAppointment | UnavailableHolderAppointment,
+    Field(discriminator="status"),
+]
+
+
+class EpochAnchorAppointmentResolution(_ChronologyModel):
+    acceptance: AcceptanceAppointmentResult
+    holder: HolderAppointmentResult
+
+
+class EpochAnchorAppointmentResolver(Protocol):
+    def resolve_epoch_appointments(
+        self,
+        *,
+        family: Literal["epoch"],
+        proof_domain: str,
+        authority_purpose: str,
+    ) -> EpochAnchorAppointmentResolution: ...
+
+
+class EpochAnchorAuthorityRegistry(Protocol):
+    def resolve_acceptance_authority(
+        self, *, appointment: VerifiedAcceptanceVerifierAppointment
+    ) -> ChronologyAcceptanceAuthority | AcceptanceNonReceipt: ...
+
+    def resolve_holder(
+        self, *, appointment: VerifiedHolderVerifierAppointment
+    ) -> AnchorHolder | RetentionNonReceipt: ...
+
+    def resolve_acceptance_verifier(
+        self, *, appointment: VerifiedAcceptanceVerifierAppointment
+    ) -> AnchorAcceptanceReceiptVerifier | AcceptanceNonReceipt: ...
+
+    def resolve_acceptance_lineage(
+        self, *, appointment: VerifiedAcceptanceVerifierAppointment
+    ) -> AnchorAcceptanceLineageRepository | AcceptanceNonReceipt: ...
+
+    def resolve_holder_verifier(
+        self, *, appointment: VerifiedHolderVerifierAppointment
+    ) -> AnchorHolderReceiptVerifier | RetentionNonReceipt: ...
+
+
+class EpochAnchorCustodyProvider(Protocol):
+    def evaluate_acceptance_and_custody(
+        self, *, request: AnchorAcceptanceRequest
+    ) -> AnchorCustodyVerification: ...
+
+    def evaluate_retained_challenge(
+        self, *, challenge_record_ref: ArtifactRef
+    ) -> AnchorCustodyVerification: ...
+
+
 CHRONOLOGY_WIRE_MODELS: tuple[type[BaseModel], ...] = tuple(
     value
     for value in list(globals().values())
@@ -2272,8 +3118,44 @@ __all__ = [
     "FULL_PREFIX_MAX_MEMBER_FRAME_BYTES",
     "FULL_PREFIX_PROFILE",
     "FULL_PREFIX_TERMINAL_BY_RESULT_KIND",
+    "AcceptanceAppointmentResult",
+    "AcceptanceAppointmentVerificationStatement",
+    "AcceptanceNonReceipt",
+    "AcceptanceOutcome",
+    "AcceptanceRejectedNonReceipt",
+    "AcceptanceUnavailableNonReceipt",
+    "AcceptanceVerifierAppointmentStatement",
+    "AcceptedAnchorRecordEntry",
+    "AnchorAcceptanceAppendConflict",
+    "AnchorAcceptanceAppendResult",
+    "AnchorAcceptanceAppendSuccessStatement",
+    "AnchorAcceptanceEvidenceBundle",
+    "AnchorAcceptanceLineageKey",
+    "AnchorAcceptanceLineageRepository",
+    "AnchorAcceptanceLineageState",
+    "AnchorAcceptanceLineageStateStatement",
+    "AnchorAcceptanceReceipt",
+    "AnchorAcceptanceReceiptStatement",
+    "AnchorAcceptanceReceiptVerifier",
+    "AnchorAcceptanceRecord",
+    "AnchorAcceptanceRequest",
+    "AnchorCustodyReceipt",
+    "AnchorCustodyReceiptRecord",
+    "AnchorCustodyReceiptStatement",
+    "AnchorCustodyVerification",
+    "AnchorHolder",
+    "AnchorHolderReceiptVerifier",
+    "AnchorReadbackChallengeRepository",
+    "AnchorReadbackChallengeStatement",
+    "AnchorReadbackReceipt",
+    "AnchorReadbackReceiptRecord",
+    "AnchorReadbackReceiptStatement",
+    "AnchorRetentionObjectGraph",
+    "AnchorRetentionPackage",
+    "AnchorRetentionStatement",
     "ApplicablePredicateDenominatorArtifactFailure",
     "ApplicablePredicateDenominatorStatement",
+    "ChronologyAcceptanceAuthority",
     "ChronologyApplicablePredicateDenominatorArtifacts",
     "ChronologyBundleHeader",
     "ChronologyBundleRequest",
@@ -2289,6 +3171,12 @@ __all__ = [
     "ChronologyProofPersistenceResult",
     "Digest",
     "EncodedChronologyBundle",
+    "EpochAnchorAppointmentResolution",
+    "EpochAnchorAppointmentResolver",
+    "EpochAnchorAuthorityRegistry",
+    "EpochAnchorCustodyProvider",
+    "EstablishedAcceptanceAppointment",
+    "EstablishedHolderAppointment",
     "ExpectedCommitmentPrefix",
     "FullPrefixBuildFailureCode",
     "FullPrefixBuildRejected",
@@ -2313,6 +3201,9 @@ __all__ = [
     "FullPrefixVerificationResult",
     "FullPrefixVerificationStatement",
     "FullPrefixVerified",
+    "HolderAppointmentResult",
+    "HolderAppointmentVerificationStatement",
+    "HolderVerifierAppointmentStatement",
     "MemberPredicateDisposition",
     "NativeApplicablePredicateDenominatorPersistenceFailed",
     "NativeAuthorityHeadNotEstablished",
@@ -2332,11 +3223,15 @@ __all__ = [
     "NativePredicateRejected",
     "NativeProjectionCustodyGap",
     "NativeSchemaProfileRejected",
+    "OwnerDerivedAcceptedPrefix",
     "OwnerQualifiedNativeCandidate",
+    "PersistedAnchorAcceptanceAppendSuccess",
+    "PersistedAnchorReadbackChallenge",
     "PersistedApplicablePredicateDenominator",
     "PersistedChronologyProof",
     "PersistedPredicateAdmissionPolicy",
     "PersistedPredicatePolicyAdmission",
+    "PersistedSignedArtifactEvidence",
     "PolicyAdmissionAmbiguousFailure",
     "PolicyAdmissionMissingFailure",
     "PolicyBindingMismatchFailure",
@@ -2357,10 +3252,30 @@ __all__ = [
     "PredicatePolicyResolutionFailure",
     "PredicatePolicySelectionKey",
     "QueryPredicateDisposition",
+    "RejectedAcceptanceOutcome",
+    "RejectedRetentionOutcome",
     "ResolvedPredicatePolicyAdmission",
+    "RetentionNonReceipt",
+    "RetentionOutcome",
+    "RetentionRejectedNonReceipt",
+    "RetentionUnavailableNonReceipt",
+    "SignedArtifactEvidence",
+    "SignedArtifactEvidenceRecord",
+    "SignedArtifactEvidenceRepository",
+    "UnavailableAcceptanceAppointment",
+    "UnavailableAcceptanceOutcome",
+    "UnavailableHolderAppointment",
+    "UnavailableRetentionOutcome",
+    "VerifiedAcceptanceOutcome",
+    "VerifiedAcceptanceVerifierAppointment",
+    "VerifiedAnchorAcceptance",
+    "VerifiedAnchorRetention",
+    "VerifiedHolderVerifierAppointment",
     "VerifiedNativeMemberIdentity",
     "VerifiedNativeSubjectIdentity",
     "VerifiedOwnerPredicateEvidence",
     "VerifiedPolicyOwnerProvenance",
     "VerifiedPredicatePolicyOwnerRelation",
+    "VerifiedRetentionOutcome",
+    "chronology_bundle_content_hash",
 ]

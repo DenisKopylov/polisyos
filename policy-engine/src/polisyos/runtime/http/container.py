@@ -18,11 +18,15 @@ from polisyos.runtime.http.services.control_registry_providers import (
     resolve_control_registry_providers,
 )
 from polisyos.runtime.http.services.review_collaboration import ReviewCollaborationHub
+from polisyos.runtime.quality.chronology_custody import (
+    build_production_epoch_anchor_custody_provider,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
     from pathlib import Path
 
+    from polisyos.core import contracts as core_contracts
     from polisyos.runtime.http.execution_policy import ResolvedExecutionPolicy
     from polisyos.runtime.http.security import RuntimeSecurityConfig
 
@@ -100,6 +104,7 @@ class RuntimeServiceContainer:
     runtime_idempotency_store: Any
     runtime_mutation_audit: Any
     runtime_review_opa_guard: Any
+    epoch_anchor_custody_provider: core_contracts.EpochAnchorCustodyProvider
     control_registry_providers: ControlRegistryProviders
     control_service: ControlPlaneService | None = None
     lifecycle: RuntimeLifecycleState = field(default_factory=RuntimeLifecycleState)
@@ -160,6 +165,7 @@ class RuntimeServiceContainer:
             runtime_review_opa_guard=(
                 overrides.runtime_review_opa_guard or build_runtime_opa_async_guard()
             ),
+            epoch_anchor_custody_provider=(build_production_epoch_anchor_custody_provider()),
             control_registry_providers=control_registry_providers,
             control_service=overrides.control_service,
         )

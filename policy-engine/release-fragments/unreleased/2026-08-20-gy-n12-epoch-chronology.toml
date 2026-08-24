@@ -1,15 +1,18 @@
 id = "2026-08-20-gy-n12-epoch-chronology"
-title = "Expose the Foundry refusal and policy-free chronology proof contract"
+title = "Expose Foundry refusal and role-separated chronology proof and custody contracts"
 type = "changed"
 component = "core"
 owner = "team-polisyos"
-summary = "Keep the Foundry dependency-authority refusal explicit and add the fixed policy-free full-prefix chronology contract, builder, and verifier through the stable Core facade."
+summary = "Keep the Foundry dependency-authority refusal explicit, add the fixed policy-free full-prefix protocol, and separate epoch anchor acceptance from independent holder custody without appointing either role."
 evidence = [
   "tests/unit/foundry/methods/test_dependency_profile.py",
   "tests/unit/foundry/methods/test_catalog_snapshot.py",
   "tests/typecheck/foundry/dependency_authority_covariance.py",
   "tests/unit/core/contracts/test_chronology.py",
   "tests/unit/core/security/test_full_prefix.py",
+  "tests/unit/core/security/test_chronology_anchor.py",
+  "tests/unit/core/security/test_anchor_lineage.py",
+  "tests/unit/runtime/quality/test_chronology_custody.py",
   "tests/repo_quality/test_gy_n12_cluster2_plan_paths.py",
 ]
 compatibility = "The two public method-catalog builders now require a MethodCatalogDependencyAuthorityRequest and return a typed failure union; v1 deliberately has no positive dictionary arm."
@@ -17,7 +20,7 @@ change_class = "python-public-api"
 surface_classification = "public_experimental: polisyos.foundry"
 migration = "Construct the request from the fixed N8 purpose, source-freeze commit, production-data root, and environment root; stop on every returned negative variant."
 api = "Adds MethodCatalogDependencyAuthorityRequest and DependencyProfileResolutionFailure, changes the two method-catalog builders to return that negative-only union, and adds the chronology wire DTOs, build_full_prefix_bundle, and FullPrefixVerifier to polisyos.core."
-limitations = "GY-DEF22 remains producer_missing with artifact_missing, semantic_test_missing, and surface_missing. Chronology native producers, acceptance, independent holder custody, and family surfaces are not delivered by this Core contract; whole-history authenticity remains not_established."
+limitations = "GY-DEF22 remains producer_missing with artifact_missing, semantic_test_missing, and surface_missing. The acceptance verifier is consumer-side only: no acceptance authority or independent holder is appointed, deployment and credential independence remain not_established, and whole-history authenticity remains not_established."
 generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = [
@@ -38,6 +41,23 @@ generated_client_compatibility = "not_applicable"
 public_surface_inventory_reviewed = true
 migration_docs = [
   "src/polisyos/foundry/methods/catalog/README.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "core-role-separated-chronology-anchor-verification"
+change_class = "python-public-api"
+impact = "additive"
+surface = "public_stable: polisyos.core anchor outcome DTOs and polisyos.core.security verifiers"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "2 minor releases"
+release_note = "Core now represents accepted-prefix verification and writer-independent retention as separate closed predicates; the production epoch provider returns not_established for both unappointed roles."
+generated_client_compatibility = "not_applicable"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "src/polisyos/core/security/README.md",
+  "src/polisyos/runtime/quality/README.md",
 ]
 runbook_docs = []
 

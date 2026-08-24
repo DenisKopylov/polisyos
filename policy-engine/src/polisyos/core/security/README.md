@@ -17,6 +17,10 @@ routing, identity/authz, delegation, chained audit, TEE, SBOM, SLSA, and quota e
 - **Chronology full-prefix verification** - `full_prefix.py` incrementally recomputes the exact
   domain-separated native prefix. It has only `verified`/`rejected` outcomes and cannot infer
   acceptance, currentness, completeness, or a native authority head.
+- **Chronology anchor verification** - `chronology_anchor.py` verifies exact signed appointment,
+  acceptance, retention, challenge, and readback bytes. `anchor_lineage.py` compare-and-appends
+  owner heads without time-ordering incomparable branches. Neither module appoints an owner or
+  holder, and the generic audit cold tier is not treated as custody evidence.
 - **TEE and attestation** - `tee.py` and `tee_middleware.py` gate sensitive execution paths.
 - **SBOM and SLSA** - supply-chain checks and attestation clients enforce release discipline.
 - **Quota enforcement** - `quota_registry.py` and `quota_enforcer.py` keep tenant/resource usage bounded.
@@ -28,7 +32,8 @@ routing, identity/authz, delegation, chained audit, TEE, SBOM, SLSA, and quota e
 - delegation: delegation token helpers in `delegation.py`
 - audit: audit sink/verifier helpers in `audit_sink.py` and `audit_verifier.py`
 - chronology: `FullPrefixVerifier` and `build_full_prefix_bundle`, re-exported only through the
-  admitted `polisyos.core` root public facade
+  admitted `polisyos.core` root public facade; anchor codecs and exact receipt verifiers are
+  available through `polisyos.core.security`, while the internal custody service is not public
 - attestation: TEE and SBOM/SLSA helpers in `tee.py`, `sbom.py`, and `slsa/`
 
 ## Current State

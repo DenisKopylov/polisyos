@@ -59,6 +59,14 @@ Boundary notes:
   `implemented_but_not_orchestrated` and its positive proof path terminates at
   `NativeProjectionCustodyGap`. The strict allocation history records those
   retained labels without promoting whole-history authenticity.
+- `chronology_custody.py` is the single epoch acceptance/custody composition root. Its production
+  provider resolves acceptance and holder appointments independently and currently returns two
+  query-bound `not_established` outcomes: the acceptance owner and epoch-only independent holder
+  are both `absent/unallocated`. The generic audit cold tier supplies no chronology appointment,
+  object-version receipt, or readback challenge and therefore cannot promote whole-history
+  authenticity. The two trust-snapshot domains bind exact appointed bytes; the plan supplies no
+  authority DTO for those bytes, so their institutional meaning remains a bounded owner-carrier
+  residual rather than a locally invented contract.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
 

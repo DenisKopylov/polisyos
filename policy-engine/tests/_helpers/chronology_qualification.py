@@ -8,21 +8,68 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal
 
+from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 from pydantic import BaseModel, ConfigDict
 
 from polisyos.core.artifacts import (
     ArtifactID,
     ArtifactRef,
     ArtifactWriteOptions,
+    Ed25519Signer,
+    Ed25519Verifier,
     FileSystemCAS,
 )
+from polisyos.core.artifacts.signed_evidence import (
+    FileSystemSignedArtifactEvidenceRepository,
+)
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import chronology as contract
-from polisyos.core.security.full_prefix import FullPrefixVerifier
+from polisyos.core.security.anchor_lineage import (
+    InMemoryAnchorAcceptanceLineageRepository,
+)
+from polisyos.core.security.chronology_anchor import (
+    ExactAnchorAcceptanceReceiptVerifier,
+    ExactAnchorHolderReceiptVerifier,
+    InMemoryAnchorReadbackChallengeRepository,
+    build_retention_package,
+    canonical_exact_mapping_bytes,
+    canonical_statement_bytes,
+    raw_content_hash,
+    semantic_content_hash,
+)
+from polisyos.core.security.full_prefix import FullPrefixVerifier, build_full_prefix_bundle
 from polisyos.runtime.quality import chronology_proof, chronology_qualification
 
 
 def _digest(label: str) -> contract.Digest:
     return f"sha256:{hashlib.sha256(label.encode()).hexdigest()}"
+
+
+def build_anchor_acceptance_request(
+    *,
+    bundle_ref: ArtifactRef,
+    native_reconciliation_ref: ArtifactRef,
+    requested_query_context_ref: contract.Digest,
+    authority_purpose: str = "publication",
+    asserted_prior_acceptance_record_refs: tuple[ArtifactRef, ...] = (),
+) -> contract.AnchorAcceptanceRequest:
+    """Build a test-only opaque request without supplying owner conclusions."""
+
+    return contract.AnchorAcceptanceRequest(
+        bundle_ref=bundle_ref,
+        expected_domain=contract.ChronologyProofDomain(
+            format=contract.FULL_PREFIX_FORMAT,
+            profile=contract.FULL_PREFIX_PROFILE,
+            proof_domain="epoch",
+            family="epoch",
+            scope_ref=_digest("fixture-epoch-scope"),
+            authority_purpose=authority_purpose,
+        ),
+        native_reconciliation_ref=native_reconciliation_ref,
+        authority_purpose=authority_purpose,
+        requested_query_context_ref=requested_query_context_ref,
+        asserted_prior_acceptance_record_refs=asserted_prior_acceptance_record_refs,
+    )
 
 
 def _put_raw(store: FileSystemCAS, payload: bytes, *, kind: str) -> ArtifactRef:
@@ -44,6 +91,964 @@ def _put_statement(
     raw_mapping = contract._raw_model_mapping(statement)
     payload = contract._frame_record(contract._canonical_raw_bytes(raw_mapping))
     return _put_raw(store, payload, kind=kind)
+
+
+def _fixture_ref(label: str, *, kind: str = "fixture.chronology") -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id=ArtifactID.model_validate(_digest(label)),
+        kind=kind,
+        media_type="application/octet-stream",
+    )
+
+
+@dataclass(slots=True)
+class AppointedAnchorFixture:
+    """Test-only independent acceptance/holder evidence graph and verifiers."""
+
+    root: Path
+    store: FileSystemCAS = field(init=False)
+    evidence_repository: FileSystemSignedArtifactEvidenceRepository = field(init=False)
+    signer: Ed25519Signer = field(init=False)
+    verifier: Ed25519Verifier = field(init=False)
+    signing_profile_ref: ArtifactRef = field(init=False)
+    signer_provenance_ref: ArtifactRef = field(init=False)
+    acceptance_appointment: contract.VerifiedAcceptanceVerifierAppointment = field(init=False)
+    holder_appointment: contract.VerifiedHolderVerifierAppointment = field(init=False)
+    lineage: InMemoryAnchorAcceptanceLineageRepository = field(init=False)
+    challenge_repository: InMemoryAnchorReadbackChallengeRepository = field(init=False)
+    qualification_cases: dict[contract.Digest, QualificationCase] = field(
+        init=False, default_factory=dict
+    )
+    retained_package: contract.AnchorRetentionPackage | None = field(init=False, default=None)
+    custody_receipt: contract.AnchorCustodyReceipt | None = field(init=False, default=None)
+
+    def __post_init__(self) -> None:
+        self.store = FileSystemCAS(self.root / "cas")
+        private_key = Ed25519PrivateKey.from_private_bytes(
+            hashlib.sha256(b"gy-n12-c3-appointed-fixture-key-v1").digest()
+        )
+        self.signer = Ed25519Signer(private_key)
+        self.verifier = Ed25519Verifier()
+        self.verifier.add_trusted_key(private_key.public_key())
+        self.evidence_repository = FileSystemSignedArtifactEvidenceRepository(self.store)
+        self.lineage = InMemoryAnchorAcceptanceLineageRepository()
+        self.challenge_repository = InMemoryAnchorReadbackChallengeRepository()
+        self.signing_profile_ref = _fixture_ref("signing-profile")
+        self.signer_provenance_ref = _fixture_ref("signer-provenance")
+        self.acceptance_appointment = self._acceptance_appointment()
+        self.holder_appointment = self._holder_appointment()
+
+    def make_acceptance_request(
+        self, *, query_label: str = "current"
+    ) -> contract.AnchorAcceptanceRequest:
+        """Persist the two opaque owner inputs and return their ref-only request."""
+
+        query_ref = _digest(f"query-{query_label}")
+        domain = contract.ChronologyProofDomain(
+            format=contract.FULL_PREFIX_FORMAT,
+            profile=contract.FULL_PREFIX_PROFILE,
+            proof_domain="epoch",
+            family="epoch",
+            scope_ref=_digest("fixture-epoch-scope"),
+            authority_purpose="publication",
+        )
+        case = make_qualification_case(
+            self.root / "qualification" / query_label,
+            shape="epoch",
+            member_count=1,
+            domain_override=domain,
+            requested_query_context_ref=query_ref,
+        )
+        qualified = self._qualify_case(case)
+        if not isinstance(qualified, contract.NativeProjectionCustodyGap):
+            raise AssertionError("fixture native owner must reach the declared projection gap")
+        reconciliation = qualified.reconciliation
+        candidate = reconciliation.owner_context.owner_qualified_candidate.candidate
+        built = build_full_prefix_bundle(
+            contract.ChronologyBundleRequest(
+                domain=domain,
+                native_schema_profile=reconciliation.authoritative_native_schema_profile,
+                declared_denominator_ref=candidate.declared_denominator_ref,
+                requested_cutoff_ref=case.query.requested_cutoff_ref,
+                requested_query_context_ref=query_ref,
+                members=candidate.ordered_members,
+            )
+        )
+        if not isinstance(built, contract.EncodedChronologyBundle):
+            raise AssertionError("fixture bundle must fit the frozen full-prefix profile")
+        if (
+            built.bundle_content_hash != qualified.proof_result.bundle_content_hash
+            or built.header != qualified.proof_result.parsed_header
+        ):
+            raise AssertionError("fixture native owner and bundle builder disagree")
+        bundle_ref = _put_raw(
+            self.store,
+            built.bundle_bytes,
+            kind="fixture.chronology.bundle",
+        )
+        reconciliation_bytes = canonical_statement_bytes(reconciliation)
+        reconciliation_ref = _put_raw(
+            self.store,
+            reconciliation_bytes,
+            kind="fixture.chronology.reconciliation",
+        )
+        self.qualification_cases[query_ref] = case
+        lineage_state = self.lineage.resolve_lineage(
+            key=contract.AnchorAcceptanceLineageKey(
+                family="epoch",
+                proof_domain=domain.proof_domain,
+                scope_ref=domain.scope_ref,
+                authority_purpose=domain.authority_purpose,
+            )
+        )
+        lineage_statement = contract.AnchorAcceptanceLineageStateStatement.model_validate(
+            from_canonical_bytes(contract._split_framed_records(lineage_state.statement_bytes)[0])
+        )
+        return build_anchor_acceptance_request(
+            bundle_ref=bundle_ref,
+            native_reconciliation_ref=reconciliation_ref,
+            requested_query_context_ref=query_ref,
+            asserted_prior_acceptance_record_refs=lineage_statement.current_record_refs,
+        )
+
+    @staticmethod
+    def _qualify_case(case: QualificationCase) -> contract.NativeChronologyQualificationResult:
+        registry = chronology_proof._PERSISTENCE_REGISTRY
+        try:
+            return case.appoint_consumer().qualify(adapter=case.adapter, request=case.query)
+        finally:
+            registry._clear_for_test()
+
+    def _issue(self, payload: bytes, *, kind: str) -> contract.SignedArtifactEvidence:
+        persisted = self.evidence_repository.persist_signed(
+            blob_bytes=payload,
+            write_options=ArtifactWriteOptions(
+                kind=kind,
+                media_type="application/octet-stream",
+            ),
+            signer=self.signer,
+            signing_profile_ref=self.signing_profile_ref,
+            signer_provenance_ref=self.signer_provenance_ref,
+        )
+        return self.evidence_repository.read_exact(
+            evidence_record_ref=persisted.evidence_record_ref
+        )
+
+    def _acceptance_appointment(
+        self,
+    ) -> contract.VerifiedAcceptanceVerifierAppointment:
+        trust_bytes = canonical_exact_mapping_bytes(
+            {"role": "acceptance", "trusted_keys": self.verifier.trusted_key_ids}
+        )
+        trust_ref = self.store.put_bytes(
+            trust_bytes,
+            ArtifactWriteOptions(
+                kind="fixture.acceptance_trust",
+                media_type="application/octet-stream",
+            ),
+        )
+        statement = contract.AcceptanceVerifierAppointmentStatement(
+            schema_version="polisyos.chronology.acceptance-appointment.v1",
+            family="epoch",
+            proof_domain="epoch",
+            authority_purpose="publication",
+            accepting_owner_ref="fixture-epoch-owner",
+            trust_config_ref=trust_ref,
+            trust_config_content_hash=semantic_content_hash(
+                "anchor-acceptance-trust-snapshot.v1", trust_bytes
+            ),
+            appointment_basis_ref=_fixture_ref("acceptance-basis"),
+            verifier_provenance_ref=self.signer_provenance_ref,
+        )
+        statement_bytes = canonical_statement_bytes(statement)
+        signed_statement = self._issue(statement_bytes, kind="fixture.acceptance_appointment")
+        statement_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(contract._split_framed_records(signed_statement.persisted.record_bytes)[0])
+        )
+        appointment_ref = statement_record.artifact_ref
+        appointment_hash = semantic_content_hash(
+            "anchor-acceptance-appointment.v1", statement_bytes
+        )
+        verification = contract.AcceptanceAppointmentVerificationStatement(
+            schema_version=("polisyos.chronology.acceptance-appointment-verification.v1"),
+            appointment_ref=appointment_ref,
+            appointment_content_hash=appointment_hash,
+            trust_config_ref=trust_ref,
+            trust_config_content_hash=statement.trust_config_content_hash,
+            appointment_evidence_record_ref=(signed_statement.persisted.evidence_record_ref),
+            appointment_evidence_record_content_hash=(
+                signed_statement.persisted.evidence_record_content_hash
+            ),
+            verifier_provenance_ref=self.signer_provenance_ref,
+            predicate_class="independently_reconciled",
+        )
+        verification_bytes = canonical_statement_bytes(verification)
+        signed_verification = self._issue(
+            verification_bytes,
+            kind="fixture.acceptance_appointment_verification",
+        )
+        verification_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(
+                contract._split_framed_records(signed_verification.persisted.record_bytes)[0]
+            )
+        )
+        return contract.VerifiedAcceptanceVerifierAppointment(
+            appointment_ref=appointment_ref,
+            appointment_content_hash=appointment_hash,
+            statement_bytes=statement_bytes,
+            signed_appointment_evidence=signed_statement,
+            trust_config_bytes=trust_bytes,
+            verification_statement_bytes=verification_bytes,
+            verification_receipt_ref=verification_record.artifact_ref,
+            verification_receipt_content_hash=semantic_content_hash(
+                "anchor-acceptance-appointment-verification.v1",
+                verification_bytes,
+            ),
+            signed_verification_evidence=signed_verification,
+        )
+
+    def _holder_appointment(self) -> contract.VerifiedHolderVerifierAppointment:
+        trust_bytes = canonical_exact_mapping_bytes(
+            {"role": "holder", "trusted_keys": self.verifier.trusted_key_ids}
+        )
+        trust_ref = self.store.put_bytes(
+            trust_bytes,
+            ArtifactWriteOptions(
+                kind="fixture.holder_trust",
+                media_type="application/octet-stream",
+            ),
+        )
+        statement = contract.HolderVerifierAppointmentStatement(
+            schema_version="polisyos.chronology.holder-appointment.v1",
+            family="epoch",
+            proof_domain="epoch",
+            authority_purpose="publication",
+            holder_ref="fixture-independent-holder",
+            trust_config_ref=trust_ref,
+            trust_config_content_hash=semantic_content_hash(
+                "anchor-holder-trust-snapshot.v1", trust_bytes
+            ),
+            custody_boundary_evidence_ref=_fixture_ref("custody-boundary"),
+            verifier_provenance_ref=self.signer_provenance_ref,
+        )
+        statement_bytes = canonical_statement_bytes(statement)
+        signed_statement = self._issue(statement_bytes, kind="fixture.holder_appointment")
+        statement_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(contract._split_framed_records(signed_statement.persisted.record_bytes)[0])
+        )
+        appointment_ref = statement_record.artifact_ref
+        appointment_hash = semantic_content_hash("anchor-holder-appointment.v1", statement_bytes)
+        verification = contract.HolderAppointmentVerificationStatement(
+            schema_version="polisyos.chronology.holder-appointment-verification.v1",
+            appointment_ref=appointment_ref,
+            appointment_content_hash=appointment_hash,
+            trust_config_ref=trust_ref,
+            trust_config_content_hash=statement.trust_config_content_hash,
+            appointment_evidence_record_ref=(signed_statement.persisted.evidence_record_ref),
+            appointment_evidence_record_content_hash=(
+                signed_statement.persisted.evidence_record_content_hash
+            ),
+            verifier_provenance_ref=self.signer_provenance_ref,
+            predicate_class="independently_reconciled",
+        )
+        verification_bytes = canonical_statement_bytes(verification)
+        signed_verification = self._issue(
+            verification_bytes,
+            kind="fixture.holder_appointment_verification",
+        )
+        verification_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(
+                contract._split_framed_records(signed_verification.persisted.record_bytes)[0]
+            )
+        )
+        return contract.VerifiedHolderVerifierAppointment(
+            appointment_ref=appointment_ref,
+            appointment_content_hash=appointment_hash,
+            statement_bytes=statement_bytes,
+            signed_appointment_evidence=signed_statement,
+            trust_config_bytes=trust_bytes,
+            verification_statement_bytes=verification_bytes,
+            verification_receipt_ref=verification_record.artifact_ref,
+            verification_receipt_content_hash=semantic_content_hash(
+                "anchor-holder-appointment-verification.v1", verification_bytes
+            ),
+            signed_verification_evidence=signed_verification,
+        )
+
+    def build_acceptance(
+        self,
+        *,
+        query_label: str = "current",
+        request: contract.AnchorAcceptanceRequest | None = None,
+    ) -> tuple[
+        contract.AnchorAcceptanceReceipt,
+        contract.AnchorAcceptanceEvidenceBundle,
+        InMemoryAnchorAcceptanceLineageRepository,
+        contract.VerifiedAnchorAcceptance,
+    ]:
+        request = request or self.make_acceptance_request(query_label=query_label)
+        query_ref = request.requested_query_context_ref
+        lineage_key = contract.AnchorAcceptanceLineageKey(
+            family="epoch",
+            proof_domain=request.expected_domain.proof_domain,
+            scope_ref=request.expected_domain.scope_ref,
+            authority_purpose=request.authority_purpose,
+        )
+        prior_state = self.lineage.resolve_lineage(key=lineage_key)
+        prior_state_statement = contract.AnchorAcceptanceLineageStateStatement.model_validate(
+            from_canonical_bytes(contract._split_framed_records(prior_state.statement_bytes)[0])
+        )
+        prior_refs = prior_state_statement.current_record_refs
+        if request.asserted_prior_acceptance_record_refs != prior_refs:
+            raise ValueError("caller prior refs differ from owner current heads")
+        try:
+            bundle_report = self.store.verify(request.bundle_ref.artifact_id)
+            reconciliation_report = self.store.verify(request.native_reconciliation_ref.artifact_id)
+            bundle_bytes = self.store.get_bytes(request.bundle_ref.artifact_id)
+            reconciliation_bytes = self.store.get_bytes(
+                request.native_reconciliation_ref.artifact_id
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("acceptance input bytes are unavailable") from exc
+        if not bundle_report.ok or not reconciliation_report.ok:
+            raise ValueError("acceptance input bytes fail CAS verification")
+        case = self.qualification_cases.get(query_ref)
+        if case is None:
+            raise ValueError("no owner-qualified native reconciliation exists for the query")
+        qualified = self._qualify_case(case)
+        if not isinstance(qualified, contract.NativeProjectionCustodyGap):
+            raise ValueError("native owner did not produce the declared qualified result")
+        reconciliation = qualified.reconciliation
+        candidate = reconciliation.owner_context.owner_qualified_candidate.candidate
+        expected_reconciliation_bytes = canonical_statement_bytes(reconciliation)
+        expected_bundle = build_full_prefix_bundle(
+            contract.ChronologyBundleRequest(
+                domain=case.query.domain,
+                native_schema_profile=reconciliation.authoritative_native_schema_profile,
+                declared_denominator_ref=candidate.declared_denominator_ref,
+                requested_cutoff_ref=case.query.requested_cutoff_ref,
+                requested_query_context_ref=case.query.requested_query_context_ref,
+                members=candidate.ordered_members,
+            )
+        )
+        if not isinstance(expected_bundle, contract.EncodedChronologyBundle):
+            raise ValueError("owner-qualified native bundle is not encodable")
+        if (
+            request.expected_domain != case.query.domain
+            or request.native_reconciliation_ref.artifact_id
+            != ArtifactID.from_sha256_hex(hashlib.sha256(expected_reconciliation_bytes).hexdigest())
+            or reconciliation_bytes != expected_reconciliation_bytes
+            or request.bundle_ref.artifact_id
+            != ArtifactID.from_sha256_hex(hashlib.sha256(expected_bundle.bundle_bytes).hexdigest())
+            or bundle_bytes != expected_bundle.bundle_bytes
+            or qualified.proof_result.bundle_content_hash != expected_bundle.bundle_content_hash
+        ):
+            raise ValueError("request bytes differ from owner-qualified reconciliation")
+        proof = FullPrefixVerifier().verify_bundle(
+            bundle_bytes,
+            expected_domain=request.expected_domain,
+            expected_bundle_content_hash=contract.chronology_bundle_content_hash(bundle_bytes),
+        )
+        if not isinstance(proof, contract.FullPrefixVerified):
+            raise ValueError("bundle failed full-prefix verification")
+        header = proof.parsed_header
+        if (
+            header.requested_query_context_ref != query_ref
+            or header.authority_purpose != request.authority_purpose
+        ):
+            raise ValueError("bundle header differs from the requested query")
+        prior_by_ref = {
+            str(item.acceptance_record_ref.artifact_id): item
+            for item in prior_state_statement.records
+        }
+        derived_prior_prefixes: list[contract.OwnerDerivedAcceptedPrefix] = []
+        seen_prefixes: set[tuple[int, contract.Digest]] = set()
+        for prior_ref in prior_refs:
+            prior_entry = prior_by_ref[str(prior_ref.artifact_id)]
+            prior_evidence = self.evidence_repository.read_exact(
+                evidence_record_ref=prior_entry.signed_statement_evidence_ref
+            )
+            prior_statement = contract.AnchorAcceptanceStatement.model_validate(
+                from_canonical_bytes(contract._split_framed_records(prior_evidence.blob_bytes)[0])
+            )
+            expected_prefix = contract.ExpectedCommitmentPrefix(
+                domain=contract.ChronologyProofDomain(
+                    format=prior_statement.parsed_header.format,
+                    profile=prior_statement.parsed_header.profile,
+                    proof_domain=prior_statement.parsed_header.proof_domain,
+                    family=prior_statement.parsed_header.family,
+                    scope_ref=prior_statement.parsed_header.scope_ref,
+                    authority_purpose=prior_statement.parsed_header.authority_purpose,
+                ),
+                member_count=prior_statement.parsed_header.member_count,
+                commitment_head=prior_statement.parsed_header.commitment_head,
+            )
+            prior_proof = FullPrefixVerifier().verify_bundle(
+                bundle_bytes,
+                expected_domain=request.expected_domain,
+                expected_prefix=expected_prefix,
+                expected_bundle_content_hash=contract.chronology_bundle_content_hash(bundle_bytes),
+            )
+            if not isinstance(prior_proof, contract.FullPrefixVerified):
+                raise ValueError("owner-derived accepted prefix is not a prefix of the bundle")
+            prefix_key = (expected_prefix.member_count, expected_prefix.commitment_head)
+            if prefix_key not in seen_prefixes:
+                seen_prefixes.add(prefix_key)
+                derived_prior_prefixes.append(
+                    contract.OwnerDerivedAcceptedPrefix(
+                        acceptance_record_ref=prior_ref,
+                        acceptance_record_content_hash=(prior_entry.acceptance_record_content_hash),
+                        statement_evidence_ref=prior_entry.signed_statement_evidence_ref,
+                        expected_prefix=expected_prefix,
+                    )
+                )
+        acceptance_statement = contract.AnchorAcceptanceStatement(
+            accepting_owner_ref="fixture-epoch-owner",
+            bundle_ref=request.bundle_ref,
+            bundle_content_hash=contract.chronology_bundle_content_hash(bundle_bytes),
+            parsed_header=header,
+            native_reconciliation_ref=request.native_reconciliation_ref,
+            authority_purpose=request.authority_purpose,
+            requested_query_context_ref=query_ref,
+            admission_cutoff_ref=header.requested_cutoff_ref,
+            predicate_dispositions=(
+                tuple(row.disposition for row in candidate.member_predicates)
+                + tuple(row.disposition for row in candidate.query_predicates)
+            ),
+            prior_acceptance_record_refs=prior_refs,
+            derived_prior_prefixes=tuple(derived_prior_prefixes),
+            owner_lineage_state_content_hash=prior_state.state_content_hash,
+            acceptance_appointment_ref=self.acceptance_appointment.appointment_ref,
+            acceptance_appointment_content_hash=(
+                self.acceptance_appointment.appointment_content_hash
+            ),
+            appointment_verification_receipt_ref=(
+                self.acceptance_appointment.verification_receipt_ref
+            ),
+            appointment_verification_receipt_content_hash=(
+                self.acceptance_appointment.verification_receipt_content_hash
+            ),
+            trust_snapshot_content_hash=semantic_content_hash(
+                "anchor-acceptance-trust-snapshot.v1",
+                self.acceptance_appointment.trust_config_bytes,
+            ),
+            verifier_provenance_ref=str(self.signer_provenance_ref.artifact_id),
+        )
+        statement_bytes = canonical_statement_bytes(acceptance_statement)
+        signed_statement = self._issue(statement_bytes, kind="fixture.acceptance_statement")
+        statement_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(contract._split_framed_records(signed_statement.persisted.record_bytes)[0])
+        )
+        acceptance_digest = semantic_content_hash("anchor-acceptance-statement.v1", statement_bytes)
+        candidate = contract.AnchorAcceptanceRecord(
+            acceptance_digest=acceptance_digest,
+            statement_artifact_ref=statement_record.artifact_ref,
+            statement_content_hash=acceptance_digest,
+            signed_statement_evidence_ref=signed_statement.persisted.evidence_record_ref,
+            prior_acceptance_record_refs=prior_refs,
+        )
+        candidate_bytes = canonical_statement_bytes(candidate)
+        candidate_ref = self.store.put_bytes(
+            candidate_bytes,
+            ArtifactWriteOptions(
+                kind="fixture.acceptance_candidate",
+                media_type="application/octet-stream",
+            ),
+        )
+        entry = contract.AcceptedAnchorRecordEntry(
+            acceptance_record_ref=candidate_ref,
+            acceptance_record_content_hash=semantic_content_hash(
+                "anchor-acceptance-candidate.v1", candidate_bytes
+            ),
+            acceptance_digest=acceptance_digest,
+            signed_statement_evidence_ref=signed_statement.persisted.evidence_record_ref,
+            requested_query_context_ref=query_ref,
+            admission_cutoff_ref=header.requested_cutoff_ref,
+            predecessor_record_refs=prior_refs,
+        )
+        lineage = self.lineage
+        append = lineage.append_if_current(
+            key=lineage_key,
+            expected_head_refs=prior_refs,
+            record=entry,
+        )
+        if not isinstance(append, contract.PersistedAnchorAcceptanceAppendSuccess):
+            raise AssertionError("fixture lineage append must succeed")
+        receipt_statement = contract.AnchorAcceptanceReceiptStatement(
+            acceptance_digest=acceptance_digest,
+            acceptance_record_ref=candidate_ref,
+            acceptance_record_content_hash=entry.acceptance_record_content_hash,
+            signed_statement_evidence_ref=signed_statement.persisted.evidence_record_ref,
+            lineage_append_receipt_ref=append.append_receipt_ref,
+            lineage_append_receipt_content_hash=append.append_receipt_content_hash,
+            lineage_key_ref=raw_content_hash(canonical_statement_bytes(lineage_key)),
+            requested_query_context_ref=query_ref,
+            admission_cutoff_ref=header.requested_cutoff_ref,
+        )
+        receipt_bytes = canonical_statement_bytes(receipt_statement)
+        signed_receipt = self._issue(receipt_bytes, kind="fixture.acceptance_receipt")
+        receipt_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(contract._split_framed_records(signed_receipt.persisted.record_bytes)[0])
+        )
+        receipt = contract.AnchorAcceptanceReceipt(
+            receipt_record_ref=receipt_record.artifact_ref,
+            receipt_record_content_hash=semantic_content_hash(
+                "anchor-acceptance-receipt.v1", receipt_bytes
+            ),
+            statement_bytes=receipt_bytes,
+            receipt_record_bytes=receipt_bytes,
+            signed_receipt_evidence=signed_receipt,
+        )
+        evidence = contract.AnchorAcceptanceEvidenceBundle(
+            acceptance_statement_evidence=signed_statement,
+            acceptance_record_bytes=candidate_bytes,
+            acceptance_receipt_bytes=receipt_bytes,
+            acceptance_receipt_signed_evidence=signed_receipt,
+            lineage_append_receipt_bytes=append.statement_bytes,
+        )
+        verified = ExactAnchorAcceptanceReceiptVerifier(self.verifier).verify(
+            receipt=receipt,
+            appointment=self.acceptance_appointment,
+            evidence=evidence,
+            lineage=lineage,
+            requested_query_context_ref=query_ref,
+        )
+        if not isinstance(verified, contract.VerifiedAnchorAcceptance):
+            raise AssertionError(f"fixture acceptance failed: {verified}")
+        return receipt, evidence, lineage, verified
+
+    def build_retention(
+        self,
+        *,
+        query_label: str = "current",
+    ) -> tuple[
+        contract.AnchorCustodyReceipt,
+        contract.AnchorReadbackReceipt,
+        contract.PersistedAnchorReadbackChallenge,
+        contract.VerifiedAnchorRetention,
+    ]:
+        request = self.make_acceptance_request(query_label=query_label)
+        receipt, acceptance_evidence, _, accepted = self.build_acceptance(request=request)
+        bundle_bytes = self.store.get_bytes(request.bundle_ref.artifact_id)
+        reconciliation_bytes = self.store.get_bytes(request.native_reconciliation_ref.artifact_id)
+        retention_statement = contract.AnchorRetentionStatement(
+            family="epoch",
+            proof_domain="epoch",
+            authority_purpose="publication",
+            requested_query_context_ref=accepted.requested_query_context_ref,
+            admission_cutoff_ref=accepted.admission_cutoff_ref,
+            bundle_ref=request.bundle_ref,
+            bundle_content_hash=contract.chronology_bundle_content_hash(bundle_bytes),
+            native_reconciliation_ref=request.native_reconciliation_ref,
+            acceptance_receipt_ref=receipt.receipt_record_ref,
+            acceptance_receipt_content_hash=receipt.receipt_record_content_hash,
+            prior_acceptance_record_refs=accepted.prior_acceptance_record_refs,
+            acceptance_appointment_ref=self.acceptance_appointment.appointment_ref,
+            acceptance_appointment_content_hash=(
+                self.acceptance_appointment.appointment_content_hash
+            ),
+            holder_appointment_ref=self.holder_appointment.appointment_ref,
+            holder_appointment_content_hash=self.holder_appointment.appointment_content_hash,
+        )
+        graph = contract.AnchorRetentionObjectGraph(
+            retention_statement_bytes=canonical_statement_bytes(retention_statement),
+            bundle_bytes=bundle_bytes,
+            native_reconciliation_bytes=reconciliation_bytes,
+            acceptance_evidence=acceptance_evidence,
+            acceptance_appointment=self.acceptance_appointment,
+            holder_appointment=self.holder_appointment,
+        )
+        package = build_retention_package(graph)
+        self.retained_package = package
+        custody_statement = contract.AnchorCustodyReceiptStatement(
+            family="epoch",
+            proof_domain="epoch",
+            authority_purpose="publication",
+            holder_appointment_ref=self.holder_appointment.appointment_ref,
+            holder_ref="fixture-independent-holder",
+            package_ref=package.package_ref,
+            package_content_hash=package.package_content_hash,
+            object_version_ref="version-1",
+            retention_policy_ref=_fixture_ref("retention-policy"),
+            requested_query_context_ref=accepted.requested_query_context_ref,
+        )
+        custody_bytes = canonical_statement_bytes(custody_statement)
+        signed_custody = self._issue(custody_bytes, kind="fixture.custody_receipt")
+        custody_evidence_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(contract._split_framed_records(signed_custody.persisted.record_bytes)[0])
+        )
+        custody_record_bytes = canonical_statement_bytes(
+            contract.AnchorCustodyReceiptRecord(
+                statement_artifact_ref=custody_evidence_record.artifact_ref,
+                statement_content_hash=semantic_content_hash(
+                    "anchor-custody-receipt.v1", custody_bytes
+                ),
+                signed_statement_evidence_ref=(signed_custody.persisted.evidence_record_ref),
+                signed_statement_evidence_content_hash=(
+                    signed_custody.persisted.evidence_record_content_hash
+                ),
+            )
+        )
+        custody_record_ref = self.store.put_bytes(
+            custody_record_bytes,
+            ArtifactWriteOptions(
+                kind="fixture.custody_receipt_record",
+                media_type="application/octet-stream",
+            ),
+        )
+        custody = contract.AnchorCustodyReceipt(
+            receipt_record_ref=custody_record_ref,
+            receipt_record_raw_bytes_hash=raw_content_hash(custody_record_bytes),
+            receipt_record_bytes=custody_record_bytes,
+            statement_bytes=custody_bytes,
+            signed_statement_evidence=signed_custody,
+        )
+        self.custody_receipt = custody
+        challenge_statement = contract.AnchorReadbackChallengeStatement(
+            family="epoch",
+            proof_domain="epoch",
+            authority_purpose="publication",
+            lineage_key=contract.AnchorAcceptanceLineageKey(
+                family="epoch",
+                proof_domain="epoch",
+                scope_ref=_digest("fixture-epoch-scope"),
+                authority_purpose="publication",
+            ),
+            holder_appointment_ref=self.holder_appointment.appointment_ref,
+            package_ref=package.package_ref,
+            expected_package_content_hash=package.package_content_hash,
+            custody_receipt_record_ref=custody.receipt_record_ref,
+            custody_receipt_record_raw_bytes_hash=(custody.receipt_record_raw_bytes_hash),
+            expected_object_version_ref="version-1",
+            requested_query_context_ref=accepted.requested_query_context_ref,
+        )
+        challenge = self.challenge_repository.persist(challenge_statement)
+        readback_statement = contract.AnchorReadbackReceiptStatement(
+            family="epoch",
+            proof_domain="epoch",
+            authority_purpose="publication",
+            holder_ref="fixture-independent-holder",
+            holder_appointment_ref=self.holder_appointment.appointment_ref,
+            challenge_record_ref=challenge.challenge_record_ref,
+            challenge_record_content_hash=challenge.challenge_record_content_hash,
+            custody_receipt_record_ref=custody.receipt_record_ref,
+            custody_receipt_record_raw_bytes_hash=(custody.receipt_record_raw_bytes_hash),
+            package_ref=package.package_ref,
+            package_content_hash=package.package_content_hash,
+            object_version_ref="version-1",
+            retention_policy_ref=custody_statement.retention_policy_ref,
+            requested_query_context_ref=accepted.requested_query_context_ref,
+        )
+        readback_bytes = canonical_statement_bytes(readback_statement)
+        signed_readback = self._issue(readback_bytes, kind="fixture.readback_receipt")
+        readback_evidence_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(contract._split_framed_records(signed_readback.persisted.record_bytes)[0])
+        )
+        readback_record_bytes = canonical_statement_bytes(
+            contract.AnchorReadbackReceiptRecord(
+                statement_artifact_ref=readback_evidence_record.artifact_ref,
+                statement_content_hash=semantic_content_hash(
+                    "anchor-readback-receipt.v1", readback_bytes
+                ),
+                signed_statement_evidence_ref=(signed_readback.persisted.evidence_record_ref),
+                signed_statement_evidence_content_hash=(
+                    signed_readback.persisted.evidence_record_content_hash
+                ),
+            )
+        )
+        readback_record_ref = self.store.put_bytes(
+            readback_record_bytes,
+            ArtifactWriteOptions(
+                kind="fixture.readback_receipt_record",
+                media_type="application/octet-stream",
+            ),
+        )
+        readback = contract.AnchorReadbackReceipt(
+            receipt_record_ref=readback_record_ref,
+            receipt_record_raw_bytes_hash=raw_content_hash(readback_record_bytes),
+            receipt_record_bytes=readback_record_bytes,
+            statement_bytes=readback_bytes,
+            package_bytes=package.package_bytes,
+            retention_receipt=custody,
+            signed_statement_evidence=signed_readback,
+        )
+        verified = ExactAnchorHolderReceiptVerifier(self.verifier).verify_retention_and_readback(
+            retention=custody,
+            readback=readback,
+            challenge=challenge,
+            appointment=self.holder_appointment,
+        )
+        if not isinstance(verified, contract.VerifiedAnchorRetention):
+            raise AssertionError(f"fixture retention failed: {verified}")
+        return custody, readback, challenge, verified
+
+    def retain_package(
+        self, package: contract.AnchorRetentionPackage
+    ) -> contract.AnchorCustodyReceipt:
+        """Act as the test-only appointed holder for one exact package."""
+
+        graph = contract.AnchorRetentionObjectGraph.model_validate(
+            from_canonical_bytes(contract._split_framed_records(package.package_bytes)[0])
+        )
+        retention = contract.AnchorRetentionStatement.model_validate(
+            from_canonical_bytes(contract._split_framed_records(graph.retention_statement_bytes)[0])
+        )
+        statement = contract.AnchorCustodyReceiptStatement(
+            family="epoch",
+            proof_domain=retention.proof_domain,
+            authority_purpose=retention.authority_purpose,
+            holder_appointment_ref=self.holder_appointment.appointment_ref,
+            holder_ref="fixture-independent-holder",
+            package_ref=package.package_ref,
+            package_content_hash=package.package_content_hash,
+            object_version_ref="version-1",
+            retention_policy_ref=_fixture_ref("retention-policy"),
+            requested_query_context_ref=retention.requested_query_context_ref,
+        )
+        statement_bytes = canonical_statement_bytes(statement)
+        signed = self._issue(statement_bytes, kind="fixture.custody_receipt")
+        evidence_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(contract._split_framed_records(signed.persisted.record_bytes)[0])
+        )
+        record_bytes = canonical_statement_bytes(
+            contract.AnchorCustodyReceiptRecord(
+                statement_artifact_ref=evidence_record.artifact_ref,
+                statement_content_hash=semantic_content_hash(
+                    "anchor-custody-receipt.v1", statement_bytes
+                ),
+                signed_statement_evidence_ref=signed.persisted.evidence_record_ref,
+                signed_statement_evidence_content_hash=(
+                    signed.persisted.evidence_record_content_hash
+                ),
+            )
+        )
+        record_ref = self.store.put_bytes(
+            record_bytes,
+            ArtifactWriteOptions(
+                kind="fixture.custody_receipt_record",
+                media_type="application/octet-stream",
+            ),
+        )
+        receipt = contract.AnchorCustodyReceipt(
+            receipt_record_ref=record_ref,
+            receipt_record_raw_bytes_hash=raw_content_hash(record_bytes),
+            receipt_record_bytes=record_bytes,
+            statement_bytes=statement_bytes,
+            signed_statement_evidence=signed,
+        )
+        self.retained_package = package
+        self.custody_receipt = receipt
+        return receipt
+
+    def readback_challenge(
+        self, challenge: contract.PersistedAnchorReadbackChallenge
+    ) -> contract.AnchorReadbackReceipt:
+        """Return only holder-kept bytes for the exact persisted challenge."""
+
+        if self.retained_package is None or self.custody_receipt is None:
+            raise RuntimeError("holder has no retained package")
+        statement = contract.AnchorReadbackChallengeStatement.model_validate(
+            from_canonical_bytes(contract._split_framed_records(challenge.statement_bytes)[0])
+        )
+        if (
+            statement.package_ref != self.retained_package.package_ref
+            or statement.custody_receipt_record_ref != self.custody_receipt.receipt_record_ref
+        ):
+            raise ValueError("challenge does not name the retained holder graph")
+        custody_statement = contract.AnchorCustodyReceiptStatement.model_validate(
+            from_canonical_bytes(
+                contract._split_framed_records(self.custody_receipt.statement_bytes)[0]
+            )
+        )
+        readback_statement = contract.AnchorReadbackReceiptStatement(
+            family="epoch",
+            proof_domain=statement.proof_domain,
+            authority_purpose=statement.authority_purpose,
+            holder_ref="fixture-independent-holder",
+            holder_appointment_ref=self.holder_appointment.appointment_ref,
+            challenge_record_ref=challenge.challenge_record_ref,
+            challenge_record_content_hash=challenge.challenge_record_content_hash,
+            custody_receipt_record_ref=self.custody_receipt.receipt_record_ref,
+            custody_receipt_record_raw_bytes_hash=(
+                self.custody_receipt.receipt_record_raw_bytes_hash
+            ),
+            package_ref=self.retained_package.package_ref,
+            package_content_hash=self.retained_package.package_content_hash,
+            object_version_ref=custody_statement.object_version_ref,
+            retention_policy_ref=custody_statement.retention_policy_ref,
+            requested_query_context_ref=statement.requested_query_context_ref,
+        )
+        statement_bytes = canonical_statement_bytes(readback_statement)
+        signed = self._issue(statement_bytes, kind="fixture.readback_receipt")
+        evidence_record = contract.SignedArtifactEvidenceRecord.model_validate(
+            json.loads(contract._split_framed_records(signed.persisted.record_bytes)[0])
+        )
+        record_bytes = canonical_statement_bytes(
+            contract.AnchorReadbackReceiptRecord(
+                statement_artifact_ref=evidence_record.artifact_ref,
+                statement_content_hash=semantic_content_hash(
+                    "anchor-readback-receipt.v1", statement_bytes
+                ),
+                signed_statement_evidence_ref=signed.persisted.evidence_record_ref,
+                signed_statement_evidence_content_hash=(
+                    signed.persisted.evidence_record_content_hash
+                ),
+            )
+        )
+        record_ref = self.store.put_bytes(
+            record_bytes,
+            ArtifactWriteOptions(
+                kind="fixture.readback_receipt_record",
+                media_type="application/octet-stream",
+            ),
+        )
+        return contract.AnchorReadbackReceipt(
+            receipt_record_ref=record_ref,
+            receipt_record_raw_bytes_hash=raw_content_hash(record_bytes),
+            receipt_record_bytes=record_bytes,
+            statement_bytes=statement_bytes,
+            package_bytes=self.retained_package.package_bytes,
+            retention_receipt=self.custody_receipt,
+            signed_statement_evidence=signed,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class _FixtureAcceptanceAuthority:
+    fixture: AppointedAnchorFixture
+
+    def recompute_and_accept(
+        self, request: contract.AnchorAcceptanceRequest
+    ) -> contract.AnchorAcceptanceReceipt | contract.AcceptanceNonReceipt:
+        try:
+            return self.fixture.build_acceptance(request=request)[0]
+        except ValueError:
+            return contract.AcceptanceRejectedNonReceipt(
+                status="rejected",
+                component="acceptance",
+                code="anchor_query_or_lineage_mismatch",
+                subject_artifact_ref=request.bundle_ref,
+                requested_query_context_ref=request.requested_query_context_ref,
+                appointment_ref=self.fixture.acceptance_appointment.appointment_ref,
+                verifier_provenance_ref=self.fixture.signer_provenance_ref,
+                decisive_evidence_refs=(
+                    request.bundle_ref,
+                    self.fixture.acceptance_appointment.signed_appointment_evidence.persisted.evidence_record_ref,
+                ),
+                predicate_class="independently_reconciled",
+            )
+
+
+@dataclass(frozen=True, slots=True)
+class _FixtureHolder:
+    fixture: AppointedAnchorFixture
+
+    def retain(self, package: contract.AnchorRetentionPackage) -> contract.AnchorCustodyReceipt:
+        return self.fixture.retain_package(package)
+
+    def readback(
+        self, challenge: contract.PersistedAnchorReadbackChallenge
+    ) -> contract.AnchorReadbackReceipt:
+        return self.fixture.readback_challenge(challenge)
+
+
+@dataclass(frozen=True, slots=True)
+class _FixtureAppointmentResolver:
+    fixture: AppointedAnchorFixture
+    acceptance: bool
+    holder: bool
+
+    def resolve_epoch_appointments(
+        self, *, family: Literal["epoch"], proof_domain: str, authority_purpose: str
+    ) -> contract.EpochAnchorAppointmentResolution:
+        from polisyos.runtime.quality.chronology_custody import (
+            NoEpochAnchorAppointmentResolver,
+        )
+
+        absent = NoEpochAnchorAppointmentResolver().resolve_epoch_appointments(
+            family=family,
+            proof_domain=proof_domain,
+            authority_purpose=authority_purpose,
+        )
+        acceptance = (
+            contract.EstablishedAcceptanceAppointment(
+                status="established", appointment=self.fixture.acceptance_appointment
+            )
+            if self.acceptance
+            else absent.acceptance
+        )
+        holder = (
+            contract.EstablishedHolderAppointment(
+                status="established", appointment=self.fixture.holder_appointment
+            )
+            if self.holder
+            else absent.holder
+        )
+        return contract.EpochAnchorAppointmentResolution(
+            acceptance=acceptance,
+            holder=holder,
+        )
+
+
+@dataclass(frozen=True, slots=True)
+class _FixtureAuthorityRegistry:
+    fixture: AppointedAnchorFixture
+
+    def resolve_acceptance_authority(
+        self, *, appointment: contract.VerifiedAcceptanceVerifierAppointment
+    ) -> _FixtureAcceptanceAuthority:
+        if appointment != self.fixture.acceptance_appointment:
+            raise ValueError("unexpected acceptance appointment")
+        return _FixtureAcceptanceAuthority(self.fixture)
+
+    def resolve_holder(
+        self, *, appointment: contract.VerifiedHolderVerifierAppointment
+    ) -> _FixtureHolder:
+        if appointment != self.fixture.holder_appointment:
+            raise ValueError("unexpected holder appointment")
+        return _FixtureHolder(self.fixture)
+
+    def resolve_acceptance_verifier(
+        self, *, appointment: contract.VerifiedAcceptanceVerifierAppointment
+    ) -> ExactAnchorAcceptanceReceiptVerifier:
+        if appointment != self.fixture.acceptance_appointment:
+            raise ValueError("unexpected acceptance appointment")
+        return ExactAnchorAcceptanceReceiptVerifier(self.fixture.verifier)
+
+    def resolve_acceptance_lineage(
+        self, *, appointment: contract.VerifiedAcceptanceVerifierAppointment
+    ) -> InMemoryAnchorAcceptanceLineageRepository:
+        if appointment != self.fixture.acceptance_appointment:
+            raise ValueError("unexpected acceptance appointment")
+        return self.fixture.lineage
+
+    def resolve_holder_verifier(
+        self, *, appointment: contract.VerifiedHolderVerifierAppointment
+    ) -> ExactAnchorHolderReceiptVerifier:
+        if appointment != self.fixture.holder_appointment:
+            raise ValueError("unexpected holder appointment")
+        return ExactAnchorHolderReceiptVerifier(self.fixture.verifier)
+
+
+def build_appointed_anchor_service(
+    fixture: AppointedAnchorFixture,
+    *,
+    acceptance: bool = True,
+    holder: bool = True,
+) -> contract.EpochAnchorCustodyProvider:
+    """Build a test-only service; production has no injection seam for it."""
+    from polisyos.runtime.quality.chronology_custody import EpochAnchorCustodyService
+
+    return EpochAnchorCustodyService(
+        appointment_resolver=_FixtureAppointmentResolver(
+            fixture=fixture,
+            acceptance=acceptance,
+            holder=holder,
+        ),
+        authority_registry=_FixtureAuthorityRegistry(fixture),
+        issuance_evidence=fixture.evidence_repository,
+        challenge_repository=fixture.challenge_repository,
+    )
 
 
 def _native_bytes(
@@ -596,6 +1601,8 @@ def make_qualification_case(
     *,
     shape: Literal["epoch", "inventory"],
     member_count: int,
+    domain_override: contract.ChronologyProofDomain | None = None,
+    requested_query_context_ref: contract.Digest | None = None,
     candidate_member_ordinals: tuple[int, ...] | None = None,
     required_native_head_role: str | None = None,
     native_authority_head_refs: tuple[contract.Digest, ...] | None = None,
@@ -624,7 +1631,7 @@ def make_qualification_case(
         ordinal < 0 or ordinal >= candidate_member_count for ordinal in candidate_ordinals
     ):
         raise ValueError("candidate member ordinals must be unique available members")
-    domain = contract.ChronologyProofDomain(
+    domain = domain_override or contract.ChronologyProofDomain(
         format=contract.FULL_PREFIX_FORMAT,
         profile=contract.FULL_PREFIX_PROFILE,
         proof_domain=f"{shape}-conformance",
@@ -635,10 +1642,12 @@ def make_qualification_case(
     query = contract.NativeChronologyQuery(
         domain=domain,
         requested_cutoff_ref=_digest(f"{shape}:cutoff"),
-        requested_query_context_ref=_digest(f"{shape}:query-context"),
+        requested_query_context_ref=(
+            requested_query_context_ref or _digest(f"{shape}:query-context")
+        ),
     )
     key = contract.PredicatePolicySelectionKey(
-        family=family,
+        family=domain.family,
         proof_domain=domain.proof_domain,
         scope_ref=domain.scope_ref,
         authority_purpose=domain.authority_purpose,
@@ -759,7 +1768,7 @@ def make_qualification_case(
 
     owner_denominator = _NativeDenominatorStatement(
         schema_version="fixture.chronology.native-denominator.v1",
-        family=family,
+        family=domain.family,
         native_schema_profile=authoritative_profile,
         native_authority_head_refs=heads,
         members=tuple(owner_members),
@@ -797,7 +1806,7 @@ def make_qualification_case(
     )
     candidate_denominator = _NativeDenominatorStatement(
         schema_version="fixture.chronology.native-denominator.v1",
-        family=family,
+        family=domain.family,
         native_schema_profile=observed_profile,
         native_authority_head_refs=heads,
         members=candidate_denominator_members,

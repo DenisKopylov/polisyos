@@ -87,7 +87,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | Package | Classification | Facade | Exports | Owner | README |
 | --- | --- | --- | ---: | --- | --- |
 | `polisyos.common` | `public_stable` | `lazy_facade` | 7 | `team-polisyos` | `src/polisyos/common/README.md` |
-| `polisyos.core` | `public_stable` | `lazy_facade` | 117 | `team-polisyos` | `src/polisyos/core/README.md` |
+| `polisyos.core` | `public_stable` | `lazy_facade` | 133 | `team-polisyos` | `src/polisyos/core/README.md` |
 | `polisyos.ir` | `public_stable` | `lazy_facade` | 273 | `team-polisyos` | `src/polisyos/ir/README.md` |
 | `polisyos.obligation_rules` | `internal` | `eager_exports` | 22 | `team-policyos-runtime` | `src/polisyos/obligation_rules/README.md` |
 | `polisyos.obligation_graph` | `internal` | `eager_exports` | 20 | `team-policyos-runtime` | `src/polisyos/obligation_graph/README.md` |
@@ -142,7 +142,7 @@ timestamps
 - Notes: Cross-layer contracts, CAS, registry, observability, and security primitives.
 - Summary: Expose the stable Core platform surface with lazy package imports.
 
-<details><summary>Supported exports (117)</summary>
+<details><summary>Supported exports (133)</summary>
 
 ```text
 FULL_PREFIX_EVALUATION_TABLE
@@ -150,6 +150,11 @@ FULL_PREFIX_FAILURE_DESCRIPTORS
 FULL_PREFIX_TERMINAL_BY_RESULT_KIND
 SECRET_AND_PII_SCAN_SCOPES
 SECRET_PII_DETECTOR_VERSION
+AcceptanceRejectedNonReceipt
+AcceptanceUnavailableNonReceipt
+AnchorAcceptanceRequest
+AnchorCustodyVerification
+AnchorRetentionPackage
 ApplicablePredicateDenominatorArtifactFailure
 ApplicablePredicateDenominatorStatement
 ChronologyApplicablePredicateDenominatorArtifacts
@@ -237,14 +242,24 @@ PredicatePolicyResolutionFailure
 PredicatePolicySelectionKey
 PromptSanitizer
 QueryPredicateDisposition
+RejectedAcceptanceOutcome
+RejectedRetentionOutcome
 ResolvedPredicatePolicyAdmission
+RetentionRejectedNonReceipt
+RetentionUnavailableNonReceipt
 SecretAndPIIScanReport
 SecretPIIScanResult
+UnavailableAcceptanceOutcome
+UnavailableRetentionOutcome
+VerifiedAcceptanceOutcome
+VerifiedAnchorAcceptance
+VerifiedAnchorRetention
 VerifiedNativeMemberIdentity
 VerifiedNativeSubjectIdentity
 VerifiedOwnerPredicateEvidence
 VerifiedPolicyOwnerProvenance
 VerifiedPredicatePolicyOwnerRelation
+VerifiedRetentionOutcome
 artifacts
 backends
 build_full_prefix_bundle
@@ -262,6 +277,7 @@ registry
 resilience
 run
 scan_secret_and_pii
+security
 ```
 
 </details>

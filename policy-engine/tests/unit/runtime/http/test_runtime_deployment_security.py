@@ -90,6 +90,41 @@ def _config_mapping(tmp_path: Path) -> dict[str, object]:
     }
 
 
+def _config_mapping_with_human_decision_custody(
+    tmp_path: Path,
+) -> dict[str, object]:
+    from polisyos.core.artifacts.signing import KeyPair
+
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    pair = KeyPair.generate()
+    private_key_path = tmp_path / "human-decision-custody.pem"
+    public_key_path = tmp_path / "human-decision-custody.pub"
+    private_key_path.write_bytes(pair.private_pem())
+    public_key_path.write_bytes(pair.public_pem())
+    raw = _config_mapping(tmp_path)
+    raw["human_decision_custody"] = {
+        "signer_identity": "service://runtime/human-decision-custody",
+        "private_key_path": str(private_key_path),
+        "public_key_path": str(public_key_path),
+        "verifier_epoch": "ds9-deployment-epoch",
+        "provenance": {
+            "source": "deployment_environment",
+            "reference": "POLISYOS_RUNTIME_HUMAN_DECISION_CUSTODY",
+        },
+        "revoked_key_ids": [],
+        "trusted_producers": [
+            {
+                "artifact_kind": "runtime_quality.agent_action_human_decision",
+                "schema_name": "polisyos.runtime.HumanDecisionRecord",
+                "schema_version": "2.0",
+                "signer_identity": "service://runtime/human-decision-custody",
+                "public_key_path": str(public_key_path),
+            }
+        ],
+    }
+    return raw
+
+
 def test_deployment_security_config_is_strict_and_typed(tmp_path: Path) -> None:
     security = _deployment_security_module()
     config = security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
@@ -118,6 +153,170 @@ def test_deployment_security_config_is_strict_and_typed(tmp_path: Path) -> None:
         security.DeploymentSecurityConfig.from_mapping(malformed)
 
 
+def test_human_decision_custody_is_typed_unavailable_when_unconfigured(
+    tmp_path: Path,
+) -> None:
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(_config_mapping(tmp_path))
+    )
+
+    custody = runtime.human_decision_custody
+    assert type(custody) is security.DeploymentHumanDecisionCustody
+    assert custody.available is False
+    assert custody.unavailability_code == "DS9-DECISION-PRODUCER-MISSING"
+    assert custody.signer is None
+    assert custody.verifier is None
+
+
+def test_human_decision_custody_rejects_private_public_key_mismatch(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.signing import KeyPair
+
+    security = _deployment_security_module()
+    raw = _config_mapping_with_human_decision_custody(tmp_path)
+    custody = raw["human_decision_custody"]
+    assert isinstance(custody, dict)
+    mismatched_public_path = tmp_path / "mismatched-custody.pub"
+    mismatched_public_path.write_bytes(KeyPair.generate().public_pem())
+    custody["public_key_path"] = str(mismatched_public_path)
+
+    with pytest.raises(ValueError, match=r"private|public|key"):
+        security.build_deployment_security(security.DeploymentSecurityConfig.from_mapping(raw))
+
+
+@pytest.mark.parametrize(
+    "mutation",
+    [
+        "component",
+        "signer",
+        "verifier",
+        "trust_policy",
+        "strict_identity",
+        "signer_build_statement",
+        "trusted_key_map",
+    ],
+)
+def test_human_decision_custody_is_part_of_factory_attestation(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(
+            _config_mapping_with_human_decision_custody(tmp_path / "first")
+        )
+    )
+    replacement = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(
+            _config_mapping_with_human_decision_custody(tmp_path / "second")
+        )
+    )
+    if mutation == "component":
+        object.__setattr__(
+            runtime,
+            "human_decision_custody",
+            replacement.human_decision_custody,
+        )
+    elif mutation == "signer":
+        object.__setattr__(
+            runtime.human_decision_custody,
+            "signer",
+            replacement.human_decision_custody.signer,
+        )
+    elif mutation == "verifier":
+        object.__setattr__(
+            runtime.human_decision_custody,
+            "verifier",
+            replacement.human_decision_custody.verifier,
+        )
+    elif mutation == "trust_policy":
+        object.__setattr__(
+            runtime.human_decision_custody,
+            "trust_policy",
+            replacement.human_decision_custody.trust_policy,
+        )
+    elif mutation == "strict_identity":
+        object.__setattr__(
+            runtime.human_decision_custody.verifier,
+            "_strict_identity",
+            False,
+        )
+    elif mutation == "signer_build_statement":
+        object.__setattr__(
+            runtime.human_decision_custody.signer,
+            "build_statement",
+            lambda *_args, **_kwargs: object(),
+        )
+    else:
+        object.__setattr__(
+            runtime.human_decision_custody.verifier,
+            "_trusted_keys",
+            {},
+        )
+
+    with pytest.raises(TypeError, match=r"factory|attest|bundle"):
+        security.require_factory_produced_deployment_security(runtime)
+
+
+def test_human_decision_custody_signs_and_strictly_verifies_exact_cas(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.store import FileSystemCAS
+    from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(
+            _config_mapping_with_human_decision_custody(tmp_path)
+        )
+    )
+    custody = runtime.human_decision_custody
+    assert custody.signer is not None
+    assert custody.verifier is not None
+    assert custody.signer_identity is not None
+    store = FileSystemCAS(tmp_path / "custody-cas")
+    artifact_ref = store.put_bytes(
+        b"custodied human decision",
+        ArtifactWriteOptions(
+            kind="test.human_decision_custody",
+            media_type="application/octet-stream",
+        ),
+    )
+
+    store.sign_artifact(
+        artifact_ref.artifact_id,
+        custody.signer,
+        signer_identity=custody.signer_identity,
+    )
+    result = store.verify_signature(
+        artifact_ref.artifact_id,
+        custody.verifier,
+        strict_identity=True,
+    )
+
+    assert result.ok is True
+    assert result.signer_identity == custody.signer_identity
+    assert result.expected_identity == custody.signer_identity
+
+
+def test_human_decision_custody_rejects_revoked_active_signer(
+    tmp_path: Path,
+) -> None:
+    from polisyos.core.artifacts.signing import Ed25519Signer
+
+    security = _deployment_security_module()
+    raw = _config_mapping_with_human_decision_custody(tmp_path)
+    custody = raw["human_decision_custody"]
+    assert isinstance(custody, dict)
+    signer = Ed25519Signer.from_path(Path(str(custody["private_key_path"])))
+    custody["revoked_key_ids"] = [signer.key_id]
+
+    with pytest.raises(ValueError, match="revoked"):
+        security.build_deployment_security(security.DeploymentSecurityConfig.from_mapping(raw))
+
+
 def test_runtime_deployment_security_cannot_mix_collaborators_across_documents(
     tmp_path: Path,
 ) -> None:
@@ -143,6 +342,7 @@ def test_runtime_deployment_security_cannot_mix_collaborators_across_documents(
             opa_client=runtime_a.opa_client,
             step_up_verifier=runtime_a.step_up_verifier,
             principal_grants=runtime_a.principal_grants,
+            human_decision_custody=runtime_a.human_decision_custody,
         )
 
     runtime_b = security.build_deployment_security(config_b)
@@ -170,6 +370,7 @@ def test_non_development_bootstrap_and_probe_reject_object_new_forged_bundle(
         "opa_client",
         "step_up_verifier",
         "principal_grants",
+        "human_decision_custody",
     ):
         object.__setattr__(forged, field_name, getattr(genuine, field_name))
 
@@ -334,9 +535,7 @@ def test_non_development_runtime_revalidates_same_object_authority_before_reques
         object.__setattr__(
             runtime.step_up_verifier,
             "_jwks_client",
-            SimpleNamespace(
-                get_signing_key_from_jwt=lambda _token: SimpleNamespace(key="forged")
-            ),
+            SimpleNamespace(get_signing_key_from_jwt=lambda _token: SimpleNamespace(key="forged")),
         )
     elif mutation == "opa_decision_cache":
         object.__setattr__(
@@ -577,9 +776,7 @@ def test_non_development_request_revalidates_authority_after_entry_before_mutati
     assert response.json()["code"] == "deployment_security_attestation_invalid"
     assert len(audit_events) == 1
     assert audit_events[0]["outcome"] == "deny"
-    assert audit_events[0]["denial_reason"] == (
-        "deployment_security_attestation_invalid"
-    )
+    assert audit_events[0]["denial_reason"] == ("deployment_security_attestation_invalid")
 
 
 def test_unknown_service_principal_permission_is_rejected(tmp_path: Path) -> None:
@@ -613,10 +810,7 @@ def test_service_principal_resolution_requires_every_identity_dimension(
 
     for field_name in exact:
         mismatched = {**exact, field_name: f"wrong-{field_name}"}
-        assert (
-            runtime.principal_grants.permissions_for_principal(**mismatched)
-            == frozenset()
-        )
+        assert runtime.principal_grants.permissions_for_principal(**mismatched) == frozenset()
 
 
 def test_duplicate_exact_service_principal_is_rejected(tmp_path: Path) -> None:
@@ -905,12 +1099,15 @@ def test_managed_principal_grants_deny_claim_and_effective_cell_mismatch() -> No
         jti="runtime-canary-token",
     )
 
-    assert resolver.resolve_claim_permissions(
-        claims,
-        effective_subject=claims.sub,
-        effective_tenant_id=claims.tenant_id,
-        effective_cell_id="cell-effective",
-    ) == frozenset()
+    assert (
+        resolver.resolve_claim_permissions(
+            claims,
+            effective_subject=claims.sub,
+            effective_tenant_id=claims.tenant_id,
+            effective_cell_id="cell-effective",
+        )
+        == frozenset()
+    )
 
 
 def test_action_dependency_uses_exact_service_grant_instead_of_admin_role(
@@ -952,9 +1149,7 @@ def test_action_dependency_uses_exact_service_grant_instead_of_admin_role(
         return SimpleNamespace(
             state=state,
             app=SimpleNamespace(
-                state=SimpleNamespace(
-                    runtime_deployment_principal_grants=runtime.principal_grants
-                )
+                state=SimpleNamespace(runtime_deployment_principal_grants=runtime.principal_grants)
             ),
         )
 
@@ -980,8 +1175,7 @@ def test_action_dependency_uses_exact_service_grant_instead_of_admin_role(
     }
 
 
-def test_action_dependency_denies_managed_admin_when_effective_cell_differs_from_claim(
-) -> None:
+def test_action_dependency_denies_managed_admin_when_effective_cell_differs_from_claim() -> None:
     from polisyos.core.security.access_scope import AccessScope
     from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
     from polisyos.runtime.http.authorization import (
@@ -1030,9 +1224,7 @@ def test_action_dependency_denies_managed_admin_when_effective_cell_differs_from
             user_claims=claims,
             authz_effective_scope=effective_scope,
         ),
-        app=SimpleNamespace(
-            state=SimpleNamespace(runtime_deployment_principal_grants=grants)
-        ),
+        app=SimpleNamespace(state=SimpleNamespace(runtime_deployment_principal_grants=grants)),
     )
     dependency = require_action_permission(
         RuntimePermission.RUNS_LAUNCH,
@@ -1125,9 +1317,7 @@ def test_service_principal_grant_reaches_opa_and_blocks_sibling_mutation(
     # This test isolates grant projection on the development composition built
     # by ``_build_secure_client``. Non-development bundle/alias integrity is
     # covered by the attestation negatives above and must remain all-or-nothing.
-    cast("Any", client.app).state.runtime_deployment_principal_grants = (
-        runtime.principal_grants
-    )
+    cast("Any", client.app).state.runtime_deployment_principal_grants = runtime.principal_grants
     headers = {
         "Authorization": f"Bearer {bearer}",
         "X-Tenant-ID": tenant_id,

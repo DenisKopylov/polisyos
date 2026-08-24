@@ -118,7 +118,7 @@ def test_v1_human_decision_record_cannot_mint_custody_claim() -> None:
         "custody_signer_identity": record.actor_ref,
     }
 
-    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+    with pytest.raises(ValueError, match="historical human-decision v1"):
         _s7("HumanDecisionRecord").model_validate(forged_v1)
 
 

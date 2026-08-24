@@ -4,13 +4,21 @@ import sqlite3
 import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
-from datetime import UTC, datetime
+from contextlib import contextmanager
+from datetime import UTC, datetime, timedelta
 from typing import cast
 
+import pytest
+
 import polisyos.runtime.http.services.control_worker as control_worker_module
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.runtime.http.errors import RuntimeDependencyUnavailableError
+from polisyos.runtime.http.services.control.run_lifecycle import HumanDecisionAuthoritySink
 from polisyos.runtime.http.services.control_plane_store import ControlJobRecord, ControlPlaneStore
 from polisyos.runtime.http.services.control_worker import ControlWorker
+from polisyos.runtime.quality.event_log import RuntimeDiagnosticEventLog
 from tests._helpers.policy_design_case_projection import policy_design_case, sha
 
 
@@ -19,6 +27,466 @@ def _make_store(tmp_path) -> ControlPlaneStore:
         backend="sqlite",
         sqlite_path=tmp_path / "control-plane.sqlite3",
     )
+
+
+def _human_decision_sink(
+    tmp_path,
+    store: ControlPlaneStore,
+) -> HumanDecisionAuthoritySink:
+    artifact_store = FileSystemCAS(tmp_path / "human-decision-cas")
+    return HumanDecisionAuthoritySink(
+        artifact_store=artifact_store,
+        event_log=RuntimeDiagnosticEventLog(
+            store=store,
+            artifact_store=artifact_store,
+        ),
+        reservation_store=store,
+    )
+
+
+def test_human_decision_concurrent_reservation_has_one_sqlite_winner(tmp_path) -> None:
+    """Two independent stores cannot reserve one live governed action twice."""
+
+    sqlite_path = tmp_path / "human-decision-reservations.sqlite3"
+    stores = (
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path),
+        ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path),
+    )
+    barrier = threading.Barrier(2)
+    now = datetime(2026, 8, 24, 12, tzinfo=UTC)
+
+    def _reserve(index: int):
+        barrier.wait(timeout=10)
+        return stores[index].reserve_human_decision_action(
+            tenant_id="tenant-a",
+            governed_action_key="sha256:" + "a" * 64,
+            reservation_id=f"reservation-{index}",
+            binding_sha256="sha256:" + "b" * 64,
+            now=now,
+            lease_seconds=30,
+            record_valid_until=now + timedelta(hours=1),
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = tuple(executor.map(_reserve, range(2)))
+
+    assert sorted(result.acquired for result in results) == [False, True]
+    losing = next(result for result in results if not result.acquired)
+    assert losing.issue_code == "DS9-OVERLAPPING-REISSUE"
+    assert losing.reservation.state == "reserved"
+    winner = next(result for result in results if result.acquired)
+    stored = stores[0].get_human_decision_reservation(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "a" * 64,
+    )
+    assert stored == winner.reservation
+
+
+def test_human_decision_crash_reservation_requires_reconciliation_before_reuse(
+    tmp_path,
+) -> None:
+    """An expired partial write becomes recovery-required, never a new winner."""
+
+    store = _make_store(tmp_path)
+    started_at = datetime(2026, 8, 24, 12, tzinfo=UTC)
+    first = store.reserve_human_decision_action(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "c" * 64,
+        reservation_id="reservation-crashed",
+        binding_sha256="sha256:" + "d" * 64,
+        now=started_at,
+        lease_seconds=5,
+        record_valid_until=started_at + timedelta(hours=1),
+    )
+    assert first.acquired is True
+
+    retry = store.reserve_human_decision_action(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "c" * 64,
+        reservation_id="reservation-too-early",
+        binding_sha256="sha256:" + "d" * 64,
+        now=started_at + timedelta(seconds=6),
+        lease_seconds=5,
+        record_valid_until=started_at + timedelta(hours=1),
+    )
+
+    assert retry.acquired is False
+    assert retry.issue_code == "DS9-RESERVATION-RECOVERY-REQUIRED"
+    assert retry.reservation.state == "recovery_required"
+    reconciled = _human_decision_sink(tmp_path, store).reconcile_empty_reservation(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "c" * 64,
+        reservation_id="reservation-crashed",
+        reservation_version=first.reservation.reservation_version,
+        reconciled_at=started_at + timedelta(seconds=7),
+    )
+    assert reconciled.state == "reconciled_empty"
+
+    replacement = store.reserve_human_decision_action(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "c" * 64,
+        reservation_id="reservation-replacement",
+        binding_sha256="sha256:" + "d" * 64,
+        now=started_at + timedelta(seconds=8),
+        lease_seconds=5,
+        record_valid_until=started_at + timedelta(hours=1),
+    )
+    assert replacement.acquired is True
+    assert replacement.reservation.reservation_version == 2
+    historical = store.get_human_decision_reservation_generation(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "c" * 64,
+        reservation_version=1,
+    )
+    assert historical is not None
+    assert historical.reservation_id == "reservation-crashed"
+    assert historical.state == "reconciled_empty"
+
+
+def test_human_decision_empty_reconciliation_scans_record_artifacts(tmp_path) -> None:
+    """A present record defeats an empty claim even before reservation commit."""
+
+    store = _make_store(tmp_path)
+    artifact_store = FileSystemCAS(tmp_path / "human-decision-reconciliation-cas")
+    sink = HumanDecisionAuthoritySink(
+        artifact_store=artifact_store,
+        event_log=RuntimeDiagnosticEventLog(
+            store=store,
+            artifact_store=artifact_store,
+        ),
+        reservation_store=store,
+    )
+    started_at = datetime(2026, 8, 24, 12, tzinfo=UTC)
+    first = sink.reserve_action(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "e" * 64,
+        reservation_id="reservation-with-record",
+        binding_sha256="sha256:" + "f" * 64,
+        now=started_at,
+        lease_seconds=1,
+        record_valid_until=started_at + timedelta(hours=1),
+    )
+    retry = sink.reserve_action(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "e" * 64,
+        reservation_id="reservation-retry",
+        binding_sha256="sha256:" + "f" * 64,
+        now=started_at + timedelta(seconds=2),
+        lease_seconds=1,
+        record_valid_until=started_at + timedelta(hours=1),
+    )
+    assert retry.reservation.state == "recovery_required"
+    artifact_store.put_json(
+        {
+            "reservation_id": first.reservation.reservation_id,
+            "reservation_version": first.reservation.reservation_version,
+        },
+        ArtifactWriteOptions(
+            kind="runtime_quality.agent_action_human_decision",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.runtime.HumanDecisionRecord",
+                version="2.0",
+            ),
+        ),
+    )
+
+    with pytest.raises(ValueError, match="DS9-RESERVATION-RECOVERY-REQUIRED"):
+        sink.reconcile_empty_reservation(
+            tenant_id="tenant-a",
+            governed_action_key="sha256:" + "e" * 64,
+            reservation_id="reservation-with-record",
+            reservation_version=first.reservation.reservation_version,
+            reconciled_at=started_at + timedelta(seconds=3),
+        )
+
+
+@pytest.mark.parametrize(
+    ("lease_seconds", "valid_seconds", "commit_seconds"),
+    [(1, 60, 2), (60, 1, 2)],
+)
+def test_human_decision_commit_rejects_expired_lease_or_record_validity(
+    tmp_path,
+    lease_seconds: int,
+    valid_seconds: int,
+    commit_seconds: int,
+) -> None:
+    store = _make_store(tmp_path)
+    started_at = datetime(2026, 8, 24, 12, tzinfo=UTC)
+    reserved = store.reserve_human_decision_action(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "1" * 64,
+        reservation_id="reservation-expiry",
+        binding_sha256="sha256:" + "2" * 64,
+        now=started_at,
+        lease_seconds=lease_seconds,
+        record_valid_until=started_at + timedelta(seconds=valid_seconds),
+    )
+    assert reserved.acquired is True
+    commit_at = started_at + timedelta(seconds=commit_seconds)
+
+    with (
+        pytest.raises(ValueError, match="DS9-RESERVATION-RECOVERY-REQUIRED"),
+        store.hold_human_decision_write_fence(
+            tenant_id="tenant-a",
+            governed_action_key="sha256:" + "1" * 64,
+            reservation_id="reservation-expiry",
+            reservation_version=reserved.reservation.reservation_version,
+            binding_sha256="sha256:" + "2" * 64,
+            acquired_at=commit_at,
+            expected_record_valid_until=reserved.reservation.record_valid_until,
+        ) as fence,
+    ):
+        fence.commit(
+            record_ref="sha256:" + "3" * 64,
+            record_sha256="sha256:" + "3" * 64,
+            durable_event_id="event-expired-commit",
+            committed_at=commit_at,
+        )
+
+    historical = store.get_human_decision_reservation_generation(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "1" * 64,
+        reservation_version=reserved.reservation.reservation_version,
+    )
+    assert historical is not None
+    assert historical.state == "reserved"
+    assert historical.record_ref is None
+
+
+def test_human_decision_reservation_preserves_microsecond_lease_boundary(tmp_path) -> None:
+    store = _make_store(tmp_path)
+    started_at = datetime(2026, 8, 24, 12, 0, 0, 500_000, tzinfo=UTC)
+    reserved = store.reserve_human_decision_action(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "4" * 64,
+        reservation_id="reservation-microsecond-boundary",
+        binding_sha256="sha256:" + "5" * 64,
+        now=started_at,
+        lease_seconds=1,
+        record_valid_until=started_at + timedelta(minutes=1),
+    )
+
+    commit_at = started_at + timedelta(microseconds=750_000)
+    with store.hold_human_decision_write_fence(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "4" * 64,
+        reservation_id=reserved.reservation.reservation_id,
+        reservation_version=reserved.reservation.reservation_version,
+        binding_sha256="sha256:" + "5" * 64,
+        acquired_at=commit_at,
+        expected_record_valid_until=reserved.reservation.record_valid_until,
+    ) as fence:
+        committed = fence.commit(
+            record_ref="sha256:" + "6" * 64,
+            record_sha256="sha256:" + "6" * 64,
+            durable_event_id="event-before-exact-microsecond-expiry",
+            committed_at=commit_at,
+        )
+
+    assert committed.state == "committed"
+    assert committed.lease_expires_at == started_at + timedelta(seconds=1)
+
+
+def test_human_decision_empty_reconciliation_cas_rejects_attached_refs(tmp_path) -> None:
+    store = _make_store(tmp_path)
+    started_at = datetime(2026, 8, 24, 12, tzinfo=UTC)
+    reserved = store.reserve_human_decision_action(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "7" * 64,
+        reservation_id="reservation-attached-orphan",
+        binding_sha256="sha256:" + "8" * 64,
+        now=started_at,
+        lease_seconds=10,
+        record_valid_until=started_at + timedelta(hours=1),
+    )
+    store.mark_human_decision_recovery_required(
+        tenant_id="tenant-a",
+        governed_action_key="sha256:" + "7" * 64,
+        reservation_id=reserved.reservation.reservation_id,
+        reservation_version=reserved.reservation.reservation_version,
+        record_ref="sha256:" + "9" * 64,
+        record_sha256="sha256:" + "9" * 64,
+        durable_event_id="event-attached-orphan",
+    )
+
+    with pytest.raises(ValueError, match="DS9-RESERVATION-RECOVERY-REQUIRED"):
+        store._reconcile_empty_human_decision_reservation(
+            tenant_id="tenant-a",
+            governed_action_key="sha256:" + "7" * 64,
+            reservation_id=reserved.reservation.reservation_id,
+            reservation_version=reserved.reservation.reservation_version,
+            reconciled_at=started_at + timedelta(seconds=1),
+        )
+
+
+def test_human_decision_write_fence_prevents_recovery_overtaking_paused_signer(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    sqlite_path = tmp_path / "human-decision-write-fence.sqlite3"
+    writer_store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    contender_store = ControlPlaneStore(backend="sqlite", sqlite_path=sqlite_path)
+    started_at = datetime(2026, 8, 24, 12, tzinfo=UTC)
+    valid_until = started_at + timedelta(hours=1)
+    governed_action_key = "sha256:" + "a" * 64
+    binding_sha256 = "sha256:" + "b" * 64
+    reserved = writer_store.reserve_human_decision_action(
+        tenant_id="tenant-a",
+        governed_action_key=governed_action_key,
+        reservation_id="reservation-paused-writer",
+        binding_sha256=binding_sha256,
+        now=started_at,
+        lease_seconds=1,
+        record_valid_until=valid_until,
+    )
+    hold_fence = getattr(writer_store, "hold_human_decision_write_fence", None)
+    assert callable(hold_fence), "durable human-decision write fence is absent"
+    writer_entered = threading.Event()
+    contender_sql_entered = threading.Event()
+    release_writer = threading.Event()
+    original_sqlite_connection = contender_store._sqlite_connection
+
+    @contextmanager
+    def _witnessed_sqlite_connection():
+        contender_sql_entered.set()
+        with original_sqlite_connection() as connection:
+            yield connection
+
+    monkeypatch.setattr(
+        contender_store,
+        "_sqlite_connection",
+        _witnessed_sqlite_connection,
+    )
+
+    def _writer():
+        with hold_fence(
+            tenant_id="tenant-a",
+            governed_action_key=governed_action_key,
+            reservation_id=reserved.reservation.reservation_id,
+            reservation_version=reserved.reservation.reservation_version,
+            binding_sha256=binding_sha256,
+            acquired_at=started_at + timedelta(microseconds=500_000),
+            expected_record_valid_until=valid_until,
+        ) as fence:
+            writer_entered.set()
+            assert release_writer.wait(timeout=10)
+            return fence.commit(
+                record_ref="sha256:" + "c" * 64,
+                record_sha256="sha256:" + "c" * 64,
+                durable_event_id="event-paused-writer",
+                committed_at=started_at + timedelta(microseconds=750_000),
+            )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        writer_future = executor.submit(_writer)
+        assert writer_entered.wait(timeout=10)
+        contender_future = executor.submit(
+            contender_store.reserve_human_decision_action,
+            tenant_id="tenant-a",
+            governed_action_key=governed_action_key,
+            reservation_id="reservation-contender",
+            binding_sha256=binding_sha256,
+            now=started_at + timedelta(seconds=2),
+            lease_seconds=1,
+            record_valid_until=valid_until,
+        )
+        assert contender_sql_entered.wait(timeout=10)
+        assert not contender_future.done()
+        release_writer.set()
+        committed = writer_future.result(timeout=10)
+        contender = contender_future.result(timeout=10)
+
+    assert committed.state == "committed"
+    assert contender.acquired is False
+    assert contender.issue_code == "DS9-OVERLAPPING-REISSUE"
+    assert contender.reservation.record_ref == "sha256:" + "c" * 64
+
+
+def test_human_decision_fence_reuses_store_transaction_for_durable_event(
+    tmp_path,
+) -> None:
+    """The existing diagnostic log and reservation finalize in one SQLite lane."""
+
+    from polisyos.runtime.quality.diagnostic_events import (
+        DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+        DiagnosticEvent,
+    )
+
+    store = _make_store(tmp_path)
+    artifact_store = FileSystemCAS(tmp_path / "human-decision-event-lane-cas")
+    event_log = RuntimeDiagnosticEventLog(store=store, artifact_store=artifact_store)
+    sink = HumanDecisionAuthoritySink(
+        artifact_store=artifact_store,
+        event_log=event_log,
+        reservation_store=store,
+    )
+    started_at = datetime.now(UTC).replace(microsecond=0)
+    valid_until = started_at + timedelta(hours=1)
+    governed_action_key = "sha256:" + "d" * 64
+    binding_sha256 = "sha256:" + "e" * 64
+    reserved = sink.reserve_action(
+        tenant_id="tenant-a",
+        governed_action_key=governed_action_key,
+        reservation_id="reservation-shared-event-lane",
+        binding_sha256=binding_sha256,
+        now=started_at,
+        lease_seconds=30,
+        record_valid_until=valid_until,
+    )
+    event = DiagnosticEvent(
+        event_id="evt_ds9_shared_transaction_lane",
+        event_source="polisyos.runtime.control",
+        event_type="polisyos.runtime.diagnostic.cas_write.v1",
+        event_time=started_at,
+        event_subject="run/run-ds9/job/job-ds9/phase/human_decision",
+        schema_name=DIAGNOSTIC_EVENT_SCHEMA_NAME,
+        schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
+        trace_id="trace-ds9-shared-lane",
+        span_id="span-ds9-shared-lane",
+        parent_span_id=None,
+        run_id="run-ds9",
+        job_id="job-ds9",
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        producer_component="polisyos.runtime.human_decisions",
+        producer_version="2026.08.24+ds9-c01",
+        execution_profile="governed",
+        phase="human_decision_record",
+        state_before="reserved",
+        state_after="committed",
+        payload_ref=None,
+        artifact_refs=("sha256:" + "f" * 64,),
+        input_refs=(governed_action_key,),
+        blocking_status="non_blocking",
+        redaction_policy_ref="redaction-policy/runtime-diagnostics-v1",
+        duplicate_of=None,
+        dedupe_key="ds9-shared-transaction-lane",
+        sampling_decision="always_record",
+        sampling_rate=1.0,
+    )
+
+    with sink.hold_write_fence(
+        tenant_id="tenant-a",
+        governed_action_key=governed_action_key,
+        reservation_id=reserved.reservation.reservation_id,
+        reservation_version=reserved.reservation.reservation_version,
+        binding_sha256=binding_sha256,
+        acquired_at=started_at + timedelta(seconds=1),
+        expected_record_valid_until=valid_until,
+    ) as fence:
+        event_log.append(event)
+        assert len(event_log.list_events(event_id=event.event_id)) == 1
+        committed = fence.commit(
+            record_ref="sha256:" + "f" * 64,
+            record_sha256="sha256:" + "f" * 64,
+            durable_event_id=event.event_id,
+            committed_at=started_at + timedelta(seconds=1),
+        )
+
+    assert committed.state == "committed"
+    assert len(event_log.list_events(event_id=event.event_id)) == 1
 
 
 def test_control_plane_store_tracks_worker_leases_and_outbox(tmp_path) -> None:

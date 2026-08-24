@@ -29,6 +29,7 @@ LAYER2_S7_DELEGATION_SCHEMA_VERSION = "policyos.policy_design_case.layer2_s7_del
 LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION = (
     "policyos.policy_design_case.layer2_s7_delegation.v2"
 )
+HUMAN_DECISION_RECORD_V2 = "policyos.runtime.human_decision_record.v2"
 
 DelegationInteractionMode = Literal[
     "ai_follow",
@@ -65,6 +66,26 @@ DelegationDisposition = Literal[
     "blocked_ai_first_forbidden",
 ]
 ResponsibilityIntegrityStatus = Literal["pass", "limit", "block"]
+HumanDecisionRecordMode = Literal["ordinary", "override", "blocking"]
+HumanDecisionRecordSourceKind = Literal[
+    "agent_action_authority",
+    "production_approval",
+]
+HumanDecisionRecordPredicate = Literal[
+    "identity_permission",
+    "role_mandate_or_basis",
+    "operation_accountability",
+    "currentness",
+    "right_decision_time",
+    "reviewer_independence_change",
+    "evidence_exposure",
+    "presentation_format_channel",
+    "source_producer_trust",
+]
+HumanDecisionRecordPredicateProvenance = Literal[
+    "recomputed",
+    "independently_reconciled",
+]
 DecisionNeedReason = Literal[
     "high_stakes",
     "value_laden",
@@ -100,6 +121,57 @@ _ACTIONS: tuple[DecisionAction, ...] = (
     "reject",
     "revise_scope",
     "escalate",
+)
+_HUMAN_DECISION_PREDICATES: tuple[HumanDecisionRecordPredicate, ...] = (
+    "identity_permission",
+    "role_mandate_or_basis",
+    "operation_accountability",
+    "currentness",
+    "right_decision_time",
+    "reviewer_independence_change",
+    "evidence_exposure",
+    "presentation_format_channel",
+    "source_producer_trust",
+)
+_HUMAN_DECISION_V2_EXTENSION_FIELDS = (
+    "tenant_id",
+    "run_id",
+    "decision_attempt_id",
+    "governed_action_key",
+    "binding_sha256",
+    "source_kind",
+    "source_ref",
+    "source_digest",
+    "decision_request_digest",
+    "basis_ref",
+    "basis_digest",
+    "principal_binding_ref",
+    "principal_binding_digest",
+    "reviewer_separation_ref",
+    "reviewer_separation_digest",
+    "presentation_contract_ref",
+    "presentation_contract_digest",
+    "exposure_session_ref",
+    "exposure_session_digest",
+    "canonical_actor",
+    "decision_mode",
+    "dissent_statement",
+    "override_reason",
+    "blocking_reason",
+    "predicate_receipts",
+    "exposure_event_refs",
+    "exposure_artifact_digests",
+    "verifier_epoch",
+    "requested_at",
+    "observed_at",
+    "recorded_at",
+    "valid_from",
+    "valid_until",
+    "reservation_id",
+    "reservation_version",
+    "custody_signer_identity",
+    "custody_key_id",
+    "custody_boundary",
 )
 _CRITICAL_REASONS = frozenset(
     {
@@ -407,6 +479,28 @@ class HumanDecisionRequest(Layer2ReadinessModel):
     created_at: AwareDatetime = _CREATED_AT
 
 
+class HumanDecisionCanonicalActor(Layer2ReadinessModel):
+    """Actor identity derived only from a verified principal-binding artifact."""
+
+    issuer: str = Field(..., min_length=1, max_length=300)
+    audience: str = Field(..., min_length=1, max_length=300)
+    subject: str = Field(..., min_length=1, max_length=300)
+    tenant_id: str = Field(..., min_length=1, max_length=200)
+    actor_ref: str = Field(..., min_length=1, max_length=300)
+    signing_key_id: str = Field(..., min_length=1, max_length=200)
+    signed_roles: tuple[str, ...] = Field(..., min_length=1, max_length=20)
+
+
+class HumanDecisionPredicateReceipt(Layer2ReadinessModel):
+    """One recomputed or independently reconciled pre-action predicate."""
+
+    predicate: HumanDecisionRecordPredicate
+    satisfied: Literal[True]
+    provenance: HumanDecisionRecordPredicateProvenance
+    evidence_refs: tuple[str, ...] = Field(..., min_length=1, max_length=80)
+    reason: str = Field(..., min_length=1, max_length=500)
+
+
 class HumanDecisionRecord(Layer2ReadinessModel):
     """Accountable S7 record of a human decision within a rights matrix."""
 
@@ -431,6 +525,228 @@ class HumanDecisionRecord(Layer2ReadinessModel):
     provenance_refs: list[str] = Field(default_factory=list, max_length=40)
     rule_version_ref: str = Field(..., min_length=1, max_length=300)
     created_at: AwareDatetime = _CREATED_AT
+
+    # V2 is a strict superset.  Every field stays absent from historical v1
+    # serialization, so old content hashes and fixtures remain stable.
+    tenant_id: str | None = Field(default=None, min_length=1, max_length=200)
+    run_id: str | None = Field(default=None, min_length=1, max_length=200)
+    decision_attempt_id: str | None = Field(default=None, min_length=1, max_length=200)
+    governed_action_key: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    binding_sha256: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    source_kind: HumanDecisionRecordSourceKind | None = None
+    source_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    source_digest: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    decision_request_digest: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    basis_ref: str | None = Field(default=None, min_length=1, max_length=300)
+    basis_digest: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    principal_binding_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    principal_binding_digest: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    reviewer_separation_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    reviewer_separation_digest: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    presentation_contract_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    presentation_contract_digest: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    exposure_session_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    exposure_session_digest: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    canonical_actor: HumanDecisionCanonicalActor | None = None
+    decision_mode: HumanDecisionRecordMode | None = None
+    dissent_statement: str | None = Field(default=None, min_length=1, max_length=1_000)
+    override_reason: str | None = Field(default=None, min_length=1, max_length=1_000)
+    blocking_reason: str | None = Field(default=None, min_length=1, max_length=1_000)
+    predicate_receipts: tuple[HumanDecisionPredicateReceipt, ...] | None = Field(
+        default=None,
+        min_length=9,
+        max_length=9,
+    )
+    exposure_event_refs: tuple[str, ...] | None = Field(
+        default=None,
+        min_length=1,
+        max_length=80,
+    )
+    exposure_artifact_digests: tuple[str, ...] | None = Field(
+        default=None,
+        min_length=1,
+        max_length=80,
+    )
+    verifier_epoch: str | None = Field(default=None, min_length=1, max_length=200)
+    requested_at: AwareDatetime | None = None
+    observed_at: AwareDatetime | None = None
+    recorded_at: AwareDatetime | None = None
+    valid_from: AwareDatetime | None = None
+    valid_until: AwareDatetime | None = None
+    reservation_id: str | None = Field(default=None, min_length=1, max_length=200)
+    reservation_version: int | None = Field(default=None, ge=1)
+    custody_signer_identity: str | None = Field(default=None, min_length=1, max_length=300)
+    custody_key_id: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    custody_boundary: AuthorityBoundary | None = None
+
+    @model_validator(mode="after")
+    def _validate_record_version(self) -> HumanDecisionRecord:
+        if self.schema_version == LAYER2_S7_DELEGATION_SCHEMA_VERSION:
+            unexpected = [
+                field_name
+                for field_name in _HUMAN_DECISION_V2_EXTENSION_FIELDS
+                if getattr(self, field_name) is not None
+            ]
+            if unexpected:
+                raise ValueError(
+                    "historical human-decision v1 cannot carry v2 fields: " + ", ".join(unexpected)
+                )
+            return self
+        if self.schema_version != HUMAN_DECISION_RECORD_V2:
+            raise ValueError("unknown human-decision record schema version")
+        missing = [
+            field_name
+            for field_name in _HUMAN_DECISION_V2_EXTENSION_FIELDS
+            if field_name not in {"override_reason", "blocking_reason"}
+            and getattr(self, field_name) is None
+        ]
+        if missing:
+            raise ValueError("human-decision v2 fields missing: " + ", ".join(missing))
+        return self._validate_v2_semantics()
+
+    def _validate_v2_semantics(self) -> HumanDecisionRecord:
+        actor = self.canonical_actor
+        receipts = self.predicate_receipts
+        requested_at = self.requested_at
+        observed_at = self.observed_at
+        recorded_at = self.recorded_at
+        valid_from = self.valid_from
+        valid_until = self.valid_until
+        custody_boundary = self.custody_boundary
+        if (
+            actor is None
+            or receipts is None
+            or requested_at is None
+            or observed_at is None
+            or recorded_at is None
+            or valid_from is None
+            or valid_until is None
+            or custody_boundary is None
+        ):
+            raise ValueError("human-decision v2 invariant fields are missing")
+        if tuple(receipt.predicate for receipt in receipts) != _HUMAN_DECISION_PREDICATES:
+            raise ValueError("human-decision v2 requires all nine ordered predicates")
+        if actor.actor_ref != self.actor_ref or actor.tenant_id != self.tenant_id:
+            raise ValueError("canonical actor does not match record identity binding")
+        if self.actor_role not in actor.signed_roles:
+            raise ValueError("record actor role is absent from signed principal roles")
+        if self.custody_signer_identity == self.actor_ref:
+            raise ValueError("PolicyOS custody cannot be represented as the human signature")
+        if actor.signing_key_id == self.custody_key_id:
+            raise ValueError("human actor key cannot alias the PolicyOS custody key")
+        if self.source_ref != self.source_digest:
+            raise ValueError("human-decision source ref/digest mismatch")
+        if self.basis_ref != self.basis_digest:
+            raise ValueError("human-decision basis ref/digest mismatch")
+        for ref_name, digest_name in (
+            ("principal_binding_ref", "principal_binding_digest"),
+            ("reviewer_separation_ref", "reviewer_separation_digest"),
+            ("presentation_contract_ref", "presentation_contract_digest"),
+            ("exposure_session_ref", "exposure_session_digest"),
+        ):
+            if getattr(self, ref_name) != getattr(self, digest_name):
+                raise ValueError(f"human-decision {ref_name} is not content-bound")
+        if not requested_at <= observed_at <= self.decided_at <= recorded_at:
+            raise ValueError("human-decision time roles are out of order")
+        if not valid_from <= self.decided_at <= recorded_at < valid_until:
+            raise ValueError("human-decision falls outside its authoritative interval")
+        if len(self.exposure_event_refs or ()) != len(self.exposure_artifact_digests or ()) or any(
+            not isinstance(value, str)
+            or len(value) != 71
+            or not value.startswith("sha256:")
+            or any(character not in "0123456789abcdef" for character in value[7:])
+            for value in (
+                *(self.exposure_event_refs or ()),
+                *(self.exposure_artifact_digests or ()),
+            )
+        ):
+            raise ValueError("human-decision exposure refs are not exact content digests")
+        if len(set(self.exposure_event_refs or ())) != len(self.exposure_event_refs or ()):
+            raise ValueError("human-decision exposure event refs must be unique")
+        if (
+            self.active_choice is not True
+            or not self.five_rights_check.all_pass()
+            or self.responsibility_integrity.status != "pass"
+        ):
+            raise ValueError("human-decision v2 requires active responsibility integrity")
+        if (
+            self.authority_boundary.source_authority != "human_governance"
+            or "human_decision_act" not in self.authority_boundary.authoritative_for
+        ):
+            raise ValueError("human-decision act authority is not human-governed")
+        if self.decision_mode == "ordinary":
+            if (
+                self.decision_action_exercised == "reject"
+                or self.override_reason is not None
+                or self.blocking_reason is not None
+            ):
+                raise ValueError("ordinary decision cannot carry override/blocking reasons")
+        elif self.decision_mode == "override":
+            if self.decision_action_exercised != "approve" or not self.override_reason:
+                raise ValueError("override requires approve plus an override reason")
+            if self.blocking_reason is not None:
+                raise ValueError("override cannot carry a blocking reason")
+        elif (
+            self.decision_action_exercised != "reject"
+            or not self.blocking_reason
+            or self.override_reason is not None
+        ):
+            raise ValueError("blocking requires reject plus a blocking reason")
+        if (
+            custody_boundary.source_authority != "deterministic_producer"
+            or custody_boundary.posture not in {"governed", "production"}
+            or "human_decision_record_custody" not in custody_boundary.authoritative_for
+            or "human_signature" not in custody_boundary.may_not_use_for
+        ):
+            raise ValueError("human-decision custody boundary is not purpose-limited")
+        return self
+
+    @model_serializer(mode="wrap")
+    def _serialize_versioned(
+        self,
+        handler: SerializerFunctionWrapHandler,
+    ) -> dict[str, object]:
+        payload = handler(self)
+        if self.schema_version == LAYER2_S7_DELEGATION_SCHEMA_VERSION:
+            for field_name in _HUMAN_DECISION_V2_EXTENSION_FIELDS:
+                payload.pop(field_name, None)
+        return payload
 
 
 class DelegationNegativeControlResult(Layer2ReadinessModel):
@@ -781,9 +1097,7 @@ def evaluate_delegation_for_case(
         record_valid = False
     else:
         fallback_disposition = (
-            "no_interrupt"
-            if "low_voi_no_interrupt" in need_reasons
-            else "request_human_decision"
+            "no_interrupt" if "low_voi_no_interrupt" in need_reasons else "request_human_decision"
         )
         disposition = str(expert_label.get("expected_disposition", fallback_disposition))
         status = "pass" if disposition in {"recorded_valid_decision", "no_interrupt"} else "limit"
@@ -847,9 +1161,7 @@ def s7_delegation_integrity(
             "workflow_only_summary_false_clear_count": 0,
         }
     correct = sum(
-        1
-        for row in rows
-        if row.get("predicted_disposition") == row.get("expected_disposition")
+        1 for row in rows if row.get("predicted_disposition") == row.get("expected_disposition")
     )
     responsibility_ok = sum(
         1

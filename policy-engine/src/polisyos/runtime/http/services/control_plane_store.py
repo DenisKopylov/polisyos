@@ -9,13 +9,13 @@ import os
 import sqlite3
 import threading
 import uuid
-from collections.abc import Iterator, Mapping
+from collections.abc import Callable, Iterator, Mapping
 from contextlib import contextmanager
 from copy import deepcopy
 from dataclasses import dataclass
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
@@ -57,6 +57,12 @@ def _iso(dt: datetime | None) -> str | None:
     return dt.astimezone(timezone.utc).replace(microsecond=0).isoformat()
 
 
+def _human_decision_iso(dt: datetime) -> str:
+    """Serialize DS9 reservation time without collapsing CAS boundaries."""
+
+    return dt.astimezone(timezone.utc).isoformat(timespec="microseconds")
+
+
 def _parse_dt(value: Any) -> datetime | None:
     if not value:
         return None
@@ -65,6 +71,19 @@ def _parse_dt(value: Any) -> datetime | None:
     if isinstance(value, str):
         return datetime.fromisoformat(value.replace("Z", "+00:00")).astimezone(timezone.utc)
     return None
+
+
+def _required_aware_datetime(value: datetime, *, field_name: str) -> datetime:
+    if not isinstance(value, datetime) or value.tzinfo is None:
+        raise TypeError(f"{field_name} must be a timezone-aware datetime")
+    return value.astimezone(timezone.utc)
+
+
+def _is_sha256_ref(value: object) -> bool:
+    if not isinstance(value, str) or not value.startswith("sha256:"):
+        return False
+    digest = value[7:]
+    return len(digest) == 64 and all(character in "0123456789abcdef" for character in digest)
 
 
 def _job_event_topic(event_type: str) -> str:
@@ -277,11 +296,7 @@ def _derive_failure_envelope(record: ControlJobRecord) -> ControlFailureEnvelope
             run_id=_string_or_none(failure_payload.get("run_id")) or record.run_id,
             job_id=_string_or_none(failure_payload.get("job_id")) or record.job_id,
             artifact_refs=dict(artifact_refs) if isinstance(artifact_refs, Mapping) else {},
-            variant_failures=[
-                dict(item)
-                for item in variant_failures
-                if isinstance(item, Mapping)
-            ],
+            variant_failures=[dict(item) for item in variant_failures if isinstance(item, Mapping)],
             operator_diagnostic=operator_diagnostic,
         )
     if record.state != "failed" and not record.error_message:
@@ -338,8 +353,7 @@ def _quality_scorecard_payload(progress: Mapping[str, Any]) -> Mapping[str, Any]
         if isinstance(payload, Mapping):
             return payload
     if any(
-        key in progress
-        for key in ("quality_status", "quality_gates", "blocking_quality_failures")
+        key in progress for key in ("quality_status", "quality_gates", "blocking_quality_failures")
     ):
         return progress
     return None
@@ -963,6 +977,256 @@ class ControlDeadLetterRecord:
     acknowledged_by: str | None
 
 
+HumanDecisionReservationState = Literal[
+    "reserved",
+    "committed",
+    "recovery_required",
+    "reconciled_empty",
+    "reconciled_orphan",
+    "expired",
+]
+
+
+@dataclass(frozen=True)
+class HumanDecisionReservationRecord:
+    """One immutable-generation reservation for a governed action."""
+
+    tenant_id: str
+    governed_action_key: str
+    reservation_id: str
+    reservation_version: int
+    binding_sha256: str
+    state: HumanDecisionReservationState
+    reserved_at: datetime
+    lease_expires_at: datetime
+    record_valid_until: datetime
+    record_ref: str | None
+    record_sha256: str | None
+    durable_event_id: str | None
+    committed_at: datetime | None
+    reconciled_at: datetime | None
+
+
+@dataclass(frozen=True)
+class HumanDecisionReservationResult:
+    """Return a reservation winner or one typed fail-closed disposition."""
+
+    acquired: bool
+    issue_code: (
+        Literal[
+            "DS9-OVERLAPPING-REISSUE",
+            "DS9-RESERVATION-RECOVERY-REQUIRED",
+        ]
+        | None
+    )
+    reservation: HumanDecisionReservationRecord
+
+
+@dataclass
+class HumanDecisionWriteFence:
+    """Transaction-scoped CAS for one exact reserved decision generation."""
+
+    reservation: HumanDecisionReservationRecord
+    _execute: Callable[[str, tuple[Any, ...]], Any]
+    _load: Callable[[], Any]
+    _finalized: bool = False
+
+    def commit(
+        self,
+        *,
+        record_ref: str,
+        record_sha256: str,
+        durable_event_id: str,
+        committed_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Commit exact record/event refs while the generation remains fenced."""
+
+        if self._finalized:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        if not _is_sha256_ref(record_ref) or record_ref != record_sha256:
+            raise ValueError("human-decision record ref/digest binding is invalid")
+        if not durable_event_id.strip():
+            raise ValueError("human-decision durable event id is required")
+        committed = _required_aware_datetime(committed_at, field_name="committed_at")
+        row = self.reservation
+        cursor = self._execute(
+            """
+            UPDATE runtime_human_decision_reservations
+            SET state = 'committed', record_ref = ?, record_sha256 = ?,
+                durable_event_id = ?, committed_at = ?
+            WHERE tenant_id = ? AND governed_action_key = ?
+              AND reservation_id = ? AND reservation_version = ?
+              AND binding_sha256 = ? AND state = 'reserved'
+              AND record_ref IS NULL AND record_sha256 IS NULL
+              AND durable_event_id IS NULL AND committed_at IS NULL
+              AND reconciled_at IS NULL
+              AND lease_expires_at > ? AND record_valid_until > ?
+              AND record_valid_until = ?
+            """,
+            (
+                record_ref,
+                record_sha256,
+                durable_event_id,
+                _human_decision_iso(committed),
+                row.tenant_id,
+                row.governed_action_key,
+                row.reservation_id,
+                row.reservation_version,
+                row.binding_sha256,
+                _human_decision_iso(committed),
+                _human_decision_iso(committed),
+                _human_decision_iso(row.record_valid_until),
+            ),
+        )
+        if cursor.rowcount != 1:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        loaded = self._load()
+        if loaded is None:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        result = ControlPlaneStore._row_to_human_decision_reservation(loaded)
+        if (
+            result.state != "committed"
+            or result.record_ref != record_ref
+            or result.record_sha256 != record_sha256
+            or result.durable_event_id != durable_event_id
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        self._finalized = True
+        return result
+
+    def recover(
+        self,
+        *,
+        record_ref: str | None,
+        record_sha256: str | None,
+        durable_event_id: str | None,
+    ) -> HumanDecisionReservationRecord:
+        """Persist exact partial refs as recovery-required before releasing the fence."""
+
+        if self._finalized:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        supplied = (record_ref, record_sha256, durable_event_id)
+        if any(value is not None for value in supplied) and (
+            not all(isinstance(value, str) and value for value in supplied)
+            or not _is_sha256_ref(record_ref)
+            or record_ref != record_sha256
+        ):
+            raise ValueError("human-decision orphan record binding is invalid")
+        row = self.reservation
+        cursor = self._execute(
+            """
+            UPDATE runtime_human_decision_reservations
+            SET state = 'recovery_required', record_ref = ?, record_sha256 = ?,
+                durable_event_id = ?
+            WHERE tenant_id = ? AND governed_action_key = ?
+              AND reservation_id = ? AND reservation_version = ?
+              AND binding_sha256 = ? AND state = 'reserved'
+              AND record_ref IS NULL AND record_sha256 IS NULL
+              AND durable_event_id IS NULL AND committed_at IS NULL
+              AND reconciled_at IS NULL
+            """,
+            (
+                record_ref,
+                record_sha256,
+                durable_event_id,
+                row.tenant_id,
+                row.governed_action_key,
+                row.reservation_id,
+                row.reservation_version,
+                row.binding_sha256,
+            ),
+        )
+        if cursor.rowcount != 1:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        loaded = self._load()
+        if loaded is None:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        result = ControlPlaneStore._row_to_human_decision_reservation(loaded)
+        if (
+            result.state != "recovery_required"
+            or result.record_ref != record_ref
+            or result.record_sha256 != record_sha256
+            or result.durable_event_id != durable_event_id
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        self._finalized = True
+        return result
+
+
+@dataclass
+class HumanDecisionRecoveryFence:
+    """Transaction-scoped CAS for one exact null-ref crashed generation."""
+
+    reservation: HumanDecisionReservationRecord
+    _execute: Callable[[str, tuple[Any, ...]], Any]
+    _load: Callable[[], Any]
+    _finalized: bool = False
+
+    def reconcile_orphan(
+        self,
+        *,
+        record_ref: str,
+        record_sha256: str,
+        durable_event_id: str,
+        reconciled_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Attach verified refs and classify the crashed generation as historical."""
+
+        if self._finalized:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        if not _is_sha256_ref(record_ref) or record_ref != record_sha256:
+            raise ValueError("human-decision orphan record binding is invalid")
+        if not durable_event_id.strip():
+            raise ValueError("human-decision durable event id is required")
+        reconciled = _required_aware_datetime(
+            reconciled_at,
+            field_name="reconciled_at",
+        )
+        row = self.reservation
+        cursor = self._execute(
+            """
+            UPDATE runtime_human_decision_reservations
+            SET state = 'reconciled_orphan', record_ref = ?, record_sha256 = ?,
+                durable_event_id = ?, reconciled_at = ?
+            WHERE tenant_id = ? AND governed_action_key = ?
+              AND reservation_id = ? AND reservation_version = ?
+              AND binding_sha256 = ? AND record_valid_until = ?
+              AND state = 'recovery_required'
+              AND record_ref IS NULL AND record_sha256 IS NULL
+              AND durable_event_id IS NULL AND committed_at IS NULL
+              AND reconciled_at IS NULL
+            """,
+            (
+                record_ref,
+                record_sha256,
+                durable_event_id,
+                _human_decision_iso(reconciled),
+                row.tenant_id,
+                row.governed_action_key,
+                row.reservation_id,
+                row.reservation_version,
+                row.binding_sha256,
+                _human_decision_iso(row.record_valid_until),
+            ),
+        )
+        if cursor.rowcount != 1:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        loaded = self._load()
+        if loaded is None:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        result = ControlPlaneStore._row_to_human_decision_reservation(loaded)
+        if (
+            result.state != "reconciled_orphan"
+            or result.record_ref != record_ref
+            or result.record_sha256 != record_sha256
+            or result.durable_event_id != durable_event_id
+            or result.committed_at is not None
+            or result.reconciled_at != reconciled
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        self._finalized = True
+        return result
+
 class ControlPlaneStore:
     """Store control jobs and leases with a backend-specific SQL schema.
 
@@ -982,6 +1246,7 @@ class ControlPlaneStore:
         self._sqlite_path = Path(sqlite_path)
         self._postgres_dsn = postgres_dsn
         self._lock = threading.RLock()
+        self._human_decision_transaction = threading.local()
         self._sqlite_timeout_seconds = max(
             float(os.getenv("POLISYOS_CONTROL_SQLITE_TIMEOUT_SECONDS", "0.5")),
             0.05,
@@ -1148,6 +1413,865 @@ class ControlPlaneStore:
             cur.execute(self._translate_sql(insert_sql), params)
             return cur.rowcount == 1
 
+    def reserve_human_decision_action(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        binding_sha256: str,
+        now: datetime,
+        lease_seconds: int,
+        record_valid_until: datetime,
+    ) -> HumanDecisionReservationResult:
+        """Atomically reserve the sole live record for one governed action.
+
+        An expired partial attempt is moved to ``recovery_required`` and never
+        replaced in the same call.  A committed generation can be replaced only
+        after its record validity ends.  The generation number is stable across
+        state transitions and advances only for a new reservation.
+        """
+
+        self._validate_human_decision_reservation_input(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            binding_sha256=binding_sha256,
+            now=now,
+            lease_seconds=lease_seconds,
+            record_valid_until=record_valid_until,
+        )
+        instant = now.astimezone(timezone.utc)
+        lease_expires_at = instant + timedelta(seconds=lease_seconds)
+        valid_until = record_valid_until.astimezone(timezone.utc)
+        if self.backend == "sqlite":
+            return self._reserve_human_decision_sqlite(
+                tenant_id=tenant_id,
+                governed_action_key=governed_action_key,
+                reservation_id=reservation_id,
+                binding_sha256=binding_sha256,
+                now=instant,
+                lease_expires_at=lease_expires_at,
+                record_valid_until=valid_until,
+            )
+        return self._reserve_human_decision_postgres(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            binding_sha256=binding_sha256,
+            now=instant,
+            lease_expires_at=lease_expires_at,
+            record_valid_until=valid_until,
+        )
+
+    def get_human_decision_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+    ) -> HumanDecisionReservationRecord | None:
+        """Derive the newest reservation generation without a mutable latest row."""
+
+        row = self._fetchone(
+            self._human_decision_reservation_select_sql(),
+            (tenant_id, governed_action_key),
+        )
+        return self._row_to_human_decision_reservation(row) if row is not None else None
+
+    def get_human_decision_reservation_generation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_version: int,
+    ) -> HumanDecisionReservationRecord | None:
+        """Return one exact historical generation by its immutable version."""
+
+        row = self._fetchone(
+            self._human_decision_reservation_generation_select_sql(),
+            (tenant_id, governed_action_key, reservation_version),
+        )
+        return self._row_to_human_decision_reservation(row) if row is not None else None
+
+    @contextmanager
+    def hold_human_decision_write_fence(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        binding_sha256: str,
+        acquired_at: datetime,
+        expected_record_valid_until: datetime,
+    ) -> Iterator[HumanDecisionWriteFence]:
+        """Lock one exact empty reservation through artifact/event finalization."""
+
+        acquired = _required_aware_datetime(acquired_at, field_name="acquired_at")
+        expected_valid_until = _required_aware_datetime(
+            expected_record_valid_until,
+            field_name="expected_record_valid_until",
+        )
+        if getattr(self._human_decision_transaction, "active", False):
+            raise RuntimeError("nested human-decision write fence is forbidden")
+
+        def _validate(row: Any) -> HumanDecisionReservationRecord:
+            if row is None:
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            record = self._row_to_human_decision_reservation(row)
+            if (
+                record.tenant_id != tenant_id
+                or record.governed_action_key != governed_action_key
+                or record.reservation_id != reservation_id
+                or record.reservation_version != reservation_version
+                or record.binding_sha256 != binding_sha256
+                or record.state != "reserved"
+                or record.record_ref is not None
+                or record.record_sha256 is not None
+                or record.durable_event_id is not None
+                or record.committed_at is not None
+                or record.reconciled_at is not None
+                or record.lease_expires_at <= acquired
+                or record.record_valid_until != expected_valid_until
+                or record.record_valid_until <= acquired
+            ):
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            return record
+
+        params = (tenant_id, governed_action_key, reservation_version)
+        if self.backend == "sqlite":
+            with self._lock, self._sqlite_connection() as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                try:
+                    reservation = _validate(
+                        conn.execute(
+                            self._human_decision_reservation_generation_select_sql(),
+                            params,
+                        ).fetchone()
+                    )
+                    self._human_decision_transaction.active = True
+                    self._human_decision_transaction.sqlite_connection = conn
+                    fence = HumanDecisionWriteFence(
+                        reservation=reservation,
+                        _execute=conn.execute,
+                        _load=lambda: conn.execute(
+                            self._human_decision_reservation_generation_select_sql(),
+                            params,
+                        ).fetchone(),
+                    )
+                    yield fence
+                    if not fence._finalized:
+                        raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                    conn.commit()
+                except Exception:
+                    conn.rollback()
+                    raise
+                finally:
+                    self._human_decision_transaction.active = False
+                    self._human_decision_transaction.sqlite_connection = None
+            return
+
+        with self._postgres_cursor() as cur:
+            reservation = _validate(
+                self._postgres_reservation_row(
+                    cur,
+                    tenant_id=tenant_id,
+                    governed_action_key=governed_action_key,
+                    reservation_version=reservation_version,
+                    for_update=True,
+                )
+            )
+            self._human_decision_transaction.active = True
+            self._human_decision_transaction.postgres_cursor = cur
+            try:
+                fence = HumanDecisionWriteFence(
+                    reservation=reservation,
+                    _execute=lambda sql, values: cur.execute(
+                        self._translate_sql(sql), values
+                    ),
+                    _load=lambda: self._postgres_reservation_row(
+                        cur,
+                        tenant_id=tenant_id,
+                        governed_action_key=governed_action_key,
+                        reservation_version=reservation_version,
+                        for_update=False,
+                    ),
+                )
+                yield fence
+                if not fence._finalized:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            finally:
+                self._human_decision_transaction.active = False
+                self._human_decision_transaction.postgres_cursor = None
+
+    @contextmanager
+    def hold_human_decision_recovery_fence(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+    ) -> Iterator[HumanDecisionRecoveryFence]:
+        """Lock one exact null-ref recovery generation through event restoration."""
+
+        if getattr(self._human_decision_transaction, "active", False):
+            raise RuntimeError("nested human-decision recovery fence is forbidden")
+
+        def _validate(row: Any) -> HumanDecisionReservationRecord:
+            if row is None:
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            record = self._row_to_human_decision_reservation(row)
+            if (
+                record.tenant_id != tenant_id
+                or record.governed_action_key != governed_action_key
+                or record.reservation_id != reservation_id
+                or record.reservation_version != reservation_version
+                or record.state != "recovery_required"
+                or record.record_ref is not None
+                or record.record_sha256 is not None
+                or record.durable_event_id is not None
+                or record.committed_at is not None
+                or record.reconciled_at is not None
+            ):
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            return record
+
+        params = (tenant_id, governed_action_key, reservation_version)
+        if self.backend == "sqlite":
+            with self._lock, self._sqlite_connection() as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                try:
+                    reservation = _validate(
+                        conn.execute(
+                            self._human_decision_reservation_generation_select_sql(),
+                            params,
+                        ).fetchone()
+                    )
+                    self._human_decision_transaction.active = True
+                    self._human_decision_transaction.sqlite_connection = conn
+                    fence = HumanDecisionRecoveryFence(
+                        reservation=reservation,
+                        _execute=conn.execute,
+                        _load=lambda: conn.execute(
+                            self._human_decision_reservation_generation_select_sql(),
+                            params,
+                        ).fetchone(),
+                    )
+                    yield fence
+                    if not fence._finalized:
+                        raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                    conn.commit()
+                except BaseException:
+                    conn.rollback()
+                    raise
+                finally:
+                    self._human_decision_transaction.active = False
+                    self._human_decision_transaction.sqlite_connection = None
+            return
+
+        with self._postgres_cursor() as cur:
+            reservation = _validate(
+                self._postgres_reservation_row(
+                    cur,
+                    tenant_id=tenant_id,
+                    governed_action_key=governed_action_key,
+                    reservation_version=reservation_version,
+                    for_update=True,
+                )
+            )
+            self._human_decision_transaction.active = True
+            self._human_decision_transaction.postgres_cursor = cur
+            try:
+                fence = HumanDecisionRecoveryFence(
+                    reservation=reservation,
+                    _execute=lambda sql, values: cur.execute(
+                        self._translate_sql(sql), values
+                    ),
+                    _load=lambda: self._postgres_reservation_row(
+                        cur,
+                        tenant_id=tenant_id,
+                        governed_action_key=governed_action_key,
+                        reservation_version=reservation_version,
+                        for_update=False,
+                    ),
+                )
+                yield fence
+                if not fence._finalized:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            finally:
+                self._human_decision_transaction.active = False
+                self._human_decision_transaction.postgres_cursor = None
+
+    def mark_human_decision_recovery_required(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        record_ref: str | None = None,
+        record_sha256: str | None = None,
+        durable_event_id: str | None = None,
+    ) -> HumanDecisionReservationRecord:
+        """Freeze a partial attempt for explicit artifact/event reconciliation."""
+
+        supplied_record = (record_ref, record_sha256, durable_event_id)
+        if any(value is not None for value in supplied_record) and (
+            not all(isinstance(value, str) and value for value in supplied_record)
+            or not _is_sha256_ref(record_ref)
+            or record_ref != record_sha256
+        ):
+            raise ValueError("human-decision orphan record binding is invalid")
+        sql = """
+            UPDATE runtime_human_decision_reservations
+            SET state = 'recovery_required', record_ref = ?, record_sha256 = ?,
+                durable_event_id = ?
+            WHERE tenant_id = ? AND governed_action_key = ?
+              AND reservation_id = ? AND reservation_version = ?
+              AND state = 'reserved'
+              AND record_ref IS NULL AND record_sha256 IS NULL
+              AND durable_event_id IS NULL AND committed_at IS NULL
+              AND reconciled_at IS NULL
+        """
+        params = (
+            record_ref,
+            record_sha256,
+            durable_event_id,
+            tenant_id,
+            governed_action_key,
+            reservation_id,
+            reservation_version,
+        )
+        if self.backend == "sqlite":
+            with self._lock, self._sqlite_connection() as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                cursor = conn.execute(sql, params)
+                if cursor.rowcount != 1:
+                    conn.rollback()
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                row = conn.execute(
+                    self._human_decision_reservation_generation_select_sql(),
+                    (tenant_id, governed_action_key, reservation_version),
+                ).fetchone()
+                conn.commit()
+        else:
+            with self._postgres_cursor() as cur:
+                cur.execute(self._translate_sql(sql), params)
+                if cur.rowcount != 1:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                row = self._postgres_reservation_row(
+                    cur,
+                    tenant_id=tenant_id,
+                    governed_action_key=governed_action_key,
+                    reservation_version=reservation_version,
+                    for_update=False,
+                )
+        record = self._row_to_human_decision_reservation(row) if row is not None else None
+        if (
+            record is None
+            or record.reservation_id != reservation_id
+            or record.reservation_version != reservation_version
+            or record.state != "recovery_required"
+            or record.record_ref != record_ref
+            or record.record_sha256 != record_sha256
+            or record.durable_event_id != durable_event_id
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        return record
+
+    def _reconcile_orphan_human_decision_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        reconciled_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Mark one independently verified signed orphan as historical."""
+
+        reconciled = _required_aware_datetime(reconciled_at, field_name="reconciled_at")
+        sql = """
+            UPDATE runtime_human_decision_reservations
+            SET state = 'reconciled_orphan', reconciled_at = ?
+            WHERE tenant_id = ? AND governed_action_key = ?
+              AND reservation_id = ? AND reservation_version = ?
+              AND state = 'recovery_required'
+              AND record_ref IS NOT NULL AND record_sha256 IS NOT NULL
+              AND durable_event_id IS NOT NULL
+        """
+        self._execute(
+            sql,
+            (
+                _human_decision_iso(reconciled),
+                tenant_id,
+                governed_action_key,
+                reservation_id,
+                reservation_version,
+            ),
+        )
+        record = self.get_human_decision_reservation_generation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_version=reservation_version,
+        )
+        if (
+            record is None
+            or record.reservation_id != reservation_id
+            or record.state != "reconciled_orphan"
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        return record
+
+    def _reconcile_empty_human_decision_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        reconciled_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Admit a proven-empty crashed generation so a later call may replace it."""
+
+        reconciled = _required_aware_datetime(reconciled_at, field_name="reconciled_at")
+        sql = """
+            UPDATE runtime_human_decision_reservations
+            SET state = 'reconciled_empty', reconciled_at = ?,
+                record_ref = NULL, record_sha256 = NULL,
+                durable_event_id = NULL, committed_at = NULL
+            WHERE tenant_id = ? AND governed_action_key = ?
+              AND reservation_id = ? AND reservation_version = ?
+              AND state = 'recovery_required'
+              AND record_ref IS NULL AND record_sha256 IS NULL
+              AND durable_event_id IS NULL AND committed_at IS NULL
+              AND reconciled_at IS NULL
+        """
+        params = (
+            _human_decision_iso(reconciled),
+            tenant_id,
+            governed_action_key,
+            reservation_id,
+            reservation_version,
+        )
+        if self.backend == "sqlite":
+            with self._lock, self._sqlite_connection() as conn:
+                conn.execute("BEGIN IMMEDIATE")
+                cursor = conn.execute(sql, params)
+                if cursor.rowcount != 1:
+                    conn.execute("ROLLBACK")
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                row = conn.execute(
+                    self._human_decision_reservation_generation_select_sql(),
+                    (tenant_id, governed_action_key, reservation_version),
+                ).fetchone()
+                conn.commit()
+        else:
+            with self._postgres_cursor() as cur:
+                cur.execute(self._translate_sql(sql), params)
+                if cur.rowcount != 1:
+                    raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+                row = self._postgres_reservation_row(
+                    cur,
+                    tenant_id=tenant_id,
+                    governed_action_key=governed_action_key,
+                    reservation_version=reservation_version,
+                    for_update=False,
+                )
+        if row is None:  # pragma: no cover - exact update and transaction invariant
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        return self._row_to_human_decision_reservation(row)
+
+    def _reserve_human_decision_sqlite(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        binding_sha256: str,
+        now: datetime,
+        lease_expires_at: datetime,
+        record_valid_until: datetime,
+    ) -> HumanDecisionReservationResult:
+        with self._lock, self._sqlite_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+            row = conn.execute(
+                self._human_decision_reservation_select_sql(),
+                (tenant_id, governed_action_key),
+            ).fetchone()
+            if row is None:
+                self._insert_human_decision_reservation(
+                    conn.execute,
+                    tenant_id=tenant_id,
+                    governed_action_key=governed_action_key,
+                    reservation_id=reservation_id,
+                    reservation_version=1,
+                    binding_sha256=binding_sha256,
+                    now=now,
+                    lease_expires_at=lease_expires_at,
+                    record_valid_until=record_valid_until,
+                    postgres=False,
+                )
+                row = conn.execute(
+                    self._human_decision_reservation_select_sql(),
+                    (tenant_id, governed_action_key),
+                ).fetchone()
+                conn.commit()
+                return HumanDecisionReservationResult(
+                    acquired=True,
+                    issue_code=None,
+                    reservation=self._row_to_human_decision_reservation(row),
+                )
+            current = self._row_to_human_decision_reservation(row)
+            result = self._classify_or_replace_human_decision_reservation(
+                execute=conn.execute,
+                load=lambda: conn.execute(
+                    self._human_decision_reservation_select_sql(),
+                    (tenant_id, governed_action_key),
+                ).fetchone(),
+                current=current,
+                reservation_id=reservation_id,
+                binding_sha256=binding_sha256,
+                now=now,
+                lease_expires_at=lease_expires_at,
+                record_valid_until=record_valid_until,
+                postgres=False,
+            )
+            conn.commit()
+            return result
+
+    def _reserve_human_decision_postgres(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        binding_sha256: str,
+        now: datetime,
+        lease_expires_at: datetime,
+        record_valid_until: datetime,
+    ) -> HumanDecisionReservationResult:
+        with self._postgres_cursor() as cur:
+            insert_sql = self._human_decision_reservation_insert_sql(
+                on_conflict=True,
+            )
+            cur.execute(
+                self._translate_sql(insert_sql),
+                self._human_decision_reservation_insert_params(
+                    tenant_id=tenant_id,
+                    governed_action_key=governed_action_key,
+                    reservation_id=reservation_id,
+                    reservation_version=1,
+                    binding_sha256=binding_sha256,
+                    now=now,
+                    lease_expires_at=lease_expires_at,
+                    record_valid_until=record_valid_until,
+                ),
+            )
+            if cur.rowcount == 1:
+                row = self._postgres_reservation_row(
+                    cur,
+                    tenant_id=tenant_id,
+                    governed_action_key=governed_action_key,
+                    for_update=False,
+                )
+                return HumanDecisionReservationResult(
+                    acquired=True,
+                    issue_code=None,
+                    reservation=self._row_to_human_decision_reservation(row),
+                )
+            row = self._postgres_reservation_row(
+                cur,
+                tenant_id=tenant_id,
+                governed_action_key=governed_action_key,
+                for_update=True,
+            )
+            if row is None:  # pragma: no cover - ON CONFLICT owner row invariant
+                raise RuntimeError("human-decision reservation conflict row disappeared")
+            current = self._row_to_human_decision_reservation(row)
+            return self._classify_or_replace_human_decision_reservation(
+                execute=cur.execute,
+                load=lambda: self._postgres_reservation_row(
+                    cur,
+                    tenant_id=tenant_id,
+                    governed_action_key=governed_action_key,
+                    for_update=False,
+                ),
+                current=current,
+                reservation_id=reservation_id,
+                binding_sha256=binding_sha256,
+                now=now,
+                lease_expires_at=lease_expires_at,
+                record_valid_until=record_valid_until,
+                postgres=True,
+            )
+
+    def _classify_or_replace_human_decision_reservation(
+        self,
+        *,
+        execute: Any,
+        load: Any,
+        current: HumanDecisionReservationRecord,
+        reservation_id: str,
+        binding_sha256: str,
+        now: datetime,
+        lease_expires_at: datetime,
+        record_valid_until: datetime,
+        postgres: bool,
+    ) -> HumanDecisionReservationResult:
+        if current.state == "reserved":
+            if current.lease_expires_at > now:
+                return HumanDecisionReservationResult(
+                    acquired=False,
+                    issue_code="DS9-OVERLAPPING-REISSUE",
+                    reservation=current,
+                )
+            recovery_sql = """
+                UPDATE runtime_human_decision_reservations
+                SET state = 'recovery_required'
+                WHERE tenant_id = ? AND governed_action_key = ?
+                  AND reservation_id = ? AND reservation_version = ?
+                  AND state = 'reserved' AND lease_expires_at <= ?
+            """
+            execute(
+                self._translate_sql(recovery_sql) if postgres else recovery_sql,
+                (
+                    current.tenant_id,
+                    current.governed_action_key,
+                    current.reservation_id,
+                    current.reservation_version,
+                    _human_decision_iso(now),
+                ),
+            )
+            recovered = self._row_to_human_decision_reservation(load())
+            return HumanDecisionReservationResult(
+                acquired=False,
+                issue_code="DS9-RESERVATION-RECOVERY-REQUIRED",
+                reservation=recovered,
+            )
+        if current.state == "recovery_required":
+            return HumanDecisionReservationResult(
+                acquired=False,
+                issue_code="DS9-RESERVATION-RECOVERY-REQUIRED",
+                reservation=current,
+            )
+        if current.state == "committed" and current.record_valid_until > now:
+            return HumanDecisionReservationResult(
+                acquired=False,
+                issue_code="DS9-OVERLAPPING-REISSUE",
+                reservation=current,
+            )
+        next_version = current.reservation_version + 1
+        if current.state == "committed":
+            expire_sql = """
+                UPDATE runtime_human_decision_reservations
+                SET state = 'expired'
+                WHERE tenant_id = ? AND governed_action_key = ?
+                  AND reservation_version = ? AND state = 'committed'
+                  AND record_valid_until <= ?
+            """
+            cursor = execute(
+                self._translate_sql(expire_sql) if postgres else expire_sql,
+                (
+                    current.tenant_id,
+                    current.governed_action_key,
+                    current.reservation_version,
+                    _human_decision_iso(now),
+                ),
+            )
+            if cursor.rowcount != 1:
+                raise RuntimeError("human-decision committed generation expiry CAS failed")
+        cursor = self._insert_human_decision_reservation(
+            execute,
+            tenant_id=current.tenant_id,
+            governed_action_key=current.governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=next_version,
+            binding_sha256=binding_sha256,
+            now=now,
+            lease_expires_at=lease_expires_at,
+            record_valid_until=record_valid_until,
+            postgres=postgres,
+        )
+        if cursor.rowcount != 1:
+            if not postgres:
+                raise RuntimeError("human-decision reservation generation insert lost its CAS")
+            winner = self._row_to_human_decision_reservation(load())
+            return HumanDecisionReservationResult(
+                acquired=False,
+                issue_code=(
+                    "DS9-RESERVATION-RECOVERY-REQUIRED"
+                    if winner.state == "recovery_required"
+                    else "DS9-OVERLAPPING-REISSUE"
+                ),
+                reservation=winner,
+            )
+        replacement = self._row_to_human_decision_reservation(load())
+        return HumanDecisionReservationResult(
+            acquired=True,
+            issue_code=None,
+            reservation=replacement,
+        )
+
+    @staticmethod
+    def _human_decision_reservation_select_sql() -> str:
+        return """
+            SELECT tenant_id, governed_action_key, reservation_id,
+                   reservation_version, binding_sha256, state, reserved_at,
+                   lease_expires_at, record_valid_until, record_ref,
+                   record_sha256, durable_event_id, committed_at, reconciled_at
+            FROM runtime_human_decision_reservations
+            WHERE tenant_id = ? AND governed_action_key = ?
+            ORDER BY reservation_version DESC
+            LIMIT 1
+        """
+
+    @staticmethod
+    def _human_decision_reservation_generation_select_sql() -> str:
+        return """
+            SELECT tenant_id, governed_action_key, reservation_id,
+                   reservation_version, binding_sha256, state, reserved_at,
+                   lease_expires_at, record_valid_until, record_ref,
+                   record_sha256, durable_event_id, committed_at, reconciled_at
+            FROM runtime_human_decision_reservations
+            WHERE tenant_id = ? AND governed_action_key = ?
+              AND reservation_version = ?
+        """
+
+    @staticmethod
+    def _human_decision_reservation_insert_sql(*, on_conflict: bool) -> str:
+        suffix = " ON CONFLICT DO NOTHING" if on_conflict else ""
+        return (
+            "INSERT INTO runtime_human_decision_reservations ("
+            "tenant_id, governed_action_key, reservation_id, reservation_version, "
+            "binding_sha256, state, reserved_at, lease_expires_at, record_valid_until, "
+            "record_ref, record_sha256, durable_event_id, committed_at, reconciled_at"
+            ") VALUES (?, ?, ?, ?, ?, 'reserved', ?, ?, ?, NULL, NULL, NULL, NULL, NULL)" + suffix
+        )
+
+    @staticmethod
+    def _human_decision_reservation_insert_params(
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        binding_sha256: str,
+        now: datetime,
+        lease_expires_at: datetime,
+        record_valid_until: datetime,
+    ) -> tuple[Any, ...]:
+        return (
+            tenant_id,
+            governed_action_key,
+            reservation_id,
+            reservation_version,
+            binding_sha256,
+            _human_decision_iso(now),
+            _human_decision_iso(lease_expires_at),
+            _human_decision_iso(record_valid_until),
+        )
+
+    def _insert_human_decision_reservation(
+        self,
+        execute: Any,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        binding_sha256: str,
+        now: datetime,
+        lease_expires_at: datetime,
+        record_valid_until: datetime,
+        postgres: bool,
+    ) -> Any:
+        sql = self._human_decision_reservation_insert_sql(on_conflict=postgres)
+        if postgres:
+            sql = self._translate_sql(sql)
+        return execute(
+            sql,
+            self._human_decision_reservation_insert_params(
+                tenant_id=tenant_id,
+                governed_action_key=governed_action_key,
+                reservation_id=reservation_id,
+                reservation_version=reservation_version,
+                binding_sha256=binding_sha256,
+                now=now,
+                lease_expires_at=lease_expires_at,
+                record_valid_until=record_valid_until,
+            ),
+        )
+
+    def _postgres_reservation_row(
+        self,
+        cur: Any,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_version: int | None = None,
+        for_update: bool,
+    ) -> dict[str, Any] | None:
+        if reservation_version is None:
+            sql = self._human_decision_reservation_select_sql()
+            params: tuple[Any, ...] = (tenant_id, governed_action_key)
+        else:
+            sql = self._human_decision_reservation_generation_select_sql()
+            params = (tenant_id, governed_action_key, reservation_version)
+        if for_update:
+            sql += " FOR UPDATE"
+        cur.execute(self._translate_sql(sql), params)
+        row = cur.fetchone()
+        if row is None:
+            return None
+        columns = [description[0] for description in (cur.description or ())]
+        return dict(zip(columns, row, strict=True))
+
+    @staticmethod
+    def _row_to_human_decision_reservation(row: Any) -> HumanDecisionReservationRecord:
+        return HumanDecisionReservationRecord(
+            tenant_id=str(row["tenant_id"]),
+            governed_action_key=str(row["governed_action_key"]),
+            reservation_id=str(row["reservation_id"]),
+            reservation_version=int(row["reservation_version"]),
+            binding_sha256=str(row["binding_sha256"]),
+            state=cast("HumanDecisionReservationState", str(row["state"])),
+            reserved_at=cast("datetime", _parse_dt(row["reserved_at"])),
+            lease_expires_at=cast("datetime", _parse_dt(row["lease_expires_at"])),
+            record_valid_until=cast("datetime", _parse_dt(row["record_valid_until"])),
+            record_ref=_string_or_none(row["record_ref"]),
+            record_sha256=_string_or_none(row["record_sha256"]),
+            durable_event_id=_string_or_none(row["durable_event_id"]),
+            committed_at=_parse_dt(row["committed_at"]),
+            reconciled_at=_parse_dt(row["reconciled_at"]),
+        )
+
+    @staticmethod
+    def _validate_human_decision_reservation_input(
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        binding_sha256: str,
+        now: datetime,
+        lease_seconds: int,
+        record_valid_until: datetime,
+    ) -> None:
+        if not tenant_id.strip() or not reservation_id.strip():
+            raise ValueError("human-decision reservation identity fields are required")
+        if not _is_sha256_ref(governed_action_key) or not _is_sha256_ref(binding_sha256):
+            raise ValueError("human-decision reservation hashes are invalid")
+        instant = _required_aware_datetime(now, field_name="now")
+        valid_until = _required_aware_datetime(
+            record_valid_until,
+            field_name="record_valid_until",
+        )
+        if type(lease_seconds) is not int or lease_seconds < 1:
+            raise ValueError("human-decision reservation lease must be positive")
+        if valid_until <= instant:
+            raise ValueError("human-decision record validity must end after reservation")
+
     def create_job(
         self,
         *,
@@ -1172,9 +2296,7 @@ class ControlPlaneStore:
                 producer_ref="runtime.api.nl_request",
                 consumer_ref="runtime.control_plane_store",
                 input_refs=tuple(
-                    ref
-                    for ref in (payload_ref, capability_manifest_ref, "control.request")
-                    if ref
+                    ref for ref in (payload_ref, capability_manifest_ref, "control.request") if ref
                 ),
                 output_refs=(f"control-job:{job_id}",),
                 carrier_ref=payload_ref,
@@ -1975,9 +3097,7 @@ class ControlPlaneStore:
             limit=1,
         )
         if not record:
-            raise RuntimeError(
-                f"Failed to persist diagnostic event {diagnostic_event.event_id}"
-            )
+            raise RuntimeError(f"Failed to persist diagnostic event {diagnostic_event.event_id}")
         return record[0]
 
     def list_diagnostic_events(
@@ -2385,6 +3505,31 @@ class ControlPlaneStore:
                         expires_at INTEGER NOT NULL,
                         consumed_at INTEGER NOT NULL
                     );
+                    CREATE TABLE IF NOT EXISTS runtime_human_decision_reservations (
+                        tenant_id TEXT NOT NULL,
+                        governed_action_key TEXT NOT NULL,
+                        reservation_id TEXT NOT NULL UNIQUE,
+                        reservation_version INTEGER NOT NULL CHECK (reservation_version > 0),
+                        binding_sha256 TEXT NOT NULL,
+                        state TEXT NOT NULL CHECK (
+                            state IN (
+                                'reserved', 'committed',
+                                'recovery_required', 'reconciled_empty',
+                                'reconciled_orphan', 'expired'
+                            )
+                        ),
+                        reserved_at TEXT NOT NULL,
+                        lease_expires_at TEXT NOT NULL,
+                        record_valid_until TEXT NOT NULL,
+                        record_ref TEXT,
+                        record_sha256 TEXT,
+                        durable_event_id TEXT,
+                        committed_at TEXT,
+                        reconciled_at TEXT,
+                        PRIMARY KEY (
+                            tenant_id, governed_action_key, reservation_version
+                        )
+                    );
                     CREATE INDEX IF NOT EXISTS idx_control_jobs_state_created_at
                         ON control_jobs(state, created_at);
                     CREATE INDEX IF NOT EXISTS idx_control_jobs_pipeline_id
@@ -2406,6 +3551,14 @@ class ControlPlaneStore:
                         ON runtime_scenario_heads(baseline_run_id, scenario_id);
                     CREATE INDEX IF NOT EXISTS idx_runtime_step_up_replays_expires_at
                         ON runtime_step_up_replays(expires_at);
+                    CREATE INDEX IF NOT EXISTS idx_runtime_human_decision_reservation_state
+                        ON runtime_human_decision_reservations(state, lease_expires_at);
+                    CREATE UNIQUE INDEX IF NOT EXISTS
+                        uq_runtime_human_decision_live_action
+                        ON runtime_human_decision_reservations(
+                            tenant_id, governed_action_key
+                        )
+                        WHERE state IN ('reserved', 'recovery_required', 'committed');
                     """
                 )
                 conn.commit()
@@ -2544,6 +3697,35 @@ class ControlPlaneStore:
             )
             cur.execute(
                 """
+                CREATE TABLE IF NOT EXISTS runtime_human_decision_reservations (
+                    tenant_id TEXT NOT NULL,
+                    governed_action_key TEXT NOT NULL,
+                    reservation_id TEXT NOT NULL UNIQUE,
+                    reservation_version INTEGER NOT NULL CHECK (reservation_version > 0),
+                    binding_sha256 TEXT NOT NULL,
+                    state TEXT NOT NULL CHECK (
+                        state IN (
+                            'reserved', 'committed',
+                            'recovery_required', 'reconciled_empty',
+                            'reconciled_orphan', 'expired'
+                        )
+                    ),
+                    reserved_at TIMESTAMPTZ NOT NULL,
+                    lease_expires_at TIMESTAMPTZ NOT NULL,
+                    record_valid_until TIMESTAMPTZ NOT NULL,
+                    record_ref TEXT,
+                    record_sha256 TEXT,
+                    durable_event_id TEXT,
+                    committed_at TIMESTAMPTZ,
+                    reconciled_at TIMESTAMPTZ,
+                    PRIMARY KEY (
+                        tenant_id, governed_action_key, reservation_version
+                    )
+                )
+                """
+            )
+            cur.execute(
+                """
                 CREATE INDEX IF NOT EXISTS idx_control_worker_leases_expires_at
                 ON control_worker_leases(lease_expires_at)
                 """
@@ -2591,22 +3773,65 @@ class ControlPlaneStore:
                 ON runtime_step_up_replays(expires_at)
                 """
             )
+            cur.execute(
+                """
+                CREATE INDEX IF NOT EXISTS idx_runtime_human_decision_reservation_state
+                ON runtime_human_decision_reservations(state, lease_expires_at)
+                """
+            )
+            cur.execute(
+                """
+                CREATE UNIQUE INDEX IF NOT EXISTS
+                    uq_runtime_human_decision_live_action
+                ON runtime_human_decision_reservations(
+                    tenant_id, governed_action_key
+                )
+                WHERE state IN ('reserved', 'recovery_required', 'committed')
+                """
+            )
 
     def _execute(self, sql: str, params: tuple[Any, ...]) -> None:
         if self.backend == "sqlite":
+            lane = getattr(
+                self._human_decision_transaction,
+                "sqlite_connection",
+                None,
+            )
+            if lane is not None:
+                lane.execute(sql, params)
+                return
             with self._lock:
                 with self._sqlite_connection() as conn:
                     conn.execute(sql, params)
                     conn.commit()
+            return
+        lane = getattr(self._human_decision_transaction, "postgres_cursor", None)
+        if lane is not None:
+            lane.execute(self._translate_sql(sql), params)
             return
         with self._postgres_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)
 
     def _fetchone(self, sql: str, params: tuple[Any, ...]) -> Any:
         if self.backend == "sqlite":
+            lane = getattr(
+                self._human_decision_transaction,
+                "sqlite_connection",
+                None,
+            )
+            if lane is not None:
+                return lane.execute(sql, params).fetchone()
             with self._lock:
                 with self._sqlite_connection() as conn:
                     return conn.execute(sql, params).fetchone()
+        lane = getattr(self._human_decision_transaction, "postgres_cursor", None)
+        if lane is not None:
+            lane.execute(self._translate_sql(sql), params)
+            row = lane.fetchone()
+            if row is None:
+                return None
+            columns = [desc[0] for desc in (lane.description or ())]
+            return {column: value for column, value in zip(columns, row, strict=False)}
         with self._postgres_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)
             row = cur.fetchone()
@@ -2617,9 +3842,25 @@ class ControlPlaneStore:
 
     def _fetchall(self, sql: str, params: tuple[Any, ...]) -> list[Any]:
         if self.backend == "sqlite":
+            lane = getattr(
+                self._human_decision_transaction,
+                "sqlite_connection",
+                None,
+            )
+            if lane is not None:
+                return list(lane.execute(sql, params).fetchall())
             with self._lock:
                 with self._sqlite_connection() as conn:
                     return list(conn.execute(sql, params).fetchall())
+        lane = getattr(self._human_decision_transaction, "postgres_cursor", None)
+        if lane is not None:
+            lane.execute(self._translate_sql(sql), params)
+            rows = lane.fetchall()
+            columns = [desc[0] for desc in (lane.description or ())]
+            return [
+                {column: value for column, value in zip(columns, row, strict=False)}
+                for row in rows
+            ]
         with self._postgres_cursor() as cur:
             cur.execute(self._translate_sql(sql), params)
             rows = cur.fetchall()
@@ -2675,4 +3916,9 @@ __all__ = [
     "ControlOutboxRecord",
     "ControlPlaneStore",
     "ControlWorkerLeaseRecord",
+    "HumanDecisionRecoveryFence",
+    "HumanDecisionReservationRecord",
+    "HumanDecisionReservationResult",
+    "HumanDecisionReservationState",
+    "HumanDecisionWriteFence",
 ]

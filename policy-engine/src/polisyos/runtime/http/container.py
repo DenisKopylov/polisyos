@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 import inspect
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any, Literal
 
@@ -25,6 +25,7 @@ if TYPE_CHECKING:
 
     from polisyos.runtime.http.execution_policy import ResolvedExecutionPolicy
     from polisyos.runtime.http.security import RuntimeSecurityConfig
+    from polisyos.runtime.http.services.human_decisions import HumanDecisionService
 
 LifecycleStatus = Literal["created", "starting", "ready", "stopping", "stopped", "failed"]
 
@@ -102,6 +103,7 @@ class RuntimeServiceContainer:
     runtime_review_opa_guard: Any
     control_registry_providers: ControlRegistryProviders
     control_service: ControlPlaneService | None = None
+    human_decision_service: HumanDecisionService | None = None
     lifecycle: RuntimeLifecycleState = field(default_factory=RuntimeLifecycleState)
 
     @classmethod
@@ -166,6 +168,17 @@ class RuntimeServiceContainer:
 
     def install(self, app: Any) -> None:
         """Expose the container and legacy-compatible aliases on `app.state`."""
+        deployment_security = getattr(app.state, "runtime_deployment_security", None)
+        if deployment_security is not None:
+            from polisyos.runtime.http.deployment_security import (
+                require_factory_produced_deployment_security,
+            )
+
+            deployment_security = require_factory_produced_deployment_security(deployment_security)
+            self.runtime_security = replace(
+                self.runtime_security,
+                human_decision_custody=deployment_security.human_decision_custody,
+            )
         app.state.runtime_container = self
         self._bind_legacy_state(app)
 
@@ -183,6 +196,25 @@ class RuntimeServiceContainer:
                     async_artifact_store=self.runtime_api_context.async_store,
                     registry_providers=self.control_registry_providers,
                 )
+            custody = self._resolve_human_decision_custody(app)
+            from polisyos.runtime.http.services.human_decision_contracts import (
+                HumanDecisionResolverPolicy,
+            )
+            from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+
+            access_audit_path = self.config.cas_root / "runtime" / "audit" / "access.jsonl"
+            self.human_decision_service = HumanDecisionService(
+                authority_sink=self.control_service.human_decision_sink,
+                custody=custody,
+                resolver_policy=HumanDecisionResolverPolicy(
+                    expected_consumer=("polisyos.runtime.quality.agent_action_authority"),
+                    expected_audience="polisyos-runtime",
+                    principal_audience="polisyos-runtime",
+                    expected_agent_operation=None,
+                    required_permission="runs.human_decisions.create",
+                ),
+                access_audit_path=access_audit_path,
+            )
             self._bind_legacy_state(app)
             self.lifecycle.mark("ready")
         except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
@@ -215,6 +247,7 @@ class RuntimeServiceContainer:
             "runtime_api_context": _resource_state(self.runtime_api_context),
             "review_collaboration_hub": _resource_state(self.review_collaboration_hub),
             "control_plane_service": _resource_state(self.control_service, pending_ok=True),
+            "human_decision_service": _human_decision_resource_state(self.human_decision_service),
             "runtime_metrics": _resource_state(self.runtime_metrics),
             "runtime_tracer": _resource_state(self.runtime_tracer),
             "runtime_access_audit": _resource_state(self.runtime_access_audit),
@@ -251,6 +284,11 @@ class RuntimeServiceContainer:
                     "analysis",
                 ],
                 "control_plane_service": ["runtime_metrics", "runtime_tracer"],
+                "human_decision_service": [
+                    "control_plane_service",
+                    "runtime_access_audit",
+                    "deployment_security",
+                ],
                 "mutation_policy": [
                     "runtime_rate_limiter",
                     "runtime_idempotency_store",
@@ -280,6 +318,36 @@ class RuntimeServiceContainer:
         app.state.runtime_mutation_audit = self.runtime_mutation_audit
         app.state.runtime_review_opa_guard = self.runtime_review_opa_guard
         app.state._control_service = self.control_service
+        app.state._human_decision_service = self.human_decision_service
+
+    def _resolve_human_decision_custody(self, app: Any) -> Any:
+        """Re-attest custody at service construction; aliases never carry authority."""
+
+        from polisyos.runtime.http.deployment_security import (
+            DeploymentHumanDecisionCustody,
+            require_factory_produced_deployment_security,
+        )
+
+        installed = getattr(app.state, "runtime_deployment_security", None)
+        configured = self.runtime_security.human_decision_custody
+        if installed is None:
+            if configured is not None:
+                raise TypeError("human-decision custody requires deployment attestation")
+            return DeploymentHumanDecisionCustody(
+                available=False,
+                unavailability_code="DS9-DECISION-PRODUCER-MISSING",
+            )
+        try:
+            attested = require_factory_produced_deployment_security(installed)
+        except TypeError:
+            return DeploymentHumanDecisionCustody(
+                available=False,
+                unavailability_code="DS9-DECISION-SOURCE-INVALID",
+            )
+        custody = attested.human_decision_custody
+        if configured is not custody:
+            raise TypeError("runtime human-decision custody identity changed")
+        return custody
 
 
 def get_runtime_container(subject: Any) -> RuntimeServiceContainer | None:
@@ -306,6 +374,18 @@ def resolve_control_service(subject: Any) -> ControlPlaneService | None:
         if isinstance(container.control_service, ControlPlaneService)
         else None
     )
+
+
+def resolve_human_decision_service(subject: Any) -> HumanDecisionService | None:
+    """Resolve the deployment-composed human-decision service."""
+
+    from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+
+    container = get_runtime_container(subject)
+    if container is None:
+        return None
+    service = container.human_decision_service
+    return service if type(service) is HumanDecisionService else None
 
 
 def resolve_review_collaboration_hub(subject: Any) -> ReviewCollaborationHub | None:
@@ -372,6 +452,20 @@ def _resource_state(resource: Any, *, pending_ok: bool = False) -> dict[str, str
     }
 
 
+def _human_decision_resource_state(
+    service: HumanDecisionService | None,
+) -> dict[str, str]:
+    if service is None:
+        return {"status": "pending"}
+    if service.available:
+        return {"status": "ready", "type": type(service).__name__}
+    return {
+        "status": "unavailable",
+        "type": type(service).__name__,
+        "reason": service.unavailability_code or "DS9-DECISION-PRODUCER-MISSING",
+    }
+
+
 __all__ = [
     "RuntimeContainerConfig",
     "RuntimeContainerOverrides",
@@ -379,6 +473,7 @@ __all__ = [
     "RuntimeServiceContainer",
     "get_runtime_container",
     "resolve_control_service",
+    "resolve_human_decision_service",
     "resolve_review_collaboration_hub",
     "resolve_runtime_access_audit",
     "resolve_runtime_api_context",

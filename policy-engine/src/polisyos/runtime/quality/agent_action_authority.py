@@ -9,7 +9,7 @@ from contextvars import ContextVar
 from dataclasses import dataclass
 from datetime import UTC, datetime
 from types import MappingProxyType
-from typing import TYPE_CHECKING, Literal, final
+from typing import TYPE_CHECKING, Literal, Protocol, cast, final
 
 from pydantic import AwareDatetime, Field, model_validator
 
@@ -34,6 +34,7 @@ from polisyos.runtime.quality.candidate_firewall import (
     assert_no_candidate_authority_laundering,
 )
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+    HUMAN_DECISION_RECORD_V2,
     LAYER2_S7_AGENT_ACTION_DELEGATION_SCHEMA_VERSION,
     LAYER2_S7_DELEGATION_SCHEMA_VERSION,
     DecisionOption,
@@ -52,6 +53,29 @@ from polisyos.runtime.quality.prompt_tool_ledger import ModelAssistedStepLedger
 if TYPE_CHECKING:
     from polisyos.runtime.http.authorization import BoundActionPermissionVerification
     from polisyos.runtime.http.resource_binding import BoundAuthorizationResource
+    from polisyos.runtime.http.services.human_decision_contracts import (
+        HumanDecisionPA2GatewayAdapterInput,
+    )
+
+
+class _HumanDecisionServiceProtocol(Protocol):
+    """Structural annotation for the exact-type checked runtime resolver."""
+
+    def resolve_gateway_adapter(
+        self,
+        adapter: HumanDecisionPA2GatewayAdapterInput,
+        *,
+        evaluated_at: datetime,
+        operation: object,
+        invocation: object,
+        intent: object,
+        bound_permission: object,
+        resolved_contract: object,
+        admission: object,
+        admission_ref: str,
+        selected_envelope: object,
+        effect_binding: object,
+    ) -> object: ...
 
 AGENT_ACTION_AUTHORITY_SCHEMA_VERSION = "policyos.runtime.agent_action_authority.v1"
 AGENT_ACTION_ADMISSION_SCHEMA_VERSION = "policyos.runtime.agent_action_admission.v1"
@@ -380,6 +404,9 @@ class AgentActionAuthorityGateway:
         admission_refs_by_invocation_hash: Mapping[str, str],
         effect_bindings: tuple[AgentActionEffectBinding, ...],
         human_decision_refs_by_request_ref: Mapping[str, str] | None = None,
+        human_decision_service: _HumanDecisionServiceProtocol | None = None,
+        human_decision_adapters_by_request_ref: Mapping[str, HumanDecisionPA2GatewayAdapterInput]
+        | None = None,
     ) -> None:
         if type(artifact_store) is not artifacts.FileSystemCAS:
             raise TypeError("agent action authority requires the concrete server CAS")
@@ -408,6 +435,32 @@ class AgentActionAuthorityGateway:
         self._contract_refs = _frozen_ref_mapping(contract_refs_by_resource_digest)
         self._admission_refs = _frozen_ref_mapping(admission_refs_by_invocation_hash)
         self._human_decision_refs = _frozen_ref_mapping(human_decision_refs_by_request_ref or {})
+        adapter_rows = dict(human_decision_adapters_by_request_ref or {})
+        if adapter_rows:
+            from polisyos.runtime.http.services.human_decision_contracts import (
+                HumanDecisionPA2GatewayAdapterInput,
+            )
+            from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+
+            if type(human_decision_service) is not HumanDecisionService:
+                raise TypeError("v2 human decisions require the concrete deployment resolver")
+            for request_ref, adapter in adapter_rows.items():
+                if (
+                    type(request_ref) is not str
+                    or not request_ref
+                    or type(adapter) is not HumanDecisionPA2GatewayAdapterInput
+                    or adapter.decision_request_ref != request_ref
+                ):
+                    raise TypeError("human-decision adapter mapping is not exact")
+                if request_ref in self._human_decision_refs:
+                    raise ValueError("human-decision request has ambiguous v1/v2 sources")
+        elif human_decision_service is not None:
+            from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+
+            if type(human_decision_service) is not HumanDecisionService:
+                raise TypeError("human-decision service must be the concrete runtime type")
+        self._human_decision_service = human_decision_service
+        self._human_decision_adapters = MappingProxyType(adapter_rows)
         binding_map: dict[tuple[str, str, str], AgentActionEffectBinding] = {}
         for binding in effect_bindings:
             if type(binding) is not AgentActionEffectBinding:
@@ -519,11 +572,54 @@ class AgentActionAuthorityGateway:
 
     def resolve_human_decision(
         self,
-        request_ref: str,
-    ) -> tuple[HumanDecisionRecord, str] | None:
+        request: HumanDecisionRequest,
+        *,
+        evaluated_at: datetime,
+        operation: OperationContract,
+        invocation: OperationInvocationRecord,
+        intent: AgentActionIntent,
+        bound_permission: BoundActionPermissionVerification,
+        resolved_contract: ResolvedDelegationContract,
+        admission: AgentActionAdmissionBundle,
+        admission_ref: str,
+        selected_envelope: DelegatedActionEnvelope,
+        effect_binding: AgentActionEffectBinding,
+    ) -> tuple[HumanDecisionRecord, str, HumanDecisionRequest] | None:
         """Resolve a signed human decision selected by the exact request binding."""
 
-        ref = self._human_decision_refs.get(request_ref)
+        adapter = self._human_decision_adapters.get(request.request_ref)
+        if adapter is not None:
+            from polisyos.runtime.http.services.human_decisions import (
+                HumanDecisionOperationalResolutionError,
+                _ResolvedPA2OperationalAuthority,
+            )
+
+            service = self._human_decision_service
+            if service is None:  # pragma: no cover - constructor invariant
+                raise AgentActionAuthorityOwnerResolutionError("DS9-DECISION-PRODUCER-MISSING")
+            try:
+                resolution = service.resolve_gateway_adapter(
+                    adapter,
+                    evaluated_at=evaluated_at,
+                    operation=operation,
+                    invocation=invocation,
+                    intent=intent,
+                    bound_permission=bound_permission,
+                    resolved_contract=resolved_contract,
+                    admission=admission,
+                    admission_ref=admission_ref,
+                    selected_envelope=selected_envelope,
+                    effect_binding=effect_binding,
+                )
+            except HumanDecisionOperationalResolutionError as exc:
+                raise AgentActionAuthorityOwnerResolutionError(exc.code) from exc
+            if type(resolution) is not _ResolvedPA2OperationalAuthority:
+                raise AgentActionAuthorityOwnerResolutionError(
+                    "DS9-DECISION-PRODUCER-MISSING"
+                )
+            return resolution.record, adapter.record_ref, resolution.request
+
+        ref = self._human_decision_refs.get(request.request_ref)
         if ref is None:
             return None
         payload, signer_identity, _ = self._read_signed_artifact(
@@ -543,7 +639,7 @@ class AgentActionAuthorityGateway:
             raise AgentActionAuthorityOwnerResolutionError(
                 "human_decision_actor_signature_mismatch"
             )
-        return record, ref
+        return record, ref, request
 
     def begin_dispatch(self, dispatch_binding_hash: str) -> str:
         """Reserve the invocation through the existing durable idempotency owner."""
@@ -1184,18 +1280,41 @@ def _produce_decision(
     if (
         contract is not None
         and selected is not None
+        and resolved is not None
+        and admission is not None
+        and admission_ref is not None
+        and binding is not None
+        and proof_snapshot is not None
         and "operation_out_of_envelope" in reasons
         and not (set(reasons) - {"operation_out_of_envelope"})
     ):
         try:
-            human_resolution = gateway.resolve_human_decision(request.request_ref)
+            human_resolution = gateway.resolve_human_decision(
+                request,
+                evaluated_at=instant,
+                operation=validated_operation,
+                invocation=validated_invocation,
+                intent=validated_intent,
+                bound_permission=cast(
+                    "BoundActionPermissionVerification",
+                    bound_permission,
+                ),
+                resolved_contract=resolved,
+                admission=admission,
+                admission_ref=admission_ref,
+                selected_envelope=selected,
+                effect_binding=binding,
+            )
         except AgentActionAuthorityOwnerResolutionError as exc:
             reasons.append(exc.code)
         else:
             human_record = human_resolution[0] if human_resolution is not None else None
+            signed_request = (
+                human_resolution[2] if human_resolution is not None else request
+            )
             human_issue = _human_override_issue(
                 contract=contract,
-                request=request,
+                request=signed_request,
                 record=human_record,
                 now=instant,
                 envelope=selected,
@@ -1204,6 +1323,7 @@ def _produce_decision(
                 reasons.remove("operation_out_of_envelope")
                 satisfied["operation_in_envelope"] = True
                 decision_record_ref = human_resolution[1]
+                request = signed_request
             elif human_issue is not None and human_resolution is not None:
                 reasons.append(human_issue)
 
@@ -1498,7 +1618,7 @@ def _human_decision_request(
                 "request_id": request_id,
                 "request_ref": request_ref,
                 "requested_at": now,
-                "decision_due_at": now,
+                "decision_due_at": decidable_until,
                 "decidable_until": decidable_until,
                 "provenance_refs": list(dict.fromkeys(provenance)),
             }
@@ -1574,6 +1694,8 @@ def _human_override_issue(
         return "human_decision_five_rights_failed"
     if record.responsibility_integrity.status != "pass":
         return "human_decision_integrity_failed"
+    if record.schema_version != HUMAN_DECISION_RECORD_V2:
+        return "DS9-DECISION-V1-REVALIDATION"
     if record.rule_version_ref != contract.rule_version_ref:
         return "human_decision_rule_version_mismatch"
     if record.mandate_record_ref != contract.s6_mandate_record_ref:
@@ -1582,7 +1704,7 @@ def _human_override_issue(
     if (
         boundary.source_authority != "human_governance"
         or boundary.posture not in {"governed", "production"}
-        or "mandate_bounded_decision_record" not in boundary.authoritative_for
+        or "human_decision_act" not in boundary.authoritative_for
     ):
         return "human_decision_authority_boundary_invalid"
     if request.request_ref not in record.provenance_refs:

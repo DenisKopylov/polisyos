@@ -17,6 +17,7 @@ DeploymentSecurityComponentName = Literal[
     "opa_client",
     "step_up_verifier",
     "principal_grants",
+    "human_decision_custody",
 ]
 _COMPONENT_NAMES = frozenset(
     {
@@ -25,6 +26,7 @@ _COMPONENT_NAMES = frozenset(
         "opa_client",
         "step_up_verifier",
         "principal_grants",
+        "human_decision_custody",
     }
 )
 
@@ -171,19 +173,17 @@ def require_installed_deployment_security(subject: object) -> object | None:
         is not components["principal_grants"]
         or getattr(runtime_security, "identity_provider", None)
         is not components["identity_provider"]
-        or getattr(runtime_security, "cell_registry", None)
-        is not components["cell_registry"]
+        or getattr(runtime_security, "cell_registry", None) is not components["cell_registry"]
         or getattr(runtime_security, "opa_client", None) is not components["opa_client"]
-        or getattr(runtime_security, "step_up_verifier", None)
-        is not components["step_up_verifier"]
+        or getattr(runtime_security, "step_up_verifier", None) is not components["step_up_verifier"]
         or getattr(runtime_security, "authz_enforce", None) is not True
         or getattr(runtime_security, "authz_shadow_mode", None) is not False
         or getattr(runtime_security, "allow_fixture_identity", None) is not False
         or getattr(runtime_security, "step_up_replay_store", None) is not None
+        or getattr(runtime_security, "human_decision_custody", None)
+        is not components["human_decision_custody"]
     ):
-        raise DeploymentSecurityAttestationError(
-            "installed deployment security aliases changed"
-        )
+        raise DeploymentSecurityAttestationError("installed deployment security aliases changed")
     return runtime
 
 

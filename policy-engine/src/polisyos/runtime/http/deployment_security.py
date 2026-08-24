@@ -20,8 +20,10 @@ from pathlib import Path
 from types import MappingProxyType
 from typing import TYPE_CHECKING, Self, TypeVar
 
+from cryptography.hazmat.primitives.serialization import Encoding, PublicFormat
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core import artifacts
 from polisyos.runtime.http.authorization import (
     CANONICAL_ROLE_AUTHORIZATION_SOURCE,
     DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE,
@@ -43,6 +45,10 @@ from polisyos.runtime.http.jwt_auth_middleware import (
     TokenValidationError,
 )
 from polisyos.runtime.http.permissions import RuntimePermission
+from polisyos.runtime.http.services.human_decision_contracts import (
+    HumanDecisionTrustedProducer,
+    HumanDecisionTrustPolicy,
+)
 from polisyos.runtime.http.step_up import JWTStepUpAssertionVerifier
 
 if TYPE_CHECKING:
@@ -75,6 +81,58 @@ class VerifierProvenance(BaseModel):
     @classmethod
     def _validate_provenance_text(cls, value: str) -> str:
         return _non_empty(value, field_name="verifier provenance")
+
+
+class HumanDecisionTrustedProducerConfig(BaseModel):
+    """Bind one exact decision artifact schema to an institutional signer key."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
+
+    artifact_kind: str = Field(min_length=1)
+    schema_name: str = Field(min_length=1)
+    schema_version: str = Field(min_length=1)
+    signer_identity: str = Field(min_length=1)
+    public_key_path: Path
+
+    @property
+    def manifest_key(self) -> tuple[str, str, str]:
+        """Return the exact manifest tuple governed by this trust row."""
+
+        return self.artifact_kind, self.schema_name, self.schema_version
+
+
+class HumanDecisionCustodyConfig(BaseModel):
+    """Deployment-owned signer and exact producer trust for decision custody."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, str_strip_whitespace=True)
+
+    signer_identity: str = Field(min_length=1)
+    private_key_path: Path
+    public_key_path: Path
+    verifier_epoch: str = Field(min_length=1)
+    provenance: VerifierProvenance
+    revoked_key_ids: frozenset[str] = frozenset()
+    trusted_producers: tuple[HumanDecisionTrustedProducerConfig, ...] = ()
+
+    @field_validator("signer_identity", "verifier_epoch")
+    @classmethod
+    def _validate_required_text(cls, value: str) -> str:
+        return _non_empty(value, field_name="human-decision custody field")
+
+    @field_validator("revoked_key_ids")
+    @classmethod
+    def _validate_revoked_key_ids(cls, value: frozenset[str]) -> frozenset[str]:
+        normalized = frozenset(item.strip() for item in value if item.strip())
+        if len(normalized) != len(value):
+            raise ValueError("human-decision revoked key ids must be non-empty")
+        return normalized
+
+    @model_validator(mode="after")
+    def _validate_unique_trust_rows(self) -> Self:
+        keys = tuple(row.manifest_key for row in self.trusted_producers)
+        if len(keys) != len(set(keys)):
+            raise ValueError("duplicate human-decision trusted producer manifest")
+        return self
 
 
 class _VerifierTrustConfig(BaseModel):
@@ -192,6 +250,7 @@ class DeploymentSecurityConfig(BaseModel):
     cell_registry_path: Path
     opa: OPADeploymentConfig
     service_principals: tuple[ServicePrincipalGrant, ...] = ()
+    human_decision_custody: HumanDecisionCustodyConfig | None = None
 
     @model_validator(mode="after")
     def _validate_unique_principals(self) -> Self:
@@ -241,9 +300,7 @@ class _DeploymentJWKSClient:
         try:
             import jwt as pyjwt
         except ModuleNotFoundError as exc:
-            raise RuntimeError(
-                "Deployment JWT verification requires PyJWT"
-            ) from exc
+            raise RuntimeError("Deployment JWT verification requires PyJWT") from exc
         client_type = getattr(pyjwt, "PyJWKClient", None)
         if not isinstance(client_type, type):
             raise RuntimeError("PyJWT does not expose a usable PyJWKClient")
@@ -336,12 +393,11 @@ class DeploymentIdentityProvider(SPIFFEIdentityProvider):
         algorithm = str(header.get("alg", "")).strip()
         if algorithm not in self._deployment_algorithms:
             raise TokenValidationError("JWT algorithm is not trusted by deployment policy")
-        if unverified_payload.get("aud") != self._deployment_audience or type(
-            unverified_payload.get("aud")
-        ) is not str:
-            raise TokenValidationError(
-                "Deployment JWT audience must be an exact singleton match"
-            )
+        if (
+            unverified_payload.get("aud") != self._deployment_audience
+            or type(unverified_payload.get("aud")) is not str
+        ):
+            raise TokenValidationError("Deployment JWT audience must be an exact singleton match")
         return super().extract_user_claims(
             jwt_token,
             expected_cell_id=expected_cell_id,
@@ -402,6 +458,123 @@ class DeploymentOPAClient(OPAClient):
             return result
 
 
+@dataclass(frozen=True, slots=True, eq=False)
+class DeploymentHumanDecisionCustody:
+    """Exact optional custody chain built from the deployment document."""
+
+    available: bool
+    signer: artifacts.Ed25519Signer | None = field(default=None, repr=False)
+    verifier: artifacts.Ed25519Verifier | None = field(default=None, repr=False)
+    signer_identity: str | None = None
+    verifier_epoch: str | None = None
+    trust_policy: HumanDecisionTrustPolicy | None = None
+    provenance: VerifierProvenance | None = None
+    unavailability_code: str | None = None
+
+    def __post_init__(self) -> None:
+        if type(self.available) is not bool:
+            raise TypeError("human-decision custody availability must be exact bool")
+        if self.available:
+            if (
+                type(self.signer) is not artifacts.Ed25519Signer
+                or type(self.verifier) is not artifacts.Ed25519Verifier
+                or not self.signer_identity
+                or not self.verifier_epoch
+                or type(self.trust_policy) is not HumanDecisionTrustPolicy
+                or type(self.provenance) is not VerifierProvenance
+                or self.unavailability_code is not None
+            ):
+                raise TypeError("available human-decision custody is incomplete")
+            if self.trust_policy.verifier_epoch != self.verifier_epoch:
+                raise TypeError("human-decision custody verifier epoch changed")
+            return
+        if (
+            any(
+                value is not None
+                for value in (
+                    self.signer,
+                    self.verifier,
+                    self.signer_identity,
+                    self.verifier_epoch,
+                    self.trust_policy,
+                    self.provenance,
+                )
+            )
+            or self.unavailability_code
+            not in {
+                "DS9-DECISION-PRODUCER-MISSING",
+                "DS9-DECISION-SOURCE-INVALID",
+            }
+        ):
+            raise TypeError("unavailable human-decision custody has authority state")
+
+
+def _build_human_decision_custody(
+    config: HumanDecisionCustodyConfig | None,
+) -> DeploymentHumanDecisionCustody:
+    if config is None:
+        return DeploymentHumanDecisionCustody(
+            available=False,
+            unavailability_code="DS9-DECISION-PRODUCER-MISSING",
+        )
+    private_path = config.private_key_path.expanduser()
+    public_path = config.public_key_path.expanduser()
+    try:
+        signer = artifacts.Ed25519Signer.from_path(private_path)
+    except (OSError, TypeError, ValueError) as exc:
+        raise ValueError("human-decision custody private key is unavailable") from exc
+    verifier = artifacts.Ed25519Verifier(strict_identity=True)
+    try:
+        public_key_id = verifier.load_trusted_key_file(
+            public_path,
+            identity=config.signer_identity,
+        )
+    except (OSError, TypeError, ValueError) as exc:
+        raise ValueError("human-decision custody public key is unavailable") from exc
+    if signer.key_id != public_key_id:
+        raise ValueError("human-decision custody private/public key mismatch")
+
+    identity_by_key_id: dict[str, str] = {public_key_id: config.signer_identity}
+    trusted_rows: list[HumanDecisionTrustedProducer] = []
+    for row in config.trusted_producers:
+        try:
+            key_id = verifier.load_trusted_key_file(
+                row.public_key_path.expanduser(),
+                identity=row.signer_identity,
+            )
+        except (OSError, TypeError, ValueError) as exc:
+            raise ValueError("human-decision trusted producer key is unavailable") from exc
+        previous_identity = identity_by_key_id.get(key_id)
+        if previous_identity is not None and previous_identity != row.signer_identity:
+            raise ValueError("one human-decision key cannot bind multiple identities")
+        identity_by_key_id[key_id] = row.signer_identity
+        trusted_rows.append(
+            HumanDecisionTrustedProducer(
+                artifact_kind=row.artifact_kind,
+                schema_name=row.schema_name,
+                schema_version=row.schema_version,
+                signer_identity=row.signer_identity,
+            )
+        )
+    for key_id in config.revoked_key_ids:
+        verifier.add_revoked_key_id(key_id)
+    if signer.key_id in config.revoked_key_ids:
+        raise ValueError("human-decision custody signing key is revoked")
+    trust_policy = HumanDecisionTrustPolicy(
+        verifier_epoch=config.verifier_epoch,
+        trusted_producers=tuple(trusted_rows),
+    )
+    return DeploymentHumanDecisionCustody(
+        available=True,
+        signer=signer,
+        verifier=verifier,
+        signer_identity=config.signer_identity,
+        verifier_epoch=config.verifier_epoch,
+        trust_policy=trust_policy,
+        provenance=config.provenance,
+    )
+
+
 @dataclass(frozen=True, slots=True, init=False, eq=False, weakref_slot=True)
 class RuntimeDeploymentSecurity:
     """Factory-produced collaborators plus exact service-principal grants.
@@ -417,6 +590,7 @@ class RuntimeDeploymentSecurity:
     opa_client: DeploymentOPAClient = field(repr=False)
     step_up_verifier: DeploymentJWTStepUpAssertionVerifier = field(repr=False)
     principal_grants: DeploymentPrincipalGrantResolver = field(repr=False)
+    human_decision_custody: DeploymentHumanDecisionCustody = field(repr=False)
 
     def __init__(
         self,
@@ -427,6 +601,7 @@ class RuntimeDeploymentSecurity:
         opa_client: DeploymentOPAClient,
         step_up_verifier: DeploymentJWTStepUpAssertionVerifier,
         principal_grants: DeploymentPrincipalGrantResolver,
+        human_decision_custody: DeploymentHumanDecisionCustody,
     ) -> None:
         raise TypeError(
             "RuntimeDeploymentSecurity is factory-only; use build_deployment_security(config)"
@@ -445,6 +620,9 @@ class RuntimeDeploymentSecurity:
             raise TypeError("step_up_verifier must come from deployment configuration")
         if type(self.principal_grants) is not DeploymentPrincipalGrantResolver:
             raise TypeError("principal_grants must come from deployment configuration")
+        if type(self.human_decision_custody) is not DeploymentHumanDecisionCustody:
+            raise TypeError("human_decision_custody must come from deployment configuration")
+        self.human_decision_custody.__post_init__()
 
 
 _CANONICAL_DEPLOYMENT_BEHAVIOR_ORIGINS: tuple[object, ...] = (
@@ -463,6 +641,9 @@ _CANONICAL_DEPLOYMENT_BEHAVIOR_ORIGINS: tuple[object, ...] = (
     DeploymentJWTStepUpAssertionVerifier._validated_header,
     DeploymentPrincipalGrantResolver.permissions_for_principal,
     DeploymentPrincipalGrantResolver.resolve_claim_permissions,
+    artifacts.Ed25519Signer.build_statement,
+    artifacts.Ed25519Signer.sign,
+    artifacts.Ed25519Verifier.verify,
 )
 
 
@@ -479,6 +660,7 @@ class _DeploymentSecurityAttestation:
         DeploymentOPAClient,
         DeploymentJWTStepUpAssertionVerifier,
         DeploymentPrincipalGrantResolver,
+        DeploymentHumanDecisionCustody,
     ]
 
 
@@ -500,6 +682,7 @@ def _deployment_components(
     DeploymentOPAClient,
     DeploymentJWTStepUpAssertionVerifier,
     DeploymentPrincipalGrantResolver,
+    DeploymentHumanDecisionCustody,
 ]:
     return (
         runtime.identity_provider,
@@ -507,6 +690,7 @@ def _deployment_components(
         runtime.opa_client,
         runtime.step_up_verifier,
         runtime.principal_grants,
+        runtime.human_decision_custody,
     )
 
 
@@ -516,11 +700,7 @@ def _instance_callable_state(value: object) -> tuple[tuple[str, int], ...]:
     except TypeError:
         return ()
     return tuple(
-        sorted(
-            (name, id(member))
-            for name, member in namespace.items()
-            if callable(member)
-        )
+        sorted((name, id(member)) for name, member in namespace.items() if callable(member))
     )
 
 
@@ -559,6 +739,72 @@ def _deployment_grant_state(
         ],
         "managed_subjects": sorted(managed_subjects),
         "instance_callables": _instance_callable_state(resolver),
+    }
+
+
+def _deployment_human_decision_custody_state(
+    custody: DeploymentHumanDecisionCustody,
+) -> dict[str, object]:
+    if type(custody) is not DeploymentHumanDecisionCustody:
+        raise TypeError("deployment human-decision custody identity changed")
+    custody.__post_init__()
+    if not custody.available:
+        return {
+            "available": False,
+            "unavailability_code": custody.unavailability_code,
+            "instance_callables": _instance_callable_state(custody),
+        }
+    signer = custody.signer
+    verifier = custody.verifier
+    trust_policy = custody.trust_policy
+    provenance = custody.provenance
+    if (
+        type(signer) is not artifacts.Ed25519Signer
+        or type(verifier) is not artifacts.Ed25519Verifier
+        or type(trust_policy) is not HumanDecisionTrustPolicy
+        or type(provenance) is not VerifierProvenance
+    ):
+        raise TypeError("deployment human-decision custody state is incomplete")
+    trusted_keys = getattr(verifier, "_trusted_keys", None)
+    identity_bindings = getattr(verifier, "_identity_bindings", None)
+    revoked_key_ids = getattr(verifier, "_revoked_key_ids", None)
+    if (
+        type(trusted_keys) is not dict
+        or type(identity_bindings) is not dict
+        or type(revoked_key_ids) is not set
+        or getattr(verifier, "_strict_identity", None) is not True
+    ):
+        raise TypeError("deployment human-decision verifier state is invalid")
+    key_fingerprints: list[tuple[str, str]] = []
+    for key_id, public_key in trusted_keys.items():
+        public_bytes = public_key.public_bytes(Encoding.Raw, PublicFormat.Raw)
+        public_digest = sha256(public_bytes).hexdigest()
+        if key_id != f"sha256:{public_digest}":
+            raise TypeError("human-decision verifier key id is not content-bound")
+        key_fingerprints.append((key_id, public_digest))
+    key_fingerprints.sort()
+    if (
+        signer.key_id not in trusted_keys
+        or identity_bindings.get(signer.key_id) != custody.signer_identity
+        or signer.key_id in revoked_key_ids
+    ):
+        raise TypeError("human-decision custody signer trust binding changed")
+    return {
+        "available": True,
+        "signer_identity_object": id(signer),
+        "verifier_identity_object": id(verifier),
+        "trust_policy_identity_object": id(trust_policy),
+        "signer_identity": custody.signer_identity,
+        "signer_key_id": signer.key_id,
+        "verifier_epoch": custody.verifier_epoch,
+        "trust_policy": trust_policy.model_dump(mode="json"),
+        "provenance": provenance.model_dump(mode="json"),
+        "trusted_key_fingerprints": key_fingerprints,
+        "identity_bindings": sorted(identity_bindings.items()),
+        "revoked_key_ids": sorted(revoked_key_ids),
+        "custody_instance_callables": _instance_callable_state(custody),
+        "signer_instance_callables": _instance_callable_state(signer),
+        "verifier_instance_callables": _instance_callable_state(verifier),
     }
 
 
@@ -639,13 +885,9 @@ def _deployment_authority_state_fingerprint(
             "pinned_jwks_client": _deployment_jwks_client_state(
                 getattr(identity, "_deployment_jwks_client", None)
             ),
-            "deployment_algorithms": sorted(
-                getattr(identity, "_deployment_algorithms", ())
-            ),
+            "deployment_algorithms": sorted(getattr(identity, "_deployment_algorithms", ())),
             "deployment_audience": getattr(identity, "_deployment_audience", None),
-            "deployment_provenance": identity.deployment_provenance.model_dump(
-                mode="json"
-            ),
+            "deployment_provenance": identity.deployment_provenance.model_dump(mode="json"),
             "instance_callables": _instance_callable_state(identity),
         },
         "opa": {
@@ -667,21 +909,21 @@ def _deployment_authority_state_fingerprint(
             "algorithms": list(getattr(step_up, "_algorithms", ())),
             "maximum_age_seconds": getattr(step_up, "_maximum_age_seconds", None),
             "clock_skew_seconds": getattr(step_up, "_clock_skew_seconds", None),
-            "verification_key_is_none": getattr(step_up, "_verification_key", None)
-            is None,
+            "verification_key_is_none": getattr(step_up, "_verification_key", None) is None,
             "jwks_uri": getattr(step_up, "_jwks_uri", None),
             "pinned_jwks_client": _deployment_jwks_client_state(
                 getattr(step_up, "_jwks_client", None)
             ),
             "allowed_key_ids": sorted(getattr(step_up, "_allowed_key_ids", ())),
             "revoked_key_ids": sorted(getattr(step_up, "_revoked_key_ids", ())),
-            "deployment_provenance": step_up.deployment_provenance.model_dump(
-                mode="json"
-            ),
+            "deployment_provenance": step_up.deployment_provenance.model_dump(mode="json"),
             "clock_identity": id(getattr(step_up, "_clock", None)),
             "instance_callables": _instance_callable_state(step_up),
         },
         "principal_grants": _deployment_grant_state(runtime.principal_grants),
+        "human_decision_custody": _deployment_human_decision_custody_state(
+            runtime.human_decision_custody
+        ),
     }
     serialized = json.dumps(
         payload,
@@ -711,6 +953,9 @@ def _deployment_behavior_origins(
         type(runtime.step_up_verifier)._validated_header,
         type(runtime.principal_grants).permissions_for_principal,
         type(runtime.principal_grants).resolve_claim_permissions,
+        artifacts.Ed25519Signer.build_statement,
+        artifacts.Ed25519Signer.sign,
+        artifacts.Ed25519Verifier.verify,
     )
 
 
@@ -776,9 +1021,7 @@ def require_installed_deployment_security(
     if runtime is None:
         return None
     if type(runtime) is not RuntimeDeploymentSecurity:
-        raise DeploymentSecurityAttestationError(
-            "installed deployment security type changed"
-        )
+        raise DeploymentSecurityAttestationError("installed deployment security type changed")
     return runtime
 
 
@@ -820,6 +1063,11 @@ def build_deployment_security(config: DeploymentSecurityConfig) -> RuntimeDeploy
             (grant.identity_key, grant.permissions) for grant in config.service_principals
         ),
     )
+    object.__setattr__(
+        runtime,
+        "human_decision_custody",
+        _build_human_decision_custody(config.human_decision_custody),
+    )
     runtime.__post_init__()
     attestation = _DeploymentSecurityAttestation(
         config=config,
@@ -839,6 +1087,7 @@ def build_deployment_security(config: DeploymentSecurityConfig) -> RuntimeDeploy
             "opa_client": runtime.opa_client,
             "step_up_verifier": runtime.step_up_verifier,
             "principal_grants": runtime.principal_grants,
+            "human_decision_custody": runtime.human_decision_custody,
         },
     )
     return require_factory_produced_deployment_security(runtime)
@@ -871,16 +1120,13 @@ def verify_exact_deployment_principal_token(
     ):
         raise RuntimeError("probe bearer token is unavailable or malformed")
     if not required_permissions or any(
-        not isinstance(permission, RuntimePermission)
-        for permission in required_permissions
+        not isinstance(permission, RuntimePermission) for permission in required_permissions
     ):
         raise TypeError("required_permissions must be canonical RuntimePermission values")
     try:
         claims = runtime.identity_provider.extract_user_claims(bearer_token)
     except TokenValidationError as exc:
-        raise RuntimeError(
-            "probe bearer failed deployment identity verification"
-        ) from exc
+        raise RuntimeError("probe bearer failed deployment identity verification") from exc
     runtime = require_factory_produced_deployment_security(runtime)
     granted_permissions = runtime.principal_grants.permissions_for_principal(
         issuer=claims.iss,
@@ -899,11 +1145,14 @@ def verify_exact_deployment_principal_token(
 __all__ = [
     "CANONICAL_ROLE_AUTHORIZATION_SOURCE",
     "DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE",
+    "DeploymentHumanDecisionCustody",
     "DeploymentIdentityProvider",
     "DeploymentJWTStepUpAssertionVerifier",
     "DeploymentOPAClient",
     "DeploymentSecurityAttestationError",
     "DeploymentSecurityConfig",
+    "HumanDecisionCustodyConfig",
+    "HumanDecisionTrustedProducerConfig",
     "IdentityVerifierConfig",
     "OPADeploymentConfig",
     "RuntimeDeploymentSecurity",

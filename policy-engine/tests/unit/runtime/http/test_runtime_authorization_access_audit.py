@@ -37,6 +37,7 @@ from tests.unit.runtime.http.test_runtime_api_authz import (
     _SlowOPA,
 )
 from tests.unit.runtime.http.test_runtime_step_up_authz import (
+    _production_approval_body,
     _production_approval_test_context,
 )
 
@@ -422,16 +423,16 @@ def test_step_up_denial_is_appended_without_token_material(runtime_api_env) -> N
             **_headers(runtime_api_env, context["bearer"]),
             "X-PolicyOS-Step-Up": assertion,
         },
-        json={
-            "quality_scorecard_ref": context["scorecard_ref"],
-            "override": {
+        json=_production_approval_body(
+            context,
+            override={
                 "reviewer_identity": "user-1",
                 "reason": confidential_body_value,
                 "scope": f"run:{runtime_api_env['core_run_id']}",
                 "expires_at": "2099-01-01T00:00:00Z",
                 "evidence_refs": [context["scorecard_ref"]],
             },
-        },
+        ),
     )
 
     assert response.status_code == 503, response.json()

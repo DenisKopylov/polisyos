@@ -1788,15 +1788,18 @@ class HumanDecisionService:
     ) -> HumanDecisionRecord:
         """Read historical or current content only after exact custody verification."""
 
-        resolved = self._read_signed_model(
-            record_ref,
-            expected_kind=HUMAN_DECISION_RECORD_ARTIFACT_KIND,
-            expected_schema_name=_RECORD_SCHEMA_NAME,
-            expected_schema_version=HUMAN_DECISION_RECORD_MANIFEST_VERSION,
-            model_type=HumanDecisionRecord,
-            expected_tenant_id=tenant_id,
-            expected_run_id=run_id,
-        )
+        try:
+            resolved = self._read_signed_model(
+                record_ref,
+                expected_kind=HUMAN_DECISION_RECORD_ARTIFACT_KIND,
+                expected_schema_name=_RECORD_SCHEMA_NAME,
+                expected_schema_version=HUMAN_DECISION_RECORD_MANIFEST_VERSION,
+                model_type=HumanDecisionRecord,
+                expected_tenant_id=tenant_id,
+                expected_run_id=run_id,
+            )
+        except _ResolutionIssueError as exc:
+            raise HumanDecisionOperationalResolutionError(exc.reason.code) from exc
         record = cast("HumanDecisionRecord", resolved.model)
         if (
             record.schema_version != HUMAN_DECISION_RECORD_V2

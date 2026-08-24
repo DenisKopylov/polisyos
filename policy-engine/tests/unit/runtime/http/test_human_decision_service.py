@@ -2097,6 +2097,23 @@ def test_human_decision_persists_custody_signature_not_actor_signature(
     assert created.record.custody_signer_identity == fixture.custody_identity
 
 
+def test_human_decision_read_normalizes_missing_artifact_to_public_resolution_error(
+    tmp_path: Path,
+) -> None:
+    fixture = _signed_current_gate_fixture(tmp_path)
+
+    with pytest.raises(
+        _service_module().HumanDecisionOperationalResolutionError,
+    ) as caught:
+        fixture.service.read_record(
+            "sha256:" + "0" * 64,
+            tenant_id="tenant-a",
+            run_id="run-gy-pa2",
+        )
+
+    assert caught.value.code
+
+
 def test_human_decision_record_model_rejects_actor_custody_key_alias(
     tmp_path: Path,
 ) -> None:

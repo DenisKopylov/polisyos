@@ -520,8 +520,10 @@ def _normalize_event(event: Mapping[str, Any]) -> dict[str, Any]:
     change_requests = _change_requests(event)
     dissent = bool(_bool_or_none(event.get("dissent")) or False)
     approved_without_change = _bool_or_none(event.get("approved_without_change"))
-    if approved_without_change is None:
-        approved_without_change = outcome == "approve" and not change_requests and not dissent
+    if approved_without_change is None and "approved_without_change" not in event:
+        approved_without_change = (
+            outcome == "approve" and not change_requests and not dissent
+        )
     return {
         "review_id": _clean_text(event.get("review_id") or event.get("id")),
         "flow": _normalize_flow(event.get("flow") or outcome),
@@ -575,7 +577,9 @@ def _summary(events: Sequence[Mapping[str, Any]]) -> dict[str, Any]:
     ]
     approval_events = [event for event in events if event.get("outcome") == "approve"]
     approve_without_change_values = [
-        bool(event.get("approved_without_change")) for event in approval_events
+        bool(event["approved_without_change"])
+        for event in approval_events
+        if event.get("approved_without_change") is not None
     ]
     reviewer_independence_values = [
         bool(event["reviewer_independent"])
@@ -1063,14 +1067,10 @@ def _review_effectiveness_measured_signals(
         if event.get("time_spent_seconds") is not None
     ]
     no_delta_count = sum(
-        1
-        for event in events
-        if bool(event.get("approved_without_change"))
-        or (
-            not bool(event.get("dissent"))
-            and int(event.get("change_request_count") or 0) == 0
-            and event.get("outcome") == "approve"
-        )
+        1 for event in events if bool(event.get("approved_without_change"))
+    )
+    no_delta_denominator = sum(
+        1 for event in events if event.get("approved_without_change") is not None
     )
     separation_values = [
         bool(event["separation_of_duty_attested"])
@@ -1095,7 +1095,9 @@ def _review_effectiveness_measured_signals(
             else None
         ),
         "dissent_count": int(summary.get("dissent_count") or 0),
-        "no_delta_review_rate": no_delta_count / review_count if review_count else None,
+        "no_delta_review_rate": (
+            no_delta_count / no_delta_denominator if no_delta_denominator else None
+        ),
         "no_delta_review_count": no_delta_count,
         "separation_of_duty_failure_rate": (
             separation_failure_count / len(separation_values)

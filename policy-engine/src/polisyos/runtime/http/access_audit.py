@@ -116,6 +116,8 @@ except ModuleNotFoundError:  # pragma: no cover
 
 _AUDIT_LOCKS_GUARD = threading.Lock()
 _AUDIT_LOCKS: dict[str, threading.RLock] = {}
+_AUTHORIZATION_EVENT_TYPE = "runtime.authorization.decision"
+_AUTHORIZATION_AUDIT_APPEND_SEAL = object()
 _EXPOSURE_EVENT_TYPE = "runtime.human_decision.exposure"
 _EXPOSURE_RESERVATION_EVENT_TYPE = "runtime.human_decision.exposure_delivery_reserved"
 
@@ -133,6 +135,19 @@ class RuntimeAuthorizationOutcome(StrEnum):
 
     ALLOW = "allow"
     DENY = "deny"
+
+
+@dataclass(frozen=True, slots=True)
+class RuntimeAuditScanResult:
+    """One read-only census of the existing append-only access trail."""
+
+    entries: tuple[dict[str, object], ...]
+    path_exists: bool
+    nonblank_line_count: int
+    parsed_object_count: int
+    malformed_json_line_count: int
+    nonobject_line_count: int
+    audit_read_error_count: int
 
 
 class RuntimeAuthorizationAuditEvent(BaseModel):
@@ -205,13 +220,34 @@ class RuntimeDataAccessAuditTrail:
 
     def append(self, entry: dict[str, Any]) -> None:
         if entry.get("event_type") in {
+            _AUTHORIZATION_EVENT_TYPE,
             _EXPOSURE_EVENT_TYPE,
             _EXPOSURE_RESERVATION_EVENT_TYPE,
         }:
             raise RuntimeAuthorizationAuditError(
-                "Exposure delivery state requires the dedicated reserved writer"
+                "Authority audit state requires its dedicated sealed writer"
             )
         self._append_line(entry)
+
+    def _append_authorization_decision(
+        self,
+        event: RuntimeAuthorizationAuditEvent,
+        *,
+        seal: object,
+    ) -> None:
+        """Append only the module-issued terminal authorization event."""
+
+        if (
+            seal is not _AUTHORIZATION_AUDIT_APPEND_SEAL
+            or type(event) is not RuntimeAuthorizationAuditEvent
+        ):
+            raise RuntimeAuthorizationAuditError(
+                "Authorization audit append lacks its module-issued seal"
+            )
+        self._append_line(
+            event.model_dump(mode="json"),
+            authorization_seal=seal,
+        )
 
     def append_completed_exposure(
         self,
@@ -223,6 +259,73 @@ class RuntimeDataAccessAuditTrail:
         del event, allowed_multiplicity
         raise RuntimeAuthorizationAuditError(
             "Completed exposure events require a verified delivery reservation"
+        )
+
+    def scan_read_only(self) -> RuntimeAuditScanResult:
+        """Read every trail line without creating, truncating, or appending bytes.
+
+        Authority-bearing reservation scans remain fail closed.  This separate
+        observability scan instead retains malformed/non-object counts so a
+        review-effectiveness projection cannot silently turn omitted bytes into
+        complete coverage.
+        """
+
+        def _unavailable(*, path_exists: bool, read_error: bool) -> RuntimeAuditScanResult:
+            return RuntimeAuditScanResult(
+                entries=(),
+                path_exists=path_exists,
+                nonblank_line_count=0,
+                parsed_object_count=0,
+                malformed_json_line_count=0,
+                nonobject_line_count=0,
+                audit_read_error_count=int(read_error),
+            )
+
+        try:
+            path_exists = self._path.exists()
+        except OSError:
+            return _unavailable(path_exists=False, read_error=True)
+        if not path_exists:
+            return _unavailable(path_exists=False, read_error=False)
+        if fcntl is None:
+            return _unavailable(path_exists=True, read_error=True)
+        try:
+            with self._lock, self._path.open("rb") as handle:
+                fcntl.flock(handle.fileno(), fcntl.LOCK_SH)
+                try:
+                    lines = tuple(handle)
+                finally:
+                    fcntl.flock(handle.fileno(), fcntl.LOCK_UN)
+        except FileNotFoundError:
+            return _unavailable(path_exists=False, read_error=True)
+        except OSError:
+            return _unavailable(path_exists=True, read_error=True)
+
+        entries: list[dict[str, object]] = []
+        nonblank_line_count = 0
+        malformed_json_line_count = 0
+        nonobject_line_count = 0
+        for raw_line in lines:
+            if not raw_line.strip():
+                continue
+            nonblank_line_count += 1
+            try:
+                parsed = json.loads(raw_line)
+            except (TypeError, UnicodeDecodeError, ValueError, json.JSONDecodeError):
+                malformed_json_line_count += 1
+                continue
+            if not isinstance(parsed, dict):
+                nonobject_line_count += 1
+                continue
+            entries.append(cast("dict[str, object]", parsed))
+        return RuntimeAuditScanResult(
+            entries=tuple(entries),
+            path_exists=True,
+            nonblank_line_count=nonblank_line_count,
+            parsed_object_count=len(entries),
+            malformed_json_line_count=malformed_json_line_count,
+            nonobject_line_count=nonobject_line_count,
+            audit_read_error_count=0,
         )
 
     def _reserve_exposure_delivery(
@@ -363,7 +466,19 @@ class RuntimeDataAccessAuditTrail:
                 )
             self._write_locked(handle, event.model_dump(mode="json"))
 
-    def _append_line(self, entry: dict[str, Any]) -> None:
+    def _append_line(
+        self,
+        entry: dict[str, Any],
+        *,
+        authorization_seal: object | None = None,
+    ) -> None:
+        if (
+            entry.get("event_type") == _AUTHORIZATION_EVENT_TYPE
+            and authorization_seal is not _AUTHORIZATION_AUDIT_APPEND_SEAL
+        ):
+            raise RuntimeAuthorizationAuditError(
+                "Authorization audit state requires its dedicated sealed writer"
+            )
         with self._locked_handle() as handle:
             self._write_locked(handle, entry)
 
@@ -922,13 +1037,19 @@ def emit_runtime_authorization_audit(
     audit_trail = getattr(container, "runtime_access_audit", None)
     if audit_trail is None:
         audit_trail = getattr(app_state, "runtime_access_audit", None)
-    append = getattr(audit_trail, "append", None)
     try:
-        if not callable(append):
-            raise RuntimeAuthorizationAuditError(
-                "Runtime authorization access-audit trail is unavailable"
+        if type(audit_trail) is RuntimeDataAccessAuditTrail:
+            audit_trail._append_authorization_decision(
+                event,
+                seal=_AUTHORIZATION_AUDIT_APPEND_SEAL,
             )
-        append(event.model_dump(mode="json"))
+        else:
+            append = getattr(audit_trail, "append", None)
+            if not callable(append):
+                raise RuntimeAuthorizationAuditError(
+                    "Runtime authorization access-audit trail is unavailable"
+                )
+            append(event.model_dump(mode="json"))
     except Exception as exc:
         state.runtime_authorization_audit_terminal = True
         state.runtime_authorization_audit_emitted = False
@@ -973,6 +1094,7 @@ __all__ = [
     "HumanDecisionExposureReplayError",
     "PreparedHumanDecisionExposureEvent",
     "ReservedHumanDecisionExposureEvent",
+    "RuntimeAuditScanResult",
     "RuntimeAuthorizationAuditError",
     "RuntimeAuthorizationAuditEvent",
     "RuntimeAuthorizationOutcome",

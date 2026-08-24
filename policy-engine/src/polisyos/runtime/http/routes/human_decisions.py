@@ -16,6 +16,7 @@ from polisyos.runtime.http.authorization import (
     ResourceBindingSpec,
     require_action_permission,
 )
+from polisyos.runtime.http.container import resolve_runtime_access_audit
 from polisyos.runtime.http.dependencies import (
     RuntimeApiContext,
     enforce_run_tenant_access,
@@ -41,6 +42,7 @@ from polisyos.runtime.http.services.human_decision_contracts import (
     HumanDecisionMode,
     HumanDecisionPA2GateInput,
     HumanDecisionProductionGateInput,
+    HumanDecisionReviewEffectivenessResponse,
     HumanDecisionSourceKind,
     HumanDecisionWriteContext,
 )
@@ -51,6 +53,7 @@ from polisyos.runtime.http.services.human_decisions import (
     HumanDecisionService,
     HumanDecisionUnavailableError,
 )
+from polisyos.runtime.http.services.review_effectiveness import ReviewEffectivenessService
 from polisyos.runtime.http.step_up import StepUpClass, require_step_up
 from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
     DecisionAction,
@@ -580,6 +583,7 @@ if router is not None:
             resource_id=receipt.record_ref,
             tenant_id=tenant_id,
             outcome="human_decision_record_created",
+            metadata={"run_id": run_id},
         )
         return HumanDecisionCreateResponse(
             run_id=run_id,
@@ -634,6 +638,7 @@ if router is not None:
 
     @router.get(
         "/{run_id}/human-decisions/review-effectiveness",
+        response_model=HumanDecisionReviewEffectivenessResponse,
         operation_id="get_run_human_decision_review_effectiveness",
         dependencies=[Depends(_REVIEW_EFFECTIVENESS_AUTHZ)],
     )
@@ -641,7 +646,8 @@ if router is not None:
         run_id: str,
         request: Request,
         ctx: _RuntimeContextDependency,
-    ) -> None:
+        service: _OptionalHumanDecisionServiceDependency,
+    ) -> HumanDecisionReviewEffectivenessResponse:
         run = _require_run(request, ctx=ctx, run_id=run_id)
         tenant_id = _run_tenant_id(run)
         set_authz_resource(
@@ -651,10 +657,27 @@ if router is not None:
             artifact_id=run_id,
         )
         _ = _action_proof(request, _REVIEW_EFFECTIVENESS_AUTHZ)
-        raise service_unavailable(
-            "Review-effectiveness projection is not installed",
-            code="review_effectiveness_producer_missing",
+        trail = resolve_runtime_access_audit(request)
+        if trail is None:
+            raise service_unavailable(
+                "Review-effectiveness projection lacks the existing access trail",
+                code="review_effectiveness_producer_missing",
+            )
+        projection = ReviewEffectivenessService(
+            trail=trail,
+            human_decisions=service,
+        ).for_run(
+            tenant_id=tenant_id,
+            run_id=run_id,
         )
+        record_data_access_audit(
+            request,
+            resource_id=run_id,
+            tenant_id=tenant_id,
+            outcome="human_decision_review_effectiveness_read",
+            metadata={"run_id": run_id},
+        )
+        return projection
 
     @router.get(
         "/{run_id}/human-decision-evidence/{artifact_id}/content",

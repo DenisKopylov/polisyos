@@ -601,6 +601,135 @@ class HumanDecisionCreateResponse(Layer2ReadinessModel):
         return self
 
 
+class HumanDecisionReviewEffectivenessResponse(Layer2ReadinessModel):
+    """Coverage-explicit advisory projection over retained decision records."""
+
+    schema_version: Literal["policyos.runtime.human_decision_review_effectiveness.v1"] = (
+        "policyos.runtime.human_decision_review_effectiveness.v1"
+    )
+    run_id: str = Field(min_length=1, max_length=200)
+    coverage_status: Literal["complete", "incomplete"]
+    trail_path_exists: bool
+    nonblank_line_count: int = Field(ge=0)
+    parsed_object_count: int = Field(ge=0)
+    malformed_json_line_count: int = Field(ge=0)
+    nonobject_line_count: int = Field(ge=0)
+    audit_read_error_count: int = Field(ge=0)
+    audit_predicate_provenance: Literal["institutionally_supplied"] = (
+        "institutionally_supplied"
+    )
+    coverage_claim_scope: Literal["retained_trail_bytes_only"] = (
+        "retained_trail_bytes_only"
+    )
+    authorization_allow_count: int = Field(ge=0)
+    candidate_human_decision_count: int = Field(ge=0)
+    completed_human_decision_count: int = Field(ge=0)
+    exact_join_count: int = Field(ge=0)
+    invalid_authorization_event_count: int = Field(ge=0)
+    invalid_record_event_count: int = Field(ge=0)
+    tenant_scope_unknown_record_event_count: int = Field(ge=0)
+    unmatched_authorization_count: int = Field(ge=0)
+    unmatched_record_event_count: int = Field(ge=0)
+    duplicate_authorization_request_count: int = Field(ge=0)
+    duplicate_record_request_count: int = Field(ge=0)
+    duplicate_record_event_count: int = Field(ge=0)
+    retained_or_missing_record_count: int = Field(ge=0)
+    review_count: int = Field(ge=0)
+    approval_count: int = Field(ge=0)
+    override_count: int = Field(ge=0)
+    blocking_count: int = Field(ge=0)
+    dissent_count: int = Field(ge=0)
+    reviewer_independence_rate: float | None = Field(default=None, ge=0, le=1)
+    separation_of_duty_attestation_rate: float | None = Field(
+        default=None,
+        ge=0,
+        le=1,
+    )
+    review_time_status: Literal["not_established"] = "not_established"
+    review_time_established_count: Literal[0] = 0
+    review_time_not_established_count: int = Field(ge=0)
+    measurement_status: Literal["partial"] = "partial"
+    threshold_scope: Literal["established_signals_only"] = "established_signals_only"
+    threshold_status: Literal["pass", "warn", "fail"]
+    review_posture: Literal["advisory"] = "advisory"
+    blocking_permitted: Literal[False] = False
+    report_status_effect: Literal["pass_advisory_only"] = "pass_advisory_only"
+    advisory_signal_codes: tuple[str, ...]
+    authoritative_for: tuple[
+        Literal[
+            "review_effectiveness_measurement",
+            "future_policy_calibration",
+            "reviewer_load_observability",
+        ],
+        ...,
+    ] = (
+        "review_effectiveness_measurement",
+        "future_policy_calibration",
+        "reviewer_load_observability",
+    )
+    may_not_use_for: tuple[
+        Literal[
+            "current_run_closeout_block",
+            "publication_block",
+            "claim_support_downgrade",
+            "authorization_writer_provenance",
+            "forensic_tamper_detection",
+        ],
+        ...,
+    ] = (
+        "current_run_closeout_block",
+        "publication_block",
+        "claim_support_downgrade",
+        "authorization_writer_provenance",
+        "forensic_tamper_detection",
+    )
+
+    @model_validator(mode="after")
+    def _advisory_boundary_is_fixed(self) -> Self:
+        if self.authoritative_for != (
+            "review_effectiveness_measurement",
+            "future_policy_calibration",
+            "reviewer_load_observability",
+        ) or self.may_not_use_for != (
+            "current_run_closeout_block",
+            "publication_block",
+            "claim_support_downgrade",
+            "authorization_writer_provenance",
+            "forensic_tamper_detection",
+        ):
+            raise ValueError("review-effectiveness advisory boundary changed")
+        if self.exact_join_count > self.completed_human_decision_count:
+            raise ValueError("review-effectiveness join exceeds resolved records")
+        complete = (
+            self.trail_path_exists
+            and self.audit_read_error_count == 0
+            and self.malformed_json_line_count == 0
+            and self.nonobject_line_count == 0
+            and self.invalid_authorization_event_count == 0
+            and self.invalid_record_event_count == 0
+            and self.tenant_scope_unknown_record_event_count == 0
+            and self.unmatched_authorization_count == 0
+            and self.unmatched_record_event_count == 0
+            and self.duplicate_authorization_request_count == 0
+            and self.duplicate_record_request_count == 0
+            and self.duplicate_record_event_count == 0
+            and self.retained_or_missing_record_count == 0
+            and self.candidate_human_decision_count > 0
+            and self.exact_join_count
+            == self.authorization_allow_count
+            == self.candidate_human_decision_count
+            == self.completed_human_decision_count
+        )
+        if self.coverage_status != ("complete" if complete else "incomplete"):
+            raise ValueError("review-effectiveness coverage status contradicts its receipts")
+        if (
+            self.review_count != self.completed_human_decision_count
+            or self.review_time_not_established_count != self.review_count
+        ):
+            raise ValueError("review-effectiveness measurement denominator changed")
+        return self
+
+
 class HumanDecisionCreateCommand(Layer2ReadinessModel):
     """Caller decision fields; all authority-bearing fields are deliberately absent."""
 
@@ -751,6 +880,7 @@ __all__ = [
     "HumanDecisionProductionGatewayAdapterInput",
     "HumanDecisionRequestSurface",
     "HumanDecisionResolverPolicy",
+    "HumanDecisionReviewEffectivenessResponse",
     "HumanDecisionSourceKind",
     "HumanDecisionTrustPolicy",
     "HumanDecisionTrustedProducer",

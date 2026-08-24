@@ -312,6 +312,30 @@ def test_denominator_mismatch_is_a_pre_positive_query_bound_failure() -> None:
             query=_query(context_fill="4"),
             failure=failure,
         )
+    wrong_key = contract.PredicatePolicySelectionKey(
+        family=query.domain.family,
+        proof_domain=query.domain.proof_domain,
+        scope_ref=_digest("f"),
+        authority_purpose=query.domain.authority_purpose,
+        requested_cutoff_ref=query.requested_cutoff_ref,
+    )
+    wrong_key_failure = contract.PolicyOwnerDenominatorMismatchFailure(
+        code="native_denominator_mismatch",
+        status="rejected",
+        key=wrong_key,
+        requested_query_context_ref=query.requested_query_context_ref,
+        expected_denominator_ref=_digest("1"),
+        observed_denominator_ref=_digest("2"),
+    )
+    with pytest.raises(
+        ValidationError,
+        match="policy failure carries a key that differs from the full query",
+    ):
+        contract.NativeChronologyPolicyResolutionFailed(
+            result_kind="policy_resolution_failed",
+            query=query,
+            failure=wrong_key_failure,
+        )
     with pytest.raises(ValidationError, match="denominator mismatch requires unequal refs"):
         contract.PolicyOwnerDenominatorMismatchFailure(
             **{
@@ -556,6 +580,18 @@ def test_native_candidate_content_hash_binds_every_candidate_field() -> None:
     original = contract._native_candidate_content_hash(candidate)
     changed = candidate.model_copy(update={"native_authority_head_refs": (_digest("f"),)})
     assert contract._native_candidate_content_hash(changed) != original
+
+
+def test_native_candidate_rejects_blank_exterior_limitation_code() -> None:
+    candidate = _owner_qualified_candidate().candidate
+
+    with pytest.raises(ValidationError, match="String should have at least 1 character"):
+        contract.NativeChronologyCandidate.model_validate(
+            {
+                **candidate.model_dump(mode="python"),
+                "exterior_limitation_code": "",
+            }
+        )
 
 
 def test_query_cannot_carry_adapter_selected_profile_or_policy() -> None:

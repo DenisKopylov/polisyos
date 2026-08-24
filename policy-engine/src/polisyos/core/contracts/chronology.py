@@ -415,7 +415,7 @@ class NativeChronologyCandidate(_ChronologyModel):
     ordered_members: tuple[ChronologyMemberInput, ...]
     member_predicates: tuple[MemberPredicateDisposition, ...]
     query_predicates: tuple[QueryPredicateDisposition, ...]
-    exterior_limitation_code: str | None
+    exterior_limitation_code: str | None = Field(min_length=1)
     native_authority_head_refs: tuple[Digest, ...]
 
     @model_validator(mode="after")
@@ -570,6 +570,18 @@ class ResolvedPredicatePolicyAdmission(_ChronologyModel):
     owner_relation_verification: VerifiedPredicatePolicyOwnerRelation
 
 
+def _policy_selection_key_for_query(
+    query: NativeChronologyQuery,
+) -> PredicatePolicySelectionKey:
+    return PredicatePolicySelectionKey(
+        family=query.domain.family,
+        proof_domain=query.domain.proof_domain,
+        scope_ref=query.domain.scope_ref,
+        authority_purpose=query.domain.authority_purpose,
+        requested_cutoff_ref=query.requested_cutoff_ref,
+    )
+
+
 class PredicatePolicyResolutionContext(_ChronologyModel):
     """Immutable context passed to every policy byte loader."""
 
@@ -578,13 +590,7 @@ class PredicatePolicyResolutionContext(_ChronologyModel):
 
     @model_validator(mode="after")
     def _bind_key(self) -> PredicatePolicyResolutionContext:
-        expected = PredicatePolicySelectionKey(
-            family=self.query.domain.family,
-            proof_domain=self.query.domain.proof_domain,
-            scope_ref=self.query.domain.scope_ref,
-            authority_purpose=self.query.domain.authority_purpose,
-            requested_cutoff_ref=self.query.requested_cutoff_ref,
-        )
+        expected = _policy_selection_key_for_query(self.query)
         if self.key != expected:
             raise ValueError("policy resolution key does not match the full query")
         return self
@@ -1818,6 +1824,8 @@ class NativeChronologyPolicyResolutionFailed(_ChronologyModel):
 
     @model_validator(mode="after")
     def _same_query_context(self) -> NativeChronologyPolicyResolutionFailed:
+        if self.failure.key != _policy_selection_key_for_query(self.query):
+            raise ValueError("policy failure carries a key that differs from the full query")
         if self.failure.requested_query_context_ref != self.query.requested_query_context_ref:
             raise ValueError("policy failure carries a different query coordinate")
         return self

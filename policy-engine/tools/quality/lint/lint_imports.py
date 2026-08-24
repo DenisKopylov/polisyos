@@ -673,6 +673,18 @@ def _violation_rule_id(message: str) -> str:
     return match.group(1)
 
 
+def _violation_populations(
+    violations: Sequence[Violation],
+) -> tuple[list[Violation], list[Violation]]:
+    """Partition live violations by whether a prior exception decision lapsed."""
+
+    lapsed_cover = [item for item in violations if item.expired_exception is not None]
+    unadjudicated = [item for item in violations if item.expired_exception is None]
+    if len(lapsed_cover) + len(unadjudicated) != len(violations):
+        raise AssertionError("violation population partition is incomplete")
+    return lapsed_cover, unadjudicated
+
+
 def _text_report(
     *,
     context: LintReportContext,
@@ -681,6 +693,7 @@ def _text_report(
     cycles: list[list[str]],
     internal_counts: dict[Path, int],
 ) -> str:
+    lapsed_cover, unadjudicated = _violation_populations(violations)
     lines = [
         "Import gate report",
         "",
@@ -695,16 +708,30 @@ def _text_report(
         lines.append(f"Autofix: canonicalized exceptions file ({context.fixes_applied} write)")
     lines.append("")
 
-    if violations:
-        lines.append("Violations:")
-        for violation in violations:
+    for label, population in (
+        ("Lapsed cover", lapsed_cover),
+        ("Unadjudicated", unadjudicated),
+    ):
+        if population:
+            lines.append(f"{label} ({len(population)}):")
+        else:
+            lines.extend([f"{label} (0): none", ""])
+            continue
+        for violation in population:
             lines.append(f"- {violation.message}")
             if violation.expired_exception:
                 exc = violation.expired_exception
                 lines.append(f"  expired exception {exc.exception_id} (expires {exc.expires})")
         lines.append("")
-    else:
-        lines.extend(["Violations: none", ""])
+
+    lines.extend(
+        [
+            "Violation populations: "
+            f"lapsed cover={len(lapsed_cover)} + unadjudicated={len(unadjudicated)} "
+            f"= total={len(violations)}",
+            "",
+        ]
+    )
 
     if allowed_exceptions:
         lines.append("Allowed exceptions:")
@@ -746,6 +773,7 @@ def _structured_result(
     internal_counts: dict[Path, int],
     exit_code: int,
 ) -> ToolResult:
+    lapsed_cover, unadjudicated = _violation_populations(violations)
     messages: list[ToolMessage] = []
     for violation in violations:
         rule_id = _violation_rule_id(violation.message)
@@ -807,6 +835,8 @@ def _structured_result(
             "cache_misses": context.cache_misses,
             "fixes_applied": context.fixes_applied,
             "violation_count": len(violations),
+            "lapsed_cover_count": len(lapsed_cover),
+            "unadjudicated_count": len(unadjudicated),
             "allowed_exception_count": len(allowed_exceptions),
             "cycle_count": len(cycles),
             "cycle_error_count": len(context.enforced_cycle_signatures),

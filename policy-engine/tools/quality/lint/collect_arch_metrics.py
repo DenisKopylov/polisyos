@@ -52,6 +52,18 @@ def _extract_section(text: str, header: str) -> list[str]:
 
 
 def _count_import_violations(lint_output: str) -> int:
+    population_footer = re.search(
+        r"^Violation populations: lapsed cover=(\d+) \+ unadjudicated=(\d+) "
+        r"= total=(\d+)$",
+        lint_output,
+        flags=re.MULTILINE,
+    )
+    if population_footer is not None:
+        lapsed, unadjudicated, total = map(int, population_footer.groups())
+        if lapsed + unadjudicated != total:
+            raise ValueError("import violation population footer is arithmetically inconsistent")
+        return total
+
     rows = _extract_section(lint_output, "Violations:")
     if not rows:
         return 0

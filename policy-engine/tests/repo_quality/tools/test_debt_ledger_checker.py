@@ -404,7 +404,7 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 60
+    assert metrics["register_ids"] == 61
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_rows"] == 217
@@ -526,7 +526,7 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
     assert "bridge_missing" not in gap8
-    assert "| `DEBT-REGISTER.md` | 59 | 59 | 35 |" in rendered
+    assert "| `DEBT-REGISTER.md` | 61 | 61 | 37 |" in rendered
     assert "| Atlas master debt table | 22 | 22 | 9 |" in rendered
 
 
@@ -561,7 +561,12 @@ def test_open_work_records_property_posture_and_branch_relevance() -> None:
     # slice lingering there is loss mode 5, the class the ledger exists to catch.
     assert not [line for line in rendered.splitlines() if "| `DS9` |" in line]
 
-    for slice_id in ("DS10", "DS12", "DS14", "DS15", "DS17"):
+    ds10 = next(line for line in rendered.splitlines() if "| `DS10` |" in line)
+    assert "| `in-flight` |" in ds10
+    assert "attached branch declared by slice plan" in ds10
+    assert "codex/ds10-capability-discovery-plan" in ds10
+
+    for slice_id in ("DS12", "DS14", "DS15", "DS17"):
         row = next(line for line in rendered.splitlines() if f"| `{slice_id}` |" in line)
         assert "unblocking property `not_established`" in row
         assert "measured 2026-08-22" in row

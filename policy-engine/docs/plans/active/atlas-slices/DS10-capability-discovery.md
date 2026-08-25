@@ -1046,6 +1046,7 @@ Every row has an executable signal and owner. Prose alone owns nothing.
 | non-closure | state / boundary | owner | executable closure signal |
 | --- | --- | --- | --- |
 | generic post-G0 registry data-only free growth | `artifact_missing`; the underlying data-only growth property is `not_established`; registered debt, not a DS10 blocker; DS10 will not build registry content | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q` |
+| admitted-adapter capability-discovery bridge | `producer_missing + artifact_missing`; the real G3 admission builder can grow only a semantic bridge-adapter set, while the complete 61-row admission family supplies no DS10 resource kind, capability purpose, passport/evidence/currentness receipt, or concrete capability-discovery provider. Inferring `method` would be P38; injecting a provider or DTO in the DS10 test would violate the required real-registry path. This blocks CC15 after C04 without making adapter admission content DS10-owned | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_capability_discovery.py::test_admitted_adapter_emits_typed_capability_kind_purpose_passport_evidence_and_currentness -q`; then DS10 replays `uv run pytest tests/integration/runtime_frontend/test_capability_discovery_free_growth.py::test_new_conformance_admitted_adapter_appears_without_frontend_code_change -q` |
 | owner-signed typed capability-purpose authority binding | `bridge_missing + artifact_missing`; DS9 currentness binds its expected consumer/audience but has no typed capability ref/digest/purpose join, and opaque `governed_action_key` cannot substitute; DS10 defines/consumes only a fail-closed port | DS9 authority owner / `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness -q` |
 | global case index | `absent/unallocated`; DS10 renders `producer_missing`, adds no store/index | `team-architecture` owns owner allocation; eventual producer owner then replaces it | `uv run pytest tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index -q` |
 | stable Python facade graduation | `surface_out_of_scope`; DS10's external surface is HTTP/OpenAPI and the internal typed module is not added to `polisyos.core.contracts` facade | `team-polisyos` public-surface owner | after an owner-approved facade change/regeneration: `uv run polisyos-tools architecture guardrails check` |
@@ -1058,6 +1059,14 @@ Every row has an executable signal and owner. Prose alone owns nothing.
 
 An absent future test file is `artifact_missing`, not a green signal. C07 registers
 any still-open row in the debt register before claiming closure.
+
+Execution stop receipt (2026-08-25): after source-frozen C04, two independent
+reconnaissance passes found the admitted-adapter bridge above absent. C05 cannot
+start its binding CC15 witness under any current reading without either inferring
+a false resource kind or replacing the real registry path with a fixture. Per the
+approved section 3 stop rule, C05-C07 remain unexecuted; the completed boundary is
+`c279bbd142fdab8d88751ee411b2b82e823c6cf3` at 18/50 mechanism paths and 7/12
+widening rounds before this companion-only registration transaction.
 
 ## Commit sequence
 

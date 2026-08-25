@@ -3694,6 +3694,27 @@
           "has___dir__": true,
           "source_file": "src/polisyos/lex/__init__.py",
           "summary": "Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions."
+        },
+        {
+          "module": "polisyos.lex.knowledge",
+          "facade_mode_observed": "lazy_facade",
+          "export_count": 10,
+          "exports": [
+            "LegalEntity",
+            "LegalFact",
+            "LegalFactResult",
+            "LegalKnowledgeGraph",
+            "LegalProvision",
+            "LegalProvisionResult",
+            "LegalRuleThresholdRow",
+            "LegalSearchResult",
+            "LegalTemporalCompetence",
+            "LegalThresholdEvaluation"
+          ],
+          "has___getattr__": true,
+          "has___dir__": true,
+          "source_file": "src/polisyos/lex/knowledge/__init__.py",
+          "summary": "Legal knowledge graph: SPO entities, facts, and semantic search."
         }
       ]
     },

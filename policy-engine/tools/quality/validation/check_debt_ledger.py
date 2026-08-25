@@ -21,7 +21,7 @@ ATLAS_PATH = Path("docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTE
 DISPOSITION_PATH = Path("architecture/atlas_surfaces/frontend-disposition-register.json")
 LEDGER_PATH = Path("docs/plans/active/LEDGER.md")
 PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/plans"))
-PUBLISHED_DENOMINATORS = {"register": 59, "gy": 38, "atlas": 22, "frontend": 217}
+PUBLISHED_DENOMINATORS = {"register": 60, "gy": 38, "atlas": 22, "frontend": 217}
 REGISTER_STATUSES = frozenset(
     {"open", "open_unmerged", "blocked", "folded", "closed", "ambiguous", "foreign"}
 )

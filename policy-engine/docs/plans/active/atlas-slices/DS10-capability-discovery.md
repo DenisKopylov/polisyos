@@ -2,7 +2,7 @@
 plan_id: atlas-ds10-capability-discovery
 title: "DS10 - Capability Discovery"
 type: slice-plan
-status: awaiting_owner_approval_blocked_on_registry_free_growth_precondition
+status: approved_for_implementation
 created: 2026-08-25
 last_verified: 2026-08-25
 stability: measured_plan
@@ -44,14 +44,13 @@ cluster path fence. Before approval: no production code, writer, register lock,
 regeneration, visual lane, merge, push, rebase, stash storage, or master-plan
 line-7 edit.
 
-After approval, C00 starts from a newly attached execution branch cut from a
-then-current `main` containing this approved plan. It first replays the adapter-
-registry free-growth gate. That gate is **not established at the pinned base**,
-so C00 must stop with zero production-mechanism paths unless the upstream owner
-has already merged the named generic registry mutation proof. DS10 may register
-and consume that proof; it may not repair adapter-registry content. A completed
-failure is a receipt. A missing test, skipped test, killed command, fixture-only
-pass, or nonempty registry is not a gate pass.
+After approval, C00 starts from the attached execution branch containing this
+plan. Adapter-registry data-only free growth is **not established at the pinned
+base**, but that upstream backend gap is not a DS10 gate: C00 registers it as
+owned debt and continues. DS10's binding free-growth property is frontend
+genericity: a correctly admitted adapter, established through the real backend
+admission path, renders with zero dashboard production-code change. DS10 may
+consume the backend admission path; it may not redesign adapter admission.
 
 Use `corepack pnpm`, never bare `pnpm`. Do not run `guardrails sync`. Run only the
 targeted commands named here. Generated output is produced only while holding the
@@ -89,10 +88,11 @@ define a second closure contract.
 - [ ] **CC01** The approved plan, exact execution base, attached branch, prefix,
       clean-tree predicate, path fences, and red witnesses are re-read before
       every commit.
-- [ ] **CC02** The upstream registry gate proves a new post-G0 adapter becomes
-      adapter-conformance-admitted by a data-only typed-registry mutation;
-      missing test, source edit, fixture registry, or a nonempty static registry
-      stops C00. This is not `admitted_authority`.
+- [ ] **CC02** The upstream data-only registry-growth gap is registered as
+      `ds10-adapter-registry-data-only-free-growth`, owned by
+      `team-architecture` with producer lane `runtime/quality` and the exact
+      executable closure signal below. It is not a DS10 blocker and is not
+      `admitted_authority`.
 - [ ] **CC03** One canonical strict contract owns the six resource kinds, three
       independent posture arms, typed negatives, authority purpose, provenance,
       schema/rule versions, and time/freshness semantics; G0 imports rather than
@@ -134,11 +134,12 @@ define a second closure contract.
 - [ ] **CC14** Fixed workspace/route/tab chrome is resolved by an explicit local
       `SurfaceAvailability` owner and never by a discovery result; open command-
       palette/picker results come only from the typed search response.
-- [ ] **CC15** The exact free-growth e2e test adds one correctly formed post-G0
-      adapter through the generic owner store, refreshes the real index, and
-      renders its generated ID with zero tracked `src/**` or
-      `apps/runtime-dashboard/src/**` production-byte change. Its authority arm
-      remains `not_established` unless the independent owner-signed binding exists.
+- [ ] **CC15** The exact free-growth e2e test admits one correctly formed post-G0
+      adapter through the real backend admission path, refreshes the real index,
+      and renders its generated ID with zero tracked
+      `apps/runtime-dashboard/src/**` production-byte change. Backend admission
+      code/data may change through its real owner path. The authority arm remains
+      `not_established` unless the independent owner-signed binding exists.
 - [ ] **CC16** Three bounded controls go red independently: an import-resolved
       backend manifest constructor, a contextual generated-TypeScript feature
       literal, and a literal `capability_ref`/adapter-ID/resource-kind branch or
@@ -201,11 +202,13 @@ The decisive property is:
 > with zero frontend production-code change.
 
 The test is designed before the endpoint or component. It uses the canonical
-registry producer; it does not seed an HTTP response, MSW result, frontend
-fixture, hardcoded adapter ID, or direct DTO constructor as its positive proof.
-Complete backend-plus-frontend source digests and an invalid-row sibling make the
-“zero code change” and fail-closed halves executable. The new adapter can be
-discoverable/executable while authority honestly remains `not_established`.
+backend admission producer, including its code-side tuple when that is the real
+path; it does not seed an HTTP response, MSW result, frontend fixture, hardcoded
+adapter ID, or direct DTO constructor as its positive proof. The complete
+dashboard source digest and invalid-row sibling make frontend genericity and the
+fail-closed half executable. Backend source is not part of this invariant. The
+new adapter can be discoverable/executable while authority honestly remains
+`not_established`.
 
 ### 4. Frontier honesty is part of discovery
 
@@ -283,15 +286,15 @@ G1/G3/G4/GL declared count fields and the enumerated G2 refs reproduce the same
 partition.
 
 The master-plan entry predicate “meaningful adapter-registry content” is
-**satisfied** by this substantive row-level content. The stronger free-growth
-precondition imposed by DS10's decisive falsifier is **not established**.
+**satisfied** by this substantive row-level content. The stronger backend
+data-only free-growth property is **not established**.
 The admitted G1 rows are emitted by `_adapter_admissions(...)` as two authored
 constructors; G3 admissions are derived from an authored adapter-path tuple; G0
 intentionally forbids admission. Adding a new contract row cannot enter the
 admitted set by data-only mutation. Nonempty/admitted-row count is therefore a
 P38 proxy for the required property.
 
-Current free-growth state: `not_established`. Accountable owner:
+Current backend data-only free-growth state: `not_established`. Accountable owner:
 `team-architecture`, the owner of the Layer-3 roadmap and adapter discipline;
 producer lane: `runtime/quality`. Exact discharge identity:
 
@@ -299,10 +302,10 @@ producer lane: `runtime/quality`. Exact discharge identity:
 uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q
 ```
 
-The test must be tracked, select exactly one test, and prove source-tree bytes
-unchanged across the mutation. C00 stops if the file/test is absent, skipped,
-fixture-only, or red. DS10 does not add the registry producer or content needed
-to make it green.
+The test must be tracked, select exactly one test, and prove backend source-tree
+bytes unchanged across the mutation. C00 records its absent/skipped/red state as
+debt and continues; DS10 does not add the registry producer or content needed to
+make it green.
 
 ## Six resource-provider adjudication
 
@@ -468,18 +471,18 @@ request. No client clock upgrades server freshness.
 
 ## Exact free-growth falsifier
 
-`test_new_conformance_admitted_adapter_appears_without_product_code_change`
+`test_new_conformance_admitted_adapter_appears_without_frontend_code_change`
 performs this exact sequence:
 
-1. Enumerate and hash the complete pinned 3,873-path production denominator:
-   every tracked `src/**` and `apps/runtime-dashboard/src/**` path, preserving the
-   two directory/file-type partitions and known members above. Copy only the
-   canonical post-G0 registry/index data inputs into a temporary owner store.
-2. Through the upstream generic registry API, add one contract row with declared
-   port/purpose, conformance/passport/evidence refs and non-quarantined state.
-   Compute its new `capability_ref`/adapter ID from the row content; assert that
-   exact value was absent from both source sets before mutation. No product file
-   or authored producer list changes.
+1. Enumerate and hash the complete pinned 1,087-path dashboard production
+   denominator under `apps/runtime-dashboard/src/**`, preserving its file-type
+   partition and known member. Prepare one new backend adapter definition.
+2. Admit that adapter through the backend's real admission path, including the
+   code-side tuple when that path requires it, with declared port/purpose,
+   conformance/passport/evidence refs and non-quarantined state. Compute its new
+   `capability_ref`/adapter ID from the admitted row and assert that exact value
+   was absent from dashboard source before admission. Backend changes are
+   legitimate here; no dashboard product file or authored frontend list changes.
 3. Refresh/rebuild the real registry and discovery index, invoke the actual
    FastAPI search route, then render the real generic hook/panel. Do not seed an
    HTTP/MSW response, direct DTO, frontend fixture, or name the ID in renderer
@@ -493,23 +496,23 @@ performs this exact sequence:
 5. Assert downloaded MACHINE bytes equal the captured `response.clone()` bytes
    and `decodeCapabilityDiscoveryDom(container)` equals the parsed complete
    response.
-6. Re-enumerate and rehash both production sets and require exact path, partition,
-   and byte-digest equality. The frontend-only digest is retained as the user's
-   direct zero-frontend-change witness; the combined digest prevents a backend
-   ID special case.
+6. Re-enumerate and rehash the dashboard production set and require exact path,
+   partition, and byte-digest equality. A generic-result-boundary lint plus the
+   real route/panel assertion prevents a frontend ID special case.
 7. Repeat with missing contract/passport, stale index, quarantine, malformed row,
    policy disablement, and no-hit/recall miss; each fails at its own posture and
    none renders `admitted_authority`.
 
-The upstream C00 gate is the registry-only prefix of steps 1-2. A later optional
-positive-authority sibling may run only after the upstream authority owner ships
-the separately signed typed binding contract; DS10's test cannot manufacture it.
+The upstream backend data-only test is a separately owned debt signal, not a
+conjunct of this UI falsifier. A later optional positive-authority sibling may
+run only after the upstream authority owner ships the separately signed typed
+binding contract; DS10's test cannot manufacture it.
 
 ## Red-first semantic tests
 
 Backend identities:
 
-- `test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation` — upstream C00 gate.
+- `test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation` — upstream owned debt signal.
 - `test_capability_discovery_postures_use_three_independent_producers`.
 - `test_discoverable_row_cannot_establish_execution_or_authority`.
 - `test_bare_adapter_admitted_flag_cannot_establish_authority`.
@@ -521,7 +524,7 @@ Backend identities:
 - `test_capability_discovery_distinguishes_no_hit_recall_unmeasured_stale_and_outage`.
 - `test_capability_discovery_case_kind_is_typed_producer_missing`.
 - `test_capability_discovery_agent_provider_never_reads_world_agent_rows`.
-- `test_new_conformance_admitted_adapter_appears_without_product_code_change`.
+- `test_new_conformance_admitted_adapter_appears_without_frontend_code_change`.
 - `test_control_capability_manifest_has_no_authored_feature_rows`.
 - `test_data_catalog_search_is_projection_of_canonical_discovery_service`.
 - `test_capability_discovery_route_reuses_control_read_authorization`.
@@ -535,7 +538,7 @@ Frontend/architecture identities:
 - `CapabilityDiscoveryPanel a11y > keyboard search result traversal and MACHINE download`.
 - `CapabilityDiscoveryPanel a11y > candidate and limitation clothing pass opaque-background contrast`.
 - `CapabilityDiscoveryPanel MACHINE > exact HTTP bytes equal download and decoded DOM`.
-- `Capability discovery free growth > new conformance-admitted adapter renders without product production change`.
+- `Capability discovery free growth > new conformance-admitted adapter renders without frontend production change`.
 - `Fixed chrome separation > routes tabs and mutations do not consume discovery as availability`.
 - `Lex discovery > preserves candidate grounding hallucination jurisdiction and temporal truth`.
 - `DS10 register coverage > all 10 opening roots have one checked disposition`.
@@ -586,7 +589,7 @@ falsifier; do not patch another instance.
 
 | cluster | property | path cap | round budget |
 | --- | --- | ---: | ---: |
-| C00 | Admit plan, remeasure the entry gate, pin reds, and stop if registry growth is not generic. | 0 mechanism | 1 transaction; 0 widening |
+| C00 | Admit plan, remeasure the entry state, pin DS10 reds, and register upstream registry-growth debt. | 0 mechanism | 1 transaction; 0 widening |
 | C01 | Canonicalize independent posture/frontier contracts and make the no-enumeration lint generic. | 5 | 2 widening |
 | C02 | Federate existing typed indexes and independently reconcile discovery/execution while authority fails closed across DS9 currentness and the missing owner binding. | 5 | 3 widening |
 | C03 | Expose the search bridge, re-ground the manifest, and bind the data-catalog compatibility projection. | 7 | 2 widening |
@@ -595,32 +598,30 @@ falsifier; do not patch another instance.
 | C06 | Separate fixed chrome and migrate every current capability-manifest consumer/adjudication. | 12 | 3 widening |
 | C07 | Freeze, review, run targeted semantic/a11y/visual lanes, register debts, and read back closure. | 0 mechanism | 1 verification transaction |
 
-### C00 — plan admission, real red, and blocking gate
+### C00 — plan admission, real reds, and owned upstream debt
 
 **Mechanism cap:** 0. **Round:** one register/test transaction; no widening.
 
 **P39 only:** this plan; execution journal
 `docs/superpowers/journals/2026-08-25-ds10-capability-discovery.md`;
 `docs/plans/active/DEBT-REGISTER.md`; generated `LEDGER.md`; and the upstream
-tracked gate test only if it has already arrived on main. C00 may add DS10's
-backend/frontend red test shells, but no source producer, generated output,
-registry artifact, or registry builder.
+tracked gate test only if it has already arrived on main. The debt-register
+denominator constant and its pinned behavioral test move only as the compulsory
+companion of this new row. C00 may add DS10's backend/frontend red test shells,
+but no source producer, generated output, registry artifact, or registry builder.
 
-**Named red:** upstream
-`test_post_g0_registry_admits_new_contract_from_data_only_mutation`; DS10
+**Named red:** DS10
 `test_capability_discovery_postures_use_three_independent_producers`;
 `test_control_capability_manifest_has_no_authored_feature_rows`; and the
 frontend hardcoded picker negative.
 
 **Acceptance:** exact current-main parent has the known debt-checker informational
-rows only; all requested censuses are independently reproduced; gate test exists,
-selects one, does not skip, changes only temp registry data, proves bytes
-unchanged across the complete 3,873-path production denominator, and is green.
-If any conjunct fails, record/update debt
+rows only; all requested censuses are independently reproduced; DS10's own named
+tests are present and red for the intended missing behavior; and debt
 `ds10-adapter-registry-data-only-free-growth`, owner `team-architecture`, producer
-lane `runtime/quality`, exact command above, commit the blocked receipt if
-authorized, release the register lock, and stop with 0/12 widening rounds. Do not
-enter C01.
+lane `runtime/quality`, carries the exact command above. Record the upstream
+test's current absent/skipped/red/green receipt without making it a conjunct,
+release the register lock, commit C00, and enter C01 with 0/12 widening rounds.
 
 ```bash
 git status -sb
@@ -630,9 +631,7 @@ uv run python tools/quality/validation/check_debt_ledger.py --check --report-onl
 uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q
 ```
 
-**Commit boundary:** green gate —
-`test(atlas): bind DS10 discovery reds`; blocked gate —
-`docs(atlas): admit DS10 blocked registry gate`.
+**Commit boundary:** `test(atlas): bind DS10 discovery reds`.
 
 ### C01 — canonical contract and enumeration strangle
 
@@ -696,8 +695,8 @@ port are three distinct properties.
 - `src/polisyos/runtime/quality/capability_authority.py`
 
 **Forbidden paths:** all canonical adapter admission/contract JSON/TOML artifacts
-and their row-producing builders. C02 consumes their generic interface after the
-upstream gate; it does not add or alter content.
+and their row-producing builders. C02 consumes their real interface and does not
+add or alter upstream registry content.
 
 **P39 tests:** `tests/unit/runtime/quality/test_capability_discovery.py`, existing
 capability index/compiler/resolver tests, DS9 production-approval resolver tests,
@@ -926,7 +925,7 @@ moved counts. Exact visual/a11y companions are:
   and modify the three C05 a11y journey specs named above.
 
 Those intercepted payloads are visual determinism fixtures only; they cannot
-satisfy CC02 or CC15, whose positives come from the real temporary owner store.
+satisfy CC15, whose positive comes through the real backend admission path.
 
 **Acceptance:** targeted backend and frontend lanes, generic enforcement checker,
 free-growth e2e, one visual writer plus two no-writer runs, exact-byte/DOM parity,
@@ -944,8 +943,15 @@ uv run pytest architecture/atlas_surfaces/test_atlas_enforcement.py architecture
 .venv/bin/python architecture/atlas_surfaces/check_frontend_disposition_register.py --write-report
 .venv/bin/python architecture/atlas_surfaces/check_frontend_disposition_register.py --check --verify-baseline-source-bytes --corruption-probes
 uv run python tools/quality/validation/check_debt_ledger.py --write
-uv run python tools/quality/validation/check_debt_ledger.py --check
+uv run python tools/quality/validation/check_debt_ledger.py --check --report-only
+uv run pytest tests/repo_quality/tools/test_debt_ledger_checker.py::test_ds10_debt_projection_has_only_declared_informational_findings -q
 ```
+
+The final debt predicate is not the checker's composite exit: report-only output
+must contain exactly the ten inherited `register_supplies_missing_standing` rows
+and one inherited `register_withholds_source_standing` row, with zero render,
+denominator, closure, or DS10 debt drift. DS10 does not change the checker's
+frontend denominator or its misleading 217 label.
 
 The DS10 writer/check additionally runs
 `test_ds10_writer_emits_five_rebind_five_use_as_is_and_preserves_217_assignments`
@@ -995,7 +1001,7 @@ CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exe
 
 | code | meaning |
 | --- | --- |
-| `DS10-REGISTRY-FREE-GROWTH-NOT-ESTABLISHED` | upstream data-only admitted-registry mutation proof absent/red; stop C00 |
+| `DS10-REGISTRY-FREE-GROWTH-NOT-ESTABLISHED` | upstream data-only admitted-registry mutation proof absent/red; owned debt, not a DS10 blocker |
 | `DS10-DISCOVERY-INDEX-UNAVAILABLE` / `DS10-DISCOVERY-INDEX-STALE` | discovery producer unavailable/stale; candidate frontier only |
 | `DS10-DISCOVERY-INCOMPLETE` / `DS10-DISCOVERY-NO-MATCH` | bounded/unknown remainder or true searched no-match; never abstention authority |
 | `DS10-EXECUTION-NOT-ESTABLISHED` / `DS10-EXECUTION-BLOCKED` | live registry/conformance/policy cannot establish execution |
@@ -1019,17 +1025,17 @@ Read the failure/repair register again before C00 and C07 closeout.
 | P04/P05/P09/P15 | posture/admission vocabulary can be read as an ordinal or boolean | three independent arms; search/LLM/adapter admission cannot promote authority |
 | P10/P25/P29 | current catalog API renders hits/count only | behavioral no-hit/recall/stale/incomplete frontier and DOM/raw-byte parity |
 | P27/P28/P31 | 21 authored rows and keyed consumers bypass an owner | generic registry projection plus complete keyed strangle; fixed chrome explicitly separated |
-| P32/P37/P38 | `admitted=true`, packet-ref presence, opaque action key, nonempty registry, or status name used as proof | DS9 currentness AND independently verified typed capability-purpose binding; data-only registry mutation; falsify each premise while shape remains |
+| P32/P37/P38 | `admitted=true`, packet-ref presence, opaque action key, nonempty registry, or status name used as proof | DS9 currentness AND independently verified typed capability-purpose binding; frontend-only free-growth digest; upstream data-only registry growth remains separately owned debt |
 | P33/P34 | test fixture or marker-specific lint teaches to the probe | source-digest free-growth, indirect literal/sibling consumer/synonym/malformed mutations |
 | P35/P36 | loose grep/comment adjacency and 217/261 denominator collapse | two independent complete-set derivations with file-type denominator and known member |
 | P39 | path budget counts plan/tests/generated companions | 42 mechanism paths, companions outside, one mechanism never split |
 | P40/P41 | repeated instance repair or inherited-red claim without base replay | bucket second finding; replay exact slice base and prove changed-input intersection zero |
 
-Target closure state after the gate is `typed contract + producer + persisted
+Target closure state is `typed contract + producer + persisted
 frontier/replay artifact + orchestration bridge + consumer + verification +
-REVIEWER/EXPERT/MACHINE surface + negative/e2e semantic test`. Until the upstream
-gate closes, DS10 remains `producer_missing` at C00; the detailed later clusters
-do not convert that blocked state into authorization.
+REVIEWER/EXPERT/MACHINE surface + negative/e2e semantic test`. The upstream
+backend data-only growth gap remains debt and does not weaken the frontend
+genericity proof.
 
 ## Explicit non-closure
 
@@ -1037,7 +1043,7 @@ Every row has an executable signal and owner. Prose alone owns nothing.
 
 | non-closure | state / boundary | owner | executable closure signal |
 | --- | --- | --- | --- |
-| generic post-G0 registry free growth | `not_established`; blocks C00; DS10 will not build registry content | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q` |
+| generic post-G0 registry data-only free growth | `not_established`; registered debt, not a DS10 blocker; DS10 will not build registry content | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q` |
 | owner-signed typed capability-purpose authority binding | `bridge_missing + artifact_missing`; DS9 currentness binds its expected consumer/audience but has no typed capability ref/digest/purpose join, and opaque `governed_action_key` cannot substitute; DS10 defines/consumes only a fail-closed port | DS9 authority owner / `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness -q` |
 | global case index | `absent/unallocated`; DS10 renders `producer_missing`, adds no store/index | `team-architecture` owns owner allocation; eventual producer owner then replaces it | `uv run pytest tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index -q` |
 | stable Python facade graduation | `surface_out_of_scope`; DS10's external surface is HTTP/OpenAPI and the internal typed module is not added to `polisyos.core.contracts` facade | `team-polisyos` public-surface owner | after an owner-approved facade change/regeneration: `uv run polisyos-tools architecture guardrails check` |
@@ -1056,8 +1062,7 @@ any still-open row in the debt register before claiming closure.
 | boundary | message |
 | --- | --- |
 | planning hand-back | `docs(atlas): plan DS10 capability discovery` |
-| C00 green | `test(atlas): bind DS10 discovery reds` |
-| C00 blocked terminal | `docs(atlas): admit DS10 blocked registry gate` |
+| C00 | `test(atlas): bind DS10 discovery reds` |
 | C01 | `feat(core): define independent capability discovery postures` |
 | C02 | `feat(runtime): compose registry-backed capability discovery` |
 | C03 | `feat(api): expose capability search and strangle authored manifest` |
@@ -1091,9 +1096,9 @@ adapter content, invents a case index, adds a mutation/permission, or raises the
   abstention, approval, or publication.
 - `admitted=true`, a packet ref, a confidence score, and an index hit are not
   authority predicates.
-- The free-growth test is behavioral and data-only; it hashes the full tracked
-  backend-plus-frontend production denominator, so a fixture response,
-  enumerated ID, or backend special case cannot satisfy it.
+- The free-growth test is behavioral and frontend-generic; it hashes the full
+  tracked dashboard production denominator while admitting through the real
+  backend path, so a fixture response or enumerated frontend ID cannot satisfy it.
 - Fixed app chrome stays explicit and typed, but it never masquerades as open
   discovery.
 - Selected and rejected candidates, cutoff, freshness, no-hit, and

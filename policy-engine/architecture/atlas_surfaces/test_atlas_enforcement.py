@@ -10,6 +10,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
+from time import monotonic
 from typing import Any, Mapping
 
 ATLAS_DIR = Path(__file__).resolve().parent
@@ -1030,6 +1031,297 @@ class AtlasEnforcementTests(unittest.TestCase):
             any(
                 rows_path in error and error.endswith(":authored_result_array") for error in errors
             ),
+            errors,
+        )
+
+    def test_ds10_generic_render_boundary_resolves_static_es_module_graph(self) -> None:
+        """Reject semantic literals through every static ES module binding form."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        fixtures = (
+            (
+                "default-import-and-literal-export",
+                {
+                    root_path: (
+                        'import selected from "./CapabilityDiscoveryValues";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": 'export default "agent";\n',
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "namespace-member",
+                {
+                    root_path: (
+                        'import * as values from "./CapabilityDiscoveryValues";\n'
+                        "export const render = (result: { id: string }) => "
+                        "result.id === values.selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const selected = "capability-namespace-probe";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "unrelated-lexical-shadow-does-not-rebind-import",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryValues";\n'
+                        "function unrelated(runtimeValue: string) {\n"
+                        "  const selected = runtimeValue;\n"
+                        "  return selected;\n"
+                        "}\n"
+                        "export const render = (result: { id: string }) => "
+                        "result.id === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const selected = "capability-module-binding";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "named-reexport-alias-chain",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryBarrelA";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrelA.ts": (
+                        'export { relay as selected } from "./CapabilityDiscoveryBarrelB";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrelB.ts": (
+                        'export { origin as relay } from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const origin = "dataset";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "default-reexport-chain",
+                {
+                    root_path: (
+                        'import selected from "./CapabilityDiscoveryBarrel";\n'
+                        "export const render = (result: { id: string }) => "
+                        "result.id === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export { origin as default } from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const origin = "capability-default-reexport";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "star-reexport-chain",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryBarrel";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export * from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const selected = "source";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "default-export-identifier",
+                {
+                    root_path: (
+                        'import selected from "./CapabilityDiscoveryValues";\n'
+                        "export const render = (result: { id: string }) => "
+                        "result.id === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'const selected = "capability-default-identifier";\n'
+                        "export default selected;\n"
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "imported-result-row-through-star",
+                {
+                    root_path: (
+                        'import { row } from "./CapabilityDiscoveryBarrel";\n'
+                        "export const rows = [row];\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export * from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const row = { capability_ref: "capability-row-probe", '
+                        'resource_kind: "agent" };\n'
+                    ),
+                },
+                root_path,
+                "authored_result_array",
+            ),
+        )
+
+        for label, sources, finding_path, finding_kind in fixtures:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(sources)
+                self.assertTrue(  # noqa: PT009
+                    any(
+                        finding_path in error and error.endswith(f":{finding_kind}")
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_ds10_generic_render_boundary_fails_closed_on_unresolved_module_values(
+        self,
+    ) -> None:
+        """Reject missing exports and cyclic aliases used by semantic result branches."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        fixtures = (
+            (
+                "missing-export",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryValues";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const unrelated = "agent";\n'
+                    ),
+                },
+            ),
+            (
+                "alias-cycle",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryAliasA";\n'
+                        "export const render = (result: { id: string }) => "
+                        "result.id === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryAliasA.ts": (
+                        'export { selected } from "./CapabilityDiscoveryAliasB";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryAliasB.ts": (
+                        'export { selected } from "./CapabilityDiscoveryAliasA";\n'
+                    ),
+                },
+            ),
+        )
+
+        for label, sources in fixtures:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(sources)
+                self.assertTrue(  # noqa: PT009
+                    any(
+                        root_path in error
+                        and error.endswith(":unresolved_semantic_value")
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_ds10_generic_render_boundary_bounds_star_cycles(self) -> None:
+        """Terminate a repository-scale cyclic re-export graph and fail closed."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        module_count = 80
+        sources = {
+            root_path: (
+                'import { selected } from "./CapabilityDiscoveryCycle0";\n'
+                "export const render = (result: { id: string }) => "
+                "result.id === selected;\n"
+            )
+        }
+        for index in range(module_count):
+            next_index = (index + 1) % module_count
+            sources[f"{render_dir}/CapabilityDiscoveryCycle{index}.ts"] = (
+                f'export * from "./CapabilityDiscoveryCycle{next_index}";\n'
+            )
+
+        started = monotonic()
+        errors = checker.check_capability_discovery_result_boundary(sources)
+        elapsed = monotonic() - started
+
+        self.assertLess(elapsed, 5.0)  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            any(error.endswith(":unresolved_semantic_value") for error in errors),
+            errors,
+        )
+
+    def test_ds10_generic_render_boundary_keeps_plain_ids_and_runtime_values_benign(
+        self,
+    ) -> None:
+        """Accept a11y object IDs and data-driven branch values outside authored rows."""
+        render_path = (
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "CapabilityDiscoveryPanel.tsx"
+        )
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                render_path: (
+                    'import { selected } from "./CapabilityDiscoveryValues";\n'
+                    'const heading = { id: "capability-search-heading", role: "heading" };\n'
+                    "export function render(result: { id: string }, selected: string) {\n"
+                    "  void heading;\n"
+                    "  return result.id === selected;\n"
+                    "}\n"
+                ),
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryValues.ts"
+                ): 'export const selected = "capability-shadowed-import";\n',
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryLocalShadow.tsx"
+                ): (
+                    'const selected = "capability-shadowed-local";\n'
+                    "export function render(result: { id: string }, selected: string) {\n"
+                    "  return result.id === selected;\n"
+                    "}\n"
+                ),
+            }
+        )
+
+        self.assertEqual([], errors)  # noqa: PT009
+
+    def test_ds10_generic_render_boundary_keeps_result_id_branch_semantic(self) -> None:
+        """Reject a literal result ID without treating every plain object ID as semantic."""
+        render_path = (
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "CapabilityDiscoveryPanel.tsx"
+        )
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                render_path: (
+                    "export function render(result: { id: string }) {\n"
+                    '  return result.id === "capability-hardcoded-result";\n'
+                    "}\n"
+                )
+            }
+        )
+
+        self.assertEqual(  # noqa: PT009
+            [f"hardcoded_discovery_result:{render_path}:2:literal_result_branch"],
             errors,
         )
 

@@ -287,16 +287,18 @@ partition.
 
 The master-plan entry predicate “meaningful adapter-registry content” is
 **satisfied** by this substantive row-level content. The stronger backend
-data-only free-growth property is **not established**.
+data-only free-growth witness is **`artifact_missing`**; its underlying
+data-only free-growth property is therefore **not established**.
 The admitted G1 rows are emitted by `_adapter_admissions(...)` as two authored
 constructors; G3 admissions are derived from an authored adapter-path tuple; G0
 intentionally forbids admission. Adding a new contract row cannot enter the
 admitted set by data-only mutation. Nonempty/admitted-row count is therefore a
 P38 proxy for the required property.
 
-Current backend data-only free-growth state: `not_established`. Accountable owner:
-`team-architecture`, the owner of the Layer-3 roadmap and adapter discipline;
-producer lane: `runtime/quality`. Exact discharge identity:
+Current backend data-only free-growth state: `artifact_missing` (underlying
+property `not_established`). Accountable owner: `team-architecture`, the owner
+of the Layer-3 roadmap and adapter discipline; producer lane: `runtime/quality`.
+Exact discharge identity:
 
 ```bash
 uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q
@@ -1043,7 +1045,7 @@ Every row has an executable signal and owner. Prose alone owns nothing.
 
 | non-closure | state / boundary | owner | executable closure signal |
 | --- | --- | --- | --- |
-| generic post-G0 registry data-only free growth | `not_established`; registered debt, not a DS10 blocker; DS10 will not build registry content | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q` |
+| generic post-G0 registry data-only free growth | `artifact_missing`; the underlying data-only growth property is `not_established`; registered debt, not a DS10 blocker; DS10 will not build registry content | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q` |
 | owner-signed typed capability-purpose authority binding | `bridge_missing + artifact_missing`; DS9 currentness binds its expected consumer/audience but has no typed capability ref/digest/purpose join, and opaque `governed_action_key` cannot substitute; DS10 defines/consumes only a fail-closed port | DS9 authority owner / `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness -q` |
 | global case index | `absent/unallocated`; DS10 renders `producer_missing`, adds no store/index | `team-architecture` owns owner allocation; eventual producer owner then replaces it | `uv run pytest tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index -q` |
 | stable Python facade graduation | `surface_out_of_scope`; DS10's external surface is HTTP/OpenAPI and the internal typed module is not added to `polisyos.core.contracts` facade | `team-polisyos` public-surface owner | after an owner-approved facade change/regeneration: `uv run polisyos-tools architecture guardrails check` |

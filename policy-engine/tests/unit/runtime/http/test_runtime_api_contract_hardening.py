@@ -408,6 +408,41 @@ def test_generated_runtime_client_includes_governed_projection_wrappers() -> Non
     assert "getRuntimeChannelRegistry" in names
 
 
+def test_generated_runtime_client_includes_capability_search_wrapper(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
+    spec = json.loads(spec_path.read_text(encoding="utf-8"))
+    operations = generate_runtime_client._extract_operations(spec)
+
+    assert "searchCapabilities" in {operation.name for operation in operations}
+
+    runtime_ts = tmp_path / "runtimeApiClient.ts"
+    runtime_js = tmp_path / "runtimeApiClient.js"
+    canonical_ts = tmp_path / "canonicalRuntimeApiClient.ts"
+    canonical_js = tmp_path / "canonicalRuntimeApiClient.js"
+    runtime_ts.write_text(
+        generate_runtime_client._render_ts(spec, operations),
+        encoding="utf-8",
+    )
+    runtime_js.write_text(
+        generate_runtime_client._render_js(operations),
+        encoding="utf-8",
+    )
+    _canonicalize_runtime_client(
+        repo_root,
+        spec_path,
+        runtime_ts,
+        runtime_js,
+        canonical_ts,
+        canonical_js,
+    )
+
+    for client_path in (runtime_ts, runtime_js, canonical_ts, canonical_js):
+        source = client_path.read_text(encoding="utf-8")
+        assert "async searchCapabilities(" in source
+        assert "`/api/v1/control/capabilities/search`" in source
+
+
 def test_generated_runtime_js_client_accepts_params_for_body_operations() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"

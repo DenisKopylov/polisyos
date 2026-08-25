@@ -23,6 +23,7 @@ _GENERATED_POST_OPERATION_IDS = frozenset(
         "estimate_mobility",
         "compute_mobility_bounds",
         "create_run_human_decision",
+        "search_capabilities",
     }
 )
 ResponseMode = Literal["json", "array_buffer"]
@@ -498,9 +499,7 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
                         f"      requestHeaders.set({json.dumps(param.name)}, String({access}));"
                     )
                     lines.append("    }")
-        response_mode_arg = (
-            ', "arrayBuffer"' if operation.response_mode == "array_buffer" else ""
-        )
+        response_mode_arg = ', "arrayBuffer"' if operation.response_mode == "array_buffer" else ""
         if operation.body_schema is not None and operation.header_params:
             lines.append(
                 f"    return this.request<{operation.response_type}>("
@@ -551,18 +550,18 @@ def _render_js(operations: list[OperationSpec]) -> str:
         "    this.fetchImpl = options.fetchImpl || fetch;",
         "  }",
         "",
-            "  async request(method, path, query, body, requestHeaders, responseMode = 'json') {",
+        "  async request(method, path, query, body, requestHeaders, responseMode = 'json') {",
         "    const suffix = query && query.toString() ? `?${query.toString()}` : '';",
         "    const url = `${this.baseUrl}${path}${suffix}`;",
-            "    const headers = new Headers(this.headers);",
-            "    if (body !== undefined && !headers.has('Content-Type')) {",
-            "      headers.set('Content-Type', 'application/json');",
-            "    }",
-            "    if (requestHeaders !== undefined) {",
-            "      new Headers(requestHeaders).forEach((value, key) => {",
-            "        headers.set(key, value);",
-            "      });",
-            "    }",
+        "    const headers = new Headers(this.headers);",
+        "    if (body !== undefined && !headers.has('Content-Type')) {",
+        "      headers.set('Content-Type', 'application/json');",
+        "    }",
+        "    if (requestHeaders !== undefined) {",
+        "      new Headers(requestHeaders).forEach((value, key) => {",
+        "        headers.set(key, value);",
+        "      });",
+        "    }",
         "    const response = await this.fetchImpl(url, {",
         "      method,",
         "      headers,",
@@ -642,9 +641,7 @@ def _render_js(operations: list[OperationSpec]) -> str:
                         f"      requestHeaders.set({json.dumps(param.name)}, String({access}));"
                     )
                     lines.append("    }")
-        response_mode_arg = (
-            ", 'arrayBuffer'" if operation.response_mode == "array_buffer" else ""
-        )
+        response_mode_arg = ", 'arrayBuffer'" if operation.response_mode == "array_buffer" else ""
         if operation.body_schema is not None and operation.header_params:
             lines.append(
                 f"    return this.request('{operation.method}', path, query, "

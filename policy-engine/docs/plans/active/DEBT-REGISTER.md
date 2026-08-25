@@ -238,6 +238,7 @@ searches both.
 
 | id | subject | owner | status | blocked by |
 | --- | --- | --- | --- | --- |
+| `ds9-postgres-reservation-proof` | DS9 proved a single-winner concurrent human-decision reservation on SQLite only; the strict PostgreSQL lane emitted six `DS9-PG-PROOF-NONRECEIPT` setup errors because no DSN exists in this environment, so **concurrent PostgreSQL reservation is unproven, not proven**. **Identities:** `tests/unit/runtime/http/test_runtime_postgres_linearizability.py::test_human_decision_concurrent_reservation_has_one_postgres_winner` | DS-INFRA-2 | `blocked` | needs a reachable disposable database with create/drop-schema privilege; then freeze at `max(60s, 2x measured)` and require selected > 0 with zero skips |
 | `GY-PA1` | S8 authority-grade value-schedule production/persistence/resolution chain; `producer_missing`. Carries `GY-GAP7` as its first cluster | runtime/quality | `open` | executable — re-measure before scheduling |
 | `GY-GAP2` | confidence ledger has no cross-scope composition; label `contract_missing` | runtime/quality | `blocked` | folded into `GY-N12` Task 12 as its fourth deferred candidate consumer |
 | `GY-GAP3` | no controlled release-family transcript owner; `absent/unallocated`, explicitly **not** `contract_only` | GY-N12 lane (primitive) / GY-PA3 (consumer) | `blocked` | blocks `PV-K07` issuance — a ratified statement is not issuable |

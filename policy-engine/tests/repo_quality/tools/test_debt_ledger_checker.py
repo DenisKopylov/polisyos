@@ -404,7 +404,7 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 58
+    assert metrics["register_ids"] == 59
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_rows"] == 217
@@ -526,7 +526,7 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
     assert "bridge_missing" not in gap8
-    assert "| `DEBT-REGISTER.md` | 58 | 58 | 34 |" in rendered
+    assert "| `DEBT-REGISTER.md` | 59 | 59 | 35 |" in rendered
     assert "| Atlas master debt table | 22 | 22 | 9 |" in rendered
 
 
@@ -556,11 +556,10 @@ def test_open_work_records_property_posture_and_branch_relevance() -> None:
     checker = _checker()
     rendered = checker.render_ledger(checker._snapshot(REPO_ROOT))
 
-    ds9 = next(line for line in rendered.splitlines() if "| `DS9` |" in line)
-    assert "| `in-flight` |" in ds9
-    assert "attached branch declared by slice plan" in ds9
-    assert "codex/ds9-human-decision-integrity-plan" in ds9
-    assert "no plan file in either plan root" not in ds9
+    # DS9 merged 2026-08-25 (`fd243d1ad`) and its master-plan row carries `CLOSED`,
+    # so it must leave Table A entirely. Table A answers "what is open"; a closed
+    # slice lingering there is loss mode 5, the class the ledger exists to catch.
+    assert not [line for line in rendered.splitlines() if "| `DS9` |" in line]
 
     for slice_id in ("DS10", "DS12", "DS14", "DS15", "DS17"):
         row = next(line for line in rendered.splitlines() if f"| `{slice_id}` |" in line)

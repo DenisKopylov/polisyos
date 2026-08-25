@@ -11,12 +11,23 @@ from __future__ import annotations
 
 import json
 from collections.abc import Iterable, Mapping, Sequence
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core import contracts as core_contracts
+from polisyos.core.contracts.capability_discovery import (
+    CapabilityExecutionPostureResult,
+    CapabilityTimeSemantics,
+)
+from polisyos.core.contracts.control import ExecutionProfile  # noqa: TC001
+from polisyos.runtime.http.execution_policy import (
+    ExecutionProfileError,
+    PolicyFlagForbiddenError,
+    RuntimeExecutionPolicyResolver,
+)
 from polisyos.runtime.quality.capability_authority import (
     CapabilityBindingResult as _AuthorityCapabilityBindingResult,
 )
@@ -48,12 +59,10 @@ RequirementToCapabilityQuery = core_contracts.RequirementToCapabilityQuery
 construct_for_legacy_family = core_contracts.construct_for_legacy_family
 legacy_family_for_construct = core_contracts.legacy_family_for_construct
 
-REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION = (
-    "requirement-to-capability-resolver-v1.0"
-)
+REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION = "requirement-to-capability-resolver-v1.0"
 DEFAULT_CAPABILITY_INDEX_REF = "capability-index:policy-evidence-phase4-governed-rows"
-GOVERNED_CAPABILITY_ROWS_PATH = (
-    Path("architecture/policy_design_case/layer2_s3_governed_capability_rows.json")
+GOVERNED_CAPABILITY_ROWS_PATH = Path(
+    "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
 )
 
 type CapabilityBindingResult = _AuthorityCapabilityBindingResult
@@ -95,6 +104,121 @@ class _CandidateEvaluation(BaseModel):
     rejected: dict[str, Any] | None = None
 
 
+class CapabilityExecutionRegistration(BaseModel):
+    """One live operation registration with independent conformance evidence."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    capability_ref: str = Field(min_length=1)
+    operation_ref: str = Field(min_length=1)
+    conformance_ref: str | None = Field(min_length=1)
+    conformance_passed: bool
+    conformance_valid_until: datetime
+    requested_profile: ExecutionProfile | None = None
+
+
+class CapabilityExecutionResolver:
+    """Reconcile operation, conformance, and deployment policy independently."""
+
+    def __init__(
+        self,
+        *,
+        registrations: Sequence[CapabilityExecutionRegistration | Mapping[str, Any]],
+        policy_resolver: RuntimeExecutionPolicyResolver,
+    ) -> None:
+        self._registrations = {
+            registration.capability_ref: registration
+            for item in registrations
+            for registration in (
+                item
+                if isinstance(item, CapabilityExecutionRegistration)
+                else CapabilityExecutionRegistration.model_validate(item),
+            )
+        }
+        if len(self._registrations) != len(registrations):
+            raise ValueError("capability execution registrations must be unique")
+        self._policy_resolver = policy_resolver
+
+    def resolve(
+        self,
+        *,
+        capability_ref: str,
+        producer_ref: str,
+        provenance_refs: tuple[str, ...],
+        observed_at: datetime | None = None,
+    ) -> CapabilityExecutionPostureResult:
+        """Resolve execution without consulting discovery rank or metadata."""
+
+        checked_at = observed_at or datetime.now(UTC)
+        if checked_at.tzinfo is None:
+            raise ValueError("execution reconciliation observed_at must be timezone-aware")
+        time = CapabilityTimeSemantics(
+            observed_at=checked_at,
+            valid_from=checked_at,
+            valid_until=None,
+            freshness="current",
+        )
+        registration = self._registrations.get(capability_ref)
+        if registration is None:
+            return CapabilityExecutionPostureResult(
+                state="operation_missing",
+                producer_ref=producer_ref,
+                reason_codes=("operation_registration_missing",),
+                provenance_refs=provenance_refs,
+                time=time,
+            )
+        if not registration.conformance_ref or not registration.conformance_passed:
+            return CapabilityExecutionPostureResult(
+                state="conformance_failed",
+                producer_ref=producer_ref,
+                operation_ref=registration.operation_ref,
+                conformance_ref=registration.conformance_ref,
+                reason_codes=("conformance_failed",),
+                provenance_refs=provenance_refs,
+                time=time,
+            )
+        if (
+            registration.conformance_valid_until.tzinfo is None
+            or registration.conformance_valid_until <= checked_at
+        ):
+            reason = (
+                "conformance_currentness_not_established"
+                if registration.conformance_valid_until.tzinfo is None
+                else "conformance_expired"
+            )
+            return CapabilityExecutionPostureResult(
+                state="conformance_failed",
+                producer_ref=producer_ref,
+                operation_ref=registration.operation_ref,
+                conformance_ref=registration.conformance_ref,
+                reason_codes=(reason,),
+                provenance_refs=provenance_refs,
+                time=time,
+            )
+        try:
+            policy = self._policy_resolver.resolve(requested_profile=registration.requested_profile)
+        except (ExecutionProfileError, PolicyFlagForbiddenError) as exc:
+            return CapabilityExecutionPostureResult(
+                state="policy_disabled",
+                producer_ref=producer_ref,
+                operation_ref=registration.operation_ref,
+                conformance_ref=registration.conformance_ref,
+                reason_codes=(getattr(exc, "code", "execution_policy_blocked"),),
+                provenance_refs=provenance_refs,
+                time=time,
+            )
+        policy_ref = f"runtime-execution-policy:sha256:{policy.config_fingerprint}"
+        return CapabilityExecutionPostureResult(
+            state="executable",
+            producer_ref=producer_ref,
+            operation_ref=registration.operation_ref,
+            conformance_ref=registration.conformance_ref,
+            policy_ref=policy_ref,
+            provenance_refs=tuple(dict.fromkeys((*provenance_refs, policy_ref))),
+            time=time,
+        )
+
+
 class RequirementToCapabilityResolver:
     """Resolve semantic evidence requirements against a capability index slice."""
 
@@ -128,13 +252,10 @@ class RequirementToCapabilityResolver:
         """Load governed capability rows from the persisted Policy Design Case artifact."""
 
         root = _repo_root() if repo_root is None else Path(repo_root)
-        payload = json.loads(
-            (root / GOVERNED_CAPABILITY_ROWS_PATH).read_text(encoding="utf-8")
-        )
+        payload = json.loads((root / GOVERNED_CAPABILITY_ROWS_PATH).read_text(encoding="utf-8"))
         return cls(
             capabilities=tuple(
-                _capability_payload_from_json(row)
-                for row in payload.get("capabilities") or ()
+                _capability_payload_from_json(row) for row in payload.get("capabilities") or ()
             ),
             failure_modes=tuple(payload.get("failure_modes") or ()),
             acquisition_strategies=tuple(payload.get("acquisition_strategies") or ()),
@@ -290,10 +411,7 @@ class RequirementToCapabilityResolver:
             conflict.model_dump(mode="json")
             for conflict in self.conflicts
             if _bare_construct(conflict.construct_id) == _bare_construct(query.construct)
-            and (
-                not conflict.capability_refs
-                or refs.intersection(set(conflict.capability_refs))
-            )
+            and (not conflict.capability_refs or refs.intersection(set(conflict.capability_refs)))
             and _geography_matches(query.geography, conflict.geography)
         )
 
@@ -375,9 +493,7 @@ class RequirementToCapabilityResolver:
                 "construct_ref": f"construct:{_bare_construct(query.construct)}",
                 "capability_index_ref": self.capability_index_ref,
                 "rejected_alternatives": tuple(dict(item) for item in rejected_alternatives),
-                "acquisition_strategies": tuple(
-                    dict(item) for item in acquisition_strategies
-                ),
+                "acquisition_strategies": tuple(dict(item) for item in acquisition_strategies),
                 "reviewer_queue": tuple(dict(item) for item in reviewer_queue),
                 "blocked_reasons": tuple(blocked_reasons),
             }
@@ -443,8 +559,7 @@ def _candidate_rejection(
             capability=capability,
         )
     if any(
-        _mode_matches(capability.evidence_mode, mode)
-        for mode in query.forbidden_evidence_modes
+        _mode_matches(capability.evidence_mode, mode) for mode in query.forbidden_evidence_modes
     ):
         reason = (
             "llm_candidate_unverified"
@@ -453,8 +568,7 @@ def _candidate_rejection(
         )
         return _rejection(capability_ref, reason, "hard", capability=capability)
     if query.required_evidence_modes and not any(
-        _mode_matches(capability.evidence_mode, mode)
-        for mode in query.required_evidence_modes
+        _mode_matches(capability.evidence_mode, mode) for mode in query.required_evidence_modes
     ):
         return _rejection(
             capability_ref,
@@ -816,6 +930,8 @@ __all__ = [
     "REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION",
     "REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION",
     "CapabilityBindingResult",
+    "CapabilityExecutionRegistration",
+    "CapabilityExecutionResolver",
     "RequirementTimeWindow",
     "RequirementToCapabilityQuery",
     "RequirementToCapabilityResolver",

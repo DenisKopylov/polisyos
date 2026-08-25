@@ -22,10 +22,45 @@ from polisyos.runtime.quality.capability_index import (
 )
 from polisyos.runtime.quality.capability_index_compiler import (
     CapabilityIndexCompilerConfig,
+    build_capability_discovery_snapshot,
     compile_capability_index,
     create_capability_index_fixture_inputs,
     validate_capability_authority,
 )
+
+
+def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
+    tmp_path: Path,
+) -> None:
+    input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
+    result = compile_capability_index(
+        CapabilityIndexCompilerConfig(
+            production_data_root=input_root,
+            output_dir=tmp_path / "out",
+            mode="fixture",
+            generated_at="2026-05-25T00:00:00Z",
+        )
+    )
+
+    rows = build_capability_discovery_snapshot(result.capability_index)
+
+    assert {row.resource_kind for row in rows} >= {"method", "dataset", "legal_norm"}
+    assert all(row.resource_kind != "agent" for row in rows)
+    assert all("agent_registry" not in ref for row in rows for ref in row.provenance_refs)
+
+    method = next(
+        capability
+        for capability in result.capability_index.capabilities
+        if "foundry_method_contract" in capability.modality
+    )
+    no_source_method = method.model_copy(update={"source_assets": (), "lineage_refs": ()})
+    fallback_index = result.capability_index.model_copy(
+        update={"capabilities": (no_source_method,)}
+    )
+
+    fallback_rows = build_capability_discovery_snapshot(fallback_index)
+
+    assert fallback_rows[0].provenance_refs == (result.capability_index.release_ref,)
 
 
 def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(
@@ -53,15 +88,18 @@ def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(
         assert _count(con, "capabilities") > 0
         assert _count(con, "source_assets") > 0
         assert _count(con, "capability_source_assets") > 0
-        assert con.execute(
-            """
+        assert (
+            con.execute(
+                """
             SELECT count(*)
             FROM source_assets
             WHERE source_layer = 'L1'
               AND table_name = 'ds_distributions'
               AND role = 'distribution_metadata'
             """
-        ).fetchone()[0] >= 1
+            ).fetchone()[0]
+            >= 1
+        )
 
         firm_rows = con.execute(
             """
@@ -77,39 +115,51 @@ def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(
         assert any("survival_hazard_estimates" in row[1] for row in firm_rows)
         assert any("foundry.ml.survival_data.v1" in row[2] for row in firm_rows)
 
-        assert con.execute(
-            """
+        assert (
+            con.execute(
+                """
             SELECT count(*)
             FROM capabilities
             WHERE modality_json LIKE '%lex_norm%'
               AND evidence_mode = 'legal_threshold'
               AND source_refs_json LIKE '%lex_rule_thresholds%'
             """
-        ).fetchone()[0] >= 1
-        assert con.execute(
-            """
+            ).fetchone()[0]
+            >= 1
+        )
+        assert (
+            con.execute(
+                """
             SELECT count(*)
             FROM capabilities
             WHERE modality_json LIKE '%scholar_claim%'
               AND source_refs_json LIKE '%ac_skg_edges%'
             """
-        ).fetchone()[0] >= 1
-        assert con.execute(
-            """
+            ).fetchone()[0]
+            >= 1
+        )
+        assert (
+            con.execute(
+                """
             SELECT count(*)
             FROM capabilities
             WHERE compatibility_only = true
               AND source_refs_json LIKE '%data_contracts.json%'
             """
-        ).fetchone()[0] >= 1
-        assert con.execute(
-            """
+            ).fetchone()[0]
+            >= 1
+        )
+        assert (
+            con.execute(
+                """
             SELECT count(*)
             FROM capabilities
             WHERE compatibility_only = false
               AND modality_json LIKE '%fabric_data%'
             """
-        ).fetchone()[0] >= 1, "L7 curated contracts cannot be the only data authority"
+            ).fetchone()[0]
+            >= 1
+        ), "L7 curated contracts cannot be the only data authority"
 
     summary = json.loads(result.summary_path.read_text())
     assert summary["primary_runtime_output"] == "capability_index_v1.duckdb"
@@ -123,8 +173,7 @@ def test_ukraine_panel_profiler_excludes_curated_and_simulation_parquets(
 ) -> None:
     input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
     _write_test_parquet(
-        input_root
-        / "canonical/local_data_20260501/policy_engine_data/curated/agents.parquet",
+        input_root / "canonical/local_data_20260501/policy_engine_data/curated/agents.parquet",
         {"agent_id": [1], "salary": [10.0]},
     )
     _write_test_parquet(
@@ -144,8 +193,9 @@ def test_ukraine_panel_profiler_excludes_curated_and_simulation_parquets(
     )
 
     with duckdb.connect(str(result.primary_duckdb_path), read_only=True) as con:
-        assert con.execute(
-            """
+        assert (
+            con.execute(
+                """
             SELECT count(*)
             FROM source_assets
             WHERE source_layer = 'L4'
@@ -154,7 +204,9 @@ def test_ukraine_panel_profiler_excludes_curated_and_simulation_parquets(
                 OR path LIKE '%ukraine_agent_simulation_baseline%'
               )
             """
-        ).fetchone()[0] == 0
+            ).fetchone()[0]
+            == 0
+        )
 
 
 def test_incremental_l7_change_rebuilds_only_l7_assets(
@@ -171,8 +223,7 @@ def test_incremental_l7_change_rebuilds_only_l7_assets(
         )
     )
     contracts_path = (
-        input_root
-        / "canonical/local_data_20260501/policy_engine_data/curated/data_contracts.json"
+        input_root / "canonical/local_data_20260501/policy_engine_data/curated/data_contracts.json"
     )
     payload = json.loads(contracts_path.read_text())
     payload["contracts"].append(
@@ -205,14 +256,17 @@ def test_incremental_l7_change_rebuilds_only_l7_assets(
     assert second.summary["incremental"]["rebuilt_input_labels"] == ["l7_curated_contracts"]
     assert second.summary["incremental"]["reused_previous_index"] is False
     with duckdb.connect(str(second.primary_duckdb_path), read_only=True) as con:
-        assert con.execute(
-            """
+        assert (
+            con.execute(
+                """
             SELECT count(*)
             FROM capabilities
             WHERE compatibility_only = true
               AND source_refs_json LIKE '%us.macro.unemployment_rate%'
             """
-        ).fetchone()[0] == 1
+            ).fetchone()[0]
+            == 1
+        )
 
 
 def test_simulation_only_cannot_satisfy_production_authority() -> None:

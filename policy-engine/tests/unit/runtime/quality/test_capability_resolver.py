@@ -1,12 +1,14 @@
 from __future__ import annotations
 
 # ruff: noqa: S101
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
+from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.quality.capability_index import (
     AcquisitionStrategy,
     AuthorityEnvelope,
@@ -20,6 +22,8 @@ from polisyos.runtime.quality.capability_index import (
     RightsEnvelope,
 )
 from polisyos.runtime.quality.capability_resolver import (
+    CapabilityExecutionRegistration,
+    CapabilityExecutionResolver,
     RequirementToCapabilityQuery,
     RequirementToCapabilityResolver,
 )
@@ -198,9 +202,7 @@ def test_population_filter_mismatch_is_rejected_before_selection() -> None:
     assert result.rejected_alternatives[0]["capability_ref"] == (
         "capability:firm_survival_households"
     )
-    assert result.rejected_alternatives[0]["rejection_reason"] == (
-        "population_filter_mismatch"
-    )
+    assert result.rejected_alternatives[0]["rejection_reason"] == ("population_filter_mismatch")
     assert result.rejected_alternatives[0]["rejection_severity"] == "hard"
 
 
@@ -295,6 +297,108 @@ def test_default_fixture_is_removed_from_production_resolution_path() -> None:
         RequirementToCapabilityResolver.default_fixture()
 
 
+def test_execution_requires_operation_conformance_and_current_policy() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="production",
+        worker_backend="external",
+        state_store_backend="postgres",
+        sqlite_path=":memory:",
+        postgres_dsn="postgresql://runtime",
+    )
+    resolver = CapabilityExecutionResolver(
+        registrations=(
+            CapabilityExecutionRegistration(
+                capability_ref="capability:method:generated",
+                operation_ref="operation:method:generated",
+                conformance_ref="conformance:method:generated",
+                conformance_passed=True,
+                conformance_valid_until=datetime(2026, 8, 26, tzinfo=UTC),
+                requested_profile="dev",
+            ),
+        ),
+        policy_resolver=policy,
+    )
+
+    result = resolver.resolve(
+        capability_ref="capability:method:generated",
+        producer_ref="execution:method-registry",
+        provenance_refs=("registry:operations",),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "policy_disabled"
+    assert "execution_profile_downgrade_forbidden" in result.reason_codes
+    assert result.operation_ref == "operation:method:generated"
+    assert result.conformance_ref == "conformance:method:generated"
+    assert result.policy_ref is None
+
+
+def test_execution_rejects_expired_conformance_receipt() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=":memory:",
+        postgres_dsn=None,
+    )
+    resolver = CapabilityExecutionResolver(
+        registrations=(
+            CapabilityExecutionRegistration(
+                capability_ref="capability:method:generated",
+                operation_ref="operation:method:generated",
+                conformance_ref="conformance:method:generated",
+                conformance_passed=True,
+                conformance_valid_until=datetime(2026, 8, 24, tzinfo=UTC),
+            ),
+        ),
+        policy_resolver=policy,
+    )
+
+    result = resolver.resolve(
+        capability_ref="capability:method:generated",
+        producer_ref="execution:method-registry",
+        provenance_refs=("registry:operations",),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "conformance_failed"
+    assert result.reason_codes == ("conformance_expired",)
+
+
+def test_execution_does_not_fall_back_from_discovery_metadata() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=":memory:",
+        postgres_dsn=None,
+    )
+    resolver = CapabilityExecutionResolver(registrations=(), policy_resolver=policy)
+
+    result = resolver.resolve(
+        capability_ref="capability:source:metadata-only",
+        producer_ref="execution:source-registry",
+        provenance_refs=("fabric:best-effort-metadata",),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "operation_missing"
+    assert result.reason_codes == ("operation_registration_missing",)
+
+
+def test_bare_admitted_flag_is_not_an_execution_registration() -> None:
+    with pytest.raises(ValueError, match="Extra inputs are not permitted"):
+        CapabilityExecutionRegistration.model_validate(
+            {
+                "capability_ref": "capability:method:generated",
+                "operation_ref": "operation:method:generated",
+                "conformance_ref": "conformance:method:generated",
+                "conformance_passed": True,
+                "admitted": True,
+            }
+        )
+
+
 def test_cross_modal_traceability_uses_same_construct_and_capability_index_ref() -> None:
     resolver = RequirementToCapabilityResolver(
         capabilities=(
@@ -326,8 +430,10 @@ def test_cross_modal_traceability_uses_same_construct_and_capability_index_ref()
     )
 
     assert data.construct_ref == scholar.construct_ref == "construct:firm_survival"
-    assert data.capability_index_ref == scholar.capability_index_ref == (
-        "capability-index:test-fixture"
+    assert (
+        data.capability_index_ref
+        == scholar.capability_index_ref
+        == ("capability-index:test-fixture")
     )
 
 

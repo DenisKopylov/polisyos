@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # ruff: noqa: S101
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -11,7 +12,9 @@ from hypothesis import strategies as st
 
 from polisyos.runtime.quality.capability_authority import (
     AUTHORITY_FACTOR_NAMES,
+    CapabilityAuthorityContext,
     CapabilityAuthorityFactorName,
+    CapabilityDiscoveryAuthorityResolver,
     compose_capability_authority,
 )
 from polisyos.runtime.quality.capability_index import (
@@ -25,9 +28,91 @@ from polisyos.runtime.quality.capability_index import (
 )
 
 FIXTURE_PATH = (
-    Path(__file__).resolve().parents[3]
-    / "fixtures/capability_authority/mixed_outcomes_v1.json"
+    Path(__file__).resolve().parents[3] / "fixtures/capability_authority/mixed_outcomes_v1.json"
 )
+
+
+def test_discovery_authority_stays_bridge_missing_for_caller_shaped_binding() -> None:
+    resolver = CapabilityDiscoveryAuthorityResolver(production_approval_resolver=None)
+    context = CapabilityAuthorityContext(
+        packet_ref="sha256:" + "1" * 64,
+        tenant_id="tenant-a",
+        run_id="run-a",
+        expected_consumer="capability-discovery",
+        expected_audience="REVIEWER",
+        binding_claim={
+            "capability_ref": "capability:method:generated",
+            "content_digest": "sha256:" + "2" * 64,
+            "authority_purpose": "review_capability_candidates",
+            "expected_consumer": "capability-discovery",
+            "expected_audience": "REVIEWER",
+            "owner_signature_ref": "self-attested",
+        },
+    )
+
+    result = resolver.resolve(
+        capability_ref="capability:method:generated",
+        content_digest="sha256:" + "2" * 64,
+        authority_purpose="review_capability_candidates",
+        audience="REVIEWER",
+        context=context,
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "bridge_missing"
+    assert "not_established" in result.reason_codes
+    assert "owner_binding_not_independently_verified" in result.reason_codes
+    assert result.binding_ref is None
+    assert result.currentness_ref is None
+
+
+@pytest.mark.parametrize(
+    ("binding_override", "expected_reason"),
+    [
+        ({"capability_ref": "capability:wrong"}, "owner_binding_resource_mismatch"),
+        ({"content_digest": "sha256:" + "9" * 64}, "owner_binding_digest_mismatch"),
+        ({"authority_purpose": "publish"}, "owner_binding_purpose_mismatch"),
+        ({"expected_consumer": "wrong-consumer"}, "owner_binding_consumer_mismatch"),
+        ({"expected_audience": "MACHINE"}, "owner_binding_audience_mismatch"),
+        ({"expires_at": "2026-08-24T00:00:00+00:00"}, "owner_binding_expired"),
+        ({"owner_signature_ref": ""}, "owner_binding_unsigned"),
+    ],
+)
+def test_owner_binding_corruptions_remain_not_established(
+    binding_override: dict[str, str],
+    expected_reason: str,
+) -> None:
+    binding = {
+        "capability_ref": "capability:method:generated",
+        "content_digest": "sha256:" + "2" * 64,
+        "authority_purpose": "review_capability_candidates",
+        "expected_consumer": "capability-discovery",
+        "expected_audience": "REVIEWER",
+        "expires_at": "2026-08-26T00:00:00+00:00",
+        "owner_signature_ref": "self-attested",
+        **binding_override,
+    }
+    resolver = CapabilityDiscoveryAuthorityResolver(production_approval_resolver=None)
+    result = resolver.resolve(
+        capability_ref="capability:method:generated",
+        content_digest="sha256:" + "2" * 64,
+        authority_purpose="review_capability_candidates",
+        audience="REVIEWER",
+        context=CapabilityAuthorityContext(
+            packet_ref="sha256:" + "1" * 64,
+            tenant_id="tenant-a",
+            run_id="run-a",
+            expected_consumer="capability-discovery",
+            expected_audience="REVIEWER",
+            binding_claim=binding,
+        ),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "bridge_missing"
+    assert "not_established" in result.reason_codes
+    assert expected_reason in result.reason_codes
+    assert result.binding_ref is None
 
 
 def _capability(
@@ -259,9 +344,7 @@ def test_capability_with_below_floor_factor_degrades(
         claim_use="claim_evidence_closeout",
     )
 
-    assert result.factor_by_name(factor_name).value < result.factor_by_name(
-        factor_name
-    ).threshold
+    assert result.factor_by_name(factor_name).value < result.factor_by_name(factor_name).threshold
     assert result.authority_envelope_result != "admissible"
     assert result.satisfies_claim_evidence is False
 
@@ -421,9 +504,10 @@ def test_proxy_capability_requires_construct_validity_for_governed_pilot() -> No
 
     assert result.status == "blocked_construct_validity_below_floor"
     assert result.satisfies_claim_evidence is False
-    assert result.factor_by_name("construct_validity").value < result.factor_by_name(
-        "construct_validity"
-    ).threshold
+    assert (
+        result.factor_by_name("construct_validity").value
+        < result.factor_by_name("construct_validity").threshold
+    )
 
 
 def test_historical_prior_can_seed_reviewer_attention_without_satisfying_claim_evidence() -> None:
@@ -535,15 +619,13 @@ def test_mixed_outcome_fixture_expected_statuses_and_reasons() -> None:
 
         assert result.status == case["expected_status"], case["case_id"]
         if "expected_authority_envelope_result" in case:
-            assert (
-                result.authority_envelope_result
-                == case["expected_authority_envelope_result"]
-            ), case["case_id"]
+            assert result.authority_envelope_result == case["expected_authority_envelope_result"], (
+                case["case_id"]
+            )
         if "expected_satisfies_claim_evidence" in case:
-            assert (
-                result.satisfies_claim_evidence
-                is case["expected_satisfies_claim_evidence"]
-            ), case["case_id"]
+            assert result.satisfies_claim_evidence is case["expected_satisfies_claim_evidence"], (
+                case["case_id"]
+            )
         reasoning = " ".join(
             [
                 *result.binding_reasons,

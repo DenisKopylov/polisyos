@@ -10,15 +10,24 @@ shape.
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping, Sequence
-from typing import Any, Literal
+from datetime import UTC, datetime
+from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
+from polisyos.core.contracts.capability_discovery import (
+    CapabilityAuthorityPostureResult,
+    CapabilityDiscoveryAudience,
+    CapabilityTimeSemantics,
+)
 from polisyos.runtime.quality.capability_index import EvidenceCapability
 from polisyos.runtime.quality.evidence_independence import (
     CapabilityIndependenceFactor,
     effective_independence_factor_for_capability,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
 
 CAPABILITY_AUTHORITY_SCHEMA_VERSION = "policyos.capability_binding_result.v1"
 CAPABILITY_AUTHORITY_RULE_VERSION = "capability-authority-v1.0"
@@ -197,6 +206,155 @@ class CapabilityBindingResult(BaseModel):
         raise KeyError(str(name))
 
 
+class CapabilityAuthorityContext(BaseModel):
+    """DS9 currentness coordinates plus an untrusted owner-binding claim.
+
+    ``binding_claim`` is deliberately not proof. C02 carries it only so the
+    absent independent owner-binding integration can fail closed without
+    parsing an opaque governed-action key or trusting caller-shaped fields.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    packet_ref: str = Field(min_length=1)
+    tenant_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    expected_consumer: str = Field(min_length=1)
+    expected_audience: CapabilityDiscoveryAudience
+    binding_claim: dict[str, str] | None = None
+
+
+class CapabilityDiscoveryAuthorityResolver:
+    """Compose DS9 currentness with the intentionally absent owner-binding port."""
+
+    def __init__(
+        self,
+        *,
+        production_approval_resolver: ProductionApprovalPacketResolver | None,
+    ) -> None:
+        self._production_approval_resolver = production_approval_resolver
+
+    def resolve(
+        self,
+        *,
+        capability_ref: str,
+        content_digest: str,
+        authority_purpose: str,
+        audience: CapabilityDiscoveryAudience,
+        context: CapabilityAuthorityContext | None = None,
+        observed_at: datetime | None = None,
+    ) -> CapabilityAuthorityPostureResult:
+        """Return the honest C02 authority negative.
+
+        No type in this module can construct a positive owner binding. A real
+        DS9 resolver may establish packet currentness, but currentness alone
+        still returns ``bridge_missing`` and ``not_established``.
+        """
+
+        checked_at = observed_at or datetime.now(UTC)
+        reasons = ["not_established", "owner_binding_producer_missing"]
+        provenance_refs = [CAPABILITY_AUTHORITY_RULE_VERSION]
+        currentness_ref: str | None = None
+        if context is None:
+            reasons.append("production_approval_context_missing")
+        else:
+            if context.expected_audience != audience:
+                reasons.append("approval_audience_mismatch")
+            resolver = self._production_approval_resolver
+            if resolver is None:
+                reasons.append("production_approval_resolver_missing")
+            else:
+                from polisyos.runtime.quality.approval import (
+                    ProductionApprovalPacketResolver,
+                    ProductionApprovalResolutionError,
+                )
+
+                if type(resolver) is not ProductionApprovalPacketResolver:
+                    reasons.append("production_approval_resolver_invalid_source")
+                else:
+                    try:
+                        resolver.require_currentness(
+                            packet_ref=context.packet_ref,
+                            tenant_id=context.tenant_id,
+                            run_id=context.run_id,
+                            expected_consumer=context.expected_consumer,
+                            expected_audience=context.expected_audience,
+                            evaluated_at=checked_at,
+                        )
+                    except ProductionApprovalResolutionError as exc:
+                        reasons.append(exc.code)
+                    else:
+                        currentness_ref = context.packet_ref
+                        provenance_refs.append(context.packet_ref)
+            if context.binding_claim is not None:
+                reasons.append("owner_binding_not_independently_verified")
+                reasons.extend(
+                    _binding_claim_negative_reasons(
+                        context.binding_claim,
+                        capability_ref=capability_ref,
+                        content_digest=content_digest,
+                        authority_purpose=authority_purpose,
+                        expected_consumer=context.expected_consumer,
+                        expected_audience=audience,
+                        evaluated_at=checked_at,
+                    )
+                )
+        time = CapabilityTimeSemantics(
+            observed_at=checked_at,
+            valid_from=checked_at,
+            valid_until=None,
+            freshness="current" if currentness_ref else "unknown",
+        )
+        return CapabilityAuthorityPostureResult(
+            state="bridge_missing",
+            producer_ref="runtime-quality:capability-authority-composer",
+            authority_purpose=authority_purpose,
+            currentness_ref=currentness_ref,
+            reason_codes=tuple(dict.fromkeys(reasons)),
+            provenance_refs=tuple(provenance_refs),
+            time=time,
+        )
+
+
+def _binding_claim_negative_reasons(
+    claim: Mapping[str, str],
+    *,
+    capability_ref: str,
+    content_digest: str,
+    authority_purpose: str,
+    expected_consumer: str,
+    expected_audience: CapabilityDiscoveryAudience,
+    evaluated_at: datetime,
+) -> tuple[str, ...]:
+    """Diagnose caller claims for negatives without granting them authority."""
+
+    reasons: list[str] = []
+    comparisons = (
+        ("capability_ref", capability_ref, "owner_binding_resource_mismatch"),
+        ("content_digest", content_digest, "owner_binding_digest_mismatch"),
+        ("authority_purpose", authority_purpose, "owner_binding_purpose_mismatch"),
+        ("expected_consumer", expected_consumer, "owner_binding_consumer_mismatch"),
+        ("expected_audience", expected_audience, "owner_binding_audience_mismatch"),
+    )
+    for field, expected, reason in comparisons:
+        if claim.get(field) != expected:
+            reasons.append(reason)
+    if not claim.get("owner_signature_ref", "").strip():
+        reasons.append("owner_binding_unsigned")
+    expiry = claim.get("expires_at")
+    if not expiry:
+        reasons.append("owner_binding_expiry_missing")
+    else:
+        try:
+            expires_at = datetime.fromisoformat(expiry.replace("Z", "+00:00"))
+        except ValueError:
+            reasons.append("owner_binding_expiry_invalid")
+        else:
+            if expires_at.tzinfo is None or expires_at <= evaluated_at:
+                reasons.append("owner_binding_expired")
+    return tuple(reasons)
+
+
 def compose_capability_authority(
     capability: EvidenceCapability | Mapping[str, Any],
     *,
@@ -336,9 +494,7 @@ def compose_capability_authority(
         binding_id=f"binding:{model.capability_id}",
         requirement_id=requirement_id,
         status=status,
-        selected_capability_ref=(
-            model.capability_id if status.startswith("selected_") else None
-        ),
+        selected_capability_ref=(model.capability_id if status.startswith("selected_") else None),
         authority_level=posture,
         authority_envelope_result=authority_result,
         satisfies_claim_evidence=satisfies,
@@ -513,8 +669,7 @@ def _legal_authority_factor(
     if _is_unbacked_llm_candidate(capability):
         return 0.0
     if (
-        "historical_pdc_artifact" in modes
-        or capability.evidence_mode in _HISTORICAL_PRIOR_MODES
+        "historical_pdc_artifact" in modes or capability.evidence_mode in _HISTORICAL_PRIOR_MODES
     ) and _is_claim_evidence_use(claim_use):
         return 0.0
     if _capability_authority_boundary_blocks(
@@ -540,9 +695,8 @@ def _rights_access_factor(capability: EvidenceCapability) -> float:
 
 
 def _historical_prior_factor(capability: EvidenceCapability, *, claim_use: str) -> float:
-    if (
-        capability.evidence_mode in _HISTORICAL_PRIOR_MODES
-        or "historical_pdc_artifact" in set(capability.modality)
+    if capability.evidence_mode in _HISTORICAL_PRIOR_MODES or "historical_pdc_artifact" in set(
+        capability.modality
     ):
         return 0.0 if _is_claim_evidence_use(claim_use) else 0.25
     return 1.0
@@ -785,9 +939,7 @@ def _normalize_conflict_markers(
             continue
         conflict_id = _text(marker.get("conflict_id")) or _text(marker.get("id"))
         conflict_class = (
-            _text(marker.get("conflict_class"))
-            or _text(marker.get("conflict_type"))
-            or "empirical"
+            _text(marker.get("conflict_class")) or _text(marker.get("conflict_type")) or "empirical"
         )
         rows.append(
             {
@@ -835,16 +987,14 @@ def _is_context_only(capability: EvidenceCapability) -> bool:
 
 
 def _is_simulation_only(capability: EvidenceCapability) -> bool:
-    return (
-        capability.evidence_mode in _SIMULATION_ONLY_MODES
-        or "simulation_state" in set(capability.modality)
+    return capability.evidence_mode in _SIMULATION_ONLY_MODES or "simulation_state" in set(
+        capability.modality
     )
 
 
 def _is_historical_prior(capability: EvidenceCapability) -> bool:
-    return (
-        capability.evidence_mode in _HISTORICAL_PRIOR_MODES
-        or "historical_pdc_artifact" in set(capability.modality)
+    return capability.evidence_mode in _HISTORICAL_PRIOR_MODES or "historical_pdc_artifact" in set(
+        capability.modality
     )
 
 
@@ -859,10 +1009,7 @@ def _is_advisory_only_mode(capability: EvidenceCapability) -> bool:
 
 def _is_scholar_only_support(capability: EvidenceCapability) -> bool:
     modalities = set(capability.modality)
-    return (
-        capability.evidence_mode in _SCHOLAR_SUPPORT_MODES
-        and modalities <= {"scholar_claim"}
-    )
+    return capability.evidence_mode in _SCHOLAR_SUPPORT_MODES and modalities <= {"scholar_claim"}
 
 
 def _is_unbacked_llm_candidate(capability: EvidenceCapability) -> bool:
@@ -952,9 +1099,7 @@ def _text_values(value: object) -> tuple[str, ...]:
             )
         )
     if isinstance(value, Iterable):
-        return tuple(
-            dict.fromkeys(text for item in value for text in _text_values(item))
-        )
+        return tuple(dict.fromkeys(text for item in value for text in _text_values(item)))
     return ()
 
 
@@ -973,10 +1118,12 @@ __all__ = [
     "POSTURE_THRESHOLDS",
     "AuthorityEnvelopeResult",
     "AuthorityPosture",
+    "CapabilityAuthorityContext",
     "CapabilityAuthorityError",
     "CapabilityAuthorityFactor",
     "CapabilityAuthorityFactorName",
     "CapabilityBindingResult",
     "CapabilityBindingStatus",
+    "CapabilityDiscoveryAuthorityResolver",
     "compose_capability_authority",
 ]

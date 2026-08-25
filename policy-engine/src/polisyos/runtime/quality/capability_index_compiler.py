@@ -25,6 +25,7 @@ from polisyos.runtime.quality.capability_index import (
     AuthorityEnvelope,
     CapabilityConflictRecord,
     CapabilityIndex,
+    CapabilityIndexDiscoveryRow,
     CapabilityScope,
     CapabilitySourceAsset,
     EvidenceCapability,
@@ -49,9 +50,7 @@ CAPABILITY_INDEX_PROV = "capability_index_v1.prov.ttl"
 CAPABILITY_WHITE_SPACE_REPORT = "capability_white_space_report_v1.json"
 CAPABILITY_CONFLICT_REPORT = "capability_conflict_report_v1.json"
 
-PHASE1_ARTIFACT_PROFILE_SCHEMA_VERSION = (
-    "policyos.capability_index.phase1_artifact_profile.v1"
-)
+PHASE1_ARTIFACT_PROFILE_SCHEMA_VERSION = "policyos.capability_index.phase1_artifact_profile.v1"
 CAPABILITY_INDEX_OUTPUT_FILENAMES = (
     CAPABILITY_INDEX_DUCKDB,
     CAPABILITY_INDEX_MANIFEST,
@@ -106,6 +105,8 @@ L5_DERIVED_PARQUET_NAMES = frozenset(
         "survival_hazard_estimates.parquet",
     }
 )
+
+
 @dataclass(frozen=True)
 class CapabilityIndexCompilerConfig:
     """Compiler configuration for fixture, full, and incremental builds."""
@@ -137,6 +138,7 @@ class CapabilityIndexBuildResult:
     conflict_report_path: Path
     summary: Mapping[str, Any]
     manifest: Mapping[str, Any]
+    capability_index: CapabilityIndex | None = None
 
 
 @dataclass(frozen=True)
@@ -190,10 +192,16 @@ def compile_capability_index(
     output_dir.mkdir(parents=True, exist_ok=True)
     generated_at = config.generated_at or datetime.now(UTC).replace(microsecond=0).isoformat()
     input_fingerprints = discover_input_fingerprints(production_data_root)
-    previous_manifest = _load_json(config.previous_manifest_path) if config.previous_manifest_path else None
+    previous_manifest = (
+        _load_json(config.previous_manifest_path) if config.previous_manifest_path else None
+    )
     incremental = _incremental_state(previous_manifest, input_fingerprints)
 
-    if config.mode == "incremental" and previous_manifest and not incremental["changed_input_labels"]:
+    if (
+        config.mode == "incremental"
+        and previous_manifest
+        and not incremental["changed_input_labels"]
+    ):
         return _copy_previous_incremental_outputs(
             config=config,
             output_dir=output_dir,
@@ -233,7 +241,14 @@ def compile_capability_index(
     if config.inject_same_construct_conflict:
         capabilities.append(
             _build_fixture_conflicting_capability(
-                next((capability for capability in capabilities if not capability.compatibility_only), None)
+                next(
+                    (
+                        capability
+                        for capability in capabilities
+                        if not capability.compatibility_only
+                    ),
+                    None,
+                )
             )
         )
 
@@ -325,7 +340,101 @@ def compile_capability_index(
         conflict_report_path=output_dir / CAPABILITY_CONFLICT_REPORT,
         summary=summary,
         manifest=manifest,
+        capability_index=capability_index,
     )
+
+
+def build_capability_discovery_snapshot(
+    capability_index: CapabilityIndex,
+) -> tuple[CapabilityIndexDiscoveryRow, ...]:
+    """Project release-index rows for the kinds the index genuinely owns.
+
+    L4 world-model rows are intentionally excluded. Scientist agent/tool
+    capability discovery has a different owner and must enter through its
+    registry provider.
+    """
+
+    observed_at = datetime.fromisoformat(capability_index.generated_at.replace("Z", "+00:00"))
+    rows: list[CapabilityIndexDiscoveryRow] = []
+    for capability in capability_index.capabilities:
+        resource_kind = _discovery_resource_kind(capability)
+        if resource_kind is None:
+            continue
+        payload = capability.model_dump(mode="json", by_alias=True)
+        digest = "sha256:" + _sha256_json(payload)
+        source_refs = tuple(asset.ref for asset in capability.source_assets)
+        freshness_ref = (
+            capability.freshness_envelope.source_release_ref or capability_index.release_ref
+        )
+        rows.append(
+            CapabilityIndexDiscoveryRow(
+                capability_ref=capability.capability_id,
+                content_digest=digest,
+                resource_kind=resource_kind,
+                construct_refs=tuple(
+                    dict.fromkeys(
+                        (
+                            f"construct:{capability.construct_id.removeprefix('construct:')}",
+                            *capability.concept_spine_refs,
+                        )
+                    )
+                ),
+                label=capability.construct_id.replace("_", " "),
+                description=(
+                    f"{capability.evidence_mode} capability from "
+                    f"{', '.join(asset.source_layer for asset in capability.source_assets)}"
+                ),
+                producer_ref=capability_index.release_ref,
+                snapshot_ref=(
+                    f"{capability_index.release_ref}@{capability_index.compiler_version}"
+                ),
+                freshness_ref=freshness_ref,
+                provenance_refs=(
+                    source_refs or capability.lineage_refs or (capability_index.release_ref,)
+                ),
+                may_not_use_for=tuple(
+                    dict.fromkeys(
+                        (
+                            *capability.may_not_use_for,
+                            *capability.authority_envelope.may_not_use_for,
+                            "execution_authority",
+                            "publication_authority",
+                        )
+                    )
+                ),
+                time={
+                    "observed_at": observed_at,
+                    "valid_from": observed_at,
+                    "valid_until": None,
+                    "freshness": _discovery_freshness(capability),
+                },
+            )
+        )
+    return tuple(sorted(rows, key=lambda row: (row.resource_kind, row.capability_ref)))
+
+
+def _discovery_resource_kind(capability: EvidenceCapability) -> str | None:
+    modalities = set(capability.modality)
+    layers = {asset.source_layer for asset in capability.source_assets}
+    if "foundry_method_contract" in modalities:
+        return "method"
+    if "fabric_data" in modalities and "L1" in layers:
+        return "dataset"
+    if "lex_norm" in modalities and "L3" in layers:
+        return "legal_norm"
+    return None
+
+
+def _discovery_freshness(capability: EvidenceCapability) -> str:
+    freshness = capability.freshness_envelope.freshness_class.casefold()
+    if "stale" in freshness or capability.capability_lifecycle.state in {
+        "deprecated",
+        "withdrawn",
+    }:
+        return "stale"
+    if freshness:
+        return "current"
+    return "unknown"
 
 
 def validate_capability_authority(capability: EvidenceCapability) -> None:
@@ -394,7 +503,9 @@ def _compile_capabilities_for_input_labels(
             )
         )
     if "l5_calibration_registries" in labels:
-        capabilities.extend(load_calibration_capabilities(production_data_root, calibration_context))
+        capabilities.extend(
+            load_calibration_capabilities(production_data_root, calibration_context)
+        )
     if "l6_foundry_method_contracts" in labels:
         capabilities.extend(load_foundry_capabilities(production_data_root, foundry_context))
     if "l7_curated_contracts" in labels:
@@ -421,7 +532,9 @@ def _incremental_rebuild_labels(changed_input_labels: Sequence[str]) -> tuple[st
     return tuple(sorted(rebuilt))
 
 
-def _load_previous_capabilities(previous_manifest_path: Path | None) -> tuple[EvidenceCapability, ...]:
+def _load_previous_capabilities(
+    previous_manifest_path: Path | None,
+) -> tuple[EvidenceCapability, ...]:
     if previous_manifest_path is None:
         return ()
     duckdb_path = previous_manifest_path.resolve().parent / CAPABILITY_INDEX_DUCKDB
@@ -581,7 +694,10 @@ def load_dataset_catalog_capabilities(
               d.id
             LIMIT ?
         """
-        rows = [dict(zip([col[0] for col in con.description], row, strict=True)) for row in con.execute(sql, [max_capabilities]).fetchall()]
+        rows = [
+            dict(zip([col[0] for col in con.description], row, strict=True))
+            for row in con.execute(sql, [max_capabilities]).fetchall()
+        ]
 
     capabilities = []
     for row in rows:
@@ -612,7 +728,9 @@ def load_dataset_catalog_capabilities(
                 ),
                 construct=construct,
                 modality=("fabric_data",),
-                evidence_mode="observed" if row.get("has_proxy_alignment") != 1 else "proxy_observational",
+                evidence_mode="observed"
+                if row.get("has_proxy_alignment") != 1
+                else "proxy_observational",
                 concept_spine_refs=(f"concept:{construct}",),
                 scope=CapabilityScope(
                     geography=_coverage_geography(row.get("coverage_countries")),
@@ -846,9 +964,7 @@ def load_scholar_capabilities(
                     breakdown=breakdown,
                 ),
                 source_assets=tuple(source_assets),
-                limitations=(
-                    "Scholar support cannot satisfy direct runtime outcome observation.",
-                ),
+                limitations=("Scholar support cannot satisfy direct runtime outcome observation.",),
                 authority_envelope=AuthorityEnvelope(
                     research="admissible",
                     governed_pilot="admissible_as_scholarly_support",
@@ -1068,7 +1184,9 @@ def load_calibration_registries(production_data_root: Path) -> CalibrationContex
         if isinstance(value, list)
     }
     regimes = schema_regime.get("regimes") or {}
-    current_regime = "ukraine_schema_v2" if "ukraine_schema_v2" in regimes else next(iter(regimes), None)
+    current_regime = (
+        "ukraine_schema_v2" if "ukraine_schema_v2" in regimes else next(iter(regimes), None)
+    )
     return CalibrationContext(
         source_assets=tuple(source_assets),
         coverage_rules=coverage_rules,
@@ -1220,7 +1338,9 @@ def load_calibration_capabilities(
                     },
                 ),
                 source_assets=calibration_context.source_assets,
-                limitations=("Calibration registry context cannot satisfy outcome evidence alone.",),
+                limitations=(
+                    "Calibration registry context cannot satisfy outcome evidence alone.",
+                ),
                 authority_envelope=AuthorityEnvelope(
                     research="admissible_as_context",
                     governed_pilot="admissible_as_governance_context",
@@ -1256,7 +1376,9 @@ def load_foundry_method_contracts(production_data_root: Path) -> FoundryRouteCon
         target = route.get("target_contract") or {}
         contract_id = _safe_text(target.get("contract_id") if isinstance(target, Mapping) else "")
         if family and contract_id:
-            targets_by_family[family] = tuple(sorted({*targets_by_family.get(family, ()), contract_id}))
+            targets_by_family[family] = tuple(
+                sorted({*targets_by_family.get(family, ()), contract_id})
+            )
     return FoundryRouteContext(
         source_assets=(
             CapabilitySourceAsset(
@@ -1294,7 +1416,9 @@ def load_foundry_capabilities(
                 modality=("foundry_method_contract",),
                 evidence_mode="method_contract_route",
                 concept_spine_refs=(f"concept:{construct}",),
-                scope=CapabilityScope(geography="UA", population=family, entity_scope="method_input"),
+                scope=CapabilityScope(
+                    geography="UA", population=family, entity_scope="method_input"
+                ),
                 identification_mode="method_contract_routed",
                 trust_tier="compiled_method_manifest",
                 quality_score=QualityScore(
@@ -1442,9 +1566,7 @@ def detect_same_construct_conflicts(
                 capability_refs=refs,
                 evidence_refs=tuple(
                     sorted(
-                        asset.ref
-                        for capability in group
-                        for asset in capability.source_assets[:2]
+                        asset.ref for capability in group for asset in capability.source_assets[:2]
                     )
                 ),
             )
@@ -1693,8 +1815,7 @@ def _legal_authority_gap(capability: EvidenceCapability) -> bool:
     if "blocked" not in production:
         return False
     if any(
-        marker in production
-        for marker in ("construct_validity", "freshness", "rights", "sample")
+        marker in production for marker in ("construct_validity", "freshness", "rights", "sample")
     ):
         return False
     return "lex_norm" not in capability.modality
@@ -2313,7 +2434,9 @@ def _build_firm_fundamentals_capability(
             if "survival_hazard_estimates" in by_family
             else "proxy_unvalidated",
             "validated_by": [
-                asset.ref for asset in source_assets if asset.role in {"proxy_validation", "bias_correction"}
+                asset.ref
+                for asset in source_assets
+                if asset.role in {"proxy_validation", "bias_correction"}
             ],
         },
         limitations=(
@@ -2358,7 +2481,11 @@ def _build_firm_fundamentals_capability(
 def _build_fixture_conflicting_capability(
     reference: EvidenceCapability | None = None,
 ) -> EvidenceCapability:
-    construct = reference.construct_id if reference is not None else _construct_from_text("fixture conflict")
+    construct = (
+        reference.construct_id
+        if reference is not None
+        else _construct_from_text("fixture conflict")
+    )
     scope = (
         reference.scope
         if reference is not None
@@ -2401,7 +2528,10 @@ def _build_fixture_conflicting_capability(
 
 def _profile_ukraine_parquets(production_data_root: Path) -> tuple[ParquetProfile, ...]:
     profiles = []
-    for path in (*_l4_ukraine_panel_paths(production_data_root), *_l5_derived_parquet_paths(production_data_root)):
+    for path in (
+        *_l4_ukraine_panel_paths(production_data_root),
+        *_l5_derived_parquet_paths(production_data_root),
+    ):
         family = path.parent.name
         source_layer = "L4"
         if path.stem == "survival_hazard_estimates":
@@ -3170,9 +3300,7 @@ def _authority_for_panel(coverage: float, source_family: str) -> AuthorityEnvelo
     production = "admissible" if coverage >= 0.9 else "blocked_construct_validity_below_floor"
     return AuthorityEnvelope(
         research="admissible",
-        governed_pilot="admissible_with_limitation"
-        if coverage >= 0.5
-        else "blocked_low_coverage",
+        governed_pilot="admissible_with_limitation" if coverage >= 0.5 else "blocked_low_coverage",
         production=production,
         authoritative_for=("data_evidence",),
         may_not_use_for=("production_closeout_without_review",)
@@ -3289,7 +3417,9 @@ def _slug(value: str) -> str:
 def _release_ref_from_path(path: Path) -> str:
     parts = path.parts
     for part in parts:
-        if part.startswith(("local_data_", "ukraine_server_support_", "datasets_full_", "policyos_", "lex-")):
+        if part.startswith(
+            ("local_data_", "ukraine_server_support_", "datasets_full_", "policyos_", "lex-")
+        ):
             return part
     return path.parent.name
 

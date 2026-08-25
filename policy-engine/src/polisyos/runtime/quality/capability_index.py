@@ -12,6 +12,11 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
+from polisyos.core.contracts.capability_discovery import (  # noqa: TC001
+    CapabilityResourceKind,
+    CapabilityTimeSemantics,
+)
+
 CAPABILITY_INDEX_SCHEMA_VERSION = "policyos.evidence_capability_index.v1"
 EVIDENCE_CAPABILITY_SCHEMA_VERSION = "policyos.evidence_capability.v1"
 CAPABILITY_SOURCE_ASSET_SCHEMA_VERSION = "policyos.capability_source_asset.v1"
@@ -322,10 +327,7 @@ class AcquisitionStrategy(BaseModel):
         if _government_data_involved(self.authority_class) and legal_counsel_owner is None:
             raise ValueError("government acquisition strategies require legal counsel owner")
         production_state = self.resulting_authority_envelope.get("production")
-        if (
-            production_state == "admissible"
-            and not self.requires_construct_validity_review
-        ):
+        if production_state == "admissible" and not self.requires_construct_validity_review:
             raise ValueError(
                 "production admissible acquisition strategies require "
                 "requires_construct_validity_review"
@@ -347,9 +349,7 @@ class EvidenceCapability(BaseModel):
         strict=True,
     )
 
-    schema_version: Literal["policyos.evidence_capability.v1"] = (
-        EVIDENCE_CAPABILITY_SCHEMA_VERSION
-    )
+    schema_version: Literal["policyos.evidence_capability.v1"] = EVIDENCE_CAPABILITY_SCHEMA_VERSION
     capability_id: str = Field(min_length=1)
     construct_id: str = Field(alias="construct", min_length=1)
     modality: tuple[str, ...] = Field(min_length=1)
@@ -484,6 +484,29 @@ class CapabilityIndex(BaseModel):
         raise TypeError("expected sequence")
 
 
+class CapabilityIndexDiscoveryRow(BaseModel):
+    """Owner-projected capability row consumed by discovery federation.
+
+    This row carries searched index identity and candidate content only. It is
+    neither an execution registration nor an authority decision.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    capability_ref: str = Field(min_length=1)
+    content_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    resource_kind: CapabilityResourceKind
+    construct_refs: tuple[str, ...] = Field(min_length=1)
+    label: str = Field(min_length=1)
+    description: str = Field(min_length=1)
+    producer_ref: str = Field(min_length=1)
+    snapshot_ref: str = Field(min_length=1)
+    freshness_ref: str = Field(min_length=1)
+    provenance_refs: tuple[str, ...] = Field(min_length=1)
+    may_not_use_for: tuple[str, ...] = Field(default=())
+    time: CapabilityTimeSemantics
+
+
 def capability_is_production_admissible(capability: EvidenceCapability) -> bool:
     """Return whether the production slot claims an admissible authority state."""
 
@@ -532,6 +555,5 @@ def _first_legal_owner(owner: tuple[str, ...]) -> str | None:
 def _government_data_involved(authority_class: str) -> bool:
     normalized = authority_class.casefold()
     return any(
-        marker in normalized
-        for marker in ("government", "official", "registry", "administrative")
+        marker in normalized for marker in ("government", "official", "registry", "administrative")
     )

@@ -8,6 +8,7 @@ or failure-mode nodes, not through silent extra fields.
 
 from __future__ import annotations
 
+from datetime import date  # noqa: TC003 - Pydantic resolves this runtime field type.
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -484,6 +485,63 @@ class CapabilityIndex(BaseModel):
         raise TypeError("expected sequence")
 
 
+class LegalNormOwnerTruth(BaseModel):
+    """Grounded Lex truth required before an L3 row becomes a legal capability."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.lex.legal_norm_truth.v1"] = "policyos.lex.legal_norm_truth.v1"
+    legal_norm_ref: str = Field(min_length=1)
+    normative_fact_ref: str = Field(min_length=1)
+    source_document_ref: str = Field(min_length=1)
+    provision_citation: str = Field(min_length=1)
+    grounding_status: Literal["grounded"]
+    hallucination_status: Literal["verified_clear"]
+    jurisdiction: str = Field(min_length=1)
+    effective_from: date
+    effective_to: date | None = None
+    temporal_state: Literal["effective"]
+    temporal_resolution_status: Literal["resolved"]
+    temporal_audit_ref: str = Field(min_length=1)
+    provenance_refs: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _temporal_interval_is_ordered(self) -> LegalNormOwnerTruth:
+        if self.effective_to is not None and self.effective_to < self.effective_from:
+            raise ValueError("legal norm effective_to cannot precede effective_from")
+        return self
+
+
+class ScientistCapabilityOwnerTruth(BaseModel):
+    """One Scientist NodeRegistry or ToolRegistry capability entry receipt."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.scientist.capability_owner_truth.v1"] = (
+        "policyos.scientist.capability_owner_truth.v1"
+    )
+    capability_ref: str = Field(min_length=1)
+    registry_kind: Literal["node_registry", "tool_registry"]
+    registry_schema_ref: Literal[
+        "scientist.node_registry.v1",
+        "scientist.tool_registry.v1",
+    ]
+    registry_entry_ref: str = Field(min_length=1)
+    registry_snapshot_ref: str = Field(min_length=1)
+    registry_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    provenance_refs: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _registry_kind_matches_schema(self) -> ScientistCapabilityOwnerTruth:
+        expected = {
+            "node_registry": "scientist.node_registry.v1",
+            "tool_registry": "scientist.tool_registry.v1",
+        }[self.registry_kind]
+        if self.registry_schema_ref != expected:
+            raise ValueError("Scientist registry kind must match its schema")
+        return self
+
+
 class CapabilityIndexDiscoveryRow(BaseModel):
     """Owner-projected capability row consumed by discovery federation.
 
@@ -503,8 +561,29 @@ class CapabilityIndexDiscoveryRow(BaseModel):
     snapshot_ref: str = Field(min_length=1)
     freshness_ref: str = Field(min_length=1)
     provenance_refs: tuple[str, ...] = Field(min_length=1)
+    owner_truth: LegalNormOwnerTruth | ScientistCapabilityOwnerTruth | None = None
     may_not_use_for: tuple[str, ...] = Field(default=())
     time: CapabilityTimeSemantics
+
+    @model_validator(mode="after")
+    def _kind_requires_its_exact_owner_truth(self) -> CapabilityIndexDiscoveryRow:
+        if self.resource_kind == "legal_norm":
+            if type(self.owner_truth) is not LegalNormOwnerTruth:
+                raise ValueError("legal_norm rows require LegalNormOwnerTruth")
+            if self.owner_truth.legal_norm_ref != self.capability_ref:
+                raise ValueError("Lex owner truth must bind capability_ref")
+            if not set(self.owner_truth.provenance_refs) <= set(self.provenance_refs):
+                raise ValueError("Lex owner truth provenance must be carried by the row")
+        elif self.resource_kind == "agent":
+            if type(self.owner_truth) is not ScientistCapabilityOwnerTruth:
+                raise ValueError("agent rows require ScientistCapabilityOwnerTruth")
+            if self.owner_truth.capability_ref != self.capability_ref:
+                raise ValueError("Scientist owner truth must bind capability_ref")
+            if not set(self.owner_truth.provenance_refs) <= set(self.provenance_refs):
+                raise ValueError("Scientist owner truth provenance must be carried by the row")
+        elif self.owner_truth is not None:
+            raise ValueError("owner_truth is only valid for legal_norm or agent rows")
+        return self
 
 
 def capability_is_production_admissible(capability: EvidenceCapability) -> bool:

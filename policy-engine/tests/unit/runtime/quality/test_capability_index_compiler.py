@@ -47,6 +47,12 @@ def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
     assert {row.resource_kind for row in rows} >= {"method", "dataset", "legal_norm"}
     assert all(row.resource_kind != "agent" for row in rows)
     assert all("agent_registry" not in ref for row in rows for ref in row.provenance_refs)
+    legal_rows = tuple(row for row in rows if row.resource_kind == "legal_norm")
+    assert legal_rows
+    assert all(row.owner_truth.grounding_status == "grounded" for row in legal_rows)
+    assert all(row.owner_truth.hallucination_status == "verified_clear" for row in legal_rows)
+    assert all(row.owner_truth.jurisdiction == "UA" for row in legal_rows)
+    assert all(row.owner_truth.temporal_resolution_status == "resolved" for row in legal_rows)
 
     method = next(
         capability
@@ -61,6 +67,37 @@ def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
     fallback_rows = build_capability_discovery_snapshot(fallback_index)
 
     assert fallback_rows[0].provenance_refs == (result.capability_index.release_ref,)
+
+    legal = next(
+        capability
+        for capability in result.capability_index.capabilities
+        if "lex_norm" in capability.modality
+    )
+    opaque_legal = legal.model_copy(update={"metadata": {"input_groups": ("l3_lex_kg",)}})
+    opaque_index = result.capability_index.model_copy(update={"capabilities": (opaque_legal,)})
+
+    assert build_capability_discovery_snapshot(opaque_index) == ()
+
+    owner_truth = dict(legal.metadata["legal_norm_owner_truth"])
+    corruptions = (
+        ("grounding_status", "candidate"),
+        ("hallucination_status", "unknown"),
+        ("jurisdiction", ""),
+        ("effective_from", "not-a-date"),
+        ("temporal_state", "unknown"),
+        ("temporal_resolution_status", "unresolved"),
+    )
+    for field, value in corruptions:
+        corrupted = legal.model_copy(
+            update={
+                "metadata": {
+                    **legal.metadata,
+                    "legal_norm_owner_truth": {**owner_truth, field: value},
+                }
+            }
+        )
+        corrupted_index = result.capability_index.model_copy(update={"capabilities": (corrupted,)})
+        assert build_capability_discovery_snapshot(corrupted_index) == (), field
 
 
 def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(

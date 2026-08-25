@@ -11,7 +11,7 @@ import hashlib
 import json
 import sys
 from datetime import UTC, datetime
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -27,8 +27,9 @@ from polisyos.core.contracts.search import (
     SearchFrontier,
     SearchLedger,
 )
-from polisyos.runtime.quality.capability_index import (  # noqa: TC001
+from polisyos.runtime.quality.capability_index import (
     CapabilityIndexDiscoveryRow,
+    ScientistCapabilityOwnerTruth,
 )
 
 if TYPE_CHECKING:
@@ -65,6 +66,134 @@ class CapabilityProviderUnavailableError(RuntimeError):
         super().__init__(reason_code)
 
 
+class _CapabilityOwnerReceipt(BaseModel):
+    """Content-bound owner search receipt shared by finite provider kinds."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    owner_producer_ref: str = Field(min_length=1)
+    search_snapshot_ref: str = Field(min_length=1)
+    search_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    result_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    provenance_refs: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _owner_and_snapshot_are_in_provenance(self) -> _CapabilityOwnerReceipt:
+        required = {self.owner_producer_ref, self.search_snapshot_ref}
+        if not required <= set(self.provenance_refs):
+            raise ValueError("owner receipt provenance must include producer and search snapshot")
+        return self
+
+
+class CapabilityIndexOwnerReceipt(_CapabilityOwnerReceipt):
+    """CapabilityIndex receipt for method or L1 dataset discovery."""
+
+    schema_version: Literal["policyos.capability_index_owner_receipt.v1"] = (
+        "policyos.capability_index_owner_receipt.v1"
+    )
+    owner_type: Literal["capability_index"] = "capability_index"
+    resource_kind: Literal["method", "dataset"]
+    index_release_ref: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _index_release_is_in_provenance(self) -> CapabilityIndexOwnerReceipt:
+        if self.index_release_ref not in self.provenance_refs:
+            raise ValueError("CapabilityIndex release must be carried in provenance")
+        return self
+
+
+class SourceProfileOwnerReceipt(_CapabilityOwnerReceipt):
+    """SourceProfileRegistry plus connector-registry snapshot receipt."""
+
+    schema_version: Literal["policyos.source_profile_owner_receipt.v1"] = (
+        "policyos.source_profile_owner_receipt.v1"
+    )
+    owner_type: Literal["source_profile_registry"] = "source_profile_registry"
+    resource_kind: Literal["source"] = "source"
+    profile_registry_snapshot_ref: str = Field(min_length=1)
+    profile_registry_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    connector_snapshot_ref: str = Field(min_length=1)
+    connector_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _source_snapshots_bind_search_snapshot(self) -> SourceProfileOwnerReceipt:
+        required = {self.profile_registry_snapshot_ref, self.connector_snapshot_ref}
+        if not required <= set(self.provenance_refs):
+            raise ValueError("source owner snapshots must be carried in provenance")
+        expected = "sha256:" + _digest(
+            {
+                "profile_registry_snapshot_ref": self.profile_registry_snapshot_ref,
+                "profile_registry_snapshot_digest": self.profile_registry_snapshot_digest,
+                "connector_snapshot_ref": self.connector_snapshot_ref,
+                "connector_snapshot_digest": self.connector_snapshot_digest,
+            }
+        )
+        if self.search_snapshot_digest != expected:
+            raise ValueError("source search snapshot must bind profile and connector snapshots")
+        return self
+
+
+class LexOwnerReceipt(_CapabilityOwnerReceipt):
+    """Rich Lex owner snapshot and verifier receipt."""
+
+    schema_version: Literal["policyos.lex_owner_receipt.v1"] = "policyos.lex_owner_receipt.v1"
+    owner_type: Literal["lex_knowledge_graph"] = "lex_knowledge_graph"
+    resource_kind: Literal["legal_norm"] = "legal_norm"
+    lex_snapshot_ref: str = Field(min_length=1)
+    lex_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    verifier_ref: str = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _lex_snapshot_and_verifier_are_bound(self) -> LexOwnerReceipt:
+        if (
+            self.lex_snapshot_ref != self.search_snapshot_ref
+            or self.lex_snapshot_digest != self.search_snapshot_digest
+        ):
+            raise ValueError("Lex receipt must bind the searched snapshot")
+        if not {self.lex_snapshot_ref, self.verifier_ref} <= set(self.provenance_refs):
+            raise ValueError("Lex snapshot and verifier must be carried in provenance")
+        return self
+
+
+class ScientistRegistryOwnerReceipt(_CapabilityOwnerReceipt):
+    """Scientist NodeRegistry and ToolRegistry owner receipt."""
+
+    schema_version: Literal["policyos.scientist_registry_owner_receipt.v1"] = (
+        "policyos.scientist_registry_owner_receipt.v1"
+    )
+    owner_type: Literal["scientist_node_tool_registries"] = "scientist_node_tool_registries"
+    resource_kind: Literal["agent"] = "agent"
+    node_registry_snapshot_ref: str = Field(min_length=1)
+    node_registry_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    tool_registry_snapshot_ref: str = Field(min_length=1)
+    tool_registry_snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+    @model_validator(mode="after")
+    def _scientist_snapshots_bind_search_snapshot(self) -> ScientistRegistryOwnerReceipt:
+        required = {self.node_registry_snapshot_ref, self.tool_registry_snapshot_ref}
+        if not required <= set(self.provenance_refs):
+            raise ValueError("Scientist registry snapshots must be carried in provenance")
+        expected = "sha256:" + _digest(
+            {
+                "node_registry_snapshot_ref": self.node_registry_snapshot_ref,
+                "node_registry_snapshot_digest": self.node_registry_snapshot_digest,
+                "tool_registry_snapshot_ref": self.tool_registry_snapshot_ref,
+                "tool_registry_snapshot_digest": self.tool_registry_snapshot_digest,
+            }
+        )
+        if self.search_snapshot_digest != expected:
+            raise ValueError("Scientist search snapshot must bind NodeRegistry and ToolRegistry")
+        return self
+
+
+type CapabilityOwnerReceipt = (
+    CapabilityIndexOwnerReceipt
+    | SourceProfileOwnerReceipt
+    | LexOwnerReceipt
+    | ScientistRegistryOwnerReceipt
+)
+
+
 class CapabilityProviderSearchResult(BaseModel):
     """Typed owner search rows plus the exact ledger that selected them."""
 
@@ -72,6 +201,7 @@ class CapabilityProviderSearchResult(BaseModel):
 
     resource_kind: CapabilityResourceKind
     producer_ref: str = Field(min_length=1)
+    owner_receipt: CapabilityOwnerReceipt
     rows: tuple[CapabilityIndexDiscoveryRow, ...] = ()
     ledger: SearchLedger
     requested_count: int = Field(ge=0)
@@ -90,6 +220,49 @@ class CapabilityProviderSearchResult(BaseModel):
             raise ValueError("provider rows must match the provider resource kind")
         if any(row.producer_ref != self.producer_ref for row in self.rows):
             raise ValueError("provider row producer_ref must match the owner result")
+        receipt_type = {
+            "method": CapabilityIndexOwnerReceipt,
+            "dataset": CapabilityIndexOwnerReceipt,
+            "source": SourceProfileOwnerReceipt,
+            "legal_norm": LexOwnerReceipt,
+            "agent": ScientistRegistryOwnerReceipt,
+        }.get(self.resource_kind)
+        if receipt_type is None or type(self.owner_receipt) is not receipt_type:
+            expected = receipt_type.__name__ if receipt_type is not None else "no owner receipt"
+            raise ValueError(f"{self.resource_kind} results require {expected}")
+        if self.owner_receipt.owner_producer_ref != self.producer_ref:
+            raise ValueError("owner receipt must bind producer_ref")
+        if self.owner_receipt.resource_kind != self.resource_kind:
+            raise ValueError("owner receipt must bind resource_kind")
+        if self.owner_receipt.search_snapshot_digest != self.ledger.corpus_snapshot_hash:
+            raise ValueError("owner receipt must bind the searched corpus snapshot")
+        if any(row.snapshot_ref != self.owner_receipt.search_snapshot_ref for row in self.rows):
+            raise ValueError("owner receipt must bind every selected row snapshot")
+        receipt_provenance = set(self.owner_receipt.provenance_refs)
+        if any(not set(row.provenance_refs) <= receipt_provenance for row in self.rows):
+            raise ValueError("selected row provenance must be covered by its owner receipt")
+        if type(self.owner_receipt) is ScientistRegistryOwnerReceipt:
+            for row in self.rows:
+                truth = row.owner_truth
+                if type(truth) is not ScientistCapabilityOwnerTruth:
+                    raise ValueError("agent rows require ScientistCapabilityOwnerTruth")
+                if not set(truth.provenance_refs) <= receipt_provenance:
+                    raise ValueError("Scientist entry provenance must be covered by owner receipt")
+                expected_snapshot = {
+                    "node_registry": (
+                        self.owner_receipt.node_registry_snapshot_ref,
+                        self.owner_receipt.node_registry_snapshot_digest,
+                    ),
+                    "tool_registry": (
+                        self.owner_receipt.tool_registry_snapshot_ref,
+                        self.owner_receipt.tool_registry_snapshot_digest,
+                    ),
+                }[truth.registry_kind]
+                if (
+                    truth.registry_snapshot_ref,
+                    truth.registry_snapshot_digest,
+                ) != expected_snapshot:
+                    raise ValueError("Scientist entry must bind its typed registry snapshot")
         if self.evaluated_count < len(self.ledger.candidates) + len(
             self.ledger.rejected_candidates
         ):
@@ -99,6 +272,11 @@ class CapabilityProviderSearchResult(BaseModel):
             raise ValueError("complete provider results cannot carry incompleteness reasons")
         if not complete and not self.incompleteness_reasons:
             raise ValueError("incomplete provider results require typed reasons")
+        expected_digest = "sha256:" + _digest(
+            self.model_dump(mode="json", exclude={"owner_receipt"})
+        )
+        if self.owner_receipt.result_digest != expected_digest:
+            raise ValueError("owner receipt result_digest does not bind provider result content")
         return self
 
 
@@ -175,16 +353,18 @@ class CapabilityDiscoveryComposer:
             unavailable_reasons=tuple(unavailable_reasons),
         )
         observed_at = self._observed_at()
-        rows = tuple(row for result in provider_results for row in result.rows)
         items = tuple(
             self._compose_item(
                 row,
+                provider_result=result,
                 request=request,
                 authority_context=contexts.get(row.capability_ref),
                 observed_at=observed_at,
             )
-            for row in rows
+            for result in provider_results
+            for row in result.rows
         )
+        rows = tuple(row for result in provider_results for row in result.rows)
         request_digest = "sha256:" + _digest(request.model_dump(mode="json"))
         time = _response_time(observed_at, rows)
         provenance_refs = tuple(
@@ -213,12 +393,22 @@ class CapabilityDiscoveryComposer:
         self,
         row: CapabilityIndexDiscoveryRow,
         *,
+        provider_result: CapabilityProviderSearchResult,
         request: CapabilityDiscoveryRequest,
         authority_context: CapabilityAuthorityContext | None,
         observed_at: datetime,
     ) -> CapabilityDiscoveryItem:
-        discovery_state = "index_stale" if row.time.freshness == "stale" else "discoverable"
-        discovery_reasons = ("index_snapshot_stale",) if discovery_state == "index_stale" else ()
+        if row.time.freshness == "stale":
+            discovery_state = "index_stale"
+            discovery_reasons = tuple(
+                dict.fromkeys((*provider_result.incompleteness_reasons, "index_snapshot_stale"))
+            )
+        elif provider_result.completeness_status in {"complete", "complete_no_match"}:
+            discovery_state = "discoverable"
+            discovery_reasons = ()
+        else:
+            discovery_state = provider_result.completeness_status
+            discovery_reasons = provider_result.incompleteness_reasons
         discovery = CapabilityDiscoveryPostureResult(
             state=discovery_state,
             producer_ref=row.producer_ref,
@@ -283,6 +473,47 @@ def _compose_frontier(
     missing_reasons: tuple[str, ...],
     unavailable_reasons: tuple[str, ...],
 ) -> SearchFrontier:
+    replay_packet = {
+        "request": request.model_dump(mode="json"),
+        "provider_results": [result.model_dump(mode="json") for result in provider_results],
+        "missing_reasons": list(missing_reasons),
+        "unavailable_reasons": list(unavailable_reasons),
+    }
+    replay_payload = (
+        json.dumps(
+            replay_packet,
+            ensure_ascii=False,
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        .encode("utf-8")
+        .hex()
+    )
+    fields, expected_hash = _replay_frontier(replay_payload)
+    return SearchFrontier(
+        **fields,
+        replay_command=(
+            "python -m polisyos.runtime.quality.capability_discovery "
+            f"--replay-frontier {replay_payload}"
+        ),
+        replay_expected_output_hash=expected_hash,
+    )
+
+
+def _project_frontier(
+    *,
+    request: CapabilityDiscoveryRequest,
+    provider_results: Sequence[CapabilityProviderSearchResult],
+    missing_reasons: tuple[str, ...],
+    unavailable_reasons: tuple[str, ...],
+    replay_packet: dict[str, object],
+) -> dict[str, object]:
+    _validate_federation_inputs(
+        request=request,
+        provider_results=provider_results,
+        missing_reasons=missing_reasons,
+        unavailable_reasons=unavailable_reasons,
+    )
     ledgers = tuple(result.ledger for result in provider_results)
     candidates = tuple(candidate for ledger in ledgers for candidate in ledger.candidates)
     rejected = tuple(candidate for ledger in ledgers for candidate in ledger.rejected_candidates)
@@ -340,81 +571,67 @@ def _compose_frontier(
             )
         )
     )
-    provider_hashes = tuple(ledger.corpus_snapshot_hash for ledger in ledgers)
-    registry_snapshot = {
-        "requested_resource_kinds": request.resource_kinds,
-        "bound_provider_kinds": tuple(result.resource_kind for result in provider_results),
-        "missing_reasons": missing_reasons,
-        "unavailable_reasons": unavailable_reasons,
-        "provider_replays": tuple(
-            {
-                "replay_key": ledger.replay_key,
-                "replay_command": ledger.replay_command,
-                "replay_expected_output_hash": ledger.replay_expected_output_hash,
-            }
-            for ledger in ledgers
-        ),
-    }
-    replay_packet = {
-        "provider_corpus_snapshot_hashes": provider_hashes,
-        "provider_expected_output_hashes": tuple(
-            ledger.replay_expected_output_hash for ledger in ledgers
-        ),
-        "registry_snapshot": registry_snapshot,
-    }
-    replay_payload = (
-        json.dumps(
-            replay_packet,
-            ensure_ascii=False,
-            sort_keys=True,
-            separators=(",", ":"),
-        )
-        .encode("utf-8")
-        .hex()
-    )
-    snapshot_hash, expected_hash = _replay_frontier(replay_payload)
-    replay_command = (
-        "python -m polisyos.runtime.quality.capability_discovery "
-        f"--replay-frontier {replay_payload}"
-    )
+    snapshot_hash = "sha256:" + _digest(replay_packet)
     cutoffs = tuple(
         result.actual_cutoff for result in provider_results if result.actual_cutoff is not None
     )
-    return SearchFrontier(
-        request_ref=request.search.request_id,
-        query_plan={
+    return {
+        "request_ref": request.search.request_id,
+        "query_plan": {
             "intent": request.search.intent,
             "resource_kinds": list(request.resource_kinds),
             "provider_query_plans": [ledger.query_plan for ledger in ledgers],
         },
-        corpus_ref=CAPABILITY_PROVIDER_REGISTRY_INDEX_REF,
-        corpus_path="runtime/quality/capability_discovery.py",
-        corpus_snapshot_hash=snapshot_hash,
-        corpus_kind="canonical",
-        indexes_used=indexes,
-        index_version_refs=index_versions,
-        index_freshness=index_freshness,
-        query_expansion_traces=tuple(
+        "corpus_ref": CAPABILITY_PROVIDER_REGISTRY_INDEX_REF,
+        "corpus_path": "runtime/quality/capability_discovery.py",
+        "corpus_snapshot_hash": snapshot_hash,
+        "corpus_kind": "canonical",
+        "indexes_used": indexes,
+        "index_version_refs": index_versions,
+        "index_freshness": index_freshness,
+        "query_expansion_traces": tuple(
             trace for ledger in ledgers for trace in ledger.query_expansion_traces
         ),
-        candidates=candidates,
-        rejected_candidates=rejected,
-        no_hit_frontier=no_hit_frontier,
-        incompleteness={
+        "candidates": candidates,
+        "rejected_candidates": rejected,
+        "no_hit_frontier": no_hit_frontier,
+        "incompleteness": {
             "provider_count": len(provider_results),
             "missing_provider_count": len(missing_reasons),
             "unavailable_provider_count": len(unavailable_reasons),
         },
-        replay_key="capability-discovery:" + _digest(registry_snapshot),
-        replay_command=replay_command,
-        replay_expected_output_hash=expected_hash,
-        requested_count=sum(result.requested_count for result in provider_results),
-        evaluated_count=sum(result.evaluated_count for result in provider_results),
-        returned_count=len(candidates),
-        actual_cutoff=sum(cutoffs) if cutoffs else None,
-        completeness_status=completeness,
-        incompleteness_reasons=incompleteness_reasons,
-    )
+        "replay_key": "capability-discovery:" + _digest(replay_packet),
+        "requested_count": sum(result.requested_count for result in provider_results),
+        "evaluated_count": sum(result.evaluated_count for result in provider_results),
+        "returned_count": len(candidates),
+        "actual_cutoff": sum(cutoffs) if cutoffs else None,
+        "completeness_status": completeness,
+        "incompleteness_reasons": incompleteness_reasons,
+    }
+
+
+def _validate_federation_inputs(
+    *,
+    request: CapabilityDiscoveryRequest,
+    provider_results: Sequence[CapabilityProviderSearchResult],
+    missing_reasons: tuple[str, ...],
+    unavailable_reasons: tuple[str, ...],
+) -> None:
+    result_kinds = tuple(result.resource_kind for result in provider_results)
+    if len(set(result_kinds)) != len(result_kinds):
+        raise ValueError("replayed provider results must be unique by resource kind")
+    requested_order = tuple(kind for kind in request.resource_kinds if kind in result_kinds)
+    if result_kinds != requested_order:
+        raise ValueError("provider results must preserve requested resource-kind order")
+    if any(result.ledger.request_ref != request.search.request_id for result in provider_results):
+        raise ValueError("provider ledger request_ref does not bind the request")
+    missing_kinds = tuple(reason.partition(":")[0] for reason in missing_reasons)
+    unavailable_kinds = tuple(reason.partition(":")[0] for reason in unavailable_reasons)
+    all_kinds = (*result_kinds, *missing_kinds, *unavailable_kinds)
+    if len(set(all_kinds)) != len(all_kinds):
+        raise ValueError("each requested resource kind requires exactly one producer disposition")
+    if set(all_kinds) != set(request.resource_kinds):
+        raise ValueError("replay packet must account for every requested resource kind")
 
 
 def _response_time(
@@ -443,16 +660,59 @@ def _digest(value: object) -> str:
     return hashlib.sha256(payload).hexdigest()
 
 
-def _replay_frontier(payload_hex: str) -> tuple[str, str]:
+def _replay_frontier(payload_hex: str) -> tuple[dict[str, object], str]:
     packet = json.loads(bytes.fromhex(payload_hex).decode("utf-8"))
     if not isinstance(packet, dict):
         raise ValueError("capability discovery replay packet must be an object")
-    provider_hashes = tuple(packet["provider_corpus_snapshot_hashes"])
-    provider_expected_hashes = tuple(packet["provider_expected_output_hashes"])
-    registry_snapshot = packet["registry_snapshot"]
-    snapshot_hash = "sha256:" + _digest((provider_hashes, registry_snapshot))
-    expected_hash = "sha256:" + _digest((*provider_expected_hashes, snapshot_hash))
-    return snapshot_hash, expected_hash
+    expected_keys = {
+        "request",
+        "provider_results",
+        "missing_reasons",
+        "unavailable_reasons",
+    }
+    if set(packet) != expected_keys:
+        raise ValueError("capability discovery replay packet has unexpected fields")
+    request = CapabilityDiscoveryRequest.model_validate_json(
+        json.dumps(packet["request"], ensure_ascii=False)
+    )
+    raw_results = packet["provider_results"]
+    if not isinstance(raw_results, list):
+        raise ValueError("provider_results must be a list")
+    provider_results = tuple(
+        CapabilityProviderSearchResult.model_validate_json(json.dumps(item, ensure_ascii=False))
+        for item in raw_results
+    )
+    missing_reasons = _replay_reason_tuple(packet["missing_reasons"])
+    unavailable_reasons = _replay_reason_tuple(packet["unavailable_reasons"])
+    canonical_packet = {
+        "request": request.model_dump(mode="json"),
+        "provider_results": [result.model_dump(mode="json") for result in provider_results],
+        "missing_reasons": list(missing_reasons),
+        "unavailable_reasons": list(unavailable_reasons),
+    }
+    fields = _project_frontier(
+        request=request,
+        provider_results=provider_results,
+        missing_reasons=missing_reasons,
+        unavailable_reasons=unavailable_reasons,
+        replay_packet=canonical_packet,
+    )
+    validated = SearchFrontier(
+        **fields,
+        replay_command="capability-discovery:replay-packet",
+        replay_expected_output_hash="sha256:" + "0" * 64,
+    )
+    output = validated.model_dump(
+        mode="json",
+        exclude={"replay_command", "replay_expected_output_hash"},
+    )
+    return fields, "sha256:" + _digest(output)
+
+
+def _replay_reason_tuple(raw: object) -> tuple[str, ...]:
+    if not isinstance(raw, list) or any(not isinstance(item, str) or not item for item in raw):
+        raise ValueError("replay reason fields must be lists of non-empty strings")
+    return tuple(raw)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -471,8 +731,12 @@ __all__ = [
     "CAPABILITY_PROVIDER_REGISTRY_INDEX_REF",
     "CapabilityDiscoveryComposer",
     "CapabilityDiscoveryProvider",
+    "CapabilityIndexOwnerReceipt",
     "CapabilityProviderSearchResult",
     "CapabilityProviderUnavailableError",
+    "LexOwnerReceipt",
+    "ScientistRegistryOwnerReceipt",
+    "SourceProfileOwnerReceipt",
     "main",
 ]
 

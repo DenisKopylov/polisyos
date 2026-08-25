@@ -11,7 +11,7 @@ import time
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any, Literal
 
@@ -31,6 +31,7 @@ from polisyos.runtime.quality.capability_index import (
     EvidenceCapability,
     FailureModeNode,
     FreshnessEnvelope,
+    LegalNormOwnerTruth,
     QualityScore,
     RightsEnvelope,
     capability_is_production_admissible,
@@ -360,6 +361,9 @@ def build_capability_discovery_snapshot(
         resource_kind = _discovery_resource_kind(capability)
         if resource_kind is None:
             continue
+        owner_truth = _legal_norm_owner_truth(capability) if resource_kind == "legal_norm" else None
+        if resource_kind == "legal_norm" and owner_truth is None:
+            continue
         payload = capability.model_dump(mode="json", by_alias=True)
         digest = "sha256:" + _sha256_json(payload)
         source_refs = tuple(asset.ref for asset in capability.source_assets)
@@ -392,6 +396,7 @@ def build_capability_discovery_snapshot(
                 provenance_refs=(
                     source_refs or capability.lineage_refs or (capability_index.release_ref,)
                 ),
+                owner_truth=owner_truth,
                 may_not_use_for=tuple(
                     dict.fromkeys(
                         (
@@ -435,6 +440,28 @@ def _discovery_freshness(capability: EvidenceCapability) -> str:
     if freshness:
         return "current"
     return "unknown"
+
+
+def _legal_norm_owner_truth(capability: EvidenceCapability) -> LegalNormOwnerTruth | None:
+    payload = capability.metadata.get("legal_norm_owner_truth")
+    if not isinstance(payload, Mapping):
+        return None
+    effective_from = _iso_date(payload.get("effective_from"))
+    effective_to_raw = payload.get("effective_to")
+    effective_to = _iso_date(effective_to_raw) if effective_to_raw else None
+    if effective_from is None or (effective_to_raw and effective_to is None):
+        return None
+    try:
+        return LegalNormOwnerTruth.model_validate(
+            {
+                **payload,
+                "effective_from": effective_from,
+                "effective_to": effective_to,
+                "provenance_refs": tuple(payload.get("provenance_refs") or ()),
+            }
+        )
+    except ValueError:
+        return None
 
 
 def validate_capability_authority(capability: EvidenceCapability) -> None:
@@ -1023,8 +1050,16 @@ def load_lex_capabilities(
                 nf.object_en,
                 nf.trust_tier,
                 nf.fused_confidence,
+                nf.grounding_status,
+                nf.reference_resolution_status,
+                nf.hallucination_flags_json,
+                nf.doc_id,
+                nf.provision_citation,
                 nf.effective_from,
                 nf.effective_to,
+                nf.temporal_state,
+                nf.temporal_resolution_status,
+                nf.extraction_source,
                 ta.audit_id,
                 ref.reference_id,
                 ent.entity_id,
@@ -1047,6 +1082,19 @@ def load_lex_capabilities(
         construct = _legal_construct(metric, row.get("applies_to"))
         confidence = _score(row.get("fused_confidence"), default=0.7)
         threshold_id = _safe_text(row.get("threshold_id"))
+        capability_id = deterministic_capability_id(
+            construct,
+            "lex_norm",
+            threshold_id,
+            metric,
+        )
+        legal_truth = _build_legal_norm_owner_truth(
+            row,
+            capability_ref=capability_id,
+            lex_path=path,
+        )
+        if legal_truth is None:
+            continue
         source_assets = [
             CapabilitySourceAsset(
                 ref=f"duckdb:{path.name}:lex_rule_thresholds:{threshold_id}",
@@ -1085,12 +1133,7 @@ def load_lex_capabilities(
                 )
         capabilities.append(
             EvidenceCapability(
-                capability_id=deterministic_capability_id(
-                    construct,
-                    "lex_norm",
-                    threshold_id,
-                    metric,
-                ),
+                capability_id=capability_id,
                 construct=construct,
                 modality=("lex_norm",),
                 evidence_mode="legal_threshold",
@@ -1133,10 +1176,93 @@ def load_lex_capabilities(
                     "metric": metric,
                     "operator": _optional_str(row.get("operator")),
                     "unit": _optional_str(row.get("unit")),
+                    "legal_norm_owner_truth": legal_truth.model_dump(mode="json"),
                 },
             )
         )
     return tuple(capabilities)
+
+
+def _build_legal_norm_owner_truth(
+    row: Mapping[str, Any],
+    *,
+    capability_ref: str,
+    lex_path: Path,
+) -> LegalNormOwnerTruth | None:
+    """Admit only grounded, hallucination-clear, temporally resolved Lex rows."""
+
+    fact_id = _optional_str(row.get("fact_id"))
+    document_ref = _optional_str(row.get("doc_id"))
+    citation = _optional_str(row.get("provision_citation"))
+    jurisdiction = _optional_str(row.get("jurisdiction"))
+    audit_id = _optional_str(row.get("audit_id"))
+    reference_id = _optional_str(row.get("reference_id"))
+    effective_from = _iso_date(row.get("effective_from"))
+    effective_to_raw = _optional_str(row.get("effective_to"))
+    effective_to = _iso_date(effective_to_raw) if effective_to_raw else None
+    required = (
+        fact_id,
+        document_ref,
+        citation,
+        jurisdiction,
+        audit_id,
+        reference_id,
+        effective_from,
+    )
+    if any(value is None for value in required):
+        return None
+    if _optional_str(row.get("grounding_status")) != "grounded":
+        return None
+    if _optional_str(row.get("reference_resolution_status")) != "resolved":
+        return None
+    if _optional_str(row.get("temporal_state")) != "effective":
+        return None
+    if _optional_str(row.get("temporal_resolution_status")) != "resolved":
+        return None
+    if not _hallucination_flags_are_clear(row.get("hallucination_flags_json")):
+        return None
+    if effective_to_raw and effective_to is None:
+        return None
+    provenance_refs = (
+        f"duckdb:{lex_path.name}:lex_normative_facts:{fact_id}",
+        f"duckdb:{lex_path.name}:lex_temporal_audit:{audit_id}",
+        f"duckdb:{lex_path.name}:lex_references:{reference_id}",
+    )
+    return LegalNormOwnerTruth(
+        legal_norm_ref=capability_ref,
+        normative_fact_ref=provenance_refs[0],
+        source_document_ref=document_ref,
+        provision_citation=citation,
+        grounding_status="grounded",
+        hallucination_status="verified_clear",
+        jurisdiction=jurisdiction,
+        effective_from=effective_from,
+        effective_to=effective_to,
+        temporal_state="effective",
+        temporal_resolution_status="resolved",
+        temporal_audit_ref=provenance_refs[1],
+        provenance_refs=provenance_refs,
+    )
+
+
+def _hallucination_flags_are_clear(raw: object) -> bool:
+    if not isinstance(raw, str) or not raw.strip():
+        return False
+    try:
+        flags = json.loads(raw)
+    except json.JSONDecodeError:
+        return False
+    return isinstance(flags, (list, dict)) and not flags
+
+
+def _iso_date(raw: object) -> date | None:
+    value = _optional_str(raw)
+    if value is None:
+        return None
+    try:
+        return date.fromisoformat(value[:10])
+    except ValueError:
+        return None
 
 
 def load_calibration_registries(production_data_root: Path) -> CalibrationContext:

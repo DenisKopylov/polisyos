@@ -476,9 +476,12 @@ request. No client clock upgrades server freshness.
 `test_new_conformance_admitted_adapter_appears_without_frontend_code_change`
 performs this exact sequence:
 
-1. Enumerate and hash the complete pinned 1,087-path dashboard production
-   denominator under `apps/runtime-dashboard/src/**`, preserving its file-type
-   partition and known member. Prepare one new backend adapter definition.
+1. Reproduce the pinned opening count of 1,087 dashboard production paths, then
+   enumerate and hash the complete tracked test-start denominator under
+   `apps/runtime-dashboard/src/**`, preserving its file-type partition and known
+   member. C05's own generic hook/panel files legitimately make the latter set
+   larger than 1,087; excluding them would create an ID-branch escape. Prepare
+   one new backend adapter definition.
 2. Admit that adapter through the backend's real admission path, including the
    code-side tuple when that path requires it, with declared port/purpose,
    conformance/passport/evidence refs and non-quarantined state. Compute its new
@@ -498,9 +501,11 @@ performs this exact sequence:
 5. Assert downloaded MACHINE bytes equal the captured `response.clone()` bytes
    and `decodeCapabilityDiscoveryDom(container)` equals the parsed complete
    response.
-6. Re-enumerate and rehash the dashboard production set and require exact path,
-   partition, and byte-digest equality. A generic-result-boundary lint plus the
-   real route/panel assertion prevents a frontend ID special case.
+6. Re-enumerate and rehash the complete test-start dashboard production set and
+   require exact path, partition, and byte-digest equality. The separately
+   reported 1,087 count remains the opening-base census, not an allowlist that
+   can omit C05 source. A generic-result-boundary lint plus the real route/panel
+   assertion prevents a frontend ID special case.
 7. Repeat with missing contract/passport, stale index, quarantine, malformed row,
    policy disablement, and no-hit/recall miss; each fails at its own posture and
    none renders `admitted_authority`.

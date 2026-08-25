@@ -377,6 +377,21 @@ def _offline_mutation_authority_issues(record: Mapping[str, Any]) -> list[dict[s
                     f"offline_mutation_authority[{index}].pending_authority_blocker_ref",
                 )
             )
+        if (
+            state in _CLIENT_AUTHORITY_STATES
+            and "approval" in str(row.get("mutation_id") or "").casefold()
+            and (
+                row.get("revalidation_required") is not True
+                or row.get("offline_disposition") != "rejected_pending_revalidation"
+            )
+        ):
+            issues.append(
+                _issue(
+                    "policy_design_offline_approval_revalidation_required",
+                    "An offline approval attempt must be rejected pending online revalidation.",
+                    f"offline_mutation_authority[{index}].offline_disposition",
+                )
+            )
     return issues
 
 

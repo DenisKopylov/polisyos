@@ -39,6 +39,7 @@ from polisyos.runtime.http.authorization import (
     MatchedAuthorizationRoute,
     RouteAuthorizationRequirement,
     get_route_action_permission_dependency,
+    route_action_permission_dependencies,
 )
 from polisyos.runtime.http.errors import (
     RuntimeHTTPError,
@@ -71,9 +72,7 @@ class RuntimePrincipalAuthzInput(AuthzInput):
             not isinstance(permission, RuntimePermission)
             for permission in self.principal_permissions
         ):
-            raise TypeError(
-                "principal_permissions must be a tuple of RuntimePermission values"
-            )
+            raise TypeError("principal_permissions must be a tuple of RuntimePermission values")
         if (
             tuple(sorted(set(self.principal_permissions), key=lambda item: item.value))
             != self.principal_permissions
@@ -101,8 +100,7 @@ class RuntimePrincipalAuthzInput(AuthzInput):
             sorted(set(principal_permissions), key=lambda permission: permission.value)
         )
         if any(
-            not isinstance(permission, RuntimePermission)
-            for permission in canonical_permissions
+            not isinstance(permission, RuntimePermission) for permission in canonical_permissions
         ):
             raise TypeError("principal permissions must use RuntimePermission values")
         return cls(
@@ -131,9 +129,7 @@ class RuntimePrincipalAuthzInput(AuthzInput):
     def to_opa_input(self) -> dict[str, Any]:
         """Return the core payload plus exact principal grants and provenance."""
         payload = super().to_opa_input()
-        payload["identity"]["permissions"] = [
-            item.value for item in self.principal_permissions
-        ]
+        payload["identity"]["permissions"] = [item.value for item in self.principal_permissions]
         payload["identity"]["authorization_source"] = self.authorization_source
         return payload
 
@@ -191,12 +187,9 @@ class RuntimeActionAuthzInput(RuntimePrincipalAuthzInput):
         if sealed_permissions is not None:
             sealed_permissions = tuple(sealed_permissions)
             if any(
-                not isinstance(permission, RuntimePermission)
-                for permission in sealed_permissions
+                not isinstance(permission, RuntimePermission) for permission in sealed_permissions
             ):
-                raise TypeError(
-                    "sealed principal permissions must use RuntimePermission values"
-                )
+                raise TypeError("sealed principal permissions must use RuntimePermission values")
         raw_permissions = tuple(
             (
                 sealed_permissions
@@ -206,10 +199,7 @@ class RuntimeActionAuthzInput(RuntimePrincipalAuthzInput):
             if principal_permissions is None
             else principal_permissions
         )
-        if any(
-            not isinstance(permission, RuntimePermission)
-            for permission in raw_permissions
-        ):
+        if any(not isinstance(permission, RuntimePermission) for permission in raw_permissions):
             raise TypeError("principal permissions must use RuntimePermission values")
         canonical_permissions = tuple(
             sorted(set(raw_permissions), key=lambda permission: permission.value)
@@ -217,24 +207,16 @@ class RuntimeActionAuthzInput(RuntimePrincipalAuthzInput):
         if sealed_permissions is not None and canonical_permissions != tuple(
             sorted(set(sealed_permissions), key=lambda permission: permission.value)
         ):
-            raise ValueError(
-                "principal permissions differ from the sealed action verification"
-            )
+            raise ValueError("principal permissions differ from the sealed action verification")
 
         sealed_source = getattr(verification, "authorization_source", None)
         source = (
-            (
-                sealed_source
-                if sealed_source is not None
-                else CANONICAL_ROLE_AUTHORIZATION_SOURCE
-            )
+            (sealed_source if sealed_source is not None else CANONICAL_ROLE_AUTHORIZATION_SOURCE)
             if authorization_source is None
             else authorization_source
         )
         if sealed_source is not None and source != sealed_source:
-            raise ValueError(
-                "authorization source differs from the sealed action verification"
-            )
+            raise ValueError("authorization source differs from the sealed action verification")
 
         return cls(
             request_method=base_input.request_method,
@@ -276,6 +258,7 @@ class RuntimeActionAuthzInput(RuntimePrincipalAuthzInput):
         payload["resource"]["class"] = self.action_resource_class
         payload["resource"]["binding_authority"] = authority.value
         return payload
+
 
 if TYPE_CHECKING:
     from collections.abc import Awaitable, Callable
@@ -358,10 +341,7 @@ class _FrozenAuthorizationMapping(MutableMapping[str, object]):
         seal: _AuthorizationStateSeal,
     ) -> None:
         self._values = MappingProxyType(
-            {
-                key: _freeze_authorization_value(item, seal=seal)
-                for key, item in value.items()
-            }
+            {key: _freeze_authorization_value(item, seal=seal) for key, item in value.items()}
         )
         self._seal = seal
 
@@ -376,9 +356,7 @@ class _FrozenAuthorizationMapping(MutableMapping[str, object]):
 
     def _reject(self) -> Never:
         self._seal.violated = True
-        raise _AuthorizationStateMutationError(
-            "frozen authorization resource cannot be mutated"
-        )
+        raise _AuthorizationStateMutationError("frozen authorization resource cannot be mutated")
 
     def __setitem__(self, key: str, value: object) -> None:
         del key, value
@@ -450,9 +428,7 @@ class _SealedAuthorizationState(MutableMapping[str, object]):
 
     def _reject(self, key: str) -> Never:
         self._seal.violated = True
-        raise _AuthorizationStateMutationError(
-            f"authorization state field {key!r} is sealed"
-        )
+        raise _AuthorizationStateMutationError(f"authorization state field {key!r} is sealed")
 
     def __setitem__(self, key: str, value: object) -> None:
         if _is_sealed_authorization_field(key):
@@ -612,7 +588,13 @@ class AuthzMiddleware:
         if not unsafe and path in self._public_paths:
             await self._app(scope, receive, send)
             return
-        if not unsafe and self._opa is None:
+        matched: tuple[APIRoute, dict[str, Any]] | None = None
+        action_guarded = unsafe
+        if not unsafe:
+            matched = self._match_route(scope, method=method)
+            if matched is not None:
+                action_guarded = bool(route_action_permission_dependencies(cast("Any", matched[0])))
+        if not action_guarded and self._opa is None:
             await self._app(scope, receive, send)
             return
 
@@ -620,7 +602,7 @@ class AuthzMiddleware:
         effective_scope, provenance, denied = self._resolve_effective_scope(
             request,
             peer_spiffe_id=peer_spiffe_id,
-            unsafe=unsafe,
+            unsafe=action_guarded,
         )
         if denied is not None:
             await self._send_failure(
@@ -647,7 +629,7 @@ class AuthzMiddleware:
                 scope=scope,
                 receive=receive,
                 send=send,
-                audit=unsafe,
+                audit=action_guarded,
             )
             return
 
@@ -657,10 +639,11 @@ class AuthzMiddleware:
 
         downstream_receive = receive
         bound_resource: BoundAuthorizationResource | None = None
-        if unsafe:
+        if action_guarded:
             binding_scope_token = set_current_access_scope(effective_scope)
             try:
-                matched = self._match_route(scope, method=method)
+                if matched is None:
+                    matched = self._match_route(scope, method=method)
                 if matched is not None:
                     route, child_scope = matched
                     matched_scope = dict(scope)
@@ -683,11 +666,14 @@ class AuthzMiddleware:
                         )
                         return
                     try:
-                        body_bytes, downstream_receive = await _capture_and_replay_body(
-                            request,
-                            receive,
-                            ceiling=self._body_ceiling,
-                        )
+                        if unsafe:
+                            body_bytes, downstream_receive = await _capture_and_replay_body(
+                                request,
+                                receive,
+                                ceiling=self._body_ceiling,
+                            )
+                        else:
+                            body_bytes = b""
                         requirement = cast(
                             "RouteAuthorizationRequirement",
                             matched_request.state.authz_route_requirement,
@@ -717,7 +703,7 @@ class AuthzMiddleware:
                         )
                         return
                     self._freeze_binding(matched_request, bound_resource)
-                elif self._path_has_unsafe_route(scope):
+                elif unsafe and self._path_has_unsafe_route(scope):
                     await self._send_failure(
                         request,
                         _AuthorizationFailure(
@@ -726,8 +712,7 @@ class AuthzMiddleware:
                                 status_code=503,
                                 code="authorization_contract_violation",
                                 detail=(
-                                    "Unsafe route could not be matched to one "
-                                    "authorized operation"
+                                    "Unsafe route could not be matched to one authorized operation"
                                 ),
                             ),
                             reason="authorization_contract_violation",
@@ -745,7 +730,11 @@ class AuthzMiddleware:
 
         shadow_deny = False
         if self._opa is not None:
-            resource = self._opa_resource(request, bound_resource=bound_resource, unsafe=unsafe)
+            resource = self._opa_resource(
+                request,
+                bound_resource=bound_resource,
+                unsafe=action_guarded,
+            )
             if resource is None:
                 await self._send_failure(
                     request,
@@ -755,8 +744,7 @@ class AuthzMiddleware:
                             status_code=503,
                             code="authorization_resource_unbound",
                             detail=(
-                                "Unsafe request reached policy evaluation without a "
-                                "frozen resource"
+                                "Unsafe request reached policy evaluation without a frozen resource"
                             ),
                         ),
                         reason="authorization_resource_unbound",
@@ -781,7 +769,7 @@ class AuthzMiddleware:
                 resource_requires_anonymization=bool(resource.get("requires_anonymization", False)),
             )
             authz_input: AuthzInput = base_authz_input
-            if unsafe:
+            if action_guarded:
                 verification = getattr(
                     request.state,
                     "action_permission_verification",
@@ -870,10 +858,7 @@ class AuthzMiddleware:
                                     request,
                                     status_code=503,
                                     code="authorization_contract_violation",
-                                    detail=(
-                                        "Deployment principal grant state has an "
-                                        "invalid type"
-                                    ),
+                                    detail=("Deployment principal grant state has an invalid type"),
                                 ),
                                 reason="authorization_contract_violation",
                             ),
@@ -884,24 +869,18 @@ class AuthzMiddleware:
                         return
                     claims = getattr(request.state, "user_claims", None)
                     if isinstance(claims, UserIdentityClaims):
-                        deployment_permissions = (
-                            deployment_grants.resolve_claim_permissions(
-                                claims,
-                                effective_subject=effective_scope.user_sub,
-                                effective_tenant_id=effective_scope.tenant_id,
-                                effective_cell_id=effective_scope.cell_id,
-                            )
+                        deployment_permissions = deployment_grants.resolve_claim_permissions(
+                            claims,
+                            effective_subject=effective_scope.user_sub,
+                            effective_tenant_id=effective_scope.tenant_id,
+                            effective_cell_id=effective_scope.cell_id,
                         )
                         if deployment_permissions is not None:
                             try:
-                                authz_input = (
-                                    RuntimePrincipalAuthzInput.from_verified_principal(
-                                        base_input=base_authz_input,
-                                        principal_permissions=deployment_permissions,
-                                        authorization_source=(
-                                            DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE
-                                        ),
-                                    )
+                                authz_input = RuntimePrincipalAuthzInput.from_verified_principal(
+                                    base_input=base_authz_input,
+                                    principal_permissions=deployment_permissions,
+                                    authorization_source=(DEPLOYMENT_SERVICE_AUTHORIZATION_SOURCE),
                                 )
                             except (TypeError, ValueError) as exc:
                                 await self._send_failure(
@@ -925,7 +904,7 @@ class AuthzMiddleware:
                 opa_response, shadow_deny = await self._evaluate_opa(
                     request,
                     authz_input,
-                    fail_closed=unsafe,
+                    fail_closed=action_guarded,
                 )
             finally:
                 reset_current_access_scope(opa_scope_token)
@@ -933,7 +912,7 @@ class AuthzMiddleware:
                 await opa_response(scope, receive, send)
                 return
 
-        if unsafe and bound_resource is not None:
+        if action_guarded and bound_resource is not None:
             dependency_error = await to_thread.run_sync(
                 partial(self._execute_bound_authorization_dependencies, request)
             )
@@ -952,7 +931,7 @@ class AuthzMiddleware:
             downstream_send = _shadow_header_sender(send) if shadow_deny else send
             downstream_request = request
             state_seal: _AuthorizationStateSeal | None = None
-            if unsafe and bound_resource is not None:
+            if action_guarded and bound_resource is not None:
                 downstream_request, state_seal = _seal_authorization_state(
                     scope,
                     receive=downstream_receive,
@@ -969,7 +948,7 @@ class AuthzMiddleware:
             try:
                 await self._app(scope, downstream_receive, downstream_send)
             except _AuthorizationStateMutationError:
-                if unsafe and bound_resource is not None:
+                if action_guarded and bound_resource is not None:
                     await self._send_failure(
                         downstream_request,
                         _AuthorizationFailure(
@@ -978,8 +957,7 @@ class AuthzMiddleware:
                                 status_code=503,
                                 code="authorization_binding_integrity_violation",
                                 detail=(
-                                    "The frozen authorization resource changed during "
-                                    "mutation"
+                                    "The frozen authorization resource changed during mutation"
                                 ),
                             ),
                             reason="authorization_binding_integrity_violation",
@@ -1123,9 +1101,7 @@ class AuthzMiddleware:
         try:
             action_verification = action_dependency(request)
             if type(action_verification) is not BoundActionPermissionVerification:
-                raise RuntimeError(
-                    "The action dependency did not consume the frozen resource"
-                )
+                raise RuntimeError("The action dependency did not consume the frozen resource")
             if step_up_dependency is None:
                 return None
             if type(step_up_dependency) is not StepUpDependency:
@@ -1214,10 +1190,7 @@ class AuthzMiddleware:
                             request,
                             status_code=503,
                             code="authorization_binding_integrity_violation",
-                            detail=(
-                                "The frozen authorization resource changed during "
-                                "mutation"
-                            ),
+                            detail=("The frozen authorization resource changed during mutation"),
                         ),
                         reason="authorization_binding_integrity_violation",
                     ),
@@ -1259,11 +1232,15 @@ class AuthzMiddleware:
             if require_executed_dependencies
             else bound_permission_proof or preflight_permission_proof
         )
-        if require_executed_dependencies and getattr(
-            state,
-            "authz_step_up_requirement",
-            None,
-        ) is not None:
+        if (
+            require_executed_dependencies
+            and getattr(
+                state,
+                "authz_step_up_requirement",
+                None,
+            )
+            is not None
+        ):
             from polisyos.runtime.http.step_up import (
                 step_up_verification_matches_request,
             )

@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from datetime import UTC, datetime, timedelta
 from pathlib import Path
 from typing import Any
+from unittest.mock import patch
 
 import pytest
 
@@ -16,6 +17,7 @@ from polisyos.core.artifacts.manifest import (
 from polisyos.core.artifacts.signing import Ed25519Signer, Ed25519Verifier, KeyPair
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.security.identity import PolicyOSRole
 from polisyos.pdc import (
     AuthorityBoundary,
@@ -24,6 +26,7 @@ from polisyos.pdc import (
     OperationInvocationRecord,
 )
 from polisyos.runtime.http.authorization import (
+    _BOUND_ACTION_PERMISSION_SEAL,
     ActionPermissionVerification,
     BoundActionPermissionVerification,
     ResourceBindingSource,
@@ -129,6 +132,7 @@ def _proof(
     return BoundActionPermissionVerification(
         verification=verification,
         bound_resource=resource,
+        _seal=_BOUND_ACTION_PERMISSION_SEAL,
     )
 
 
@@ -259,6 +263,7 @@ def _contract(*envelopes: object) -> DelegationContract:
 class Harness:
     root: Path
     store: FileSystemCAS
+    control_store: ControlPlaneStore
     event_log: RuntimeDiagnosticEventLog
     idempotency_store: RuntimeIdempotencyStore
     verifier: Ed25519Verifier
@@ -287,6 +292,7 @@ def _harness(tmp_path: Path) -> Harness:
     return Harness(
         root=tmp_path,
         store=store,
+        control_store=control_store,
         event_log=event_log,
         idempotency_store=RuntimeIdempotencyStore(root=tmp_path / "idempotency"),
         verifier=verifier,
@@ -337,6 +343,7 @@ def _persist_signed(
     signer: Ed25519Signer,
     signer_identity: str,
     sign: bool = True,
+    canon_spec: CanonSpec | None = None,
 ) -> str:
     dumped = payload.model_dump(mode="json") if hasattr(payload, "model_dump") else payload
     result = write_runtime_authority_artifact(
@@ -391,6 +398,7 @@ def _persist_signed(
             override_policy="no_override",
             approval_policy="owner_signature_required",
         ),
+        canon_spec=canon_spec or CanonSpec(),
     )
     if sign:
         harness.store.sign_artifact(
@@ -476,6 +484,9 @@ def _prepare_gateway(
     contract_signer: Ed25519Signer | None = None,
     admission_signer: Ed25519Signer | None = None,
     human_decision_refs: dict[str, str] | None = None,
+    human_decision_service: Any | None = None,
+    human_decision_adapters: dict[str, Any] | None = None,
+    production_approval_resolver: Any | None = None,
     bound_permission: object | None = None,
 ) -> tuple[object, str, str | None]:
     authority = _authority_module()
@@ -532,6 +543,9 @@ def _prepare_gateway(
         admission_refs_by_invocation_hash=admission_mapping,
         effect_bindings=bindings,
         human_decision_refs_by_request_ref=human_decision_refs or {},
+        human_decision_service=human_decision_service,
+        human_decision_adapters_by_request_ref=human_decision_adapters or {},
+        production_approval_resolver=production_approval_resolver,
     )
     return gateway, contract_ref, admission_ref
 
@@ -727,7 +741,7 @@ def test_wrong_role_human_click_is_persisted_and_never_fires_effect(tmp_path: Pa
     )
 
 
-def test_signed_five_rights_record_is_the_only_out_of_envelope_override(
+def test_human_decision_v1_replays_as_revalidation_required(
     tmp_path: Path,
 ) -> None:
     harness = _harness(tmp_path)
@@ -761,14 +775,442 @@ def test_signed_five_rights_record_is_the_only_out_of_envelope_override(
         bindings=(binding,),
         human_decision_refs={request.request_ref: record_ref},
     )
-    result = _dispatch(
+    decision = _assert_refused_with_zero_effect(
+        harness,
         gateway=gateway,
         operation=operation,
         invocation=invocation,
         intent=intent,
+        effects=effects,
+        expected_reason="DS9-DECISION-V1-REVALIDATION",
     )
-    assert result == "search"
-    assert effects == ["search"]
+    assert decision.human_decision_record_ref is None
+
+
+def test_agent_gateway_rejects_cross_arm_fields() -> None:
+    """PA2 and production adapter fields cannot coexist in one accepted DTO."""
+
+    from pydantic import TypeAdapter, ValidationError
+
+    contracts = importlib.import_module("polisyos.runtime.http.services.human_decision_contracts")
+    common = {
+        "tenant_id": "tenant-a",
+        "run_id": "run-gy-pa2",
+        "decision_request_ref": "runtime://human-decision/request/1",
+        "decision_request_digest": "sha256:" + "1" * 64,
+        "record_ref": "sha256:" + "2" * 64,
+        "record_digest": "sha256:" + "2" * 64,
+        "source_ref": "sha256:" + "3" * 64,
+        "source_digest": "sha256:" + "3" * 64,
+        "basis_digest": "sha256:" + "4" * 64,
+        "record_schema_version": "policyos.runtime.human_decision_record.v2",
+        "rule_version_ref": RULE_VERSION_REF,
+        "verifier_epoch": "ds9-test-epoch",
+        "valid_from": NOW - timedelta(minutes=1),
+        "valid_until": NOW + timedelta(minutes=10),
+        "expected_consumer": "polisyos.runtime.quality.agent_action_authority",
+        "expected_operation": "agent.outside-envelope",
+        "expected_audience": "polisyos-runtime",
+    }
+    pa2 = {
+        **common,
+        "source_kind": "agent_action_authority",
+        "delegation_contract_ref": "sha256:" + "5" * 64,
+        "delegation_contract_digest": "sha256:" + "5" * 64,
+        "delegation_envelope_ref": "pdc://delegation/envelope/1",
+        "delegation_envelope_digest": "sha256:" + "6" * 64,
+    }
+    adapter = TypeAdapter(contracts.HumanDecisionGatewayAdapterInput)
+    assert adapter.validate_python(pa2).source_kind == "agent_action_authority"
+    production = {
+        **common,
+        "source_kind": "production_approval",
+        "production_packet_ref": "sha256:" + "7" * 64,
+        "production_packet_digest": "sha256:" + "7" * 64,
+    }
+    assert adapter.validate_python(production).source_kind == "production_approval"
+
+    with pytest.raises(ValidationError):
+        adapter.validate_python({**pa2, "production_packet_ref": "sha256:" + "7" * 64})
+    with pytest.raises(ValidationError):
+        adapter.validate_python(
+            {
+                **production,
+                "delegation_contract_ref": "sha256:" + "5" * 64,
+            }
+        )
+
+
+def test_agent_gateway_production_arm_requires_packet_ref_and_concrete_resolver(
+    tmp_path: Path,
+) -> None:
+    from fastapi.testclient import TestClient
+
+    from polisyos.runtime.http.app import create_runtime_api_app
+    from polisyos.runtime.http.container import resolve_production_approval_resolver
+    from polisyos.runtime.quality.approval import ProductionApprovalCurrentnessProjection
+    from tests.unit.runtime.http.test_runtime_deployment_security import (
+        _config_mapping_with_human_decision_custody,
+        _deployment_security_module,
+    )
+
+    harness = _harness(tmp_path / "gateway")
+    operation = _operation("agent.outside-envelope")
+    invocation = _invocation(operation)
+    intent = _intent("search")
+    effects: list[str] = []
+    binding = _binding(operation, effects)
+    contract = _contract(
+        _envelope(
+            valid_from=NOW - timedelta(minutes=5),
+            valid_until=NOW + timedelta(hours=1),
+        )
+    )
+    initial_gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=contract,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+    )
+    with patch.object(_authority_module(), "_utcnow", return_value=NOW):
+        source = _produce(
+            gateway=initial_gateway,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+        )
+    request = source.human_decision_request
+    assert request is not None
+    request_digest = _authority_module().agent_action_content_hash(request)
+    contracts = importlib.import_module("polisyos.runtime.http.services.human_decision_contracts")
+    adapter = contracts.HumanDecisionProductionGatewayAdapterInput(
+        tenant_id="tenant-a",
+        run_id="run-gy-pa2",
+        source_kind="production_approval",
+        decision_request_ref=request.request_ref,
+        decision_request_digest=request_digest,
+        record_ref="sha256:" + "2" * 64,
+        record_digest="sha256:" + "2" * 64,
+        source_ref="sha256:" + "3" * 64,
+        source_digest="sha256:" + "3" * 64,
+        basis_digest="sha256:" + "3" * 64,
+        record_schema_version="policyos.runtime.human_decision_record.v2",
+        rule_version_ref=RULE_VERSION_REF,
+        verifier_epoch="ds9-test-epoch",
+        valid_from=NOW - timedelta(minutes=1),
+        valid_until=NOW + timedelta(minutes=10),
+        expected_consumer="polisyos.runtime.quality.agent_action_authority",
+        expected_operation=operation.operation_id,
+        expected_audience="polisyos-runtime",
+        production_packet_ref="sha256:" + "7" * 64,
+        production_packet_digest="sha256:" + "7" * 64,
+    )
+    projection = ProductionApprovalCurrentnessProjection(
+        status="current",
+        packet_ref=adapter.production_packet_ref,
+        checked_at=NOW,
+        expected_consumer=adapter.expected_consumer,
+        expected_audience=adapter.expected_audience,
+    )
+    for candidate in (None, object(), projection):
+        with pytest.raises(TypeError, match="concrete approval resolver"):
+            _prepare_gateway(
+                harness,
+                contract=contract,
+                operation=operation,
+                invocation=invocation,
+                intent=intent,
+                bindings=(binding,),
+                human_decision_adapters={request.request_ref: adapter},
+                production_approval_resolver=candidate,
+            )
+
+    security = _deployment_security_module()
+    runtime = security.build_deployment_security(
+        security.DeploymentSecurityConfig.from_mapping(
+            _config_mapping_with_human_decision_custody(tmp_path / "runtime")
+        )
+    )
+    app = create_runtime_api_app(
+        cas_root=tmp_path / "runtime-cas",
+        deployment_security=runtime,
+    )
+    with TestClient(app) as client:
+        resolver = resolve_production_approval_resolver(client.app)
+        assert resolver is not None
+        gateway, _, _ = _prepare_gateway(
+            harness,
+            contract=contract,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            bindings=(binding,),
+            human_decision_adapters={request.request_ref: adapter},
+            production_approval_resolver=resolver,
+        )
+        _assert_refused_with_zero_effect(
+            harness,
+            gateway=gateway,
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            effects=effects,
+            expected_reason="DS9-DECISION-ARTIFACT-MISSING",
+        )
+    assert effects == []
+
+
+def _prepared_v2_human_decision(
+    tmp_path: Path,
+    *,
+    signed_source_permission_jwt_id: str | None = None,
+) -> tuple[Any, Any, Any]:
+    from tests.unit.runtime.http.test_human_decision_service import (
+        _signed_current_gate_fixture,
+    )
+
+    contracts = importlib.import_module("polisyos.runtime.http.services.human_decision_contracts")
+    fixture = _signed_current_gate_fixture(tmp_path)
+    source = fixture.source_decision
+    gate_input = fixture.adapter_input
+    if signed_source_permission_jwt_id is not None:
+        request = source.human_decision_request
+        snapshot = source.permission_snapshot
+        assert request is not None
+        assert snapshot is not None
+        source = source.model_copy(
+            update={
+                "permission_snapshot": snapshot.model_copy(
+                    update={"jwt_id": signed_source_permission_jwt_id}
+                )
+            }
+        )
+        gate_input = gate_input.model_copy(
+            update=fixture.resign_request_bundle(
+                request,
+                source_update={"permission_snapshot": source.permission_snapshot},
+            )
+        )
+    receipt = fixture.service.create_record(
+        contracts.HumanDecisionCreateCommand(
+            gate_input=gate_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement=("I accept accountability for this exact bounded action."),
+            dissent_statement="Disconfirming evidence remains visible and retained.",
+            override_reason=None,
+            blocking_reason=None,
+        ),
+        bound_permission=fixture.bound_permission,
+        write_context=fixture.write_context,
+    )
+    record = receipt.record
+    envelope = next(
+        row for row in fixture.contract.action_envelopes if row.envelope_id == source.envelope_id
+    )
+    adapter = contracts.HumanDecisionPA2GatewayAdapterInput(
+        tenant_id=record.tenant_id,
+        run_id=record.run_id,
+        source_kind="agent_action_authority",
+        decision_request_ref=record.human_decision_request_ref,
+        decision_request_digest=record.decision_request_digest,
+        record_ref=receipt.record_ref,
+        record_digest=receipt.record_digest,
+        source_ref=record.source_ref,
+        source_digest=record.source_digest,
+        basis_digest=record.basis_digest,
+        record_schema_version=record.schema_version,
+        rule_version_ref=record.rule_version_ref,
+        verifier_epoch=record.verifier_epoch,
+        valid_from=record.valid_from,
+        valid_until=record.valid_until,
+        expected_consumer="polisyos.runtime.quality.agent_action_authority",
+        expected_operation=source.operation_id,
+        expected_audience="polisyos-runtime",
+        delegation_contract_ref=record.basis_ref,
+        delegation_contract_digest=record.basis_digest,
+        delegation_envelope_ref=envelope.envelope_ref,
+        delegation_envelope_digest=_authority_module().agent_action_content_hash(envelope),
+    )
+    return fixture, receipt, adapter
+
+
+def test_agent_gateway_pa2_arm_re_resolves_s7_without_production_packet(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tests.unit.runtime.http.test_human_decision_service import (
+        _signed_current_gate_fixture,
+    )
+
+    contracts = importlib.import_module("polisyos.runtime.http.services.human_decision_contracts")
+    fixture = _signed_current_gate_fixture(tmp_path)
+    receipt = fixture.service.create_record(
+        contracts.HumanDecisionCreateCommand(
+            gate_input=fixture.adapter_input,
+            decision_action="approve",
+            decision_mode="ordinary",
+            accountability_statement=("I accept accountability for this exact bounded action."),
+            dissent_statement="Disconfirming evidence remains visible and retained.",
+            override_reason=None,
+            blocking_reason=None,
+        ),
+        bound_permission=fixture.bound_permission,
+        write_context=fixture.write_context,
+    )
+    record = receipt.record
+    source = fixture.source_decision
+    envelope = next(
+        row for row in fixture.contract.action_envelopes if row.envelope_id == source.envelope_id
+    )
+    adapter = contracts.HumanDecisionPA2GatewayAdapterInput(
+        tenant_id=record.tenant_id,
+        run_id=record.run_id,
+        source_kind="agent_action_authority",
+        decision_request_ref=record.human_decision_request_ref,
+        decision_request_digest=record.decision_request_digest,
+        record_ref=receipt.record_ref,
+        record_digest=receipt.record_digest,
+        source_ref=record.source_ref,
+        source_digest=record.source_digest,
+        basis_digest=record.basis_digest,
+        record_schema_version=record.schema_version,
+        rule_version_ref=record.rule_version_ref,
+        verifier_epoch=record.verifier_epoch,
+        valid_from=record.valid_from,
+        valid_until=record.valid_until,
+        expected_consumer="polisyos.runtime.quality.agent_action_authority",
+        expected_operation=source.operation_id,
+        expected_audience="polisyos-runtime",
+        delegation_contract_ref=record.basis_ref,
+        delegation_contract_digest=record.basis_digest,
+        delegation_envelope_ref=envelope.envelope_ref,
+        delegation_envelope_digest=_authority_module().agent_action_content_hash(envelope),
+    )
+    gateway, _, _ = _prepare_gateway(
+        fixture.harness,
+        contract=fixture.contract,
+        operation=fixture.operation,
+        invocation=fixture.invocation,
+        intent=fixture.intent,
+        bindings=(fixture.binding,),
+        contract_ref_override=record.basis_ref,
+        human_decision_service=fixture.service,
+        human_decision_adapters={record.human_decision_request_ref: adapter},
+    )
+    later = record.recorded_at + timedelta(seconds=1)
+    monkeypatch.setattr(fixture.service, "_clock", lambda: later)
+    monkeypatch.setattr(_authority_module(), "_utcnow", lambda: later)
+
+    assert (
+        _dispatch(
+            gateway=gateway,
+            operation=fixture.operation,
+            invocation=fixture.invocation,
+            intent=fixture.intent,
+        )
+        == "search"
+    )
+    assert fixture.effects == ["search"]
+
+
+def test_agent_gateway_rejects_changed_admission_under_same_request_ref(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A newly admitted packet cannot reuse an older human authorization."""
+
+    fixture, receipt, adapter = _prepared_v2_human_decision(tmp_path)
+    record = receipt.record
+    monkeypatch.setattr(_authority_module(), "_utcnow", lambda: record.recorded_at)
+    gateway, _, _ = _prepare_gateway(
+        fixture.harness,
+        contract=fixture.contract,
+        operation=fixture.operation,
+        invocation=fixture.invocation,
+        intent=fixture.intent,
+        bindings=(fixture.binding,),
+        contract_ref_override=record.basis_ref,
+        authority_input_payload={"independently_admitted_note": "changed"},
+        human_decision_service=fixture.service,
+        human_decision_adapters={record.human_decision_request_ref: adapter},
+    )
+
+    _assert_refused_with_zero_effect(
+        fixture.harness,
+        gateway=gateway,
+        operation=fixture.operation,
+        invocation=fixture.invocation,
+        intent=fixture.intent,
+        effects=fixture.effects,
+        expected_reason="DS9-DECISION-SOURCE-INVALID",
+    )
+    assert fixture.effects == []
+
+
+def test_agent_gateway_rejects_changed_live_permission_snapshot_under_same_request_ref(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A fresh DS20 snapshot must equal the one in the signed refusal packet."""
+
+    fixture, receipt, adapter = _prepared_v2_human_decision(
+        tmp_path,
+        signed_source_permission_jwt_id="jwt-before-operational-revalidation",
+    )
+    record = receipt.record
+    monkeypatch.setattr(_authority_module(), "_utcnow", lambda: record.recorded_at)
+    gateway, _, _ = _prepare_gateway(
+        fixture.harness,
+        contract=fixture.contract,
+        operation=fixture.operation,
+        invocation=fixture.invocation,
+        intent=fixture.intent,
+        bindings=(fixture.binding,),
+        contract_ref_override=record.basis_ref,
+        human_decision_service=fixture.service,
+        human_decision_adapters={record.human_decision_request_ref: adapter},
+    )
+
+    _assert_refused_with_zero_effect(
+        fixture.harness,
+        gateway=gateway,
+        operation=fixture.operation,
+        invocation=fixture.invocation,
+        intent=fixture.intent,
+        effects=fixture.effects,
+        expected_reason="DS9-DECISION-SOURCE-INVALID",
+    )
+    assert fixture.effects == []
+
+
+def test_currentness_projection_round_trip_cannot_feed_operational_consumer(
+    tmp_path: Path,
+) -> None:
+    from tests.unit.runtime.http.test_human_decision_service import (
+        _signed_current_gate_fixture,
+    )
+
+    fixture = _signed_current_gate_fixture(tmp_path)
+    projection = fixture.resolve()
+    round_tripped = type(projection).model_validate(projection.model_dump(mode="json"))
+    assert round_tripped.operational_authority is False
+
+    with pytest.raises(TypeError, match="adapter mapping is not exact"):
+        _prepare_gateway(
+            fixture.harness,
+            contract=fixture.contract,
+            operation=fixture.operation,
+            invocation=fixture.invocation,
+            intent=fixture.intent,
+            bindings=(fixture.binding,),
+            human_decision_service=fixture.service,
+            human_decision_adapters={
+                round_tripped.decision_request_ref or "missing": round_tripped
+            },
+        )
 
 
 def test_persisted_but_unsigned_human_record_never_fires_effect(tmp_path: Path) -> None:
@@ -981,9 +1423,7 @@ def test_well_typed_caller_minted_ds20_proof_is_not_owner_bound(tmp_path: Path) 
     binding = _binding(operation, effects)
     gateway, _, _ = _prepare_gateway(
         harness,
-        contract=_contract(
-            _envelope(permission=RuntimePermission.ANALYSIS_EXECUTE)
-        ),
+        contract=_contract(_envelope(permission=RuntimePermission.ANALYSIS_EXECUTE)),
         operation=operation,
         invocation=invocation,
         intent=intent,
@@ -1292,6 +1732,52 @@ def test_envelope_is_decisive_while_happy_path_remains_valid(tmp_path: Path) -> 
     assert effects == ["search"]
 
 
+def test_effect_rejects_allowed_model_with_unrelated_persisted_receipt(
+    tmp_path: Path,
+) -> None:
+    authority = _authority_module()
+    harness = _harness(tmp_path)
+    effects: list[str] = []
+    operation = _operation()
+    invocation = _invocation(operation)
+    intent = _intent()
+    binding = _binding(operation, effects)
+    gateway, _, _ = _prepare_gateway(
+        harness,
+        contract=_contract(_envelope()),
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+        bindings=(binding,),
+    )
+    allowed = _produce(
+        gateway=gateway,
+        operation=operation,
+        invocation=invocation,
+        intent=intent,
+    )
+    unrelated = allowed.model_copy(update={"decision_id": "decision.unrelated-receipt"})
+    unrelated_persisted = gateway.persist_decision(unrelated)
+    forged = authority.PersistedAgentActionDecision(
+        decision=allowed,
+        write_result=unrelated_persisted.write_result,
+        durable_event_id=unrelated_persisted.durable_event_id,
+    )
+
+    with pytest.raises(
+        authority.AgentActionAuthorityRecordingError,
+        match="exact persisted decision",
+    ):
+        gateway.execute_bound_effect(
+            operation=operation,
+            invocation=invocation,
+            intent=intent,
+            persisted=forged,
+        )
+
+    assert effects == []
+
+
 def test_new_action_row_and_binding_free_grow_without_action_kind_code_change(
     tmp_path: Path,
 ) -> None:
@@ -1455,71 +1941,57 @@ def test_search_decision_cannot_select_data_request_adapter(tmp_path: Path) -> N
 
 def test_human_approval_cannot_replay_after_invocation_content_changes(
     tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    harness = _harness(tmp_path)
-    contract = _contract(_envelope())
-    operation = _operation("agent.outside-envelope")
-    first_invocation = _invocation(operation, parameters={"limit": 1})
-    intent = _intent()
-    effects: list[str] = []
-    binding = _binding(operation, effects)
+    fixture, receipt, adapter = _prepared_v2_human_decision(tmp_path)
+    record = receipt.record
+    monkeypatch.setattr(_authority_module(), "_utcnow", lambda: record.recorded_at)
     first_gateway, _, _ = _prepare_gateway(
-        harness,
-        contract=contract,
-        operation=operation,
-        invocation=first_invocation,
-        intent=intent,
-        bindings=(binding,),
-    )
-    first_request = _produce(
-        gateway=first_gateway,
-        operation=operation,
-        invocation=first_invocation,
-        intent=intent,
-    ).human_decision_request
-    record_ref = _persist_human_record(harness, _human_record(first_request))
-    first_gateway, _, _ = _prepare_gateway(
-        harness,
-        contract=contract,
-        operation=operation,
-        invocation=first_invocation,
-        intent=intent,
-        bindings=(binding,),
-        human_decision_refs={first_request.request_ref: record_ref},
+        fixture.harness,
+        contract=fixture.contract,
+        operation=fixture.operation,
+        invocation=fixture.invocation,
+        intent=fixture.intent,
+        bindings=(fixture.binding,),
+        contract_ref_override=record.basis_ref,
+        human_decision_service=fixture.service,
+        human_decision_adapters={record.human_decision_request_ref: adapter},
     )
     assert (
         _dispatch(
             gateway=first_gateway,
-            operation=operation,
-            invocation=first_invocation,
-            intent=intent,
+            operation=fixture.operation,
+            invocation=fixture.invocation,
+            intent=fixture.intent,
         )
         == "search"
     )
-    assert effects == ["search"]
+    assert fixture.effects == ["search"]
 
-    changed_invocation = first_invocation.model_copy(update={"parameters": {"limit": 1_000_000}})
+    changed_invocation = fixture.invocation.model_copy(update={"parameters": {"limit": 1_000_000}})
     changed_gateway, _, _ = _prepare_gateway(
-        harness,
-        contract=contract,
-        operation=operation,
+        fixture.harness,
+        contract=fixture.contract,
+        operation=fixture.operation,
         invocation=changed_invocation,
-        intent=intent,
-        bindings=(binding,),
-        human_decision_refs={first_request.request_ref: record_ref},
+        intent=fixture.intent,
+        bindings=(fixture.binding,),
+        contract_ref_override=record.basis_ref,
+        human_decision_service=fixture.service,
+        human_decision_adapters={record.human_decision_request_ref: adapter},
     )
     decision = _assert_refused_with_zero_effect(
-        harness,
+        fixture.harness,
         gateway=changed_gateway,
-        operation=operation,
+        operation=fixture.operation,
         invocation=changed_invocation,
-        intent=intent,
-        effects=effects,
+        intent=fixture.intent,
+        effects=fixture.effects,
         expected_reason="operation_out_of_envelope",
     )
     assert decision.human_decision_record_ref is None
-    assert decision.human_decision_request.request_ref != first_request.request_ref
-    assert effects == ["search"]
+    assert decision.human_decision_request.request_ref != record.human_decision_request_ref
+    assert fixture.effects == ["search"]
 
 
 def test_malformed_inner_ds20_proof_is_persisted_as_refusal(tmp_path: Path) -> None:
@@ -1537,6 +2009,7 @@ def test_malformed_inner_ds20_proof_is_persisted_as_refusal(tmp_path: Path) -> N
     malformed = BoundActionPermissionVerification(
         verification=malformed_verification,
         bound_resource=valid.bound_resource,
+        _seal=_BOUND_ACTION_PERMISSION_SEAL,
     )
     operation = _operation()
     invocation = _invocation(operation)

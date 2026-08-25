@@ -66,6 +66,7 @@ _ABSENT_SELECTOR = '{"present":false}'
 _RESOLVED_CONTEXT_CANON = canon.CanonSpec(forbid_floats=False)
 _SCENARIO_TARGET_CONTEXT_KIND = "runtime.scenario.target.v1"
 _LINEAGE_BATCH_CONTEXT_KIND = "runtime.lineage.batch.v1"
+_HUMAN_DECISION_CREATE_CONTEXT_KIND = "runtime.human_decision.create.v1"
 
 
 class _ResolverKind(StrEnum):
@@ -81,6 +82,14 @@ _OWNED_PATH_RESOLVERS = {
     ("runtime.run.feedback_evaluation", "run_id"): _ResolverKind.RUN,
     ("runtime.run.reissue", "run_id"): _ResolverKind.RUN,
     ("runtime.run.production_approval", "run_id"): _ResolverKind.RUN,
+    ("runtime.run.human_decision", "run_id"): _ResolverKind.RUN,
+    ("runtime.run.human_decision_gate", "run_id"): _ResolverKind.RUN,
+    ("runtime.run.human_decision_record", "run_id"): _ResolverKind.RUN,
+    ("runtime.run.human_decision_evidence", "run_id"): _ResolverKind.RUN,
+    (
+        "runtime.run.human_decision_review_effectiveness",
+        "run_id",
+    ): _ResolverKind.RUN,
     ("runtime.artifact.bureaucratic_render", "packet_id"): _ResolverKind.ARTIFACT,
 }
 _OWNED_BATCH_RESOLVERS = {
@@ -171,9 +180,7 @@ class BoundAuthorizationResource:
             _validate_identifier(name, field_name="canonical selector name")
             _validate_identifier(value, field_name="canonical selector value")
         if (self.resolved_context_kind is None) != (self.resolved_context is None):
-            raise ValueError(
-                "resolved_context_kind and resolved_context must be present together"
-            )
+            raise ValueError("resolved_context_kind and resolved_context must be present together")
         if self.resolved_context_kind is not None:
             _validate_identifier(
                 self.resolved_context_kind,
@@ -252,6 +259,28 @@ def get_bound_resource_context(
     return payload
 
 
+def human_decision_create_from_bound_request(request: Request) -> Mapping[str, Any]:
+    """Return the exact pre-OPA human-decision request/header snapshot."""
+
+    context = get_bound_resource_context(
+        request,
+        expected_kind=_HUMAN_DECISION_CREATE_CONTEXT_KIND,
+    )
+    if context.get("context_version") != _HUMAN_DECISION_CREATE_CONTEXT_KIND:
+        raise forbidden(
+            "The human-decision authorization context has an unsupported version",
+            code="authorization_binding_context_invalid",
+        )
+    body = context.get("body")
+    exposure_session_ref = context.get("exposure_session_ref")
+    if not isinstance(body, Mapping) or not isinstance(exposure_session_ref, str):
+        raise forbidden(
+            "The human-decision authorization context is incomplete",
+            code="authorization_binding_context_invalid",
+        )
+    return context
+
+
 def lineage_batch_from_bound_request(
     request: Request,
     *,
@@ -292,8 +321,7 @@ def lineage_batch_from_bound_request(
         content_digest = raw_entry.get("content_digest")
         values = (requested_id, canonical_id, content_digest)
         if any(
-            not isinstance(value, str) or not value or value != value.strip()
-            for value in values
+            not isinstance(value, str) or not value or value != value.strip() for value in values
         ):
             raise forbidden(
                 "The lineage authorization context contains an invalid identifier",
@@ -309,9 +337,7 @@ def lineage_batch_from_bound_request(
         entries.append(raw_entry)
 
     expected_requested = sorted(requested_lineage_ids)
-    actual_requested = sorted(
-        cast("str", entry["requested_lineage_id"]) for entry in entries
-    )
+    actual_requested = sorted(cast("str", entry["requested_lineage_id"]) for entry in entries)
     if actual_requested != expected_requested:
         raise forbidden(
             "The request lineage batch differs from its authorized context",
@@ -363,11 +389,9 @@ def lineage_batch_from_bound_request(
         scenario_id, _lineage_kind = remainder.rsplit(":", 1)
         if (
             scenario_manifest.get("id") != scenario_id
-            or scenario_manifest.get("baseline_run_id")
-            != scenario_head.get("baseline_run_id")
+            or scenario_manifest.get("baseline_run_id") != scenario_head.get("baseline_run_id")
             or scenario_manifest.get("revision") != scenario_head.get("revision")
-            or scenario_manifest.get("manifest_hash")
-            != scenario_head.get("manifest_hash")
+            or scenario_manifest.get("manifest_hash") != scenario_head.get("manifest_hash")
             or scenario_head.get("scenario_id") != scenario_id
             or _digest_payload(
                 {
@@ -383,9 +407,7 @@ def lineage_batch_from_bound_request(
             )
 
         current_head = ctx.scenarios.get_persisted_head_or_none(scenario_id)
-        if current_head is None or _scenario_head_context(current_head) != dict(
-            scenario_head
-        ):
+        if current_head is None or _scenario_head_context(current_head) != dict(scenario_head):
             raise conflict(
                 "Scenario changed after authorization binding",
                 code="scenario_authorization_binding_changed",
@@ -437,10 +459,7 @@ def scenario_target_from_bound_request(
             "The bound scenario revision is invalid",
             code="authorization_binding_context_invalid",
         )
-    if (
-        requested_id is not None
-        and resolve_scenario_target_id(run, requested_id) != scenario_id
-    ):
+    if requested_id is not None and resolve_scenario_target_id(run, requested_id) != scenario_id:
         raise forbidden(
             "The request scenario target changed after authorization binding",
             code="authorization_binding_scenario_target_changed",
@@ -466,6 +485,33 @@ def production_approval_scorecard_from_bound_request(
             code="authorization_binding_scorecard_run_mismatch",
         )
     return dict(scorecard)
+
+
+def production_approval_inputs_from_bound_request(
+    request: Request,
+    *,
+    run_id: str,
+) -> tuple[dict[str, Any], str]:
+    """Return the scorecard plus its exact immutable pre-OPA digest."""
+
+    context = get_bound_resource_context(
+        request,
+        expected_kind=production_approval_context_kind(),
+    )
+    context_run_id = context.get("run_id")
+    scorecard = context.get("scorecard")
+    scorecard_digest = context.get("scorecard_sha256")
+    if (
+        context_run_id != run_id
+        or not isinstance(scorecard, Mapping)
+        or not isinstance(scorecard_digest, str)
+        or not scorecard_digest.startswith("sha256:")
+    ):
+        raise forbidden(
+            "The production-approval inputs are not bound to this run",
+            code="authorization_binding_scorecard_run_mismatch",
+        )
+    return dict(scorecard), scorecard_digest
 
 
 def bind_authorization_resource(
@@ -640,8 +686,26 @@ def _bind_owned_existing_path(
             "Owned path binding has no registered resolver",
             code="authorization_binding_path_unsupported",
         )
-    selectors: tuple[tuple[str, str], ...] = (
-        (selector_name, _canonical_json(resource_id)),
+    selectors: tuple[tuple[str, str], ...] = tuple(
+        sorted(
+            (
+                (selector_name, _canonical_json(resource_id)),
+                *(
+                    (
+                        path_selector,
+                        _canonical_json(_path_identifier(request, path_selector)),
+                    )
+                    for path_selector in spec.path_selector_parameters
+                ),
+                *(
+                    (
+                        query_selector,
+                        _canonical_json(_query_identifier(request, query_selector)),
+                    )
+                    for query_selector in spec.query_selector_parameters
+                ),
+            )
+        )
     )
     resolved_context_kind: str | None = None
     resolved_context: bytes | None = None
@@ -657,9 +721,104 @@ def _bind_owned_existing_path(
             *selectors,
             ("quality_scorecard_ref", _canonical_json(resolved.reference)),
             ("scorecard_sha256", _canonical_json(resolved.payload_sha256)),
+            (
+                "production_basis_ref",
+                _canonical_json(body.get("production_basis_ref")),
+            ),
+            (
+                "production_basis_sha256",
+                _canonical_json(body.get("production_basis_digest")),
+            ),
+            (
+                "human_decision_record_ref",
+                _canonical_json(body.get("human_decision_record_ref")),
+            ),
+            (
+                "human_decision_record_sha256",
+                _canonical_json(body.get("human_decision_record_digest")),
+            ),
         )
         resolved_context_kind = production_approval_context_kind()
         resolved_context = resolved.context_bytes
+    elif spec.resource_kind == "runtime.run.human_decision":
+        exposure_session_ref = request.headers.get(
+            "X-PolicyOS-Human-Decision-Exposure",
+            "",
+        ).strip()
+        if not exposure_session_ref:
+            raise bad_request(
+                "Human-decision mutation requires an exposure-session header",
+                code="human_decision_exposure_session_required",
+            )
+        forbidden_authority_fields = {
+            "actor_ref",
+            "actor_key_id",
+            "canonical_actor",
+            "custody_key_id",
+            "custody_signer_identity",
+            "decided_at",
+            "recorded_at",
+            "reservation_id",
+            "reservation_version",
+            "rights_checks",
+            "signature",
+            "signer_identity",
+            "status",
+            "verifier_epoch",
+        }
+        present_forbidden = sorted(forbidden_authority_fields & set(body))
+        if present_forbidden:
+            raise bad_request(
+                "Caller-authored human-decision authority fields are forbidden",
+                code="human_decision_authority_fields_forbidden",
+            )
+        binding_fields = (
+            "source_kind",
+            "source_ref",
+            "decision_request_ref",
+            "decision_request_digest",
+            "basis_ref",
+            "basis_digest",
+            "principal_binding_ref",
+            "reviewer_separation_ref",
+            "presentation_contract_ref",
+            "action_kind",
+            "action",
+            "decision_action",
+            "decision_mode",
+        )
+        selectors = tuple(
+            sorted(
+                (
+                    *selectors,
+                    *(
+                        (
+                            field_name,
+                            _canonical_json(body.get(field_name))
+                            if field_name in body
+                            else _ABSENT_SELECTOR,
+                        )
+                        for field_name in binding_fields
+                    ),
+                    (
+                        "exposure_token_sha256",
+                        _canonical_json(
+                            "sha256:"
+                            + hashlib.sha256(exposure_session_ref.encode("utf-8")).hexdigest()
+                        ),
+                    ),
+                )
+            )
+        )
+        resolved_context_kind = _HUMAN_DECISION_CREATE_CONTEXT_KIND
+        resolved_context = canon.to_canonical_bytes(
+            {
+                "context_version": _HUMAN_DECISION_CREATE_CONTEXT_KIND,
+                "body": dict(body),
+                "exposure_session_ref": exposure_session_ref,
+            },
+            _RESOLVED_CONTEXT_CANON,
+        )
     return _build_bound_resource(
         request=request,
         requirement=requirement,
@@ -916,9 +1075,7 @@ def _bind_candidate_target(
                     code="authorization_binding_scenario_parent_mismatch",
                 )
             existing = (
-                ctx.scenarios.get_persisted_manifest_for_head(head)
-                if head is not None
-                else None
+                ctx.scenarios.get_persisted_manifest_for_head(head) if head is not None else None
             )
             expected_revision = existing.revision if existing is not None else 0
             selectors.extend(
@@ -931,9 +1088,7 @@ def _bind_candidate_target(
                 selectors.append(
                     (
                         "existing_manifest_digest",
-                        _canonical_json(
-                            _digest_payload(existing.model_dump(mode="json"))
-                        ),
+                        _canonical_json(_digest_payload(existing.model_dump(mode="json"))),
                     )
                 )
             if head is not None:
@@ -1345,6 +1500,16 @@ def _query_sha256(request: Request) -> str:
     return _sha256(raw_query)
 
 
+def _query_identifier(request: Request, name: str) -> str:
+    values = request.query_params.getlist(name)
+    if len(values) != 1:
+        raise bad_request(
+            "Authorization query selector must occur exactly once",
+            code="authorization_binding_query_selector_invalid",
+        )
+    return _required_string(values[0], field_name=name)
+
+
 def _resource_kind(spec: ResourceBindingSpec, authority: BindingAuthority) -> str:
     return f"{spec.resource_kind}.{authority.value}"
 
@@ -1485,7 +1650,9 @@ __all__ = [
     "BoundAuthorizationResource",
     "bind_authorization_resource",
     "get_bound_resource_context",
+    "human_decision_create_from_bound_request",
     "lineage_batch_from_bound_request",
+    "production_approval_inputs_from_bound_request",
     "production_approval_scorecard_from_bound_request",
     "scenario_target_from_bound_request",
 ]

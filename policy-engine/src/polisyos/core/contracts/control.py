@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Literal, cast
+from typing import Any, Literal, Self, cast
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -1156,9 +1156,10 @@ class ProductionApprovalPacket(BaseModel):
 
     model_config = ConfigDict(extra="forbid")
 
-    schema_version: Literal["policyos.production_approval_packet.v1"] = (
-        "policyos.production_approval_packet.v1"
-    )
+    schema_version: Literal[
+        "policyos.production_approval_packet.v1",
+        "policyos.production_approval_packet.v2",
+    ] = "policyos.production_approval_packet.v1"
     generated_at: datetime
     run_id: str | None = None
     job_id: str | None = None
@@ -1170,6 +1171,70 @@ class ProductionApprovalPacket(BaseModel):
     scorecard_generated_at: str | None = None
     evidence_refs: dict[str, str] = Field(default_factory=dict)
     override: ProductionApprovalOverridePacket | None = None
+    tenant_id: str | None = Field(default=None, min_length=1)
+    production_basis_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    production_basis_digest: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    human_decision_record_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    human_decision_record_digest: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    decision_request_ref: str | None = None
+    decision_request_digest: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    governed_action_key: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    valid_from: datetime | None = None
+    valid_until: datetime | None = None
+    verifier_epoch: str | None = None
+    expected_consumer: str | None = None
+    expected_audience: str | None = None
+    scorecard_producer_identity: str | None = Field(default=None, min_length=1)
+    production_basis_producer_identity: str | None = Field(default=None, min_length=1)
+    rule_version_ref: str | None = Field(default=None, min_length=1)
+    limitations: tuple[str, ...] | None = None
+    operational_authority: Literal[False] = False
+    historical_only: bool = True
+
+    @model_validator(mode="after")
+    def _versioned_authority_shape(self) -> Self:
+        v2_fields = (
+            self.production_basis_ref,
+            self.production_basis_digest,
+            self.human_decision_record_ref,
+            self.human_decision_record_digest,
+            self.decision_request_ref,
+            self.decision_request_digest,
+            self.governed_action_key,
+            self.valid_from,
+            self.valid_until,
+            self.verifier_epoch,
+            self.expected_consumer,
+            self.expected_audience,
+            self.tenant_id,
+            self.scorecard_producer_identity,
+            self.production_basis_producer_identity,
+            self.rule_version_ref,
+            self.limitations,
+        )
+        if self.schema_version == "policyos.production_approval_packet.v1":
+            if any(value is not None for value in v2_fields) or not self.historical_only:
+                raise ValueError("production approval v1 is historical-only")
+            return self
+        if any(value is None for value in v2_fields):
+            raise ValueError("production approval v2 requires exact currentness bindings")
+        if self.production_basis_ref != self.production_basis_digest:
+            raise ValueError("production basis ref and digest must match")
+        if self.human_decision_record_ref != self.human_decision_record_digest:
+            raise ValueError("human-decision record ref and digest must match")
+        if (
+            self.valid_from is None
+            or self.valid_until is None
+            or self.valid_until <= self.valid_from
+        ):
+            raise ValueError("production approval v2 validity interval is empty")
+        return self
 
 
 class ProductionApprovalRequest(BaseModel):
@@ -1179,7 +1244,37 @@ class ProductionApprovalRequest(BaseModel):
 
     quality_scorecard_ref: str | None = Field(default=None, min_length=1)
     quality_scorecard: dict[str, Any] | None = None
+    production_basis_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    production_basis_digest: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    human_decision_record_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    human_decision_record_digest: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
     override: ProductionApprovalOverrideRequest | None = None
+
+    @model_validator(mode="after")
+    def _exact_production_bindings(self) -> Self:
+        for name, ref, digest in (
+            (
+                "production basis",
+                self.production_basis_ref,
+                self.production_basis_digest,
+            ),
+            (
+                "human-decision record",
+                self.human_decision_record_ref,
+                self.human_decision_record_digest,
+            ),
+        ):
+            if (ref is None) != (digest is None):
+                raise ValueError(f"{name} ref and digest must be supplied together")
+            if ref is not None and ref != digest:
+                raise ValueError(f"{name} ref and digest must match")
+        return self
 
 
 class ProductionApprovalResponse(BaseModel):

@@ -1533,6 +1533,580 @@ export const lineageExportResponseSchema = z.object({
   payload: z.record(z.string(), z.unknown()),
 });
 
+const humanDecisionDigestSchema = z.string().regex(/^sha256:[0-9a-f]{64}$/);
+const humanDecisionSourceKindSchema = z.enum([
+  "agent_action_authority",
+  "production_approval",
+]);
+const humanDecisionStatusSchema = z.enum([
+  "invalid_source",
+  "artifact_missing",
+  "producer_missing",
+  "revalidation_required",
+  "blocked",
+  "available",
+]);
+const humanDecisionActionSchema = z.enum([
+  "request_evidence",
+  "approve",
+  "reject",
+  "revise_scope",
+  "escalate",
+]);
+const humanDecisionModeSchema = z.enum(["ordinary", "override", "blocking"]);
+const humanDecisionActionKindSchema = z
+  .string()
+  .regex(/^[a-z][a-z0-9_.:-]*$/)
+  .max(120);
+const humanDecisionRoleSchema = z.enum([
+  "principal",
+  "mandate_owner",
+  "legal_approver",
+  "budget_owner",
+  "data_steward",
+  "affected_person_representative",
+  "domain_expert",
+  "governance_board",
+  "policy_design_governance_reviewer",
+  "technical_reviewer",
+]);
+
+const humanDecisionCommonSelectorSchema = z.object({
+  basis_digest: humanDecisionDigestSchema,
+  basis_ref: z.string().min(1),
+  decision_request_digest: humanDecisionDigestSchema,
+  decision_request_ref: z.string().min(1),
+  exposure_session_ref: humanDecisionDigestSchema,
+  operational_authority: z.literal(false),
+  presentation_contract_ref: humanDecisionDigestSchema,
+  principal_binding_ref: humanDecisionDigestSchema,
+  reviewer_separation_ref: humanDecisionDigestSchema,
+  source_ref: humanDecisionDigestSchema,
+});
+
+export const humanDecisionReplaySelectorSchema = z.discriminatedUnion(
+  "source_kind",
+  [
+    humanDecisionCommonSelectorSchema
+      .extend({
+        action_kind: humanDecisionActionKindSchema,
+        source_kind: z.literal("agent_action_authority"),
+      })
+      .strict(),
+    humanDecisionCommonSelectorSchema
+      .extend({ source_kind: z.literal("production_approval") })
+      .strict(),
+  ],
+);
+
+const humanDecisionFiveRightsRequirementSchema = z
+  .object({
+    right_decision: z.string().min(1),
+    right_format_channel: z.string().min(1),
+    right_information: z.string().min(1),
+    right_person: z.string().min(1),
+    right_time: z.string().min(1),
+    schema_version: z.string().min(1),
+  })
+  .strict();
+
+const humanDecisionFiveRightsBindingSchema = z
+  .object({
+    decision_class_id: z.string().min(1),
+    decision_rights_matrix_ref: z.string().min(1),
+    required_channel: z.enum(["reviewer_console", "governed_review"]),
+    required_information_refs: z.array(z.string().min(1)),
+    required_representation: z.literal("full"),
+    required_role: humanDecisionRoleSchema,
+    schema_version: z.string().min(1),
+    time_rule: z.literal(
+      "intersection_of_signed_validity_intervals_pre_action",
+    ),
+  })
+  .strict();
+
+const humanDecisionRequestSurfaceSchema = z
+  .object({
+    available_actions: z.array(humanDecisionActionSchema),
+    case_id: z.string().min(1),
+    decidable_until: z.string().nullable().optional(),
+    decision_due_at: z.string().nullable().optional(),
+    decision_rights_matrix_ref: z.string().min(1),
+    delegation_contract_ref: z.string().min(1),
+    five_rights_binding: humanDecisionFiveRightsBindingSchema,
+    five_rights_requirements: humanDecisionFiveRightsRequirementSchema,
+    requested_at: z.string().min(1),
+    required_role: humanDecisionRoleSchema,
+  })
+  .strict();
+
+const humanDecisionMandateSurfaceSchema = z
+  .object({
+    action_kind: humanDecisionActionKindSchema,
+    mandate_owner_ref: z.string().min(1),
+    mandate_record_ref: z.string().min(1),
+    operation_id: z.string().min(1),
+    valid_from: z.string().min(1),
+    valid_until: z.string().min(1),
+  })
+  .strict();
+
+const humanDecisionExposureSurfaceSchema = z
+  .object({
+    channel: z.string().nullable().optional(),
+    completed_artifact_digests: z.array(humanDecisionDigestSchema),
+    exposure_session_ref: humanDecisionDigestSchema.nullable().optional(),
+    renderer_id: z.string().nullable().optional(),
+    renderer_version: z.string().nullable().optional(),
+    representation: z
+      .enum(["full", "redacted", "truncated"])
+      .nullable()
+      .optional(),
+    required_artifact_digests: z.array(humanDecisionDigestSchema),
+  })
+  .strict();
+
+const humanDecisionContestabilitySurfaceSchema = z
+  .object({
+    case_id: z.string().min(1),
+    href: z.string().min(1),
+    source_ref: humanDecisionDigestSchema,
+  })
+  .strict();
+
+const humanDecisionSubmissionSurfaceSchema = z
+  .object({
+    allowed_decisions: z
+      .array(
+        z
+          .object({
+            action: humanDecisionActionSchema,
+            decision_modes: z.array(humanDecisionModeSchema).min(1),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(5),
+    operational_authority: z.literal(false),
+    selector: humanDecisionReplaySelectorSchema,
+  })
+  .strict();
+
+const humanDecisionGatePrecedence = [
+  "invalid_source",
+  "artifact_missing",
+  "producer_missing",
+  "revalidation_required",
+  "blocked",
+  "available",
+] as const;
+
+function humanDecisionSelectorEquals(
+  left: z.infer<typeof humanDecisionReplaySelectorSchema> | null | undefined,
+  right: z.infer<typeof humanDecisionReplaySelectorSchema> | null | undefined,
+) {
+  return JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
+}
+
+function humanDecisionModesForAction(
+  action: z.infer<typeof humanDecisionActionSchema>,
+) {
+  if (action === "approve") return ["ordinary", "override"] as const;
+  if (action === "reject") return ["blocking"] as const;
+  return ["ordinary"] as const;
+}
+
+function humanDecisionMultisetEquals(left: string[], right: string[]) {
+  const sortedLeft = [...left].sort();
+  const sortedRight = [...right].sort();
+  return (
+    sortedLeft.length === sortedRight.length &&
+    sortedLeft.every((value, index) => value === sortedRight[index])
+  );
+}
+
+export const humanDecisionGateResponseSchema = z
+  .object({
+    contestability: humanDecisionContestabilitySurfaceSchema
+      .nullable()
+      .optional(),
+    continuation: humanDecisionReplaySelectorSchema.nullable().optional(),
+    decision_request: humanDecisionRequestSurfaceSchema.nullable().optional(),
+    decision_request_digest: humanDecisionDigestSchema.nullable().optional(),
+    decision_request_ref: z.string().nullable(),
+    exposure: humanDecisionExposureSurfaceSchema,
+    governed_action_key: z.string().nullable().optional(),
+    mandate: humanDecisionMandateSurfaceSchema.nullable().optional(),
+    operational_authority: z.literal(false),
+    reason_codes: z.array(z.string().min(1)),
+    reasons: z.array(
+      z
+        .object({
+          code: z.string().min(1),
+          message: z.string().min(1),
+          status: humanDecisionStatusSchema,
+        })
+        .strict(),
+    ),
+    resolved_at: z.string().min(1),
+    run_id: z.string().min(1),
+    source_kind: humanDecisionSourceKindSchema,
+    source_ref: humanDecisionDigestSchema.nullable().optional(),
+    status: humanDecisionStatusSchema,
+    submission: humanDecisionSubmissionSurfaceSchema.nullable().optional(),
+    tenant_id: z.string().min(1),
+    verifier_epoch: z.string().min(1),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const surfacedCodes = value.reasons.map((reason) => reason.code);
+    const expectedStatus =
+      value.reasons.length === 0
+        ? "available"
+        : humanDecisionGatePrecedence.find((status) =>
+            value.reasons.some((reason) => reason.status === status),
+          );
+    if (value.status !== expectedStatus) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "human-decision status must match fail-closed reason precedence",
+        path: ["status"],
+      });
+    }
+    if (
+      value.reason_codes.length !== surfacedCodes.length ||
+      value.reason_codes.some((code, index) => code !== surfacedCodes[index])
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "human-decision reason_codes must exactly project reasons",
+        path: ["reason_codes"],
+      });
+    }
+    if (value.status === "available" && !value.submission) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "available human-decision gate requires server submission selectors",
+        path: ["submission"],
+      });
+    }
+    if (
+      value.status === "available" &&
+      (!value.decision_request ||
+        !value.mandate ||
+        !value.continuation ||
+        !value.exposure.exposure_session_ref)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "available gate requires complete pre-action surfaces",
+        path: ["status"],
+      });
+    }
+    if (value.status !== "available" && value.submission) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "non-available human-decision gate cannot offer submission selectors",
+        path: ["submission"],
+      });
+    }
+    if (
+      value.status === "available" &&
+      !humanDecisionMultisetEquals(
+        value.exposure.completed_artifact_digests,
+        value.exposure.required_artifact_digests,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "available gate requires exact evidence-delivery multiplicity",
+        path: ["exposure", "completed_artifact_digests"],
+      });
+    }
+    if (
+      value.contestability &&
+      (value.contestability.source_ref !== value.source_ref ||
+        value.contestability.case_id !== value.decision_request?.case_id)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "contestability requires exact signed case and source binding",
+        path: ["contestability"],
+      });
+    }
+    if (
+      value.submission &&
+      !humanDecisionSelectorEquals(
+        value.submission.selector,
+        value.continuation,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "submission selector must equal the verified replay continuation",
+        path: ["submission", "selector"],
+      });
+    }
+    if (value.continuation) {
+      const selector = value.continuation;
+      if (
+        selector.source_kind !== value.source_kind ||
+        selector.source_ref !== value.source_ref ||
+        selector.decision_request_ref !== value.decision_request_ref ||
+        selector.decision_request_digest !== value.decision_request_digest ||
+        selector.exposure_session_ref !== value.exposure.exposure_session_ref ||
+        (selector.source_kind === "agent_action_authority" &&
+          selector.action_kind !== value.mandate?.action_kind)
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "replay continuation must remain bound to the resolved gate",
+          path: ["continuation"],
+        });
+      }
+      if (
+        selector.source_kind === "production_approval" &&
+        new Set([
+          selector.source_ref,
+          selector.basis_ref,
+          selector.basis_digest,
+        ]).size !== 1
+      ) {
+        context.addIssue({
+          code: "custom",
+          message:
+            "production replay source and basis selectors must be one signed CAS ref",
+          path: ["continuation"],
+        });
+      }
+      const binding = value.decision_request?.five_rights_binding;
+      if (
+        value.decision_request &&
+        binding &&
+        (binding.required_information_refs.length === 0 ||
+          binding.required_role !== value.decision_request.required_role ||
+          binding.decision_rights_matrix_ref !==
+            value.decision_request.decision_rights_matrix_ref ||
+          binding.required_channel !== value.exposure.channel ||
+          binding.required_representation !== value.exposure.representation ||
+          !humanDecisionMultisetEquals(
+            value.exposure.required_artifact_digests,
+            [selector.basis_digest, ...binding.required_information_refs],
+          ))
+      ) {
+        context.addIssue({
+          code: "custom",
+          message:
+            "five-rights binding differs from gate evidence presentation",
+          path: ["decision_request", "five_rights_binding"],
+        });
+      }
+    }
+    if (value.submission) {
+      const offeredActions = value.submission.allowed_decisions.map(
+        (decision) => decision.action,
+      );
+      if (
+        !value.decision_request ||
+        offeredActions.length !==
+          value.decision_request.available_actions.length ||
+        offeredActions.some(
+          (action, index) =>
+            action !== value.decision_request?.available_actions[index],
+        ) ||
+        new Set(offeredActions).size !== offeredActions.length
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "submission actions must exactly match the signed request",
+          path: ["submission", "allowed_decisions"],
+        });
+      }
+      value.submission.allowed_decisions.forEach((decision, index) => {
+        const expectedModes = humanDecisionModesForAction(decision.action);
+        if (
+          decision.decision_modes.length !== expectedModes.length ||
+          decision.decision_modes.some(
+            (mode, modeIndex) => mode !== expectedModes[modeIndex],
+          )
+        ) {
+          context.addIssue({
+            code: "custom",
+            message: "decision modes must match the server action lattice",
+            path: ["submission", "allowed_decisions", index, "decision_modes"],
+          });
+        }
+      });
+    }
+  });
+
+export const humanDecisionReviewEffectivenessSchema = z
+  .object({
+    advisory_signal_codes: z.array(z.string().min(1)),
+    approval_count: z.number().int().nonnegative(),
+    audit_predicate_provenance: z.literal("institutionally_supplied"),
+    audit_read_error_count: z.number().int().nonnegative(),
+    authoritative_for: z.array(
+      z.enum([
+        "review_effectiveness_measurement",
+        "future_policy_calibration",
+        "reviewer_load_observability",
+      ]),
+    ),
+    authorization_allow_count: z.number().int().nonnegative(),
+    blocking_count: z.number().int().nonnegative(),
+    blocking_permitted: z.literal(false),
+    candidate_human_decision_count: z.number().int().nonnegative(),
+    completed_human_decision_count: z.number().int().nonnegative(),
+    coverage_claim_scope: z.literal("retained_trail_bytes_only"),
+    coverage_status: z.enum(["complete", "incomplete"]),
+    dissent_count: z.number().int().nonnegative(),
+    duplicate_authorization_request_count: z.number().int().nonnegative(),
+    duplicate_record_event_count: z.number().int().nonnegative(),
+    duplicate_record_request_count: z.number().int().nonnegative(),
+    exact_join_count: z.number().int().nonnegative(),
+    invalid_authorization_event_count: z.number().int().nonnegative(),
+    invalid_record_event_count: z.number().int().nonnegative(),
+    malformed_json_line_count: z.number().int().nonnegative(),
+    may_not_use_for: z.array(
+      z.enum([
+        "current_run_closeout_block",
+        "publication_block",
+        "claim_support_downgrade",
+        "authorization_writer_provenance",
+        "forensic_tamper_detection",
+      ]),
+    ),
+    measurement_status: z.literal("partial"),
+    nonblank_line_count: z.number().int().nonnegative(),
+    nonobject_line_count: z.number().int().nonnegative(),
+    override_count: z.number().int().nonnegative(),
+    parsed_object_count: z.number().int().nonnegative(),
+    report_status_effect: z.literal("pass_advisory_only"),
+    retained_or_missing_record_count: z.number().int().nonnegative(),
+    review_count: z.number().int().nonnegative(),
+    review_posture: z.literal("advisory"),
+    review_time_established_count: z.literal(0),
+    review_time_not_established_count: z.number().int().nonnegative(),
+    review_time_status: z.literal("not_established"),
+    reviewer_independence_rate: z.number().min(0).max(1).nullable().optional(),
+    run_id: z.string().min(1),
+    schema_version: z.literal(
+      "policyos.runtime.human_decision_review_effectiveness.v1",
+    ),
+    separation_of_duty_attestation_rate: z
+      .number()
+      .min(0)
+      .max(1)
+      .nullable()
+      .optional(),
+    tenant_scope_unknown_record_event_count: z.number().int().nonnegative(),
+    threshold_scope: z.literal("established_signals_only"),
+    threshold_status: z.enum(["pass", "warn", "fail"]),
+    trail_path_exists: z.boolean(),
+    unmatched_authorization_count: z.number().int().nonnegative(),
+    unmatched_record_event_count: z.number().int().nonnegative(),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const expectedAuthoritativeFor = [
+      "review_effectiveness_measurement",
+      "future_policy_calibration",
+      "reviewer_load_observability",
+    ];
+    const expectedDeniedUses = [
+      "current_run_closeout_block",
+      "publication_block",
+      "claim_support_downgrade",
+      "authorization_writer_provenance",
+      "forensic_tamper_detection",
+    ];
+    if (
+      JSON.stringify(value.authoritative_for) !==
+        JSON.stringify(expectedAuthoritativeFor) ||
+      JSON.stringify(value.may_not_use_for) !==
+        JSON.stringify(expectedDeniedUses)
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "review-effectiveness advisory authority boundary changed",
+        path: ["authoritative_for"],
+      });
+    }
+    const complete =
+      value.trail_path_exists &&
+      value.audit_read_error_count === 0 &&
+      value.malformed_json_line_count === 0 &&
+      value.nonobject_line_count === 0 &&
+      value.invalid_authorization_event_count === 0 &&
+      value.invalid_record_event_count === 0 &&
+      value.tenant_scope_unknown_record_event_count === 0 &&
+      value.unmatched_authorization_count === 0 &&
+      value.unmatched_record_event_count === 0 &&
+      value.duplicate_authorization_request_count === 0 &&
+      value.duplicate_record_request_count === 0 &&
+      value.duplicate_record_event_count === 0 &&
+      value.retained_or_missing_record_count === 0 &&
+      value.candidate_human_decision_count > 0 &&
+      value.exact_join_count === value.authorization_allow_count &&
+      value.exact_join_count === value.candidate_human_decision_count &&
+      value.exact_join_count === value.completed_human_decision_count;
+    if (
+      value.exact_join_count > value.completed_human_decision_count ||
+      value.coverage_status !== (complete ? "complete" : "incomplete")
+    ) {
+      context.addIssue({
+        code: "custom",
+        message:
+          "review-effectiveness coverage contradicts retained-byte receipts",
+        path: ["coverage_status"],
+      });
+    }
+    if (
+      value.review_count !== value.completed_human_decision_count ||
+      value.review_time_not_established_count !== value.review_count
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "review-effectiveness measurement denominator changed",
+        path: ["review_count"],
+      });
+    }
+  });
+
+export const humanDecisionCreateResponseReceiptSchema = z
+  .object({
+    durable_event_id: z.string().min(1),
+    record: z.custom<unknown>(
+      (value) =>
+        typeof value === "object" && value !== null && !Array.isArray(value),
+      { message: "human-decision record readback must be an object" },
+    ),
+    record_digest: humanDecisionDigestSchema,
+    record_ref: humanDecisionDigestSchema,
+    reservation_id: z.string().min(1),
+    reservation_version: z.number().int().positive(),
+    run_id: z.string().min(1),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.record_ref !== value.record_digest) {
+      context.addIssue({
+        code: "custom",
+        message: "human-decision create receipt is not content-bound",
+        path: ["record_ref"],
+      });
+    }
+  });
+
+export type HumanDecisionCreateReceipt = z.output<
+  typeof humanDecisionCreateResponseReceiptSchema
+>;
+
 export type HealthPayload = z.infer<typeof healthSchema>;
 export type AuthMePayload = z.infer<typeof authMeSchema>;
 export type RunsListPayload = z.infer<typeof runsListSchema>;
@@ -1598,3 +2172,9 @@ export type BureaucraticExportPayload = z.infer<
 export type LineagePayload = z.infer<typeof lineageResponseSchema>;
 export type LineageBatchPayload = z.infer<typeof lineageBatchResponseSchema>;
 export type LineageExportPayload = z.infer<typeof lineageExportResponseSchema>;
+export type HumanDecisionGatePayload = z.infer<
+  typeof humanDecisionGateResponseSchema
+>;
+export type HumanDecisionReviewEffectivenessPayload = z.infer<
+  typeof humanDecisionReviewEffectivenessSchema
+>;

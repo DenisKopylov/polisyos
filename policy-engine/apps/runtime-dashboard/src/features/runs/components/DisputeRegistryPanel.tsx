@@ -93,6 +93,7 @@ function DisputeRegistryPanel({
               const next = [
                 {
                   actor: "reviewer",
+                  authorityPurpose: "case_management_note",
                   basis: draftBasis,
                   id: `local:${runId}:${now}`,
                   openedAt: now,
@@ -120,6 +121,7 @@ function DisputeRegistryPanel({
           <article
             key={dispute.id}
             className="border-line bg-surface/70 rounded-2xl border p-3"
+            data-authority-purpose={dispute.authorityPurpose}
           >
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div>
@@ -140,6 +142,11 @@ function DisputeRegistryPanel({
                 {dispute.status.label}
               </Badge>
             </div>
+            <p className="text-muted mt-2 font-mono text-xs">
+              {dispute.authorityPurpose === "case_management_note"
+                ? t("phase32.disputes.caseManagementNote")
+                : t("phase32.disputes.governanceProjection")}
+            </p>
           </article>
         ))}
         {disputes.length === 0 ? (

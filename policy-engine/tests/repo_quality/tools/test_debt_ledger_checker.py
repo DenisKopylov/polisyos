@@ -373,12 +373,38 @@ def test_plan_search_includes_superpowers_directory(tmp_path: Path) -> None:
     assert "planless_slice_named_owner" not in _codes(checker, repo)
 
 
+def test_discovered_slice_plan_overrides_static_unblocked_fallback(tmp_path: Path) -> None:
+    """A real attached plan must supersede the old planless posture."""
+    checker = _checker()
+    repo = _fixture(
+        tmp_path,
+        atlas_slice_rows="| DS9 | Human Decision Integrity | none | active |",
+        plans={
+            "docs/plans/active/atlas-slices/DS9-human-decision-integrity.md": """---
+status: execution_authorized_in_progress
+branch: codex/ds9-fixture
+---
+
+# DS9
+"""
+        },
+    )
+
+    rendered = checker.render_ledger(checker._snapshot(repo))
+    ds9 = next(line for line in rendered.splitlines() if "| `DS9` |" in line)
+
+    assert "| `in-flight` |" in ds9
+    assert "attached branch declared by slice plan" in ds9
+    assert "codex/ds9-fixture" in ds9
+    assert "no plan file in either plan root" not in ds9
+
+
 def test_real_census_replays_published_invariants() -> None:
     checker = _checker()
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 55
+    assert metrics["register_ids"] == 58
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_rows"] == 217
@@ -386,13 +412,12 @@ def test_real_census_replays_published_invariants() -> None:
     assert metrics["gy_absent_from_register"] == 15
     assert metrics["gy_absent_from_register_closed"] == 15
     assert metrics["ds5_nonclosure_rows"] == 27
-    assert metrics["ds5_planless_routes"] == 11
+    assert metrics["ds5_planless_routes"] == 6
     assert metrics["irregular_section_e_branch_rows"] == 1
     # The Atlas mismatch this once pinned (published 13, observed 22) was the census
     # error itself and is repaired. Pin the exact live class set instead: any change —
     # a new class, or one of these resolving — must be acknowledged here, not absorbed.
     assert {item.code for item in report.findings} == {
-        "planless_slice_named_owner",
         "register_supplies_missing_standing",
         "register_withholds_source_standing",
     }
@@ -501,7 +526,7 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
     assert "bridge_missing" not in gap8
-    assert "| `DEBT-REGISTER.md` | 55 | 55 | 33 |" in rendered
+    assert "| `DEBT-REGISTER.md` | 58 | 58 | 34 |" in rendered
     assert "| Atlas master debt table | 22 | 22 | 9 |" in rendered
 
 
@@ -531,7 +556,13 @@ def test_open_work_records_property_posture_and_branch_relevance() -> None:
     checker = _checker()
     rendered = checker.render_ledger(checker._snapshot(REPO_ROOT))
 
-    for slice_id in ("DS9", "DS10", "DS12", "DS14", "DS15", "DS17"):
+    ds9 = next(line for line in rendered.splitlines() if "| `DS9` |" in line)
+    assert "| `in-flight` |" in ds9
+    assert "attached branch declared by slice plan" in ds9
+    assert "codex/ds9-human-decision-integrity-plan" in ds9
+    assert "no plan file in either plan root" not in ds9
+
+    for slice_id in ("DS10", "DS12", "DS14", "DS15", "DS17"):
         row = next(line for line in rendered.splitlines() if f"| `{slice_id}` |" in line)
         assert "unblocking property `not_established`" in row
         assert "measured 2026-08-22" in row
@@ -539,9 +570,54 @@ def test_open_work_records_property_posture_and_branch_relevance() -> None:
     ds16 = next(line for line in rendered.splitlines() if "| `DS16` |" in line)
     assert '"a surface exists that renders values rather than refusals"' in ds16
     assert "codex/atlas-ds16-value-grammar" not in ds16
-    branch_row = next(line for line in rendered.splitlines() if "[`GY-DEF23`]" in line)
-    assert "local-only" in branch_row
-    assert "https://github.com" not in branch_row
+    landed = next(line for line in rendered.splitlines() if "[`GY-DEF23`]" in line)
+    assert "| `open` |" in landed
+
+
+def test_ds9_claims_and_splits_only_approved_debt_scope() -> None:
+    checker = _checker()
+    rows = {row.debt_id: row for row in checker._snapshot(REPO_ROOT).debts}
+
+    approval = rows["ds8-approval-authority"]
+    assert approval.section == "A"
+    assert approval.status == "closed"
+    assert approval.owner == "DS9"
+
+    notes = rows["ds8-local-reviewer-note-persistence"]
+    assert notes.section == "B"
+    assert notes.status == "open"
+    assert notes.owner == "absent/unallocated"
+
+    public = rows["ds8-signed-public-decision-surface"]
+    assert public.section == "B"
+    assert public.status == "open"
+    assert public.owner == "absent/unallocated"
+
+    assert "DS20-B scorecard producer provenance" not in rows
+    intake = rows["DS20-B-scorecard-provenance-intake-effect"]
+    assert intake.section == "A"
+    assert intake.status == "closed"
+    assert intake.owner == "DS9"
+    trust = rows["DS20-B-scorecard-provenance-producer-trust"]
+    assert trust.section == "D"
+    assert trust.status == "foreign"
+    assert trust.owner == "ops config"
+
+    concurrency = rows["decision-validity-fixed-temp-concurrency"]
+    assert concurrency.section == "C"
+    assert concurrency.status == "open_unmerged"
+    assert concurrency.owner == "Scientist Decision Validity / GY-N12 Cluster 4 Task 4.4"
+
+    dashboard_import = rows["case-workspace-route-bypasses-feature-barrel"]
+    assert dashboard_import.section == "C"
+    assert dashboard_import.status == "open_unmerged"
+    assert dashboard_import.owner == "team-frontend"
+
+    rendered = checker.render_ledger(checker._snapshot(REPO_ROOT))
+    assert "[`ds8-approval-authority`]" not in rendered
+    assert "[`DS20-B-scorecard-provenance-intake-effect`]" not in rendered
+    assert "[`decision-validity-fixed-temp-concurrency`]" in rendered
+    assert "[`case-workspace-route-bypasses-feature-barrel`]" in rendered
 
 
 def test_reconciled_secondary_closures_are_not_reported_as_missing() -> None:

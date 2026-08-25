@@ -60,6 +60,45 @@ class RuntimeStepUpReplayStore(Protocol):
         ...
 
 
+class RuntimeHumanDecisionCustody(Protocol):
+    """Attested signer, verifier, and trust policy for decision custody."""
+
+    @property
+    def available(self) -> bool:
+        """Return whether the deployment supplied the complete custody chain."""
+        ...
+
+    @property
+    def signer(self) -> Any | None:
+        """Return the exact deployment signer when custody is available."""
+        ...
+
+    @property
+    def verifier(self) -> Any | None:
+        """Return the exact deployment verifier when custody is available."""
+        ...
+
+    @property
+    def trust_policy(self) -> Any | None:
+        """Return the exact immutable producer trust policy."""
+        ...
+
+    @property
+    def signer_identity(self) -> str | None:
+        """Return the deployment-bound custody signer identity."""
+        ...
+
+    @property
+    def verifier_epoch(self) -> str | None:
+        """Return the frozen deployment verifier epoch."""
+        ...
+
+    @property
+    def unavailability_code(self) -> str | None:
+        """Return the typed fail-closed reason when custody is unavailable."""
+        ...
+
+
 @dataclass(frozen=True, slots=True)
 class RuntimeSecurityConfig:
     """Bundle runtime security collaborators and fail-closed policy toggles."""
@@ -72,6 +111,7 @@ class RuntimeSecurityConfig:
     allow_fixture_identity: bool
     step_up_verifier: RuntimeStepUpAssertionVerifier | None = None
     step_up_replay_store: RuntimeStepUpReplayStore | None = None
+    human_decision_custody: RuntimeHumanDecisionCustody | None = None
 
 
 def is_fixture_identity_enabled(*, explicit: bool | None = None) -> bool:
@@ -103,10 +143,7 @@ def build_fixture_identity_claims() -> UserIdentityClaims:
 
 def is_fixture_identity_claims(value: object) -> bool:
     """Return whether claims carry the reserved development-fixture issuer."""
-    return bool(
-        isinstance(value, UserIdentityClaims)
-        and value.iss == _FIXTURE_IDENTITY_ISSUER
-    )
+    return bool(isinstance(value, UserIdentityClaims) and value.iss == _FIXTURE_IDENTITY_ISSUER)
 
 
 def clear_request_auth_context(state: Any) -> None:
@@ -122,6 +159,7 @@ def clear_request_auth_context(state: Any) -> None:
 __all__ = [
     "AUTHORIZATION_STATE_FIELDS",
     "PolicyOSRole",
+    "RuntimeHumanDecisionCustody",
     "RuntimeSecurityConfig",
     "RuntimeStepUpAssertionVerifier",
     "RuntimeStepUpReplayStore",

@@ -9,7 +9,10 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from functools import lru_cache
 from pathlib import Path
-from typing import Any
+from threading import RLock
+from typing import TYPE_CHECKING, Any, Literal, final
+
+from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
@@ -31,6 +34,14 @@ from polisyos.runtime.quality.source_truth import (
     detect_source_truth_conflict,
     load_source_truth_lattice,
 )
+
+if TYPE_CHECKING:
+    from polisyos.runtime.http.services.human_decisions import (
+        HumanDecisionService,
+        ProductionApprovalPacketReceipt,
+        ResolvedProductionApprovalInputs,
+        ResolvedProductionApprovalPacket,
+    )
 
 APPROVAL_PACKET_KIND = "runtime.production_approval_packet"
 APPROVAL_PACKET_SCHEMA = "polisyos.runtime.ProductionApprovalPacket"
@@ -92,6 +103,335 @@ _NON_AUTHORITY_SCORECARD_EVIDENCE_CLASSES = {
     "public_exported",
     "redacted_derived",
 }
+_RESOLVER_SEAL = object()
+
+
+class ProductionApprovalResolutionError(ValueError):
+    """Stable typed refusal from the concrete production approval resolver."""
+
+    def __init__(self, code: str) -> None:
+        self.code = code
+        super().__init__(code)
+
+
+class ProductionApprovalIssuanceInput(BaseModel):
+    """Strict input bindings admitted by the deployment resolver."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    tenant_id: str = Field(min_length=1)
+    run_id: str = Field(min_length=1)
+    scorecard_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    scorecard_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    production_basis_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    production_basis_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    human_decision_record_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    human_decision_record_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    expected_consumer: str = Field(min_length=1)
+    expected_audience: str = Field(min_length=1)
+
+
+class ProductionApprovalCurrentnessProjection(BaseModel):
+    """Display-only result; serialization can never carry operational authority."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    status: Literal["current", "producer_missing", "invalid", "revalidation_required"]
+    packet_ref: str | None = None
+    reason_code: str | None = None
+    checked_at: datetime
+    expected_consumer: str
+    expected_audience: str
+    projection_only: Literal[True] = True
+    operational_authority: Literal[False] = False
+    may_not_use_for: tuple[str, ...] = (
+        "production_approval",
+        "publication",
+        "agent_effect",
+    )
+
+
+@dataclass(frozen=True, slots=True)
+class _ResolvedProductionApprovalAuthority:
+    inputs: ResolvedProductionApprovalInputs
+    expected_consumer: str
+    expected_audience: str
+    evaluated_at: datetime
+    _seal: object
+
+
+@dataclass(frozen=True, slots=True)
+class _ResolvedProductionApprovalCurrentness:
+    packet: ResolvedProductionApprovalPacket
+    expected_consumer: str
+    expected_audience: str
+    evaluated_at: datetime
+    _seal: object
+
+
+@final
+class ProductionApprovalPacketResolver:
+    """Concrete, factory-issued resolver over signed packets and live inputs."""
+
+    __slots__ = (
+        "_authority_lock",
+        "_expected_audience",
+        "_issued_authorities",
+        "_issuer_epoch",
+        "_service",
+    )
+
+    def __init__(
+        self,
+        service: HumanDecisionService,
+        *,
+        expected_audience: str,
+        issuer_epoch: str,
+        _seal: object | None = None,
+    ) -> None:
+        if _seal is not _RESOLVER_SEAL:
+            raise TypeError("production approval resolver is composition-root only")
+        self._service = service
+        self._expected_audience = expected_audience
+        self._issuer_epoch = issuer_epoch
+        self._authority_lock = RLock()
+        self._issued_authorities: dict[int, _ResolvedProductionApprovalAuthority] = {}
+
+    @property
+    def available(self) -> bool:
+        """Return whether the underlying signed-input verifier is installed."""
+
+        return self._service.available
+
+    @property
+    def issuer_epoch(self) -> str:
+        """Return the content-bound deployment verifier epoch."""
+
+        return self._issuer_epoch
+
+    def authorize_issuance(
+        self,
+        value: ProductionApprovalIssuanceInput,
+        *,
+        evaluated_at: datetime | None = None,
+    ) -> _ResolvedProductionApprovalAuthority:
+        """Re-resolve all three signed inputs before packet issuance."""
+
+        self._require_registered_installation()
+
+        if type(value) is not ProductionApprovalIssuanceInput:
+            raise ProductionApprovalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+        if value.expected_audience != self._expected_audience:
+            raise ProductionApprovalResolutionError("DS9-APPROVAL-WRONG-CONSUMER")
+        if (
+            value.production_basis_ref != value.production_basis_digest
+            or value.human_decision_record_ref != value.human_decision_record_digest
+        ):
+            raise ProductionApprovalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+        if not self.available:
+            raise ProductionApprovalResolutionError(
+                self._service.unavailability_code or "DS9-DECISION-PRODUCER-MISSING"
+            )
+        now = _utc(evaluated_at)
+        try:
+            inputs = self._service.resolve_production_approval_inputs(
+                tenant_id=value.tenant_id,
+                run_id=value.run_id,
+                scorecard_ref=value.scorecard_ref,
+                scorecard_binding_digest=value.scorecard_digest,
+                production_basis_ref=value.production_basis_ref,
+                human_decision_record_ref=value.human_decision_record_ref,
+                evaluated_at=now,
+            )
+        except ValueError as exc:
+            code = getattr(exc, "code", "DS9-RAW-APPROVAL-NOT-AUTHORITY")
+            raise ProductionApprovalResolutionError(str(code)) from exc
+        authority = _ResolvedProductionApprovalAuthority(
+            inputs=inputs,
+            expected_consumer=value.expected_consumer,
+            expected_audience=value.expected_audience,
+            evaluated_at=now,
+            _seal=_RESOLVER_SEAL,
+        )
+        with self._authority_lock:
+            self._issued_authorities[id(authority)] = authority
+        return authority
+
+    def require_currentness(
+        self,
+        *,
+        packet_ref: str,
+        tenant_id: str,
+        run_id: str,
+        expected_consumer: str,
+        expected_audience: str,
+        evaluated_at: datetime | None = None,
+    ) -> _ResolvedProductionApprovalCurrentness:
+        """Reload one signed packet and all inputs for an operational consumer."""
+
+        self._require_registered_installation()
+
+        if expected_audience != self._expected_audience:
+            raise ProductionApprovalResolutionError("DS9-APPROVAL-WRONG-CONSUMER")
+        if not self.available:
+            raise ProductionApprovalResolutionError(
+                self._service.unavailability_code or "DS9-DECISION-PRODUCER-MISSING"
+            )
+        now = _utc(evaluated_at)
+        try:
+            packet = self._service.resolve_production_decision_packet(
+                packet_ref=packet_ref,
+                tenant_id=tenant_id,
+                run_id=run_id,
+                expected_consumer=expected_consumer,
+                expected_audience=expected_audience,
+                evaluated_at=now,
+            )
+        except ValueError as exc:
+            code = getattr(exc, "code", "DS9-RAW-APPROVAL-NOT-AUTHORITY")
+            raise ProductionApprovalResolutionError(str(code)) from exc
+        return _ResolvedProductionApprovalCurrentness(
+            packet=packet,
+            expected_consumer=expected_consumer,
+            expected_audience=expected_audience,
+            evaluated_at=now,
+            _seal=_RESOLVER_SEAL,
+        )
+
+    def persist_authorized_packet(
+        self,
+        authority: _ResolvedProductionApprovalAuthority,
+        packet: ProductionApprovalPacket,
+        *,
+        write_context: object,
+    ) -> ProductionApprovalPacketReceipt:
+        """Custody-write V2 only when it matches this resolver's opaque grant."""
+
+        self._require_registered_installation()
+
+        from polisyos.runtime.http.services.human_decision_contracts import (
+            HumanDecisionWriteContext,
+        )
+
+        with self._authority_lock:
+            if (
+                type(authority) is not _ResolvedProductionApprovalAuthority
+                or self._issued_authorities.get(id(authority)) is not authority
+                or authority._seal is not _RESOLVER_SEAL
+                or type(packet) is not ProductionApprovalPacket
+                or type(write_context) is not HumanDecisionWriteContext
+                or packet.production_basis_ref != authority.inputs.basis_ref
+                or packet.human_decision_record_ref != authority.inputs.record_ref
+                or packet.scorecard_ref != authority.inputs.scorecard_ref
+                or packet.expected_consumer != authority.expected_consumer
+                or packet.expected_audience != authority.expected_audience
+            ):
+                raise ProductionApprovalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+            del self._issued_authorities[id(authority)]
+        return self._service._persist_production_decision_packet(
+            packet,
+            write_context=write_context,
+        )
+
+    def _require_registered_installation(self) -> None:
+        from polisyos.runtime.http.deployment_security_attestation import (
+            _require_registered_production_approval_resolver_instance,
+        )
+
+        try:
+            registered = _require_registered_production_approval_resolver_instance(self)
+        except RuntimeError as exc:
+            raise ProductionApprovalResolutionError("DS9-APPROVAL-RESOLVER-UNATTESTED") from exc
+        if registered is not self:
+            raise ProductionApprovalResolutionError("DS9-APPROVAL-RESOLVER-UNATTESTED")
+
+
+def _issue_production_decision_packet_resolver(
+    service: HumanDecisionService,
+    *,
+    expected_audience: str,
+    deployment_security: object | None,
+) -> ProductionApprovalPacketResolver:
+    """Issue the sole concrete resolver from the exact deployment service."""
+
+    from polisyos.runtime.http.services.human_decisions import HumanDecisionService
+
+    if type(service) is not HumanDecisionService:
+        raise TypeError("production approval resolver requires exact human-decision service")
+    custody = service.custody
+    if service.available:
+        from polisyos.runtime.http.deployment_security import (
+            require_production_approval_resolver_issuer,
+        )
+
+        if deployment_security is None:
+            raise TypeError(
+                "available production approval resolver requires deployment attestation"
+            )
+        attested = require_production_approval_resolver_issuer(
+            deployment_security,
+            custody=custody,
+            verifier_epoch=custody.verifier_epoch or "",
+        )
+        if attested.human_decision_custody is not custody:
+            raise TypeError("production approval resolver custody identity changed")
+    issuer_epoch = custody.verifier_epoch or "producer-missing"
+    return ProductionApprovalPacketResolver(
+        service,
+        expected_audience=expected_audience,
+        issuer_epoch=issuer_epoch,
+        _seal=_RESOLVER_SEAL,
+    )
+
+
+def build_resolved_production_approval_packet(
+    authority: _ResolvedProductionApprovalAuthority,
+    *,
+    override: ProductionApprovalOverrideRequest | None = None,
+    artifact_ownership: Mapping[str, Any] | None = None,
+) -> ProductionApprovalPacket:
+    """Build V2 only from the opaque result of the concrete resolver."""
+
+    if (
+        type(authority) is not _ResolvedProductionApprovalAuthority
+        or authority._seal is not _RESOLVER_SEAL
+    ):
+        raise ProductionApprovalResolutionError("DS9-RAW-APPROVAL-NOT-AUTHORITY")
+    inputs = authority.inputs
+    packet = build_production_approval_packet(
+        scorecard=inputs.scorecard,
+        override=override,
+        artifact_ownership=artifact_ownership,
+        now=authority.evaluated_at,
+    )
+    return ProductionApprovalPacket.model_validate(
+        {
+            **packet.model_dump(mode="python"),
+            "schema_version": "policyos.production_approval_packet.v2",
+            "tenant_id": inputs.basis.tenant_id,
+            "run_id": inputs.basis.run_id,
+            "scorecard_ref": inputs.scorecard_ref,
+            "scorecard_digest": inputs.scorecard_digest,
+            "production_basis_ref": inputs.basis_ref,
+            "production_basis_digest": inputs.basis_ref,
+            "human_decision_record_ref": inputs.record_ref,
+            "human_decision_record_digest": inputs.record_ref,
+            "decision_request_ref": inputs.basis.decision_request_ref,
+            "decision_request_digest": inputs.basis.decision_request_digest,
+            "governed_action_key": inputs.basis.governed_action_key,
+            "valid_from": inputs.valid_from,
+            "valid_until": inputs.valid_until,
+            "verifier_epoch": inputs.verifier_epoch,
+            "expected_consumer": authority.expected_consumer,
+            "expected_audience": authority.expected_audience,
+            "scorecard_producer_identity": inputs.scorecard_signer_identity,
+            "production_basis_producer_identity": inputs.basis_signer_identity,
+            "rule_version_ref": inputs.basis.rule_version_ref,
+            "limitations": (),
+            "operational_authority": False,
+            "historical_only": True,
+        }
+    )
 
 
 @dataclass(frozen=True)
@@ -268,9 +608,7 @@ def _approval_reader_source_truth_conflicts(
             if conflict is not None:
                 conflicts.append(conflict)
 
-    approval_packet = scorecard.get("approval_packet") or scorecard.get(
-        "persisted_approval_packet"
-    )
+    approval_packet = scorecard.get("approval_packet") or scorecard.get("persisted_approval_packet")
     dashboard_projection = scorecard.get("dashboard_approval_projection") or scorecard.get(
         "dashboard_projection"
     )
@@ -667,8 +1005,7 @@ def _scorecard_identity_reasons(
             reasons.append("scorecard_identity_ref_mismatch")
 
     identity_ref = _string_or_none(
-        scorecard.get("scorecard_identity_ref")
-        or scorecard.get("authoritative_scorecard_ref")
+        scorecard.get("scorecard_identity_ref") or scorecard.get("authoritative_scorecard_ref")
     )
     if scorecard_ref is not None and identity_ref is not None and identity_ref != scorecard_ref:
         reasons.append("scorecard_identity_ref_mismatch")
@@ -734,8 +1071,7 @@ def _non_overridable_blocking_codes(scorecard: Mapping[str, Any]) -> list[str]:
 
 def _gate_mentions_conflict(gate: Mapping[str, Any]) -> bool:
     haystack = " ".join(
-        str(gate.get(key) or "")
-        for key in ("name", "code", "layer", "phase", "message")
+        str(gate.get(key) or "") for key in ("name", "code", "layer", "phase", "message")
     ).casefold()
     return "conflict" in haystack
 
@@ -795,9 +1131,7 @@ def _merge_artifact_ownership_refs(
     index_digest = _string_or_none(artifact_ownership.get("ownership_index_digest"))
     if index_digest is not None:
         evidence_refs["artifact_ownership_index"] = index_digest
-    signature_digest = _string_or_none(
-        artifact_ownership.get("ownership_index_signature_digest")
-    )
+    signature_digest = _string_or_none(artifact_ownership.get("ownership_index_signature_digest"))
     if signature_digest is not None:
         evidence_refs["artifact_ownership_index_signature"] = signature_digest
 
@@ -806,7 +1140,13 @@ __all__ = [
     "APPROVAL_PACKET_FILENAME",
     "APPROVAL_PACKET_KIND",
     "APPROVAL_PACKET_SCHEMA",
+    "ProductionApprovalCurrentnessProjection",
+    "ProductionApprovalIssuanceInput",
+    "ProductionApprovalPacket",
+    "ProductionApprovalPacketResolver",
     "ProductionApprovalPersistence",
+    "ProductionApprovalResolutionError",
     "build_production_approval_packet",
+    "build_resolved_production_approval_packet",
     "persist_production_approval_packet",
 ]

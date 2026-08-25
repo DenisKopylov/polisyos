@@ -476,6 +476,10 @@ def compile_publishable_decision_artifact(
     runtime_authority: Mapping[str, Any] | None = None,
     policy_design_case: Mapping[str, Any] | None = None,
     runtime_pdc_graph: Mapping[str, Any] | None = None,
+    production_approval_packet_ref: str | None = None,
+    production_approval_resolver: object | None = None,
+    production_approval_tenant_id: str | None = None,
+    production_approval_audience: str = "polisyos-runtime",
 ) -> dict[str, Any]:
     """Compile a publishable decision artifact, failing closed on missing authority."""
 
@@ -530,6 +534,14 @@ def compile_publishable_decision_artifact(
         conflict_check=conflict_check,
         approval_state=approval_state,
         assurance_refs=assurance_refs,
+        approval_currentness=_resolve_production_approval_currentness(
+            resolver=production_approval_resolver,
+            packet_ref=production_approval_packet_ref,
+            tenant_id=production_approval_tenant_id,
+            run_id=run_id,
+            expected_consumer="polisyos.scientist.decision_compiler",
+            expected_audience=production_approval_audience,
+        ),
     )
     issues = [*claim_contract["issues"], *contract["issues"], *gate_issues]
     if issues:
@@ -1077,6 +1089,7 @@ def _publishable_gate_issues(
     conflict_check: Mapping[str, Any] | None,
     approval_state: Mapping[str, Any] | str | None,
     assurance_refs: Mapping[str, Any] | None,
+    approval_currentness: bool,
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     grounding_status = _report_status(policy_grounding_matrix).casefold()
@@ -1112,6 +1125,21 @@ def _publishable_gate_issues(
                 observed_status=resolved_approval,
                 message="Publishable artifacts require approval-ready runtime state.",
                 next_action="Complete approval or keep this output as a draft projection.",
+            )
+        )
+    if not approval_currentness:
+        issues.append(
+            _compiler_issue(
+                code="publishable_artifact_approval_currentness_unresolved",
+                statement_scope="artifact_gate",
+                observed_status="producer_missing",
+                message=(
+                    "A raw approval state or packet projection cannot authorize "
+                    "publishable artifact creation."
+                ),
+                next_action=(
+                    "Supply a signed V2 packet ref and the deployment-issued concrete resolver."
+                ),
             )
         )
     conflict_status = _report_status(conflict_check).casefold()
@@ -1772,6 +1800,34 @@ def _quality_layer_gate_issues(
             )
         )
     return issues
+
+
+def _resolve_production_approval_currentness(
+    *,
+    resolver: object | None,
+    packet_ref: str | None,
+    tenant_id: str | None,
+    run_id: str,
+    expected_consumer: str,
+    expected_audience: str,
+) -> bool:
+    """Invoke the concrete resolver; mappings, DTOs, and callbacks fail closed."""
+
+    from polisyos.runtime.quality import ProductionApprovalPacketResolver
+
+    if type(resolver) is not ProductionApprovalPacketResolver or not packet_ref or not tenant_id:
+        return False
+    try:
+        resolver.require_currentness(
+            packet_ref=packet_ref,
+            tenant_id=tenant_id,
+            run_id=run_id,
+            expected_consumer=expected_consumer,
+            expected_audience=expected_audience,
+        )
+    except ValueError:
+        return False
+    return True
 
 
 def _assurance_report(

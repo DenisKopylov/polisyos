@@ -233,6 +233,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/mobility/bounds"),
     ("POST", "/api/v1/mobility/estimate"),
     ("POST", "/api/v1/runs/batch"),
+    ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
     ("POST", "/api/v1/runs/{run_id}/scenarios"),
 )
@@ -284,6 +285,10 @@ _EXPECTED_MUTATING_PERMISSIONS = {
     ("POST", "/api/v1/runs/batch"): RuntimePermission.RUNS_BATCH_READ,
     (
         "POST",
+        "/api/v1/runs/{run_id}/human-decisions",
+    ): RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
+    (
+        "POST",
         "/api/v1/runs/{run_id}/production-approval",
     ): RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE,
     ("POST", "/api/v1/runs/{run_id}/scenarios"): RuntimePermission.SCENARIOS_CREATE,
@@ -294,32 +299,20 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/analysis/continuation"): "persist-continuation-branch",
     ("POST", "/api/v1/analysis/lyapunov"): "analyze-lyapunov",
     ("POST", "/api/v1/artifacts/batch"): "get-artifact-batch",
-    ("POST", "/api/v1/artifacts/{packet_id}/render"): (
-        "render-bureaucratic-artifact"
-    ),
-    ("POST", "/api/v1/control/analytics/sae/causal-frontier"): (
-        "estimate-causal-frontier-sae"
-    ),
+    ("POST", "/api/v1/artifacts/{packet_id}/render"): ("render-bureaucratic-artifact"),
+    ("POST", "/api/v1/control/analytics/sae/causal-frontier"): ("estimate-causal-frontier-sae"),
     ("POST", "/api/v1/control/data/discover"): "discover-data-sources",
     ("POST", "/api/v1/control/data/ingest"): "ingest-data",
     ("POST", "/api/v1/control/data/preview"): "preview-fetch-plan",
-    ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"): (
-        "approve-data-promotion"
-    ),
-    ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"): (
-        "reject-data-promotion"
-    ),
+    ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"): ("approve-data-promotion"),
+    ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"): ("reject-data-promotion"),
     ("POST", "/api/v1/control/data/resolve"): "resolve-data-needs",
-    ("POST", "/api/v1/control/decision-validity/events"): (
-        "publish-decision-validity-event"
-    ),
+    ("POST", "/api/v1/control/decision-validity/events"): ("publish-decision-validity-event"),
     ("POST", "/api/v1/control/lex/search"): "search-lex-graph",
     ("POST", "/api/v1/control/lex/trigger"): "trigger-lex-pipeline",
     ("POST", "/api/v1/control/runs"): "launch-run",
     ("POST", "/api/v1/control/runs/nl"): "launch-nl-run",
-    ("POST", "/api/v1/control/runs/{run_id}/feedback/evaluate"): (
-        "evaluate-run-feedback"
-    ),
+    ("POST", "/api/v1/control/runs/{run_id}/feedback/evaluate"): ("evaluate-run-feedback"),
     ("POST", "/api/v1/control/runs/{run_id}/reissue"): "reissue-run",
     ("POST", "/api/v1/fabric/impact"): "analyze-fabric-impact",
     ("POST", "/api/v1/fabric/quality/batch"): "get-fabric-quality-batch",
@@ -328,9 +321,8 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/mobility/bounds"): "compute-mobility-bounds",
     ("POST", "/api/v1/mobility/estimate"): "estimate-mobility",
     ("POST", "/api/v1/runs/batch"): "get-runs-batch",
-    ("POST", "/api/v1/runs/{run_id}/production-approval"): (
-        "create-run-production-approval"
-    ),
+    ("POST", "/api/v1/runs/{run_id}/human-decisions"): ("create-run-human-decision"),
+    ("POST", "/api/v1/runs/{run_id}/production-approval"): ("create-run-production-approval"),
     ("POST", "/api/v1/runs/{run_id}/scenarios"): "create-run-scenario",
 }
 _HIGH_STAKES_MUTATING_OPERATIONS = (
@@ -339,6 +331,7 @@ _HIGH_STAKES_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"),
     ("POST", "/api/v1/control/decision-validity/events"),
     ("POST", "/api/v1/control/runs/{run_id}/reissue"),
+    ("POST", "/api/v1/runs/{run_id}/human-decisions"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
 )
 
@@ -352,9 +345,7 @@ def _mutation_operation_params() -> tuple[object, ...]:
 
 
 def _high_stakes_mutation_params() -> tuple[object, ...]:
-    assert set(_HIGH_STAKES_MUTATING_OPERATIONS).issubset(
-        _MUTATING_OPERATION_CASE_IDS
-    )
+    assert set(_HIGH_STAKES_MUTATING_OPERATIONS).issubset(_MUTATING_OPERATION_CASE_IDS)
     return tuple(
         pytest.param(operation, id=_MUTATING_OPERATION_CASE_IDS[operation])
         for operation in _HIGH_STAKES_MUTATING_OPERATIONS
@@ -532,9 +523,7 @@ def _causal_frontier_body() -> dict[str, Any]:
                 "policy_indicator": 1.0 if index >= 4 else 0.0,
                 "covariates": {"trend": float(index) / 7.0},
             }
-            for index, estimate in enumerate(
-                [0.8, 1.0, 1.2, 1.4, 2.8, 3.0, 3.2, 3.4]
-            )
+            for index, estimate in enumerate([0.8, 1.0, 1.2, 1.4, 2.8, 3.0, 3.2, 3.4])
         ],
         "edges": [
             {
@@ -712,9 +701,7 @@ def _authorized_mutation_request(
     if case_id == "launch-run":
         return default_path, {
             "mode": "workflow",
-            "data_source": {
-                "data_snapshot_ref": runtime_api_env["root_artifact_id"]
-            },
+            "data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
             "checkpoint_policy": "strict",
             "params": {"seed": 42},
         }
@@ -729,9 +716,7 @@ def _authorized_mutation_request(
             cell_id=cell_id,
             run_id=f"R_ds20_{case_id.replace('-', '_')}",
         )
-        client.app.state.runtime_container.runtime_api_context.run_index.refresh(
-            force=True
-        )
+        client.app.state.runtime_container.runtime_api_context.run_index.refresh(force=True)
         if case_id == "evaluate-run-feedback":
             feedback = client.app.state.runtime_container.runtime_api_context.feedback
             monkeypatch.setattr(
@@ -801,13 +786,25 @@ def _authorized_mutation_request(
         }
     if case_id == "get-runs-batch":
         return default_path, {"run_ids": [run_id]}
+    if case_id == "create-run-human-decision":
+        digest = "sha256:" + "a" * 64
+        return default_path, {
+            "source_kind": "production_approval",
+            "source_ref": digest,
+            "decision_request_ref": digest,
+            "decision_request_digest": digest,
+            "basis_ref": digest,
+            "basis_digest": digest,
+            "action": "approve",
+            "decision_mode": "ordinary",
+            "accountability_statement": "I accept this exact decision authority.",
+            "dissent_statement": "No dissent was recorded.",
+        }
     if case_id == "create-run-production-approval":
         scorecard_ref = _create_production_scorecard(runtime_api_env, cell_id=cell_id)
         return default_path, {"quality_scorecard_ref": scorecard_ref}
     if case_id == "create-run-scenario":
-        quantity_response = runtime_api_env["client"].get(
-            f"/api/v1/runs/{run_id}/quantities"
-        )
+        quantity_response = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/quantities")
         assert quantity_response.status_code == 200
         quantity = next(
             item
@@ -921,9 +918,7 @@ def test_mutating_operation_without_permission_is_denied_403(
     method, route_path = operation
     permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
     opa = _CaptureOPA()
-    bearer = _fixture_bearer(
-        f"matrix-no-permission-{_MUTATING_OPERATION_CASE_IDS[operation]}"
-    )
+    bearer = _fixture_bearer(f"matrix-no-permission-{_MUTATING_OPERATION_CASE_IDS[operation]}")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=opa,
@@ -1037,6 +1032,8 @@ def test_mutating_operation_authorized_request_reaches_handler(
         expected_step_up = HIGH_STAKES_PERMISSION_CLASSES.get(permission)
         if expected_step_up is not None:
             headers["X-PolicyOS-Step-Up"] = _install_bound_test_step_up(client)
+        if case_id == "create-run-human-decision":
+            headers["X-PolicyOS-Human-Decision-Exposure"] = "sha256:" + "e" * 64
         request_options = {} if body is None else {"json": body}
 
         response = client.request(
@@ -1046,7 +1043,8 @@ def test_mutating_operation_authorized_request_reaches_handler(
             **request_options,
         )
 
-    assert response.status_code == 200, response.text
+    expected_status = 409 if case_id == "create-run-human-decision" else 200
+    assert response.status_code == expected_status, response.text
     assert isinstance(response.json(), dict)
     assert len(opa.inputs) == 1
     assert opa.inputs[0].request_method == method
@@ -1112,13 +1110,16 @@ def test_high_stakes_mutating_operation_without_step_up_is_denied(
             monkeypatch=monkeypatch,
         )
         request_options = {} if body is None else {"json": body}
+        request_headers = {
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+        }
+        if case_id == "create-run-human-decision":
+            request_headers["X-PolicyOS-Human-Decision-Exposure"] = "sha256:" + "e" * 64
         response = client.request(
             method,
             request_path,
-            headers={
-                "Authorization": f"Bearer {bearer}",
-                "X-Tenant-ID": runtime_api_env["tenant_a"],
-            },
+            headers=request_headers,
             **request_options,
         )
 
@@ -1284,7 +1285,7 @@ def test_new_sibling_mutating_route_is_automatically_in_denominator(
     client, _ = _build_permissionless_client(runtime_api_env)
     app = cast("FastAPI", client.app)
 
-    @app.post("/api/v1/ds20/synthetic-route-30")
+    @app.post("/api/v1/ds20/synthetic-route-31")
     def _unguarded_mutation() -> dict[str, bool]:
         return {"mutated": True}
 
@@ -1292,10 +1293,10 @@ def test_new_sibling_mutating_route_is_automatically_in_denominator(
     synthetic_route = next(
         route
         for route in _live_mutating_routes(client.app)
-        if route.path == "/api/v1/ds20/synthetic-route-30"
+        if route.path == "/api/v1/ds20/synthetic-route-31"
     )
-    assert len(operations) == 30
-    assert ("POST", "/api/v1/ds20/synthetic-route-30") in operations
+    assert len(operations) == 31
+    assert ("POST", "/api/v1/ds20/synthetic-route-31") in operations
 
     dependencies = _action_permission_dependencies(synthetic_route)
     assert not dependencies
@@ -1306,7 +1307,7 @@ def test_new_sibling_mutating_route_is_automatically_in_denominator(
     )
     with pytest.raises(
         RuntimeError,
-        match=r"POST /api/v1/ds20/synthetic-route-30",
+        match=r"POST /api/v1/ds20/synthetic-route-31",
     ):
         authorization.assert_mutating_route_authorization_contract(app)
 
@@ -1354,6 +1355,39 @@ def test_mutating_route_without_action_permission_fails_app_contract() -> None:
     )
     with pytest.raises(RuntimeError, match=r"POST /api/v1/ds20/unguarded"):
         authorization.assert_mutating_route_authorization_contract(app)
+
+
+def test_guarded_safe_route_requires_explicit_empty_body_contract() -> None:
+    authorization = __import__(
+        "polisyos.runtime.http.authorization",
+        fromlist=[
+            "ResourceBindingSource",
+            "ResourceBindingSpec",
+            "install_route_authorization_openapi_contract",
+            "require_action_permission",
+        ],
+    )
+    dependency = authorization.require_action_permission(
+        RuntimePermission.RUNS_REVIEW,
+        authorization.ResourceBindingSpec(
+            source=authorization.ResourceBindingSource.TENANT_COLLECTION,
+            resource_kind="runtime.ds9.guarded_safe",
+        ),
+    )
+    app = FastAPI()
+
+    @app.get(
+        "/api/v1/ds9/guarded-safe",
+        dependencies=[Depends(dependency)],
+    )
+    def _guarded_safe() -> dict[str, bool]:
+        return {"guarded": True}
+
+    with pytest.raises(
+        RuntimeError,
+        match=r"GET /api/v1/ds9/guarded-safe",
+    ):
+        authorization.install_route_authorization_openapi_contract(app)
 
 
 def test_mutating_route_with_duplicate_action_permissions_fails_app_contract() -> None:
@@ -2448,9 +2482,7 @@ def test_persisted_default_scenario_head_wins_list_projection(runtime_api_env) -
     assert created.status_code == 200, created.json()
     assert listed.status_code == 200, listed.json()
     authoritative = [
-        scenario
-        for scenario in listed.json()["scenarios"]
-        if scenario["id"] == default_id
+        scenario for scenario in listed.json()["scenarios"] if scenario["id"] == default_id
     ]
     assert len(authoritative) == 1
     assert authoritative[0]["policy_question"] == body["policy_question"]
@@ -2778,6 +2810,137 @@ def test_missing_alternative_resource_selectors_are_denied_before_opa(
     assert opa.inputs == []
 
 
+def test_guarded_human_decision_get_binds_owned_run_and_exact_path_before_opa(
+    runtime_api_env,
+) -> None:
+    """Safe authority reads must not reach OPA on an ambient tenant-only resource."""
+
+    authorization = __import__(
+        "polisyos.runtime.http.authorization",
+        fromlist=[
+            "ResourceBindingSource",
+            "ResourceBindingSpec",
+            "require_action_permission",
+        ],
+    )
+    dependency = authorization.require_action_permission(
+        RuntimePermission.RUNS_REVIEW,
+        authorization.ResourceBindingSpec(
+            source=authorization.ResourceBindingSource.OWNED_EXISTING_PATH,
+            resource_kind="runtime.run.human_decision_record",
+            path_parameter="run_id",
+            query_selector_parameters=("record_ref",),
+            allow_empty_body=True,
+        ),
+    )
+    opa = _CaptureOPA()
+    bearer = _fixture_bearer("guarded-human-decision-get")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-guarded-human-decision-get",
+        ),
+    )
+    app = cast("FastAPI", client.app)
+
+    @app.get(
+        "/api/v1/ds9/runs/{run_id}/human-decisions",
+        dependencies=[Depends(dependency)],
+    )
+    def _guarded_human_decision_get(
+        request: Request,
+        run_id: str,
+        record_ref: str,
+    ) -> dict[str, str]:
+        proof = dependency(request)
+        return {
+            "proof_type": type(proof).__name__,
+            "run_id": run_id,
+            "record_ref": record_ref,
+        }
+
+    response = client.get(
+        f"/api/v1/ds9/runs/{runtime_api_env['core_run_id']}/human-decisions",
+        params={"record_ref": "sha256:" + "a" * 64},
+        headers={
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+        },
+    )
+    changed_selector = client.get(
+        f"/api/v1/ds9/runs/{runtime_api_env['core_run_id']}/human-decisions",
+        params={"record_ref": "sha256:" + "b" * 64},
+        headers={
+            "Authorization": f"Bearer {bearer}",
+            "X-Tenant-ID": runtime_api_env["tenant_a"],
+        },
+    )
+
+    assert response.status_code == 200, response.json()
+    assert changed_selector.status_code == 200, changed_selector.json()
+    assert response.json()["proof_type"] == "BoundActionPermissionVerification"
+    assert len(opa.inputs) == 2
+    assert opa.inputs[0].resource_tenant_id == runtime_api_env["tenant_a"]
+    assert opa.inputs[0].resource_kind.endswith(".ownership_verified")
+    assert opa.inputs[0].resource_artifact_id.startswith(
+        "urn:polisyos:runtime-authorization-resource:v1:sha256:"
+    )
+    assert opa.inputs[0].resource_artifact_id != opa.inputs[1].resource_artifact_id
+
+
+def test_all_human_decision_gets_declare_exact_owned_run_bindings(
+    runtime_api_env,
+) -> None:
+    from polisyos.runtime.http.authorization import (
+        get_route_authorization_requirement,
+    )
+
+    expected = {
+        "/api/v1/runs/{run_id}/human-decision-gate": (
+            "runtime.run.human_decision_gate",
+            (),
+            ("source_kind",),
+        ),
+        "/api/v1/runs/{run_id}/human-decisions": (
+            "runtime.run.human_decision_record",
+            (),
+            ("record_ref",),
+        ),
+        "/api/v1/runs/{run_id}/human-decisions/review-effectiveness": (
+            "runtime.run.human_decision_review_effectiveness",
+            (),
+            (),
+        ),
+        "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content": (
+            "runtime.run.human_decision_evidence",
+            ("artifact_id",),
+            (),
+        ),
+    }
+    routes = {
+        route.path: route
+        for route in runtime_api_env["app"].routes
+        if isinstance(route, APIRoute) and route.methods == {"GET"}
+    }
+
+    for path, (resource_kind, path_selectors, query_selectors) in expected.items():
+        requirement = get_route_authorization_requirement(cast("Any", routes[path]))
+        binding = requirement.resource_binding
+        assert requirement.permission is RuntimePermission.RUNS_REVIEW
+        assert binding.resource_kind == resource_kind
+        assert binding.path_parameter == "run_id"
+        assert binding.path_selector_parameters == path_selectors
+        assert binding.query_selector_parameters == query_selectors
+
+
 def test_late_unguarded_mutation_is_denied_before_opa_and_handler(runtime_api_env) -> None:
     opa = _CaptureOPA()
     claims_bearer = _fixture_bearer("late-unguarded")
@@ -2846,9 +3009,7 @@ def test_unsafe_mutation_cannot_shadow_or_disable_opa_deny(
             allow_empty_body=True,
         ),
     )
-    claims_bearer = _fixture_bearer(
-        f"unsafe-opa-deny-{authz_enforce}-{authz_shadow_mode}"
-    )
+    claims_bearer = _fixture_bearer(f"unsafe-opa-deny-{authz_enforce}-{authz_shadow_mode}")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_DenyOPA(),
@@ -3040,7 +3201,11 @@ def test_delegated_effective_scope_governs_binding_and_execution_policy(
     assert observed_binding_scopes
     assert all(scope is not None for scope in observed_binding_scopes)
     assert all(scope.user_sub == "delegated-analyst" for scope in observed_binding_scopes if scope)
-    assert all(scope.roles == frozenset({PolicyOSRole.ANALYST}) for scope in observed_binding_scopes if scope)
+    assert all(
+        scope.roles == frozenset({PolicyOSRole.ANALYST})
+        for scope in observed_binding_scopes
+        if scope
+    )
     assert opa.scopes
     assert all(scope is not None for scope in opa.scopes)
     assert all(scope.user_sub == "delegated-analyst" for scope in opa.scopes if scope)
@@ -3053,9 +3218,7 @@ def test_delegated_effective_scope_governs_binding_and_execution_policy(
         if line.strip()
     ]
     execution_audits = [
-        entry
-        for entry in audit_entries
-        if entry["endpoint"] == "/api/v1/control/runs/nl"
+        entry for entry in audit_entries if entry["endpoint"] == "/api/v1/control/runs/nl"
     ]
     assert execution_audits
     assert execution_audits[-1]["actor"] == "delegated-analyst"

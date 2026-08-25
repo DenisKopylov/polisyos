@@ -361,3 +361,53 @@ def test_committed_openapi_has_governed_export_contracts() -> None:
     assert "/api/v1/exports/governed-projections" in spec["paths"]
     assert "/api/v1/exports/governed-projections/{projection_id}" in spec["paths"]
     assert "/api/v1/exports/channel-registry" in spec["paths"]
+
+
+def test_committed_human_decision_contract_keeps_verified_submission_binding() -> None:
+    spec = json.loads(
+        (REPO_ROOT / "schemas" / "runtime_api_v1.openapi.json").read_text(encoding="utf-8")
+    )
+    components = spec["components"]["schemas"]
+    assert {
+        "HumanDecisionPA2ReplaySelector",
+        "HumanDecisionProductionReplaySelector",
+        "HumanDecisionSubmissionSurface",
+    } <= set(components)
+    submission_selector = components["HumanDecisionSubmissionSurface"]["properties"][
+        "selector"
+    ]
+    assert submission_selector["discriminator"]["propertyName"] == "source_kind"
+    assert len(submission_selector["oneOf"]) == 2
+
+    for path, method in (
+        ("/api/v1/runs/{run_id}/human-decisions", "post"),
+        (
+            "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content",
+            "get",
+        ),
+    ):
+        headers = {
+            parameter["name"]: parameter
+            for parameter in spec["paths"][path][method]["parameters"]
+            if parameter["in"] == "header"
+        }
+        assert headers["X-PolicyOS-Human-Decision-Exposure"]["required"] is True
+
+    generated_types = (REPO_ROOT / "packages/runtime-api-client/types.ts").read_text(
+        encoding="utf-8"
+    )
+    generated_client = (
+        REPO_ROOT / "packages/runtime-api-client/runtimeApiClient.ts"
+    ).read_text(encoding="utf-8")
+    for name in (
+        "HumanDecisionPA2ReplaySelector",
+        "HumanDecisionProductionReplaySelector",
+        "HumanDecisionSubmissionSurface",
+    ):
+        assert name in generated_types
+    for operation in (
+        "getRunHumanDecisionGate",
+        "createRunHumanDecision",
+        "getRunHumanDecisionEvidenceContent",
+    ):
+        assert operation in generated_client

@@ -9,6 +9,7 @@ import time
 import uuid
 from collections.abc import Iterator
 from concurrent.futures import ThreadPoolExecutor
+from datetime import UTC, datetime, timedelta
 from typing import TYPE_CHECKING, Any, cast
 
 import pytest
@@ -34,7 +35,7 @@ if TYPE_CHECKING:
 
 
 _REPRO_COMMAND = (
-    "POLISYOS_TEST_PG_DSN='postgresql://...' "
+    "POLISYOS_DS9_REQUIRE_PG=1 POLISYOS_TEST_PG_DSN='postgresql://...' "
     "uv run --extra test --extra runtime --extra multi-tenant pytest -q "
     "tests/unit/runtime/http/test_runtime_postgres_linearizability.py"
 )
@@ -43,13 +44,21 @@ _REPRO_COMMAND = (
 @pytest.fixture
 def postgres_dsn() -> Iterator[str]:
     """Provision an isolated schema on an explicit real PostgreSQL endpoint."""
+    require_ds9_pg = os.getenv("POLISYOS_DS9_REQUIRE_PG", "").strip() == "1"
+
+    def _blocked(reason: str) -> None:
+        message = f"DS9-PG-PROOF-NONRECEIPT: {reason}; {_REPRO_COMMAND}"
+        if require_ds9_pg:
+            pytest.fail(message, pytrace=False)
+        pytest.skip(f"environment_blocked: {reason}; {_REPRO_COMMAND}")
+
     dsn = os.getenv("POLISYOS_TEST_PG_DSN", "").strip()
     if not dsn:
-        pytest.skip(f"environment_blocked: POLISYOS_TEST_PG_DSN is absent; {_REPRO_COMMAND}")
+        _blocked("POLISYOS_TEST_PG_DSN is absent")
     try:
         psycopg = importlib.import_module("psycopg")
     except ModuleNotFoundError:
-        pytest.skip(f"environment_blocked: psycopg is unavailable; {_REPRO_COMMAND}")
+        _blocked("psycopg is unavailable")
     conninfo = importlib.import_module("psycopg.conninfo")
     postgres_sql = importlib.import_module("psycopg.sql")
     schema = f"ds20b_{uuid.uuid4().hex}"
@@ -61,10 +70,7 @@ def postgres_dsn() -> Iterator[str]:
         ):
             cursor.execute(postgres_sql.SQL("CREATE SCHEMA {}").format(identifier))
     except psycopg.Error:
-        pytest.skip(
-            "environment_blocked: PostgreSQL connection/schema provisioning failed; "
-            f"{_REPRO_COMMAND}"
-        )
+        _blocked("PostgreSQL connection/schema provisioning failed")
     try:
         parsed_conninfo = conninfo.conninfo_to_dict(dsn)
         existing_options = str(parsed_conninfo.get("options") or "").strip()
@@ -166,6 +172,123 @@ def test_postgres_step_up_one_use_has_exactly_one_winner_across_store_instances(
         outcomes = tuple(executor.map(_consume, stores))
 
     assert sorted(outcomes) == [False, True]
+
+
+def test_human_decision_concurrent_reservation_has_one_postgres_winner(
+    postgres_dsn: str,
+    tmp_path: Path,
+) -> None:
+    """The reservation CAS remains linearizable across PostgreSQL connections."""
+
+    stores = (
+        ControlPlaneStore(
+            backend="postgres",
+            sqlite_path=tmp_path / "unused-human-decision-first.sqlite3",
+            postgres_dsn=postgres_dsn,
+        ),
+        ControlPlaneStore(
+            backend="postgres",
+            sqlite_path=tmp_path / "unused-human-decision-second.sqlite3",
+            postgres_dsn=postgres_dsn,
+        ),
+    )
+    barrier = threading.Barrier(2)
+    now = datetime(2026, 8, 24, 12, tzinfo=UTC)
+
+    def _reserve(index: int):
+        barrier.wait(timeout=10)
+        return stores[index].reserve_human_decision_action(
+            tenant_id="tenant-postgres",
+            governed_action_key="sha256:" + "9" * 64,
+            reservation_id=f"postgres-reservation-{uuid.uuid4().hex}",
+            binding_sha256="sha256:" + "8" * 64,
+            now=now,
+            lease_seconds=30,
+            record_valid_until=now + timedelta(hours=1),
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = tuple(executor.map(_reserve, range(2)))
+
+    assert sorted(result.acquired for result in results) == [False, True]
+    losing = next(result for result in results if not result.acquired)
+    assert losing.issue_code == "DS9-OVERLAPPING-REISSUE"
+
+
+def test_human_decision_later_generation_postgres_loser_returns_typed_overlap(
+    postgres_dsn: str,
+    tmp_path: Path,
+) -> None:
+    """Two writers racing for v2 produce one winner and one typed loser."""
+
+    stores = (
+        ControlPlaneStore(
+            backend="postgres",
+            sqlite_path=tmp_path / "unused-human-decision-v2-first.sqlite3",
+            postgres_dsn=postgres_dsn,
+        ),
+        ControlPlaneStore(
+            backend="postgres",
+            sqlite_path=tmp_path / "unused-human-decision-v2-second.sqlite3",
+            postgres_dsn=postgres_dsn,
+        ),
+    )
+    started_at = datetime(2026, 8, 24, 12, tzinfo=UTC)
+    governed_action_key = "sha256:" + "7" * 64
+    binding_sha256 = "sha256:" + "6" * 64
+    first = stores[0].reserve_human_decision_action(
+        tenant_id="tenant-postgres",
+        governed_action_key=governed_action_key,
+        reservation_id="postgres-generation-1",
+        binding_sha256=binding_sha256,
+        now=started_at,
+        lease_seconds=1,
+        record_valid_until=started_at + timedelta(hours=1),
+    )
+    assert first.acquired is True
+    recovery = stores[0].reserve_human_decision_action(
+        tenant_id="tenant-postgres",
+        governed_action_key=governed_action_key,
+        reservation_id="postgres-generation-1-retry",
+        binding_sha256=binding_sha256,
+        now=started_at + timedelta(seconds=2),
+        lease_seconds=1,
+        record_valid_until=started_at + timedelta(hours=1),
+    )
+    assert recovery.acquired is False
+    assert recovery.issue_code == "DS9-RESERVATION-RECOVERY-REQUIRED"
+    reconciled = stores[0]._reconcile_empty_human_decision_reservation(
+        tenant_id="tenant-postgres",
+        governed_action_key=governed_action_key,
+        reservation_id=first.reservation.reservation_id,
+        reservation_version=first.reservation.reservation_version,
+        reconciled_at=started_at + timedelta(seconds=3),
+    )
+    assert reconciled.state == "reconciled_empty"
+    barrier = threading.Barrier(2)
+
+    def _reserve_generation_2(index: int):
+        barrier.wait(timeout=10)
+        return stores[index].reserve_human_decision_action(
+            tenant_id="tenant-postgres",
+            governed_action_key=governed_action_key,
+            reservation_id=f"postgres-generation-2-{index}",
+            binding_sha256=binding_sha256,
+            now=started_at + timedelta(seconds=4),
+            lease_seconds=30,
+            record_valid_until=started_at + timedelta(hours=1),
+        )
+
+    with ThreadPoolExecutor(max_workers=2) as executor:
+        results = tuple(executor.map(_reserve_generation_2, range(2)))
+
+    assert sorted(result.acquired for result in results) == [False, True]
+    winner = next(result for result in results if result.acquired)
+    loser = next(result for result in results if not result.acquired)
+    assert winner.reservation.reservation_version == 2
+    assert loser.issue_code == "DS9-OVERLAPPING-REISSUE"
+    assert loser.reservation.reservation_version == 2
+    assert loser.reservation.reservation_id == winner.reservation.reservation_id
 
 
 def test_postgres_scenario_cas_two_apps_allows_one_mutation_and_one_conflict(

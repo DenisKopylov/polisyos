@@ -8,7 +8,7 @@ import {
   createInteractionState,
   type InteractionState,
 } from "@/shared/lib/domain/statusOwnership";
-import { untracedDecisionQuantity } from "@/shared/ui/quantity";
+import { untracedDecisionQuantity } from "@/shared/ui/quantity/quantity-value";
 import type { QuantityValueOutput } from "@polisyos/runtime-api-client";
 import {
   DEFAULT_PROJECTION_USE_LIMITS,

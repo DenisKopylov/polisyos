@@ -1,3 +1,4 @@
+import { onlineManager } from "@tanstack/react-query";
 import { act, renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
@@ -10,6 +11,7 @@ import { useLexTrigger } from "@/api/hooks/useLexTrigger";
 import { usePreviewFetchPlan } from "@/api/hooks/usePreviewFetchPlan";
 import { useResolveDataNeeds } from "@/api/hooks/useResolveDataNeeds";
 import { queryKeys } from "@/api/queryKeys";
+import { useCreateHumanDecision } from "@/features/runs/api/useHumanDecisions";
 import { createQueryHookHarness } from "@/test/queryHook";
 import {
   mockRuntimePostFailure,
@@ -58,9 +60,47 @@ function createRunsCache() {
   };
 }
 
+function snapshotLocalStorage(): Record<string, string | null> {
+  const snapshot: Record<string, string | null> = {};
+  for (let index = 0; index < window.localStorage.length; index += 1) {
+    const key = window.localStorage.key(index);
+    if (key !== null) {
+      snapshot[key] = window.localStorage.getItem(key);
+    }
+  }
+  return snapshot;
+}
+
 describe("mutation hooks", () => {
   afterEach(() => {
+    onlineManager.setOnline(true);
     vi.restoreAllMocks();
+  });
+
+  it("rejects human decisions offline without network, cache authority, or queue bytes", async () => {
+    const fetchSpy = vi.spyOn(window, "fetch");
+    const { queryClient, wrapper } = createQueryHookHarness();
+    const view = renderHook(() => useCreateHumanDecision("run-offline"), {
+      wrapper,
+    });
+    const beforeStorage = snapshotLocalStorage();
+    onlineManager.setOnline(false);
+
+    await act(async () => {
+      await expect(
+        view.result.current.mutateAsync({
+          body: {} as never,
+          exposureSessionRef: "sha256:" + "1".repeat(64),
+          runId: "run-offline",
+        }),
+      ).rejects.toMatchObject({ code: "DS9-OFFLINE-REVALIDATION" });
+    });
+
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(
+      queryClient.getQueryData(["runtime", "run", "run-offline"]),
+    ).toBeUndefined();
+    expect(snapshotLocalStorage()).toEqual(beforeStorage);
   });
 
   it("invalidates workflow launches without inserting synthetic run records", async () => {
@@ -93,7 +133,9 @@ describe("mutation hooks", () => {
       },
     });
     expect(queryClient.getQueryData(runListKey)).toEqual(createRunsCache());
-    expect(queryClient.getQueryData(queryKeys.run("run-launched"))).toBeUndefined();
+    expect(
+      queryClient.getQueryData(queryKeys.run("run-launched")),
+    ).toBeUndefined();
     expect(invalidateSpy).toHaveBeenCalledWith({
       queryKey: queryKeys.runsRoot(),
     });

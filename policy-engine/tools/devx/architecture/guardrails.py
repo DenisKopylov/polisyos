@@ -107,6 +107,20 @@ class PackagePolicy:
 
 
 @dataclass(frozen=True)
+class SupportedEntrypointInventory:
+    """Resolved source and exports for one declared public entrypoint."""
+
+    module: str
+    facade_mode_observed: str
+    export_count: int
+    exports: tuple[str, ...]
+    has___getattr__: bool
+    has___dir__: bool
+    source_file: str
+    summary: str
+
+
+@dataclass(frozen=True)
 class PackageInventory:
     module: str
     classification: str
@@ -124,6 +138,7 @@ class PackageInventory:
     source_file: str
     summary: str
     notes: str
+    entrypoints: tuple[SupportedEntrypointInventory, ...]
 
 
 @dataclass(frozen=True)
@@ -462,42 +477,76 @@ def _observed_facade_mode(*, exports: tuple[str, ...], has_getattr: bool) -> str
     return "module_doc_only"
 
 
-def _package_file_for(module: str) -> Path:
+def _facade_source_for(module: str) -> Path:
     relative = Path(*module.split("."))
-    return SRC_ROOT / relative / "__init__.py"
+    candidates = (
+        (SRC_ROOT / relative).with_suffix(".py"),
+        SRC_ROOT / relative / "__init__.py",
+    )
+    resolved = tuple(path for path in candidates if path.is_file())
+    if len(resolved) != 1:
+        rendered = ", ".join(str(path) for path in candidates)
+        raise FileNotFoundError(
+            f"Public surface entrypoint `{module}` must resolve to exactly one facade source; "
+            f"found {len(resolved)} across: {rendered}"
+        )
+    return resolved[0]
+
+
+def _entrypoint_inventory(module: str) -> SupportedEntrypointInventory:
+    source_file = _facade_source_for(module)
+    tree = ast.parse(source_file.read_text(encoding="utf-8"))
+    exports = _extract_exports(tree)
+    function_names = {node.name for node in tree.body if isinstance(node, ast.FunctionDef)}
+    summary = (ast.get_docstring(tree) or "").strip().splitlines()
+    return SupportedEntrypointInventory(
+        module=module,
+        facade_mode_observed=_observed_facade_mode(
+            exports=exports,
+            has_getattr="__getattr__" in function_names,
+        ),
+        export_count=len(exports),
+        exports=exports,
+        has___getattr__="__getattr__" in function_names,
+        has___dir__="__dir__" in function_names,
+        source_file=str(source_file.relative_to(REPO_ROOT)),
+        summary=summary[0] if summary else "",
+    )
 
 
 def build_public_surface_inventory(policies: list[PackagePolicy]) -> list[PackageInventory]:
     inventory: list[PackageInventory] = []
     for policy in policies:
-        source_file = _package_file_for(policy.module)
-        if not source_file.exists():
-            raise FileNotFoundError(f"Public surface module file not found: {source_file}")
-        tree = ast.parse(source_file.read_text(encoding="utf-8"))
-        exports = _extract_exports(tree)
-        function_names = {node.name for node in tree.body if isinstance(node, ast.FunctionDef)}
-        summary = (ast.get_docstring(tree) or "").strip().splitlines()
+        entrypoints = tuple(
+            _entrypoint_inventory(entrypoint) for entrypoint in policy.supported_entrypoints
+        )
+        root_entrypoint = next(
+            (entrypoint for entrypoint in entrypoints if entrypoint.module == policy.module),
+            None,
+        )
+        if root_entrypoint is None:
+            raise ValueError(
+                f"Public surface policy `{policy.module}` must declare its package root entrypoint"
+            )
         inventory.append(
             PackageInventory(
                 module=policy.module,
                 classification=policy.classification,
                 facade_mode_expected=policy.facade_mode,
-                facade_mode_observed=_observed_facade_mode(
-                    exports=exports,
-                    has_getattr="__getattr__" in function_names,
-                ),
+                facade_mode_observed=root_entrypoint.facade_mode_observed,
                 owner=policy.owner,
                 readme=str(policy.readme.relative_to(REPO_ROOT)),
                 reference_doc=str(policy.reference_doc.relative_to(REPO_ROOT)),
                 supported_entrypoints=policy.supported_entrypoints,
                 major_subsystem=policy.major_subsystem,
-                export_count=len(exports),
-                exports=exports,
-                has___getattr__="__getattr__" in function_names,
-                has___dir__="__dir__" in function_names,
-                source_file=str(source_file.relative_to(REPO_ROOT)),
-                summary=summary[0] if summary else "",
+                export_count=root_entrypoint.export_count,
+                exports=root_entrypoint.exports,
+                has___getattr__=root_entrypoint.has___getattr__,
+                has___dir__=root_entrypoint.has___dir__,
+                source_file=root_entrypoint.source_file,
+                summary=root_entrypoint.summary,
                 notes=policy.notes,
+                entrypoints=entrypoints,
             )
         )
     return inventory
@@ -629,6 +678,19 @@ def render_public_surface_json(
                 "source_file": item.source_file,
                 "summary": item.summary,
                 "notes": item.notes,
+                "entrypoints": [
+                    {
+                        "module": entrypoint.module,
+                        "facade_mode_observed": entrypoint.facade_mode_observed,
+                        "export_count": entrypoint.export_count,
+                        "exports": list(entrypoint.exports),
+                        "has___getattr__": entrypoint.has___getattr__,
+                        "has___dir__": entrypoint.has___dir__,
+                        "source_file": entrypoint.source_file,
+                        "summary": entrypoint.summary,
+                    }
+                    for entrypoint in item.entrypoints
+                ],
             }
             for item in inventory
         ],
@@ -640,7 +702,7 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
     lines = [
         "# Public Surface",
         "",
-        "> Generated from `architecture/public_surface/contract.toml` and package facades under `src/polisyos/**/__init__.py`.",
+        "> Generated from `architecture/public_surface/contract.toml` and module/package facades under `src/polisyos/**/*.py`.",
         "",
         "Canonical regeneration command:",
         "",
@@ -750,6 +812,45 @@ def render_public_surface_markdown(inventory: list[PackageInventory]) -> str:
         )
         if item.summary:
             lines.append(f"- Summary: {item.summary}")
+        lines.extend(
+            [
+                "",
+                "### Resolved supported entrypoints",
+                "",
+                "| Entrypoint | Source | Facade | Exports |",
+                "| --- | --- | --- | ---: |",
+                *(
+                    f"| `{entrypoint.module}` | `{entrypoint.source_file}` | "
+                    f"`{entrypoint.facade_mode_observed}` | {entrypoint.export_count} |"
+                    for entrypoint in item.entrypoints
+                ),
+            ]
+        )
+        for entrypoint in item.entrypoints:
+            lines.extend(
+                [
+                    "",
+                    f"#### `{entrypoint.module}`",
+                    "",
+                    f"- Source: `{entrypoint.source_file}`",
+                    f"- Facade: `{entrypoint.facade_mode_observed}`",
+                ]
+            )
+            if entrypoint.summary:
+                lines.append(f"- Summary: {entrypoint.summary}")
+            if entrypoint.export_count:
+                lines.extend(
+                    [
+                        "",
+                        f"<details><summary>Entrypoint exports ({entrypoint.export_count})</summary>",
+                        "",
+                        "```text",
+                        *entrypoint.exports,
+                        "```",
+                        "",
+                        "</details>",
+                    ]
+                )
         if item.export_count:
             lines.extend(
                 [

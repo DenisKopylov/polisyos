@@ -6,7 +6,7 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Literal
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -22,8 +22,10 @@ _GENERATED_POST_OPERATION_IDS = frozenset(
         "get_runs_batch",
         "estimate_mobility",
         "compute_mobility_bounds",
+        "create_run_human_decision",
     }
 )
+ResponseMode = Literal["json", "array_buffer"]
 
 
 @dataclass(frozen=True)
@@ -42,6 +44,8 @@ class OperationSpec:
     response_type: str
     path_params: tuple[ParamSpec, ...]
     query_params: tuple[ParamSpec, ...]
+    header_params: tuple[ParamSpec, ...]
+    response_mode: ResponseMode
     body_schema: dict[str, Any] | None = None
 
 
@@ -211,7 +215,7 @@ def _resolve_parameter(
     if (
         not isinstance(name, str)
         or not isinstance(location, str)
-        or location not in {"path", "query"}
+        or location not in {"path", "query", "header"}
     ):
         return None
     schema = param.get("schema")
@@ -243,6 +247,39 @@ def _resolve_request_body(
         return None
     schema = app_json.get("schema")
     return schema if isinstance(schema, dict) else None
+
+
+def _resolve_success_response(
+    responses: object,
+    *,
+    components: dict[str, dict[str, Any]],
+) -> tuple[str, ResponseMode]:
+    if not isinstance(responses, dict):
+        return "unknown", "json"
+    for code in ("200", "201", "202", "203", "204"):
+        candidate = responses.get(code)
+        if not isinstance(candidate, dict):
+            continue
+        content = candidate.get("content")
+        if not isinstance(content, dict):
+            continue
+        app_json = content.get("application/json")
+        if isinstance(app_json, dict):
+            schema = app_json.get("schema")
+            return (
+                _schema_to_ts(
+                    schema if isinstance(schema, dict) else None,
+                    components=components,
+                ),
+                "json",
+            )
+        for representation in content.values():
+            if not isinstance(representation, dict):
+                continue
+            schema = representation.get("schema")
+            if isinstance(schema, dict) and schema.get("format") == "binary":
+                return "ArrayBuffer", "array_buffer"
+    return "unknown", "json"
 
 
 def _extract_operations(spec: dict[str, Any]) -> list[OperationSpec]:
@@ -281,30 +318,14 @@ def _extract_operations(spec: dict[str, Any]) -> list[OperationSpec]:
                     params.append(parsed)
             path_params = tuple(param for param in params if param.location == "path")
             query_params = tuple(param for param in params if param.location == "query")
+            header_params = tuple(param for param in params if param.location == "header")
             body_schema = None
             request_body = method_spec.get("requestBody")
             if normalized_method == "post" and isinstance(request_body, dict):
                 body_schema = _resolve_request_body(request_body, components=components)
 
-            responses = method_spec.get("responses", {})
-            response_schema: dict[str, Any] | None = None
-            if isinstance(responses, dict):
-                for code in ("200", "201", "202", "203", "204"):
-                    candidate = responses.get(code)
-                    if not isinstance(candidate, dict):
-                        continue
-                    content = candidate.get("content")
-                    if not isinstance(content, dict):
-                        continue
-                    app_json = content.get("application/json")
-                    if not isinstance(app_json, dict):
-                        continue
-                    payload_schema = app_json.get("schema")
-                    if isinstance(payload_schema, dict):
-                        response_schema = payload_schema
-                        break
-            response_type = _schema_to_ts(
-                response_schema,
+            response_type, response_mode = _resolve_success_response(
+                method_spec.get("responses", {}),
                 components=components["schemas"],
             )
             operations.append(
@@ -315,6 +336,8 @@ def _extract_operations(spec: dict[str, Any]) -> list[OperationSpec]:
                     response_type=response_type,
                     path_params=path_params,
                     query_params=query_params,
+                    header_params=header_params,
+                    response_mode=response_mode,
                     body_schema=body_schema,
                 )
             )
@@ -371,13 +394,21 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
             "    path: string,",
             "    query?: URLSearchParams,",
             "    body?: unknown,",
+            "    requestHeaders?: HeadersInit,",
+            '    responseMode: "json" | "arrayBuffer" = "json",',
             "  ): Promise<T> {",
             "    const url = query && query.toString()",
             "      ? `${this.baseUrl}${path}?${query.toString()}`",
             "      : `${this.baseUrl}${path}`;",
-            "    const headers = body === undefined",
-            "      ? this.headers",
-            '      : { "Content-Type": "application/json", ...this.headers };',
+            "    const headers = new Headers(this.headers);",
+            '    if (body !== undefined && !headers.has("Content-Type")) {',
+            '      headers.set("Content-Type", "application/json");',
+            "    }",
+            "    if (requestHeaders !== undefined) {",
+            "      new Headers(requestHeaders).forEach((value, key) => {",
+            "        headers.set(key, value);",
+            "      });",
+            "    }",
             "    const response = await this.fetchImpl(url, {",
             "      method,",
             "      headers,",
@@ -389,6 +420,9 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
             "        `Runtime API request failed: ${response.status} "
             "${response.statusText} ${body}`",
             "      );",
+            "    }",
+            '    if (responseMode === "arrayBuffer") {',
+            "      return (await response.arrayBuffer()) as T;",
             "    }",
             "    return (await response.json()) as T;",
             "  }",
@@ -419,7 +453,7 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
 
     for operation in operations:
         params_fields = []
-        for param in operation.path_params + operation.query_params:
+        for param in operation.path_params + operation.query_params + operation.header_params:
             ts_type = _schema_to_ts(param.schema, components=components) or "unknown"
             optional = "" if param.required else "?"
             field_name = param.name if _is_identifier(param.name) else json.dumps(param.name)
@@ -450,15 +484,46 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
             lines.append("    });")
         else:
             lines.append("    const query = undefined;")
-        if operation.body_schema is not None:
+        if operation.header_params:
+            lines.append("    const requestHeaders = new Headers();")
+            for param in operation.header_params:
+                access = _typescript_param_access(param.name)
+                if param.required:
+                    lines.append(
+                        f"    requestHeaders.set({json.dumps(param.name)}, String({access}));"
+                    )
+                else:
+                    lines.append(f"    if ({access} !== undefined && {access} !== null) {{")
+                    lines.append(
+                        f"      requestHeaders.set({json.dumps(param.name)}, String({access}));"
+                    )
+                    lines.append("    }")
+        response_mode_arg = (
+            ', "arrayBuffer"' if operation.response_mode == "array_buffer" else ""
+        )
+        if operation.body_schema is not None and operation.header_params:
             lines.append(
                 f"    return this.request<{operation.response_type}>("
-                f'"{operation.method}", path, query, params.body);'
+                f'"{operation.method}", path, query, params.body, requestHeaders'
+                f"{response_mode_arg});"
+            )
+        elif operation.body_schema is not None:
+            lines.append(
+                f"    return this.request<{operation.response_type}>("
+                f'"{operation.method}", path, query, params.body, undefined'
+                f"{response_mode_arg});"
+            )
+        elif operation.header_params:
+            lines.append(
+                f"    return this.request<{operation.response_type}>("
+                f'"{operation.method}", path, query, undefined, requestHeaders'
+                f"{response_mode_arg});"
             )
         else:
             lines.append(
                 f"    return this.request<{operation.response_type}>("
-                f'"{operation.method}", path, query);'
+                f'"{operation.method}", path, query, undefined, undefined'
+                f"{response_mode_arg});"
             )
         lines.append("  }")
         lines.append("")
@@ -466,6 +531,12 @@ def _render_ts(spec: dict[str, Any], operations: list[OperationSpec]) -> str:
     lines.append("}")
     lines.append("")
     return "\n".join(lines)
+
+
+def _typescript_param_access(name: str) -> str:
+    if _is_identifier(name):
+        return f"params.{name}"
+    return f"params[{json.dumps(name)}]"
 
 
 def _render_js(operations: list[OperationSpec]) -> str:
@@ -480,12 +551,18 @@ def _render_js(operations: list[OperationSpec]) -> str:
         "    this.fetchImpl = options.fetchImpl || fetch;",
         "  }",
         "",
-        "  async request(method, path, query, body) {",
+            "  async request(method, path, query, body, requestHeaders, responseMode = 'json') {",
         "    const suffix = query && query.toString() ? `?${query.toString()}` : '';",
         "    const url = `${this.baseUrl}${path}${suffix}`;",
-        "    const headers = body === undefined",
-        "      ? this.headers",
-        "      : { 'Content-Type': 'application/json', ...this.headers };",
+            "    const headers = new Headers(this.headers);",
+            "    if (body !== undefined && !headers.has('Content-Type')) {",
+            "      headers.set('Content-Type', 'application/json');",
+            "    }",
+            "    if (requestHeaders !== undefined) {",
+            "      new Headers(requestHeaders).forEach((value, key) => {",
+            "        headers.set(key, value);",
+            "      });",
+            "    }",
         "    const response = await this.fetchImpl(url, {",
         "      method,",
         "      headers,",
@@ -496,6 +573,9 @@ def _render_js(operations: list[OperationSpec]) -> str:
         "      throw new Error(",
         "        `Runtime API request failed: ${response.status} ${response.statusText} ${body}`",
         "      );",
+        "    }",
+        "    if (responseMode === 'arrayBuffer') {",
+        "      return await response.arrayBuffer();",
         "    }",
         "    return await response.json();",
         "  }",
@@ -527,7 +607,10 @@ def _render_js(operations: list[OperationSpec]) -> str:
         params_arg = (
             "params"
             if (
-                operation.path_params or operation.query_params or operation.body_schema is not None
+                operation.path_params
+                or operation.query_params
+                or operation.header_params
+                or operation.body_schema is not None
             )
             else ""
         )
@@ -545,12 +628,43 @@ def _render_js(operations: list[OperationSpec]) -> str:
             lines.append("    });")
         else:
             lines.append("    const query = undefined;")
-        if operation.body_schema is not None:
+        if operation.header_params:
+            lines.append("    const requestHeaders = new Headers();")
+            for param in operation.header_params:
+                access = _typescript_param_access(param.name)
+                if param.required:
+                    lines.append(
+                        f"    requestHeaders.set({json.dumps(param.name)}, String({access}));"
+                    )
+                else:
+                    lines.append(f"    if ({access} !== undefined && {access} !== null) {{")
+                    lines.append(
+                        f"      requestHeaders.set({json.dumps(param.name)}, String({access}));"
+                    )
+                    lines.append("    }")
+        response_mode_arg = (
+            ", 'arrayBuffer'" if operation.response_mode == "array_buffer" else ""
+        )
+        if operation.body_schema is not None and operation.header_params:
             lines.append(
-                f"    return this.request('{operation.method}', path, query, params?.body);"
+                f"    return this.request('{operation.method}', path, query, "
+                f"params?.body, requestHeaders{response_mode_arg});"
+            )
+        elif operation.body_schema is not None:
+            lines.append(
+                f"    return this.request('{operation.method}', path, query, "
+                f"params?.body, undefined{response_mode_arg});"
+            )
+        elif operation.header_params:
+            lines.append(
+                f"    return this.request('{operation.method}', path, query, "
+                f"undefined, requestHeaders{response_mode_arg});"
             )
         else:
-            lines.append(f"    return this.request('{operation.method}', path, query);")
+            lines.append(
+                f"    return this.request('{operation.method}', path, query, "
+                f"undefined, undefined{response_mode_arg});"
+            )
         lines.append("  }")
         lines.append("")
 

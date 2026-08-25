@@ -22,6 +22,11 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Artifact inspection** - renders CAS manifest/content/schema/lineage views with redaction hooks.
 - **Lineage traversal** - builds lineage graphs and completeness summaries.
 - **Control-plane orchestration** - launches or reissues runs and bridges into `scientist`, `fabric`, and `lex`.
+- **Human-decision custody** - resolves signed delegation, principal,
+  reviewer-separation, presentation, and evidence-exposure inputs before using
+  the existing CAS/event writer and durable one-live-record reservation. Public
+  gate results remain non-authoritative projections; operational consumers
+  must re-resolve the concrete deployment-attested packet.
 
 ## Public API
 
@@ -46,6 +51,11 @@ projections. Route handlers should stay thin and delegate behavior here.
 - [`control.py`](control.py), [`control_worker.py`](control_worker.py), and
   [`control_plane_store.py`](control_plane_store.py) own control-plane run
   lifecycle behavior and are intentionally kept behind route-layer adapters.
+- [`human_decision_contracts.py`](human_decision_contracts.py) defines strict
+  route/service contracts, while [`human_decisions.py`](human_decisions.py)
+  owns signed-input reconciliation, append-only record custody, reservation
+  recovery, and operational revalidation. They reuse the access-audit trail and
+  control-plane artifact/event path; they do not establish a second log.
 - [`adapters/`](adapters/) contains service adapters for core runtime state and
   should stay thin.
 - Scenario, temporal, mobility, attractor, feedback, and rendering services own
@@ -94,6 +104,6 @@ changes.
 
 ## Current State
 
-- Last updated: 2026-05-06
+- Last updated: 2026-08-24
 - The tree still centers on `artifact_inspector.py`, `debug.py`, `lineage.py`, `run_index.py`, and `timeline.py`.
 - The control service continues to support feedback evaluation, reissue, and data/Lex orchestration surfaces.

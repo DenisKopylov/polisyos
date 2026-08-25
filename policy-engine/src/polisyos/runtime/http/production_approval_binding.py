@@ -88,6 +88,17 @@ def production_approval_context_kind() -> str:
     return _CONTEXT_KIND
 
 
+def production_approval_scorecard_binding_digest(
+    payload: Mapping[str, Any],
+    *,
+    ref: str,
+    run_id: str,
+) -> str:
+    """Recompute the exact pre-OPA scorecard binding from persisted bytes."""
+
+    return _freeze_scorecard(payload=payload, ref=ref, run_id=run_id).payload_sha256
+
+
 def _scorecard_ref_from_payload(scorecard: Mapping[str, Any] | None) -> str | None:
     if scorecard is None:
         return None
@@ -208,8 +219,7 @@ def _latest_control_progress_scorecard(
     if isinstance(scorecard, Mapping):
         return dict(scorecard)
     if any(
-        key in progress
-        for key in ("quality_status", "quality_gates", "blocking_quality_failures")
+        key in progress for key in ("quality_status", "quality_gates", "blocking_quality_failures")
     ):
         return dict(progress)
     return None
@@ -225,5 +235,6 @@ def _string_or_none(value: object) -> str | None:
 __all__ = [
     "ResolvedProductionApprovalScorecard",
     "production_approval_context_kind",
+    "production_approval_scorecard_binding_digest",
     "resolve_production_approval_scorecard",
 ]

@@ -6,11 +6,12 @@ import hashlib
 import json
 import re
 from collections.abc import Mapping, Sequence
-from typing import Any
+from typing import Any, Literal
 
 from polisyos.evidence import normalize_runtime_claim_registry
 from polisyos.scientist.artifacts.decision_compiler import (
     DECISION_ARTIFACT_SCHEMA_VERSION,
+    DRAFT_DECISION_PACKET_ARTIFACT_KIND,
     PUBLIC_FORBIDDEN_KEY_TOKENS,
     REQUIRED_MAJOR_RECOMMENDATION_SECTIONS,
 )
@@ -120,6 +121,10 @@ def build_decision_artifact_quality_report(
     quality_scorecard_ref: str | None = None,
     conflict_check_ref: str | None = None,
     approval_packet_ref: str | None = None,
+    production_approval_resolver: object | None = None,
+    production_approval_tenant_id: str | None = None,
+    production_approval_audience: str = "polisyos-runtime",
+    approval_authority_mode: Literal["operational", "draft_historical"] = "operational",
 ) -> dict[str, Any]:
     """Build the fail-closed quality report for a compiled public artifact."""
 
@@ -186,8 +191,32 @@ def build_decision_artifact_quality_report(
             conflict_check=conflict_check,
             approval_state=approval_state,
             serious=serious,
+            require_approval_ready=approval_authority_mode == "operational",
         )
     )
+    if approval_authority_mode == "operational":
+        if not _resolve_production_approval_currentness(
+            resolver=production_approval_resolver,
+            packet_ref=approval_packet_ref,
+            tenant_id=production_approval_tenant_id,
+            run_id=_text(artifact.get("run_id")),
+            expected_audience=production_approval_audience,
+        ):
+            issues.append(
+                _issue(
+                    code="decision_artifact_approval_currentness_unresolved",
+                    severity="fail" if serious else "warn",
+                    message=(
+                        "Raw approval state and packet projections are not operational authority."
+                    ),
+                    next_action=(
+                        "Re-resolve a signed V2 packet with the deployment-issued concrete "
+                        "resolver."
+                    ),
+                )
+            )
+    else:
+        issues.extend(_draft_historical_approval_issues(artifact))
 
     status = _status_from_issues(issues)
     report = {
@@ -224,9 +253,7 @@ def build_decision_artifact_quality_report(
                 Mapping,
             ),
             "runtime_claim_registry_entry_count": (
-                int(
-                    normalized_claim_registry.get("summary", {}).get("entry_count", 0)
-                )
+                int(normalized_claim_registry.get("summary", {}).get("entry_count", 0))
                 if isinstance(normalized_claim_registry, Mapping)
                 else 0
             ),
@@ -238,12 +265,87 @@ def build_decision_artifact_quality_report(
             "issue_count": len(issues),
         },
         "issues": issues,
-        "blocking_issue_count": sum(
-            1 for issue in issues if issue.get("severity") == "fail"
-        ),
+        "blocking_issue_count": sum(1 for issue in issues if issue.get("severity") == "fail"),
+        "approval_authority": {
+            "mode": approval_authority_mode,
+            "operational_authority": False,
+            "currentness": (
+                "producer_missing"
+                if approval_authority_mode == "draft_historical"
+                else "resolver_required"
+            ),
+        },
     }
     report["decision_artifact_quality_report_ref"] = _stable_report_ref(report)
     return report
+
+
+def _resolve_production_approval_currentness(
+    *,
+    resolver: object | None,
+    packet_ref: str | None,
+    tenant_id: str | None,
+    run_id: str,
+    expected_audience: str,
+) -> bool:
+    """Exercise the concrete resolver; public projections are always refused."""
+
+    from polisyos.runtime.quality import ProductionApprovalPacketResolver
+
+    if (
+        type(resolver) is not ProductionApprovalPacketResolver
+        or not packet_ref
+        or not tenant_id
+        or not run_id
+    ):
+        return False
+    try:
+        resolver.require_currentness(
+            packet_ref=packet_ref,
+            tenant_id=tenant_id,
+            run_id=run_id,
+            expected_consumer="polisyos.scientist.decision_artifact_quality",
+            expected_audience=expected_audience,
+        )
+    except ValueError:
+        return False
+    return True
+
+
+def _draft_historical_approval_issues(
+    artifact: Mapping[str, Any],
+) -> list[dict[str, Any]]:
+    """Verify the compiler-owned shape of an explicitly non-operational draft."""
+
+    decision_context = artifact.get("decision_context")
+    constraints = artifact.get("public_export_constraints")
+    valid = (
+        artifact.get("artifact_kind") == DRAFT_DECISION_PACKET_ARTIFACT_KIND
+        and artifact.get("authority_role") == "projection"
+        and artifact.get("publishability") == "not_publishable"
+        and isinstance(decision_context, Mapping)
+        and decision_context.get("public_export_status") == "draft_projection"
+        and isinstance(constraints, Mapping)
+        and constraints.get("draft_projection_only") is True
+        and artifact.get("approval_currentness") == "producer_missing"
+        and artifact.get("approval_projection_only") is True
+    )
+    if valid:
+        return []
+    return [
+        _issue(
+            code="decision_artifact_historical_projection_invalid",
+            severity="fail",
+            message=(
+                "The historical approval mode requires the compiler-owned, "
+                "projection-only draft packet shape."
+            ),
+            next_action=(
+                "Recompile with compile_draft_decision_packet and retain the typed "
+                "producer-missing boundary."
+            ),
+        )
+    ]
 
 
 def _compiler_contract_issues(artifact: Mapping[str, Any]) -> list[dict[str, Any]]:
@@ -275,9 +377,7 @@ def _claim_evidence_binding_issues(
     serious: bool,
 ) -> list[dict[str, Any]]:
     recommendations = [
-        recommendation
-        for recommendation in _recommendations(artifact)
-        if _is_major(recommendation)
+        recommendation for recommendation in _recommendations(artifact) if _is_major(recommendation)
     ]
     if not recommendations:
         return []
@@ -314,12 +414,10 @@ def _claim_evidence_binding_issues(
                     claim_id=_text(item.get("claim_id")),
                     public_section=_text(item.get("statement_scope")),
                     message=str(
-                        item.get("message")
-                        or "Runtime claim evidence contract blocks publication."
+                        item.get("message") or "Runtime claim evidence contract blocks publication."
                     ),
                     next_action=str(
-                        item.get("next_action")
-                        or "Resolve runtime claim evidence contract issues."
+                        item.get("next_action") or "Resolve runtime claim evidence contract issues."
                     ),
                     phase="decision_artifact_evidence_binding",
                     contract_issue=dict(item),
@@ -374,8 +472,7 @@ def _runtime_claim_registry_issues(
                 severity=severity if item.get("severity") == "fail" else "warn",
                 claim_id=_text(item.get("claim_id")),
                 message=str(
-                    item.get("message")
-                    or "Runtime claim registry does not bind a public claim."
+                    item.get("message") or "Runtime claim registry does not bind a public claim."
                 ),
                 next_action=str(
                     item.get("next_action")
@@ -387,11 +484,15 @@ def _runtime_claim_registry_issues(
                 runtime_claim_registry_issue=dict(item),
             )
         )
-    if _text(runtime_claim_registry.get("status")).casefold() in {
-        "blocked",
-        "fail",
-        "failed",
-    } and not issues:
+    if (
+        _text(runtime_claim_registry.get("status")).casefold()
+        in {
+            "blocked",
+            "fail",
+            "failed",
+        }
+        and not issues
+    ):
         issues.append(
             _issue(
                 code="runtime_claim_registry_failed",
@@ -541,8 +642,7 @@ def _required_section_issues(
                     claim_id=_text(recommendation.get("claim_id")),
                     section=section,
                     message=(
-                        "Major public recommendations must include "
-                        f"{section.replace('_', ' ')}."
+                        f"Major public recommendations must include {section.replace('_', ' ')}."
                     ),
                     next_action=(
                         "Add the missing decision-artifact section or demote the "
@@ -612,9 +712,7 @@ def _certainty_overstatement_issues(artifact: Mapping[str, Any]) -> list[dict[st
                 code=f"overstated_{dimension}_certainty",
                 severity="fail",
                 certainty_dimension=dimension,
-                message=(
-                    f"Public decision artifact overstates {dimension} certainty."
-                ),
+                message=(f"Public decision artifact overstates {dimension} certainty."),
                 next_action=(
                     "Rewrite the public artifact to use calibrated claims, cite the "
                     "supporting refs, and state residual uncertainty."
@@ -688,6 +786,7 @@ def _status_context_issues(
     conflict_check: Mapping[str, Any] | None,
     approval_state: Mapping[str, Any] | str | None,
     serious: bool,
+    require_approval_ready: bool,
 ) -> list[dict[str, Any]]:
     issues: list[dict[str, Any]] = []
     context = artifact.get("decision_context")
@@ -723,7 +822,7 @@ def _status_context_issues(
                 observed_status=conflict_status,
             )
         )
-    if resolved_approval not in _APPROVAL_READY_STATES:
+    if require_approval_ready and resolved_approval not in _APPROVAL_READY_STATES:
         issues.append(
             _issue(
                 code="decision_artifact_not_approval_ready",

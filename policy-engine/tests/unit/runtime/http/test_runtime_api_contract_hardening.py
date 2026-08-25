@@ -30,10 +30,16 @@ from polisyos.runtime.http.services.export_replay import (
     hash_export_projection,
 )
 from polisyos.runtime.http.services.governed_projections import GovernedProjectionService
+from polisyos.runtime.http.services.human_decision_contracts import (
+    HumanDecisionCreateResponse,
+    HumanDecisionGateResponse,
+    HumanDecisionReviewEffectivenessResponse,
+)
 from polisyos.runtime.http.services.run_paper_contracts import (
     RunPaperPacket,
     build_run_paper_semantic_projection,
 )
+from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import HumanDecisionRecord
 from tools.ops_runners.runtime import generate_runtime_client
 
 OPENAPI_TYPESCRIPT_VERSION = "7.13.0"
@@ -43,6 +49,114 @@ def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
     schema = export_runtime_openapi_schema()
     violations = validate_runtime_openapi_contract(schema)
     assert violations == []
+
+
+def test_openapi_exposes_strict_human_decision_unions() -> None:
+    schema = export_runtime_openapi_schema()
+    gate = schema["paths"]["/api/v1/runs/{run_id}/human-decision-gate"]["get"]
+    create = schema["paths"]["/api/v1/runs/{run_id}/human-decisions"]["post"]
+    evidence = schema["paths"][
+        "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content"
+    ]["get"]
+
+    gate_schema = schema["components"]["schemas"]["HumanDecisionGateResponse"]
+    assert "submission" in gate_schema["properties"]
+    assert "continuation" in gate_schema["properties"]
+    replay = schema["components"]["schemas"]["HumanDecisionSubmissionSurface"][
+        "properties"
+    ]["selector"]
+    assert replay["discriminator"]["propertyName"] == "source_kind"
+    assert len(replay["oneOf"]) == 2
+    pa2 = schema["components"]["schemas"]["HumanDecisionPA2ReplaySelector"]
+    production = schema["components"]["schemas"]["HumanDecisionProductionReplaySelector"]
+    assert "action_kind" in pa2["required"]
+    assert "action_kind" not in production["properties"]
+    assert "production_packet_ref" not in production["properties"]
+
+    for operation in (create, evidence):
+        header = next(
+            parameter
+            for parameter in operation["parameters"]
+            if parameter["in"] == "header"
+            and parameter["name"] == "X-PolicyOS-Human-Decision-Exposure"
+        )
+        assert header["required"] is True
+        assert header["schema"]["pattern"] == r"^sha256:[0-9a-f]{64}$"
+
+    body = schema["components"]["schemas"]["HumanDecisionMutationRequest"]
+    assert body["additionalProperties"] is False
+    assert "exposure_session_ref" not in body["properties"]
+    record_schema = schema["components"]["schemas"]["HumanDecisionRecord"]
+    assert record_schema["additionalProperties"] is False
+    assert {
+        "schema_version",
+        "record_id",
+        "human_decision_request_ref",
+        "actor_ref",
+        "decision_action_exercised",
+        "responsibility_integrity",
+        "authority_boundary",
+        "tenant_id",
+        "run_id",
+        "binding_sha256",
+        "predicate_receipts",
+        "custody_signer_identity",
+        "custody_boundary",
+    } <= set(record_schema["properties"])
+    assert {
+        "schema_version",
+        "record_id",
+        "human_decision_request_ref",
+        "actor_ref",
+        "decision_action_exercised",
+        "responsibility_integrity",
+        "authority_boundary",
+    } <= set(record_schema["required"])
+    assert record_schema["properties"]["schema_version"]["enum"] == [
+        "policyos.policy_design_case.layer2_s7_delegation.v1",
+        "policyos.runtime.human_decision_record.v2",
+    ]
+    assert gate["operationId"] == "get_run_human_decision_gate"
+    assert create["operationId"] == "create_run_human_decision"
+    assert evidence["operationId"] == "get_run_human_decision_evidence_content"
+    evidence_content = evidence["responses"]["200"]["content"]
+    assert evidence_content["*/*"]["schema"] == {
+        "type": "string",
+        "format": "binary",
+    }
+    response_headers = evidence["responses"]["200"]["headers"]
+    assert set(response_headers) == {
+        "Cache-Control",
+        "Content-Encoding",
+        "ETag",
+        "X-Content-Type-Options",
+        "X-PolicyOS-Exposure-Session",
+    }
+    assert response_headers["Cache-Control"]["schema"]["enum"] == ["no-store"]
+    assert response_headers["Content-Encoding"]["schema"]["enum"] == ["identity"]
+    assert response_headers["X-Content-Type-Options"]["schema"]["enum"] == ["nosniff"]
+    assert response_headers["X-PolicyOS-Exposure-Session"]["schema"]["pattern"] == (
+        r"^sha256:[0-9a-f]{64}$"
+    )
+
+    examples = {
+        "gate": gate,
+        "create": create,
+        "record": schema["paths"]["/api/v1/runs/{run_id}/human-decisions"]["get"],
+        "review": schema["paths"][
+            "/api/v1/runs/{run_id}/human-decisions/review-effectiveness"
+        ]["get"],
+    }
+    values = {
+        name: operation["responses"][next(iter(operation["responses"]))]["content"][
+            "application/json"
+        ]["examples"]["default"]["value"]
+        for name, operation in examples.items()
+    }
+    HumanDecisionGateResponse.model_validate(values["gate"])
+    HumanDecisionCreateResponse.model_validate(values["create"])
+    HumanDecisionRecord.model_validate(values["record"])
+    HumanDecisionReviewEffectivenessResponse.model_validate(values["review"])
 
 
 def test_run_paper_success_example_recomputes_its_declared_projection_hash() -> None:

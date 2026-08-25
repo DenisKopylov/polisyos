@@ -8,6 +8,10 @@ import type {
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 import { Quantity } from "@/shared/ui/quantity";
+import {
+  authorityStatusBadgeProps,
+  issueAuthorityCountPresentation,
+} from "@/shared/ui/AuthorityStatusPresentation";
 import { Badge, Button, Card } from "@polisyos/atlas-ui";
 
 import { MethodologyBadge } from "./MethodologyBadge";
@@ -121,20 +125,35 @@ export function ExplainabilityCard({
         </div>
         {governance ? (
           <div className="flex items-center gap-2 text-xs font-semibold">
-            <Badge kind="outline">
+            <Badge
+              {...authorityStatusBadgeProps(
+                issueAuthorityCountPresentation("passed", governance.passed),
+              )}
+            >
               {t("shared.ui.explainabilityCard.countPassed", {
                 count: governance.passed,
               })}
             </Badge>
             {governance.failed > 0 ? (
-              <Badge kind="outline">
+              <Badge
+                {...authorityStatusBadgeProps(
+                  issueAuthorityCountPresentation("failed", governance.failed),
+                )}
+              >
                 {t("shared.ui.explainabilityCard.countFailed", {
                   count: governance.failed,
                 })}
               </Badge>
             ) : null}
             {governance.warnings > 0 ? (
-              <Badge kind="outline">
+              <Badge
+                {...authorityStatusBadgeProps(
+                  issueAuthorityCountPresentation(
+                    "warnings",
+                    governance.warnings,
+                  ),
+                )}
+              >
                 {t("shared.ui.explainabilityCard.countWarnings", {
                   count: governance.warnings,
                 })}

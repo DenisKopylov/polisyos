@@ -6684,5 +6684,96 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
             assert projection.count(f"`{row['path']}`") == 1  # noqa: S101
 
 
+class DS9C07AdjudicationTests(unittest.TestCase):
+    """Prove C07 owns exactly its 13 roots and five authority findings."""
+
+    def test_all_18_opening_objects_have_one_checked_disposition(self) -> None:
+        """Derive, validate, and atomically project the exact DS9 family."""
+        original = REGISTER_PATH.read_text(encoding="utf-8")
+        scan = checker._authority_presentation_scan()
+        candidate = checker._ds9_c07_register_candidate_text(original, scan=scan)
+        data = json.loads(candidate)
+        entries = {row["unit_id"]: row for row in data["entries"]}
+        errors: list[str] = []
+        checker._validate_ds9_c07_adjudication(data, entries, errors)
+
+        self.assertEqual([], errors)  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            set(checker.DS9_C07_ROOT_SCOPE),
+            set(checker.DS9_C07_ROOT_SCOPE) & set(entries),
+        )
+        authority_rows = [
+            row
+            for row in data["supplemental_findings"]
+            if row["finding_id"] in checker.DS9_C07_AUTHORITY_FINDING_IDS
+        ]
+        self.assertEqual(  # noqa: PT009
+            len(checker.DS9_C07_ROOT_SCOPE) + len(checker.DS9_C07_AUTHORITY_FINDING_IDS),
+            len(checker.DS9_C07_ROOT_SCOPE) + len(authority_rows),
+        )
+
+        captured: dict[Path, str] = {}
+
+        def capture_atomic_family(
+            candidates: dict[Path, str],
+            *,
+            validate_after: object,
+            pre_promote: object,
+        ) -> None:
+            del validate_after
+            assert callable(pre_promote)  # noqa: S101
+            pre_promote()
+            captured.update(candidates)
+
+        with (
+            mock.patch.object(checker, "_ds9_c07_writer_fence"),
+            mock.patch.object(
+                checker,
+                "_failure_atomic_write_texts",
+                side_effect=capture_atomic_family,
+            ),
+        ):
+            summary = checker._write_ds9_human_decision_integrity_family()
+
+        self.assertEqual(  # noqa: PT009
+            {
+                checker.REGISTER_PATH,
+                checker.REPORT_PATH,
+                checker.STATUS_INVENTORY_PATH,
+            },
+            set(captured),
+        )
+        self.assertEqual(candidate, captured[checker.REGISTER_PATH])  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            checker.render_report(data), captured[checker.REPORT_PATH]
+        )
+        storage_start, storage_end, _storage = checker._json_top_level_object_span(
+            candidate,
+            "storage_construction_census",
+        )
+        anchor = '"semantic_class_provenance":'
+        anchor_end = (
+            candidate.index(anchor, storage_start, storage_end) + len(anchor)
+        )
+        unrelated_storage_byte = (
+            candidate[:anchor_end] + " " + candidate[anchor_end:]
+        )
+        self.assertTrue(  # noqa: PT009
+            checker._ds9_c07_preservation_errors(
+                original,
+                unrelated_storage_byte,
+            )
+        )
+        status = json.loads(captured[checker.STATUS_INVENTORY_PATH])
+        self.assertEqual(  # noqa: PT009
+            checker._ds8_digest(candidate.encode("utf-8")),
+            status["sources"]["ds19"]["sha256"],
+        )
+        self.assertEqual(  # noqa: PT009
+            {"root_objects": 13, "authority_findings": 5, "objects": 18},
+            summary,
+        )
+
+
 if __name__ == "__main__":
     unittest.main()

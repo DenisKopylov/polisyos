@@ -564,3 +564,26 @@ def test_control_job_execution_metrics_preserve_trace_context(
         assert metrics.control_execution_calls[-1]["queue_lag_seconds"] >= 0.0
     finally:
         service.close()
+
+
+def test_human_decision_gate_records_distinct_data_access_resource(tmp_path) -> None:
+    metrics = _CaptureMetrics()
+    env = build_runtime_api_env(
+        tmp_path,
+        include_test_client=True,
+        app_kwargs={
+            "metrics_factory": lambda: metrics,
+            "tracer_factory": lambda: _FakeTracer(),
+        },
+    )
+
+    response = env["client"].get(
+        f"/api/v1/runs/{env['core_run_id']}/human-decision-gate",
+        params={"source_kind": "production_approval"},
+    )
+
+    assert response.status_code == 200, response.text
+    assert any(
+        call["resource_kind"] == "runtime.run.human_decision_gate"
+        for call in metrics.data_access_calls
+    )

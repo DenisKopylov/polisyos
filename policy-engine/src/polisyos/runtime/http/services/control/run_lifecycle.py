@@ -5,7 +5,7 @@ from __future__ import annotations
 import time
 import uuid
 from collections.abc import Mapping
-from contextlib import contextmanager, nullcontext
+from contextlib import AbstractContextManager, contextmanager, nullcontext
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
@@ -13,11 +13,12 @@ from typing import TYPE_CHECKING, Any, cast
 from opentelemetry.context import attach, detach
 
 from polisyos.common.logger import get_logger
+from polisyos.core import artifacts
 from polisyos.core.artifacts.async_store import ensure_async_artifact_store
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactManifest, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.control import (
     BindingProfileInfo,
     BindingProfilesListResponse,
@@ -75,9 +76,12 @@ from polisyos.runtime.http.services.control.admission import (
     _record_control_plane_job_execution_metric,
 )
 from polisyos.runtime.http.services.control.artifacts import (
+    DIAGNOSTIC_EVENT_ARTIFACT_KIND,
+    AuthorityArtifactWriteResult,
     _artifact_ref_from_summary_payload,
     _make_artifact_ref,
     _resolve_curated_dir,
+    write_runtime_authority_artifact,
 )
 from polisyos.runtime.http.services.control.capabilities import CapabilityManifestMixin
 from polisyos.runtime.http.services.control.lex_pipeline import LexPipelineMixin
@@ -88,6 +92,10 @@ from polisyos.runtime.http.services.control.response_shapes import (
 from polisyos.runtime.http.services.control.workspace_loop_transition import (
     ControlPlaneWorkspaceLoopTransitionMixin,
     _WorkflowExecutionNonAuthorityError,
+)
+from polisyos.runtime.quality.authority_reconciliation import (
+    AuthorityReconciliationReport,
+    reconcile_authority_ref,
 )
 from polisyos.runtime.quality.diagnostic_events import (
     DIAGNOSTIC_EVENT_SCHEMA_NAME,
@@ -117,7 +125,14 @@ from .._control_contracts import (
     _is_multimodel_enabled,
     _resolve_data_source,
 )
-from ..control_plane_store import ControlJobRecord, ControlPlaneStore
+from ..control_plane_store import (
+    ControlJobRecord,
+    ControlPlaneStore,
+    HumanDecisionRecoveryFence,
+    HumanDecisionReservationRecord,
+    HumanDecisionReservationResult,
+    HumanDecisionWriteFence,
+)
 from ..control_worker import ControlWorker
 
 logger = get_logger(__name__)
@@ -141,6 +156,7 @@ def _clean_runtime_text(value: object) -> str | None:
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
+    from typing import Protocol
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
@@ -152,14 +168,594 @@ if TYPE_CHECKING:
     from ..control_registry_providers import ControlRegistryProviders
     from ..scenario_heads import ScenarioHeadStore
 
+    class _HumanDecisionSignedArtifactStore(Protocol):
+        def get_manifest_bytes(self, artifact_id: artifacts.ArtifactID | str) -> bytes: ...
+
+        def get_signature(
+            self, artifact_id: artifacts.ArtifactID | str
+        ) -> artifacts.DetachedSignature | None: ...
+
+        def sign_artifact(
+            self,
+            artifact_id: artifacts.ArtifactID,
+            signer: artifacts.Ed25519Signer,
+            *,
+            signer_identity: str | None = None,
+        ) -> artifacts.DetachedSignature: ...
+
+        def verify_signature(
+            self,
+            artifact_id: artifacts.ArtifactID,
+            verifier: artifacts.Ed25519Verifier,
+            *,
+            strict_identity: bool | None = None,
+        ) -> artifacts.SignatureVerificationResult: ...
+
 
 # ---------------------------------------------------------------------------
 # Service
 # ---------------------------------------------------------------------------
 
 
+class HumanDecisionAuthoritySink:
+    """Narrow persistence boundary for custodied human-decision records."""
+
+    __slots__ = ("_artifact_store", "_event_log", "_reservation_store")
+
+    def __init__(
+        self,
+        *,
+        artifact_store: ArtifactStore,
+        event_log: RuntimeDiagnosticEventLog,
+        reservation_store: ControlPlaneStore,
+    ) -> None:
+        self._artifact_store = artifact_store
+        self._event_log = event_log
+        self._reservation_store = reservation_store
+
+    def reserve_action(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        binding_sha256: str,
+        now: datetime,
+        lease_seconds: int,
+        record_valid_until: datetime,
+    ) -> HumanDecisionReservationResult:
+        """Reserve the sole live generation for an exact governed action."""
+
+        return self._reservation_store.reserve_human_decision_action(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            binding_sha256=binding_sha256,
+            now=now,
+            lease_seconds=lease_seconds,
+            record_valid_until=record_valid_until,
+        )
+
+    def get_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+    ) -> HumanDecisionReservationRecord | None:
+        """Derive the newest immutable reservation generation."""
+
+        return self._reservation_store.get_human_decision_reservation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+        )
+
+    def get_reservation_generation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_version: int,
+    ) -> HumanDecisionReservationRecord | None:
+        """Read one exact reservation generation."""
+
+        return self._reservation_store.get_human_decision_reservation_generation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_version=reservation_version,
+        )
+
+    def hold_write_fence(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        binding_sha256: str,
+        acquired_at: datetime,
+        expected_record_valid_until: datetime,
+    ) -> AbstractContextManager[HumanDecisionWriteFence]:
+        """Hold the exact reservation through record/event finalization."""
+
+        return self._reservation_store.hold_human_decision_write_fence(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+            binding_sha256=binding_sha256,
+            acquired_at=acquired_at,
+            expected_record_valid_until=expected_record_valid_until,
+        )
+
+    def hold_recovery_fence(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+    ) -> AbstractContextManager[HumanDecisionRecoveryFence]:
+        """Hold one exact null-ref generation through CAS/event restoration."""
+
+        return self._reservation_store.hold_human_decision_recovery_fence(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+        )
+
+    def mark_recovery_required(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        record_ref: str | None = None,
+        record_sha256: str | None = None,
+        durable_event_id: str | None = None,
+    ) -> HumanDecisionReservationRecord:
+        """Freeze a partial generation pending independent reconciliation."""
+
+        return self._reservation_store.mark_human_decision_recovery_required(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+            record_ref=record_ref,
+            record_sha256=record_sha256,
+            durable_event_id=durable_event_id,
+        )
+
+    def reconcile_orphan_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        verifier: artifacts.Ed25519Verifier,
+        expected_signer_identity: str,
+        expected_key_id: str,
+        expected_cell_id: str | None,
+        expected_run_id: str,
+        expected_job_id: str,
+        reconciled_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Make a signed/event-reconciled orphan historical without deleting it."""
+
+        from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+            HUMAN_DECISION_RECORD_V2,
+            HumanDecisionRecord,
+        )
+
+        reservation = self.get_reservation_generation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_version=reservation_version,
+        )
+        if (
+            reservation is None
+            or reservation.reservation_id != reservation_id
+            or reservation.state != "recovery_required"
+            or reservation.record_ref is None
+            or reservation.record_ref != reservation.record_sha256
+            or reservation.durable_event_id is None
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        manifest = self.get_artifact_manifest(reservation.record_ref)
+        schema = manifest.artifact_schema
+        if (
+            manifest.kind != "runtime_quality.agent_action_human_decision"
+            or schema is None
+            or schema.name != "polisyos.runtime.HumanDecisionRecord"
+            or schema.version != "2.0"
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        signature = self.verify_artifact_signature(
+            reservation.record_ref,
+            verifier,
+            strict_identity=True,
+        )
+        if (
+            not signature.ok
+            or signature.signer_identity != expected_signer_identity
+            or signature.key_id != expected_key_id
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        report = self.reconcile_authority_artifact(
+            reservation.record_ref,
+            expected_tenant_id=tenant_id,
+            expected_cell_id=expected_cell_id,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+        )
+        if report.durable_event_id != reservation.durable_event_id:
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        record = HumanDecisionRecord.model_validate(
+            from_canonical_bytes(self.get_artifact_bytes(reservation.record_ref))
+        )
+        if (
+            record.schema_version != HUMAN_DECISION_RECORD_V2
+            or record.tenant_id != tenant_id
+            or record.run_id != expected_run_id
+            or record.governed_action_key != governed_action_key
+            or record.reservation_id != reservation_id
+            or record.reservation_version != reservation_version
+            or record.binding_sha256 != reservation.binding_sha256
+            or record.custody_signer_identity != expected_signer_identity
+            or record.custody_key_id != expected_key_id
+            or record.valid_until != reservation.record_valid_until
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        return self._reservation_store._reconcile_orphan_human_decision_reservation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+            reconciled_at=reconciled_at,
+        )
+
+    def reconcile_null_ref_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        verifier: artifacts.Ed25519Verifier,
+        expected_signer_identity: str,
+        expected_key_id: str,
+        expected_cell_id: str | None,
+        expected_run_id: str,
+        expected_job_id: str,
+        reconciled_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Discover and reconcile one signed orphan whose SQL refs rolled back."""
+
+        from polisyos.runtime.quality.design_axes.mandate_bounded_delegation import (
+            HUMAN_DECISION_RECORD_V2,
+            HumanDecisionRecord,
+        )
+
+        if getattr(self._event_log, "_store", None) is not self._reservation_store:
+            raise RuntimeError("human-decision recovery requires the shared control store")
+        with self.hold_recovery_fence(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+        ) as fence:
+            matches: list[tuple[str, ArtifactManifest, Mapping[str, Any]]] = []
+            for artifact_id in self._artifact_store.iter_artifact_ids():
+                try:
+                    manifest = self._artifact_store.get_manifest(artifact_id)
+                except Exception as exc:
+                    raise RuntimeError("human-decision recovery CAS manifest scan failed") from exc
+                if manifest.kind != "runtime_quality.agent_action_human_decision":
+                    continue
+                try:
+                    payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+                except Exception as exc:
+                    raise RuntimeError("human-decision recovery CAS readback failed") from exc
+                if not isinstance(payload, Mapping):
+                    raise RuntimeError("human-decision record payload is not an object")
+                if (
+                    payload.get("reservation_id") == reservation_id
+                    and payload.get("reservation_version") == reservation_version
+                ):
+                    matches.append((str(artifact_id), manifest, payload))
+            if len(matches) != 1:
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            record_ref, manifest, payload = matches[0]
+            schema = manifest.artifact_schema
+            if (
+                schema is None
+                or schema.name != "polisyos.runtime.HumanDecisionRecord"
+                or schema.version != "2.0"
+            ):
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            try:
+                record = HumanDecisionRecord.model_validate(payload)
+            except (TypeError, ValueError) as exc:
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED") from exc
+            reservation = fence.reservation
+            if (
+                record.schema_version != HUMAN_DECISION_RECORD_V2
+                or record.tenant_id != tenant_id
+                or record.run_id != expected_run_id
+                or record.governed_action_key != governed_action_key
+                or record.reservation_id != reservation_id
+                or record.reservation_version != reservation_version
+                or record.binding_sha256 != reservation.binding_sha256
+                or record.valid_until != reservation.record_valid_until
+                or record.custody_signer_identity != expected_signer_identity
+                or record.custody_key_id != expected_key_id
+            ):
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            signature = self.verify_artifact_signature(
+                record_ref,
+                verifier,
+                strict_identity=True,
+            )
+            if (
+                not signature.ok
+                or signature.signer_identity != expected_signer_identity
+                or signature.key_id != expected_key_id
+            ):
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            authority = manifest.authority
+            if authority is None:
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            event_ref = artifacts.ArtifactID.model_validate(authority.diagnostic_event_ref)
+            event_manifest = self._artifact_store.get_manifest(event_ref)
+            event_schema = event_manifest.artifact_schema
+            if (
+                event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+                or event_schema is None
+                or event_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+                or event_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+            ):
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            try:
+                event = DiagnosticEvent.model_validate(
+                    from_canonical_bytes(self._artifact_store.get_bytes(event_ref))
+                )
+            except (TypeError, ValueError) as exc:
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED") from exc
+            if (
+                event.payload_ref != record_ref
+                or event.tenant_id != tenant_id
+                or event.run_id != expected_run_id
+                or event.job_id != expected_job_id
+                or (expected_cell_id is not None and event.cell_id != expected_cell_id)
+            ):
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            self._event_log.append(
+                event,
+                payload_policy=DiagnosticEventPayloadPolicy(authority_bearing=True),
+            )
+            report = self.reconcile_authority_artifact(
+                record_ref,
+                expected_tenant_id=tenant_id,
+                expected_cell_id=expected_cell_id,
+                expected_run_id=expected_run_id,
+                expected_job_id=expected_job_id,
+            )
+            if report.durable_event_id != event.event_id:
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+            return fence.reconcile_orphan(
+                record_ref=record_ref,
+                record_sha256=record_ref,
+                durable_event_id=event.event_id,
+                reconciled_at=reconciled_at,
+            )
+
+    def reconcile_empty_reservation(
+        self,
+        *,
+        tenant_id: str,
+        governed_action_key: str,
+        reservation_id: str,
+        reservation_version: int,
+        reconciled_at: datetime,
+    ) -> HumanDecisionReservationRecord:
+        """Reconcile only after independently proving no record artifact exists."""
+
+        reservation = self.get_reservation_generation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_version=reservation_version,
+        )
+        if (
+            reservation is None
+            or reservation.reservation_id != reservation_id
+            or reservation.state != "recovery_required"
+            or reservation.record_ref is not None
+            or reservation.record_sha256 is not None
+            or reservation.durable_event_id is not None
+        ):
+            raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        for artifact_id in self._artifact_store.iter_artifact_ids():
+            try:
+                manifest = self._artifact_store.get_manifest(artifact_id)
+            except Exception as exc:
+                raise RuntimeError("human-decision reconciliation CAS scan failed") from exc
+            if manifest.kind != "runtime_quality.agent_action_human_decision":
+                continue
+            try:
+                payload = from_canonical_bytes(self._artifact_store.get_bytes(artifact_id))
+            except Exception as exc:
+                raise RuntimeError("human-decision reconciliation readback failed") from exc
+            if not isinstance(payload, Mapping):
+                raise RuntimeError("human-decision record payload is not an object")
+            if (
+                payload.get("reservation_id") == reservation_id
+                and payload.get("reservation_version") == reservation_version
+            ):
+                raise ValueError("DS9-RESERVATION-RECOVERY-REQUIRED")
+        return self._reservation_store._reconcile_empty_human_decision_reservation(
+            tenant_id=tenant_id,
+            governed_action_key=governed_action_key,
+            reservation_id=reservation_id,
+            reservation_version=reservation_version,
+            reconciled_at=reconciled_at,
+        )
+
+    def write_authority_artifact(
+        self,
+        payload: object,
+        options: ArtifactWriteOptions,
+        *,
+        authority_fields: Mapping[str, object],
+    ) -> AuthorityArtifactWriteResult:
+        """Persist through the existing CAS plus durable diagnostic event chain."""
+
+        return write_runtime_authority_artifact(
+            self._artifact_store,
+            self._event_log,
+            payload,
+            options,
+            **dict(authority_fields),
+        )
+
+    def reconcile_authority_artifact(
+        self,
+        artifact_ref: str,
+        *,
+        expected_tenant_id: str | None,
+        expected_cell_id: str | None,
+        expected_run_id: str | None,
+        expected_job_id: str | None,
+    ) -> AuthorityReconciliationReport:
+        """Prove one CAS authority record has its durable diagnostic event."""
+
+        report = reconcile_authority_ref(
+            artifact_store=self._artifact_store,
+            event_log=self._event_log,
+            cas_ref=artifact_ref,
+            expected_tenant_id=expected_tenant_id,
+            expected_cell_id=expected_cell_id,
+            expected_run_id=expected_run_id,
+            expected_job_id=expected_job_id,
+        )
+        artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
+        manifest = self._artifact_store.get_manifest(artifact_id)
+        authority = manifest.authority
+        if authority is None:
+            raise ValueError("human-decision authority manifest linkage is absent")
+        event_id = artifacts.ArtifactID.model_validate(authority.diagnostic_event_ref)
+        event_manifest = self._artifact_store.get_manifest(event_id)
+        event_schema = event_manifest.artifact_schema
+        if (
+            event_manifest.kind != DIAGNOSTIC_EVENT_ARTIFACT_KIND
+            or event_schema is None
+            or event_schema.name != DIAGNOSTIC_EVENT_SCHEMA_NAME
+            or event_schema.version != DIAGNOSTIC_EVENT_SCHEMA_VERSION
+        ):
+            raise ValueError("human-decision diagnostic event artifact changed")
+        event = DiagnosticEvent.model_validate(
+            from_canonical_bytes(self._artifact_store.get_bytes(event_id))
+        )
+        durable_records = self._event_log.list_events(
+            event_id=event.event_id,
+            run_id=expected_run_id,
+            job_id=expected_job_id,
+            limit=100,
+        )
+        if (
+            report.durable_event_id != event.event_id
+            or event.payload_ref != artifact_ref
+            or not any(getattr(record, "event", None) == event for record in durable_records)
+        ):
+            raise ValueError("human-decision diagnostic event binding changed")
+        return report
+
+    def has_artifact(self, artifact_ref: str) -> bool:
+        """Return whether an exact content ref is present."""
+
+        return bool(self._artifact_store.has(artifacts.ArtifactID.model_validate(artifact_ref)))
+
+    def get_artifact_bytes(self, artifact_ref: str) -> bytes:
+        """Return exact CAS bytes for verification and model readback."""
+
+        return self._artifact_store.get_bytes(artifacts.ArtifactID.model_validate(artifact_ref))
+
+    def get_artifact_manifest(self, artifact_ref: str) -> ArtifactManifest:
+        """Return the exact CAS manifest for schema admission."""
+
+        return self._artifact_store.get_manifest(artifacts.ArtifactID.model_validate(artifact_ref))
+
+    def get_artifact_manifest_bytes(self, artifact_ref: str) -> bytes:
+        """Return manifest bytes bound by detached signatures."""
+
+        return self._signed_artifact_store().get_manifest_bytes(
+            artifacts.ArtifactID.model_validate(artifact_ref)
+        )
+
+    def get_artifact_signature(self, artifact_ref: str) -> artifacts.DetachedSignature | None:
+        """Return an existing detached signature without synthesizing one."""
+
+        return self._signed_artifact_store().get_signature(
+            artifacts.ArtifactID.model_validate(artifact_ref)
+        )
+
+    def sign_artifact(
+        self,
+        artifact_ref: str,
+        signer: artifacts.Ed25519Signer,
+        *,
+        signer_identity: str,
+    ) -> artifacts.DetachedSignature:
+        """Sign one exact artifact only when no sidecar exists."""
+
+        store = self._signed_artifact_store()
+        artifact_id = artifacts.ArtifactID.model_validate(artifact_ref)
+        if store.get_signature(artifact_id) is not None:
+            raise ValueError("human-decision artifact already has a signature")
+        return store.sign_artifact(
+            artifact_id,
+            signer,
+            signer_identity=signer_identity,
+        )
+
+    def verify_artifact_signature(
+        self,
+        artifact_ref: str,
+        verifier: artifacts.Ed25519Verifier,
+        *,
+        strict_identity: bool = True,
+    ) -> artifacts.SignatureVerificationResult:
+        """Verify exact bytes, manifest, key trust, and signer identity."""
+
+        return self._signed_artifact_store().verify_signature(
+            artifacts.ArtifactID.model_validate(artifact_ref),
+            verifier,
+            strict_identity=strict_identity,
+        )
+
+    def _signed_artifact_store(self) -> _HumanDecisionSignedArtifactStore:
+        required_methods = (
+            "get_manifest_bytes",
+            "get_signature",
+            "sign_artifact",
+            "verify_signature",
+        )
+        if any(
+            not callable(getattr(self._artifact_store, method_name, None))
+            for method_name in required_methods
+        ):
+            raise RuntimeError("human-decision signed artifact store is unavailable")
+        return cast(
+            "_HumanDecisionSignedArtifactStore",
+            cast("object", self._artifact_store),
+        )
+
+
 class ControlPlaneService(
-    ControlPlaneWorkspaceLoopTransitionMixin, CapabilityManifestMixin, LexPipelineMixin,
+    ControlPlaneWorkspaceLoopTransitionMixin,
+    CapabilityManifestMixin,
+    LexPipelineMixin,
     NaturalLanguageRunMixin,
 ):
     """Bridge HTTP control requests to durable jobs and domain pipelines."""
@@ -228,6 +824,11 @@ class ControlPlaneService(
             store=self._control_store,
             artifact_store=self._artifact_store,
         )
+        self._human_decision_sink = HumanDecisionAuthoritySink(
+            artifact_store=self._artifact_store,
+            event_log=self._diagnostic_event_log,
+            reservation_store=self._control_store,
+        )
 
         self._retrieval = retrieval_service or RetrievalService(
             curated_dir=_resolve_curated_dir(),
@@ -251,6 +852,12 @@ class ControlPlaneService(
     def step_up_replay_store(self) -> StepUpReplayStore:
         """Expose the narrow durable one-use assertion store."""
         return cast("StepUpReplayStore", self._control_store)
+
+    @property
+    def human_decision_sink(self) -> HumanDecisionAuthoritySink:
+        """Expose only the custodied human-decision persistence boundary."""
+
+        return self._human_decision_sink
 
     def close(self) -> None:
         """Stop embedded workers and release durable control-plane resources."""
@@ -404,8 +1011,7 @@ class ControlPlaneService(
         return {
             "trace_id": str(trace_id or f"trace_{job_id}"),
             "span_id": f"span_{uuid.uuid4().hex[:16]}",
-            "parent_span_id": str(parent_span_id or span_id or stored_parent_span_id or "")
-            or None,
+            "parent_span_id": str(parent_span_id or span_id or stored_parent_span_id or "") or None,
         }
 
     def _emit_runtime_diagnostic_event(
@@ -446,9 +1052,7 @@ class ControlPlaneService(
             schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
             trace_id=str(trace["trace_id"]),
             span_id=str(trace["span_id"]),
-            parent_span_id=(
-                str(trace["parent_span_id"]) if trace.get("parent_span_id") else None
-            ),
+            parent_span_id=(str(trace["parent_span_id"]) if trace.get("parent_span_id") else None),
             run_id=str(run_id or "run-unknown"),
             job_id=job_id,
             tenant_id=tenant_id,
@@ -819,13 +1423,16 @@ class ControlPlaneService(
 
         progress_scorecard["approval_packet_ref"] = approval_packet_ref
         progress_scorecard["approval_decision"] = decision
-        progress_scorecard["approval_ready"] = decision in {
-            "approved",
-            "approved_with_override",
-        }
+        # A stored packet is a historical projection. Every operational consumer
+        # must re-run the concrete resolver against the signed packet and inputs.
+        progress_scorecard["approval_ready"] = False
         progress_scorecard["approval_state"] = (
-            "approval_ready" if progress_scorecard["approval_ready"] else "approval_blocked"
+            "approval_projection_only"
+            if decision in {"approved", "approved_with_override"}
+            else "approval_blocked"
         )
+        progress_scorecard["approval_currentness"] = "resolver_required"
+        progress_scorecard["approval_projection_only"] = True
         progress_scorecard["evidence_refs"] = evidence_refs
         if approval_packet is not None:
             packet_payload = dict(approval_packet)
@@ -1129,9 +1736,7 @@ class ControlPlaneService(
         except Exception as exc:
             logger.exception("Control job %s failed: %s", job.job_id, exc)
             progress = (
-                dict(exc.progress)
-                if isinstance(exc, _WorkflowExecutionNonAuthorityError)
-                else None
+                dict(exc.progress) if isinstance(exc, _WorkflowExecutionNonAuthorityError) else None
             )
             self._emit_runtime_diagnostic_event(
                 job_id=job.job_id,
@@ -1422,6 +2027,7 @@ class ControlPlaneService(
 
     def _run_legacy_scientist_workflow(self, state_payload: dict[str, Any]) -> None:
         from polisyos.scientist.api import run_experiment
+
         run_experiment(state_payload, store=self._artifact_store)
 
     # ---- NL launch (agent circuit) ----------------------------------------
@@ -2035,7 +2641,6 @@ class ControlPlaneService(
             total_size_bytes=0,
             entries=[],
         )
-
 
 
 __all__ = ["ControlPlaneService"]

@@ -13098,6 +13098,96 @@
         "title": "FetchPreview",
         "type": "object"
       },
+      "FiveRightsCheck": {
+        "additionalProperties": false,
+        "description": "Boolean S7 five-rights check attached to a human decision record.",
+        "properties": {
+          "right_decision": {
+            "title": "Right Decision",
+            "type": "boolean"
+          },
+          "right_format_channel": {
+            "title": "Right Format Channel",
+            "type": "boolean"
+          },
+          "right_information": {
+            "title": "Right Information",
+            "type": "boolean"
+          },
+          "right_person": {
+            "title": "Right Person",
+            "type": "boolean"
+          },
+          "right_time": {
+            "title": "Right Time",
+            "type": "boolean"
+          },
+          "schema_version": {
+            "default": "policyos.policy_design_case.layer2_s7_delegation.v1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "right_decision",
+          "right_person",
+          "right_information",
+          "right_format_channel",
+          "right_time"
+        ],
+        "title": "FiveRightsCheck",
+        "type": "object"
+      },
+      "FiveRightsRequirement": {
+        "additionalProperties": false,
+        "description": "Required S7 five-rights dimensions for a human decision request.",
+        "properties": {
+          "right_decision": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Right Decision",
+            "type": "string"
+          },
+          "right_format_channel": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Right Format Channel",
+            "type": "string"
+          },
+          "right_information": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Right Information",
+            "type": "string"
+          },
+          "right_person": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Right Person",
+            "type": "string"
+          },
+          "right_time": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Right Time",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": "policyos.policy_design_case.layer2_s7_delegation.v1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "right_decision",
+          "right_person",
+          "right_information",
+          "right_format_channel",
+          "right_time"
+        ],
+        "title": "FiveRightsRequirement",
+        "type": "object"
+      },
       "ForkBRelationCensusPayload": {
         "additionalProperties": false,
         "description": "Fork-B relation census projection without relation rows.",
@@ -13579,6 +13669,2224 @@
           "counts"
         ],
         "title": "HistoricalProducerAvailability",
+        "type": "object"
+      },
+      "HumanDecisionAllowedDecision": {
+        "additionalProperties": false,
+        "description": "One signed offered action and the server-admitted decision modes.",
+        "properties": {
+          "action": {
+            "enum": [
+              "request_evidence",
+              "approve",
+              "reject",
+              "revise_scope",
+              "escalate"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "decision_modes": {
+            "items": {
+              "enum": [
+                "ordinary",
+                "override",
+                "blocking"
+              ],
+              "type": "string"
+            },
+            "maxItems": 2,
+            "minItems": 1,
+            "title": "Decision Modes",
+            "type": "array"
+          }
+        },
+        "required": [
+          "action",
+          "decision_modes"
+        ],
+        "title": "HumanDecisionAllowedDecision",
+        "type": "object"
+      },
+      "HumanDecisionCanonicalActor": {
+        "additionalProperties": false,
+        "description": "Actor identity derived only from a verified principal-binding artifact.",
+        "properties": {
+          "actor_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Actor Ref",
+            "type": "string"
+          },
+          "audience": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Audience",
+            "type": "string"
+          },
+          "issuer": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Issuer",
+            "type": "string"
+          },
+          "signed_roles": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Signed Roles",
+            "type": "array"
+          },
+          "signing_key_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Signing Key Id",
+            "type": "string"
+          },
+          "subject": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Subject",
+            "type": "string"
+          },
+          "tenant_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Tenant Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "issuer",
+          "audience",
+          "subject",
+          "tenant_id",
+          "actor_ref",
+          "signing_key_id",
+          "signed_roles"
+        ],
+        "title": "HumanDecisionCanonicalActor",
+        "type": "object"
+      },
+      "HumanDecisionContestabilitySurface": {
+        "additionalProperties": false,
+        "description": "Case/source-bound internal appeal navigation; never an appeal outcome.",
+        "properties": {
+          "case_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Case Id",
+            "type": "string"
+          },
+          "href": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Href",
+            "type": "string"
+          },
+          "source_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id",
+          "source_ref",
+          "href"
+        ],
+        "title": "HumanDecisionContestabilitySurface",
+        "type": "object"
+      },
+      "HumanDecisionCreateResponse": {
+        "additionalProperties": false,
+        "description": "Durable v2 readback returned only after custody reconciliation.",
+        "properties": {
+          "durable_event_id": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Durable Event Id",
+            "type": "string"
+          },
+          "record": {
+            "$ref": "#/components/schemas/HumanDecisionRecord"
+          },
+          "record_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Record Digest",
+            "type": "string"
+          },
+          "record_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Record Ref",
+            "type": "string"
+          },
+          "reservation_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Reservation Id",
+            "type": "string"
+          },
+          "reservation_version": {
+            "minimum": 1.0,
+            "title": "Reservation Version",
+            "type": "integer"
+          },
+          "run_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          }
+        },
+        "required": [
+          "run_id",
+          "record_ref",
+          "record_digest",
+          "record",
+          "durable_event_id",
+          "reservation_id",
+          "reservation_version"
+        ],
+        "title": "HumanDecisionCreateResponse",
+        "type": "object"
+      },
+      "HumanDecisionExposureSurface": {
+        "additionalProperties": false,
+        "description": "Exact evidence-session and completed-delivery projection.",
+        "properties": {
+          "channel": {
+            "anyOf": [
+              {
+                "maxLength": 160,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Channel"
+          },
+          "completed_artifact_digests": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Completed Artifact Digests",
+            "type": "array"
+          },
+          "exposure_session_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Exposure Session Ref"
+          },
+          "renderer_id": {
+            "anyOf": [
+              {
+                "maxLength": 240,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Renderer Id"
+          },
+          "renderer_version": {
+            "anyOf": [
+              {
+                "maxLength": 80,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Renderer Version"
+          },
+          "representation": {
+            "anyOf": [
+              {
+                "enum": [
+                  "full",
+                  "redacted",
+                  "truncated"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Representation"
+          },
+          "required_artifact_digests": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Required Artifact Digests",
+            "type": "array"
+          }
+        },
+        "required": [
+          "required_artifact_digests",
+          "completed_artifact_digests"
+        ],
+        "title": "HumanDecisionExposureSurface",
+        "type": "object"
+      },
+      "HumanDecisionFiveRightsBinding": {
+        "additionalProperties": false,
+        "description": "Typed signed inputs used to reconcile the five rights without prose parsing.",
+        "properties": {
+          "decision_class_id": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Decision Class Id",
+            "type": "string"
+          },
+          "decision_rights_matrix_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Decision Rights Matrix Ref",
+            "type": "string"
+          },
+          "required_channel": {
+            "enum": [
+              "reviewer_console",
+              "governed_review"
+            ],
+            "title": "Required Channel",
+            "type": "string"
+          },
+          "required_information_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Required Information Refs",
+            "type": "array"
+          },
+          "required_representation": {
+            "const": "full",
+            "title": "Required Representation",
+            "type": "string"
+          },
+          "required_role": {
+            "enum": [
+              "principal",
+              "mandate_owner",
+              "legal_approver",
+              "budget_owner",
+              "data_steward",
+              "affected_person_representative",
+              "domain_expert",
+              "governance_board",
+              "policy_design_governance_reviewer",
+              "technical_reviewer"
+            ],
+            "title": "Required Role",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": "policyos.policy_design_case.layer2_s7_delegation.v2",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "time_rule": {
+            "const": "intersection_of_signed_validity_intervals_pre_action",
+            "title": "Time Rule",
+            "type": "string"
+          }
+        },
+        "required": [
+          "decision_class_id",
+          "decision_rights_matrix_ref",
+          "required_role",
+          "required_channel",
+          "required_representation",
+          "time_rule"
+        ],
+        "title": "HumanDecisionFiveRightsBinding",
+        "type": "object"
+      },
+      "HumanDecisionGateReason": {
+        "additionalProperties": false,
+        "description": "One surfaced, typed reason contributing to a gate status.",
+        "properties": {
+          "code": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Code",
+            "type": "string"
+          },
+          "message": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "invalid_source",
+              "artifact_missing",
+              "producer_missing",
+              "revalidation_required",
+              "blocked",
+              "available"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "code",
+          "message",
+          "status"
+        ],
+        "title": "HumanDecisionGateReason",
+        "type": "object"
+      },
+      "HumanDecisionGateResponse": {
+        "additionalProperties": false,
+        "description": "REVIEWER/EXPERT/MACHINE projection of one freshly resolved gate.",
+        "properties": {
+          "contestability": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HumanDecisionContestabilitySurface"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "continuation": {
+            "anyOf": [
+              {
+                "discriminator": {
+                  "mapping": {
+                    "agent_action_authority": "#/components/schemas/HumanDecisionPA2ReplaySelector",
+                    "production_approval": "#/components/schemas/HumanDecisionProductionReplaySelector"
+                  },
+                  "propertyName": "source_kind"
+                },
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/HumanDecisionPA2ReplaySelector"
+                  },
+                  {
+                    "$ref": "#/components/schemas/HumanDecisionProductionReplaySelector"
+                  }
+                ]
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Continuation"
+          },
+          "decision_request": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HumanDecisionRequestSurface"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "decision_request_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Request Digest"
+          },
+          "decision_request_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Request Ref"
+          },
+          "exposure": {
+            "$ref": "#/components/schemas/HumanDecisionExposureSurface"
+          },
+          "governed_action_key": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Governed Action Key"
+          },
+          "mandate": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HumanDecisionMandateSurface"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "operational_authority": {
+            "const": false,
+            "default": false,
+            "title": "Operational Authority",
+            "type": "boolean"
+          },
+          "reason_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "reasons": {
+            "items": {
+              "$ref": "#/components/schemas/HumanDecisionGateReason"
+            },
+            "title": "Reasons",
+            "type": "array"
+          },
+          "resolved_at": {
+            "format": "date-time",
+            "title": "Resolved At",
+            "type": "string"
+          },
+          "run_id": {
+            "title": "Run Id",
+            "type": "string"
+          },
+          "source_kind": {
+            "enum": [
+              "agent_action_authority",
+              "production_approval"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          },
+          "status": {
+            "enum": [
+              "invalid_source",
+              "artifact_missing",
+              "producer_missing",
+              "revalidation_required",
+              "blocked",
+              "available"
+            ],
+            "title": "Status",
+            "type": "string"
+          },
+          "submission": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HumanDecisionSubmissionSurface"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tenant_id": {
+            "title": "Tenant Id",
+            "type": "string"
+          },
+          "verifier_epoch": {
+            "title": "Verifier Epoch",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reasons",
+          "reason_codes",
+          "source_kind",
+          "tenant_id",
+          "run_id",
+          "decision_request_ref",
+          "exposure",
+          "resolved_at",
+          "verifier_epoch"
+        ],
+        "title": "HumanDecisionGateResponse",
+        "type": "object"
+      },
+      "HumanDecisionMandateSurface": {
+        "additionalProperties": false,
+        "description": "Mandate-owner envelope shown before any decision action.",
+        "properties": {
+          "action_kind": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Action Kind",
+            "type": "string"
+          },
+          "mandate_owner_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Mandate Owner Ref",
+            "type": "string"
+          },
+          "mandate_record_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Mandate Record Ref",
+            "type": "string"
+          },
+          "operation_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Operation Id",
+            "type": "string"
+          },
+          "valid_from": {
+            "format": "date-time",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "valid_until": {
+            "format": "date-time",
+            "title": "Valid Until",
+            "type": "string"
+          }
+        },
+        "required": [
+          "mandate_record_ref",
+          "mandate_owner_ref",
+          "operation_id",
+          "action_kind",
+          "valid_from",
+          "valid_until"
+        ],
+        "title": "HumanDecisionMandateSurface",
+        "type": "object"
+      },
+      "HumanDecisionMutationRequest": {
+        "additionalProperties": false,
+        "description": "Strict caller-authored fields; authority and custody fields are forbidden.",
+        "properties": {
+          "accountability_statement": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Accountability Statement",
+            "type": "string"
+          },
+          "action": {
+            "enum": [
+              "request_evidence",
+              "approve",
+              "reject",
+              "revise_scope",
+              "escalate"
+            ],
+            "title": "Action",
+            "type": "string"
+          },
+          "action_kind": {
+            "anyOf": [
+              {
+                "maxLength": 120,
+                "pattern": "^[a-z][a-z0-9_.:-]*$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Action Kind"
+          },
+          "basis_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis Digest"
+          },
+          "basis_ref": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Basis Ref"
+          },
+          "blocking_reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Blocking Reason"
+          },
+          "decision_mode": {
+            "enum": [
+              "ordinary",
+              "override",
+              "blocking"
+            ],
+            "title": "Decision Mode",
+            "type": "string"
+          },
+          "decision_request_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Request Digest"
+          },
+          "decision_request_ref": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Request Ref"
+          },
+          "dissent_statement": {
+            "maxLength": 1000,
+            "minLength": 1,
+            "title": "Dissent Statement",
+            "type": "string"
+          },
+          "override_reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Override Reason"
+          },
+          "presentation_contract_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Presentation Contract Ref"
+          },
+          "principal_binding_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Principal Binding Ref"
+          },
+          "production_packet_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Packet Ref"
+          },
+          "reviewer_separation_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Separation Ref"
+          },
+          "source_kind": {
+            "enum": [
+              "agent_action_authority",
+              "production_approval"
+            ],
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Source Ref"
+          }
+        },
+        "required": [
+          "source_kind",
+          "action",
+          "decision_mode",
+          "accountability_statement",
+          "dissent_statement"
+        ],
+        "title": "HumanDecisionMutationRequest",
+        "type": "object"
+      },
+      "HumanDecisionPA2ReplaySelector": {
+        "additionalProperties": false,
+        "description": "Verified selector arm for one S7 delegation decision.",
+        "properties": {
+          "action_kind": {
+            "maxLength": 120,
+            "pattern": "^[a-z][a-z0-9_.:-]*$",
+            "title": "Action Kind",
+            "type": "string"
+          },
+          "basis_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Basis Digest",
+            "type": "string"
+          },
+          "basis_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Basis Ref",
+            "type": "string"
+          },
+          "decision_request_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Decision Request Digest",
+            "type": "string"
+          },
+          "decision_request_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Decision Request Ref",
+            "type": "string"
+          },
+          "exposure_session_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Exposure Session Ref",
+            "type": "string"
+          },
+          "operational_authority": {
+            "const": false,
+            "default": false,
+            "title": "Operational Authority",
+            "type": "boolean"
+          },
+          "presentation_contract_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Presentation Contract Ref",
+            "type": "string"
+          },
+          "principal_binding_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Principal Binding Ref",
+            "type": "string"
+          },
+          "reviewer_separation_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Reviewer Separation Ref",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "agent_action_authority",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_ref",
+          "decision_request_ref",
+          "decision_request_digest",
+          "basis_ref",
+          "basis_digest",
+          "principal_binding_ref",
+          "reviewer_separation_ref",
+          "presentation_contract_ref",
+          "exposure_session_ref",
+          "source_kind",
+          "action_kind"
+        ],
+        "title": "HumanDecisionPA2ReplaySelector",
+        "type": "object"
+      },
+      "HumanDecisionPredicateReceipt": {
+        "additionalProperties": false,
+        "description": "One recomputed or independently reconciled pre-action predicate.",
+        "properties": {
+          "evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 80,
+            "minItems": 1,
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "predicate": {
+            "enum": [
+              "identity_permission",
+              "role_mandate_or_basis",
+              "operation_accountability",
+              "currentness",
+              "right_decision_time",
+              "reviewer_independence_change",
+              "evidence_exposure",
+              "presentation_format_channel",
+              "source_producer_trust"
+            ],
+            "title": "Predicate",
+            "type": "string"
+          },
+          "provenance": {
+            "enum": [
+              "recomputed",
+              "independently_reconciled"
+            ],
+            "title": "Provenance",
+            "type": "string"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "reason_code": {
+            "maxLength": 160,
+            "minLength": 1,
+            "title": "Reason Code",
+            "type": "string"
+          },
+          "rule_version_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Rule Version Ref",
+            "type": "string"
+          },
+          "satisfied": {
+            "const": true,
+            "title": "Satisfied",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "predicate",
+          "satisfied",
+          "provenance",
+          "evidence_refs",
+          "reason_code",
+          "reason",
+          "rule_version_ref"
+        ],
+        "title": "HumanDecisionPredicateReceipt",
+        "type": "object"
+      },
+      "HumanDecisionProductionReplaySelector": {
+        "additionalProperties": false,
+        "description": "Verified selector arm for one production-basis decision.",
+        "properties": {
+          "basis_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Basis Digest",
+            "type": "string"
+          },
+          "basis_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Basis Ref",
+            "type": "string"
+          },
+          "decision_request_digest": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Decision Request Digest",
+            "type": "string"
+          },
+          "decision_request_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Decision Request Ref",
+            "type": "string"
+          },
+          "exposure_session_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Exposure Session Ref",
+            "type": "string"
+          },
+          "operational_authority": {
+            "const": false,
+            "default": false,
+            "title": "Operational Authority",
+            "type": "boolean"
+          },
+          "presentation_contract_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Presentation Contract Ref",
+            "type": "string"
+          },
+          "principal_binding_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Principal Binding Ref",
+            "type": "string"
+          },
+          "reviewer_separation_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Reviewer Separation Ref",
+            "type": "string"
+          },
+          "source_kind": {
+            "const": "production_approval",
+            "title": "Source Kind",
+            "type": "string"
+          },
+          "source_ref": {
+            "pattern": "^sha256:[0-9a-f]{64}$",
+            "title": "Source Ref",
+            "type": "string"
+          }
+        },
+        "required": [
+          "source_ref",
+          "decision_request_ref",
+          "decision_request_digest",
+          "basis_ref",
+          "basis_digest",
+          "principal_binding_ref",
+          "reviewer_separation_ref",
+          "presentation_contract_ref",
+          "exposure_session_ref",
+          "source_kind"
+        ],
+        "title": "HumanDecisionProductionReplaySelector",
+        "type": "object"
+      },
+      "HumanDecisionRecord": {
+        "additionalProperties": false,
+        "description": "Accountable S7 record of a human decision within a rights matrix.",
+        "properties": {
+          "accountability_statement": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Accountability Statement",
+            "type": "string"
+          },
+          "active_choice": {
+            "title": "Active Choice",
+            "type": "boolean"
+          },
+          "actor_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Actor Ref",
+            "type": "string"
+          },
+          "actor_role": {
+            "enum": [
+              "principal",
+              "mandate_owner",
+              "legal_approver",
+              "budget_owner",
+              "data_steward",
+              "affected_person_representative",
+              "domain_expert",
+              "governance_board",
+              "policy_design_governance_reviewer",
+              "technical_reviewer"
+            ],
+            "title": "Actor Role",
+            "type": "string"
+          },
+          "authority_boundary": {
+            "$ref": "#/components/schemas/AuthorityBoundary"
+          },
+          "basis_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Basis Digest"
+          },
+          "basis_ref": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Basis Ref"
+          },
+          "binding_sha256": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Binding Sha256"
+          },
+          "blocking_reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Blocking Reason"
+          },
+          "canonical_actor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/HumanDecisionCanonicalActor"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "case_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Case Id",
+            "type": "string"
+          },
+          "created_at": {
+            "default": "2026-06-01T00:00:00Z",
+            "format": "date-time",
+            "title": "Created At",
+            "type": "string"
+          },
+          "custody_boundary": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/AuthorityBoundary"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "custody_key_id": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Custody Key Id"
+          },
+          "custody_signer_identity": {
+            "anyOf": [
+              {
+                "maxLength": 300,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Custody Signer Identity"
+          },
+          "decided_at": {
+            "format": "date-time",
+            "title": "Decided At",
+            "type": "string"
+          },
+          "decision_action_exercised": {
+            "enum": [
+              "request_evidence",
+              "approve",
+              "reject",
+              "revise_scope",
+              "escalate"
+            ],
+            "title": "Decision Action Exercised",
+            "type": "string"
+          },
+          "decision_attempt_id": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Decision Attempt Id"
+          },
+          "decision_mode": {
+            "anyOf": [
+              {
+                "enum": [
+                  "ordinary",
+                  "override",
+                  "blocking"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Decision Mode"
+          },
+          "decision_request_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Decision Request Digest"
+          },
+          "disconfirming_evidence_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "minItems": 1,
+            "title": "Disconfirming Evidence Refs",
+            "type": "array"
+          },
+          "dissent_statement": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Dissent Statement"
+          },
+          "evidence_summary_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Evidence Summary Ref",
+            "type": "string"
+          },
+          "exposure_artifact_digests": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 80,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Exposure Artifact Digests"
+          },
+          "exposure_event_refs": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "maxItems": 80,
+                "minItems": 1,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Exposure Event Refs"
+          },
+          "exposure_session_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Exposure Session Digest"
+          },
+          "exposure_session_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Exposure Session Ref"
+          },
+          "five_rights_check": {
+            "$ref": "#/components/schemas/FiveRightsCheck"
+          },
+          "governed_action_key": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Governed Action Key"
+          },
+          "human_decision_request_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Human Decision Request Ref",
+            "type": "string"
+          },
+          "mandate_record_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Mandate Record Ref",
+            "type": "string"
+          },
+          "mandate_source_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Mandate Source Refs",
+            "type": "array"
+          },
+          "observed_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Observed At"
+          },
+          "override_reason": {
+            "anyOf": [
+              {
+                "maxLength": 1000,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Override Reason"
+          },
+          "predicate_receipts": {
+            "anyOf": [
+              {
+                "items": {
+                  "$ref": "#/components/schemas/HumanDecisionPredicateReceipt"
+                },
+                "maxItems": 9,
+                "minItems": 9,
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Predicate Receipts"
+          },
+          "presentation_contract_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Presentation Contract Digest"
+          },
+          "presentation_contract_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Presentation Contract Ref"
+          },
+          "principal_binding_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Principal Binding Digest"
+          },
+          "principal_binding_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Principal Binding Ref"
+          },
+          "provenance_refs": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 40,
+            "title": "Provenance Refs",
+            "type": "array"
+          },
+          "record_id": {
+            "maxLength": 120,
+            "minLength": 1,
+            "title": "Record Id",
+            "type": "string"
+          },
+          "record_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Record Ref",
+            "type": "string"
+          },
+          "recorded_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Recorded At"
+          },
+          "requested_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Requested At"
+          },
+          "reservation_id": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reservation Id"
+          },
+          "reservation_version": {
+            "anyOf": [
+              {
+                "minimum": 1,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reservation Version"
+          },
+          "responsibility_integrity": {
+            "$ref": "#/components/schemas/ResponsibilityIntegrityCheck"
+          },
+          "reviewer_separation_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reviewer Separation Digest"
+          },
+          "reviewer_separation_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Reviewer Separation Ref"
+          },
+          "rule_version_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Rule Version Ref",
+            "type": "string"
+          },
+          "run_id": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Run Id"
+          },
+          "schema_version": {
+            "default": "policyos.policy_design_case.layer2_s7_delegation.v1",
+            "enum": [
+              "policyos.policy_design_case.layer2_s7_delegation.v1",
+              "policyos.runtime.human_decision_record.v2"
+            ],
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "source_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Digest"
+          },
+          "source_kind": {
+            "anyOf": [
+              {
+                "enum": [
+                  "agent_action_authority",
+                  "production_approval"
+                ],
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Kind"
+          },
+          "source_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Source Ref"
+          },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Tenant Id"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Valid From"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Valid Until"
+          },
+          "verifier_epoch": {
+            "anyOf": [
+              {
+                "maxLength": 200,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null,
+            "title": "Verifier Epoch"
+          }
+        },
+        "required": [
+          "record_id",
+          "record_ref",
+          "case_id",
+          "human_decision_request_ref",
+          "actor_ref",
+          "actor_role",
+          "decided_at",
+          "decision_action_exercised",
+          "evidence_summary_ref",
+          "disconfirming_evidence_refs",
+          "active_choice",
+          "accountability_statement",
+          "mandate_record_ref",
+          "five_rights_check",
+          "responsibility_integrity",
+          "authority_boundary",
+          "rule_version_ref",
+          "schema_version"
+        ],
+        "title": "HumanDecisionRecord",
+        "type": "object"
+      },
+      "HumanDecisionRequestSurface": {
+        "additionalProperties": false,
+        "description": "Signed request fields required to understand the offered action.",
+        "properties": {
+          "available_actions": {
+            "items": {
+              "enum": [
+                "request_evidence",
+                "approve",
+                "reject",
+                "revise_scope",
+                "escalate"
+              ],
+              "type": "string"
+            },
+            "title": "Available Actions",
+            "type": "array"
+          },
+          "case_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Case Id",
+            "type": "string"
+          },
+          "decidable_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decidable Until"
+          },
+          "decision_due_at": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Due At"
+          },
+          "decision_rights_matrix_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Decision Rights Matrix Ref",
+            "type": "string"
+          },
+          "delegation_contract_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Delegation Contract Ref",
+            "type": "string"
+          },
+          "five_rights_binding": {
+            "$ref": "#/components/schemas/HumanDecisionFiveRightsBinding"
+          },
+          "five_rights_requirements": {
+            "$ref": "#/components/schemas/FiveRightsRequirement"
+          },
+          "requested_at": {
+            "format": "date-time",
+            "title": "Requested At",
+            "type": "string"
+          },
+          "required_role": {
+            "enum": [
+              "principal",
+              "mandate_owner",
+              "legal_approver",
+              "budget_owner",
+              "data_steward",
+              "affected_person_representative",
+              "domain_expert",
+              "governance_board",
+              "policy_design_governance_reviewer",
+              "technical_reviewer"
+            ],
+            "title": "Required Role",
+            "type": "string"
+          }
+        },
+        "required": [
+          "case_id",
+          "delegation_contract_ref",
+          "decision_rights_matrix_ref",
+          "required_role",
+          "available_actions",
+          "requested_at",
+          "five_rights_requirements",
+          "five_rights_binding"
+        ],
+        "title": "HumanDecisionRequestSurface",
+        "type": "object"
+      },
+      "HumanDecisionReviewEffectivenessResponse": {
+        "additionalProperties": false,
+        "description": "Coverage-explicit advisory projection over retained decision records.",
+        "properties": {
+          "advisory_signal_codes": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Advisory Signal Codes",
+            "type": "array"
+          },
+          "approval_count": {
+            "minimum": 0.0,
+            "title": "Approval Count",
+            "type": "integer"
+          },
+          "audit_predicate_provenance": {
+            "const": "institutionally_supplied",
+            "default": "institutionally_supplied",
+            "title": "Audit Predicate Provenance",
+            "type": "string"
+          },
+          "audit_read_error_count": {
+            "minimum": 0.0,
+            "title": "Audit Read Error Count",
+            "type": "integer"
+          },
+          "authoritative_for": {
+            "default": [
+              "review_effectiveness_measurement",
+              "future_policy_calibration",
+              "reviewer_load_observability"
+            ],
+            "items": {
+              "enum": [
+                "review_effectiveness_measurement",
+                "future_policy_calibration",
+                "reviewer_load_observability"
+              ],
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "authorization_allow_count": {
+            "minimum": 0.0,
+            "title": "Authorization Allow Count",
+            "type": "integer"
+          },
+          "blocking_count": {
+            "minimum": 0.0,
+            "title": "Blocking Count",
+            "type": "integer"
+          },
+          "blocking_permitted": {
+            "const": false,
+            "default": false,
+            "title": "Blocking Permitted",
+            "type": "boolean"
+          },
+          "candidate_human_decision_count": {
+            "minimum": 0.0,
+            "title": "Candidate Human Decision Count",
+            "type": "integer"
+          },
+          "completed_human_decision_count": {
+            "minimum": 0.0,
+            "title": "Completed Human Decision Count",
+            "type": "integer"
+          },
+          "coverage_claim_scope": {
+            "const": "retained_trail_bytes_only",
+            "default": "retained_trail_bytes_only",
+            "title": "Coverage Claim Scope",
+            "type": "string"
+          },
+          "coverage_status": {
+            "enum": [
+              "complete",
+              "incomplete"
+            ],
+            "title": "Coverage Status",
+            "type": "string"
+          },
+          "dissent_count": {
+            "minimum": 0.0,
+            "title": "Dissent Count",
+            "type": "integer"
+          },
+          "duplicate_authorization_request_count": {
+            "minimum": 0.0,
+            "title": "Duplicate Authorization Request Count",
+            "type": "integer"
+          },
+          "duplicate_record_event_count": {
+            "minimum": 0.0,
+            "title": "Duplicate Record Event Count",
+            "type": "integer"
+          },
+          "duplicate_record_request_count": {
+            "minimum": 0.0,
+            "title": "Duplicate Record Request Count",
+            "type": "integer"
+          },
+          "exact_join_count": {
+            "minimum": 0.0,
+            "title": "Exact Join Count",
+            "type": "integer"
+          },
+          "invalid_authorization_event_count": {
+            "minimum": 0.0,
+            "title": "Invalid Authorization Event Count",
+            "type": "integer"
+          },
+          "invalid_record_event_count": {
+            "minimum": 0.0,
+            "title": "Invalid Record Event Count",
+            "type": "integer"
+          },
+          "malformed_json_line_count": {
+            "minimum": 0.0,
+            "title": "Malformed Json Line Count",
+            "type": "integer"
+          },
+          "may_not_use_for": {
+            "default": [
+              "current_run_closeout_block",
+              "publication_block",
+              "claim_support_downgrade",
+              "authorization_writer_provenance",
+              "forensic_tamper_detection"
+            ],
+            "items": {
+              "enum": [
+                "current_run_closeout_block",
+                "publication_block",
+                "claim_support_downgrade",
+                "authorization_writer_provenance",
+                "forensic_tamper_detection"
+              ],
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "measurement_status": {
+            "const": "partial",
+            "default": "partial",
+            "title": "Measurement Status",
+            "type": "string"
+          },
+          "nonblank_line_count": {
+            "minimum": 0.0,
+            "title": "Nonblank Line Count",
+            "type": "integer"
+          },
+          "nonobject_line_count": {
+            "minimum": 0.0,
+            "title": "Nonobject Line Count",
+            "type": "integer"
+          },
+          "override_count": {
+            "minimum": 0.0,
+            "title": "Override Count",
+            "type": "integer"
+          },
+          "parsed_object_count": {
+            "minimum": 0.0,
+            "title": "Parsed Object Count",
+            "type": "integer"
+          },
+          "report_status_effect": {
+            "const": "pass_advisory_only",
+            "default": "pass_advisory_only",
+            "title": "Report Status Effect",
+            "type": "string"
+          },
+          "retained_or_missing_record_count": {
+            "minimum": 0.0,
+            "title": "Retained Or Missing Record Count",
+            "type": "integer"
+          },
+          "review_count": {
+            "minimum": 0.0,
+            "title": "Review Count",
+            "type": "integer"
+          },
+          "review_posture": {
+            "const": "advisory",
+            "default": "advisory",
+            "title": "Review Posture",
+            "type": "string"
+          },
+          "review_time_established_count": {
+            "const": 0,
+            "default": 0,
+            "title": "Review Time Established Count",
+            "type": "integer"
+          },
+          "review_time_not_established_count": {
+            "minimum": 0.0,
+            "title": "Review Time Not Established Count",
+            "type": "integer"
+          },
+          "review_time_status": {
+            "const": "not_established",
+            "default": "not_established",
+            "title": "Review Time Status",
+            "type": "string"
+          },
+          "reviewer_independence_rate": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reviewer Independence Rate"
+          },
+          "run_id": {
+            "maxLength": 200,
+            "minLength": 1,
+            "title": "Run Id",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.runtime.human_decision_review_effectiveness.v1",
+            "default": "policyos.runtime.human_decision_review_effectiveness.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "separation_of_duty_attestation_rate": {
+            "anyOf": [
+              {
+                "maximum": 1.0,
+                "minimum": 0.0,
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Separation Of Duty Attestation Rate"
+          },
+          "tenant_scope_unknown_record_event_count": {
+            "minimum": 0.0,
+            "title": "Tenant Scope Unknown Record Event Count",
+            "type": "integer"
+          },
+          "threshold_scope": {
+            "const": "established_signals_only",
+            "default": "established_signals_only",
+            "title": "Threshold Scope",
+            "type": "string"
+          },
+          "threshold_status": {
+            "enum": [
+              "pass",
+              "warn",
+              "fail"
+            ],
+            "title": "Threshold Status",
+            "type": "string"
+          },
+          "trail_path_exists": {
+            "title": "Trail Path Exists",
+            "type": "boolean"
+          },
+          "unmatched_authorization_count": {
+            "minimum": 0.0,
+            "title": "Unmatched Authorization Count",
+            "type": "integer"
+          },
+          "unmatched_record_event_count": {
+            "minimum": 0.0,
+            "title": "Unmatched Record Event Count",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "run_id",
+          "coverage_status",
+          "trail_path_exists",
+          "nonblank_line_count",
+          "parsed_object_count",
+          "malformed_json_line_count",
+          "nonobject_line_count",
+          "audit_read_error_count",
+          "authorization_allow_count",
+          "candidate_human_decision_count",
+          "completed_human_decision_count",
+          "exact_join_count",
+          "invalid_authorization_event_count",
+          "invalid_record_event_count",
+          "tenant_scope_unknown_record_event_count",
+          "unmatched_authorization_count",
+          "unmatched_record_event_count",
+          "duplicate_authorization_request_count",
+          "duplicate_record_request_count",
+          "duplicate_record_event_count",
+          "retained_or_missing_record_count",
+          "review_count",
+          "approval_count",
+          "override_count",
+          "blocking_count",
+          "dissent_count",
+          "review_time_not_established_count",
+          "threshold_status",
+          "advisory_signal_codes"
+        ],
+        "title": "HumanDecisionReviewEffectivenessResponse",
+        "type": "object"
+      },
+      "HumanDecisionSubmissionSurface": {
+        "additionalProperties": false,
+        "description": "Non-authoritative verified selectors plus offered mutation shapes.",
+        "properties": {
+          "allowed_decisions": {
+            "items": {
+              "$ref": "#/components/schemas/HumanDecisionAllowedDecision"
+            },
+            "maxItems": 5,
+            "minItems": 1,
+            "title": "Allowed Decisions",
+            "type": "array"
+          },
+          "operational_authority": {
+            "const": false,
+            "default": false,
+            "title": "Operational Authority",
+            "type": "boolean"
+          },
+          "selector": {
+            "discriminator": {
+              "mapping": {
+                "agent_action_authority": "#/components/schemas/HumanDecisionPA2ReplaySelector",
+                "production_approval": "#/components/schemas/HumanDecisionProductionReplaySelector"
+              },
+              "propertyName": "source_kind"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/HumanDecisionPA2ReplaySelector"
+              },
+              {
+                "$ref": "#/components/schemas/HumanDecisionProductionReplaySelector"
+              }
+            ],
+            "title": "Selector"
+          }
+        },
+        "required": [
+          "selector",
+          "allowed_decisions"
+        ],
+        "title": "HumanDecisionSubmissionSurface",
         "type": "object"
       },
       "IndexStats": {
@@ -18279,6 +20587,29 @@
             "title": "Decision",
             "type": "string"
           },
+          "decision_request_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Request Digest"
+          },
+          "decision_request_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Decision Request Ref"
+          },
           "eligibility": {
             "$ref": "#/components/schemas/ProductionApprovalEligibility"
           },
@@ -18289,10 +20620,73 @@
             "title": "Evidence Refs",
             "type": "object"
           },
+          "expected_audience": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Audience"
+          },
+          "expected_consumer": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Expected Consumer"
+          },
           "generated_at": {
             "format": "date-time",
             "title": "Generated At",
             "type": "string"
+          },
+          "governed_action_key": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Governed Action Key"
+          },
+          "historical_only": {
+            "default": true,
+            "title": "Historical Only",
+            "type": "boolean"
+          },
+          "human_decision_record_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Decision Record Digest"
+          },
+          "human_decision_record_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Decision Record Ref"
           },
           "job_id": {
             "anyOf": [
@@ -18305,6 +20699,26 @@
             ],
             "title": "Job Id"
           },
+          "limitations": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Limitations"
+          },
+          "operational_authority": {
+            "const": false,
+            "default": false,
+            "title": "Operational Authority",
+            "type": "boolean"
+          },
           "override": {
             "anyOf": [
               {
@@ -18314,6 +20728,54 @@
                 "type": "null"
               }
             ]
+          },
+          "production_basis_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Basis Digest"
+          },
+          "production_basis_producer_identity": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Basis Producer Identity"
+          },
+          "production_basis_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Basis Ref"
+          },
+          "rule_version_ref": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Rule Version Ref"
           },
           "run_id": {
             "anyOf": [
@@ -18327,8 +20789,11 @@
             "title": "Run Id"
           },
           "schema_version": {
-            "const": "policyos.production_approval_packet.v1",
             "default": "policyos.production_approval_packet.v1",
+            "enum": [
+              "policyos.production_approval_packet.v1",
+              "policyos.production_approval_packet.v2"
+            ],
             "title": "Schema Version",
             "type": "string"
           },
@@ -18347,6 +20812,18 @@
             ],
             "title": "Scorecard Generated At"
           },
+          "scorecard_producer_identity": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Scorecard Producer Identity"
+          },
           "scorecard_ref": {
             "anyOf": [
               {
@@ -18357,6 +20834,53 @@
               }
             ],
             "title": "Scorecard Ref"
+          },
+          "tenant_id": {
+            "anyOf": [
+              {
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Tenant Id"
+          },
+          "valid_from": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid From"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          },
+          "verifier_epoch": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Verifier Epoch"
           }
         },
         "required": [
@@ -18372,6 +20896,30 @@
         "additionalProperties": false,
         "description": "Request to materialize a production approval packet for one run.",
         "properties": {
+          "human_decision_record_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Decision Record Digest"
+          },
+          "human_decision_record_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Human Decision Record Ref"
+          },
           "override": {
             "anyOf": [
               {
@@ -18381,6 +20929,30 @@
                 "type": "null"
               }
             ]
+          },
+          "production_basis_digest": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Basis Digest"
+          },
+          "production_basis_ref": {
+            "anyOf": [
+              {
+                "pattern": "^sha256:[0-9a-f]{64}$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Production Basis Ref"
           },
           "quality_scorecard": {
             "anyOf": [
@@ -19899,6 +22471,61 @@
           }
         },
         "title": "ReproducibilityView",
+        "type": "object"
+      },
+      "ResponsibilityIntegrityCheck": {
+        "additionalProperties": false,
+        "description": "S7 responsibility-integrity result for P26 and adjacent firewalls.",
+        "properties": {
+          "missing_requirements": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 20,
+            "title": "Missing Requirements",
+            "type": "array"
+          },
+          "pattern_ids": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 10,
+            "title": "Pattern Ids",
+            "type": "array"
+          },
+          "reason": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Reason",
+            "type": "string"
+          },
+          "rule_version_ref": {
+            "maxLength": 300,
+            "minLength": 1,
+            "title": "Rule Version Ref",
+            "type": "string"
+          },
+          "schema_version": {
+            "default": "policyos.policy_design_case.layer2_s7_delegation.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "pass",
+              "limit",
+              "block"
+            ],
+            "title": "Status",
+            "type": "string"
+          }
+        },
+        "required": [
+          "status",
+          "reason",
+          "rule_version_ref"
+        ],
+        "title": "ResponsibilityIntegrityCheck",
         "type": "object"
       },
       "RetrievalPhaseTelemetry": {
@@ -23187,6 +25814,7 @@
           "platform.view",
           "runs.batch.read",
           "runs.feedback.evaluate",
+          "runs.human_decisions.create",
           "runs.launch",
           "runs.production_approval.create",
           "runs.reissue",
@@ -30345,6 +32973,7 @@
                         "platform.view",
                         "runs.batch.read",
                         "runs.feedback.evaluate",
+                        "runs.human_decisions.create",
                         "runs.launch",
                         "runs.review",
                         "runs.view",
@@ -41205,7 +43834,13 @@
         "summary": "Get the reviewer Cycle Board or replay its raw owner packet",
         "tags": [
           "runtime-exports"
-        ]
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "resource_kind": "runtime.governed_projection.depth_n_cycle_board",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/exports/governed-projections/{projection_id}": {
@@ -49483,7 +52118,13 @@
         "summary": "Inspect the frozen case slot for one verified run",
         "tags": [
           "runtime-runs"
-        ]
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "resource_kind": "runtime.case_inspection",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/runs/{run_id}/compare-candidates": {
@@ -50670,6 +53311,1950 @@
         "tags": [
           "runtime-runs"
         ]
+      }
+    },
+    "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content": {
+      "get": {
+        "operationId": "get_run_human_decision_evidence_content",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "artifact_id",
+            "required": true,
+            "schema": {
+              "title": "Artifact Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-PolicyOS-Human-Decision-Exposure",
+            "required": true,
+            "schema": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "X-Policyos-Human-Decision-Exposure",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "*/*": {
+                "schema": {
+                  "format": "binary",
+                  "type": "string"
+                }
+              }
+            },
+            "description": "Exact verified artifact bytes in their manifest-selected media type.",
+            "headers": {
+              "Cache-Control": {
+                "description": "Forbid storage of human-decision evidence bytes.",
+                "schema": {
+                  "enum": [
+                    "no-store"
+                  ],
+                  "type": "string"
+                }
+              },
+              "Content-Encoding": {
+                "description": "Preserve exact artifact bytes without transformation.",
+                "schema": {
+                  "enum": [
+                    "identity"
+                  ],
+                  "type": "string"
+                }
+              },
+              "ETag": {
+                "description": "Quoted exact CAS ref of the delivered artifact.",
+                "schema": {
+                  "pattern": "^\"sha256:[0-9a-f]{64}\"$",
+                  "type": "string"
+                }
+              },
+              "X-Content-Type-Options": {
+                "description": "Prevent media-type sniffing.",
+                "schema": {
+                  "enum": [
+                    "nosniff"
+                  ],
+                  "type": "string"
+                }
+              },
+              "X-PolicyOS-Exposure-Session": {
+                "description": "Exact custody-signed exposure-session CAS ref.",
+                "schema": {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                }
+              }
+            }
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-evidence/{artifact_id}/content",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Human Decision Evidence Content",
+        "tags": [
+          "human-decisions"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "path_selector_parameters": [
+            "artifact_id"
+          ],
+          "resource_kind": "runtime.run.human_decision_evidence",
+          "source": "owned_existing_path"
+        }
+      }
+    },
+    "/api/v1/runs/{run_id}/human-decision-gate": {
+      "get": {
+        "operationId": "get_run_human_decision_gate",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source_kind",
+            "required": true,
+            "schema": {
+              "enum": [
+                "agent_action_authority",
+                "production_approval"
+              ],
+              "title": "Source Kind",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "source_ref",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Source Ref"
+            }
+          },
+          {
+            "in": "query",
+            "name": "production_packet_ref",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Production Packet Ref"
+            }
+          },
+          {
+            "in": "query",
+            "name": "decision_request_ref",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Decision Request Ref"
+            }
+          },
+          {
+            "in": "query",
+            "name": "principal_binding_ref",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Principal Binding Ref"
+            }
+          },
+          {
+            "in": "query",
+            "name": "reviewer_separation_ref",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Reviewer Separation Ref"
+            }
+          },
+          {
+            "in": "query",
+            "name": "presentation_contract_ref",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Presentation Contract Ref"
+            }
+          },
+          {
+            "in": "query",
+            "name": "exposure_session_ref",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Exposure Session Ref"
+            }
+          },
+          {
+            "in": "query",
+            "name": "basis_digest",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^sha256:[0-9a-f]{64}$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Basis Digest"
+            }
+          },
+          {
+            "in": "query",
+            "name": "action_kind",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "pattern": "^[a-z][a-z0-9_.:-]*$",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Action Kind"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_run_human_decision_gate response example",
+                    "value": {
+                      "contestability": null,
+                      "continuation": null,
+                      "decision_request": null,
+                      "decision_request_digest": null,
+                      "decision_request_ref": null,
+                      "exposure": {
+                        "completed_artifact_digests": [],
+                        "exposure_session_ref": null,
+                        "required_artifact_digests": []
+                      },
+                      "governed_action_key": null,
+                      "mandate": null,
+                      "operational_authority": false,
+                      "reason_codes": [
+                        "DS9-DECISION-PRODUCER-MISSING"
+                      ],
+                      "reasons": [
+                        {
+                          "code": "DS9-DECISION-PRODUCER-MISSING",
+                          "message": "The deployment human-decision producer is unavailable.",
+                          "status": "producer_missing"
+                        }
+                      ],
+                      "resolved_at": "2026-02-11T12:00:00Z",
+                      "run_id": "R_core_api_001",
+                      "source_kind": "agent_action_authority",
+                      "source_ref": null,
+                      "status": "producer_missing",
+                      "submission": null,
+                      "tenant_id": "tenant-openapi-sample",
+                      "verifier_epoch": "producer-missing"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HumanDecisionGateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-gate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-gate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-gate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-gate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-gate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-gate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/human-decision-gate",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Human Decision Gate",
+        "tags": [
+          "human-decisions"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "query_selector_parameters": [
+            "source_kind"
+          ],
+          "resource_kind": "runtime.run.human_decision_gate",
+          "source": "owned_existing_path"
+        }
+      }
+    },
+    "/api/v1/runs/{run_id}/human-decisions": {
+      "get": {
+        "operationId": "get_run_human_decision_record",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "query",
+            "name": "record_ref",
+            "required": true,
+            "schema": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "Record Ref",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_run_human_decision_record response example",
+                    "value": {
+                      "accountability_statement": "I accept accountability for this bounded decision.",
+                      "active_choice": true,
+                      "actor_ref": "principal://reviewer/openapi-sample",
+                      "actor_role": "mandate_owner",
+                      "authority_boundary": {
+                        "authoritative_for": [
+                          "human_decision_act"
+                        ],
+                        "known_limits": [],
+                        "may_not_use_for": [
+                          "policyos_custody_signature",
+                          "publication_authority"
+                        ],
+                        "posture": "governed",
+                        "rule_version_refs": [
+                          "policyos.runtime.human-decision.openapi.v1"
+                        ],
+                        "source_authority": "human_governance"
+                      },
+                      "basis_digest": "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d",
+                      "basis_ref": "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d",
+                      "binding_sha256": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
+                      "blocking_reason": null,
+                      "canonical_actor": {
+                        "actor_ref": "principal://reviewer/openapi-sample",
+                        "audience": "polisyos-runtime",
+                        "issuer": "institution://identity/openapi-sample",
+                        "signed_roles": [
+                          "mandate_owner"
+                        ],
+                        "signing_key_id": "sha256:0713f136ea316c8f3e274d55012e3bf10d05b5263837187a39593ff0d8838dfa",
+                        "subject": "reviewer-openapi-sample",
+                        "tenant_id": "tenant-openapi-sample"
+                      },
+                      "case_id": "case-openapi-sample",
+                      "created_at": "2026-02-11T12:00:00Z",
+                      "custody_boundary": {
+                        "authoritative_for": [
+                          "human_decision_record_custody"
+                        ],
+                        "known_limits": [],
+                        "may_not_use_for": [
+                          "human_signature",
+                          "publication_authority"
+                        ],
+                        "posture": "governed",
+                        "rule_version_refs": [
+                          "policyos.runtime.human-decision.openapi.v1"
+                        ],
+                        "source_authority": "deterministic_producer"
+                      },
+                      "custody_key_id": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                      "custody_signer_identity": "service://runtime/human-decision-custody",
+                      "decided_at": "2026-02-11T12:00:00Z",
+                      "decision_action_exercised": "approve",
+                      "decision_attempt_id": "human-decision-attempt-openapi-sample",
+                      "decision_mode": "ordinary",
+                      "decision_request_digest": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                      "disconfirming_evidence_refs": [
+                        "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb"
+                      ],
+                      "dissent_statement": "Disconfirming evidence was reviewed and retained.",
+                      "evidence_summary_ref": "runtime://human-decisions/evidence/openapi-sample",
+                      "exposure_artifact_digests": [
+                        "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
+                      ],
+                      "exposure_event_refs": [
+                        "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb"
+                      ],
+                      "exposure_session_digest": "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4",
+                      "exposure_session_ref": "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4",
+                      "five_rights_check": {
+                        "right_decision": true,
+                        "right_format_channel": true,
+                        "right_information": true,
+                        "right_person": true,
+                        "right_time": true
+                      },
+                      "governed_action_key": "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4",
+                      "human_decision_request_ref": "runtime://human-decisions/requests/openapi-sample",
+                      "mandate_record_ref": "mandate://openapi-sample",
+                      "mandate_source_refs": [
+                        "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
+                      ],
+                      "observed_at": "2026-02-11T12:00:00Z",
+                      "override_reason": null,
+                      "predicate_receipts": [
+                        {
+                          "evidence_refs": [
+                            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          ],
+                          "predicate": "identity_permission",
+                          "provenance": "recomputed",
+                          "reason": "identity_permission passed against exact signed inputs.",
+                          "reason_code": "DS9-OPENAPI-IDENTITY-PERMISSION",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "satisfied": true
+                        },
+                        {
+                          "evidence_refs": [
+                            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          ],
+                          "predicate": "role_mandate_or_basis",
+                          "provenance": "independently_reconciled",
+                          "reason": "role_mandate_or_basis passed against exact signed inputs.",
+                          "reason_code": "DS9-OPENAPI-ROLE-MANDATE-OR-BASIS",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "satisfied": true
+                        },
+                        {
+                          "evidence_refs": [
+                            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          ],
+                          "predicate": "operation_accountability",
+                          "provenance": "recomputed",
+                          "reason": "operation_accountability passed against exact signed inputs.",
+                          "reason_code": "DS9-OPENAPI-OPERATION-ACCOUNTABILITY",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "satisfied": true
+                        },
+                        {
+                          "evidence_refs": [
+                            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          ],
+                          "predicate": "currentness",
+                          "provenance": "recomputed",
+                          "reason": "currentness passed against exact signed inputs.",
+                          "reason_code": "DS9-OPENAPI-CURRENTNESS",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "satisfied": true
+                        },
+                        {
+                          "evidence_refs": [
+                            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          ],
+                          "predicate": "right_decision_time",
+                          "provenance": "recomputed",
+                          "reason": "right_decision_time passed against exact signed inputs.",
+                          "reason_code": "DS9-OPENAPI-RIGHT-DECISION-TIME",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "satisfied": true
+                        },
+                        {
+                          "evidence_refs": [
+                            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          ],
+                          "predicate": "reviewer_independence_change",
+                          "provenance": "independently_reconciled",
+                          "reason": "reviewer_independence_change passed against exact signed inputs.",
+                          "reason_code": "DS9-OPENAPI-REVIEWER-INDEPENDENCE-CHANGE",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "satisfied": true
+                        },
+                        {
+                          "evidence_refs": [
+                            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          ],
+                          "predicate": "evidence_exposure",
+                          "provenance": "independently_reconciled",
+                          "reason": "evidence_exposure passed against exact signed inputs.",
+                          "reason_code": "DS9-OPENAPI-EVIDENCE-EXPOSURE",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "satisfied": true
+                        },
+                        {
+                          "evidence_refs": [
+                            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          ],
+                          "predicate": "presentation_format_channel",
+                          "provenance": "independently_reconciled",
+                          "reason": "presentation_format_channel passed against exact signed inputs.",
+                          "reason_code": "DS9-OPENAPI-PRESENTATION-FORMAT-CHANNEL",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "satisfied": true
+                        },
+                        {
+                          "evidence_refs": [
+                            "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                          ],
+                          "predicate": "source_producer_trust",
+                          "provenance": "independently_reconciled",
+                          "reason": "source_producer_trust passed against exact signed inputs.",
+                          "reason_code": "DS9-OPENAPI-SOURCE-PRODUCER-TRUST",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "satisfied": true
+                        }
+                      ],
+                      "presentation_contract_digest": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                      "presentation_contract_ref": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                      "principal_binding_digest": "sha256:bdedb5a6471e6a1b3bd16ef5065570d33157d96788e0ebc2ca17a569f03921b8",
+                      "principal_binding_ref": "sha256:bdedb5a6471e6a1b3bd16ef5065570d33157d96788e0ebc2ca17a569f03921b8",
+                      "provenance_refs": [
+                        "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
+                      ],
+                      "record_id": "human-decision-openapi-sample",
+                      "record_ref": "runtime://human-decisions/openapi-sample",
+                      "recorded_at": "2026-02-11T12:00:00Z",
+                      "requested_at": "2026-02-11T12:00:00Z",
+                      "reservation_id": "human-decision-reservation-openapi-sample",
+                      "reservation_version": 1,
+                      "responsibility_integrity": {
+                        "missing_requirements": [],
+                        "pattern_ids": [
+                          "P26",
+                          "P05",
+                          "P37"
+                        ],
+                        "reason": "All nine gate predicates were recomputed or independently reconciled.",
+                        "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                        "status": "pass"
+                      },
+                      "reviewer_separation_digest": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
+                      "reviewer_separation_ref": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
+                      "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                      "run_id": "R_core_api_001",
+                      "schema_version": "policyos.runtime.human_decision_record.v2",
+                      "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "source_kind": "agent_action_authority",
+                      "source_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                      "tenant_id": "tenant-openapi-sample",
+                      "valid_from": "2026-02-11T12:00:00Z",
+                      "valid_until": "2026-02-11T13:00:00Z",
+                      "verifier_epoch": "openapi-sample-epoch"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HumanDecisionRecord"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Human Decision Record",
+        "tags": [
+          "human-decisions"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "query_selector_parameters": [
+            "record_ref"
+          ],
+          "resource_kind": "runtime.run.human_decision_record",
+          "source": "owned_existing_path"
+        }
+      },
+      "post": {
+        "operationId": "create_run_human_decision",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "header",
+            "name": "X-PolicyOS-Human-Decision-Exposure",
+            "required": true,
+            "schema": {
+              "pattern": "^sha256:[0-9a-f]{64}$",
+              "title": "X-Policyos-Human-Decision-Exposure",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/HumanDecisionMutationRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "create_run_human_decision response example",
+                    "value": {
+                      "durable_event_id": "event-human-decision-openapi-sample",
+                      "record": {
+                        "accountability_statement": "I accept accountability for this bounded decision.",
+                        "active_choice": true,
+                        "actor_ref": "principal://reviewer/openapi-sample",
+                        "actor_role": "mandate_owner",
+                        "authority_boundary": {
+                          "authoritative_for": [
+                            "human_decision_act"
+                          ],
+                          "known_limits": [],
+                          "may_not_use_for": [
+                            "policyos_custody_signature",
+                            "publication_authority"
+                          ],
+                          "posture": "governed",
+                          "rule_version_refs": [
+                            "policyos.runtime.human-decision.openapi.v1"
+                          ],
+                          "source_authority": "human_governance"
+                        },
+                        "basis_digest": "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d",
+                        "basis_ref": "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d",
+                        "binding_sha256": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
+                        "blocking_reason": null,
+                        "canonical_actor": {
+                          "actor_ref": "principal://reviewer/openapi-sample",
+                          "audience": "polisyos-runtime",
+                          "issuer": "institution://identity/openapi-sample",
+                          "signed_roles": [
+                            "mandate_owner"
+                          ],
+                          "signing_key_id": "sha256:0713f136ea316c8f3e274d55012e3bf10d05b5263837187a39593ff0d8838dfa",
+                          "subject": "reviewer-openapi-sample",
+                          "tenant_id": "tenant-openapi-sample"
+                        },
+                        "case_id": "case-openapi-sample",
+                        "created_at": "2026-02-11T12:00:00Z",
+                        "custody_boundary": {
+                          "authoritative_for": [
+                            "human_decision_record_custody"
+                          ],
+                          "known_limits": [],
+                          "may_not_use_for": [
+                            "human_signature",
+                            "publication_authority"
+                          ],
+                          "posture": "governed",
+                          "rule_version_refs": [
+                            "policyos.runtime.human-decision.openapi.v1"
+                          ],
+                          "source_authority": "deterministic_producer"
+                        },
+                        "custody_key_id": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                        "custody_signer_identity": "service://runtime/human-decision-custody",
+                        "decided_at": "2026-02-11T12:00:00Z",
+                        "decision_action_exercised": "approve",
+                        "decision_attempt_id": "human-decision-attempt-openapi-sample",
+                        "decision_mode": "ordinary",
+                        "decision_request_digest": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                        "disconfirming_evidence_refs": [
+                          "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb"
+                        ],
+                        "dissent_statement": "Disconfirming evidence was reviewed and retained.",
+                        "evidence_summary_ref": "runtime://human-decisions/evidence/openapi-sample",
+                        "exposure_artifact_digests": [
+                          "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
+                        ],
+                        "exposure_event_refs": [
+                          "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb"
+                        ],
+                        "exposure_session_digest": "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4",
+                        "exposure_session_ref": "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4",
+                        "five_rights_check": {
+                          "right_decision": true,
+                          "right_format_channel": true,
+                          "right_information": true,
+                          "right_person": true,
+                          "right_time": true
+                        },
+                        "governed_action_key": "sha256:e823430756f9bab004490a705c8baa7b2e0f441d82d5703239b2cfff3bf264e4",
+                        "human_decision_request_ref": "runtime://human-decisions/requests/openapi-sample",
+                        "mandate_record_ref": "mandate://openapi-sample",
+                        "mandate_source_refs": [
+                          "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
+                        ],
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "override_reason": null,
+                        "predicate_receipts": [
+                          {
+                            "evidence_refs": [
+                              "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "predicate": "identity_permission",
+                            "provenance": "recomputed",
+                            "reason": "identity_permission passed against exact signed inputs.",
+                            "reason_code": "DS9-OPENAPI-IDENTITY-PERMISSION",
+                            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                            "satisfied": true
+                          },
+                          {
+                            "evidence_refs": [
+                              "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "predicate": "role_mandate_or_basis",
+                            "provenance": "independently_reconciled",
+                            "reason": "role_mandate_or_basis passed against exact signed inputs.",
+                            "reason_code": "DS9-OPENAPI-ROLE-MANDATE-OR-BASIS",
+                            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                            "satisfied": true
+                          },
+                          {
+                            "evidence_refs": [
+                              "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "predicate": "operation_accountability",
+                            "provenance": "recomputed",
+                            "reason": "operation_accountability passed against exact signed inputs.",
+                            "reason_code": "DS9-OPENAPI-OPERATION-ACCOUNTABILITY",
+                            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                            "satisfied": true
+                          },
+                          {
+                            "evidence_refs": [
+                              "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "predicate": "currentness",
+                            "provenance": "recomputed",
+                            "reason": "currentness passed against exact signed inputs.",
+                            "reason_code": "DS9-OPENAPI-CURRENTNESS",
+                            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                            "satisfied": true
+                          },
+                          {
+                            "evidence_refs": [
+                              "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "predicate": "right_decision_time",
+                            "provenance": "recomputed",
+                            "reason": "right_decision_time passed against exact signed inputs.",
+                            "reason_code": "DS9-OPENAPI-RIGHT-DECISION-TIME",
+                            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                            "satisfied": true
+                          },
+                          {
+                            "evidence_refs": [
+                              "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "predicate": "reviewer_independence_change",
+                            "provenance": "independently_reconciled",
+                            "reason": "reviewer_independence_change passed against exact signed inputs.",
+                            "reason_code": "DS9-OPENAPI-REVIEWER-INDEPENDENCE-CHANGE",
+                            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                            "satisfied": true
+                          },
+                          {
+                            "evidence_refs": [
+                              "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "predicate": "evidence_exposure",
+                            "provenance": "independently_reconciled",
+                            "reason": "evidence_exposure passed against exact signed inputs.",
+                            "reason_code": "DS9-OPENAPI-EVIDENCE-EXPOSURE",
+                            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                            "satisfied": true
+                          },
+                          {
+                            "evidence_refs": [
+                              "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "predicate": "presentation_format_channel",
+                            "provenance": "independently_reconciled",
+                            "reason": "presentation_format_channel passed against exact signed inputs.",
+                            "reason_code": "DS9-OPENAPI-PRESENTATION-FORMAT-CHANNEL",
+                            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                            "satisfied": true
+                          },
+                          {
+                            "evidence_refs": [
+                              "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+                            ],
+                            "predicate": "source_producer_trust",
+                            "provenance": "independently_reconciled",
+                            "reason": "source_producer_trust passed against exact signed inputs.",
+                            "reason_code": "DS9-OPENAPI-SOURCE-PRODUCER-TRUST",
+                            "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                            "satisfied": true
+                          }
+                        ],
+                        "presentation_contract_digest": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                        "presentation_contract_ref": "sha256:e79b613f05a6ebf356616cf97caa7b0e4d2dd15853974c3a76251a44ee0222fb",
+                        "principal_binding_digest": "sha256:bdedb5a6471e6a1b3bd16ef5065570d33157d96788e0ebc2ca17a569f03921b8",
+                        "principal_binding_ref": "sha256:bdedb5a6471e6a1b3bd16ef5065570d33157d96788e0ebc2ca17a569f03921b8",
+                        "provenance_refs": [
+                          "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                          "sha256:79b64d4f43928e6cd7f7ad678c195d07fc61be69d672e768c82958761c869e1d"
+                        ],
+                        "record_id": "human-decision-openapi-sample",
+                        "record_ref": "runtime://human-decisions/openapi-sample",
+                        "recorded_at": "2026-02-11T12:00:00Z",
+                        "requested_at": "2026-02-11T12:00:00Z",
+                        "reservation_id": "human-decision-reservation-openapi-sample",
+                        "reservation_version": 1,
+                        "responsibility_integrity": {
+                          "missing_requirements": [],
+                          "pattern_ids": [
+                            "P26",
+                            "P05",
+                            "P37"
+                          ],
+                          "reason": "All nine gate predicates were recomputed or independently reconciled.",
+                          "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                          "status": "pass"
+                        },
+                        "reviewer_separation_digest": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
+                        "reviewer_separation_ref": "sha256:08622409c86efbeb945e4bdbdea7585e8eaff6e380c450273bc5b41bcf3f0073",
+                        "rule_version_ref": "policyos.runtime.human-decision.openapi.v1",
+                        "run_id": "R_core_api_001",
+                        "schema_version": "policyos.runtime.human_decision_record.v2",
+                        "source_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "source_kind": "agent_action_authority",
+                        "source_ref": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                        "tenant_id": "tenant-openapi-sample",
+                        "valid_from": "2026-02-11T12:00:00Z",
+                        "valid_until": "2026-02-11T13:00:00Z",
+                        "verifier_epoch": "openapi-sample-epoch"
+                      },
+                      "record_digest": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                      "record_ref": "sha256:853c83b344ea60db46f918623684ef2abe369e642a9843344af3661e205980fa",
+                      "reservation_id": "human-decision-reservation-openapi-sample",
+                      "reservation_version": 1,
+                      "run_id": "R_core_api_001"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HumanDecisionCreateResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Create Run Human Decision",
+        "tags": [
+          "human-decisions"
+        ],
+        "x-polisyos-action-permission": "runs.human_decisions.create",
+        "x-polisyos-resource-binding": {
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.human_decision",
+          "source": "owned_existing_path"
+        },
+        "x-polisyos-step-up-class": "human_decision"
+      }
+    },
+    "/api/v1/runs/{run_id}/human-decisions/review-effectiveness": {
+      "get": {
+        "operationId": "get_run_human_decision_review_effectiveness",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "run_id",
+            "required": true,
+            "schema": {
+              "title": "Run Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "default": {
+                    "summary": "get_run_human_decision_review_effectiveness response example",
+                    "value": {
+                      "advisory_signal_codes": [
+                        "human_decision_review_coverage_incomplete"
+                      ],
+                      "approval_count": 0,
+                      "audit_read_error_count": 0,
+                      "authorization_allow_count": 0,
+                      "blocking_count": 0,
+                      "candidate_human_decision_count": 0,
+                      "completed_human_decision_count": 0,
+                      "coverage_status": "incomplete",
+                      "dissent_count": 0,
+                      "duplicate_authorization_request_count": 0,
+                      "duplicate_record_event_count": 0,
+                      "duplicate_record_request_count": 0,
+                      "exact_join_count": 0,
+                      "invalid_authorization_event_count": 0,
+                      "invalid_record_event_count": 0,
+                      "malformed_json_line_count": 0,
+                      "nonblank_line_count": 0,
+                      "nonobject_line_count": 0,
+                      "override_count": 0,
+                      "parsed_object_count": 0,
+                      "retained_or_missing_record_count": 0,
+                      "review_count": 0,
+                      "review_time_not_established_count": 0,
+                      "reviewer_independence_rate": null,
+                      "run_id": "R_core_api_001",
+                      "schema_version": "policyos.runtime.human_decision_review_effectiveness.v1",
+                      "separation_of_duty_attestation_rate": null,
+                      "tenant_scope_unknown_record_event_count": 0,
+                      "threshold_status": "warn",
+                      "trail_path_exists": false,
+                      "unmatched_authorization_count": 0,
+                      "unmatched_record_event_count": 0
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/HumanDecisionReviewEffectivenessResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/review-effectiveness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/review-effectiveness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/review-effectiveness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/review-effectiveness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/review-effectiveness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/review-effectiveness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/runs/{run_id}/human-decisions/review-effectiveness",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Get Run Human Decision Review Effectiveness",
+        "tags": [
+          "human-decisions"
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "path_parameter": "run_id",
+          "resource_kind": "runtime.run.human_decision_review_effectiveness",
+          "source": "owned_existing_path"
+        }
       }
     },
     "/api/v1/runs/{run_id}/lineage": {
@@ -52852,7 +57437,13 @@
         "summary": "Get the replay-bound paper projection for one verified run",
         "tags": [
           "runtime-runs"
-        ]
+        ],
+        "x-polisyos-action-permission": "runs.review",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "resource_kind": "runtime.run_paper",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/runs/{run_id}/production-approval": {

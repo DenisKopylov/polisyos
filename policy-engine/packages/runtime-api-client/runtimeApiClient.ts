@@ -2298,6 +2298,24 @@ export type FetchPreview = {
   status?: "ok" | "insufficient_coverage" | "error";
 };
 
+export type FiveRightsCheck = {
+  right_decision: boolean;
+  right_format_channel: boolean;
+  right_information: boolean;
+  right_person: boolean;
+  right_time: boolean;
+  schema_version?: string;
+};
+
+export type FiveRightsRequirement = {
+  right_decision: string;
+  right_format_channel: string;
+  right_information: string;
+  right_person: string;
+  right_time: string;
+  schema_version?: string;
+};
+
 export type ForkBRelationCensusPayload = {
   authority: string;
   certificate_summaries: {
@@ -2407,6 +2425,281 @@ export type HistoricalProducerAvailability = {
   measurement_scope?: string;
   source_content_hash: string;
   source_ref: string;
+};
+
+export type HumanDecisionAllowedDecision = {
+  action: "request_evidence" | "approve" | "reject" | "revise_scope" | "escalate";
+  decision_modes: Array<"ordinary" | "override" | "blocking">;
+};
+
+export type HumanDecisionCanonicalActor = {
+  actor_ref: string;
+  audience: string;
+  issuer: string;
+  signed_roles: Array<string>;
+  signing_key_id: string;
+  subject: string;
+  tenant_id: string;
+};
+
+export type HumanDecisionContestabilitySurface = {
+  case_id: string;
+  href: string;
+  source_ref: string;
+};
+
+export type HumanDecisionCreateResponse = {
+  durable_event_id: string;
+  record: HumanDecisionRecord;
+  record_digest: string;
+  record_ref: string;
+  reservation_id: string;
+  reservation_version: number;
+  run_id: string;
+};
+
+export type HumanDecisionExposureSurface = {
+  channel?: string | null;
+  completed_artifact_digests: Array<string>;
+  exposure_session_ref?: string | null;
+  renderer_id?: string | null;
+  renderer_version?: string | null;
+  representation?: "full" | "redacted" | "truncated" | null;
+  required_artifact_digests: Array<string>;
+};
+
+export type HumanDecisionFiveRightsBinding = {
+  decision_class_id: string;
+  decision_rights_matrix_ref: string;
+  required_channel: "reviewer_console" | "governed_review";
+  required_information_refs?: Array<string>;
+  required_representation: string;
+  required_role: "principal" | "mandate_owner" | "legal_approver" | "budget_owner" | "data_steward" | "affected_person_representative" | "domain_expert" | "governance_board" | "policy_design_governance_reviewer" | "technical_reviewer";
+  schema_version?: string;
+  time_rule: string;
+};
+
+export type HumanDecisionGateReason = {
+  code: string;
+  message: string;
+  status: "invalid_source" | "artifact_missing" | "producer_missing" | "revalidation_required" | "blocked" | "available";
+};
+
+export type HumanDecisionGateResponse = {
+  contestability?: HumanDecisionContestabilitySurface | null;
+  continuation?: HumanDecisionPA2ReplaySelector | HumanDecisionProductionReplaySelector | null;
+  decision_request?: HumanDecisionRequestSurface | null;
+  decision_request_digest?: string | null;
+  decision_request_ref: string | null;
+  exposure: HumanDecisionExposureSurface;
+  governed_action_key?: string | null;
+  mandate?: HumanDecisionMandateSurface | null;
+  operational_authority?: boolean;
+  reason_codes: Array<string>;
+  reasons: Array<HumanDecisionGateReason>;
+  resolved_at: string;
+  run_id: string;
+  source_kind: "agent_action_authority" | "production_approval";
+  source_ref?: string | null;
+  status: "invalid_source" | "artifact_missing" | "producer_missing" | "revalidation_required" | "blocked" | "available";
+  submission?: HumanDecisionSubmissionSurface | null;
+  tenant_id: string;
+  verifier_epoch: string;
+};
+
+export type HumanDecisionMandateSurface = {
+  action_kind: string;
+  mandate_owner_ref: string;
+  mandate_record_ref: string;
+  operation_id: string;
+  valid_from: string;
+  valid_until: string;
+};
+
+export type HumanDecisionMutationRequest = {
+  accountability_statement: string;
+  action: "request_evidence" | "approve" | "reject" | "revise_scope" | "escalate";
+  action_kind?: string | null;
+  basis_digest?: string | null;
+  basis_ref?: string | null;
+  blocking_reason?: string | null;
+  decision_mode: "ordinary" | "override" | "blocking";
+  decision_request_digest?: string | null;
+  decision_request_ref?: string | null;
+  dissent_statement: string;
+  override_reason?: string | null;
+  presentation_contract_ref?: string | null;
+  principal_binding_ref?: string | null;
+  production_packet_ref?: string | null;
+  reviewer_separation_ref?: string | null;
+  source_kind: "agent_action_authority" | "production_approval";
+  source_ref?: string | null;
+};
+
+export type HumanDecisionPA2ReplaySelector = {
+  action_kind: string;
+  basis_digest: string;
+  basis_ref: string;
+  decision_request_digest: string;
+  decision_request_ref: string;
+  exposure_session_ref: string;
+  operational_authority?: boolean;
+  presentation_contract_ref: string;
+  principal_binding_ref: string;
+  reviewer_separation_ref: string;
+  source_kind: string;
+  source_ref: string;
+};
+
+export type HumanDecisionPredicateReceipt = {
+  evidence_refs: Array<string>;
+  predicate: "identity_permission" | "role_mandate_or_basis" | "operation_accountability" | "currentness" | "right_decision_time" | "reviewer_independence_change" | "evidence_exposure" | "presentation_format_channel" | "source_producer_trust";
+  provenance: "recomputed" | "independently_reconciled";
+  reason: string;
+  reason_code: string;
+  rule_version_ref: string;
+  satisfied: boolean;
+};
+
+export type HumanDecisionProductionReplaySelector = {
+  basis_digest: string;
+  basis_ref: string;
+  decision_request_digest: string;
+  decision_request_ref: string;
+  exposure_session_ref: string;
+  operational_authority?: boolean;
+  presentation_contract_ref: string;
+  principal_binding_ref: string;
+  reviewer_separation_ref: string;
+  source_kind: string;
+  source_ref: string;
+};
+
+export type HumanDecisionRecord = {
+  accountability_statement: string;
+  active_choice: boolean;
+  actor_ref: string;
+  actor_role: "principal" | "mandate_owner" | "legal_approver" | "budget_owner" | "data_steward" | "affected_person_representative" | "domain_expert" | "governance_board" | "policy_design_governance_reviewer" | "technical_reviewer";
+  authority_boundary: AuthorityBoundary;
+  basis_digest?: string | null;
+  basis_ref?: string | null;
+  binding_sha256?: string | null;
+  blocking_reason?: string | null;
+  canonical_actor?: HumanDecisionCanonicalActor | null;
+  case_id: string;
+  created_at?: string;
+  custody_boundary?: AuthorityBoundary | null;
+  custody_key_id?: string | null;
+  custody_signer_identity?: string | null;
+  decided_at: string;
+  decision_action_exercised: "request_evidence" | "approve" | "reject" | "revise_scope" | "escalate";
+  decision_attempt_id?: string | null;
+  decision_mode?: "ordinary" | "override" | "blocking" | null;
+  decision_request_digest?: string | null;
+  disconfirming_evidence_refs: Array<string>;
+  dissent_statement?: string | null;
+  evidence_summary_ref: string;
+  exposure_artifact_digests?: Array<string> | null;
+  exposure_event_refs?: Array<string> | null;
+  exposure_session_digest?: string | null;
+  exposure_session_ref?: string | null;
+  five_rights_check: FiveRightsCheck;
+  governed_action_key?: string | null;
+  human_decision_request_ref: string;
+  mandate_record_ref: string;
+  mandate_source_refs?: Array<string>;
+  observed_at?: string | null;
+  override_reason?: string | null;
+  predicate_receipts?: Array<HumanDecisionPredicateReceipt> | null;
+  presentation_contract_digest?: string | null;
+  presentation_contract_ref?: string | null;
+  principal_binding_digest?: string | null;
+  principal_binding_ref?: string | null;
+  provenance_refs?: Array<string>;
+  record_id: string;
+  record_ref: string;
+  recorded_at?: string | null;
+  requested_at?: string | null;
+  reservation_id?: string | null;
+  reservation_version?: number | null;
+  responsibility_integrity: ResponsibilityIntegrityCheck;
+  reviewer_separation_digest?: string | null;
+  reviewer_separation_ref?: string | null;
+  rule_version_ref: string;
+  run_id?: string | null;
+  schema_version: "policyos.policy_design_case.layer2_s7_delegation.v1" | "policyos.runtime.human_decision_record.v2";
+  source_digest?: string | null;
+  source_kind?: "agent_action_authority" | "production_approval" | null;
+  source_ref?: string | null;
+  tenant_id?: string | null;
+  valid_from?: string | null;
+  valid_until?: string | null;
+  verifier_epoch?: string | null;
+};
+
+export type HumanDecisionRequestSurface = {
+  available_actions: Array<"request_evidence" | "approve" | "reject" | "revise_scope" | "escalate">;
+  case_id: string;
+  decidable_until?: string | null;
+  decision_due_at?: string | null;
+  decision_rights_matrix_ref: string;
+  delegation_contract_ref: string;
+  five_rights_binding: HumanDecisionFiveRightsBinding;
+  five_rights_requirements: FiveRightsRequirement;
+  requested_at: string;
+  required_role: "principal" | "mandate_owner" | "legal_approver" | "budget_owner" | "data_steward" | "affected_person_representative" | "domain_expert" | "governance_board" | "policy_design_governance_reviewer" | "technical_reviewer";
+};
+
+export type HumanDecisionReviewEffectivenessResponse = {
+  advisory_signal_codes: Array<string>;
+  approval_count: number;
+  audit_predicate_provenance?: string;
+  audit_read_error_count: number;
+  authoritative_for?: Array<"review_effectiveness_measurement" | "future_policy_calibration" | "reviewer_load_observability">;
+  authorization_allow_count: number;
+  blocking_count: number;
+  blocking_permitted?: boolean;
+  candidate_human_decision_count: number;
+  completed_human_decision_count: number;
+  coverage_claim_scope?: string;
+  coverage_status: "complete" | "incomplete";
+  dissent_count: number;
+  duplicate_authorization_request_count: number;
+  duplicate_record_event_count: number;
+  duplicate_record_request_count: number;
+  exact_join_count: number;
+  invalid_authorization_event_count: number;
+  invalid_record_event_count: number;
+  malformed_json_line_count: number;
+  may_not_use_for?: Array<"current_run_closeout_block" | "publication_block" | "claim_support_downgrade" | "authorization_writer_provenance" | "forensic_tamper_detection">;
+  measurement_status?: string;
+  nonblank_line_count: number;
+  nonobject_line_count: number;
+  override_count: number;
+  parsed_object_count: number;
+  report_status_effect?: string;
+  retained_or_missing_record_count: number;
+  review_count: number;
+  review_posture?: string;
+  review_time_established_count?: number;
+  review_time_not_established_count: number;
+  review_time_status?: string;
+  reviewer_independence_rate?: number | null;
+  run_id: string;
+  schema_version?: string;
+  separation_of_duty_attestation_rate?: number | null;
+  tenant_scope_unknown_record_event_count: number;
+  threshold_scope?: string;
+  threshold_status: "pass" | "warn" | "fail";
+  trail_path_exists: boolean;
+  unmatched_authorization_count: number;
+  unmatched_record_event_count: number;
+};
+
+export type HumanDecisionSubmissionSurface = {
+  allowed_decisions: Array<HumanDecisionAllowedDecision>;
+  operational_authority?: boolean;
+  selector: HumanDecisionPA2ReplaySelector | HumanDecisionProductionReplaySelector;
 };
 
 export type IndexStats = {
@@ -3264,22 +3557,45 @@ export type ProductionApprovalOverrideRequest = {
 export type ProductionApprovalPacket = {
   canary_kind?: string | null;
   decision: "approved" | "approved_with_override" | "blocked";
+  decision_request_digest?: string | null;
+  decision_request_ref?: string | null;
   eligibility: ProductionApprovalEligibility;
   evidence_refs?: {
   [key: string]: string;
 };
+  expected_audience?: string | null;
+  expected_consumer?: string | null;
   generated_at: string;
+  governed_action_key?: string | null;
+  historical_only?: boolean;
+  human_decision_record_digest?: string | null;
+  human_decision_record_ref?: string | null;
   job_id?: string | null;
+  limitations?: Array<string> | null;
+  operational_authority?: boolean;
   override?: ProductionApprovalOverridePacket | null;
+  production_basis_digest?: string | null;
+  production_basis_producer_identity?: string | null;
+  production_basis_ref?: string | null;
+  rule_version_ref?: string | null;
   run_id?: string | null;
-  schema_version?: string;
+  schema_version?: "policyos.production_approval_packet.v1" | "policyos.production_approval_packet.v2";
   scorecard_digest: string;
   scorecard_generated_at?: string | null;
+  scorecard_producer_identity?: string | null;
   scorecard_ref?: string | null;
+  tenant_id?: string | null;
+  valid_from?: string | null;
+  valid_until?: string | null;
+  verifier_epoch?: string | null;
 };
 
 export type ProductionApprovalRequest = {
+  human_decision_record_digest?: string | null;
+  human_decision_record_ref?: string | null;
   override?: ProductionApprovalOverrideRequest | null;
+  production_basis_digest?: string | null;
+  production_basis_ref?: string | null;
   quality_scorecard?: {
   [key: string]: unknown;
 } | null;
@@ -3539,6 +3855,15 @@ export type ReproducibilityView = {
   seed_source?: string | null;
   suggested_next_step?: string | null;
   why_partial?: Array<string>;
+};
+
+export type ResponsibilityIntegrityCheck = {
+  missing_requirements?: Array<string>;
+  pattern_ids?: Array<string>;
+  reason: string;
+  rule_version_ref: string;
+  schema_version?: string;
+  status: "pass" | "limit" | "block";
 };
 
 export type RetrievalPhaseTelemetry = {
@@ -4103,7 +4428,7 @@ export type RuntimeApiProblem = {
   type?: string;
 };
 
-export type RuntimePermission = "analysis.execute" | "artifacts.batch.read" | "artifacts.render" | "dashboard.view" | "decisions.validity.publish" | "evidence.acquire" | "evidence.discover" | "evidence.preview" | "evidence.promotions.approve" | "evidence.promotions.reject" | "evidence.resolve" | "evidence.review" | "evidence.sae.analyze" | "evidence.view" | "fabric.impact.analyze" | "fabric.quality.read" | "fabric.trust.read" | "knowledge.search" | "knowledge.trigger" | "knowledge.view" | "lineage.batch.read" | "mobility.analyze" | "mode.analyst" | "platform.admin" | "platform.view" | "runs.batch.read" | "runs.feedback.evaluate" | "runs.launch" | "runs.production_approval.create" | "runs.reissue" | "runs.review" | "runs.view" | "scenarios.create";
+export type RuntimePermission = "analysis.execute" | "artifacts.batch.read" | "artifacts.render" | "dashboard.view" | "decisions.validity.publish" | "evidence.acquire" | "evidence.discover" | "evidence.preview" | "evidence.promotions.approve" | "evidence.promotions.reject" | "evidence.resolve" | "evidence.review" | "evidence.sae.analyze" | "evidence.view" | "fabric.impact.analyze" | "fabric.quality.read" | "fabric.trust.read" | "knowledge.search" | "knowledge.trigger" | "knowledge.view" | "lineage.batch.read" | "mobility.analyze" | "mode.analyst" | "platform.admin" | "platform.view" | "runs.batch.read" | "runs.feedback.evaluate" | "runs.human_decisions.create" | "runs.launch" | "runs.production_approval.create" | "runs.reissue" | "runs.review" | "runs.view" | "scenarios.create";
 
 export type ScenarioAssumptionInput = {
   description?: string | null;
@@ -4578,13 +4903,21 @@ export class RuntimeApiClient {
     path: string,
     query?: URLSearchParams,
     body?: unknown,
+    requestHeaders?: HeadersInit,
+    responseMode: "json" | "arrayBuffer" = "json",
   ): Promise<T> {
     const url = query && query.toString()
       ? `${this.baseUrl}${path}?${query.toString()}`
       : `${this.baseUrl}${path}`;
-    const headers = body === undefined
-      ? this.headers
-      : { "Content-Type": "application/json", ...this.headers };
+    const headers = new Headers(this.headers);
+    if (body !== undefined && !headers.has("Content-Type")) {
+      headers.set("Content-Type", "application/json");
+    }
+    if (requestHeaders !== undefined) {
+      new Headers(requestHeaders).forEach((value, key) => {
+        headers.set(key, value);
+      });
+    }
     const response = await this.fetchImpl(url, {
       method,
       headers,
@@ -4595,6 +4928,9 @@ export class RuntimeApiClient {
       throw new Error(
         `Runtime API request failed: ${response.status} ${response.statusText} ${body}`
       );
+    }
+    if (responseMode === "arrayBuffer") {
+      return (await response.arrayBuffer()) as T;
     }
     return (await response.json()) as T;
   }
@@ -4625,7 +4961,7 @@ export class RuntimeApiClient {
   }): Promise<AttractorAnalysisResult> {
     const path = `/api/v1/analysis/${encodeURIComponent(String(params.analysis_id))}`;
     const query = undefined;
-    return this.request<AttractorAnalysisResult>("GET", path, query);
+    return this.request<AttractorAnalysisResult>("GET", path, query, undefined, undefined);
   }
 
   async getAnalysisBasinMap(params: {
@@ -4634,7 +4970,7 @@ export class RuntimeApiClient {
   }): Promise<BasinMap> {
     const path = `/api/v1/analysis/${encodeURIComponent(String(params.analysis_id))}/basin/${encodeURIComponent(String(params.basin_id))}`;
     const query = undefined;
-    return this.request<BasinMap>("GET", path, query);
+    return this.request<BasinMap>("GET", path, query, undefined, undefined);
   }
 
   async getAnalysisContinuationBranch(params: {
@@ -4643,7 +4979,7 @@ export class RuntimeApiClient {
   }): Promise<ContinuationBranchOutput> {
     const path = `/api/v1/analysis/${encodeURIComponent(String(params.analysis_id))}/branch/${encodeURIComponent(String(params.branch_id))}`;
     const query = undefined;
-    return this.request<ContinuationBranchOutput>("GET", path, query);
+    return this.request<ContinuationBranchOutput>("GET", path, query, undefined, undefined);
   }
 
   async getArtifactBatch(params: {
@@ -4651,7 +4987,7 @@ export class RuntimeApiClient {
   }): Promise<ArtifactBatchResponse> {
     const path = `/api/v1/artifacts/batch`;
     const query = undefined;
-    return this.request<ArtifactBatchResponse>("POST", path, query, params.body);
+    return this.request<ArtifactBatchResponse>("POST", path, query, params.body, undefined);
   }
 
   async getArtifactManifest(params: {
@@ -4659,7 +4995,7 @@ export class RuntimeApiClient {
   }): Promise<ArtifactManifestResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}`;
     const query = undefined;
-    return this.request<ArtifactManifestResponse>("GET", path, query);
+    return this.request<ArtifactManifestResponse>("GET", path, query, undefined, undefined);
   }
 
   async getArtifactContent(params: {
@@ -4670,7 +5006,7 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       max_bytes: params.max_bytes,
     });
-    return this.request<ArtifactContentResponse>("GET", path, query);
+    return this.request<ArtifactContentResponse>("GET", path, query, undefined, undefined);
   }
 
   async downloadArtifactContent(params: {
@@ -4678,7 +5014,7 @@ export class RuntimeApiClient {
   }): Promise<unknown> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/download`;
     const query = undefined;
-    return this.request<unknown>("GET", path, query);
+    return this.request<unknown>("GET", path, query, undefined, undefined);
   }
 
   async getArtifactLineage(params: {
@@ -4691,7 +5027,7 @@ export class RuntimeApiClient {
       max_depth: params.max_depth,
       max_nodes: params.max_nodes,
     });
-    return this.request<ArtifactLineageResponse>("GET", path, query);
+    return this.request<ArtifactLineageResponse>("GET", path, query, undefined, undefined);
   }
 
   async getArtifactSchema(params: {
@@ -4699,7 +5035,7 @@ export class RuntimeApiClient {
   }): Promise<ArtifactSchemaResponse> {
     const path = `/api/v1/artifacts/${encodeURIComponent(String(params.artifact_id))}/schema`;
     const query = undefined;
-    return this.request<ArtifactSchemaResponse>("GET", path, query);
+    return this.request<ArtifactSchemaResponse>("GET", path, query, undefined, undefined);
   }
 
   async exportBureaucraticArtifact(params: {
@@ -4724,31 +5060,31 @@ export class RuntimeApiClient {
       tx_at: params.tx_at,
       export_projection_hash: params.export_projection_hash,
     });
-    return this.request<BureaucraticExportResponse>("GET", path, query);
+    return this.request<BureaucraticExportResponse>("GET", path, query, undefined, undefined);
   }
 
   async getAuthMe(): Promise<AuthMeResponse> {
     const path = `/api/v1/auth/me`;
     const query = undefined;
-    return this.request<AuthMeResponse>("GET", path, query);
+    return this.request<AuthMeResponse>("GET", path, query, undefined, undefined);
   }
 
   async getControlCapabilities(): Promise<CapabilityManifestResponse> {
     const path = `/api/v1/control/capabilities`;
     const query = undefined;
-    return this.request<CapabilityManifestResponse>("GET", path, query);
+    return this.request<CapabilityManifestResponse>("GET", path, query, undefined, undefined);
   }
 
   async listBindingProfiles(): Promise<BindingProfilesListResponse> {
     const path = `/api/v1/control/data/binding-profiles`;
     const query = undefined;
-    return this.request<BindingProfilesListResponse>("GET", path, query);
+    return this.request<BindingProfilesListResponse>("GET", path, query, undefined, undefined);
   }
 
   async getCacheStatus(): Promise<CacheStatusResponse> {
     const path = `/api/v1/control/data/cache`;
     const query = undefined;
-    return this.request<CacheStatusResponse>("GET", path, query);
+    return this.request<CacheStatusResponse>("GET", path, query, undefined, undefined);
   }
 
   async searchDataCatalog(params: {
@@ -4762,31 +5098,31 @@ export class RuntimeApiClient {
       geo: params.geo,
       limit: params.limit,
     });
-    return this.request<DataCatalogSearchResponse>("GET", path, query);
+    return this.request<DataCatalogSearchResponse>("GET", path, query, undefined, undefined);
   }
 
   async listConnectors(): Promise<ConnectorsListResponse> {
     const path = `/api/v1/control/data/connectors`;
     const query = undefined;
-    return this.request<ConnectorsListResponse>("GET", path, query);
+    return this.request<ConnectorsListResponse>("GET", path, query, undefined, undefined);
   }
 
   async getDataIndexStats(): Promise<IndexStatsResponse> {
     const path = `/api/v1/control/data/index/stats`;
     const query = undefined;
-    return this.request<IndexStatsResponse>("GET", path, query);
+    return this.request<IndexStatsResponse>("GET", path, query, undefined, undefined);
   }
 
   async listSourceProfiles(): Promise<SourceProfilesListResponse> {
     const path = `/api/v1/control/data/profiles`;
     const query = undefined;
-    return this.request<SourceProfilesListResponse>("GET", path, query);
+    return this.request<SourceProfilesListResponse>("GET", path, query, undefined, undefined);
   }
 
   async listDataPromotionCandidates(): Promise<PromotionCandidatesResponse> {
     const path = `/api/v1/control/data/promotion/candidates`;
     const query = undefined;
-    return this.request<PromotionCandidatesResponse>("GET", path, query);
+    return this.request<PromotionCandidatesResponse>("GET", path, query, undefined, undefined);
   }
 
   async getPacketDecisionValidity(params: {
@@ -4797,7 +5133,7 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       export_projection_hash: params.export_projection_hash,
     });
-    return this.request<DecisionValiditySummaryResponse>("GET", path, query);
+    return this.request<DecisionValiditySummaryResponse>("GET", path, query, undefined, undefined);
   }
 
   async getControlJobStatus(params: {
@@ -4805,7 +5141,7 @@ export class RuntimeApiClient {
   }): Promise<ControlJobResponse> {
     const path = `/api/v1/control/jobs/${encodeURIComponent(String(params.job_id))}`;
     const query = undefined;
-    return this.request<ControlJobResponse>("GET", path, query);
+    return this.request<ControlJobResponse>("GET", path, query, undefined, undefined);
   }
 
   async getLexGraphStats(params: {
@@ -4815,7 +5151,7 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       output_dir: params.output_dir,
     });
-    return this.request<LexGraphStatsResponse>("GET", path, query);
+    return this.request<LexGraphStatsResponse>("GET", path, query, undefined, undefined);
   }
 
   async getLexPipelineStatus(params: {
@@ -4823,13 +5159,13 @@ export class RuntimeApiClient {
   }): Promise<LexPipelineStatusResponse> {
     const path = `/api/v1/control/lex/status/${encodeURIComponent(String(params.pipeline_id))}`;
     const query = undefined;
-    return this.request<LexPipelineStatusResponse>("GET", path, query);
+    return this.request<LexPipelineStatusResponse>("GET", path, query, undefined, undefined);
   }
 
   async listLlmProfiles(): Promise<ModelProfilesListResponse> {
     const path = `/api/v1/control/llm/profiles`;
     const query = undefined;
-    return this.request<ModelProfilesListResponse>("GET", path, query);
+    return this.request<ModelProfilesListResponse>("GET", path, query, undefined, undefined);
   }
 
   async listControlOutbox(params: {
@@ -4841,7 +5177,7 @@ export class RuntimeApiClient {
       state: params.state,
       limit: params.limit,
     });
-    return this.request<ControlOutboxEventsResponse>("GET", path, query);
+    return this.request<ControlOutboxEventsResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunDecisionValidity(params: {
@@ -4852,7 +5188,7 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       export_projection_hash: params.export_projection_hash,
     });
-    return this.request<DecisionValiditySummaryResponse>("GET", path, query);
+    return this.request<DecisionValiditySummaryResponse>("GET", path, query, undefined, undefined);
   }
 
   async listControlWorkers(params: {
@@ -4862,7 +5198,7 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       active_only: params.active_only,
     });
-    return this.request<ControlWorkersResponse>("GET", path, query);
+    return this.request<ControlWorkersResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunCompare(params: {
@@ -4871,7 +5207,7 @@ export class RuntimeApiClient {
   }): Promise<RunCompareResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.left_run_id))}/compare/${encodeURIComponent(String(params.right_run_id))}`;
     const query = undefined;
-    return this.request<RunCompareResponse>("GET", path, query);
+    return this.request<RunCompareResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunEquilibria(params: {
@@ -4879,7 +5215,7 @@ export class RuntimeApiClient {
   }): Promise<RunEquilibriaResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/equilibria`;
     const query = undefined;
-    return this.request<RunEquilibriaResponse>("GET", path, query);
+    return this.request<RunEquilibriaResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunErrors(params: {
@@ -4887,7 +5223,7 @@ export class RuntimeApiClient {
   }): Promise<RunErrorsResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/errors`;
     const query = undefined;
-    return this.request<RunErrorsResponse>("GET", path, query);
+    return this.request<RunErrorsResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunFeedback(params: {
@@ -4895,7 +5231,7 @@ export class RuntimeApiClient {
   }): Promise<RunFeedbackResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/feedback`;
     const query = undefined;
-    return this.request<RunFeedbackResponse>("GET", path, query);
+    return this.request<RunFeedbackResponse>("GET", path, query, undefined, undefined);
   }
 
   async getGovernanceDebug(params: {
@@ -4903,7 +5239,7 @@ export class RuntimeApiClient {
   }): Promise<GovernanceDebugResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/governance`;
     const query = undefined;
-    return this.request<GovernanceDebugResponse>("GET", path, query);
+    return this.request<GovernanceDebugResponse>("GET", path, query, undefined, undefined);
   }
 
   async getNodeDebug(params: {
@@ -4912,19 +5248,19 @@ export class RuntimeApiClient {
   }): Promise<NodeDebugResponse> {
     const path = `/api/v1/debug/runs/${encodeURIComponent(String(params.run_id))}/nodes/${encodeURIComponent(String(params.alias))}`;
     const query = undefined;
-    return this.request<NodeDebugResponse>("GET", path, query);
+    return this.request<NodeDebugResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRuntimeChannelRegistry(): Promise<ChannelRegistryResponse> {
     const path = `/api/v1/exports/channel-registry`;
     const query = undefined;
-    return this.request<ChannelRegistryResponse>("GET", path, query);
+    return this.request<ChannelRegistryResponse>("GET", path, query, undefined, undefined);
   }
 
   async listGovernedProjections(): Promise<ProjectionCatalogResponse> {
     const path = `/api/v1/exports/governed-projections`;
     const query = undefined;
-    return this.request<ProjectionCatalogResponse>("GET", path, query);
+    return this.request<ProjectionCatalogResponse>("GET", path, query, undefined, undefined);
   }
 
   async getDepthNCycleBoardProjection(params: {
@@ -4946,7 +5282,7 @@ export class RuntimeApiClient {
       projection_rule_version: params.projection_rule_version,
       composition_manifest_hash: params.composition_manifest_hash,
     });
-    return this.request<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket | CycleBoardProjectionPacket>("GET", path, query);
+    return this.request<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket | CycleBoardProjectionPacket>("GET", path, query, undefined, undefined);
   }
 
   async getGovernedProjection(params: {
@@ -4963,7 +5299,7 @@ export class RuntimeApiClient {
       source_dependency_hash: params.source_dependency_hash,
       source_as_of: params.source_as_of,
     });
-    return this.request<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket>("GET", path, query);
+    return this.request<AvailableGovernedProjectionPacket | ArtifactMissingGovernedProjectionPacket | InvalidGovernedProjectionPacket>("GET", path, query, undefined, undefined);
   }
 
   async analyzeFabricImpact(params: {
@@ -4984,7 +5320,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<FabricImpactAnalysisResponse>("POST", path, query, params.body);
+    return this.request<FabricImpactAnalysisResponse>("POST", path, query, params.body, undefined);
   }
 
   async getFabricQualityBatch(params: {
@@ -5005,7 +5341,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<FabricQualityBatchResponse>("POST", path, query, params.body);
+    return this.request<FabricQualityBatchResponse>("POST", path, query, params.body, undefined);
   }
 
   async getFabricRunReplay(params: {
@@ -5026,13 +5362,13 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<FabricReplayRunResponse>("GET", path, query);
+    return this.request<FabricReplayRunResponse>("GET", path, query, undefined, undefined);
   }
 
   async getFabricSourceScorecards(): Promise<FabricSourceScorecardsResponse> {
     const path = `/api/v1/fabric/source-scorecards`;
     const query = undefined;
-    return this.request<FabricSourceScorecardsResponse>("GET", path, query);
+    return this.request<FabricSourceScorecardsResponse>("GET", path, query, undefined, undefined);
   }
 
   async getFabricTrustBatch(params: {
@@ -5053,7 +5389,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<FabricTrustBatchResponse>("POST", path, query, params.body);
+    return this.request<FabricTrustBatchResponse>("POST", path, query, params.body, undefined);
   }
 
   async runtimeApiHealth(): Promise<{
@@ -5063,7 +5399,7 @@ export class RuntimeApiClient {
     const query = undefined;
     return this.request<{
   [key: string]: unknown;
-}>("GET", path, query);
+}>("GET", path, query, undefined, undefined);
   }
 
   async getLineageBatch(params: {
@@ -5084,7 +5420,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<LineageBatchResponse>("POST", path, query, params.body);
+    return this.request<LineageBatchResponse>("POST", path, query, params.body, undefined);
   }
 
   async getLineage(params: {
@@ -5105,7 +5441,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<LineageResponse>("GET", path, query);
+    return this.request<LineageResponse>("GET", path, query, undefined, undefined);
   }
 
   async exportLineageOpenlineage(params: {
@@ -5128,7 +5464,7 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
       export_projection_hash: params.export_projection_hash,
     });
-    return this.request<LineageExportResponse>("GET", path, query);
+    return this.request<LineageExportResponse>("GET", path, query, undefined, undefined);
   }
 
   async exportLineageProv(params: {
@@ -5151,7 +5487,7 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
       export_projection_hash: params.export_projection_hash,
     });
-    return this.request<LineageExportResponse>("GET", path, query);
+    return this.request<LineageExportResponse>("GET", path, query, undefined, undefined);
   }
 
   async computeMobilityBounds(params: {
@@ -5159,7 +5495,7 @@ export class RuntimeApiClient {
   }): Promise<MobilityBoundsResponse> {
     const path = `/api/v1/mobility/bounds`;
     const query = undefined;
-    return this.request<MobilityBoundsResponse>("POST", path, query, params.body);
+    return this.request<MobilityBoundsResponse>("POST", path, query, params.body, undefined);
   }
 
   async estimateMobility(params: {
@@ -5167,7 +5503,7 @@ export class RuntimeApiClient {
   }): Promise<MobilityEstimateResponse> {
     const path = `/api/v1/mobility/estimate`;
     const query = undefined;
-    return this.request<MobilityEstimateResponse>("POST", path, query, params.body);
+    return this.request<MobilityEstimateResponse>("POST", path, query, params.body, undefined);
   }
 
   async getMobilityReport(params: {
@@ -5175,7 +5511,7 @@ export class RuntimeApiClient {
   }): Promise<MobilityReportResponse> {
     const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}`;
     const query = undefined;
-    return this.request<MobilityReportResponse>("GET", path, query);
+    return this.request<MobilityReportResponse>("GET", path, query, undefined, undefined);
   }
 
   async getMobilityReportBounds(params: {
@@ -5183,7 +5519,7 @@ export class RuntimeApiClient {
   }): Promise<MobilityBoundsResponse> {
     const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/bounds`;
     const query = undefined;
-    return this.request<MobilityBoundsResponse>("GET", path, query);
+    return this.request<MobilityBoundsResponse>("GET", path, query, undefined, undefined);
   }
 
   async getMobilityReportDiagnostics(params: {
@@ -5191,7 +5527,7 @@ export class RuntimeApiClient {
   }): Promise<MobilityDiagnosticsResponse> {
     const path = `/api/v1/mobility/reports/${encodeURIComponent(String(params.artifact_id))}/diagnostics`;
     const query = undefined;
-    return this.request<MobilityDiagnosticsResponse>("GET", path, query);
+    return this.request<MobilityDiagnosticsResponse>("GET", path, query, undefined, undefined);
   }
 
   async listRuns(params: {
@@ -5211,7 +5547,7 @@ export class RuntimeApiClient {
       from_ts: params.from_ts,
       to_ts: params.to_ts,
     });
-    return this.request<RunsListResponse>("GET", path, query);
+    return this.request<RunsListResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunsBatch(params: {
@@ -5219,7 +5555,7 @@ export class RuntimeApiClient {
   }): Promise<RunsBatchResponse> {
     const path = `/api/v1/runs/batch`;
     const query = undefined;
-    return this.request<RunsBatchResponse>("POST", path, query, params.body);
+    return this.request<RunsBatchResponse>("POST", path, query, params.body, undefined);
   }
 
   async compareRuns(params: {
@@ -5243,7 +5579,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<CompareRunResponse>("GET", path, query);
+    return this.request<CompareRunResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunDetails(params: {
@@ -5264,7 +5600,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<RunDetailsResponse>("GET", path, query);
+    return this.request<RunDetailsResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunAgents(params: {
@@ -5285,7 +5621,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<AgentPipelineResponse>("GET", path, query);
+    return this.request<AgentPipelineResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunAuthorityValues(params: {
@@ -5293,7 +5629,7 @@ export class RuntimeApiClient {
   }): Promise<RunAuthorityProjection> {
     const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/authority-values`;
     const query = undefined;
-    return this.request<RunAuthorityProjection>("GET", path, query);
+    return this.request<RunAuthorityProjection>("GET", path, query, undefined, undefined);
   }
 
   async getCaseInspection(params: {
@@ -5310,7 +5646,7 @@ export class RuntimeApiClient {
       paper_projection_rule_version: params.paper_projection_rule_version,
       paper_projection_hash: params.paper_projection_hash,
     });
-    return this.request<RunPaperPacket>("GET", path, query);
+    return this.request<RunPaperPacket>("GET", path, query, undefined, undefined);
   }
 
   async getRunCompareCandidates(params: {
@@ -5333,7 +5669,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<CompareCandidatesResponse>("GET", path, query);
+    return this.request<CompareCandidatesResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunEvidenceContext(params: {
@@ -5354,7 +5690,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<RunEvidenceContextResponse>("GET", path, query);
+    return this.request<RunEvidenceContextResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunFabricDecisionData(params: {
@@ -5375,7 +5711,79 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<FabricDecisionDataResponse>("GET", path, query);
+    return this.request<FabricDecisionDataResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async getRunHumanDecisionEvidenceContent(params: {
+    run_id: string;
+    artifact_id: string;
+    "X-PolicyOS-Human-Decision-Exposure": string;
+  }): Promise<ArrayBuffer> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/human-decision-evidence/${encodeURIComponent(String(params.artifact_id))}/content`;
+    const query = undefined;
+    const requestHeaders = new Headers();
+    requestHeaders.set("X-PolicyOS-Human-Decision-Exposure", String(params["X-PolicyOS-Human-Decision-Exposure"]));
+    return this.request<ArrayBuffer>("GET", path, query, undefined, requestHeaders, "arrayBuffer");
+  }
+
+  async getRunHumanDecisionGate(params: {
+    run_id: string;
+    source_kind: "agent_action_authority" | "production_approval";
+    source_ref?: string | null;
+    production_packet_ref?: string | null;
+    decision_request_ref?: string | null;
+    principal_binding_ref?: string | null;
+    reviewer_separation_ref?: string | null;
+    presentation_contract_ref?: string | null;
+    exposure_session_ref?: string | null;
+    basis_digest?: string | null;
+    action_kind?: string | null;
+  }): Promise<HumanDecisionGateResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/human-decision-gate`;
+    const query = this.buildQuery({
+      source_kind: params.source_kind,
+      source_ref: params.source_ref,
+      production_packet_ref: params.production_packet_ref,
+      decision_request_ref: params.decision_request_ref,
+      principal_binding_ref: params.principal_binding_ref,
+      reviewer_separation_ref: params.reviewer_separation_ref,
+      presentation_contract_ref: params.presentation_contract_ref,
+      exposure_session_ref: params.exposure_session_ref,
+      basis_digest: params.basis_digest,
+      action_kind: params.action_kind,
+    });
+    return this.request<HumanDecisionGateResponse>("GET", path, query, undefined, undefined);
+  }
+
+  async getRunHumanDecisionRecord(params: {
+    run_id: string;
+    record_ref: string;
+  }): Promise<HumanDecisionRecord> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/human-decisions`;
+    const query = this.buildQuery({
+      record_ref: params.record_ref,
+    });
+    return this.request<HumanDecisionRecord>("GET", path, query, undefined, undefined);
+  }
+
+  async createRunHumanDecision(params: {
+    run_id: string;
+    "X-PolicyOS-Human-Decision-Exposure": string;
+    body: HumanDecisionMutationRequest;
+  }): Promise<HumanDecisionCreateResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/human-decisions`;
+    const query = undefined;
+    const requestHeaders = new Headers();
+    requestHeaders.set("X-PolicyOS-Human-Decision-Exposure", String(params["X-PolicyOS-Human-Decision-Exposure"]));
+    return this.request<HumanDecisionCreateResponse>("POST", path, query, params.body, requestHeaders);
+  }
+
+  async getRunHumanDecisionReviewEffectiveness(params: {
+    run_id: string;
+  }): Promise<HumanDecisionReviewEffectivenessResponse> {
+    const path = `/api/v1/runs/${encodeURIComponent(String(params.run_id))}/human-decisions/review-effectiveness`;
+    const query = undefined;
+    return this.request<HumanDecisionReviewEffectivenessResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunLineage(params: {
@@ -5402,7 +5810,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<RunLineageResponse>("GET", path, query);
+    return this.request<RunLineageResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunCounterfactualMetrics(params: {
@@ -5425,7 +5833,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       regime_shift_forecast_bundle_ref: params.regime_shift_forecast_bundle_ref,
     });
-    return this.request<CounterfactualMetricsResponse>("GET", path, query);
+    return this.request<CounterfactualMetricsResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunNodes(params: {
@@ -5446,7 +5854,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<RunNodesResponse>("GET", path, query);
+    return this.request<RunNodesResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunPaper(params: {
@@ -5463,7 +5871,7 @@ export class RuntimeApiClient {
       paper_projection_rule_version: params.paper_projection_rule_version,
       paper_projection_hash: params.paper_projection_hash,
     });
-    return this.request<RunPaperPacket>("GET", path, query);
+    return this.request<RunPaperPacket>("GET", path, query, undefined, undefined);
   }
 
   async getRunQuantities(params: {
@@ -5484,7 +5892,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<RunQuantitiesResponse>("GET", path, query);
+    return this.request<RunQuantitiesResponse>("GET", path, query, undefined, undefined);
   }
 
   async listRunScenarios(params: {
@@ -5507,7 +5915,7 @@ export class RuntimeApiClient {
       scenario_id: params.scenario_id,
       regime_shift_forecast_bundle_ref: params.regime_shift_forecast_bundle_ref,
     });
-    return this.request<ScenarioListResponse>("GET", path, query);
+    return this.request<ScenarioListResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunTimeline(params: {
@@ -5528,7 +5936,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<RunTimelineResponse>("GET", path, query);
+    return this.request<RunTimelineResponse>("GET", path, query, undefined, undefined);
   }
 
   async getRunWorkflow(params: {
@@ -5549,7 +5957,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       scenario_id: params.scenario_id,
     });
-    return this.request<RunWorkflowResponse>("GET", path, query);
+    return this.request<RunWorkflowResponse>("GET", path, query, undefined, undefined);
   }
 
   async getScenarioManifest(params: {
@@ -5568,7 +5976,7 @@ export class RuntimeApiClient {
       branch: params.branch,
       snapshot_id: params.snapshot_id,
     });
-    return this.request<ScenarioManifestResponse>("GET", path, query);
+    return this.request<ScenarioManifestResponse>("GET", path, query, undefined, undefined);
   }
 
   async getScenarioCapabilities(params: {
@@ -5589,7 +5997,7 @@ export class RuntimeApiClient {
       snapshot_id: params.snapshot_id,
       regime_shift_forecast_bundle_ref: params.regime_shift_forecast_bundle_ref,
     });
-    return this.request<ScenarioCapabilitiesResponse>("GET", path, query);
+    return this.request<ScenarioCapabilitiesResponse>("GET", path, query, undefined, undefined);
   }
 
   async getTemporalCapabilities(params: {
@@ -5599,7 +6007,7 @@ export class RuntimeApiClient {
     const query = this.buildQuery({
       run_id: params.run_id,
     });
-    return this.request<TemporalCapabilitiesResponse>("GET", path, query);
+    return this.request<TemporalCapabilitiesResponse>("GET", path, query, undefined, undefined);
   }
 
   async health(): Promise<{
@@ -5609,7 +6017,7 @@ export class RuntimeApiClient {
     const query = undefined;
     return this.request<{
   [key: string]: unknown;
-}>("GET", path, query);
+}>("GET", path, query, undefined, undefined);
   }
 
   async ready(): Promise<{
@@ -5619,7 +6027,7 @@ export class RuntimeApiClient {
     const query = undefined;
     return this.request<{
   [key: string]: unknown;
-}>("GET", path, query);
+}>("GET", path, query, undefined, undefined);
   }
 
 }

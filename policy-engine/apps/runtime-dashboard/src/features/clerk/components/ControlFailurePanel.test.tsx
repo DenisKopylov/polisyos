@@ -63,7 +63,8 @@ describe("ControlFailurePanel", () => {
             downstream_impact:
               "No serious decision packet can be materialized.",
             authority_refs: {
-              authority_boundary: "runtime.workflow_failed_non_authority.job-demo",
+              authority_boundary:
+                "runtime.workflow_failed_non_authority.job-demo",
               provider_preflight_ref: "sha256:abcdef",
               runtime_event_log: "sha256:bbbb",
             },
@@ -516,6 +517,54 @@ describe("ControlFailurePanel", () => {
     ).toBeInTheDocument();
   });
 
+  it.each([
+    [
+      "string eligibility",
+      {
+        approval_state: "approval_ready",
+        approval_eligibility: {
+          eligible: "yes",
+          state: "approval_ready",
+        },
+      },
+    ],
+    ["state-only readiness", { approval_state: "approval_ready" }],
+  ])(
+    "does not mint recognized availability from %s in open scorecard bytes",
+    (_label, qualityScorecard) => {
+      renderWithProviders(
+        <ControlFailurePanel
+          job={{
+            meta: { request_id: "req-unbound-approval" },
+            job_id: "job-unbound-approval",
+            kind: "natural_language_run",
+            state: "completed",
+            effective_execution_profile: "production",
+            execution_status: "completed",
+            quality_status: "pass",
+            progress: { quality_scorecard: qualityScorecard },
+          }}
+        />,
+      );
+
+      const approvalPanel = screen.getByRole("region", {
+        name: "Control approval",
+      });
+      const stateBadge = within(approvalPanel).getByText(
+        "approval approval_ready",
+      );
+      const availabilityBadge =
+        within(approvalPanel).getByText("not approval-ready");
+      for (const badge of [stateBadge, availabilityBadge]) {
+        expect(badge).toHaveAttribute(
+          "data-authority-recognition",
+          "unrecognized",
+        );
+        expect(badge).toHaveAttribute("data-presentation-tone", "neutral");
+      }
+    },
+  );
+
   it("renders top-level projection authority gaps without nested scorecard data", () => {
     renderWithProviders(
       <ControlFailurePanel
@@ -746,7 +795,7 @@ describe("ControlFailurePanel", () => {
     expect(screen.queryByText("quality fail")).not.toBeInTheDocument();
   });
 
-  it("renders open calibration status neutrally without authority clothing", () => {
+  it("renders open calibration status as explicitly unrecognized authority clothing", () => {
     renderWithProviders(
       <ControlFailurePanel
         job={{
@@ -767,9 +816,83 @@ describe("ControlFailurePanel", () => {
       />,
     );
 
-    expect(screen.getByText("human review pass")).toHaveClass(
-      "bg-white/65",
-      "text-muted",
+    expect(screen.getByText("human review pass")).toHaveAttribute(
+      "data-authority-recognition",
+      "unrecognized",
     );
+    expect(screen.getByText("human review pass")).toHaveAttribute(
+      "data-presentation-tone",
+      "neutral",
+    );
+  });
+
+  it("routes every approval badge through the weakest mixed-outcome projection", () => {
+    renderWithProviders(
+      <ControlFailurePanel
+        job={{
+          meta: { request_id: "req-mixed-authority" },
+          job_id: "job-mixed-authority",
+          kind: "natural_language_run",
+          state: "completed",
+          effective_execution_profile: "production",
+          execution_status: "completed",
+          quality_status: "fail",
+          quality_gates: [
+            {
+              name: "mixed-gate",
+              status: "future_gate_status",
+              layer: "runtime",
+              message: "Novel gate remains visible without gaining authority.",
+              blocking: false,
+            },
+          ],
+          progress: {
+            quality_scorecard: {
+              approval_state: "approval_ready",
+              approval_eligibility: {
+                eligible: true,
+                quality_status: "fail",
+                state: "approval_ready",
+              },
+              human_review_calibration: {
+                status: "future_calibration_status",
+              },
+              performance_budget_issues: [
+                {
+                  layer: "runtime",
+                  phase: "novel-performance-phase",
+                  status: "future_performance_status",
+                },
+                {
+                  budget_ms: 5,
+                  layer: "runtime",
+                  observed_value_ms: 1,
+                  phase: "missing-performance-status",
+                },
+              ],
+            },
+          },
+        }}
+      />,
+    );
+
+    const approvalPanel = screen.getByRole("region", {
+      name: "Control approval",
+    });
+    expect(
+      within(approvalPanel).getByText("approval quality_failed"),
+    ).toHaveAttribute("data-presentation-tone", "fail");
+    expect(
+      within(approvalPanel).getByText("human review future_calibration_status"),
+    ).toHaveAttribute("data-authority-recognition", "unrecognized");
+    expect(
+      within(approvalPanel).getByText("future_gate_status"),
+    ).toHaveAttribute("data-authority-recognition", "unrecognized");
+    expect(
+      within(approvalPanel).getByText("future_performance_status"),
+    ).toHaveAttribute("data-authority-recognition", "unrecognized");
+    expect(
+      within(approvalPanel).queryByText("missing-performance-status"),
+    ).not.toBeInTheDocument();
   });
 });

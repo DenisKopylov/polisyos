@@ -81,6 +81,22 @@ def test_runtime_api_defaults_core_runs_root_to_cas_runs(tmp_path) -> None:
     assert app.state.runtime_container.config.core_runs_root == cas_root / "runs"
 
 
+def test_control_service_exposes_one_narrow_human_decision_sink(tmp_path) -> None:
+    service = _build_control_service(tmp_path)
+    try:
+        sink = service.human_decision_sink
+
+        assert sink is service.human_decision_sink
+        assert not hasattr(sink, "artifact_store")
+        assert not hasattr(sink, "event_log")
+        assert not hasattr(sink, "reservation_store")
+        assert callable(sink.reserve_action)
+        assert callable(sink.write_authority_artifact)
+        assert callable(sink.verify_artifact_signature)
+    finally:
+        service.close()
+
+
 def test_runtime_principal_preserves_cell_id_in_policy_actor() -> None:
     principal = RuntimePrincipal.from_user_claims(_fixture_claims())
     resolver = RuntimeExecutionPolicyResolver(

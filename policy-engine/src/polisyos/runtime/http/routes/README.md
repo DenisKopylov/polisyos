@@ -16,14 +16,22 @@ translate requests to service calls, set authz context, and return contract-back
 - **Debug routes** - node, governance, errors, feedback, and compare views.
 - **Artifacts routes** - manifest, content, lineage, and schema inspection.
 - **Control routes** - run launch, feedback/reissue, data, and Lex control-plane entrypoints.
+- **Human-decision routes** - run-bound pre-action gates, step-up-protected decision
+  writes, exact evidence delivery, and review-effectiveness projection. The routes
+  consume deployment-verified service results; request DTOs never carry authority.
 
 ## Public API
 
-- route modules: `health.py`, `runs.py`, `debug.py`, `artifacts.py`, `control.py`
-- route routers exported from `__init__.py`: `health_router`, `runs_router`, `debug_router`, `artifacts_router`
+- route modules: `health.py`, `runs.py`, `debug.py`, `artifacts.py`, `control.py`,
+  `human_decisions.py`
+- route routers exported from `__init__.py`: `health_router`, `runs_router`,
+  `debug_router`, `artifacts_router`, `control_router`, `human_decisions_router`
 
 ## Current State
 
-- Last updated: 2026-04-03
+- Last updated: 2026-08-24
 - The control-plane surface still includes the broader data/lex endpoints documented in the current routes.
 - `openapi_contract.py` now mirrors new control and decision-validity examples that sit behind these routes.
+- Completed human-decision exposure receipts are appended only by the dedicated
+  exact-byte response path in the existing access-audit trail; generic artifact
+  reads and generic audit appends cannot mint them.

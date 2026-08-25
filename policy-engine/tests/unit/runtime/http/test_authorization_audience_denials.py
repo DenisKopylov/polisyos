@@ -147,9 +147,7 @@ def test_unverified_permission_header_is_ignored(runtime_api_env) -> None:
         suffix="unverified-permission-header",
         roles=frozenset(),
     )
-    headers["X-PolicyOS-Permissions"] = (
-        RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE.value
-    )
+    headers["X-PolicyOS-Permissions"] = RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE.value
 
     response = client.post(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}/production-approval",
@@ -174,12 +172,30 @@ def test_coarse_opa_allow_without_exact_permission_is_denied(runtime_api_env) ->
     response = client.post(
         "/api/v1/control/runs",
         headers=headers,
-        json={
-            "data_source": {
-                "data_snapshot_ref": runtime_api_env["root_artifact_id"]
-            }
-        },
+        json={"data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]}},
     )
 
     _assert_permission_denied(response, permission=RuntimePermission.RUNS_LAUNCH)
     assert opa.inputs == []
+
+
+def test_viewer_service_and_system_cannot_create_human_decisions(
+    runtime_api_env,
+) -> None:
+    for role in (PolicyOSRole.VIEWER, PolicyOSRole.SERVICE, PolicyOSRole.SYSTEM):
+        client, opa, headers = _authenticated_client(
+            runtime_api_env,
+            suffix=f"human-decision-denied-{role.value}",
+            roles=frozenset({role}),
+        )
+        response = client.post(
+            f"/api/v1/runs/{runtime_api_env['core_run_id']}/human-decisions",
+            headers=headers,
+            json={},
+        )
+
+        _assert_permission_denied(
+            response,
+            permission=RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
+        )
+        assert opa.inputs == []

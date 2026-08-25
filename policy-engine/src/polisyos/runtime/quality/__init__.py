@@ -30,7 +30,12 @@ from .acquisition_planner import (
     requirement_gaps_from_compiled_specs,
 )
 from .approval import (
+    ProductionApprovalCurrentnessProjection,
+    ProductionApprovalIssuanceInput,
+    ProductionApprovalPacketResolver,
+    ProductionApprovalResolutionError,
     build_production_approval_packet,
+    build_resolved_production_approval_packet,
     persist_production_approval_packet,
 )
 from .argument_graph import (
@@ -370,120 +375,6 @@ from .degradation import (
     evaluate_degradation_policy,
     serialize_degradation_record,
 )
-from .design_problem import (
-    DESIGN_PROBLEM_SCHEMA_VERSION,
-    AuthorityProfile,
-    CandidateLever,
-    CandidateLeverSpace,
-    DesignConstraint,
-    DesignObjective,
-    DesignProblem,
-    DesignProblemAuthorityError,
-    DesignStakeholder,
-    EvidenceAcquisitionNeeds,
-    EvidenceNeed,
-    JurisdictionTimeSemantics,
-    NLProvenance,
-    OutcomeOfInterest,
-)
-from .diagnostic_slos import (
-    build_diagnostic_slo_report,
-    build_diagnostic_slo_report_from_quality_context,
-    default_diagnostic_slo_targets,
-    diagnostic_slo_gates,
-)
-from .disconfirming_evidence import (
-    DISCONFIRMING_EVIDENCE_LEDGER_CONTRACT_ID,
-    DISCONFIRMING_EVIDENCE_LEDGER_SCHEMA_VERSION,
-    DisconfirmingEvidenceLedgerError,
-    build_disconfirming_evidence_ledger,
-    validate_disconfirming_evidence_ledger_record,
-)
-from .effective_mode import (
-    EffectiveModeLedger,
-    ModePolicyError,
-    ModePolicyViolation,
-    assert_serious_mode_allowed,
-    explain_mode_mismatch,
-    mode_policy_failure_code,
-)
-from .event_log import DiagnosticEventPayloadPolicy, RuntimeDiagnosticEventLog
-from .evidence_independence import (
-    GRADED_INDEPENDENCE_FEATURE_FLAG,
-    INDEPENDENCE_MAP_CONTRACT_ID,
-    INDEPENDENCE_MAP_SCHEMA_VERSION,
-    CapabilityIndependenceFactor,
-    EvidenceIndependenceError,
-    build_evidence_independence_map,
-    effective_independence_factor_for_capability,
-    validate_evidence_independence_map_record,
-)
-from .evidence_line import (
-    EVIDENCE_LINE_CONTRACT_ID,
-    EVIDENCE_LINE_SCHEMA_VERSION,
-    SUPPORTED_EVIDENCE_LINE_STRANDS,
-    EvidenceLineError,
-    evidence_line_record_id,
-    validate_evidence_line_record,
-    validate_evidence_line_records,
-)
-from .evidence_synthesis import (
-    EVIDENCE_SYNTHESIS_REPORT_CONTRACT_ID,
-    EVIDENCE_SYNTHESIS_REPORT_SCHEMA_VERSION,
-    EvidenceSynthesisReportError,
-    build_evidence_synthesis_report,
-    evidence_synthesis_refs_by_claim,
-    synthesis_report_record_id,
-    validate_evidence_synthesis_report_record,
-)
-from .explanation_reliability import build_berl_warrant_reliability_record
-from .external_audit import (
-    EXTERNAL_AUDIT_RECORD_FAMILY,
-    EXTERNAL_AUDIT_RECORD_SCHEMA_VERSION,
-    ExternalAuditRecordError,
-    build_public_audit_archive_record,
-    validate_public_audit_archive_record,
-)
-from .graded_outcomes import (
-    S1_GRADED_OUTCOME_SCHEMA_VERSION,
-    GradedOutcomeDecision,
-    GradedOutcomeEvidenceInput,
-    GradedOutcomeInputError,
-    compose_graded_outcome,
-    graded_outcome_closeout_record,
-)
-from .human_review import (
-    build_human_review_calibration_report,
-    deterministic_review_fixtures,
-    evaluate_review_packet,
-    human_review_public_export,
-    persist_human_review_calibration_report,
-)
-from .hypothesis_ledger import (
-    HYPOTHESIS_LEDGER_FILENAME,
-    HYPOTHESIS_LEDGER_KIND,
-    HYPOTHESIS_LEDGER_REF_KEY,
-    HYPOTHESIS_LEDGER_REPORT_KEY,
-    HYPOTHESIS_LEDGER_SCHEMA_VERSION,
-    CandidateAuthorityEnvelope,
-    HypothesisLedger,
-    HypothesisLedgerEntry,
-    build_hypothesis_ledger_from_prompt_tool_ledger,
-    deserialize_hypothesis_ledger,
-    persist_hypothesis_ledger,
-    serialize_hypothesis_ledger,
-)
-from .ir_analytics_bridge import (
-    IR_ANALYTICS_CLAIM_BRIDGE_KIND,
-    IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY,
-    IR_ANALYTICS_CLAIM_BRIDGE_SCHEMA_VERSION,
-    IRAnalyticsClaimBinding,
-    build_ir_analytics_claim_bridge,
-    ir_analytics_bridge_issues_for_claims,
-    ir_analytics_claim_bindings_by_claim,
-    merge_ir_analytics_binding_into_registry_entry,
-    normalize_ir_analytics_claim_bridge,
-)
 from .design_axes.blind_spot_firewalls import (
     LAYER2_S6_BLIND_SPOT_FIREWALLS_SCHEMA_VERSION,
     AggregationClaimLevel,
@@ -579,6 +470,18 @@ from .design_axes.coupling_composition import (
     derive_recursive_design_graph,
     discover_design_modules,
 )
+from .design_axes.epistemic_regime import (
+    LAYER2_S4_EPISTEMIC_REGIME_SCHEMA_VERSION,
+    DesignStrategy,
+    EpistemicRegimeClaim,
+    P16OverconfidenceError,
+    P16PrecautionLaunderingError,
+    RegimeEvidenceBasis,
+    classify_regime,
+    regime_accuracy,
+    regime_claim_to_axis_position,
+    regime_design_strategy,
+)
 from .design_axes.mandate_bounded_delegation import (
     LAYER2_S7_DELEGATION_SCHEMA_VERSION,
     DecisionAction,
@@ -607,18 +510,6 @@ from .design_axes.mandate_bounded_delegation import (
     evaluate_delegation_for_case,
     record_human_decision,
     s7_delegation_integrity,
-)
-from .design_axes.epistemic_regime import (
-    LAYER2_S4_EPISTEMIC_REGIME_SCHEMA_VERSION,
-    DesignStrategy,
-    EpistemicRegimeClaim,
-    P16OverconfidenceError,
-    P16PrecautionLaunderingError,
-    RegimeEvidenceBasis,
-    classify_regime,
-    regime_accuracy,
-    regime_claim_to_axis_position,
-    regime_design_strategy,
 )
 from .design_axes.outcome_prediction import (
     LAYER2_S10_OUTCOME_PREDICTION_RULE_VERSION,
@@ -858,6 +749,120 @@ from .design_axes.value_choice_provenance import (
     project_value_tradeoff_disclosure,
     s8_value_provenance_integrity,
 )
+from .design_problem import (
+    DESIGN_PROBLEM_SCHEMA_VERSION,
+    AuthorityProfile,
+    CandidateLever,
+    CandidateLeverSpace,
+    DesignConstraint,
+    DesignObjective,
+    DesignProblem,
+    DesignProblemAuthorityError,
+    DesignStakeholder,
+    EvidenceAcquisitionNeeds,
+    EvidenceNeed,
+    JurisdictionTimeSemantics,
+    NLProvenance,
+    OutcomeOfInterest,
+)
+from .diagnostic_slos import (
+    build_diagnostic_slo_report,
+    build_diagnostic_slo_report_from_quality_context,
+    default_diagnostic_slo_targets,
+    diagnostic_slo_gates,
+)
+from .disconfirming_evidence import (
+    DISCONFIRMING_EVIDENCE_LEDGER_CONTRACT_ID,
+    DISCONFIRMING_EVIDENCE_LEDGER_SCHEMA_VERSION,
+    DisconfirmingEvidenceLedgerError,
+    build_disconfirming_evidence_ledger,
+    validate_disconfirming_evidence_ledger_record,
+)
+from .effective_mode import (
+    EffectiveModeLedger,
+    ModePolicyError,
+    ModePolicyViolation,
+    assert_serious_mode_allowed,
+    explain_mode_mismatch,
+    mode_policy_failure_code,
+)
+from .event_log import DiagnosticEventPayloadPolicy, RuntimeDiagnosticEventLog
+from .evidence_independence import (
+    GRADED_INDEPENDENCE_FEATURE_FLAG,
+    INDEPENDENCE_MAP_CONTRACT_ID,
+    INDEPENDENCE_MAP_SCHEMA_VERSION,
+    CapabilityIndependenceFactor,
+    EvidenceIndependenceError,
+    build_evidence_independence_map,
+    effective_independence_factor_for_capability,
+    validate_evidence_independence_map_record,
+)
+from .evidence_line import (
+    EVIDENCE_LINE_CONTRACT_ID,
+    EVIDENCE_LINE_SCHEMA_VERSION,
+    SUPPORTED_EVIDENCE_LINE_STRANDS,
+    EvidenceLineError,
+    evidence_line_record_id,
+    validate_evidence_line_record,
+    validate_evidence_line_records,
+)
+from .evidence_synthesis import (
+    EVIDENCE_SYNTHESIS_REPORT_CONTRACT_ID,
+    EVIDENCE_SYNTHESIS_REPORT_SCHEMA_VERSION,
+    EvidenceSynthesisReportError,
+    build_evidence_synthesis_report,
+    evidence_synthesis_refs_by_claim,
+    synthesis_report_record_id,
+    validate_evidence_synthesis_report_record,
+)
+from .explanation_reliability import build_berl_warrant_reliability_record
+from .external_audit import (
+    EXTERNAL_AUDIT_RECORD_FAMILY,
+    EXTERNAL_AUDIT_RECORD_SCHEMA_VERSION,
+    ExternalAuditRecordError,
+    build_public_audit_archive_record,
+    validate_public_audit_archive_record,
+)
+from .graded_outcomes import (
+    S1_GRADED_OUTCOME_SCHEMA_VERSION,
+    GradedOutcomeDecision,
+    GradedOutcomeEvidenceInput,
+    GradedOutcomeInputError,
+    compose_graded_outcome,
+    graded_outcome_closeout_record,
+)
+from .human_review import (
+    build_human_review_calibration_report,
+    deterministic_review_fixtures,
+    evaluate_review_packet,
+    human_review_public_export,
+    persist_human_review_calibration_report,
+)
+from .hypothesis_ledger import (
+    HYPOTHESIS_LEDGER_FILENAME,
+    HYPOTHESIS_LEDGER_KIND,
+    HYPOTHESIS_LEDGER_REF_KEY,
+    HYPOTHESIS_LEDGER_REPORT_KEY,
+    HYPOTHESIS_LEDGER_SCHEMA_VERSION,
+    CandidateAuthorityEnvelope,
+    HypothesisLedger,
+    HypothesisLedgerEntry,
+    build_hypothesis_ledger_from_prompt_tool_ledger,
+    deserialize_hypothesis_ledger,
+    persist_hypothesis_ledger,
+    serialize_hypothesis_ledger,
+)
+from .ir_analytics_bridge import (
+    IR_ANALYTICS_CLAIM_BRIDGE_KIND,
+    IR_ANALYTICS_CLAIM_BRIDGE_REF_KEY,
+    IR_ANALYTICS_CLAIM_BRIDGE_SCHEMA_VERSION,
+    IRAnalyticsClaimBinding,
+    build_ir_analytics_claim_bridge,
+    ir_analytics_bridge_issues_for_claims,
+    ir_analytics_claim_bindings_by_claim,
+    merge_ir_analytics_binding_into_registry_entry,
+    normalize_ir_analytics_claim_bridge,
+)
 from .legacy_payload_migration_audit import (
     LEGACY_MIGRATION_SEMANTIC_LOSS,
     build_legacy_migration_sandbox,
@@ -899,22 +904,6 @@ from .observability_static_audit import (
     build_skip_causality_ledger_record,
     validate_observability_orchestration_static_audit_records,
 )
-from .tenant_cas_approval_governance import (
-    PASS1B_HARDENING_READINESS_CHECK,
-    PASS1B_HARDENING_SCORECARD_GATE,
-    PASS1B_PDD_REQUIRED_SURFACES,
-    PASS1B_REQUIRED_CASE_BINDING_FIELDS,
-    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID,
-    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_PDDS,
-    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_RECORD_KEY,
-    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_SCHEMA_VERSION,
-    PolicyDesignPass1BHardeningError,
-    PolicyDesignPass1BHardeningIssue,
-    build_pass1b_tenant_cas_approval_governance_record,
-    pass1b_tenant_cas_approval_governance_issues,
-    policy_design_pass1b_hardening_scorecard_gates,
-    validate_pass1b_tenant_cas_approval_governance_record,
-)
 from .performance_budget import (
     build_canary_performance_budget,
     run_cost_budget_policy_from_performance_budget,
@@ -953,6 +942,12 @@ from .policy_design_case import (
     policy_design_case_record_registry_payload,
     policy_design_case_record_registry_scorecard_gates,
     validate_policy_design_case_record_registry_payload,
+)
+from .policy_design_case_integration_skeleton import (
+    WAVE2_I2_MANIFEST_SCHEMA_VERSION,
+    WAVE2_I2_SCHEMA_VERSION,
+    build_wave2_policy_design_case_walking_skeleton,
+    persist_wave2_policy_design_case_walking_skeleton,
 )
 from .producer_pipeline import (
     PRODUCER_PIPELINE_FEATURE_FLAG,
@@ -1089,11 +1084,21 @@ from .soft_gate_telemetry import (
     build_soft_gate_telemetry_report,
     warning_lifecycle_summaries,
 )
-from .policy_design_case_integration_skeleton import (
-    WAVE2_I2_MANIFEST_SCHEMA_VERSION,
-    WAVE2_I2_SCHEMA_VERSION,
-    build_wave2_policy_design_case_walking_skeleton,
-    persist_wave2_policy_design_case_walking_skeleton,
+from .tenant_cas_approval_governance import (
+    PASS1B_HARDENING_READINESS_CHECK,
+    PASS1B_HARDENING_SCORECARD_GATE,
+    PASS1B_PDD_REQUIRED_SURFACES,
+    PASS1B_REQUIRED_CASE_BINDING_FIELDS,
+    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_CONTRACT_ID,
+    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_PDDS,
+    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_RECORD_KEY,
+    PASS1B_TENANT_CAS_APPROVAL_GOVERNANCE_SCHEMA_VERSION,
+    PolicyDesignPass1BHardeningError,
+    PolicyDesignPass1BHardeningIssue,
+    build_pass1b_tenant_cas_approval_governance_record,
+    pass1b_tenant_cas_approval_governance_issues,
+    policy_design_pass1b_hardening_scorecard_gates,
+    validate_pass1b_tenant_cas_approval_governance_record,
 )
 
 __all__ = [
@@ -1354,9 +1359,9 @@ __all__ = [
     "AuthorityEnvelopeError",
     "AuthorityEnvelopeViolation",
     "AuthorityLevel",
+    "AuthorityProfile",
     "AuthorityReconciliationError",
     "AuthorityReconciliationReport",
-    "AuthorityProfile",
     "AuthorizedValueSchedule",
     "AxisFailClosedDisposition",
     "BlindSpotAxis",
@@ -1479,9 +1484,9 @@ __all__ = [
     "EvidenceAcquisitionNeeds",
     "EvidenceAuthorityEnvelope",
     "EvidenceCapability",
-    "EvidenceNeed",
     "EvidenceIndependenceError",
     "EvidenceLineError",
+    "EvidenceNeed",
     "EvidenceSynthesisReportError",
     "ExpertOracleBootstrapRecord",
     "ExpertOracleLayerRow",
@@ -1609,6 +1614,10 @@ __all__ = [
     "ProducerPipelineProducer",
     "ProducerSpineReadContext",
     "ProducerWaitCondition",
+    "ProductionApprovalCurrentnessProjection",
+    "ProductionApprovalIssuanceInput",
+    "ProductionApprovalPacketResolver",
+    "ProductionApprovalResolutionError",
     "ProjectionAlgebraRequest",
     "ProjectionFaithfulnessRecord",
     "ProjectionLoweringIntegrityReport",
@@ -1818,6 +1827,7 @@ __all__ = [
     "build_public_export_bundle",
     "build_quality_scorecard",
     "build_replay_manifest",
+    "build_resolved_production_approval_packet",
     "build_resource_allocation_policy",
     "build_rule_evolution_registry",
     "build_rule_evolution_replay_context",

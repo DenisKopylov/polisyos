@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import { isInteractionState } from "@/shared/lib/domain/statusOwnership";
 
 import {
+  buildDisputeRecords,
   createDisputePersistence,
   createDisputeStatus,
   type DisputeRecord,
@@ -37,6 +38,7 @@ class MemoryStorage {
 function dispute(overrides: Partial<DisputeRecord> = {}): DisputeRecord {
   return {
     actor: "reviewer",
+    authorityPurpose: "case_management_note",
     basis: "legal",
     id: "local:run-a:appeal",
     openedAt: "2026-08-16T11:00:00.000Z",
@@ -94,6 +96,7 @@ describe("run dispute persistence", () => {
     const [hydrated] = persistence.read(SCOPE_A, "run-a");
     expect(hydrated).toMatchObject({
       actor: "reviewer",
+      authorityPurpose: "case_management_note",
       basis: "legal",
       id: "local:run-a:appeal",
       openedAt: "2026-08-16T11:00:00.000Z",
@@ -117,6 +120,20 @@ describe("run dispute persistence", () => {
       severity: "warning",
     });
     expect(governance.actor).toBe("governance");
+    expect(governance.authorityPurpose).toBe("governance_projection");
+  });
+
+  it("keeps every local reviewer row case-management-only", () => {
+    const [local] = buildDisputeRecords(
+      [],
+      [dispute({ authorityPurpose: "governance_projection" })],
+    );
+
+    expect(local).toMatchObject({
+      actor: "reviewer",
+      authorityPurpose: "case_management_note",
+    });
+    expect(local).not.toHaveProperty("humanDecisionSelector");
   });
 
   it("rejects legacy, malformed, extra-field, duplicate, and cross-scope bytes without rewriting", () => {
@@ -495,7 +512,12 @@ describe("run dispute persistence", () => {
     storage.calls.splice(0);
 
     expect(persistence.read(binding.scope, "run-a")).toMatchObject([
-      { actor: "reviewer", id: "local:a", title: "A dispute" },
+      {
+        actor: "reviewer",
+        authorityPurpose: "case_management_note",
+        id: "local:a",
+        title: "A dispute",
+      },
     ]);
 
     expect(binding.reads()).toEqual({ tenant: 1, user: 1 });

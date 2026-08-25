@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 from polisyos.scientist.artifacts.decision_compiler import (
     DecisionArtifactCompilationError,
+    compile_draft_decision_packet,
     compile_publishable_decision_artifact,
 )
-from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 from polisyos.scientist.validation.decision_artifact_quality import (
     build_decision_artifact_quality_report,
 )
@@ -153,7 +154,7 @@ def _complete_artifact(
     return artifact, final_claims
 
 
-def test_quality_report_passes_complete_serious_decision_artifact() -> None:
+def test_quality_report_blocks_raw_approval_without_concrete_currentness() -> None:
     artifact, final_claims = _complete_artifact()
 
     report = build_decision_artifact_quality_report(
@@ -171,16 +172,91 @@ def test_quality_report_passes_complete_serious_decision_artifact() -> None:
         profile="production",
     )
 
-    assert report["status"] == "pass"
-    assert report["blocking_issue_count"] == 0
+    assert report["status"] == "fail"
+    assert report["blocking_issue_count"] == 2
+    assert {issue["code"] for issue in report["issues"]} == {
+        "decision_artifact_approval_currentness_unresolved",
+        "decision_artifact_claim_evidence_contract_blocked",
+    }
     assert report["decision_artifact_quality_report_ref"].startswith("sha256:")
-    assert report["decision_artifact_quality_report_ref"] == (
-        repeated["decision_artifact_quality_report_ref"]
+    assert (
+        report["decision_artifact_quality_report_ref"]
+        == (repeated["decision_artifact_quality_report_ref"])
     )
     assert report["parallel_evaluation"]["uses_compiled_output"] is True
     assert "policy_grounding_matrix_ref" in report["input_refs"]
     assert "quality_scorecard_ref" in report["input_refs"]
-    assert report["claim_evidence_contract"]["status"] == "pass"
+    assert report["claim_evidence_contract"]["status"] == "blocked"
+
+
+def _historical_draft(*, final_claims: list[dict[str, object]] | None = None):
+    claims = final_claims or []
+    artifact = compile_draft_decision_packet(
+        run_id="run-quality-historical",
+        final_claims=claims,
+        policy_grounding_matrix=None,
+        quality_scorecard=None,
+        conflict_check=None,
+        approval_state="draft",
+    )
+    artifact["approval_currentness"] = "producer_missing"
+    artifact["approval_projection_only"] = True
+    return artifact, claims
+
+
+def test_quality_report_accepts_structural_draft_historical_approval_mode() -> None:
+    artifact, final_claims = _historical_draft()
+
+    report = build_decision_artifact_quality_report(
+        compiled_artifact=artifact,
+        final_claims=final_claims,
+        profile="production",
+        approval_authority_mode="draft_historical",
+    )
+
+    assert report["status"] == "pass"
+    assert report["approval_authority"] == {
+        "mode": "draft_historical",
+        "operational_authority": False,
+        "currentness": "producer_missing",
+    }
+    assert "decision_artifact_approval_currentness_unresolved" not in {
+        issue["code"] for issue in report["issues"]
+    }
+
+
+def test_historical_approval_mode_rejects_non_draft_artifact_shape() -> None:
+    artifact, final_claims = _historical_draft()
+    artifact["artifact_kind"] = "publishable_decision_artifact"
+
+    report = build_decision_artifact_quality_report(
+        compiled_artifact=artifact,
+        final_claims=final_claims,
+        profile="production",
+        approval_authority_mode="draft_historical",
+    )
+
+    assert report["status"] == "fail"
+    assert "decision_artifact_historical_projection_invalid" in {
+        issue["code"] for issue in report["issues"]
+    }
+
+
+def test_historical_approval_mode_keeps_unrelated_production_quality_hard() -> None:
+    claim = _complete_major_recommendation(monitoring_plan="")
+    artifact, final_claims = _historical_draft(final_claims=[claim])
+
+    report = build_decision_artifact_quality_report(
+        compiled_artifact=artifact,
+        final_claims=final_claims,
+        profile="production",
+        approval_authority_mode="draft_historical",
+    )
+
+    assert report["status"] == "fail"
+    assert "major_recommendation_missing_required_section" in {
+        issue["code"] for issue in report["issues"]
+    }
 
 
 def test_quality_report_fails_without_runtime_claim_registry_entry() -> None:
@@ -201,7 +277,7 @@ def test_quality_report_fails_without_runtime_claim_registry_entry() -> None:
     assert "runtime_claim_registry_entry_missing" in issue_codes
 
 
-def test_quality_report_accepts_runtime_claim_registry_projection() -> None:
+def test_quality_report_accepts_registry_but_not_as_approval_currentness() -> None:
     recommendation = _complete_major_recommendation(
         scenario_requirement_refs=["scenario.req.credit_support"],
         selected_norm_refs=["norm.ua.credit_guarantee"],
@@ -231,9 +307,12 @@ def test_quality_report_accepts_runtime_claim_registry_projection() -> None:
         profile="production",
     )
 
-    assert report["status"] == "pass"
+    assert report["status"] == "fail"
     assert report["runtime_claim_registry"]["status"] == "pass"
     assert report["summary"]["runtime_claim_registry_entry_count"] == 1
+    assert "decision_artifact_approval_currentness_unresolved" in {
+        issue["code"] for issue in report["issues"]
+    }
 
 
 def test_quality_report_fails_when_public_ready_contract_is_missing() -> None:
@@ -309,8 +388,7 @@ def test_quality_report_fails_overstated_certainty_and_public_secrets() -> None:
     artifact, final_claims = _complete_artifact(
         _complete_major_recommendation(
             text=(
-                "The benchmark proves this model will definitely cause a fully "
-                "compliant outcome."
+                "The benchmark proves this model will definitely cause a fully compliant outcome."
             ),
             uncertainty="No uncertainty.",
         )
@@ -343,10 +421,6 @@ def test_quality_report_fails_when_public_artifact_drops_citations() -> None:
         profile="production",
     )
 
-    issue = next(
-        issue
-        for issue in report["issues"]
-        if issue["code"] == "citation_refs_dropped"
-    )
+    issue = next(issue for issue in report["issues"] if issue["code"] == "citation_refs_dropped")
     assert report["status"] == "fail"
     assert issue["claim_id"] == "rec_credit_guarantee"

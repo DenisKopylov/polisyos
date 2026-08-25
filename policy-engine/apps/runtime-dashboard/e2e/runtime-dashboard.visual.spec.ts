@@ -9,6 +9,12 @@ import {
 } from "@playwright/test";
 
 import type { components } from "../src/api/types";
+import { buildSignedPublicDecisionPacket } from "../src/features/runs/domain/publicationPacket";
+import {
+  availableHumanDecisionGate,
+  humanDecisionReviewEffectivenessFixture,
+  humanDecisionSourceRef,
+} from "../src/test/fixtures/humanDecision";
 import { readPdfPageGeometry } from "./helpers/pdfGeometry";
 import {
   installDashboardTestState,
@@ -28,6 +34,8 @@ const A4_WIDTH_POINTS = 595.2756;
 const A4_HEIGHT_POINTS = 841.8898;
 const A4_TOLERANCE_POINTS = 0.5;
 type RunPaperPacket = components["schemas"]["RunPaperPacket"];
+type HumanDecisionGateResponse =
+  components["schemas"]["HumanDecisionGateResponse"];
 let fixtureMetadata: RunPaperFixtureMetadata;
 
 async function waitForVisualFonts(page: Page) {
@@ -65,6 +73,37 @@ async function waitForStableRender(locator: Locator, timeout = 15_000) {
       { timeout },
     )
     .toBeGreaterThanOrEqual(1);
+}
+
+async function horizontalOverflowOffenders(locator: Locator) {
+  return locator.evaluate((root) =>
+    [root, ...root.querySelectorAll("*")]
+      .filter((element) => element.scrollWidth > element.clientWidth + 1)
+      .map((element) => ({
+        className: String(element.className),
+        clientWidth: element.clientWidth,
+        scrollWidth: element.scrollWidth,
+        tagName: element.tagName,
+        text: element.textContent?.trim().slice(0, 160) ?? "",
+      })),
+  );
+}
+
+async function documentHorizontalOverflow(page: Page) {
+  return page.evaluate(() => {
+    const scrollWidth = Math.max(
+      document.documentElement.scrollWidth,
+      document.body.scrollWidth,
+    );
+    const zoom =
+      Number.parseFloat(getComputedStyle(document.documentElement).zoom) || 1;
+    return {
+      normalizedScrollWidth: scrollWidth / zoom,
+      scrollWidth,
+      viewportWidth: document.documentElement.clientWidth,
+      zoom,
+    };
+  });
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -346,6 +385,192 @@ async function installVisualResponseMetadataFixture(
       });
     });
   }
+}
+
+function humanDecisionCasePath(runId: string) {
+  const query = new URLSearchParams({
+    action_kind: "data_request",
+    source_kind: "agent_action_authority",
+    source_ref: humanDecisionSourceRef,
+  });
+  return `/runs/${encodeURIComponent(runId)}/case?${query.toString()}`;
+}
+
+function bindHumanDecisionGateToRun(
+  gate: HumanDecisionGateResponse,
+  runId: string,
+): HumanDecisionGateResponse {
+  const bound = structuredClone(gate);
+  const contestability = bound.contestability;
+  return {
+    ...bound,
+    contestability: contestability
+      ? {
+          ...contestability,
+          href:
+            `/runs/${encodeURIComponent(runId)}/case?` +
+            new URLSearchParams({
+              appeal_case_id: contestability.case_id,
+              source_kind: "agent_action_authority",
+              source_ref: humanDecisionSourceRef,
+            }).toString(),
+        }
+      : null,
+    run_id: runId,
+  };
+}
+
+function blockedHumanDecisionGate(runId: string): HumanDecisionGateResponse {
+  const longRef = `pdc://s7/${"delegation-provenance-".repeat(10)}terminal`;
+  const longDecisionClass = `decision-class-${"x".repeat(100)}`;
+  const longOperation = `operation-${"y".repeat(185)}`;
+  const longRightPerson = `reviewer-role-${"z".repeat(280)}`;
+  const gate = bindHumanDecisionGateToRun(availableHumanDecisionGate(), runId);
+  if (!gate.decision_request || !gate.mandate) {
+    throw new TypeError("DS9 visual fixture requires request and mandate");
+  }
+  return {
+    ...gate,
+    decision_request: {
+      ...gate.decision_request,
+      decidable_until: "2026-08-24T11:59:57Z",
+      decision_due_at: "2026-08-24T11:59:56Z",
+      decision_rights_matrix_ref: `${longRef}/rights`,
+      delegation_contract_ref: `${longRef}/contract`,
+      five_rights_binding: {
+        ...gate.decision_request.five_rights_binding,
+        decision_class_id: longDecisionClass,
+        decision_rights_matrix_ref: `${longRef}/rights`,
+      },
+      five_rights_requirements: {
+        ...gate.decision_request.five_rights_requirements,
+        right_person: longRightPerson,
+      },
+      requested_at: "2026-08-24T11:30:00Z",
+    },
+    mandate: {
+      ...gate.mandate,
+      mandate_owner_ref: `${longRef}/owner`,
+      mandate_record_ref: `${longRef}/mandate`,
+      operation_id: longOperation,
+      valid_until: "2026-08-24T11:59:59Z",
+    },
+    reason_codes: [
+      "DS9-WRONG-ROLE",
+      "DS9-DECISION-TTL-EXPIRED",
+      "DS9-AUTHORITY-CROSS-USE",
+    ],
+    reasons: [
+      {
+        code: "DS9-WRONG-ROLE",
+        message:
+          "The signed reviewer role does not authorize this decision and cannot be substituted by a matching display label.",
+        status: "blocked",
+      },
+      {
+        code: "DS9-DECISION-TTL-EXPIRED",
+        message:
+          "The mandate-bounded decision interval expired before this pre-action gate was resolved; a fresh signed packet is required.",
+        status: "blocked",
+      },
+      {
+        code: "DS9-AUTHORITY-CROSS-USE",
+        message:
+          "Search authority cannot be reused for a data_request action, even when every projected reference is present. " +
+          "This deliberately long reason proves that typed refusal, provenance, and the next revalidation boundary remain readable without horizontal clipping.",
+        status: "blocked",
+      },
+    ],
+    status: "blocked",
+    submission: null,
+  };
+}
+
+async function installHumanDecisionVisualFixture(
+  page: Page,
+  runId: string,
+  gate: HumanDecisionGateResponse,
+) {
+  await page.route("**/api/v1/auth/me", async (route) => {
+    const requestUrl = new URL(route.request().url());
+    if (
+      route.request().method() !== "GET" ||
+      requestUrl.pathname !== "/api/v1/auth/me"
+    ) {
+      await route.fallback();
+      return;
+    }
+    const response = await route.fetch();
+    const payload: unknown = await response.json();
+    if (!isRecord(payload) || !Array.isArray(payload.permissions)) {
+      throw new TypeError("DS9 visual fixture expected auth permissions");
+    }
+    const permissions = payload.permissions.filter(
+      (permission): permission is string => typeof permission === "string",
+    );
+    await route.fulfill({
+      response,
+      json: {
+        ...payload,
+        permissions: [
+          ...new Set([...permissions, "runs.human_decisions.create"]),
+        ],
+      },
+    });
+  });
+
+  await page.route(
+    `**/api/v1/runs/${encodeURIComponent(runId)}/human-decision-gate*`,
+    async (route) => {
+      const requestUrl = new URL(route.request().url());
+      if (
+        route.request().method() !== "GET" ||
+        requestUrl.pathname !==
+          `/api/v1/runs/${encodeURIComponent(runId)}/human-decision-gate`
+      ) {
+        await route.fallback();
+        return;
+      }
+      await route.fulfill({ json: gate, status: 200 });
+    },
+  );
+
+  await page.route(
+    `**/api/v1/runs/${encodeURIComponent(runId)}/human-decisions/review-effectiveness`,
+    async (route) => {
+      const requestUrl = new URL(route.request().url());
+      if (
+        route.request().method() !== "GET" ||
+        requestUrl.pathname !==
+          `/api/v1/runs/${encodeURIComponent(runId)}/human-decisions/review-effectiveness`
+      ) {
+        await route.fallback();
+        return;
+      }
+      await route.fulfill({
+        json: humanDecisionReviewEffectivenessFixture({ run_id: runId }),
+        status: 200,
+      });
+    },
+  );
+}
+
+async function openHumanDecisionCase(
+  page: Page,
+  runId: string,
+  gate: HumanDecisionGateResponse,
+) {
+  await installHumanDecisionVisualFixture(page, runId, gate);
+  await page.goto(humanDecisionCasePath(runId));
+  await expect(page.getByTestId("case-workspace-page")).toBeVisible();
+  const surface = page.getByTestId("human-decision-gate");
+  await expect(surface).toBeVisible();
+  await expect(
+    page.getByTestId("human-decision-review-effectiveness"),
+  ).toBeVisible();
+  await waitForVisualFonts(page);
+  await waitForStableRender(surface);
+  return surface;
 }
 
 async function installBureaucraticTimestampFixture(
@@ -1069,6 +1294,223 @@ test.describe("runtime-dashboard visual baselines", () => {
           maxDiffPixels: 100,
         },
       );
+    });
+  });
+
+  test.describe("DS9 human decision gate", () => {
+    test("available pre-action gate retains readable hierarchy", async ({
+      page,
+    }) => {
+      const runId = fixtureMetadata.core_run_id;
+      const gate = bindHumanDecisionGateToRun(
+        availableHumanDecisionGate(),
+        runId,
+      );
+      const surface = await openHumanDecisionCase(page, runId, gate);
+      const request = gate.decision_request;
+      const mandate = gate.mandate;
+      expect(request).not.toBeNull();
+      expect(mandate).not.toBeNull();
+      if (!request || !mandate) {
+        throw new TypeError("DS9 available fixture lost its signed inputs");
+      }
+
+      await expect(
+        surface
+          .getByText(request.delegation_contract_ref, { exact: true })
+          .first(),
+      ).toBeVisible();
+      await expect(
+        surface
+          .getByText(request.decision_rights_matrix_ref, { exact: true })
+          .first(),
+      ).toBeVisible();
+      for (const right of [
+        request.five_rights_requirements.right_decision,
+        request.five_rights_requirements.right_person,
+        request.five_rights_requirements.right_information,
+        request.five_rights_requirements.right_format_channel,
+        request.five_rights_requirements.right_time,
+      ]) {
+        await expect(
+          surface.getByText(right, { exact: true }).first(),
+        ).toBeVisible();
+      }
+      await expect(
+        surface.getByText(mandate.mandate_record_ref, { exact: true }).first(),
+      ).toBeVisible();
+      await expect(
+        surface
+          .getByText(gate.exposure.required_artifact_digests[1], {
+            exact: true,
+          })
+          .first(),
+      ).toBeVisible();
+      await expect(
+        surface
+          .getByText(gate.exposure.exposure_session_ref ?? "", {
+            exact: true,
+          })
+          .first(),
+      ).toBeVisible();
+      await expect(
+        surface.getByText(request.decidable_until, { exact: true }).first(),
+      ).toBeVisible();
+
+      const appeal = surface.locator('a[href*="appeal_case_id"]');
+      expect(gate.contestability).not.toBeNull();
+      if (!gate.contestability) {
+        throw new TypeError("DS9 available fixture lost contestability");
+      }
+      await expect(appeal).toHaveAttribute("href", gate.contestability.href);
+      for (const id of [
+        "#human-decision-accountability",
+        "#human-decision-dissent",
+        "#human-decision-override",
+        "#human-decision-blocking",
+      ]) {
+        await expect(surface.locator(id)).toBeVisible();
+      }
+      for (const action of ["approve", "reject", "request_evidence"]) {
+        await expect(
+          surface.locator(`#human-decision-mode-${action}`),
+        ).toBeVisible();
+      }
+      await expect(surface).not.toContainText(
+        "DS9-HUMAN-DECISION-PERMISSION-REQUIRED",
+      );
+      await surface.locator("summary").click();
+      await expect(
+        surface.getByTestId("human-decision-fact").first(),
+      ).toBeVisible();
+      await waitForStableRender(surface);
+      await expect(surface).toHaveScreenshot(
+        "ds9-human-decision-gate-available.png",
+        {
+          animations: "disabled",
+          caret: "hide",
+          maxDiffPixels: 100,
+        },
+      );
+    });
+
+    test("blocked pre-action gate retains readable hierarchy with long reason TTL and provenance", async ({
+      page,
+    }) => {
+      const runId = fixtureMetadata.core_run_id;
+      const gate = blockedHumanDecisionGate(runId);
+      const surface = await openHumanDecisionCase(page, runId, gate);
+
+      for (const code of [
+        "DS9-WRONG-ROLE",
+        "DS9-DECISION-TTL-EXPIRED",
+        "DS9-AUTHORITY-CROSS-USE",
+      ]) {
+        await expect(
+          surface.getByText(code, { exact: true }).first(),
+        ).toBeVisible();
+      }
+      await expect(
+        surface
+          .getByText(gate.decision_request?.decidable_until ?? "", {
+            exact: true,
+          })
+          .first(),
+      ).toBeVisible();
+      await expect(
+        surface
+          .getByText(gate.mandate?.mandate_record_ref ?? "", {
+            exact: true,
+          })
+          .first(),
+      ).toBeVisible();
+      await expect(
+        surface.locator("textarea, select, button[type='button']"),
+      ).toHaveCount(0);
+      await expect(surface).not.toContainText(
+        "DS9-HUMAN-DECISION-PERMISSION-REQUIRED",
+      );
+      await surface.locator("summary").click();
+      await expect(
+        surface.getByTestId("human-decision-fact").first(),
+      ).toBeVisible();
+      await waitForStableRender(surface);
+      expect(await horizontalOverflowOffenders(surface)).toEqual([]);
+      const documentOverflow = await documentHorizontalOverflow(page);
+      expect(documentOverflow.normalizedScrollWidth).toBeLessThanOrEqual(
+        documentOverflow.viewportWidth + 1,
+      );
+      await expect(surface).toHaveScreenshot(
+        "ds9-human-decision-gate-blocked.png",
+        {
+          animations: "disabled",
+          caret: "hide",
+          maxDiffPixels: 100,
+        },
+      );
+    });
+
+    test("reflows at 320px and 200% zoom and preserves keyboard contestability", async ({
+      page,
+    }) => {
+      await page.setViewportSize({ width: 320, height: 900 });
+      const runId = fixtureMetadata.core_run_id;
+      const gate = bindHumanDecisionGateToRun(
+        availableHumanDecisionGate(),
+        runId,
+      );
+      const surface = await openHumanDecisionCase(page, runId, gate);
+      await page.evaluate(() => {
+        document.documentElement.style.setProperty("zoom", "200%");
+      });
+      await waitForStableRender(surface);
+
+      expect(await horizontalOverflowOffenders(surface)).toEqual([]);
+      const documentOverflow = await documentHorizontalOverflow(page);
+      expect(documentOverflow.normalizedScrollWidth).toBeLessThanOrEqual(
+        documentOverflow.viewportWidth + 1,
+      );
+      const appeal = surface.locator('a[href*="appeal_case_id"]');
+      await appeal.focus();
+      await expect(appeal).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(
+        surface.locator("#human-decision-accountability"),
+      ).toBeFocused();
+
+      await appeal.focus();
+      await page.keyboard.press("Enter");
+      await expect(page).toHaveURL(/appeal_case_id=case\.fixture/u);
+      const url = new URL(page.url());
+      expect(url.searchParams.get("appeal_case_id")).toBe("case.fixture");
+      expect(url.searchParams.get("source_kind")).toBe(
+        "agent_action_authority",
+      );
+      expect(url.searchParams.get("source_ref")).toBe(humanDecisionSourceRef);
+      await expect(page.getByTestId("case-workspace-page")).toBeVisible();
+      await expect(page.getByTestId("human-decision-gate")).toBeVisible();
+    });
+
+    test("remains absent from the public decision route", async ({ page }) => {
+      const humanDecisionRequests: string[] = [];
+      page.on("request", (request) => {
+        const pathname = new URL(request.url()).pathname;
+        if (/^\/api\/v1\/.*human-decision/u.test(pathname)) {
+          humanDecisionRequests.push(pathname);
+        }
+      });
+      const packet = buildSignedPublicDecisionPacket({
+        runId: fixtureMetadata.core_run_id,
+      });
+
+      await page.goto(packet.publicUrlPath);
+      await expect(page.getByTestId("publication-packet-panel")).toBeVisible();
+      await expect(page.getByTestId("signed-public-summary")).toBeVisible();
+      await expect(page.getByTestId("human-decision-gate")).toHaveCount(0);
+      await expect(
+        page.getByTestId("human-decision-machine-export"),
+      ).toHaveCount(0);
+      expect(humanDecisionRequests).toEqual([]);
     });
   });
 

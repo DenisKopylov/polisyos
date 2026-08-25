@@ -74,9 +74,7 @@ SCORECARD_REPORT_SCHEMA_FAMILY_ALIASES = {
     ),
 }
 
-_SCHEMA_VERSION_PATTERN = re.compile(
-    r"^(?P<family>.+)\.v(?P<version>\d+(?:\.\d+){0,2})$"
-)
+_SCHEMA_VERSION_PATTERN = re.compile(r"^(?P<family>.+)\.v(?P<version>\d+(?:\.\d+){0,2})$")
 
 
 @dataclass(frozen=True)
@@ -266,8 +264,17 @@ READER_SCHEMA_DECLARATIONS: dict[str, tuple[ReaderSchemaRange, ...]] = {
             reader="dashboard_projection",
             schema_family="policyos.production_approval_packet",
             min_version="1",
-            max_version="1",
-            current_version="1",
+            max_version="2",
+            current_version="2",
+        ),
+    ),
+    "production_approval_resolver": (
+        ReaderSchemaRange(
+            reader="production_approval_resolver",
+            schema_family="policyos.production_approval_packet",
+            min_version="2",
+            max_version="2",
+            current_version="2",
         ),
     ),
     "approval_packet_builder": (
@@ -621,9 +628,7 @@ def _expected_schema_family_tuple(
         return ()
     if isinstance(expected_schema_family, str):
         return (expected_schema_family,)
-    return tuple(
-        schema_family for schema_family in expected_schema_family if schema_family
-    )
+    return tuple(schema_family for schema_family in expected_schema_family if schema_family)
 
 
 def _parse_version_only(version: str) -> tuple[int, int, int] | None:
@@ -697,9 +702,7 @@ def _verify_schema_migration(
     if _migration_declares_semantic_loss(migration):
         return _migration_failure("legacy_migration_semantic_loss")
 
-    semantic_fields = tuple(required_semantic_fields) or _required_semantic_fields_from(
-        migration
-    )
+    semantic_fields = tuple(required_semantic_fields) or _required_semantic_fields_from(migration)
     missing_fields = _missing_semantic_fields(target_payload, semantic_fields)
     if missing_fields:
         return _migration_failure(

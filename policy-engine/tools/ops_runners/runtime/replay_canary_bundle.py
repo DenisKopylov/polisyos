@@ -57,9 +57,7 @@ def replay_canary_bundle(
     manifest = build_replay_manifest_for_bundle(bundle_dir)
     replay_manifest_ref = persist_replay_manifest(manifest, store=store)
     baseline_manifest = (
-        _load_manifest_ref(store, baseline_manifest_ref)
-        if baseline_manifest_ref
-        else manifest
+        _load_manifest_ref(store, baseline_manifest_ref) if baseline_manifest_ref else manifest
     )
     explanation = explain_replay_drift(
         baseline_manifest=baseline_manifest,
@@ -260,11 +258,7 @@ def _file_fingerprint(path: Path) -> str:
 
 
 def _feature_flags(env: dict[str, Any]) -> dict[str, Any]:
-    return {
-        key: env[key]
-        for key in FEATURE_FLAG_KEYS
-        if key in env and env[key] is not None
-    }
+    return {key: env[key] for key in FEATURE_FLAG_KEYS if key in env and env[key] is not None}
 
 
 def _provider_model_metadata(
@@ -388,6 +382,8 @@ def _quality_summary(
 ) -> dict[str, Any]:
     summary: dict[str, Any] = {
         "quality_status": scorecard.get("quality_status") or bundle.get("quality_status"),
+        "approval_currentness": "historical_projection_only",
+        "approval_projection_only": True,
     }
     for key in (
         "overall_score",
@@ -461,18 +457,12 @@ def _root_cause_fixture_summary(fixture: dict[str, Any]) -> dict[str, Any]:
         "status": "fail",
         "readiness_state": "not_ready",
         "root_cause_fixture_schema": _string_or_none(fixture.get("schema_version")),
-        "scorecard_failure_count": _int_or_zero(
-            fixture.get("blocking_quality_failure_count")
-        ),
+        "scorecard_failure_count": _int_or_zero(fixture.get("blocking_quality_failure_count")),
         "scorecard_code_count": len(scorecard_codes),
-        "hds_unknown_provenance_count": _int_or_zero(
-            fixture.get("hds_unknown_provenance_count")
-        ),
+        "hds_unknown_provenance_count": _int_or_zero(fixture.get("hds_unknown_provenance_count")),
         "expected_source_family_count": len(expected),
         "selected_source_family_count": len(selected),
-        "lex_candidate_norm_count": _int_or_zero(
-            fixture.get("lex_candidate_norm_count")
-        ),
+        "lex_candidate_norm_count": _int_or_zero(fixture.get("lex_candidate_norm_count")),
         "semantic_binding_error": semantic_error,
         "policy_design_missing_record_family_count": len(missing_pdc_records),
         "root_cause_axes": [

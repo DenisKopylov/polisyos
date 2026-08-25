@@ -89,6 +89,7 @@ _CYCLE_BOARD_EXPORT_AUTHZ = require_action_permission(
     ResourceBindingSpec(
         source=ResourceBindingSource.TENANT_COLLECTION,
         resource_kind="runtime.governed_projection.depth_n_cycle_board",
+        allow_empty_body=True,
     ),
 )
 

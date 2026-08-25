@@ -159,14 +159,12 @@ class _DesignProblemCompilerOutputPolicy(BaseModel):
         return self
 
 
-_DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY = (
-    _DesignProblemCompilerOutputPolicy.from_characterization(
-        observed_max_completion_tokens=5628,
-        evidence_ref=(
-            "docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md"
-            "#structured-conformance-denominator-universal-owner-schema-selected"
-        ),
-    )
+_DESIGN_PROBLEM_COMPILER_OUTPUT_POLICY = _DesignProblemCompilerOutputPolicy.from_characterization(
+    observed_max_completion_tokens=5628,
+    evidence_ref=(
+        "docs/superpowers/journals/2026-07-14-gy-n10-stage-4.md"
+        "#structured-conformance-denominator-universal-owner-schema-selected"
+    ),
 )
 _DESIGN_PROBLEM_SOURCE_SEMANTICS_INVARIANT = (
     "Do not interpret, elaborate, or strengthen any cited constraint beyond the "
@@ -192,15 +190,13 @@ def design_problem_compiler_optional_structure_invariant() -> str:
 
     return _DESIGN_PROBLEM_OPTIONAL_STRUCTURE_INVARIANT
 
+
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
 _CAUSAL_VALIDITY_CASES_PATH = (
-    Path(__file__).resolve().parents[6]
-    / "tests/_golden/foundry/causal_validity/cases.json"
+    Path(__file__).resolve().parents[6] / "tests/_golden/foundry/causal_validity/cases.json"
 )
 _DESIGN_PROBLEM_TOOL_NAME = "emit_design_problem"
-_DESIGN_PROBLEM_TRUNCATION_FINISH_REASONS = frozenset(
-    {"length", "max_output_tokens", "max_tokens"}
-)
+_DESIGN_PROBLEM_TRUNCATION_FINISH_REASONS = frozenset({"length", "max_output_tokens", "max_tokens"})
 _PROMOTED_CONTEXT_PARAM_KEYS = frozenset(
     {
         "source_context",
@@ -333,17 +329,17 @@ async def build_design_problem_from_nl_request(
                 {
                     "raw_request": nl_request,
                     "context": dict(context),
-                        "required_semantics": {
-                            "llm_output": "candidate_only",
-                            "non_empty_collections": [
-                                "objectives",
-                                "stakeholders",
-                                "candidate_lever_space.allowed_operator_kinds",
-                                "candidate_lever_space.candidate_levers",
-                            ],
-                            "constraints": (
-                                "must cite request_text, authority_profile, or producer_evidence"
-                            ),
+                    "required_semantics": {
+                        "llm_output": "candidate_only",
+                        "non_empty_collections": [
+                            "objectives",
+                            "stakeholders",
+                            "candidate_lever_space.allowed_operator_kinds",
+                            "candidate_lever_space.candidate_levers",
+                        ],
+                        "constraints": (
+                            "must cite request_text, authority_profile, or producer_evidence"
+                        ),
                     },
                 },
                 sort_keys=True,
@@ -375,9 +371,7 @@ async def build_design_problem_from_nl_request(
             )
         tool_calls = list(getattr(response, "tool_calls", None) or [])
         matching_calls = [
-            call
-            for call in tool_calls
-            if getattr(call, "name", "") == _DESIGN_PROBLEM_TOOL_NAME
+            call for call in tool_calls if getattr(call, "name", "") == _DESIGN_PROBLEM_TOOL_NAME
         ]
         if len(matching_calls) != 1:
             raise DesignProblemAuthorityError(
@@ -398,9 +392,7 @@ async def build_design_problem_from_nl_request(
         try:
             problem = DesignProblem.model_validate(payload)
         except ValueError as exc:
-            raise DesignProblemAuthorityError(
-                "design_problem_validation_failed", str(exc)
-            ) from exc
+            raise DesignProblemAuthorityError("design_problem_validation_failed", str(exc)) from exc
         _assert_design_problem_admissibility_grounded(
             problem,
             span_support_client=span_support_client,
@@ -511,23 +503,17 @@ def design_problem_provider_constraint_schema() -> dict[str, Any]:
 
     schema = _inline_json_schema_refs(DesignProblem.model_json_schema())
     try:
-        time_union = schema["properties"]["jurisdiction_time"]["properties"][
-            "time_semantics"
-        ]
+        time_union = schema["properties"]["jurisdiction_time"]["properties"]["time_semantics"]
         branches = time_union["anyOf"]
     except (KeyError, TypeError) as exc:
         raise ValueError("design_problem_provider_time_schema_missing") from exc
     if not isinstance(branches, list):
         raise ValueError("design_problem_provider_time_schema_invalid")
     object_branches = [
-        branch
-        for branch in branches
-        if isinstance(branch, dict) and branch.get("type") == "object"
+        branch for branch in branches if isinstance(branch, dict) and branch.get("type") == "object"
     ]
     null_branches = [
-        branch
-        for branch in branches
-        if isinstance(branch, dict) and branch.get("type") == "null"
+        branch for branch in branches if isinstance(branch, dict) and branch.get("type") == "null"
     ]
     if len(object_branches) != 1 or len(null_branches) != 1:
         raise ValueError("design_problem_provider_time_union_drift")
@@ -612,9 +598,7 @@ def _assert_design_problem_admissibility_grounded(
                 "source_id": problem.nl_provenance.source_surface,
                 "section": constraint.admissibility_basis,
                 "text": source_text,
-                "source_content_sha256": hashlib.sha256(
-                    source_text.encode("utf-8")
-                ).hexdigest(),
+                "source_content_sha256": hashlib.sha256(source_text.encode("utf-8")).hexdigest(),
             },
             client=span_support_client,
         )
@@ -833,8 +817,7 @@ def _runtime_privacy_public_artifacts(
         {
             "artifact_family": "public_policy_decision_artifact",
             "jurisdiction": _runtime_privacy_jurisdiction(context),
-            "license": _clean_runtime_text(context.get("public_artifact_license"))
-            or "CC-BY-4.0",
+            "license": _clean_runtime_text(context.get("public_artifact_license")) or "CC-BY-4.0",
             "public_export_allowed": True,
             "source_attribution": source_ids,
             "redaction_status": "redacted",
@@ -1806,8 +1789,8 @@ class NaturalLanguageRunMixin:
             provider_preflight_payload=provider_preflight_payload,
             contract_testing_agent_factory=build_nl_contract_testing_agents,
         )
-        result["contract_testing_authority"] = (
-            NLContractTestingAuthorityStamp().model_dump(mode="json")
+        result["contract_testing_authority"] = NLContractTestingAuthorityStamp().model_dump(
+            mode="json"
         )
         return result
 
@@ -2051,9 +2034,7 @@ class NaturalLanguageRunMixin:
                 if runtime_quality_refs:
                     snapshot["runtime_quality_refs"] = _progress_json(runtime_quality_refs)
                     snapshot.update(_progress_json(runtime_quality_refs))
-                    snapshot["runtime_quality_projection"] = (
-                        _runtime_quality_progress_projection()
-                    )
+                    snapshot["runtime_quality_projection"] = _runtime_quality_progress_projection()
                     attestations = _runtime_quality_attestations()
                     if attestations:
                         snapshot["trust_boundary_attestations"] = _progress_json(attestations)
@@ -2615,9 +2596,7 @@ class NaturalLanguageRunMixin:
                 policy_domain = str(context.get("policy_domain") or domain_hint or "policy")
                 as_of = str(context.get("as_of") or "2026-05-13")
                 norm_ids = [f"norm.{fact_class}" for fact_class in normative_fact_classes]
-                selected_source_ids = [
-                    f"{family}.golden_source" for family in source_families
-                ]
+                selected_source_ids = [f"{family}.golden_source" for family in source_families]
                 selected_methods = [
                     {
                         "method_id": f"foundry.{expectation}",
@@ -2674,12 +2653,9 @@ class NaturalLanguageRunMixin:
                         "monitoring channels represented in the scenario contract."
                     ),
                     "stakeholder_impact": (
-                        "Targets affected MSMEs while preserving equity and budget "
-                        "guardrails."
+                        "Targets affected MSMEs while preserving equity and budget guardrails."
                     ),
-                    "implementation_risks": [
-                        "Monitor take-up, leakage, and delivery capacity."
-                    ],
+                    "implementation_risks": ["Monitor take-up, leakage, and delivery capacity."],
                     "monitoring_plan": [
                         "Track outcome, treatment, subgroup, and budget indicators."
                     ],
@@ -2730,8 +2706,7 @@ class NaturalLanguageRunMixin:
                         ],
                         "relevance_score": 0.95,
                         "relevance_rationale": (
-                            "Deterministic runtime source matches the golden scenario "
-                            "contract."
+                            "Deterministic runtime source matches the golden scenario contract."
                         ),
                     }
                     for source_id, family in zip(
@@ -2862,9 +2837,7 @@ class NaturalLanguageRunMixin:
                     },
                     "production_data_quality": {
                         "schema_version": "policyos.runtime.production_data_quality.v1",
-                        "generated_at": datetime.now(UTC)
-                        .replace(microsecond=0)
-                        .isoformat(),
+                        "generated_at": datetime.now(UTC).replace(microsecond=0).isoformat(),
                         "status": "pass",
                         "source": "deterministic_scenario_contract",
                         "diagnostics": diagnostics,
@@ -2981,9 +2954,7 @@ class NaturalLanguageRunMixin:
                             "message": str(exc),
                         }
                     else:
-                        trace_payload["evidence_spine_carrier"] = (
-                            evidence_spine_carrier.to_dict()
-                        )
+                        trace_payload["evidence_spine_carrier"] = evidence_spine_carrier.to_dict()
                         trace_payload["scenario_requirement_ids"] = list(
                             evidence_spine_carrier.requirement_ids
                         )
@@ -3141,9 +3112,7 @@ class NaturalLanguageRunMixin:
                     "conflict_report": dict(runtime_quality_refs).get("conflict_check_ref")
                     or f"run:{run_id}:conflict_report",
                     "tool_result": f"run:{run_id}:tool_result",
-                    "parser_result": dict(runtime_quality_refs).get(
-                        "policy_grounding_matrix_ref"
-                    )
+                    "parser_result": dict(runtime_quality_refs).get("policy_grounding_matrix_ref")
                     or f"run:{run_id}:parser_result",
                     "repair_ledger": dict(runtime_quality_refs).get("prompt_tool_ledger_ref")
                     or f"run:{run_id}:repair_ledger",
@@ -3258,9 +3227,7 @@ class NaturalLanguageRunMixin:
 
                 target_context = context.get("target_context")
                 target_as_of = (
-                    target_context.get("as_of")
-                    if isinstance(target_context, Mapping)
-                    else None
+                    target_context.get("as_of") if isinstance(target_context, Mapping) else None
                 )
                 evidence_context = context.get("production_data_evidence_context")
                 manifest_ref = (
@@ -3381,9 +3348,7 @@ class NaturalLanguageRunMixin:
                         component=f"polisyos.runtime.quality.{report_key}",
                         version="2026.05.15+hds-phase2.4",
                     ),
-                    governance=ArtifactGovernanceInfo(
-                        classification="runtime_quality_evidence"
-                    ),
+                    governance=ArtifactGovernanceInfo(classification="runtime_quality_evidence"),
                     inputs=list(input_refs or []),
                 )
 
@@ -3402,9 +3367,7 @@ class NaturalLanguageRunMixin:
 
                 now = datetime.now(UTC).replace(microsecond=0)
                 event = DiagnosticEvent(
-                    event_id=(
-                        f"{run_id}:{report_key}:{ref_value.removeprefix('sha256:')[:16]}"
-                    ),
+                    event_id=(f"{run_id}:{report_key}:{ref_value.removeprefix('sha256:')[:16]}"),
                     event_source="polisyos.runtime.http.nl_pipeline",
                     event_type="polisyos.runtime.diagnostic.cas_write.v1",
                     event_time=now,
@@ -3825,9 +3788,7 @@ class NaturalLanguageRunMixin:
                     "requested_authority_level",
                     fallback=_runtime_quality_profile(),
                 )
-                requested_authority = _reconciled_policy_intent_authority_level(
-                    requested_authority
-                )
+                requested_authority = _reconciled_policy_intent_authority_level(requested_authority)
                 intent_payload = build_policy_intent_envelope(
                     intent_id=f"intent-{run_id}",
                     run_id=run_id,
@@ -3923,24 +3884,25 @@ class NaturalLanguageRunMixin:
                     model_name=model_name,
                 )
                 payload = design_problem.model_dump(mode="json")
-                design_problem_ref, evidence_payload = (
-                    await _persist_and_publish_runtime_quality_payload(
-                        report_key="design_problem",
-                        ref_key="design_problem_ref",
-                        report_payload=payload,
-                        artifact_kind="runtime.design_problem",
-                        schema_name="polisyos.runtime.DesignProblem",
-                        phase="design_problem",
-                        input_refs=[
-                            InputRef(
-                                artifact_id=_make_artifact_ref(
-                                    intent_ref,
-                                    kind="runtime.policy_intent_envelope",
-                                ).artifact_id,
-                                role="policy_intent_envelope",
-                            )
-                        ],
-                    )
+                (
+                    design_problem_ref,
+                    evidence_payload,
+                ) = await _persist_and_publish_runtime_quality_payload(
+                    report_key="design_problem",
+                    ref_key="design_problem_ref",
+                    report_payload=payload,
+                    artifact_kind="runtime.design_problem",
+                    schema_name="polisyos.runtime.DesignProblem",
+                    phase="design_problem",
+                    input_refs=[
+                        InputRef(
+                            artifact_id=_make_artifact_ref(
+                                intent_ref,
+                                kind="runtime.policy_intent_envelope",
+                            ).artifact_id,
+                            role="policy_intent_envelope",
+                        )
+                    ],
                 )
                 evidence_payload["design_problem_ref"] = design_problem_ref
                 runtime_quality_refs["design_problem_ref"] = design_problem_ref
@@ -4076,9 +4038,7 @@ class NaturalLanguageRunMixin:
                     value = intent_payload.get(key)
                     if isinstance(value, list | tuple):
                         terms.extend(
-                            text
-                            for text in (_clean_runtime_text(item) for item in value)
-                            if text
+                            text for text in (_clean_runtime_text(item) for item in value) if text
                         )
                 return list(dict.fromkeys(terms))
 
@@ -4162,9 +4122,7 @@ class NaturalLanguageRunMixin:
                     job_id=_runtime_quality_job_id(),
                     tenant_id=_runtime_quality_identity_value("tenant_id", "tenant-default"),
                     policy_intent_ref=intent_ref,
-                    lex_normative_report=_policy_design_jurisdiction_seed_report(
-                        intent_payload
-                    ),
+                    lex_normative_report=_policy_design_jurisdiction_seed_report(intent_payload),
                     runtime_authority={
                         "authority_role": "runtime_blocker",
                         "provenance_kind": "runtime_blocker",
@@ -4184,24 +4142,25 @@ class NaturalLanguageRunMixin:
                     },
                     generated_at=datetime.now(UTC),
                 )
-                jurisdiction_ref, jurisdiction_evidence = (
-                    await _persist_and_publish_runtime_quality_payload(
-                        report_key="policy_design_jurisdiction_spine",
-                        ref_key="jurisdiction_spine_ref",
-                        report_payload=jurisdiction_payload,
-                        artifact_kind="runtime.policy_design_jurisdiction_spine",
-                        schema_name="polisyos.runtime.PolicyDesignJurisdictionSpine",
-                        phase="policy_design_jurisdiction_spine",
-                        input_refs=[
-                            InputRef(
-                                artifact_id=_make_artifact_ref(
-                                    intent_ref,
-                                    kind="runtime.policy_intent_envelope",
-                                ).artifact_id,
-                                role="policy_intent_envelope",
-                            )
-                        ],
-                    )
+                (
+                    jurisdiction_ref,
+                    jurisdiction_evidence,
+                ) = await _persist_and_publish_runtime_quality_payload(
+                    report_key="policy_design_jurisdiction_spine",
+                    ref_key="jurisdiction_spine_ref",
+                    report_payload=jurisdiction_payload,
+                    artifact_kind="runtime.policy_design_jurisdiction_spine",
+                    schema_name="polisyos.runtime.PolicyDesignJurisdictionSpine",
+                    phase="policy_design_jurisdiction_spine",
+                    input_refs=[
+                        InputRef(
+                            artifact_id=_make_artifact_ref(
+                                intent_ref,
+                                kind="runtime.policy_intent_envelope",
+                            ).artifact_id,
+                            role="policy_intent_envelope",
+                        )
+                    ],
                 )
                 runtime_quality_refs["jurisdiction_ref"] = jurisdiction_ref
                 jurisdiction_refs = [
@@ -4213,8 +4172,7 @@ class NaturalLanguageRunMixin:
                     concept_spine_ref=concept_ref,
                     jurisdiction_spine_ref=jurisdiction_ref,
                     canonical_concept_refs=[
-                        str(item)
-                        for item in concept_payload.get("canonical_concept_ids", [])
+                        str(item) for item in concept_payload.get("canonical_concept_ids", [])
                     ],
                     jurisdiction_refs=jurisdiction_refs,
                 )
@@ -6719,20 +6677,16 @@ class NaturalLanguageRunMixin:
                     ledger_payload[PROMPT_TOOL_LEDGER_REF_KEY] = ledger_ref_str
                     variant[PROMPT_TOOL_LEDGER_REF_KEY] = ledger_ref_str
                     variant[PROMPT_TOOL_LEDGER_REPORT_KEY] = ledger_payload
-                    variant["prompt_tool_authority_status"] = (
-                        ledger_payload.get("summary", {}).get("status")
+                    variant["prompt_tool_authority_status"] = ledger_payload.get("summary", {}).get(
+                        "status"
                     )
                     variant_id_value = str(
-                        variant.get("model_variant_id")
-                        or variant.get("model")
-                        or "unknown_variant"
+                        variant.get("model_variant_id") or variant.get("model") or "unknown_variant"
                     )
                     progress_variants[variant_id_value] = {
                         **dict(progress_variants.get(variant_id_value) or {}),
                         PROMPT_TOOL_LEDGER_REF_KEY: ledger_ref_str,
-                        "prompt_tool_authority_status": variant[
-                            "prompt_tool_authority_status"
-                        ],
+                        "prompt_tool_authority_status": variant["prompt_tool_authority_status"],
                     }
 
                 selected_prompt_tool_ref = selected_variant.get(PROMPT_TOOL_LEDGER_REF_KEY)
@@ -6767,8 +6721,8 @@ class NaturalLanguageRunMixin:
                 ]
                 auto_refs = selected_variant.get("auto_data_source_refs")
                 if isinstance(auto_refs, Mapping):
-                    final_claims_report_for_data_quality = (
-                        _final_policy_claims_report_from_variant(selected_variant)
+                    final_claims_report_for_data_quality = _final_policy_claims_report_from_variant(
+                        selected_variant
                     )
                     final_claims_for_data_quality = _claims_from_final_report(
                         final_claims_report_for_data_quality
@@ -6788,23 +6742,20 @@ class NaturalLanguageRunMixin:
                         and isinstance(production_evidence_context, Mapping)
                         and auto_refs.get("production_data_quality_report_ref")
                     ):
-                        refreshed_quality_ref, refreshed_quality_report = (
-                            await _persist_production_data_quality_report(
-                                evidence_context=production_evidence_context,
-                                materialization_refs=auto_refs,
-                                data_needs_payload=list(
-                                    selected_variant.get("data_needs") or []
-                                )
-                                if isinstance(selected_variant.get("data_needs"), list)
-                                else list(
-                                    selected_variant.get("retrieval_context", {}).get(
-                                        "data_needs", []
-                                    )
-                                )
-                                if isinstance(selected_variant.get("retrieval_context"), Mapping)
-                                else [],
-                                claims_payload=final_claims_for_data_quality,
+                        (
+                            refreshed_quality_ref,
+                            refreshed_quality_report,
+                        ) = await _persist_production_data_quality_report(
+                            evidence_context=production_evidence_context,
+                            materialization_refs=auto_refs,
+                            data_needs_payload=list(selected_variant.get("data_needs") or [])
+                            if isinstance(selected_variant.get("data_needs"), list)
+                            else list(
+                                selected_variant.get("retrieval_context", {}).get("data_needs", [])
                             )
+                            if isinstance(selected_variant.get("retrieval_context"), Mapping)
+                            else [],
+                            claims_payload=final_claims_for_data_quality,
                         )
                         refreshed_auto_refs = dict(auto_refs)
                         refreshed_auto_refs["production_data_quality_report_ref"] = (
@@ -6847,9 +6798,9 @@ class NaturalLanguageRunMixin:
                                     "claim_count": len(final_claims_for_data_quality),
                                 },
                             ]
-                            refreshed_retrieval_context[
-                                "production_data_evidence_context"
-                            ] = refreshed_evidence_context
+                            refreshed_retrieval_context["production_data_evidence_context"] = (
+                                refreshed_evidence_context
+                            )
                             selected_variant["retrieval_context"] = refreshed_retrieval_context
                             selected_variant["production_data_evidence_context"] = (
                                 refreshed_evidence_context
@@ -6935,31 +6886,23 @@ class NaturalLanguageRunMixin:
                             production_quality_ref
                         )
                         if production_quality_payload:
-                            production_quality_payload = (
-                                await _publish_runtime_quality_report(
-                                    report_key="production_data_quality",
-                                    ref_key="production_data_quality_report_ref",
-                                    ref_value=production_quality_ref,
-                                    report_payload=production_quality_payload,
-                                    artifact_kind="runtime.production_data_quality_report",
-                                    schema_name=(
-                                        "polisyos.runtime.ProductionDataQualityReport"
-                                    ),
-                                    phase="production_data_quality",
-                                    input_refs=_materialization_input_refs(auto_refs),
-                                )
+                            production_quality_payload = await _publish_runtime_quality_report(
+                                report_key="production_data_quality",
+                                ref_key="production_data_quality_report_ref",
+                                ref_value=production_quality_ref,
+                                report_payload=production_quality_payload,
+                                artifact_kind="runtime.production_data_quality_report",
+                                schema_name=("polisyos.runtime.ProductionDataQualityReport"),
+                                phase="production_data_quality",
+                                input_refs=_materialization_input_refs(auto_refs),
                             )
                             production_quality_ref = str(
-                                production_quality_payload[
-                                    "production_data_quality_report_ref"
-                                ]
+                                production_quality_payload["production_data_quality_report_ref"]
                             )
                             selected_variant["production_data_quality_report_ref"] = (
                                 production_quality_ref
                             )
-                            auto_refs["production_data_quality_report_ref"] = (
-                                production_quality_ref
-                            )
+                            auto_refs["production_data_quality_report_ref"] = production_quality_ref
                             selected_variant["production_data_quality_report"] = (
                                 production_quality_payload
                             )
@@ -7033,9 +6976,7 @@ class NaturalLanguageRunMixin:
                                 "summary", {}
                             ).get("public_artifact_family_count"),
                             "runtime_quality_refs": dict(runtime_quality_refs),
-                            "runtime_quality_projection": (
-                                _runtime_quality_progress_projection()
-                            ),
+                            "runtime_quality_projection": (_runtime_quality_progress_projection()),
                         },
                     )
                 deterministic_evidence = _deterministic_scenario_quality_evidence(
@@ -7106,9 +7047,7 @@ class NaturalLanguageRunMixin:
                             normative_evidence.get("claim_legal_anchors") or []
                         ),
                         "global_candidate_norm_count": (
-                            normative_evidence.get("summary", {}).get(
-                                "global_candidate_norm_count"
-                            )
+                            normative_evidence.get("summary", {}).get("global_candidate_norm_count")
                         ),
                     },
                 )
@@ -7468,16 +7407,12 @@ class NaturalLanguageRunMixin:
                     ):
                         foundry_method_report_ref = "deterministic_runtime_pending"
                         foundry_method_report_status = str(
-                            deterministic_evidence["foundry_method_report"].get("status")
-                            or ""
+                            deterministic_evidence["foundry_method_report"].get("status") or ""
                         )
                         foundry_method_report_payload = dict(
                             deterministic_evidence["foundry_method_report"]
                         )
-                    if (
-                        foundry_method_report_ref is not None
-                        and not foundry_method_report_payload
-                    ):
+                    if foundry_method_report_ref is not None and not foundry_method_report_payload:
                         foundry_method_report_payload = (
                             _load_json_artifact_payload(foundry_method_report_ref) or {}
                         )
@@ -7546,16 +7481,14 @@ class NaturalLanguageRunMixin:
                                         _quality_report_input_ref(
                                             role="data_snapshot",
                                             ref_value=dict(
-                                                selected_variant.get("auto_data_source_refs")
-                                                or {}
+                                                selected_variant.get("auto_data_source_refs") or {}
                                             ).get("data_snapshot_ref"),
                                             kind="fabric.data_snapshot",
                                         ),
                                         _quality_report_input_ref(
                                             role="input_bindings",
                                             ref_value=dict(
-                                                selected_variant.get("auto_data_source_refs")
-                                                or {}
+                                                selected_variant.get("auto_data_source_refs") or {}
                                             ).get("input_bindings_ref"),
                                             kind="foundry.input_bindings",
                                         ),
@@ -7754,9 +7687,7 @@ class NaturalLanguageRunMixin:
                             else None
                         ),
                         foundry_method_report=(
-                            foundry_method_report_payload
-                            if foundry_method_report_payload
-                            else None
+                            foundry_method_report_payload if foundry_method_report_payload else None
                         ),
                         run_id=run_id,
                         spine_context=_producer_spine_context_payload(),
@@ -7805,9 +7736,7 @@ class NaturalLanguageRunMixin:
                         phase="runtime_claim_registry",
                         input_refs=claim_registry_inputs,
                     )
-                    selected_variant["runtime_claim_registry_ref"] = (
-                        runtime_claim_registry_ref
-                    )
+                    selected_variant["runtime_claim_registry_ref"] = runtime_claim_registry_ref
                     selected_variant["runtime_claim_registry"] = runtime_claim_registry
 
                     policy_grounding_matrix = (
@@ -7999,12 +7928,8 @@ class NaturalLanguageRunMixin:
                             if ref is not None
                         ],
                     )
-                    selected_variant["causal_statistical_validity_report_ref"] = (
-                        causal_validity_ref
-                    )
-                    selected_variant["causal_statistical_validity"] = (
-                        causal_statistical_validity
-                    )
+                    selected_variant["causal_statistical_validity_report_ref"] = causal_validity_ref
+                    selected_variant["causal_statistical_validity"] = causal_statistical_validity
 
                     from polisyos.core.security.quality_gates import (
                         SECURITY_ASSURANCE_REPORT_REF_KEY,
@@ -8023,6 +7948,7 @@ class NaturalLanguageRunMixin:
                     from polisyos.scholar import build_scholar_spine_evidence_binding
                     from polisyos.scientist.artifacts.decision_compiler import (
                         DecisionArtifactCompilationError,
+                        compile_draft_decision_packet,
                         compile_public_decision_artifact,
                         compile_publishable_decision_artifact,
                     )
@@ -8060,33 +7986,32 @@ class NaturalLanguageRunMixin:
                         }
                     )
                     security_assurance_report.pop(SECURITY_ASSURANCE_REPORT_REF_KEY, None)
-                    security_ref, security_assurance_report = (
-                        await _persist_and_publish_runtime_quality_payload(
-                            report_key="security_assurance_report",
-                            ref_key="security_assurance_report_ref",
-                            report_payload=security_assurance_report,
-                            artifact_kind="runtime.security_assurance_report",
-                            schema_name="polisyos.runtime.SecurityAssuranceReport",
-                            phase="security_assurance_report",
-                            input_refs=[
-                                ref
-                                for ref in (
-                                    _quality_report_input_ref(
-                                        role="final_policy_claims",
-                                        ref_value=selected_variant.get(
-                                            "final_policy_claims_ref"
-                                        ),
-                                        kind="scientist.final_policy_claims",
-                                    ),
-                                    _quality_report_input_ref(
-                                        role="policy_grounding_matrix",
-                                        ref_value=grounding_ref_str,
-                                        kind="scientist.policy_grounding_matrix",
-                                    ),
-                                )
-                                if ref is not None
-                            ],
-                        )
+                    (
+                        security_ref,
+                        security_assurance_report,
+                    ) = await _persist_and_publish_runtime_quality_payload(
+                        report_key="security_assurance_report",
+                        ref_key="security_assurance_report_ref",
+                        report_payload=security_assurance_report,
+                        artifact_kind="runtime.security_assurance_report",
+                        schema_name="polisyos.runtime.SecurityAssuranceReport",
+                        phase="security_assurance_report",
+                        input_refs=[
+                            ref
+                            for ref in (
+                                _quality_report_input_ref(
+                                    role="final_policy_claims",
+                                    ref_value=selected_variant.get("final_policy_claims_ref"),
+                                    kind="scientist.final_policy_claims",
+                                ),
+                                _quality_report_input_ref(
+                                    role="policy_grounding_matrix",
+                                    ref_value=grounding_ref_str,
+                                    kind="scientist.policy_grounding_matrix",
+                                ),
+                            )
+                            if ref is not None
+                        ],
                     )
                     selected_variant["security_assurance_report_ref"] = security_ref
                     selected_variant["security_assurance_report"] = security_assurance_report
@@ -8133,15 +8058,16 @@ class NaturalLanguageRunMixin:
                         },
                     )
                     replay_manifest["status"] = "pass"
-                    replay_manifest_ref, replay_manifest = (
-                        await _persist_and_publish_runtime_quality_payload(
-                            report_key="replay_manifest",
-                            ref_key="replay_manifest_ref",
-                            report_payload=replay_manifest,
-                            artifact_kind="runtime.replay_manifest",
-                            schema_name="polisyos.runtime.ReplayManifest",
-                            phase="deterministic_replay",
-                        )
+                    (
+                        replay_manifest_ref,
+                        replay_manifest,
+                    ) = await _persist_and_publish_runtime_quality_payload(
+                        report_key="replay_manifest",
+                        ref_key="replay_manifest_ref",
+                        report_payload=replay_manifest,
+                        artifact_kind="runtime.replay_manifest",
+                        schema_name="polisyos.runtime.ReplayManifest",
+                        phase="deterministic_replay",
                     )
                     selected_variant["replay_manifest_ref"] = replay_manifest_ref
                     selected_variant["replay_manifest"] = replay_manifest
@@ -8150,24 +8076,25 @@ class NaturalLanguageRunMixin:
                         baseline_manifest=replay_manifest,
                         replay_manifest=replay_manifest,
                     )
-                    drift_explanation_ref, drift_explanation = (
-                        await _persist_and_publish_runtime_quality_payload(
-                            report_key="drift_explanation",
-                            ref_key="drift_explanation_ref",
-                            report_payload=drift_explanation,
-                            artifact_kind="runtime.drift_explanation",
-                            schema_name="polisyos.runtime.DriftExplanation",
-                            phase="deterministic_replay",
-                            input_refs=[
-                                InputRef(
-                                    artifact_id=_make_artifact_ref(
-                                        replay_manifest_ref,
-                                        kind="runtime.replay_manifest",
-                                    ).artifact_id,
-                                    role="replay_manifest",
-                                )
-                            ],
-                        )
+                    (
+                        drift_explanation_ref,
+                        drift_explanation,
+                    ) = await _persist_and_publish_runtime_quality_payload(
+                        report_key="drift_explanation",
+                        ref_key="drift_explanation_ref",
+                        report_payload=drift_explanation,
+                        artifact_kind="runtime.drift_explanation",
+                        schema_name="polisyos.runtime.DriftExplanation",
+                        phase="deterministic_replay",
+                        input_refs=[
+                            InputRef(
+                                artifact_id=_make_artifact_ref(
+                                    replay_manifest_ref,
+                                    kind="runtime.replay_manifest",
+                                ).artifact_id,
+                                role="replay_manifest",
+                            )
+                        ],
                     )
                     selected_variant["drift_explanation_ref"] = drift_explanation_ref
                     selected_variant["drift_explanation"] = drift_explanation
@@ -8185,15 +8112,16 @@ class NaturalLanguageRunMixin:
                         },
                         "operator_findings": [],
                     }
-                    resilience_ref, resilience_matrix = (
-                        await _persist_and_publish_runtime_quality_payload(
-                            report_key="resilience_matrix",
-                            ref_key="resilience_report_ref",
-                            report_payload=resilience_matrix,
-                            artifact_kind="runtime.resilience_matrix",
-                            schema_name="polisyos.runtime.ResilienceMatrix",
-                            phase="resilience_report",
-                        )
+                    (
+                        resilience_ref,
+                        resilience_matrix,
+                    ) = await _persist_and_publish_runtime_quality_payload(
+                        report_key="resilience_matrix",
+                        ref_key="resilience_report_ref",
+                        report_payload=resilience_matrix,
+                        artifact_kind="runtime.resilience_matrix",
+                        schema_name="polisyos.runtime.ResilienceMatrix",
+                        phase="resilience_report",
                     )
                     selected_variant["resilience_report_ref"] = resilience_ref
                     selected_variant["resilience_matrix"] = resilience_matrix
@@ -8201,28 +8129,25 @@ class NaturalLanguageRunMixin:
                     human_review_events = context.get("human_review_events")
                     human_review_calibration = build_human_review_calibration_report(
                         review_events=[
-                            dict(item)
-                            for item in human_review_events
-                            if isinstance(item, Mapping)
+                            dict(item) for item in human_review_events if isinstance(item, Mapping)
                         ]
                         if isinstance(human_review_events, list)
                         else [],
                         run_id=run_id,
                         job_id=control_job_id,
                     )
-                    human_review_ref, human_review_calibration = (
-                        await _persist_and_publish_runtime_quality_payload(
-                            report_key="human_review_calibration",
-                            ref_key="human_review_calibration_report_ref",
-                            report_payload=human_review_calibration,
-                            artifact_kind="runtime.human_review_calibration_report",
-                            schema_name="polisyos.runtime.HumanReviewCalibrationReport",
-                            phase="human_review_calibration",
-                        )
+                    (
+                        human_review_ref,
+                        human_review_calibration,
+                    ) = await _persist_and_publish_runtime_quality_payload(
+                        report_key="human_review_calibration",
+                        ref_key="human_review_calibration_report_ref",
+                        report_payload=human_review_calibration,
+                        artifact_kind="runtime.human_review_calibration_report",
+                        schema_name="polisyos.runtime.HumanReviewCalibrationReport",
+                        phase="human_review_calibration",
                     )
-                    selected_variant["human_review_calibration_report_ref"] = (
-                        human_review_ref
-                    )
+                    selected_variant["human_review_calibration_report_ref"] = human_review_ref
                     selected_variant["human_review_calibration"] = human_review_calibration
 
                     publishable_runtime = str(execution_profile or "").casefold() in {
@@ -8264,27 +8189,32 @@ class NaturalLanguageRunMixin:
                     compiler_issues: list[dict[str, Any]] = []
                     if publishable_runtime:
                         try:
-                            compiled_decision_artifact = (
-                                compile_publishable_decision_artifact(
-                                    run_id=run_id,
-                                    final_claims=final_policy_claims,
-                                    policy_grounding_matrix=policy_grounding_matrix,
-                                    quality_scorecard=decision_quality_scorecard,
-                                    conflict_check=conflict_check,
-                                    approval_state=decision_approval_state,
-                                    assurance_refs=decision_assurance_refs,
-                                    spine_context=_producer_spine_context_payload(),
-                                    claim_registry=runtime_claim_registry,
-                                    runtime_authority=runtime_claim_registry_authority,
-                                )
+                            compiled_decision_artifact = compile_publishable_decision_artifact(
+                                run_id=run_id,
+                                final_claims=final_policy_claims,
+                                policy_grounding_matrix=policy_grounding_matrix,
+                                quality_scorecard=decision_quality_scorecard,
+                                conflict_check=conflict_check,
+                                approval_state=decision_approval_state,
+                                assurance_refs=decision_assurance_refs,
+                                spine_context=_producer_spine_context_payload(),
+                                claim_registry=runtime_claim_registry,
+                                runtime_authority=runtime_claim_registry_authority,
                             )
                         except DecisionArtifactCompilationError as exc:
-                            compiled_decision_artifact = dict(exc.draft_artifact)
                             compiler_issues = [
-                                dict(issue)
-                                for issue in exc.issues
-                                if isinstance(issue, Mapping)
+                                dict(issue) for issue in exc.issues if isinstance(issue, Mapping)
                             ]
+                            compiled_decision_artifact = compile_draft_decision_packet(
+                                run_id=run_id,
+                                final_claims=final_policy_claims,
+                                policy_grounding_matrix=policy_grounding_matrix,
+                                quality_scorecard=decision_quality_scorecard,
+                                conflict_check=conflict_check,
+                                approval_state=decision_approval_state,
+                                assurance_refs=decision_assurance_refs,
+                                spine_context=_producer_spine_context_payload(),
+                            )
                             compiled_decision_artifact["compiler_issues"] = compiler_issues
                     else:
                         compiled_decision_artifact = compile_public_decision_artifact(
@@ -8297,6 +8227,8 @@ class NaturalLanguageRunMixin:
                             assurance_refs=decision_assurance_refs,
                             spine_context=_producer_spine_context_payload(),
                         )
+                    compiled_decision_artifact["approval_currentness"] = "producer_missing"
+                    compiled_decision_artifact["approval_projection_only"] = True
                     decision_artifact_quality = (
                         {
                             **dict(deterministic_evidence["decision_artifact_quality"]),
@@ -8326,42 +8258,39 @@ class NaturalLanguageRunMixin:
                         "decision_artifact_quality_report_ref",
                         None,
                     )
-                    decision_quality_ref, decision_artifact_quality = (
-                        await _persist_and_publish_runtime_quality_payload(
-                            report_key="decision_artifact_quality",
-                            ref_key="decision_artifact_quality_report_ref",
-                            report_payload=decision_artifact_quality,
-                            artifact_kind="scientist.decision_artifact_quality_report",
-                            schema_name=(
-                                "polisyos.scientist.DecisionArtifactQualityReport"
-                            ),
-                            phase="decision_artifact_quality",
-                            input_refs=[
-                                ref
-                                for ref in (
-                                    _quality_report_input_ref(
-                                        role="policy_grounding_matrix",
-                                        ref_value=grounding_ref_str,
-                                        kind="scientist.policy_grounding_matrix",
-                                    ),
-                                    _quality_report_input_ref(
-                                        role="conflict_check",
-                                        ref_value=conflict_ref_str,
-                                        kind="lex.policy_conflict_check",
-                                    ),
-                                    _quality_report_input_ref(
-                                        role="runtime_claim_registry",
-                                        ref_value=runtime_claim_registry_ref,
-                                        kind="runtime.claim_registry",
-                                    ),
-                                )
-                                if ref is not None
-                            ],
-                        )
+                    (
+                        decision_quality_ref,
+                        decision_artifact_quality,
+                    ) = await _persist_and_publish_runtime_quality_payload(
+                        report_key="decision_artifact_quality",
+                        ref_key="decision_artifact_quality_report_ref",
+                        report_payload=decision_artifact_quality,
+                        artifact_kind="scientist.decision_artifact_quality_report",
+                        schema_name=("polisyos.scientist.DecisionArtifactQualityReport"),
+                        phase="decision_artifact_quality",
+                        input_refs=[
+                            ref
+                            for ref in (
+                                _quality_report_input_ref(
+                                    role="policy_grounding_matrix",
+                                    ref_value=grounding_ref_str,
+                                    kind="scientist.policy_grounding_matrix",
+                                ),
+                                _quality_report_input_ref(
+                                    role="conflict_check",
+                                    ref_value=conflict_ref_str,
+                                    kind="lex.policy_conflict_check",
+                                ),
+                                _quality_report_input_ref(
+                                    role="runtime_claim_registry",
+                                    ref_value=runtime_claim_registry_ref,
+                                    kind="runtime.claim_registry",
+                                ),
+                            )
+                            if ref is not None
+                        ],
                     )
-                    selected_variant["decision_artifact_quality_report_ref"] = (
-                        decision_quality_ref
-                    )
+                    selected_variant["decision_artifact_quality_report_ref"] = decision_quality_ref
                     selected_variant["decision_artifact_quality"] = decision_artifact_quality
 
                     scholar_spine_evidence = build_scholar_spine_evidence_binding(
@@ -8399,49 +8328,46 @@ class NaturalLanguageRunMixin:
                         policy_grounding_matrix=policy_grounding_matrix,
                         decision_artifact_contract=decision_contract,
                         final_claims=[
-                            dict(item)
-                            for item in final_policy_claims
-                            if isinstance(item, Mapping)
+                            dict(item) for item in final_policy_claims if isinstance(item, Mapping)
                         ],
                         spine_context=_producer_spine_context_payload(),
                     )
-                    semantic_binding_ref, semantic_binding_ledger = (
-                        await _persist_and_publish_runtime_quality_payload(
-                            report_key="semantic_binding_ledger",
-                            ref_key="semantic_binding_ledger_ref",
-                            report_payload=semantic_binding_ledger,
-                            artifact_kind="runtime.semantic_binding_ledger",
-                            schema_name="polisyos.runtime.SemanticBindingLedger",
-                            phase="semantic_binding",
-                            input_refs=[
-                                ref
-                                for ref in (
-                                    _quality_report_input_ref(
-                                        role="normative_applicability_report",
-                                        ref_value=normative_ref_str,
-                                        kind="lex.normative_applicability_report",
-                                    ),
-                                    _quality_report_input_ref(
-                                        role="fabric_retrieval_trace",
-                                        ref_value=selected_variant.get(
-                                            "fabric_retrieval_trace_ref"
-                                        ),
-                                        kind="fabric.retrieval_trace",
-                                    ),
-                                    _quality_report_input_ref(
-                                        role="foundry_method_report",
-                                        ref_value=foundry_method_report_ref,
-                                        kind="foundry.method_quality_report",
-                                    ),
-                                    _quality_report_input_ref(
-                                        role="policy_grounding_matrix",
-                                        ref_value=grounding_ref_str,
-                                        kind="scientist.policy_grounding_matrix",
-                                    ),
-                                )
-                                if ref is not None
-                            ],
-                        )
+                    (
+                        semantic_binding_ref,
+                        semantic_binding_ledger,
+                    ) = await _persist_and_publish_runtime_quality_payload(
+                        report_key="semantic_binding_ledger",
+                        ref_key="semantic_binding_ledger_ref",
+                        report_payload=semantic_binding_ledger,
+                        artifact_kind="runtime.semantic_binding_ledger",
+                        schema_name="polisyos.runtime.SemanticBindingLedger",
+                        phase="semantic_binding",
+                        input_refs=[
+                            ref
+                            for ref in (
+                                _quality_report_input_ref(
+                                    role="normative_applicability_report",
+                                    ref_value=normative_ref_str,
+                                    kind="lex.normative_applicability_report",
+                                ),
+                                _quality_report_input_ref(
+                                    role="fabric_retrieval_trace",
+                                    ref_value=selected_variant.get("fabric_retrieval_trace_ref"),
+                                    kind="fabric.retrieval_trace",
+                                ),
+                                _quality_report_input_ref(
+                                    role="foundry_method_report",
+                                    ref_value=foundry_method_report_ref,
+                                    kind="foundry.method_quality_report",
+                                ),
+                                _quality_report_input_ref(
+                                    role="policy_grounding_matrix",
+                                    ref_value=grounding_ref_str,
+                                    kind="scientist.policy_grounding_matrix",
+                                ),
+                            )
+                            if ref is not None
+                        ],
                     )
                     selected_variant["semantic_binding_ledger_ref"] = semantic_binding_ref
                     selected_variant["semantic_binding_ledger"] = semantic_binding_ledger
@@ -8452,9 +8378,7 @@ class NaturalLanguageRunMixin:
                         provider = str(variant.get("provider") or "runtime")
                         provider_observations.append(
                             {
-                                "lane_id": str(
-                                    variant.get("model_variant_id") or model_id
-                                ),
+                                "lane_id": str(variant.get("model_variant_id") or model_id),
                                 "lane_kind": "simulated"
                                 if os.getenv("POLISYOS_LLM_SIMULATION_MODE")
                                 else "quarantined_live",
@@ -8475,10 +8399,9 @@ class NaturalLanguageRunMixin:
                                     citation_faithfulness_report.get("status") == "pass"
                                 ),
                                 "disagreement_detected": bool(
-                                    dict(
-                                        selected_variant.get("llm_model_adjudication")
-                                        or {}
-                                    ).get("disagreements")
+                                    dict(selected_variant.get("llm_model_adjudication") or {}).get(
+                                        "disagreements"
+                                    )
                                 ),
                                 "latency_ms": float(variant.get("latency_ms") or 0.0),
                                 "cost_usd": float(variant.get("cost_usd") or 0.0),
@@ -8516,19 +8439,18 @@ class NaturalLanguageRunMixin:
                     provider_ledger["status"] = "pass"
                     provider_ledger.setdefault("issues", [])
                     provider_ledger.pop("provider_model_quality_ledger_ref", None)
-                    provider_ledger_ref, provider_ledger = (
-                        await _persist_and_publish_runtime_quality_payload(
-                            report_key="provider_model_quality_ledger",
-                            ref_key="provider_model_quality_ledger_ref",
-                            report_payload=provider_ledger,
-                            artifact_kind="runtime.provider_model_quality_ledger",
-                            schema_name="polisyos.runtime.ProviderModelQualityLedger",
-                            phase="provider_model_quality",
-                        )
+                    (
+                        provider_ledger_ref,
+                        provider_ledger,
+                    ) = await _persist_and_publish_runtime_quality_payload(
+                        report_key="provider_model_quality_ledger",
+                        ref_key="provider_model_quality_ledger_ref",
+                        report_payload=provider_ledger,
+                        artifact_kind="runtime.provider_model_quality_ledger",
+                        schema_name="polisyos.runtime.ProviderModelQualityLedger",
+                        phase="provider_model_quality",
                     )
-                    selected_variant["provider_model_quality_ledger_ref"] = (
-                        provider_ledger_ref
-                    )
+                    selected_variant["provider_model_quality_ledger_ref"] = provider_ledger_ref
                     selected_variant["provider_model_quality_ledger"] = provider_ledger
                     if selected_variant_id:
                         progress_variants[selected_variant_id] = {

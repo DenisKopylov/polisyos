@@ -63,6 +63,10 @@ describe("DisputeRegistryPanel persistence", () => {
     expect(screen.getByTestId("dispute-registry-panel")).toHaveTextContent(
       "Reviewer objection",
     );
+    expect(screen.getByRole("article")).toHaveAttribute(
+      "data-authority-purpose",
+      "case_management_note",
+    );
 
     view.unmount();
     render(<DisputeRegistryPanel issues={[]} runId="run-a" />);
@@ -81,6 +85,7 @@ describe("DisputeRegistryPanel persistence", () => {
       persistence.write(SCOPE_A, "run-a", [
         {
           actor: "reviewer",
+          authorityPurpose: "case_management_note",
           basis: "legal",
           id: "private-a",
           openedAt: "2026-08-16T12:00:00.000Z",
@@ -172,6 +177,7 @@ describe("DisputeRegistryPanel persistence", () => {
       persistence.write(SCOPE_A, "same-run", [
         {
           actor: "reviewer",
+          authorityPurpose: "case_management_note",
           basis: "legal",
           id: "private-a",
           openedAt: "2026-08-16T12:00:00.000Z",

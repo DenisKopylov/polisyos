@@ -43,6 +43,7 @@ class RuntimePermission(StrEnum):
     PLATFORM_VIEW = "platform.view"
     RUNS_BATCH_READ = "runs.batch.read"
     RUNS_FEEDBACK_EVALUATE = "runs.feedback.evaluate"
+    RUNS_HUMAN_DECISIONS_CREATE = "runs.human_decisions.create"
     RUNS_LAUNCH = "runs.launch"
     RUNS_PRODUCTION_APPROVAL_CREATE = "runs.production_approval.create"
     RUNS_REISSUE = "runs.reissue"
@@ -83,6 +84,7 @@ ROLE_PERMISSION_GRANTS: Final[Mapping[PolicyOSRole, frozenset[RuntimePermission]
                     RuntimePermission.PLATFORM_VIEW,
                     RuntimePermission.RUNS_BATCH_READ,
                     RuntimePermission.RUNS_FEEDBACK_EVALUATE,
+                    RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
                     RuntimePermission.RUNS_LAUNCH,
                     RuntimePermission.RUNS_PRODUCTION_APPROVAL_CREATE,
                     RuntimePermission.RUNS_REISSUE,
@@ -118,6 +120,7 @@ ROLE_PERMISSION_GRANTS: Final[Mapping[PolicyOSRole, frozenset[RuntimePermission]
                     RuntimePermission.PLATFORM_VIEW,
                     RuntimePermission.RUNS_BATCH_READ,
                     RuntimePermission.RUNS_FEEDBACK_EVALUATE,
+                    RuntimePermission.RUNS_HUMAN_DECISIONS_CREATE,
                     RuntimePermission.RUNS_LAUNCH,
                     RuntimePermission.RUNS_REVIEW,
                     RuntimePermission.RUNS_VIEW,

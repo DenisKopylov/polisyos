@@ -1,5 +1,7 @@
 # Runtime Quality
 
+- Last updated: 2026-08-24
+
 `polisyos.runtime.quality` owns Policy Design Case runtime-quality artifacts:
 authority/status composition, evidence and claim binding, replay, closeout
 checks, and audit-oriented exports.

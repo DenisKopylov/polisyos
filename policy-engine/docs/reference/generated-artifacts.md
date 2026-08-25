@@ -828,7 +828,7 @@ corepack pnpm --filter @polisyos/runtime-dashboard run audit:ci
 
 - Family id: `public-surface-inventory`
 - Lifecycle: `generated_committed`
-- Source of truth: architecture/public_surface/contract.toml and src/polisyos/**/__init__.py public exports
+- Source of truth: architecture/public_surface/contract.toml and src/polisyos/**/*.py module/package facade exports
 - Generator: canonical generator declared in regenerate_commands
 - Verifier: verifier declared by check_command, drift_gate, workflow, or manual review policy
 - Promotion target: registered committed outputs listed in outputs
@@ -846,7 +846,7 @@ corepack pnpm --filter @polisyos/runtime-dashboard run audit:ci
 Canonical regeneration commands:
 
 ```bash
-uv run polisyos-tools quality public-surface snapshot --all
+uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline
 ```
 
 ## `Architecture package contract aggregate mirrors`

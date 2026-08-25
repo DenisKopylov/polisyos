@@ -76,6 +76,8 @@ def test_clean_scorecard_builds_and_persists_approval_packet(tmp_path) -> None:
     assert packet.eligibility.performance_blocking is False
     assert packet.eligibility.conflict_blocking is False
     assert packet.override is None
+    assert packet.operational_authority is False
+    assert packet.historical_only is True
     assert scorecard == original_scorecard
 
     persisted = persist_production_approval_packet(
@@ -90,9 +92,7 @@ def test_clean_scorecard_builds_and_persists_approval_packet(tmp_path) -> None:
     assert stored_payload["scorecard_digest"].startswith("sha256:")
 
     bundle_payload = json.loads(persisted.evidence_bundle_packet_path.read_text("utf-8"))
-    assert bundle_payload["approval_packet_ref"] == str(
-        persisted.approval_packet_ref.artifact_id
-    )
+    assert bundle_payload["approval_packet_ref"] == str(persisted.approval_packet_ref.artifact_id)
     assert bundle_payload["packet"]["decision"] == "approved"
 
 
@@ -155,8 +155,7 @@ def test_source_truth_conflict_records_block_approval_even_if_projection_says_pa
                 "failure_code": "hds_final_claim_authority_conflict",
                 "owner": "team-policy-semantics",
                 "next_diagnostic_command": (
-                    "uv run pytest "
-                    "tests/unit/runtime/quality/test_source_truth_lattice.py -q"
+                    "uv run pytest tests/unit/runtime/quality/test_source_truth_lattice.py -q"
                 ),
             }
         ],

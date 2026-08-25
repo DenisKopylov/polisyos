@@ -58,6 +58,7 @@ from polisyos.runtime.http.routes.governed_projections import (
     router as governed_projections_router,
 )
 from polisyos.runtime.http.routes.health import router as health_router
+from polisyos.runtime.http.routes.human_decisions import router as human_decisions_router
 from polisyos.runtime.http.routes.lineage import router as lineage_router
 from polisyos.runtime.http.routes.mobility import router as mobility_router
 from polisyos.runtime.http.routes.review import router as review_router
@@ -154,10 +155,7 @@ def create_runtime_api_app(
         direct_non_development_authority.append("authz_enforce")
     if authz_shadow_mode:
         direct_non_development_authority.append("authz_shadow_mode")
-    if (
-        policy_resolver.default_profile != "dev"
-        and direct_non_development_authority
-    ):
+    if policy_resolver.default_profile != "dev" and direct_non_development_authority:
         raise RuntimeBootstrapError(
             "Non-development authority composition requires an exact "
             "RuntimeDeploymentSecurity bundle without direct injections: "
@@ -165,9 +163,7 @@ def create_runtime_api_app(
         )
     if deployment_security is not None:
         try:
-            deployment_security = require_factory_produced_deployment_security(
-                deployment_security
-            )
+            deployment_security = require_factory_produced_deployment_security(deployment_security)
         except TypeError as exc:
             raise RuntimeBootstrapError(
                 "Deployment security must be an intact factory-attested bundle."
@@ -267,9 +263,7 @@ def create_runtime_api_app(
     )
     app.state.runtime_deployment_security = deployment_security
     app.state.runtime_deployment_principal_grants = (
-        deployment_security.principal_grants
-        if deployment_security is not None
-        else None
+        deployment_security.principal_grants if deployment_security is not None else None
     )
     runtime_container.install(app)
     if deployment_security is not None:
@@ -342,10 +336,7 @@ def create_runtime_api_app(
             metrics=runtime_container.runtime_metrics,
         )
 
-    if (
-        deployment_security is not None
-        and policy_resolver.default_profile != "dev"
-    ):
+    if deployment_security is not None and policy_resolver.default_profile != "dev":
 
         @app.middleware("http")
         async def _deployment_security_attestation_guard(
@@ -356,8 +347,7 @@ def create_runtime_api_app(
                 installed = require_installed_deployment_security(request)
                 if (
                     installed is not deployment_security
-                    or getattr(app.state, "runtime_container", None)
-                    is not runtime_container
+                    or getattr(app.state, "runtime_container", None) is not runtime_container
                 ):
                     raise DeploymentSecurityAttestationError(
                         "deployment security installation identity changed"
@@ -386,6 +376,8 @@ def create_runtime_api_app(
         app.include_router(auth_router)
     if runs_router is not None:
         app.include_router(runs_router)
+    if human_decisions_router is not None:
+        app.include_router(human_decisions_router)
     if scenarios_router is not None:
         app.include_router(scenarios_router)
     if temporal_router is not None:

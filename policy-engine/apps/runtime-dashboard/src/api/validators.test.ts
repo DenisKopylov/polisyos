@@ -3,10 +3,24 @@ import type { z } from "zod";
 
 import type { components } from "./types";
 import {
+  humanDecisionGateResponseSchema,
+  humanDecisionReviewEffectivenessSchema,
   quantityValueSchema,
   runDetailsSchema,
   runsListSchema,
 } from "./validators";
+import {
+  availableHumanDecisionGate,
+  humanDecisionDigest,
+  humanDecisionReviewEffectivenessFixture,
+} from "@/test/fixtures/humanDecision";
+
+function mutableRecord(value: unknown): Record<string, unknown> {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new TypeError("expected mutable fixture record");
+  }
+  return value as Record<string, unknown>;
+}
 
 type ProjectionFixture = Record<string, unknown> & {
   audience?: components["schemas"]["PolicyDesignCaseProjection"]["audience"];
@@ -337,6 +351,234 @@ describe("runtime API validators", () => {
     });
     expect(projection.primary_state).toBe("publishable");
     expect(projection).not.toHaveProperty("fail_closed_codes");
+  });
+
+  it("rejects human-decision gate semantic counterexamples", () => {
+    expect(
+      humanDecisionGateResponseSchema.safeParse(availableHumanDecisionGate())
+        .success,
+    ).toBe(true);
+
+    const counterexamples: Array<() => unknown> = [
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.reasons = [
+          {
+            code: "DS9-DECISION-PRODUCER-MISSING",
+            message: "Missing producer",
+            status: "producer_missing",
+          },
+        ];
+        candidate.reason_codes = ["DS9-DECISION-PRODUCER-MISSING"];
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.contestability = {
+          ...candidate.contestability!,
+          case_id: "case.other",
+        };
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        const selector = mutableRecord(candidate.submission?.selector);
+        selector.basis_digest = humanDecisionDigest("8");
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        const continuation = mutableRecord(candidate.continuation);
+        continuation.action_kind = "search";
+        const selector = mutableRecord(candidate.submission?.selector);
+        selector.action_kind = "search";
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.submission!.allowed_decisions = [
+          ...candidate.submission!.allowed_decisions,
+          { action: "escalate", decision_modes: ["ordinary"] },
+        ];
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.submission!.allowed_decisions[0]!.decision_modes = [
+          "blocking",
+        ];
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.submission!.allowed_decisions = [
+          candidate.submission!.allowed_decisions[0]!,
+          candidate.submission!.allowed_decisions[0]!,
+        ];
+        candidate.decision_request!.available_actions = ["approve", "approve"];
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.submission!.allowed_decisions = [];
+        candidate.decision_request!.available_actions = [];
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.decision_request!.five_rights_binding.required_role =
+          "principal";
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.decision_request!.five_rights_binding.decision_rights_matrix_ref =
+          "pdc://s7/other-rights";
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.exposure.required_artifact_digests[1] =
+          humanDecisionDigest("6");
+        candidate.exposure.completed_artifact_digests[1] =
+          humanDecisionDigest("6");
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.exposure.channel = "governed_review";
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.exposure.completed_artifact_digests = [];
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.exposure.completed_artifact_digests.push(
+          humanDecisionDigest("6"),
+        );
+        return candidate;
+      },
+      () => {
+        const candidate = structuredClone(availableHumanDecisionGate());
+        candidate.mandate = null;
+        return candidate;
+      },
+    ];
+
+    for (const counterexample of counterexamples) {
+      expect(
+        humanDecisionGateResponseSchema.safeParse(counterexample()).success,
+      ).toBe(false);
+    }
+
+    const repeated = structuredClone(availableHumanDecisionGate());
+    repeated.decision_request!.five_rights_binding.required_information_refs = [
+      repeated.exposure.required_artifact_digests[1]!,
+      repeated.exposure.required_artifact_digests[1]!,
+    ];
+    repeated.exposure.required_artifact_digests.push(
+      repeated.exposure.required_artifact_digests[1]!,
+    );
+    repeated.exposure.completed_artifact_digests.push(
+      repeated.exposure.completed_artifact_digests[1]!,
+    );
+    expect(humanDecisionGateResponseSchema.safeParse(repeated).success).toBe(
+      true,
+    );
+  });
+
+  it.each(["Bad action", "a".repeat(121)])(
+    "rejects PA2 action_kind outside the signed action grammar: %s",
+    (actionKind) => {
+      const candidate = structuredClone(availableHumanDecisionGate());
+      mutableRecord(candidate.continuation).action_kind = actionKind;
+      mutableRecord(candidate.submission?.selector).action_kind = actionKind;
+      candidate.mandate!.action_kind = actionKind;
+
+      expect(humanDecisionGateResponseSchema.safeParse(candidate).success).toBe(
+        false,
+      );
+    },
+  );
+
+  it("rejects a production selector whose source and basis refs are not one signed CAS ref", () => {
+    const basisRef = humanDecisionDigest("b");
+    const productionCandidate = () => {
+      const candidate = structuredClone(
+        availableHumanDecisionGate(),
+      ) as unknown as Record<string, unknown>;
+      candidate.source_kind = "production_approval";
+      candidate.source_ref = basisRef;
+      mutableRecord(candidate.contestability).source_ref = basisRef;
+      const continuation = mutableRecord(candidate.continuation);
+      continuation.source_kind = "production_approval";
+      continuation.source_ref = basisRef;
+      continuation.basis_ref = basisRef;
+      continuation.basis_digest = basisRef;
+      delete continuation.action_kind;
+      mutableRecord(candidate.submission).selector =
+        structuredClone(continuation);
+      return candidate;
+    };
+
+    expect(
+      humanDecisionGateResponseSchema.safeParse(productionCandidate()).success,
+    ).toBe(true);
+
+    for (const changedField of ["basis_ref", "basis_digest"] as const) {
+      const candidate = productionCandidate();
+      const continuation = mutableRecord(candidate.continuation);
+      continuation[changedField] = humanDecisionDigest("8");
+      mutableRecord(candidate.submission).selector =
+        structuredClone(continuation);
+
+      expect(humanDecisionGateResponseSchema.safeParse(candidate).success).toBe(
+        false,
+      );
+    }
+  });
+
+  it("rejects review-effectiveness reconciliation counterexamples", () => {
+    expect(
+      humanDecisionReviewEffectivenessSchema.safeParse(
+        humanDecisionReviewEffectivenessFixture(),
+      ).success,
+    ).toBe(true);
+
+    const counterexamples: Array<() => unknown> = [
+      () =>
+        humanDecisionReviewEffectivenessFixture({
+          authoritative_for: ["review_effectiveness_measurement"],
+        }),
+      () =>
+        humanDecisionReviewEffectivenessFixture({
+          completed_human_decision_count: 0,
+          exact_join_count: 1,
+        }),
+      () =>
+        humanDecisionReviewEffectivenessFixture({
+          coverage_status: "complete",
+        }),
+      () =>
+        humanDecisionReviewEffectivenessFixture({
+          review_count: 1,
+          review_time_not_established_count: 1,
+        }),
+      () =>
+        humanDecisionReviewEffectivenessFixture({
+          reviewer_independence_rate: 1.01,
+        }),
+    ];
+
+    for (const counterexample of counterexamples) {
+      expect(
+        humanDecisionReviewEffectivenessSchema.safeParse(counterexample())
+          .success,
+      ).toBe(false);
+    }
   });
 });
 

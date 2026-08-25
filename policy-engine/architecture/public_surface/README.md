@@ -9,11 +9,11 @@ Data Forge must be included from its first implementation phase.
 ## Snapshot Rules
 
 1. Policy lives in `architecture/public_surface/contract.toml`.
-2. Generated inventories live in this directory and should be refreshed by a
-   future command such as:
+2. Generated inventories live in this directory and are refreshed by the
+   existing architecture writer:
 
    ```text
-   polisyos-tools quality public-surface snapshot --package data_forge
+   uv run python tools/devx/architecture/guardrails.py sync --skip-deep-import-baseline
    ```
 
 3. `exports: []` is valid only while the corresponding package is explicitly

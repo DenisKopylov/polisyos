@@ -27,6 +27,7 @@ from polisyos.runtime.http.authorization import (
     RouteAuthorizationRequirement,
     get_route_action_permission_dependency,
     get_route_authorization_requirement,
+    route_action_permission_dependencies,
 )
 from polisyos.runtime.http.errors import RuntimeHTTPError
 from polisyos.runtime.http.opa_input import (
@@ -127,7 +128,7 @@ def _live_action_contracts(app: object) -> dict[str, dict[str, set[str]]]:
     for candidate in cast("Any", app).routes:
         if not isinstance(candidate, APIRoute):
             continue
-        if not (set(candidate.methods) & _UNSAFE_METHODS):
+        if not route_action_permission_dependencies(cast("Any", candidate)):
             continue
         requirement = get_route_authorization_requirement(cast("Any", candidate))
         resource_class = requirement.resource_binding.resource_kind
@@ -143,7 +144,7 @@ def test_rego_permission_vocabulary_matches_canonical_server_enum() -> None:
     rego_permissions = set(_opa_eval("data.polisyos.authz.action_permission.permission_vocabulary"))
     server_permissions = {permission.value for permission in RuntimePermission}
 
-    assert len(server_permissions) == 33
+    assert len(server_permissions) == 34
     assert rego_permissions == server_permissions
     service_read_contracts = _opa_eval(
         "data.polisyos.authz.action_permission.service_read_contracts"
@@ -151,7 +152,20 @@ def test_rego_permission_vocabulary_matches_canonical_server_enum() -> None:
     assert set(service_read_contracts) == {RuntimePermission.RUNS_VIEW.value}
 
 
-def test_rego_action_resource_contracts_match_live_mutating_router(
+def test_human_decision_permission_and_owned_resource_match_rego(
+    runtime_api_env,
+) -> None:
+    contracts = _live_action_contracts(runtime_api_env["app"])
+
+    assert contracts["runs.human_decisions.create"] == {
+        "runtime.run.human_decision": {"ownership_verified"}
+    }
+    assert _opa_eval("data.polisyos.authz.action_permission.action_contracts")[
+        "runs.human_decisions.create"
+    ] == {"runtime.run.human_decision": ["ownership_verified"]}
+
+
+def test_rego_action_resource_contracts_match_live_guarded_router(
     runtime_api_env,
 ) -> None:
     raw_contracts = _opa_eval("data.polisyos.authz.action_permission.action_contracts")
@@ -293,6 +307,108 @@ def test_runtime_middleware_sends_sealed_action_contract_to_opa(
     assert set(payload["identity"]["permissions"]) == {
         permission.value for permission in permissions_for_roles(frozenset({PolicyOSRole.ADMIN}))
     }
+
+
+def test_guarded_safe_route_emits_runtime_action_opa_input(runtime_api_env) -> None:
+    opa = _CaptureOPA()
+    bearer = _fixture_bearer("rego-guarded-safe-input")
+    client, cell, provider = _build_secure_client(
+        runtime_api_env,
+        opa_client=opa,
+        claims_by_token={},
+        raise_server_exceptions=False,
+    )
+    provider.put_claim(
+        bearer,
+        _claims(
+            tenant_id=runtime_api_env["tenant_a"],
+            cell_id=cell.cell_id,
+            jti="jwt-rego-guarded-safe-input",
+            roles=frozenset({PolicyOSRole.ADMIN}),
+        ),
+    )
+
+    with client:
+        response = client.get(
+            f"/api/v1/runs/{runtime_api_env['core_run_id']}/human-decision-gate",
+            params={"source_kind": "production_approval"},
+            headers={
+                "Authorization": f"Bearer {bearer}",
+                "X-Tenant-ID": runtime_api_env["tenant_a"],
+            },
+        )
+
+    assert response.status_code == 200, response.text
+    assert len(opa.inputs) == 1
+    runtime_input = opa.inputs[0]
+    assert type(runtime_input) is RuntimeActionAuthzInput
+    assert runtime_input.to_opa_input()["action"] == {"permission": "runs.review"}
+
+
+def test_rego_allows_exact_guarded_human_decision_read() -> None:
+    scope = AccessScope(
+        tenant_id="tenant-a",
+        cell_id="cell-a",
+        principal_type="user",
+        user_sub="reviewer-a",
+        roles=frozenset({PolicyOSRole.ADMIN}),
+        max_pii_tier=PIIAccessLevel.CRITICAL,
+        mfa_verified=True,
+        spiffe_id="",
+    )
+    requirement = RouteAuthorizationRequirement(
+        permission=RuntimePermission.RUNS_REVIEW,
+        resource_binding=ResourceBindingSpec(
+            source=ResourceBindingSource.OWNED_EXISTING_PATH,
+            resource_kind="runtime.run.human_decision_gate",
+            path_parameter="run_id",
+            query_selector_parameters=("source_kind",),
+            allow_empty_body=True,
+        ),
+    )
+    verification = ActionPermissionVerification(
+        requirement=requirement,
+        subject="reviewer-a",
+        tenant_id="tenant-a",
+        jwt_id="jwt-guarded-safe-rego",
+        roles=frozenset({PolicyOSRole.ADMIN}),
+        authorization_source=CANONICAL_ROLE_AUTHORIZATION_SOURCE,
+        granted_permissions=(RuntimePermission.RUNS_REVIEW,),
+    )
+    digest = "sha256:" + "1" * 64
+    bound = BoundAuthorizationResource(
+        requirement=requirement,
+        tenant_id="tenant-a",
+        resource_kind="runtime.run.human_decision_gate.ownership_verified",
+        resource_id=f"urn:polisyos:runtime-authorization-resource:v1:{digest}",
+        resource_digest=digest,
+        authority=BindingAuthority.OWNERSHIP_VERIFIED,
+        body_sha256="sha256:" + "2" * 64,
+        query_sha256="sha256:" + "3" * 64,
+        canonical_selectors=(("run_id", '"run-a"'),),
+    )
+    base = AuthzInput.for_http_request(
+        request_method="GET",
+        request_path="/api/v1/runs/run-a/human-decision-gate",
+        request_headers={},
+        scope=scope,
+        resource_tenant_id="tenant-a",
+        resource_kind=bound.resource_kind,
+        resource_artifact_id=bound.resource_id,
+    )
+    projected = RuntimeActionAuthzInput.from_bound_action(
+        base_input=base,
+        verification=verification,
+        bound_resource=bound,
+    )
+
+    assert (
+        _opa_eval(
+            "data.polisyos.authz.decision.allow",
+            input_value=projected.to_opa_input(),
+        )
+        is True
+    )
 
 
 @pytest.mark.parametrize(

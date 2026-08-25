@@ -21,7 +21,7 @@ ATLAS_PATH = Path("docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTE
 DISPOSITION_PATH = Path("architecture/atlas_surfaces/frontend-disposition-register.json")
 LEDGER_PATH = Path("docs/plans/active/LEDGER.md")
 PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/plans"))
-PUBLISHED_DENOMINATORS = {"register": 55, "gy": 38, "atlas": 22, "frontend": 217}
+PUBLISHED_DENOMINATORS = {"register": 58, "gy": 38, "atlas": 22, "frontend": 217}
 REGISTER_STATUSES = frozenset(
     {"open", "open_unmerged", "blocked", "folded", "closed", "ambiguous", "foreign"}
 )
@@ -353,6 +353,10 @@ def _parse_work(text: str, plan_ids: set[str], branches: dict[str, str]) -> list
             basis = (
                 '"a surface exists that renders values rather than refusals" — measured 2026-08-21'
             )
+        elif slice_id in branches:
+            stage, basis = "in-flight", "attached branch declared by slice plan"
+        elif slice_id in plan_ids:
+            stage, basis = "planned", "plan file present"
         elif slice_id in UNBLOCKED_PLANLESS:
             stage = "unblocked"
             basis = "unblocking property `not_established` — measured 2026-08-22; no plan file in either plan root"
@@ -360,10 +364,6 @@ def _parse_work(text: str, plan_ids: set[str], branches: dict[str, str]) -> list
             stage, basis = "handed-back", "hand-back recorded in master plan"
         elif slice_state == "merged":
             stage, basis = "merged", "whole-slice merge recorded; `CLOSED` marker absent"
-        elif slice_id in branches:
-            stage, basis = "in-flight", "attached branch declared by slice plan"
-        elif slice_id in plan_ids:
-            stage, basis = "planned", "plan file present"
         else:
             stage, basis = "named", "named in the master-plan slice sequence"
         heading = headings.get(slice_id, f"{slice_id} — {_plain(cells[1])}")

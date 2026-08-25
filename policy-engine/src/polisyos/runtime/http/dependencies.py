@@ -18,7 +18,7 @@ from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import ApiMeta, SourceKind
 from polisyos.core.security.access_scope import AccessScope
 
-from .errors import forbidden, unauthorized
+from .errors import forbidden, service_unavailable, unauthorized
 from .resilience import guard_runtime_cas
 from .services.artifact_inspector import ArtifactInspectorService
 from .services.attractors import AttractorAnalysisService
@@ -45,6 +45,7 @@ if TYPE_CHECKING:
 
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
+    from polisyos.runtime.http.services.human_decisions import HumanDecisionService
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi import Request
@@ -175,6 +176,28 @@ def get_runtime_api_context(request: Request) -> RuntimeApiContext:  # pragma: n
     return context
 
 
+def get_human_decision_service(request: Request) -> HumanDecisionService:
+    """Return the exact deployment-composed DS9 service or a typed refusal."""
+    from .container import resolve_human_decision_service
+
+    service = resolve_human_decision_service(request)
+    if service is None:
+        raise service_unavailable(
+            "Human-decision service is unavailable",
+            code="human_decision_service_unavailable",
+        )
+    return service
+
+
+def get_optional_human_decision_service(
+    request: Request,
+) -> HumanDecisionService | None:
+    """Return the composed service when startup installed it, else typed absence."""
+    from .container import resolve_human_decision_service
+
+    return resolve_human_decision_service(request)
+
+
 def ensure_request_id(request: Request) -> str:  # pragma: no cover
     """Resolve `X-Request-ID` or generate a correlation ID and cache it on `request.state`."""
     request_id = getattr(request.state, "request_id", None)
@@ -221,6 +244,7 @@ def record_data_access_audit(
     request: Request,
     *,
     resource_id: str | None = None,
+    resource_kind: str | None = None,
     tenant_id: str | None = None,
     outcome: str = "success",
     metadata: dict[str, Any] | None = None,
@@ -229,7 +253,7 @@ def record_data_access_audit(
     from .container import resolve_runtime_access_audit, resolve_runtime_metrics
 
     authz_resource = getattr(request.state, "authz_resource", None)
-    resource_kind = (
+    resolved_resource_kind = resource_kind or (
         str(authz_resource.get("kind", "runtime.unknown"))
         if isinstance(authz_resource, Mapping)
         else "runtime.unknown"
@@ -260,8 +284,8 @@ def record_data_access_audit(
         "actor": actor,
         "method": request.method.upper(),
         "endpoint": str(getattr(request.url, "path", "")),
-        "operation": f"READ {resource_kind}",
-        "resource_kind": resource_kind,
+        "operation": f"READ {resolved_resource_kind}",
+        "resource_kind": resolved_resource_kind,
         "resource_id": resolved_resource_id or "",
         "outcome": outcome,
         "metadata": metadata or {},
@@ -275,7 +299,7 @@ def record_data_access_audit(
     record_access_metric = getattr(metrics, "record_runtime_data_access", None)
     if callable(record_access_metric):
         record_access_metric(
-            resource_kind=resource_kind,
+            resource_kind=resolved_resource_kind,
             endpoint=entry["endpoint"],
             outcome=outcome,
             tenant_scoped=bool(resolved_tenant),

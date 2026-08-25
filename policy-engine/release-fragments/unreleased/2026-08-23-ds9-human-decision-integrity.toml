@@ -1,0 +1,100 @@
+id = "2026-08-23-ds9-human-decision-integrity"
+title = "Add accountable human-decision integrity gates"
+type = "changed"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Add signed-input approval, override, and blocking records; step-up protected decision routes; review-effectiveness telemetry; and generated dashboard/client surfaces."
+evidence = [
+  "tests/unit/runtime/http/test_human_decision_service.py",
+  "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+  "tests/repo_quality/architecture/test_public_surface_supported_entrypoint_inventory.py",
+  "apps/runtime-dashboard/src/features/runs/components/HumanDecisionGate.test.tsx",
+  "schemas/runtime_api_v1.openapi.json",
+]
+compatibility = "HumanDecisionRecord reads retain the historical v1 arm while new writes produce the custody-bound v2 arm. The HTTP operations and generated TypeScript clients are additive, but consumers must regenerate before using them."
+change_class = "python-public-api; schema-openapi-abi; js-package-api"
+surface_classification = "public_experimental: polisyos.runtime.quality; public_stable: polisyos.runtime human-decision API"
+migration = "Python consumers must accept the v1/v2 HumanDecisionRecord read union and treat all new records as v2. HTTP and dashboard consumers must regenerate clients, preserve the server-issued replay/submission selector, and send the exposure-session ref only through the required header."
+api = "Adds the human-decision gate, evidence delivery, record create/read, review-effectiveness operations, strict selector DTOs, and generated runtime-client/dashboard types."
+limitations = "The production-approval positive basis producer remains ops-owned and uninstalled by default; contestability is omitted until a live institutional case/source binding exists; public rendering remains DS12."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+  "docs/reference/public-surface.md",
+]
+runbook_docs = [
+  "docs/runbooks/migration-release-promotion.md",
+]
+
+[[compatibility_change]]
+id = "human-decision-record-v2"
+change_class = "python-public-api"
+impact = "breaking"
+surface = "public_experimental: polisyos.runtime.quality HumanDecisionRecord"
+owner = "team-polisyos"
+version_owner = "team-polisyos"
+deprecation_window = "Historical v1 records remain readable; all new writes are v2 without a v1 write fallback."
+release_note = "HumanDecisionRecord now preserves historical v1 reads while requiring custody-bound v2 fields for every new write."
+generated_client_compatibility = "not_applicable"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+  "docs/reference/public-surface.md",
+]
+runbook_docs = [
+  "docs/runbooks/migration-release-promotion.md",
+]
+
+[[compatibility_change]]
+id = "human-decision-runtime-surfaces"
+change_class = "schema-openapi-abi"
+impact = "additive"
+surface = "public_stable: human-decision OpenAPI operations"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "not_applicable"
+release_note = "The runtime OpenAPI adds step-up protected human-decision gate, evidence, record, and advisory review-effectiveness operations."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+  "docs/reference/public-surface.md",
+]
+runbook_docs = [
+  "docs/runbooks/migration-release-promotion.md",
+]
+
+[[compatibility_change]]
+id = "human-decision-runtime-client"
+change_class = "js-package-api"
+impact = "additive"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The generated runtime client adds typed human-decision gate, evidence, record, mutation, and review-effectiveness operations."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+  "docs/reference/public-surface.md",
+]
+runbook_docs = [
+  "docs/runbooks/migration-release-promotion.md",
+]
+
+[[compatibility_change]]
+id = "human-decision-dashboard-client"
+change_class = "js-package-api"
+impact = "additive"
+surface = "internal: runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The runtime dashboard generated API types add strict human-decision selector and response unions."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+  "docs/reference/public-surface.md",
+]
+runbook_docs = [
+  "docs/runbooks/migration-release-promotion.md",
+]

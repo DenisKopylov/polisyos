@@ -91,6 +91,37 @@ def test_s7_artifacts_are_strict_replayable_and_exported() -> None:
         assert hasattr(runtime_quality, model_name)
 
 
+def test_v1_human_decision_record_cannot_mint_custody_claim() -> None:
+    request = _request()
+    record = _s7("record_human_decision")(
+        case_id=CASE_ID,
+        request=request,
+        actor_ref="institution://mandate-owner/reviewer-1",
+        actor_role=request.required_role,
+        decision_action_exercised="approve",
+        evidence_summary_ref="sha256:" + "a" * 64,
+        disconfirming_evidence_refs=["sha256:" + "b" * 64],
+        active_choice=True,
+        accountability_statement="I accept accountability for this exact decision.",
+        five_rights_check={
+            "right_decision": True,
+            "right_person": True,
+            "right_information": True,
+            "right_format_channel": True,
+            "right_time": True,
+        },
+        mandate_record_ref=request.s6_mandate_record_ref,
+        rule_version_ref=RULE_VERSION_REF,
+    )
+    forged_v1 = {
+        **record.model_dump(mode="json"),
+        "custody_signer_identity": record.actor_ref,
+    }
+
+    with pytest.raises(ValueError, match="historical human-decision v1"):
+        _s7("HumanDecisionRecord").model_validate(forged_v1)
+
+
 def test_delegation_contract_embeds_governance_decision_class_registry() -> None:
     registry = _registry()
     contract = _contract()

@@ -10,6 +10,7 @@ import {
 
 export type DisputeRecord = {
   actor: "governance" | "reviewer";
+  authorityPurpose: "governance_projection" | "case_management_note";
   basis: string;
   id: string;
   openedAt: string;
@@ -49,6 +50,7 @@ export function issueToDispute(issue: GovernanceIssueView): DisputeRecord {
         : "1970-01-01T00:00:00.000Z";
   return {
     actor: "governance",
+    authorityPurpose: "governance_projection",
     basis: issue.passId ?? issue.code,
     id: `issue:${issue.code}`,
     openedAt,
@@ -169,6 +171,7 @@ function decodeStoredDisputes(value: unknown): DisputeRecord[] | null {
   return stored.disputes.map((dispute) => ({
     ...dispute,
     actor: "reviewer",
+    authorityPurpose: "case_management_note",
     status: createDisputeStatus("open"),
   }));
 }
@@ -366,5 +369,12 @@ export function buildDisputeRecords(
   issues: GovernanceIssueView[],
   localDisputes: DisputeRecord[],
 ) {
-  return [...localDisputes, ...issues.map(issueToDispute)];
+  return [
+    ...localDisputes.map((dispute) => ({
+      ...dispute,
+      actor: "reviewer" as const,
+      authorityPurpose: "case_management_note" as const,
+    })),
+    ...issues.map(issueToDispute),
+  ];
 }

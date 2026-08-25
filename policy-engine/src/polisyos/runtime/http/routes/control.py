@@ -6,6 +6,10 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts.capability_discovery import (
+    CapabilityDiscoveryRequest,
+    CapabilityDiscoveryResponse,
+)
 from polisyos.core.contracts.control import (
     BindingProfilesListResponse,
     CacheStatusResponse,
@@ -16,7 +20,6 @@ from polisyos.core.contracts.control import (
     ControlJobResponse,
     ControlOutboxEventsResponse,
     ControlWorkersResponse,
-    DataCatalogSearchResponse,
     DataDiscoverRequest,
     DataDiscoverResponse,
     DataPreviewRequest,
@@ -164,6 +167,14 @@ _DISCOVER_DATA_AUTHZ = require_action_permission(
         resource_kind="runtime.evidence.discover",
         selector_fields=("data_needs",),
         required_selector_fields=("data_needs",),
+    ),
+)
+_SEARCH_CAPABILITIES_AUTHZ = require_action_permission(
+    RuntimePermission.EVIDENCE_DISCOVER,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.TENANT_COLLECTION,
+        resource_kind="runtime.capability_discovery.search",
+        allow_empty_body=True,
     ),
 )
 _PREVIEW_DATA_AUTHZ = require_action_permission(
@@ -711,22 +722,43 @@ if router is not None:
         request_id = ensure_request_id(request)
         return control.get_capabilities(request_id=request_id)
 
+    @router.post(
+        "/capabilities/search",
+        response_model=CapabilityDiscoveryResponse,
+        operation_id="search_capabilities",
+        summary="Search owner-backed runtime capabilities",
+        dependencies=[Depends(_SEARCH_CAPABILITIES_AUTHZ)],
+    )
+    def search_capabilities(
+        body: CapabilityDiscoveryRequest,
+        request: Request,
+    ) -> CapabilityDiscoveryResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="runtime.capability_discovery.search",
+        )
+        control = _get_control_service(request)
+        request_id = ensure_request_id(request)
+        return control.search_capabilities(body, request_id=request_id)
+
     @router.get(
         "/data/catalog/search",
-        response_model=DataCatalogSearchResponse,
+        response_model=CapabilityDiscoveryResponse,
         operation_id="search_data_catalog",
-        summary="Search metric catalog candidates",
+        summary="Search dataset capabilities through the canonical owner",
+        dependencies=[Depends(_SEARCH_CAPABILITIES_AUTHZ)],
     )
     def search_data_catalog(
         request: Request,
         metric: str = Query(..., min_length=1),
         geo: str | None = Query(default=None),
         limit: int = Query(default=25, ge=1, le=200),
-    ) -> DataCatalogSearchResponse:
+    ) -> CapabilityDiscoveryResponse:
         set_authz_resource(
             request,
             tenant_id=getattr(request.state, "tenant_id", None),
-            kind="control.search_data_catalog",
+            kind="runtime.capability_discovery.search",
         )
         control = _get_control_service(request)
         request_id = ensure_request_id(request)

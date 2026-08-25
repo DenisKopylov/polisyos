@@ -289,12 +289,7 @@ class TestCapabilities:
         assert body["state_store_backend"] == "sqlite"
         assert "features" in body
         assert isinstance(body["features"], list)
-        feature_keys = {item["key"] for item in body["features"]}
-        assert "natural_language_runs" in feature_keys
-        assert "required_preflight" in feature_keys
-        assert "security_admin_layer" in feature_keys
-        assert "durable_control_plane" in feature_keys
-        assert "control_plane_local_waiver" in feature_keys
+        assert body["features"] == []
         assert body["constraints"]["max_parallel_models"] == 16
         assert body["constraints"]["durable_control_profiles"] == [
             "research",
@@ -1750,15 +1745,15 @@ class TestDataRetrievalControl:
         assert body["preview"]["dataset_id"] == "missing.dataset"
         assert "meta" in body
 
-    def test_data_catalog_search_returns_matches(self, runtime_api_env):
-        client = runtime_api_env["client"]
-        resp = client.get("/api/v1/control/data/catalog/search?metric=us.macro&limit=5")
+    def test_data_catalog_search_returns_capability_frontier(self, runtime_api_env):
+        with runtime_api_env["client"] as client:
+            resp = client.get("/api/v1/control/data/catalog/search?metric=us.macro&limit=5")
         assert resp.status_code == 200
         body = resp.json()
-        assert "matches" in body
-        assert isinstance(body["matches"], list)
-        assert body["query"] == "us.macro"
-        assert "meta" in body
+        assert body["request"]["resource_kinds"] == ["dataset"]
+        assert body["request"]["search"]["query_text"] == "us.macro"
+        assert body["frontier"]["completeness_status"] == "producer_missing"
+        assert body["results"] == []
 
     def test_data_index_stats_returns_stats(self, runtime_api_env):
         client = runtime_api_env["client"]

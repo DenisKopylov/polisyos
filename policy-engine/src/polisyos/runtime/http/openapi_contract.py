@@ -5,6 +5,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
+from polisyos.core.contracts.capability_discovery import CapabilityDiscoveryResponse
 from polisyos.core.contracts.runtime import RuntimeApiProblem
 from polisyos.runtime.http._openapi_contract_helpers import (
     iter_openapi_operations,
@@ -715,6 +716,175 @@ _HUMAN_DECISION_CREATE_SAMPLE = {
     "durable_event_id": "event-human-decision-openapi-sample",
     "reservation_id": "human-decision-reservation-openapi-sample",
     "reservation_version": 1,
+}
+
+
+def _capability_discovery_example(
+    posture: str,
+) -> dict[str, Any]:
+    resource_kind = "case" if posture == "case_producer_missing" else "method"
+    if posture == "no_hit_incomplete":
+        resource_kind = "dataset"
+    request = {
+        "search": {
+            "request_id": f"search:openapi:{posture}",
+            "query_text": "generated capability",
+            "construct_refs": ["construct:generated"],
+            "intent": "capability_discovery",
+            "required_layers": ["runtime_registry"],
+            "authority_purpose": "review_capability_candidates",
+            "allowed_modes": ["exact"],
+            "budget": {"top_k": 5},
+            "rule_version": "policyos.ds10.discovery.v1",
+        },
+        "resource_kinds": [resource_kind],
+        "audience": "REVIEWER",
+    }
+    time = {
+        "observed_at": _TS_SAMPLE,
+        "valid_from": _TS_SAMPLE,
+        "valid_until": "2026-02-11T13:00:00Z",
+        "freshness": "current",
+    }
+    has_result = posture in {
+        "discoverable_executable_authority_not_established",
+        "candidate_only",
+    }
+    candidate_ref = "capability:method:generated"
+    candidate = {
+        "candidate_ref": candidate_ref,
+        "source_layer": "owner",
+        "match_mode": "exact",
+        "score": 0.9,
+        "evidence_refs": ["evidence:method:owner"],
+        "limitation_refs": [],
+        "authority_boundary": {"authoritative_for": []},
+        "may_not_use_for": ["publication_authority"],
+    }
+    if posture == "case_producer_missing":
+        completeness_status = "producer_missing"
+        reasons = ["case:producer_missing"]
+    elif posture == "no_hit_incomplete":
+        completeness_status = "recall_unmeasured"
+        reasons = ["dataset:recall_unmeasured"]
+    else:
+        completeness_status = "complete"
+        reasons = []
+    frontier = {
+        "request_ref": request["search"]["request_id"],
+        "query_plan": {"resource_kinds": [resource_kind]},
+        "corpus_ref": "runtime-quality:capability-provider-registry",
+        "corpus_path": "runtime/quality/capability_discovery.py",
+        "corpus_snapshot_hash": "sha256:" + "1" * 64,
+        "corpus_kind": "canonical",
+        "configured_store_path": None,
+        "indexes_used": ["index:capability-owner"],
+        "index_version_refs": ["snapshot:capability-owner"],
+        "index_freshness": {"index:capability-owner": {"state": "current"}},
+        "query_expansion_traces": [],
+        "candidates": [candidate] if has_result else [],
+        "rejected_candidates": [],
+        "no_hit_frontier": [] if has_result else [resource_kind],
+        "incompleteness": {"status": completeness_status},
+        "replay_key": f"capability-discovery:openapi:{posture}",
+        "replay_command": "python -m polisyos.runtime.quality.capability_discovery --help",
+        "replay_expected_output_hash": "sha256:" + "2" * 64,
+        "requested_count": 5,
+        "evaluated_count": 1 if has_result else 0,
+        "returned_count": 1 if has_result else 0,
+        "actual_cutoff": None,
+        "completeness_status": completeness_status,
+        "incompleteness_reasons": reasons,
+    }
+    results: list[dict[str, Any]] = []
+    if has_result:
+        executable = posture == "discoverable_executable_authority_not_established"
+        authority_state = "not_established" if executable else "candidate_only"
+        results.append(
+            {
+                "capability_ref": candidate_ref,
+                "content_digest": "sha256:" + "3" * 64,
+                "resource_kind": "method",
+                "label": "Generated method",
+                "description": "Owner-projected candidate for posture illustration.",
+                "discovery_result": {
+                    "state": "discoverable",
+                    "producer_ref": "producer:method:owner",
+                    "snapshot_ref": "snapshot:method:owner",
+                    "freshness_ref": "freshness:method:owner",
+                    "reason_codes": [],
+                    "provenance_refs": ["provenance:method:owner"],
+                    "time": time,
+                },
+                "execution_result": {
+                    "state": "executable" if executable else "not_established",
+                    "producer_ref": "runtime-quality:capability-execution-reconciler",
+                    "operation_ref": "operation:method:owner" if executable else None,
+                    "conformance_ref": "conformance:method:owner" if executable else None,
+                    "policy_ref": "policy:method:enabled" if executable else None,
+                    "reason_codes": []
+                    if executable
+                    else ["live_operation_registry_not_established"],
+                    "provenance_refs": ["provenance:method:owner"],
+                    "time": time,
+                },
+                "authority_result": {
+                    "state": authority_state,
+                    "producer_ref": "runtime-quality:capability-authority-composer",
+                    "authority_purpose": "review_capability_candidates",
+                    "binding_ref": None,
+                    "currentness_ref": None,
+                    "reason_codes": ["not_established", "owner_binding_producer_missing"],
+                    "provenance_refs": ["policyos.ds10.capability_authority.v1"],
+                    "time": time,
+                },
+                "authoritative_for": [],
+                "may_not_use_for": [
+                    "publication_authority",
+                    "discovery_as_execution_authority",
+                ],
+                "authority_purpose": "review_capability_candidates",
+                "provenance_refs": [
+                    "provenance:method:owner",
+                    "policyos.ds10.capability_authority.v1",
+                ],
+                "rule_version": "policyos.ds10.discovery.v1",
+                "time": time,
+            }
+        )
+    packet = CapabilityDiscoveryResponse.model_validate(
+        {
+            "meta": _META_NO_SOURCE,
+            "request": request,
+            "request_digest": "sha256:" + "4" * 64,
+            "authority_purpose": "review_capability_candidates",
+            "audience": "REVIEWER",
+            "results": results,
+            "frontier": frontier,
+            "rule_version": "policyos.ds10.discovery.v1",
+            "provenance_refs": ["runtime-quality:capability-provider-registry"],
+            "time": time,
+        }
+    )
+    return packet.model_dump(mode="json")
+
+
+_CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES = {
+    posture: {
+        "summary": posture.replace("_", " "),
+        "value": _capability_discovery_example(posture),
+    }
+    for posture in (
+        "discoverable_executable_authority_not_established",
+        "candidate_only",
+        "no_hit_incomplete",
+        "case_producer_missing",
+    )
+}
+
+_SUCCESS_EXAMPLE_SETS_BY_OPERATION = {
+    "search_capabilities": _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES,
+    "search_data_catalog": _CAPABILITY_DISCOVERY_SUCCESS_EXAMPLES,
 }
 
 
@@ -3497,8 +3667,11 @@ def augment_runtime_openapi(schema: dict[str, Any]) -> dict[str, Any]:
         if "example" in success_json or success_json.get("examples"):
             pass
         elif isinstance(operation_id, str):
+            examples = _SUCCESS_EXAMPLE_SETS_BY_OPERATION.get(operation_id)
             example = _SUCCESS_EXAMPLES_BY_OPERATION.get(operation_id)
-            if example is not None:
+            if examples is not None:
+                success_json["examples"] = deepcopy(examples)
+            elif example is not None:
                 success_json["examples"] = {
                     "default": {
                         "summary": f"{operation_id} response example",

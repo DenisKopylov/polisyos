@@ -290,6 +290,7 @@ class TestCapabilities:
         assert "features" in body
         assert isinstance(body["features"], list)
         assert body["features"] == []
+        assert body["workspaces"] == []
         assert body["constraints"]["max_parallel_models"] == 16
         assert body["constraints"]["durable_control_profiles"] == [
             "research",

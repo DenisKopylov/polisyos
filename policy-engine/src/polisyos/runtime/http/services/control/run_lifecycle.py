@@ -2445,9 +2445,9 @@ class ControlPlaneService(
                 search=SearchRequest(
                     request_id=request_id or f"catalog:{uuid.uuid4().hex}",
                     query_text=metric_query,
-                    construct_refs=(f"metric:{metric_query}",),
+                    construct_refs=(metric_query,),
                     intent="capability_discovery",
-                    required_layers=("runtime_registry",),
+                    required_layers=("L1",),
                     authority_purpose="review_capability_candidates",
                     allowed_modes=("exact", "alias", "lexical", "semantic"),
                     budget=budget,

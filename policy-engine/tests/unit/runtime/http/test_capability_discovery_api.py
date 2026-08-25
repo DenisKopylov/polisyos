@@ -8,10 +8,12 @@ from polisyos.core.contracts.capability_discovery import (
     CapabilityDiscoveryResponse,
 )
 from polisyos.core.contracts.runtime import ApiMeta
+from polisyos.core.contracts.search import SearchLedger
 from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.http.services.control.capability_discovery import (
     CapabilityDiscoveryService,
 )
+from polisyos.runtime.quality.capability_discovery import CapabilityProviderSearchResult
 
 
 def _search_body(*, resource_kinds: list[str] | None = None) -> dict[str, object]:
@@ -86,6 +88,68 @@ def test_malformed_injected_provider_is_a_typed_unavailable_frontier() -> None:
     assert response.frontier.incompleteness_reasons == ("method:provider_result_invalid",)
 
 
+def test_model_constructed_provider_result_is_revalidated_into_typed_unavailable() -> None:
+    """A forged model instance must not bypass the owner-result validators."""
+    ledger = SearchLedger(
+        request_ref="search:http-test",
+        query_plan={},
+        corpus_ref="corpus:forged",
+        corpus_path="owner/forged",
+        corpus_snapshot_hash="sha256:" + "1" * 64,
+        corpus_kind="fixture",
+        indexes_used=("index:forged",),
+        candidates=(),
+        rejected_candidates=(),
+        no_hit_frontier=("method",),
+        replay_key="replay:forged",
+        replay_command="python -m forged",
+        replay_expected_output_hash="sha256:" + "2" * 64,
+    )
+    malformed = CapabilityProviderSearchResult.model_construct(
+        resource_kind="method",
+        producer_ref="provider:forged",
+        owner_receipt=object(),
+        rows=(),
+        ledger=ledger,
+        requested_count=1,
+        evaluated_count=0,
+        actual_cutoff=None,
+        completeness_status="complete_no_match",
+        incompleteness_reasons=(),
+    )
+
+    class _ConstructedProvider:
+        resource_kind = "method"
+
+        def search(self, request):
+            del request
+            return malformed
+
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=":memory:",
+        postgres_dsn=None,
+    )
+    service = CapabilityDiscoveryService(
+        providers=(_ConstructedProvider(),),
+        operation_registry=None,
+        conformance_verifier=None,
+        policy_resolver=policy,
+        production_approval_resolver=None,
+    )
+
+    response = service.search(
+        CapabilityDiscoveryRequest.model_validate(_search_body(resource_kinds=["method"])),
+        meta=ApiMeta(request_id="http:constructed-provider"),
+    )
+
+    assert response.results == ()
+    assert response.frontier.completeness_status == "producer_unavailable"
+    assert response.frontier.incompleteness_reasons == ("method:provider_result_invalid",)
+
+
 def test_capability_search_persists_exact_returned_packet(
     runtime_api_env,
     monkeypatch,
@@ -148,6 +212,8 @@ def test_dataset_compatibility_route_delegates_to_canonical_search_once(
     packet = CapabilityDiscoveryResponse.model_validate(response.json())
     assert packet.request.resource_kinds == ("dataset",)
     assert packet.request.search.query_text == "us.macro"
+    assert packet.request.search.construct_refs == ("us.macro",)
+    assert packet.request.search.required_layers == ("L1",)
     assert packet.request.search.budget == {"geography": "US", "top_k": 5}
     assert len(calls) == 1
 

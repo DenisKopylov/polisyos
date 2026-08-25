@@ -41,14 +41,7 @@ class CapabilityManifestMixin:
             state_store_backend=self._policy_resolver.state_store_backend,
             security_posture=dict(resolved_policy.security_posture),
             fallback_rules=dict(resolved_policy.fallback_rules),
-            workspaces=[
-                "command_center",
-                "scenario_composer",
-                "runs_decisions",
-                "evidence_fabric",
-                "lex_knowledge",
-                "platform_health",
-            ],
+            workspaces=[],
             features=[],
             constraints={
                 "max_parallel_models": 16,

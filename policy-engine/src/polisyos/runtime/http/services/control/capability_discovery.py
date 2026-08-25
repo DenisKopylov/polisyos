@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from pydantic import ValidationError
+
 from polisyos.runtime.quality.capability_authority import CapabilityDiscoveryAuthorityResolver
 from polisyos.runtime.quality.capability_discovery import (
     CapabilityDiscoveryComposer,
@@ -83,12 +85,18 @@ class _ValidatedProvider:
             raise CapabilityProviderUnavailableError("provider_result_invalid") from exc
         if type(result) is not CapabilityProviderSearchResult:
             raise CapabilityProviderUnavailableError("provider_result_invalid")
+        try:
+            validated = CapabilityProviderSearchResult.model_validate(
+                result.model_dump(mode="python", round_trip=True, warnings=False)
+            )
+        except (AttributeError, TypeError, ValueError, ValidationError) as exc:
+            raise CapabilityProviderUnavailableError("provider_result_invalid") from exc
         if (
-            result.resource_kind != self.resource_kind
-            or result.ledger.request_ref != request.search.request_id
+            validated.resource_kind != self.resource_kind
+            or validated.ledger.request_ref != request.search.request_id
         ):
             raise CapabilityProviderUnavailableError("provider_result_invalid")
-        return result
+        return validated
 
 
 __all__ = ["CapabilityDiscoveryService"]

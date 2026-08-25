@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import copy
 import hashlib
 import importlib.util
 import json
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -30,6 +32,165 @@ AUTHORITY_SEMANTIC_COPY_PATH = (
     "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts"
 )
 GENERATED_RUNTIME_TYPES_PATH = ATLAS_DIR.parents[1] / "packages/runtime-api-client/types.ts"
+
+_CAPABILITY_DISCOVERY_RENDER_PROBE = r"""
+const fs = require("fs");
+const nodePath = require("path");
+const path = nodePath.posix;
+const createRequire = require("module").createRequire;
+const dashboardRequire = createRequire(
+  nodePath.resolve(process.cwd(), "apps/runtime-dashboard/package.json"),
+);
+const ts = dashboardRequire("typescript");
+const request = JSON.parse(fs.readFileSync(0, "utf8"));
+const sources = new Map(Object.entries(request.sources));
+const roots = [...sources.keys()].filter(sourcePath =>
+  /(?:^|\/)CapabilityDiscovery[^/]*\.tsx?$/.test(sourcePath)
+  || sourcePath.includes("/capabilityDiscovery/")
+);
+const reachable = new Set(roots);
+const queue = [...roots];
+const resolveRelative = (fromPath, specifier) => {
+  if (!specifier.startsWith(".")) return null;
+  const base = path.normalize(path.join(path.dirname(fromPath), specifier));
+  const candidates = [
+    base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`,
+  ];
+  for (const candidate of candidates) {
+    if (sources.has(candidate)) return candidate;
+  }
+  return null;
+};
+while (queue.length) {
+  const sourcePath = queue.shift();
+  const sourceFile = ts.createSourceFile(
+    sourcePath, sources.get(sourcePath), ts.ScriptTarget.Latest, true,
+    sourcePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  );
+  for (const statement of sourceFile.statements) {
+    if (!ts.isImportDeclaration(statement)
+      || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+    const resolved = resolveRelative(sourcePath, statement.moduleSpecifier.text);
+    if (resolved && !reachable.has(resolved)) {
+      reachable.add(resolved);
+      queue.push(resolved);
+    }
+  }
+}
+const violations = [];
+const kindValues = new Set(["method", "dataset", "source", "legal_norm", "case", "agent"]);
+for (const sourcePath of [...reachable].sort()) {
+  if (/\/(?:workspaceConfig|surfaceRegistry)\.[^/]+$/i.test(sourcePath)) continue;
+  const sourceFile = ts.createSourceFile(
+    sourcePath, sources.get(sourcePath), ts.ScriptTarget.Latest, true,
+    sourcePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  );
+  const declarations = new Map();
+  function collect(node) {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
+      declarations.set(node.name.text, node.initializer);
+    }
+    ts.forEachChild(node, collect);
+  }
+  collect(sourceFile);
+  const unwrap = node => {
+    while (node && (ts.isParenthesizedExpression(node) || ts.isAsExpression(node)
+      || ts.isTypeAssertionExpression(node) || ts.isNonNullExpression(node))) {
+      node = node.expression;
+    }
+    return node;
+  };
+  const stringValue = (node, seen = new Set()) => {
+    node = unwrap(node);
+    if (!node) return null;
+    if (ts.isStringLiteralLike(node)) return node.text;
+    if (ts.isIdentifier(node) && !seen.has(node.text)) {
+      seen.add(node.text);
+      return stringValue(declarations.get(node.text), seen);
+    }
+    return null;
+  };
+  const semanticField = (node, seen = new Set()) => {
+    node = unwrap(node);
+    if (!node) return null;
+    if (ts.isPropertyAccessExpression(node)) return node.name.text;
+    if (ts.isElementAccessExpression(node)) return stringValue(node.argumentExpression);
+    if (ts.isIdentifier(node) && !seen.has(node.text)) {
+      seen.add(node.text);
+      return semanticField(declarations.get(node.text), seen);
+    }
+    return null;
+  };
+  const propertyName = property => {
+    if (ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name)) {
+      return property.name.text;
+    }
+    return null;
+  };
+  const record = (node, kind) => {
+    const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+    violations.push({ path: sourcePath, line: position.line + 1, kind });
+  };
+  function inspect(node) {
+    if (ts.isObjectLiteralExpression(node)) {
+      const properties = node.properties.filter(ts.isPropertyAssignment);
+      const names = new Set(properties.map(propertyName).filter(Boolean));
+      for (const property of properties) {
+        const name = propertyName(property);
+        const value = stringValue(property.initializer);
+        if ((name === "capability_ref" || name === "resource_kind") && value !== null) {
+          record(property, `authored_${name}`);
+        } else if (name === "kind" && names.has("capability_ref") && value !== null) {
+          record(property, "authored_resource_kind");
+        } else if ((name === "adapter_id" || name === "candidate_ref") && value !== null) {
+          record(property, "authored_adapter_id");
+        } else if (name === "id" && value !== null && /adapter/i.test(value)) {
+          record(property, "authored_adapter_id");
+        }
+      }
+    }
+    if (ts.isArrayLiteralExpression(node) && node.elements.some(element => {
+      element = unwrap(element);
+      if (!element || !ts.isObjectLiteralExpression(element)) return false;
+      const names = new Set(element.properties.filter(ts.isPropertyAssignment)
+        .map(propertyName).filter(Boolean));
+      return names.has("capability_ref") || names.has("resource_kind");
+    })) record(node, "authored_result_array");
+    if (ts.isBinaryExpression(node) && [
+      ts.SyntaxKind.EqualsEqualsToken, ts.SyntaxKind.EqualsEqualsEqualsToken,
+      ts.SyntaxKind.ExclamationEqualsToken, ts.SyntaxKind.ExclamationEqualsEqualsToken,
+    ].includes(node.operatorToken.kind)) {
+      const leftField = semanticField(node.left);
+      const rightField = semanticField(node.right);
+      const leftValue = stringValue(node.left);
+      const rightValue = stringValue(node.right);
+      const branch = (field, value) => field === "capability_ref"
+        || (field === "resource_kind" && kindValues.has(value))
+        || (field === "kind" && kindValues.has(value))
+        || ((field === "adapter_id" || field === "candidate_ref") && value !== null)
+        || (field === "id" && typeof value === "string" && /adapter/i.test(value));
+      if (branch(leftField, rightValue) || branch(rightField, leftValue)) {
+        record(node, "literal_result_branch");
+      }
+    }
+    if (ts.isCaseClause(node)) {
+      const switchStatement = node.parent?.parent;
+      const field = switchStatement && ts.isSwitchStatement(switchStatement)
+        ? semanticField(switchStatement.expression) : null;
+      const value = stringValue(node.expression);
+      if (field === "capability_ref"
+        || ((field === "resource_kind" || field === "kind") && kindValues.has(value))
+        || ((field === "adapter_id" || field === "candidate_ref") && value !== null)
+        || (field === "id" && typeof value === "string" && /adapter/i.test(value))) {
+        record(node, "literal_result_branch");
+      }
+    }
+    ts.forEachChild(node, inspect);
+  }
+  inspect(sourceFile);
+}
+process.stdout.write(JSON.stringify(violations));
+"""
 
 _SEMANTIC_COPY_DECLARATION_PROBE = (
     r"""
@@ -849,6 +1010,234 @@ def _issuer_set_drift(
 
 def _valid_sha256(value: object) -> bool:
     return isinstance(value, str) and re.fullmatch(r"sha256:[a-f0-9]{64}", value) is not None
+
+
+def _scope_nodes(node: ast.AST) -> list[ast.AST]:
+    """Return nodes in one lexical scope without descending into child scopes."""
+    nodes: list[ast.AST] = []
+
+    def visit(current: ast.AST) -> None:
+        nodes.append(current)
+        for child in ast.iter_child_nodes(current):
+            if child is not node and isinstance(
+                child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)
+            ):
+                continue
+            visit(child)
+
+    visit(node)
+    return nodes
+
+
+def _python_capability_contract_bindings(
+    tree: ast.Module,
+) -> tuple[set[str], set[str], set[str]]:
+    """Resolve direct and module aliases for the two control manifest contracts."""
+    feature_names: set[str] = set()
+    manifest_names: set[str] = set()
+    module_aliases: set[str] = set()
+    owner_modules = {
+        "polisyos.core.contracts",
+        "polisyos.core.contracts.control",
+    }
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom) and node.module in owner_modules:
+            for alias in node.names:
+                local_name = alias.asname or alias.name
+                if alias.name == "CapabilityFeatureInfo":
+                    feature_names.add(local_name)
+                elif alias.name == "CapabilityManifestResponse":
+                    manifest_names.add(local_name)
+        elif isinstance(node, ast.Import):
+            for alias in node.names:
+                if alias.name in owner_modules:
+                    module_aliases.add(alias.asname or alias.name)
+    return feature_names, manifest_names, module_aliases
+
+
+def _matches_python_contract_call(
+    call: ast.Call,
+    *,
+    direct_names: set[str],
+    module_aliases: set[str],
+    attribute: str,
+) -> bool:
+    """Return whether a call resolves to one imported canonical contract."""
+    if isinstance(call.func, ast.Name):
+        return call.func.id in direct_names
+    if not isinstance(call.func, ast.Attribute) or call.func.attr != attribute:
+        return False
+    parts: list[str] = []
+    current: ast.AST = call.func.value
+    while isinstance(current, ast.Attribute):
+        parts.append(current.attr)
+        current = current.value
+    if not isinstance(current, ast.Name):
+        return False
+    parts.append(current.id)
+    return ".".join(reversed(parts)) in module_aliases
+
+
+def _manifest_contributors_for_source(path: str, source: str) -> tuple[str, ...]:
+    """Find direct feature constructors that flow into manifest ``features``."""
+    tree = ast.parse(source, filename=path)
+    feature_names, manifest_names, module_aliases = _python_capability_contract_bindings(tree)
+    if not feature_names and not module_aliases:
+        return ()
+
+    scopes: list[ast.AST] = [tree]
+    scopes.extend(
+        node
+        for node in ast.walk(tree)
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda))
+    )
+    contributors: set[str] = set()
+    for scope in scopes:
+        nodes = _scope_nodes(scope)
+        manifest_feature_values: list[ast.AST] = []
+        for node in nodes:
+            if not isinstance(node, ast.Call) or not _matches_python_contract_call(
+                node,
+                direct_names=manifest_names,
+                module_aliases=module_aliases,
+                attribute="CapabilityManifestResponse",
+            ):
+                continue
+            manifest_feature_values.extend(
+                keyword.value for keyword in node.keywords if keyword.arg == "features"
+            )
+
+        contributing_names = {
+            nested.id
+            for value in manifest_feature_values
+            for nested in ast.walk(value)
+            if isinstance(nested, ast.Name) and isinstance(nested.ctx, ast.Load)
+        }
+        candidate_expressions = list(manifest_feature_values)
+        seen_expressions = {id(value) for value in candidate_expressions}
+        changed = True
+        while changed:
+            changed = False
+            for node in nodes:
+                expressions: Sequence[ast.AST] = ()
+                if isinstance(node, (ast.Assign, ast.AnnAssign)):
+                    targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+                    if node.value is not None and any(
+                        isinstance(target, ast.Name) and target.id in contributing_names
+                        for target in targets
+                    ):
+                        expressions = (node.value,)
+                elif (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and node.func.attr in {"append", "extend"}
+                    and isinstance(node.func.value, ast.Name)
+                    and node.func.value.id in contributing_names
+                ):
+                    expressions = node.args
+                for expression in expressions:
+                    if id(expression) not in seen_expressions:
+                        seen_expressions.add(id(expression))
+                        candidate_expressions.append(expression)
+                    for nested in ast.walk(expression):
+                        if (
+                            isinstance(nested, ast.Name)
+                            and isinstance(nested.ctx, ast.Load)
+                            and nested.id not in contributing_names
+                        ):
+                            contributing_names.add(nested.id)
+                            changed = True
+
+        for expression in candidate_expressions:
+            for node in ast.walk(expression):
+                if isinstance(node, ast.Call) and _matches_python_contract_call(
+                    node,
+                    direct_names=feature_names,
+                    module_aliases=module_aliases,
+                    attribute="CapabilityFeatureInfo",
+                ):
+                    contributors.add(f"{path}:{node.lineno}")
+    return tuple(sorted(contributors))
+
+
+def control_capability_manifest_contributors(
+    sources: Mapping[str, str] | None = None,
+) -> tuple[str, ...]:
+    """Enumerate direct authored feature constructors over a source-derived denominator."""
+    if sources is None:
+        source_root = status_checker.REPO_ROOT / "src/polisyos"
+        sources = {
+            path.relative_to(status_checker.REPO_ROOT).as_posix(): path.read_text(encoding="utf-8")
+            for path in sorted(source_root.rglob("*.py"))
+        }
+    contributors: list[str] = []
+    for path, source in sorted(sources.items()):
+        if not path.endswith(".py"):
+            continue
+        contributors.extend(_manifest_contributors_for_source(path, source))
+    return tuple(sorted(set(contributors)))
+
+
+def _capability_discovery_live_sources(
+    source_overrides: Mapping[str, str] | None,
+) -> tuple[dict[str, str], dict[str, str]]:
+    """Derive the Python-owner and dashboard-render source sets for live checks."""
+    if source_overrides is not None:
+        python_sources = {
+            path: source for path, source in source_overrides.items() if path.endswith(".py")
+        }
+        render_sources = {
+            path: source
+            for path, source in source_overrides.items()
+            if path.endswith((".ts", ".tsx"))
+        }
+        return python_sources, render_sources
+
+    repo_root = status_checker.REPO_ROOT
+    python_root = repo_root / "src/polisyos"
+    dashboard_root = repo_root / "apps/runtime-dashboard/src"
+    python_sources = {
+        path.relative_to(repo_root).as_posix(): path.read_text(encoding="utf-8")
+        for path in sorted(python_root.rglob("*.py"))
+    }
+    render_sources = {
+        path.relative_to(repo_root).as_posix(): path.read_text(encoding="utf-8")
+        for suffix in ("*.ts", "*.tsx")
+        for path in sorted(dashboard_root.rglob(suffix))
+    }
+    return python_sources, render_sources
+
+
+def check_capability_discovery_result_boundary(sources: Mapping[str, str]) -> list[str]:
+    """Reject authored capability rows and literal branches in the generic render boundary."""
+    node_binary = shutil.which("node")
+    if node_binary is None:
+        raise RuntimeError("capability discovery render scan requires node")
+    completed = subprocess.run(  # noqa: S603 - executable and program are controlled constants.
+        [node_binary, "-e", _CAPABILITY_DISCOVERY_RENDER_PROBE],
+        cwd=status_checker.REPO_ROOT,
+        input=json.dumps({"sources": dict(sorted(sources.items()))}),
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError("capability discovery render scan failed: " + completed.stderr.strip())
+    violations = json.loads(completed.stdout)
+    if not isinstance(violations, list):
+        raise RuntimeError("capability discovery render scan returned invalid findings")
+    return sorted(
+        {
+            "hardcoded_discovery_result:"
+            + str(violation.get("path", "unknown"))
+            + ":"
+            + str(violation.get("line", 0))
+            + ":"
+            + str(violation.get("kind", "unknown"))
+            for violation in violations
+            if isinstance(violation, Mapping)
+        }
+    )
 
 
 def _capability_discovery_errors(
@@ -1968,13 +2357,32 @@ def validate_enforcement(
     """Validate the governed DS4 bridge and declaration-level DS5 census."""
     inventory = status_checker._load_json(status_checker.INVENTORY_PATH)
     debt = status_checker._load_json(status_checker.WAIST_DEBT_PATH)
+    typescript_overrides = (
+        None
+        if source_overrides is None
+        else {
+            path: source
+            for path, source in source_overrides.items()
+            if path.endswith((".ts", ".tsx"))
+        }
+    )
     scan = _enforcement_scan(
-        source_overrides,
+        typescript_overrides,
         inventory=inventory,
         validate_override_diagnostics=source_overrides is not None,
     )
     scan["generatedOwnerReceipt"] = _generated_owner_receipt(inventory)
     errors = _override_diagnostic_errors(scan)
+    python_sources, render_sources = _capability_discovery_live_sources(source_overrides)
+    manifest_contributors = control_capability_manifest_contributors(python_sources)
+    render_errors = check_capability_discovery_result_boundary(render_sources)
+    scan["capabilityManifestContributors"] = list(manifest_contributors)
+    scan["capabilityDiscoveryRenderErrors"] = render_errors
+    errors.extend(
+        f"authored_capability_manifest_feature:{contributor}"
+        for contributor in manifest_contributors
+    )
+    errors.extend(render_errors)
     should_enforce_escapes = (
         source_overrides is None if enforce_authority_escapes is None else enforce_authority_escapes
     )
@@ -2639,6 +3047,51 @@ def _corruption_probes(
         item.get("code") for item in scan.get("overrideDiagnostics", [])
     ] != [2322] or not any(error.endswith(":TS2322") for error in errors):
         escaped.append("capability-discovery-benign-and-brand")
+
+    python_probe_path = "src/polisyos/runtime/http/services/control/ds10_corruption_probe.py"
+    python_contributors = control_capability_manifest_contributors(
+        {
+            python_probe_path: dedent(
+                """
+                from polisyos.core.contracts.control import (
+                    CapabilityFeatureInfo as Feature,
+                    CapabilityManifestResponse as Manifest,
+                )
+                marker_only = Feature(
+                    key="marker", label="Marker", description="benign", category="probe",
+                )
+                def build(meta):
+                    rows = [Feature(
+                        key="generated", label="Generated",
+                        description="corruption", category="probe",
+                    )]
+                    return Manifest(meta=meta, features=rows)
+                """
+            )
+        }
+    )
+    if len(python_contributors) != 1:
+        escaped.append("capability-discovery-python-manifest-contributor")
+
+    render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+    render_root = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+    render_sibling = f"{render_dir}/CapabilityDiscoveryRows.tsx"
+    fixed_chrome = "apps/runtime-dashboard/src/app/surfaces/workspaceConfig.ts"
+    render_errors = check_capability_discovery_result_boundary(
+        {
+            render_root: 'import { rows } from "./CapabilityDiscoveryRows";\nvoid rows;\n',
+            render_sibling: (
+                'const selected = "capability-corruption-probe";\n'
+                'export const rows = [{ capability_ref: selected, resource_kind: "agent" }];\n'
+            ),
+            fixed_chrome: (
+                "type WorkspaceConfig = { route: string; tab: string };\n"
+                'export const workspace: WorkspaceConfig = { route: "runs", tab: "overview" };\n'
+            ),
+        }
+    )
+    if not render_errors or any(fixed_chrome in error for error in render_errors):
+        escaped.append("capability-discovery-generic-render-boundary")
 
     errors, scan = validate_enforcement(
         source_overrides={

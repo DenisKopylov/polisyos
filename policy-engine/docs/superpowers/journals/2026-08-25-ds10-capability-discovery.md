@@ -1,4 +1,4 @@
-# DS10 capability discovery — C00 execution journal
+# DS10 capability discovery — C00–C01 execution journal
 
 ## Execution identity and boundary
 
@@ -188,7 +188,7 @@ denominator at `frontend_disposition_rows=217`; only register `59 → 60` moved.
 | cluster | status | mechanism paths | widening rounds | committed receipt |
 | --- | --- | ---: | ---: | --- |
 | C00 | committed and read back | 0/50 | 0/12 | `a5755a584858ae71a7f31856ec1ba6cf5c0254be` |
-| C01 | not started | — | — | — |
+| C01 | verified boundary; committed by this boundary | 5/50 | 2/12 | `feat(core): define independent capability discovery postures` |
 | C02 | not started | — | — | — |
 | C03 | not started | — | — | — |
 | C04 | not started | — | — | — |
@@ -225,3 +225,96 @@ receipt digests, in that order, were `9ffb2703bcf08365786f44b58ba2334fcb8e43895a
 No original C00 path was a production mechanism path under `src/` or
 `apps/runtime-dashboard/src/`. The correction commit's journal digest is reported
 separately in the task report to avoid a self-referential journal hash.
+
+## C01 canonical contract and generic enumeration strangle
+
+### Identity, path accounting, and pattern pass
+
+- C01 started from exact base `fd69e66cb0b8998abd17361f20cef9f9d5070428`
+  on attached `codex/ds10-capability-discovery-plan`; product prefix was
+  `policy-engine/` and the tree was clean.
+- The five declared mechanism paths are exactly the new canonical discovery
+  contract, the existing search and control contracts, the G0 inventory import,
+  and Atlas enforcement checker named by the approved plan. No adapter admission
+  artifact or builder changed.
+- P39 companions are the four mirrored/repo-quality test paths plus this journal.
+  Mechanism accounting is **5/50** and widening accounting is **2/12**.
+- CC03/CC04/CC07 are closed at the contract boundary by three sibling producer
+  results and fail-closed authority evidence requirements. CC13/CC16 are bound by
+  source-derived Python and dashboard denominators, import/alias/value-flow facts,
+  and the sibling/indirect render mutation. Relevant repairs are P04/P05/P15/P25,
+  P27/P29/P31/P33/P35/P38/P39/P41: no ordinal posture promotion, no authority from
+  discovery, no key table as lint truth, behavioral corruption, complete physical
+  denominators, and explicit slice-base ownership of observed reds.
+
+### RED-first receipts
+
+Before production/tooling edits, the contract identity failed at collection with
+`ModuleNotFoundError: polisyos.core.contracts.capability_discovery` (exit 2,
+1.25s). The two repo-quality identities failed only because the new checker APIs
+were absent (2 failed, exit 1, 1.87s). The three focused Atlas identities failed
+only because the new checker APIs were absent (3 failed, exit 1, 1.81s). These
+mutations respectively catch absence of the canonical posture contract, an
+import-aliased direct manifest contributor, and indirect/sibling hardcoded result
+rows/branches while retaining the fixed-chrome benign control.
+
+### Implemented property and live denominators
+
+`CapabilityDiscoveryRequest` wraps the real `SearchRequest` and a six-kind filter;
+it does not manufacture placeholder constructs/layers. `SearchFrontier` extends
+`SearchLedger`, so selected/rejected/no-hit/index/freshness/replay truth remains
+owned by the existing grammar while only observed counts, cutoff, and typed
+completeness are added. The response keeps three sibling discovery, execution,
+and purpose-bound authority results. Positive execution requires operation,
+conformance, and policy inputs; positive authority requires both binding and
+currentness. A discoverable candidate cannot populate `authoritative_for`.
+
+`validate_enforcement` now derives and invokes both C01 checks on real source
+sets. The measured physical denominators are **2,577 Python files** and **1,026
+dashboard TS/TSX files**. The live Python result is the known pre-C03 set of **21
+manifest contributors**; the live discovery-render result is **0 violations**
+because its generic surface does not exist until C05. Current contributors are
+returned as validation errors rather than whitelisted by the one-time 21-key plan
+table; C03 removes/re-grounds them. Corruption tests prove chained Python value
+flow, direct and full-module imports, sibling render imports, indirect constants,
+adapter-ID switches, authored arrays, and accepted data-driven/fixed-chrome cases.
+
+### GREEN and replay receipts
+
+- Canonical contract tests: 7 passed; after the no-hit/incompleteness falsifier
+  was added, the same seven identities remained green.
+- Search plus discovery contracts: 9 passed.
+- G0 suite: 33 passed before the canonical-identity companion; contract plus G0
+  focused replay passed 39 tests. The final focused replay includes the added G0
+  identity and is recorded in the task report.
+- Repo-quality DS10 strangles: 2 passed.
+- Focused Atlas C01 checks were 6 passed before live-entry integration; the final
+  C01 selector is recorded in the task report.
+- G0 JSON replay against `fd69e66c` was byte-identical. Both SHA-256 digests were
+  `9f4b83e347aa5147425cd82bf5bb411799e845f7662eab745d09d13bc011d73c`.
+
+The approved combined command was started at uptime `18:17 up 1 day, 8:30` with
+the frozen 300s ceiling and was interrupted only after exceeding it; pytest
+unwound at 341.47s. It is a verification non-receipt and was not rerun. The
+smallest exposed TS-stack identity was isolated exactly:
+
+```text
+architecture/atlas_surfaces/test_atlas_enforcement.py::AtlasEnforcementTests::test_query_construction_and_producer_censuses_are_source_complete
+```
+
+It exits 1 on the C01 tree with `RangeError: Maximum call stack size exceeded`
+inside `status_retirement_scan.mjs:typeContainsAnyOrUnknown`. An archive replay of
+the exact same identity at slice base `c31c8cec725727637ee986e4541ac7926a553513`
+also exits 1 with the same stack overflow. Its complete production input
+denominator is TS/TSX; C01 changes zero TS/TSX paths, so the changed-input
+intersection is zero. Under P41 this is inherited scanner debt, while the killed
+combined run itself remains a non-receipt. No other exposed failure is claimed
+inherited without its own exact replay.
+
+Focused Ruff checks are green for all new/changed C01 additions. The three
+pre-existing noncanonical files (Atlas checker, Atlas test, G0 inventory) fail
+whole-file format checks at both the slice/base content and current content; a
+line-range comparison found no new formatting delta after the one C01 checker
+wrap was repaired. Base/current Ruff diagnostic counts are 13/13 for the checker,
+222/222 for the Atlas test, and 0/0 for G0. Final diff/readback receipts and exact
+uptime pairs are written in the external C01 report after commit.

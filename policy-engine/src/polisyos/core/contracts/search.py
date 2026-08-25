@@ -10,6 +10,15 @@ SEARCH_CONTRACT_SCHEMA_VERSION = "policyos.core.contracts.search.v1"
 
 SearchMatchMode = Literal["exact", "alias", "lexical", "semantic", "relational", "derived"]
 SearchCorpusKind = Literal["canonical", "bounded_surrogate", "temp_store", "fixture"]
+SearchCompletenessStatus = Literal[
+    "complete",
+    "complete_no_match",
+    "recall_unmeasured",
+    "budget_cutoff",
+    "index_stale",
+    "producer_unavailable",
+    "producer_missing",
+]
 
 
 class _SearchContractModel(BaseModel):
@@ -73,4 +82,32 @@ class SearchLedger(_SearchContractModel):
     def _replay_contract_is_executable(self) -> SearchLedger:
         if self.replay_key and not self.replay_command.strip():
             raise ValueError("replay_command is required when replay_key is present")
+        return self
+
+
+class SearchFrontier(SearchLedger):
+    """Search ledger plus observed counters, cutoff, and typed completeness."""
+
+    requested_count: int = Field(ge=0)
+    evaluated_count: int = Field(ge=0)
+    returned_count: int = Field(ge=0)
+    actual_cutoff: int | None = Field(default=None, ge=0)
+    completeness_status: SearchCompletenessStatus
+    incompleteness_reasons: tuple[str, ...]
+
+    @model_validator(mode="after")
+    def _frontier_counts_and_completeness_match_ledger(self) -> SearchFrontier:
+        if self.returned_count != len(self.candidates):
+            raise ValueError("returned_count must equal the selected ledger candidate count")
+        if self.requested_count < self.returned_count:
+            raise ValueError("requested_count cannot be smaller than returned_count")
+        if self.evaluated_count < len(self.candidates) + len(self.rejected_candidates):
+            raise ValueError("evaluated_count must cover selected and rejected candidates")
+        complete_states = {"complete", "complete_no_match"}
+        if self.completeness_status in complete_states and self.incompleteness_reasons:
+            raise ValueError("complete frontiers cannot carry incompleteness_reasons")
+        if self.completeness_status not in complete_states and not self.incompleteness_reasons:
+            raise ValueError("incomplete frontiers require typed incompleteness_reasons")
+        if self.completeness_status == "complete_no_match" and self.candidates:
+            raise ValueError("complete_no_match cannot carry selected candidates")
         return self

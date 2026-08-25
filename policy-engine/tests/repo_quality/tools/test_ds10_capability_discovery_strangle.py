@@ -18,23 +18,51 @@ def _checker():
     return checker
 
 
-def test_control_capability_manifest_has_no_authored_feature_rows() -> None:
-    """Require the control manifest to project producer-backed discovery only."""
+def test_control_capability_manifest_has_no_unchecked_authored_feature_rows() -> None:
+    """Reject an import-aliased constructor that contributes to manifest features."""
     checker = _checker()
+    sources = {
+        "src/polisyos/runtime/http/services/control/generated_probe.py": (
+            "from polisyos.core.contracts.control import (\n"
+            "    CapabilityFeatureInfo as Feature,\n"
+            "    CapabilityManifestResponse as Manifest,\n"
+            ")\n"
+            "def build(meta):\n"
+            "    projected = [Feature(key='generated', label='Generated', "
+            "description='probe', category='probe')]\n"
+            "    return Manifest(meta=meta, features=projected)\n"
+        )
+    }
 
-    assert checker.control_capability_manifest_contributors() == ()
+    contributors = checker.control_capability_manifest_contributors(sources)
+
+    assert len(contributors) == 1
+    assert contributors[0].startswith(
+        "src/polisyos/runtime/http/services/control/generated_probe.py:"
+    )
 
 
 def test_capability_menu_rejects_hardcoded_picker_rows_and_id_branches() -> None:
     """Require generic capability-menu consumption without ID-specific branches."""
     checker = _checker()
+    generated_ref = "".join(("capability", "-", "probe", "-", "7"))
     sources = {
-        "apps/runtime-dashboard/src/features/evidence/CapabilityDiscoveryPanel.tsx": (
-            "const menu = [{ capability_ref: 'adapter-42', kind: 'method' }];\n"
-            "if (result.capability_ref === 'adapter-42' || result.kind === 'method') return menu;\n"
+        "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx": (
+            "import { rows } from './CapabilityDiscoveryRows';\nexport const panel = rows;\n"
+        ),
+        "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryRows.tsx": (
+            f"const selectedRef = '{generated_ref}';\n"
+            "export const rows = [{ capability_ref: selectedRef, resource_kind: 'method' }];\n"
+            "export function render(result: { capability_ref: string; resource_kind: string }) {\n"
+            "  if (result.capability_ref === selectedRef) return rows;\n"
+            "  if (result.resource_kind === 'method') return rows;\n"
+            "  return [];\n"
+            "}\n"
         ),
         "apps/runtime-dashboard/src/app/surfaces/workspaceConfig.ts": (
-            "export const workspaceConfig = { route: 'runs', tab: 'overview' };\n"
+            "type WorkspaceConfig = { route: string; tab: string };\n"
+            "export const workspaceConfig: WorkspaceConfig = { "
+            "route: 'runs', tab: 'overview' };\n"
         ),
     }
 

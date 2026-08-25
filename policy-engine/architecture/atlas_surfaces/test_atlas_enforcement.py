@@ -776,6 +776,157 @@ class AtlasEnforcementTests(unittest.TestCase):
             with self.subTest(packet=packet):
                 self.assertTrue(checker._capability_discovery_errors(packet))
 
+    def test_ds10_python_manifest_strangle_resolves_import_and_module_aliases(self) -> None:
+        """Reject direct feature constructors only when they feed manifest features."""
+        direct_path = "src/polisyos/runtime/http/services/control/direct_probe.py"
+        module_path = "src/polisyos/runtime/http/services/control/module_probe.py"
+        unrelated_path = "src/polisyos/runtime/http/services/control/unrelated_probe.py"
+        contributors = checker.control_capability_manifest_contributors(
+            {
+                direct_path: dedent(
+                    """
+                    from polisyos.core.contracts.control import (
+                        CapabilityFeatureInfo as Feature,
+                        CapabilityManifestResponse as Manifest,
+                    )
+                    def build(meta):
+                        projected = [Feature(key="generated", label="Generated",
+                                             description="probe", category="probe")]
+                        rows = tuple(projected)
+                        return Manifest(meta=meta, features=rows)
+                    """
+                ),
+                module_path: dedent(
+                    """
+                    import polisyos.core.contracts.control
+                    def build(meta):
+                        rows = []
+                        rows.append(polisyos.core.contracts.control.CapabilityFeatureInfo(
+                            key="generated", label="Generated",
+                            description="probe", category="probe",
+                        ))
+                        return polisyos.core.contracts.control.CapabilityManifestResponse(
+                            meta=meta, features=rows,
+                        )
+                    """
+                ),
+                unrelated_path: dedent(
+                    """
+                    from polisyos.core.contracts.control import CapabilityFeatureInfo
+                    diagnostic = CapabilityFeatureInfo(
+                        key="generated", label="Generated",
+                        description="not returned in a manifest", category="probe",
+                    )
+                    """
+                ),
+            }
+        )
+
+        self.assertEqual(2, len(contributors))  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            any(row.startswith(f"{direct_path}:") for row in contributors)
+        )
+        self.assertTrue(  # noqa: PT009
+            any(row.startswith(f"{module_path}:") for row in contributors)
+        )
+        self.assertFalse(  # noqa: PT009
+            any(row.startswith(f"{unrelated_path}:") for row in contributors)
+        )
+
+    def test_ds10_generic_render_boundary_rejects_indirect_and_sibling_literals(self) -> None:
+        """Reject authored rows/branches through an imported sibling while accepting chrome."""
+        generated_ref = "".join(("capability", "-", "boundary", "-", "probe"))
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryPanel.tsx"
+                ): (
+                    'import { renderRows } from "./CapabilityDiscoveryRows";\n'
+                    "export const panel = renderRows;\n"
+                ),
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryRows.tsx"
+                ): (
+                    f'const selected = "{generated_ref}";\n'
+                    'const rows = [{ capability_ref: selected, resource_kind: "dataset" }];\n'
+                    "export function renderRows(result: {\n"
+                    "  capability_ref: string; adapter_id: string;\n"
+                    "}) {\n"
+                    "  switch (result.adapter_id) { case selected: return rows; }\n"
+                    "  return result.capability_ref === selected ? rows : [];\n"
+                    "}\n"
+                ),
+                "apps/runtime-dashboard/src/app/surfaces/workspaceConfig.ts": (
+                    "type WorkspaceConfig = { route: string; tab: string };\n"
+                    "export const workspace: WorkspaceConfig = "
+                    '{ route: "runs", tab: "overview" };\n'
+                ),
+            }
+        )
+
+        self.assertTrue(errors)  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            all("CapabilityDiscoveryRows.tsx" in error for error in errors)
+        )
+        self.assertFalse(  # noqa: PT009
+            any("workspaceConfig" in error for error in errors)
+        )
+
+    def test_ds10_generic_render_boundary_accepts_data_driven_mapping(self) -> None:
+        """Keep generic result mapping green when it carries no authored row or kind switch."""
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryPanel.tsx"
+                ): (
+                    "export function Panel({ results }: { results: readonly unknown[] }) {\n"
+                    "  return results.map((result) => JSON.stringify(result));\n"
+                    "}\n"
+                )
+            }
+        )
+
+        self.assertEqual([], errors)  # noqa: PT009
+
+    def test_ds10_validate_enforcement_runs_both_checks_on_derived_sources(self) -> None:
+        """Bind both generic checks to the live validation entry point."""
+        python_path = "src/polisyos/runtime/http/services/control/generated_probe.py"
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        render_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        errors, scan = checker.validate_enforcement(
+            source_overrides={
+                python_path: dedent(
+                    """
+                    from polisyos.core.contracts.control import (
+                        CapabilityFeatureInfo as Feature,
+                        CapabilityManifestResponse as Manifest,
+                    )
+                    def build(meta):
+                        rows = [Feature(key="generated", label="Generated",
+                                        description="probe", category="probe")]
+                        return Manifest(meta=meta, features=rows)
+                    """
+                ),
+                render_path: (
+                    'const selected = "capability-boundary-probe";\n'
+                    'export const rows = [{ capability_ref: selected, resource_kind: "method" }];\n'
+                ),
+            },
+            enforce_authority_escapes=False,
+        )
+
+        self.assertEqual(1, len(scan["capabilityManifestContributors"]))  # noqa: PT009
+        self.assertTrue(scan["capabilityDiscoveryRenderErrors"])  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            any(error.startswith("authored_capability_manifest_feature:") for error in errors)
+        )
+        self.assertTrue(  # noqa: PT009
+            any(error.startswith("hardcoded_discovery_result:") for error in errors)
+        )
+
     def test_real_illegal_edges_fail_custom_and_dependency_engines(self) -> None:
         errors, receipt = checker._architecture_recurrence_errors()
 

@@ -936,9 +936,9 @@ IngestRequest.model_rebuild()
 
 
 class CapabilityFeatureInfo(BaseModel):
-    """Describe one runtime feature flag and its rollout stage/disable reason."""
+    """Describe one fixed runtime-policy feature, never a discovery posture."""
 
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="forbid", frozen=True)
 
     key: str
     label: str

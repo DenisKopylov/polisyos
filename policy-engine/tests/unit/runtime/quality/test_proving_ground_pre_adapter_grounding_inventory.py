@@ -48,6 +48,26 @@ def _require_api(g0: Any, name: str) -> Any:
     return api
 
 
+def test_discovery_posture_uses_canonical_contract_without_narrowing_g0_resources() -> None:
+    """Catch duplicated posture vocabulary or accidental narrowing of the G0 domain."""
+    from polisyos.core.contracts.capability_discovery import DiscoveryPosture
+
+    g0 = _g0()
+
+    assert g0.DiscoveryPosture is DiscoveryPosture
+    assert set(g0.ResourceKind.__args__) == {
+        "dataset",
+        "claim",
+        "legal_norm",
+        "method",
+        "agent",
+        "tool",
+        "adapter",
+        "case",
+        "probe",
+    }
+
+
 def _assert_v2_fixture_fails(
     g0: Any,
     fixture_name: str,

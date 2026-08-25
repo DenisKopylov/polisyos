@@ -43,13 +43,25 @@ git show "${ds10_input_commit}:${ds10_prefix}architecture/atlas_surfaces/fronten
 ```
 
 ```text
+     267
 267
-267
-discoverable: src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py
-executable: src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py; src/polisyos/runtime/quality/workspace/loop.py
-admitted_authority: src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py; src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py
-{ "entries": 261, "units": 261, "assignments": 217, "assignment_paths": 217, "ds10": 10, "ds10_units": 10 }
+a5755a584858ae71a7f31856ec1ba6cf5c0254be:src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py
+a5755a584858ae71a7f31856ec1ba6cf5c0254be:src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py
+a5755a584858ae71a7f31856ec1ba6cf5c0254be:src/polisyos/runtime/quality/workspace/loop.py
+a5755a584858ae71a7f31856ec1ba6cf5c0254be:src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py
+a5755a584858ae71a7f31856ec1ba6cf5c0254be:src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py
+{
+  "entries": 261,
+  "units": 261,
+  "assignments": 217,
+  "assignment_paths": 217,
+  "ds10": 10,
+  "ds10_units": 10
+}
 ```
+
+The literal command block completed exit 0 at uptime `17:57 up 1 day, 8:10` →
+`17:57 up 1 day, 8:10`.
 
 The independent AST/tokenizer, JSON/`jq`, recursive admission, TOML, and lifecycle
 walk was run with this exact script (the `git show` prefix pins every input):
@@ -94,14 +106,20 @@ PY
 ```
 
 ```text
-constructors.ast=[52,59,68,75,84,94,101,108,115,124,131,140,147,154,164,174,184,191,198,206,213]
-constructors.token=[52,59,68,75,84,94,101,108,115,124,131,140,147,154,164,174,184,191,198,206,213]
-tracked_python_files=2576; constants.ast=1/2/2 at the files listed above
-register.python=261 261 217 217 10 10
-artifacts.python=10
-admissions.python=61 Counter({'candidate_shadow_only': 52, 'admitted': 8, 'blocked': 1})
-adapter_paths.python=[2, 4, 6, 11, 18] 41
+constructors.ast= [52, 59, 68, 75, 84, 94, 101, 108, 115, 124, 131, 140, 147, 154, 164, 174, 184, 191, 198, 206, 213]
+constructors.token= [52, 59, 68, 75, 84, 94, 101, 108, 115, 124, 131, 140, 147, 154, 164, 174, 184, 191, 198, 206, 213]
+tracked_python_files= 2576
+constants.ast.discoverable= ['src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py']
+constants.ast.executable= ['src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py', 'src/polisyos/runtime/quality/workspace/loop.py']
+constants.ast.admitted_authority= ['src/polisyos/runtime/quality/proving_ground/legal_mandate_search.py', 'src/polisyos/runtime/quality/proving_ground/pre_adapter_grounding_inventory.py']
+register.python= 261 261 217 217 10 10
+artifacts.python= 10
+admissions.python= 61 Counter({'candidate_shadow_only': 52, 'admitted': 8, 'blocked': 1})
+adapter_paths.python= [2, 4, 6, 11, 18] 41
 ```
+
+The literal Python script completed exit 0 at uptime `17:57 up 1 day, 8:10` →
+`17:58 up 1 day, 8:11`.
 
 For the independent lifecycle artifact family input, the same pin was passed to
 `tomllib.loads(blob('architecture/generated_artifacts.toml'))` and the G0

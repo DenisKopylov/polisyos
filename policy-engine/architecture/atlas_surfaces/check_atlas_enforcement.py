@@ -88,6 +88,54 @@ while (queue.length) {
     }
   }
 }
+const compilerOptions = {
+  target: ts.ScriptTarget.ES2022,
+  module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.Bundler,
+  jsx: ts.JsxEmit.ReactJSX,
+  skipLibCheck: true,
+  noEmit: true,
+};
+const compilerHost = ts.createCompilerHost(compilerOptions, true);
+const defaultGetSourceFile = compilerHost.getSourceFile.bind(compilerHost);
+const defaultFileExists = compilerHost.fileExists.bind(compilerHost);
+const defaultReadFile = compilerHost.readFile.bind(compilerHost);
+const defaultResolveModule = ts.resolveModuleName;
+const processRoot = process.cwd().replaceAll("\\", "/");
+const sourceKey = fileName => {
+  const normalized = path.normalize(fileName.replaceAll("\\", "/"));
+  if (sources.has(normalized)) return normalized;
+  const relative = path.relative(processRoot, normalized);
+  return sources.has(relative) ? relative : null;
+};
+compilerHost.getSourceFile = (fileName, languageVersion, onError, shouldCreateNew) => {
+  const key = sourceKey(fileName);
+  return key ? sourceFiles.get(key)
+    : defaultGetSourceFile(fileName, languageVersion, onError, shouldCreateNew);
+};
+compilerHost.fileExists = fileName => Boolean(sourceKey(fileName)) || defaultFileExists(fileName);
+compilerHost.readFile = fileName => {
+  const key = sourceKey(fileName);
+  return key ? sources.get(key) : defaultReadFile(fileName);
+};
+compilerHost.resolveModuleNames = (moduleNames, containingFile) => {
+  const containingKey = sourceKey(containingFile) ?? containingFile.replaceAll("\\", "/");
+  return moduleNames.map(specifier => {
+    const resolved = resolveRelative(containingKey, specifier);
+    if (resolved) {
+      return {
+        resolvedFileName: resolved,
+        extension: resolved.endsWith(".tsx") ? ts.Extension.Tsx : ts.Extension.Ts,
+        isExternalLibraryImport: false,
+      };
+    }
+    return defaultResolveModule(
+      specifier, containingFile, compilerOptions, compilerHost,
+    ).resolvedModule;
+  });
+};
+const program = ts.createProgram([...reachable].sort(), compilerOptions, compilerHost);
+const typeChecker = program.getTypeChecker();
 const moduleInfoByPath = new Map();
 const hasModifier = (node, modifier) =>
   Boolean(node.modifiers?.some(item => item.kind === modifier));
@@ -277,7 +325,8 @@ const resolveExport = (sourcePath, exported, seen) => {
       return resolved.status === "missing" ? unresolved() : resolved;
     }
     if (direct.kind === "namespace") {
-      return direct.targetPath ? runtime() : unresolved();
+      return direct.targetPath
+        ? outcome("namespace", { targetPath: direct.targetPath }) : unresolved();
     }
     return runtime();
   }
@@ -314,28 +363,60 @@ function resolveValue(node, sourcePath, seen = new Set()) {
     const binding = moduleInfoByPath.get(sourcePath)?.imports.get(node.text);
     if (!binding) return runtime();
     if (!binding.targetPath) return unresolved();
-    if (binding.kind === "namespace") return runtime();
+    if (binding.kind === "namespace") {
+      return outcome("namespace", { targetPath: binding.targetPath });
+    }
     const resolved = resolveExport(binding.targetPath, binding.exported, seen);
     return resolved.status === "missing" ? unresolved() : resolved;
   }
-  if (ts.isPropertyAccessExpression(node) && ts.isIdentifier(node.expression)) {
-    const binding = moduleInfoByPath.get(sourcePath)?.imports.get(node.expression.text);
-    if (binding?.kind === "namespace") {
-      if (!binding.targetPath) return unresolved();
-      const resolved = resolveExport(binding.targetPath, node.name.text, seen);
+  if (ts.isPropertyAccessExpression(node)) {
+    const base = resolveValue(node.expression, sourcePath, seen);
+    if (base.status === "unresolved") return base;
+    if (base.status === "namespace") {
+      const resolved = resolveExport(base.targetPath, node.name.text, seen);
       return resolved.status === "missing" ? unresolved() : resolved;
     }
+    if (base.status === "expression") {
+      const value = unwrap(base.node);
+      if (value && ts.isObjectLiteralExpression(value)) {
+        for (const property of value.properties) {
+          if (!ts.isPropertyAssignment(property)) continue;
+          const name = ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name)
+            ? property.name.text : null;
+          if (name === node.name.text) {
+            return resolveValue(property.initializer, base.sourcePath, seen);
+          }
+        }
+        return unresolved();
+      }
+    }
+    return runtime();
   }
-  if (ts.isElementAccessExpression(node) && ts.isIdentifier(node.expression)) {
-    const binding = moduleInfoByPath.get(sourcePath)?.imports.get(node.expression.text);
-    if (binding?.kind === "namespace") {
-      const key = stringValue(node.argumentExpression, sourcePath, seen);
-      if (key.status === "unresolved") return key;
-      if (key.status !== "literal") return runtime();
-      if (!binding.targetPath) return unresolved();
-      const resolved = resolveExport(binding.targetPath, key.value, seen);
+  if (ts.isElementAccessExpression(node)) {
+    const key = stringValue(node.argumentExpression, sourcePath, seen);
+    if (key.status === "unresolved") return key;
+    if (key.status !== "literal") return runtime();
+    const base = resolveValue(node.expression, sourcePath, seen);
+    if (base.status === "unresolved") return base;
+    if (base.status === "namespace") {
+      const resolved = resolveExport(base.targetPath, key.value, seen);
       return resolved.status === "missing" ? unresolved() : resolved;
     }
+    if (base.status === "expression") {
+      const value = unwrap(base.node);
+      if (value && ts.isObjectLiteralExpression(value)) {
+        for (const property of value.properties) {
+          if (!ts.isPropertyAssignment(property)) continue;
+          const name = ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name)
+            ? property.name.text : null;
+          if (name === key.value) {
+            return resolveValue(property.initializer, base.sourcePath, seen);
+          }
+        }
+        return unresolved();
+      }
+    }
+    return runtime();
   }
   return expressionOutcome(node, sourcePath);
 }
@@ -348,6 +429,118 @@ function stringValue(node, sourcePath, seen = new Set()) {
   }
   return runtime();
 }
+const isSemanticPostureField = name =>
+  /^(?:discovery|execution|authority)(?:_result|_posture)?$/.test(name);
+const semanticRowType = (type, seen = new Set()) => {
+  if (!type || seen.has(type.id)) return false;
+  const nextSeen = new Set(seen);
+  nextSeen.add(type.id);
+  if (type.isUnionOrIntersection?.()) {
+    return type.types.some(member => semanticRowType(member, nextSeen));
+  }
+  const names = new Set(typeChecker.getPropertiesOfType(type).map(property => property.name));
+  return names.has("capability_ref") || names.has("resource_kind")
+    || [...names].some(isSemanticPostureField);
+};
+const nodeHasSemanticRowType = node => {
+  try {
+    return semanticRowType(typeChecker.getTypeAtLocation(node));
+  } catch {
+    return false;
+  }
+};
+const collectionHasSemanticRows = node => {
+  try {
+    const collectionType = typeChecker.getTypeAtLocation(node);
+    const elementType = typeChecker.getIndexTypeOfType(collectionType, ts.IndexKind.Number);
+    return semanticRowType(elementType);
+  } catch {
+    return false;
+  }
+};
+const symbolDeclaration = node => {
+  try {
+    const symbol = typeChecker.getSymbolAtLocation(node);
+    return symbol?.valueDeclaration ?? symbol?.declarations?.[0] ?? null;
+  } catch {
+    return null;
+  }
+};
+const resultCollectionOrigin = (node, seen = new Set()) => {
+  node = unwrap(node);
+  if (!node) return false;
+  const token = `collection:${node.getSourceFile().fileName}:${node.pos}:${node.end}`;
+  if (seen.has(token)) return false;
+  const nextSeen = new Set(seen);
+  nextSeen.add(token);
+  if (collectionHasSemanticRows(node)) return true;
+  if (ts.isPropertyAccessExpression(node) && node.name.text === "results") return true;
+  if (ts.isElementAccessExpression(node)
+    && ts.isStringLiteralLike(node.argumentExpression)
+    && node.argumentExpression.text === "results") return true;
+  if (ts.isIdentifier(node)) {
+    const declaration = symbolDeclaration(node);
+    if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      return resultCollectionOrigin(declaration.initializer, nextSeen);
+    }
+  }
+  return false;
+};
+const callbackParameterHasRowOrigin = parameter => {
+  const callback = parameter.parent;
+  const call = callback.parent;
+  if (!ts.isCallExpression(call) || !call.arguments.includes(callback)) return false;
+  const callee = unwrap(call.expression);
+  if (!callee || (!ts.isPropertyAccessExpression(callee)
+    && !ts.isElementAccessExpression(callee))) return false;
+  return resultCollectionOrigin(callee.expression);
+};
+const bindingPattern = declaration => {
+  if (!declaration || !ts.isBindingElement(declaration)) return null;
+  let current = declaration.parent;
+  while (ts.isBindingElement(current.parent)) current = current.parent.parent;
+  return ts.isObjectBindingPattern(current) || ts.isArrayBindingPattern(current)
+    ? current : null;
+};
+const bindingPatternHasRowOrigin = pattern => {
+  if (nodeHasSemanticRowType(pattern)) return true;
+  const owner = pattern.parent;
+  if (ts.isParameter(owner)) return callbackParameterHasRowOrigin(owner);
+  if (ts.isVariableDeclaration(owner) && owner.initializer) {
+    return semanticRowOrigin(owner.initializer);
+  }
+  return false;
+};
+const bindingFieldName = declaration => {
+  if (!declaration || !ts.isBindingElement(declaration)) return null;
+  if (declaration.propertyName
+    && (ts.isIdentifier(declaration.propertyName)
+      || ts.isStringLiteralLike(declaration.propertyName))) {
+    return declaration.propertyName.text;
+  }
+  return ts.isIdentifier(declaration.name) ? declaration.name.text : null;
+};
+function semanticRowOrigin(node, seen = new Set()) {
+  node = unwrap(node);
+  if (!node) return false;
+  const token = `row:${node.getSourceFile().fileName}:${node.pos}:${node.end}`;
+  if (seen.has(token)) return false;
+  const nextSeen = new Set(seen);
+  nextSeen.add(token);
+  if (nodeHasSemanticRowType(node)) return true;
+  if (ts.isIdentifier(node)) {
+    const declaration = symbolDeclaration(node);
+    if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      return semanticRowOrigin(declaration.initializer, nextSeen);
+    }
+    if (declaration && ts.isParameter(declaration)) {
+      return callbackParameterHasRowOrigin(declaration);
+    }
+    const pattern = bindingPattern(declaration);
+    if (pattern) return bindingPatternHasRowOrigin(pattern);
+  }
+  return false;
+}
 const violations = [];
 for (const sourcePath of [...reachable].sort()) {
   if (/\/(?:workspaceConfig|surfaceRegistry)\.[^/]+$/i.test(sourcePath)) continue;
@@ -356,22 +549,33 @@ for (const sourcePath of [...reachable].sort()) {
     node = unwrap(node);
     if (!node) return outcome("runtime");
     if (ts.isPropertyAccessExpression(node)) {
-      const receiver = ts.isIdentifier(node.expression) ? node.expression.text : "";
       return outcome("field", {
         name: node.name.text,
-        contextualId: /(?:result|adapter|candidate)/i.test(receiver),
+        contextualId: semanticRowOrigin(node.expression),
       });
     }
     if (ts.isElementAccessExpression(node)) {
       const name = stringValue(node.argumentExpression, fieldPath, seen);
       if (name.status !== "literal") return name;
-      const receiver = ts.isIdentifier(node.expression) ? node.expression.text : "";
       return outcome("field", {
         name: name.value,
-        contextualId: /(?:result|adapter|candidate)/i.test(receiver),
+        contextualId: semanticRowOrigin(node.expression),
       });
     }
     if (ts.isIdentifier(node)) {
+      const declaration = symbolDeclaration(node);
+      const pattern = bindingPattern(declaration);
+      const destructuredField = bindingFieldName(declaration);
+      if (pattern && destructuredField && bindingPatternHasRowOrigin(pattern)) {
+        return outcome("field", {
+          name: destructuredField,
+          contextualId: destructuredField === "id",
+        });
+      }
+      if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+        const aliasedField = semanticField(declaration.initializer, seen, fieldPath);
+        if (aliasedField.status === "field") return aliasedField;
+      }
       const token = `field:${fieldPath}:${node.text}`;
       if (seen.has(token)) return unresolved();
       const nextSeen = new Set(seen);

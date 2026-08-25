@@ -1057,8 +1057,8 @@ class AtlasEnforcementTests(unittest.TestCase):
                 {
                     root_path: (
                         'import * as values from "./CapabilityDiscoveryValues";\n'
-                        "export const render = (result: { id: string }) => "
-                        "result.id === values.selected;\n"
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === values.selected;\n"
                     ),
                     f"{render_dir}/CapabilityDiscoveryValues.ts": (
                         'export const selected = "capability-namespace-probe";\n'
@@ -1076,8 +1076,8 @@ class AtlasEnforcementTests(unittest.TestCase):
                         "  const selected = runtimeValue;\n"
                         "  return selected;\n"
                         "}\n"
-                        "export const render = (result: { id: string }) => "
-                        "result.id === selected;\n"
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
                     ),
                     f"{render_dir}/CapabilityDiscoveryValues.ts": (
                         'export const selected = "capability-module-binding";\n'
@@ -1112,8 +1112,8 @@ class AtlasEnforcementTests(unittest.TestCase):
                 {
                     root_path: (
                         'import selected from "./CapabilityDiscoveryBarrel";\n'
-                        "export const render = (result: { id: string }) => "
-                        "result.id === selected;\n"
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
                     ),
                     f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
                         'export { origin as default } from "./CapabilityDiscoveryValues";\n'
@@ -1148,8 +1148,8 @@ class AtlasEnforcementTests(unittest.TestCase):
                 {
                     root_path: (
                         'import selected from "./CapabilityDiscoveryValues";\n'
-                        "export const render = (result: { id: string }) => "
-                        "result.id === selected;\n"
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
                     ),
                     f"{render_dir}/CapabilityDiscoveryValues.ts": (
                         'const selected = "capability-default-identifier";\n'
@@ -1190,6 +1190,157 @@ class AtlasEnforcementTests(unittest.TestCase):
                     errors,
                 )
 
+    def test_ds10_generic_render_boundary_propagates_namespace_barrel_provenance(
+        self,
+    ) -> None:
+        """Resolve or fail closed on semantic values carried by namespace barrels."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        fixtures = (
+            (
+                "namespace-barrel-literal",
+                {
+                    root_path: (
+                        'import { lookup } from "./CapabilityDiscoveryBarrel";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === lookup.kind;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export * as lookup from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const kind = "agent";\n'
+                    ),
+                },
+                "literal_result_branch",
+            ),
+            (
+                "aliased-namespace-barrel-chain",
+                {
+                    root_path: (
+                        'import { lookup } from "./CapabilityDiscoveryBarrelA";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === lookup.kind;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrelA.ts": (
+                        'export { catalog as lookup } from "./CapabilityDiscoveryBarrelB";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrelB.ts": (
+                        'export * as catalog from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const kind = "dataset";\n'
+                    ),
+                },
+                "literal_result_branch",
+            ),
+            (
+                "unresolved-namespace-member",
+                {
+                    root_path: (
+                        'import { lookup } from "./CapabilityDiscoveryBarrel";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === lookup.missing;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export * as lookup from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const kind = "agent";\n'
+                    ),
+                },
+                "unresolved_semantic_value",
+            ),
+        )
+
+        for label, sources, finding_kind in fixtures:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(sources)
+                self.assertTrue(  # noqa: PT009
+                    any(
+                        root_path in error and error.endswith(f":{finding_kind}")
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_ds10_generic_render_boundary_derives_result_id_from_row_provenance(self) -> None:
+        """Reject row IDs by result origin/type across callbacks, aliases, and destructuring."""
+        render_path = (
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "CapabilityDiscoveryPanel.tsx"
+        )
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                render_path: (
+                    "type Row = { id: string; capability_ref: string; resource_kind: string };\n"
+                    "type Response = { results: readonly Row[] };\n"
+                    "export function render(response: Response, collection: readonly Row[]) {\n"
+                    "  const direct = response.results.map(item =>\n"
+                    '    item.id === "capability-hardcoded-item");\n'
+                    "  const renamed = collection.map(entry =>\n"
+                    '    entry.id === "capability-hardcoded-entry");\n'
+                    "  const destructured = response.results.map(({ id, capability_ref }) =>\n"
+                    '    id === "capability-hardcoded-destructured");\n'
+                    "  const aliased = response.results.map(item => {\n"
+                    "    const record = item;\n"
+                    '    return record.id === "capability-hardcoded-alias";\n'
+                    "  });\n"
+                    "  return [direct, renamed, destructured, aliased];\n"
+                    "}\n"
+                )
+            }
+        )
+
+        self.assertEqual(  # noqa: PT009
+            4,
+            sum(error.endswith(":literal_result_branch") for error in errors),
+            errors,
+        )
+
+    def test_ds10_generic_render_boundary_keeps_ui_ids_and_runtime_row_values_benign(
+        self,
+    ) -> None:
+        """Accept renamed UI ID branches and runtime values on semantic result rows."""
+        render_path = (
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "CapabilityDiscoveryPanel.tsx"
+        )
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                render_path: (
+                    "type Row = { id: string; capability_ref: string };\n"
+                    'const resultHeading = { id: "capability-search-heading", role: "heading" };\n'
+                    "export function render(rows: readonly Row[], selected: string) {\n"
+                    '  const headingMatch = resultHeading.id === "capability-search-heading";\n'
+                    "  const rowMatches = rows.map(item => item.id === selected);\n"
+                    "  return [headingMatch, rowMatches];\n"
+                    "}\n"
+                ),
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryRuntimeNamespace.tsx"
+                ): (
+                    'import { lookup } from "./CapabilityDiscoveryRuntimeBarrel";\n'
+                    "export const render = (row: { resource_kind: string }) => "
+                    "row.resource_kind === lookup.kind;\n"
+                ),
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryRuntimeBarrel.ts"
+                ): 'export * as lookup from "./CapabilityDiscoveryRuntimeValues";\n',
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryRuntimeValues.ts"
+                ): (
+                    "declare function deriveKind(): string;\n"
+                    "export const kind = deriveKind();\n"
+                ),
+            }
+        )
+
+        self.assertEqual([], errors)  # noqa: PT009
+
     def test_ds10_generic_render_boundary_fails_closed_on_unresolved_module_values(
         self,
     ) -> None:
@@ -1215,8 +1366,8 @@ class AtlasEnforcementTests(unittest.TestCase):
                 {
                     root_path: (
                         'import { selected } from "./CapabilityDiscoveryAliasA";\n'
-                        "export const render = (result: { id: string }) => "
-                        "result.id === selected;\n"
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
                     ),
                     f"{render_dir}/CapabilityDiscoveryAliasA.ts": (
                         'export { selected } from "./CapabilityDiscoveryAliasB";\n'
@@ -1248,8 +1399,8 @@ class AtlasEnforcementTests(unittest.TestCase):
         sources = {
             root_path: (
                 'import { selected } from "./CapabilityDiscoveryCycle0";\n'
-                "export const render = (result: { id: string }) => "
-                "result.id === selected;\n"
+                "export const render = (result: { resource_kind: string }) => "
+                "result.resource_kind === selected;\n"
             )
         }
         for index in range(module_count):
@@ -1313,7 +1464,7 @@ class AtlasEnforcementTests(unittest.TestCase):
         errors = checker.check_capability_discovery_result_boundary(
             {
                 render_path: (
-                    "export function render(result: { id: string }) {\n"
+                    "export function render(result: { id: string; capability_ref: string }) {\n"
                     '  return result.id === "capability-hardcoded-result";\n'
                     "}\n"
                 )

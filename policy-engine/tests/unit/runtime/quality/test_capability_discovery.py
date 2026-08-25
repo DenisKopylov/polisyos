@@ -573,6 +573,7 @@ def _row(ref: str, resource_kind: str) -> CapabilityIndexDiscoveryRow:
             effective_to=None,
             temporal_state="effective",
             temporal_resolution_status="resolved",
+            temporal_snapshot_at=NOW,
             temporal_audit_ref="lex:temporal-audit:test",
             provenance_refs=("provenance:legal_norm:owner",),
         )

@@ -192,6 +192,7 @@ def compile_capability_index(
     output_dir = config.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     generated_at = config.generated_at or datetime.now(UTC).replace(microsecond=0).isoformat()
+    release_snapshot_at = _release_snapshot_at(generated_at)
     input_fingerprints = discover_input_fingerprints(production_data_root)
     previous_manifest = (
         _load_json(config.previous_manifest_path) if config.previous_manifest_path else None
@@ -220,6 +221,7 @@ def compile_capability_index(
             config,
             production_data_root,
             rebuilt_labels,
+            release_snapshot_at=release_snapshot_at,
         )
         capabilities = _merge_incremental_capabilities(
             previous_capabilities=previous_capabilities,
@@ -228,7 +230,12 @@ def compile_capability_index(
         )
     else:
         capabilities = list(
-            _compile_capabilities_for_input_labels(config, production_data_root, INPUT_GROUPS)
+            _compile_capabilities_for_input_labels(
+                config,
+                production_data_root,
+                INPUT_GROUPS,
+                release_snapshot_at=release_snapshot_at,
+            )
         )
 
     incremental = {
@@ -355,13 +362,17 @@ def build_capability_discovery_snapshot(
     registry provider.
     """
 
-    observed_at = datetime.fromisoformat(capability_index.generated_at.replace("Z", "+00:00"))
+    observed_at = _release_snapshot_at(capability_index.generated_at)
     rows: list[CapabilityIndexDiscoveryRow] = []
     for capability in capability_index.capabilities:
         resource_kind = _discovery_resource_kind(capability)
         if resource_kind is None:
             continue
-        owner_truth = _legal_norm_owner_truth(capability) if resource_kind == "legal_norm" else None
+        owner_truth = (
+            _legal_norm_owner_truth(capability, release_snapshot_at=observed_at)
+            if resource_kind == "legal_norm"
+            else None
+        )
         if resource_kind == "legal_norm" and owner_truth is None:
             continue
         payload = capability.model_dump(mode="json", by_alias=True)
@@ -442,7 +453,11 @@ def _discovery_freshness(capability: EvidenceCapability) -> str:
     return "unknown"
 
 
-def _legal_norm_owner_truth(capability: EvidenceCapability) -> LegalNormOwnerTruth | None:
+def _legal_norm_owner_truth(
+    capability: EvidenceCapability,
+    *,
+    release_snapshot_at: datetime,
+) -> LegalNormOwnerTruth | None:
     payload = capability.metadata.get("legal_norm_owner_truth")
     if not isinstance(payload, Mapping):
         return None
@@ -452,14 +467,16 @@ def _legal_norm_owner_truth(capability: EvidenceCapability) -> LegalNormOwnerTru
     if effective_from is None or (effective_to_raw and effective_to is None):
         return None
     try:
-        return LegalNormOwnerTruth.model_validate(
+        truth = LegalNormOwnerTruth.model_validate(
             {
                 **payload,
                 "effective_from": effective_from,
                 "effective_to": effective_to,
+                "temporal_snapshot_at": release_snapshot_at,
                 "provenance_refs": tuple(payload.get("provenance_refs") or ()),
             }
         )
+        return truth
     except ValueError:
         return None
 
@@ -486,6 +503,8 @@ def _compile_capabilities_for_input_labels(
     config: CapabilityIndexCompilerConfig,
     production_data_root: Path,
     input_labels: Sequence[str],
+    *,
+    release_snapshot_at: datetime,
 ) -> tuple[EvidenceCapability, ...]:
     labels = set(input_labels)
     capabilities: list[EvidenceCapability] = []
@@ -519,6 +538,7 @@ def _compile_capabilities_for_input_labels(
             load_lex_capabilities(
                 production_data_root,
                 max_capabilities=config.max_lex_capabilities,
+                release_snapshot_at=release_snapshot_at,
             )
         )
     if "l4_ukraine_panels" in labels:
@@ -1022,6 +1042,7 @@ def load_lex_capabilities(
     production_data_root: Path,
     *,
     max_capabilities: int,
+    release_snapshot_at: datetime,
 ) -> tuple[EvidenceCapability, ...]:
     """Load L3 Lex KG normative facts, thresholds, amendments, audit, refs, entities."""
 
@@ -1092,6 +1113,7 @@ def load_lex_capabilities(
             row,
             capability_ref=capability_id,
             lex_path=path,
+            release_snapshot_at=release_snapshot_at,
         )
         if legal_truth is None:
             continue
@@ -1176,7 +1198,10 @@ def load_lex_capabilities(
                     "metric": metric,
                     "operator": _optional_str(row.get("operator")),
                     "unit": _optional_str(row.get("unit")),
-                    "legal_norm_owner_truth": legal_truth.model_dump(mode="json"),
+                    "legal_norm_owner_truth": legal_truth.model_dump(
+                        mode="json",
+                        exclude={"temporal_snapshot_at"},
+                    ),
                 },
             )
         )
@@ -1188,6 +1213,7 @@ def _build_legal_norm_owner_truth(
     *,
     capability_ref: str,
     lex_path: Path,
+    release_snapshot_at: datetime,
 ) -> LegalNormOwnerTruth | None:
     """Admit only grounded, hallucination-clear, temporally resolved Lex rows."""
 
@@ -1228,21 +1254,25 @@ def _build_legal_norm_owner_truth(
         f"duckdb:{lex_path.name}:lex_temporal_audit:{audit_id}",
         f"duckdb:{lex_path.name}:lex_references:{reference_id}",
     )
-    return LegalNormOwnerTruth(
-        legal_norm_ref=capability_ref,
-        normative_fact_ref=provenance_refs[0],
-        source_document_ref=document_ref,
-        provision_citation=citation,
-        grounding_status="grounded",
-        hallucination_status="verified_clear",
-        jurisdiction=jurisdiction,
-        effective_from=effective_from,
-        effective_to=effective_to,
-        temporal_state="effective",
-        temporal_resolution_status="resolved",
-        temporal_audit_ref=provenance_refs[1],
-        provenance_refs=provenance_refs,
-    )
+    try:
+        return LegalNormOwnerTruth(
+            legal_norm_ref=capability_ref,
+            normative_fact_ref=provenance_refs[0],
+            source_document_ref=document_ref,
+            provision_citation=citation,
+            grounding_status="grounded",
+            hallucination_status="verified_clear",
+            jurisdiction=jurisdiction,
+            effective_from=effective_from,
+            effective_to=effective_to,
+            temporal_state="effective",
+            temporal_resolution_status="resolved",
+            temporal_snapshot_at=release_snapshot_at,
+            temporal_audit_ref=provenance_refs[1],
+            provenance_refs=provenance_refs,
+        )
+    except ValueError:
+        return None
 
 
 def _hallucination_flags_are_clear(raw: object) -> bool:
@@ -1263,6 +1293,16 @@ def _iso_date(raw: object) -> date | None:
         return date.fromisoformat(value[:10])
     except ValueError:
         return None
+
+
+def _release_snapshot_at(raw: str) -> datetime:
+    try:
+        snapshot = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("capability release snapshot must be an ISO-8601 datetime") from exc
+    if snapshot.tzinfo is None:
+        raise ValueError("capability release snapshot must be timezone-aware")
+    return snapshot
 
 
 def load_calibration_registries(production_data_root: Path) -> CalibrationContext:

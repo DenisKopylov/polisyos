@@ -2,6 +2,7 @@ from __future__ import annotations
 
 # ruff: noqa: S101, S608, TC003
 import json
+from datetime import UTC, datetime
 from pathlib import Path
 
 import duckdb
@@ -53,6 +54,10 @@ def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
     assert all(row.owner_truth.hallucination_status == "verified_clear" for row in legal_rows)
     assert all(row.owner_truth.jurisdiction == "UA" for row in legal_rows)
     assert all(row.owner_truth.temporal_resolution_status == "resolved" for row in legal_rows)
+    assert all(
+        row.owner_truth.temporal_snapshot_at == datetime(2026, 5, 25, tzinfo=UTC)
+        for row in legal_rows
+    )
 
     method = next(
         capability
@@ -98,6 +103,82 @@ def test_discovery_snapshot_projects_owner_kinds_and_never_world_agents(
         )
         corrupted_index = result.capability_index.model_copy(update={"capabilities": (corrupted,)})
         assert build_capability_discovery_snapshot(corrupted_index) == (), field
+
+
+@pytest.mark.parametrize(
+    (
+        "generated_at",
+        "effective_from",
+        "effective_to",
+        "declared_state",
+        "expected_projected",
+    ),
+    [
+        ("2026-05-25T12:34:56.123456+03:00", "2099-01-01", None, "effective", False),
+        ("2026-05-25T12:34:56.123456+03:00", "2022-02-01", "2026-05-24", "effective", False),
+        ("2026-05-25T12:34:56.123456+03:00", "2022-02-01", None, "superseded", False),
+        ("2026-05-25T12:34:56.123456+03:00", "2026-05-25", None, "effective", True),
+        (
+            "2026-05-25T12:34:56.123456+03:00",
+            "2022-02-01",
+            "2026-05-25",
+            "effective",
+            True,
+        ),
+    ],
+)
+def test_legal_norm_effectiveness_is_recomputed_at_release_snapshot(
+    tmp_path: Path,
+    generated_at: str,
+    effective_from: str,
+    effective_to: str | None,
+    declared_state: str,
+    expected_projected: bool,
+) -> None:
+    input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
+    lex_path = next(input_root.glob("**/lex_knowledge_graph.duckdb"))
+    with duckdb.connect(str(lex_path)) as con:
+        con.execute(
+            """
+            UPDATE lex_normative_facts
+            SET effective_from = ?, effective_to = ?, temporal_state = ?
+            """,
+            [effective_from, effective_to, declared_state],
+        )
+
+    result = compile_capability_index(
+        CapabilityIndexCompilerConfig(
+            production_data_root=input_root,
+            output_dir=tmp_path / "out",
+            mode="fixture",
+            generated_at=generated_at,
+        )
+    )
+
+    legal_rows = tuple(
+        row
+        for row in build_capability_discovery_snapshot(result.capability_index)
+        if row.resource_kind == "legal_norm"
+    )
+    assert bool(legal_rows) is expected_projected
+    if legal_rows:
+        assert legal_rows[0].owner_truth.temporal_snapshot_at == datetime.fromisoformat(
+            generated_at
+        )
+
+
+def test_capability_release_snapshot_requires_timezone_for_temporal_truth(tmp_path: Path) -> None:
+    input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
+
+    with pytest.raises(ValueError, match="release snapshot must be timezone-aware"):
+        compile_capability_index(
+            CapabilityIndexCompilerConfig(
+                production_data_root=input_root,
+                output_dir=tmp_path / "out",
+                mode="fixture",
+                generated_at="2026-05-25T12:34:56.123456",
+            )
+        )
 
 
 def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(

@@ -8,7 +8,7 @@ or failure-mode nodes, not through silent extra fields.
 
 from __future__ import annotations
 
-from datetime import date  # noqa: TC003 - Pydantic resolves this runtime field type.
+from datetime import UTC, date, datetime
 from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
@@ -502,13 +502,21 @@ class LegalNormOwnerTruth(BaseModel):
     effective_to: date | None = None
     temporal_state: Literal["effective"]
     temporal_resolution_status: Literal["resolved"]
+    temporal_snapshot_at: datetime
     temporal_audit_ref: str = Field(min_length=1)
     provenance_refs: tuple[str, ...] = Field(min_length=1)
 
     @model_validator(mode="after")
-    def _temporal_interval_is_ordered(self) -> LegalNormOwnerTruth:
+    def _temporal_interval_contains_release_snapshot(self) -> LegalNormOwnerTruth:
         if self.effective_to is not None and self.effective_to < self.effective_from:
             raise ValueError("legal norm effective_to cannot precede effective_from")
+        if self.temporal_snapshot_at.tzinfo is None:
+            raise ValueError("legal norm temporal snapshot must be timezone-aware")
+        snapshot_date = self.temporal_snapshot_at.astimezone(UTC).date()
+        if snapshot_date < self.effective_from:
+            raise ValueError("legal norm is not yet effective at the release snapshot")
+        if self.effective_to is not None and snapshot_date > self.effective_to:
+            raise ValueError("legal norm is expired at the release snapshot")
         return self
 
 

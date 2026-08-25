@@ -42,14 +42,12 @@ from polisyos.runtime.quality.workspace.loop import (
 
 if TYPE_CHECKING:
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.scientist import BudgetState
 
-RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = (
-    "policyos.runtime.recursive_generation_cycle.v1"
-)
+RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.recursive_generation_cycle.v1"
 RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF = (
-    "polisyos.runtime.quality.recursive_generation_cycle."
-    "RecursiveGenerationCycleController"
+    "polisyos.runtime.quality.recursive_generation_cycle.RecursiveGenerationCycleController"
 )
 _LEGACY_RECURSIVE_FIXTURE_SYMBOLS = frozenset(
     {
@@ -120,19 +118,14 @@ class RecursiveCycleNode(_StrictModel):
         if not self.child_refs and self.cycle_run is None:
             raise ValueError("recursive_leaf_requires_generation_cycle")
         if not self.child_refs and (
-            self.joint_simulation is not None
-            or self.composition_certificate is not None
+            self.joint_simulation is not None or self.composition_certificate is not None
         ):
             raise ValueError("recursive_leaf_cannot_mint_parent_evidence")
         if len(self.child_refs) < 2 and (
-            self.joint_simulation is not None
-            or self.composition_certificate is not None
+            self.joint_simulation is not None or self.composition_certificate is not None
         ):
             raise ValueError("recursive_unary_parent_cannot_mint_coupled_evidence")
-        if (
-            self.composition_certificate is not None
-            and self.joint_simulation is None
-        ):
+        if self.composition_certificate is not None and self.joint_simulation is None:
             raise ValueError("recursive_composition_requires_joint_simulation")
         if self.composition_certificate is not None and (
             self.composition_certificate.parent_workspace_id != self.node_ref
@@ -201,11 +194,7 @@ class RecursiveGenerationCycleRun(_StrictModel):
         if (
             self.root_node_ref != self.recursive_graph.root_design_ref
             or set(by_ref) != set(self.recursive_graph.node_refs)
-            or {
-                (node.node_ref, child_ref)
-                for node in self.nodes
-                for child_ref in node.child_refs
-            }
+            or {(node.node_ref, child_ref) for node in self.nodes for child_ref in node.child_refs}
             != set(self.recursive_graph.parent_child_edges)
         ):
             raise ValueError("recursive_run_graph_topology_mismatch")
@@ -245,19 +234,14 @@ class RecursiveGenerationCycleRun(_StrictModel):
             routed_children = tuple(by_ref[child_ref] for child_ref in node.child_refs)
             if len(routed_children) == 1:
                 expected_terminal = _fold_unary_terminal(routed_children[0])
-            elif (
-                node.joint_simulation is not None
-                and node.composition_certificate is not None
-            ):
+            elif node.joint_simulation is not None and node.composition_certificate is not None:
                 expected_terminal = _fold_composed_terminal(
                     children=routed_children,
                     joint_simulation=node.joint_simulation,
                     certificate=node.composition_certificate,
                 )
             elif node.joint_simulation is not None:
-                expected_terminal = _blocked_parent_terminal(
-                    "unsupported_coupling_gated"
-                )
+                expected_terminal = _blocked_parent_terminal("unsupported_coupling_gated")
             else:
                 expected_terminal = node.terminal
             if node.terminal != expected_terminal:
@@ -281,8 +265,7 @@ class DepthNStrangleReceipt(_StrictModel):
     production_fixture_callers: tuple[str, ...]
     production_default_routes: tuple[str, ...]
     verified_by: str = (
-        "polisyos.runtime.quality.recursive_generation_cycle."
-        "recompute_depth_n_strangle_receipt"
+        "polisyos.runtime.quality.recursive_generation_cycle.recompute_depth_n_strangle_receipt"
     )
 
 
@@ -305,9 +288,7 @@ def recompute_depth_n_strangle_receipt(
             if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and (
                 node.name in _LEGACY_RECURSIVE_FIXTURE_SYMBOLS
             ):
-                callers.append(
-                    f"{path.relative_to(root)}:{node.lineno}:definition:{node.name}"
-                )
+                callers.append(f"{path.relative_to(root)}:{node.lineno}:definition:{node.name}")
             if not isinstance(node, ast.Call):
                 continue
             symbol = None
@@ -316,20 +297,14 @@ def recompute_depth_n_strangle_receipt(
             elif isinstance(node.func, ast.Attribute):
                 symbol = node.func.attr
             if symbol in _LEGACY_RECURSIVE_FIXTURE_SYMBOLS:
-                callers.append(
-                    f"{path.relative_to(root)}:{node.lineno}:call:{symbol}"
-                )
+                callers.append(f"{path.relative_to(root)}:{node.lineno}:call:{symbol}")
             if symbol == _DEFAULT_RECURSIVE_ROUTE_SYMBOL:
-                default_routes.append(
-                    f"{path.relative_to(root)}:{node.lineno}:call:{symbol}"
-                )
+                default_routes.append(f"{path.relative_to(root)}:{node.lineno}:call:{symbol}")
     ordered = tuple(sorted(set(callers)))
     routes = tuple(sorted(set(default_routes)))
     return DepthNStrangleReceipt(
         status="strangled" if not ordered and routes else "drift",
-        default_controller=(
-            RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF if routes else "unresolved"
-        ),
+        default_controller=(RECURSIVE_GENERATION_CYCLE_CONTROLLER_REF if routes else "unresolved"),
         predecessor_symbols=tuple(sorted(_LEGACY_RECURSIVE_FIXTURE_SYMBOLS)),
         production_fixture_callers=ordered,
         production_default_routes=routes,
@@ -377,30 +352,20 @@ def _fold_composed_terminal(
                 or SearchTerminalKind.COMPOSITION_INVALID in kinds
             ),
             recursive_blocked=(
-                unsupported_simulation
-                or SearchTerminalKind.RECURSIVE_BLOCKED in kinds
+                unsupported_simulation or SearchTerminalKind.RECURSIVE_BLOCKED in kinds
             ),
             poor_recall=SearchTerminalKind.SEARCH_CEILING_REPAIR_REQUIRED in kinds,
             human_decision_required=SearchTerminalKind.HUMAN_DECISION_REQUIRED in kinds,
             acquisition_required=SearchTerminalKind.ACQUISITION_REQUIRED in kinds,
             budget_exhausted_kind=(
-                "recursive"
-                if SearchTerminalKind.BUDGET_EXHAUSTED in kinds
-                else None
+                "recursive" if SearchTerminalKind.BUDGET_EXHAUSTED in kinds else None
             ),
             frontier_stable=SearchTerminalKind.FRONTIER_STABLE in kinds,
             positive_terminal=positive_terminal,
         )
     )
-    blockers = [
-        blocker
-        for child in children
-        for blocker in child.terminal.blocking_obligations
-    ]
-    blockers.extend(
-        obligation.obligation_id
-        for obligation in certificate.unresolved_obligations
-    )
+    blockers = [blocker for child in children for blocker in child.terminal.blocking_obligations]
+    blockers.extend(obligation.obligation_id for obligation in certificate.unresolved_obligations)
     blockers.extend(joint_simulation.feedback_classification.support_blockers)
     acquisition_children = tuple(
         child
@@ -409,10 +374,7 @@ def _fold_composed_terminal(
     )
     costed_plan = None
     data_need_spec = None
-    if (
-        decision.kind is SearchTerminalKind.ACQUISITION_REQUIRED
-        and len(acquisition_children) == 1
-    ):
+    if decision.kind is SearchTerminalKind.ACQUISITION_REQUIRED and len(acquisition_children) == 1:
         costed_plan = acquisition_children[0].terminal.costed_plan
         data_need_spec = acquisition_children[0].terminal.data_need_spec
     return SearchTerminalState(
@@ -473,13 +435,12 @@ def _branch_binding_issue(
         return "observed_coupling_evidence_missing"
     if graph.design_ref != node_ref:
         return "recursive_coupling_design_ref_mismatch"
-    if len(graph.module_refs) != len(set(graph.module_refs)) or set(
-        graph.module_refs
-    ) != set(child_refs):
+    if len(graph.module_refs) != len(set(graph.module_refs)) or set(graph.module_refs) != set(
+        child_refs
+    ):
         return "recursive_coupling_child_denominator_mismatch"
     if any(
-        edge.source_module_ref not in child_refs
-        or edge.target_module_ref not in child_refs
+        edge.source_module_ref not in child_refs or edge.target_module_ref not in child_refs
         for edge in graph.interaction_edges
     ):
         return "recursive_coupling_edge_unresolved"
@@ -507,12 +468,14 @@ def build_default_recursive_generation_cycle_controller(
     *,
     repo_root: Path | None = None,
     model_id: str | None = None,
+    promotion_runtime: PromotionRuntime | None = None,
 ) -> RecursiveGenerationCycleController:
     """Build the production router whose leaves are canonical N6 controllers."""
 
     return RecursiveGenerationCycleController(
         repo_root=repo_root,
         model_id=model_id,
+        promotion_runtime=promotion_runtime,
     )
 
 
@@ -524,9 +487,11 @@ class RecursiveGenerationCycleController:
         *,
         repo_root: Path | None = None,
         model_id: str | None = None,
+        promotion_runtime: PromotionRuntime | None = None,
     ) -> None:
         self._repo_root = (repo_root or Path.cwd()).resolve()
         self._leaf_model_id = model_id
+        self._promotion_runtime = promotion_runtime
         self._cycle_controller_factory: CycleControllerFactory | None = None
         self._authority_scope: Literal["production", "contract_testing"] = "production"
         self._joint_simulation_controller = JointSimulationHorizonController()
@@ -552,15 +517,9 @@ class RecursiveGenerationCycleController:
         problems_by_node: Mapping[str, DesignProblem],
         budget_state: BudgetState,
         recursive_budget: RecursiveCycleBudget,
-        joint_simulation_requests_by_node: Mapping[
-            str, JointSimulationRequest
-        ] | None = None,
-        subdesign_contracts_by_node: Mapping[
-            str, tuple[SubDesignContract, ...]
-        ] | None = None,
-        cycle_substrate_contexts_by_node: Mapping[
-            str, CycleSubstrateContext
-        ] | None = None,
+        joint_simulation_requests_by_node: Mapping[str, JointSimulationRequest] | None = None,
+        subdesign_contracts_by_node: Mapping[str, tuple[SubDesignContract, ...]] | None = None,
+        cycle_substrate_contexts_by_node: Mapping[str, CycleSubstrateContext] | None = None,
         n4_generation_ports_by_node: Mapping[str, N4GenerationPort] | None = None,
     ) -> RecursiveGenerationCycleRun:
         """Run N6 at leaves and conservatively route terminals toward the root."""
@@ -608,25 +567,19 @@ class RecursiveGenerationCycleController:
         visit(recursive_graph.root_design_ref, 0)
         if set(depths) != set(node_refs):
             raise RecursiveGenerationCycleError("recursive_graph_unreachable_node")
-        leaf_refs = {
-            node_ref for node_ref, child_refs in children.items() if not child_refs
-        }
+        leaf_refs = {node_ref for node_ref, child_refs in children.items() if not child_refs}
         if n4_generation_ports_by_node is not None:
             if self._cycle_controller_factory is not None:
                 raise RecursiveGenerationCycleError(
                     "recursive_n4_port_and_controller_factory_conflict"
                 )
             if set(n4_generation_ports_by_node) != leaf_refs:
-                raise RecursiveGenerationCycleError(
-                    "recursive_n4_port_denominator_mismatch"
-                )
+                raise RecursiveGenerationCycleError("recursive_n4_port_denominator_mismatch")
             if any(
                 not isinstance(port, N4GenerationPort)
                 for port in n4_generation_ports_by_node.values()
             ):
-                raise RecursiveGenerationCycleError(
-                    "recursive_n4_port_not_canonical"
-                )
+                raise RecursiveGenerationCycleError("recursive_n4_port_not_canonical")
 
         node_results: dict[str, RecursiveCycleNode] = {}
 
@@ -648,23 +601,17 @@ class RecursiveGenerationCycleController:
                         )
                 if self._cycle_controller_factory is None:
                     controller = GenerationCycleController(
-                        generation_port=(n4_generation_ports_by_node or {}).get(
-                            node_ref
-                        ),
+                        generation_port=(n4_generation_ports_by_node or {}).get(node_ref),
                         repo_root=self._repo_root,
                         model_id=self._leaf_model_id,
                         cycle_substrate_context=context,
+                        promotion_runtime=self._promotion_runtime,
                     )
                 else:
                     controller = self._cycle_controller_factory(node_ref, problem)
                 if not isinstance(controller, GenerationCycleController):
-                    raise RecursiveGenerationCycleError(
-                        "recursive_leaf_controller_not_canonical"
-                    )
-                if (
-                    context is not None
-                    and controller._cycle_substrate_context is not context
-                ):
+                    raise RecursiveGenerationCycleError("recursive_leaf_controller_not_canonical")
+                if context is not None and controller._cycle_substrate_context is not context:
                     raise RecursiveGenerationCycleError(
                         "recursive_contract_testing_context_not_consumed"
                     )
@@ -675,9 +622,7 @@ class RecursiveGenerationCycleController:
                     max_cycles=recursive_budget.max_cycles_per_leaf,
                 )
                 if cycle_run.design_problem_ref != problem_ref:
-                    raise RecursiveGenerationCycleError(
-                        "recursive_leaf_problem_binding_mismatch"
-                    )
+                    raise RecursiveGenerationCycleError("recursive_leaf_problem_binding_mismatch")
                 issues = validate_generation_cycle_run(cycle_run)
                 if issues:
                     raise RecursiveGenerationCycleError(
@@ -706,9 +651,7 @@ class RecursiveGenerationCycleController:
                         depth=depths[node_ref],
                         child_refs=child_refs,
                         design_problem_ref=problem_ref,
-                        terminal=_blocked_parent_terminal(
-                            "observed_coupling_evidence_missing"
-                        ),
+                        terminal=_blocked_parent_terminal("observed_coupling_evidence_missing"),
                     )
                     node_results[node_ref] = result
                     return result
@@ -719,9 +662,7 @@ class RecursiveGenerationCycleController:
                         depth=depths[node_ref],
                         child_refs=child_refs,
                         design_problem_ref=problem_ref,
-                        terminal=_blocked_parent_terminal(
-                            "subdesign_contract_denominator_missing"
-                        ),
+                        terminal=_blocked_parent_terminal("subdesign_contract_denominator_missing"),
                     )
                     node_results[node_ref] = result
                     return result
@@ -754,9 +695,7 @@ class RecursiveGenerationCycleController:
                         child_refs=child_refs,
                         design_problem_ref=problem_ref,
                         joint_simulation=joint_simulation,
-                        terminal=_blocked_parent_terminal(
-                            "unsupported_coupling_gated"
-                        ),
+                        terminal=_blocked_parent_terminal("unsupported_coupling_gated"),
                     )
                     node_results[node_ref] = result
                     return result

@@ -74,6 +74,8 @@ from polisyos.runtime.quality.grounding_bind import (
 )
 from polisyos.runtime.quality.grounding_relation import GroundingRelationEngine
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
@@ -87,6 +89,7 @@ from polisyos.runtime.quality.promotion_sequence import (
     _validate_canonical_promotion_receipt_for_verification,
     admit_canonical_promotion_receipt_for_comparison,
     confidence_risk_scope_for_problem,
+    parse_canonical_promotion_history_receipt,
 )
 from tools.lib.timing import run_timed_entrypoint
 
@@ -182,9 +185,7 @@ def _live_om01_witness(
         row
         for row in receipt.obligations
         if row.obligation_role == "decisive_predicate"
-        and row.source_obligation_ref.endswith(
-            "#transport_wmr_hash_equals_receipt_wmr_hash"
-        )
+        and row.source_obligation_ref.endswith("#transport_wmr_hash_equals_receipt_wmr_hash")
     ]
     if len(targets) != 1:
         raise ValueError("om01_decisive_obligation_target_denominator_mismatch")
@@ -195,9 +196,7 @@ def _live_om01_witness(
         if row.obligation_instance_id != target.obligation_instance_id
     )
     removed_count = len(receipt.obligations) - len(obligations)
-    class_rows = tuple(
-        row for row in obligations if row.obligation_role == "class_gate"
-    )
+    class_rows = tuple(row for row in obligations if row.obligation_role == "class_gate")
     class_total = tuple(row.obligation_class for row in class_rows) == tuple(
         PromotionObligationClass
     )
@@ -373,8 +372,7 @@ def validate_payload(payload: dict[str, Any]) -> dict[str, Any]:
             and witness.get("class_denominator_status") == "green"
             and witness.get("class_denominator_count") == len(PromotionObligationClass)
             and witness.get("authority_status") == "red"
-            and witness.get("authority_issue_codes")
-            == ["decisive_obligation_omitted"]
+            and witness.get("authority_issue_codes") == ["decisive_obligation_omitted"]
             and witness.get("verification_session_provenance") == "verification"
             and isinstance(removed_id, str)
             and witness.get("authority_issues")
@@ -601,7 +599,7 @@ def _receipt_from_payload(
         issues.append({"code": f"{key}_missing"})
         return None
     try:
-        return CanonicalPromotionReceipt.model_validate(value)
+        return parse_canonical_promotion_history_receipt(value)
     except ValueError as exc:
         issues.append({"code": f"{key}_invalid", "error": str(exc)})
         return None
@@ -951,8 +949,7 @@ def _frozen_comparison_identity_admissible(
     if (
         frozen.get("comparison_projection_schema_version")
         != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
-        or frozen.get("comparison_rule_version")
-        != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
+        or frozen.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
     ):
         return False
     try:
@@ -998,9 +995,12 @@ def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]
             payload,
             manifest=manifest,
             owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
+                ),
                 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
                     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
-                )
+                ),
             },
         )
     except ValueError as exc:

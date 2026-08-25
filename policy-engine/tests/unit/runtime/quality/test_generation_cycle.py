@@ -10,9 +10,12 @@ from functools import cache
 from pathlib import Path
 from types import SimpleNamespace
 from typing import Any, get_args
+from uuid import uuid4
 
 import pytest
 
+import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
+from polisyos.core.artifacts import FileSystemCAS
 from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
 from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
 from polisyos.pdc import gy_content_hash
@@ -72,6 +75,15 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.intervention_substrate import InterventionLeverRefusal
+from polisyos.runtime.quality.open_world_risk import (
+    OpenWorldRiskVectorArtifactRepository,
+    PromotionRuntime,
+)
+from polisyos.runtime.quality.promotion_sequence import (
+    CanonicalN9PromotionPort,
+    CanonicalPromotionReceipt,
+    validate_canonical_promotion_receipt,
+)
 from polisyos.runtime.quality.substrate_registry import (
     SubstrateCoverage,
     SubstrateLayer,
@@ -658,6 +670,27 @@ def _problem(problem_id: str = "generic_cycle_problem") -> DesignProblem:
     )
 
 
+def _open_world_summary(candidate_id: str = "open_world_candidate") -> CandidateSummary:
+    return CandidateSummary(
+        candidate_id=candidate_id,
+        content_hash="sha256:" + hashlib.sha256(candidate_id.encode()).hexdigest(),
+        cycle_index=0,
+        proxy_score=0.2,
+        voi_estimate=0.1,
+        grounding_status="current_valid",
+        grounding_source="cgf_firewall",
+        grounding_disposition="shadow_bound",
+        grounding_score=0.95,
+        current_valid=True,
+        value_status="value_ready",
+        value_decision_grade="high",
+        value_ref="sha256:" + hashlib.sha256(f"{candidate_id}:value".encode()).hexdigest(),
+        front="research",
+        high_proxy=False,
+        low_grounding=False,
+    )
+
+
 def _domain_problem(
     *,
     domain: str,
@@ -906,9 +939,20 @@ def _canonical_strict_world_case() -> tuple[
     CycleSubstrateContext,
     object,
 ]:
-    """Load one real N4 shadow atom and bind it to the canonical production WMR."""
+    """Build an N5-only fixture from frozen N4 semantics and the current WMR.
+
+    The frozen N4 artifact is historical evidence.  The current N4 validator is
+    expected to reject it until its owner reissues the WMR-bound receipt; that
+    typed current red must not be promoted into a current N4 capability claim.
+    The atom below is therefore re-bound and re-hashed explicitly as a test
+    fixture; it is never parsed as, or presented as, an owner-issued N4 candidate.
+    """
 
     from polisyos.runtime.quality.design_generation import ShadowGeneratedCandidate
+    from polisyos.runtime.quality.intervention_atom_binding import (
+        InterventionAtomBinding,
+        intervention_atom_content_hash,
+    )
     from polisyos.runtime.quality.intervention_substrate import (
         production_composed_world_model_record,
     )
@@ -919,9 +963,12 @@ def _canonical_strict_world_case() -> tuple[
         check_layer3_gy_design_generation_contract as n4_contract,
     )
 
-    assert n4_contract.validate(REPO_ROOT)["status"] == "pass"
+    n4_result = n4_contract.validate(REPO_ROOT)
+    assert n4_result["status"] == "fail"
+    assert n4_result["issues"] == [{"code": "current_wmr_reissue_receipt_owner_projection_drift"}]
+    assert n4_result["outputs"] == [n4_contract.OUTPUT_PATH]
     payload = json.loads((REPO_ROOT / n4_contract.OUTPUT_PATH).read_text(encoding="utf-8"))
-    candidate = ShadowGeneratedCandidate.model_validate(
+    frozen_candidate = ShadowGeneratedCandidate.model_validate(
         n4_contract.first_shadow_bound_recorded_candidate(payload)
     )
     problems = tuple(
@@ -931,11 +978,23 @@ def _canonical_strict_world_case() -> tuple[
     matched = tuple(
         problem
         for problem in problems
-        if gy_content_hash(problem.model_dump(mode="json")) == candidate.atom.problem_frame_ref
+        if gy_content_hash(problem.model_dump(mode="json"))
+        == frozen_candidate.atom.problem_frame_ref
     )
     assert len(matched) == 1
     problem = matched[0]
     world = production_composed_world_model_record(REPO_ROOT)
+    atom_draft = frozen_candidate.atom.model_copy(
+        update={"world_model_record_ref": world.world_model_record_id}
+    )
+    atom = atom_draft.model_copy(
+        update={"content_hash": intervention_atom_content_hash(atom_draft)}
+    )
+    atom = InterventionAtomBinding.model_validate(atom.model_dump(mode="python"))
+    candidate = SimpleNamespace(
+        candidate_id=frozen_candidate.candidate_id,
+        atom=atom,
+    )
     registry = build_substrate_registry_from_existing_catalogs(REPO_ROOT)
     assert registry.content_hash == world.substrate_registry_ref.content_hash
     selected_hashes = tuple(
@@ -2566,6 +2625,164 @@ async def test_empty_completed_cycle_run_is_red() -> None:
     assert "cycle_denominator_empty" in issue_codes
 
 
+def test_every_promotion_input_is_preceded_by_produce_persist_and_fresh_resolve(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    events: list[str] = []
+    original_batch = runtime._prepare_completed_generation
+    original_gate = runtime.prepare_verified_gate
+    original_n9 = promotion_sequence_module._run_canonical_promotion_sequence_with_owner_gate
+
+    def prepare_batch(**kwargs: Any) -> Any:
+        events.append("produce_persist_context")
+        return original_batch(**kwargs)
+
+    def prepare_gate(**kwargs: Any) -> Any:
+        events.append("fresh_resolve_vector")
+        return original_gate(**kwargs)
+
+    def run_n9(*args: Any, **kwargs: Any) -> Any:
+        events.append("n9")
+        return original_n9(*args, **kwargs)
+
+    monkeypatch.setattr(runtime, "_prepare_completed_generation", prepare_batch)
+    monkeypatch.setattr(runtime, "prepare_verified_gate", prepare_gate)
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_run_canonical_promotion_sequence_with_owner_gate",
+        run_n9,
+    )
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    summary = _open_world_summary()
+    problem = _problem(f"open_world_ordered_gate_{uuid4().hex}")
+    observation = CanonicalN9PromotionPort(
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    )(summaries=(summary,), problem=problem)
+
+    assert events == ["produce_persist_context", "fresh_resolve_vector", "n9"]
+    assert observation.status == "not_promoted"
+    receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
+    gate = receipt.owner_projection.open_world_gate
+    assert gate is not None
+    assert gate.status == "not_established"
+    assert "open_world_risk:deployment_scope_not_established" in receipt.refusal_reasons
+
+
+def _run_open_world_n9_case(
+    *, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> tuple[PromotionRuntime, DesignProblem, CandidateSummary, CanonicalPromotionReceipt]:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem(f"open_world_replay_{tmp_path.name}_{uuid4().hex}")
+    summary = _open_world_summary()
+    observation = CanonicalN9PromotionPort(
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    )(summaries=(summary,), problem=problem)
+    assert observation.receipts
+    return (
+        runtime,
+        problem,
+        summary,
+        CanonicalPromotionReceipt.model_validate(observation.receipts[0]),
+    )
+
+
+def test_offline_replay_recomputes_open_world_vector_and_verifier_provenance(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runtime, problem, summary, receipt = _run_open_world_n9_case(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    fresh_resolver = OpenWorldRiskVectorArtifactRepository(store=FileSystemCAS(tmp_path / "cas"))
+
+    issues = validate_canonical_promotion_receipt(
+        receipt,
+        candidate_summary=summary,
+        design_problem=problem,
+        open_world_resolver=fresh_resolver,
+    )
+
+    assert issues == ()
+    assert runtime.resolver is not fresh_resolver
+
+
+def test_fresh_process_replay_rejects_deleted_or_mutated_open_world_vector(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runtime, problem, summary, receipt = _run_open_world_n9_case(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    missing_resolver = OpenWorldRiskVectorArtifactRepository(
+        store=FileSystemCAS(tmp_path / "empty-cas")
+    )
+
+    issues = validate_canonical_promotion_receipt(
+        receipt,
+        candidate_summary=summary,
+        design_problem=problem,
+        open_world_resolver=missing_resolver,
+    )
+
+    assert "open_world_vector_unresolved" in {row["code"] for row in issues}
+
+    gate = receipt.owner_projection.open_world_gate
+    assert gate is not None
+    blob_file, _ = runtime.store._paths(gate.vector_artifact_ref.artifact_id)
+    blob_file.write_bytes(b"corrupted-open-world-vector")
+    corrupted_issues = validate_canonical_promotion_receipt(
+        receipt,
+        candidate_summary=summary,
+        design_problem=problem,
+        open_world_resolver=OpenWorldRiskVectorArtifactRepository(
+            store=FileSystemCAS(tmp_path / "cas")
+        ),
+    )
+    assert {row["code"] for row in corrupted_issues} & {
+        "open_world_vector_unresolved",
+        "open_world_vector_content_mismatch",
+    }
+
+
+def test_remove_vector_keep_gate_markers_fails_replay(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    _, problem, summary, receipt = _run_open_world_n9_case(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    gate = receipt.owner_projection.open_world_gate
+    assert gate is not None
+
+    issues = validate_canonical_promotion_receipt(
+        receipt,
+        candidate_summary=summary,
+        design_problem=problem,
+        open_world_resolver=OpenWorldRiskVectorArtifactRepository(
+            store=FileSystemCAS(tmp_path / "markers-only-cas")
+        ),
+    )
+
+    assert receipt.owner_projection.open_world_gate == gate
+    assert "open_world_vector_unresolved" in {row["code"] for row in issues}
+
+
 @pytest.mark.asyncio
 async def test_value_gap_for_another_candidate_cannot_be_routed() -> None:
     controller = GenerationCycleController(
@@ -2665,24 +2882,14 @@ async def test_generation_cycle_contract_mutations_turn_red() -> None:
     }
 
 
-def test_generation_cycle_contract_write_payload_is_byte_stable() -> None:
-    first = contract.build_contract_json_for_write(REPO_ROOT)
-    second = contract.build_contract_json_for_write(REPO_ROOT)
+def test_generation_cycle_contract_write_refuses_stale_comparison_admission() -> None:
+    """The conditional artifact write stays omitted until its owner reissues N9."""
 
-    assert first == second
-    assert "capture_wall_time_seconds" not in first
-    payload = json.loads(first)
-    assert contract.validate_payload(payload)["status"] == "pass"
-    receipt = payload["generation_cycle_run"]["promotion_port"]["receipts"][0]
-    assert receipt["confidence_ledger_projection"]["authority_provenance"] == "verification"
-    assert receipt["confidence_ledger_projection"]["deployment_identity"]
-    assert payload["comparison_admission_manifest"]
-
-    governing_shift = copy.deepcopy(payload)
-    governing_shift["denominators"]["counts"]["terminal_kinds"] += 1
-    issue_codes = {issue["code"] for issue in contract.validate_payload(governing_shift)["issues"]}
-    assert "full_denominator_curated_subset" in issue_codes
-    assert "contract_content_hash_drift" in issue_codes
+    with pytest.raises(
+        ValueError,
+        match="generation_cycle_comparison_admission_manifest_drift",
+    ):
+        contract.build_contract_json_for_write(REPO_ROOT)
 
 
 def test_generation_cycle_strangle_receipt_recomputes_production_callers() -> None:

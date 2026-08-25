@@ -2,9 +2,11 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from types import SimpleNamespace
+from uuid import uuid4
 
 import pytest
 
+import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
 from polisyos.common.async_tools import get_shared_executor
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.control import IngestRequest, NaturalLanguageRunRequest
@@ -25,6 +27,16 @@ from polisyos.runtime.http.services.control_registry_providers import (
     resolve_control_registry_providers,
 )
 from polisyos.runtime.http.services.task_runner import TaskRunner
+from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
+from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+from polisyos.runtime.quality.open_world_risk import (
+    OpenWorldRiskPromotionGate,
+    VerifiedOpenWorldRiskVector,
+)
+from polisyos.runtime.quality.recursive_generation_cycle import (
+    RecursiveCycleBudget,
+    build_default_recursive_generation_cycle_controller,
+)
 
 try:  # pragma: no cover - optional runtime dependency
     from fastapi.testclient import TestClient
@@ -79,6 +91,125 @@ def test_runtime_api_defaults_core_runs_root_to_cas_runs(tmp_path) -> None:
 
     assert app.state.runtime_api_ctx.core_runs_root == cas_root / "runs"
     assert app.state.runtime_container.config.core_runs_root == cas_root / "runs"
+
+
+def test_runtime_container_exposes_one_promotion_owner_runtime(tmp_path) -> None:
+    app = create_runtime_api_app(cas_root=tmp_path / ".polisyos" / "cas")
+
+    assert app.state.promotion_runtime is app.state.runtime_container.promotion_runtime
+    assert app.state.promotion_runtime.resolver is (
+        app.state.runtime_container.promotion_runtime.resolver
+    )
+
+
+@pytest.mark.asyncio
+async def test_recursive_http_without_container_promotion_runtime_fails_closed() -> None:
+    with pytest.raises(
+        DesignProblemAuthorityError,
+        match="promotion_runtime_not_established",
+    ):
+        await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+            raw_request="This request must not be compiled.",
+            context={},
+            model_name="fixture-model",
+            compiler_gateway=object(),  # type: ignore[arg-type]
+            budget_state=object(),  # type: ignore[arg-type]
+            recursive_budget=object(),  # type: ignore[arg-type]
+            promotion_runtime=None,
+        )
+
+
+@pytest.mark.asyncio
+async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
+    tmp_path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _budget,
+        _CgfGenerationPort,
+        _problem,
+    )
+
+    app = create_runtime_api_app(cas_root=tmp_path / ".polisyos" / "cas")
+    from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
+
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    runtime = app.state.runtime_container.promotion_runtime
+    problem = _problem(f"http_shared_open_world_context_{uuid4().hex}")
+    recursive = build_default_recursive_generation_cycle_controller(promotion_runtime=runtime)
+    assert recursive._promotion_runtime is runtime
+
+    recursive_budget = RecursiveCycleBudget(
+        max_depth=0,
+        max_nodes=1,
+        min_cycles_per_leaf=1,
+        max_cycles_per_leaf=1,
+    )
+
+    async def compile_problem(**kwargs):
+        del kwargs
+        return problem
+
+    class _CanonicalFixtureN4Port(N4GenerationPort):
+        def __init__(self) -> None:
+            super().__init__(model_id="fixture-model")
+            self._delegate = _CgfGenerationPort()
+
+        async def __call__(self, problem, *, cycle_index):
+            return await self._delegate(problem, cycle_index=cycle_index)
+
+    def build_controller(**kwargs):
+        assert kwargs["promotion_runtime"] is runtime
+        return recursive
+
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_design_problem_from_nl_request",
+        compile_problem,
+    )
+    monkeypatch.setattr(
+        generation_cycle_service,
+        "build_default_recursive_generation_cycle_controller",
+        build_controller,
+    )
+    compiled = await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+        raw_request=problem.nl_provenance.raw_request,
+        context={},
+        model_name="fixture-model",
+        compiler_gateway=object(),  # type: ignore[arg-type]
+        budget_state=_budget(),
+        recursive_budget=recursive_budget,
+        root_n4_generation_port=_CanonicalFixtureN4Port(),
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    )
+
+    leaf = compiled.recursive_run.leaf_nodes[0]
+    assert leaf.cycle_run is not None
+    receipt = leaf.cycle_run.promotion_port.receipts[0]
+    gate = OpenWorldRiskPromotionGate.model_validate(receipt["owner_projection"]["open_world_gate"])
+    verified = runtime.resolver.resolve_verified(
+        vector_artifact_ref=gate.vector_artifact_ref,
+        expected_raw_cas_hash=gate.raw_cas_hash,
+        expected_semantic_hash=gate.semantic_hash,
+        requested_query_context_ref=gate.requested_query_context_ref,
+        expected_aggregate_context_ref=gate.aggregate_context_ref,
+        expected_bound_member_ref=gate.bound_member_ref,
+        expected_candidate_occurrence_ref=gate.candidate_occurrence_ref,
+        expected_verifier_provenance_ref=gate.verifier_provenance_ref,
+    )
+    assert isinstance(verified, VerifiedOpenWorldRiskVector)
+    assert verified.aggregate_context_ref == gate.aggregate_context_ref
+    assert len(compiled.open_world_risk_limitations) == 1
+    limitation = compiled.open_world_risk_limitations[0]
+    assert limitation.vector_artifact_ref == gate.vector_artifact_ref
+    assert limitation.status == "not_established"
+    assert limitation.code == "deployment_scope_not_established"
 
 
 def test_runtime_principal_preserves_cell_id_in_policy_actor() -> None:

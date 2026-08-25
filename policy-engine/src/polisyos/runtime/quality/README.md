@@ -78,6 +78,45 @@ Boundary notes:
 - `semantic_epoch_store.py` is the epoch family's append-only native history
   repository. Its compare-and-append head index and full-prefix reconstruction
   never become a shared physical chronology log or an authority head.
+- `epoch_validity_cascade.py` and `open_world_risk.py` bind the complete
+  post-generation candidate denominator to independently reloaded epoch and
+  deployment query artifacts before N9. The production epoch query consumes
+  the real unallocated-policy qualification path and records
+  `policy_admission_missing`; the deployment default persists one
+  `not_established` row per model, obligation, and calibration component.
+  Neither negative mints policy or deployment authority. Positive lifecycle
+  evidence remains `producer_missing`, its institutional owner remains
+  `absent/unallocated`, automatic global recipe execution remains
+  `absent/unallocated`, and public export exposes only the limitation status,
+  code, and vector ref—never numeric risk or raw evidence.
+  The negative path carries these bounded residuals without promoting them:
+
+  - canonical target dispositions remain `producer_missing` for the Decision
+    Validity, incident, appeal, correction, and retraction owners. Closure
+    requires an appointed complete `EpochPerturbationAdjudicationProvider`
+    whose owner evidence is independently reloaded;
+  - epoch transition signing profile, signer, exact signed-evidence repository,
+    and producer identity remain `absent/unallocated`; the default returns
+    `epoch_transition_signer_not_established` and cannot issue a positive
+    transition;
+  - positive deployment-lifecycle evidence and its institutional query owner
+    remain `producer_missing` and `absent/unallocated`, respectively;
+  - the verifier-provenance artifact is content-bound and independently
+    replayed, but no owner-lineage appointment exists, so positive verifier
+    provenance remains `not_established`;
+  - the declared-scope manifest is independently reconstructed from persisted
+    owner inputs but is not itself persisted as historical owner bytes; exact
+    manifest-history replay therefore remains `not_established`;
+  - completed-generation denominator admission is process-local. A coherent
+    but unadmitted CAS denominator is rejected, but cross-process provenance
+    cannot distinguish an owner-issued denominator from forged coherent bytes
+    without a persistent generation-owner admission receipt/index, which is
+    `absent/unallocated`; the bounded consequence is fail-closed denial of
+    service, never false promotion; and
+  - recipes are bound as inert bytes and a complete source census rejects any
+    recipe execution seam. Per-recipe canonical producers remain
+    `producer_missing`, and a global automatic recompute owner remains
+    `absent/unallocated`.
 - Public experimental exports must be reflected in the public-surface
   inventory and release fragments before release promotion.
 

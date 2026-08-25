@@ -21,6 +21,7 @@ from polisyos.runtime.http.services.review_collaboration import ReviewCollaborat
 from polisyos.runtime.quality.chronology_custody import (
     build_production_epoch_anchor_custody_provider,
 )
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 
 if TYPE_CHECKING:
     from collections.abc import Callable
@@ -105,6 +106,7 @@ class RuntimeServiceContainer:
     runtime_mutation_audit: Any
     runtime_review_opa_guard: Any
     epoch_anchor_custody_provider: core_contracts.EpochAnchorCustodyProvider
+    promotion_runtime: PromotionRuntime
     control_registry_providers: ControlRegistryProviders
     control_service: ControlPlaneService | None = None
     lifecycle: RuntimeLifecycleState = field(default_factory=RuntimeLifecycleState)
@@ -166,6 +168,7 @@ class RuntimeServiceContainer:
                 overrides.runtime_review_opa_guard or build_runtime_opa_async_guard()
             ),
             epoch_anchor_custody_provider=(build_production_epoch_anchor_custody_provider()),
+            promotion_runtime=PromotionRuntime(store=runtime_api_context.store),
             control_registry_providers=control_registry_providers,
             control_service=overrides.control_service,
         )
@@ -286,6 +289,7 @@ class RuntimeServiceContainer:
         app.state.runtime_mutation_audit = self.runtime_mutation_audit
         app.state.runtime_review_opa_guard = self.runtime_review_opa_guard
         app.state._control_service = self.control_service
+        app.state.promotion_runtime = self.promotion_runtime
 
 
 def get_runtime_container(subject: Any) -> RuntimeServiceContainer | None:

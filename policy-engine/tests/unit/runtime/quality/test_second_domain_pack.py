@@ -49,6 +49,7 @@ def _source_freeze() -> str:
         text=True,
     ).stdout.strip()
 
+
 _PLUGIN_POSTURE_WITNESS_SCRIPT = r"""
 import copy
 import json
@@ -400,10 +401,10 @@ def test_pack_rederives_owner_facts_and_is_content_addressed(
     assert bundle["census"]["decision"]["chosen_candidate"] == "education"
     assert bundle["pack"]["manifest_content_hash"].startswith("sha256:")
     assert not second_domain_pack.validate_bundle_payloads(
-            bundle,
-            REPO_ROOT,
-            expected_source_freeze=_source_freeze(),
-        )
+        bundle,
+        REPO_ROOT,
+        expected_source_freeze=_source_freeze(),
+    )
 
 
 def test_n10a_recomputation_never_opens_the_authority_ledger() -> None:
@@ -473,9 +474,7 @@ def test_live_bundle_replays_verified_historical_n4_bytes_on_provenance_drift(
     assert [row["raw_response_hash"] for row in refreshed["responses"]] == [
         row["raw_response_hash"] for row in historical_capture["responses"]
     ]
-    current_problem = DesignProblem.model_validate(
-        live_bundle["smoke_problem"]["design_problem"]
-    )
+    current_problem = DesignProblem.model_validate(live_bundle["smoke_problem"]["design_problem"])
     assert (
         second_domain_pack._historical_n4_replay_receipt_issues(
             refreshed,
@@ -494,18 +493,40 @@ def test_live_bundle_replays_verified_historical_n4_bytes_on_provenance_drift(
     wrong_receipt = wrong_problem["historical_replay_receipt"]
     wrong_receipt["current_design_problem_ref"] = "sha256:" + "0" * 64
     wrong_receipt["receipt_content_hash"] = second_domain_pack._hash(
-        {
-            key: value
-            for key, value in wrong_receipt.items()
-            if key != "receipt_content_hash"
-        }
+        {key: value for key, value in wrong_receipt.items() if key != "receipt_content_hash"}
     )
     assert second_domain_pack._historical_n4_replay_receipt_issues(
         wrong_problem,
         problem=current_problem,
-    ) == [
-        "n4_owner_historical_replay_problem_ref_mismatch"
-    ]
+    ) == ["n4_owner_historical_replay_problem_ref_mismatch"]
+
+
+def test_historical_registry_validation_uses_persisted_owner_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Historical replay never consults the current substrate-registry owner."""
+
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_cached_owner_substrate_registry",
+        lambda *_args, **_kwargs: (_ for _ in ()).throw(
+            AssertionError("historical replay rederived current owner")
+        ),
+    )
+    issues: list[dict[str, object]] = []
+
+    second_domain_pack._validate_cycle_substrate_registry(
+        REPO_ROOT,
+        frozen["census"],
+        frozen["pack"],
+        issues,
+        rederive_current_owner=False,
+    )
+
+    assert all(
+        row.get("code") != "cycle_substrate_registry_owner_rederive_mismatch" for row in issues
+    )
 
 
 def test_historical_n4_capture_validation_uses_frozen_trace_l6_identity(
@@ -718,9 +739,7 @@ def test_n8_transport_gap_consumes_the_typed_governing_subset(
     monkeypatch.setattr(
         n8,
         "validate_payload",
-        lambda _payload: (_ for _ in ()).throw(
-            AssertionError("N10a bypassed the typed N8 result")
-        ),
+        lambda _payload: (_ for _ in ()).throw(AssertionError("N10a bypassed the typed N8 result")),
     )
 
     evidence = second_domain_pack._n8_transport_gap_closure(
@@ -771,7 +790,7 @@ def test_n8_transport_gap_fails_closed_on_a_typed_governing_issue(
 def test_real_plugin_postures_verify_n8_n10a_and_depth_n(
     tmp_path: Path,
 ) -> None:
-    """A real editable-path difference is diagnostic; governed drift stays red."""
+    """Ambient plugin posture is diagnostic while current N10a owner drift stays red."""
 
     missing_target = _run_plugin_posture_witness(
         tmp_path,
@@ -784,9 +803,7 @@ def test_real_plugin_postures_verify_n8_n10a_and_depth_n(
         governed_probe=True,
     )
 
-    assert missing_target["example_entry_points"] == importable[
-        "example_entry_points"
-    ]
+    assert missing_target["example_entry_points"] == importable["example_entry_points"]
     assert len(missing_target["example_entry_points"]) == 1
     assert missing_target["component_count"] == 389
     assert importable["component_count"] == 390
@@ -794,37 +811,48 @@ def test_real_plugin_postures_verify_n8_n10a_and_depth_n(
     assert importable["example_resolved"] is True
     assert missing_target["example_errors"] == ["ModuleNotFoundError"]
     assert importable["example_errors"] == []
-    assert missing_target["recorded_raw_provenance_id"] == importable[
-        "recorded_raw_provenance_id"
-    ]
-    assert missing_target["live_raw_provenance_id"] == missing_target[
-        "recorded_raw_provenance_id"
-    ]
-    assert importable["live_raw_provenance_id"] != importable[
-        "recorded_raw_provenance_id"
-    ]
-    assert missing_target["recorded_governed_provenance_id"] == importable[
-        "recorded_governed_provenance_id"
-    ]
+    assert missing_target["recorded_raw_provenance_id"] == importable["recorded_raw_provenance_id"]
+    assert missing_target["live_raw_provenance_id"] == missing_target["recorded_raw_provenance_id"]
+    assert importable["live_raw_provenance_id"] != importable["recorded_raw_provenance_id"]
+    assert (
+        missing_target["recorded_governed_provenance_id"]
+        == importable["recorded_governed_provenance_id"]
+    )
     for result in (missing_target, importable):
-        assert result["live_governed_provenance_id"] == result[
-            "recorded_governed_provenance_id"
-        ]
+        assert result["live_governed_provenance_id"] == result["recorded_governed_provenance_id"]
 
-    assert missing_target["n8_artifact_issues"] == importable[
-        "n8_artifact_issues"
-    ]
+    assert missing_target["n8_artifact_issues"] == importable["n8_artifact_issues"]
     for result in (missing_target, importable):
         assert result["n8_semantic_governing_issues"] == []
-        assert result["n10a_status"] == "pass"
-        assert result["n10a_issues"] == []
-        assert result["depth_status"] == "stable"
-        assert result["depth_issues"] == []
+        assert result["n10a_status"] == "fail"
+        assert result["n10a_issues"] == [
+            {"code": "cycle_substrate_registry_owner_rederive_mismatch"}
+        ]
+        assert result["depth_status"] == "drifted"
+        assert result["depth_issues"] == [
+            {
+                "code": "n4_owner_validation_failed",
+                "owner_issue": {"code": "current_wmr_reissue_receipt_owner_projection_drift"},
+            },
+            {
+                "code": "n10a_owner_validation_failed",
+                "owner_issue": {"code": "cycle_substrate_registry_owner_rederive_mismatch"},
+            },
+            {
+                "code": "composition_owner_validation_failed",
+                "owner_issue": {
+                    "code": "layer3_gy_composition_certificate_drift",
+                    "path": (
+                        "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+                    ),
+                },
+            },
+            {"code": "composition_to_n10a_census_binding_drift"},
+        ]
 
     assert missing_target["n8_ambient_findings"] == []
     assert {
-        (finding["code"], finding.get("predicate"))
-        for finding in importable["n8_ambient_findings"]
+        (finding["code"], finding.get("predicate")) for finding in importable["n8_ambient_findings"]
     } == {
         ("catalog_ambient_discovery_manifest_mismatch", None),
         ("catalog_ambient_component_manifest_mismatch", None),
@@ -851,9 +879,25 @@ def test_real_plugin_postures_verify_n8_n10a_and_depth_n(
     assert importable["governed_depth_status"] == "drifted"
     assert importable["governed_depth_issues"] == [
         {
+            "code": "n4_owner_validation_failed",
+            "owner_issue": {"code": "current_wmr_reissue_receipt_owner_projection_drift"},
+        },
+        {
             "code": "n8_owner_validation_failed",
             "owner_issue": {"code": "catalog_builtin_discovery_manifest_mismatch"},
-        }
+        },
+        {
+            "code": "n10a_owner_validation_failed",
+            "owner_issue": {"code": "cycle_substrate_registry_owner_rederive_mismatch"},
+        },
+        {
+            "code": "composition_owner_validation_failed",
+            "owner_issue": {
+                "code": "layer3_gy_composition_certificate_drift",
+                "path": "architecture/policy_design_case/layer3_gy_composition_certificates.json",
+            },
+        },
+        {"code": "composition_to_n10a_census_binding_drift"},
     ]
 
 
@@ -1003,9 +1047,12 @@ def test_writer_overlays_operational_leaves_for_every_declared_output(
 
     def bundle_for(*, semantic: str, generated_at: str) -> dict[str, object]:
         bundle: dict[str, object] = {}
-        for _relative_path, bundle_key, hash_field, _mode in (
-            second_domain_pack._ARTIFACT_WRITE_SPECS
-        ):
+        for (
+            _relative_path,
+            bundle_key,
+            hash_field,
+            _mode,
+        ) in second_domain_pack._ARTIFACT_WRITE_SPECS:
             excluded_fields = tuple(
                 second_domain_pack._CONTENT_HASH_ALLOWED_EXCLUSIONS.get(
                     hash_field,
@@ -1025,9 +1072,7 @@ def test_writer_overlays_operational_leaves_for_every_declared_output(
         return bundle
 
     frozen = bundle_for(semantic="frozen", generated_at="frozen-time")
-    for relative_path, bundle_key, _hash_field, _mode in (
-        second_domain_pack._ARTIFACT_WRITE_SPECS
-    ):
+    for relative_path, bundle_key, _hash_field, _mode in second_domain_pack._ARTIFACT_WRITE_SPECS:
         path = tmp_path / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(frozen[bundle_key]), encoding="utf-8")
@@ -1049,12 +1094,15 @@ def test_writer_overlays_operational_leaves_for_every_declared_output(
     assert delta_a == delta_b
     assert delta_a != frozen
     assert governing_mutant != delta_a
-    assert tuple(
-        relative_path
-        for relative_path, _bundle_key, _hash_field, _mode in (
-            second_domain_pack._ARTIFACT_WRITE_SPECS
+    assert (
+        tuple(
+            relative_path
+            for relative_path, _bundle_key, _hash_field, _mode in (
+                second_domain_pack._ARTIFACT_WRITE_SPECS
+            )
         )
-    ) == second_domain_pack.ARTIFACT_OUTPUTS
+        == second_domain_pack.ARTIFACT_OUTPUTS
+    )
     assert delta_a["pack"]["operational_probe"]["generated_at"] == "frozen-time"
     assert delta_a["pack"]["semantic_value"] == "declared-delta"
 
@@ -1158,9 +1206,12 @@ def test_transition_manifest_normalizes_time_and_binds_pack_semantic_delta(
 
     def bundle_for(*, pack_semantic: str, generated_at: str) -> dict[str, object]:
         bundle: dict[str, object] = {}
-        for _relative_path, bundle_key, hash_field, _mode in (
-            second_domain_pack._ARTIFACT_WRITE_SPECS
-        ):
+        for (
+            _relative_path,
+            bundle_key,
+            hash_field,
+            _mode,
+        ) in second_domain_pack._ARTIFACT_WRITE_SPECS:
             excluded_fields = tuple(
                 second_domain_pack._CONTENT_HASH_ALLOWED_EXCLUSIONS.get(
                     hash_field,
@@ -1180,9 +1231,7 @@ def test_transition_manifest_normalizes_time_and_binds_pack_semantic_delta(
         return bundle
 
     frozen = bundle_for(pack_semantic="frozen", generated_at="frozen-time")
-    for relative_path, bundle_key, _hash_field, _mode in (
-        second_domain_pack._ARTIFACT_WRITE_SPECS
-    ):
+    for relative_path, bundle_key, _hash_field, _mode in second_domain_pack._ARTIFACT_WRITE_SPECS:
         path = tmp_path / relative_path
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(frozen[bundle_key]), encoding="utf-8")
@@ -1192,6 +1241,16 @@ def test_transition_manifest_normalizes_time_and_binds_pack_semantic_delta(
         second_domain_pack,
         "_n10a_source_scope_content_hash",
         lambda _root: "sha256:" + "b" * 64,
+    )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_cycle_trace_plan_from_manifest",
+        lambda _value: object(),
+    )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_reconcile_frozen_cycle_trace",
+        lambda value, _root, _plan: copy.deepcopy(value),
     )
 
     def manifest_for(*, pack_semantic: str, generated_at: str) -> dict[str, object]:
@@ -1225,9 +1284,7 @@ def test_transition_manifest_normalizes_time_and_binds_pack_semantic_delta(
         for row in manifest_a["artifacts"]
     )
     pack_row = next(
-        row
-        for row in manifest_a["artifacts"]
-        if row["output"] == second_domain_pack.PACK_OUTPUT
+        row for row in manifest_a["artifacts"] if row["output"] == second_domain_pack.PACK_OUTPUT
     )
     assert "/semantic_value" in pack_row["changed_leaves"]
 
@@ -1239,13 +1296,10 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
     """No member of the N10a output group can bypass legacy hash/delta accounting."""
 
     live: dict[str, object] = {}
-    for relative_path, bundle_key, hash_field, _mode in (
-        second_domain_pack._ARTIFACT_WRITE_SPECS
-    ):
+    for relative_path, bundle_key, hash_field, _mode in second_domain_pack._ARTIFACT_WRITE_SPECS:
         allowed_exclusions = (
             ["runtime_metrics"]
-            if hash_field
-            in {"census_content_hash", "manifest_content_hash", "trace_content_hash"}
+            if hash_field in {"census_content_hash", "manifest_content_hash", "trace_content_hash"}
             else []
         )
         payload = second_domain_pack._with_content_hash(
@@ -1279,19 +1333,13 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
 
     receipts = second_domain_pack._prepare_artifact_write_transitions(live, tmp_path)
 
-    assert tuple(receipt["output"] for receipt in receipts) == (
-        second_domain_pack.ARTIFACT_OUTPUTS
-    )
+    assert tuple(receipt["output"] for receipt in receipts) == (second_domain_pack.ARTIFACT_OUTPUTS)
     assert {receipt["mode"] for receipt in receipts} == {
         "declared_live_rederived",
         "exact_or_operational_reconciled",
         "producer_comparison_reconciled",
     }
-    assert {
-        receipt["output"]
-        for receipt in receipts
-        if receipt["changed_leaf_count"] > 0
-    } == {
+    assert {receipt["output"] for receipt in receipts if receipt["changed_leaf_count"] > 0} == {
         second_domain_pack.PACK_OUTPUT,
         second_domain_pack.CYCLE_TRACE_OUTPUT,
         second_domain_pack.GAP_REPORT_OUTPUT,
@@ -1318,6 +1366,16 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
         "_n10a_source_scope_content_hash",
         lambda _root: "sha256:" + "b" * 64,
     )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_cycle_trace_plan_from_manifest",
+        lambda _value: object(),
+    )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_reconcile_frozen_cycle_trace",
+        lambda value, _root, _plan: copy.deepcopy(value),
+    )
     before = {
         relative_path: (tmp_path / relative_path).read_bytes()
         for relative_path in second_domain_pack.ARTIFACT_OUTPUTS
@@ -1342,11 +1400,7 @@ def test_writer_accounts_for_all_five_legacy_outputs_before_write(
     )
     pack_row["changed_leaf_count"] = len(pack_row["changed_leaves"])
     forged["manifest_content_hash"] = second_domain_pack._hash(
-        {
-            key: value
-            for key, value in forged.items()
-            if key != "manifest_content_hash"
-        }
+        {key: value for key, value in forged.items() if key != "manifest_content_hash"}
     )
     with pytest.raises(ValueError, match="n10a_expected_transition_manifest_mismatch"):
         second_domain_pack.write(
@@ -1524,6 +1578,8 @@ def test_n10a_trace_keeps_full_projection_beside_owner_bound_comparison_identity
     )
     trace = live_bundle["cycle_trace"]
     assert trace["comparison_admission_manifest"]
+    frozen_plan = second_domain_pack._cycle_trace_plan_from_manifest(frozen)
+    assert second_domain_pack._cycle_trace_comparison_identity_issues(frozen) == []
     frozen_receipts = frozen["generation_cycle_run"]["promotion_port"]["receipts"]
     live_receipts = trace["generation_cycle_run"]["promotion_port"]["receipts"]
     for frozen_receipt, live_receipt in zip(
@@ -1531,15 +1587,36 @@ def test_n10a_trace_keeps_full_projection_beside_owner_bound_comparison_identity
         live_receipts,
         strict=True,
     ):
-        assert live_receipt == frozen_receipt
+        assert live_receipt != frozen_receipt
+        assert frozen_receipt["schema_version"].endswith(".v3")
+        assert live_receipt["schema_version"].endswith(".v4")
+        second_domain_pack.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE.projector(
+            frozen_receipt
+        )
+        with pytest.raises(
+            ValueError,
+            match="legacy_open_world_gate_authority_not_admitted",
+        ):
+            second_domain_pack.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.projector(
+                frozen_receipt
+            )
+        second_domain_pack.CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.projector(
+            live_receipt
+        )
         semantic = live_receipt["confidence_ledger_semantic_projection"]
         assert semantic["projection_scope"] == "n9_promotion_semantic_receipt"
     assert all(receipt["confidence_ledger_projection"] for receipt in live_receipts)
+    assert frozen_plan.preserve_admitted_blocks(frozen, frozen) == frozen
 
     plan = second_domain_pack._cycle_trace_plan_from_manifest(trace)
     assert trace["comparison_content_hash"] == (
         second_domain_pack._cycle_trace_comparison_content_hash(trace, plan)
     )
+    with pytest.raises(
+        ValueError,
+        match="gy_cycle_trace_comparison_admission_manifest_drift",
+    ):
+        second_domain_pack._reconcile_frozen_cycle_trace(trace, REPO_ROOT, plan)
     governing_shift = copy.deepcopy(trace)
     governing_shift["generation_cycle_run"]["candidate_summaries"][0]["front"] = "decision"
     assert second_domain_pack._cycle_trace_comparison_content_hash(
@@ -2197,6 +2274,111 @@ def test_cached_n7_receipt_binds_effective_owner_config_without_duplication() ->
     }
 
 
+def _n7_pack_with_receipt_bound_to_current_input() -> dict[str, object]:
+    """Project the legacy fixture into the current live-receipt contract."""
+
+    current = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT)["pack"])
+    attempt = current["n7_acquisition"]
+    input_hash = second_domain_pack._n7_attempt_input_content_hash_from_pack(current)
+    attempt["receipt_content"]["acquisition_request"]["attempt_input_content_hash"] = input_hash
+    attempt["receipt_content_hash"] = second_domain_pack._hash(attempt["receipt_content"])
+    return current
+
+
+def test_current_n7_receipt_does_not_inherit_another_input_key(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Require historical bytes only while their receipt-bound N7 key still applies."""
+
+    current = _n7_pack_with_receipt_bound_to_current_input()
+    historical = copy.deepcopy(current)
+    historical_attempt = historical["n7_acquisition"]
+    historical_attempt["receipt_content"]["acquisition_request"]["attempt_input_content_hash"] = (
+        "sha256:" + "0" * 64
+    )
+    historical_attempt["receipt_content_hash"] = second_domain_pack._hash(
+        historical_attempt["receipt_content"]
+    )
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_historical_n10a_pack_payload",
+        lambda _root: historical,
+    )
+    issues: list[dict[str, object]] = []
+
+    second_domain_pack._validate_n7_attempt(REPO_ROOT, current, issues)
+
+    assert issues == []
+
+
+@pytest.mark.parametrize(
+    "field",
+    ["receipt_content_hash", "receipt_content", "raw_response_hash_checks"],
+)
+def test_same_key_n7_history_requires_exact_receipt_bytes(
+    monkeypatch: pytest.MonkeyPatch,
+    field: str,
+) -> None:
+    """Keep E1 reuse exact when current and historical receipt-bound keys agree."""
+
+    current = _n7_pack_with_receipt_bound_to_current_input()
+    historical = copy.deepcopy(current)
+    historical_attempt = historical["n7_acquisition"]
+    if field == "receipt_content_hash":
+        historical_attempt[field] = "sha256:" + "0" * 64
+    elif field == "receipt_content":
+        historical_attempt[field]["fabricated"] = True
+    else:
+        historical_attempt[field] = []
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_historical_n10a_pack_payload",
+        lambda _root: historical,
+    )
+    issues: list[dict[str, object]] = []
+
+    second_domain_pack._validate_n7_attempt(REPO_ROOT, current, issues)
+
+    assert {str(issue["code"]) for issue in issues} == {"n7_historical_receipt_mismatch"}
+
+
+def test_changed_key_n7_still_validates_current_receipt_evidence(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """A new input key never disables independent validation of its current receipt."""
+
+    current = _n7_pack_with_receipt_bound_to_current_input()
+    current["n7_acquisition"]["receipt_content_hash"] = "sha256:" + "9" * 64
+    historical = _n7_pack_with_receipt_bound_to_current_input()
+    historical["n7_acquisition"]["receipt_content"]["acquisition_request"][
+        "attempt_input_content_hash"
+    ] = "sha256:" + "0" * 64
+    monkeypatch.setattr(
+        second_domain_pack,
+        "_historical_n10a_pack_payload",
+        lambda _root: historical,
+    )
+    issues: list[dict[str, object]] = []
+
+    second_domain_pack._validate_n7_attempt(REPO_ROOT, current, issues)
+
+    codes = {str(issue["code"]) for issue in issues}
+    assert "n7_receipt_content_hash_drift" in codes
+    assert "n7_historical_receipt_mismatch" not in codes
+
+
+def test_unbound_legacy_n7_receipt_cannot_move_to_another_pack_manifest() -> None:
+    """Confine the one pre-binding receipt to its exact governed pack identity."""
+
+    moved = copy.deepcopy(second_domain_pack._load_frozen_bundle(REPO_ROOT)["pack"])
+    moved["manifest_content_hash"] = "sha256:" + "8" * 64
+    issues: list[dict[str, object]] = []
+
+    second_domain_pack._validate_n7_attempt(REPO_ROOT, moved, issues)
+
+    assert "n7_receipt_input_binding_missing" in {str(issue["code"]) for issue in issues}
+
+
 def test_cached_n7_receipt_rejects_effective_owner_config_drift() -> None:
     """Never reuse a truncated receipt under a different retrieval deadline."""
 
@@ -2221,11 +2403,22 @@ def test_cached_n7_receipt_rejects_effective_owner_config_drift() -> None:
     assert "n7_attempt_effective_owner_config_mismatch" in codes
 
 
-def test_live_bundle_never_reads_current_pack_as_n7_cache_authority(
+def test_n7_history_loader_never_reads_current_pack_as_cache_authority(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """Derive E1 receipt reuse from immutable history, never the output under audit."""
 
+    frozen = second_domain_pack._load_frozen_bundle(REPO_ROOT)
+    pack = frozen["pack"]
+    registry = pack["owner_query_results"]["s0_registry"]
+    facts = {
+        "l2_levers": pack["owner_query_results"]["l2_selected_levers"]["rows"],
+        "outcome_rows": pack["components"]["outcomes"]["entries"],
+        "s0_registry": {
+            "content_hash": registry["content_hash"],
+            "substrate_version_id": registry["substrate_version_id"],
+        },
+    }
     real_read_json = second_domain_pack._read_json
 
     def _reject_current_pack(path: Path) -> dict[str, object]:
@@ -2235,14 +2428,9 @@ def test_live_bundle_never_reads_current_pack_as_n7_cache_authority(
 
     monkeypatch.setattr(second_domain_pack, "_read_json", _reject_current_pack)
 
-    bundle = second_domain_pack.build_live_bundle(
-        REPO_ROOT,
-        expected_source_freeze=_source_freeze(),
-    )
+    attempt = second_domain_pack._load_historical_n7_attempt(REPO_ROOT, facts)
 
-    assert bundle["pack"]["n7_acquisition"]["receipt_content_hash"] == (
-        "sha256:6b523c44caaa2894a8447d9e4bba9f6c115b200fca727151a59bbfb6011b2da2"
-    )
+    assert attempt is None
 
 
 @pytest.mark.parametrize(
@@ -2448,10 +2636,10 @@ def test_n10a_receipt_rebased_to_moving_head_is_rejected(moving_head: str) -> No
     _rehash_pack_manifest(payloads)
 
     issues = second_domain_pack.validate_bundle_payloads(
-            payloads,
-            REPO_ROOT,
-            expected_source_freeze=_source_freeze(),
-        )
+        payloads,
+        REPO_ROOT,
+        expected_source_freeze=_source_freeze(),
+    )
 
     assert "historical_receipt_rebased_to_moving_head" in {issue["code"] for issue in issues}
 
@@ -2589,10 +2777,10 @@ def test_n7_capture_time_is_operational_and_owner_evidence_is_time_stable(
         second_domain_pack._content_bound_canonical_json(shifted_pack)
     )
     assert not second_domain_pack.validate_bundle_payloads(
-            shifted_bundle,
-            REPO_ROOT,
-            expected_source_freeze=_source_freeze(),
-        )
+        shifted_bundle,
+        REPO_ROOT,
+        expected_source_freeze=_source_freeze(),
+    )
 
 
 def test_capture_time_reentering_content_projection_is_rejected(
@@ -2696,10 +2884,10 @@ def test_missing_gap_witness_target_fails_closed_for_every_gap(
         codes = {
             str(issue["code"])
             for issue in second_domain_pack.validate_bundle_payloads(
-            corrupted,
-            REPO_ROOT,
-            expected_source_freeze=_source_freeze(),
-        )
+                corrupted,
+                REPO_ROOT,
+                expected_source_freeze=_source_freeze(),
+            )
         }
         assert "gap_witness_target_missing" in codes
 

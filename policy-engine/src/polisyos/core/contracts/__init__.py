@@ -30,6 +30,15 @@ _MODULE_SYMBOLS: dict[str, tuple[str, ...]] = {
         "candidate_firewall_issues_for_payload",
         "candidate_refs_from_payload",
     ),
+    ".c4_persisted_profiles": (
+        "C4_PERSISTED_PROFILE_SPECS",
+        "C4PersistedProfileSpec",
+        "c4_canonical_bytes",
+        "c4_canonical_mapping",
+        "c4_profile",
+        "c4_profile_manifest_is_exact",
+        "c4_semantic_digest",
+    ),
     ".producer_spine": (
         "PRODUCER_SPINE_CONSUMER_COMPONENTS",
         "PRODUCER_SPINE_CONTEXT_SCHEMA_VERSION",
@@ -715,6 +724,15 @@ _SUBMODULES = frozenset({"chronology", "epoch"})
 
 if TYPE_CHECKING:
     from .backtest import BacktestReportRef
+    from .c4_persisted_profiles import (
+        C4_PERSISTED_PROFILE_SPECS,
+        C4PersistedProfileSpec,
+        c4_canonical_bytes,
+        c4_canonical_mapping,
+        c4_profile,
+        c4_profile_manifest_is_exact,
+        c4_semantic_digest,
+    )
     from .causal import (
         AbstractionCertificateRef,
         CausalDiscoveryReportRef,
@@ -1193,6 +1211,8 @@ __all__ = [
     "chronology",
     "epoch",
     "BOUNDED_LIVENESS_CONFIG_SCHEMA_VERSION",
+    "C4_PERSISTED_PROFILE_SPECS",
+    "C4PersistedProfileSpec",
     "OPTIONAL_ANALYTIC_NODE_KINDS",
     "POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION",
     "PRODUCER_SPINE_CONSUMER_COMPONENTS",
@@ -1586,6 +1606,11 @@ __all__ = [
     "WarningsRef",
     "WorkflowRunRequest",
     "bounded_liveness_config_from_mapping",
+    "c4_canonical_bytes",
+    "c4_canonical_mapping",
+    "c4_profile",
+    "c4_profile_manifest_is_exact",
+    "c4_semantic_digest",
     "build_producer_spine_binding_fields",
     "build_skip_blocker_record",
     "classify_optional_analytic_node",

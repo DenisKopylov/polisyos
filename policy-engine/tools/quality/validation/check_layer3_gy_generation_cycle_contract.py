@@ -72,6 +72,8 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.grounding_disposition_vocab import GroundingDispositionKind
 from polisyos.runtime.quality.promotion_sequence import (
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_LEGACY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
@@ -82,6 +84,7 @@ from polisyos.runtime.quality.promotion_sequence import (
     admit_canonical_promotion_receipt_for_comparison,
     canonical_promotion_receipt_semantic_projection,
     confidence_risk_scope_for_problem,
+    parse_canonical_promotion_history_receipt,
 )
 from polisyos.scientist.methods.search.voi_scheduler import SchedulingDecision
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
@@ -435,7 +438,7 @@ def _embedded_promotion_revalidation_issues(
         return issues
     for index, payload in enumerate(run.promotion_port.receipts):
         try:
-            frozen_receipt = CanonicalPromotionReceipt.model_validate(payload)
+            frozen_receipt = parse_canonical_promotion_history_receipt(payload)
         except (ValidationError, ValueError) as exc:
             issues.append(
                 {
@@ -456,11 +459,19 @@ def _embedded_promotion_revalidation_issues(
                 }
             )
             continue
+        if type(frozen_receipt) is not CanonicalPromotionReceipt:
+            issues.append(
+                {
+                    "code": "embedded_promotion_open_world_reissue_required",
+                    "receipt_index": index,
+                    "historical_schema_version": frozen_receipt.schema_version,
+                    "current_schema_version": live_receipt.schema_version,
+                }
+            )
+            continue
         if canonical_promotion_receipt_semantic_projection(
             frozen_receipt.model_dump(mode="json")
-        ) != canonical_promotion_receipt_semantic_projection(
-            live_receipt.model_dump(mode="json")
-        ):
+        ) != canonical_promotion_receipt_semantic_projection(live_receipt.model_dump(mode="json")):
             issues.append(
                 {
                     "code": "embedded_promotion_receipt_semantic_projection_drift",
@@ -605,7 +616,7 @@ def _validate_payload_core(payload: dict[str, Any]) -> list[dict[str, Any]]:
         issues.append(denominator_issue)
     for index, receipt_payload in enumerate(run.promotion_port.receipts):
         try:
-            CanonicalPromotionReceipt.model_validate(receipt_payload)
+            parse_canonical_promotion_history_receipt(receipt_payload)
         except (ValidationError, ValueError) as exc:
             issues.append(
                 {
@@ -736,12 +747,20 @@ def _validate_committed_contract_text(
                         repo_root=repo_root,
                     )
                 )
-        expected_text = _canonical_contract_json(
-            expected_payload,
-            repo_root=repo_root,
-            comparison_plan=context.comparison_plan,
-        )
-    if committed_text.encode("utf-8") != expected_text.encode("utf-8"):
+        try:
+            expected_text = _canonical_contract_json(
+                expected_payload,
+                repo_root=repo_root,
+                comparison_plan=context.comparison_plan,
+            )
+        except ValueError as exc:
+            if str(exc) != "generation_cycle_comparison_admission_manifest_drift":
+                raise
+            issues.append({"code": "generation_cycle_comparison_admission_manifest_drift"})
+            expected_text = None
+    if expected_text is not None and committed_text.encode("utf-8") != expected_text.encode(
+        "utf-8"
+    ):
         issues.append(
             {
                 "code": "generation_cycle_contract_canonical_bytes_drift",
@@ -1168,8 +1187,7 @@ def _frozen_comparison_identity_admissible(
     if (
         frozen.get("comparison_projection_schema_version")
         != GY_COMPARISON_PROJECTION_LEGACY_SCHEMA_VERSION
-        or frozen.get("comparison_rule_version")
-        != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
+        or frozen.get("comparison_rule_version") != GY_VERIFICATION_COMPARISON_LEGACY_RULE_VERSION
     ):
         return False
     try:
@@ -1215,9 +1233,12 @@ def _comparison_identity_issues(payload: dict[str, Any]) -> list[dict[str, Any]]
             payload,
             manifest=manifest,
             owner_rule_registry={
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE: (
+                    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
+                ),
                 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
                     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
-                )
+                ),
             },
         )
     except ValueError as exc:

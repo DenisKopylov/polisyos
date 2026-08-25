@@ -33,7 +33,7 @@ import subprocess
 import sys
 import time
 import tomllib
-from collections.abc import Iterator, Mapping, MutableMapping, Sequence
+from collections.abc import Callable, Iterator, Mapping, MutableMapping, Sequence
 from dataclasses import dataclass
 from decimal import Decimal
 from pathlib import Path
@@ -85,11 +85,14 @@ from polisyos.pdc._impl.gy_waist import (  # noqa: E402
     GyOperationalReconciliationError,
 )
 from polisyos.runtime.quality.promotion_sequence import (  # noqa: E402
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE,
+    CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE,
     CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE,
     CanonicalPromotionReceipt,
     canonical_promotion_comparison_admission_from_proof,
     canonical_promotion_receipt_semantic_projection,
+    parse_canonical_promotion_history_receipt,
     prove_canonical_promotion_receipt_for_comparison,
 )
 
@@ -113,42 +116,31 @@ _DEPTH_PROMOTION_SUMMARY_COMPARISON_RULE = (
     "verified_promotion_summary.v1"
 )
 
-_DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE = (
+_DEPTH_CONTROLLED_RECORDING_COMPARISON_HISTORY_RULE = (
     "tools.quality.validation.check_layer3_gy_depth_n_universality_contract."
     "controlled_recording_verification_projection.v1"
 )
 
-PRODUCER = (
-    "tools.quality.validation.check_layer3_gy_depth_n_universality_contract"
-)
-OUTPUT_PATH = (
-    "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+_DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE = (
+    "tools.quality.validation.check_layer3_gy_depth_n_universality_contract."
+    "controlled_recording_verification_projection.v2"
 )
 
+PRODUCER = "tools.quality.validation.check_layer3_gy_depth_n_universality_contract"
+OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_depth_n_universality_contract.json"
+
 N4_PATH = "architecture/policy_design_case/layer3_gy_design_generation_contract.json"
-FORK_B_PATH = (
-    "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
-)
+FORK_B_PATH = "architecture/policy_design_case/layer3_gy_n10_cg1_l2_relation_census.json"
 N8_PATH = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
-N10A_CENSUS_PATH = (
-    "architecture/policy_design_case/layer3_gy_second_domain_census.json"
-)
+N10A_CENSUS_PATH = "architecture/policy_design_case/layer3_gy_second_domain_census.json"
 N10A_PACK_PATH = "architecture/policy_design_case/layer3_gy_second_domain_pack.json"
 N10A_SMOKE_PATH = (
     "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json"
 )
-N10A_TRACE_PATH = (
-    "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json"
-)
-N10A_GAPS_PATH = (
-    "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json"
-)
-COMPOSITION_PATH = (
-    "architecture/policy_design_case/layer3_gy_composition_certificates.json"
-)
-WMR_REISSUE_REGISTRY_PATH = (
-    "architecture/production_quality/gy_n10_wmr_reissue_registry.toml"
-)
+N10A_TRACE_PATH = "architecture/policy_design_case/layer3_gy_second_domain_cycle_entry_trace.json"
+N10A_GAPS_PATH = "architecture/policy_design_case/layer3_gy_second_domain_free_grow_gaps.json"
+COMPOSITION_PATH = "architecture/policy_design_case/layer3_gy_composition_certificates.json"
+WMR_REISSUE_REGISTRY_PATH = "architecture/production_quality/gy_n10_wmr_reissue_registry.toml"
 
 PROOF_MODEL_ID = "moonshotai/Kimi-K2.6"
 PROOF_COMPILER_MODEL_PLAN = ("moonshotai/Kimi-K2.6",)
@@ -287,25 +279,13 @@ _N4_CAPTURE_ENV = {
 _NO_CONTEXT_N4_RECORDING_SCHEMA_VERSION = (
     "policyos.layer3.gy.n10.no_context_generation_recording.v1"
 )
-_LEGACY_DOMAIN_RUN_RECORDING_SCHEMA_VERSION = (
-    "policyos.layer3.gy.n10.domain_run_recording.v1"
-)
-_DOMAIN_RUN_RECORDING_SCHEMA_VERSION = (
-    "policyos.layer3.gy.n10.domain_run_recording.v2"
-)
-_AUTHORITY_SOURCE_ADMISSION_SCHEMA_VERSION = (
-    "policyos.layer3.gy.n10.authority_source_admission.v1"
-)
+_LEGACY_DOMAIN_RUN_RECORDING_SCHEMA_VERSION = "policyos.layer3.gy.n10.domain_run_recording.v1"
+_DOMAIN_RUN_RECORDING_SCHEMA_VERSION = "policyos.layer3.gy.n10.domain_run_recording.v2"
+_AUTHORITY_SOURCE_ADMISSION_SCHEMA_VERSION = "policyos.layer3.gy.n10.authority_source_admission.v1"
 _AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES = {
-    "education": (
-        "sha256:078ad47ce8854025828397e6bbccedf191631b4be59603b58879cf8575b652c6"
-    ),
-    "first_vertical": (
-        "sha256:6e2cf96da2505a54b68ed9abd1924f45c881e6101f30ae1202e1282113921c5f"
-    ),
-    "unseen": (
-        "sha256:92ad045ed043c551d47fe15aa39c0612728429e8f4470a1be3491810b77e2824"
-    ),
+    "education": ("sha256:078ad47ce8854025828397e6bbccedf191631b4be59603b58879cf8575b652c6"),
+    "first_vertical": ("sha256:6e2cf96da2505a54b68ed9abd1924f45c881e6101f30ae1202e1282113921c5f"),
+    "unseen": ("sha256:92ad045ed043c551d47fe15aa39c0612728429e8f4470a1be3491810b77e2824"),
 }
 
 _UPSTREAM_PATHS = (
@@ -333,10 +313,7 @@ class UniversalityContractError(RuntimeError):
         *,
         replay_drift: GyOperationalReconciliationError | None = None,
     ) -> None:
-        if (
-            replay_drift is not None
-            and type(replay_drift) is not GyOperationalReconciliationError
-        ):
+        if replay_drift is not None and type(replay_drift) is not GyOperationalReconciliationError:
             raise TypeError("universality_replay_drift_provenance_invalid")
         self._replay_drift = replay_drift
         super().__init__(message)
@@ -350,8 +327,7 @@ class UniversalityContractError(RuntimeError):
         if type(self._replay_drift) is not GyOperationalReconciliationError:
             return None
         return (
-            "authority_source_controlled_replay_recording_drift:"
-            + self._replay_drift.safe_detail
+            "authority_source_controlled_replay_recording_drift:" + self._replay_drift.safe_detail
         )
 
 
@@ -408,9 +384,7 @@ class _RecordingGateway:
 class _CompilerCharacterizationGateway:
     """Overlay approved request controls without inspecting or changing responses."""
 
-    _ALLOWED_REQUEST_PARAMETERS = frozenset(
-        {"max_tokens", "reasoning_split", "seed"}
-    )
+    _ALLOWED_REQUEST_PARAMETERS = frozenset({"max_tokens", "reasoning_split", "seed"})
 
     def __init__(
         self,
@@ -423,8 +397,7 @@ class _CompilerCharacterizationGateway:
         unsupported = set(request_parameters) - self._ALLOWED_REQUEST_PARAMETERS
         if unsupported:
             raise UniversalityContractError(
-                "compiler_characterization_parameter_unsupported:"
-                + ",".join(sorted(unsupported))
+                "compiler_characterization_parameter_unsupported:" + ",".join(sorted(unsupported))
             )
         self._inner = inner
         self._request_parameters = dict(request_parameters)
@@ -453,9 +426,7 @@ class _CompilerCharacterizationGateway:
         if self._system_suffix is not None:
             system = effective.get("system")
             if not isinstance(system, str) or not system.strip():
-                raise UniversalityContractError(
-                    "compiler_characterization_system_prompt_missing"
-                )
+                raise UniversalityContractError("compiler_characterization_system_prompt_missing")
             if self._system_suffix not in system:
                 effective["system"] = f"{system}\n\n{self._system_suffix}"
         if self._provider_schema_mode is not None:
@@ -466,20 +437,14 @@ class _CompilerCharacterizationGateway:
             provider_schema = design_problem_provider_constraint_schema()
             tools = copy.deepcopy(effective.get("tools"))
             if not isinstance(tools, list) or len(tools) != 1:
-                raise UniversalityContractError(
-                    "compiler_provider_schema_tool_denominator_invalid"
-                )
+                raise UniversalityContractError("compiler_provider_schema_tool_denominator_invalid")
             function = _mapping(_mapping(tools[0]).get("function"))
             if function.get("name") != "emit_design_problem":
-                raise UniversalityContractError(
-                    "compiler_provider_schema_tool_owner_mismatch"
-                )
+                raise UniversalityContractError("compiler_provider_schema_tool_owner_mismatch")
             function["parameters"] = copy.deepcopy(provider_schema)
             tools[0]["function"] = function
             effective["tools"] = tools
-            if self._provider_schema_mode == (
-                "response_format_json_schema_with_tool"
-            ):
+            if self._provider_schema_mode == ("response_format_json_schema_with_tool"):
                 effective["response_format"] = {
                     "type": "json_schema",
                     "json_schema": {
@@ -495,13 +460,10 @@ class _CompilerCharacterizationGateway:
             events = raw.get("_gateway_degraded_events") if isinstance(raw, Mapping) else None
             if isinstance(events, list) and any(
                 isinstance(event, Mapping)
-                and event.get("reason")
-                == "response_format_unsupported_retry_plain_json"
+                and event.get("reason") == "response_format_unsupported_retry_plain_json"
                 for event in events
             ):
-                raise UniversalityContractError(
-                    "compiler_structured_output_degraded"
-                )
+                raise UniversalityContractError("compiler_structured_output_degraded")
         return response
 
 
@@ -605,9 +567,7 @@ def _normalized_gateway_response(response: object) -> dict[str, Any]:
                 "name": str(getattr(call, "name", "") or ""),
                 "arguments": dict(arguments),
                 "error_envelope": (
-                    dict(error_envelope)
-                    if isinstance(error_envelope, Mapping)
-                    else None
+                    dict(error_envelope) if isinstance(error_envelope, Mapping) else None
                 ),
             }
         )
@@ -645,11 +605,7 @@ def _gateway_response_from_payload(payload: Mapping[str, Any]) -> object:
         model=str(payload.get("model") or ""),
         provider=str(payload.get("provider") or "") or None,
         raw=(
-            {
-                "choices": [
-                    {"finish_reason": str(payload.get("finish_reason"))}
-                ]
-            }
+            {"choices": [{"finish_reason": str(payload.get("finish_reason"))}]}
             if payload.get("finish_reason")
             else None
         ),
@@ -658,9 +614,7 @@ def _gateway_response_from_payload(payload: Mapping[str, Any]) -> object:
                 id=f"replay-call-{index}",
                 name=str(row.get("name") or ""),
                 arguments=_mapping(row.get("arguments")),
-                error_envelope=(
-                    _mapping(row.get("error_envelope")) or None
-                ),
+                error_envelope=(_mapping(row.get("error_envelope")) or None),
             )
             for index, row in enumerate(_mappings(payload.get("tool_calls")))
         ],
@@ -711,9 +665,7 @@ def _structured_capability_request(mode: str) -> dict[str, Any]:
     """Build one provider-native capability request without response adaptation."""
 
     if mode not in _STRUCTURED_CAPABILITY_MODES:
-        raise UniversalityContractError(
-            f"structured_capability_mode_unknown:{mode}"
-        )
+        raise UniversalityContractError(f"structured_capability_mode_unknown:{mode}")
     schema = copy.deepcopy(STRUCTURED_CAPABILITY_SCHEMA)
     request: dict[str, Any] = {
         "system": (
@@ -775,9 +727,7 @@ def _structured_capability_payload_valid(payload: object) -> bool:
     time_semantics = payload.get("time_semantics")
     if not isinstance(time_semantics, Mapping):
         return False
-    if not set(time_semantics).issubset(
-        {"frequency", "start_date", "step_count", "end_date"}
-    ):
+    if not set(time_semantics).issubset({"frequency", "start_date", "step_count", "end_date"}):
         return False
     if time_semantics.get("frequency") not in {"M", "Q", "Y"}:
         return False
@@ -785,7 +735,9 @@ def _structured_capability_payload_valid(payload: object) -> bool:
         return False
     step_count = time_semantics.get("step_count")
     end_date = time_semantics.get("end_date")
-    valid_step = isinstance(step_count, int) and not isinstance(step_count, bool) and step_count >= 1
+    valid_step = (
+        isinstance(step_count, int) and not isinstance(step_count, bool) and step_count >= 1
+    )
     valid_end = isinstance(end_date, str) and bool(end_date)
     return valid_step or valid_end
 
@@ -809,16 +761,12 @@ def _classify_structured_capability_response(response: object) -> dict[str, Any]
     if tool_calls:
         carrier_kind = "tool_arguments"
         matching = [
-            call
-            for call in tool_calls
-            if getattr(call, "name", "") == "emit_conformance_probe"
+            call for call in tool_calls if getattr(call, "name", "") == "emit_conformance_probe"
         ]
         valid = (
             len(matching) == 1
             and getattr(matching[0], "error_envelope", None) is None
-            and _structured_capability_payload_valid(
-                getattr(matching[0], "arguments", None)
-            )
+            and _structured_capability_payload_valid(getattr(matching[0], "arguments", None))
         )
         constraint_status = "pass" if valid else "schema_invalid"
     else:
@@ -831,9 +779,7 @@ def _classify_structured_capability_response(response: object) -> dict[str, Any]
                 constraint_status = "json_invalid"
             else:
                 constraint_status = (
-                    "pass"
-                    if _structured_capability_payload_valid(payload)
-                    else "schema_invalid"
+                    "pass" if _structured_capability_payload_valid(payload) else "schema_invalid"
                 )
     if degraded_reasons:
         constraint_status = "response_format_degraded"
@@ -863,9 +809,7 @@ async def _probe_structured_compiler_capability(
     )
 
     started = time.monotonic()
-    journal_path = (
-        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "structured_capabilities.jsonl"
-    )
+    journal_path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "structured_capabilities.jsonl"
     request = _structured_capability_request(mode)
     client = create_traced_gateway_client(
         model_name=model_id,
@@ -900,13 +844,9 @@ async def _probe_structured_compiler_capability(
         classification = _classify_structured_capability_response(response)
         response_payload = _normalized_gateway_response(response)
         _append_jsonl(
-            repo_root
-            / _PROOF_CAPTURE_JOURNAL_DIR
-            / "structured_capabilities_raw.jsonl",
+            repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "structured_capabilities_raw.jsonl",
             {
-                "schema_version": (
-                    "policyos.layer3.gy.n10.structured_capability_raw.v1"
-                ),
+                "schema_version": ("policyos.layer3.gy.n10.structured_capability_raw.v1"),
                 "event": "compiler_structured_capability_response_captured",
                 "probe_id": probe_id,
                 "model_id": model_id,
@@ -930,9 +870,7 @@ async def _probe_structured_compiler_capability(
         "prompt_tokens": int(usage.get("prompt_tokens") or 0),
         "completion_tokens": int(usage.get("completion_tokens") or 0),
         "total_tokens": int(usage.get("total_tokens") or 0),
-        "response_content_hash": (
-            _semantic_hash(response_payload) if response_payload else None
-        ),
+        "response_content_hash": (_semantic_hash(response_payload) if response_payload else None),
         "error_type": error_type,
         "error_message": error_message,
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
@@ -965,9 +903,7 @@ def _completed_structured_capability_probes(
             continue
         probe_id = str(row.get("probe_id") or "")
         if not probe_id:
-            raise UniversalityContractError(
-                "compiler_structured_capability_probe_id_missing"
-            )
+            raise UniversalityContractError("compiler_structured_capability_probe_id_missing")
         rows[probe_id] = dict(row)
     return rows
 
@@ -988,8 +924,7 @@ async def _characterize_structured_compiler_capabilities(
             if (
                 prior.get("model_id") != model_id
                 or prior.get("mode") != mode
-                or prior.get("schema_content_hash")
-                != _semantic_hash(STRUCTURED_CAPABILITY_SCHEMA)
+                or prior.get("schema_content_hash") != _semantic_hash(STRUCTURED_CAPABILITY_SCHEMA)
             ):
                 raise UniversalityContractError(
                     f"compiler_structured_capability_identity_drift:{probe_id}"
@@ -1048,16 +983,10 @@ async def _characterize_compiler_probe(
 
     started = time.monotonic()
     journal_stem = (
-        "structured_conformance"
-        if provider_schema_mode is not None
-        else "characterization"
+        "structured_conformance" if provider_schema_mode is not None else "characterization"
     )
-    raw_journal_path = (
-        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{journal_stem}_raw.jsonl"
-    )
-    result_journal_path = (
-        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{journal_stem}.jsonl"
-    )
+    raw_journal_path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{journal_stem}_raw.jsonl"
+    result_journal_path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / f"{journal_stem}.jsonl"
     inner = create_traced_gateway_client(
         model_name=model_id,
         run_id=f"gy_n10_stage4_characterization_{probe_id}",
@@ -1170,9 +1099,7 @@ async def _characterize_compiler_probe(
         "prompt_tokens": int(usage.get("prompt_tokens") or 0),
         "completion_tokens": int(usage.get("completion_tokens") or 0),
         "total_tokens": int(usage.get("total_tokens") or 0),
-        "response_content_hash": (
-            _semantic_hash(response_payload) if response_payload else None
-        ),
+        "response_content_hash": (_semantic_hash(response_payload) if response_payload else None),
         "error_code": error_code,
         "error_message": error_message,
         "error_type": error_type,
@@ -1180,9 +1107,7 @@ async def _characterize_compiler_probe(
         "entailment_status": entailment_status,
         "span_call_count": len(span_gateway.calls) if span_gateway is not None else 0,
         "design_problem_ref": (
-            gy_content_hash(problem.model_dump(mode="json"))
-            if problem is not None
-            else None
+            gy_content_hash(problem.model_dump(mode="json")) if problem is not None else None
         ),
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
@@ -1203,18 +1128,14 @@ def _completed_characterization_probes(repo_root: Path) -> dict[str, dict[str, A
         try:
             row = json.loads(raw_line)
         except json.JSONDecodeError as exc:
-            raise UniversalityContractError(
-                "compiler_characterization_journal_invalid"
-            ) from exc
+            raise UniversalityContractError("compiler_characterization_journal_invalid") from exc
         if not isinstance(row, Mapping):
             continue
         if row.get("event") != "compiler_characterization_probe_completed":
             continue
         probe_id = str(row.get("probe_id") or "")
         if not probe_id:
-            raise UniversalityContractError(
-                "compiler_characterization_probe_id_missing"
-            )
+            raise UniversalityContractError("compiler_characterization_probe_id_missing")
         completed[probe_id] = dict(row)
     return completed
 
@@ -1232,9 +1153,7 @@ def _reuse_characterization_probe(
     prior = completed.get(probe_id)
     if prior is None:
         return None
-    prior_variant = str(
-        prior.get("prompt_variant") or "generic_collection_invariant_v1"
-    )
+    prior_variant = str(prior.get("prompt_variant") or "generic_collection_invariant_v1")
     if (
         str(prior.get("model_id") or "") != model_id
         or prior_variant != prompt_variant
@@ -1274,9 +1193,7 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
     """Measure the finite model/request matrix, then confirm one config on all roles."""
 
     completed = _completed_characterization_probes(repo_root)
-    matrix_by_probe_id = {
-        str(spec["probe_id"]): spec for spec in COMPILER_CHARACTERIZATION_MATRIX
-    }
+    matrix_by_probe_id = {str(spec["probe_id"]): spec for spec in COMPILER_CHARACTERIZATION_MATRIX}
     rows: list[dict[str, Any]] = []
     for spec in COMPILER_CHARACTERIZATION_MATRIX:
         probe_id = str(spec["probe_id"])
@@ -1310,8 +1227,7 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
         (
             row
             for row in rows
-            if row["outcome"]
-            == "clean_complete_schema_valid_entailment_pass"
+            if row["outcome"] == "clean_complete_schema_valid_entailment_pass"
             and row["probe_id"] not in _SUPERSEDED_CHARACTERIZATION_PROBE_IDS
         ),
         key=lambda row: (
@@ -1325,9 +1241,7 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
     for candidate in clean_rows:
         confirmations: list[dict[str, Any]] = []
         candidate_spec = matrix_by_probe_id[str(candidate["probe_id"])]
-        confirmation_repetitions = int(
-            candidate_spec.get("confirmation_repetitions") or 1
-        )
+        confirmation_repetitions = int(candidate_spec.get("confirmation_repetitions") or 1)
         for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
             for repetition in range(1, confirmation_repetitions + 1):
                 probe_id = f"{candidate['probe_id']}-confirm-{role}"
@@ -1358,9 +1272,7 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
                 confirmations.append(reused)
         rows.extend(confirmations)
         all_clean = all(
-            row["outcome"]
-            == "clean_complete_schema_valid_entailment_pass"
-            for row in confirmations
+            row["outcome"] == "clean_complete_schema_valid_entailment_pass" for row in confirmations
         )
         stable_hashes = all(
             len(
@@ -1378,9 +1290,7 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
             winning_confirmations = confirmations
             break
 
-    result_journal_path = (
-        repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "characterization.jsonl"
-    )
+    result_journal_path = repo_root / _PROOF_CAPTURE_JOURNAL_DIR / "characterization.jsonl"
     if winning_row is None:
         summary = {
             "schema_version": "policyos.layer3.gy.n10.compiler_characterization_summary.v1",
@@ -1394,10 +1304,7 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
         _append_jsonl(result_journal_path, summary)
         return summary
 
-    observed_max = max(
-        int(row.get("completion_tokens") or 0)
-        for row in winning_confirmations
-    )
+    observed_max = max(int(row.get("completion_tokens") or 0) for row in winning_confirmations)
     summary = {
         "schema_version": "policyos.layer3.gy.n10.compiler_characterization_summary.v1",
         "event": "compiler_characterization_completed",
@@ -1413,9 +1320,7 @@ async def _characterize_compiler_conformance(repo_root: Path) -> dict[str, Any]:
             "observed_max_completion_tokens": observed_max,
             "confirmation_roles": list(PLAIN_LANGUAGE_PROOF_REQUESTS),
             "confirmation_repetitions": int(
-                matrix_by_probe_id[str(winning_row["probe_id"])].get(
-                    "confirmation_repetitions"
-                )
+                matrix_by_probe_id[str(winning_row["probe_id"])].get("confirmation_repetitions")
                 or 1
             ),
         },
@@ -1448,9 +1353,7 @@ def _completed_structured_conformance_probes(
             continue
         probe_id = str(row.get("probe_id") or "")
         if not probe_id:
-            raise UniversalityContractError(
-                "compiler_structured_conformance_probe_id_missing"
-            )
+            raise UniversalityContractError("compiler_structured_conformance_probe_id_missing")
         completed[probe_id] = dict(row)
     return completed
 
@@ -1503,8 +1406,7 @@ async def _characterize_structured_compiler_conformance(
                 prior.get("model_id") != model_id
                 or prior.get("prompt_variant") != prompt_variant
                 or prior.get("provider_schema_mode") != mode
-                or _mapping(prior.get("request_parameters"))
-                != request_parameters
+                or _mapping(prior.get("request_parameters")) != request_parameters
             ):
                 raise UniversalityContractError(
                     f"compiler_structured_conformance_identity_drift:{probe_id}"
@@ -1542,9 +1444,7 @@ async def _characterize_structured_compiler_conformance(
             "compiler_structured_output_degraded"
         ) or error_message.startswith("Gateway request failed (400)")
         if deterministic_refusal:
-            pruned_modes[mode] = str(
-                canary.get("error_code") or "provider_request_refused"
-            )
+            pruned_modes[mode] = str(canary.get("error_code") or "provider_request_refused")
             continue
         active_modes.append(mode)
         for role in PLAIN_LANGUAGE_PROOF_REQUESTS:
@@ -1563,12 +1463,10 @@ async def _characterize_structured_compiler_conformance(
             denominator = [
                 row
                 for row in rows
-                if row.get("provider_schema_mode") == mode
-                and row.get("role") == role
+                if row.get("provider_schema_mode") == mode and row.get("role") == role
             ]
             all_clean = len(denominator) == len(seeds) * len(repetitions) and all(
-                row.get("outcome")
-                == "clean_complete_schema_valid_entailment_pass"
+                row.get("outcome") == "clean_complete_schema_valid_entailment_pass"
                 for row in denominator
             )
             stable_per_seed = all(
@@ -1576,12 +1474,7 @@ async def _characterize_structured_compiler_conformance(
                     {
                         row.get("response_content_hash")
                         for row in denominator
-                        if int(
-                            _mapping(row.get("request_parameters")).get(
-                                "seed", -1
-                            )
-                        )
-                        == seed
+                        if int(_mapping(row.get("request_parameters")).get("seed", -1)) == seed
                     }
                 )
                 == 1
@@ -1593,10 +1486,7 @@ async def _characterize_structured_compiler_conformance(
         (
             mode
             for mode in modes
-            if all(
-                qualified.get((mode, role)) is True
-                for role in PLAIN_LANGUAGE_PROOF_REQUESTS
-            )
+            if all(qualified.get((mode, role)) is True for role in PLAIN_LANGUAGE_PROOF_REQUESTS)
         ),
         None,
     )
@@ -1618,20 +1508,13 @@ async def _characterize_structured_compiler_conformance(
     selected_rows = [
         row
         for row in rows
-        if role_modes.get(str(row.get("role")))
-        == row.get("provider_schema_mode")
+        if role_modes.get(str(row.get("role"))) == row.get("provider_schema_mode")
     ]
     summary = {
-        "schema_version": (
-            "policyos.layer3.gy.n10.structured_conformance_summary.v1"
-        ),
+        "schema_version": ("policyos.layer3.gy.n10.structured_conformance_summary.v1"),
         "event": "compiler_structured_conformance_completed",
         "status": "pass" if passed else "fail",
-        "issues": (
-            []
-            if passed
-            else [{"code": "compiler_model_conformance_exhausted"}]
-        ),
+        "issues": ([] if passed else [{"code": "compiler_model_conformance_exhausted"}]),
         "rows": rows,
         "pruned_modes": pruned_modes,
         "winning_config": (
@@ -1663,9 +1546,7 @@ def _temporary_environment(values: Mapping[str, str]) -> Any:
     """Apply one serial capture envelope and restore the process exactly."""
 
     missing = object()
-    previous: dict[str, object] = {
-        str(key): os.environ.get(str(key), missing) for key in values
-    }
+    previous: dict[str, object] = {str(key): os.environ.get(str(key), missing) for key in values}
     try:
         os.environ.update({str(key): str(value) for key, value in values.items()})
         yield
@@ -1740,9 +1621,7 @@ async def _capture_compiler_recording(
         "role": role,
         "model_id": model_id,
         "model_ids": list(gateway.model_ids),
-        "span_model_id": str(
-            getattr(span_gateway, "model_id", model_id)
-        ),
+        "span_model_id": str(getattr(span_gateway, "model_id", model_id)),
         "raw_request": raw_request,
         "raw_request_content_hash": gy_content_hash({"raw_request": raw_request}),
         "context": context,
@@ -1766,9 +1645,7 @@ async def _replay_compiler_recording(recording: Mapping[str, Any]) -> object:
     )
 
     stable_recording = {
-        key: value
-        for key, value in recording.items()
-        if key != "recording_content_hash"
+        key: value for key, value in recording.items() if key != "recording_content_hash"
     }
     if recording.get("recording_content_hash") != _semantic_hash(stable_recording):
         raise UniversalityContractError("compiler_recording_content_hash_mismatch")
@@ -1839,8 +1716,7 @@ def _cycle_context_for_problem(
         raise UniversalityContractError("first_vertical_registry_wmr_mismatch")
     if world.region_or_jurisdiction == resolved_problem.jurisdiction_time.region:
         selected_hashes = tuple(
-            entry.entry_content_hash
-            for entry in world.substrate_registry_ref.resolved_entries
+            entry.entry_content_hash for entry in world.substrate_registry_ref.resolved_entries
         )
         intervention_substrate = load_l6_intervention_substrate(repo_root)
         substrate_input_hash = gy_content_hash(
@@ -1849,9 +1725,7 @@ def _cycle_context_for_problem(
                 "design_problem_ref": problem_ref,
                 "substrate_registry_content_hash": registry.content_hash,
                 "world_model_record_content_hash": world.content_hash,
-                "intervention_substrate_content_hash": (
-                    intervention_substrate.content_hash
-                ),
+                "intervention_substrate_content_hash": (intervention_substrate.content_hash),
                 "selected_registry_entry_hashes": list(selected_hashes),
             }
         )
@@ -1930,9 +1804,7 @@ def _n4_responses_from_journal(path: Path) -> list[dict[str, Any]]:
 _HISTORICAL_N4_PROJECTION_REBIND_SCHEMA_VERSION = (
     "policyos.layer3.gy.n10.n4_projection_rebind_receipt.v1"
 )
-_HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION = (
-    "policyos.layer3.gy.n10.n4_context_rebind_receipt.v1"
-)
+_HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION = "policyos.layer3.gy.n10.n4_context_rebind_receipt.v1"
 _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION = (
     "policyos.layer3.gy.n10.n4_owner_supersession_receipt.v1"
 )
@@ -1978,14 +1850,10 @@ def _atom_binding_payload(atom: object) -> dict[str, Any]:
     candidate = GroundingCandidateAtom.model_validate(atom)
     signature = candidate.signature.model_dump(mode="json")
     edge_scope = sorted(candidate.edge_scope)
-    atom_content_hash = gy_content_hash(
-        {"edge_scope": edge_scope, "signature": signature}
-    )
+    atom_content_hash = gy_content_hash({"edge_scope": edge_scope, "signature": signature})
     expected_id = "cg0_atom_" + atom_content_hash.removeprefix("sha256:")[:16]
     if candidate.atom_id != expected_id:
-        raise UniversalityContractError(
-            "proof_n4_atom_readdress_current_preimage_mismatch"
-        )
+        raise UniversalityContractError("proof_n4_atom_readdress_current_preimage_mismatch")
     return {
         "atom_id": candidate.atom_id,
         "atom_content_hash": atom_content_hash,
@@ -2010,9 +1878,7 @@ def _historical_atom_binding(
 
     signature = copy.deepcopy(_mapping(current_binding.get("signature")))
     if signature.get("wm_version") != reissued_wmr_content_hash:
-        raise UniversalityContractError(
-            "proof_n4_atom_readdress_current_wmr_mismatch"
-        )
+        raise UniversalityContractError("proof_n4_atom_readdress_current_wmr_mismatch")
     historical_wmr_id = _wmr_id(historical_wmr_content_hash)
     reissued_wmr_id = _wmr_id(reissued_wmr_content_hash)
     signature["wm_version"] = historical_wmr_content_hash
@@ -2024,26 +1890,17 @@ def _historical_atom_binding(
         str(item).replace(reissued_wmr_id, historical_wmr_id)
         for item in _strings(current_binding.get("edge_scope"))
     ]
-    if (
-        reissued_wmr_id
-        not in "\n".join(
-            [
-                *[str(item) for item in _strings(current_binding.get("edge_scope"))],
-                *[
-                    str(item)
-                    for item in _strings(
-                        _mapping(current_binding.get("signature")).get("evidence")
-                    )
-                ],
-            ]
-        )
+    if reissued_wmr_id not in "\n".join(
+        [
+            *[str(item) for item in _strings(current_binding.get("edge_scope"))],
+            *[
+                str(item)
+                for item in _strings(_mapping(current_binding.get("signature")).get("evidence"))
+            ],
+        ]
     ):
-        raise UniversalityContractError(
-            "proof_n4_atom_readdress_wmr_edge_binding_missing"
-        )
-    atom_content_hash = gy_content_hash(
-        {"edge_scope": sorted(edge_scope), "signature": signature}
-    )
+        raise UniversalityContractError("proof_n4_atom_readdress_wmr_edge_binding_missing")
+    atom_content_hash = gy_content_hash({"edge_scope": sorted(edge_scope), "signature": signature})
     atom_id = "cg0_atom_" + atom_content_hash.removeprefix("sha256:")[:16]
     candidate = GroundingCandidateAtom(
         atom_id=atom_id,
@@ -2068,23 +1925,16 @@ def _build_n4_atom_readdress_witnesses(
 ) -> list[dict[str, Any]]:
     """Build owner-derived old/new CG0 preimage witnesses for changed ids."""
 
-    historical_rows = _mappings(
-        historical_projection.get("grounding_dispositions")
-    )
+    historical_rows = _mappings(historical_projection.get("grounding_dispositions"))
     replayed_rows = _mappings(replayed_projection.get("grounding_dispositions"))
     if len(historical_rows) != len(replayed_rows):
-        raise UniversalityContractError(
-            "proof_n4_atom_readdress_denominator_mismatch"
-        )
+        raise UniversalityContractError("proof_n4_atom_readdress_denominator_mismatch")
     registry_rows = _mappings(reissue_registry.get("reissues"))
     if (
-        reissue_registry.get("schema_version")
-        != "policyos.layer3.gy.n10.wmr_reissue_registry.v1"
+        reissue_registry.get("schema_version") != "policyos.layer3.gy.n10.wmr_reissue_registry.v1"
         or not registry_rows
     ):
-        raise UniversalityContractError(
-            "proof_n4_atom_readdress_registry_invalid"
-        )
+        raise UniversalityContractError("proof_n4_atom_readdress_registry_invalid")
     registry_hash = _semantic_hash(reissue_registry)
     witnesses: list[dict[str, Any]] = []
     for index, (historical, replayed) in enumerate(
@@ -2095,34 +1945,23 @@ def _build_n4_atom_readdress_witnesses(
         if historical_id == reissued_id:
             continue
         if historical.get("proposal_id") != replayed.get("proposal_id"):
-            raise UniversalityContractError(
-                "proof_n4_atom_readdress_proposal_mismatch"
-            )
+            raise UniversalityContractError("proof_n4_atom_readdress_proposal_mismatch")
         current_atom = current_atoms.get(reissued_id)
         if current_atom is None:
-            raise UniversalityContractError(
-                "proof_n4_atom_readdress_current_owner_missing"
-            )
+            raise UniversalityContractError("proof_n4_atom_readdress_current_owner_missing")
         current_binding = _atom_binding_payload(current_atom)
-        current_wmr = str(
-            _mapping(current_binding.get("signature")).get("wm_version") or ""
-        )
+        current_wmr = str(_mapping(current_binding.get("signature")).get("wm_version") or "")
         matching_registry_rows = [
-            row
-            for row in registry_rows
-            if row.get("reissued_wmr_content_hash") == current_wmr
+            row for row in registry_rows if row.get("reissued_wmr_content_hash") == current_wmr
         ]
         if len(matching_registry_rows) != 1:
-            raise UniversalityContractError(
-                "proof_n4_atom_readdress_registry_resolution_mismatch"
-            )
+            raise UniversalityContractError("proof_n4_atom_readdress_registry_resolution_mismatch")
         registry_row = matching_registry_rows[0]
         historical_matches: list[dict[str, Any]] = []
         for candidate in current_atoms.values():
             candidate_binding = _atom_binding_payload(candidate)
             candidate_wmr = str(
-                _mapping(candidate_binding.get("signature")).get("wm_version")
-                or ""
+                _mapping(candidate_binding.get("signature")).get("wm_version") or ""
             )
             if candidate_wmr != current_wmr:
                 continue
@@ -2136,13 +1975,10 @@ def _build_n4_atom_readdress_witnesses(
             if historical_candidate["atom_id"] == historical_id:
                 historical_matches.append(historical_candidate)
         if len(historical_matches) != 1:
-            raise UniversalityContractError(
-                "proof_n4_atom_readdress_historical_preimage_mismatch"
-            )
+            raise UniversalityContractError("proof_n4_atom_readdress_historical_preimage_mismatch")
         historical_binding = historical_matches[0]
         semantic_equivalence = (
-            historical_binding["semantic_sort_key"]
-            == current_binding["semantic_sort_key"]
+            historical_binding["semantic_sort_key"] == current_binding["semantic_sort_key"]
         )
         for disposition in (historical, replayed):
             cause = _mapping(disposition.get("rejected_cause"))
@@ -2157,15 +1993,11 @@ def _build_n4_atom_readdress_witnesses(
                 or not critical
                 or not open_obligations
             ):
-                raise UniversalityContractError(
-                    "proof_n4_atom_readdress_authority_growth"
-                )
+                raise UniversalityContractError("proof_n4_atom_readdress_authority_growth")
         if not _mapping(historical.get("rejected_cause")) or not _mapping(
             replayed.get("rejected_cause")
         ):
-            raise UniversalityContractError(
-                "proof_n4_atom_readdress_refusal_evidence_missing"
-            )
+            raise UniversalityContractError("proof_n4_atom_readdress_refusal_evidence_missing")
         witness: dict[str, Any] = {
             "disposition_index": index,
             "proposal_id": historical.get("proposal_id"),
@@ -2173,24 +2005,16 @@ def _build_n4_atom_readdress_witnesses(
             "reissued_atom_binding": current_binding,
             "semantic_equivalence": semantic_equivalence,
             "historical_critical_contradictions": _strings(
-                _mapping(historical.get("rejected_cause")).get(
-                    "cg1_critical_contradictions"
-                )
+                _mapping(historical.get("rejected_cause")).get("cg1_critical_contradictions")
             ),
             "reissued_critical_contradictions": _strings(
-                _mapping(replayed.get("rejected_cause")).get(
-                    "cg1_critical_contradictions"
-                )
+                _mapping(replayed.get("rejected_cause")).get("cg1_critical_contradictions")
             ),
             "historical_cg2_open_obligations": _strings(
-                _mapping(historical.get("rejected_cause")).get(
-                    "cg2_open_obligations"
-                )
+                _mapping(historical.get("rejected_cause")).get("cg2_open_obligations")
             ),
             "reissued_cg2_open_obligations": _strings(
-                _mapping(replayed.get("rejected_cause")).get(
-                    "cg2_open_obligations"
-                )
+                _mapping(replayed.get("rejected_cause")).get("cg2_open_obligations")
             ),
         }
         projection_semantic_equivalence = (
@@ -2202,9 +2026,7 @@ def _build_n4_atom_readdress_witnesses(
         )
         witness.update(
             {
-                "projection_semantic_equivalence": (
-                    projection_semantic_equivalence
-                ),
+                "projection_semantic_equivalence": (projection_semantic_equivalence),
                 "authority_transition": (
                     "identity_only_readdress"
                     if projection_semantic_equivalence
@@ -2244,21 +2066,13 @@ def _n4_atom_readdress_witness_issues(
         expected = []
     supplied = [copy.deepcopy(dict(item)) for item in witnesses]
     for witness in supplied:
-        stable = {
-            key: value
-            for key, value in witness.items()
-            if key != "witness_content_hash"
-        }
+        stable = {key: value for key, value in witness.items() if key != "witness_content_hash"}
         if witness.get("witness_content_hash") != _semantic_hash(stable):
             issues.append("proof_n4_atom_readdress_witness_hash_mismatch")
-        historical_binding = _mapping(
-            witness.get("historical_atom_binding")
-        )
+        historical_binding = _mapping(witness.get("historical_atom_binding"))
         atom_hash = gy_content_hash(
             {
-                "edge_scope": sorted(
-                    _strings(historical_binding.get("edge_scope"))
-                ),
+                "edge_scope": sorted(_strings(historical_binding.get("edge_scope"))),
                 "signature": _mapping(historical_binding.get("signature")),
             }
         )
@@ -2267,9 +2081,7 @@ def _n4_atom_readdress_witness_issues(
             historical_binding.get("atom_content_hash") != atom_hash
             or historical_binding.get("atom_id") != atom_id
         ):
-            issues.append(
-                "proof_n4_atom_readdress_historical_preimage_mismatch"
-            )
+            issues.append("proof_n4_atom_readdress_historical_preimage_mismatch")
     if supplied != expected:
         issues.append("proof_n4_atom_readdress_owner_recomputation_mismatch")
     return tuple(sorted(set(issues)))
@@ -2280,19 +2092,13 @@ def _load_wmr_reissue_registry(repo_root: Path) -> dict[str, Any]:
 
     path = repo_root / WMR_REISSUE_REGISTRY_PATH
     if not path.is_file():
-        raise UniversalityContractError(
-            "proof_n4_atom_readdress_registry_missing"
-        )
+        raise UniversalityContractError("proof_n4_atom_readdress_registry_missing")
     with path.open("rb") as handle:
         payload = tomllib.load(handle)
-    if (
-        payload.get("schema_version")
-        != "policyos.layer3.gy.n10.wmr_reissue_registry.v1"
-        or not _mappings(payload.get("reissues"))
-    ):
-        raise UniversalityContractError(
-            "proof_n4_atom_readdress_registry_invalid"
-        )
+    if payload.get(
+        "schema_version"
+    ) != "policyos.layer3.gy.n10.wmr_reissue_registry.v1" or not _mappings(payload.get("reissues")):
+        raise UniversalityContractError("proof_n4_atom_readdress_registry_invalid")
     return copy.deepcopy(payload)
 
 
@@ -2325,17 +2131,14 @@ def _n4_projection_rebind_path_allowed(
     """Return whether one projection leaf is a declared content identity."""
 
     return (
-        _HISTORICAL_N4_PROJECTION_REBIND_FIELD_PATTERN.fullmatch(path)
-        is not None
+        _HISTORICAL_N4_PROJECTION_REBIND_FIELD_PATTERN.fullmatch(path) is not None
         or (
             context_rebind
-            and _HISTORICAL_N4_CONTEXT_REBIND_FIELD_PATTERN.fullmatch(path)
-            is not None
+            and _HISTORICAL_N4_CONTEXT_REBIND_FIELD_PATTERN.fullmatch(path) is not None
         )
         or (
             semantic_readdress
-            and _HISTORICAL_N4_ATOM_READDRESS_FIELD_PATTERN.fullmatch(path)
-            is not None
+            and _HISTORICAL_N4_ATOM_READDRESS_FIELD_PATTERN.fullmatch(path) is not None
         )
     )
 
@@ -2369,9 +2172,7 @@ def _projection_diff_paths(
         if len(frozen) != len(replayed):
             return (f"{path}.length",)
         paths = []
-        for index, (frozen_item, replayed_item) in enumerate(
-            zip(frozen, replayed, strict=True)
-        ):
+        for index, (frozen_item, replayed_item) in enumerate(zip(frozen, replayed, strict=True)):
             paths.extend(
                 _projection_diff_paths(
                     frozen_item,
@@ -2393,15 +2194,11 @@ _CONTEXT_REBIND_IDENTITY_FIELD_PATTERN = re.compile(
     r"(?:^|\.)(?:cgf_certificate_refs|evidence_refs|mandatory_gate_refs|"
     r"scenario_requirement_refs)\[\d+\]$"
 )
-_HISTORICAL_CONTEXT_REBIND_SCHEMA_VERSION = (
-    "policyos.layer3.gy.n10.context_rebind_receipt.v1"
-)
+_HISTORICAL_CONTEXT_REBIND_SCHEMA_VERSION = "policyos.layer3.gy.n10.context_rebind_receipt.v1"
 _AUTHORITY_SOURCE_MIGRATION_SCHEMA_VERSION = (
     "policyos.layer3.gy.n10.authority_source_migration_receipt.v1"
 )
-_AUTHORITY_SOURCE_MIGRATION_REASON = (
-    "ambient_canonical_repo_to_isolated_verification"
-)
+_AUTHORITY_SOURCE_MIGRATION_REASON = "ambient_canonical_repo_to_isolated_verification"
 _AUTHORITY_SOURCE_MIGRATION_FIELDS = frozenset(
     {
         "stage_trace.promotion.authority_scope",
@@ -2510,22 +2307,17 @@ def _build_historical_context_rebind_receipt(
         historical_domain_run,
         replayed_domain_run,
     )
-    historical_context_hash = str(
-        recording.get("cycle_substrate_context_content_hash") or ""
-    )
+    historical_context_hash = str(recording.get("cycle_substrate_context_content_hash") or "")
     if semantic_paths:
         raise UniversalityContractError(
-            "domain_run_context_rebind_semantic_drift:"
-            + ",".join(semantic_paths)
+            "domain_run_context_rebind_semantic_drift:" + ",".join(semantic_paths)
         )
     if (
         not changed_paths
         or not historical_context_hash
         or historical_context_hash == replayed_context_content_hash
     ):
-        raise UniversalityContractError(
-            "domain_run_context_rebind_semantic_drift"
-        )
+        raise UniversalityContractError("domain_run_context_rebind_semantic_drift")
     compiler_recording = _mapping(recording.get("compiler_recording"))
     n4_recording = _mapping(recording.get("n4_recording"))
     prior_receipt = _mapping(recording.get("historical_context_rebind_receipt"))
@@ -2536,33 +2328,20 @@ def _build_historical_context_rebind_receipt(
         )
         if prior_issues:
             raise UniversalityContractError(
-                "domain_run_context_rebind_receipt_invalid:"
-                + ",".join(prior_issues)
+                "domain_run_context_rebind_receipt_invalid:" + ",".join(prior_issues)
             )
     payload: dict[str, Any] = {
         "schema_version": _HISTORICAL_CONTEXT_REBIND_SCHEMA_VERSION,
         "eligible_issue_set": ["domain_run_context_binding_drift"],
         "historical_context_content_hash": historical_context_hash,
         "replayed_context_content_hash": replayed_context_content_hash,
-        "historical_compiled_run_content_hash": recording.get(
-            "compiled_run_content_hash"
-        ),
-        "replayed_compiled_run_content_hash": (
-            replayed_compiled_run_content_hash
-        ),
-        "compiler_recording_content_hash": compiler_recording.get(
-            "recording_content_hash"
-        ),
-        "historical_n4_recording_content_hash": n4_recording.get(
-            "recording_content_hash"
-        ),
-        "replayed_n4_recording_content_hash": (
-            replayed_n4_recording_content_hash
-        ),
+        "historical_compiled_run_content_hash": recording.get("compiled_run_content_hash"),
+        "replayed_compiled_run_content_hash": (replayed_compiled_run_content_hash),
+        "compiler_recording_content_hash": compiler_recording.get("recording_content_hash"),
+        "historical_n4_recording_content_hash": n4_recording.get("recording_content_hash"),
+        "replayed_n4_recording_content_hash": (replayed_n4_recording_content_hash),
         "changed_identity_paths": list(changed_paths),
-        "historical_route_projection": copy.deepcopy(
-            dict(historical_domain_run)
-        ),
+        "historical_route_projection": copy.deepcopy(dict(historical_domain_run)),
         "historical_route_projection_content_hash": _semantic_hash(
             _context_rebind_stable_projection(historical_domain_run)
         ),
@@ -2592,27 +2371,16 @@ def _historical_context_rebind_receipt_issues(
         _historical_context_rebind_chain_issues(
             receipt,
             replayed_domain_run=replayed_domain_run,
-            compiler_recording_content_hash=compiler_recording.get(
-                "recording_content_hash"
-            ),
-            replayed_n4_recording_content_hash=n4_recording.get(
-                "recording_content_hash"
-            ),
-            replayed_context_content_hash=recording.get(
-                "cycle_substrate_context_content_hash"
-            ),
-            replayed_compiled_run_content_hash=recording.get(
-                "compiled_run_content_hash"
-            ),
+            compiler_recording_content_hash=compiler_recording.get("recording_content_hash"),
+            replayed_n4_recording_content_hash=n4_recording.get("recording_content_hash"),
+            replayed_context_content_hash=recording.get("cycle_substrate_context_content_hash"),
+            replayed_compiled_run_content_hash=recording.get("compiled_run_content_hash"),
         )
     )
-    historical_n4_hash = _recompute_historical_n4_recording_content_hash(
-        n4_recording
-    )
+    historical_n4_hash = _recompute_historical_n4_recording_content_hash(n4_recording)
     if (
         historical_n4_hash is not None
-        and receipt.get("historical_n4_recording_content_hash")
-        != historical_n4_hash
+        and receipt.get("historical_n4_recording_content_hash") != historical_n4_hash
     ):
         issues.append("domain_run_context_rebind_historical_n4_drift")
     return tuple(sorted(set(issues)))
@@ -2630,23 +2398,15 @@ def _historical_context_rebind_chain_issues(
     """Verify one receipt link and every recursively bound predecessor."""
 
     issues: list[str] = []
-    stable_receipt = {
-        key: value
-        for key, value in receipt.items()
-        if key != "receipt_content_hash"
-    }
+    stable_receipt = {key: value for key, value in receipt.items() if key != "receipt_content_hash"}
     if receipt.get("receipt_content_hash") != _semantic_hash(stable_receipt):
         issues.append("domain_run_context_rebind_receipt_hash_mismatch")
     if receipt.get("schema_version") != _HISTORICAL_CONTEXT_REBIND_SCHEMA_VERSION:
         issues.append("domain_run_context_rebind_receipt_schema_mismatch")
-    if receipt.get("eligible_issue_set") != [
-        "domain_run_context_binding_drift"
-    ]:
+    if receipt.get("eligible_issue_set") != ["domain_run_context_binding_drift"]:
         issues.append("domain_run_context_rebind_issue_set_mismatch")
 
-    historical_projection = _mapping(
-        receipt.get("historical_route_projection")
-    )
+    historical_projection = _mapping(receipt.get("historical_route_projection"))
     if receipt.get("historical_route_projection_content_hash") != _semantic_hash(
         _context_rebind_stable_projection(historical_projection)
     ):
@@ -2659,39 +2419,24 @@ def _historical_context_rebind_chain_issues(
         historical_projection,
         replayed_domain_run,
     )
-    if not changed_paths or list(changed_paths) != receipt.get(
-        "changed_identity_paths"
-    ):
+    if not changed_paths or list(changed_paths) != receipt.get("changed_identity_paths"):
         issues.append("domain_run_context_rebind_changed_paths_mismatch")
     if _context_rebind_semantic_diff_paths(
         historical_projection,
         replayed_domain_run,
     ):
         issues.append("domain_run_context_rebind_semantic_drift")
-    if (
-        receipt.get("compiler_recording_content_hash")
-        != compiler_recording_content_hash
-    ):
+    if receipt.get("compiler_recording_content_hash") != compiler_recording_content_hash:
         issues.append("domain_run_context_rebind_compiler_binding_drift")
-    if (
-        receipt.get("replayed_n4_recording_content_hash")
-        != replayed_n4_recording_content_hash
-    ):
+    if receipt.get("replayed_n4_recording_content_hash") != replayed_n4_recording_content_hash:
         issues.append("domain_run_context_rebind_n4_binding_drift")
-    if (
-        receipt.get("replayed_context_content_hash")
-        != replayed_context_content_hash
-    ):
+    if receipt.get("replayed_context_content_hash") != replayed_context_content_hash:
         issues.append("domain_run_context_rebind_current_context_drift")
-    if (
-        receipt.get("replayed_compiled_run_content_hash")
-        != replayed_compiled_run_content_hash
-    ):
+    if receipt.get("replayed_compiled_run_content_hash") != replayed_compiled_run_content_hash:
         issues.append("domain_run_context_rebind_compiled_binding_drift")
     if (
         not receipt.get("historical_context_content_hash")
-        or receipt.get("historical_context_content_hash")
-        == replayed_context_content_hash
+        or receipt.get("historical_context_content_hash") == replayed_context_content_hash
     ):
         issues.append("domain_run_context_rebind_not_historical")
     prior_receipt = _mapping(receipt.get("prior_receipt"))
@@ -2700,15 +2445,11 @@ def _historical_context_rebind_chain_issues(
             _historical_context_rebind_chain_issues(
                 prior_receipt,
                 replayed_domain_run=historical_projection,
-                compiler_recording_content_hash=(
-                    compiler_recording_content_hash
-                ),
+                compiler_recording_content_hash=(compiler_recording_content_hash),
                 replayed_n4_recording_content_hash=receipt.get(
                     "historical_n4_recording_content_hash"
                 ),
-                replayed_context_content_hash=receipt.get(
-                    "historical_context_content_hash"
-                ),
+                replayed_context_content_hash=receipt.get("historical_context_content_hash"),
                 replayed_compiled_run_content_hash=receipt.get(
                     "historical_compiled_run_content_hash"
                 ),
@@ -2926,36 +2667,26 @@ def _build_authority_source_admission(
         raise UniversalityContractError("authority_source_admission_kind_invalid")
     receipt = _mapping(recording.get("authority_source_migration_receipt"))
     if admission_kind == "controlled_at_capture" and receipt:
-        raise UniversalityContractError(
-            "authority_source_controlled_capture_receipt_present"
-        )
+        raise UniversalityContractError("authority_source_controlled_capture_receipt_present")
     if admission_kind == "migrated" and not receipt:
         raise UniversalityContractError("authority_source_migration_receipt_missing")
     if recording.get("role") != expected_role:
         raise UniversalityContractError("authority_source_recording_role_mismatch")
-    required_predecessor = (
-        _AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES.get(expected_role)
+    required_predecessor = _AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES.get(
+        expected_role
     )
     if required_predecessor is not None and admission_kind != "migrated":
-        raise UniversalityContractError(
-            "authority_source_required_migration_missing"
-        )
-    if required_predecessor is not None and receipt.get(
-        "historical_recording_content_hash"
-    ) != required_predecessor:
-        raise UniversalityContractError(
-            "authority_source_predecessor_recording_mismatch"
-        )
-    authority_projection = _compiled_authority_source_projection(
-        recording.get("compiled_run")
-    )
-    controlled_issues = _controlled_authority_source_projection_issues(
-        authority_projection
-    )
+        raise UniversalityContractError("authority_source_required_migration_missing")
+    if (
+        required_predecessor is not None
+        and receipt.get("historical_recording_content_hash") != required_predecessor
+    ):
+        raise UniversalityContractError("authority_source_predecessor_recording_mismatch")
+    authority_projection = _compiled_authority_source_projection(recording.get("compiled_run"))
+    controlled_issues = _controlled_authority_source_projection_issues(authority_projection)
     if controlled_issues:
         raise UniversalityContractError(
-            "authority_source_admission_projection_invalid:"
-            + ",".join(controlled_issues)
+            "authority_source_admission_projection_invalid:" + ",".join(controlled_issues)
         )
     payload: dict[str, Any] = {
         "schema_version": _AUTHORITY_SOURCE_ADMISSION_SCHEMA_VERSION,
@@ -2997,9 +2728,7 @@ def _authority_source_admission_issues(
         return ("authority_source_admission_missing",)
     issues: list[str] = []
     stable_admission = {
-        key: value
-        for key, value in admission.items()
-        if key != "admission_content_hash"
+        key: value for key, value in admission.items() if key != "admission_content_hash"
     }
     if admission.get("admission_content_hash") != _semantic_hash(stable_admission):
         issues.append("authority_source_admission_hash_mismatch")
@@ -3010,14 +2739,12 @@ def _authority_source_admission_issues(
         issues.append("authority_source_recording_role_mismatch")
     if replayed_domain_run and replayed_domain_run.get("domain_role") != expected_role:
         issues.append("authority_source_domain_role_mismatch")
-    required_predecessor = (
-        _AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES.get(expected_role)
+    required_predecessor = _AUTHORITY_SOURCE_REQUIRED_PREDECESSOR_RECORDING_HASHES.get(
+        expected_role
     )
     if admission_kind not in {"controlled_at_capture", "migrated"}:
         issues.append("authority_source_admission_kind_invalid")
-    if admission.get("source_rule") != (
-        "governed_recomputation_uses_isolated_verification_state"
-    ):
+    if admission.get("source_rule") != ("governed_recomputation_uses_isolated_verification_state"):
         issues.append("authority_source_admission_rule_mismatch")
     if admission.get("governed_role") != expected_role:
         issues.append("authority_source_admission_role_binding_mismatch")
@@ -3028,21 +2755,15 @@ def _authority_source_admission_issues(
         )
     ):
         issues.append("authority_source_admission_predicate_provenance_mismatch")
-    if admission.get("required_predecessor_recording_content_hash") != (
-        required_predecessor
-    ):
+    if admission.get("required_predecessor_recording_content_hash") != (required_predecessor):
         issues.append("authority_source_predecessor_binding_mismatch")
     if admission.get("controlled_recording_base_content_hash") != _semantic_hash(
         _authority_source_recording_base(recording)
     ):
         issues.append("authority_source_recording_base_binding_mismatch")
-    if admission.get("compiled_run_content_hash") != recording.get(
-        "compiled_run_content_hash"
-    ):
+    if admission.get("compiled_run_content_hash") != recording.get("compiled_run_content_hash"):
         issues.append("authority_source_admission_compiled_binding_mismatch")
-    authority_projection = _compiled_authority_source_projection(
-        recording.get("compiled_run")
-    )
+    authority_projection = _compiled_authority_source_projection(recording.get("compiled_run"))
     if admission.get("authority_projection") != authority_projection:
         issues.append("authority_source_admission_projection_mismatch")
     issues.extend(_controlled_authority_source_projection_issues(authority_projection))
@@ -3132,36 +2853,20 @@ def _build_authority_source_migration_receipt(
     """Bind the one-time move from ambient authority state to verification."""
 
     historical_stable = {
-        key: value
-        for key, value in historical_recording.items()
-        if key != "recording_content_hash"
+        key: value for key, value in historical_recording.items() if key != "recording_content_hash"
     }
-    if historical_recording.get("recording_content_hash") != _semantic_hash(
-        historical_stable
-    ):
-        raise UniversalityContractError(
-            "authority_source_historical_recording_hash_mismatch"
-        )
+    if historical_recording.get("recording_content_hash") != _semantic_hash(historical_stable):
+        raise UniversalityContractError("authority_source_historical_recording_hash_mismatch")
     refreshed_stable = {
-        key: value
-        for key, value in refreshed_recording.items()
-        if key != "recording_content_hash"
+        key: value for key, value in refreshed_recording.items() if key != "recording_content_hash"
     }
-    if refreshed_recording.get("recording_content_hash") != _semantic_hash(
-        refreshed_stable
-    ):
-        raise UniversalityContractError(
-            "authority_source_replayed_recording_hash_mismatch"
-        )
+    if refreshed_recording.get("recording_content_hash") != _semantic_hash(refreshed_stable):
+        raise UniversalityContractError("authority_source_replayed_recording_hash_mismatch")
     if historical_domain_run.get("recording_content_hash") != (
         historical_recording.get("recording_content_hash")
     ):
-        raise UniversalityContractError(
-            "authority_source_historical_route_recording_mismatch"
-        )
-    prior_context_receipt = _mapping(
-        historical_recording.get("historical_context_rebind_receipt")
-    )
+        raise UniversalityContractError("authority_source_historical_route_recording_mismatch")
+    prior_context_receipt = _mapping(historical_recording.get("historical_context_rebind_receipt"))
     if prior_context_receipt:
         prior_issues = _historical_context_rebind_receipt_issues(
             historical_recording,
@@ -3169,8 +2874,7 @@ def _build_authority_source_migration_receipt(
         )
         if prior_issues:
             raise UniversalityContractError(
-                "authority_source_prior_context_receipt_invalid:"
-                + ",".join(prior_issues)
+                "authority_source_prior_context_receipt_invalid:" + ",".join(prior_issues)
             )
     prior_authority_receipt = _mapping(
         historical_recording.get("authority_source_migration_receipt")
@@ -3182,8 +2886,7 @@ def _build_authority_source_migration_receipt(
         )
         if prior_issues:
             raise UniversalityContractError(
-                "authority_source_prior_migration_receipt_invalid:"
-                + ",".join(prior_issues)
+                "authority_source_prior_migration_receipt_invalid:" + ",".join(prior_issues)
             )
     if _mapping(historical_recording.get("compiler_recording")) != _mapping(
         refreshed_recording.get("compiler_recording")
@@ -3193,9 +2896,9 @@ def _build_authority_source_migration_receipt(
         refreshed_recording.get("n4_recording")
     ):
         raise UniversalityContractError("authority_source_n4_evidence_drift")
-    if historical_recording.get(
+    if historical_recording.get("cycle_substrate_context_content_hash") != refreshed_recording.get(
         "cycle_substrate_context_content_hash"
-    ) != refreshed_recording.get("cycle_substrate_context_content_hash"):
+    ):
         raise UniversalityContractError("authority_source_context_binding_drift")
     historical_projection = _compiled_authority_source_projection(
         historical_recording.get("compiled_run")
@@ -3203,20 +2906,13 @@ def _build_authority_source_migration_receipt(
     replayed_projection = _compiled_authority_source_projection(
         refreshed_recording.get("compiled_run")
     )
-    controlled_issues = _controlled_authority_source_projection_issues(
-        replayed_projection
-    )
+    controlled_issues = _controlled_authority_source_projection_issues(replayed_projection)
     if controlled_issues:
         raise UniversalityContractError(
-            "authority_source_replayed_projection_invalid:"
-            + ",".join(controlled_issues)
+            "authority_source_replayed_projection_invalid:" + ",".join(controlled_issues)
         )
-    if not _controlled_authority_source_projection_issues(
-        historical_projection
-    ):
-        raise UniversalityContractError(
-            "authority_source_historical_projection_already_controlled"
-        )
+    if not _controlled_authority_source_projection_issues(historical_projection):
+        raise UniversalityContractError("authority_source_historical_projection_already_controlled")
     if historical_recording.get("compiled_run_content_hash") == (
         refreshed_recording.get("compiled_run_content_hash")
     ):
@@ -3229,13 +2925,11 @@ def _build_authority_source_migration_receipt(
         historical_domain_run,
         replayed_domain_run,
     )
-    declared_paths = {
-        path
-        for path in changed_paths
-        if path in _AUTHORITY_SOURCE_MIGRATION_FIELDS
-    }
+    declared_paths = {path for path in changed_paths if path in _AUTHORITY_SOURCE_MIGRATION_FIELDS}
     if semantic_paths or declared_paths != _AUTHORITY_SOURCE_MIGRATION_FIELDS:
-        details = sorted(set(semantic_paths) | (_AUTHORITY_SOURCE_MIGRATION_FIELDS - declared_paths))
+        details = sorted(
+            set(semantic_paths) | (_AUTHORITY_SOURCE_MIGRATION_FIELDS - declared_paths)
+        )
         raise UniversalityContractError(
             "authority_source_migration_semantic_drift:" + ",".join(details)
         )
@@ -3248,33 +2942,27 @@ def _build_authority_source_migration_receipt(
         "consumer_effect": "non_authorizing_verification_only",
         "predicate_provenance": _authority_source_predicate_provenance(),
         "historical_recording": copy.deepcopy(dict(historical_recording)),
-        "historical_recording_content_hash": historical_recording.get(
-            "recording_content_hash"
-        ),
+        "historical_recording_content_hash": historical_recording.get("recording_content_hash"),
         "replayed_recording_content_hash_before_receipt": (
             refreshed_recording.get("recording_content_hash")
         ),
         "historical_compiled_run_content_hash": historical_recording.get(
             "compiled_run_content_hash"
         ),
-        "replayed_compiled_run_content_hash": refreshed_recording.get(
-            "compiled_run_content_hash"
-        ),
+        "replayed_compiled_run_content_hash": refreshed_recording.get("compiled_run_content_hash"),
         "compiler_recording_content_hash": _mapping(
             refreshed_recording.get("compiler_recording")
         ).get("recording_content_hash"),
-        "n4_recording_content_hash": _mapping(
-            refreshed_recording.get("n4_recording")
-        ).get("recording_content_hash"),
+        "n4_recording_content_hash": _mapping(refreshed_recording.get("n4_recording")).get(
+            "recording_content_hash"
+        ),
         "cycle_substrate_context_content_hash": refreshed_recording.get(
             "cycle_substrate_context_content_hash"
         ),
         "historical_authority_projection": historical_projection,
         "replayed_authority_projection": replayed_projection,
         "changed_paths": list(changed_paths),
-        "historical_route_projection": copy.deepcopy(
-            dict(historical_domain_run)
-        ),
+        "historical_route_projection": copy.deepcopy(dict(historical_domain_run)),
         "historical_route_projection_content_hash": _semantic_hash(
             _authority_source_stable_projection(historical_domain_run)
         ),
@@ -3283,17 +2971,11 @@ def _build_authority_source_migration_receipt(
         ),
         "prior_context_rebind_receipt": copy.deepcopy(prior_context_receipt),
         "prior_context_rebind_receipt_content_hash": (
-            prior_context_receipt.get("receipt_content_hash")
-            if prior_context_receipt
-            else None
+            prior_context_receipt.get("receipt_content_hash") if prior_context_receipt else None
         ),
-        "prior_authority_source_migration_receipt": copy.deepcopy(
-            prior_authority_receipt
-        ),
+        "prior_authority_source_migration_receipt": copy.deepcopy(prior_authority_receipt),
         "prior_authority_source_migration_receipt_content_hash": (
-            prior_authority_receipt.get("receipt_content_hash")
-            if prior_authority_receipt
-            else None
+            prior_authority_receipt.get("receipt_content_hash") if prior_authority_receipt else None
         ),
     }
     payload["receipt_content_hash"] = _semantic_hash(payload)
@@ -3324,11 +3006,7 @@ def _attach_authority_source_migration_receipt(
         expected_role=expected_role,
     )
     normalized["recording_content_hash"] = _semantic_hash(
-        {
-            key: value
-            for key, value in normalized.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in normalized.items() if key != "recording_content_hash"}
     )
     return normalized
 
@@ -3349,17 +3027,13 @@ def _reissue_authority_source_envelopes_after_comparison_migration(
     """
 
     if recording.get("historical_context_rebind_receipt"):
-        raise UniversalityContractError(
-            "comparison_migration_context_rebind_requires_owner"
-        )
+        raise UniversalityContractError("comparison_migration_context_rebind_requires_owner")
     normalized = copy.deepcopy(dict(recording))
     route = copy.deepcopy(dict(replayed_domain_run))
     admission_kind = str(prior_admission.get("admission_kind") or "")
     if admission_kind == "migrated":
         if not prior_migration_receipt:
-            raise UniversalityContractError(
-                "comparison_migration_prior_authority_receipt_missing"
-            )
+            raise UniversalityContractError("comparison_migration_prior_authority_receipt_missing")
         receipt = copy.deepcopy(dict(prior_migration_receipt))
         current_base = _authority_source_recording_base(normalized)
         current_base.pop("historical_context_rebind_receipt", None)
@@ -3367,16 +3041,12 @@ def _reissue_authority_source_envelopes_after_comparison_migration(
         receipt["replayed_recording_content_hash_before_receipt"] = current_base[
             "recording_content_hash"
         ]
-        receipt["replayed_compiled_run_content_hash"] = normalized.get(
-            "compiled_run_content_hash"
-        )
-        receipt["replayed_authority_projection"] = (
-            _compiled_authority_source_projection(normalized.get("compiled_run"))
+        receipt["replayed_compiled_run_content_hash"] = normalized.get("compiled_run_content_hash")
+        receipt["replayed_authority_projection"] = _compiled_authority_source_projection(
+            normalized.get("compiled_run")
         )
         historical_route = _mapping(receipt.get("historical_route_projection"))
-        receipt["changed_paths"] = list(
-            _projection_diff_paths(historical_route, route)
-        )
+        receipt["changed_paths"] = list(_projection_diff_paths(historical_route, route))
         receipt["replayed_route_projection_content_hash"] = _semantic_hash(
             _authority_source_stable_projection(route)
         )
@@ -3385,9 +3055,7 @@ def _reissue_authority_source_envelopes_after_comparison_migration(
         )
         normalized["authority_source_migration_receipt"] = receipt
     elif admission_kind != "controlled_at_capture":
-        raise UniversalityContractError(
-            "comparison_migration_prior_admission_kind_invalid"
-        )
+        raise UniversalityContractError("comparison_migration_prior_admission_kind_invalid")
     normalized["authority_source_admission"] = _build_authority_source_admission(
         normalized,
         admission_kind=admission_kind,
@@ -3403,9 +3071,7 @@ def _reissue_authority_source_envelopes_after_comparison_migration(
     if admission_kind == "migrated":
         receipt = _mapping(normalized.get("authority_source_migration_receipt"))
         historical_route = _mapping(receipt.get("historical_route_projection"))
-        receipt["changed_paths"] = list(
-            _projection_diff_paths(historical_route, route)
-        )
+        receipt["changed_paths"] = list(_projection_diff_paths(historical_route, route))
         receipt["replayed_route_projection_content_hash"] = _semantic_hash(
             _authority_source_stable_projection(route)
         )
@@ -3439,11 +3105,7 @@ def _authority_source_migration_receipt_issues(
     if not receipt:
         return ("authority_source_migration_receipt_missing",)
     issues: list[str] = []
-    stable_receipt = {
-        key: value
-        for key, value in receipt.items()
-        if key != "receipt_content_hash"
-    }
+    stable_receipt = {key: value for key, value in receipt.items() if key != "receipt_content_hash"}
     if receipt.get("receipt_content_hash") != _semantic_hash(stable_receipt):
         issues.append("authority_source_migration_receipt_hash_mismatch")
     if receipt.get("schema_version") != _AUTHORITY_SOURCE_MIGRATION_SCHEMA_VERSION:
@@ -3454,26 +3116,18 @@ def _authority_source_migration_receipt_issues(
         issues.append("authority_source_migration_reason_mismatch")
     if receipt.get("defect_id") != "GY-DEF6":
         issues.append("authority_source_migration_defect_mismatch")
-    if receipt.get("source_rule") != (
-        "governed_recomputation_uses_isolated_verification_state"
-    ):
+    if receipt.get("source_rule") != ("governed_recomputation_uses_isolated_verification_state"):
         issues.append("authority_source_migration_rule_mismatch")
     if receipt.get("consumer_effect") != "non_authorizing_verification_only":
         issues.append("authority_source_migration_consumer_effect_mismatch")
-    if receipt.get("predicate_provenance") != (
-        _authority_source_predicate_provenance()
-    ):
+    if receipt.get("predicate_provenance") != (_authority_source_predicate_provenance()):
         issues.append("authority_source_migration_predicate_provenance_mismatch")
 
     historical_recording = _mapping(receipt.get("historical_recording"))
     historical_stable = {
-        key: value
-        for key, value in historical_recording.items()
-        if key != "recording_content_hash"
+        key: value for key, value in historical_recording.items() if key != "recording_content_hash"
     }
-    if historical_recording.get("recording_content_hash") != _semantic_hash(
-        historical_stable
-    ):
+    if historical_recording.get("recording_content_hash") != _semantic_hash(historical_stable):
         issues.append("authority_source_historical_recording_hash_mismatch")
     if receipt.get("historical_recording_content_hash") != (
         historical_recording.get("recording_content_hash")
@@ -3485,9 +3139,7 @@ def _authority_source_migration_receipt_issues(
     ):
         issues.append("authority_source_historical_route_recording_mismatch")
 
-    prior_context = _mapping(
-        historical_recording.get("historical_context_rebind_receipt")
-    )
+    prior_context = _mapping(historical_recording.get("historical_context_rebind_receipt"))
     if receipt.get("prior_context_rebind_receipt") != prior_context:
         issues.append("authority_source_prior_context_receipt_binding_mismatch")
     if receipt.get("prior_context_rebind_receipt_content_hash") != (
@@ -3502,9 +3154,7 @@ def _authority_source_migration_receipt_issues(
                 replayed_domain_run=historical_route,
             )
         )
-    prior_authority = _mapping(
-        historical_recording.get("authority_source_migration_receipt")
-    )
+    prior_authority = _mapping(historical_recording.get("authority_source_migration_receipt"))
     if receipt.get("prior_authority_source_migration_receipt") != prior_authority:
         issues.append("authority_source_prior_migration_receipt_binding_mismatch")
     if receipt.get("prior_authority_source_migration_receipt_content_hash") != (
@@ -3535,17 +3185,17 @@ def _authority_source_migration_receipt_issues(
         current_base.get("n4_recording")
     ):
         issues.append("authority_source_n4_evidence_drift")
-    if historical_recording.get(
+    if historical_recording.get("cycle_substrate_context_content_hash") != current_base.get(
         "cycle_substrate_context_content_hash"
-    ) != current_base.get("cycle_substrate_context_content_hash"):
+    ):
         issues.append("authority_source_context_binding_drift")
     if receipt.get("compiler_recording_content_hash") != _mapping(
         current_base.get("compiler_recording")
     ).get("recording_content_hash"):
         issues.append("authority_source_compiler_hash_binding_mismatch")
-    if receipt.get("n4_recording_content_hash") != _mapping(
-        current_base.get("n4_recording")
-    ).get("recording_content_hash"):
+    if receipt.get("n4_recording_content_hash") != _mapping(current_base.get("n4_recording")).get(
+        "recording_content_hash"
+    ):
         issues.append("authority_source_n4_hash_binding_mismatch")
     if receipt.get("cycle_substrate_context_content_hash") != current_base.get(
         "cycle_substrate_context_content_hash"
@@ -3562,16 +3212,12 @@ def _authority_source_migration_receipt_issues(
     historical_authority = _compiled_authority_source_projection(
         historical_recording.get("compiled_run")
     )
-    replayed_authority = _compiled_authority_source_projection(
-        current_base.get("compiled_run")
-    )
+    replayed_authority = _compiled_authority_source_projection(current_base.get("compiled_run"))
     if receipt.get("historical_authority_projection") != historical_authority:
         issues.append("authority_source_historical_projection_mismatch")
     if receipt.get("replayed_authority_projection") != replayed_authority:
         issues.append("authority_source_replayed_projection_mismatch")
-    issues.extend(
-        _controlled_authority_source_projection_issues(replayed_authority)
-    )
+    issues.extend(_controlled_authority_source_projection_issues(replayed_authority))
 
     changed_paths = _projection_diff_paths(
         historical_route,
@@ -3585,9 +3231,7 @@ def _authority_source_migration_receipt_issues(
     ):
         issues.append("authority_source_migration_semantic_drift")
     if {
-        path
-        for path in changed_paths
-        if path in _AUTHORITY_SOURCE_MIGRATION_FIELDS
+        path for path in changed_paths if path in _AUTHORITY_SOURCE_MIGRATION_FIELDS
     } != _AUTHORITY_SOURCE_MIGRATION_FIELDS:
         issues.append("authority_source_migration_declared_paths_mismatch")
     if receipt.get("historical_route_projection_content_hash") != _semantic_hash(
@@ -3598,9 +3242,7 @@ def _authority_source_migration_receipt_issues(
         _authority_source_stable_projection(replayed_domain_run)
     ):
         issues.append("authority_source_replayed_route_hash_mismatch")
-    if replayed_domain_run.get("recording_content_hash") != recording.get(
-        "recording_content_hash"
-    ):
+    if replayed_domain_run.get("recording_content_hash") != recording.get("recording_content_hash"):
         issues.append("authority_source_current_route_recording_mismatch")
     return tuple(sorted(set(issues)))
 
@@ -3623,9 +3265,7 @@ def _n4_response_bindings(
             or response.get("raw_llm_response") != raw
             or raw_hash != _semantic_hash(raw)
         ):
-            raise UniversalityContractError(
-                "proof_n4_recording_raw_response_hash_mismatch"
-            )
+            raise UniversalityContractError("proof_n4_recording_raw_response_hash_mismatch")
         prompts.append(str(response.get("prompt_hash") or ""))
         raw_hashes.append(raw_hash)
     return prompts, raw_hashes
@@ -3648,17 +3288,14 @@ def _build_historical_n4_projection_rebind_receipt(
     atom_readdress_paths = tuple(
         path
         for path in changed_paths
-        if _HISTORICAL_N4_ATOM_READDRESS_FIELD_PATTERN.fullmatch(path)
-        is not None
+        if _HISTORICAL_N4_ATOM_READDRESS_FIELD_PATTERN.fullmatch(path) is not None
     )
     semantic_readdress = bool(atom_readdress_paths)
     atom_readdress_witnesses: list[dict[str, Any]] = []
     reissue_registry: dict[str, Any] = {}
     if semantic_readdress:
         if context_rebind is None or repo_root is None:
-            raise UniversalityContractError(
-                "proof_n4_atom_readdress_owner_context_missing"
-            )
+            raise UniversalityContractError("proof_n4_atom_readdress_owner_context_missing")
         reissue_registry = _load_wmr_reissue_registry(repo_root)
         atom_readdress_witnesses = _build_n4_atom_readdress_witnesses(
             historical_projection,
@@ -3677,65 +3314,40 @@ def _build_historical_n4_projection_rebind_receipt(
     )
     if not changed_paths or disallowed_paths:
         suffix = ":" + ",".join(disallowed_paths) if disallowed_paths else ""
-        raise UniversalityContractError(
-            "proof_n4_owner_projection_replay_drift" + suffix
-        )
+        raise UniversalityContractError("proof_n4_owner_projection_replay_drift" + suffix)
     prompts, raw_hashes = _n4_response_bindings(recording)
-    historical_prompts = _strings(
-        historical_projection.get("exact_call_prompt_hashes")
-    )
-    replayed_prompts = _strings(
-        replayed_projection.get("exact_call_prompt_hashes")
-    )
-    prior_receipt = _mapping(
-        recording.get("historical_projection_rebind_receipt")
-    )
-    prior_is_context_rebind = (
-        prior_receipt.get("schema_version")
-        in {
-            _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
-            _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
-        }
-    )
+    historical_prompts = _strings(historical_projection.get("exact_call_prompt_hashes"))
+    replayed_prompts = _strings(replayed_projection.get("exact_call_prompt_hashes"))
+    prior_receipt = _mapping(recording.get("historical_projection_rebind_receipt"))
+    prior_is_context_rebind = prior_receipt.get("schema_version") in {
+        _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
+        _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
+    }
     expected_historical_prompts = (
         _strings(prior_receipt.get("replayed_prompt_hashes"))
         if context_rebind is not None and prior_is_context_rebind
         else prompts
     )
     if historical_prompts != expected_historical_prompts:
-        raise UniversalityContractError(
-            "proof_n4_projection_prompt_binding_drift"
-        )
+        raise UniversalityContractError("proof_n4_projection_prompt_binding_drift")
     if context_rebind is None and replayed_prompts != prompts:
-        raise UniversalityContractError(
-            "proof_n4_projection_prompt_binding_drift"
-        )
+        raise UniversalityContractError("proof_n4_projection_prompt_binding_drift")
     if context_rebind is not None and (
         len(replayed_prompts) != len(prompts)
         or any(not item.startswith("sha256:") for item in replayed_prompts)
     ):
-        raise UniversalityContractError(
-            "proof_n4_projection_prompt_binding_drift"
-        )
+        raise UniversalityContractError("proof_n4_projection_prompt_binding_drift")
     for projection in (historical_projection, replayed_projection):
         if _strings(projection.get("raw_response_hashes")) != raw_hashes:
-            raise UniversalityContractError(
-                "proof_n4_projection_response_binding_drift"
-            )
+            raise UniversalityContractError("proof_n4_projection_response_binding_drift")
     if context_rebind is None:
         payload: dict[str, Any] = {
             "schema_version": _HISTORICAL_N4_PROJECTION_REBIND_SCHEMA_VERSION,
             "eligible_issue_set": ["proof_n4_owner_projection_replay_drift"],
             "changed_paths": list(changed_paths),
-            "historical_owner_result_projection": copy.deepcopy(
-                historical_projection
-            ),
-            "historical_projection_content_hash": _semantic_hash(
-                historical_projection
-            ),
-            "replayed_projection_content_hash": _semantic_hash(
-                replayed_projection
-            ),
+            "historical_owner_result_projection": copy.deepcopy(historical_projection),
+            "historical_projection_content_hash": _semantic_hash(historical_projection),
+            "replayed_projection_content_hash": _semantic_hash(replayed_projection),
             "prompt_hashes": prompts,
             "raw_response_hashes": raw_hashes,
         }
@@ -3744,18 +3356,14 @@ def _build_historical_n4_projection_rebind_receipt(
             recording,
             repo_root=repo_root,
         ):
-            raise UniversalityContractError(
-                "proof_n4_projection_rebind_receipt_invalid"
-            )
+            raise UniversalityContractError("proof_n4_projection_rebind_receipt_invalid")
         historical_context_hash, replayed_context_hash = context_rebind
         if (
             not historical_context_hash
             or not replayed_context_hash
             or historical_context_hash == replayed_context_hash
         ):
-            raise UniversalityContractError(
-                "proof_n4_projection_context_binding_drift"
-            )
+            raise UniversalityContractError("proof_n4_projection_context_binding_drift")
         payload = {
             "schema_version": (
                 _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION
@@ -3767,15 +3375,9 @@ def _build_historical_n4_projection_rebind_receipt(
                 "proof_n4_owner_projection_replay_drift",
             ],
             "changed_paths": list(changed_paths),
-            "historical_owner_result_projection": copy.deepcopy(
-                historical_projection
-            ),
-            "historical_projection_content_hash": _semantic_hash(
-                historical_projection
-            ),
-            "replayed_projection_content_hash": _semantic_hash(
-                replayed_projection
-            ),
+            "historical_owner_result_projection": copy.deepcopy(historical_projection),
+            "historical_projection_content_hash": _semantic_hash(historical_projection),
+            "replayed_projection_content_hash": _semantic_hash(replayed_projection),
             "historical_prompt_hashes": historical_prompts,
             "replayed_prompt_hashes": replayed_prompts,
             "raw_response_hashes": raw_hashes,
@@ -3786,9 +3388,7 @@ def _build_historical_n4_projection_rebind_receipt(
         if semantic_readdress:
             payload["atom_readdress_witnesses"] = atom_readdress_witnesses
             payload["wmr_reissue_registry"] = copy.deepcopy(reissue_registry)
-            payload["wmr_reissue_registry_content_hash"] = _semantic_hash(
-                reissue_registry
-            )
+            payload["wmr_reissue_registry_content_hash"] = _semantic_hash(reissue_registry)
     payload["receipt_content_hash"] = _semantic_hash(payload)
     return payload
 
@@ -3804,17 +3404,11 @@ def _historical_n4_projection_rebind_receipt_issues(
     if not receipt:
         return ("proof_n4_projection_rebind_receipt_missing",)
     issues: list[str] = []
-    stable_receipt = {
-        key: value
-        for key, value in receipt.items()
-        if key != "receipt_content_hash"
-    }
+    stable_receipt = {key: value for key, value in receipt.items() if key != "receipt_content_hash"}
     if receipt.get("receipt_content_hash") != _semantic_hash(stable_receipt):
         issues.append("proof_n4_projection_rebind_receipt_hash_mismatch")
     schema_version = receipt.get("schema_version")
-    semantic_readdress = (
-        schema_version == _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION
-    )
+    semantic_readdress = schema_version == _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION
     context_rebind = schema_version in {
         _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
         _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
@@ -3836,9 +3430,7 @@ def _historical_n4_projection_rebind_receipt_issues(
     if receipt.get("eligible_issue_set") != expected_issue_set:
         issues.append("proof_n4_projection_rebind_issue_set_mismatch")
 
-    historical_projection = _mapping(
-        receipt.get("historical_owner_result_projection")
-    )
+    historical_projection = _mapping(receipt.get("historical_owner_result_projection"))
     replayed_projection = _mapping(recording.get("owner_result_projection"))
     changed_paths = _projection_diff_paths(
         historical_projection,
@@ -3855,19 +3447,13 @@ def _historical_n4_projection_rebind_receipt_issues(
         for path in changed_paths
     ):
         issues.append("proof_n4_projection_rebind_non_identity_drift")
-    if receipt.get("historical_projection_content_hash") != _semantic_hash(
-        historical_projection
-    ):
+    if receipt.get("historical_projection_content_hash") != _semantic_hash(historical_projection):
         issues.append("proof_n4_historical_projection_hash_mismatch")
-    if receipt.get("replayed_projection_content_hash") != _semantic_hash(
-        replayed_projection
-    ):
+    if receipt.get("replayed_projection_content_hash") != _semantic_hash(replayed_projection):
         issues.append("proof_n4_replayed_projection_hash_mismatch")
     if semantic_readdress:
         recorded_registry = _mapping(receipt.get("wmr_reissue_registry"))
-        if receipt.get("wmr_reissue_registry_content_hash") != _semantic_hash(
-            recorded_registry
-        ):
+        if receipt.get("wmr_reissue_registry_content_hash") != _semantic_hash(recorded_registry):
             issues.append("proof_n4_atom_readdress_registry_hash_mismatch")
         if repo_root is None:
             issues.append("proof_n4_atom_readdress_owner_context_missing")
@@ -3884,9 +3470,7 @@ def _historical_n4_projection_rebind_receipt_issues(
                     _n4_atom_readdress_witness_issues(
                         historical_projection,
                         replayed_projection,
-                        witnesses=_mappings(
-                            receipt.get("atom_readdress_witnesses")
-                        ),
+                        witnesses=_mappings(receipt.get("atom_readdress_witnesses")),
                         current_atoms=current_atoms,
                         reissue_registry=current_registry,
                     )
@@ -3901,38 +3485,27 @@ def _historical_n4_projection_rebind_receipt_issues(
         if _strings(replayed_projection.get("raw_response_hashes")) != raw_hashes:
             issues.append("proof_n4_replayed_projection_response_drift")
         if context_rebind:
-            historical_prompts = _strings(
-                historical_projection.get("exact_call_prompt_hashes")
-            )
-            replayed_prompts = _strings(
-                replayed_projection.get("exact_call_prompt_hashes")
-            )
+            historical_prompts = _strings(historical_projection.get("exact_call_prompt_hashes"))
+            replayed_prompts = _strings(replayed_projection.get("exact_call_prompt_hashes"))
             prior_receipt = _mapping(receipt.get("prior_receipt"))
-            prior_is_context_rebind = (
-                prior_receipt.get("schema_version")
-                in {
-                    _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
-                    _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
-                }
-            )
+            prior_is_context_rebind = prior_receipt.get("schema_version") in {
+                _HISTORICAL_N4_CONTEXT_REBIND_SCHEMA_VERSION,
+                _HISTORICAL_N4_SEMANTIC_READDRESS_SCHEMA_VERSION,
+            }
             expected_historical_prompts = (
                 _strings(prior_receipt.get("replayed_prompt_hashes"))
                 if prior_is_context_rebind
                 else prompts
             )
             if (
-                receipt.get("historical_prompt_hashes")
-                != expected_historical_prompts
+                receipt.get("historical_prompt_hashes") != expected_historical_prompts
                 or historical_prompts != expected_historical_prompts
             ):
                 issues.append("proof_n4_historical_projection_prompt_drift")
             if (
                 receipt.get("replayed_prompt_hashes") != replayed_prompts
                 or len(replayed_prompts) != len(prompts)
-                or any(
-                    not item.startswith("sha256:")
-                    for item in replayed_prompts
-                )
+                or any(not item.startswith("sha256:") for item in replayed_prompts)
             ):
                 issues.append("proof_n4_replayed_projection_prompt_drift")
             if (
@@ -3950,14 +3523,10 @@ def _historical_n4_projection_rebind_receipt_issues(
                 issues.append("proof_n4_projection_prior_receipt_missing")
             else:
                 prior_recording = copy.deepcopy(dict(recording))
-                prior_recording["owner_result_projection"] = copy.deepcopy(
-                    historical_projection
-                )
-                prior_recording["historical_projection_rebind_receipt"] = (
-                    prior_receipt
-                )
-                prior_recording["cycle_substrate_context_content_hash"] = (
-                    receipt.get("historical_context_content_hash")
+                prior_recording["owner_result_projection"] = copy.deepcopy(historical_projection)
+                prior_recording["historical_projection_rebind_receipt"] = prior_receipt
+                prior_recording["cycle_substrate_context_content_hash"] = receipt.get(
+                    "historical_context_content_hash"
                 )
                 prior_issues = _historical_n4_projection_rebind_receipt_issues(
                     prior_recording,
@@ -3968,10 +3537,7 @@ def _historical_n4_projection_rebind_receipt_issues(
         else:
             if receipt.get("prompt_hashes") != prompts:
                 issues.append("proof_n4_projection_rebind_prompt_hash_mismatch")
-            if (
-                _strings(replayed_projection.get("exact_call_prompt_hashes"))
-                != prompts
-            ):
+            if _strings(replayed_projection.get("exact_call_prompt_hashes")) != prompts:
                 issues.append("proof_n4_replayed_projection_prompt_drift")
     return tuple(sorted(set(issues)))
 
@@ -3988,28 +3554,16 @@ def _recompute_historical_n4_recording_content_hash(
     }:
         return None
     prior_receipt = _mapping(receipt.get("prior_receipt"))
-    historical_projection = _mapping(
-        receipt.get("historical_owner_result_projection")
-    )
+    historical_projection = _mapping(receipt.get("historical_owner_result_projection"))
     historical_context_hash = receipt.get("historical_context_content_hash")
     if not prior_receipt or not historical_projection or not historical_context_hash:
         return None
     historical = copy.deepcopy(dict(recording))
-    historical["owner_result_projection"] = copy.deepcopy(
-        historical_projection
-    )
-    historical["historical_projection_rebind_receipt"] = copy.deepcopy(
-        prior_receipt
-    )
-    historical["cycle_substrate_context_content_hash"] = (
-        historical_context_hash
-    )
+    historical["owner_result_projection"] = copy.deepcopy(historical_projection)
+    historical["historical_projection_rebind_receipt"] = copy.deepcopy(prior_receipt)
+    historical["cycle_substrate_context_content_hash"] = historical_context_hash
     return _semantic_hash(
-        {
-            key: value
-            for key, value in historical.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in historical.items() if key != "recording_content_hash"}
     )
 
 
@@ -4026,10 +3580,7 @@ def _normalize_replayed_n4_recording(
     historical_projection = _mapping(recording.get("owner_result_projection"))
     if historical_projection == replayed_projection:
         return normalized
-    if (
-        _mapping(recording.get("historical_projection_rebind_receipt"))
-        and context_rebind is None
-    ):
+    if _mapping(recording.get("historical_projection_rebind_receipt")) and context_rebind is None:
         raise UniversalityContractError("proof_n4_owner_projection_replay_drift")
     receipt = _build_historical_n4_projection_rebind_receipt(
         recording,
@@ -4037,18 +3588,12 @@ def _normalize_replayed_n4_recording(
         context_rebind=context_rebind,
         repo_root=repo_root,
     )
-    normalized["owner_result_projection"] = copy.deepcopy(
-        dict(replayed_projection)
-    )
+    normalized["owner_result_projection"] = copy.deepcopy(dict(replayed_projection))
     normalized["historical_projection_rebind_receipt"] = receipt
     if context_rebind is not None:
         normalized["cycle_substrate_context_content_hash"] = context_rebind[1]
     normalized["recording_content_hash"] = _semantic_hash(
-        {
-            key: value
-            for key, value in normalized.items()
-            if key != "recording_content_hash"
-        }
+        {key: value for key, value in normalized.items() if key != "recording_content_hash"}
     )
     return normalized
 
@@ -4071,15 +3616,11 @@ async def _replay_n4_recording(
     )
 
     stable_recording = {
-        key: value
-        for key, value in recording.items()
-        if key != "recording_content_hash"
+        key: value for key, value in recording.items() if key != "recording_content_hash"
     }
     if recording.get("recording_content_hash") != _semantic_hash(stable_recording):
         raise UniversalityContractError("proof_n4_recording_content_hash_mismatch")
-    historical_receipt = _mapping(
-        recording.get("historical_projection_rebind_receipt")
-    )
+    historical_receipt = _mapping(recording.get("historical_projection_rebind_receipt"))
     if historical_receipt:
         receipt_issues = _historical_n4_projection_rebind_receipt_issues(
             recording,
@@ -4087,8 +3628,7 @@ async def _replay_n4_recording(
         )
         if receipt_issues:
             raise UniversalityContractError(
-                "proof_n4_projection_rebind_receipt_invalid:"
-                + ",".join(receipt_issues)
+                "proof_n4_projection_rebind_receipt_invalid:" + ",".join(receipt_issues)
             )
     with _temporary_environment(_mapping(recording.get("effective_environment"))):
         organ_run = await generate_design_candidate_bundle_under_a(
@@ -4115,8 +3655,7 @@ async def _replay_n4_recording(
                 projection,
             )
             raise UniversalityContractError(
-                "proof_n4_owner_projection_replay_drift:"
-                + ",".join(changed_paths)
+                "proof_n4_owner_projection_replay_drift:" + ",".join(changed_paths)
             )
         _build_historical_n4_projection_rebind_receipt(
             recording,
@@ -4157,11 +3696,7 @@ def _verify_superseded_no_context_n4_recording(
 ) -> None:
     """Verify historical bytes before discarding their non-authoritative projection."""
 
-    stable = {
-        key: value
-        for key, value in recording.items()
-        if key != "recording_content_hash"
-    }
+    stable = {key: value for key, value in recording.items() if key != "recording_content_hash"}
     if recording.get("recording_content_hash") != _semantic_hash(stable):
         raise UniversalityContractError("proof_n4_recording_content_hash_mismatch")
     expected = _no_context_generation_recording(problem)
@@ -4181,19 +3716,13 @@ def _verify_superseded_no_context_n4_recording(
         raise UniversalityContractError("proof_n4_recording_response_denominator_empty")
     for index, response in enumerate(responses):
         if not isinstance(response, Mapping):
-            raise UniversalityContractError(
-                f"proof_n4_recorded_response_invalid:{index}"
-            )
+            raise UniversalityContractError(f"proof_n4_recorded_response_invalid:{index}")
         raw = response.get("raw_response")
         recorded_hash = response.get("raw_response_hash")
         if not isinstance(raw, str) or not isinstance(recorded_hash, str):
-            raise UniversalityContractError(
-                f"proof_n4_recorded_raw_response_missing:{index}"
-            )
+            raise UniversalityContractError(f"proof_n4_recorded_raw_response_missing:{index}")
         if recorded_hash != _semantic_hash(raw):
-            raise UniversalityContractError(
-                f"proof_n4_recorded_raw_response_hash_mismatch:{index}"
-            )
+            raise UniversalityContractError(f"proof_n4_recorded_raw_response_hash_mismatch:{index}")
         raw_alias = response.get("raw_llm_response")
         if raw_alias is not None and raw_alias != raw:
             raise UniversalityContractError(
@@ -4235,17 +3764,14 @@ async def _n4_recording_from_journal(
     projection = _n4_owner_projection(organ_run)
     if projection.get("status") != "generated":
         raise UniversalityContractError(
-            "proof_n4_owner_generation_not_generated:"
-            + str(projection.get("status"))
+            "proof_n4_owner_generation_not_generated:" + str(projection.get("status"))
         )
     recording: dict[str, Any] = {
         "schema_version": "policyos.layer3.gy.n10.n4_recording.v1",
         "recording_source": "live_gateway_call_journal_replayed_through_n4_owner",
         "role": role,
         "model_id": PROOF_MODEL_ID,
-        "design_problem_ref": gy_content_hash(
-            resolved_problem.model_dump(mode="json")
-        ),
+        "design_problem_ref": gy_content_hash(resolved_problem.model_dump(mode="json")),
         "cycle_substrate_context_content_hash": getattr(
             cycle_substrate_context, "content_hash", None
         ),
@@ -4290,9 +3816,7 @@ def _capture_journal_has_event(repo_root: Path, event: str) -> bool:
         try:
             row = json.loads(line)
         except json.JSONDecodeError as exc:
-            raise UniversalityContractError(
-                "proof_capture_journal_invalid"
-            ) from exc
+            raise UniversalityContractError("proof_capture_journal_invalid") from exc
         if isinstance(row, Mapping) and row.get("event") == event:
             return True
     return False
@@ -4472,8 +3996,7 @@ def _validated_controlled_recording_payload(
     payload = copy.deepcopy(dict(value))
     keys = frozenset(payload)
     if not keys >= _CONTROLLED_RECORDING_REQUIRED_FIELDS or not keys <= (
-        _CONTROLLED_RECORDING_REQUIRED_FIELDS
-        | _CONTROLLED_RECORDING_OPTIONAL_FIELDS
+        _CONTROLLED_RECORDING_REQUIRED_FIELDS | _CONTROLLED_RECORDING_OPTIONAL_FIELDS
     ):
         raise ValueError("controlled_recording_typed_payload_shape_invalid")
     if payload.get("schema_version") != _DOMAIN_RUN_RECORDING_SCHEMA_VERSION:
@@ -4487,17 +4010,11 @@ def _validated_controlled_recording_payload(
         "authority_source_admission" not in payload
     ):
         raise ValueError("controlled_recording_migration_without_admission")
-    stable = {
-        key: item
-        for key, item in payload.items()
-        if key != "recording_content_hash"
-    }
+    stable = {key: item for key, item in payload.items() if key != "recording_content_hash"}
     if payload.get("recording_content_hash") != _semantic_hash(stable):
         raise ValueError("controlled_recording_content_hash_invalid")
     try:
-        compiled = CompiledRecursiveGenerationCycleRun.model_validate(
-            payload.get("compiled_run")
-        )
+        compiled = CompiledRecursiveGenerationCycleRun.model_validate(payload.get("compiled_run"))
     except ValidationError as exc:
         raise ValueError("controlled_recording_compiled_run_invalid") from exc
     if compiled.content_hash != payload.get("compiled_run_content_hash"):
@@ -4515,9 +4032,7 @@ def _controlled_recording_receipt_blocks(
     """Return every typed promotion receipt and its compiled-run JSON pointer."""
 
     payload, compiled = _validated_controlled_recording_payload(value, role=role)
-    recursive_payload = _mapping(
-        _mapping(payload["compiled_run"]).get("recursive_run")
-    )
+    recursive_payload = _mapping(_mapping(payload["compiled_run"]).get("recursive_run"))
     node_payloads = _mappings(recursive_payload.get("nodes"))
     typed_nodes = tuple(getattr(compiled.recursive_run, "nodes", ()))
     if len(node_payloads) != len(typed_nodes):  # pragma: no cover - strict owner
@@ -4539,7 +4054,7 @@ def _controlled_recording_receipt_blocks(
         if len(receipt_payloads) != len(typed_receipts):  # pragma: no cover
             raise ValueError("controlled_recording_receipt_denominator_invalid")
         for receipt_index, receipt_payload in enumerate(receipt_payloads):
-            CanonicalPromotionReceipt.model_validate(receipt_payload)
+            parse_canonical_promotion_history_receipt(receipt_payload)
             pointer = (
                 f"/recursive_run/nodes/{node_index}/cycle_run/"
                 f"promotion_port/receipts/{receipt_index}"
@@ -4558,16 +4073,14 @@ def _validated_controlled_recording_summary_projections(
 ) -> tuple[dict[str, Any] | None, dict[str, Any] | None]:
     """Bind embedded verification summaries to their complete receipt parent."""
 
-    compiled_projection = _compiled_authority_source_projection(
-        payload.get("compiled_run")
-    )
-    controlled_issues = _controlled_authority_source_projection_issues(
-        compiled_projection
-    )
+    compiled_projection = _compiled_authority_source_projection(payload.get("compiled_run"))
+    controlled_issues = _controlled_authority_source_projection_issues(compiled_projection)
     compiled_summaries = _mappings(compiled_projection.get("promotions"))
-    if controlled_issues or sum(
-        int(summary.get("receipt_count") or 0) for summary in compiled_summaries
-    ) != receipt_count:
+    if (
+        controlled_issues
+        or sum(int(summary.get("receipt_count") or 0) for summary in compiled_summaries)
+        != receipt_count
+    ):
         raise ValueError("controlled_recording_summary_receipt_binding_invalid")
 
     admission = _mapping(payload.get("authority_source_admission"))
@@ -4582,9 +4095,7 @@ def _validated_controlled_recording_summary_projections(
     migration = _mapping(payload.get("authority_source_migration_receipt"))
     replayed_projection: dict[str, Any] | None = None
     if migration:
-        replayed_projection = _mapping(
-            migration.get("replayed_authority_projection")
-        )
+        replayed_projection = _mapping(migration.get("replayed_authority_projection"))
         if replayed_projection != compiled_projection:
             raise ValueError("controlled_recording_summary_migration_binding_invalid")
     return admission_projection, replayed_projection
@@ -4597,11 +4108,9 @@ def _project_controlled_recording_authority_envelopes(
 ) -> None:
     """Remove only receipt-bound non-authority summaries and dependent identities."""
 
-    admission_projection, replayed_projection = (
-        _validated_controlled_recording_summary_projections(
-            payload,
-            receipt_count=receipt_count,
-        )
+    admission_projection, replayed_projection = _validated_controlled_recording_summary_projections(
+        payload,
+        receipt_count=receipt_count,
     )
     if admission_projection is None:
         return
@@ -4621,8 +4130,10 @@ def _project_controlled_recording_authority_envelopes(
         payload["authority_source_migration_receipt"] = migration
 
 
-def _controlled_recording_verification_semantic_projection(
+def _controlled_recording_semantic_projection(
     value: Mapping[str, object],
+    *,
+    receipt_projector: Callable[[Mapping[str, object]], dict[str, Any]],
 ) -> dict[str, Any]:
     """Project a typed recording while retaining every governing owner field."""
 
@@ -4642,8 +4153,7 @@ def _controlled_recording_verification_semantic_projection(
         cycle = _mapping(cycle_payload)
         promotion = _mapping(cycle["promotion_port"])
         promotion["receipts"] = [
-            canonical_promotion_receipt_semantic_projection(receipt)
-            for receipt in _mappings(promotion["receipts"])
+            receipt_projector(receipt) for receipt in _mappings(promotion["receipts"])
         ]
         cycle["promotion_port"] = promotion
         node["cycle_run"] = cycle
@@ -4660,6 +4170,30 @@ def _controlled_recording_verification_semantic_projection(
     return projected
 
 
+def _controlled_recording_history_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project exact v1 recordings whose nested receipts are historical v3."""
+
+    return _controlled_recording_semantic_projection(
+        value,
+        receipt_projector=(
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE.projector
+        ),
+    )
+
+
+def _controlled_recording_verification_semantic_projection(
+    value: Mapping[str, object],
+) -> dict[str, Any]:
+    """Project current v2 recordings whose nested receipts carry the OWR fact."""
+
+    return _controlled_recording_semantic_projection(
+        value,
+        receipt_projector=canonical_promotion_receipt_semantic_projection,
+    )
+
+
 def _rehash_controlled_recording_after_comparison_migration(
     value: Mapping[str, object],
 ) -> dict[str, Any]:
@@ -4670,13 +4204,9 @@ def _rehash_controlled_recording_after_comparison_migration(
     payload = copy.deepcopy(dict(value))
     compiled = _mapping(payload.get("compiled_run"))
     recursive = _mapping(compiled.get("recursive_run"))
-    recursive["content_hash"] = gy_content_hash(
-        gy_artifact_self_identity_projection(recursive)
-    )
+    recursive["content_hash"] = gy_content_hash(gy_artifact_self_identity_projection(recursive))
     compiled["recursive_run"] = recursive
-    compiled["content_hash"] = gy_content_hash(
-        gy_artifact_self_identity_projection(compiled)
-    )
+    compiled["content_hash"] = gy_content_hash(gy_artifact_self_identity_projection(compiled))
     payload["compiled_run"] = compiled
     payload["compiled_run_content_hash"] = compiled["content_hash"]
     payload["recording_content_hash"] = _semantic_hash(
@@ -4684,6 +4214,13 @@ def _rehash_controlled_recording_after_comparison_migration(
     )
     _validated_controlled_recording_payload(payload)
     return payload
+
+
+_DEPTH_CONTROLLED_RECORDING_COMPARISON_HISTORY_OWNER_RULE = GyComparisonOwnerRule(
+    projector=_controlled_recording_history_semantic_projection,
+    action="project",
+    predicate_provenance="recomputed",
+)
 
 
 _DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE = GyComparisonOwnerRule(
@@ -4715,13 +4252,15 @@ def _admit_controlled_recording_for_comparison(
         receipt_count=len(source_blocks),
     )
     receipt_admissions = tuple(
-        canonical_promotion_comparison_admission_from_proof(proof)
-        for proof in receipt_proofs
+        canonical_promotion_comparison_admission_from_proof(proof) for proof in receipt_proofs
     )
-    receipt_plan = build_gy_comparison_projection_plan(
-        source_payload["compiled_run"],
-        admissions=receipt_admissions,
-    )
+    try:
+        receipt_plan = build_gy_comparison_projection_plan(
+            source_payload["compiled_run"],
+            admissions=receipt_admissions,
+        )
+    except ValueError as exc:
+        raise ValueError("controlled_recording_receipt_admission_denominator_invalid") from exc
     expected_manifest = [
         {
             "action": CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE.action,
@@ -4734,9 +4273,7 @@ def _admit_controlled_recording_for_comparison(
         for pointer, _ in source_blocks
     ]
     if receipt_plan.manifest != expected_manifest:
-        raise ValueError(
-            "controlled_recording_receipt_admission_denominator_invalid"
-        )
+        raise ValueError("controlled_recording_receipt_admission_denominator_invalid")
     source_projection = _controlled_recording_verification_semantic_projection(
         _without_authority_source_migration_receipt(source_payload)
     )
@@ -4758,9 +4295,7 @@ def _admit_controlled_recording_for_comparison(
         if tuple(pointer for pointer, _ in aligned_blocks) != tuple(
             pointer for pointer, _ in source_blocks
         ):
-            raise ValueError(
-                "controlled_recording_receipt_path_denominator_invalid"
-            )
+            raise ValueError("controlled_recording_receipt_path_denominator_invalid")
         migrated_compiled = receipt_plan.migrate_admitted_blocks(
             aligned_payload["compiled_run"],
             source_payload["compiled_run"],
@@ -4808,10 +4343,9 @@ def _admit_controlled_recording_for_comparison(
             migrated = copy.deepcopy(previous_payload)
             migrated["compiled_run"] = copy.deepcopy(dict(migrated_compiled))
             migrated = _rehash_controlled_recording_after_comparison_migration(migrated)
-            if (
-                _controlled_recording_verification_semantic_projection(migrated)
-                != _controlled_recording_verification_semantic_projection(aligned_payload)
-            ):
+            if _controlled_recording_verification_semantic_projection(
+                migrated
+            ) != _controlled_recording_verification_semantic_projection(aligned_payload):
                 raise ValueError("controlled_recording_migrated_projection_drift")
             return migrated
         except (TypeError, ValueError) as exc:
@@ -4853,9 +4387,7 @@ def _reconcile_controlled_recording(
             replay_drift=exc,
         ) from exc
     if not isinstance(reconciled, dict):  # pragma: no cover - mapping inputs
-        raise UniversalityContractError(
-            "authority_source_controlled_replay_projection_invalid"
-        )
+        raise UniversalityContractError("authority_source_controlled_replay_projection_invalid")
     return reconciled
 
 
@@ -4892,13 +4424,11 @@ def _depth_summary_comparison_admissions(
                 recording.get("compiled_run")
             )
             compiled_summaries = _mappings(compiled_projection.get("promotions"))
-            if sum(
-                int(summary.get("receipt_count") or 0)
-                for summary in compiled_summaries
-            ) != receipt_count:
-                raise UniversalityContractError(
-                    "depth_summary_receipt_denominator_mismatch"
-                )
+            if (
+                sum(int(summary.get("receipt_count") or 0) for summary in compiled_summaries)
+                != receipt_count
+            ):
+                raise UniversalityContractError("depth_summary_receipt_denominator_mismatch")
             _validated_controlled_recording_summary_projections(
                 recording,
                 receipt_count=receipt_count,
@@ -4907,9 +4437,7 @@ def _depth_summary_comparison_admissions(
         except UniversalityContractError:
             raise
         except ValueError as exc:
-            raise UniversalityContractError(
-                "depth_summary_parent_receipt_binding_invalid"
-            ) from exc
+            raise UniversalityContractError("depth_summary_parent_receipt_binding_invalid") from exc
         stage_summary = _mapping(
             _mapping(_mapping(domain_runs.get(role)).get("stage_trace")).get("promotion")
         )
@@ -5053,15 +4581,13 @@ def _assert_n4_cycle_binding(compiled: object, organ_run: object) -> None:
     if result is None or getattr(result, "status", None) != "generated":
         raise UniversalityContractError("proof_n4_result_not_generated")
     expected_ids = {
-        str(candidate.candidate_id)
-        for candidate in getattr(result, "candidates", ()) or ()
+        str(candidate.candidate_id) for candidate in getattr(result, "candidates", ()) or ()
     }
     for disposition in getattr(result, "grounding_dispositions", ()) or ():
         if str(getattr(disposition, "disposition", "")) == "shadow_bound":
             continue
         candidate_id = str(
-            getattr(disposition, "candidate_id", None)
-            or getattr(disposition, "proposal_id", "")
+            getattr(disposition, "candidate_id", None) or getattr(disposition, "proposal_id", "")
         )
         if candidate_id:
             expected_ids.add(candidate_id)
@@ -5097,13 +4623,9 @@ def _assert_no_context_cycle_binding(compiled: object) -> None:
     candidate_ids = tuple(cycle.candidate_ids)
     summaries = tuple(cycle_run.candidate_summaries)
     if len(candidate_ids) != len(levers) or not candidate_ids:
-        raise UniversalityContractError(
-            "proof_no_context_problem_lever_denominator_mismatch"
-        )
+        raise UniversalityContractError("proof_no_context_problem_lever_denominator_mismatch")
     if {summary.candidate_id for summary in summaries} != set(candidate_ids):
-        raise UniversalityContractError(
-            "proof_no_context_candidate_summary_denominator_mismatch"
-        )
+        raise UniversalityContractError("proof_no_context_candidate_summary_denominator_mismatch")
     if any(summary.generation_channel != "grammar_fallback" for summary in summaries):
         raise UniversalityContractError("proof_no_context_n4_authority_survived")
     if tuple(cycle_run.fronts.decision.candidate_ids):
@@ -5120,9 +4642,7 @@ def _no_context_generation_projection(compiled: object) -> dict[str, Any]:
     _assert_no_context_cycle_binding(compiled)
     cycle_run = _single_leaf_cycle_run(compiled)
     cycle = cycle_run.cycles[0]
-    summaries = {
-        summary.candidate_id: summary for summary in cycle_run.candidate_summaries
-    }
+    summaries = {summary.candidate_id: summary for summary in cycle_run.candidate_summaries}
     levers = tuple(compiled.design_problem.candidate_lever_space.candidate_levers)
     proposed = []
     for candidate_id, lever in zip(cycle.candidate_ids, levers, strict=True):
@@ -5136,9 +4656,7 @@ def _no_context_generation_projection(compiled: object) -> dict[str, Any]:
         )
     return {
         "status": "cycle_substrate_context_unavailable",
-        "generation_owner": (
-            "polisyos.runtime.quality.generation_cycle.GenerationCycleController"
-        ),
+        "generation_owner": ("polisyos.runtime.quality.generation_cycle.GenerationCycleController"),
         "generation_channel": "grammar_fallback",
         "lever_space_prompt_slice_content_hash": None,
         "prompt_slice_operator_kinds": [],
@@ -5170,25 +4688,17 @@ def _domain_run_recording(
         ),
         "compiled_run": compiled.model_dump(mode="json"),
         "compiled_run_content_hash": compiled.content_hash,
-        "design_problem_ref": gy_content_hash(
-            compiled.design_problem.model_dump(mode="json")
-        ),
+        "design_problem_ref": gy_content_hash(compiled.design_problem.model_dump(mode="json")),
     }
     recording["recording_content_hash"] = _semantic_hash(recording)
     if attach_controlled_admission:
-        recording["authority_source_admission"] = (
-            _build_authority_source_admission(
-                recording,
-                admission_kind="controlled_at_capture",
-                expected_role=role,
-            )
+        recording["authority_source_admission"] = _build_authority_source_admission(
+            recording,
+            admission_kind="controlled_at_capture",
+            expected_role=role,
         )
         recording["recording_content_hash"] = _semantic_hash(
-            {
-                key: value
-                for key, value in recording.items()
-                if key != "recording_content_hash"
-            }
+            {key: value for key, value in recording.items() if key != "recording_content_hash"}
         )
     return recording
 
@@ -5261,9 +4771,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
         cached = _read_local_recording(cache_path)
         if cached is not None:
             if cached.get("role") != role or cached.get("raw_request") != raw_request:
-                raise UniversalityContractError(
-                    f"compiler_local_cache_identity_mismatch:{role}"
-                )
+                raise UniversalityContractError(f"compiler_local_cache_identity_mismatch:{role}")
             problem = await _replay_compiler_recording(cached)
             compiled[role] = (problem, cached)
             _append_capture_journal(
@@ -5272,9 +4780,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                     "event": "compiler_local_recording_reused",
                     "role": role,
                     "model_id": cached.get("model_id"),
-                    "recording_content_hash": cached.get(
-                        "recording_content_hash"
-                    ),
+                    "recording_content_hash": cached.get("recording_content_hash"),
                 },
             )
             continue
@@ -5359,9 +4865,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                         "event": "compiler_capture_attempt_succeeded",
                         "role": role,
                         "model_id": model_id,
-                        "recording_content_hash": recording.get(
-                            "recording_content_hash"
-                        ),
+                        "recording_content_hash": recording.get("recording_content_hash"),
                     },
                 )
                 break
@@ -5370,18 +4874,13 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                 if callable(close):
                     await close()
         else:
-            raise UniversalityContractError(
-                f"proof_compiler_attempts_exhausted:{role}"
-            )
+            raise UniversalityContractError(f"proof_compiler_attempts_exhausted:{role}")
 
     domain_recordings: dict[str, Any] = {}
     missing_domain_roles = [
         role
         for role in PLAIN_LANGUAGE_PROOF_REQUESTS
-        if _read_local_recording(
-            _local_recording_path(repo_root, role=role, kind="domain")
-        )
-        is None
+        if _read_local_recording(_local_recording_path(repo_root, role=role, kind="domain")) is None
     ]
     if missing_domain_roles:
         event = (
@@ -5410,9 +4909,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
         cached = _read_local_recording(cache_path)
         if cached is not None:
             if cached.get("role") != role:
-                raise UniversalityContractError(
-                    f"domain_local_cache_identity_mismatch:{role}"
-                )
+                raise UniversalityContractError(f"domain_local_cache_identity_mismatch:{role}")
             await _domain_run_from_recording(
                 repo_root,
                 role=role,
@@ -5424,9 +4921,7 @@ async def _capture_proof_recordings_configured(repo_root: Path) -> dict[str, Any
                 {
                     "event": "domain_local_recording_reused",
                     "role": role,
-                    "recording_content_hash": cached.get(
-                        "recording_content_hash"
-                    ),
+                    "recording_content_hash": cached.get("recording_content_hash"),
                 },
             )
             continue
@@ -5780,9 +5275,7 @@ async def _domain_run_and_normalized_recording(
                 if key != "recording_content_hash"
             }
         )
-        domain_run["recording_content_hash"] = normalized_recording[
-            "recording_content_hash"
-        ]
+        domain_run["recording_content_hash"] = normalized_recording["recording_content_hash"]
         domain_run["content_hash"] = _semantic_hash(
             {key: value for key, value in domain_run.items() if key != "content_hash"}
         )
@@ -5900,9 +5393,7 @@ def _verify_historical_compiled_envelope(
     compiled_payload = _mapping(recording.get("compiled_run"))
     recursive_payload = _mapping(compiled_payload.get("recursive_run"))
     if not compiled_payload or not recursive_payload:
-        raise UniversalityContractError(
-            "domain_run_historical_compiled_receipt_missing"
-        )
+        raise UniversalityContractError("domain_run_historical_compiled_receipt_missing")
 
     recursive_stable = {
         key: value
@@ -5910,23 +5401,17 @@ def _verify_historical_compiled_envelope(
         if key not in {"content_hash", "leaf_nodes"}
     }
     if recursive_payload.get("content_hash") != _semantic_hash(recursive_stable):
-        raise UniversalityContractError(
-            "domain_run_historical_recursive_receipt_tampered"
-        )
+        raise UniversalityContractError("domain_run_historical_recursive_receipt_tampered")
 
     compiled_stable = {
-        key: value
-        for key, value in compiled_payload.items()
-        if key != "content_hash"
+        key: value for key, value in compiled_payload.items() if key != "content_hash"
     }
     compiled_recursive = _mapping(compiled_stable.get("recursive_run"))
     compiled_recursive.pop("leaf_nodes", None)
     compiled_stable["recursive_run"] = compiled_recursive
     compiled_hash = compiled_payload.get("content_hash")
     if compiled_hash != _semantic_hash(compiled_stable):
-        raise UniversalityContractError(
-            "domain_run_historical_compiled_receipt_tampered"
-        )
+        raise UniversalityContractError("domain_run_historical_compiled_receipt_tampered")
     if compiled_hash != recording.get("compiled_run_content_hash"):
         raise UniversalityContractError("domain_run_compiled_receipt_drift")
 
@@ -5937,8 +5422,7 @@ def _verify_historical_compiled_envelope(
     if (
         compiled_payload.get("design_problem_ref") != expected_problem_ref
         or recording.get("design_problem_ref") != expected_problem_ref
-        or recursive_payload.get("root_design_problem_ref")
-        != expected_problem_ref
+        or recursive_payload.get("root_design_problem_ref") != expected_problem_ref
     ):
         raise UniversalityContractError("domain_run_design_problem_ref_drift")
     if compiled_payload.get("cycle_substrate_context_ref") != observed_context_hash:
@@ -6208,8 +5692,7 @@ def _canonical_acquisition_route_witness(
         or binding.get("design_problem_ref") != design_problem_ref
         or terminal_data_need != requirement_gap.model_dump(mode="json")
         or not isinstance(terminal_costed_plan, Mapping)
-        or terminal_costed_plan.get("canonical_planner_report")
-        != report.model_dump(mode="json")
+        or terminal_costed_plan.get("canonical_planner_report") != report.model_dump(mode="json")
         or report != expected_report
     ):
         raise UniversalityContractError("domain_acquisition_route_owner_binding_invalid")
@@ -6268,9 +5751,7 @@ def _domain_evidence_witness(
         "value_owner_content_hash": gy_content_hash(value_payload),
     }
 
-    if value_observation.authority_blockers == (
-        "method_estimand_binding_mismatch",
-    ):
+    if value_observation.authority_blockers == ("method_estimand_binding_mismatch",):
         receipt = value_observation.method_selection_receipt
         grounding_gap = grounding_observation.acquisition_requirement
         if (
@@ -6285,9 +5766,7 @@ def _domain_evidence_witness(
             or grounding_gap is None
             or "method_estimand_binding_mismatch" not in blocking_obligations
         ):
-            raise UniversalityContractError(
-                "domain_estimand_refusal_owner_binding_invalid"
-            )
+            raise UniversalityContractError("domain_estimand_refusal_owner_binding_invalid")
         route = _canonical_acquisition_route_witness(
             selected_candidate_ref=selected_candidate_ref,
             design_problem_ref=design_problem_ref,
@@ -6303,14 +5782,10 @@ def _domain_evidence_witness(
             "advisor_owner_content_hash": receipt.content_hash,
             "selection_context_hash": receipt.selection_context_hash,
             "selected_method_fqn": receipt.selected_method_fqn,
-            "value_data_profile_content_hash": (
-                value_observation.value_data_profile_content_hash
-            ),
+            "value_data_profile_content_hash": (value_observation.value_data_profile_content_hash),
             "grounding_route": route,
         }
-    elif value_observation.authority_blockers == (
-        "acquire_data:value_panel_data_missing",
-    ):
+    elif value_observation.authority_blockers == ("acquire_data:value_panel_data_missing",):
         gap = value_observation.acquisition_requirement
         if gap is None:
             raise UniversalityContractError("domain_l1_gap_owner_missing")
@@ -6459,9 +5934,7 @@ def check_provenance_stability(repo_root: Path) -> dict[str, Any]:
     if dirty_paths:
         return {
             "status": "drifted",
-            "issues": [
-                {"code": "upstream_artifact_dirty", "paths": dirty_paths}
-            ],
+            "issues": [{"code": "upstream_artifact_dirty", "paths": dirty_paths}],
         }
     return copy.deepcopy(_cached_provenance_stability(root.as_posix()))
 
@@ -6586,9 +6059,7 @@ def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
     semantic_projection_hash = str(
         _mapping(live_comparator.get("source_hashes")).get(N8_PATH) or ""
     )
-    n10a_comparator_hash = str(
-        _mapping(frozen_comparator.get("source_hashes")).get(N8_PATH) or ""
-    )
+    n10a_comparator_hash = str(_mapping(frozen_comparator.get("source_hashes")).get(N8_PATH) or "")
     if semantic_projection_hash != n10a_comparator_hash:
         issues.append({"code": "n8_to_n10a_semantic_projection_drift"})
 
@@ -6607,17 +6078,14 @@ def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
         "generation_cycle_run": str(cycle_run.get("design_problem_ref") or ""),
     }
     for index, cycle in enumerate(_mappings(cycle_run.get("cycles"))):
-        design_problem_refs[f"cycle_{index}"] = str(
-            cycle.get("design_problem_ref") or ""
-        )
+        design_problem_refs[f"cycle_{index}"] = str(cycle.get("design_problem_ref") or "")
     if len(set(design_problem_refs.values())) != 1:
         issues.append({"code": "education_design_problem_binding_drift"})
 
     prompt_hashes = {
         "owner_projection": _strings(projection.get("exact_call_prompt_hashes")),
         "responses": [
-            str(item.get("prompt_hash") or "")
-            for item in _mappings(capture.get("responses"))
+            str(item.get("prompt_hash") or "") for item in _mappings(capture.get("responses"))
         ],
         "journal": [
             str(item.get("prompt_hash") or "")
@@ -6638,16 +6106,10 @@ def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
             problem=problem,
         )
         rebindings = _mappings(
-            _mapping(capture.get("historical_replay_receipt")).get(
-                "call_rebindings"
-            )
+            _mapping(capture.get("historical_replay_receipt")).get("call_rebindings")
         )
-        historical_hashes = [
-            str(item.get("historical_prompt_hash") or "") for item in rebindings
-        ]
-        replay_hashes = [
-            str(item.get("replay_prompt_hash") or "") for item in rebindings
-        ]
+        historical_hashes = [str(item.get("historical_prompt_hash") or "") for item in rebindings]
+        replay_hashes = [str(item.get("replay_prompt_hash") or "") for item in rebindings]
         if replay_issues:
             prompt_binding_issues.extend(replay_issues)
         if historical_hashes != prompt_hashes["journal"]:
@@ -6660,9 +6122,7 @@ def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
     if prompt_binding_issues:
         issues.append({"code": "education_prompt_hash_binding_drift"})
 
-    n10a_census_hash = str(
-        _mapping(n10a_bundle.get("census")).get("census_content_hash") or ""
-    )
+    n10a_census_hash = str(_mapping(n10a_bundle.get("census")).get("census_content_hash") or "")
     observed_composition_census_hashes = sorted(
         set(_values_for_key(composition, "census_content_hash"))
     )
@@ -6691,12 +6151,8 @@ def _derive_provenance_stability(repo_root: str) -> dict[str, Any]:
         "census_ref": census_ref,
         "n8_fork_b_ref": {
             "content_hash": n8_fork_b_ref.get("content_hash"),
-            "raw_full_table_content_hash": n8_fork_b_ref.get(
-                "raw_full_table_content_hash"
-            ),
-            "usable_certified_relations": n8_fork_b_ref.get(
-                "usable_certified_relations"
-            ),
+            "raw_full_table_content_hash": n8_fork_b_ref.get("raw_full_table_content_hash"),
+            "usable_certified_relations": n8_fork_b_ref.get("usable_certified_relations"),
         },
         "first_vertical_refs": {
             "n8_design_problem_ref": n8_problem_ref,
@@ -6948,16 +6404,12 @@ def _completed_domain_run_issues(
     if set(recordings) != set(PLAIN_LANGUAGE_PROOF_REQUESTS):
         issues.append({"code": "proof_recording_domain_denominator_missing"})
     issues.extend(_static_proof_recording_issues(payload))
-    smoke_problem = _mapping(
-        _read_json(REPO_ROOT / N10A_SMOKE_PATH).get("design_problem")
-    )
+    smoke_problem = _mapping(_read_json(REPO_ROOT / N10A_SMOKE_PATH).get("design_problem"))
     for role, expected_request in PLAIN_LANGUAGE_PROOF_REQUESTS.items():
         run = _mapping(domain_runs.get(role))
         if not run:
             continue
-        stable_run = {
-            key: value for key, value in run.items() if key != "content_hash"
-        }
+        stable_run = {key: value for key, value in run.items() if key != "content_hash"}
         if run.get("content_hash") != _semantic_hash(stable_run):
             issues.append({"code": "domain_run_content_hash_mismatch", "role": role})
         try:
@@ -7007,9 +6459,7 @@ def _completed_domain_run_issues(
     issues.extend(
         _domain_terminal_honesty_issues(
             domain_runs,
-            expectation=_mapping(
-                payload.get("universality_terminal_expectation")
-            ),
+            expectation=_mapping(payload.get("universality_terminal_expectation")),
         )
     )
 
@@ -7021,9 +6471,7 @@ def _completed_domain_run_issues(
     expected_education_levers = sorted(
         str(row.get("lever_id") or "")
         for row in _mappings(
-            _mapping(_mapping(pack.get("components")).get("lever_vocabulary")).get(
-                "entries"
-            )
+            _mapping(_mapping(pack.get("components")).get("lever_vocabulary")).get("entries")
         )
     )
     if sorted(_strings(education_generation.get("proposed_lever_ids"))) != (
@@ -7047,32 +6495,23 @@ def _completed_domain_run_issues(
 
     unseen = _mapping(domain_runs.get("unseen"))
     unseen_recording = _mapping(recordings.get("unseen"))
-    unseen_text = _canonical_json(
-        {"run": unseen, "proof_recording": unseen_recording}
-    ).casefold()
+    unseen_text = _canonical_json({"run": unseen, "proof_recording": unseen_recording}).casefold()
     if unseen.get("cycle_substrate_context_ref") is not None:
         issues.append({"code": "unseen_domain_pack_substitution"})
     unseen_problem = _mapping(unseen.get("design_problem"))
     unseen_levers = _mappings(
-        _mapping(unseen_problem.get("candidate_lever_space")).get(
-            "candidate_levers"
-        )
+        _mapping(unseen_problem.get("candidate_lever_space")).get("candidate_levers")
     )
-    expected_operators = sorted(
-        str(lever.get("operator_kind") or "") for lever in unseen_levers
-    )
+    expected_operators = sorted(str(lever.get("operator_kind") or "") for lever in unseen_levers)
     generation = _mapping(_mapping(unseen.get("stage_trace")).get("generation"))
     no_context_recording = _mapping(unseen_recording.get("n4_recording"))
     no_context_shape_valid = (
-        no_context_recording.get("schema_version")
-        == _NO_CONTEXT_N4_RECORDING_SCHEMA_VERSION
-        and no_context_recording.get("status")
-        == "cycle_substrate_context_unavailable"
+        no_context_recording.get("schema_version") == _NO_CONTEXT_N4_RECORDING_SCHEMA_VERSION
+        and no_context_recording.get("status") == "cycle_substrate_context_unavailable"
         and "responses" not in no_context_recording
         and "owner_result_projection" not in no_context_recording
         and generation.get("generation_channel") == "grammar_fallback"
-        and sorted(_strings(generation.get("proposed_lever_ids")))
-        == expected_operators
+        and sorted(_strings(generation.get("proposed_lever_ids"))) == expected_operators
     )
     try:
         known_vertical_vocabulary = _known_vertical_vocabulary(payload)
@@ -7084,9 +6523,7 @@ def _completed_domain_run_issues(
                 "error": str(exc),
             }
         )
-    contaminants = sorted(
-        token for token in known_vertical_vocabulary if token in unseen_text
-    )
+    contaminants = sorted(token for token in known_vertical_vocabulary if token in unseen_text)
     if contaminants or not no_context_shape_valid:
         issues.append(
             {
@@ -7111,9 +6548,8 @@ def _known_vertical_vocabulary(payload: Mapping[str, Any]) -> set[str]:
         if not isinstance(value, str):
             return
         normalized = value.strip().casefold()
-        if (
-            len(normalized) >= 4
-            and not normalized.startswith(("sha256:", "repo://", "owner-query://"))
+        if len(normalized) >= 4 and not normalized.startswith(
+            ("sha256:", "repo://", "owner-query://")
         ):
             vocabulary.add(normalized)
 
@@ -7121,9 +6557,7 @@ def _known_vertical_vocabulary(payload: Mapping[str, Any]) -> set[str]:
         problem = _mapping(_mapping(domain_runs.get(role)).get("design_problem"))
         outcome = _mapping(problem.get("outcome_of_interest"))
         candidates = _mappings(
-            _mapping(problem.get("candidate_lever_space")).get(
-                "candidate_levers"
-            )
+            _mapping(problem.get("candidate_lever_space")).get("candidate_levers")
         )
         values: list[object] = [
             problem.get("domain"),
@@ -7134,21 +6568,15 @@ def _known_vertical_vocabulary(payload: Mapping[str, Any]) -> set[str]:
         typed_problem = DesignProblem.model_validate(problem)
         context = _cycle_context_for_problem(REPO_ROOT, problem=typed_problem)
         if context is None:
-            raise UniversalityContractError(
-                f"known_vertical_cycle_context_unavailable:{role}"
-            )
+            raise UniversalityContractError(f"known_vertical_cycle_context_unavailable:{role}")
         context_payload = context.model_dump(mode="json")
         values.append(context_payload.get("domain"))
         for candidate in _mappings(context_payload.get("candidate_levers")):
             values.extend(
-                candidate.get(field)
-                for field in ("lever_id", "instrument", "target_concept")
+                candidate.get(field) for field in ("lever_id", "instrument", "target_concept")
             )
         transport = _mapping(context_payload.get("transport_context"))
-        values.extend(
-            transport.get(field)
-            for field in ("source_context_id", "target_context_id")
-        )
+        values.extend(transport.get(field) for field in ("source_context_id", "target_context_id"))
         for covariate in _mappings(transport.get("covariates")):
             values.append(covariate.get("canonical_var"))
         world = _mapping(context_payload.get("world_model_record"))
@@ -7159,9 +6587,7 @@ def _known_vertical_vocabulary(payload: Mapping[str, Any]) -> set[str]:
         knob_dictionary = _mapping(intervention.get("knob_dictionary"))
         values.extend(knob_dictionary)
         for knob in _mappings(list(knob_dictionary.values())):
-            values.extend(
-                knob.get(field) for field in ("mechanism_id", "param_path")
-            )
+            values.extend(knob.get(field) for field in ("mechanism_id", "param_path"))
         lex_map = _mapping(intervention.get("lex_intervention_map"))
         values.extend(lex_map)
         for entry in _mappings(list(lex_map.values())):
@@ -7221,40 +6647,22 @@ def _static_proof_recording_issues(
         if not recording:
             continue
         stable_recording = {
-            key: value
-            for key, value in recording.items()
-            if key != "recording_content_hash"
+            key: value for key, value in recording.items() if key != "recording_content_hash"
         }
-        if recording.get("recording_content_hash") != _semantic_hash(
-            stable_recording
-        ):
-            issues.append(
-                {"code": "proof_domain_recording_content_hash_mismatch", "role": role}
-            )
-        if run.get("recording_content_hash") != recording.get(
-            "recording_content_hash"
-        ):
-            issues.append(
-                {"code": "proof_domain_run_recording_binding_mismatch", "role": role}
-            )
+        if recording.get("recording_content_hash") != _semantic_hash(stable_recording):
+            issues.append({"code": "proof_domain_recording_content_hash_mismatch", "role": role})
+        if run.get("recording_content_hash") != recording.get("recording_content_hash"):
+            issues.append({"code": "proof_domain_run_recording_binding_mismatch", "role": role})
         compiler = _mapping(recording.get("compiler_recording"))
         compiler_stable = {
-            key: value
-            for key, value in compiler.items()
-            if key != "recording_content_hash"
+            key: value for key, value in compiler.items() if key != "recording_content_hash"
         }
-        if compiler.get("recording_content_hash") != _semantic_hash(
-            compiler_stable
-        ):
-            issues.append(
-                {"code": "proof_compiler_recording_content_hash_mismatch", "role": role}
-            )
+        if compiler.get("recording_content_hash") != _semantic_hash(compiler_stable):
+            issues.append({"code": "proof_compiler_recording_content_hash_mismatch", "role": role})
         if compiler.get("raw_request_content_hash") != gy_content_hash(
             {"raw_request": compiler.get("raw_request")}
         ):
-            issues.append(
-                {"code": "proof_compiler_raw_request_hash_mismatch", "role": role}
-            )
+            issues.append({"code": "proof_compiler_raw_request_hash_mismatch", "role": role})
         for lane, calls in (
             ("compiler", _mappings(compiler.get("calls"))),
             ("span", _mappings(compiler.get("span_calls"))),
@@ -7272,12 +6680,8 @@ def _static_proof_recording_issues(
                         }
                     )
         receipt = _mapping(run.get("compiler_receipt"))
-        if receipt.get("recording_content_hash") != compiler.get(
-            "recording_content_hash"
-        ):
-            issues.append(
-                {"code": "proof_compiler_receipt_binding_mismatch", "role": role}
-            )
+        if receipt.get("recording_content_hash") != compiler.get("recording_content_hash"):
+            issues.append({"code": "proof_compiler_receipt_binding_mismatch", "role": role})
         try:
             problem = DesignProblem.model_validate(run.get("design_problem"))
         except Exception as exc:
@@ -7291,18 +6695,14 @@ def _static_proof_recording_issues(
             continue
         try:
             try:
-                CompiledRecursiveGenerationCycleRun.model_validate(
-                    recording.get("compiled_run")
-                )
+                CompiledRecursiveGenerationCycleRun.model_validate(recording.get("compiled_run"))
             except ValidationError as exc:
                 if not _is_historical_recursive_hash_drift(exc):
                     raise
             _verify_historical_compiled_envelope(
                 recording=recording,
                 problem=problem,
-                observed_context_hash=recording.get(
-                    "cycle_substrate_context_content_hash"
-                ),
+                observed_context_hash=recording.get("cycle_substrate_context_content_hash"),
             )
         except Exception as exc:
             issues.append(
@@ -7313,23 +6713,17 @@ def _static_proof_recording_issues(
                     "error": str(exc),
                 }
             )
-        authority_projection = _compiled_authority_source_projection(
-            recording.get("compiled_run")
-        )
+        authority_projection = _compiled_authority_source_projection(recording.get("compiled_run"))
         promotion_rows = _mappings(authority_projection.get("promotions"))
-        stage_promotion = _mapping(
-            _mapping(run.get("stage_trace")).get("promotion")
-        )
+        stage_promotion = _mapping(_mapping(run.get("stage_trace")).get("promotion"))
         compiled_promotion = promotion_rows[0] if len(promotion_rows) == 1 else {}
         if (
-            stage_promotion.get("authority_scope")
-            != authority_projection.get("authority_scope")
+            stage_promotion.get("authority_scope") != authority_projection.get("authority_scope")
             or _strings(stage_promotion.get("authority_provenance"))
             != _strings(compiled_promotion.get("authority_provenance"))
             or stage_promotion.get("status") != compiled_promotion.get("status")
             or stage_promotion.get("reason") != compiled_promotion.get("reason")
-            or stage_promotion.get("receipt_count")
-            != compiled_promotion.get("receipt_count")
+            or stage_promotion.get("receipt_count") != compiled_promotion.get("receipt_count")
             or stage_promotion.get("all_receipts_non_consumer")
             is not compiled_promotion.get("all_receipts_non_consumer")
             or _strings(stage_promotion.get("certified_candidate_ids"))
@@ -7364,9 +6758,7 @@ def _static_proof_recording_issues(
                     problem=problem,
                 )
             else:
-                _verify_static_n4_recording(
-                    _mapping(recording.get("n4_recording"))
-                )
+                _verify_static_n4_recording(_mapping(recording.get("n4_recording")))
         except Exception as exc:
             error_code = str(exc).partition(":")[0]
             issues.append(
@@ -7386,11 +6778,7 @@ def _static_proof_recording_issues(
 def _verify_static_n4_recording(recording: Mapping[str, Any]) -> None:
     """Verify current N4 response bytes without replaying the Scientist owner."""
 
-    stable = {
-        key: value
-        for key, value in recording.items()
-        if key != "recording_content_hash"
-    }
+    stable = {key: value for key, value in recording.items() if key != "recording_content_hash"}
     if recording.get("recording_content_hash") != _semantic_hash(stable):
         raise UniversalityContractError("proof_n4_recording_content_hash_mismatch")
     responses = recording.get("responses")
@@ -7398,16 +6786,10 @@ def _verify_static_n4_recording(recording: Mapping[str, Any]) -> None:
         raise UniversalityContractError("proof_n4_recording_response_denominator_empty")
     for index, response in enumerate(responses):
         if not isinstance(response, Mapping):
-            raise UniversalityContractError(
-                f"proof_n4_recorded_response_invalid:{index}"
-            )
+            raise UniversalityContractError(f"proof_n4_recorded_response_invalid:{index}")
         raw = response.get("raw_response")
-        if not isinstance(raw, str) or response.get("raw_response_hash") != _semantic_hash(
-            raw
-        ):
-            raise UniversalityContractError(
-                f"proof_n4_raw_response_hash_mismatch:{index}"
-            )
+        if not isinstance(raw, str) or response.get("raw_response_hash") != _semantic_hash(raw):
+            raise UniversalityContractError(f"proof_n4_raw_response_hash_mismatch:{index}")
         raw_alias = response.get("raw_llm_response")
         if raw_alias is not None and raw_alias != raw:
             raise UniversalityContractError(
@@ -8323,9 +7705,7 @@ def _n10_source_flip_cases() -> tuple[_N10SourceFlipCase, ...]:
                 "            frozen_body, live_body\n"
                 "        )\n"
             ),
-            new_source=(
-                "        reconciled = live_body\n"
-            ),
+            new_source=("        reconciled = live_body\n"),
             probe_nodeid=(
                 test_path + "test_canonical_writer_preserves_operational_values_on_semantic_match"
             ),
@@ -8443,9 +7823,7 @@ def _run_n10_source_flip(
             "proof": harness_error or "source_flip_probe_not_run",
         }
     output = f"{completed.stdout}\n{completed.stderr}"
-    mutation_red = (
-        completed.returncode != 0 and case.expected_red_signal in output
-    )
+    mutation_red = completed.returncode != 0 and case.expected_red_signal in output
     return {
         "mutation_id": case.mutation_id,
         "file": case.relative_path,
@@ -8470,15 +7848,11 @@ def run_source_flip_mutations(repo_root: Path) -> dict[str, Any]:
     from tools.quality.validation import check_layer3_gy_composition_artifacts
 
     local_results = tuple(
-        _run_n10_source_flip(repo_root, case)
-        for case in _n10_source_flip_cases()
+        _run_n10_source_flip(repo_root, case) for case in _n10_source_flip_cases()
     )
-    composition_results = (
-        check_layer3_gy_composition_artifacts.run_source_flip_mutations(repo_root)
-    )
+    composition_results = check_layer3_gy_composition_artifacts.run_source_flip_mutations(repo_root)
     all_red = all(
-        result.get("result") == "RED"
-        for result in (*local_results, *composition_results)
+        result.get("result") == "RED" for result in (*local_results, *composition_results)
     )
     return {
         "status": "pass" if all_red else "fail",
@@ -8558,9 +7932,7 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "POLISYOS_LLM_CACHE_MAXSIZE": "0",
             }
         ):
-            report = asyncio.run(
-                _characterize_structured_compiler_capabilities(REPO_ROOT)
-            )
+            report = asyncio.run(_characterize_structured_compiler_capabilities(REPO_ROOT))
         return report, 0 if report["status"] == "pass" else 1
     if args.characterize_compiler_structured:
         with _temporary_environment(
@@ -8571,9 +7943,7 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
                 "POLISYOS_LLM_CACHE_MAXSIZE": "0",
             }
         ):
-            report = asyncio.run(
-                _characterize_structured_compiler_conformance(REPO_ROOT)
-            )
+            report = asyncio.run(_characterize_structured_compiler_conformance(REPO_ROOT))
         return report, 0 if report["status"] == "pass" else 1
     if args.capture_proof_runs:
         try:
@@ -8581,9 +7951,7 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         except (UniversalityContractError, ValueError) as exc:
             return {
                 "status": "fail",
-                "issues": [
-                    {"code": str(exc).partition(":")[0], "error": str(exc)}
-                ],
+                "issues": [{"code": str(exc).partition(":")[0], "error": str(exc)}],
             }, 1
         payload = json.loads(data)
         return {
@@ -8591,8 +7959,7 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
             "issues": [],
             "contract_content_hash": payload["contract_content_hash"],
             "domain_terminals": {
-                role: run["terminal_distribution"]
-                for role, run in payload["domain_runs"].items()
+                role: run["terminal_distribution"] for role, run in payload["domain_runs"].items()
             },
         }, 0
     if args.write:
@@ -8604,9 +7971,7 @@ def _main_report(args: argparse.Namespace) -> tuple[dict[str, Any], int]:
         except (UniversalityContractError, ValueError) as exc:
             return {
                 "status": "fail",
-                "issues": [
-                    {"code": str(exc).partition(":")[0], "error": str(exc)}
-                ],
+                "issues": [{"code": str(exc).partition(":")[0], "error": str(exc)}],
             }, 1
         payload = json.loads(data)
         return {
@@ -8657,14 +8022,8 @@ def _dirty_upstream_paths(repo_root: Path) -> list[str]:
         text=True,
     )
     if result.returncode != 0:
-        raise UniversalityContractError(
-            "upstream_dirty_census_failed:" + result.stderr.strip()
-        )
-    return sorted(
-        line[3:].strip()
-        for line in result.stdout.splitlines()
-        if line.strip()
-    )
+        raise UniversalityContractError("upstream_dirty_census_failed:" + result.stderr.strip())
+    return sorted(line[3:].strip() for line in result.stdout.splitlines() if line.strip())
 
 
 def _extend_owner_issues(
@@ -8681,9 +8040,7 @@ def _extend_owner_issues(
                 }
             )
         else:
-            target.append(
-                {"code": f"{owner}_owner_validation_failed", "owner_issue": issue}
-            )
+            target.append({"code": f"{owner}_owner_validation_failed", "owner_issue": issue})
 
 
 def _joint_simulation_receipts(recursive_run: Mapping[str, Any]) -> list[dict[str, Any]]:
@@ -8699,9 +8056,7 @@ def _joint_simulation_receipts(recursive_run: Mapping[str, Any]) -> list[dict[st
                 "receipt_id": receipt.get("receipt_id"),
                 "payload_hash": receipt.get("payload_hash"),
                 "uncertainty_kind": receipt.get("uncertainty_kind"),
-                "interaction_term_count": len(
-                    simulation.get("interaction_terms") or []
-                ),
+                "interaction_term_count": len(simulation.get("interaction_terms") or []),
             }
         )
     return receipts
@@ -8737,18 +8092,14 @@ def _reissue_artifact_recording_envelopes_after_comparison_migration(
         current_recording = _mapping(reconciled_recordings.get(role))
         if current_recording == prior_recording:
             continue
-        prior_admission = _mapping(
-            prior_recording.get("authority_source_admission")
-        )
+        prior_admission = _mapping(prior_recording.get("authority_source_admission"))
         if not prior_admission:
             raise UniversalityContractError(
                 "comparison_migration_prior_authority_admission_missing"
             )
         current_route = _mapping(reconciled_routes.get(role))
         if not current_route:
-            raise UniversalityContractError(
-                "comparison_migration_replayed_domain_run_missing"
-            )
+            raise UniversalityContractError("comparison_migration_replayed_domain_run_missing")
         rebound_recording, rebound_route = (
             _reissue_authority_source_envelopes_after_comparison_migration(
                 current_recording,
@@ -8852,11 +8203,17 @@ def _depth_plan_from_manifest(
         payload,
         manifest=manifest,
         owner_rule_registry={
+            _DEPTH_CONTROLLED_RECORDING_COMPARISON_HISTORY_RULE: (
+                _DEPTH_CONTROLLED_RECORDING_COMPARISON_HISTORY_OWNER_RULE
+            ),
             _DEPTH_CONTROLLED_RECORDING_COMPARISON_RULE: (
                 _DEPTH_CONTROLLED_RECORDING_COMPARISON_OWNER_RULE
             ),
             CANONICAL_PROMOTION_VERIFICATION_COMPARISON_RULE: (
                 CANONICAL_PROMOTION_VERIFICATION_COMPARISON_OWNER_RULE
+            ),
+            CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_RULE: (
+                CANONICAL_PROMOTION_VERIFICATION_COMPARISON_HISTORY_OWNER_RULE
             ),
             _DEPTH_PROMOTION_SUMMARY_COMPARISON_RULE: (
                 _DEPTH_PROMOTION_SUMMARY_COMPARISON_OWNER_RULE

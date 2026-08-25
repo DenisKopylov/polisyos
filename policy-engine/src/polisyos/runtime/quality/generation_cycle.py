@@ -97,6 +97,10 @@ if TYPE_CHECKING:
 
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.data_state_substrate import L1VariableAvailability
+    from polisyos.runtime.quality.open_world_risk import (
+        OpenWorldRiskArtifactResolver,
+        PromotionRuntime,
+    )
 
 GENERATION_CYCLE_SCHEMA_VERSION = "policyos.runtime.generation_cycle_controller.v1"
 GENERATION_CYCLE_CONTRACT_SCHEMA_VERSION = (
@@ -1977,6 +1981,7 @@ class GenerationCycleController:
         repo_root: Path | None = None,
         model_id: str | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
+        promotion_runtime: PromotionRuntime | None = None,
         generated_at: datetime | None = None,
         high_proxy_threshold: float = 0.8,
         low_grounding_threshold: float = 0.5,
@@ -2000,8 +2005,16 @@ class GenerationCycleController:
         if promotion_port is None:
             from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
 
-            promotion_port = CanonicalN9PromotionPort(repo_root=repo_root)
+            promotion_port = CanonicalN9PromotionPort(
+                repo_root=repo_root,
+                promotion_runtime=promotion_runtime,
+            )
         self._promotion_port = promotion_port
+        self._open_world_resolver = getattr(
+            promotion_port,
+            "open_world_resolver",
+            None,
+        )
         self._revision_policy = revision_policy or CounterexampleDrivenRevisionPolicy()
         self._acquisition_owner_gateway = acquisition_owner_gateway
         self._voi_scheduler = voi_scheduler or SimpleVOIScheduler(
@@ -2119,6 +2132,7 @@ class GenerationCycleController:
             tuple(summaries),
             promotion,
             problem=problem,
+            open_world_resolver=self._open_world_resolver,
         )
         fronts = _derive_fronts(tuple(summaries))
         run = GenerationCycleRun(
@@ -5261,6 +5275,7 @@ def _apply_promotion_to_summaries(
     promotion: PromotionPortObservation,
     *,
     problem: DesignProblem | None = None,
+    open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
 ) -> list[CandidateSummary]:
     certified = set(promotion.certified_candidate_ids)
     result: list[CandidateSummary] = []
@@ -5272,6 +5287,7 @@ def _apply_promotion_to_summaries(
                 promotion,
                 summary,
                 problem=problem,
+                open_world_resolver=open_world_resolver,
             )
             and summary.current_valid
             and not _summary_value_blocks_promotion(summary)
@@ -5299,6 +5315,7 @@ def _promotion_receipt_allows_decision_front(
     summary: CandidateSummary,
     *,
     problem: DesignProblem | None,
+    open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
 ) -> bool:
     from polisyos.runtime.quality.promotion_sequence import (
         CanonicalPromotionReceipt,
@@ -5312,11 +5329,14 @@ def _promotion_receipt_allows_decision_front(
             parsed = CanonicalPromotionReceipt.model_validate(receipt)
         except ValueError:
             return False
+        if type(parsed) is not CanonicalPromotionReceipt:
+            return False
         if validate_canonical_promotion_receipt(
             parsed,
             candidate_summary=summary,
             design_problem=problem,
             value_receipt=summary.value_receipt,
+            open_world_resolver=open_world_resolver,
         ):
             return False
         return bool(

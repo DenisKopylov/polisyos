@@ -17,6 +17,14 @@ from polisyos.runtime.quality.design_problem import (
     DesignProblem,
     DesignProblemAuthorityError,
 )
+from polisyos.runtime.quality.open_world_risk import (  # noqa: TC001
+    OpenWorldRiskPublicLimitation,
+)
+from polisyos.runtime.quality.promotion_sequence import CanonicalPromotionReceipt
+from polisyos.runtime.quality.public_export import (
+    PublicExportRedactionError,
+    project_promotion_open_world_limitation,
+)
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveGenerationCycleRun,
     build_default_recursive_generation_cycle_controller,
@@ -32,6 +40,7 @@ if TYPE_CHECKING:
     )
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
+    from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleBudget,
         RecursiveGenerationCycleController,
@@ -56,13 +65,15 @@ class CompiledRecursiveGenerationCycleRun(BaseModel):
         pattern=r"^sha256:[0-9a-f]{64}$",
     )
     recursive_run: RecursiveGenerationCycleRun
+    open_world_risk_limitations: tuple[OpenWorldRiskPublicLimitation, ...] = Field(
+        default=(),
+        exclude_if=lambda rows: not rows,
+    )
     content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
 
     @model_validator(mode="after")
     def _verify_bindings(self) -> CompiledRecursiveGenerationCycleRun:
-        expected_problem_ref = gy_content_hash(
-            self.design_problem.model_dump(mode="json")
-        )
+        expected_problem_ref = gy_content_hash(self.design_problem.model_dump(mode="json"))
         if self.design_problem_ref != expected_problem_ref:
             raise ValueError("compiled_recursive_design_problem_hash_mismatch")
         if self.recursive_run.root_design_problem_ref != self.design_problem_ref:
@@ -88,10 +99,16 @@ async def compile_and_run_recursive_generation_cycle(
     span_support_client: _SpanSupportVerifierClient | None = None,
     cycle_substrate_context: CycleSubstrateContext | None = None,
     root_n4_generation_port: N4GenerationPort | None = None,
+    promotion_runtime: PromotionRuntime | None = None,
     repo_root: Path | None = None,
 ) -> CompiledRecursiveGenerationCycleRun:
     """Compile arbitrary plain language and route it through the depth-N owner."""
 
+    if promotion_runtime is None:
+        raise DesignProblemAuthorityError(
+            "promotion_runtime_not_established",
+            "The production composition requires its container-owned promotion runtime.",
+        )
     problem = await build_design_problem_from_nl_request(
         nl_request=raw_request,
         context=context,
@@ -123,6 +140,7 @@ async def compile_and_run_recursive_generation_cycle(
     resolved_controller = controller or build_default_recursive_generation_cycle_controller(
         repo_root=repo_root,
         model_id=model_name,
+        promotion_runtime=promotion_runtime,
     )
 
     root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
@@ -138,30 +156,58 @@ async def compile_and_run_recursive_generation_cycle(
         budget_state=budget_state,
         recursive_budget=recursive_budget,
         cycle_substrate_contexts_by_node=(
-            {root_ref: cycle_substrate_context}
-            if cycle_substrate_context is not None
-            else None
+            {root_ref: cycle_substrate_context} if cycle_substrate_context is not None else None
         ),
         n4_generation_ports_by_node=(
-            {root_ref: root_n4_generation_port}
-            if root_n4_generation_port is not None
-            else None
+            {root_ref: root_n4_generation_port} if root_n4_generation_port is not None else None
         ),
     )
+    limitations: list[OpenWorldRiskPublicLimitation] = []
+    seen_vector_refs: set[str] = set()
+    for leaf in recursive_run.leaf_nodes:
+        cycle_run = leaf.cycle_run
+        if cycle_run is None:  # pragma: no cover - enforced by RecursiveCycleNode
+            continue
+        for receipt_payload in cycle_run.promotion_port.receipts:
+            try:
+                receipt = CanonicalPromotionReceipt.model_validate(receipt_payload)
+            except ValueError as exc:
+                raise PublicExportRedactionError(
+                    "promotion_receipt_invalid",
+                    str(exc),
+                ) from exc
+            if promotion_runtime is None:
+                raise PublicExportRedactionError("open_world_resolver_not_established")
+            limitation = project_promotion_open_world_limitation(
+                run=cycle_run,
+                design_problem=problem,
+                receipt=receipt,
+                resolver=promotion_runtime.resolver,
+                repo_root=repo_root,
+            )
+            if limitation is None:
+                continue
+            vector_key = str(limitation.vector_artifact_ref.artifact_id)
+            if vector_key in seen_vector_refs:
+                raise PublicExportRedactionError("open_world_projection_duplicate")
+            seen_vector_refs.add(vector_key)
+            limitations.append(limitation)
     payload = {
         "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
         "design_problem_ref": problem_ref,
         "design_problem": problem.model_dump(mode="json"),
         "cycle_substrate_context_ref": (
-            cycle_substrate_context.content_hash
-            if cycle_substrate_context is not None
-            else None
+            cycle_substrate_context.content_hash if cycle_substrate_context is not None else None
         ),
         "recursive_run": recursive_run.model_dump(
             mode="json",
             exclude={"leaf_nodes"},
         ),
     }
+    if limitations:
+        payload["open_world_risk_limitations"] = tuple(
+            row.model_dump(mode="json") for row in limitations
+        )
     return CompiledRecursiveGenerationCycleRun.model_validate(
         {**payload, "content_hash": gy_content_hash(payload)}
     )

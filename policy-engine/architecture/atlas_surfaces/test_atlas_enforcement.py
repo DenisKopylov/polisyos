@@ -833,6 +833,113 @@ class AtlasEnforcementTests(unittest.TestCase):
             any(row.startswith(f"{unrelated_path}:") for row in contributors)
         )
 
+    def test_ds10_python_manifest_strangle_follows_indirect_and_cross_module_flow(self) -> None:
+        """Reject assigned constructor aliases, helper returns, and imported row values."""
+        base_dir = "src/polisyos/runtime/http/services/control"
+        fixtures = (
+            (
+                "assigned-constructor-alias",
+                {
+                    f"{base_dir}/assigned_alias_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import (
+                            CapabilityFeatureInfo as Feature,
+                            CapabilityManifestResponse as Manifest,
+                        )
+                        FeatureAlias = Feature
+                        def build(meta):
+                            rows = [FeatureAlias(
+                                key="generated", label="Generated",
+                                description="probe", category="probe",
+                            )]
+                            return Manifest(meta=meta, features=rows)
+                        """
+                    )
+                },
+                f"{base_dir}/assigned_alias_probe.py:",
+            ),
+            (
+                "helper-return-flow",
+                {
+                    f"{base_dir}/helper_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import (
+                            CapabilityFeatureInfo as Feature,
+                            CapabilityManifestResponse as Manifest,
+                        )
+                        def rows():
+                            return [Feature(
+                                key="generated", label="Generated",
+                                description="probe", category="probe",
+                            )]
+                        def build(meta):
+                            return Manifest(meta=meta, features=rows())
+                        """
+                    )
+                },
+                f"{base_dir}/helper_probe.py:",
+            ),
+            (
+                "cross-module-flow",
+                {
+                    f"{base_dir}/rows_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import CapabilityFeatureInfo as Feature
+                        authored_rows = [Feature(
+                            key="generated", label="Generated",
+                            description="probe", category="probe",
+                        )]
+                        """
+                    ),
+                    f"{base_dir}/manifest_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import CapabilityManifestResponse
+                        from .rows_probe import authored_rows
+                        def build(meta):
+                            return CapabilityManifestResponse(meta=meta, features=authored_rows)
+                        """
+                    ),
+                },
+                f"{base_dir}/rows_probe.py:",
+            ),
+            (
+                "unresolved-import-fails-closed",
+                {
+                    f"{base_dir}/unresolved_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import CapabilityManifestResponse
+                        from .missing_rows import authored_rows
+                        def build(meta):
+                            return CapabilityManifestResponse(meta=meta, features=authored_rows)
+                        """
+                    )
+                },
+                f"unresolved_manifest_features:{base_dir}/unresolved_probe.py:",
+            ),
+            (
+                "missing-imported-export-fails-closed",
+                {
+                    f"{base_dir}/empty_rows_probe.py": "unrelated_rows = []\n",
+                    f"{base_dir}/missing_export_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import CapabilityManifestResponse
+                        from .empty_rows_probe import authored_rows
+                        def build(meta):
+                            return CapabilityManifestResponse(meta=meta, features=authored_rows)
+                        """
+                    ),
+                },
+                f"unresolved_manifest_features:{base_dir}/missing_export_probe.py:",
+            ),
+        )
+
+        for label, sources, expected_prefix in fixtures:
+            with self.subTest(label=label):
+                contributors = checker.control_capability_manifest_contributors(sources)
+                self.assertTrue(  # noqa: PT009
+                    any(row.startswith(expected_prefix) for row in contributors), contributors
+                )
+
     def test_ds10_generic_render_boundary_rejects_indirect_and_sibling_literals(self) -> None:
         """Reject authored rows/branches through an imported sibling while accepting chrome."""
         generated_ref = "".join(("capability", "-", "boundary", "-", "probe"))
@@ -872,6 +979,58 @@ class AtlasEnforcementTests(unittest.TestCase):
         )
         self.assertFalse(  # noqa: PT009
             any("workspaceConfig" in error for error in errors)
+        )
+
+    def test_ds10_generic_render_boundary_resolves_imported_values_and_computed_rows(self) -> None:
+        """Reject imported branch literals and indirect rows with computed semantic keys."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        values_path = f"{render_dir}/CapabilityDiscoveryValues.ts"
+        rows_path = f"{render_dir}/CapabilityDiscoveryRows.tsx"
+        generated_id = "".join(("capability", "-", "imported", "-", "probe"))
+        sources = {
+            root_path: (
+                'import { importedId, importedKind } from "./CapabilityDiscoveryValues";\n'
+                "export function render(result: { id: string; resource_kind: string }) {\n"
+                "  if (result.id === importedId) return null;\n"
+                "  if (result.resource_kind === importedKind) return null;\n"
+                "  return null;\n"
+                "}\n"
+            ),
+            values_path: (
+                f'export const importedId = "{generated_id}";\n'
+                'export const importedKind = "agent";\n'
+            ),
+            rows_path: (
+                f'const importedId = "{generated_id}";\n'
+                'const row = { ["capability_ref"]: importedId, '
+                '["resource_kind"]: "agent" };\n'
+                "export const rows = [row];\n"
+            ),
+        }
+
+        errors = checker.check_capability_discovery_result_boundary(sources)
+
+        self.assertEqual(  # noqa: PT009
+            2,
+            sum(
+                root_path in error and error.endswith(":literal_result_branch") for error in errors
+            ),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(rows_path in error and ":authored_capability_ref" in error for error in errors),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(rows_path in error and ":authored_resource_kind" in error for error in errors),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(
+                rows_path in error and error.endswith(":authored_result_array") for error in errors
+            ),
+            errors,
         )
 
     def test_ds10_generic_render_boundary_accepts_data_driven_mapping(self) -> None:

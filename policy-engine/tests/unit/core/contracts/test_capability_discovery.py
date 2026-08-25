@@ -175,6 +175,21 @@ def test_discovery_positive_cannot_establish_execution_or_authority() -> None:
     assert "publication_authority" in item.may_not_use_for
 
 
+def test_candidate_only_rejects_authority_scope_while_preserving_independent_negatives() -> None:
+    """Reject authority scope laundering without collapsing independent negative arms."""
+    response = _adversarial_contract()
+    item = response.results[0]
+
+    assert item.discovery_result.state == "discoverable"
+    assert item.execution_result.state == "not_established"
+    assert item.authority_result.state == "candidate_only"
+
+    payload = response.model_dump(mode="python")
+    payload["results"][0]["authoritative_for"] = (response.authority_purpose,)
+    with pytest.raises(ValidationError, match="non-authority posture"):
+        CapabilityDiscoveryResponse.model_validate(payload)
+
+
 def test_capability_discovery_contract_is_strict_frozen_and_rejects_unknown_states() -> None:
     """Catch mutable DTOs, ignored fields, and untyped negative posture strings."""
     response = _adversarial_contract()

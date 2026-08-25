@@ -77,15 +77,17 @@ while (queue.length) {
     }
   }
 }
-const violations = [];
-const kindValues = new Set(["method", "dataset", "source", "legal_norm", "case", "agent"]);
+const sourceFiles = new Map();
+const declarationsByPath = new Map();
+const importsByPath = new Map();
 for (const sourcePath of [...reachable].sort()) {
-  if (/\/(?:workspaceConfig|surfaceRegistry)\.[^/]+$/i.test(sourcePath)) continue;
   const sourceFile = ts.createSourceFile(
     sourcePath, sources.get(sourcePath), ts.ScriptTarget.Latest, true,
     sourcePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
   );
+  sourceFiles.set(sourcePath, sourceFile);
   const declarations = new Map();
+  const imports = new Map();
   function collect(node) {
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer) {
       declarations.set(node.name.text, node.initializer);
@@ -93,6 +95,27 @@ for (const sourcePath of [...reachable].sort()) {
     ts.forEachChild(node, collect);
   }
   collect(sourceFile);
+  for (const statement of sourceFile.statements) {
+    if (!ts.isImportDeclaration(statement)
+      || !ts.isStringLiteral(statement.moduleSpecifier)) continue;
+    const resolved = resolveRelative(sourcePath, statement.moduleSpecifier.text);
+    const bindings = statement.importClause?.namedBindings;
+    if (!resolved || !bindings || !ts.isNamedImports(bindings)) continue;
+    for (const element of bindings.elements) {
+      imports.set(element.name.text, {
+        path: resolved,
+        exported: element.propertyName?.text ?? element.name.text,
+      });
+    }
+  }
+  declarationsByPath.set(sourcePath, declarations);
+  importsByPath.set(sourcePath, imports);
+}
+const violations = [];
+const kindValues = new Set(["method", "dataset", "source", "legal_norm", "case", "agent"]);
+for (const sourcePath of [...reachable].sort()) {
+  if (/\/(?:workspaceConfig|surfaceRegistry)\.[^/]+$/i.test(sourcePath)) continue;
+  const sourceFile = sourceFiles.get(sourcePath);
   const unwrap = node => {
     while (node && (ts.isParenthesizedExpression(node) || ts.isAsExpression(node)
       || ts.isTypeAssertionExpression(node) || ts.isNonNullExpression(node))) {
@@ -100,13 +123,21 @@ for (const sourcePath of [...reachable].sort()) {
     }
     return node;
   };
-  const stringValue = (node, seen = new Set()) => {
+  const stringValue = (node, seen = new Set(), valuePath = sourcePath) => {
     node = unwrap(node);
     if (!node) return null;
     if (ts.isStringLiteralLike(node)) return node.text;
-    if (ts.isIdentifier(node) && !seen.has(node.text)) {
-      seen.add(node.text);
-      return stringValue(declarations.get(node.text), seen);
+    if (ts.isIdentifier(node)) {
+      const token = `${valuePath}:${node.text}`;
+      if (seen.has(token)) return null;
+      seen.add(token);
+      const declaration = declarationsByPath.get(valuePath)?.get(node.text);
+      if (declaration) return stringValue(declaration, seen, valuePath);
+      const imported = importsByPath.get(valuePath)?.get(node.text);
+      if (imported) {
+        const importedDeclaration = declarationsByPath.get(imported.path)?.get(imported.exported);
+        return stringValue(importedDeclaration, seen, imported.path);
+      }
     }
     return null;
   };
@@ -117,7 +148,7 @@ for (const sourcePath of [...reachable].sort()) {
     if (ts.isElementAccessExpression(node)) return stringValue(node.argumentExpression);
     if (ts.isIdentifier(node) && !seen.has(node.text)) {
       seen.add(node.text);
-      return semanticField(declarations.get(node.text), seen);
+      return semanticField(declarationsByPath.get(sourcePath)?.get(node.text), seen);
     }
     return null;
   };
@@ -125,7 +156,21 @@ for (const sourcePath of [...reachable].sort()) {
     if (ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name)) {
       return property.name.text;
     }
+    if (ts.isComputedPropertyName(property.name)) return stringValue(property.name.expression);
     return null;
+  };
+  const semanticObjectNames = (node, seen = new Set()) => {
+    node = unwrap(node);
+    if (!node) return new Set();
+    if (ts.isIdentifier(node)) {
+      const token = `${sourcePath}:${node.text}`;
+      if (seen.has(token)) return new Set();
+      seen.add(token);
+      return semanticObjectNames(declarationsByPath.get(sourcePath)?.get(node.text), seen);
+    }
+    if (!ts.isObjectLiteralExpression(node)) return new Set();
+    return new Set(node.properties.filter(ts.isPropertyAssignment)
+      .map(propertyName).filter(Boolean));
   };
   const record = (node, kind) => {
     const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
@@ -144,16 +189,13 @@ for (const sourcePath of [...reachable].sort()) {
           record(property, "authored_resource_kind");
         } else if ((name === "adapter_id" || name === "candidate_ref") && value !== null) {
           record(property, "authored_adapter_id");
-        } else if (name === "id" && value !== null && /adapter/i.test(value)) {
+        } else if (name === "id" && value !== null) {
           record(property, "authored_adapter_id");
         }
       }
     }
     if (ts.isArrayLiteralExpression(node) && node.elements.some(element => {
-      element = unwrap(element);
-      if (!element || !ts.isObjectLiteralExpression(element)) return false;
-      const names = new Set(element.properties.filter(ts.isPropertyAssignment)
-        .map(propertyName).filter(Boolean));
+      const names = semanticObjectNames(element);
       return names.has("capability_ref") || names.has("resource_kind");
     })) record(node, "authored_result_array");
     if (ts.isBinaryExpression(node) && [
@@ -168,7 +210,7 @@ for (const sourcePath of [...reachable].sort()) {
         || (field === "resource_kind" && kindValues.has(value))
         || (field === "kind" && kindValues.has(value))
         || ((field === "adapter_id" || field === "candidate_ref") && value !== null)
-        || (field === "id" && typeof value === "string" && /adapter/i.test(value));
+        || (field === "id" && value !== null);
       if (branch(leftField, rightValue) || branch(rightField, leftValue)) {
         record(node, "literal_result_branch");
       }
@@ -181,7 +223,7 @@ for (const sourcePath of [...reachable].sort()) {
       if (field === "capability_ref"
         || ((field === "resource_kind" || field === "kind") && kindValues.has(value))
         || ((field === "adapter_id" || field === "candidate_ref") && value !== null)
-        || (field === "id" && typeof value === "string" && /adapter/i.test(value))) {
+        || (field === "id" && value !== null)) {
         record(node, "literal_result_branch");
       }
     }
@@ -1029,153 +1071,415 @@ def _scope_nodes(node: ast.AST) -> list[ast.AST]:
     return nodes
 
 
-def _python_capability_contract_bindings(
-    tree: ast.Module,
-) -> tuple[set[str], set[str], set[str]]:
-    """Resolve direct and module aliases for the two control manifest contracts."""
-    feature_names: set[str] = set()
-    manifest_names: set[str] = set()
-    module_aliases: set[str] = set()
-    owner_modules = {
-        "polisyos.core.contracts",
-        "polisyos.core.contracts.control",
-    }
-    for node in ast.walk(tree):
-        if isinstance(node, ast.ImportFrom) and node.module in owner_modules:
-            for alias in node.names:
-                local_name = alias.asname or alias.name
-                if alias.name == "CapabilityFeatureInfo":
-                    feature_names.add(local_name)
-                elif alias.name == "CapabilityManifestResponse":
-                    manifest_names.add(local_name)
-        elif isinstance(node, ast.Import):
-            for alias in node.names:
-                if alias.name in owner_modules:
-                    module_aliases.add(alias.asname or alias.name)
-    return feature_names, manifest_names, module_aliases
+_PYTHON_CAPABILITY_CONTRACTS = {
+    "polisyos.core.contracts.CapabilityFeatureInfo": "feature",
+    "polisyos.core.contracts.control.CapabilityFeatureInfo": "feature",
+    "polisyos.core.contracts.CapabilityManifestResponse": "manifest",
+    "polisyos.core.contracts.control.CapabilityManifestResponse": "manifest",
+}
 
 
-def _matches_python_contract_call(
-    call: ast.Call,
-    *,
-    direct_names: set[str],
-    module_aliases: set[str],
-    attribute: str,
-) -> bool:
-    """Return whether a call resolves to one imported canonical contract."""
-    if isinstance(call.func, ast.Name):
-        return call.func.id in direct_names
-    if not isinstance(call.func, ast.Attribute) or call.func.attr != attribute:
-        return False
-    parts: list[str] = []
-    current: ast.AST = call.func.value
-    while isinstance(current, ast.Attribute):
-        parts.append(current.attr)
-        current = current.value
-    if not isinstance(current, ast.Name):
-        return False
-    parts.append(current.id)
-    return ".".join(reversed(parts)) in module_aliases
+def _python_source_module(path: str) -> str | None:
+    """Return the import module represented by one source path."""
+    marker = "src/"
+    offset = path.find(marker)
+    if offset < 0 or not path.endswith(".py"):
+        return None
+    module = path[offset + len(marker) : -3].replace("/", ".")
+    return module.removesuffix(".__init__")
 
 
-def _manifest_contributors_for_source(path: str, source: str) -> tuple[str, ...]:
-    """Find direct feature constructors that flow into manifest ``features``."""
-    tree = ast.parse(source, filename=path)
-    feature_names, manifest_names, module_aliases = _python_capability_contract_bindings(tree)
-    if not feature_names and not module_aliases:
-        return ()
+def _python_import_module(
+    source_path: str,
+    imported: ast.ImportFrom,
+    modules_by_path: Mapping[str, str],
+) -> str | None:
+    """Resolve an absolute or relative import to its module name."""
+    if imported.level == 0:
+        return imported.module
+    source_module = modules_by_path.get(source_path)
+    if source_module is None:
+        return None
+    package_parts = source_module.split(".")
+    if not source_path.endswith("/__init__.py"):
+        package_parts = package_parts[:-1]
+    ascend = imported.level - 1
+    if ascend > len(package_parts):
+        return None
+    base = package_parts[: len(package_parts) - ascend]
+    if imported.module:
+        base.extend(imported.module.split("."))
+    return ".".join(base)
 
-    scopes: list[ast.AST] = [tree]
-    scopes.extend(
-        node
-        for node in ast.walk(tree)
-        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda))
-    )
-    contributors: set[str] = set()
-    for scope in scopes:
-        nodes = _scope_nodes(scope)
-        manifest_feature_values: list[ast.AST] = []
-        for node in nodes:
-            if not isinstance(node, ast.Call) or not _matches_python_contract_call(
-                node,
-                direct_names=manifest_names,
-                module_aliases=module_aliases,
-                attribute="CapabilityManifestResponse",
+
+def _python_scope_binding(scope: ast.AST, name: str) -> tuple[str, ast.AST] | None:
+    """Find one name's assignment, function, or import inside a lexical scope."""
+    for node in reversed(_scope_nodes(scope)):
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            if node.value is not None and any(
+                isinstance(target, ast.Name) and target.id == name for target in targets
             ):
-                continue
-            manifest_feature_values.extend(
-                keyword.value for keyword in node.keywords if keyword.arg == "features"
-            )
+                return "value", node.value
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                local_name = alias.asname or alias.name.split(".")[0]
+                if local_name == name:
+                    return "import", node
+    body = getattr(scope, "body", ())
+    statements = body if isinstance(body, list) else ()
+    for statement in reversed(statements):
+        if (
+            isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+            and statement.name == name
+        ):
+            return "definition", statement
+    return None
 
-        contributing_names = {
-            nested.id
-            for value in manifest_feature_values
-            for nested in ast.walk(value)
-            if isinstance(nested, ast.Name) and isinstance(nested.ctx, ast.Load)
-        }
-        candidate_expressions = list(manifest_feature_values)
-        seen_expressions = {id(value) for value in candidate_expressions}
-        changed = True
-        while changed:
-            changed = False
-            for node in nodes:
-                expressions: Sequence[ast.AST] = ()
-                if isinstance(node, (ast.Assign, ast.AnnAssign)):
-                    targets = node.targets if isinstance(node, ast.Assign) else [node.target]
-                    if node.value is not None and any(
-                        isinstance(target, ast.Name) and target.id in contributing_names
-                        for target in targets
-                    ):
-                        expressions = (node.value,)
-                elif (
+
+def _python_lookup_binding(
+    path: str,
+    scope: ast.AST,
+    name: str,
+    trees: Mapping[str, ast.Module],
+) -> tuple[str, ast.AST] | None:
+    """Resolve a local binding, falling back to its module scope."""
+    binding = _python_scope_binding(scope, name)
+    if binding is not None or scope is trees[path]:
+        return binding
+    return _python_scope_binding(trees[path], name)
+
+
+def _python_import_binding(
+    path: str,
+    name: str,
+    imported: ast.Import | ast.ImportFrom,
+    modules_by_path: Mapping[str, str],
+    paths_by_module: Mapping[str, str],
+) -> tuple[str, str | None, str]:
+    """Return a qualified module plus optional local source and exported symbol."""
+    if isinstance(imported, ast.ImportFrom):
+        module = _python_import_module(path, imported, modules_by_path)
+        for alias in imported.names:
+            if (alias.asname or alias.name) == name:
+                qualified = f"{module}.{alias.name}" if module else alias.name
+                return qualified, paths_by_module.get(module or ""), alias.name
+    else:
+        for alias in imported.names:
+            if (alias.asname or alias.name.split(".")[0]) == name:
+                qualified = alias.name if alias.asname else alias.name.split(".")[0]
+                return qualified, paths_by_module.get(alias.name), ""
+    return name, None, ""
+
+
+def _python_resolve_callable(
+    path: str,
+    scope: ast.AST,
+    expression: ast.AST,
+    *,
+    trees: Mapping[str, ast.Module],
+    modules_by_path: Mapping[str, str],
+    paths_by_module: Mapping[str, str],
+    visited: set[tuple[str, int, str]],
+) -> str | tuple[str, ast.AST] | None:
+    """Resolve contract constructors and local/imported helper functions."""
+    token = (path, id(scope), ast.dump(expression, include_attributes=False))
+    if token in visited:
+        return None
+    visited.add(token)
+    if isinstance(expression, ast.Name):
+        binding = _python_lookup_binding(path, scope, expression.id, trees)
+        if binding is None:
+            return None
+        kind, target = binding
+        if kind == "value":
+            return _python_resolve_callable(
+                path,
+                scope,
+                target,
+                trees=trees,
+                modules_by_path=modules_by_path,
+                paths_by_module=paths_by_module,
+                visited=visited,
+            )
+        if kind == "definition":
+            return path, target
+        qualified, target_path, exported = _python_import_binding(
+            path, expression.id, target, modules_by_path, paths_by_module
+        )
+        if qualified in _PYTHON_CAPABILITY_CONTRACTS:
+            return _PYTHON_CAPABILITY_CONTRACTS[qualified]
+        if target_path and exported:
+            return _python_resolve_callable(
+                target_path,
+                trees[target_path],
+                ast.Name(id=exported),
+                trees=trees,
+                modules_by_path=modules_by_path,
+                paths_by_module=paths_by_module,
+                visited=visited,
+            )
+        return None
+    if isinstance(expression, ast.Attribute):
+        parts: list[str] = [expression.attr]
+        current = expression.value
+        while isinstance(current, ast.Attribute):
+            parts.append(current.attr)
+            current = current.value
+        if not isinstance(current, ast.Name):
+            return None
+        binding = _python_lookup_binding(path, scope, current.id, trees)
+        if binding is None or binding[0] != "import":
+            return None
+        qualified, target_path, _ = _python_import_binding(
+            path, current.id, binding[1], modules_by_path, paths_by_module
+        )
+        qualified = ".".join((qualified, *reversed(parts)))
+        if qualified in _PYTHON_CAPABILITY_CONTRACTS:
+            return _PYTHON_CAPABILITY_CONTRACTS[qualified]
+        if target_path:
+            return _python_resolve_callable(
+                target_path,
+                trees[target_path],
+                ast.Name(id=parts[0]),
+                trees=trees,
+                modules_by_path=modules_by_path,
+                paths_by_module=paths_by_module,
+                visited=visited,
+            )
+    return None
+
+
+def _python_feature_contributors(
+    path: str,
+    scope: ast.AST,
+    expression: ast.AST,
+    *,
+    root_ref: str,
+    trees: Mapping[str, ast.Module],
+    modules_by_path: Mapping[str, str],
+    paths_by_module: Mapping[str, str],
+    visited: set[tuple[str, int, int]],
+) -> set[str]:
+    """Trace one manifest features expression to constructors or unresolved imports."""
+    token = (path, id(scope), id(expression))
+    if token in visited:
+        return set()
+    visited.add(token)
+    contributors: set[str] = set()
+    if isinstance(expression, ast.Name):
+        binding = _python_lookup_binding(path, scope, expression.id, trees)
+        if binding is None:
+            return contributors
+        kind, target = binding
+        if kind == "value":
+            contributors.update(
+                _python_feature_contributors(
+                    path,
+                    scope,
+                    target,
+                    root_ref=root_ref,
+                    trees=trees,
+                    modules_by_path=modules_by_path,
+                    paths_by_module=paths_by_module,
+                    visited=visited,
+                )
+            )
+            for node in _scope_nodes(scope):
+                if (
                     isinstance(node, ast.Call)
                     and isinstance(node.func, ast.Attribute)
-                    and node.func.attr in {"append", "extend"}
                     and isinstance(node.func.value, ast.Name)
-                    and node.func.value.id in contributing_names
+                    and node.func.value.id == expression.id
+                    and node.func.attr in {"append", "extend"}
                 ):
-                    expressions = node.args
-                for expression in expressions:
-                    if id(expression) not in seen_expressions:
-                        seen_expressions.add(id(expression))
-                        candidate_expressions.append(expression)
-                    for nested in ast.walk(expression):
-                        if (
-                            isinstance(nested, ast.Name)
-                            and isinstance(nested.ctx, ast.Load)
-                            and nested.id not in contributing_names
-                        ):
-                            contributing_names.add(nested.id)
-                            changed = True
-
-        for expression in candidate_expressions:
-            for node in ast.walk(expression):
-                if isinstance(node, ast.Call) and _matches_python_contract_call(
-                    node,
-                    direct_names=feature_names,
-                    module_aliases=module_aliases,
-                    attribute="CapabilityFeatureInfo",
-                ):
-                    contributors.add(f"{path}:{node.lineno}")
-    return tuple(sorted(contributors))
+                    for argument in node.args:
+                        contributors.update(
+                            _python_feature_contributors(
+                                path,
+                                scope,
+                                argument,
+                                root_ref=root_ref,
+                                trees=trees,
+                                modules_by_path=modules_by_path,
+                                paths_by_module=paths_by_module,
+                                visited=visited,
+                            )
+                        )
+            return contributors
+        if kind == "import":
+            qualified, target_path, exported = _python_import_binding(
+                path, expression.id, target, modules_by_path, paths_by_module
+            )
+            if target_path and exported:
+                target_scope = trees[target_path]
+                if _python_lookup_binding(target_path, target_scope, exported, trees) is None:
+                    contributors.add(
+                        f"unresolved_manifest_features:{root_ref}:{qualified}"
+                    )
+                else:
+                    contributors.update(
+                        _python_feature_contributors(
+                            target_path,
+                            target_scope,
+                            ast.Name(id=exported),
+                            root_ref=root_ref,
+                            trees=trees,
+                            modules_by_path=modules_by_path,
+                            paths_by_module=paths_by_module,
+                            visited=visited,
+                        )
+                    )
+            elif qualified not in _PYTHON_CAPABILITY_CONTRACTS:
+                contributors.add(f"unresolved_manifest_features:{root_ref}:{qualified}")
+            return contributors
+    if isinstance(expression, ast.Call):
+        resolved = _python_resolve_callable(
+            path,
+            scope,
+            expression.func,
+            trees=trees,
+            modules_by_path=modules_by_path,
+            paths_by_module=paths_by_module,
+            visited=set(),
+        )
+        if resolved == "feature":
+            return {f"{path}:{expression.lineno}"}
+        if isinstance(resolved, tuple):
+            helper_path, helper = resolved
+            for node in _scope_nodes(helper):
+                if isinstance(node, ast.Return) and node.value is not None:
+                    contributors.update(
+                        _python_feature_contributors(
+                            helper_path,
+                            helper,
+                            node.value,
+                            root_ref=root_ref,
+                            trees=trees,
+                            modules_by_path=modules_by_path,
+                            paths_by_module=paths_by_module,
+                            visited=visited,
+                        )
+                    )
+            for argument in (*expression.args, *(item.value for item in expression.keywords)):
+                contributors.update(
+                    _python_feature_contributors(
+                        path,
+                        scope,
+                        argument,
+                        root_ref=root_ref,
+                        trees=trees,
+                        modules_by_path=modules_by_path,
+                        paths_by_module=paths_by_module,
+                        visited=visited,
+                    )
+                )
+            return contributors
+    for child in ast.iter_child_nodes(expression):
+        contributors.update(
+            _python_feature_contributors(
+                path,
+                scope,
+                child,
+                root_ref=root_ref,
+                trees=trees,
+                modules_by_path=modules_by_path,
+                paths_by_module=paths_by_module,
+                visited=visited,
+            )
+        )
+    return contributors
 
 
 def control_capability_manifest_contributors(
     sources: Mapping[str, str] | None = None,
 ) -> tuple[str, ...]:
-    """Enumerate direct authored feature constructors over a source-derived denominator."""
+    """Enumerate authored manifest contributors through local and imported value flow."""
     if sources is None:
         source_root = status_checker.REPO_ROOT / "src/polisyos"
         sources = {
             path.relative_to(status_checker.REPO_ROOT).as_posix(): path.read_text(encoding="utf-8")
             for path in sorted(source_root.rglob("*.py"))
         }
-    contributors: list[str] = []
-    for path, source in sorted(sources.items()):
-        if not path.endswith(".py"):
+    trees = {
+        path: ast.parse(source, filename=path)
+        for path, source in sorted(sources.items())
+        if path.endswith(".py")
+    }
+    modules_by_path = {
+        path: module for path in trees if (module := _python_source_module(path)) is not None
+    }
+    paths_by_module = {module: path for path, module in modules_by_path.items()}
+    owner_modules = {"polisyos.core.contracts", "polisyos.core.contracts.control"}
+    manifest_paths = {
+        path
+        for path, tree in trees.items()
+        if any(
+            (
+                isinstance(node, ast.ImportFrom)
+                and node.module in owner_modules
+                and any(alias.name == "CapabilityManifestResponse" for alias in node.names)
+            )
+            or (
+                isinstance(node, ast.Import)
+                and any(alias.name in owner_modules for alias in node.names)
+            )
+            for node in ast.walk(tree)
+        )
+    }
+    changed = True
+    while changed:
+        changed = False
+        for path, tree in trees.items():
+            if path in manifest_paths:
+                continue
+            for imported in (node for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)):
+                module = _python_import_module(path, imported, modules_by_path)
+                if paths_by_module.get(module or "") in manifest_paths:
+                    manifest_paths.add(path)
+                    changed = True
+                    break
+    contributors: set[str] = set()
+    for path, tree in trees.items():
+        if path not in manifest_paths:
             continue
-        contributors.extend(_manifest_contributors_for_source(path, source))
-    return tuple(sorted(set(contributors)))
+        scopes: list[ast.AST] = [tree]
+        scopes.extend(
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda))
+        )
+        for scope in scopes:
+            for node in _scope_nodes(scope):
+                if not isinstance(node, ast.Call):
+                    continue
+                resolved = _python_resolve_callable(
+                    path,
+                    scope,
+                    node.func,
+                    trees=trees,
+                    modules_by_path=modules_by_path,
+                    paths_by_module=paths_by_module,
+                    visited=set(),
+                )
+                if resolved != "manifest":
+                    continue
+                for keyword in node.keywords:
+                    if keyword.arg != "features":
+                        continue
+                    contributors.update(
+                        _python_feature_contributors(
+                            path,
+                            scope,
+                            keyword.value,
+                            root_ref=f"{path}:{node.lineno}",
+                            trees=trees,
+                            modules_by_path=modules_by_path,
+                            paths_by_module=paths_by_module,
+                            visited=set(),
+                        )
+                    )
+    return tuple(sorted(contributors))
 
 
 def _capability_discovery_live_sources(
@@ -3048,42 +3352,59 @@ def _corruption_probes(
     ] != [2322] or not any(error.endswith(":TS2322") for error in errors):
         escaped.append("capability-discovery-benign-and-brand")
 
-    python_probe_path = "src/polisyos/runtime/http/services/control/ds10_corruption_probe.py"
+    python_probe_dir = "src/polisyos/runtime/http/services/control"
+    python_rows_path = f"{python_probe_dir}/ds10_corruption_rows.py"
+    python_manifest_path = f"{python_probe_dir}/ds10_corruption_manifest.py"
     python_contributors = control_capability_manifest_contributors(
         {
-            python_probe_path: dedent(
+            python_rows_path: dedent(
                 """
-                from polisyos.core.contracts.control import (
-                    CapabilityFeatureInfo as Feature,
-                    CapabilityManifestResponse as Manifest,
-                )
+                from polisyos.core.contracts.control import CapabilityFeatureInfo as Feature
+                FeatureAlias = Feature
                 marker_only = Feature(
                     key="marker", label="Marker", description="benign", category="probe",
                 )
-                def build(meta):
-                    rows = [Feature(
+                def rows():
+                    return [FeatureAlias(
                         key="generated", label="Generated",
                         description="corruption", category="probe",
                     )]
-                    return Manifest(meta=meta, features=rows)
                 """
-            )
+            ),
+            python_manifest_path: dedent(
+                """
+                from polisyos.core.contracts.control import CapabilityManifestResponse as Manifest
+                from .ds10_corruption_rows import rows
+                def build(meta):
+                    return Manifest(meta=meta, features=rows())
+                """
+            ),
         }
     )
-    if len(python_contributors) != 1:
+    if len(python_contributors) != 1 or not python_contributors[0].startswith(
+        python_rows_path + ":"
+    ):
         escaped.append("capability-discovery-python-manifest-contributor")
 
     render_dir = "apps/runtime-dashboard/src/features/evidence/components"
     render_root = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
     render_sibling = f"{render_dir}/CapabilityDiscoveryRows.tsx"
+    render_values = f"{render_dir}/CapabilityDiscoveryValues.ts"
     fixed_chrome = "apps/runtime-dashboard/src/app/surfaces/workspaceConfig.ts"
     render_errors = check_capability_discovery_result_boundary(
         {
-            render_root: 'import { rows } from "./CapabilityDiscoveryRows";\nvoid rows;\n',
+            render_root: (
+                'import { selected } from "./CapabilityDiscoveryValues";\n'
+                "export function render(result: { resource_kind: string }) {\n"
+                "  return result.resource_kind === selected ? null : null;\n"
+                "}\n"
+            ),
             render_sibling: (
                 'const selected = "capability-corruption-probe";\n'
-                'export const rows = [{ capability_ref: selected, resource_kind: "agent" }];\n'
+                'const row = { ["capability_ref"]: selected, ["resource_kind"]: "agent" };\n'
+                "export const rows = [row];\n"
             ),
+            render_values: 'export const selected = "agent";\n',
             fixed_chrome: (
                 "type WorkspaceConfig = { route: string; tab: string };\n"
                 'export const workspace: WorkspaceConfig = { route: "runs", tab: "overview" };\n'

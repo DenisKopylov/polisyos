@@ -241,6 +241,24 @@ export type CandidateLever = RuntimeApiComponents["schemas"]["CandidateLever"];
 export type CandidateLeverSpace =
   RuntimeApiComponents["schemas"]["CandidateLeverSpace"];
 
+export type CapabilityAuthorityPostureResult =
+  RuntimeApiComponents["schemas"]["CapabilityAuthorityPostureResult"];
+
+export type CapabilityDiscoveryItem =
+  RuntimeApiComponents["schemas"]["CapabilityDiscoveryItem"];
+
+export type CapabilityDiscoveryPostureResult =
+  RuntimeApiComponents["schemas"]["CapabilityDiscoveryPostureResult"];
+
+export type CapabilityDiscoveryRequest =
+  RuntimeApiComponents["schemas"]["CapabilityDiscoveryRequest"];
+
+export type CapabilityDiscoveryResponse =
+  RuntimeApiComponents["schemas"]["CapabilityDiscoveryResponse"];
+
+export type CapabilityExecutionPostureResult =
+  RuntimeApiComponents["schemas"]["CapabilityExecutionPostureResult"];
+
 export type CapabilityFeatureInfo =
   RuntimeApiComponents["schemas"]["CapabilityFeatureInfo"];
 
@@ -249,6 +267,9 @@ export type CapabilityManifestResponse =
 
 export type CapabilityRealityPayload =
   RuntimeApiComponents["schemas"]["CapabilityRealityPayload"];
+
+export type CapabilityTimeSemantics =
+  RuntimeApiComponents["schemas"]["CapabilityTimeSemantics"];
 
 export type CausalFrontierAreaRecord =
   RuntimeApiComponents["schemas"]["CausalFrontierAreaRecord"];
@@ -380,9 +401,6 @@ export type CycleBoardProjectionPacket =
   RuntimeApiComponents["schemas"]["CycleBoardProjectionPacket"];
 
 export type CycleBoardRow = RuntimeApiComponents["schemas"]["CycleBoardRow"];
-
-export type DataCatalogSearchResponse =
-  RuntimeApiComponents["schemas"]["DataCatalogSearchResponse"];
 
 export type DataDiscoverRequest =
   RuntimeApiComponents["schemas"]["DataDiscoverRequest"];
@@ -1184,6 +1202,13 @@ export type ScenarioManifestResponse =
 
 export type ScenarioRef = RuntimeApiComponents["schemas"]["ScenarioRef"];
 
+export type SearchCandidate =
+  RuntimeApiComponents["schemas"]["SearchCandidate"];
+
+export type SearchFrontier = RuntimeApiComponents["schemas"]["SearchFrontier"];
+
+export type SearchRequest = RuntimeApiComponents["schemas"]["SearchRequest"];
+
 export type SimulationResultRefInput =
   RuntimeApiComponents["schemas"]["SimulationResultRef-Input"];
 
@@ -1539,6 +1564,20 @@ export class RuntimeApiClient {
     );
   }
 
+  async searchCapabilities(params: {
+    body: CapabilityDiscoveryRequest;
+  }): Promise<CapabilityDiscoveryResponse> {
+    const path = `/api/v1/control/capabilities/search`;
+    const query = undefined;
+    return this.request<CapabilityDiscoveryResponse>(
+      "POST",
+      path,
+      query,
+      params.body,
+      undefined,
+    );
+  }
+
   async listBindingProfiles(): Promise<BindingProfilesListResponse> {
     const path = `/api/v1/control/data/binding-profiles`;
     const query = undefined;
@@ -1567,14 +1606,14 @@ export class RuntimeApiClient {
     metric: string;
     geo?: string | null;
     limit?: number;
-  }): Promise<DataCatalogSearchResponse> {
+  }): Promise<CapabilityDiscoveryResponse> {
     const path = `/api/v1/control/data/catalog/search`;
     const query = this.buildQuery({
       metric: params.metric,
       geo: params.geo,
       limit: params.limit,
     });
-    return this.request<DataCatalogSearchResponse>(
+    return this.request<CapabilityDiscoveryResponse>(
       "GET",
       path,
       query,

@@ -1,0 +1,69 @@
+id = "2026-08-25-ds10-capability-discovery"
+title = "Add candidate-grade capability discovery"
+type = "added"
+component = "runtime"
+owner = "team-polisyos"
+summary = "Add typed capability search with independent discovery, execution, and authority postures plus a complete replayable search frontier."
+evidence = [
+  "tests/unit/runtime/quality/test_capability_discovery.py",
+  "tests/unit/runtime/http/test_capability_discovery_api.py",
+  "tests/unit/runtime/http/test_runtime_api_contract_hardening.py",
+  "schemas/runtime_api_v1.openapi.json",
+]
+compatibility = "The canonical capability-search POST is additive. The dataset compatibility GET now returns CapabilityDiscoveryResponse instead of the legacy query/matches/total envelope, so HTTP consumers must migrate and both generated client families must be regenerated."
+change_class = "schema-openapi-abi; js-package-api"
+surface_classification = "public_stable: runtime capability discovery HTTP API"
+migration = "Regenerate both generated client families. Call POST /api/v1/control/capabilities/search for generic search; replace dataset matches/total parsing with results/frontier parsing; preserve all three posture arms, selected and rejected candidates, cutoffs, freshness, and incompleteness."
+api = "Adds POST /api/v1/control/capabilities/search and changes GET /api/v1/control/data/catalog/search to the same strict CapabilityDiscoveryResponse contract under evidence.discover authorization."
+limitations = "Discoverability is candidate-grade and never implies execution or admission. Admitted authority remains not_established because the typed owner-signed capability-purpose binding is absent; cases remain producer_missing; connector and source-profile content remains DS15/team-fabric owned."
+generated_client_compatibility = "requires_regeneration"
+public_surface_inventory_reviewed = true
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "capability-discovery-runtime-schema"
+change_class = "schema-openapi-abi"
+impact = "breaking"
+surface = "public_stable: POST /api/v1/control/capabilities/search and GET /api/v1/control/data/catalog/search"
+owner = "team-polisyos"
+version_owner = "team-runtime"
+deprecation_window = "The POST is additive; the legacy dataset response envelope changes at this release boundary."
+release_note = "Runtime capability search now exposes independent candidate-grade postures and the complete frontier; dataset search consumers must adopt the same strict response."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "capability-discovery-runtime-client"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "public_stable: @polisyos/runtime-api-client"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The generated runtime API client adds strict capability-discovery request, response, frontier, and search operation types."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+]
+runbook_docs = []
+
+[[compatibility_change]]
+id = "capability-discovery-dashboard-types"
+change_class = "js-package-api"
+impact = "requires_regeneration"
+surface = "internal: runtime-dashboard generated API types"
+owner = "team-polisyos"
+version_owner = "team-frontend"
+deprecation_window = "not_applicable"
+release_note = "The runtime dashboard generated types add the strict capability-discovery contract and changed dataset compatibility response."
+generated_client_compatibility = "requires_regeneration"
+migration_docs = [
+  "docs/reference/api/migration-guide.md",
+]
+runbook_docs = []

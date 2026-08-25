@@ -310,6 +310,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/control/capabilities/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Search owner-backed runtime capabilities */
+        post: operations["search_capabilities"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/control/data/binding-profiles": {
         parameters: {
             query?: never;
@@ -351,7 +368,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Search metric catalog candidates */
+        /** Search dataset capabilities through the canonical owner */
         get: operations["search_data_catalog"];
         put?: never;
         post?: never;
@@ -3439,8 +3456,171 @@ export interface components {
             candidate_levers?: components["schemas"]["CandidateLever"][];
         };
         /**
+         * CapabilityAuthorityPostureResult
+         * @description Typed purpose-bound authority result independent of discovery/execution.
+         */
+        CapabilityAuthorityPostureResult: {
+            /** Authority Purpose */
+            authority_purpose: string;
+            /** Binding Ref */
+            binding_ref?: string | null;
+            /** Currentness Ref */
+            currentness_ref?: string | null;
+            /** Producer Ref */
+            producer_ref: string;
+            /** Provenance Refs */
+            provenance_refs: string[];
+            /**
+             * Reason Codes
+             * @default []
+             */
+            reason_codes: string[];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "admitted_authority" | "candidate_only" | "producer_missing" | "bridge_missing" | "artifact_missing" | "invalid_source" | "revalidation_required" | "authority_blocked" | "not_established";
+            time: components["schemas"]["CapabilityTimeSemantics"];
+        };
+        /**
+         * CapabilityDiscoveryItem
+         * @description One candidate with three sibling posture results and authority boundaries.
+         */
+        CapabilityDiscoveryItem: {
+            /** Authoritative For */
+            authoritative_for: string[];
+            /** Authority Purpose */
+            authority_purpose: string;
+            authority_result: components["schemas"]["CapabilityAuthorityPostureResult"];
+            /** Capability Ref */
+            capability_ref: string;
+            /** Content Digest */
+            content_digest: string;
+            /** Description */
+            description: string;
+            discovery_result: components["schemas"]["CapabilityDiscoveryPostureResult"];
+            execution_result: components["schemas"]["CapabilityExecutionPostureResult"];
+            /** Label */
+            label: string;
+            /** May Not Use For */
+            may_not_use_for: string[];
+            /** Provenance Refs */
+            provenance_refs: string[];
+            /**
+             * Resource Kind
+             * @enum {string}
+             */
+            resource_kind: "method" | "dataset" | "source" | "legal_norm" | "case" | "agent";
+            /** Rule Version */
+            rule_version: string;
+            /**
+             * Schema Version
+             * @default policyos.capability_discovery.v1
+             * @constant
+             */
+            schema_version: "policyos.capability_discovery.v1";
+            time: components["schemas"]["CapabilityTimeSemantics"];
+        };
+        /**
+         * CapabilityDiscoveryPostureResult
+         * @description Typed searched-index result, never execution or authority evidence.
+         */
+        CapabilityDiscoveryPostureResult: {
+            /** Freshness Ref */
+            freshness_ref?: string | null;
+            /** Producer Ref */
+            producer_ref: string;
+            /** Provenance Refs */
+            provenance_refs: string[];
+            /**
+             * Reason Codes
+             * @default []
+             */
+            reason_codes: string[];
+            /** Snapshot Ref */
+            snapshot_ref?: string | null;
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "discoverable" | "no_match" | "producer_missing" | "producer_unavailable" | "index_unavailable" | "index_stale" | "recall_unmeasured" | "budget_cutoff" | "incomplete";
+            time: components["schemas"]["CapabilityTimeSemantics"];
+        };
+        /**
+         * CapabilityDiscoveryRequest
+         * @description Capability kind filter wrapped around a real semantic search request.
+         */
+        CapabilityDiscoveryRequest: {
+            /**
+             * Audience
+             * @enum {string}
+             */
+            audience: "REVIEWER" | "EXPERT" | "MACHINE";
+            /** Resource Kinds */
+            resource_kinds: ("method" | "dataset" | "source" | "legal_norm" | "case" | "agent")[];
+            search: components["schemas"]["SearchRequest"];
+        };
+        /**
+         * CapabilityDiscoveryResponse
+         * @description Replayable capability discovery response with candidate-grade frontier truth.
+         */
+        CapabilityDiscoveryResponse: {
+            /**
+             * Audience
+             * @enum {string}
+             */
+            audience: "REVIEWER" | "EXPERT" | "MACHINE";
+            /** Authority Purpose */
+            authority_purpose: string;
+            frontier: components["schemas"]["SearchFrontier"];
+            meta: components["schemas"]["ApiMeta"];
+            /** Provenance Refs */
+            provenance_refs: string[];
+            request: components["schemas"]["CapabilityDiscoveryRequest"];
+            /** Request Digest */
+            request_digest: string;
+            /** Results */
+            results: components["schemas"]["CapabilityDiscoveryItem"][];
+            /** Rule Version */
+            rule_version: string;
+            /**
+             * Schema Version
+             * @default policyos.capability_discovery.v1
+             * @constant
+             */
+            schema_version: "policyos.capability_discovery.v1";
+            time: components["schemas"]["CapabilityTimeSemantics"];
+        };
+        /**
+         * CapabilityExecutionPostureResult
+         * @description Typed live-registry, conformance, and policy execution result.
+         */
+        CapabilityExecutionPostureResult: {
+            /** Conformance Ref */
+            conformance_ref?: string | null;
+            /** Operation Ref */
+            operation_ref?: string | null;
+            /** Policy Ref */
+            policy_ref?: string | null;
+            /** Producer Ref */
+            producer_ref: string;
+            /** Provenance Refs */
+            provenance_refs: string[];
+            /**
+             * Reason Codes
+             * @default []
+             */
+            reason_codes: string[];
+            /**
+             * State
+             * @enum {string}
+             */
+            state: "executable" | "not_executable" | "operation_missing" | "conformance_failed" | "policy_disabled" | "producer_missing" | "execution_blocked" | "not_established";
+            time: components["schemas"]["CapabilityTimeSemantics"];
+        };
+        /**
          * CapabilityFeatureInfo
-         * @description Describe one runtime feature flag and its rollout stage/disable reason.
+         * @description Describe one fixed runtime-policy feature, never a discovery posture.
          */
         CapabilityFeatureInfo: {
             /** Category */
@@ -3559,6 +3739,29 @@ export interface components {
             summary: {
                 [key: string]: components["schemas"]["ProjectionJsonValue"];
             };
+        };
+        /**
+         * CapabilityTimeSemantics
+         * @description Producer observation, validity interval, and declared freshness.
+         */
+        CapabilityTimeSemantics: {
+            /**
+             * Freshness
+             * @enum {string}
+             */
+            freshness: "current" | "stale" | "unknown";
+            /**
+             * Observed At
+             * Format: date-time
+             */
+            observed_at: string;
+            /**
+             * Valid From
+             * Format: date-time
+             */
+            valid_from: string;
+            /** Valid Until */
+            valid_until: string | null;
         };
         /**
          * CausalFrontierAreaRecord
@@ -4818,22 +5021,6 @@ export interface components {
             surface_readiness: components["schemas"]["AvailableFact_SurfaceReadinessPayload_"] | components["schemas"]["AbsentFact"];
             /** Weakest Links */
             weakest_links: components["schemas"]["AvailableFact_tuple_str__________"] | components["schemas"]["AbsentFact"];
-        };
-        /**
-         * DataCatalogSearchResponse
-         * @description Return catalog search matches and the total result count for a query.
-         */
-        DataCatalogSearchResponse: {
-            /** Matches */
-            matches?: components["schemas"]["MetricCandidate"][];
-            meta: components["schemas"]["ApiMeta"];
-            /** Query */
-            query: string;
-            /**
-             * Total Matches
-             * @default 0
-             */
-            total_matches: number;
         };
         /**
          * DataDiscoverRequest
@@ -12392,6 +12579,163 @@ export interface components {
             temporal_scope?: components["schemas"]["TemporalScope"] | null;
         };
         /**
+         * SearchCandidate
+         * @description One candidate returned by a reusable search ledger.
+         */
+        SearchCandidate: {
+            /** Authority Boundary */
+            authority_boundary?: {
+                [key: string]: unknown;
+            };
+            /** Candidate Ref */
+            candidate_ref: string;
+            /**
+             * Evidence Refs
+             * @default []
+             */
+            evidence_refs: string[];
+            /**
+             * Limitation Refs
+             * @default []
+             */
+            limitation_refs: string[];
+            /**
+             * Match Mode
+             * @enum {string}
+             */
+            match_mode: "exact" | "alias" | "lexical" | "semantic" | "relational" | "derived";
+            /**
+             * May Not Use For
+             * @default []
+             */
+            may_not_use_for: string[];
+            /** Score */
+            score: number;
+            /** Source Layer */
+            source_layer: string;
+        };
+        /**
+         * SearchFrontier
+         * @description Search ledger plus observed counters, cutoff, and typed completeness.
+         */
+        SearchFrontier: {
+            /** Actual Cutoff */
+            actual_cutoff?: number | null;
+            /**
+             * Candidates
+             * @default []
+             */
+            candidates: components["schemas"]["SearchCandidate"][];
+            /**
+             * Completeness Status
+             * @enum {string}
+             */
+            completeness_status: "complete" | "complete_no_match" | "recall_unmeasured" | "budget_cutoff" | "index_stale" | "producer_unavailable" | "producer_missing";
+            /** Configured Store Path */
+            configured_store_path?: string | null;
+            /**
+             * Corpus Kind
+             * @enum {string}
+             */
+            corpus_kind: "canonical" | "bounded_surrogate" | "temp_store" | "fixture";
+            /** Corpus Path */
+            corpus_path: string;
+            /** Corpus Ref */
+            corpus_ref: string;
+            /** Corpus Snapshot Hash */
+            corpus_snapshot_hash: string;
+            /** Evaluated Count */
+            evaluated_count: number;
+            /** Incompleteness */
+            incompleteness?: {
+                [key: string]: unknown;
+            };
+            /** Incompleteness Reasons */
+            incompleteness_reasons: string[];
+            /** Index Freshness */
+            index_freshness?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Index Version Refs
+             * @default []
+             */
+            index_version_refs: string[];
+            /** Indexes Used */
+            indexes_used: string[];
+            /**
+             * No Hit Frontier
+             * @default []
+             */
+            no_hit_frontier: string[];
+            /**
+             * Query Expansion Traces
+             * @default []
+             */
+            query_expansion_traces: {
+                [key: string]: unknown;
+            }[];
+            /** Query Plan */
+            query_plan?: {
+                [key: string]: unknown;
+            };
+            /**
+             * Rejected Candidates
+             * @default []
+             */
+            rejected_candidates: components["schemas"]["SearchCandidate"][];
+            /** Replay Command */
+            replay_command: string;
+            /** Replay Expected Output Hash */
+            replay_expected_output_hash: string;
+            /** Replay Key */
+            replay_key: string;
+            /** Request Ref */
+            request_ref: string;
+            /** Requested Count */
+            requested_count: number;
+            /** Returned Count */
+            returned_count: number;
+            /**
+             * Schema Version
+             * @default policyos.core.contracts.search.v1
+             * @constant
+             */
+            schema_version: "policyos.core.contracts.search.v1";
+        };
+        /**
+         * SearchRequest
+         * @description Reusable search request contract shared across Layer 3 slices.
+         */
+        SearchRequest: {
+            /** Allowed Modes */
+            allowed_modes: ("exact" | "alias" | "lexical" | "semantic" | "relational" | "derived")[];
+            /** Authority Purpose */
+            authority_purpose: string;
+            /** Budget */
+            budget?: {
+                [key: string]: unknown;
+            };
+            /** Construct Refs */
+            construct_refs: string[];
+            /** Intent */
+            intent: string;
+            /** Query Text */
+            query_text: string;
+            /** Request Id */
+            request_id: string;
+            /** Required Layers */
+            required_layers: string[];
+            /** Rule Version */
+            rule_version: string;
+            /**
+             * Schema Version
+             * @default policyos.core.contracts.search.v1
+             * @constant
+             */
+            schema_version: "policyos.core.contracts.search.v1";
+        };
+        /**
          * SimulationResultRef
          * @description Artifact reference for the top-level simulation result bundle returned by Foundry.
          */
@@ -14735,6 +15079,94 @@ export interface operations {
             };
         };
     };
+    search_capabilities: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CapabilityDiscoveryRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CapabilityDiscoveryResponse"];
+                };
+            };
+            /** @description Malformed request payload or parameters. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authentication is required for this route. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Authenticated principal cannot access this resource. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested resource does not exist. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Requested representation is not supported for this resource. */
+            406: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+            /** @description Unexpected runtime API failure. */
+            500: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": components["schemas"]["RuntimeApiProblem"];
+                };
+            };
+        };
+    };
     list_binding_profiles: {
         parameters: {
             query?: never;
@@ -14920,7 +15352,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["DataCatalogSearchResponse"];
+                    "application/json": components["schemas"]["CapabilityDiscoveryResponse"];
                 };
             };
             /** @description Malformed request payload or parameters. */

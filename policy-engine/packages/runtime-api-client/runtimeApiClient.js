@@ -144,6 +144,12 @@ export class RuntimeApiClient {
     return this.request('GET', path, query, undefined, undefined);
   }
 
+  async searchCapabilities(params) {
+    const path = `/api/v1/control/capabilities/search`;
+    const query = undefined;
+    return this.request('POST', path, query, params?.body, undefined);
+  }
+
   async listBindingProfiles() {
     const path = `/api/v1/control/data/binding-profiles`;
     const query = undefined;

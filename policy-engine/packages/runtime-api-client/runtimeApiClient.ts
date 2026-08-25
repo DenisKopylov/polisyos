@@ -785,6 +785,76 @@ export type CandidateLeverSpace = {
   candidate_levers?: Array<CandidateLever>;
 };
 
+export type CapabilityAuthorityPostureResult = {
+  authority_purpose: string;
+  binding_ref?: string | null;
+  currentness_ref?: string | null;
+  producer_ref: string;
+  provenance_refs: Array<string>;
+  reason_codes?: Array<string>;
+  state: "admitted_authority" | "candidate_only" | "producer_missing" | "bridge_missing" | "artifact_missing" | "invalid_source" | "revalidation_required" | "authority_blocked" | "not_established";
+  time: CapabilityTimeSemantics;
+};
+
+export type CapabilityDiscoveryItem = {
+  authoritative_for: Array<string>;
+  authority_purpose: string;
+  authority_result: CapabilityAuthorityPostureResult;
+  capability_ref: string;
+  content_digest: string;
+  description: string;
+  discovery_result: CapabilityDiscoveryPostureResult;
+  execution_result: CapabilityExecutionPostureResult;
+  label: string;
+  may_not_use_for: Array<string>;
+  provenance_refs: Array<string>;
+  resource_kind: "method" | "dataset" | "source" | "legal_norm" | "case" | "agent";
+  rule_version: string;
+  schema_version?: string;
+  time: CapabilityTimeSemantics;
+};
+
+export type CapabilityDiscoveryPostureResult = {
+  freshness_ref?: string | null;
+  producer_ref: string;
+  provenance_refs: Array<string>;
+  reason_codes?: Array<string>;
+  snapshot_ref?: string | null;
+  state: "discoverable" | "no_match" | "producer_missing" | "producer_unavailable" | "index_unavailable" | "index_stale" | "recall_unmeasured" | "budget_cutoff" | "incomplete";
+  time: CapabilityTimeSemantics;
+};
+
+export type CapabilityDiscoveryRequest = {
+  audience: "REVIEWER" | "EXPERT" | "MACHINE";
+  resource_kinds: Array<"method" | "dataset" | "source" | "legal_norm" | "case" | "agent">;
+  search: SearchRequest;
+};
+
+export type CapabilityDiscoveryResponse = {
+  audience: "REVIEWER" | "EXPERT" | "MACHINE";
+  authority_purpose: string;
+  frontier: SearchFrontier;
+  meta: ApiMeta;
+  provenance_refs: Array<string>;
+  request: CapabilityDiscoveryRequest;
+  request_digest: string;
+  results: Array<CapabilityDiscoveryItem>;
+  rule_version: string;
+  schema_version?: string;
+  time: CapabilityTimeSemantics;
+};
+
+export type CapabilityExecutionPostureResult = {
+  conformance_ref?: string | null;
+  operation_ref?: string | null;
+  policy_ref?: string | null;
+  producer_ref: string;
+  provenance_refs: Array<string>;
+  reason_codes?: Array<string>;
+  state: "executable" | "not_executable" | "operation_missing" | "conformance_failed" | "policy_disabled" | "producer_missing" | "execution_blocked" | "not_established";
+  time: CapabilityTimeSemantics;
+};
+
 export type CapabilityFeatureInfo = {
   category: string;
   description: string;
@@ -841,6 +911,13 @@ export type CapabilityRealityPayload = {
   summary: {
   [key: string]: ProjectionJsonValue;
 };
+};
+
+export type CapabilityTimeSemantics = {
+  freshness: "current" | "stale" | "unknown";
+  observed_at: string;
+  valid_from: string;
+  valid_until: string | null;
 };
 
 export type CausalFrontierAreaRecord = {
@@ -1386,13 +1463,6 @@ export type CycleBoardRow = {
   structural_evidence_class: AvailableFact_str_ | AbsentFact;
   surface_readiness: AvailableFact_SurfaceReadinessPayload_ | AbsentFact;
   weakest_links: AvailableFact_tuple_str__________ | AbsentFact;
-};
-
-export type DataCatalogSearchResponse = {
-  matches?: Array<MetricCandidate>;
-  meta: ApiMeta;
-  query: string;
-  total_matches?: number;
 };
 
 export type DataDiscoverRequest = {
@@ -4567,6 +4637,70 @@ export type ScenarioRef = {
   temporal_scope?: TemporalScope | null;
 };
 
+export type SearchCandidate = {
+  authority_boundary?: {
+  [key: string]: unknown;
+};
+  candidate_ref: string;
+  evidence_refs?: Array<string>;
+  limitation_refs?: Array<string>;
+  match_mode: "exact" | "alias" | "lexical" | "semantic" | "relational" | "derived";
+  may_not_use_for?: Array<string>;
+  score: number;
+  source_layer: string;
+};
+
+export type SearchFrontier = {
+  actual_cutoff?: number | null;
+  candidates?: Array<SearchCandidate>;
+  completeness_status: "complete" | "complete_no_match" | "recall_unmeasured" | "budget_cutoff" | "index_stale" | "producer_unavailable" | "producer_missing";
+  configured_store_path?: string | null;
+  corpus_kind: "canonical" | "bounded_surrogate" | "temp_store" | "fixture";
+  corpus_path: string;
+  corpus_ref: string;
+  corpus_snapshot_hash: string;
+  evaluated_count: number;
+  incompleteness?: {
+  [key: string]: unknown;
+};
+  incompleteness_reasons: Array<string>;
+  index_freshness?: {
+  [key: string]: unknown;
+};
+  index_version_refs?: Array<string>;
+  indexes_used: Array<string>;
+  no_hit_frontier?: Array<string>;
+  query_expansion_traces?: Array<{
+  [key: string]: unknown;
+}>;
+  query_plan?: {
+  [key: string]: unknown;
+};
+  rejected_candidates?: Array<SearchCandidate>;
+  replay_command: string;
+  replay_expected_output_hash: string;
+  replay_key: string;
+  request_ref: string;
+  requested_count: number;
+  returned_count: number;
+  schema_version?: string;
+};
+
+export type SearchRequest = {
+  allowed_modes: Array<"exact" | "alias" | "lexical" | "semantic" | "relational" | "derived">;
+  authority_purpose: string;
+  budget?: {
+  [key: string]: unknown;
+};
+  construct_refs: Array<string>;
+  intent: string;
+  query_text: string;
+  request_id: string;
+  required_layers: Array<string>;
+  rule_version: string;
+  schema_version?: string;
+};
+
 export type SimulationResultRefInput = {
   artifact_id: ArtifactID;
   kind?: string;
@@ -5075,6 +5209,14 @@ export class RuntimeApiClient {
     return this.request<CapabilityManifestResponse>("GET", path, query, undefined, undefined);
   }
 
+  async searchCapabilities(params: {
+    body: CapabilityDiscoveryRequest;
+  }): Promise<CapabilityDiscoveryResponse> {
+    const path = `/api/v1/control/capabilities/search`;
+    const query = undefined;
+    return this.request<CapabilityDiscoveryResponse>("POST", path, query, params.body, undefined);
+  }
+
   async listBindingProfiles(): Promise<BindingProfilesListResponse> {
     const path = `/api/v1/control/data/binding-profiles`;
     const query = undefined;
@@ -5091,14 +5233,14 @@ export class RuntimeApiClient {
     metric: string;
     geo?: string | null;
     limit?: number;
-  }): Promise<DataCatalogSearchResponse> {
+  }): Promise<CapabilityDiscoveryResponse> {
     const path = `/api/v1/control/data/catalog/search`;
     const query = this.buildQuery({
       metric: params.metric,
       geo: params.geo,
       limit: params.limit,
     });
-    return this.request<DataCatalogSearchResponse>("GET", path, query, undefined, undefined);
+    return this.request<CapabilityDiscoveryResponse>("GET", path, query, undefined, undefined);
   }
 
   async listConnectors(): Promise<ConnectorsListResponse> {

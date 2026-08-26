@@ -36,6 +36,7 @@ DEFERRED_PUBLIC_CANONICAL_INTERFACES = {
     "polisyos.core.observability": "core-observability-canonical-interface-contract-drift",
 }
 ACTIVE_DEFERRED_DEBT_STATUSES = frozenset({"open", "open_unmerged", "blocked"})
+TOUCHED_PUBLIC_SURFACE_MODULES = frozenset({"polisyos.common", "polisyos.core"})
 
 
 def _load_toml(path: Path) -> dict:
@@ -52,28 +53,29 @@ def _public_canonical_interfaces() -> set[str]:
     }
 
 
-def _supported_entrypoints() -> set[str]:
+def _supported_entrypoints_by_module() -> dict[str, set[str]]:
     contract = _load_toml(PUBLIC_SURFACE_CONTRACT)
     return {
-        str(entrypoint)
+        str(package["module"]): {
+            str(entrypoint) for entrypoint in package["supported_entrypoints"]
+        }
         for package in contract["package"]
-        for entrypoint in package["supported_entrypoints"]
     }
 
 
-def _primary_supported_entrypoints() -> set[str]:
-    entrypoints: set[str] = set()
+def _primary_supported_entrypoints_by_module() -> dict[str, set[str]]:
+    entrypoints: dict[str, set[str]] = {}
     for path in sorted(PACKAGE_CONTRACT_ROOT.glob("*.toml")):
         contract = _load_toml(path)
         package = contract.get("package")
         if not isinstance(package, dict) or package.get("primary_contract") is not True:
             continue
-        entrypoints.update(
+        entrypoints[str(package["module"])] = {
             str(entrypoint)
             for entrypoint in contract.get("public_surface", {}).get(
                 "supported_entrypoints", []
             )
-        )
+        }
     return entrypoints
 
 
@@ -109,8 +111,10 @@ def _cross_package_deep_imports(interfaces: set[str]) -> list[str]:
 
 def test_phase1_5_public_canonical_interfaces_are_supported_or_registered_deferred() -> None:
     public_interfaces = _public_canonical_interfaces()
-    supported_entrypoints = _supported_entrypoints()
-    primary_supported_entrypoints = _primary_supported_entrypoints()
+    supported_by_module = _supported_entrypoints_by_module()
+    primary_supported_by_module = _primary_supported_entrypoints_by_module()
+    supported_entrypoints = set().union(*supported_by_module.values())
+    primary_supported_entrypoints = set().union(*primary_supported_by_module.values())
     deferred_interfaces = set(DEFERRED_PUBLIC_CANONICAL_INTERFACES)
     debt_statuses = _registered_debt_statuses()
     inactive_debts = {
@@ -123,6 +127,13 @@ def test_phase1_5_public_canonical_interfaces_are_supported_or_registered_deferr
     assert inactive_debts == {}
     assert public_interfaces - supported_entrypoints == deferred_interfaces
     assert public_interfaces - primary_supported_entrypoints == deferred_interfaces
+    assert {
+        module: primary_supported_by_module.get(module, set())
+        for module in TOUCHED_PUBLIC_SURFACE_MODULES
+    } == {
+        module: supported_by_module.get(module, set())
+        for module in TOUCHED_PUBLIC_SURFACE_MODULES
+    }
 
 
 @pytest.mark.parametrize("terminal_status", ["closed", "folded"])
@@ -149,6 +160,28 @@ def test_phase1_5_terminal_debt_cannot_authorize_deferred_interface(
     monkeypatch.setattr(
         "tests.repo_quality.architecture.test_last_mile_cross_cutting_concerns.DEBT_REGISTER",
         register,
+    )
+
+    with pytest.raises(AssertionError):
+        test_phase1_5_public_canonical_interfaces_are_supported_or_registered_deferred()
+
+
+def test_phase1_5_primary_surface_entrypoints_are_owner_bound(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    package_root = tmp_path / "packages"
+    package_root.mkdir()
+    for source in PACKAGE_CONTRACT_ROOT.glob("*.toml"):
+        text = source.read_text(encoding="utf-8")
+        if source.name == "common.toml":
+            text = text.replace("polisyos.common.config", "polisyos.core.security")
+        elif source.name == "core.toml":
+            text = text.replace("polisyos.core.security", "polisyos.common.config")
+        (package_root / source.name).write_text(text, encoding="utf-8")
+    monkeypatch.setattr(
+        "tests.repo_quality.architecture.test_last_mile_cross_cutting_concerns.PACKAGE_CONTRACT_ROOT",
+        package_root,
     )
 
     with pytest.raises(AssertionError):

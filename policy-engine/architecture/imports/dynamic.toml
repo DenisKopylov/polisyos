@@ -652,10 +652,10 @@ allowed_targets = []
 notes = "Dynamic pattern has no static in-repo target."
 
 [[pattern]]
-id = "dynamic-bde4598e09d7"
+id = "dynamic-dd12b656b8f1"
 pattern = "psycopg"
 source_file = "src/polisyos/core/security/db_backend.py"
-line = 72
+line = 80
 call = "importlib.import_module"
 owner = "team-architecture"
 target = "psycopg"

@@ -86,6 +86,7 @@
 **Files:**
 - Modify: `architecture/packages/common.toml`
 - Modify: `architecture/packages/core.toml`
+- Modify: `architecture/imports/dynamic.toml`
 - Modify: `architecture/public_surface/contract.toml`
 - Modify: `src/polisyos/core/security/__init__.py`
 - Modify: `src/polisyos/core/security/db_backend.py`
@@ -100,7 +101,7 @@
 
 - [x] **Step 2: Extend the lazy security facade**
 
-  Add all ten mappings above to `_EXPORTS`, their `TYPE_CHECKING` imports, and `__all__`. Keep `_EXPORTS` and `__all__` equal; do not expose `_validate_tenant_id` or the other eight SLSA component models. Give newly public `validate_tenant_id` a Google-style defining docstring.
+  Add all ten mappings above to `_EXPORTS`, their `TYPE_CHECKING` imports, and `__all__`. Keep `_EXPORTS` and `__all__` equal; do not expose `_validate_tenant_id` or the other eight SLSA component models. Give newly public `validate_tenant_id` a Google-style defining docstring and rebind the existing `psycopg` dynamic-import registry identity to its shifted source line.
 
 - [x] **Step 3: Run the security facade tests**
 

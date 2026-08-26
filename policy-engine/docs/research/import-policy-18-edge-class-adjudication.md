@@ -82,11 +82,13 @@ edge tuples**; the guardrail independently reconciled current and baseline sets.
 the 3,648 count at the earlier pre-governance commit.
 
 The distinct `polisyos-tools validation check-package-import-gates --fail-closed` predicate was
-also replayed. It started at `11:00 up 2 days, 1:14`, ended at `11:03 up 2 days, 1:16`, used
-`user 152.22 + sys 9.44 = 161.66 CPU-seconds`, and completed at exit 1. Its findings include the
+replayed again on 2026-08-26 after a hand-over claimed it had turned green on merged `main`. The
+fresh run started at `12:01 up 2 days, 2:14`, ended at `12:06 up 2 days, 2:19`, used
+`user 162.91 + sys 11.71 = 174.62 CPU-seconds`, and completed at **exit 1 with 143 findings**. It
+therefore did not reproduce the claimed `exit 0 / 122.85 CPU-seconds`. Its findings include all 23
 expired import exceptions, forbidden-boundary edges, unregistered dynamic imports, and other
-structure debt. That completed failure is a receipt, not a release-guardrail failure, and it means
-the dedicated package gate must not be described as green at this base.
+structure debt. This completed failure is a receipt, not a release-guardrail failure; the two
+measurements disagree and the dedicated package gate must not be described as green at this base.
 
 The CPU ceiling used for this research was 4x the first completed CPU measurement for each command,
 not wall time. No run was killed.
@@ -612,16 +614,20 @@ and live branch protection not established locally.
 2. **The 21-file corpus is reproducible but not complete as an authority corpus.** It includes
    only 3 of 19 declared primary package boundary contracts; Foundry is the omitted member that
    `imports/reports.toml` itself names.
-3. **The package-import gate does not establish cross-document agreement.** It is red at this base
-   for other debt and validates narrower proxies; its output does not adjudicate the measured
-   direction and supported-entrypoint contradictions (`P38`).
+3. **The package-import gate is freshly red and does not establish cross-document agreement.** A
+   2026-08-26 replay completed at exit 1 with 143 findings, contradicting the later hand-over's
+   exit-0 claim. Independently of that verdict, the implemented predicate does not compare
+   `policy.toml` allowsets and skips `public_facades_only`; even a future green result would establish
+   only its narrower checks, not agreement on the measured direction and supported-entrypoint
+   contradictions (`P38`).
 4. **The surface problem is much larger than the four ARCH004 rows.** Runtime has 492 imports to
    unlisted FQNs, and four public canonical interfaces governing 304 cross-package statements are
    absent from the public contract. These are measured facts, not a proposal to broaden anything.
-5. **The release and PR predicates differ.** `polisyos-tools architecture guardrails check` is green
-   at the base. The plain import linter and the separately replayed package-import validator are
-   red; both are Fast-PR work, not the release guardrail. A composite “architecture is green/red”
-   statement would conflate three properties.
+5. **The three commands have distinct predicates and receipts.** At the research base the release
+   guardrail receipt is green; the plain import linter is red at 84 lapsed + 4 unadjudicated; and
+   the separately replayed package-import validator is red with 143 findings. A composite
+   “architecture is green/red” statement would conflate three properties. Each branch or merge
+   commit needs the commands reported separately.
 
 The linter also reports the existing 16-node package cycle
 (`calibration`, `core`, `data_forge`, `data_requirement`, `fabric`, `fabric.io`, `foundry`, `ir`,

@@ -314,12 +314,17 @@ class EpochValidityBatchCompletionStatement(BaseModel):
     adjudication_denominator_ref: Digest = Field(pattern=r"^sha256:[0-9a-f]{64}$")
     verifier_provenance_ref: ArtifactRef
     affected_packet_refs: tuple[str, ...] = Field(min_length=1)
+    targets: tuple[EpochValidityBatchTarget, ...] = Field(min_length=1)
     predicate_class: Literal["independently_reconciled"]
 
     @model_validator(mode="after")
     def _affected_packets_are_unique(self) -> EpochValidityBatchCompletionStatement:
         if len(self.affected_packet_refs) != len(set(self.affected_packet_refs)):
             raise ValueError("epoch_batch_completion_packet_duplicate")
+        if self.affected_packet_refs != tuple(
+            dict.fromkeys(target.packet_ref for target in self.targets)
+        ):
+            raise ValueError("epoch_batch_completion_target_denominator_mismatch")
         return self
 
 
@@ -341,12 +346,17 @@ class EpochValidityBatchReceipt(BaseModel):
     verifier_provenance_ref: ArtifactRef
     completion_receipt_ref: ArtifactRef
     affected_packet_refs: tuple[str, ...] = Field(min_length=1)
+    targets: tuple[EpochValidityBatchTarget, ...] = Field(min_length=1)
     claim_bridge_result_refs: tuple[ArtifactRef, ...] = ()
 
     @model_validator(mode="after")
     def _completed_denominators_are_unique(self) -> EpochValidityBatchReceipt:
         if len(self.affected_packet_refs) != len(set(self.affected_packet_refs)):
             raise ValueError("epoch_batch_receipt_packet_duplicate")
+        if self.affected_packet_refs != tuple(
+            dict.fromkeys(target.packet_ref for target in self.targets)
+        ):
+            raise ValueError("epoch_batch_receipt_target_denominator_mismatch")
         bridge_ids = tuple(str(row.artifact_id) for row in self.claim_bridge_result_refs)
         if len(bridge_ids) != len(set(bridge_ids)):
             raise ValueError("epoch_batch_receipt_claim_bridge_duplicate")

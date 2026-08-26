@@ -549,6 +549,7 @@ class DecisionValidityService:
                 adjudication_denominator_ref=receipt.adjudication_denominator_ref,
                 verifier_provenance_ref=receipt.verifier_provenance_ref,
                 affected_packet_refs=affected_packet_refs,
+                targets=pending.targets,
                 predicate_class="independently_reconciled",
             )
             completion_ref = self._store.put_json(
@@ -578,6 +579,7 @@ class DecisionValidityService:
                 verifier_provenance_ref=receipt.verifier_provenance_ref,
                 completion_receipt_ref=completion_ref,
                 affected_packet_refs=affected_packet_refs,
+                targets=pending.targets,
             )
             result_ref = self._store.put_json(
                 result.model_dump(mode="json"),
@@ -652,6 +654,7 @@ class DecisionValidityService:
             or completed.adjudication_denominator_ref != receipt.adjudication_denominator_ref
             or completed.verifier_provenance_ref != receipt.verifier_provenance_ref
             or completed.affected_packet_refs != expected_packets
+            or completed.targets != receipt.targets
         ):
             raise ValueError("epoch_completed_verification_binding_mismatch")
 
@@ -689,6 +692,7 @@ class DecisionValidityService:
             or completion.adjudication_denominator_ref != parsed.adjudication_denominator_ref
             or completion.verifier_provenance_ref != parsed.verifier_provenance_ref
             or completion.affected_packet_refs != parsed.affected_packet_refs
+            or completion.targets != parsed.targets
         ):
             raise RuntimeError("decision_validity_epoch_receipt_unresolved")
         return parsed

@@ -484,6 +484,7 @@ def test_completed_epoch_batch_replay_is_idempotent(tmp_path) -> None:
     assert set(receipt.affected_packet_refs) == {packet_ref for packet_ref, _ in packet_rows}
     evidence = restarted.resolve_completed_epoch_batch_evidence_by_id(batch_id=receipt.batch_id)
     assert evidence.receipt == receipt
+    assert evidence.receipt.targets == verifier.receipt.targets
     assert evidence.batch_receipt_ref.kind == ("scientist.decision_validity_epoch_batch_receipt")
     assert evidence.batch_receipt_content_hash == (
         "sha256:" + hashlib.sha256(evidence.receipt_bytes).hexdigest()

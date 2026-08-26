@@ -241,3 +241,27 @@ equality, and verifier identity/provenance derived from typed artifact bases.
 - The isolated package-import correction is exact base JSON `143`, not `142`.
   A current-branch count is `not_established` pending the final predicate replay
   and is not claimed here.
+
+### C01 review repair round 3 — governed-performance evidence type
+
+The new Important finding is a narrowing P05/P29 breakage: the grounded-
+performance gate resolved and content-bound generic admitted evidence, but did
+not establish that the verifier was produced by a governed-performance basis.
+The divergent case was a real identity/accessibility verifier whose content and
+provenance remained valid while its self-supplied subject was relabeled to
+`grounded_performance`.
+
+- RED exercised all three admitted verifier kinds and observed `supported` for
+  each relabeled non-performance witness.
+- The DS11 closed basis contains identity-boundary, accessibility-document, and
+  page-a11y verifier types only. It contains no governed-performance producer,
+  prerequisite type, or verifier kind, so rule v3 now keeps the family blocked;
+  no generic admitted evidence or authored status can substitute for the absent
+  typed basis.
+- The regression also forges a real identity-derived semantic binding, rebuilds
+  the register, and recomputes the artifact digest after authoring `supported`;
+  both producer and validator reject the promotion.
+- Mechanism accounting remains `3/34`; widening remains `2/9`. This is an
+  append-only narrowing inside the existing C01 owner, with focused tests and
+  the journal/report as P39 companions. No governed positive fixture or new
+  producer/verifier type was fabricated.

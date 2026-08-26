@@ -435,7 +435,7 @@ def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
     repo = tmp_path / "repo"
     _copy_compiler_inputs(repo)
     register, _ = _checker().compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
-    assert register.rule_version == "policyos.trust.claim_posture_rules.v2"
+    assert register.rule_version == "policyos.trust.claim_posture_rules.v3"
     rows = {row.subject: row for row in register.claims}
 
     required = {
@@ -586,6 +586,107 @@ def test_marker_preserving_byte_mutation_and_unknown_verifier_fail_closed(
     mutated, _ = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
     mutated_identity = next(item for item in mutated.claims if item.subject == "system_identity")
     assert mutated_identity.effective_state == "blocked"
+
+
+def test_nonperformance_verifiers_cannot_mint_grounded_performance(
+    tmp_path: Path,
+) -> None:
+    """Catch subject relabeling that turns admitted non-performance evidence into support."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    _write_accessibility_document(repo)
+    _copy_page_receipt(repo)
+    checker = _checker()
+    posture = _owner("polisyos.scientist.evidence.claims.posture")
+    register, _ = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    assert tuple(verifier.verifier_kind for verifier in register.admitted_verifiers) == (
+        "accessibility_document_derivation",
+        "identity_boundary_derivation",
+        "page_a11y_receipt_derivation",
+    )
+    predicates = tuple(
+        posture.SupportPredicate(
+            kind=kind,
+            satisfied=True,
+            establishment_class="independently_reconciled",
+            evidence_refs=(f"evidence:{kind}",),
+            issue_code=None,
+        )
+        for kind in posture.REQUIRED_SUPPORT_PREDICATES
+    )
+
+    observed: dict[str, object] = {}
+    for verifier in register.admitted_verifiers:
+        relabeled = posture.EvidenceBinding(
+            ref=verifier.content_ref,
+            content_digest=verifier.content_digest,
+            subject_binding="grounded_performance",
+            verifier_ref=verifier.ref,
+            verifier_provenance_ref=verifier.provenance_ref,
+            establishment_class="independently_reconciled",
+            source_as_of=FROZEN_AS_OF,
+            supersession_ref=None,
+        )
+        observed[verifier.verifier_kind] = posture.compose_effective_state(
+            ("supported",),
+            support_predicates=predicates,
+            family="grounded_performance",
+            governed_performance_prerequisite=relabeled,
+            admitted_sources=register.admitted_sources,
+            admitted_verifiers=register.admitted_verifiers,
+            register_as_of=FROZEN_AS_OF,
+        )
+    assert observed == {
+        "accessibility_document_derivation": "blocked",
+        "identity_boundary_derivation": "blocked",
+        "page_a11y_receipt_derivation": "blocked",
+    }
+
+    identity_row = next(item for item in register.claims if item.subject == "system_identity")
+    identity_binding = identity_row.source_bindings[0]
+    identity_evidence = identity_binding.evidence_bindings[0].model_copy(
+        update={"subject_binding": "grounded_performance"}
+    )
+    forged_binding = identity_binding.model_copy(
+        update={
+            "subject": "grounded_performance",
+            "family": "grounded_performance",
+            "authoritative_for": ("grounded_performance",),
+            "authority_purpose": "grounded_performance",
+            "evidence_refs": (identity_evidence.ref,),
+            "evidence_bindings": (identity_evidence,),
+            "limitation_refs": (),
+        }
+    )
+    forged = posture.build_posture_register(
+        register_as_of=FROZEN_AS_OF,
+        admitted_sources=register.admitted_sources,
+        ast_derivation=register.ast_derivation,
+        token_derivation=register.token_derivation,
+        identity_boundary=register.identity_boundary,
+        accessibility_document=register.accessibility_document,
+        page_a11y_receipt=register.page_a11y_receipt,
+        source_inventory=register.source_inventory,
+        source_bindings=(forged_binding,),
+    )
+    assert forged.claims[0].effective_state == "blocked"
+
+    authored = forged.model_dump(mode="json")
+    authored["claims"][0]["effective_state"] = "supported"
+    digest_payload = {key: value for key, value in authored.items() if key != "payload_digest"}
+    authored["payload_digest"] = (
+        "sha256:"
+        + sha256(
+            json.dumps(
+                digest_payload,
+                ensure_ascii=False,
+                sort_keys=True,
+                separators=(",", ":"),
+            ).encode("utf-8")
+        ).hexdigest()
+    )
+    with pytest.raises(ValueError, match="authored effective posture"):
+        posture.validate_posture_register(authored)
 
 
 def test_accessibility_frontmatter_is_strictly_bound_to_complete_body(tmp_path: Path) -> None:

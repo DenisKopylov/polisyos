@@ -12,7 +12,7 @@ from typing import Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 CLAIM_POSTURE_SCHEMA = "policyos.trust.claim_posture_register.v1"
-CLAIM_POSTURE_RULE_VERSION = "policyos.trust.claim_posture_rules.v2"
+CLAIM_POSTURE_RULE_VERSION = "policyos.trust.claim_posture_rules.v3"
 CLAIM_POSTURE_SLICE_BASE_REF = "f935e0c2e9359bc1202ce5d36ea706de58f7aaab"
 
 REQUIRED_SUPPORT_PREDICATES: tuple[str, ...] = (
@@ -464,7 +464,7 @@ class ClaimPostureRegisterV1(_StrictModel):
     """Strict deterministic trust-claim posture register."""
 
     schema_version: Literal["policyos.trust.claim_posture_register.v1"]
-    rule_version: Literal["policyos.trust.claim_posture_rules.v2"]
+    rule_version: Literal["policyos.trust.claim_posture_rules.v3"]
     slice_base_ref: Literal["f935e0c2e9359bc1202ce5d36ea706de58f7aaab"]
     register_as_of: date
     admitted_sources: tuple[AdmittedSourceMember, ...]
@@ -586,19 +586,9 @@ def compose_effective_state(
     ):
         return ClaimPostureState.BLOCKED
     if family == "grounded_performance":
-        evidence = governed_performance_prerequisite
-        if (
-            evidence is None
-            or register_as_of is None
-            or not _evidence_is_admitted(
-                evidence,
-                subject=evidence.subject_binding,
-                admitted_sources=admitted_sources,
-                admitted_verifiers=admitted_verifiers,
-                register_as_of=register_as_of,
-            )
-        ):
-            return ClaimPostureState.BLOCKED
+        # The closed DS11 basis has no governed-performance producer or verifier type.
+        # Generic admitted evidence cannot substitute for that missing prerequisite.
+        return ClaimPostureState.BLOCKED
     return ClaimPostureState.SUPPORTED
 
 

@@ -319,7 +319,7 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
 
 
 def test_grounded_performance_requires_governed_evidence_and_prerequisite() -> None:
-    """Catch admission of performance support without governed prerequisite evidence."""
+    """Catch substitution of admitted non-performance evidence for a missing basis."""
     posture = _posture()
     required = tuple(_predicate(posture, kind) for kind in posture.REQUIRED_SUPPORT_PREDICATES)
     assert (
@@ -330,7 +330,7 @@ def test_grounded_performance_requires_governed_evidence_and_prerequisite() -> N
     )
     register = _strict_register(posture)
     verifier = register.admitted_verifiers[0]
-    governed = posture.EvidenceBinding(
+    relabeled_nonperformance = posture.EvidenceBinding(
         ref=verifier.content_ref,
         content_digest=verifier.content_digest,
         subject_binding="grounded_performance",
@@ -345,12 +345,12 @@ def test_grounded_performance_requires_governed_evidence_and_prerequisite() -> N
             ("supported",),
             support_predicates=required,
             family="grounded_performance",
-            governed_performance_prerequisite=governed,
+            governed_performance_prerequisite=relabeled_nonperformance,
             admitted_sources=register.admitted_sources,
             admitted_verifiers=register.admitted_verifiers,
             register_as_of=date(2026, 8, 26),
         )
-        == "supported"
+        == "blocked"
     )
 
 

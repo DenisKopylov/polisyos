@@ -404,7 +404,7 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 62
+    assert metrics["register_ids"] == 78
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_entries"] == 261
@@ -526,7 +526,7 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
     assert "bridge_missing" not in gap8
-    assert "| `DEBT-REGISTER.md` | 62 | 62 | 31 |" in rendered
+    assert "| `DEBT-REGISTER.md` | 78 | 78 | 47 |" in rendered
     assert "| Atlas master debt table | 22 | 22 | 8 |" in rendered
     assert (
         "| `frontend-disposition-register.json` entries | 261 | 261 | 0 | "
@@ -537,6 +537,31 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
         "| `frontend-disposition-register.json` `ds8_strangle_coverage.assignments` "
         "| 217 | 217 | 0 |" in rendered
     )
+
+
+def test_real_register_contains_the_ratified_import_policy_class_rows() -> None:
+    checker = _checker()
+    snapshot = checker._snapshot(REPO_ROOT)
+    registered = {row.debt_id for row in snapshot.debts}
+
+    assert {
+        "import-policy-relocate-data-forge-to-lex",
+        "import-policy-relocate-ir-to-foundry",
+        "import-policy-relocate-data-forge-to-foundry",
+        "import-policy-relocate-ir-to-scientist",
+        "import-policy-relocate-data-forge-to-scientist",
+        "import-policy-relocate-foundry-to-scientist",
+        "import-policy-relocate-lex-to-scientist",
+        "import-policy-relocate-core-to-scientist",
+        "import-policy-relocate-lex-to-foundry",
+        "import-policy-relocate-ir-to-core",
+        "import-policy-relocate-foundry-to-lex",
+        "import-policy-relocate-ir-to-jax",
+        "import-policy-ratify-candidates",
+        "import-policy-governance-fabric-world-surface",
+        "import-policy-governance-runtime-corpus-dependency",
+        "import-policy-governance-runtime-pdc-search-iteration",
+    } <= registered
 
 
 def test_capability_states_require_evidence_scoped_to_the_debt_subject() -> None:

@@ -671,7 +671,11 @@ def _git_commit_is_ancestor(repo_root: Path, commit: str) -> bool | None:
     result = subprocess.run(
         ("git", "merge-base", "--is-ancestor", commit, "main"), cwd=repo_root, capture_output=True
     )
-    return result.returncode == 0
+    if result.returncode == 0:
+        return True
+    if result.returncode == 1:
+        return False
+    return None
 
 
 def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
@@ -701,6 +705,27 @@ def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
             row.section != "G" and row.status != "closed" for row in rows
         ):
             findings.append(Finding("closed_open_conflict", debt_id))
+    branch_states = dict(snapshot.branch_states)
+    declared_status_indexes = {"A": 3, "B": 3, "C": 3, "D": 2, "F": 1, "G": 1}
+    for row in snapshot.debts:
+        cells = _cells(row.raw)
+        status_index = declared_status_indexes.get(row.section)
+        if (
+            status_index is None
+            or len(cells) <= status_index
+            or _status_token(cells[status_index]) != "open_unmerged"
+        ):
+            continue
+        branch = row.branch or ""
+        branch_ref = (
+            f"refs/remotes/origin/{branch}" if branch_states.get(branch) == "published" else branch
+        )
+        ancestor = _git_commit_is_ancestor(repo_root, branch_ref) if branch_ref else None
+        detail = f"{row.debt_id}: {branch or '<missing>'}"
+        if ancestor is True:
+            findings.append(Finding("open_unmerged_branch_merged", detail))
+        elif ancestor is None:
+            findings.append(Finding("open_unmerged_branch_unresolvable", detail))
     closed_sources = [
         ("register", row.debt_id, row.raw) for row in snapshot.debts if row.status == "closed"
     ]

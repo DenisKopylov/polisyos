@@ -228,6 +228,97 @@ def test_falsifier_nonancestor_closure_commit_is_rejected(tmp_path: Path) -> Non
     assert "closure_commit_not_on_main" in _codes(checker, repo)
 
 
+def test_open_unmerged_branch_ancestry_distinguishes_merged_from_live(
+    tmp_path: Path,
+) -> None:
+    checker = _checker()
+    merged_branch = "codex/already-merged"
+    live_branch = "codex/gy-n12-c4-epoch-validity"
+    repo = _fixture(
+        tmp_path,
+        a_rows=(
+            "| `merged-debt` | subject | team-runtime | `open_unmerged` | "
+            f"registered on `{merged_branch}` |\n"
+            "| `live-debt` | subject | team-runtime | `open_unmerged` | "
+            f"registered on `{live_branch}` |\n"
+            "| ~~`struck-debt`~~ | subject | team-runtime | `open_unmerged` | "
+            f"registered on `{merged_branch}` |"
+        ),
+        ledger=_ledger(
+            row=_debt_row("merged-debt", status="open_unmerged"),
+            extra=f"{_debt_row('live-debt', status='open_unmerged')}\n",
+        ),
+    )
+    _git(repo, "branch", merged_branch)
+    _git(repo, "switch", "-c", live_branch)
+    _git(repo, "commit", "--allow-empty", "-m", "live branch remains ahead")
+    _git(repo, "switch", "main")
+
+    branch_findings = {
+        (finding.code, finding.detail)
+        for finding in checker.audit_repository(repo).blocking_findings
+        if finding.code.startswith("open_unmerged_branch_")
+    }
+
+    assert branch_findings == {
+        ("open_unmerged_branch_merged", f"merged-debt: {merged_branch}"),
+        ("open_unmerged_branch_merged", f"struck-debt: {merged_branch}"),
+    }
+
+
+def test_open_unmerged_unresolvable_branch_is_blocking(tmp_path: Path) -> None:
+    checker = _checker()
+    missing_branch = "codex/does-not-resolve"
+    repo = _fixture(
+        tmp_path,
+        a_rows=(
+            "| `missing-branch-debt` | subject | team-runtime | `open_unmerged` | "
+            f"registered on `{missing_branch}` |\n"
+            "| `branchless-debt` | subject | team-runtime | `open_unmerged` | "
+            "branch receipt absent |"
+        ),
+        ledger=_ledger(
+            row=_debt_row("missing-branch-debt", status="open_unmerged"),
+            extra=f"{_debt_row('branchless-debt', status='open_unmerged')}\n",
+        ),
+    )
+
+    details = {
+        finding.detail
+        for finding in checker.audit_repository(repo).blocking_findings
+        if finding.code == "open_unmerged_branch_unresolvable"
+    }
+
+    assert details == {
+        "branchless-debt: <missing>",
+        f"missing-branch-debt: {missing_branch}",
+    }
+
+
+def test_open_unmerged_merge_base_failure_is_unresolvable(tmp_path: Path) -> None:
+    checker = _checker()
+    branch = "codex/resolves-without-main"
+    repo = _fixture(
+        tmp_path,
+        a_rows=(
+            "| `merge-base-failure-debt` | subject | team-runtime | `open_unmerged` | "
+            f"registered on `{branch}` |"
+        ),
+        ledger=_ledger(row=_debt_row("merge-base-failure-debt", status="open_unmerged")),
+    )
+    _git(repo, "branch", branch)
+    _git(repo, "switch", "-c", "replacement-default")
+    _git(repo, "branch", "-D", "main")
+
+    details = {
+        finding.detail
+        for finding in checker.audit_repository(repo).blocking_findings
+        if finding.code == "open_unmerged_branch_unresolvable"
+    }
+
+    assert details == {f"merge-base-failure-debt: {branch}"}
+
+
 def test_nonancestor_closure_commit_is_checked_in_gy_and_atlas(tmp_path: Path) -> None:
     checker = _checker()
     repo = _fixture(tmp_path, a_rows="", ledger=_ledger())
@@ -558,7 +649,10 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
     assert "bridge_missing" not in gap8
-    assert "| `DEBT-REGISTER.md` | 92 | 92 | 59 |" in rendered
+    assert (
+        "| `DEBT-REGISTER.md` | 92 | 92 | 59 | "
+        "ambiguous=11, blocked=12, closed=33, folded=2, foreign=6, open=28 |" in rendered
+    )
     assert "| Atlas master debt table | 22 | 22 | 8 |" in rendered
     assert (
         "| `frontend-disposition-register.json` entries | 261 | 261 | 0 | "
@@ -675,7 +769,7 @@ def test_ds9_claims_and_splits_only_approved_debt_scope() -> None:
 
     concurrency = rows["decision-validity-fixed-temp-concurrency"]
     assert concurrency.section == "C"
-    assert concurrency.status == "open_unmerged"
+    assert concurrency.status == "ambiguous"
     assert concurrency.owner == "Scientist Decision Validity / GY-N12 Cluster 4 Task 4.4"
 
     dashboard_import = rows["case-workspace-route-bypasses-feature-barrel"]
@@ -720,12 +814,15 @@ def test_informational_relations_do_not_block_strict_mode(capsys: object) -> Non
     checker = _checker()
     report = checker.audit_repository(REPO_ROOT)
 
-    assert frozenset(
-        {
-            "register_supplies_missing_standing",
-            "register_withholds_source_standing",
-        }
-    ) == checker.INFORMATIONAL_FINDING_CODES
+    assert (
+        frozenset(
+            {
+                "register_supplies_missing_standing",
+                "register_withholds_source_standing",
+            }
+        )
+        == checker.INFORMATIONAL_FINDING_CODES
+    )
     assert report.blocking_findings == ()
     assert report.informational_findings
     assert {item.code for item in report.informational_findings}.issubset(

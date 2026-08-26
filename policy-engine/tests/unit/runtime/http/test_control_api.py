@@ -298,6 +298,26 @@ class TestCapabilities:
             "production",
         ]
 
+    def test_get_control_capabilities_projects_current_execution_policy(
+        self,
+        runtime_api_env,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        monkeypatch.setenv("POLISYOS_LLM_MULTIMODEL_ENABLED", "false")
+        monkeypatch.setenv("POLISYOS_REQUIRED_PREFLIGHT_ENABLED", "true")
+        monkeypatch.setenv("POLISYOS_AUTO_MATERIALIZATION_ENABLED", "false")
+
+        response = runtime_api_env["client"].get("/api/v1/control/capabilities")
+
+        assert response.status_code == 200
+        policy = response.json()["fallback_rules"]["execution_policy"]
+        assert policy == {
+            "auto_materialization": False,
+            "multimodel_nl": False,
+            "producer_ref": "runtime/http/services/_control_contracts.py",
+            "required_preflight": True,
+        }
+
     def test_get_control_capabilities_reports_selected_production_data_manifest(
         self,
         runtime_api_env,

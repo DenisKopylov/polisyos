@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
-import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { createCapabilitySearchRequest } from "@/api/hooks/useCapabilitySearch";
 import { useConnectors } from "@/api/hooks/useConnectors";
 import { useDataIndexStats } from "@/api/hooks/useDataIndexStats";
@@ -73,6 +72,7 @@ export default function EvidenceFabric() {
   const [searchParams, setSearchParams] = useSearchParams();
   const {
     artifactId,
+    capability,
     focus: parsedFocus,
     needId,
     planId,
@@ -83,14 +83,13 @@ export default function EvidenceFabric() {
 
   const requestedFocus = parsedFocus ? parseEvidenceFocus(parsedFocus) : null;
 
-  const capabilitiesQuery = useCapabilities();
   const capabilitySearchRequest = useMemo(
     () =>
       createCapabilitySearchRequest(
-        "evidence",
+        capability ?? "evidence",
         "evidence-capability-discovery",
       ),
-    [],
+    [capability],
   );
   const connectorsQuery = useConnectors();
   const profilesQuery = useSourceProfiles();
@@ -107,9 +106,6 @@ export default function EvidenceFabric() {
     (profile) => profile.connector_available,
   );
   const loadedConnectors = connectors.filter((connector) => connector.loaded);
-  const enabledFeatures = (capabilitiesQuery.data?.features ?? []).filter(
-    (feature) => feature.category === "evidence",
-  );
   const runContext = useMemo(
     () => normalizeRunEvidenceContext(runContextQuery.data?.context),
     [runContextQuery.data],
@@ -321,11 +317,6 @@ export default function EvidenceFabric() {
               </Badge>
             ) : null}
             <DataFreshnessBadge />
-            {enabledFeatures.slice(0, 2).map((feature) => (
-              <Badge key={feature.key} kind="neutral">
-                {feature.label}
-              </Badge>
-            ))}
             <Button
               type="button"
               onClick={() =>

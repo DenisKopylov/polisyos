@@ -29,7 +29,7 @@ if TYPE_CHECKING:
         CapabilityResourceKind,
     )
     from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
-    from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
+    from polisyos.runtime.quality import ProductionApprovalPacketResolver
 
 
 class CapabilityDiscoveryService:

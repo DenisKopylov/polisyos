@@ -44,9 +44,26 @@ const dashboardRequire = createRequire(
 const ts = dashboardRequire("typescript");
 const request = JSON.parse(fs.readFileSync(0, "utf8"));
 const sources = new Map(Object.entries(request.sources));
+const isProductionDashboardSource = sourcePath =>
+  sourcePath.startsWith("apps/runtime-dashboard/src/")
+  && /\.tsx?$/.test(sourcePath)
+  && !/\.d\.ts$/.test(sourcePath)
+  && !/(?:^|\/)(?:test|tests|__tests__|__mocks__)(?:\/|$)/.test(sourcePath)
+  && !/\.(?:test|spec|stories|story)\.tsx?$/.test(sourcePath);
 const resolveRelative = (fromPath, specifier) => {
   if (!specifier.startsWith(".")) return null;
   const base = path.normalize(path.join(path.dirname(fromPath), specifier));
+  const candidates = [
+    base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`,
+  ];
+  for (const candidate of candidates) {
+    if (sources.has(candidate)) return candidate;
+  }
+  return null;
+};
+const resolveDashboardAlias = specifier => {
+  if (!specifier.startsWith("@/")) return null;
+  const base = path.normalize(`apps/runtime-dashboard/src/${specifier.slice(2)}`);
   const candidates = [
     base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`,
   ];
@@ -62,21 +79,30 @@ for (const [sourcePath, source] of sources) {
     sourcePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
   ));
 }
-const staticEdges = sourcePath => {
+const staticEdges = (sourcePath, includeDashboardAliases = false) => {
   const edges = [];
   for (const statement of sourceFiles.get(sourcePath)?.statements ?? []) {
     if ((ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement))
       && statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier)) {
-      const resolved = resolveRelative(sourcePath, statement.moduleSpecifier.text);
+      const specifier = statement.moduleSpecifier.text;
+      const resolved = resolveRelative(sourcePath, specifier)
+        ?? (includeDashboardAliases ? resolveDashboardAlias(specifier) : null);
       if (resolved) edges.push(resolved);
     }
   }
   return edges;
 };
-const roots = [...sources.keys()].filter(sourcePath =>
+const productionSourcePaths = [...sources.keys()].filter(isProductionDashboardSource);
+const ownerRoots = productionSourcePaths.filter(sourcePath =>
   /(?:^|\/)CapabilityDiscovery[^/]*\.tsx?$/.test(sourcePath)
   || sourcePath.includes("/capabilityDiscovery/")
+  || sourcePath === "apps/runtime-dashboard/src/api/hooks/useCapabilitySearch.ts"
 );
+const ownerRootSet = new Set(ownerRoots);
+const consumerRoots = productionSourcePaths.filter(sourcePath =>
+  staticEdges(sourcePath, true).some(targetPath => ownerRootSet.has(targetPath))
+);
+const roots = [...new Set([...ownerRoots, ...consumerRoots])];
 const reachable = new Set(roots);
 const queue = [...roots];
 while (queue.length) {
@@ -121,7 +147,8 @@ compilerHost.readFile = fileName => {
 compilerHost.resolveModuleNames = (moduleNames, containingFile) => {
   const containingKey = sourceKey(containingFile) ?? containingFile.replaceAll("\\", "/");
   return moduleNames.map(specifier => {
-    const resolved = resolveRelative(containingKey, specifier);
+    const resolved = resolveRelative(containingKey, specifier)
+      ?? resolveDashboardAlias(specifier);
     if (resolved) {
       return {
         resolvedFileName: resolved,
@@ -134,7 +161,11 @@ compilerHost.resolveModuleNames = (moduleNames, containingFile) => {
     ).resolvedModule;
   });
 };
-const program = ts.createProgram([...reachable].sort(), compilerOptions, compilerHost);
+const program = ts.createProgram(
+  [...new Set([...reachable, ...productionSourcePaths])].sort(),
+  compilerOptions,
+  compilerHost,
+);
 const typeChecker = program.getTypeChecker();
 const moduleInfoByPath = new Map();
 const hasModifier = (node, modifier) =>
@@ -449,6 +480,43 @@ const nodeHasSemanticRowType = node => {
     return false;
   }
 };
+const capabilityManifestType = (type, seen = new Set()) => {
+  if (!type || seen.has(type.id)) return false;
+  const nextSeen = new Set(seen);
+  nextSeen.add(type.id);
+  if (type.isUnionOrIntersection?.()) {
+    return type.types.some(member => capabilityManifestType(member, nextSeen));
+  }
+  let properties;
+  try {
+    properties = new Set(
+      typeChecker.getPropertiesOfType(typeChecker.getApparentType(type))
+        .map(property => property.name),
+    );
+  } catch {
+    return false;
+  }
+  if (!properties.has("features")) return false;
+  const ownerMarkers = [
+    "constraints", "runtime_api_version", "supported_execution_profiles",
+    "default_execution_profile", "worker_backend", "state_store_backend",
+  ];
+  return ownerMarkers.filter(name => properties.has(name)).length >= 2;
+};
+const nodeHasCapabilityManifestType = node => {
+  try {
+    return capabilityManifestType(typeChecker.getTypeAtLocation(node));
+  } catch {
+    return false;
+  }
+};
+const isTypeOnlyUse = node => {
+  for (let current = node.parent; current; current = current.parent) {
+    if (ts.isTypeNode(current)) return true;
+    if (ts.isStatement(current) || ts.isSourceFile(current)) return false;
+  }
+  return false;
+};
 const collectionHasSemanticRows = node => {
   try {
     const collectionType = typeChecker.getTypeAtLocation(node);
@@ -674,7 +742,7 @@ for (const sourcePath of [...reachable].sort()) {
       for (const [field, value] of pairs) {
         if (field.status !== "field") continue;
         const semantic = field.name === "capability_ref" || field.name === "resource_kind"
-          || field.name === "kind" || field.name === "adapter_id"
+          || (field.name === "kind" && field.contextualId) || field.name === "adapter_id"
           || field.name === "candidate_ref" || (field.name === "id" && field.contextualId);
         if (!semantic) continue;
         if (value.status === "unresolved") {
@@ -694,7 +762,7 @@ for (const sourcePath of [...reachable].sort()) {
       const value = stringValue(node.expression, sourcePath);
       const semantic = field.status === "field" && (
         field.name === "capability_ref" || field.name === "resource_kind"
-        || field.name === "kind" || field.name === "adapter_id"
+        || (field.name === "kind" && field.contextualId) || field.name === "adapter_id"
         || field.name === "candidate_ref" || (field.name === "id" && field.contextualId)
       );
       if (semantic && value.status === "unresolved") {
@@ -706,6 +774,73 @@ for (const sourcePath of [...reachable].sort()) {
     ts.forEachChild(node, inspect);
   }
   inspect(sourceFile);
+}
+for (const sourcePath of [...productionSourcePaths].sort()) {
+  const sourceFile = sourceFiles.get(sourcePath);
+  const recordLegacyRead = (node, syntax) => {
+    const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+    violations.push({
+      path: sourcePath,
+      line: position.line + 1,
+      kind: `legacy_manifest_features_read_${syntax}`,
+    });
+  };
+  const bindingFieldName = element => {
+    if (element.propertyName
+      && (ts.isIdentifier(element.propertyName)
+        || ts.isStringLiteralLike(element.propertyName))) {
+      return element.propertyName.text;
+    }
+    return ts.isIdentifier(element.name) ? element.name.text : null;
+  };
+  const objectPatternReadsFeatures = pattern => pattern.elements.some(element =>
+    ts.isBindingElement(element) && bindingFieldName(element) === "features"
+  );
+  const assignmentPatternReadsFeatures = expression => {
+    const pattern = unwrap(expression);
+    if (!pattern || !ts.isObjectLiteralExpression(pattern)) return false;
+    return pattern.properties.some(property => {
+      if (ts.isShorthandPropertyAssignment(property)) {
+        return property.name.text === "features";
+      }
+      if (!ts.isPropertyAssignment(property)) return false;
+      return (ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name))
+        && property.name.text === "features";
+    });
+  };
+  const parameterIsExecutable = parameter => Boolean(parameter.parent?.body);
+  function inspectLegacyManifestReads(node) {
+    if (!isTypeOnlyUse(node) && ts.isPropertyAccessExpression(node)
+      && node.name.text === "features"
+      && nodeHasCapabilityManifestType(node.expression)) {
+      recordLegacyRead(node, "property_access");
+    }
+    if (!isTypeOnlyUse(node) && ts.isElementAccessExpression(node)
+      && ts.isStringLiteralLike(node.argumentExpression)
+      && node.argumentExpression.text === "features"
+      && nodeHasCapabilityManifestType(node.expression)) {
+      recordLegacyRead(node, "element_access");
+    }
+    if (ts.isVariableDeclaration(node) && ts.isObjectBindingPattern(node.name)
+      && node.initializer && objectPatternReadsFeatures(node.name)
+      && nodeHasCapabilityManifestType(node.initializer)) {
+      recordLegacyRead(node.name, "destructure");
+    }
+    if (ts.isParameter(node) && parameterIsExecutable(node)
+      && ts.isObjectBindingPattern(node.name)
+      && objectPatternReadsFeatures(node.name)
+      && nodeHasCapabilityManifestType(node)) {
+      recordLegacyRead(node.name, "destructure");
+    }
+    if (ts.isBinaryExpression(node)
+      && node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+      && assignmentPatternReadsFeatures(node.left)
+      && nodeHasCapabilityManifestType(node.right)) {
+      recordLegacyRead(node.left, "destructure");
+    }
+    ts.forEachChild(node, inspectLegacyManifestReads);
+  }
+  inspectLegacyManifestReads(sourceFile);
 }
 process.stdout.write(JSON.stringify(violations));
 """

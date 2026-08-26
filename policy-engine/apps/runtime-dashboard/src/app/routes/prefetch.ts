@@ -23,6 +23,7 @@ import type { RunDetailTab } from "@/features/runs";
 
 export type RunTabKey = RunDetailTab;
 type RunTabQueryOptions =
+  | ReturnType<typeof capabilitySearchQueryOptions>
   | ReturnType<typeof governanceDebugQueryOptions>
   | ReturnType<typeof runAgentsQueryOptions>
   | ReturnType<typeof runDetailsQueryOptions>

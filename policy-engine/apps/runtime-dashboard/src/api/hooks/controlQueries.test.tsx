@@ -5,7 +5,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   capabilitiesQueryOptions,
   fetchCapabilities,
-  isDiscoveryCapabilityEnabled,
   isIssuedCapabilityDiscovery,
   useCapabilities,
   useCapabilityManifestAvailability,
@@ -59,25 +58,10 @@ const capabilitiesPayload = {
   supported_locales: ["en"],
   state_store_backend: "sqlite",
   worker_backend: "embedded",
+  fallback_rules: {},
+  security_posture: {},
   workspaces: [],
-  features: [
-    {
-      key: "evaluator_reports",
-      label: "Evaluator reports",
-      description: "Owner-issued enabled capability.",
-      category: "governance",
-      enabled: true,
-      stage: "active",
-    },
-    {
-      key: "promotion_lane",
-      label: "Promotion lane",
-      description: "Owner-issued disabled capability.",
-      category: "evidence",
-      enabled: false,
-      stage: "deferred",
-    },
-  ],
+  features: [],
   constraints: {},
 };
 
@@ -164,7 +148,8 @@ describe("control-plane query hooks", () => {
     expect(options.queryKey).toEqual(queryKeys.capabilities());
     expect(options.placeholderData).toBeUndefined();
     expect(options.retry).toBe(1);
-    expect(options.staleTime).toBe(Number.POSITIVE_INFINITY);
+    expect(options.staleTime).toBe(0);
+    expect(options.refetchOnMount).toBe("always");
   });
 
   it("issues unavailable discovery during loading and runtime failures", async () => {
@@ -182,9 +167,6 @@ describe("control-plane query hooks", () => {
       state: "unavailable",
     });
     expect(isIssuedCapabilityDiscovery(result.current)).toBe(true);
-    expect(
-      isDiscoveryCapabilityEnabled(result.current, "evaluator_reports"),
-    ).toBe(false);
 
     await waitFor(
       () => {
@@ -207,9 +189,6 @@ describe("control-plane query hooks", () => {
       reason: "offline",
       state: "unavailable",
     });
-    expect(
-      isDiscoveryCapabilityEnabled(result.current, "evaluator_reports"),
-    ).toBe(false);
   });
 
   it("issues missing-data discovery when a settled query has no owner response", async () => {
@@ -242,12 +221,9 @@ describe("control-plane query hooks", () => {
         state: "unavailable",
       });
     });
-    expect(
-      isDiscoveryCapabilityEnabled(result.current, "evaluator_reports"),
-    ).toBe(false);
   });
 
-  it("issues owner capability discovery only after an owner response", async () => {
+  it("issues manifest availability only after an owner response", async () => {
     mockRuntimeGetSuccess(capabilitiesPayload);
     const { result } = renderHook(() => useCapabilityManifestAvailability(), {
       wrapper: createQueryHookWrapper(),
@@ -258,12 +234,10 @@ describe("control-plane query hooks", () => {
     });
 
     expect(isIssuedCapabilityDiscovery(result.current)).toBe(true);
-    expect(
-      isDiscoveryCapabilityEnabled(result.current, "evaluator_reports"),
-    ).toBe(true);
-    expect(isDiscoveryCapabilityEnabled(result.current, "promotion_lane")).toBe(
-      false,
-    );
+    expect(result.current).toMatchObject({
+      manifest: capabilitiesPayload,
+      state: "available",
+    });
   });
 
   it("surfaces capability manifest failures as runtime API errors", async () => {

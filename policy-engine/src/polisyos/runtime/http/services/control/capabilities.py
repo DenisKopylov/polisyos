@@ -12,7 +12,12 @@ from polisyos.runtime.http.services.control.production_data import (
     production_data_evidence_context,
 )
 
-from .._control_contracts import _build_api_meta
+from .._control_contracts import (
+    _build_api_meta,
+    _is_auto_materialization_enabled,
+    _is_multimodel_enabled,
+    _is_required_preflight_enabled,
+)
 
 if TYPE_CHECKING:
     from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
@@ -33,6 +38,13 @@ class CapabilityManifestMixin:
             principal=None,
         )
 
+        execution_policy = {
+            "auto_materialization": _is_auto_materialization_enabled(),
+            "multimodel_nl": _is_multimodel_enabled(),
+            "producer_ref": "runtime/http/services/_control_contracts.py",
+            "required_preflight": _is_required_preflight_enabled(),
+        }
+
         return CapabilityManifestResponse(
             meta=_build_api_meta(request_id),
             default_execution_profile=self._policy_resolver.default_profile,
@@ -40,7 +52,10 @@ class CapabilityManifestMixin:
             worker_backend=self._policy_resolver.worker_backend,
             state_store_backend=self._policy_resolver.state_store_backend,
             security_posture=dict(resolved_policy.security_posture),
-            fallback_rules=dict(resolved_policy.fallback_rules),
+            fallback_rules={
+                **dict(resolved_policy.fallback_rules),
+                "execution_policy": execution_policy,
+            },
             workspaces=[],
             features=[],
             constraints={

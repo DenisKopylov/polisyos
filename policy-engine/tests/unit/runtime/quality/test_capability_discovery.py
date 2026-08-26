@@ -203,6 +203,62 @@ def test_lex_provider_uses_real_legal_owner_snapshot_and_admission_rows(tmp_path
     assert response.results[0].authority_result.state == "bridge_missing"
 
 
+def test_lex_provider_empty_query_searches_the_complete_owner_index(tmp_path) -> None:
+    """An explicit empty query is match-all, never a magic authored token."""
+    capability_index = _fixture_capability_index(tmp_path)
+    expected_refs = tuple(
+        sorted(
+            row.capability_ref
+            for row in build_capability_discovery_snapshot(capability_index)
+            if row.resource_kind == "legal_norm"
+        )
+    )
+    request = _request(("legal_norm",)).model_copy(
+        update={
+            "search": _request(("legal_norm",)).search.model_copy(
+                update={
+                    "query_text": "*",
+                    "construct_refs": ("*",),
+                    "budget": {
+                        "match_all": True,
+                        "top_k": len(expected_refs),
+                    },
+                }
+            )
+        }
+    )
+
+    result = LexCapabilityDiscoveryProvider(capability_index=capability_index).search(request)
+
+    assert tuple(row.capability_ref for row in result.rows) == expected_refs
+    assert tuple(candidate.candidate_ref for candidate in result.ledger.candidates) == expected_refs
+    assert result.ledger.no_hit_frontier == ()
+    assert result.completeness_status == "complete"
+
+
+def test_lex_provider_rejects_unbound_match_all_proxy(tmp_path) -> None:
+    """A punctuation-only query cannot imply match-all without the explicit intent."""
+    request = _request(("legal_norm",)).model_copy(
+        update={
+            "search": _request(("legal_norm",)).search.model_copy(
+                update={
+                    "query_text": "*",
+                    "construct_refs": ("*",),
+                    "budget": {"top_k": 5},
+                }
+            )
+        }
+    )
+
+    with pytest.raises(
+        CapabilityProviderUnavailableError,
+        match="lex_owner_query_terms_missing",
+    ):
+        LexCapabilityDiscoveryProvider(capability_index=_fixture_capability_index(tmp_path)).search(
+            request
+        )
+
+
 def test_lex_provider_records_budget_rejection_and_no_hit_frontier(tmp_path) -> None:
     """A real owner query records omitted matches instead of hiding the cutoff."""
     capability_index = _fixture_capability_index(tmp_path)
@@ -298,11 +354,16 @@ def test_lex_provider_malformed_owner_index_is_typed_unavailable() -> None:
     assert response.frontier.incompleteness_reasons == ("legal_norm:lex_owner_index_invalid",)
 
 
-def test_provider_mapping_permutation_does_not_change_composed_packet() -> None:
-    """Federation order is request-owned, not mapping-insertion-owned."""
+def test_mixed_status_provider_permutation_does_not_change_composed_packet() -> None:
+    """Mixed-status precedence is request-owned, not mapping-insertion-owned."""
     first_calls: list[str] = []
     second_calls: list[str] = []
-    method = _provider_result("method", "capability:method:generated")
+    method = _provider_result(
+        "method",
+        "capability:method:generated",
+        completeness_status="index_stale",
+        incompleteness_reasons=("method_snapshot_expired",),
+    )
     dataset = _provider_result("dataset", "capability:dataset:generated")
     request = _request(("method", "dataset"))
     first = _composer(
@@ -313,6 +374,9 @@ def test_provider_mapping_permutation_does_not_change_composed_packet() -> None:
     ).search(request, meta=ApiMeta(request_id="http:test"))
 
     assert first_calls == second_calls == ["method", "dataset"]
+    assert first.frontier.completeness_status == "index_stale"
+    assert first.results[0].discovery_result.state == "index_stale"
+    assert first.results[1].discovery_result.state == "discoverable"
     assert first.model_dump(mode="json", exclude={"meta": {"generated_at"}}) == (
         second.model_dump(mode="json", exclude={"meta": {"generated_at"}})
     )

@@ -1,9 +1,10 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 
 import {
   type CapturedCapabilitySearch,
   type CapabilitySearchRequest,
   useCapabilitySearch,
+  withCapabilitySearchQuery,
 } from "@/api/hooks/useCapabilitySearch";
 import { downloadCapabilityDiscoveryMachine } from "@/features/evidence/export/capabilityDiscoveryTwin";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
@@ -15,6 +16,86 @@ type CapabilityDiscoveryPanelProps = Readonly<{
   request: CapabilitySearchRequest;
 }>;
 
+type PacketPathPart = number | string;
+type PacketLeafType =
+  | "array"
+  | "boolean"
+  | "null"
+  | "number"
+  | "object"
+  | "string";
+
+function packetLeafType(value: unknown): PacketLeafType {
+  if (value === null) {
+    return "null";
+  }
+  if (Array.isArray(value)) {
+    return "array";
+  }
+  if (typeof value === "object") {
+    return "object";
+  }
+  if (typeof value === "boolean") return "boolean";
+  if (typeof value === "number") return "number";
+  if (typeof value === "string") return "string";
+  throw new TypeError("capability packet contains a non-JSON value");
+}
+
+function packetEntries(
+  value: unknown,
+): readonly (readonly [PacketPathPart, unknown])[] {
+  if (Array.isArray(value)) {
+    return value.map((entry, index) => [index, entry ?? null] as const);
+  }
+  if (typeof value === "object" && value !== null) {
+    return Object.entries(value)
+      .filter(([, entry]) => entry !== undefined)
+      .sort(([left], [right]) => left.localeCompare(right));
+  }
+  return [];
+}
+
+function packetLeafValue(
+  type: PacketLeafType,
+  value: unknown,
+  entries: readonly (readonly [PacketPathPart, unknown])[],
+) {
+  if (type === "array" || type === "object") {
+    return String(entries.length);
+  }
+  if (type === "null") {
+    return "null";
+  }
+  return String(value);
+}
+
+function renderCapabilityPacketLeaves(
+  value: unknown,
+  path: readonly PacketPathPart[] = [],
+): ReactNode[] {
+  const type = packetLeafType(value);
+  const entries = packetEntries(value);
+  const identity = JSON.stringify(path);
+  return [
+    <li
+      key={"capability-packet-leaf:" + identity}
+      data-capability-packet-leaf
+      className="break-all"
+    >
+      <code data-capability-leaf-path>{identity}</code>
+      {" · "}
+      <span data-capability-leaf-type>{type}</span>
+      {" · "}
+      <span data-capability-leaf-value>
+        {packetLeafValue(type, value, entries)}
+      </span>
+    </li>,
+    ...entries.flatMap(([part, entry]) =>
+      renderCapabilityPacketLeaves(entry, [...path, part]),
+    ),
+  ];
+}
+
 export function CapabilityDiscoveryPanel({
   baseUrl,
   onCaptured,
@@ -22,20 +103,16 @@ export function CapabilityDiscoveryPanel({
 }: CapabilityDiscoveryPanelProps) {
   const { t } = useI18n();
   const [queryText, setQueryText] = useState(request.search.query_text);
-  const normalizedQuery = queryText.trim() || "all-capabilities";
   const searchRequest = useMemo(
-    () => ({
-      ...request,
-      search: {
-        ...request.search,
-        construct_refs: [normalizedQuery],
-        query_text: normalizedQuery,
-      },
-    }),
-    [normalizedQuery, request],
+    () => withCapabilitySearchQuery(request, queryText),
+    [queryText, request],
   );
   const query = useCapabilitySearch(searchRequest, baseUrl);
-  const captured = query.data;
+  const captured = query.isError ? undefined : query.data;
+
+  useEffect(() => {
+    setQueryText(request.search.query_text);
+  }, [request.search.query_text]);
 
   useEffect(() => {
     if (captured) {
@@ -95,17 +172,10 @@ export function CapabilityDiscoveryPanel({
 function CapabilityDiscoveryContent({
   captured,
 }: Readonly<{ captured: CapturedCapabilitySearch }>) {
-  const { frontier, results, ...envelope } = captured.response;
-  const {
-    candidates,
-    rejected_candidates: rejectedCandidates,
-    ...frontierEnvelope
-  } = frontier;
+  const { frontier, results } = captured.response;
+  const { candidates, rejected_candidates: rejectedCandidates } = frontier;
   return (
-    <div
-      className="mt-4 space-y-3"
-      data-capability-envelope={JSON.stringify(envelope)}
-    >
+    <div className="mt-4 space-y-3">
       <p aria-live="polite" role="status" className="sr-only">
         Candidate search returned {results.length} results;{" "}
         {frontier.completeness_status};{" "}
@@ -113,19 +183,46 @@ function CapabilityDiscoveryContent({
       </p>
       <section aria-label="Capability request">
         <p className="text-sm font-medium">
-          Request: {captured.response.request.search.query_text}
+          Request:{" "}
+          <span data-capability-request-query>
+            {captured.response.request.search.query_text}
+          </span>
         </p>
         <p className="text-muted text-xs">
-          {captured.response.request.audience} ·{" "}
-          {captured.response.request.resource_kinds.join(", ")} ·{" "}
-          {captured.response.request.search.allowed_modes.join(", ")}
+          <span data-capability-request-audience>
+            {captured.response.request.audience}
+          </span>{" "}
+          ·{" "}
+          {captured.response.request.resource_kinds.map((kind, index) => (
+            <span key={kind}>
+              {index > 0 ? ", " : null}
+              <span data-capability-request-kind>{kind}</span>
+            </span>
+          ))}{" "}
+          ·{" "}
+          {captured.response.request.search.allowed_modes.map((mode, index) => (
+            <span key={mode}>
+              {index > 0 ? ", " : null}
+              <span data-capability-request-mode>{mode}</span>
+            </span>
+          ))}
         </p>
       </section>
-      <div data-capability-completeness={frontier.completeness_status}>
-        <Badge kind="neutral">{frontier.completeness_status}</Badge>
+      <div>
+        <Badge kind="neutral">
+          <span data-capability-completeness-status>
+            {frontier.completeness_status}
+          </span>
+        </Badge>
         <p className="text-muted mt-1 text-sm">
-          {frontier.incompleteness_reasons.join(", ") ||
-            "No incompleteness was reported."}
+          {frontier.incompleteness_reasons.length > 0
+            ? frontier.incompleteness_reasons.map((reason, index) => (
+                <span key={`${reason}:${index}`}>
+                  {index > 0 ? ", " : null}
+                  <span data-capability-incompleteness-reason>{reason}</span>
+                </span>
+              ))
+            : "No incompleteness was reported."}
         </p>
       </div>
       {results.length === 0 ? (
@@ -136,26 +233,33 @@ function CapabilityDiscoveryContent({
           <li
             key={item.capability_ref}
             data-capability-ref={item.capability_ref}
-            data-capability-result={JSON.stringify(item)}
-            data-capability-discovery-posture={JSON.stringify(
-              item.discovery_result,
-            )}
-            data-capability-execution-posture={JSON.stringify(
-              item.execution_result,
-            )}
-            data-capability-authority-posture={JSON.stringify(
-              item.authority_result,
-            )}
+            data-capability-result
           >
-            <p className="font-medium">{item.label}</p>
-            <p className="text-muted text-sm">{item.description}</p>
-            <p className="text-muted text-xs">
-              {item.resource_kind} · {item.discovery_result.state} ·{" "}
-              {item.execution_result.state} · {item.authority_result.state}
+            <p className="font-medium" data-capability-result-label>
+              {item.label}
             </p>
-            <Badge kind="neutral">
-              Candidate · {item.authority_result.state}
-            </Badge>
+            <p
+              className="text-muted text-sm"
+              data-capability-result-description
+            >
+              {item.description}
+            </p>
+            <p className="text-muted text-xs">
+              <span data-capability-result-kind>{item.resource_kind}</span> ·{" "}
+              {item.discovery_result.state} · {item.execution_result.state} ·{" "}
+              {item.authority_result.state}
+            </p>
+            <p className="text-muted text-xs">
+              ref: <span data-capability-result-ref>{item.capability_ref}</span>
+            </p>
+            <span
+              className="[&>span]:text-foreground inline-flex rounded-[var(--radius-pill)] bg-[var(--paper)]"
+              data-capability-candidate-backdrop="true"
+            >
+              <Badge kind="neutral">
+                Candidate · {item.authority_result.state}
+              </Badge>
+            </span>
             <ul aria-label="Capability posture proofs" className="mt-2">
               {[
                 ["discovery", item.discovery_result],
@@ -169,13 +273,51 @@ function CapabilityDiscoveryContent({
                   )
                   .map(([key, value]) => `${key}=${String(value)}`);
                 return (
-                  <li key={name as string} className="mt-1 text-xs">
-                    <strong>{name as string}</strong>: {proof.state} · producer:{" "}
-                    {proof.producer_ref} · freshness: {proof.time.freshness}
+                  <li
+                    key={name as string}
+                    className="mt-1 text-xs"
+                    data-capability-posture={name as string}
+                  >
+                    <strong>{name as string}</strong>:{" "}
+                    <span data-capability-posture-state>{proof.state}</span> ·
+                    producer:{" "}
+                    <span data-capability-posture-producer>
+                      {proof.producer_ref}
+                    </span>{" "}
+                    · freshness:{" "}
+                    <span data-capability-posture-freshness>
+                      {proof.time.freshness}
+                    </span>
                     <br />
-                    reasons: {proof.reason_codes.join(", ") || "none"} · proof
-                    refs: {refs.join(", ") || "none"} · provenance:{" "}
-                    {proof.provenance_refs.join(", ") || "none"}
+                    reasons:{" "}
+                    {proof.reason_codes.length > 0
+                      ? proof.reason_codes.map((reason, index) => (
+                          <span key={`${reason}:${index}`}>
+                            {index > 0 ? ", " : null}
+                            <span data-capability-posture-reason>{reason}</span>
+                          </span>
+                        ))
+                      : "none"}{" "}
+                    · proof refs:{" "}
+                    {refs.length > 0
+                      ? refs.map((ref, index) => (
+                          <span key={`${ref}:${index}`}>
+                            {index > 0 ? ", " : null}
+                            <span data-capability-posture-proof-ref>{ref}</span>
+                          </span>
+                        ))
+                      : "none"}{" "}
+                    · provenance:{" "}
+                    {proof.provenance_refs.length > 0
+                      ? proof.provenance_refs.map((ref, index) => (
+                          <span key={`${ref}:${index}`}>
+                            {index > 0 ? ", " : null}
+                            <span data-capability-posture-provenance-ref>
+                              {ref}
+                            </span>
+                          </span>
+                        ))
+                      : "none"}
                   </li>
                 );
               })}
@@ -183,47 +325,140 @@ function CapabilityDiscoveryContent({
           </li>
         ))}
       </ul>
-      <section
-        aria-label="Search frontier"
-        data-capability-frontier={JSON.stringify(frontierEnvelope)}
-      >
+      <section aria-label="Search frontier">
         <p className="text-sm font-medium">Search frontier</p>
         <p className="text-muted text-xs">
-          requested {frontier.requested_count} · evaluated{" "}
-          {frontier.evaluated_count} · returned {frontier.returned_count} ·
-          cutoff {String(frontier.actual_cutoff)}
+          requested{" "}
+          <span data-capability-frontier-requested>
+            {frontier.requested_count}
+          </span>{" "}
+          · evaluated{" "}
+          <span data-capability-frontier-evaluated>
+            {frontier.evaluated_count}
+          </span>{" "}
+          · returned{" "}
+          <span data-capability-frontier-returned>
+            {frontier.returned_count}
+          </span>{" "}
+          · cutoff{" "}
+          <span data-capability-frontier-cutoff>
+            {String(frontier.actual_cutoff)}
+          </span>
         </p>
         <p className="text-muted text-xs">
-          indexes: {frontier.indexes_used.join(", ")} · versions:{" "}
-          {frontier.index_version_refs.join(", ")} · freshness:{" "}
-          {JSON.stringify(frontier.index_freshness ?? null)}
+          indexes:{" "}
+          {frontier.indexes_used.length > 0
+            ? frontier.indexes_used.map((indexRef, index) => (
+                <span key={`${indexRef}:${index}`}>
+                  {index > 0 ? ", " : null}
+                  <span data-capability-frontier-index>{indexRef}</span>
+                </span>
+              ))
+            : "none"}{" "}
+          · versions:{" "}
+          {frontier.index_version_refs.length > 0
+            ? frontier.index_version_refs.map((version, index) => (
+                <span key={`${version}:${index}`}>
+                  {index > 0 ? ", " : null}
+                  <span data-capability-frontier-index-version>{version}</span>
+                </span>
+              ))
+            : "none"}{" "}
+          · freshness:{" "}
+          <span data-capability-frontier-index-freshness>
+            {JSON.stringify(frontier.index_freshness ?? null)}
+          </span>
         </p>
         <p className="text-muted text-xs">
-          no-hit frontier: {frontier.no_hit_frontier.join(", ") || "none"}
+          no-hit frontier:{" "}
+          {frontier.no_hit_frontier.length > 0
+            ? frontier.no_hit_frontier.map((reason, index) => (
+                <span key={`${reason}:${index}`}>
+                  {index > 0 ? ", " : null}
+                  <span data-capability-frontier-no-hit>{reason}</span>
+                </span>
+              ))
+            : "none"}
         </p>
         <ul className="text-muted mt-1 text-xs">
           {candidates.map((candidate) => (
             <li
               key={`selected:${candidate.candidate_ref}`}
-              data-capability-candidate={JSON.stringify(candidate)}
+              data-capability-candidate="selected"
             >
-              selected: {candidate.candidate_ref} · evidence:{" "}
-              {candidate.evidence_refs.join(", ") || "none"} · limitations:{" "}
-              {candidate.limitation_refs.join(", ") || "none"}
+              selected:{" "}
+              <span data-capability-candidate-ref>
+                {candidate.candidate_ref}
+              </span>{" "}
+              · evidence:{" "}
+              {candidate.evidence_refs.length > 0
+                ? candidate.evidence_refs.map((ref, index) => (
+                    <span key={`${ref}:${index}`}>
+                      {index > 0 ? ", " : null}
+                      <span data-capability-candidate-evidence-ref>{ref}</span>
+                    </span>
+                  ))
+                : "none"}{" "}
+              · limitations:{" "}
+              {candidate.limitation_refs.length > 0
+                ? candidate.limitation_refs.map((ref, index) => (
+                    <span key={`${ref}:${index}`}>
+                      {index > 0 ? ", " : null}
+                      <span data-capability-candidate-limitation-ref>
+                        {ref}
+                      </span>
+                    </span>
+                  ))
+                : "none"}
             </li>
           ))}
           {rejectedCandidates.map((candidate) => (
             <li
               key={`rejected:${candidate.candidate_ref}`}
-              data-capability-rejected={JSON.stringify(candidate)}
+              data-capability-candidate="rejected"
             >
-              rejected: {candidate.candidate_ref} · evidence:{" "}
-              {candidate.evidence_refs.join(", ") || "none"} · limitations:{" "}
-              {candidate.limitation_refs.join(", ") || "none"}
+              rejected:{" "}
+              <span data-capability-candidate-ref>
+                {candidate.candidate_ref}
+              </span>{" "}
+              · evidence:{" "}
+              {candidate.evidence_refs.length > 0
+                ? candidate.evidence_refs.map((ref, index) => (
+                    <span key={`${ref}:${index}`}>
+                      {index > 0 ? ", " : null}
+                      <span data-capability-candidate-evidence-ref>{ref}</span>
+                    </span>
+                  ))
+                : "none"}{" "}
+              · limitations:{" "}
+              {candidate.limitation_refs.length > 0
+                ? candidate.limitation_refs.map((ref, index) => (
+                    <span key={`${ref}:${index}`}>
+                      {index > 0 ? ", " : null}
+                      <span data-capability-candidate-limitation-ref>
+                        {ref}
+                      </span>
+                    </span>
+                  ))
+                : "none"}
             </li>
           ))}
         </ul>
       </section>
+      <details open className="text-muted text-xs">
+        <summary className="cursor-pointer font-medium">
+          Full response packet bindings
+        </summary>
+        {/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- This bounded scroll region must remain keyboard-focusable without replacing list semantics. */}
+        <ul
+          aria-label="Full response packet bindings"
+          className="mt-1 max-h-64 space-y-1 overflow-auto font-mono"
+          tabIndex={0}
+        >
+          {renderCapabilityPacketLeaves(captured.response)}
+        </ul>
+        {/* eslint-enable jsx-a11y/no-noninteractive-tabindex */}
+      </details>
     </div>
   );
 }

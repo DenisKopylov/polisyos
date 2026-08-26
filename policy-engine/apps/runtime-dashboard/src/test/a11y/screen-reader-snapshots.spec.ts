@@ -5,6 +5,7 @@ import {
   readFixtureMetadata,
   waitForDashboardSurface,
 } from "../../../e2e/helpers/runtime-dashboard";
+import { openCapabilityDiscovery } from "../../../e2e/helpers/capabilityDiscovery";
 
 const INTERACTIVE_ROLE_PATTERN =
   /\b(button|checkbox|combobox|link|menuitem|radio|slider|switch|tab|textbox)\b/;
@@ -46,5 +47,22 @@ test.describe("runtime-dashboard screen reader snapshots", () => {
     expect(collectNamelessInteractiveLines(snapshot)).toEqual([]);
     expect(snapshot).toContain('button "Export JSON"');
     expect(snapshot).toContain("heading");
+  });
+
+  test("DS10 capability discovery announces candidate-grade incomplete frontier truth", async ({
+    page,
+  }) => {
+    const panel = await openCapabilityDiscovery(page, "incomplete-no-hit");
+    const snapshot = await panel.ariaSnapshot();
+
+    expect(collectNamelessInteractiveLines(snapshot)).toEqual([]);
+    expect(snapshot).toContain('textbox "Search capabilities"');
+    expect(snapshot).toContain("Candidate search returned 0 results");
+    expect(snapshot).toContain("recall_unmeasured");
+    expect(snapshot).toContain("budget_cutoff");
+    expect(snapshot).toContain("legal_norm:index_stale");
+    expect(snapshot).toContain("case:producer_missing");
+    expect(snapshot).toContain("No capability matched this search.");
+    expect(snapshot).toContain("rejected: legal-norm:rejected-near-match");
   });
 });

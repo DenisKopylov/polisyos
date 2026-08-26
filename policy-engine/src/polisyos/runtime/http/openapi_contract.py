@@ -3067,43 +3067,15 @@ _SUCCESS_EXAMPLES_BY_OPERATION: dict[str, dict[str, Any]] = {
         "fallback_rules": {
             "mock_fallback_allowed": True,
             "policy_flag_required_for_mock_fallback": False,
+            "execution_policy": {
+                "auto_materialization": True,
+                "multimodel_nl": True,
+                "producer_ref": "runtime/http/services/_control_contracts.py",
+                "required_preflight": True,
+            },
         },
-        "workspaces": [
-            "command_center",
-            "scenario_composer",
-            "runs_decisions",
-            "evidence_fabric",
-            "lex_knowledge",
-            "platform_health",
-        ],
-        "features": [
-            {
-                "key": "natural_language_runs",
-                "label": "Natural-language runs",
-                "description": (
-                    "Use the agent circuit to transform NL requests into executable policy runs."
-                ),
-                "category": "runs",
-                "enabled": True,
-                "stage": "active",
-            },
-            {
-                "key": "required_preflight",
-                "label": "Required preflight",
-                "description": "Run execution-plan preflight diagnostics before execution.",
-                "category": "governance",
-                "enabled": True,
-                "stage": "active",
-            },
-            {
-                "key": "security_admin_layer",
-                "label": "Security / admin layer",
-                "description": "Dedicated tenant/authz/audit admin surfaces.",
-                "category": "platform",
-                "enabled": False,
-                "stage": "deferred",
-            },
-        ],
+        "workspaces": [],
+        "features": [],
         "constraints": {
             "max_parallel_models": 16,
             "max_nl_iterations": 10,

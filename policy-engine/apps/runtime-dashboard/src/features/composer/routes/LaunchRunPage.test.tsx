@@ -143,32 +143,15 @@ describe("LaunchRunPage", () => {
           max_nl_iterations: 4,
           max_parallel_models: 3,
         },
-        features: [
-          {
-            description: "Multi-model natural language runs",
-            enabled: true,
-            key: "multimodel_nl",
-            label: "Multi-model",
+        fallback_rules: {
+          execution_policy: {
+            auto_materialization: true,
+            multimodel_nl: true,
+            producer_ref: "runtime/http/services/_control_contracts.py",
+            required_preflight: true,
           },
-          {
-            description: "Required preflight checks",
-            enabled: true,
-            key: "required_preflight",
-            label: "Preflight",
-          },
-          {
-            description: "Automatic materialization",
-            enabled: true,
-            key: "auto_materialization",
-            label: "Auto materialization",
-          },
-          {
-            description: "Promotion lane",
-            enabled: true,
-            key: "promotion_lane",
-            label: "Promotion lane",
-          },
-        ],
+        },
+        features: [],
       },
     });
     useLlmProfilesMock.mockReset();
@@ -512,39 +495,21 @@ describe("LaunchRunPage", () => {
 
   it("does not project execution policy as capability discovery chrome", () => {
     loadComposerDraftMock.mockReturnValue(new Promise(() => undefined));
-    const features = [
-      {
-        category: "governance",
-        description: "Multi-model natural language runs",
-        key: "multimodel_nl",
-        label: "Multi-model",
-      },
-      {
-        category: "governance",
-        description: "Required preflight checks",
-        key: "required_preflight",
-        label: "Preflight",
-      },
-      {
-        category: "governance",
-        description: "Automatic materialization",
-        key: "auto_materialization",
-        label: "Auto materialization",
-      },
-      {
-        category: "governance",
-        description: "Promotion lane",
-        key: "promotion_lane",
-        label: "Promotion lane",
-      },
-    ];
     const capabilities = (enabled: boolean) => ({
       data: {
         constraints: {
           max_nl_iterations: 4,
           max_parallel_models: 3,
         },
-        features: features.map((feature) => ({ ...feature, enabled })),
+        fallback_rules: {
+          execution_policy: {
+            auto_materialization: enabled,
+            multimodel_nl: enabled,
+            producer_ref: "runtime/http/services/_control_contracts.py",
+            required_preflight: enabled,
+          },
+        },
+        features: [],
       },
     });
     useCapabilitiesMock.mockReturnValue(capabilities(true));

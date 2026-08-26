@@ -1114,6 +1114,15 @@ const capabilityFeatureSchema = z.object({
   stage: z.enum(["active", "planned", "deferred"]).default("active"),
 });
 
+const capabilityExecutionPolicySchema = z
+  .object({
+    auto_materialization: z.boolean(),
+    multimodel_nl: z.boolean(),
+    producer_ref: z.string().min(1),
+    required_preflight: z.boolean(),
+  })
+  .strict();
+
 const authMeSchemaInternal = z.object({
   meta: apiMetaSchema,
   user_id: z.string(),
@@ -1141,6 +1150,13 @@ export const capabilityManifestSchema = z.object({
   supported_locales: z.array(z.enum(["en", "uk"])).default(["en", "uk"]),
   state_store_backend: z.string().default("sqlite"),
   worker_backend: z.string().default("embedded"),
+  security_posture: z.record(z.string(), z.unknown()).default({}),
+  fallback_rules: z
+    .object({
+      execution_policy: capabilityExecutionPolicySchema.optional(),
+    })
+    .passthrough()
+    .default({}),
   workspaces: z.array(z.string()).default([]),
   features: z.array(capabilityFeatureSchema).default([]),
   constraints: z.record(z.string(), z.unknown()).default({}),

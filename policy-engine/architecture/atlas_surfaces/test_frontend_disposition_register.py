@@ -31,8 +31,48 @@ def test_ds10_capability_discovery_roots_are_exactly_adjudicated() -> None:
     entries = {row["unit_id"]: row for row in data["entries"]}
     errors: list[str] = []
     checker._validate_ds10_capability_discovery_roots(entries, errors)
-    assert errors == []
-    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217
+    assert errors == []  # noqa: S101
+    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217  # noqa: S101
+    successor_refs = {
+        ref
+        for unit_id in checker.DS10_CAPABILITY_DISCOVERY_ROOTS
+        for ref in entries[unit_id].get("successor", {}).get("consumer_refs", [])
+    }
+    assert all(  # noqa: S101
+        (checker.REPO_ROOT / ref).is_file() for ref in successor_refs
+    )
+    assert (  # noqa: S101
+        "apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts"
+        not in successor_refs
+    )
+
+
+@pytest.mark.parametrize(
+    ("field_path", "replacement"),
+    [
+        (("decision_date",), "2026-08-25"),
+        (("seed_rule",), "unbound_seed_rule"),
+        (("rationale",), "A weaker adjacent rationale."),
+        (("successor", "unit_id"), "feature-adjacent-proxy"),
+    ],
+)
+def test_ds10_capability_discovery_roots_reject_governance_binding_drift(
+    field_path: tuple[str, ...], replacement: str
+) -> None:
+    """Bind the checker to every governance value emitted by the DS10 writer."""
+    data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+    entries = {row["unit_id"]: row for row in data["entries"]}
+    corrupted = copy.deepcopy(entries)
+    target: dict[str, object] = corrupted["route-knowledge"]
+    for field in field_path[:-1]:
+        nested = target[field]
+        assert isinstance(nested, dict)  # noqa: S101
+        target = nested
+    target[field_path[-1]] = replacement
+
+    errors: list[str] = []
+    checker._validate_ds10_capability_discovery_roots(corrupted, errors)
+    assert errors != []  # noqa: S101
 
 
 def test_ds10_writer_emits_five_rebind_five_use_as_is_and_preserves_217_assignments() -> None:
@@ -61,18 +101,20 @@ def test_ds10_writer_emits_five_rebind_five_use_as_is_and_preserves_217_assignme
         opening_text = opening_text[:start] + replacement + opening_text[end:]
 
     candidate = checker._ds10_capability_discovery_candidate_text(opening_text)
-    assert checker._ds10_capability_discovery_candidate_text(candidate) == candidate
+    assert (  # noqa: S101
+        checker._ds10_capability_discovery_candidate_text(candidate) == candidate
+    )
     data = json.loads(candidate)
     ds10 = [row for row in data["entries"] if row["owner_slice"] == "DS10"]
-    assert Counter(row["strangle_status"] for row in ds10) == {
+    assert Counter(row["strangle_status"] for row in ds10) == {  # noqa: S101
         "not_applicable": 5,
         "strangled": 5,
     }
-    assert Counter(row["disposition"] for row in ds10) == {
+    assert Counter(row["disposition"] for row in ds10) == {  # noqa: S101
         "rebind_pending": 5,
         "use_as_is": 5,
     }
-    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217
+    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217  # noqa: S101
 
     corrupted = copy.deepcopy(data)
     corrupted["ds8_strangle_coverage"]["assignments"][0][
@@ -82,6 +124,190 @@ def test_ds10_writer_emits_five_rebind_five_use_as_is_and_preserves_217_assignme
         checker._ds10_capability_discovery_candidate_text(
             json.dumps(corrupted, indent=2) + "\n"
         )
+
+
+def test_ds10_authority_badge_partition_tracks_candidate_grade_surfaces() -> None:
+    """Bind every DS10 Badge move without treating candidate clothing as authority."""
+    scan = checker._authority_presentation_scan()
+
+    assert checker._badge_classification_errors(scan) == []  # noqa: S101
+    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_total"] == 161  # noqa: S101
+    assert checker.AUTHORITY_PRESENTATION_COUNTS["badge_benign"] == 102  # noqa: S101
+    assert checker.BENIGN_BADGE_CLASS_COUNTS == {  # noqa: S101
+        "interaction_or_editor_state": 13,
+        "transport_or_runtime_health": 21,
+        "workflow_or_lifecycle_display_without_terminality_inference": 27,
+        "layout_or_counts": 19,
+        "opaque_metadata_or_taxonomy": 22,
+    }
+    assert checker.DS10_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS[  # noqa: S101
+        "dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71"
+    ] == "benign:transport_or_runtime_health"
+
+
+def test_ds10_baseline_candidate_reanchors_only_owned_source_bytes() -> None:
+    """Refresh only the four lint-resolution receipts whose producers DS10 changed."""
+    original = checker.BASELINE_PATH.read_text(encoding="utf-8")
+    assert (  # noqa: S101
+        checker._ds10_baseline_manifest_candidate_text(original) == original
+    )
+
+    opening_data = json.loads(original)
+    for row in opening_data["lint"]["resolution_content_bindings"]:
+        if (row["cluster_id"], row["path"]) in checker.DS10_BASELINE_CONTENT_REANCHORS:
+            row["sha256"] = "0" * 64
+    opening = json.dumps(opening_data, indent=2) + "\n"
+    candidate = checker._ds10_baseline_manifest_candidate_text(opening)
+    assert (  # noqa: S101
+        checker._ds10_baseline_manifest_candidate_text(candidate) == candidate
+    )
+
+    original_rows = {
+        (row["cluster_id"], row["path"]): row
+        for row in opening_data["lint"]["resolution_content_bindings"]
+    }
+    candidate_rows = {
+        (row["cluster_id"], row["path"]): row
+        for row in json.loads(candidate)["lint"]["resolution_content_bindings"]
+    }
+    changed = {
+        key for key in original_rows if original_rows[key] != candidate_rows[key]
+    }
+    assert changed == checker.DS10_BASELINE_CONTENT_REANCHORS  # noqa: S101
+    assert checker.validate_baseline_manifest(  # noqa: S101
+        json.loads(candidate), verify_source_bytes=True
+    ) == []
+
+
+def test_ds10_protected_signing_census_adds_the_complete_stable_identity_set() -> None:
+    """Refresh the omitted live signer without rewriting peer censuses."""
+    original = REGISTER_PATH.read_text(encoding="utf-8")
+    candidate = checker._ds10_protected_signing_census_candidate_text(original)
+    assert (  # noqa: S101
+        checker._ds10_protected_signing_census_candidate_text(candidate)
+        == candidate
+    )
+
+    before = json.loads(original)
+    after = json.loads(candidate)
+    before_censuses = {
+        row["census_id"]: row for row in before.pop("reference_censuses")
+    }
+    after_censuses = {
+        row["census_id"]: row for row in after.pop("reference_censuses")
+    }
+    assert before == after  # noqa: S101
+    census_id = "census-browser-signing-protected-live"
+    before_censuses.pop(census_id)
+    refreshed = after_censuses.pop(census_id)
+    assert before_censuses == after_censuses  # noqa: S101
+    probe = refreshed["probes"][0]
+    assert probe["expected_count"] == 29  # noqa: S101
+    assert len(probe["observed_refs"]) == 29  # noqa: S101
+    assert all(  # noqa: S101
+        "#ts-identity=" in ref for ref in probe["observed_refs"]
+    )
+    observed = checker._recompute_probe(probe)
+    assert checker._probe_observation_matches_stored_mode(  # noqa: S101
+        probe["observed_refs"], observed
+    ) == (True, None)
+
+
+def test_ds10_query_key_evidence_identity_binds_the_current_owner() -> None:
+    """Keep the existing query-key owner receipt current after generic search growth."""
+    source_path = "apps/runtime-dashboard/src/api/queryKeys.ts"
+    source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
+    assert checker._validate_typescript_reference_identity(  # noqa: S101
+        {"encoded_identity": checker.DS10_QUERY_KEYS_IDENTITY},
+        {source_path: source},
+    ) == []
+
+
+def test_ds10_writer_carries_only_the_exact_external_c13_receipt_nonclosure() -> None:
+    """Keep the stale DS6 whole-file receipt visible without weakening DS10 writes."""
+    exact = checker.DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
+    admitted, admission_errors = checker._ds10_c13_external_nonclosure_admission(
+        [exact]
+    )
+
+    assert admission_errors == []  # noqa: S101
+    assert admitted == (exact,)  # noqa: S101
+    assert set(checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES) == {  # noqa: S101
+        "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts",
+    }
+    assert checker._ds10_blocking_register_errors([]) == []  # noqa: S101
+    assert checker._ds10_blocking_register_errors(  # noqa: S101
+        [exact], admitted_external_errors=admitted
+    ) == []
+    assert checker._ds10_blocking_register_errors(  # noqa: S101
+        [exact, "c13_print_export_root_drift"],
+        admitted_external_errors=admitted,
+    ) == ["c13_print_export_root_drift"]
+    assert checker._ds10_blocking_register_errors(  # noqa: S101
+        [exact, exact], admitted_external_errors=admitted
+    ) == [exact, exact]
+    adjacent = exact + ":adjacent"
+    assert checker._ds10_blocking_register_errors(  # noqa: S101
+        [adjacent], admitted_external_errors=admitted
+    ) == [adjacent]
+
+    receipt = checker._c13_independent_print_receipt()
+    source_bytes = {
+        str(row["path"]): (checker.REPO_ROOT / str(row["path"])).read_bytes()
+        for row in receipt["source_bindings"]
+    }
+    unexposed, unexposed_errors = checker._ds10_c13_external_nonclosure_admission(
+        [], source_bytes=source_bytes
+    )
+    assert unexposed == ()  # noqa: S101
+    assert unexposed_errors == [  # noqa: S101
+        "ds10_c13_unexposed_current_evidence_drift"
+    ]
+    incomplete, incomplete_errors = (
+        checker._ds10_c13_external_nonclosure_admission([], source_bytes={})
+    )
+    assert incomplete == ()  # noqa: S101
+    assert incomplete_errors == [  # noqa: S101
+        "ds10_c13_external_source_binding_census_drift"
+    ]
+
+    verified_bytes = {
+        path: checker._c03_git_bytes(
+            "show", f"{checker.C13_VERIFIED_REVISION}:policy-engine/{path}"
+        )
+        for path in checker.C13_SOURCE_REFS
+    }
+    future_fixed, future_fixed_errors = (
+        checker._ds10_c13_external_nonclosure_admission(
+            [], source_bytes=verified_bytes
+        )
+    )
+    assert future_fixed == ()  # noqa: S101
+    assert future_fixed_errors == []  # noqa: S101
+    stale_exposure, stale_exposure_errors = (
+        checker._ds10_c13_external_nonclosure_admission(
+            [exact], source_bytes=verified_bytes
+        )
+    )
+    assert stale_exposure == ()  # noqa: S101
+    assert stale_exposure_errors == [  # noqa: S101
+        "ds10_c13_external_source_binding_census_drift"
+    ]
+
+    unaffected = next(
+        path
+        for path in checker.C13_SOURCE_REFS
+        if path not in checker.DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
+    )
+    source_bytes[unaffected] += b"\nthird mismatch"
+    rejected, rejection_errors = checker._ds10_c13_external_nonclosure_admission(
+        [exact], source_bytes=source_bytes
+    )
+    assert rejected == ()  # noqa: S101
+    assert rejection_errors == [  # noqa: S101
+        "ds10_c13_external_source_binding_census_drift"
+    ]
 
 
 _SPEC = importlib.util.spec_from_file_location("frontend_disposition_checker", CHECKER_PATH)
@@ -3701,8 +3927,8 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         badge = checker.AUTHORITY_BADGE_CLASSIFICATIONS
         prop = checker.AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS
         prop_records = [record for records in prop.values() for record in records]
-        self.assertEqual(159, len(badge))
-        self.assertEqual(159, len(set(badge)))
+        self.assertEqual(161, len(badge))
+        self.assertEqual(161, len(set(badge)))
         self.assertEqual(66, len(prop_records))
         self.assertEqual(65, len(prop))
         shared = [records for records in prop.values() if len(records) == 2]
@@ -4882,7 +5108,7 @@ it("second", () => {
         ):
             spec.loader.exec_module(module)
         self.assertEqual(  # noqa: PT009
-            159, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
+            161, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
         )
         self.assertEqual(  # noqa: PT009
             65, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
@@ -4894,14 +5120,14 @@ it("second", () => {
         self.assertEqual(  # noqa: PT009
             {
                 "interaction_or_editor_state": 13,
-                "transport_or_runtime_health": 20,
-                "workflow_or_lifecycle_display_without_terminality_inference": 25,
-                "layout_or_counts": 21,
-                "opaque_metadata_or_taxonomy": 25,
+                "transport_or_runtime_health": 21,
+                "workflow_or_lifecycle_display_without_terminality_inference": 27,
+                "layout_or_counts": 19,
+                "opaque_metadata_or_taxonomy": 22,
             },
             checker.BENIGN_BADGE_CLASS_COUNTS,
         )
-        self.assertEqual(104, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
+        self.assertEqual(102, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
         self.assertEqual(18, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
         self.assertEqual(  # noqa: PT009
             30,
@@ -4949,7 +5175,7 @@ it("second", () => {
         }
         self.assertEqual(  # noqa: PT009
             {
-                "benign_or_count_anchors": (104, 0),
+                "benign_or_count_anchors": (102, 0),
                 "debt_group_bindings": (53, 0),
                 "prop_addresses": (66, 0),
             },

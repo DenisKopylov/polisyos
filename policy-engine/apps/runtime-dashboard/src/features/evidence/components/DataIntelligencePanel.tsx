@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 
-import { useDataCatalogSearch } from "@/api/hooks/useDataCatalogSearch";
 import { useDataIndexStats } from "@/api/hooks/useDataIndexStats";
 import { useDataPromotionCandidates } from "@/api/hooks/useDataPromotionCandidates";
 import { useDiscoverDataSources } from "@/api/hooks/useDiscoverDataSources";
@@ -29,9 +28,7 @@ import type {
   RunEvidencePromotion,
 } from "@/shared/lib/domain/evidence";
 import {
-  interactionControl,
   operationalRequestControl,
-  type InteractionControl,
   type OperationalRequestControl,
 } from "@/shared/lib/domain/nonAuthorityNumeric";
 import {
@@ -40,7 +37,6 @@ import {
   formatNumber,
   formatPercent,
 } from "@/shared/lib/utils";
-import { useDebouncedValue } from "@/shared/lib/hooks";
 import { useAlertDialog } from "@/app/providers/AlertDialogProvider";
 import { useToast } from "@/app/providers/ToastProvider";
 import {
@@ -59,7 +55,6 @@ type RetrievalMode = "fastlane" | "hybrid" | "explorelane";
 type FetchPlan = components["schemas"]["FetchPlan"];
 type DataNeed = components["schemas"]["DataNeed"];
 
-const QUERY_DEBOUNCE_MS: InteractionControl = interactionControl(250);
 const NO_DISCOVERY_COST_BUDGET_USD: OperationalRequestControl =
   operationalRequestControl(0);
 
@@ -182,13 +177,8 @@ export default function DataIntelligencePanel({
   const resolveMutation = useResolveDataNeeds();
   const discoverMutation = useDiscoverDataSources();
   const previewMutation = usePreviewFetchPlan();
-  const {
-    approve,
-    approveError,
-    isDecisionPending,
-    reject,
-    rejectError,
-  } = useLivePromotionDecision();
+  const { approve, approveError, isDecisionPending, reject, rejectError } =
+    useLivePromotionDecision();
 
   useEffect(() => {
     if (!selectedNeed) {
@@ -232,22 +222,6 @@ export default function DataIntelligencePanel({
       allow_fallback: true,
     });
   }, [lastPreviewPlanId, mode, previewMutation, selectedPlan]);
-
-  const debouncedMetricQuery = useDebouncedValue(
-    metric.trim(),
-    QUERY_DEBOUNCE_MS,
-  );
-  const debouncedGeography = useDebouncedValue(
-    geography.trim(),
-    QUERY_DEBOUNCE_MS,
-  );
-
-  const catalogQuery = useDataCatalogSearch({
-    metricQuery: debouncedMetricQuery,
-    geography: debouncedGeography || null,
-    limit: 20,
-    enabled: debouncedMetricQuery.length >= 2,
-  });
 
   const canRun = metric.trim().length > 0;
   const currentNeed = useMemo<DataNeed | null>(() => {
@@ -322,32 +296,27 @@ export default function DataIntelligencePanel({
       {
         key: "metric",
         header: "metric",
-        exportValue: (row: (typeof promotionQueue)[number]) =>
-          row.metricId,
+        exportValue: (row: (typeof promotionQueue)[number]) => row.metricId,
       },
       {
         key: "connector",
         header: "connector",
-        exportValue: (row: (typeof promotionQueue)[number]) =>
-          row.connectorId,
+        exportValue: (row: (typeof promotionQueue)[number]) => row.connectorId,
       },
       {
         key: "dataset",
         header: "dataset",
-        exportValue: (row: (typeof promotionQueue)[number]) =>
-          row.datasetId,
+        exportValue: (row: (typeof promotionQueue)[number]) => row.datasetId,
       },
       {
         key: "status",
         header: "status",
-        exportValue: (row: (typeof promotionQueue)[number]) =>
-          row.status,
+        exportValue: (row: (typeof promotionQueue)[number]) => row.status,
       },
       {
         key: "confidence",
         header: "confidence",
-        exportValue: (row: (typeof promotionQueue)[number]) =>
-          row.confidence,
+        exportValue: (row: (typeof promotionQueue)[number]) => row.confidence,
       },
     ],
     [promotionQueue],
@@ -1010,41 +979,6 @@ export default function DataIntelligencePanel({
         testId="evidence-knowledge-weave-panel"
         title={t("pages.evidence.knowledgeWeaveTitle")}
       >
-        {catalogQuery.isLoading ? (
-          <p className="text-muted text-sm">
-            {t("panels.dataIntelligence.catalogLoading")}
-          </p>
-        ) : null}
-        {catalogQuery.error ? (
-          <ApiErrorAlert error={catalogQuery.error} />
-        ) : null}
-        {catalogQuery.data ? (
-          <p className="text-muted text-xs">
-            {t("panels.dataIntelligence.catalogMatches", {
-              count: formatNumber(catalogQuery.data.total_matches),
-              query: catalogQuery.data.query,
-            })}
-          </p>
-        ) : null}
-
-        {renderSimpleList(catalogQuery.data?.matches ?? [], (candidate) => (
-          <div
-            key={candidate.candidate_id}
-            className="bg-surface/50 border-line rounded-lg border p-2 text-xs"
-          >
-            <p className="font-mono">
-              {candidate.metric_id} {"->"} {candidate.connector_id} /{" "}
-              {candidate.dataset_id}
-            </p>
-            <p className="text-muted">
-              {t("panels.dataIntelligence.catalogCandidateMeta", {
-                confidence: formatPercent(candidate.confidence),
-                lane: candidate.source_lane,
-              })}
-            </p>
-          </div>
-        ))}
-
         {resolveMutation.data ? (
           <div className="space-y-2">
             <p className="text-muted text-xs">
@@ -1184,29 +1118,6 @@ export default function DataIntelligencePanel({
           mode === "context" &&
           activePromotionForReview ? (
             <div className="mb-3 space-y-2">
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
               <ReviewPresenceSummary
                 participants={promotionCollaboration.participants}
                 status={promotionCollaboration.status}

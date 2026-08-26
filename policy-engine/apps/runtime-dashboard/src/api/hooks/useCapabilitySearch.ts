@@ -22,11 +22,23 @@ const allCapabilityResourceKinds = [
   "agent",
 ] as const;
 
+const observedEpochByPartition = new Map<string, string>();
+
+function epochPartition(request: CapabilitySearchRequest) {
+  return JSON.stringify({
+    audience: request.audience,
+    authorityPurpose: request.search.authority_purpose,
+    resourceKinds: request.resource_kinds,
+  });
+}
+
 export function createCapabilitySearchRequest(
   queryText: string,
   requestId: string,
 ): CapabilitySearchRequest {
-  const normalizedQuery = queryText.trim() || "all-capabilities";
+  const normalizedQuery = queryText.trim();
+  const matchAll = normalizedQuery.length === 0;
+  const ownerQuery = matchAll ? "*" : normalizedQuery;
   const authorityPurpose = "capability_discovery";
   return {
     audience: "REVIEWER",
@@ -41,13 +53,37 @@ export function createCapabilitySearchRequest(
         "derived",
       ],
       authority_purpose: authorityPurpose,
-      construct_refs: [normalizedQuery],
+      budget: matchAll ? { match_all: true } : {},
+      construct_refs: [ownerQuery],
       intent: authorityPurpose,
-      query_text: normalizedQuery,
+      query_text: ownerQuery,
       request_id: requestId,
       required_layers: ["capability_discovery"],
       rule_version: "policyos.capability_discovery.v1",
       schema_version: "policyos.core.contracts.search.v1",
+    },
+  };
+}
+
+export function withCapabilitySearchQuery(
+  request: CapabilitySearchRequest,
+  queryText: string,
+): CapabilitySearchRequest {
+  const normalizedQuery = queryText.trim();
+  const matchAll = normalizedQuery.length === 0;
+  const ownerQuery = matchAll ? "*" : normalizedQuery;
+  const budget = Object.fromEntries(
+    Object.entries(request.search.budget ?? {}).filter(
+      ([key]) => key !== "match_all",
+    ),
+  );
+  return {
+    ...request,
+    search: {
+      ...request.search,
+      budget: matchAll ? { ...budget, match_all: true } : budget,
+      construct_refs: [ownerQuery],
+      query_text: ownerQuery,
     },
   };
 }
@@ -63,7 +99,9 @@ type CapabilitySearchFetch = (request: Request) => Promise<Response>;
 function resolveServerEpoch(
   response: CapabilityDiscoveryPayload,
 ): string | null {
-  return response.frontier.index_version_refs[0] ?? null;
+  return response.frontier.index_version_refs.length > 0
+    ? JSON.stringify([...response.frontier.index_version_refs].sort())
+    : null;
 }
 
 export async function fetchCapabilitySearch(
@@ -110,12 +148,25 @@ export function capabilitySearchQueryOptions(
   baseUrl?: string,
   enabled = true,
 ) {
+  const partition = epochPartition(request);
+  const observedEpoch = observedEpochByPartition.get(partition) ?? null;
   return queryOptions({
     enabled,
-    queryKey: queryKeys.capabilitySearch(request),
-    queryFn: () =>
-      fetchCapabilitySearch(request, authAwareRuntimeFetch, baseUrl),
-    staleTime: 5_000,
+    gcTime: 0,
+    queryKey: queryKeys.capabilitySearch(request, observedEpoch),
+    queryFn: async () => {
+      const captured = await fetchCapabilitySearch(
+        request,
+        authAwareRuntimeFetch,
+        baseUrl,
+      );
+      if (captured.serverEpoch !== null) {
+        observedEpochByPartition.set(partition, captured.serverEpoch);
+      }
+      return captured;
+    },
+    refetchOnMount: "always",
+    staleTime: 0,
     retry: 1,
   });
 }

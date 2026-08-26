@@ -1,29 +1,20 @@
 import type { CapabilityManifestPayload } from "@/api/validators";
 
-export function isCapabilityEnabled(
-  manifest: CapabilityManifestPayload | undefined,
-  key: string,
-): boolean {
-  return (
-    manifest?.features?.some(
-      (feature) => feature.key === key && feature.enabled,
-    ) ?? false
-  );
-}
-
 /** Reads a server-produced execution-policy arm, never discovery or admission. */
 export function isExecutionPolicyEnabled(
   manifest: CapabilityManifestPayload | undefined,
   key: string,
 ): boolean {
-  return isCapabilityEnabled(manifest, key);
-}
-
-export function getCapability(
-  manifest: CapabilityManifestPayload | undefined,
-  key: string,
-) {
-  return manifest?.features?.find((feature) => feature.key === key) ?? null;
+  const projection = manifest?.fallback_rules?.execution_policy;
+  if (
+    typeof projection !== "object" ||
+    projection === null ||
+    Array.isArray(projection)
+  ) {
+    return false;
+  }
+  const value = (projection as Record<string, unknown>)[key];
+  return typeof value === "boolean" ? value : false;
 }
 
 export function readNumericConstraint(

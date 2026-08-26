@@ -68,8 +68,12 @@ describeLive("DS10 capability discovery free growth", () => {
       </QueryClientProvider>,
     );
 
-    await waitFor(() => expect(captured).not.toBeNull());
-    const settled = captured as CapturedCapabilitySearch;
+    const settled = await waitFor(() => {
+      if (captured === null) {
+        throw new TypeError("capability response has not been captured");
+      }
+      return captured as CapturedCapabilitySearch;
+    });
     expect(settled.response.results).toHaveLength(1);
     expect(settled.response.results[0]?.capability_ref).toBe(
       generatedCapabilityId,

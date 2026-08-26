@@ -3,8 +3,8 @@ from __future__ import annotations
 import os
 
 import pytest
-
 from _helpers.runtime_http import build_runtime_api_env
+
 from polisyos.common.config import build_process_bootstrap_config
 from polisyos.core.security import (
     AccessScope,
@@ -47,7 +47,8 @@ def test_core_security_config_reaches_runtime_startup_and_fabric_context(
         capabilities = env["client"].get("/api/v1/control/capabilities")
         assert capabilities.status_code == 200
         feature_keys = {item["key"] for item in capabilities.json()["features"]}
-        assert "security_admin_layer" in feature_keys
+        assert feature_keys == set()
+        assert "security_admin_layer" not in feature_keys
 
         auth_me = env["client"].get("/api/v1/auth/me")
         assert auth_me.status_code == 200

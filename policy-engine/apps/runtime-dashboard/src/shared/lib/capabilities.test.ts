@@ -1,6 +1,5 @@
 import {
-  getCapability,
-  isCapabilityEnabled,
+  isExecutionPolicyEnabled,
   readNumericConstraint,
 } from "@/shared/lib/capabilities";
 import {
@@ -23,17 +22,16 @@ const ownerManifest: CapabilityManifestPayload = {
   supported_locales: ["en"],
   state_store_backend: "sqlite",
   worker_backend: "embedded",
-  workspaces: [],
-  features: [
-    {
-      key: "workflow_runs",
-      label: "Workflow runs",
-      description: "Owner-issued feature.",
-      category: "runs",
-      enabled: true,
-      stage: "active",
+  fallback_rules: {
+    execution_policy: {
+      auto_materialization: false,
+      multimodel_nl: true,
+      producer_ref: "runtime/http/services/_control_contracts.py",
+      required_preflight: true,
     },
-  ],
+  },
+  workspaces: [],
+  features: [],
   constraints: {},
 };
 
@@ -41,21 +39,6 @@ describe("capabilities helpers", () => {
   it("test_capability_discovery_accepts_only_issued_owner_manifest", () => {
     expectTypeOf(ownerManifest).not.toExtend<CapabilityDiscovery>();
     expect(isIssuedCapabilityDiscovery(ownerManifest)).toBe(false);
-  });
-
-  it("reads features from an owner manifest", () => {
-    expect(isCapabilityEnabled(ownerManifest, "workflow_runs")).toBe(true);
-    expect(isCapabilityEnabled(ownerManifest, "security_admin_layer")).toBe(
-      false,
-    );
-    expect(isCapabilityEnabled(undefined, "workflow_runs")).toBe(false);
-
-    expect(getCapability(ownerManifest, "workflow_runs")).toMatchObject({
-      category: "runs",
-      enabled: true,
-      key: "workflow_runs",
-    });
-    expect(getCapability(undefined, "workflow_runs")).toBeNull();
   });
 
   it("reads numeric constraints with fallback behavior", () => {
@@ -82,5 +65,21 @@ describe("capabilities helpers", () => {
       ),
     ).toBe(3);
     expect(readNumericConstraint(undefined, "missing", 7)).toBe(7);
+  });
+
+  it("reads execution policy only from the current policy projection", () => {
+    expect(isExecutionPolicyEnabled(ownerManifest, "multimodel_nl")).toBe(true);
+    expect(
+      isExecutionPolicyEnabled(ownerManifest, "auto_materialization"),
+    ).toBe(false);
+    expect(
+      isExecutionPolicyEnabled(
+        {
+          ...ownerManifest,
+          fallback_rules: {},
+        },
+        "multimodel_nl",
+      ),
+    ).toBe(false);
   });
 });

@@ -18,24 +18,7 @@ const capabilitiesData = {
     max_runs: 12,
   },
   default_locale: "en",
-  features: [
-    {
-      category: "runtime",
-      description: "Scenario Composer",
-      enabled: true,
-      key: "enableScenarioComposer",
-      label: "Scenario Composer",
-      stage: "active",
-    },
-    {
-      category: "runtime",
-      description: "Lex Knowledge",
-      enabled: false,
-      key: "enableLexKnowledge",
-      label: "Lex Knowledge",
-      stage: "beta",
-    },
-  ],
+  features: [],
   runtime_api_version: "1.0.0",
 };
 

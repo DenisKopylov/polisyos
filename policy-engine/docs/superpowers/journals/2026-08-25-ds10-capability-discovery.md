@@ -474,3 +474,182 @@ identity is green. No interrupted output is counted as a suite receipt.
 C06 has its 12 declared mechanism paths plus the reused hook exception above.
 It adds 12 unique paths, so the slice is **43/50**. Its three planned widenings
 bring the running round total to **13/15**.
+
+## C07 freeze, closeout findings, and final receipts
+
+### Identity, accounting, and source freeze
+
+C07 began attached and clean at
+`b4e96e0ebfa1c1ec7ec6f721e636f984a1ad58dc`; product-root
+`git rev-parse --show-prefix` returned `policy-engine/`. Source was frozen after
+the accessibility repair. Later changes were tests and mandatory governance
+companions only. The visual lane, register writer, and debt writer were acquired
+separately and released before the closeout commit.
+
+Two independent path derivations agree on **46/50 unique mechanism paths**:
+
+1. the complete base-to-closeout set has 105 paths; P39 classification gives
+   46 mechanisms plus 59 mandatory companions (this journal was already in the
+   base-to-closeout path union before its C07 append);
+2. accepted C00-C04 `18` + C05 `13` + C06 `12` + three C07 exceptions = `46`.
+
+The approved declaration was 42. Its four recorded exceptions are C04's
+`tools/ops_runners/runtime/generate_runtime_client.py` plus three C07 narrowing
+paths: `features/evidence/domain/searchParams.ts` (CC14 real palette selection),
+deleted `useDataCatalogSearch.ts` (CC17 one strict hook), and
+`DataIntelligencePanel.tsx` (CC11/CC18/CC19 removal of the sibling hit-only
+renderer). C07's closeout commit contains 56 paths after this journal: three new
+mechanism exceptions and 53 already-counted mechanisms or P39 companions. The
+round account is **14/15**; C07 consumes one verification transaction and every
+post-freeze repair is narrowing.
+
+### CC15 final form and causal-method scope correction
+
+The CC15 carrier is `legal_norm` because the Lex owner database is the strongest
+real extensible index: grounding, reference resolution, hallucination clearance,
+jurisdiction, and temporal effectiveness are recomputed before its rows enter a
+content-bound `CapabilityIndex`. The final witness creates an ID absent from both
+source trees, writes it through the real Lex schema and admission compiler,
+installs the production `LexCapabilityDiscoveryProvider` through the runtime's
+normal dependency seam, starts the real FastAPI route, and renders the real hook
+and panel. No fixture response, provider double, direct DTO, or ID branch can
+satisfy it. It asserts exactly one candidate-grade row; execution only from the
+independent operation/conformance/policy producer; authority
+`bridge_missing/not_established`; selected and rejected candidates; exact
+captured-response/MACHINE bytes; full DOM parity; and complete test-start
+dashboard path, extension partition, and bytes unchanged. Its original exact
+RED was the absent test artifact (exit 4, 0.87s). Final GREEN: 1/1 in 237s under
+the frozen 300s ceiling, uptime `13:34 up 2 days, 3:47` ->
+`13:38 up 2 days, 3:51`. Missing, stale, quarantined, malformed,
+policy-disabled, no-hit, and recall-miss siblings remain independent controls.
+
+Closeout inspection found that the plan's old `project_capability_features`
+sentence was unsafe. The complete projection consists of causal backend/family
+availability booleans, not owner-indexed method rows; adapting them as
+`discoverable` would be a P38 execution-to-discovery collapse. The typed causal
+contract remains in the manifest's `causal_runtime` execution projection and
+method discovery stays `producer_missing`. New debt
+`ds10-causal-method-index-provider-bridge` is owned by `foundry/methods`, producer
+bridge lane `runtime/quality`. Its exact closure test is absent and exits 4 in
+34s at uptime `13:29 up 2 days, 3:42`; this is `artifact_missing`, not a DS10
+positive and not a blocker because the surface renders the typed negative.
+
+### Accessibility and visual freeze
+
+Independent review rejected the first contrast witness as a P38 proxy: it
+accepted semi-transparent backgrounds, ignored Axe incomplete results, and did
+not require a numeric contrast pass. The strengthened test requires the
+candidate badge to be inside the tested backdrop, rendered alpha exactly 255,
+no background image, zero Axe violations, zero incomplete nodes, and at least
+one numeric WCAG-AA pass whose actual ratio meets the required ratio. The first
+strengthened RED found the missing opaque backdrop (106.30s,
+`12:39` -> `12:41`); after adding it, the second RED exposed the real 1.12:1
+contrast (67.83s, `12:41` -> `12:43`). The final candidate wrapper uses opaque
+paper plus foreground text. Focused a11y is 3/3 green in 79.67s under 240s,
+uptime `12:55` -> `12:56`. The scrollable packet list is a named, focusable
+native list with a tightly bounded lint exception.
+
+That repair invalidated the first visual freeze explicitly. The final refrozen
+transaction used `PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1`: stale no-writer RED
+was exactly 553 candidate-snapshot pixels (1 failed/1 passed, 102.12s), then one
+final writer passed 2/2 in 84.80s, followed by two no-writer passes: 2/2 in
+74.00s (`12:57` -> `12:58`) and 2/2 in 79.28s (`12:58` -> `12:59`). Snapshot
+SHA-256 values are
+`46b4448b90b4ee2bfed5332c82cedb9fe03dbccbf4589dcfc711aeb8107bd336`
+(candidate/executable/authority-negative) and
+`25424f2dec721a8c1454933023129a31d13e89413dc29ed7923171b8f27c50b8`
+(incomplete no-hit). Both were visually inspected; the lane and fixed ports were
+released.
+
+### Governance, facades, debt, and expected reds
+
+The ten DS10 roots are exact: five `rebind_pending/strangled` with successors
+(`route-knowledge`, `feature-command-palette`, `feature-lex`,
+`api-op-get-control-capabilities`, `api-op-search-data-catalog`) and five
+`use_as_is/not_applicable` without successors (`api-op-get-data-index-stats`,
+`api-op-get-lex-graph-stats`, `api-op-search-lex-graph`,
+`api-op-get-lex-pipeline-status`, `api-op-trigger-lex-pipeline`). The live root
+denominator is 261/261; the separate DS8 assignment denominator remains 217/217.
+The surgical writer's final transaction completed in 151.15s under 240s,
+uptime `13:12` -> `13:14`; DS10 register tests are 11/11 green in 82.94s.
+
+The DS6 C13 whole-file census is 2 stale of 11: `RunDetailLayout.tsx` and the
+shared visual spec. The global checker remains intentionally fail-fast on only
+`c13_print_receipt_invalid:...RunDetailLayout.tsx` (120.32s under 240s,
+`13:16` -> `13:18`); the exact owner test is red in 5.99s. Debt
+`ds10-c13-print-receipt-reissue`, owner `team-design` / DS6 independent print
+lane, owns reissue. DS10 does not rewrite another slice's receipt.
+
+The original guardrail delta was 14 DS10-owned cross-root deep imports. Existing
+facades routed two `ApiMeta` edges:
+
+- `runtime.quality.capability_discovery -> core.contracts.runtime`;
+- `runtime.http.services.control.capability_discovery -> core.contracts.runtime`.
+
+The final guardrail run completed in 247s, uptime `13:21` -> `13:25`, and reports
+exactly 12 deferred edges, owned by `team-polisyos` under
+`ds10-capability-discovery-stable-facades`:
+
+1. `runtime.http.openapi_contract -> core.contracts.capability_discovery`;
+2. `runtime.http.routes.control -> core.contracts.capability_discovery`;
+3. `runtime.http.services.control.capability_discovery -> core.contracts.capability_discovery`;
+4. `runtime.http.services.control.run_lifecycle -> core.contracts.capability_discovery`;
+5. the same source -> `core.contracts.search`;
+6. `runtime.quality.capability_authority -> core.contracts.capability_discovery`;
+7. `runtime.quality.capability_discovery -> core.contracts.capability_discovery`;
+8. the same source -> `core.contracts.search`;
+9. `runtime.quality.capability_index -> core.contracts.capability_discovery`;
+10. `runtime.quality.capability_resolver -> core.contracts.capability_discovery`;
+11. the same source -> `core.contracts.control`;
+12. `runtime.quality.proving_ground.pre_adapter_grounding_inventory -> core.contracts.capability_discovery`.
+
+The final debt census is 72/72 with 13 DS10 rows. The two owner cells that had
+projected as `—` were corrected to exact `team-fabric` and `team-design`; DS15
+and DS12 successor wording moved out of the owner cells. The writer completed
+and wrote the ledger in 4s, then returned the expected composite exit 1 for ten
+`register_supplies_missing_standing` plus one
+`register_withholds_source_standing`. Report-only reproduced exactly those 11
+informational findings in 2s, and the complete ledger test file is 32/32 green in
+12s. The frontend metric remains the untouched DS8-labelled 217 denominator.
+
+### Final targeted verification wave
+
+| lane | final receipt |
+| --- | --- |
+| backend discovery/API/generic strangle | 30/30 green in 141s under 300s; uptime `13:31` -> `13:34` |
+| amended free growth | 1/1 green in 237s under 300s; uptime `13:34` -> `13:38` |
+| dashboard strict hook/panel/a11y/twin/palette/Lex | 6 files, 29/29 green in 9s; uptime `13:31` -> `13:31` |
+| REVIEWER/EXPERT panel witness | initial duplicate-text assertion RED 2/4; final case asserts visible candidate clothing plus all typed negatives for both audiences: 4/4 green in 2s, Prettier/scoped ESLint green in 11s, uptime `13:50` -> `13:51` |
+| mixed-status precedence permutation | 1/1 green in 63s; `index_stale` wins independently of provider insertion order while the complete sibling stays discoverable |
+| TypeScript compilation | green in 166s under 300s; uptime `13:34` -> `13:37` |
+| changed frontend formatting | Prettier green across 47 TS/TSX files; broad ESLint exceeded 300s and was killed, so it is a non-receipt; scoped DS10 lint is green |
+| Python lint | Ruff diagnostics green on 33 non-architecture changed files; format check has the same two whole-file conflicts at slice base and current (`pre_adapter_grounding_inventory.py` and its test), so the completed format failure is recorded, not promoted to green |
+| architecture | 11/11 DS10 register tests green; global C13 exact declared red; guardrails exact 12-edge declared red |
+| debt | 72/72, exact 11 informational findings, 32/32 tests green |
+
+The combined C01 command, C03 333.95s wave, C04 261s replay against 240s,
+coordinate-broken Ruff wrapper, broad 300s ESLint kill, and the invalidated first
+visual freeze remain non-receipts. None is cited as passing evidence.
+
+### Closure-item and cluster hand-back index
+
+The plan's implementation receipt index binds CC01-CC22. In particular, CC07's
+mixed-status permutation and CC18's EXPERT audience now have direct behavioral
+witnesses; CC15 binds the real owner path; CC20 binds 10/10 roots; CC22 is closed
+only by the forthcoming C07 commit and attached-branch readback reported in the
+final hand-back.
+
+| cluster | commits / boundary | declared vs observed mechanism paths | running paths | rounds | attached readback |
+| --- | --- | --- | ---: | ---: | --- |
+| C00 | `a5755a584`, `d134aa5d5`, `fd69e66cb` | 0 / 0 | 0/50 | 0/15 | clean, hashes recorded above |
+| C01 | `26b271655`, `481fe2de5`, `e77f99ec0`, `0d0e3c92c` | 5 / 5 | 5/50 | 2/15 | attached/read back |
+| C02 | `d38860720`, `db4cb758a`, `5093c1951` | 5 / 5 | 10/50 | 5/15 | attached/read back |
+| C03 | `1c1587059`, `18c667141`, `4a33f3eae` | 7 / 7 | 17/50 | 7/15 | attached/read back |
+| C04 | `c279bbd14`, `290b5ef14`, `9d4fbc050` | 0 declared / 1 generator exception | 18/50 | 7/15 | attached/read back; failed upstream binding later corrected |
+| C05 | `1d87637f8` | 13 / 13; reused C02 paths add zero unique | 31/50 | 10/15 | attached/read back |
+| C06 | `b4e96e0eb` | 12 / 12; reused hook adds zero unique | 43/50 | 13/15 | attached/read back |
+| C07 | `docs(atlas): close DS10 capability discovery` | 0 declared / 3 authorized narrowing exceptions | 46/50 | 14/15 | commit hash and post-commit branch hashes belong to the final hand-back |
+
+The source tree is frozen, all 22 checkboxes are closed against the indexed
+evidence, every open boundary has an owner and executable command, and no stop
+condition fired.

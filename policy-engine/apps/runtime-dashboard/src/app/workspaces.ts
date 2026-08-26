@@ -1,5 +1,6 @@
 import { dataIndexStatsQueryOptions } from "@/api/hooks/useDataIndexStats";
 import { dataPromotionCandidatesQueryOptions } from "@/api/hooks/useDataPromotionCandidates";
+import { capabilitiesQueryOptions } from "@/api/hooks/useCapabilities";
 import { connectorsQueryOptions } from "@/api/hooks/useConnectors";
 import { healthQueryOptions } from "@/api/hooks/useHealth";
 import { llmProfilesQueryOptions } from "@/api/hooks/useLlmProfiles";
@@ -33,6 +34,7 @@ export type WorkspaceLayout =
   | "chat";
 
 export type WorkspacePrefetchKey =
+  | "capabilities"
   | "connectors"
   | "dataIndexStats"
   | "dataPromotionCandidates"
@@ -48,6 +50,7 @@ export type WorkspaceAppearancePreferences = {
 };
 
 type WorkspaceBootstrapQueryOptions =
+  | ReturnType<typeof capabilitiesQueryOptions>
   | ReturnType<typeof connectorsQueryOptions>
   | ReturnType<typeof dataIndexStatsQueryOptions>
   | ReturnType<typeof dataPromotionCandidatesQueryOptions>
@@ -226,6 +229,8 @@ export function buildBootstrapQueryOptions(
   key: WorkspacePrefetchKey,
 ): WorkspaceBootstrapQueryOptions {
   switch (key) {
+    case "capabilities":
+      return capabilitiesQueryOptions();
     case "connectors":
       return connectorsQueryOptions();
     case "dataIndexStats":

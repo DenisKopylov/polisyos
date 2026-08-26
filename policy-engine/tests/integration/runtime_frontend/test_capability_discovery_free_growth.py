@@ -255,7 +255,15 @@ def _source_snapshot(repository_root: Path, pathspec: str) -> _SourceSnapshot:
         check=True,
         capture_output=True,
     ).stdout
-    paths = tuple(sorted(path.decode("utf-8") for path in raw.split(b"\0") if path))
+    paths = tuple(
+        sorted(
+            decoded
+            for path in raw.split(b"\0")
+            if path
+            for decoded in (path.decode("utf-8"),)
+            if (repository_root / decoded).is_file()
+        )
+    )
     assert paths
     return _SourceSnapshot(root=repository_root, paths=paths)
 

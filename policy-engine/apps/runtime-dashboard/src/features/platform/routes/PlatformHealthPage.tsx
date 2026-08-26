@@ -16,7 +16,7 @@ import { Badge, Card } from "@polisyos/atlas-ui";
 import { ApiErrorAlert, DataFreshnessBadge } from "@/shared/ui";
 
 export default function PlatformHealth() {
-  const { t, label } = useI18n();
+  const { t } = useI18n();
   const canLaunchRuns = usePermission("runs.launch");
   const canViewAdminAffordances = usePermission("platform.admin");
   const healthQuery = useHealth();
@@ -28,7 +28,8 @@ export default function PlatformHealth() {
   const runsQuery = useRuns({ limit: 12 });
 
   const connectors = connectorsQuery.data?.connectors ?? [];
-  const features = capabilitiesQuery.data?.features ?? [];
+  const capabilityCandidates =
+    capabilitySearchQuery.data?.response.results ?? [];
   const capabilityCount = capabilitySearchQuery.data?.response.results.length;
   const capabilityState =
     capabilitySearchQuery.data?.response.frontier.completeness_status ??
@@ -58,16 +59,8 @@ export default function PlatformHealth() {
               </Badge>
             ) : null}
             <DataFreshnessBadge />
-            <Badge kind="ok">
-              {t("pages.platform.activeFeatures", {
-                count: capabilityCount ?? 0,
-              })}
-            </Badge>
-            <Badge kind="warn">
-              {t("pages.platform.plannedFeatures", {
-                count: capabilityState,
-              })}
-            </Badge>
+            <Badge kind="neutral">Candidate rows: {capabilityCount ?? 0}</Badge>
+            <Badge kind="warn">Frontier: {capabilityState}</Badge>
           </div>
         </div>
       </Card>
@@ -92,11 +85,19 @@ export default function PlatformHealth() {
             {t("pages.platform.capabilityManifest")}
           </p>
           <p className="text-2xl font-semibold">
-            {formatNumber(features.length)}
+            {capabilitiesQuery.data?.runtime_api_version ?? t("common.unknown")}
           </p>
           <p className="text-muted text-xs">
-            {capabilitiesQuery.data?.runtime_api_version ?? "1.0.0"}
+            {capabilitiesQuery.data?.default_execution_profile ??
+              t("common.unknown")}{" "}
+            execution profile
           </p>
+          {capabilitiesQuery.isError ? (
+            <ApiErrorAlert
+              title={t("pages.platform.loadCapabilityManifestError")}
+              error={capabilitiesQuery.error}
+            />
+          ) : null}
         </Card>
         <Card>
           <p className="text-muted text-xs uppercase">
@@ -145,48 +146,58 @@ export default function PlatformHealth() {
               </span>
             )}
           </div>
-          {capabilitiesQuery.isLoading ? (
+          {capabilitySearchQuery.isLoading ? (
             <p className="text-muted text-sm">
-              {t("pages.platform.loadingCapabilityManifest")}
+              Loading candidate capability rows...
             </p>
           ) : null}
-          {capabilitiesQuery.isError ? (
+          {capabilitySearchQuery.isError ? (
             <ApiErrorAlert
-              title={t("pages.platform.loadCapabilityManifestError")}
-              error={capabilitiesQuery.error}
+              title="Unable to search capability registry"
+              error={capabilitySearchQuery.error}
             />
           ) : null}
-          {!capabilitiesQuery.isLoading && !capabilitiesQuery.isError ? (
+          {!capabilitySearchQuery.isLoading &&
+          !capabilitySearchQuery.isError ? (
             <div className="space-y-3">
-              {features.map((feature) => (
+              {capabilityCandidates.map((candidate) => (
                 <div
-                  key={feature.key}
+                  key={candidate.capability_ref}
                   className="bg-surface/80 border-line rounded-2xl border p-3"
                 >
                   <div className="flex flex-wrap items-start justify-between gap-2">
                     <div>
-                      <p className="font-semibold">{feature.label}</p>
+                      <p className="font-semibold">{candidate.label}</p>
                       <p className="text-muted mt-1 text-sm">
-                        {feature.description}
+                        {candidate.description}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2">
-                      <Badge kind={feature.enabled ? "ok" : "warn"}>
-                        {feature.enabled
-                          ? t("pages.platform.featureEnabled")
-                          : feature.stage}
+                      <Badge kind="neutral">
+                        Candidate · {candidate.discovery_result.state}
                       </Badge>
                       <span className="border-line bg-panel text-muted rounded-full border px-2 py-1 text-xs">
-                        {label(
-                          "capabilityCategories",
-                          feature.category,
-                          feature.category,
-                        )}
+                        {candidate.resource_kind} ·{" "}
+                        {candidate.execution_result.state} ·{" "}
+                        {candidate.authority_result.state}
                       </span>
                     </div>
                   </div>
                 </div>
               ))}
+              {capabilitySearchQuery.data &&
+              capabilityCandidates.length === 0 ? (
+                <p className="text-muted text-sm">
+                  No candidate rows · {capabilityState}
+                  {capabilitySearchQuery.data.response.frontier
+                    .incompleteness_reasons.length > 0
+                    ? " · " +
+                      capabilitySearchQuery.data.response.frontier.incompleteness_reasons.join(
+                        ", ",
+                      )
+                    : ""}
+                </p>
+              ) : null}
             </div>
           ) : null}
         </Card>

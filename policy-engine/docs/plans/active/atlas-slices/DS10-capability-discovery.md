@@ -2,10 +2,10 @@
 plan_id: atlas-ds10-capability-discovery
 title: "DS10 - Capability Discovery"
 type: slice-plan
-status: approved_for_implementation
+status: implementation_receipts_complete_unmerged
 created: 2026-08-25
 last_verified: 2026-08-25
-stability: measured_plan
+stability: verified_unmerged
 slice: DS10
 baseline_commit: c31c8cec725727637ee986e4541ac7926a553513
 branch: codex/ds10-capability-discovery-plan
@@ -43,6 +43,11 @@ commit, re-read `git status -sb`, `git symbolic-ref -q HEAD`, the prefix, and th
 cluster path fence. Before approval: no production code, writer, register lock,
 regeneration, visual lane, merge, push, rebase, stash storage, or master-plan
 line-7 edit.
+
+The front-matter `last_verified` value deliberately remains the approval-era
+date: the task's binding no-line-7 rule survives implementation. C07's
+2026-08-26 verification date and receipts are recorded in the execution journal
+instead of mutating that sentinel.
 
 After approval, C00 starts from the attached execution branch containing this
 plan. Adapter-registry data-only free growth is **not established at the pinned
@@ -86,56 +91,56 @@ not close that chain.
 DS10 closes only when every checkbox below has its named receipt. No cluster may
 define a second closure contract.
 
-- [ ] **CC01** The approved plan, exact execution base, attached branch, prefix,
+- [x] **CC01** The approved plan, exact execution base, attached branch, prefix,
       clean-tree predicate, path fences, and red witnesses are re-read before
       every commit.
-- [ ] **CC02** The upstream data-only registry-growth gap is registered as
+- [x] **CC02** The upstream data-only registry-growth gap is registered as
       `ds10-adapter-registry-data-only-free-growth`, owned by
       `team-architecture` with producer lane `runtime/quality` and the exact
       executable closure signal below. It is not a DS10 blocker and is not
       `admitted_authority`.
-- [ ] **CC03** One canonical strict contract owns the six resource kinds, three
+- [x] **CC03** One canonical strict contract owns the six resource kinds, three
       independent posture arms, typed negatives, authority purpose, provenance,
       schema/rule versions, and time/freshness semantics; G0 imports rather than
       duplicates its vocabulary.
-- [ ] **CC04** `discoverable` is established only by a searched typed-index row
+- [x] **CC04** `discoverable` is established only by a searched typed-index row
       plus snapshot/freshness evidence; no match, unavailable index, stale index,
       and incomplete index are distinct negatives.
-- [ ] **CC05** `executable` is established only by the real operation/adapter
+- [x] **CC05** `executable` is established only by the real operation/adapter
       registry, conformance, and current execution policy; an index hit or best-
       effort fallback cannot establish it.
-- [ ] **CC06** `admitted_authority` is established only by the conjunction of the
+- [x] **CC06** `admitted_authority` is established only by the conjunction of the
       deployed DS9 `ProductionApprovalPacketResolver.require_currentness` result
       and a separately owner-signed typed capability-ref/digest and
       authority-purpose binding that content-binds to the packet's existing
       expected consumer/audience. That binding is absent at the pinned base, so
       every current positive authority arm is `not_established`.
-- [ ] **CC07** Falsifying any one posture producer while retaining the other two
+- [x] **CC07** Falsifying any one posture producer while retaining the other two
       cannot promote or preserve that posture; status precedence and mixed arms
       are permutation-invariant.
-- [ ] **CC08** Methods, datasets, sources, legal norms, cases, and Scientist
+- [x] **CC08** Methods, datasets, sources, legal norms, cases, and Scientist
       agent/tool capabilities each have one declared provider or a typed
       producer-negative; L4 world-agent data is not silently substituted.
-- [ ] **CC09** At the pinned base, case search renders `producer_missing` and an
+- [x] **CC09** At the pinned base, case search renders `producer_missing` and an
       incomplete frontier because the global case index is `absent/unallocated`;
       DS10 adds no case store or index builder.
-- [ ] **CC10** One persisted/replayable frontier projection carries the request,
+- [x] **CC10** One persisted/replayable frontier projection carries the request,
       selected and rejected candidates with reasons, actual cutoffs, searched
       index refs, freshness, replay key, and typed incompleteness.
-- [ ] **CC11** A true no-hit, recall-unmeasured result, stale index, budget cutoff,
+- [x] **CC11** A true no-hit, recall-unmeasured result, stale index, budget cutoff,
       and producer outage render differently; none justifies abstention or
       authority.
-- [ ] **CC12** `GET /control/capabilities` contains no authored open-ended feature
+- [x] **CC12** `GET /control/capabilities` contains no authored open-ended feature
       rows: each of its opening 21 entries is removed, registry-projected, split,
       or moved to a typed fixed/policy/roadmap owner exactly as adjudicated below.
-- [ ] **CC13** The complete 21-key opening constructor set has one and only one
+- [x] **CC13** The complete 21-key opening constructor set has one and only one
       keyed one-time baseline adjudication. A Python import-aware AST check fails
       any direct constructor contributing to manifest `features`; the existing
       type-aware TypeScript check fails contextual feature literals.
-- [ ] **CC14** Fixed workspace/route/tab chrome is resolved by an explicit local
+- [x] **CC14** Fixed workspace/route/tab chrome is resolved by an explicit local
       `SurfaceAvailability` owner and never by a discovery result; open command-
       palette/picker results come only from the typed search response.
-- [ ] **CC15** The exact free-growth e2e test admits one correctly formed
+- [x] **CC15** The exact free-growth e2e test admits one correctly formed
       `legal_norm` capability row through the real Lex owner index and its
       grounding/temporal admission path, rebuilds the real capability index, and
       renders its generated ID through the real FastAPI route, hook, and panel
@@ -145,29 +150,54 @@ define a second closure contract.
       substituted provider may satisfy the witness. Execution is established
       only by its independent producer, and authority remains `not_established`
       unless the independent owner-signed binding exists.
-- [ ] **CC16** Three bounded controls go red independently: an import-resolved
+- [x] **CC16** Three bounded controls go red independently: an import-resolved
       backend manifest constructor, a contextual generated-TypeScript feature
       literal, and a literal `capability_ref`/adapter-ID/resource-kind branch or
       row array inside the generic discovery-render boundary. Fixed typed
       `WorkspaceConfig`/surface chrome remains a benign control.
-- [ ] **CC17** The canonical search endpoint, the data-catalog compatibility
+- [x] **CC17** The canonical search endpoint, the data-catalog compatibility
       projection, OpenAPI, both generated client families, the dashboard hook,
       and route prefetch share one response contract and existing read authz.
-- [ ] **CC18** REVIEWER/EXPERT surfaces keep candidate clothing inseparable from
+- [x] **CC18** REVIEWER/EXPERT surfaces keep candidate clothing inseparable from
       discoverable results, announce typed negatives/no-hit reasons, and pass the
       named keyboard, screen-reader, contrast, and visual cases.
-- [ ] **CC19** MACHINE downloads the exact captured endpoint bytes; a DOM decoder
+- [x] **CC19** MACHINE downloads the exact captured endpoint bytes; a DOM decoder
       independently reconstructs the full result/frontier packet and detects
       omitted, reordered, or mutated selected/rejected/posture fields.
-- [ ] **CC20** All ten DS10-owned root register objects are adjudicated once;
+- [x] **CC20** All ten DS10-owned root register objects are adjudicated once;
       register writer/check/corruption tests and ledger diff agree, with no
       family-complete claim beyond that set.
-- [ ] **CC21** Generated OpenAPI/client ABI outputs reproduce byte-for-byte from
+- [x] **CC21** Generated OpenAPI/client ABI outputs reproduce byte-for-byte from
       two fresh scratch roots, and all named targeted backend, frontend,
       architecture, a11y, and visual commands complete within frozen ceilings.
-- [ ] **CC22** The final branch readback proves the closure-item receipts, exact
+- [x] **CC22** The final branch readback proves the closure-item receipts, exact
       changed-path set, cap/round accounting, serialized-resource release,
       executable debt ownership, and every item in `## Explicit non-closure`.
+
+### Implementation receipt index
+
+The detailed red/green commands, elapsed times, uptime pairs, invalidated freezes,
+and commit readbacks live in the execution journal. This index binds each closed
+item to the smallest durable witness; typed negatives and declared non-closures
+remain closure evidence rather than being promoted to positives.
+
+| item | durable implementation receipt |
+| --- | --- |
+| CC01 | C00-C07 identity/path-fence/readback entries in the journal and the final attached-branch readback |
+| CC02 | `ds10-adapter-registry-data-only-free-growth` in `DEBT-REGISTER.md`; its exact absent-test command remains `artifact_missing` |
+| CC03-CC07 | canonical strict contracts plus mixed/permutation/falsified-producer tests in `test_capability_discovery.py`; execution reads the independent policy resolver and authority stays fail-closed |
+| CC08-CC09 | six-kind provider federation and API tests; `case` returns `producer_missing` with an incomplete frontier and no new case index |
+| CC10-CC11 | replay/frontier contract, API, panel, exact-twin, no-hit/recall/stale/outage tests, and the two visual witnesses |
+| CC12-CC13 | zero live authored manifest contributors, exact 21-key adjudication, import-resolved Python strangle, and contextual TypeScript strangle |
+| CC14 | `SurfaceAvailability` owner tests plus generic command-palette search/selection into the evidence query |
+| CC15 | `test_new_legal_norm_owner_row_appears_without_frontend_code_change`: artifact-absent RED, then real Lex owner-index/FastAPI/hook/panel GREEN with complete test-start frontend byte equality |
+| CC16 | backend constructor, contextual generated-feature literal, and generic-render enumeration/ID-branch corruption controls; fixed chrome is the benign control |
+| CC17 | shared canonical/compatibility route tests, OpenAPI/runtime client regeneration, strict dashboard hook, and route-prefetch tests |
+| CC18 | candidate badge/typed-negative semantic tests; strengthened opaque-backdrop numeric WCAG-AA, keyboard, screen-reader, and two-snapshot visual receipts |
+| CC19 | captured response bytes equal MACHINE download; independent DOM decoder omission/reorder/mutation tests and free-growth DOM parity |
+| CC20 | surgical ten-root writer, exact five/five partition, 261 live-root and 217 DS8-assignment denominators, byte preservation, and corruption rejection |
+| CC21 | C04 two-scratch ABI reproduction and C07 targeted backend/frontend/architecture/a11y/visual receipts within the frozen ceilings; declared non-receipts remain excluded |
+| CC22 | 46/50 mechanism-path and 14/15 round derivations, serialized-resource release checks, debt/non-closure audit, C07 commit, and post-commit attached-branch readback |
 
 ## The four design problems and their rulings
 
@@ -322,7 +352,7 @@ Each provider searches its owner index and returns the same canonical contract.
 
 | resource kind | discovery producer | execution producer | pinned limitation |
 | --- | --- | --- | --- |
-| method | release `CapabilityIndex` L6/Foundry method-contract records and method-catalog snapshot | actual Foundry method/operation registration + adapter conformance + execution policy | a method route is not empirical or legal authority |
+| method | release `CapabilityIndex` L6/Foundry method-contract records and method-catalog snapshot; the default bridge is currently `producer_missing` | actual Foundry method/operation registration + adapter conformance + execution policy | a method route or backend-availability boolean is not an indexed discovery row, empirical authority, or legal authority |
 | dataset | L1 DCAT / existing catalog retrieval search and capability-index snapshot | `RetrievalService` fetch-target resolution + connector/dataset/parser + rights/policy + conformance | `/data/catalog/search` currently drops frontier/postures and becomes a compatibility projection, not a second searcher |
 | source | `SourceProfileRegistry` plus connector registry snapshot | concrete connector registration/profile resolver + conformance + policy | DS15 owns connector/acquisition content; DS10 only consumes the registry |
 | legal_norm | L3 Lex KG index / existing Lex search projection, preserving grounding, hallucination, jurisdiction, temporal, and frontier fields | registered Lex search operation + index readiness + conformance + policy | scalar confidence/norm type cannot substitute for grounding or authority |
@@ -369,9 +399,18 @@ below derives its production denominator without enumerating these keys.
 | 206 `durable_control_plane` | `resolved_policy.fallback_rules[durable_control_required]`, `platform`; no keyed feature consumer; Platform Health already reads manifest policy fields | execution policy | `runtime/http` `RuntimeExecutionPolicyResolver`: project provenance/rule/epoch outside open search | `not_established` if resolver cannot answer |
 | 213 `control_plane_local_waiver` | `resolved_policy.fallback_rules[local_control_plane_waiver_active]`, stage active/planned, `platform`; no keyed feature consumer | execution policy | `runtime/http` waiver-policy owner: project issuer, scope, validity and expiry as a limitation, never a capability | `not_established`/`revalidation_required`; no implied permission |
 
-The existing `project_capability_features(causal_contract)` is the positive
-precedent: producer-backed projection rather than authored entries. It must
-enter the new provider contract and cannot remain a bypass around the strangle.
+Closeout scope correction (2026-08-26): the planning census correctly identified
+`project_capability_features(causal_contract)` as producer-backed, but inspection
+of its complete output shows backend/family `enabled` booleans rather than typed
+owner-index rows. Routing those booleans into `discoverable` would be a P38
+execution-to-discovery proxy. The causal contract remains available under the
+manifest's typed `causal_runtime` execution-policy projection; the old feature
+projection has zero callers and is not a bypass. Method discovery therefore
+stays the honest `producer_missing` typed negative until the default release
+`CapabilityIndex` bridge exists. Debt
+`ds10-causal-method-index-provider-bridge`, owner `foundry/methods`, producer
+bridge lane `runtime/quality`, owns the exact executable closure signal. This is
+a scope correction discovered at closeout, not permission to manufacture rows.
 
 ## DS10 frontend-disposition adjudication
 
@@ -645,6 +684,22 @@ falsifier; do not patch another instance.
 | C05 | Land the generic discovery surface, frontier, refresh semantics, and exact-byte MACHINE twin. | 13 | 2 widening |
 | C06 | Separate fixed chrome and migrate every current capability-manifest consumer/adjudication. | 12 | 3 widening |
 | C07 | Freeze, review, run targeted semantic/a11y/visual lanes, register debts, and read back closure. | 0 mechanism | 1 verification transaction |
+
+Closeout accounting preserves that approved 42-path declaration and records the
+four pre-authorized path exceptions instead of rewriting the plan after the
+fact. Two independent derivations agree on **46/50 actual unique mechanism
+paths**: (a) the base-to-working-tree diff classified under P39, and (b) accepted
+C00-C04 `18` + C05 `13` + C06 `12` + three C07 narrowing paths. The C07 paths
+are `features/evidence/domain/searchParams.ts` (CC14 real palette selection), the
+deleted `useDataCatalogSearch.ts` (CC17 one strict hook), and
+`DataIntelligencePanel.tsx` (CC11/CC18/CC19 removal of the sibling hit-only
+renderer). Their rejected seams were decorative/fixed query parsing, a
+compatibility hook that bypassed the full contract, and a second incomplete
+discovery surface. The fourth exception is C04's
+`tools/ops_runners/runtime/generate_runtime_client.py`: generation logic is a
+mechanism even though C04 originally capped only generated companions. The C05
+compiler narrowing reused an already-declared C02 path and adds no unique path.
+Actual widening use is **14/15**; narrowing repairs consume no round.
 
 ### C00 — plan admission, real reds, and owned upstream debt
 
@@ -976,7 +1031,8 @@ Those intercepted payloads are visual determinism fixtures only; they cannot
 satisfy CC15, whose positive comes through the real backend admission path.
 
 **Acceptance:** targeted backend and frontend lanes, generic enforcement checker,
-free-growth e2e, one visual writer plus two no-writer runs, exact-byte/DOM parity,
+free-growth e2e, one writer for the final frozen visual source plus two no-writer
+runs, exact-byte/DOM parity,
 two-scratch regeneration comparison, register corruption probes, path/round
 accounting, and every `## Explicit non-closure` command has a declared
 green/red/`artifact_missing` receipt with open states written to debt. Re-read every
@@ -1025,9 +1081,9 @@ run never changes a ceiling. No ceiling widens mid-run.
 Exact visual commands differ only by the first writer flag:
 
 ```bash
-CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS10 capability discovery' --workers=1 --timeout=90000 --global-timeout=240000 --update-snapshots
-CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS10 capability discovery' --workers=1 --timeout=90000 --global-timeout=240000
-CI=1 PLAYWRIGHT_RETRIES=0 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS10 capability discovery' --workers=1 --timeout=90000 --global-timeout=240000
+CI=1 PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS10 capability discovery' --workers=1 --timeout=90000 --global-timeout=240000 --update-snapshots
+CI=1 PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS10 capability discovery' --workers=1 --timeout=90000 --global-timeout=240000
+CI=1 PLAYWRIGHT_RETRIES=0 PLAYWRIGHT_INCLUDE_RUN_PAPER_FIXTURES=1 corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test --config=playwright.visual.config.ts --project=chromium --grep 'DS10 capability discovery' --workers=1 --timeout=90000 --global-timeout=240000
 ```
 
 ## File map
@@ -1093,14 +1149,16 @@ Every row has an executable signal and owner. Prose alone owns nothing.
 | --- | --- | --- | --- |
 | generic post-G0 registry data-only free growth | `artifact_missing`; the underlying data-only growth property is `not_established`; registered debt, not a DS10 blocker; DS10 will not build registry content | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q` |
 | admitted-adapter capability-discovery bridge | `producer_missing + artifact_missing`; the real G3 admission builder can grow only a semantic bridge-adapter set, while the complete 61-row admission family supplies no DS10 resource kind, capability purpose, passport/evidence/currentness receipt, or concrete capability-discovery provider. Inferring `method` would be P38. The 2026-08-26 amendment corrects the earlier mistake of making this true upstream gap a CC15 blocker: DS10 free growth is owner-index row growth within the approved six-kind contract | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_capability_discovery.py::test_admitted_adapter_emits_typed_capability_kind_purpose_passport_evidence_and_currentness -q` |
-| owner-signed typed capability-purpose authority binding | `bridge_missing + artifact_missing`; DS9 currentness binds its expected consumer/audience but has no typed capability ref/digest/purpose join, and opaque `governed_action_key` cannot substitute; DS10 defines/consumes only a fail-closed port | DS9 authority owner / `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness -q` |
+| owner-signed typed capability-purpose authority binding | `bridge_missing + artifact_missing`; DS9 currentness binds its expected consumer/audience but has no typed capability ref/digest/purpose join, and opaque `governed_action_key` cannot substitute; DS10 defines/consumes only a fail-closed port | `team-runtime`, producer lane `runtime/quality` (DS9 authority owner) | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness -q` |
 | global case index | `absent/unallocated`; DS10 renders `producer_missing`, adds no store/index | `team-architecture` owns owner allocation; eventual producer owner then replaces it | `uv run pytest tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index -q` |
 | stable Python facade graduation | `surface_out_of_scope`; DS10's external surface is HTTP/OpenAPI and the internal typed module is not added to `polisyos.core.contracts` facade | `team-polisyos` public-surface owner | after an owner-approved facade change/regeneration: `uv run polisyos-tools architecture guardrails check` |
+| default causal-method CapabilityIndex bridge | `bridge_missing + semantic_test_missing`; causal backend/family availability remains an execution-policy projection and cannot be promoted to indexed discovery | `foundry/methods`, producer bridge lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_default_causal_method_index_provider_projects_owner_rows_without_execution_promotion -q` |
+| DS6 C13 print receipt reissue | `verification_missing`; C13 currentness is `not_established`. A complete 11-binding census found exactly two stale whole-file bindings after the DS10 slice diff: `RunDetailLayout.tsx` and the shared visual spec. The fail-fast global checker exposes the first and stays red; DS10 neither rewrites another slice's evidence nor treats the old receipt as current. Its atomic writer admits that one exposed error only after hash-pinning the complete 2/11 mismatch set and replaying every other C13 conjunct from the receipt; every adjacent, duplicate, differently hashed, or additional mismatch aborts | `team-design`, DS6 independent print-evidence lane | reissue from two distinct zero-retry/no-writer Playwright outputs, then `uv run pytest architecture/atlas_surfaces/test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes -q` and `.venv/bin/python architecture/atlas_surfaces/check_frontend_disposition_register.py --check` both exit zero |
 | debt-checker frontend denominator label | P38: stdout `frontend_disposition_rows=217` measures the DS8 assignment sub-register, not the 261-row live root; DS10 never uses it as the live denominator | `tools/quality/validation` debt-ledger owner | `uv run pytest tests/repo_quality/tools/test_debt_ledger_checker.py::test_frontend_disposition_metric_names_live_root_and_ds8_assignments_separately -q` |
-| connector/acquisition content | DS10 consumes source profiles/connector readiness only; no connector creation or acquisition workflow | DS15 / `team-fabric` | `uv run pytest tests/unit/runtime/http/test_control_api.py::test_list_connectors_and_profiles_are_producer_backed -q` |
+| connector/acquisition content | DS10 consumes source profiles/connector readiness only; no connector creation or acquisition workflow; DS15 is the successor lane once executable | `team-fabric` | `uv run pytest tests/unit/runtime/http/test_control_api.py::test_list_connectors_and_profiles_are_producer_backed -q` |
 | G2/G3/GL rejected/incompleteness richness | provider projection must carry typed incompleteness where owner ledgers lack rejected candidates; DS10 does not rewrite those artifacts | `team-architecture` Layer-3 owners | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_all_layer3_providers_emit_real_rejections_and_incompleteness -q` |
-| Lex pipeline mutation | fixed authenticated operation, not a discovered/admitted action | `team-lex` | `uv run pytest tests/unit/runtime/http/services/test_lex_pipeline.py -q` plus `Capability discovery > never invokes Lex trigger` |
-| public decision rendering | internal REVIEWER/EXPERT discovery and MACHINE frontier only | DS12 / `team-design` | `uv run pytest tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound -q` |
+| Lex pipeline mutation | fixed authenticated operation, not a discovered/admitted action | `team-lex` | `uv run pytest tests/unit/runtime/http/services/test_lex_pipeline.py -q` and `corepack pnpm --filter @polisyos/runtime-dashboard exec vitest run src/features/lex/routes/LexKnowledgeGraphPage.test.tsx -t 'Capability discovery > never invokes Lex trigger'` |
+| public decision rendering | internal REVIEWER/EXPERT discovery and MACHINE frontier only; DS12 is the successor lane once executable | `team-design` | `uv run pytest tests/unit/runtime/http/test_public_export.py::test_public_decision_projection_is_custody_bound -q` |
 | L4 world-agent lookup | world-model entity/data discovery is not Scientist agent/tool capability discovery | `runtime/quality` data-state substrate | `uv run pytest tests/integration/runtime_quality/test_data_state_substrate.py::test_agent_registry_has_typed_discovery_surface -q` |
 
 An absent future test file is `artifact_missing`, not a green signal. C07 registers

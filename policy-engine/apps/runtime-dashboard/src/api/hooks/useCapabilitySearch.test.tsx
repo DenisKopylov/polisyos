@@ -3,6 +3,8 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   capabilitySearchQueryOptions,
+  createCapabilitySearchRequest,
+  type CapabilitySearchRequest,
   fetchCapabilitySearch,
   useCapabilitySearch,
 } from "@/api/hooks/useCapabilitySearch";
@@ -10,11 +12,11 @@ import { runtimeApiClient } from "@/api/client";
 import { queryKeys } from "@/api/queryKeys";
 import { createQueryHookHarness } from "@/test/queryHook";
 
-const request = {
-  audience: "REVIEWER" as const,
-  resource_kinds: ["legal_norm"] as const,
+const request: CapabilitySearchRequest = {
+  audience: "REVIEWER",
+  resource_kinds: ["legal_norm"],
   search: {
-    allowed_modes: ["lexical"] as const,
+    allowed_modes: ["lexical"],
     authority_purpose: "capability_discovery",
     construct_refs: [],
     intent: "capability_discovery",
@@ -22,7 +24,7 @@ const request = {
     request_id: "capability-search-test",
     required_layers: [],
     rule_version: "policyos.test.v1",
-    schema_version: "policyos.core.contracts.search.v1" as const,
+    schema_version: "policyos.core.contracts.search.v1",
   },
 };
 
@@ -74,10 +76,18 @@ const response = {
 describe("capability search hook", () => {
   afterEach(() => vi.restoreAllMocks());
 
+  it("uses an explicit empty query for generic owner-index enumeration", () => {
+    const matchAll = createCapabilitySearchRequest("", "match-all");
+
+    expect(matchAll.search.query_text).toBe("*");
+    expect(matchAll.search.construct_refs).toEqual(["*"]);
+    expect(matchAll.search.budget).toEqual({ match_all: true });
+  });
+
   it("can defer an unopened search surface without changing its generic key", () => {
     const options = capabilitySearchQueryOptions(request, undefined, false);
     expect(options.enabled).toBe(false);
-    expect(options.queryKey).toEqual(queryKeys.capabilitySearch(request));
+    expect(options.queryKey).toEqual(queryKeys.capabilitySearch(request, null));
   });
 
   it("uses the generic POST endpoint and captures exact bytes plus the server epoch", async () => {
@@ -120,10 +130,79 @@ describe("capability search hook", () => {
       },
     );
     expect(result.current.data?.rawBytes).toBeInstanceOf(Uint8Array);
-    expect(result.current.data?.serverEpoch).toBe("epoch-42");
+    expect(result.current.data?.serverEpoch).toBe('["epoch-42"]');
     expect(
-      queryClient.getQueryData(queryKeys.capabilitySearch(request)),
+      queryClient.getQueryData(
+        queryKeys.capabilitySearch(request, '["epoch-42"]'),
+      ),
     ).toMatchObject({ response });
+  });
+
+  it("revalidates a cached partition and advances the key across every server epoch", async () => {
+    const firstResponse = {
+      ...response,
+      frontier: { ...response.frontier, index_version_refs: ["epoch-1"] },
+    };
+    const secondResponse = {
+      ...response,
+      frontier: {
+        ...response.frontier,
+        index_version_refs: ["epoch-2", "agent-epoch-7"],
+      },
+    };
+    const payloads = [firstResponse, secondResponse];
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify(firstResponse), {
+            headers: { "Content-Type": "application/json" },
+            status: 200,
+          }),
+        )
+        .mockResolvedValueOnce(
+          new Response(JSON.stringify(secondResponse), {
+            headers: { "Content-Type": "application/json" },
+            status: 200,
+          }),
+        ),
+    );
+    const postSpy = vi
+      .spyOn(runtimeApiClient, "POST")
+      .mockImplementation(async (_path, options) => {
+        const payload = payloads.shift();
+        if (!payload) {
+          throw new TypeError("unexpected capability search fetch");
+        }
+        const captured = await (
+          options as { fetch: (request: Request) => Promise<Response> }
+        ).fetch(
+          new Request("http://runtime.test/api/v1/control/capabilities/search"),
+        );
+        return {
+          data: payload,
+          error: undefined,
+          response: captured,
+        } as never;
+      });
+    const { queryClient } = createQueryHookHarness();
+
+    const first = await queryClient.fetchQuery(
+      capabilitySearchQueryOptions(request),
+    );
+    const secondOptions = capabilitySearchQueryOptions(request);
+    const second = await queryClient.fetchQuery(secondOptions);
+
+    expect(postSpy).toHaveBeenCalledTimes(2);
+    expect(first.serverEpoch).toBe('["epoch-1"]');
+    expect(secondOptions.queryKey).toEqual(
+      queryKeys.capabilitySearch(request, '["epoch-1"]'),
+    );
+    expect(second.serverEpoch).toBe('["agent-epoch-7","epoch-2"]');
+    expect(capabilitySearchQueryOptions(request).queryKey).toEqual(
+      queryKeys.capabilitySearch(request, '["agent-epoch-7","epoch-2"]'),
+    );
   });
 
   it("rejects a malformed discovery response before it reaches consumers", async () => {

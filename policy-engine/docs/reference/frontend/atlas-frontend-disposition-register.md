@@ -46,10 +46,10 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **68035**
-- Application lines deleted: **24817**
-- Net application LOC reduction: **-43218**
-- Application files deleted: **90**
+- Application lines added: **70364**
+- Application lines deleted: **25307**
+- Net application LOC reduction: **-45057**
+- Application files deleted: **92**
 
 ## Wave-end full verification
 
@@ -893,6 +893,8 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `b4e96e0eb refactor(atlas): separate fixed chrome from discovery`
+- `1d87637f8 feat(atlas): render capability discovery and frontier`
 - `9d4fbc050 docs(atlas): bind DS10 growth to complete frontend set`
 - `290b5ef14 docs(atlas): register DS10 capability bridge blocker`
 - `c279bbd14 chore(api): regenerate capability discovery ABI`

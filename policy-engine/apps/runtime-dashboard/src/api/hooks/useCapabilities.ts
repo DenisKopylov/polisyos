@@ -5,7 +5,6 @@ import {
   type UseQueryResult,
 } from "@tanstack/react-query";
 
-import { isCapabilityEnabled } from "@/shared/lib/capabilities";
 import type { CapabilityManifestPayload } from "@/api/validators";
 import { runtimeApiClient } from "../client";
 import { createRuntimeApiError } from "../http";
@@ -67,24 +66,6 @@ export function isIssuedCapabilityDiscovery(
   );
 }
 
-function isCapabilityDiscoveryAvailable(
-  discovery: CapabilityDiscovery,
-): discovery is AvailableCapabilityDiscovery {
-  return (
-    isIssuedCapabilityDiscovery(discovery) && discovery.state === "available"
-  );
-}
-
-export function isDiscoveryCapabilityEnabled(
-  discovery: CapabilityDiscovery,
-  key: string,
-): boolean {
-  return (
-    isCapabilityDiscoveryAvailable(discovery) &&
-    isCapabilityEnabled(discovery.manifest, key)
-  );
-}
-
 export async function fetchCapabilities(): Promise<CapabilityManifestResponse> {
   const { data, error, response } = await runtimeApiClient.GET(
     "/api/v1/control/capabilities",
@@ -108,7 +89,8 @@ export function capabilitiesQueryOptions() {
   return queryOptions({
     queryKey: queryKeys.capabilities(),
     queryFn: fetchCapabilities,
-    staleTime: Number.POSITIVE_INFINITY,
+    refetchOnMount: "always",
+    staleTime: 0,
     retry: 1,
   });
 }

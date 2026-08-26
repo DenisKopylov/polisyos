@@ -1,10 +1,4 @@
-import {
-  act,
-  fireEvent,
-  screen,
-  waitFor,
-  within,
-} from "@testing-library/react";
+import { screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import { renderWithProviders } from "@/test/render";
@@ -18,7 +12,6 @@ const {
   previewMutateMock,
   rejectMock,
   resolveMutateMock,
-  useDataCatalogSearchMock,
   useDataIndexStatsMock,
   useDataPromotionCandidatesMock,
   useDiscoverDataSourcesMock,
@@ -34,18 +27,12 @@ const {
   previewMutateMock: vi.fn(),
   rejectMock: vi.fn(),
   resolveMutateMock: vi.fn(),
-  useDataCatalogSearchMock: vi.fn(),
   useDataIndexStatsMock: vi.fn(),
   useDataPromotionCandidatesMock: vi.fn(),
   useDiscoverDataSourcesMock: vi.fn(),
   usePreviewFetchPlanMock: vi.fn(),
   useLivePromotionDecisionMock: vi.fn(),
   useResolveDataNeedsMock: vi.fn(),
-}));
-
-vi.mock("@/api/hooks/useDataCatalogSearch", () => ({
-  useDataCatalogSearch: (...args: unknown[]) =>
-    useDataCatalogSearchMock(...args),
 }));
 
 vi.mock("@/api/hooks/useDataIndexStats", () => ({
@@ -93,9 +80,9 @@ vi.mock("@/app/realtime/useReviewCollaborationSurface", () => ({
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({
@@ -122,7 +109,6 @@ describe("DataIntelligencePanel", () => {
     previewMutateMock.mockReset();
     rejectMock.mockReset();
     resolveMutateMock.mockReset();
-    useDataCatalogSearchMock.mockReset();
     useDataIndexStatsMock.mockReset();
     useDataPromotionCandidatesMock.mockReset();
     useDiscoverDataSourcesMock.mockReset();
@@ -139,28 +125,6 @@ describe("DataIntelligencePanel", () => {
       status: "idle",
     });
 
-    useDataCatalogSearchMock.mockImplementation(
-      ({ metricQuery }: { metricQuery: string }) => ({
-        data: metricQuery.trim()
-          ? {
-              matches: [
-                {
-                  candidate_id: "catalog-1",
-                  confidence: 0.88,
-                  connector_id: "world-bank",
-                  dataset_id: "inflation",
-                  metric_id: metricQuery,
-                  source_lane: "fastlane",
-                },
-              ],
-              query: metricQuery,
-              total_matches: 1,
-            }
-          : null,
-        error: null,
-        isLoading: false,
-      }),
-    );
     useDataIndexStatsMock.mockReturnValue({
       data: {
         stats: {
@@ -356,46 +320,17 @@ describe("DataIntelligencePanel", () => {
         plan_id: "plan-1",
       }),
     });
-    expect(approveMock).toHaveBeenCalledWith(
-      {
-        promotionId: "promotion-1",
-        reason: "Promote the strongest evidence",
-      },
-    );
-    expect(rejectMock).toHaveBeenCalledWith(
-      {
-        promotionId: "promotion-1",
-        reason: "Promote the strongest evidence",
-      },
-    );
+    expect(approveMock).toHaveBeenCalledWith({
+      promotionId: "promotion-1",
+      reason: "Promote the strongest evidence",
+    });
+    expect(rejectMock).toHaveBeenCalledWith({
+      promotionId: "promotion-1",
+      reason: "Promote the strongest evidence",
+    });
     expect(screen.getByText("Review source freshness")).toBeInTheDocument();
     expect(screen.getAllByText(/world-bank/).length).toBeGreaterThan(0);
   }, 15_000);
-
-  it("debounces catalog search inputs before updating the query hook", async () => {
-    renderWithProviders(<DataIntelligencePanel />, {
-      interactiveProviders: true,
-    });
-
-    const metricInput = screen.getByLabelText("panels.dataIntelligence.metric");
-    for (const value of ["i", "in", "inf", "inflation"]) {
-      fireEvent.change(metricInput, { target: { value } });
-    }
-
-    const queriesBeforeDebounce = useDataCatalogSearchMock.mock.calls
-      .map(([params]) => (params as { metricQuery: string }).metricQuery)
-      .filter(Boolean);
-    expect(queriesBeforeDebounce).toEqual([]);
-
-    await act(async () => {
-      await new Promise((resolve) => window.setTimeout(resolve, 300));
-    });
-
-    const nonEmptyQueries = useDataCatalogSearchMock.mock.calls
-      .map(([params]) => (params as { metricQuery: string }).metricQuery)
-      .filter(Boolean);
-    expect(nonEmptyQueries).toEqual(["inflation"]);
-  });
 
   it("hydrates context mode from selected run surfaces and auto-previews the selected plan", async () => {
     const onResetContext = vi.fn();

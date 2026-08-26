@@ -332,7 +332,7 @@ class LexCapabilityDiscoveryProvider:
             }
         )
         terms = _owner_search_terms(request)
-        matches = [row for row in rows if _row_match_count(row, terms)]
+        matches = list(rows) if not terms else [row for row in rows if _row_match_count(row, terms)]
         limit = _owner_search_limit(request, fallback=len(matches))
         selected_rows = tuple(
             sorted(
@@ -457,11 +457,19 @@ def _lex_snapshot_ref(rows: tuple[CapabilityIndexDiscoveryRow, ...]) -> str:
 
 def _owner_search_terms(request: CapabilityDiscoveryRequest) -> tuple[str, ...]:
     """Normalize the request-owned query and construct terms without ID rules."""
+    match_all = request.search.budget.get("match_all", False)
+    if not isinstance(match_all, bool):
+        raise CapabilityProviderUnavailableError("lex_owner_match_all_invalid")
+    if match_all:
+        return ()
     terms = re.findall(
         r"[\w]+",
         " ".join((request.search.query_text, *request.search.construct_refs)).casefold(),
     )
-    return tuple(dict.fromkeys(term for term in terms if term))
+    normalized = tuple(dict.fromkeys(term for term in terms if term))
+    if not normalized:
+        raise CapabilityProviderUnavailableError("lex_owner_query_terms_missing")
+    return normalized
 
 
 def _owner_search_limit(request: CapabilityDiscoveryRequest, *, fallback: int) -> int:

@@ -34348,35 +34348,16 @@
                       "default_execution_profile": "dev",
                       "default_locale": "en",
                       "fallback_rules": {
+                        "execution_policy": {
+                          "auto_materialization": true,
+                          "multimodel_nl": true,
+                          "producer_ref": "runtime/http/services/_control_contracts.py",
+                          "required_preflight": true
+                        },
                         "mock_fallback_allowed": true,
                         "policy_flag_required_for_mock_fallback": false
                       },
-                      "features": [
-                        {
-                          "category": "runs",
-                          "description": "Use the agent circuit to transform NL requests into executable policy runs.",
-                          "enabled": true,
-                          "key": "natural_language_runs",
-                          "label": "Natural-language runs",
-                          "stage": "active"
-                        },
-                        {
-                          "category": "governance",
-                          "description": "Run execution-plan preflight diagnostics before execution.",
-                          "enabled": true,
-                          "key": "required_preflight",
-                          "label": "Required preflight",
-                          "stage": "active"
-                        },
-                        {
-                          "category": "platform",
-                          "description": "Dedicated tenant/authz/audit admin surfaces.",
-                          "enabled": false,
-                          "key": "security_admin_layer",
-                          "label": "Security / admin layer",
-                          "stage": "deferred"
-                        }
-                      ],
+                      "features": [],
                       "meta": {
                         "generated_at": "2026-02-11T12:00:00Z",
                         "request_id": "req_0123456789abcdef",
@@ -34401,14 +34382,7 @@
                         "uk"
                       ],
                       "worker_backend": "embedded",
-                      "workspaces": [
-                        "command_center",
-                        "scenario_composer",
-                        "runs_decisions",
-                        "evidence_fabric",
-                        "lex_knowledge",
-                        "platform_health"
-                      ]
+                      "workspaces": []
                     }
                   }
                 },

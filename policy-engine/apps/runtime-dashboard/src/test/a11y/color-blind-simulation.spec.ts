@@ -1,4 +1,5 @@
 import AxePlaywrightBuilder from "@axe-core/playwright";
+import type { AxeResults, Result } from "axe-core";
 import { expect, test } from "@playwright/test";
 
 import { WCAG_AA_TAGS } from "@/test/a11yTags";
@@ -7,6 +8,7 @@ import {
   readFixtureMetadata,
   waitForDashboardSurface,
 } from "../../../e2e/helpers/runtime-dashboard";
+import { openCapabilityDiscovery } from "../../../e2e/helpers/capabilityDiscovery";
 
 type RgbColor = [number, number, number];
 
@@ -79,6 +81,39 @@ function colorDistance(left: RgbColor, right: RgbColor) {
   return Math.hypot(left[0] - right[0], left[1] - right[1], left[2] - right[2]);
 }
 
+function countAxeNodes(results: Result[]): number {
+  return results.reduce((total, result) => total + result.nodes.length, 0);
+}
+
+function parseAxeRatio(value: unknown): number | null {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value !== "string") {
+    return null;
+  }
+  const match = /^(\d+(?:\.\d+)?):1$/.exec(value);
+  return match ? Number(match[1]) : null;
+}
+
+function numericContrastPasses(results: AxeResults) {
+  return results.passes.flatMap((result) =>
+    result.nodes.flatMap((node) =>
+      [...node.any, ...node.all, ...node.none].flatMap((check) => {
+        const data = check.data as Record<string, unknown> | null;
+        if (!data || !("contrastRatio" in data)) {
+          return [];
+        }
+        const contrastRatio = parseAxeRatio(data.contrastRatio);
+        const expectedContrastRatio = parseAxeRatio(data.expectedContrastRatio);
+        return contrastRatio === null || expectedContrastRatio === null
+          ? []
+          : [{ contrastRatio, expectedContrastRatio }];
+      }),
+    ),
+  );
+}
+
 test.describe("runtime-dashboard color blind simulation", () => {
   test.beforeEach(async ({ page }) => {
     await installDashboardTestState(page);
@@ -132,6 +167,63 @@ test.describe("runtime-dashboard color blind simulation", () => {
       expect
         .soft(tealVsSlate, `${simulationName} should preserve teal vs slate`)
         .toBeGreaterThanOrEqual(20);
+    }
+  });
+
+  test("DS10 capability discovery candidate clothing passes opaque-background WCAG AA contrast", async ({
+    page,
+  }) => {
+    const panel = await openCapabilityDiscovery(page, "executable");
+    const axeResults = await new AxePlaywrightBuilder({ page })
+      .include('[data-testid="capability-discovery-panel"]')
+      .withTags([...WCAG_AA_TAGS])
+      .analyze();
+    expect(axeResults.violations).toEqual([]);
+
+    const candidateBackdrop = panel.locator(
+      '[data-capability-candidate-backdrop="true"]',
+    );
+    await expect(candidateBackdrop).toHaveCount(1);
+    const candidateBadge = candidateBackdrop.getByText(
+      "Candidate · bridge_missing",
+      { exact: true },
+    );
+    await expect(candidateBadge).toBeVisible();
+    const renderedBackdrop = await candidateBackdrop.evaluate((element) => {
+      const style = getComputedStyle(element);
+      const canvas = document.createElement("canvas");
+      canvas.width = 1;
+      canvas.height = 1;
+      const context = canvas.getContext("2d", { willReadFrequently: true });
+      if (!context) {
+        throw new Error("The browser did not provide a 2D canvas context.");
+      }
+      context.clearRect(0, 0, 1, 1);
+      context.fillStyle = style.backgroundColor;
+      context.fillRect(0, 0, 1, 1);
+      return {
+        alpha: context.getImageData(0, 0, 1, 1).data[3],
+        backgroundImage: style.backgroundImage,
+      };
+    });
+    expect(renderedBackdrop).toEqual({ alpha: 255, backgroundImage: "none" });
+
+    const contrastResults = await new AxePlaywrightBuilder({ page })
+      .include('[data-capability-candidate-backdrop="true"]')
+      .options({
+        elementRef: true,
+        resultTypes: ["passes", "violations", "incomplete"],
+        runOnly: { type: "rule", values: ["color-contrast"] },
+      })
+      .analyze();
+    expect(countAxeNodes(contrastResults.violations)).toBe(0);
+    expect(countAxeNodes(contrastResults.incomplete)).toBe(0);
+    const contrastPasses = numericContrastPasses(contrastResults);
+    expect(contrastPasses.length).toBeGreaterThan(0);
+    for (const pass of contrastPasses) {
+      expect(pass.contrastRatio).toBeGreaterThanOrEqual(
+        pass.expectedContrastRatio,
+      );
     }
   });
 });

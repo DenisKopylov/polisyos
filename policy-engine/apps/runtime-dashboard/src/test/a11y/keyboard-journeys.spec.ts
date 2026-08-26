@@ -4,6 +4,7 @@ import {
   installDashboardTestState,
   waitForDashboardSurface,
 } from "../../../e2e/helpers/runtime-dashboard";
+import { openCapabilityDiscovery } from "../../../e2e/helpers/capabilityDiscovery";
 
 declare global {
   interface Window {
@@ -99,5 +100,29 @@ test.describe("runtime-dashboard keyboard-only journeys", () => {
       .toBeGreaterThanOrEqual(1);
 
     expect(tabCounter.count).toBeLessThanOrEqual(maxTabStops);
+  });
+
+  test("DS10 capability discovery supports keyboard search and MACHINE download", async ({
+    page,
+  }) => {
+    const panel = await openCapabilityDiscovery(page, "executable");
+    const input = panel.getByLabel("Search capabilities");
+    const tabCounter = { count: 0 };
+    await tabUntilFocused(page, input, tabCounter, 80);
+    await page.keyboard.press("ControlOrMeta+A");
+    await page.keyboard.type("generated legal norm");
+    await expect(panel.getByRole("status")).toContainText(
+      "Candidate search returned 1 results",
+    );
+
+    await page.keyboard.press("Shift+Tab");
+    const downloadButton = panel.getByRole("button", {
+      name: "Download MACHINE JSON",
+    });
+    await expect(downloadButton).toBeFocused();
+    const downloadPromise = page.waitForEvent("download");
+    await page.keyboard.press("Enter");
+    const download = await downloadPromise;
+    expect(download.suggestedFilename()).toBe("capability-discovery.json");
   });
 });

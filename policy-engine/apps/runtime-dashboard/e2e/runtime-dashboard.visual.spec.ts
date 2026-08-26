@@ -15,6 +15,7 @@ import {
   humanDecisionReviewEffectivenessFixture,
   humanDecisionSourceRef,
 } from "../src/test/fixtures/humanDecision";
+import { openCapabilityDiscovery } from "./helpers/capabilityDiscovery";
 import { readPdfPageGeometry } from "./helpers/pdfGeometry";
 import {
   installDashboardTestState,
@@ -912,6 +913,44 @@ test.describe("runtime-dashboard visual baselines", () => {
     await expect(surface).toHaveScreenshot("dark-evidence-fabric.png", {
       animations: "disabled",
       caret: "hide",
+    });
+  });
+
+  test.describe("DS10 capability discovery", () => {
+    test("DS10 capability discovery executable candidate", async ({ page }) => {
+      const surface = await openCapabilityDiscovery(page, "executable");
+      await expect(surface).toContainText("Generated legal-norm candidate");
+      await expect(surface).toContainText("Candidate · bridge_missing");
+      await expect(surface).toContainText("selected:");
+      await expect(surface).toContainText("rejected:");
+      await waitForVisualFonts(page);
+      await waitForStableRender(surface);
+      await expect(surface).toHaveScreenshot(
+        "ds10-capability-discovery-executable-candidate.png",
+        {
+          animations: "disabled",
+          caret: "hide",
+        },
+      );
+    });
+
+    test("DS10 capability discovery incomplete no-hit", async ({ page }) => {
+      const surface = await openCapabilityDiscovery(page, "incomplete-no-hit");
+      await expect(surface).toContainText("No capability matched this search.");
+      await expect(surface).toContainText("recall_unmeasured");
+      await expect(surface).toContainText("budget_cutoff");
+      await expect(surface).toContainText("legal_norm:index_stale");
+      await expect(surface).toContainText("case:producer_missing");
+      await expect(surface).toContainText("rejected:");
+      await waitForVisualFonts(page);
+      await waitForStableRender(surface);
+      await expect(surface).toHaveScreenshot(
+        "ds10-capability-discovery-incomplete-no-hit.png",
+        {
+          animations: "disabled",
+          caret: "hide",
+        },
+      );
     });
   });
 

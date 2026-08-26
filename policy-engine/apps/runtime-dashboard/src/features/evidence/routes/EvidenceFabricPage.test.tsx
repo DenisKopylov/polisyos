@@ -7,7 +7,6 @@ import { renderRouteWithProviders } from "@/test/routes";
 const {
   markUiMilestoneMock,
   measureUiLatencyMock,
-  useCapabilitiesMock,
   useConnectorsMock,
   useDataIndexStatsMock,
   useDataPromotionCandidatesMock,
@@ -16,7 +15,6 @@ const {
 } = vi.hoisted(() => ({
   markUiMilestoneMock: vi.fn(),
   measureUiLatencyMock: vi.fn(),
-  useCapabilitiesMock: vi.fn(),
   useConnectorsMock: vi.fn(),
   useDataIndexStatsMock: vi.fn(),
   useDataPromotionCandidatesMock: vi.fn(),
@@ -24,8 +22,16 @@ const {
   useSourceProfilesMock: vi.fn(),
 }));
 
-vi.mock("@/api/hooks/useCapabilities", () => ({
-  useCapabilities: (...args: unknown[]) => useCapabilitiesMock(...args),
+vi.mock("@/features/evidence/components/CapabilityDiscoveryPanel", () => ({
+  CapabilityDiscoveryPanel: ({
+    request,
+  }: {
+    request: { search: { query_text: string } };
+  }) => (
+    <div data-testid="capability-discovery-request">
+      {request.search.query_text}
+    </div>
+  ),
 }));
 
 vi.mock("@/api/hooks/useConnectors", () => ({
@@ -93,9 +99,9 @@ vi.mock("@/shared/telemetry/performance", () => ({
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({
@@ -140,19 +146,6 @@ describe("EvidenceFabricPage", () => {
   beforeEach(() => {
     markUiMilestoneMock.mockReset();
     measureUiLatencyMock.mockReset();
-    useCapabilitiesMock.mockReset();
-    useCapabilitiesMock.mockReturnValue({
-      data: {
-        features: [
-          {
-            category: "evidence",
-            enabled: true,
-            key: "profiles",
-            label: "Profiles",
-          },
-        ],
-      },
-    });
     useConnectorsMock.mockReset();
     useConnectorsMock.mockReturnValue({
       data: {
@@ -226,6 +219,22 @@ describe("EvidenceFabricPage", () => {
       isError: false,
       isLoading: false,
     });
+  });
+
+  it("binds a palette-selected capability ref into the real discovery request", () => {
+    renderEvidencePage(
+      "/evidence?capability=capability%3Agenerated%3Aowner-row",
+    );
+
+    expect(
+      screen.getByTestId("capability-discovery-request"),
+    ).toHaveTextContent("capability:generated:owner-row");
+  });
+
+  it("does not render impossible authored manifest feature rows", () => {
+    renderEvidencePage();
+
+    expect(screen.queryByText("Profiles")).not.toBeInTheDocument();
   });
 
   it("renders the workspace evidence overview", () => {

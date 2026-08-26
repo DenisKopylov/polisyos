@@ -982,6 +982,204 @@ class AtlasEnforcementTests(unittest.TestCase):
             any("workspaceConfig" in error for error in errors)
         )
 
+    def test_ds10_generic_render_boundary_follows_real_picker_consumers(self) -> None:
+        """Reject a hook consumer and its helper without treating fixed chrome as discovery."""
+        hook_path = "apps/runtime-dashboard/src/api/hooks/useCapabilitySearch.ts"
+        consumer_path = (
+            "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx"
+        )
+        rows_path = "apps/runtime-dashboard/src/features/commandPalette/pickerRows.ts"
+        generated_ref = "capability:command-palette:hardcoded"
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                hook_path: dedent(
+                    """
+                    export type CapabilitySearchResult = {
+                      capability_ref: string;
+                      resource_kind: string;
+                    };
+                    export function useCapabilitySearch(): {
+                      results: readonly CapabilitySearchResult[];
+                    } {
+                      return { results: [] };
+                    }
+                    """
+                ),
+                consumer_path: dedent(
+                    f"""
+                    import {{ useCapabilitySearch }} from "@/api/hooks/useCapabilitySearch";
+                    import {{ pickerRows }} from "./pickerRows";
+                    type SurfaceEntry = {{ kind: "route" | "action" }};
+                    export function render(entry: SurfaceEntry) {{
+                      const fixedChrome = entry.kind === "route";
+                      return useCapabilitySearch().results.map((result) =>
+                        result.capability_ref === "{generated_ref}"
+                          ? pickerRows
+                          : fixedChrome,
+                      );
+                    }}
+                    """
+                ),
+                rows_path: dedent(
+                    f"""
+                    const generatedRef = "{generated_ref}";
+                    export const pickerRows = [{{
+                      capability_ref: generatedRef,
+                      resource_kind: "method",
+                    }}];
+                    """
+                ),
+            }
+        )
+
+        self.assertEqual(  # noqa: PT009
+            1,
+            sum(
+                consumer_path in error and error.endswith(":literal_result_branch")
+                for error in errors
+            ),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(
+                rows_path in error and error.endswith(":authored_capability_ref")
+                for error in errors
+            ),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(
+                rows_path in error and error.endswith(":authored_resource_kind")
+                for error in errors
+            ),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(
+                rows_path in error and error.endswith(":authored_result_array")
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_ds10_legacy_manifest_feature_reads_cover_all_production_typescript(self) -> None:
+        """Reject executable legacy-manifest reads without scanning declarations or tests."""
+        manifest_shape = """
+            type CapabilityManifest = {
+              runtime_api_version: string;
+              supported_execution_profiles: string[];
+              constraints: Record<string, unknown>;
+              features: Array<{ category: string; enabled: boolean; label: string }>;
+            };
+        """
+        violating_sources = (
+            (
+                "platform-property-access",
+                "apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx",
+                manifest_shape
+                + """
+                    declare const capabilitiesQuery: { data?: CapabilityManifest };
+                    const features = capabilitiesQuery.data?.features ?? [];
+                    export const rendered = features.map((feature) => feature.label);
+                """,
+                "property_access",
+            ),
+            (
+                "evidence-element-access",
+                "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+                manifest_shape
+                + """
+                    declare const capabilitiesQuery: { data?: CapabilityManifest };
+                    const enabled = (capabilitiesQuery.data?.["features"] ?? []).filter(
+                      (feature) => feature.category === "evidence",
+                    );
+                    export const rendered = enabled.map((feature) => feature.label);
+                """,
+                "element_access",
+            ),
+            (
+                "destructured-features",
+                "apps/runtime-dashboard/src/features/composer/routes/ManifestConsumer.tsx",
+                manifest_shape
+                + """
+                    declare const manifest: CapabilityManifest;
+                    const { features: executionFeatures } = manifest;
+                    export const enabled = executionFeatures.some((feature) => feature.enabled);
+                """,
+                "destructure",
+            ),
+        )
+        for label, path, source, syntax in violating_sources:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(
+                    {path: ts_source(source)}
+                )
+                self.assertTrue(  # noqa: PT009 - include the source-specific receipt.
+                    any(
+                        path in error and error.endswith(f":legacy_manifest_features_read_{syntax}")
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+        excluded_or_declarative_sources = (
+            (
+                "schema-and-declaration-only",
+                "apps/runtime-dashboard/src/api/manifestSchema.ts",
+                manifest_shape
+                + """
+                    type FeatureRows = CapabilityManifest["features"];
+                    declare const runtimeManifest: CapabilityManifest;
+                    declare function inspectManifest(
+                      { features }: CapabilityManifest,
+                    ): void;
+                    export type { FeatureRows };
+                    void runtimeManifest;
+                """,
+            ),
+            (
+                "unrelated-runtime-features",
+                "apps/runtime-dashboard/src/app/surfaces/fixedChrome.ts",
+                """
+                    const fixedChrome = { features: ["runs", "evidence"] };
+                    export const routes = fixedChrome.features;
+                """,
+            ),
+            (
+                "unit-test-file",
+                "apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.test.tsx",
+                manifest_shape
+                + """
+                    declare const manifest: CapabilityManifest;
+                    export const rows = manifest.features;
+                """,
+            ),
+            (
+                "story-file",
+                "apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.stories.tsx",
+                manifest_shape
+                + """
+                    declare const manifest: CapabilityManifest;
+                    export const rows = manifest["features"];
+                """,
+            ),
+            (
+                "test-directory",
+                "apps/runtime-dashboard/src/test/manifestConsumer.tsx",
+                manifest_shape
+                + """
+                    declare const manifest: CapabilityManifest;
+                    export const { features } = manifest;
+                """,
+            ),
+        )
+        for label, path, source in excluded_or_declarative_sources:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(
+                    {path: ts_source(source)}
+                )
+                self.assertEqual([], errors, (label, errors))  # noqa: PT009
+
     def test_ds10_generic_render_boundary_resolves_imported_values_and_computed_rows(self) -> None:
         """Reject imported branch literals and indirect rows with computed semantic keys."""
         render_dir = "apps/runtime-dashboard/src/features/evidence/components"

@@ -42,6 +42,19 @@ def test_control_capability_manifest_has_no_unchecked_authored_feature_rows() ->
     )
 
 
+def test_control_capability_openapi_example_has_no_authored_feature_rows() -> None:
+    """The public example must exercise the same empty legacy feature plane."""
+    from polisyos.runtime.http.app import export_runtime_openapi_schema
+
+    schema = export_runtime_openapi_schema()
+    operation = schema["paths"]["/api/v1/control/capabilities"]["get"]
+    response = operation["responses"]["200"]["content"]["application/json"]
+    example = response["examples"]["default"]["value"]
+
+    assert example["features"] == []
+    assert "execution_policy" in example["fallback_rules"]
+
+
 def test_capability_menu_rejects_hardcoded_picker_rows_and_id_branches() -> None:
     """Require generic capability-menu consumption without ID-specific branches."""
     checker = _checker()

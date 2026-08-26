@@ -2155,7 +2155,8 @@
     "stepDecision": "Decision",
     "stepDecisionDescription": "Verified decision packet with uncertainty envelope",
     "ctaTitle": "Ready to evaluate policy impact?",
-    "ctaSubtitle": "Start your first analysis in minutes"
+    "ctaSubtitle": "Start your first analysis in minutes",
+    "trustPosture": "Trust posture"
   },
   "clerk": {
     "chatPlaceholder": "Ask a policy question...",
@@ -3280,6 +3281,43 @@
     "complete": "No incompleteness was reported.",
     "noHit": "No capability matched this search. The frontier below records the result.",
     "frontier": "Search frontier"
+  },
+  "trust": {
+    "eyebrow": "Public posture",
+    "title": "Trust posture",
+    "pageFrame": "A source-bound view of declared claim states, blockers, limitations, and review coordinates.",
+    "loading": "Loading trust posture.",
+    "unavailableTitle": "Trust posture unavailable",
+    "unavailableFrame": "The posture artifact could not be admitted. Claim state remains unavailable.",
+    "detailControlLabel": "Posture detail",
+    "downloadMachine": "Download MACHINE artifact",
+    "registerEyebrow": "Claim register",
+    "registerTitle": "Declared claim posture",
+    "registerFrame": "Status and limitations are shown before source and evidence depth.",
+    "limitationsLabel": "Limitations",
+    "blockersLabel": "Blockers",
+    "noneDeclared": "None declared",
+    "notEstablished": "Not established",
+    "reviewOnLabel": "Review on",
+    "reviewDueLabel": "Review due",
+    "sourceAsOfLabel": "Source as of",
+    "sourcesLabel": "Sources",
+    "groupsLabel": "Projection groups",
+    "evidenceDetailLabel": "Artifact evidence detail",
+    "methodologyTitle": "Methodology and evidence envelope",
+    "methodologyFrame": "The register preserves producer states and applies its declared rule version; this surface does not create support.",
+    "schemaLabel": "Schema",
+    "ruleLabel": "Rule version",
+    "asOfLabel": "Register as of",
+    "sourceSetLabel": "Source set",
+    "payloadLabel": "Payload",
+    "accessibilityTitle": "Accessibility evidence",
+    "accessibilityFrame": "Dated internal evidence and recorded limitations are shown within their declared bounds.",
+    "audience": {
+      "PUBLIC": "Public",
+      "REVIEWER": "Reviewer",
+      "EXPERT": "Expert"
+    }
   },
   "compliance": {
     "badgeLabel": "Compliant",

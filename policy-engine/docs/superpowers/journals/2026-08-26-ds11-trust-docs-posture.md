@@ -416,3 +416,82 @@ provenance remained valid while its self-supplied subject was relabeled to
   the two-test wave passes (`user 60.73 + sys 17.58 = 78.31s`; uptime `00:27`
   -> `00:28`), targeted Ruff remains clean, and the architecture guardrail
   passes again (`user 56.43 + sys 13.12 = 69.55s`; uptime `00:29` -> `00:30`).
+
+## C03 — public posture route and exact-byte MACHINE twin
+
+### Scope, RED, and pattern pass
+
+- Entry was clean and attached at `b8e16b0d1` on
+  `codex/ds11-trust-docs-posture-plan`, with empty repository prefix. C03 owns
+  exactly the thirteen declared production mechanisms; six focused tests,
+  i18n parity, the browser denominator helper, separate visual declaration,
+  this journal, and the ignored task report are P39 companions. No rejected
+  route-manifest/API/public-surface/config seam was needed.
+- The first RED invocation exposed one test-only `.ts`/JSX transform defect
+  before reaching the missing feature. After changing that test to
+  `createElement`, the complete second RED failed all six files only at absent
+  C03 modules/routes: exit `1`, `user 5.66 + sys 1.18 = 6.84s`, uptime
+  `00:42` before/after. No production path existed before that receipt.
+- Pattern pass: P01/P02/P03/P05/P10/P15/P29/P31/P32/P33/P35/P37/P38/P39.
+  The correct pattern is byte-first strict admission -> artifact-generic
+  human projection -> independent DOM twin and exact captured-byte MACHINE
+  export. The surface preserves negative/planned states; it mints no support,
+  grounded-performance, current accessibility, or implemented-custody claim.
+
+### Strict admission, surface, and parity
+
+- The feature-owned Zod 4 schema recursively types the complete committed
+  artifact. All 21 object boundaries are strict; schema/rule/base values and
+  all closed statuses/establishment classes are literals/enums. Deep unknown,
+  missing, novel-version, malformed-state, and malformed-establishment probes
+  fail. There is no passthrough, unknown escape, broad API validator, cache,
+  storage, or last-known payload.
+- The loader fetches only `/atlas/trust-claim-posture.v1.json` with JSON accept
+  and `cache: no-store`, requires `ok`, captures a copied `Uint8Array` from
+  `arrayBuffer()` before fatal UTF-8 decode/JSON parse/strict validation, and
+  maps every failure to explicit unavailable posture.
+- `/trust` is a top-level `APP_ROUTES` child imported from
+  `features/trust/routes.public.tsx`. The route has static `/trust` href and no
+  loader, workspace, or prefetch handle. Landing has one neutral `/trust`
+  link. PUBLIC is the default; status/limitations/source/review remain visible
+  for every artifact row. REVIEWER/EXPERT add visible artifact evidence depth
+  while the tested claim-bearing DOM remains byte-for-byte equal across depth.
+- MACHINE constructs its Blob only from a defensive copy of captured bytes;
+  the production twin contains no serialization call. The independent DOM
+  decoder covers every ordered PUBLIC claim id, subject, source coordinate and
+  source state, effective state, blocker, limitation, and row/source review
+  field. Removal, reorder, supported relabel, `aria-hidden` limitation,
+  missing source, and missing review mutations all return
+  `DS11-DOM-PARITY-DRIFT`.
+
+### Locale, denominator, visual, and verification receipts
+
+- Independent `jq` and Node tree walks agree: active English and Ukrainian
+  each contain 2,652 leaves after C03, from 2,618 at `b8e16b0d`; the exact
+  active pin alone moved to 2,652. Russian remains 2,449 leaves and its Git
+  blob is unchanged at `7a25da19c935c363958f2b2f1d93071238bf62c3`.
+- A complete helper-array parser derives route surfaces `17 -> 18`, adding
+  only `trust`. A second page-a11y derivation follows all three wrapper imports
+  and counts their `2 + 2 + 3` direct tests; together with the route inventory
+  it derives `24 -> 25`.
+- The unanchored existing visual matcher lists exactly one DS11 test in one
+  separate file, titled `DS11 trust posture`; exit `0`,
+  `user 0.90 + sys 0.09 = 0.99s`, uptime `00:53` before/after. No snapshot or
+  config path was written.
+- Final seven-file focused wave: 51/51 pass, exit `0`,
+  `user 22.15 + sys 2.94 = 25.09s`, uptime `00:55` before/after. The earlier
+  dedicated route/a11y wave passed 3/3 (`user 5.47 + sys 0.83 = 6.30s`). Final
+  app typecheck passes, exit `0`, `user 19.66 + sys 0.67 = 20.33s`, uptime
+  `00:55 -> 00:56`. `git diff --check` is clean.
+
+### C03 accounting and handback
+
+- Pre-staging complete-set comparison returns expected mechanisms `13`,
+  observed mechanisms `13`, equality `true`, with no missing/unexpected path.
+  C03 uses exactly rounds 5–7: deep strict byte-first admission, public
+  route/human projection/locales, and MACHINE/DOM parity plus denominator.
+- Running slice accounting is therefore `18/34` mechanisms and `7/9`
+  widening rounds. C03 closes its public/MACHINE consumer and surface seam;
+  slice-wide closure remains `verification_missing` until the owned C04–C06
+  repair/corruption/closeout work lands. The custody watcher itself remains
+  bridge-missing and is rendered only as the artifact's planned claim.

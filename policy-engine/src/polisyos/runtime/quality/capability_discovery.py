@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 import sys
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal, Protocol
@@ -23,19 +24,23 @@ from polisyos.core.contracts.capability_discovery import (
     CapabilityResourceKind,
 )
 from polisyos.core.contracts.search import (
+    SearchCandidate,
     SearchCompletenessStatus,
     SearchFrontier,
     SearchLedger,
 )
 from polisyos.runtime.quality.capability_index import (
+    CapabilityIndex,
     CapabilityIndexDiscoveryRow,
+    LegalNormOwnerTruth,
     ScientistCapabilityOwnerTruth,
 )
+from polisyos.runtime.quality.capability_index_compiler import build_capability_discovery_snapshot
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping, Sequence
 
-    from polisyos.core.contracts.runtime import ApiMeta
+    from polisyos.core import contracts as core_contracts
     from polisyos.runtime.quality.capability_authority import (
         CapabilityAuthorityContext,
         CapabilityDiscoveryAuthorityResolver,
@@ -44,6 +49,10 @@ if TYPE_CHECKING:
 
 CAPABILITY_DISCOVERY_RULE_VERSION = "policyos.ds10.discovery.v1"
 CAPABILITY_PROVIDER_REGISTRY_INDEX_REF = "runtime-quality:capability-provider-registry"
+LEX_CAPABILITY_DISCOVERY_PROVIDER_REF = "runtime-quality:lex-capability-discovery-provider"
+LEX_LEGAL_NORM_ADMISSION_VERIFIER_REF = (
+    "runtime-quality:capability-index-compiler:legal-norm-owner-truth"
+)
 
 _COMPLETENESS_PRIORITY: dict[SearchCompletenessStatus, int] = {
     "producer_missing": 0,
@@ -296,6 +305,224 @@ class CapabilityDiscoveryProvider(Protocol):
         ...
 
 
+class LexCapabilityDiscoveryProvider:
+    """Search admitted legal-norm rows from the existing CapabilityIndex projection.
+
+    The provider does not create Lex capabilities.  It consumes the compiler's
+    owner-admitted L3 rows, retaining their grounded and temporally resolved
+    truth, then records an owner receipt over the exact queried snapshot.
+    """
+
+    def __init__(self, *, capability_index: CapabilityIndex) -> None:
+        self._capability_index = capability_index
+
+    @property
+    def resource_kind(self) -> Literal["legal_norm"]:
+        """Return the single owner kind served by this provider."""
+        return "legal_norm"
+
+    def search(self, request: CapabilityDiscoveryRequest) -> CapabilityProviderSearchResult:
+        """Return a content-bound Lex ledger for the requested legal-norm query."""
+        rows = self._owner_rows()
+        snapshot_ref = _lex_snapshot_ref(rows)
+        snapshot_digest = "sha256:" + _digest(
+            {
+                "snapshot_ref": snapshot_ref,
+                "legal_norm_rows": [row.model_dump(mode="json") for row in rows],
+            }
+        )
+        terms = _owner_search_terms(request)
+        matches = [row for row in rows if _row_match_count(row, terms)]
+        limit = _owner_search_limit(request, fallback=len(matches))
+        selected_rows = tuple(
+            sorted(
+                matches,
+                key=lambda row: (-_row_match_count(row, terms), row.capability_ref),
+            )[:limit]
+        )
+        selected_refs = {row.capability_ref for row in selected_rows}
+        matching_refs = {row.capability_ref for row in matches}
+        selected = tuple(_lex_search_candidate(row, terms) for row in selected_rows)
+        rejected = tuple(
+            _lex_search_candidate(
+                row,
+                terms,
+                limitation="lex_owner_budget_cutoff"
+                if row.capability_ref in matching_refs
+                else "lex_owner_query_mismatch",
+            )
+            for row in rows
+            if row.capability_ref not in selected_refs
+        )
+        budget_cutoff = len(matches) > limit
+        stale = any(row.time.freshness == "stale" for row in rows)
+        completeness_status, incompleteness_reasons = _lex_completeness(
+            has_selected=bool(selected_rows),
+            stale=stale,
+            budget_cutoff=budget_cutoff,
+        )
+        ledger = SearchLedger(
+            request_ref=request.search.request_id,
+            query_plan={
+                "match": "all_terms_over_capability_ref_construct_label_description",
+                "resource_kind": self.resource_kind,
+            },
+            corpus_ref=self._capability_index.release_ref,
+            corpus_path="runtime/quality/capability_index_compiler.py",
+            corpus_snapshot_hash=snapshot_digest,
+            corpus_kind="canonical",
+            indexes_used=("lex_knowledge_graph",),
+            index_version_refs=(snapshot_ref,),
+            index_freshness={
+                "lex_knowledge_graph": {
+                    "state": "stale" if stale else "current",
+                    "snapshot_ref": snapshot_ref,
+                }
+            },
+            candidates=selected,
+            rejected_candidates=rejected,
+            no_hit_frontier=() if selected_rows else (self.resource_kind,),
+            incompleteness={"status": completeness_status},
+            replay_key="lex-capability-discovery:" + snapshot_digest.removeprefix("sha256:"),
+            replay_command="capability-discovery:lex-owner-snapshot",
+            replay_expected_output_hash=snapshot_digest,
+        )
+        payload = {
+            "resource_kind": self.resource_kind,
+            "producer_ref": self._capability_index.release_ref,
+            "rows": selected_rows,
+            "ledger": ledger,
+            "requested_count": limit,
+            "evaluated_count": len(rows),
+            "actual_cutoff": limit if budget_cutoff else None,
+            "completeness_status": completeness_status,
+            "incompleteness_reasons": incompleteness_reasons,
+        }
+        result_digest = "sha256:" + _digest(
+            {
+                **payload,
+                "rows": [row.model_dump(mode="json") for row in selected_rows],
+                "ledger": ledger.model_dump(mode="json"),
+            }
+        )
+        provenance_refs = tuple(
+            dict.fromkeys(
+                (
+                    self._capability_index.release_ref,
+                    LEX_CAPABILITY_DISCOVERY_PROVIDER_REF,
+                    snapshot_ref,
+                    LEX_LEGAL_NORM_ADMISSION_VERIFIER_REF,
+                    *(ref for row in rows for ref in row.provenance_refs),
+                )
+            )
+        )
+        receipt = LexOwnerReceipt(
+            owner_producer_ref=self._capability_index.release_ref,
+            search_snapshot_ref=snapshot_ref,
+            search_snapshot_digest=snapshot_digest,
+            result_digest=result_digest,
+            provenance_refs=provenance_refs,
+            lex_snapshot_ref=snapshot_ref,
+            lex_snapshot_digest=snapshot_digest,
+            verifier_ref=LEX_LEGAL_NORM_ADMISSION_VERIFIER_REF,
+        )
+        return CapabilityProviderSearchResult(**payload, owner_receipt=receipt)
+
+    def _owner_rows(self) -> tuple[CapabilityIndexDiscoveryRow, ...]:
+        """Return only legal rows whose strict Lex owner truth survived projection."""
+        if type(self._capability_index) is not CapabilityIndex:
+            raise CapabilityProviderUnavailableError("lex_owner_index_invalid")
+        try:
+            rows = tuple(
+                row
+                for row in build_capability_discovery_snapshot(self._capability_index)
+                if row.resource_kind == self.resource_kind
+            )
+        except (AttributeError, TypeError, ValueError) as exc:
+            raise CapabilityProviderUnavailableError("lex_owner_index_invalid") from exc
+        if any(type(row.owner_truth) is not LegalNormOwnerTruth for row in rows):
+            raise CapabilityProviderUnavailableError("lex_owner_truth_invalid")
+        return rows
+
+
+def _lex_snapshot_ref(rows: tuple[CapabilityIndexDiscoveryRow, ...]) -> str:
+    """Return the sole Lex snapshot reference represented by owner rows."""
+    snapshot_refs = {row.snapshot_ref for row in rows}
+    if len(snapshot_refs) == 1:
+        return next(iter(snapshot_refs))
+    if not snapshot_refs:
+        return "lex:empty-owner-snapshot"
+    raise CapabilityProviderUnavailableError("lex_owner_snapshot_ambiguous")
+
+
+def _owner_search_terms(request: CapabilityDiscoveryRequest) -> tuple[str, ...]:
+    """Normalize the request-owned query and construct terms without ID rules."""
+    terms = re.findall(
+        r"[\w]+",
+        " ".join((request.search.query_text, *request.search.construct_refs)).casefold(),
+    )
+    return tuple(dict.fromkeys(term for term in terms if term))
+
+
+def _owner_search_limit(request: CapabilityDiscoveryRequest, *, fallback: int) -> int:
+    """Read the request budget while failing malformed owner queries closed."""
+    raw_limit = request.search.budget.get("top_k", fallback)
+    if isinstance(raw_limit, bool) or not isinstance(raw_limit, int) or raw_limit < 0:
+        raise CapabilityProviderUnavailableError("lex_owner_query_budget_invalid")
+    return raw_limit
+
+
+def _row_match_count(row: CapabilityIndexDiscoveryRow, terms: tuple[str, ...]) -> int:
+    """Return the number of request terms present in one owner-projected row."""
+    searchable = " ".join(
+        (row.capability_ref, *row.construct_refs, row.label, row.description)
+    ).casefold()
+    return len(terms) if all(term in searchable for term in terms) else 0
+
+
+def _lex_search_candidate(
+    row: CapabilityIndexDiscoveryRow,
+    terms: tuple[str, ...],
+    *,
+    limitation: str | None = None,
+) -> SearchCandidate:
+    """Project one retained Lex row into a scored owner ledger candidate."""
+    match_count = _row_match_count(row, terms)
+    query_text = " ".join(terms)
+    searchable = " ".join(
+        (row.capability_ref, *row.construct_refs, row.label, row.description)
+    ).casefold()
+    return SearchCandidate(
+        candidate_ref=row.capability_ref,
+        source_layer="L3",
+        match_mode="exact" if query_text and query_text in searchable else "lexical",
+        score=match_count / len(terms) if terms else 0.0,
+        evidence_refs=row.provenance_refs,
+        limitation_refs=(limitation,) if limitation is not None else (),
+        authority_boundary={"authoritative_for": []},
+        may_not_use_for=row.may_not_use_for,
+    )
+
+
+def _lex_completeness(
+    *,
+    has_selected: bool,
+    stale: bool,
+    budget_cutoff: bool,
+) -> tuple[SearchCompletenessStatus, tuple[str, ...]]:
+    """Preserve stale and bounded owner-index negatives in priority order."""
+    if stale:
+        reasons = ("lex_owner_snapshot_stale",)
+        if budget_cutoff:
+            reasons += ("lex_owner_budget_cutoff",)
+        return "index_stale", reasons
+    if budget_cutoff:
+        return "budget_cutoff", ("lex_owner_budget_cutoff",)
+    if not has_selected:
+        return "complete_no_match", ()
+    return "complete", ()
+
+
 class CapabilityDiscoveryComposer:
     """Compose provider ledgers and independent posture resolvers into one packet."""
 
@@ -321,7 +548,7 @@ class CapabilityDiscoveryComposer:
         self,
         request: CapabilityDiscoveryRequest,
         *,
-        meta: ApiMeta,
+        meta: core_contracts.ApiMeta,
         authority_contexts: Mapping[str, CapabilityAuthorityContext] | None = None,
     ) -> CapabilityDiscoveryResponse:
         """Emit one replayable candidate packet without claiming persistence."""
@@ -734,6 +961,7 @@ __all__ = [
     "CapabilityIndexOwnerReceipt",
     "CapabilityProviderSearchResult",
     "CapabilityProviderUnavailableError",
+    "LexCapabilityDiscoveryProvider",
     "LexOwnerReceipt",
     "ScientistRegistryOwnerReceipt",
     "SourceProfileOwnerReceipt",

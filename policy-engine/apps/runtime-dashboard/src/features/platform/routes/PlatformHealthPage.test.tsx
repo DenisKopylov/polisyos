@@ -25,6 +25,10 @@ const {
 vi.mock("@/api/hooks/useCapabilities", () => ({
   useCapabilities: (...args: unknown[]) => useCapabilitiesMock(...args),
 }));
+vi.mock("@/api/hooks/useCapabilitySearch", () => ({
+  createCapabilitySearchRequest: () => ({}),
+  useCapabilitySearch: () => ({ data: undefined }),
+}));
 
 vi.mock("@/api/hooks/useConnectors", () => ({
   useConnectors: (...args: unknown[]) => useConnectorsMock(...args),
@@ -75,9 +79,9 @@ vi.mock("@/app/providers/ThemeProvider", () => ({
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({

@@ -8,7 +8,7 @@ import {
   isDiscoveryCapabilityEnabled,
   isIssuedCapabilityDiscovery,
   useCapabilities,
-  useCapabilityDiscovery,
+  useCapabilityManifestAvailability,
 } from "@/api/hooks/useCapabilities";
 import {
   connectorsQueryOptions,
@@ -173,7 +173,7 @@ describe("control-plane query hooks", () => {
       detail: "Capability manifest is unavailable",
       status: 500,
     });
-    const { result } = renderHook(() => useCapabilityDiscovery(), {
+    const { result } = renderHook(() => useCapabilityManifestAvailability(), {
       wrapper: createQueryHookWrapper(),
     });
 
@@ -199,7 +199,7 @@ describe("control-plane query hooks", () => {
 
   it("issues offline discovery while the capability query is paused", () => {
     onlineManager.setOnline(false);
-    const { result } = renderHook(() => useCapabilityDiscovery(), {
+    const { result } = renderHook(() => useCapabilityManifestAvailability(), {
       wrapper: createQueryHookWrapper(),
     });
 
@@ -215,7 +215,9 @@ describe("control-plane query hooks", () => {
   it("issues missing-data discovery when a settled query has no owner response", async () => {
     mockRuntimeGetSuccess(capabilitiesPayload);
     const { queryClient, wrapper } = createQueryHookHarness();
-    const { result } = renderHook(() => useCapabilityDiscovery(), { wrapper });
+    const { result } = renderHook(() => useCapabilityManifestAvailability(), {
+      wrapper,
+    });
 
     await waitFor(() => {
       expect(result.current).toMatchObject({ state: "available" });
@@ -247,7 +249,7 @@ describe("control-plane query hooks", () => {
 
   it("issues owner capability discovery only after an owner response", async () => {
     mockRuntimeGetSuccess(capabilitiesPayload);
-    const { result } = renderHook(() => useCapabilityDiscovery(), {
+    const { result } = renderHook(() => useCapabilityManifestAvailability(), {
       wrapper: createQueryHookWrapper(),
     });
 

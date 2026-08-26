@@ -1072,6 +1072,7 @@ def load_lex_capabilities(
                 nf.trust_tier,
                 nf.fused_confidence,
                 nf.grounding_status,
+                nf.canonical_status,
                 nf.reference_resolution_status,
                 nf.hallucination_flags_json,
                 nf.doc_id,
@@ -1238,6 +1239,8 @@ def _build_legal_norm_owner_truth(
     if any(value is None for value in required):
         return None
     if _optional_str(row.get("grounding_status")) != "grounded":
+        return None
+    if _optional_str(row.get("canonical_status")) not in {"canonical", "canonicalized"}:
         return None
     if _optional_str(row.get("reference_resolution_status")) != "resolved":
         return None

@@ -148,6 +148,6 @@ function discoverCapabilities(
   return issueCapabilityDiscovery({ manifest: query.data, state: "available" });
 }
 
-export function useCapabilityDiscovery(): CapabilityDiscovery {
+export function useCapabilityManifestAvailability(): CapabilityDiscovery {
   return discoverCapabilities(useCapabilities());
 }

@@ -1,4 +1,8 @@
 import { useCapabilities } from "@/api/hooks/useCapabilities";
+import {
+  createCapabilitySearchRequest,
+  useCapabilitySearch,
+} from "@/api/hooks/useCapabilitySearch";
 import { useConnectors } from "@/api/hooks/useConnectors";
 import { useHealth } from "@/api/hooks/useHealth";
 import { useRuns } from "@/api/hooks/useRuns";
@@ -17,15 +21,18 @@ export default function PlatformHealth() {
   const canViewAdminAffordances = usePermission("platform.admin");
   const healthQuery = useHealth();
   const capabilitiesQuery = useCapabilities();
+  const capabilitySearchQuery = useCapabilitySearch(
+    createCapabilitySearchRequest("", "platform-capability-discovery"),
+  );
   const connectorsQuery = useConnectors();
   const runsQuery = useRuns({ limit: 12 });
 
   const connectors = connectorsQuery.data?.connectors ?? [];
   const features = capabilitiesQuery.data?.features ?? [];
-  const activeFeatures = features.filter((feature) => feature.enabled);
-  const plannedFeatures = features.filter(
-    (feature) => !feature.enabled || feature.stage !== "active",
-  );
+  const capabilityCount = capabilitySearchQuery.data?.response.results.length;
+  const capabilityState =
+    capabilitySearchQuery.data?.response.frontier.completeness_status ??
+    t("common.unknown");
 
   useTelemetryReadyMark("platform.health.page", { routeId: "platform.health" });
 
@@ -53,12 +60,12 @@ export default function PlatformHealth() {
             <DataFreshnessBadge />
             <Badge kind="ok">
               {t("pages.platform.activeFeatures", {
-                count: activeFeatures.length,
+                count: capabilityCount ?? 0,
               })}
             </Badge>
             <Badge kind="warn">
               {t("pages.platform.plannedFeatures", {
-                count: plannedFeatures.length,
+                count: capabilityState,
               })}
             </Badge>
           </div>

@@ -12,6 +12,7 @@ export type RoutePrefetchManifestEntry = {
   handle: RouteManifestHandle;
   kind:
     | "artifact"
+    | "capabilityDiscovery"
     | "caseInspection"
     | "evidence"
     | "runDeck"
@@ -102,7 +103,7 @@ export const ROUTE_PREFETCH_MANIFEST: RoutePrefetchManifestEntry[] = [
       "dataIndexStats",
       "dataPromotionCandidates",
     ]),
-    kind: "evidence",
+    kind: "capabilityDiscovery",
     pattern: "/evidence",
   },
   {
@@ -117,7 +118,7 @@ export const ROUTE_PREFETCH_MANIFEST: RoutePrefetchManifestEntry[] = [
       "connectors",
       "runs",
     ]),
-    kind: "workspace",
+    kind: "capabilityDiscovery",
     pattern: "/platform",
   },
   {

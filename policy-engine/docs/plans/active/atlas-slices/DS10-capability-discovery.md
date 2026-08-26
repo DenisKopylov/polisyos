@@ -48,9 +48,10 @@ After approval, C00 starts from the attached execution branch containing this
 plan. Adapter-registry data-only free growth is **not established at the pinned
 base**, but that upstream backend gap is not a DS10 gate: C00 registers it as
 owned debt and continues. DS10's binding free-growth property is frontend
-genericity: a correctly admitted adapter, established through the real backend
-admission path, renders with zero dashboard production-code change. DS10 may
-consume the backend admission path; it may not redesign adapter admission.
+genericity: a correctly formed capability row, established through one of the
+six resource kinds' real owner indexes and admission paths, renders with zero
+dashboard production-code change. DS10 may consume that owner path; it may not
+redesign post-G0 adapter admission.
 
 Use `corepack pnpm`, never bare `pnpm`. Do not run `guardrails sync`. Run only the
 targeted commands named here. Generated output is produced only while holding the
@@ -134,12 +135,16 @@ define a second closure contract.
 - [ ] **CC14** Fixed workspace/route/tab chrome is resolved by an explicit local
       `SurfaceAvailability` owner and never by a discovery result; open command-
       palette/picker results come only from the typed search response.
-- [ ] **CC15** The exact free-growth e2e test admits one correctly formed post-G0
-      adapter through the real backend admission path, refreshes the real index,
-      and renders its generated ID with zero tracked
+- [ ] **CC15** The exact free-growth e2e test admits one correctly formed
+      `legal_norm` capability row through the real Lex owner index and its
+      grounding/temporal admission path, rebuilds the real capability index, and
+      renders its generated ID through the real FastAPI route, hook, and panel
+      with zero tracked
       `apps/runtime-dashboard/src/**` production-byte change. Backend admission
-      code/data may change through its real owner path. The authority arm remains
-      `not_established` unless the independent owner-signed binding exists.
+      data may change through its real owner path; no fixture response or
+      substituted provider may satisfy the witness. Execution is established
+      only by its independent producer, and authority remains `not_established`
+      unless the independent owner-signed binding exists.
 - [ ] **CC16** Three bounded controls go red independently: an import-resolved
       backend manifest constructor, a contextual generated-TypeScript feature
       literal, and a literal `capability_ref`/adapter-ID/resource-kind branch or
@@ -198,17 +203,18 @@ rewrite fails CC13.
 
 The decisive property is:
 
-> A correctly admitted new adapter appears after a registry-data/index refresh,
-> with zero frontend production-code change.
+> A correctly formed new capability row appears after its real owner index and
+> admission path are rebuilt, with zero frontend production-code change.
 
 The test is designed before the endpoint or component. It uses the canonical
-backend admission producer, including its code-side tuple when that is the real
-path; it does not seed an HTTP response, MSW result, frontend fixture, hardcoded
-adapter ID, or direct DTO constructor as its positive proof. The complete
-dashboard source digest and invalid-row sibling make frontend genericity and the
-fail-closed half executable. Backend source is not part of this invariant. The
-new adapter can be discoverable/executable while authority honestly remains
-`not_established`.
+Lex owner database, real capability-index compiler, and production Lex discovery
+provider; it does not seed an HTTP response, MSW result, frontend fixture,
+hardcoded capability ID, direct DTO constructor, or test provider double as its
+positive proof. The complete dashboard source digest and invalid-row sibling
+make frontend genericity and the fail-closed half executable. Backend owner data
+is not part of this invariant. The new row is discoverable; execution stays with
+its independent registry/conformance/policy producer, while authority honestly
+remains `not_established`.
 
 ### 4. Frontier honesty is part of discovery
 
@@ -471,27 +477,59 @@ The search response is not cached forever. Its query key includes request digest
 and server index/version epoch; route re-entry/manual refresh issues a fresh
 request. No client clock upgrades server freshness.
 
+## Approved amendment — 2026-08-26 CC15 owner-row scope correction
+
+The original C00–C04 execution narrowed the master-plan word “adapter” to the
+post-G0 bridge-adapter family. That census was factually correct—those admitted
+rows have no DS10 resource kind, capability purpose, passport/currentness
+receipt, or honest projection into the six-kind contract—but the binding was a
+P38 proxy. The surface renders capability rows, not provider implementations or
+semantic bridge adapters. Rule-12 growth in the approved federation is therefore
+a new row from an existing kind's owner index; provider count remains fixed.
+
+Two independent complete-set derivations found zero concrete production
+`CapabilityDiscoveryProvider` implementations at the amendment entry point and
+six contract kinds. The owner-index census then found these actual growth seams:
+CapabilityIndex inputs for `method`, `dataset`, and `legal_norm`; the source
+profile registry for `source`; paired Scientist registries for `agent`; and no
+global index for `case`. `legal_norm` is the strongest honest witness because
+the real Lex database/CapabilityIndex path admits a row only after recomputing
+grounding, reference resolution, hallucination clearance, jurisdiction, and
+temporal effectiveness. Source and Scientist registries lack an equivalent
+durable content-bound snapshot today; cases remain `producer_missing`.
+
+Accordingly CC15 is re-bound to a generated `legal_norm` row admitted by the
+real Lex owner database and real index compiler, then searched by a production
+Lex provider. The test may install that production provider through the runtime's
+normal override seam, but may not substitute a test provider or owner-returned
+DTO. The real FastAPI route, real dashboard hook, and real panel remain required.
+The complete tracked dashboard `src/**` set is frozen at test start and compared
+by path, extension partition, and bytes at test end. The post-G0 data-only gap
+and bridge gap remain separately owned upstream debts; neither is a CC15
+conjunct. This amendment consumes one approved execution round. The hard round
+ceiling is raised from 12 to 15; the hard path ceiling remains 50.
+
 ## Exact free-growth falsifier
 
-`test_new_conformance_admitted_adapter_appears_without_frontend_code_change`
+`test_new_legal_norm_owner_row_appears_without_frontend_code_change`
 performs this exact sequence:
 
 1. Reproduce the pinned opening count of 1,087 dashboard production paths, then
    enumerate and hash the complete tracked test-start denominator under
    `apps/runtime-dashboard/src/**`, preserving its file-type partition and known
    member. C05's own generic hook/panel files legitimately make the latter set
-   larger than 1,087; excluding them would create an ID-branch escape. Prepare
-   one new backend adapter definition.
-2. Admit that adapter through the backend's real admission path, including the
-   code-side tuple when that path requires it, with declared port/purpose,
-   conformance/passport/evidence refs and non-quarantined state. Compute its new
-   `capability_ref`/adapter ID from the admitted row and assert that exact value
-   was absent from dashboard source before admission. Backend changes are
-   legitimate here; no dashboard product file or authored frontend list changes.
-3. Refresh/rebuild the real registry and discovery index, invoke the actual
-   FastAPI search route, then render the real generic hook/panel. Do not seed an
-   HTTP/MSW response, direct DTO, frontend fixture, or name the ID in renderer
-   source.
+   larger than 1,087; excluding them would create an ID-branch escape. Generate
+   one capability ID that is absent from both backend and dashboard source bytes.
+2. Copy the real Lex owner database into test scratch, add one fully grounded,
+   reference-resolved, effective, hallucination-clear norm through its real
+   tables, and rebuild the real CapabilityIndex. Compute the new
+   `capability_ref` from the admitted owner row; do not name it in renderer source
+   or construct a discovery DTO. A malformed/ungrounded sibling must be rejected
+   by that same admission path.
+3. Search the rebuilt snapshot through the production Lex discovery provider,
+   boot the actual FastAPI application through its real container override seam,
+   call the canonical route, and render the actual generic hook/panel. Do not
+   seed an HTTP/MSW response, frontend fixture, or test-substituted provider.
 4. Assert exactly one DOM result for the generated ID: `discoverable` from the
    searched snapshot, `executable` only if live registration/conformance/policy
    establish it, candidate clothing remains visible, and selected/rejected
@@ -506,9 +544,9 @@ performs this exact sequence:
    reported 1,087 count remains the opening-base census, not an allowlist that
    can omit C05 source. A generic-result-boundary lint plus the real route/panel
    assertion prevents a frontend ID special case.
-7. Repeat with missing contract/passport, stale index, quarantine, malformed row,
-   policy disablement, and no-hit/recall miss; each fails at its own posture and
-   none renders `admitted_authority`.
+7. Repeat with missing owner inputs, stale index, quarantined owner data,
+   malformed row, policy disablement, no-hit, and recall miss; each fails at its
+   own independently produced posture and none renders `admitted_authority`.
 
 The upstream backend data-only test is a separately owned debt signal, not a
 conjunct of this UI falsifier. A later optional positive-authority sibling may
@@ -531,7 +569,7 @@ Backend identities:
 - `test_capability_discovery_distinguishes_no_hit_recall_unmeasured_stale_and_outage`.
 - `test_capability_discovery_case_kind_is_typed_producer_missing`.
 - `test_capability_discovery_agent_provider_never_reads_world_agent_rows`.
-- `test_new_conformance_admitted_adapter_appears_without_frontend_code_change`.
+- `test_new_legal_norm_owner_row_appears_without_frontend_code_change`.
 - `test_control_capability_manifest_has_no_authored_feature_rows`.
 - `test_data_catalog_search_is_projection_of_canonical_discovery_service`.
 - `test_capability_discovery_route_reuses_control_read_authorization`.
@@ -545,7 +583,7 @@ Frontend/architecture identities:
 - `CapabilityDiscoveryPanel a11y > keyboard search result traversal and MACHINE download`.
 - `CapabilityDiscoveryPanel a11y > candidate and limitation clothing pass opaque-background contrast`.
 - `CapabilityDiscoveryPanel MACHINE > exact HTTP bytes equal download and decoded DOM`.
-- `Capability discovery free growth > new conformance-admitted adapter renders without frontend production change`.
+- `Capability discovery free growth > new legal-norm owner row renders without frontend production change`.
 - `Fixed chrome separation > routes tabs and mutations do not consume discovery as availability`.
 - `Lex discovery > preserves candidate grounding hallucination jurisdiction and temporal truth`.
 - `DS10 register coverage > all 10 opening roots have one checked disposition`.
@@ -575,8 +613,10 @@ split one mechanism across commits to fit a cap.
 The declared caps total **42 unique mechanism paths**. The hard slice-wide
 ceiling is **50 unique mechanism paths**; path 51 is a real stop. Slack is eight
 paths (19.0%), based on the complete current consumer/provider census rather than
-DS9's shape. C01-C03/C05-C06 have **12 widening rounds** in total; C00, C04, and
-C07 have three serialized transaction/verification rounds. Narrowing is free: a
+DS9's shape. The original cluster plan declared 12 rounds. The approved CC15
+amendment raises the execution stop ceiling to **15 total rounds**: 7 were
+consumed through C04, one admits the correction, and C05/C06/C07 retain their
+declared 2/3/1 budgets. Narrowing is free: a
 change that only removes a way the system can be fooled is pre-authorized and
 consumes no round. A change that adds a capability, surface, permission, or
 producer arm consumes one widening round.
@@ -585,7 +625,8 @@ The two cap derivations are the cluster-table arithmetic and a parser that union
 each cluster's declared Add/Modify mechanism paths (tests/P39 companions removed);
 both must return 42 unique paths; known member
 `src/polisyos/core/contracts/capability_discovery.py`. A separate round-column
-sum must return 12.
+sum preserves the original 12-round plan; the amendment records the independent
+15-round execution ceiling and the reason for the difference.
 
 A production path outside a cluster's declared list is pre-authorized only when
 a named closure item requires it and no existing seam suffices. The receipt names
@@ -922,7 +963,7 @@ validation; debt register/ledger; generated freshness receipts; release record; 
 moved counts. Exact visual/a11y companions are:
 
 - modify `apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts` with two
-  deterministic intercepted response fixtures: (a) generated adapter ID,
+  deterministic intercepted response fixtures: (a) generated capability ID,
   candidate discovery, executable, authority `not_established`, selected plus
   rejected candidate, fixed epoch/cutoff; (b) no hit, rejected candidates,
   `recall_unmeasured`, budget cutoff, stale/missing-provider incompleteness;
@@ -1051,7 +1092,7 @@ Every row has an executable signal and owner. Prose alone owns nothing.
 | non-closure | state / boundary | owner | executable closure signal |
 | --- | --- | --- | --- |
 | generic post-G0 registry data-only free growth | `artifact_missing`; the underlying data-only growth property is `not_established`; registered debt, not a DS10 blocker; DS10 will not build registry content | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_free_growth.py::test_post_g0_registry_admits_new_contract_from_data_only_mutation -q` |
-| admitted-adapter capability-discovery bridge | `producer_missing + artifact_missing`; the real G3 admission builder can grow only a semantic bridge-adapter set, while the complete 61-row admission family supplies no DS10 resource kind, capability purpose, passport/evidence/currentness receipt, or concrete capability-discovery provider. Inferring `method` would be P38; injecting a provider or DTO in the DS10 test would violate the required real-registry path. This blocks CC15 after C04 without making adapter admission content DS10-owned | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_capability_discovery.py::test_admitted_adapter_emits_typed_capability_kind_purpose_passport_evidence_and_currentness -q`; then DS10 replays `uv run pytest tests/integration/runtime_frontend/test_capability_discovery_free_growth.py::test_new_conformance_admitted_adapter_appears_without_frontend_code_change -q` |
+| admitted-adapter capability-discovery bridge | `producer_missing + artifact_missing`; the real G3 admission builder can grow only a semantic bridge-adapter set, while the complete 61-row admission family supplies no DS10 resource kind, capability purpose, passport/evidence/currentness receipt, or concrete capability-discovery provider. Inferring `method` would be P38. The 2026-08-26 amendment corrects the earlier mistake of making this true upstream gap a CC15 blocker: DS10 free growth is owner-index row growth within the approved six-kind contract | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_capability_discovery.py::test_admitted_adapter_emits_typed_capability_kind_purpose_passport_evidence_and_currentness -q` |
 | owner-signed typed capability-purpose authority binding | `bridge_missing + artifact_missing`; DS9 currentness binds its expected consumer/audience but has no typed capability ref/digest/purpose join, and opaque `governed_action_key` cannot substitute; DS10 defines/consumes only a fail-closed port | DS9 authority owner / `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness -q` |
 | global case index | `absent/unallocated`; DS10 renders `producer_missing`, adds no store/index | `team-architecture` owns owner allocation; eventual producer owner then replaces it | `uv run pytest tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index -q` |
 | stable Python facade graduation | `surface_out_of_scope`; DS10's external surface is HTTP/OpenAPI and the internal typed module is not added to `polisyos.core.contracts` facade | `team-polisyos` public-surface owner | after an owner-approved facade change/regeneration: `uv run polisyos-tools architecture guardrails check` |
@@ -1065,13 +1106,13 @@ Every row has an executable signal and owner. Prose alone owns nothing.
 An absent future test file is `artifact_missing`, not a green signal. C07 registers
 any still-open row in the debt register before claiming closure.
 
-Execution stop receipt (2026-08-25): after source-frozen C04, two independent
-reconnaissance passes found the admitted-adapter bridge above absent. C05 cannot
-start its binding CC15 witness under any current reading without either inferring
-a false resource kind or replacing the real registry path with a fixture. Per the
-approved section 3 stop rule, C05-C07 remain unexecuted; the completed boundary is
-`c279bbd142fdab8d88751ee411b2b82e823c6cf3` at 18/50 mechanism paths and 7/12
-widening rounds before this companion-only registration transaction.
+Historical stop receipt (2026-08-25): after source-frozen C04, two independent
+reconnaissance passes correctly found the admitted-adapter bridge above absent
+and stopped at `c279bbd142fdab8d88751ee411b2b82e823c6cf3`, 18/50 mechanism
+paths and 7/12 rounds. The 2026-08-26 owner correction establishes that the stop
+was caused by CC15's own over-narrow post-G0 binding, not by the master-plan UI
+property. Two independent six-kind owner-index censuses found the real Lex path
+extensible, so execution resumes at 7/15; the amendment itself consumes round 8.
 
 ## Commit sequence
 

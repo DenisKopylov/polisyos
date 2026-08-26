@@ -7,11 +7,15 @@ import {
   type ScenarioScope,
 } from "@/app/providers/scenario-scope";
 import type { ProjectionId } from "@polisyos/runtime-api-client";
+import type { components } from "./types";
 
 export const queryKeys = {
   authMe: () => ["auth", "me"] as const,
   health: () => ["runtime", "health"] as const,
   capabilities: () => ["control", "capabilities"] as const,
+  capabilitySearch: (
+    request: components["schemas"]["CapabilityDiscoveryRequest"],
+  ) => ["control", "capabilities", "search", request] as const,
   governedProjection: (projectionId: ProjectionId) =>
     ["runtime", "governed-projection", projectionId] as const,
   cycleBoardProjection: () =>

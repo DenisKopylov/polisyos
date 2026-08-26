@@ -3271,6 +3271,16 @@
     "approvalNeedsReview": "Review approval readiness evidence before release.",
     "qualityNeedsReview": "Quality evidence needs operator review."
   },
+  "capabilityDiscovery": {
+    "eyebrow": "Capability discovery",
+    "title": "Capability search",
+    "downloadMachine": "Download MACHINE JSON",
+    "searchLabel": "Search capabilities",
+    "unavailable": "Capability discovery is unavailable.",
+    "complete": "No incompleteness was reported.",
+    "noHit": "No capability matched this search. The frontier below records the result.",
+    "frontier": "Search frontier"
+  },
   "compliance": {
     "badgeLabel": "Compliant",
     "badgeAriaLabel": "View compliance status for accessibility and security standards",

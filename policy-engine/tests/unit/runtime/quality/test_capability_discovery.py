@@ -25,6 +25,7 @@ from polisyos.runtime.quality.capability_discovery import (
     CapabilityIndexOwnerReceipt,
     CapabilityProviderSearchResult,
     CapabilityProviderUnavailableError,
+    LexCapabilityDiscoveryProvider,
     LexOwnerReceipt,
     ScientistRegistryOwnerReceipt,
     SourceProfileOwnerReceipt,
@@ -32,8 +33,15 @@ from polisyos.runtime.quality.capability_discovery import (
 )
 from polisyos.runtime.quality.capability_index import (
     CapabilityIndexDiscoveryRow,
+    FreshnessEnvelope,
     LegalNormOwnerTruth,
     ScientistCapabilityOwnerTruth,
+)
+from polisyos.runtime.quality.capability_index_compiler import (
+    CapabilityIndexCompilerConfig,
+    build_capability_discovery_snapshot,
+    compile_capability_index,
+    create_capability_index_fixture_inputs,
 )
 from polisyos.runtime.quality.capability_resolver import CapabilityExecutionResolver
 
@@ -154,6 +162,140 @@ def test_current_scientist_registry_receipt_admits_candidate_discovery_only() ->
     assert item.discovery_result.state == "discoverable"
     assert item.execution_result.state == "not_established"
     assert item.authority_result.state == "bridge_missing"
+
+
+def test_lex_provider_uses_real_legal_owner_snapshot_and_admission_rows(tmp_path) -> None:
+    """A Lex provider must project the real admitted legal index rather than a test row."""
+    capability_index = _fixture_capability_index(tmp_path)
+    expected = next(
+        row
+        for row in build_capability_discovery_snapshot(capability_index)
+        if row.resource_kind == "legal_norm"
+    )
+    provider = LexCapabilityDiscoveryProvider(capability_index=capability_index)
+    request = _request(("legal_norm",)).model_copy(
+        update={
+            "search": _request(("legal_norm",)).search.model_copy(
+                update={
+                    "query_text": expected.label,
+                    "construct_refs": expected.construct_refs,
+                }
+            )
+        }
+    )
+
+    result = provider.search(request)
+    response = _composer(providers=(provider,)).search(
+        request, meta=ApiMeta(request_id="http:lex-owner")
+    )
+
+    assert tuple(row.capability_ref for row in result.rows) == (expected.capability_ref,)
+    assert tuple(candidate.candidate_ref for candidate in result.ledger.candidates) == (
+        expected.capability_ref,
+    )
+    assert result.ledger.rejected_candidates == ()
+    assert result.completeness_status == "complete"
+    assert result.owner_receipt.lex_snapshot_ref == expected.snapshot_ref
+    assert result.owner_receipt.verifier_ref in result.owner_receipt.provenance_refs
+    assert response.results[0].capability_ref == expected.capability_ref
+    assert response.results[0].resource_kind == "legal_norm"
+    assert response.results[0].discovery_result.state == "discoverable"
+    assert response.results[0].authority_result.state == "bridge_missing"
+
+
+def test_lex_provider_records_budget_rejection_and_no_hit_frontier(tmp_path) -> None:
+    """A real owner query records omitted matches instead of hiding the cutoff."""
+    capability_index = _fixture_capability_index(tmp_path)
+    legal_row = next(
+        row
+        for row in build_capability_discovery_snapshot(capability_index)
+        if row.resource_kind == "legal_norm"
+    )
+    request = _request(("legal_norm",)).model_copy(
+        update={
+            "search": _request(("legal_norm",)).search.model_copy(
+                update={
+                    "query_text": legal_row.label,
+                    "construct_refs": legal_row.construct_refs,
+                    "budget": {"top_k": 0},
+                }
+            )
+        }
+    )
+
+    result = LexCapabilityDiscoveryProvider(capability_index=capability_index).search(request)
+
+    assert result.rows == ()
+    assert result.actual_cutoff == 0
+    assert result.completeness_status == "budget_cutoff"
+    assert result.incompleteness_reasons == ("lex_owner_budget_cutoff",)
+    assert result.ledger.no_hit_frontier == ("legal_norm",)
+    assert tuple(candidate.candidate_ref for candidate in result.ledger.rejected_candidates) == (
+        legal_row.capability_ref,
+    )
+    assert result.ledger.rejected_candidates[0].limitation_refs == ("lex_owner_budget_cutoff",)
+
+
+def test_lex_provider_stale_snapshot_stays_a_typed_discovery_negative(tmp_path) -> None:
+    """A stale legal release cannot turn discoverable because its row still matches."""
+    capability_index = _fixture_capability_index(tmp_path)
+    legal = next(
+        capability
+        for capability in capability_index.capabilities
+        if "lex_norm" in capability.modality
+    )
+    stale_legal = legal.model_copy(
+        update={
+            "freshness_envelope": FreshnessEnvelope(
+                freshness_class="stale_legal_release",
+                source_release_ref=legal.freshness_envelope.source_release_ref,
+            )
+        }
+    )
+    stale_index = capability_index.model_copy(
+        update={
+            "capabilities": tuple(
+                stale_legal if capability.capability_id == legal.capability_id else capability
+                for capability in capability_index.capabilities
+            )
+        }
+    )
+    stale_row = next(
+        row
+        for row in build_capability_discovery_snapshot(stale_index)
+        if row.resource_kind == "legal_norm"
+    )
+    request = _request(("legal_norm",)).model_copy(
+        update={
+            "search": _request(("legal_norm",)).search.model_copy(
+                update={
+                    "query_text": stale_row.label,
+                    "construct_refs": stale_row.construct_refs,
+                }
+            )
+        }
+    )
+
+    response = _composer(
+        providers=(LexCapabilityDiscoveryProvider(capability_index=stale_index),)
+    ).search(request, meta=ApiMeta(request_id="http:lex-stale"))
+
+    assert response.results[0].discovery_result.state == "index_stale"
+    assert response.results[0].discovery_result.reason_codes == (
+        "lex_owner_snapshot_stale",
+        "index_snapshot_stale",
+    )
+
+
+def test_lex_provider_malformed_owner_index_is_typed_unavailable() -> None:
+    """Opaque input cannot be recast as an empty legal-index success."""
+    response = _composer(
+        providers=(LexCapabilityDiscoveryProvider(capability_index=object()),)  # type: ignore[arg-type]
+    ).search(_request(("legal_norm",)), meta=ApiMeta(request_id="http:lex-invalid"))
+
+    assert response.results == ()
+    assert response.frontier.completeness_status == "producer_unavailable"
+    assert response.frontier.incompleteness_reasons == ("legal_norm:lex_owner_index_invalid",)
 
 
 def test_provider_mapping_permutation_does_not_change_composed_packet() -> None:
@@ -390,6 +532,21 @@ def _composer(*, providers: tuple[CapabilityDiscoveryProvider, ...]) -> Capabili
         authority_resolver=CapabilityDiscoveryAuthorityResolver(production_approval_resolver=None),
         observed_at=lambda: NOW,
     )
+
+
+def _fixture_capability_index(tmp_path):
+    """Build the real fixture owner index used by Lex-provider tests."""
+    input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
+    result = compile_capability_index(
+        CapabilityIndexCompilerConfig(
+            production_data_root=input_root,
+            output_dir=tmp_path / "capability-index",
+            mode="fixture",
+            generated_at="2026-05-25T00:00:00Z",
+        )
+    )
+    assert result.capability_index is not None
+    return result.capability_index
 
 
 def _request(resource_kinds: tuple[str, ...]) -> CapabilityDiscoveryRequest:

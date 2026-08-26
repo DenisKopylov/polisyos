@@ -181,6 +181,29 @@ def test_capability_release_snapshot_requires_timezone_for_temporal_truth(tmp_pa
         )
 
 
+def test_quarantined_legal_norm_cannot_enter_discovery_owner_snapshot(
+    tmp_path: Path,
+) -> None:
+    input_root = create_capability_index_fixture_inputs(tmp_path / "production_data")
+    lex_path = next(input_root.glob("**/lex_knowledge_graph.duckdb"))
+    with duckdb.connect(str(lex_path)) as con:
+        con.execute("UPDATE lex_normative_facts SET canonical_status = 'quarantined'")
+
+    result = compile_capability_index(
+        CapabilityIndexCompilerConfig(
+            production_data_root=input_root,
+            output_dir=tmp_path / "out",
+            mode="fixture",
+            generated_at="2026-05-25T00:00:00Z",
+        )
+    )
+
+    assert not any(
+        row.resource_kind == "legal_norm"
+        for row in build_capability_discovery_snapshot(result.capability_index)
+    )
+
+
 def test_fixture_compiler_promotes_l1_l7_assets_into_authority_scoped_index(
     tmp_path: Path,
 ) -> None:

@@ -1146,6 +1146,224 @@ export const capabilityManifestSchema = z.object({
   constraints: z.record(z.string(), z.unknown()).default({}),
 });
 
+const capabilityTimeSchema = z
+  .object({
+    freshness: z.enum(["current", "stale", "unknown"]),
+    observed_at: z.string(),
+    valid_from: z.string(),
+    valid_until: z.string().nullable(),
+  })
+  .strict();
+
+const capabilityDiscoveryPostureSchema = z
+  .object({
+    freshness_ref: z.string().nullable().optional(),
+    producer_ref: z.string(),
+    provenance_refs: z.array(z.string()),
+    reason_codes: z.array(z.string()),
+    snapshot_ref: z.string().nullable().optional(),
+    state: z.enum([
+      "discoverable",
+      "no_match",
+      "producer_missing",
+      "producer_unavailable",
+      "index_unavailable",
+      "index_stale",
+      "recall_unmeasured",
+      "budget_cutoff",
+      "incomplete",
+    ]),
+    time: capabilityTimeSchema,
+  })
+  .strict();
+
+const capabilityExecutionPostureSchema = z
+  .object({
+    conformance_ref: z.string().nullable().optional(),
+    operation_ref: z.string().nullable().optional(),
+    policy_ref: z.string().nullable().optional(),
+    producer_ref: z.string(),
+    provenance_refs: z.array(z.string()),
+    reason_codes: z.array(z.string()),
+    state: z.enum([
+      "executable",
+      "not_executable",
+      "operation_missing",
+      "conformance_failed",
+      "policy_disabled",
+      "producer_missing",
+      "execution_blocked",
+      "not_established",
+    ]),
+    time: capabilityTimeSchema,
+  })
+  .strict();
+
+const capabilityAuthorityPostureSchema = z
+  .object({
+    authority_purpose: z.string(),
+    binding_ref: z.string().nullable().optional(),
+    currentness_ref: z.string().nullable().optional(),
+    producer_ref: z.string(),
+    provenance_refs: z.array(z.string()),
+    reason_codes: z.array(z.string()),
+    state: z.enum([
+      "admitted_authority",
+      "candidate_only",
+      "producer_missing",
+      "bridge_missing",
+      "artifact_missing",
+      "invalid_source",
+      "revalidation_required",
+      "authority_blocked",
+      "not_established",
+    ]),
+    time: capabilityTimeSchema,
+  })
+  .strict();
+
+const searchCandidateSchema = z
+  .object({
+    authority_boundary: z.record(z.string(), z.unknown()).optional(),
+    candidate_ref: z.string(),
+    evidence_refs: z.array(z.string()),
+    limitation_refs: z.array(z.string()),
+    match_mode: z.enum([
+      "exact",
+      "alias",
+      "lexical",
+      "semantic",
+      "relational",
+      "derived",
+    ]),
+    may_not_use_for: z.array(z.string()),
+    score: z.number(),
+    source_layer: z.string(),
+  })
+  .strict();
+
+const searchFrontierSchema = z
+  .object({
+    actual_cutoff: z.number().nullable().optional(),
+    candidates: z.array(searchCandidateSchema),
+    completeness_status: z.enum([
+      "complete",
+      "complete_no_match",
+      "recall_unmeasured",
+      "budget_cutoff",
+      "index_stale",
+      "producer_unavailable",
+      "producer_missing",
+    ]),
+    configured_store_path: z.string().nullable().optional(),
+    corpus_kind: z.enum([
+      "canonical",
+      "bounded_surrogate",
+      "temp_store",
+      "fixture",
+    ]),
+    corpus_path: z.string(),
+    corpus_ref: z.string(),
+    corpus_snapshot_hash: z.string(),
+    evaluated_count: z.number(),
+    incompleteness: z.record(z.string(), z.unknown()).optional(),
+    incompleteness_reasons: z.array(z.string()),
+    index_freshness: z.record(z.string(), z.unknown()).optional(),
+    index_version_refs: z.array(z.string()),
+    indexes_used: z.array(z.string()),
+    no_hit_frontier: z.array(z.string()),
+    query_expansion_traces: z.array(z.record(z.string(), z.unknown())),
+    query_plan: z.record(z.string(), z.unknown()).optional(),
+    rejected_candidates: z.array(searchCandidateSchema),
+    replay_command: z.string(),
+    replay_expected_output_hash: z.string(),
+    replay_key: z.string(),
+    request_ref: z.string(),
+    requested_count: z.number(),
+    returned_count: z.number(),
+    schema_version: z.literal("policyos.core.contracts.search.v1"),
+  })
+  .strict();
+
+const capabilityDiscoveryItemSchema = z
+  .object({
+    authoritative_for: z.array(z.string()),
+    authority_purpose: z.string(),
+    authority_result: capabilityAuthorityPostureSchema,
+    capability_ref: z.string(),
+    content_digest: z.string(),
+    description: z.string(),
+    discovery_result: capabilityDiscoveryPostureSchema,
+    execution_result: capabilityExecutionPostureSchema,
+    label: z.string(),
+    may_not_use_for: z.array(z.string()),
+    provenance_refs: z.array(z.string()),
+    resource_kind: z.enum([
+      "method",
+      "dataset",
+      "source",
+      "legal_norm",
+      "case",
+      "agent",
+    ]),
+    rule_version: z.string(),
+    schema_version: z.literal("policyos.capability_discovery.v1"),
+    time: capabilityTimeSchema,
+  })
+  .strict();
+
+const capabilityDiscoveryRequestSchema = z
+  .object({
+    audience: z.enum(["REVIEWER", "EXPERT", "MACHINE"]),
+    resource_kinds: z.array(
+      z.enum(["method", "dataset", "source", "legal_norm", "case", "agent"]),
+    ),
+    search: z
+      .object({
+        allowed_modes: z.array(
+          z.enum([
+            "exact",
+            "alias",
+            "lexical",
+            "semantic",
+            "relational",
+            "derived",
+          ]),
+        ),
+        authority_purpose: z.string(),
+        budget: z.record(z.string(), z.unknown()).optional(),
+        construct_refs: z.array(z.string()),
+        intent: z.string(),
+        query_text: z.string(),
+        request_id: z.string(),
+        required_layers: z.array(z.string()),
+        rule_version: z.string(),
+        schema_version: z.literal("policyos.core.contracts.search.v1"),
+      })
+      .strict(),
+  })
+  .strict();
+
+export type CapabilityDiscoveryPayload =
+  components["schemas"]["CapabilityDiscoveryResponse"];
+
+export const capabilityDiscoveryResponseSchema: z.ZodType<CapabilityDiscoveryPayload> =
+  z
+    .object({
+      audience: z.enum(["REVIEWER", "EXPERT", "MACHINE"]),
+      authority_purpose: z.string(),
+      frontier: searchFrontierSchema,
+      meta: apiMetaSchema,
+      provenance_refs: z.array(z.string()),
+      request: capabilityDiscoveryRequestSchema,
+      request_digest: z.string(),
+      results: z.array(capabilityDiscoveryItemSchema),
+      rule_version: z.string(),
+      schema_version: z.literal("policyos.capability_discovery.v1"),
+      time: capabilityTimeSchema,
+    })
+    .strict();
+
 export const authMeSchema = authMeSchemaInternal;
 
 export const healthSchema = z

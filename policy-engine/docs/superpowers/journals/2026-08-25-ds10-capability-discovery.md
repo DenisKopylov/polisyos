@@ -318,3 +318,108 @@ line-range comparison found no new formatting delta after the one C01 checker
 wrap was repaired. Base/current Ruff diagnostic counts are 13/13 for the checker,
 222/222 for the Atlas test, and 0/0 for G0. Final diff/readback receipts and exact
 uptime pairs are written in the external C01 report after commit.
+
+## 2026-08-26 approved CC15 amendment and C05 restart
+
+The accepted C00–C04 boundary is attached and clean at
+`9d4fbc0506fc0d99884d7c438c6333dc93ec7262`, with 18/50 unique mechanism paths
+and 7 consumed rounds. Product-root `git rev-parse --show-prefix` remains
+`policy-engine/`.
+
+The earlier C05 stop correctly measured the post-G0 bridge-adapter family but
+incorrectly bound that overloaded family name to CC15. The master-plan property
+is UI genericity over the six-kind capability-row federation. Two independent
+kind censuses agree on six kinds; two independent production-class censuses
+agree on zero concrete `CapabilityDiscoveryProvider` implementations at restart.
+The complete owner-index census found `legal_norm` strongest: the real Lex
+database and CapabilityIndex compiler admit a row only after grounding,
+reference resolution, hallucination clearance, jurisdiction, and temporal
+effectiveness are recomputed. `case` remains absent/unallocated; source and
+Scientist registries lack equivalent durable owner snapshots.
+
+CC15 is therefore amended to one generated `legal_norm` owner row, a production
+Lex provider, real index rebuild, real FastAPI route, real hook/panel, exact
+captured MACHINE bytes, DOM parity, and complete test-start dashboard path,
+extension-partition, and byte equality. No response fixture, direct DTO, or test
+provider double can satisfy the witness. The post-G0 rows
+`ds10-adapter-registry-data-only-free-growth` and
+`ds10-adapter-admission-capability-discovery-bridge` retain team-architecture /
+runtime-quality ownership and executable commands but are not CC15 conjuncts.
+
+The amendment consumes round 8 and raises only the round stop ceiling, 12 → 15;
+the hard path ceiling remains 50. CC15 requires one pre-authorized C05 path
+exception: `src/polisyos/runtime/quality/capability_discovery.py`, because the
+complete production census found no existing concrete provider and the rejected
+seam is the test `_Provider`/direct owner DTO. That path was already counted by
+C02, so the slice-wide unique-path denominator does not grow.
+
+### C05 initial RED
+
+Before any C05 production edit, the exact amended witness command completed red
+with exit 4 because its test artifact was absent:
+
+```text
+uv run pytest tests/integration/runtime_frontend/test_capability_discovery_free_growth.py::test_new_legal_norm_owner_row_appears_without_frontend_code_change -q
+```
+
+Receipt: 0.87s against the frozen 300s focused-backend ceiling; uptime
+`09:21 up 1 day, 23:34` before and after. An earlier wrapper attempted to assign
+zsh's read-only `status` variable after observing the same absent test; that
+wrapper is a tooling non-receipt and is not evidence.
+
+### C05 owner-index implementation and GREEN receipts
+
+The selected owner is `legal_norm`. Unlike the other currently available seams,
+its Lex owner database is compiled through grounding, reference resolution,
+hallucination, jurisdiction, and temporal checks into a content-bound
+`CapabilityIndex` snapshot. `LexCapabilityDiscoveryProvider` searches that real
+projection and preserves its selected/rejected rows, cutoff, freshness, replay,
+and typed incompleteness. A later provider-side filter was rejected because it
+would let quarantined owner data enter the owner snapshot before being hidden;
+the compiler now admits only `canonical`/`canonicalized` legal facts. This is a
+narrowing repair and consumes no round.
+
+The exact free-growth test derives scratch Lex tables from the real owner DB
+schema, inserts a generated valid row plus unrelated, quarantined, and malformed
+siblings, runs the real compiler, installs the production provider through the
+runtime's normal override seam, calls a live FastAPI server, and renders the real
+hook and panel. Its generated ID is absent from both source trees. It asserts one
+candidate-grade result, execution only from the independent resolver, authority
+not admitted with the visible `not_established` reason, selected and rejected
+frontier rows, exact captured/downloaded MACHINE bytes, full DOM twin equality,
+and complete test-start dashboard path/extension/byte equality.
+
+The exact amended witness is GREEN: one passed in 26s against the frozen 300s
+ceiling, uptime `09:45 up 1 day, 23:58` -> `09:46 up 1 day, 23:59`. Its original
+artifact-absent RED is recorded above. The provider/compiler focused wave is
+GREEN: 20 passed in 41s against 300s, uptime `09:47 up 2 days, 0 sec` ->
+`09:47 up 2 days, 1 min`. One preceding selector miss named a nonexistent test
+identity and exited 4; it is a tooling non-receipt, not product evidence.
+
+The generic dashboard wave is GREEN: 10 files passed, one environment-gated live
+file skipped, 26 passed/1 skipped in 4s against 30s; uptime
+`09:45 up 1 day, 23:58` before/after. The live file is exercised, not skipped, by
+the Python witness above. An earlier completed dashboard wave failed 2/27 after
+the proof surface began reading producer/time fields from intentionally partial
+hook doubles; the doubles were repaired to the generated contract. A second
+focused failure retained the old authority-state expectation (`not_established`
+instead of state `bridge_missing` plus reason `not_established`) and was corrected
+without changing production semantics. TypeScript compilation, Prettier, Ruff,
+the two generic DS10 strangle identities, and diff whitespace checks are green.
+
+The panel binds both `query_text` and `construct_refs` to the normalized user
+term; retaining the opening construct while editing the query was found to be a
+real all-terms search escape and removed as a free narrowing. It renders request,
+candidate grade, all three posture states/producers/proof refs/provenance/time,
+selected and rejected evidence/limitations, counts, cutoff, indexes, versions,
+freshness, no-hit, completeness, and incompleteness. The DOM twin reconstructs
+the ordered envelope/results/postures/frontier/candidate partitions, and its
+mutations cover omission, reordering, selected-row drift, and authority drift.
+
+C05 has 13 declared dashboard mechanism paths plus two pre-authorized reused
+backend paths: `runtime/quality/capability_discovery.py` for CC15 because no
+concrete production provider existed, and
+`runtime/quality/capability_index_compiler.py` for CC15's quarantined-row sibling
+because a provider filter was the rejected late seam. Those two were already in
+the slice's C02 denominator. The slice-wide unique mechanism count is therefore
+**31/50**; the amendment plus C05's two widenings bring rounds to **10/15**.

@@ -2,6 +2,7 @@ import { useEffect, useMemo } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 
 import { useCapabilities } from "@/api/hooks/useCapabilities";
+import { createCapabilitySearchRequest } from "@/api/hooks/useCapabilitySearch";
 import { useConnectors } from "@/api/hooks/useConnectors";
 import { useDataIndexStats } from "@/api/hooks/useDataIndexStats";
 import { useDataPromotionCandidates } from "@/api/hooks/useDataPromotionCandidates";
@@ -11,6 +12,7 @@ import { PrefetchButton } from "@/app/routes/PrefetchButton";
 import { parseEvidenceSearchParams } from "@/features/evidence/domain/searchParams";
 import { ConnectorCharacterCards } from "@/features/evidence/components/ConnectorCharacterCards";
 import DataIntelligencePanel from "@/features/evidence/components/DataIntelligencePanel";
+import { CapabilityDiscoveryPanel } from "@/features/evidence/components/CapabilityDiscoveryPanel";
 import { FreshnessBraidPanel } from "@/features/evidence/components/FreshnessBraidPanel";
 import {
   EVIDENCE_FOCUSES,
@@ -82,6 +84,14 @@ export default function EvidenceFabric() {
   const requestedFocus = parsedFocus ? parseEvidenceFocus(parsedFocus) : null;
 
   const capabilitiesQuery = useCapabilities();
+  const capabilitySearchRequest = useMemo(
+    () =>
+      createCapabilitySearchRequest(
+        "evidence",
+        "evidence-capability-discovery",
+      ),
+    [],
+  );
   const connectorsQuery = useConnectors();
   const profilesQuery = useSourceProfiles();
   const indexStatsQuery = useDataIndexStats();
@@ -800,6 +810,8 @@ export default function EvidenceFabric() {
           </div>
         </Card>
       ) : null}
+
+      <CapabilityDiscoveryPanel request={capabilitySearchRequest} />
 
       <DataIntelligencePanel
         mode={runId ? "context" : "workspace"}

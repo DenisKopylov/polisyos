@@ -66,7 +66,12 @@ classification = "public_stable"
 facade_mode = "lazy_facade"
 registry_owner = "team-polisyos"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.core"]
+supported_entrypoints = [
+  "polisyos.core",
+  "polisyos.core.contracts",
+  "polisyos.core.security",
+  "polisyos.core.trace",
+]
 major_subsystem = true
 notes = "Cross-layer contracts, CAS, registry, observability, and security primitives."
 

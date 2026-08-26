@@ -4,11 +4,14 @@ import ast
 import tomllib
 from pathlib import Path
 
+import pytest
+
 from tools.quality.validation import check_debt_ledger, check_package_import_gates
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CONCERN_CONTRACT = REPO_ROOT / "architecture" / "policies" / "cross_cutting_concerns.toml"
 PUBLIC_SURFACE_CONTRACT = REPO_ROOT / "architecture" / "public_surface" / "contract.toml"
+PACKAGE_CONTRACT_ROOT = REPO_ROOT / "architecture" / "packages"
 SOURCE_ROOT = REPO_ROOT / "src" / "polisyos"
 DEBT_REGISTER = REPO_ROOT / "docs" / "plans" / "active" / "DEBT-REGISTER.md"
 NAME_REGISTRY = REPO_ROOT / "architecture" / "name_registry.toml"
@@ -32,6 +35,7 @@ REQUIRED_PHASE_1_5_CONCERNS = {
 DEFERRED_PUBLIC_CANONICAL_INTERFACES = {
     "polisyos.core.observability": "core-observability-canonical-interface-contract-drift",
 }
+ACTIVE_DEFERRED_DEBT_STATUSES = frozenset({"open", "open_unmerged", "blocked"})
 
 
 def _load_toml(path: Path) -> dict:
@@ -57,9 +61,25 @@ def _supported_entrypoints() -> set[str]:
     }
 
 
-def _registered_debt_ids() -> set[str]:
+def _primary_supported_entrypoints() -> set[str]:
+    entrypoints: set[str] = set()
+    for path in sorted(PACKAGE_CONTRACT_ROOT.glob("*.toml")):
+        contract = _load_toml(path)
+        package = contract.get("package")
+        if not isinstance(package, dict) or package.get("primary_contract") is not True:
+            continue
+        entrypoints.update(
+            str(entrypoint)
+            for entrypoint in contract.get("public_surface", {}).get(
+                "supported_entrypoints", []
+            )
+        )
+    return entrypoints
+
+
+def _registered_debt_statuses() -> dict[str, str]:
     debts, _ = check_debt_ledger._parse_register(DEBT_REGISTER.read_text(encoding="utf-8"))
-    return {str(debt.debt_id) for debt in debts}
+    return {str(debt.debt_id): str(debt.status) for debt in debts}
 
 
 def _cross_package_deep_imports(interfaces: set[str]) -> list[str]:
@@ -90,11 +110,49 @@ def _cross_package_deep_imports(interfaces: set[str]) -> list[str]:
 def test_phase1_5_public_canonical_interfaces_are_supported_or_registered_deferred() -> None:
     public_interfaces = _public_canonical_interfaces()
     supported_entrypoints = _supported_entrypoints()
+    primary_supported_entrypoints = _primary_supported_entrypoints()
     deferred_interfaces = set(DEFERRED_PUBLIC_CANONICAL_INTERFACES)
+    debt_statuses = _registered_debt_statuses()
+    inactive_debts = {
+        debt_id: debt_statuses.get(debt_id)
+        for debt_id in DEFERRED_PUBLIC_CANONICAL_INTERFACES.values()
+        if debt_statuses.get(debt_id) not in ACTIVE_DEFERRED_DEBT_STATUSES
+    }
 
     assert deferred_interfaces <= public_interfaces
-    assert set(DEFERRED_PUBLIC_CANONICAL_INTERFACES.values()) <= _registered_debt_ids()
+    assert inactive_debts == {}
     assert public_interfaces - supported_entrypoints == deferred_interfaces
+    assert public_interfaces - primary_supported_entrypoints == deferred_interfaces
+
+
+@pytest.mark.parametrize("terminal_status", ["closed", "folded"])
+def test_phase1_5_terminal_debt_cannot_authorize_deferred_interface(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+    terminal_status: str,
+) -> None:
+    register = tmp_path / "DEBT-REGISTER.md"
+    register.write_text(
+        "\n".join(
+            [
+                "## A. Test debts",
+                "",
+                "| id | subject | owner | status | closure signal |",
+                "| --- | --- | --- | --- | --- |",
+                "| `core-observability-canonical-interface-contract-drift` "
+                f"| test | team-observability | `{terminal_status}` | test |",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    monkeypatch.setattr(
+        "tests.repo_quality.architecture.test_last_mile_cross_cutting_concerns.DEBT_REGISTER",
+        register,
+    )
+
+    with pytest.raises(AssertionError):
+        test_phase1_5_public_canonical_interfaces_are_supported_or_registered_deferred()
 
 
 def test_phase1_5_closed_public_canonical_interfaces_use_exact_facades() -> None:

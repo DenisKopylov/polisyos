@@ -34,7 +34,7 @@ classification = "public_stable"
 facade_mode = "lazy_facade"
 registry_owner = "team-polisyos"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.common"]
+supported_entrypoints = ["polisyos.common", "polisyos.common.config"]
 major_subsystem = false
 notes = "Shared helper boundary for config, logging, serialization, and migrations."
 

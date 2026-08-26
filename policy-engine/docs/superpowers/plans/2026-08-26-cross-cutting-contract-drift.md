@@ -4,7 +4,7 @@
 
 **Goal:** Close the `polisyos.core.security`, `polisyos.core.trace`, and `polisyos.common.config` canonical-interface contract drift without publishing deep submodules, while registering and sizing the deferred `polisyos.core.observability` member of the same class.
 
-**Architecture:** Reconcile the ratified cross-cutting-concern decisions with the exhaustive public-surface manifest, then route cross-package consumers through the canonical root facades. Preserve one explicit, registered observability residual this round. Treat the SLSA models as a coherent nested schema: expose only the aggregate `InTotoStatement` at the root and construct it from validated nested data, rather than flattening eight generic component types or publishing a submodule.
+**Architecture:** Reconcile the ratified cross-cutting-concern decisions with the primary package contracts and their exhaustive public-surface aggregate mirror, then route cross-package consumers through the canonical root facades. Preserve one explicit, registered observability residual this round. Treat the SLSA models as a coherent nested schema: expose only the aggregate `InTotoStatement` at the root and construct it from validated nested data, rather than flattening eight generic component types or publishing a submodule.
 
 **Tech Stack:** Python 3.14, `ast`, TOML, lazy package facades, Pydantic v2, pytest, Ruff, PolicyOS architecture guardrails.
 
@@ -25,9 +25,11 @@
 
 - `P31` / `P40`: security is one member of a four-interface class. Close three members through one contract/import invariant and register the bounded observability residual rather than patching only security.
 - `P03` / `P06`: the canonical homes exist, but the exhaustive surface manifest and consumers do not expose/use them consistently. Record only the ratified facades, never their implementation submodules.
+- `P04` / `P09`: a registered observability deferral is valid only while its debt status is actively `open`, `open_unmerged`, or `blocked`; `closed` and `folded` cannot authorize a missing supported entrypoint.
 - `P29` / `P38`: tests parse the live TOML and full source AST. They do not grep marker strings or equate a generic guardrail exit with this cross-contract property.
 - `P35`: the complete tracked denominator at `238ea72fe` is `policy-engine/src/` with 2,789 blobs, including 2,579 `.py` files. Two independent AST visitors agree on all 408 imported-name rows (`sha256:cacfb1fd5abc9bac02464bdd940559d4c5f4a0182ce73abef8be2425ddc224be`).
 - `P35` finding: the inherited security ratio `64/83` mixes denominators. The 45 deep statements contain 86 imported-name occurrences (`64` facade-covered, `22` uncovered) and 53 unique names (`34` covered, `19` uncovered). `80 -> 99` is only the hypothetical flatten-all count, not the selected design.
+- `P35` review correction: observability truthfulness is 12 statements over 10 unique names—11 Foundry plus 1 IR—not an 11-statement whole-family bucket.
 - `P41`: baseline predicates are measured separately at the slice base. The changed source paths are inside all three scanners' source denominators, so post-change parity must be demonstrated by exact count/content comparison, not asserted disjoint.
 - Capability state before work: `contract_only`, `surface_missing`, `bridge_missing`, and `semantic_test_missing`. Acceptance signal: supported facade entries resolve in the generated inventory, all selected cross-package imports are exact-facade imports, targeted consumers pass, the register checker re-renders deterministically, and the three inherited predicates retain their separate standings.
 
@@ -82,8 +84,11 @@
 ### Task 2: Reconcile the public manifest and canonical facades
 
 **Files:**
+- Modify: `architecture/packages/common.toml`
+- Modify: `architecture/packages/core.toml`
 - Modify: `architecture/public_surface/contract.toml`
 - Modify: `src/polisyos/core/security/__init__.py`
+- Modify: `src/polisyos/core/security/db_backend.py`
 
 **Interfaces:**
 - Consumes: the ratified `canonical_interface_plus_package_adapters` decisions.
@@ -91,11 +96,11 @@
 
 - [x] **Step 1: Register only the three approved facades**
 
-  Add `polisyos.common.config` to the `polisyos.common` row and add `polisyos.core.security` plus `polisyos.core.trace` to the `polisyos.core` row. Preserve the file's schema and surgical formatting.
+  Add `polisyos.common.config` to the `polisyos.common` primary contract and aggregate row. Add `polisyos.core.security` plus `polisyos.core.trace` to the `polisyos.core` primary contract and aggregate row, retaining the pre-existing `polisyos.core.contracts` entry. Preserve each file's schema and surgical formatting.
 
 - [x] **Step 2: Extend the lazy security facade**
 
-  Add all ten mappings above to `_EXPORTS`, their `TYPE_CHECKING` imports, and `__all__`. Keep `_EXPORTS` and `__all__` equal; do not expose `_validate_tenant_id` or the other eight SLSA component models.
+  Add all ten mappings above to `_EXPORTS`, their `TYPE_CHECKING` imports, and `__all__`. Keep `_EXPORTS` and `__all__` equal; do not expose `_validate_tenant_id` or the other eight SLSA component models. Give newly public `validate_tenant_id` a Google-style defining docstring.
 
 - [x] **Step 3: Run the security facade tests**
 
@@ -147,7 +152,7 @@
 
   Run `uv run polisyos-tools architecture guardrails sync`. Accept only the measured 3,631 -> 3,579 deep-import baseline shrink: 52 removed entries and zero additions.
 
-- [ ] **Step 2: Run inventory checks**
+- [x] **Step 2: Run inventory checks**
 
   Run the supported-entrypoint inventory nodes and `uv run polisyos-tools architecture guardrails check`. Corrupt-field drift is covered by the existing public-inventory falsifier test.
 
@@ -169,7 +174,7 @@
 
 - [x] **Step 2: Execute every closure signal before recording it**
 
-  Run each named pytest selector with nonzero collection, then its body. Run the observability AST predicate and record its current nonzero result as the open-state receipt rather than claiming closure.
+  Run each named pytest selector with nonzero collection, then its body. Record the two independent full-tree AST derivations of observability's current 185 deep statements as the open-state receipt; while the debt is actively deferred, the exact-facade selector deliberately excludes observability and serves as the executable future closure signal.
 
 - [x] **Step 3: Recompute denominator pins and regenerate**
 
@@ -184,14 +189,14 @@
 - Consumes: integrated branch state.
 - Produces: fresh command/exit/count receipts and an independent review.
 
-- [ ] **Step 1: Run Ruff and targeted tests**
+- [x] **Step 1: Run Ruff and targeted tests**
 
   Run `.venv/bin/python -m ruff check` over changed Python files and the targeted pytest nodes only. No full pytest.
 
-- [ ] **Step 2: Re-run the three predicates separately**
+- [x] **Step 2: Re-run the three predicates separately**
 
   Measure uptime before/after and `/usr/bin/time -p` user/sys for: plain import linter (expected exit 1 / 88), release guardrail (expected exit 0 / zero creep), and fail-closed package-import gate (expected exit 1 / 143 findings). Any movement is a finding.
 
-- [ ] **Step 3: Independent review and branch readback**
+- [x] **Step 3: Independent review and branch readback**
 
   Review the complete diff against this plan and the user's exclusions. Confirm attached branch, clean tree, exact commits, and re-read every delivered path from the branch before hand-back.

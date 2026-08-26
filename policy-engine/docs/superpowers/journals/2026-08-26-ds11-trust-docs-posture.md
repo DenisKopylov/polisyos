@@ -532,3 +532,38 @@ provenance remained valid while its self-supplied subject was relabeled to
 - Repair path audit is append-only within seven already-owned C03
   mechanism/test paths plus this journal and the ignored report. Production
   mechanism accounting remains exactly `18/34`; widening remains `7/9`.
+
+### C03 review repair round 2 — null presentation and Gregorian dates
+
+- P40 bucket: both residuals are the second finding in their existing class.
+  The repair therefore widens each shared mechanism to the full property: one
+  explicit neutral null-interface label covers every nullable DOM field, and
+  one Gregorian predicate covers every root-reachable date schema. This adds
+  no Atlas widening round or mechanism path.
+- RED against `cc1ab3293`: the two focused files reported 4 intended failures
+  (null presentation relabel plus non-leap February 29, February 30, and month
+  13 with rebound payload digests), with 13 other tests passing. `real 15.96`,
+  `user 24.52`, `sys 0.90`; uptime `01:32 -> 01:33`, up 2d15:45 -> 2d15:46.
+- The renderer now presents the locale's canonical `notEstablished` label for
+  every null subject/review/source value. The independent decoder and parity
+  assertion require that label as an explicit interface argument and compare
+  actual displayed text to it before returning null; `data-null` remains only
+  a type marker. Null subject, row review, source symbol, source subject, and
+  source review visible-text mutations all fail parity. No hidden or
+  `data-value` shadow exists.
+- The shared ISO-date schema now validates the proleptic Gregorian calendar:
+  year 1–9999, month/day ranges, and the divisible-by-4/100/400 leap rule.
+  Every one of the 11 root-reachable required/nullable date fields consumes
+  that schema. Rebound-digest impossible dates fail structural admission.
+- The full-DOM denominator assertion is now `register.claims.length`, while
+  retaining the independently known `system_identity` member; future admitted
+  free growth needs no count edit.
+- Final receipts: seven focused files, 61/61 pass, exit `0`, `real 15.16`,
+  `user 38.59`, `sys 3.16`; uptime `01:35 -> 01:36`, up 2d15:48 -> 2d15:49.
+  App typecheck passes (`real 10.14`, `user 17.98`, `sys 0.50`; uptime `01:36`,
+  up 2d15:49 before/after). Dedicated route/a11y passes 3/3 (`real 2.78`,
+  `user 5.47`, `sys 0.79`). Exact visual list remains one test in one file
+  (`real 0.69`, `user 0.70`, `sys 0.07`).
+- Complete path comparison is exactly five already-owned C03 mechanism/test
+  paths plus this journal and ignored report. Totals remain `18/34` mechanisms
+  and `7/9` widening rounds.

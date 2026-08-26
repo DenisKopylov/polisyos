@@ -62,9 +62,10 @@ describe("trust posture MACHINE and DOM twins", () => {
         register,
       }),
     );
+    const labels = { nullValue: "Not established" } as const;
 
-    const decoded = twin.decodeTrustPostureDom(view.container);
-    expect(decoded).toHaveLength(342);
+    const decoded = twin.decodeTrustPostureDom(view.container, labels);
+    expect(decoded).toHaveLength(register.claims.length);
     expect(decoded).toContainEqual(
       expect.objectContaining({
         claimId:
@@ -72,11 +73,11 @@ describe("trust posture MACHINE and DOM twins", () => {
         subject: "system_identity",
       }),
     );
-    expect(twin.decodeTrustPostureDom(view.container)).toEqual(
+    expect(twin.decodeTrustPostureDom(view.container, labels)).toEqual(
       twin.expectedTrustPostureTwin(register),
     );
     expect(() =>
-      twin.assertTrustPostureDomParity(view.container, register),
+      twin.assertTrustPostureDomParity(view.container, register, labels),
     ).not.toThrow();
 
     const mutations: Array<(root: HTMLElement) => void> = [
@@ -101,6 +102,12 @@ describe("trust posture MACHINE and DOM twins", () => {
         if (subject) subject.textContent = "visible-subject-forgery";
       },
       (root) => {
+        const subject = root.querySelector(
+          '[data-trust-subject][data-null="true"]',
+        );
+        if (subject) subject.textContent = "visible-null-subject-forgery";
+      },
+      (root) => {
         const claimId = root.querySelector("[data-trust-claim-id]");
         if (claimId) claimId.textContent = "claim-posture:visible-forgery";
       },
@@ -115,8 +122,32 @@ describe("trust posture MACHINE and DOM twins", () => {
         if (symbol) symbol.textContent = "visible-symbol-forgery";
       },
       (root) => {
+        const symbol = root.querySelector(
+          '[data-trust-source-symbol][data-null="true"]',
+        );
+        if (symbol) symbol.textContent = "visible-null-symbol-forgery";
+      },
+      (root) => {
         const review = root.querySelector(
           '[data-trust-review-on][data-null="false"]',
+        );
+        if (review) review.textContent = "2099-12-31";
+      },
+      (root) => {
+        const review = root.querySelector(
+          '[data-trust-review-on][data-null="true"]',
+        );
+        if (review) review.textContent = "2099-12-31";
+      },
+      (root) => {
+        const subject = root.querySelector(
+          '[data-trust-source-subject][data-null="true"]',
+        );
+        if (subject) subject.textContent = "visible-null-source-forgery";
+      },
+      (root) => {
+        const review = root.querySelector(
+          '[data-trust-source-review-on][data-null="true"]',
         );
         if (review) review.textContent = "2099-12-31";
       },
@@ -145,9 +176,9 @@ describe("trust posture MACHINE and DOM twins", () => {
     for (const mutate of mutations) {
       const root = view.container.cloneNode(true) as HTMLElement;
       mutate(root);
-      expect(() => twin.assertTrustPostureDomParity(root, register)).toThrow(
-        /DS11-DOM-PARITY-DRIFT/,
-      );
+      expect(() =>
+        twin.assertTrustPostureDomParity(root, register, labels),
+      ).toThrow(/DS11-DOM-PARITY-DRIFT/);
     }
   }, 30_000);
 });

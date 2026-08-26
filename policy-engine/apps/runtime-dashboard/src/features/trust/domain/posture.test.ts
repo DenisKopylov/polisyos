@@ -15,6 +15,7 @@ const artifactValue = JSON.parse(artifactBytes.toString("utf8")) as Record<
 type MutableArtifact = Record<string, unknown> & {
   admitted_sources: Array<{ path: string; content_digest: string }>;
   source_set_digest: string;
+  identity_boundary: { last_reviewed: string };
   claims: Array<{
     claim_id: string;
     subject: string | null;
@@ -288,6 +289,21 @@ describe("trust posture artifact admission", () => {
     ).toBe("unavailable");
     vi.unstubAllGlobals();
   });
+
+  it.each([
+    ["non-leap February 29", "2026-02-29"],
+    ["February 30", "2028-02-30"],
+    ["month 13", "2026-13-01"],
+  ])(
+    "rejects rebound-digest impossible Gregorian date %s",
+    async (_name, date) => {
+      const candidate = structuredClone(artifactValue) as MutableArtifact;
+      candidate.identity_boundary.last_reviewed = date;
+      expect((await loadCandidate(recomputeDigests(candidate))).status).toBe(
+        "unavailable",
+      );
+    },
+  );
 
   it.each([
     ["empty", new Uint8Array(), 200],

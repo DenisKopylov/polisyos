@@ -3,7 +3,6 @@ import { useMemo } from "react";
 import type {
   ClaimPostureAudience,
   ClaimPostureRegister as ClaimPostureRegisterArtifact,
-  ClaimPostureRow,
 } from "../domain/posture";
 import { useOptionalI18n } from "@/shared/i18n/LocaleProvider";
 
@@ -14,11 +13,6 @@ type ClaimPostureRegisterProps = Readonly<{
 
 function nullableMarker(value: string | null) {
   return { "data-null": value === null ? "true" : "false" };
-}
-
-function sourceLabel(row: ClaimPostureRow): string {
-  const coordinate = row.source_bindings[0]?.coordinate;
-  return coordinate ? `${coordinate.path}:${coordinate.line}` : row.claim_id;
 }
 
 /** Render artifact-owned posture rows without enumerating claim subjects. */
@@ -85,7 +79,7 @@ export function ClaimPostureRegister({
                     data-trust-subject
                     {...nullableMarker(row.subject)}
                   >
-                    {row.subject ?? sourceLabel(row)}
+                    {row.subject ?? t("trust.notEstablished")}
                   </h3>
                 </div>
                 <span

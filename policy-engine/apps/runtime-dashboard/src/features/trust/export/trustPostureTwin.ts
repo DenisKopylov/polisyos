@@ -30,6 +30,10 @@ type TrustPostureTwinRow = Readonly<{
 
 export type TrustPostureTwin = readonly TrustPostureTwinRow[];
 
+export type TrustPostureDomLabels = Readonly<{
+  nullValue: string;
+}>;
+
 /** Derive the expected ordered PUBLIC projection directly from the artifact. */
 export function expectedTrustPostureTwin(
   register: ClaimPostureRegister,
@@ -103,6 +107,7 @@ function createVisibleText(): VisibleText {
 function nullableValue(
   element: HTMLElement,
   visibleText: VisibleText,
+  labels: TrustPostureDomLabels,
 ): NullableText {
   const isNull = element.dataset.null;
   if (isNull !== "true" && isNull !== "false") {
@@ -111,7 +116,15 @@ function nullableValue(
     );
   }
   const value = visibleText(element);
-  return isNull === "true" ? null : value;
+  if (isNull === "true") {
+    if (value !== labels.nullValue) {
+      throw new TypeError(
+        "DS11-DOM-PARITY-DRIFT: null presentation differs from its interface label",
+      );
+    }
+    return null;
+  }
+  return value;
 }
 
 function requiredInteger(
@@ -129,12 +142,14 @@ function requiredInteger(
 function decodeTrustPostureRow(
   row: HTMLElement,
   visibleText: VisibleText,
+  labels: TrustPostureDomLabels,
 ): TrustPostureTwinRow {
   return {
     claimId: visibleText(requiredElement(row, "[data-trust-claim-id]")),
     subject: nullableValue(
       requiredElement(row, "[data-trust-subject]"),
       visibleText,
+      labels,
     ),
     effectiveState: visibleText(
       requiredElement(row, "[data-trust-effective-state]"),
@@ -148,14 +163,17 @@ function decodeTrustPostureRow(
     reviewOn: nullableValue(
       requiredElement(row, "[data-trust-review-on]"),
       visibleText,
+      labels,
     ),
     reviewDue: nullableValue(
       requiredElement(row, "[data-trust-review-due]"),
       visibleText,
+      labels,
     ),
     sourceAsOf: nullableValue(
       requiredElement(row, "[data-trust-source-as-of]"),
       visibleText,
+      labels,
     ),
     sources: [...row.querySelectorAll<HTMLElement>("[data-trust-source]")].map(
       (source) => ({
@@ -163,6 +181,7 @@ function decodeTrustPostureRow(
         symbol: nullableValue(
           requiredElement(source, "[data-trust-source-symbol]"),
           visibleText,
+          labels,
         ),
         line: requiredInteger(source, "[data-trust-source-line]", visibleText),
         column: requiredInteger(
@@ -185,14 +204,17 @@ function decodeTrustPostureRow(
         subject: nullableValue(
           requiredElement(source, "[data-trust-source-subject]"),
           visibleText,
+          labels,
         ),
         reviewOn: nullableValue(
           requiredElement(source, "[data-trust-source-review-on]"),
           visibleText,
+          labels,
         ),
         reviewDue: nullableValue(
           requiredElement(source, "[data-trust-source-review-due]"),
           visibleText,
+          labels,
         ),
       }),
     ),
@@ -200,10 +222,13 @@ function decodeTrustPostureRow(
 }
 
 /** Independently decode the ordered PUBLIC claim projection from visible DOM. */
-export function decodeTrustPostureDom(root: ParentNode): TrustPostureTwin {
+export function decodeTrustPostureDom(
+  root: ParentNode,
+  labels: TrustPostureDomLabels,
+): TrustPostureTwin {
   const visibleText = createVisibleText();
   return [...root.querySelectorAll<HTMLElement>("[data-trust-claim-row]")].map(
-    (row) => decodeTrustPostureRow(row, visibleText),
+    (row) => decodeTrustPostureRow(row, visibleText, labels),
   );
 }
 
@@ -260,6 +285,7 @@ function rowTwinsEqual(
 export function assertTrustPostureDomParity(
   root: ParentNode,
   register: ClaimPostureRegister,
+  labels: TrustPostureDomLabels,
 ): void {
   try {
     const rows = [
@@ -275,7 +301,7 @@ export function assertTrustPostureDomParity(
     for (const [index, row] of rows.entries()) {
       if (
         !rowTwinsEqual(
-          decodeTrustPostureRow(row, visibleText),
+          decodeTrustPostureRow(row, visibleText, labels),
           expected[index]!,
         )
       ) {

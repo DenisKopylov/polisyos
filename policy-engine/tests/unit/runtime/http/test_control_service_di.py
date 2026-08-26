@@ -309,6 +309,9 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
     assert leaf.cycle_run.promotion_port.reason == (
         "epoch_validity_refused:policy_admission_missing"
     )
+    assert len(compiled.open_world_risk_limitations) == 1
+    assert compiled.open_world_risk_limitations[0].status == "not_established"
+    assert compiled.open_world_risk_limitations[0].code == ("deployment_scope_not_established")
 
     subject_kind = "runtime.promotion.pre_n9_epoch_validity_subject"
     subject_ids = tuple(

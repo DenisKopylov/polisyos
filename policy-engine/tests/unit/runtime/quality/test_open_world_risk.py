@@ -1092,6 +1092,7 @@ def test_owner_context_varies_while_problem_and_candidate_bytes_stay_fixed(
         epoch_queries=open_world_module._PersistedNegativeEpochQueryOwner(
             store=runtime.store,
             provenance_ref=alternate_provenance,
+            semantic_epoch_service=runtime.semantic_epoch_service,
         ),
         deployment_queries=open_world_module._PersistedDeploymentQueryOwner(
             store=runtime.store,
@@ -1762,6 +1763,7 @@ def test_authentic_member_context_under_another_aggregate_freezes_n9(tmp_path) -
 
     forged_gate = gate.model_copy(update={"aggregate_context_ref": other})
     forged_batch = PromotionRuntimeBatch(
+        candidate_denominator=first.candidate_denominator,
         contexts=first.contexts,
         gates_by_candidate_id={"candidate_a": forged_gate},
     )

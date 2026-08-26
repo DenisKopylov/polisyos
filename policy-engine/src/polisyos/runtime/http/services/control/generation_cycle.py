@@ -23,6 +23,7 @@ from polisyos.runtime.quality.open_world_risk import (  # noqa: TC001
 from polisyos.runtime.quality.promotion_sequence import CanonicalPromotionReceipt
 from polisyos.runtime.quality.public_export import (
     PublicExportRedactionError,
+    project_pre_n9_open_world_limitations,
     project_promotion_open_world_limitation,
 )
 from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -193,6 +194,17 @@ async def compile_and_run_recursive_generation_cycle(
         cycle_run = leaf.cycle_run
         if cycle_run is None:  # pragma: no cover - enforced by RecursiveCycleNode
             continue
+        if cycle_run.promotion_port.reason == ("epoch_validity_refused:policy_admission_missing"):
+            for limitation in project_pre_n9_open_world_limitations(
+                run=cycle_run,
+                design_problem=problem,
+                resolver=promotion_runtime.resolver,
+            ):
+                vector_key = str(limitation.vector_artifact_ref.artifact_id)
+                if vector_key in seen_vector_refs:
+                    raise PublicExportRedactionError("open_world_projection_duplicate")
+                seen_vector_refs.add(vector_key)
+                limitations.append(limitation)
         for receipt_payload in cycle_run.promotion_port.receipts:
             try:
                 receipt = CanonicalPromotionReceipt.model_validate(receipt_payload)

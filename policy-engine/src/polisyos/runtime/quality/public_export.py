@@ -35,7 +35,10 @@ from polisyos.runtime.quality.generation_cycle import (
 )
 from polisyos.runtime.quality.open_world_risk import (
     OpenWorldRiskArtifactResolver,
+    OpenWorldRiskGenerationProjectionResolver,
+    OpenWorldRiskPromotionGate,
     OpenWorldRiskPublicLimitation,
+    OpenWorldRiskResolutionNonReceipt,
 )
 from polisyos.runtime.quality.projection_semantics import (
     build_policy_design_case_projection_from_runtime_graph,
@@ -206,6 +209,66 @@ def project_promotion_open_world_limitation(
         code=gate.limitation_code,
         vector_artifact_ref=gate.vector_artifact_ref,
     )
+
+
+def project_pre_n9_open_world_limitations(
+    *,
+    run: GenerationCycleRun,
+    design_problem: DesignProblem,
+    resolver: OpenWorldRiskGenerationProjectionResolver,
+) -> tuple[OpenWorldRiskPublicLimitation, ...]:
+    """Replay negative pre-N9 OWR evidence without fabricating a promotion receipt."""
+
+    run_issues = validate_generation_cycle_run(run)
+    if run_issues:
+        raise PublicExportRedactionError(
+            str(run_issues[0].get("code") or "generation_cycle_run_invalid")
+        )
+    if run.design_problem_ref != gy_content_hash(design_problem.model_dump(mode="json")):
+        raise PublicExportRedactionError("open_world_vector_query_mismatch")
+    port = run.promotion_port
+    if (
+        port.status != "not_promoted"
+        or port.reason != "epoch_validity_refused:policy_admission_missing"
+        or port.receipts
+        or port.certified_candidate_ids
+    ):
+        raise PublicExportRedactionError("open_world_projection_not_established")
+    observations = port.pre_n9_open_world_gates
+    if not observations:
+        raise PublicExportRedactionError("open_world_projection_not_established")
+    if len(observations) != len(run.candidate_summaries) or tuple(
+        row.ordinal for row in observations
+    ) != tuple(range(len(run.candidate_summaries))):
+        raise PublicExportRedactionError("open_world_vector_query_mismatch")
+    limitations: list[OpenWorldRiskPublicLimitation] = []
+    for observation in observations:
+        try:
+            gate = OpenWorldRiskPromotionGate.model_validate(observation.gate_payload)
+        except ValueError as exc:
+            raise PublicExportRedactionError(
+                "open_world_projection_not_established",
+                str(exc),
+            ) from exc
+        verified = resolver.resolve_verified_for_generation(
+            gate=gate,
+            expected_problem=design_problem,
+            expected_summaries=run.candidate_summaries,
+            expected_ordinal=observation.ordinal,
+        )
+        if isinstance(verified, OpenWorldRiskResolutionNonReceipt):
+            raise PublicExportRedactionError(verified.code)
+        vector = verified.vector
+        if vector.status == "established":
+            continue
+        limitations.append(
+            OpenWorldRiskPublicLimitation(
+                status=vector.status,
+                code=vector.limitation_code,
+                vector_artifact_ref=verified.vector_artifact_ref,
+            )
+        )
+    return tuple(limitations)
 
 
 def build_public_export_bundle(
@@ -2210,5 +2273,6 @@ __all__ = [
     "PublicExportRedactionError",
     "assert_public_export_official_use_limits",
     "build_public_export_bundle",
+    "project_pre_n9_open_world_limitations",
     "project_promotion_open_world_limitation",
 ]

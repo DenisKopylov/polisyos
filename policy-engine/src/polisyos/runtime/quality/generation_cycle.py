@@ -560,6 +560,13 @@ class ValuePortObservation(_StrictModel):
         return self
 
 
+class PreN9OpenWorldRiskGateObservation(_StrictModel):
+    """Transport-only replay input captured before an epoch refusal reaches N9."""
+
+    ordinal: int = Field(ge=0)
+    gate_payload: dict[str, Any] = Field(min_length=1)
+
+
 class PromotionPortObservation(_StrictModel):
     """N9 promotion-port observation; N6 does not promote."""
 
@@ -568,6 +575,26 @@ class PromotionPortObservation(_StrictModel):
     reason: str = "N9 promotion gate is not present; N6 emits no certification."
     receipts: tuple[dict[str, Any], ...] = ()
     strangle_receipt: dict[str, Any] | None = None
+    pre_n9_open_world_gates: tuple[PreN9OpenWorldRiskGateObservation, ...] = Field(
+        default=(),
+        exclude_if=lambda rows: not rows,
+    )
+
+    @model_validator(mode="after")
+    def _pre_n9_gate_observations_are_negative_only(self) -> PromotionPortObservation:
+        if not self.pre_n9_open_world_gates:
+            return self
+        if (
+            self.status != "not_promoted"
+            or self.reason != "epoch_validity_refused:policy_admission_missing"
+            or self.receipts
+            or self.certified_candidate_ids
+        ):
+            raise ValueError("pre_n9_open_world_gate_observation_not_negative_only")
+        ordinals = tuple(row.ordinal for row in self.pre_n9_open_world_gates)
+        if ordinals != tuple(range(len(ordinals))):
+            raise ValueError("pre_n9_open_world_gate_observation_ordinal_mismatch")
+        return self
 
 
 class CandidateFront(_StrictModel):
@@ -2239,9 +2266,21 @@ class GenerationCycleController:
             subject = subject_authority.persist_for_n9(bound_member_ref=bound.bound_member_ref)
             gate_result = gate.reconcile_before_n9(subject_ref=subject.subject_ref)
             if isinstance(gate_result, core_contracts.EpochValidityGateNonReceipt):
+                observations: tuple[PreN9OpenWorldRiskGateObservation, ...] = ()
+                if gate_result.code == "policy_admission_missing":
+                    observations = tuple(
+                        PreN9OpenWorldRiskGateObservation(
+                            ordinal=ordinal,
+                            gate_payload=prepared.gates_by_candidate_id[
+                                summary.candidate_id
+                            ].model_dump(mode="json"),
+                        )
+                        for ordinal, summary in enumerate(summaries)
+                    )
                 return PromotionPortObservation(
                     status="not_promoted",
                     reason=f"epoch_validity_refused:{gate_result.code}",
+                    pre_n9_open_world_gates=observations,
                 )
             occurrence = runtime.context_repository.resolve_occurrence(
                 occurrence_ref=bound.statement.candidate_occurrence_ref
@@ -3065,6 +3104,12 @@ def validate_generation_cycle_run(
         and not run.promotion_port.certified_candidate_ids
     ):
         issues.append({"code": "fabricated_promotion_without_n9"})
+    observations = run.promotion_port.pre_n9_open_world_gates
+    if observations and (
+        len(observations) != len(run.candidate_summaries)
+        or tuple(row.ordinal for row in observations) != tuple(range(len(run.candidate_summaries)))
+    ):
+        issues.append({"code": "pre_n9_open_world_gate_denominator_mismatch"})
     return tuple(issues)
 
 
@@ -5589,6 +5634,7 @@ __all__ = [
     "PendingN8ValuePort",
     "PendingN9PromotionPort",
     "PolicyGroundingPort",
+    "PreN9OpenWorldRiskGateObservation",
     "PromotionPortObservation",
     "RealValueOwnerGateway",
     "SimulationPortObservation",

@@ -7,6 +7,7 @@ from pathlib import Path
 import pytest
 
 from polisyos.core.artifacts import FileSystemCAS
+from polisyos.runtime.quality import public_export as public_export_module
 from polisyos.runtime.quality.case_lifecycle import build_lifecycle_reissue_report
 from polisyos.runtime.quality.design_problem import (
     AuthorityProfile,
@@ -28,7 +29,6 @@ from polisyos.runtime.quality.public_export import (
     PublicExportRedactionError,
     assert_public_export_official_use_limits,
     build_public_export_bundle,
-    project_promotion_open_world_limitation,
 )
 from polisyos.runtime.quality.rule_evolution import build_rule_evolution_registry
 from tests._helpers.hds_quality import authority_envelope_for, sha
@@ -569,7 +569,6 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
-    from polisyos.runtime.quality.promotion_sequence import CanonicalPromotionReceipt
     from tests.unit.runtime.quality.test_generation_cycle import (
         _budget,
         _CgfGenerationPort,
@@ -591,23 +590,24 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
         budget_state=_budget(),
         max_cycles=1,
     )
-    assert run.promotion_port.receipts
-    receipt = CanonicalPromotionReceipt.model_validate(run.promotion_port.receipts[0])
-
-    limitation = project_promotion_open_world_limitation(
+    assert run.promotion_port.receipts == ()
+    assert run.promotion_port.reason == "epoch_validity_refused:policy_admission_missing"
+    projector = getattr(public_export_module, "project_pre_n9_open_world_limitations", None)
+    assert callable(projector)
+    limitations = projector(
         run=run,
         design_problem=problem,
-        receipt=receipt,
         resolver=runtime.resolver,
-        repo_root=REPO_ROOT,
     )
-    assert limitation is not None
+    assert len(limitations) == 1
+    limitation = limitations[0]
     payload = limitation.model_dump(mode="json")
     assert set(payload) == {"status", "code", "vector_artifact_ref"}
     assert payload["status"] == "not_established"
     assert payload["code"] == "deployment_scope_not_established"
-    assert payload["vector_artifact_ref"] == (
-        receipt.owner_projection.open_world_gate.vector_artifact_ref.model_dump(mode="json")
+    assert (
+        payload["vector_artifact_ref"]
+        == (run.promotion_port.pre_n9_open_world_gates[0].gate_payload["vector_artifact_ref"])
     )
     rendered = json.dumps(payload, sort_keys=True)
     for forbidden in (
@@ -623,17 +623,27 @@ async def test_public_export_carries_scope_limitation_without_numeric_risk(
     ):
         assert forbidden not in rendered
 
-    foreign = receipt.model_copy(update={"candidate_id": "foreign-candidate"})
+    foreign_problem = problem.model_copy(
+        update={"design_problem_id": "public_open_world_problem_foreign"}
+    )
+    foreign_run = await GenerationCycleController(
+        generation_port=_CgfGenerationPort(),
+        promotion_runtime=runtime,
+        repo_root=REPO_ROOT,
+    ).run(
+        foreign_problem,
+        budget_state=_budget(),
+        max_cycles=1,
+    )
+    transplanted = foreign_run.model_copy(update={"promotion_port": run.promotion_port})
     with pytest.raises(
         PublicExportRedactionError,
-        match="promotion_receipt_run_binding_mismatch",
+        match="open_world_vector_query_mismatch",
     ):
-        project_promotion_open_world_limitation(
-            run=run,
-            design_problem=problem,
-            receipt=foreign,
+        projector(
+            run=transplanted,
+            design_problem=foreign_problem,
             resolver=runtime.resolver,
-            repo_root=REPO_ROOT,
         )
 
 

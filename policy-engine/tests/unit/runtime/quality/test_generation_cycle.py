@@ -911,11 +911,26 @@ def test_core_generation_controller_cannot_bypass_epoch_gate(
 
     assert result.status == "not_promoted"
     assert result.reason == "epoch_validity_refused:policy_admission_missing"
+    assert result.receipts == ()
+    assert result.certified_candidate_ids == ()
+    assert len(getattr(result, "pre_n9_open_world_gates", ())) == 1
+    gate_observation = result.pre_n9_open_world_gates[0]
+    assert gate_observation.ordinal == 0
+    assert gate_observation.gate_payload["status"] == "not_established"
+    assert gate_observation.gate_payload["limitation_code"] == ("deployment_scope_not_established")
     # One invocation persists the owner query and a second, independent
     # invocation requalifies it at the pre-N9 gate.  Keeping only the stored
     # failure-code markers therefore makes this falsifier red.
     assert qualify_calls == 2
     assert n9.called is False
+
+
+def test_empty_pre_n9_open_world_observation_does_not_change_existing_wire_shape() -> None:
+    """The new replay carrier must not alter unrelated promotion-port payloads."""
+
+    payload = PromotionPortObservation().model_dump(mode="json")
+
+    assert "pre_n9_open_world_gates" not in payload
 
 
 def test_gate_derives_query_context_from_owner_context_not_controller(

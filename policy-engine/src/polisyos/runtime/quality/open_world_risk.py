@@ -509,6 +509,19 @@ class OpenWorldRiskArtifactResolver(Protocol):
     ) -> VerifiedOpenWorldRiskVector | OpenWorldRiskResolutionNonReceipt: ...
 
 
+class OpenWorldRiskGenerationProjectionResolver(OpenWorldRiskArtifactResolver, Protocol):
+    """Replay one vector against the complete generation that exposed it."""
+
+    def resolve_verified_for_generation(
+        self,
+        *,
+        gate: OpenWorldRiskPromotionGate,
+        expected_problem: DesignProblem,
+        expected_summaries: Sequence[CandidateSummary],
+        expected_ordinal: int,
+    ) -> VerifiedOpenWorldRiskVector | OpenWorldRiskResolutionNonReceipt: ...
+
+
 class OpenWorldRiskVectorArtifactRepository:
     """Concrete independent writer/reader over exact vector and provenance bytes."""
 
@@ -741,6 +754,88 @@ class OpenWorldRiskVectorArtifactRepository:
                 status="not_established", code="open_world_vector_unresolved"
             )
 
+    def resolve_verified_for_generation(
+        self,
+        *,
+        gate: OpenWorldRiskPromotionGate,
+        expected_problem: DesignProblem,
+        expected_summaries: Sequence[CandidateSummary],
+        expected_ordinal: int,
+    ) -> VerifiedOpenWorldRiskVector | OpenWorldRiskResolutionNonReceipt:
+        """Rebind one verified vector to the full owner-held generation denominator."""
+
+        verified = self.resolve_verified(
+            vector_artifact_ref=gate.vector_artifact_ref,
+            expected_raw_cas_hash=gate.raw_cas_hash,
+            expected_semantic_hash=gate.semantic_hash,
+            requested_query_context_ref=gate.requested_query_context_ref,
+            expected_aggregate_context_ref=gate.aggregate_context_ref,
+            expected_bound_member_ref=gate.bound_member_ref,
+            expected_candidate_occurrence_ref=gate.candidate_occurrence_ref,
+            expected_verifier_provenance_ref=gate.verifier_provenance_ref,
+        )
+        if isinstance(verified, OpenWorldRiskResolutionNonReceipt):
+            return verified
+        try:
+            context_verifier = ArtifactPromotionOwnerQueryContextRepository(artifacts=self._store)
+            contexts = ArtifactPromotionOwnerQueryContextRepository(
+                artifacts=self._store,
+                verifier=context_verifier,
+            )
+            aggregate = contexts.resolve_verified(context_ref=gate.aggregate_context_ref)
+            if isinstance(aggregate, PromotionOwnerQueryContextNonReceipt):
+                raise ValueError(aggregate.code)
+            member = contexts.resolve_bound_member(bound_member_ref=gate.bound_member_ref)
+            problem_raw = self._store.get_bytes(
+                aggregate.statement.design_problem_binding_ref.artifact_id
+            )
+            problem = DesignProblem.model_validate(canon.from_canonical_bytes(problem_raw))
+            owner_contexts = aggregate.statement.ordered_candidate_contexts
+            if (
+                problem.model_dump(mode="json") != expected_problem.model_dump(mode="json")
+                or len(owner_contexts) != len(expected_summaries)
+                or expected_ordinal < 0
+                or expected_ordinal >= len(owner_contexts)
+                or member.statement.ordinal != expected_ordinal
+                or gate.aggregate_context_content_hash != aggregate.semantic_hash
+                or gate.bound_member_content_hash != member.bound_member_content_hash
+                or gate.status != verified.vector.status
+                or gate.limitation_code != verified.vector.limitation_code
+            ):
+                raise ValueError("open_world_vector_query_mismatch")
+            for ordinal, (owner_context, summary) in enumerate(
+                zip(owner_contexts, expected_summaries, strict=True)
+            ):
+                occurrence = contexts.resolve_occurrence(
+                    occurrence_ref=owner_context.candidate.occurrence_ref
+                )
+                if (
+                    owner_context.candidate.ordinal != ordinal
+                    or owner_context.candidate.candidate_id != summary.candidate_id
+                    or owner_context.candidate.candidate_content_hash != summary.content_hash
+                    or owner_context.candidate.candidate_summary_content_hash
+                    != promotion_candidate_summary_content_hash(summary)
+                    or occurrence.candidate_summary != summary
+                    or occurrence.candidate_summary_content_hash
+                    != promotion_candidate_summary_content_hash(summary)
+                ):
+                    raise ValueError("open_world_vector_query_mismatch")
+            selected = owner_contexts[expected_ordinal].candidate
+            occurrence = contexts.resolve_occurrence(occurrence_ref=selected.occurrence_ref)
+            if (
+                selected != verified.candidate
+                or gate.candidate_occurrence_ref != selected.occurrence_ref
+                or gate.candidate_occurrence_content_hash
+                != c4_semantic_digest("candidate_occurrence", occurrence)
+            ):
+                raise ValueError("open_world_vector_query_mismatch")
+            return verified
+        except (KeyError, OSError, TypeError, ValueError):
+            return OpenWorldRiskResolutionNonReceipt(
+                status="rejected",
+                code="open_world_vector_query_mismatch",
+            )
+
 
 class BoundProblemDeclaredScopeManifestProvider:
     """Derive comparison slots from exact problem and occurrence bytes."""
@@ -940,13 +1035,13 @@ class OpenWorldRiskPromotionAuthority:
         self,
         *,
         producer: OpenWorldRiskVectorProducer,
-        resolver: OpenWorldRiskArtifactResolver,
+        resolver: OpenWorldRiskGenerationProjectionResolver,
     ) -> None:
         self._producer = producer
         self._resolver = resolver
 
     @property
-    def resolver(self) -> OpenWorldRiskArtifactResolver:
+    def resolver(self) -> OpenWorldRiskGenerationProjectionResolver:
         return self._resolver
 
     def prepare_verified_projection(
@@ -1217,7 +1312,7 @@ class PromotionRuntime:
         )
 
     @property
-    def resolver(self) -> OpenWorldRiskArtifactResolver:
+    def resolver(self) -> OpenWorldRiskGenerationProjectionResolver:
         return self.open_world_authority.resolver
 
     def resolve_verified_epoch_query(
@@ -1363,6 +1458,7 @@ __all__ = [
     "NoDeploymentLifecycleOwner",
     "OpenWorldRiskArtifactResolver",
     "OpenWorldRiskComponent",
+    "OpenWorldRiskGenerationProjectionResolver",
     "OpenWorldRiskProductionNonReceipt",
     "OpenWorldRiskPromotionAuthority",
     "OpenWorldRiskPromotionGate",

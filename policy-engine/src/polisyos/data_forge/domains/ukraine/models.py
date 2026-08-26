@@ -7,13 +7,13 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.contracts import (
     EntityScope,
     IdentificationMode,
     ObservationFamily,
     SourceConfidenceTier,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
 
 
 class StageId(str, Enum):
@@ -283,6 +283,7 @@ def _default_stage_configs() -> dict[str, StageConfig]:
                 "edr_identity_bridge_candidates.parquet",
                 "edr_identity_bridge_resolved.parquet",
                 "edr_identity_bridge_manifest.json",
+                "identity_resolution_cohort_v1.json",
                 "geo_index_runtime.parquet",
                 "slot_family_manifest.json",
                 "runtime_bundle_manifest.json",
@@ -389,19 +390,7 @@ def _default_stage_configs() -> dict[str, StageConfig]:
                 ObservationFamily.DISTRESS_ENFORCEMENT,
             ],
             output_artifacts=[
-                "calibration_run_manifest.json",
-                "family_eligibility_registry.json",
-                "loss_breakdown.json",
-                "holdout_scores.json",
-                "shock_scenario_scores.json",
-                "calibration_leaderboard.json",
-                "transportability_results.json",
-                "strategic_response_metrics.json",
-                "specification_curve_summary.json",
-                "foundry_seed_state_v1.npz",
-                "replay_artifacts.json",
-                "governance_report_v1.json",
-                "lesson_registry_d4.json",
+                "d4_governance_request.json",
             ],
             resource_budget=ResourceBudget(max_workers=16, memory_gib=28.0, time_budget_s=7_200.0),
             notes=[

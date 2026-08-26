@@ -53,6 +53,38 @@ _SURVEY_MICRODATA_CONTRACT_ID = "foundry.microsim.survey_micro_data.v1"
 _SURVIVAL_CONTRACT_ID = "foundry.ml.survival_data.v1"
 _NETWORK_CONTRACT_ID = "foundry.network.data.v1"
 _MULTIPLEX_NETWORK_CONTRACT_ID = "foundry.network.multiplex_data.v1"
+_IDENTITY_RESOLUTION_COHORT_SCHEMA = (
+    "policyos.data_forge.ukraine.identity_resolution_cohort.v1"
+)
+
+
+def _identity_resolution_cohort_rows(
+    frame: pd.DataFrame,
+    *,
+    cohort: str,
+    identity_columns: Sequence[tuple[str, str]],
+) -> list[dict[str, object]]:
+    """Project one producer cohort into unique recomputable identity evidence."""
+
+    resolved_by_identity: dict[str, bool] = {}
+    for raw_column, resolved_column in identity_columns:
+        raw_series = _coerce_string_series(frame, raw_column)
+        resolved_series = _coerce_string_series(frame, resolved_column)
+        for raw_value, resolved_value in zip(raw_series, resolved_series, strict=False):
+            normalized = _normalize_identity_key(raw_value)
+            if not normalized:
+                continue
+            resolved_by_identity[normalized] = bool(
+                resolved_by_identity.get(normalized, False) or str(resolved_value).strip()
+            )
+    return [
+        {
+            "cohort": cohort,
+            "raw_identity": raw_identity,
+            "resolved": resolved,
+        }
+        for raw_identity, resolved in sorted(resolved_by_identity.items())
+    ]
 
 
 def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
@@ -491,6 +523,33 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
             raw_columns=["_buyer_agent_raw_id", "_supplier_agent_raw_id"],
             resolved_columns=["buyer_agent_id", "supplier_agent_id"],
         )
+    )
+    identity_resolution_cohort_path = _write_json(
+        stage_dir / "identity_resolution_cohort_v1.json",
+        {
+            "schema_version": _IDENTITY_RESOLUTION_COHORT_SCHEMA,
+            "rows": [
+                *_identity_resolution_cohort_rows(
+                    spending_linked,
+                    cohort="spending",
+                    identity_columns=(
+                        ("_source_agent_raw_id", "source_agent_id"),
+                        ("_target_agent_raw_id", "target_agent_id"),
+                    ),
+                ),
+                *_identity_resolution_cohort_rows(
+                    prozorro_linked,
+                    cohort="procurement",
+                    identity_columns=(
+                        ("_buyer_agent_raw_id", "buyer_agent_id"),
+                        ("_supplier_agent_raw_id", "supplier_agent_id"),
+                    ),
+                ),
+            ],
+        },
+    )
+    outputs["identity_resolution_cohort_v1.json"] = ArtifactRecord.from_path(
+        identity_resolution_cohort_path
     )
     edr_bridge_manifest["spending_coverage_after"] = spending_coverage
     edr_bridge_manifest["spending_resolved_after"] = spending_resolved

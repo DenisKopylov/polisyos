@@ -22,6 +22,7 @@ from polisyos.data_forge.domains.ukraine.builders import (
     _entity_scope_identity,
     _filter_identity_bridge_inputs,
     _graph_arrays_from_edges,
+    _identity_resolution_cohort_rows,
     _kernel_safe_id,
     _participant_resolution_coverage,
     _period_to_dates,
@@ -123,6 +124,32 @@ def test_participant_resolution_coverage_counts_raw_vs_resolved_identities() -> 
     assert coverage == pytest.approx(2 / 3)
     assert resolved == 2
     assert total == 3
+
+
+def test_identity_resolution_cohort_rows_preserve_the_unique_coverage_denominator() -> None:
+    frame = pd.DataFrame(
+        {
+            "_source_agent_raw_id": ["08252623", "08252623", "34971128"],
+            "_target_agent_raw_id": ["14361575", "14361575", None],
+            "source_agent_id": ["agent::a", "agent::a", None],
+            "target_agent_id": ["agent::b", "agent::b", None],
+        }
+    )
+
+    rows = _identity_resolution_cohort_rows(
+        frame,
+        cohort="spending",
+        identity_columns=(
+            ("_source_agent_raw_id", "source_agent_id"),
+            ("_target_agent_raw_id", "target_agent_id"),
+        ),
+    )
+
+    assert rows == [
+        {"cohort": "spending", "raw_identity": "08252623", "resolved": True},
+        {"cohort": "spending", "raw_identity": "14361575", "resolved": True},
+        {"cohort": "spending", "raw_identity": "34971128", "resolved": False},
+    ]
 
 
 def test_validation_subset_downsamples_large_runtime_frames(
@@ -364,55 +391,20 @@ def test_build_synthetic_multiscale_payload_sanitizes_huge_cell_metrics() -> Non
     assert payload["cells"]["public_service_index"] == [1.0]
 
 
-def test_build_d4_stage_blocks_non_exact_signoff_families(tmp_path) -> None:
+def test_build_d4_stage_emits_only_a_purpose_limited_governance_handoff(tmp_path) -> None:
     config = build_default_pipeline_config(root=tmp_path / "ukraine")
-    d2_dir = config.build_root.calibration_dir / "d2"
-    d2_dir.mkdir(parents=True, exist_ok=True)
-    observation_panel = pd.DataFrame(
-        {
-            "family": ["budget_flows", "procurement_flows"],
-            "period_start": ["2024-01-01", "2024-01-01"],
-            "observed_value": [10.0, 20.0],
-            "trust_weight": [0.9, 0.9],
-            "coverage_estimate": [0.88, 0.89],
-            "measurement_bias_flag": [False, False],
-            "censoring_mask": [False, False],
-            "source_id": ["budget_transactions", "spending_contracts_procurement_proxy"],
-            "identification_mode": ["point_identified", "proxy_identified"],
-            "source_confidence_tier": ["validated", "validated"],
-            "proxy_source_id": [None, "spending_contracts_procurement_proxy"],
-            "regime_id": ["regime_a", "regime_a"],
-            "entity_id": ["agent::1", "agent::2"],
-        }
-    )
-    observation_panel.to_parquet(d2_dir / "observation_panel_monthly.parquet", index=False)
-    (d2_dir / "calibration_splits.json").write_text(
-        json.dumps(
-            {
-                "train_pre_2024": {"start": "2023-01-01", "end": "2023-12-31"},
-                "validation_2024": {"start": "2024-01-01", "end": "2024-12-31"},
-                "test_2025": {"start": "2025-01-01", "end": "2025-12-31"},
-            }
-        ),
-        encoding="utf-8",
-    )
-    config.build_root.manifests_dir.mkdir(parents=True, exist_ok=True)
-    (config.build_root.manifests_dir / "build_run_d0_p0.json").write_text(
-        json.dumps(
-            {
-                "metrics": {
-                    "runtime_cohort_coverage_spending": 0.88,
-                    "runtime_cohort_coverage_procurement": 0.89,
-                }
-            }
-        ),
-        encoding="utf-8",
-    )
-
     result = build_d4_stage(config)
 
-    assert any(finding.code == "families_not_exact_signoff_ready" for finding in result.findings)
-    assert "family_eligibility_registry.json" in result.outputs
+    assert not result.findings
+    assert set(result.outputs) == {"d4_governance_request.json"}
+    request = json.loads(
+        (config.build_root.calibration_dir / "d4" / "d4_governance_request.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert request["authority_purpose"] == "producer_governance_handoff"
+    assert "governance_admissibility" in request["may_not_use_for"]
+    assert "governance_verdict" not in request
 
 
 def test_family_eligibility_registry_respects_signoff_waivers() -> None:

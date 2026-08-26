@@ -209,24 +209,6 @@ source_glob = "src/polisyos/foundry/**/fabric_quality.py"
 import_root = "fabric"
 
 [[exception]]
-id = "E-2026-05-FOUNDRY-CALIBRATION-CONTINUOUS-001"
-owner = "team-foundry"
-reason = "Foundry econometrics advanced methods still reuse Calibration continuous contracts until the calibration facade or method-owned adapter is extracted"
-expires = "2026-07-30"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion"
-source_glob = "src/polisyos/foundry/methods/catalog/econometrics/advanced.py"
-import_module_prefix = "polisyos.calibration.continuous"
-
-[[exception]]
-id = "E-2026-04-IR-SCHEMAS-REFLECTION-001"
-owner = "team-polisyos"
-reason = "IR schema catalog reflects the repo-local ABI registry package used by schema generation"
-expires = "2026-07-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion"
-source_glob = "src/polisyos/ir/schema_catalog.py"
-external_module = "schemas"
-
-[[exception]]
 id = "E-2026-05-IR-ANALYTICS-CORE-DYNAMICS-001"
 owner = "team-polisyos"
 reason = "IR analytics dynamic proof bridges still import Core Foundry/truthfulness contracts until those contracts move behind an IR-safe facade"
@@ -252,12 +234,3 @@ expires = "2026-07-01"
 issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion"
 source_glob = "src/polisyos/ir/passes/core.py"
 import_root = "foundry"
-
-[[exception]]
-id = "E-2026-05-SCIENTIST-RUNTIME-REPLAY-001"
-owner = "team-scientist"
-reason = "Scientist replay backend and verification still reuse Runtime replay contracts until replay ownership is split behind a Scientist-safe facade"
-expires = "2026-07-30"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion"
-source_glob = "src/polisyos/scientist/replay/*"
-import_module_prefix = "polisyos.runtime.replay"

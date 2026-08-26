@@ -1516,6 +1516,19 @@ def test_pdc_exports_s6_posture_and_constraint_store_entry() -> None:
     assert pdc.ConstraintStoreEntry is ConstraintStoreEntry
 
 
+def test_pdc_exports_runtime_consumed_design_search_symbols() -> None:
+    expected = {
+        "Layer2S2DesignSearchInput",
+        "Layer2S6BlindSpotPostureInput",
+        "Layer2S7DelegationPostureInput",
+        "Layer2S8ValuePostureInput",
+        "run_s2_shadow_design_loop",
+    }
+
+    assert expected <= set(pdc.__all__)
+    assert all(getattr(pdc, name) is not None for name in expected)
+
+
 def test_pdc_does_not_import_layer2_blind_spot_firewalls() -> None:
     import inspect
 

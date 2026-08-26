@@ -1954,7 +1954,7 @@ def _s2_forbidden_candidate_callers(source: str) -> list[dict[str, str]]:
             }
         )
     try:
-        from polisyos.pdc._impl.layer2_design_search import (
+        from polisyos.pdc import (
             Layer2S2DesignSearchInput,
             run_s2_shadow_design_loop,
         )

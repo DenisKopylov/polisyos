@@ -3898,11 +3898,90 @@ def _governed_verification_recursive_controller(
             repo_root=owner_root,
             model_id=model_id,
             cycle_substrate_context=cycle_substrate_context,
+            authority_scope="contract_testing",
         )
 
     return RecursiveGenerationCycleController.for_contract_testing(
         cycle_controller_factory=build_leaf_controller,
         repo_root=owner_root,
+    )
+
+
+async def _compile_and_run_verification_recursive_generation_cycle(
+    repo_root: Path,
+    *,
+    raw_request: str,
+    context: Mapping[str, object],
+    model_name: str,
+    compiler_gateway: object,
+    controller: object,
+    span_support_client: object,
+    budget_state: object,
+    recursive_budget: object,
+    cycle_substrate_context: object | None,
+) -> object:
+    """Compile and run the explicit contract-testing lane without entering production HTTP."""
+
+    from polisyos.pdc import gy_content_hash
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        build_design_problem_from_nl_request,
+    )
+    from polisyos.runtime.quality.cycle_substrate import (
+        revalidate_cycle_substrate_context,
+    )
+    from polisyos.runtime.quality.design_axes.coupling_composition import (
+        derive_recursive_design_graph,
+    )
+
+    if getattr(controller, "_authority_scope", None) != "contract_testing":
+        raise UniversalityContractError("verification_recursive_controller_scope_invalid")
+    problem = await build_design_problem_from_nl_request(
+        nl_request=raw_request,
+        context=context,
+        model_name=model_name,
+        gateway_client=compiler_gateway,
+        span_support_client=span_support_client,
+    )
+    if problem.nl_provenance.raw_request != raw_request:
+        raise UniversalityContractError("verification_compiler_raw_request_mismatch")
+    problem_ref = gy_content_hash(problem.model_dump(mode="json"))
+    if cycle_substrate_context is not None:
+        if getattr(cycle_substrate_context, "design_problem_ref", None) != problem_ref:
+            raise UniversalityContractError("verification_cycle_substrate_problem_mismatch")
+        revalidate_cycle_substrate_context(cycle_substrate_context)
+    root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
+    recursive_graph = derive_recursive_design_graph(
+        design_ref=root_ref,
+        module_refs=(),
+        parent_child_edges=(),
+        rule_version_ref="polisyos.runtime.recursive_generation_cycle.v1",
+    )
+    recursive_run = await controller.run(
+        recursive_graph,
+        problems_by_node={root_ref: problem},
+        budget_state=budget_state,
+        recursive_budget=recursive_budget,
+        cycle_substrate_contexts_by_node=(
+            {root_ref: cycle_substrate_context} if cycle_substrate_context is not None else None
+        ),
+    )
+    payload = {
+        "schema_version": COMPILED_RECURSIVE_GENERATION_CYCLE_SCHEMA_VERSION,
+        "design_problem_ref": problem_ref,
+        "design_problem": problem.model_dump(mode="json"),
+        "cycle_substrate_context_ref": (
+            getattr(cycle_substrate_context, "content_hash", None)
+            if cycle_substrate_context is not None
+            else None
+        ),
+        "recursive_run": recursive_run.model_dump(mode="json", exclude={"leaf_nodes"}),
+    }
+    return CompiledRecursiveGenerationCycleRun.model_validate(
+        {**payload, "content_hash": gy_content_hash(payload)}
     )
 
 
@@ -4471,9 +4550,6 @@ async def _capture_domain_run(
 ) -> dict[str, Any]:
     """Run one compiled problem through the production recursive/cycle owners."""
 
-    from polisyos.runtime.http.services.control.generation_cycle import (
-        compile_and_run_recursive_generation_cycle,
-    )
     from polisyos.runtime.quality.recursive_generation_cycle import (
         RecursiveCycleBudget,
     )
@@ -4521,7 +4597,8 @@ async def _capture_domain_run(
             state_root=Path(temp_dir),
             sessions_by_node_ref={},
         )
-        compiled = await compile_and_run_recursive_generation_cycle(
+        compiled = await _compile_and_run_verification_recursive_generation_cycle(
+            repo_root,
             raw_request=str(compiler_recording.get("raw_request") or ""),
             context=_mapping(compiler_recording.get("context")),
             model_name=str(compiler_recording.get("model_id") or ""),
@@ -4538,7 +4615,6 @@ async def _capture_domain_run(
                 max_cycles_per_leaf=1,
             ),
             cycle_substrate_context=context,
-            repo_root=repo_root,
         )
     replay.assert_exhausted()
     span_replay.assert_exhausted()
@@ -4978,7 +5054,6 @@ async def _domain_run_and_normalized_recording(
     from polisyos.pdc import gy_content_hash
     from polisyos.runtime.http.services.control.generation_cycle import (
         CompiledRecursiveGenerationCycleRun,
-        compile_and_run_recursive_generation_cycle,
     )
     from polisyos.runtime.quality.generation_cycle import N4GenerationPort
     from polisyos.runtime.quality.recursive_generation_cycle import (
@@ -5128,7 +5203,8 @@ async def _domain_run_and_normalized_recording(
             state_root=Path(temp_dir),
             sessions_by_node_ref=sessions_by_node_ref,
         )
-        compiled = await compile_and_run_recursive_generation_cycle(
+        compiled = await _compile_and_run_verification_recursive_generation_cycle(
+            repo_root,
             raw_request=str(compiler_recording.get("raw_request") or ""),
             context=_mapping(compiler_recording.get("context")),
             model_name=str(compiler_recording.get("model_id") or ""),
@@ -5145,7 +5221,6 @@ async def _domain_run_and_normalized_recording(
                 max_cycles_per_leaf=1,
             ),
             cycle_substrate_context=context,
-            repo_root=repo_root,
         )
         comparison_proofs = _depth_compiled_receipt_comparison_proofs(
             compiled,

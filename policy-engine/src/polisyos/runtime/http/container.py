@@ -49,6 +49,7 @@ class RuntimeContainerOverrides:
     runtime_mutation_audit: Any | None = None
     runtime_review_opa_guard: Any | None = None
     control_registry_providers: ControlRegistryProviders | None = None
+    decision_validity_service: Any | None = None
 
 
 @dataclass(frozen=True)
@@ -107,6 +108,7 @@ class RuntimeServiceContainer:
     runtime_review_opa_guard: Any
     epoch_anchor_custody_provider: core_contracts.EpochAnchorCustodyProvider
     promotion_runtime: PromotionRuntime
+    decision_validity_service: core_contracts.EpochValidityCompletedBatchEvidenceResolver
     control_registry_providers: ControlRegistryProviders
     control_service: ControlPlaneService | None = None
     lifecycle: RuntimeLifecycleState = field(default_factory=RuntimeLifecycleState)
@@ -143,6 +145,34 @@ class RuntimeServiceContainer:
         control_registry_providers = (
             overrides.control_registry_providers or _resolve_default_control_registry_providers()
         )
+        if overrides.decision_validity_service is not None and not (
+            ControlPlaneService.is_decision_validity_owner(overrides.decision_validity_service)
+        ):
+            raise ValueError("decision_validity_owner_invalid")
+        decision_validity_service = (
+            overrides.decision_validity_service
+            or ControlPlaneService.build_decision_validity_owner(runtime_api_context.store)
+        )
+        if decision_validity_service._store is not runtime_api_context.store:
+            raise ValueError("decision_validity_owner_store_mismatch")
+        if overrides.control_service is None:
+            promotion_runtime = PromotionRuntime(
+                store=runtime_api_context.store,
+                completed_epoch_batches=decision_validity_service,
+            )
+        else:
+            if not isinstance(overrides.control_service, ControlPlaneService):
+                raise ValueError("control_service_owner_invalid")
+            promotion_runtime = overrides.control_service._promotion_runtime
+            if (
+                not isinstance(promotion_runtime, PromotionRuntime)
+                or overrides.control_service._decision_validity_service
+                is not decision_validity_service
+                or promotion_runtime.store is not runtime_api_context.store
+                or promotion_runtime.epoch_n9_evidence_resolver._completed_batches
+                is not decision_validity_service
+            ):
+                raise ValueError("control_service_owner_runtime_mismatch")
         return cls(
             config=config,
             deployment_policy=deployment_policy,
@@ -168,7 +198,8 @@ class RuntimeServiceContainer:
                 overrides.runtime_review_opa_guard or build_runtime_opa_async_guard()
             ),
             epoch_anchor_custody_provider=(build_production_epoch_anchor_custody_provider()),
-            promotion_runtime=PromotionRuntime(store=runtime_api_context.store),
+            promotion_runtime=promotion_runtime,
+            decision_validity_service=decision_validity_service,
             control_registry_providers=control_registry_providers,
             control_service=overrides.control_service,
         )
@@ -191,6 +222,8 @@ class RuntimeServiceContainer:
                     artifact_store=self.runtime_api_context.store,
                     async_artifact_store=self.runtime_api_context.async_store,
                     registry_providers=self.control_registry_providers,
+                    decision_validity_service=self.decision_validity_service,
+                    promotion_runtime=self.promotion_runtime,
                 )
             self._bind_legacy_state(app)
             self.lifecycle.mark("ready")

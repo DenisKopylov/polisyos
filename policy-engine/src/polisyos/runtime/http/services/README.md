@@ -22,6 +22,10 @@ projections. Route handlers should stay thin and delegate behavior here.
 - **Artifact inspection** - renders CAS manifest/content/schema/lineage views with redaction hooks.
 - **Lineage traversal** - builds lineage graphs and completeness summaries.
 - **Control-plane orchestration** - launches or reissues runs and bridges into `scientist`, `fabric`, and `lex`.
+- **Pre-N9 epoch-validity strangle** - after the candidate denominator is frozen, the control
+  service persists an owner-derived subject, reconciles it through the same Decision Validity
+  owner used by direct generation, and passes only sealed positive gate evidence to N9. Missing
+  predicate-policy admission remains the exact typed negative `policy_admission_missing`.
 
 ## Public API
 

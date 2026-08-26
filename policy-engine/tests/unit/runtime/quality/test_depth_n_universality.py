@@ -31,6 +31,7 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 # producer through pytest's already-imported parent process.
 assert_universality_preflight(REPO_ROOT)
 
+from polisyos.core.artifacts.store import FileSystemCAS  # noqa: E402
 from polisyos.pdc import (
     ArtifactRef,
     GyComparisonAdmission,
@@ -66,6 +67,7 @@ from polisyos.runtime.quality.intervention_atom_binding import (
     InterventionAtomBinding,
     intervention_atom_content_hash,
 )  # noqa: E402
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime  # noqa: E402
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
     RecursiveGenerationCycleController,
@@ -181,6 +183,7 @@ def _lane0_cycle_controller_factory(
         simulation_port=_Lane0SimulationPort(),
         value_port=PendingN8ValuePort(),
         promotion_port=_Lane0PromotionPort(),
+        authority_scope="contract_testing",
         repo_root=REPO_ROOT,
     )
 
@@ -581,10 +584,12 @@ def test_gy_g_strangle_receipt_has_no_production_fixture_callers() -> None:
     assert receipt.default_controller.endswith("RecursiveGenerationCycleController")
 
 
-def test_default_recursive_router_carries_selected_model_to_leaf_owner() -> None:
+def test_default_recursive_router_carries_selected_model_to_leaf_owner(tmp_path: Path) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas"))
     controller = build_default_recursive_generation_cycle_controller(
         repo_root=REPO_ROOT,
         model_id="registry-selected-model",
+        promotion_runtime=runtime,
     )
 
     assert controller._leaf_model_id == "registry-selected-model"
@@ -2668,7 +2673,8 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
                 },
             }
 
-    async def _compile(**kwargs: Any) -> _Compiled:
+    async def _compile(*args: Any, **kwargs: Any) -> _Compiled:
+        assert args == (tmp_path,)
         captured.update(kwargs)
         return _Compiled()
 
@@ -2676,12 +2682,9 @@ async def test_domain_capture_separates_compiler_model_from_n4_controller(
         del args, kwargs
         raise AssertionError("no-context capture invoked the Scientist N4 replay")
 
-    generation_cycle_module = import_module(
-        "polisyos.runtime.http.services.control.generation_cycle"
-    )
     monkeypatch.setattr(
-        generation_cycle_module,
-        "compile_and_run_recursive_generation_cycle",
+        validator,
+        "_compile_and_run_verification_recursive_generation_cycle",
         _compile,
     )
     monkeypatch.setattr(validator, "_ReplayGateway", _Replay)
@@ -2812,7 +2815,8 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         del args, kwargs
         return object()
 
-    async def _compile_and_run(**kwargs: Any) -> object:
+    async def _compile_and_run(*args: Any, **kwargs: Any) -> object:
+        assert args == (tmp_path,)
         calls.update(kwargs)
         return live_compiled
 
@@ -2892,8 +2896,8 @@ async def test_domain_recording_rederives_downstream_owners_from_recorded_n4(
         staticmethod(_validate_compiled),
     )
     monkeypatch.setattr(
-        control,
-        "compile_and_run_recursive_generation_cycle",
+        validator,
+        "_compile_and_run_verification_recursive_generation_cycle",
         _compile_and_run,
     )
     monkeypatch.setattr(validator, "_replay_compiler_recording", _replay_compiler)

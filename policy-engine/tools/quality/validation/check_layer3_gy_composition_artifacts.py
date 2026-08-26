@@ -135,19 +135,17 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
     coupling = _run_source_flip(
         repo_root,
         mutation_id="empty_coupling_assumed_independent",
-        source_relative=(
-            "src/polisyos/runtime/quality/design_axes/coupling_composition.py"
-        ),
+        source_relative=("src/polisyos/runtime/quality/design_axes/coupling_composition.py"),
         old_source=(
             "    elif (\n"
-            "        graph.evidence_state == \"absent\"\n"
+            '        graph.evidence_state == "absent"\n'
             "        or graph.module_discovery_ref is None\n"
             "        or not graph.interaction_edges\n"
             "    ):\n"
         ),
         new_source=(
             "    elif (\n"
-            "        graph.evidence_state == \"absent\"\n"
+            '        graph.evidence_state == "absent"\n'
             "        or graph.module_discovery_ref is None\n"
             "    ):\n"
         ),
@@ -161,21 +159,18 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
             ),
             "-q",
         ),
-        expected_red_signal=(
-            "empty_coupling_without_observed_boundary_must_default_entangled"
-        ),
+        expected_red_signal=("empty_coupling_without_observed_boundary_must_default_entangled"),
     )
     n5_owner = _run_source_flip(
         repo_root,
         mutation_id="n5_joint_simulation_owner_bypassed",
         source_relative="src/polisyos/runtime/quality/recursive_generation_cycle.py",
         old_source=(
-            "                joint_simulation = "
-            "self._joint_simulation_controller.run(request)\n"
+            "                joint_simulation = self._joint_simulation_controller.run(request)\n"
         ),
         new_source=(
             "                raise RecursiveGenerationCycleError(\n"
-            "                    \"joint_simulation_owner_bypassed\"\n"
+            '                    "joint_simulation_owner_bypassed"\n'
             "                )\n"
         ),
         command=(
@@ -195,11 +190,11 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
         mutation_id="unsupported_n5_relabelled_joint_simulated",
         source_relative="src/polisyos/runtime/quality/generation_cycle.py",
         old_source=(
-            "        return \"simulation_blocked\", "
+            '        return "simulation_blocked", '
             "tuple(dict.fromkeys(str(item) for item in blockers))\n"
         ),
         new_source=(
-            "        return \"joint_simulated\", "
+            '        return "joint_simulated", '
             "tuple(dict.fromkeys(str(item) for item in blockers))\n"
         ),
         command=(
@@ -223,8 +218,7 @@ def run_source_flip_mutations(repo_root: Path) -> tuple[dict[str, Any], ...]:
             "build_default_recursive_generation_cycle_controller(\n"
         ),
         new_source=(
-            "    resolved_controller = controller or "
-            "RecursiveGenerationCycleController(\n"
+            "    resolved_controller = controller or RecursiveGenerationCycleController(\n"
         ),
         command=(
             python,
@@ -302,9 +296,7 @@ def validate(
                 corrupt = json.loads(json.dumps(committed))
                 corrupt["certificates"][0]["certificate_id"] = "composition-certificate-corrupt"
                 if corrupt != live_payload:
-                    issues.append(
-                        {"code": "layer3_gy_composition_corrupt_field_drift_detected"}
-                    )
+                    issues.append({"code": "layer3_gy_composition_corrupt_field_drift_detected"})
                 else:
                     issues.append({"code": "layer3_gy_composition_corrupt_field_not_detected"})
 
@@ -413,15 +405,11 @@ def build_live_composition_artifacts(repo_root: Path) -> dict[str, dict[str, Any
                 gy_content_hash=gy_content_hash,
             ),
             *_subdesign_verification_records(
-                _synthetic_composition_subdesigns(
-                    artifact_ref_factory=ArtifactRef.from_payload
-                ),
+                _synthetic_composition_subdesigns(artifact_ref_factory=ArtifactRef.from_payload),
                 gy_content_hash=gy_content_hash,
             ),
             *_subdesign_verification_records(
-                _synthetic_empty_meet_subdesigns(
-                    artifact_ref_factory=ArtifactRef.from_payload
-                ),
+                _synthetic_empty_meet_subdesigns(artifact_ref_factory=ArtifactRef.from_payload),
                 gy_content_hash=gy_content_hash,
             ),
         ]
@@ -448,9 +436,7 @@ def build_live_composition_artifacts(repo_root: Path) -> dict[str, dict[str, Any
         "writer_role": "system_verifier",
         "proof_source": "recursive_generation_cycle_recomputed",
         "produced_by": "tools/quality/validation/check_layer3_gy_composition_artifacts.py",
-        "composition_engine_owner": (
-            "polisyos.runtime.quality.design_axes.coupling_composition"
-        ),
+        "composition_engine_owner": ("polisyos.runtime.quality.design_axes.coupling_composition"),
         "certificates": [
             independent_certificate.model_dump(mode="json"),
             feedback_certificate.model_dump(mode="json"),
@@ -544,6 +530,7 @@ def _build_lane0_depth_n_run(
             / "architecture/policy_design_case/layer3_gy_second_domain_smoke_design_problem.json"
         ).read_text(encoding="utf-8")
     )["design_problem"]
+
     class _Lane0GenerationPort:
         async def __call__(
             self,
@@ -626,6 +613,7 @@ def _build_lane0_depth_n_run(
             value_port=PendingN8ValuePort(),
             promotion_port=_Lane0PromotionPort(),
             repo_root=repo_root,
+            authority_scope="contract_testing",
         )
 
     leaf_terminal = SearchTerminalState(
@@ -642,7 +630,12 @@ def _build_lane0_depth_n_run(
     graph = derive_recursive_design_graph(
         design_ref=root,
         module_refs=node_refs[1:],
-        parent_child_edges=((root, unary), (unary, branch), (branch, leaves[0]), (branch, leaves[1])),
+        parent_child_edges=(
+            (root, unary),
+            (unary, branch),
+            (branch, leaves[0]),
+            (branch, leaves[1]),
+        ),
         rule_version_ref="policyos.gy.depth_n.lane0.v1",
     )
     base_problem = DesignProblem.model_validate(problem_payload)
@@ -707,7 +700,7 @@ def _build_lane0_depth_n_run(
                     "interaction_edges": request_edges,
                     "evidence_state": "observed",
                 }
-            )
+            ),
         }
     )
     bound_subdesigns = tuple(
@@ -808,10 +801,7 @@ def _subdesign_verification_record(
                 gy_content_hash=gy_content_hash,
             ),
             "producer_root_refs": [
-                value
-                for root in producer_roots
-                for value in (root.artifact_id, root.uri)
-                if value
+                value for root in producer_roots for value in (root.artifact_id, root.uri) if value
             ],
             "producer_root_content_hashes": [
                 root.content_hash for root in producer_roots if root.content_hash
@@ -990,9 +980,7 @@ def _synthetic_authority(
         evidence_kind="measurement",
         decision_grade="decision_admissible",
         evidence_basis=EvidenceBasis(
-            producer_roots=[
-                _synthetic_artifact_ref(f"root-{boundary_id}", artifact_ref_factory)
-            ],
+            producer_roots=[_synthetic_artifact_ref(f"root-{boundary_id}", artifact_ref_factory)],
             method_refs=["measurement.root"],
             calibration_refs=["calibration://test"],
             counterexamples_closed=["counterexample://closed"],
@@ -1029,10 +1017,12 @@ def _search_exit_binding_hash(value: object, *, gy_content_hash: Any) -> str:
     binding_payload = {
         "exit_id": str(payload.get("exit_id") or ""),
         "workspace_id": str(payload.get("workspace_id") or ""),
-        "terminal_state": payload.get("terminal_state") if isinstance(
+        "terminal_state": payload.get("terminal_state")
+        if isinstance(
             payload.get("terminal_state"),
             dict,
-        ) else {},
+        )
+        else {},
         "authority_boundary_content_hash": _stable_content_hash(
             authority_payload,
             gy_content_hash=gy_content_hash,
@@ -1144,12 +1134,8 @@ def _p14_verification_record(
                     version="v1",
                 ).content_hash,
             ],
-            "evidence_line_content_hashes": [
-                gy_content_hash(line) for line in evidence_lines
-            ],
-            "lineage_content_hashes": [
-                gy_content_hash(lineage) for lineage in lineage_records
-            ],
+            "evidence_line_content_hashes": [gy_content_hash(line) for line in evidence_lines],
+            "lineage_content_hashes": [gy_content_hash(lineage) for lineage in lineage_records],
             "raw_evidence_line_count": raw_count,
             "effective_independent_evidence_count": effective_count,
         },
@@ -1242,8 +1228,7 @@ def _normalise_generated_at(value: Any, *, in_planner_report: bool) -> None:
         for key, child in value.items():
             _normalise_generated_at(
                 child,
-                in_planner_report=current_is_planner_report
-                or key == "canonical_planner_report",
+                in_planner_report=current_is_planner_report or key == "canonical_planner_report",
             )
     elif isinstance(value, list):
         for child in value:
@@ -1278,9 +1263,7 @@ def _validate_certificate_payload(
         issues.append({"code": "layer3_gy_composition_receipts_missing", "path": path})
     else:
         receipt_refs = {
-            str(item.get("receipt_ref") or "")
-            for item in receipts
-            if isinstance(item, dict)
+            str(item.get("receipt_ref") or "") for item in receipts if isinstance(item, dict)
         }
         for item in certificates:
             if not isinstance(item, dict) or item.get("verdict") != "composable":
@@ -1411,7 +1394,9 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--repo-root", default=".")
     parser.add_argument("--output-format", choices=("json", "text"), default="text")
     parser.add_argument("--check", action="store_true", help="Validate committed artifacts.")
-    parser.add_argument("--write", action="store_true", help="Regenerate committed proof artifacts.")
+    parser.add_argument(
+        "--write", action="store_true", help="Regenerate committed proof artifacts."
+    )
     parser.add_argument(
         "--corrupt-field-drift-check",
         action="store_true",

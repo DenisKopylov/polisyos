@@ -28,6 +28,7 @@ from typing import TYPE_CHECKING, Any, Literal, Protocol, get_args
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.core import contracts as core_contracts
 from polisyos.core.contracts.value_outer_set import (
     DataTrust,
     ValueOuterSet,
@@ -862,7 +863,7 @@ class PromotionPort(Protocol):
     def __call__(
         self,
         *,
-        summaries: Sequence[CandidateSummary],
+        admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch,
         problem: DesignProblem,
     ) -> PromotionPortObservation:
         """Return N9 certification state for candidates."""
@@ -1866,12 +1867,12 @@ class PendingN9PromotionPort:
     def __call__(
         self,
         *,
-        summaries: Sequence[CandidateSummary],
+        admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch,
         problem: DesignProblem,
     ) -> PromotionPortObservation:
         """Return no certifications because N6 does not promote."""
 
-        del summaries, problem
+        del admitted_batch, problem
         return PromotionPortObservation()
 
 
@@ -1975,6 +1976,9 @@ class GenerationCycleController:
         simulation_port: SimulationPort | None = None,
         value_port: ValuePort | None = None,
         promotion_port: PromotionPort | None = None,
+        epoch_subject_authority: core_contracts.EpochValidityPreN9SubjectAuthority | None = None,
+        epoch_validity_gate: core_contracts.EpochValidityAuthorityGate | None = None,
+        epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
         revision_policy: RevisionPolicy | None = None,
         voi_scheduler: SimpleVOIScheduler | None = None,
         acquisition_owner_gateway: object | None = None,
@@ -1982,6 +1986,7 @@ class GenerationCycleController:
         model_id: str | None = None,
         cycle_substrate_context: CycleSubstrateContext | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        authority_scope: Literal["production", "contract_testing"] = "production",
         generated_at: datetime | None = None,
         high_proxy_threshold: float = 0.8,
         low_grounding_threshold: float = 0.5,
@@ -2002,14 +2007,40 @@ class GenerationCycleController:
             repo_root=repo_root,
             cycle_substrate_context=cycle_substrate_context,
         )
+        if authority_scope == "production" and promotion_port is not None:
+            raise ValueError("production_promotion_port_must_be_container_derived")
+        if authority_scope == "production" and any(
+            dependency is not None
+            for dependency in (
+                epoch_subject_authority,
+                epoch_validity_gate,
+                epoch_n9_evidence_resolver,
+            )
+        ):
+            raise ValueError("production_epoch_dependencies_must_be_runtime_derived")
         if promotion_port is None:
             from polisyos.runtime.quality.promotion_sequence import CanonicalN9PromotionPort
 
             promotion_port = CanonicalN9PromotionPort(
                 repo_root=repo_root,
                 promotion_runtime=promotion_runtime,
+                epoch_n9_evidence_resolver=(
+                    epoch_n9_evidence_resolver
+                    or getattr(promotion_runtime, "epoch_n9_evidence_resolver", None)
+                ),
             )
         self._promotion_port = promotion_port
+        self._promotion_runtime = promotion_runtime
+        self._authority_scope = authority_scope
+        self._epoch_subject_authority = epoch_subject_authority or getattr(
+            promotion_runtime, "epoch_subject_authority", None
+        )
+        self._epoch_validity_gate = epoch_validity_gate or getattr(
+            promotion_runtime, "epoch_validity_gate", None
+        )
+        self._epoch_n9_evidence_resolver = epoch_n9_evidence_resolver or getattr(
+            promotion_runtime, "epoch_n9_evidence_resolver", None
+        )
         self._open_world_resolver = getattr(
             promotion_port,
             "open_world_resolver",
@@ -2127,7 +2158,10 @@ class GenerationCycleController:
             current_problem = cycle.revision_request.revised_problem
             cycle_index += 1
 
-        promotion = self._promotion_port(summaries=tuple(summaries), problem=problem)
+        promotion = self._promote_completed_generation(
+            summaries=tuple(summaries),
+            problem=problem,
+        )
         summaries = _apply_promotion_to_summaries(
             tuple(summaries),
             promotion,
@@ -2152,6 +2186,89 @@ class GenerationCycleController:
             blocked_reason=blocked_reason,
         )
         return run
+
+    def _promote_completed_generation(
+        self,
+        *,
+        summaries: tuple[CandidateSummary, ...],
+        problem: DesignProblem,
+    ) -> PromotionPortObservation:
+        """Run the fixed post-loop subject/gate strangle before canonical N9."""
+
+        runtime = self._promotion_runtime
+        if runtime is None:
+            if self._authority_scope != "contract_testing":
+                return PromotionPortObservation(
+                    status="not_promoted",
+                    reason="epoch_validity_refused:promotion_runtime_not_established",
+                )
+            # Arbitrary ports exist only in an explicit contract-testing lane.
+            try:
+                return self._promotion_port(  # type: ignore[call-arg]
+                    summaries=summaries,
+                    problem=problem,
+                )
+            except TypeError:
+                return PromotionPortObservation(
+                    status="not_promoted",
+                    reason="epoch_validity_refused:promotion_runtime_not_established",
+                )
+        subject_authority = self._epoch_subject_authority
+        gate = self._epoch_validity_gate
+        if subject_authority is None or gate is None or self._epoch_n9_evidence_resolver is None:
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason="epoch_validity_refused:epoch_validity_owner_not_established",
+            )
+        from polisyos.runtime.quality.epoch_validity_cascade import (
+            seal_pre_n9_admitted_candidate_batch,
+        )
+        from polisyos.runtime.quality.open_world_risk import (
+            PromotionRuntimeBatch,
+        )
+
+        prepared = runtime._prepare_completed_generation(problem=problem, summaries=summaries)
+        if not isinstance(prepared, PromotionRuntimeBatch):
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason=f"open_world_risk_refused:{prepared.code}",
+            )
+        admissions: list[core_contracts.PreN9AdmittedCandidate] = []
+        aggregate = prepared.contexts.aggregate_context
+        for bound in prepared.contexts.ordered_bound_members:
+            subject = subject_authority.persist_for_n9(bound_member_ref=bound.bound_member_ref)
+            gate_result = gate.reconcile_before_n9(subject_ref=subject.subject_ref)
+            if isinstance(gate_result, core_contracts.EpochValidityGateNonReceipt):
+                return PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"epoch_validity_refused:{gate_result.code}",
+                )
+            occurrence = runtime.context_repository.resolve_occurrence(
+                occurrence_ref=bound.statement.candidate_occurrence_ref
+            )
+            admissions.append(
+                core_contracts.PreN9AdmittedCandidate(
+                    aggregate_context_ref=aggregate.context_ref,
+                    aggregate_context_content_hash=aggregate.semantic_hash,
+                    bound_member_ref=bound.bound_member_ref,
+                    bound_member_content_hash=bound.bound_member_content_hash,
+                    candidate_occurrence_ref=bound.statement.candidate_occurrence_ref,
+                    candidate_occurrence_content_hash=(
+                        core_contracts.c4_semantic_digest("candidate_occurrence", occurrence)
+                    ),
+                    subject_ref=subject.subject_ref,
+                    subject_content_hash=subject.subject_content_hash,
+                    gate_evidence_ref=gate_result.gate_evidence_ref,
+                    gate_evidence_content_hash=gate_result.gate_evidence_content_hash,
+                )
+            )
+        admitted_batch = seal_pre_n9_admitted_candidate_batch(
+            store=runtime.store,
+            denominator=prepared.candidate_denominator,
+            contexts=prepared.contexts,
+            admissions=admissions,
+        )
+        return self._promotion_port(admitted_batch=admitted_batch, problem=problem)
 
     def decide_next_action(
         self,

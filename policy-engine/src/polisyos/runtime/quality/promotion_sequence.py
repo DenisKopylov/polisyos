@@ -94,7 +94,6 @@ from polisyos.runtime.quality.open_world_risk import (
     OpenWorldRiskPromotionGate,
     OpenWorldRiskResolutionNonReceipt,
     PromotionRuntime,
-    PromotionRuntimeBatch,
     VerifiedOpenWorldRiskVector,
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecord  # noqa: TC001
@@ -209,6 +208,7 @@ class CanonicalPromotionInput(_StrictModel):
     verifier_refs: tuple[str, ...] = ("verifier://n9/canonical-sequence",)
     certificate_offers: tuple[PromotionCertificateOffer, ...] = ()
     open_world_gate: OpenWorldRiskPromotionGate | None = None
+    epoch_validity_projection: core_contracts.EpochValidityN9Projection | None = None
     g4_governed_promotion_ref: str | None = (
         "g4-promotion-record:g4-request:ua-msme-source-only-valid"
     )
@@ -226,6 +226,23 @@ class CanonicalPromotionInput(_StrictModel):
         request_keys = [item.request_key for item in self.certificate_offers]
         if len(request_keys) != len(set(request_keys)):
             raise ValueError("duplicate_promotion_certificate_offer")
+        epoch = self.epoch_validity_projection
+        open_world = self.open_world_gate
+        if (
+            epoch is not None
+            and open_world is not None
+            and (
+                epoch.owner_query_context_ref != open_world.aggregate_context_ref
+                or epoch.owner_query_context_content_hash
+                != open_world.aggregate_context_content_hash
+                or epoch.bound_member_ref != open_world.bound_member_ref
+                or epoch.bound_member_content_hash != open_world.bound_member_content_hash
+                or epoch.candidate_occurrence_ref != open_world.candidate_occurrence_ref
+                or epoch.candidate_occurrence_content_hash
+                != open_world.candidate_occurrence_content_hash
+            )
+        ):
+            raise ValueError("promotion_epoch_open_world_context_mismatch")
         return self
 
 
@@ -286,6 +303,7 @@ class CanonicalPromotionOwnerProjection(_LegacyCanonicalPromotionOwnerProjection
         CANONICAL_PROMOTION_OWNER_PROJECTION_SCHEMA_VERSION
     )
     open_world_gate: OpenWorldRiskPromotionGate | None
+    epoch_validity_projection: core_contracts.EpochValidityN9Projection | None = None
 
 
 class CanonicalPromotionReceipt(_StrictModel):
@@ -898,6 +916,7 @@ def _owner_projection_from_input(
         "verifier_refs": promotion_input.verifier_refs,
         "certificate_offers": promotion_input.certificate_offers,
         "open_world_gate": promotion_input.open_world_gate,
+        "epoch_validity_projection": promotion_input.epoch_validity_projection,
         "g4_governed_promotion_ref": promotion_input.g4_governed_promotion_ref,
         "effective_independence": promotion_input.effective_independence,
         "admissibility": promotion_input.admissibility,
@@ -947,11 +966,52 @@ def _input_from_owner_projection(
         verifier_refs=projection.verifier_refs,
         certificate_offers=projection.certificate_offers,
         open_world_gate=projection.open_world_gate,
+        epoch_validity_projection=projection.epoch_validity_projection,
         g4_governed_promotion_ref=projection.g4_governed_promotion_ref,
         effective_independence=projection.effective_independence,
         admissibility=projection.admissibility,
         force_proof_timeout=projection.force_proof_timeout,
     )
+
+
+def _resolve_pre_n9_batch_owner_binding(
+    *,
+    admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch,
+    promotion_runtime: PromotionRuntime,
+) -> tuple[Any, Any]:
+    """Reject a shaped batch before any unrelated confidence-ledger mutation."""
+
+    if admitted_batch.batch_content_hash != core_contracts.c4_semantic_digest(
+        "pre_n9_admitted_candidate_batch", admitted_batch
+    ):
+        raise ValueError("pre_n9_admitted_batch_hash_mismatch")
+    aggregate = promotion_runtime.context_repository.resolve_verified(
+        context_ref=admitted_batch.aggregate_context_ref
+    )
+    if not hasattr(aggregate, "statement"):
+        raise ValueError("pre_n9_admitted_batch_aggregate_unresolved")
+    denominator = promotion_runtime.context_repository.resolve_denominator(
+        denominator_ref=admitted_batch.candidate_denominator_ref
+    )
+    denominator_hash = core_contracts.c4_semantic_digest("candidate_denominator", denominator)
+    if (
+        admitted_batch.candidate_denominator_ref != aggregate.statement.candidate_denominator_ref
+        or admitted_batch.candidate_denominator_content_hash
+        != aggregate.statement.candidate_denominator_content_hash
+        or admitted_batch.candidate_denominator_content_hash != denominator_hash
+    ):
+        raise ValueError("pre_n9_admitted_batch_denominator_binding_mismatch")
+    expected_occurrences = tuple(
+        str(ref.artifact_id) for ref in denominator.ordered_occurrence_refs
+    )
+    observed_occurrences = tuple(
+        str(row.candidate_occurrence_ref.artifact_id) for row in admitted_batch.ordered_admissions
+    )
+    if expected_occurrences != observed_occurrences or denominator.declared_candidate_count != len(
+        admitted_batch.ordered_admissions
+    ):
+        raise ValueError("pre_n9_admitted_batch_denominator_mismatch")
+    return aggregate, denominator
 
 
 class CanonicalN9PromotionPort:
@@ -962,10 +1022,22 @@ class CanonicalN9PromotionPort:
         *,
         context_provider: PromotionContextProvider | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
         repo_root: Path | None = None,
     ) -> None:
+        runtime_epoch_resolver = (
+            promotion_runtime.epoch_n9_evidence_resolver if promotion_runtime is not None else None
+        )
+        if epoch_n9_evidence_resolver is not None and promotion_runtime is None:
+            raise ValueError("epoch_n9_evidence_resolver_requires_owner_runtime")
+        if (
+            epoch_n9_evidence_resolver is not None
+            and epoch_n9_evidence_resolver is not runtime_epoch_resolver
+        ):
+            raise ValueError("epoch_n9_evidence_resolver_owner_mismatch")
         self._context_provider = context_provider
         self._promotion_runtime = promotion_runtime
+        self._epoch_n9_evidence_resolver = runtime_epoch_resolver
         self._repo_root = repo_root
         self._ledger_root = (repo_root or Path(__file__).resolve().parents[4]).resolve()
 
@@ -974,6 +1046,14 @@ class CanonicalN9PromotionPort:
         """Return the independently constructed reader used by decision-front replay."""
 
         return self._promotion_runtime.resolver if self._promotion_runtime is not None else None
+
+    @property
+    def epoch_validity_resolver(
+        self,
+    ) -> core_contracts.EpochValidityN9EvidenceResolver | None:
+        """Return the owner-configured epoch-evidence reader used by replay."""
+
+        return self._epoch_n9_evidence_resolver
 
     def _open_confidence_ledger_session(
         self,
@@ -1016,11 +1096,40 @@ class CanonicalN9PromotionPort:
     def __call__(
         self,
         *,
-        summaries: Sequence[CandidateSummary],
+        admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch | None,
         problem: DesignProblem,
     ) -> PromotionPortObservation:
         """Certify candidates only through the canonical N9 sequence."""
 
+        if self._promotion_runtime is None:
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason="epoch_validity_refused:promotion_runtime_not_established",
+            )
+        if admitted_batch is None:
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason="epoch_validity_refused:pre_n9_admitted_batch_missing",
+            )
+        if self._epoch_n9_evidence_resolver is None:
+            return PromotionPortObservation(
+                status="not_promoted",
+                reason="epoch_validity_refused:epoch_validity_owner_not_established",
+            )
+        aggregate, _denominator = _resolve_pre_n9_batch_owner_binding(
+            admitted_batch=admitted_batch,
+            promotion_runtime=self._promotion_runtime,
+        )
+        for admission in admitted_batch.ordered_admissions:
+            epoch_projection = self._epoch_n9_evidence_resolver.resolve_verified(
+                admission=admission,
+                expected_design_problem_ref=aggregate.statement.design_problem_binding_ref,
+            )
+            if isinstance(epoch_projection, core_contracts.EpochValidityGateNonReceipt):
+                return PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"epoch_validity_refused:{epoch_projection.code}",
+                )
         problem_binding = N9DesignProblemBinding.from_problem(problem)
         try:
             confidence_ledger_session = self._open_confidence_ledger_session(problem_binding)
@@ -1035,11 +1144,12 @@ class CanonicalN9PromotionPort:
                 ).model_dump(mode="json"),
             )
         return _run_n9_promotion_port_batch(
-            summaries=summaries,
+            admitted_batch=admitted_batch,
             problem=problem,
             problem_binding=problem_binding,
             context_provider=self._context_provider,
             promotion_runtime=self._promotion_runtime,
+            epoch_n9_evidence_resolver=self._epoch_n9_evidence_resolver,
             repo_root=self._repo_root,
             confidence_ledger_session=confidence_ledger_session,
         )
@@ -1078,11 +1188,13 @@ class _VerificationN9PromotionPort:
 
 def _run_n9_promotion_port_batch(
     *,
-    summaries: Sequence[CandidateSummary],
+    admitted_batch: core_contracts.PersistedPreN9AdmittedCandidateBatch | None = None,
+    summaries: Sequence[CandidateSummary] = (),
     problem: DesignProblem,
     problem_binding: N9DesignProblemBinding,
     context_provider: PromotionContextProvider | None,
     promotion_runtime: PromotionRuntime | None,
+    epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
     repo_root: Path | None,
     confidence_ledger_session: ConfidenceLedgerSession,
 ) -> PromotionPortObservation:
@@ -1092,59 +1204,90 @@ def _run_n9_promotion_port_batch(
     if confidence_ledger_session.risk_scope != expected_scope:
         raise ValueError("confidence_ledger_scope_binding_mismatch")
     verification = confidence_ledger_session.authority_provenance == "verification"
+    epoch_projections: tuple[core_contracts.EpochValidityN9Projection | None, ...]
+    open_world_gates: tuple[OpenWorldRiskPromotionGate | None, ...]
+    if admitted_batch is not None:
+        if (
+            verification
+            or promotion_runtime is None
+            or epoch_n9_evidence_resolver is None
+            or summaries
+        ):
+            raise ValueError("pre_n9_admitted_batch_composition_mismatch")
+        aggregate, _denominator = _resolve_pre_n9_batch_owner_binding(
+            admitted_batch=admitted_batch,
+            promotion_runtime=promotion_runtime,
+        )
+        resolved_summaries: list[CandidateSummary] = []
+        resolved_epoch: list[core_contracts.EpochValidityN9Projection] = []
+        resolved_open_world: list[OpenWorldRiskPromotionGate] = []
+        for admission in admitted_batch.ordered_admissions:
+            occurrence = promotion_runtime.context_repository.resolve_occurrence(
+                occurrence_ref=admission.candidate_occurrence_ref
+            )
+            if admission.candidate_occurrence_content_hash != core_contracts.c4_semantic_digest(
+                "candidate_occurrence", occurrence
+            ):
+                raise ValueError("pre_n9_admitted_occurrence_hash_mismatch")
+            projection = epoch_n9_evidence_resolver.resolve_verified(
+                admission=admission,
+                expected_design_problem_ref=aggregate.statement.design_problem_binding_ref,
+            )
+            if isinstance(projection, core_contracts.EpochValidityGateNonReceipt):
+                return PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"epoch_validity_refused:{projection.code}",
+                )
+            verified_open_world = (
+                promotion_runtime.open_world_authority.prepare_verified_projection(
+                    bound_member_ref=admission.bound_member_ref
+                )
+            )
+            if not isinstance(verified_open_world, VerifiedOpenWorldRiskVector):
+                return PromotionPortObservation(
+                    status="not_promoted",
+                    reason=f"open_world_risk_refused:{verified_open_world.code}",
+                )
+            resolved_summaries.append(occurrence.candidate_summary)
+            resolved_epoch.append(projection)
+            resolved_open_world.append(
+                OpenWorldRiskPromotionGate.from_verified(
+                    verified_open_world,
+                    aggregate_context_content_hash=(admission.aggregate_context_content_hash),
+                    bound_member_content_hash=admission.bound_member_content_hash,
+                    candidate_occurrence_content_hash=(admission.candidate_occurrence_content_hash),
+                )
+            )
+        summaries = tuple(resolved_summaries)
+        epoch_projections = tuple(resolved_epoch)
+        open_world_gates = tuple(resolved_open_world)
+    else:
+        if not verification:
+            return PromotionPortObservation(
+                status="not_promoted",
+                certified_candidate_ids=(),
+                reason="epoch_validity_refused:pre_n9_admitted_batch_missing",
+                receipts=(),
+                strangle_receipt=LegacyPromotionStrangleReceipt.recompute(repo_root).model_dump(
+                    mode="json"
+                ),
+            )
+        epoch_projections = tuple(None for _ in summaries)
+        open_world_gates = tuple(None for _ in summaries)
     contexts = tuple(
         dict(context_provider(summary, problem)) if context_provider is not None else {}
         for summary in summaries
     )
     if any("open_world_gate" in context for context in contexts):
         raise ValueError("promotion_context_cannot_supply_open_world_gate")
-    if promotion_runtime is None and not verification:
-        return PromotionPortObservation(
-            status="not_promoted",
-            certified_candidate_ids=(),
-            reason="open_world_risk_refused:promotion_runtime_not_established",
-            receipts=(),
-            strangle_receipt=LegacyPromotionStrangleReceipt.recompute(repo_root).model_dump(
-                mode="json"
-            ),
-        )
-    runtime_batch: PromotionRuntimeBatch | None = None
-    if promotion_runtime is not None:
-        prepared = promotion_runtime._prepare_completed_generation(
-            problem=problem,
-            summaries=summaries,
-        )
-        if not isinstance(prepared, PromotionRuntimeBatch):
-            return PromotionPortObservation(
-                status="not_promoted",
-                certified_candidate_ids=(),
-                reason=f"open_world_risk_refused:{prepared.code}",
-                receipts=(),
-                strangle_receipt=LegacyPromotionStrangleReceipt.recompute(repo_root).model_dump(
-                    mode="json"
-                ),
-            )
-        runtime_batch = prepared
     receipts_with_inputs: list[tuple[CanonicalPromotionReceipt, CanonicalPromotionInput]] = []
-    for ordinal, (summary, context) in enumerate(zip(summaries, contexts, strict=True)):
-        open_world_gate = None
-        if promotion_runtime is not None and runtime_batch is not None:
-            prepared_gate = promotion_runtime.prepare_verified_gate(
-                batch=runtime_batch,
-                ordinal=ordinal,
-                summary=summary,
-            )
-            if not isinstance(prepared_gate, OpenWorldRiskPromotionGate):
-                return PromotionPortObservation(
-                    status="not_promoted",
-                    certified_candidate_ids=(),
-                    reason=f"open_world_risk_refused:{prepared_gate.code}",
-                    receipts=(),
-                    strangle_receipt=LegacyPromotionStrangleReceipt.recompute(repo_root).model_dump(
-                        mode="json"
-                    ),
-                )
-            open_world_gate = prepared_gate
+    for summary, context, open_world_gate, epoch_projection in zip(
+        summaries,
+        contexts,
+        open_world_gates,
+        epoch_projections,
+        strict=True,
+    ):
         value_receipt = context.get("value_receipt", summary.value_receipt)
         promotion_input = CanonicalPromotionInput(
             design_problem_binding=problem_binding,
@@ -1173,6 +1316,7 @@ def _run_n9_promotion_port_batch(
             verifier_refs=tuple(context.get("verifier_refs") or ()),
             certificate_offers=tuple(context.get("certificate_offers") or ()),
             open_world_gate=open_world_gate,
+            epoch_validity_projection=epoch_projection,
             g4_governed_promotion_ref=context.get(
                 "g4_governed_promotion_ref",
                 "g4-promotion-record:g4-request:ua-msme-source-only-valid",
@@ -1733,6 +1877,7 @@ def _build_promotion_receipt_from_owners(
     gate_hash = _gate_outcome_hash(
         obligations,
         open_world_gate=promotion_input.open_world_gate,
+        epoch_validity_projection=promotion_input.epoch_validity_projection,
     )
     boundary = _computed_authority_boundary(promotion_input)
     refusal_reasons = _refusal_reasons(
@@ -1742,6 +1887,9 @@ def _build_promotion_receipt_from_owners(
     )
     if promotion_input.open_world_gate is None and promotion_lane != "contract_testing":
         refusal_reasons.append("open_world_risk:open_world_projection_not_established")
+        refusal_reasons = list(dict.fromkeys(refusal_reasons))
+    if promotion_input.epoch_validity_projection is None and promotion_lane != "contract_testing":
+        refusal_reasons.append("epoch_validity:projection_not_established")
         refusal_reasons = list(dict.fromkeys(refusal_reasons))
     elif (
         promotion_input.open_world_gate is not None
@@ -1997,6 +2145,7 @@ def validate_canonical_promotion_receipt(
     design_problem: DesignProblem | None = None,
     value_receipt: ValueGateReceipt | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
 ) -> tuple[dict[str, Any], ...]:
     """Recompute an authority-bearing N9 receipt from the canonical deployment."""
 
@@ -2007,6 +2156,7 @@ def validate_canonical_promotion_receipt(
         design_problem=design_problem,
         value_receipt=value_receipt,
         open_world_resolver=open_world_resolver,
+        epoch_validity_resolver=epoch_validity_resolver,
         confidence_ledger_session=None,
         expected_authority_provenance="canonical_repo",
     )
@@ -2021,6 +2171,7 @@ def _validate_canonical_promotion_receipt_for_verification(
     design_problem: DesignProblem | None = None,
     value_receipt: ValueGateReceipt | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
 ) -> tuple[dict[str, Any], ...]:
     """Recompute a non-authority replay receipt against its isolated current head."""
 
@@ -2040,6 +2191,7 @@ def _validate_canonical_promotion_receipt_for_verification(
         design_problem=design_problem,
         value_receipt=value_receipt,
         open_world_resolver=open_world_resolver,
+        epoch_validity_resolver=epoch_validity_resolver,
         confidence_ledger_session=confidence_ledger_session,
         expected_authority_provenance="verification",
     )
@@ -2054,6 +2206,7 @@ def admit_canonical_promotion_receipt_for_comparison(
     design_problem: DesignProblem | None = None,
     value_receipt: ValueGateReceipt | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
 ) -> GyComparisonAdmission:
     """Return a comparison admission after full verification-owner replay.
 
@@ -2084,6 +2237,7 @@ def admit_canonical_promotion_receipt_for_comparison(
         design_problem=design_problem,
         value_receipt=value_receipt,
         open_world_resolver=open_world_resolver,
+        epoch_validity_resolver=epoch_validity_resolver,
     )
     if issues:
         raise ValueError(
@@ -2153,6 +2307,7 @@ def prove_canonical_promotion_receipt_for_comparison(
     design_problem: DesignProblem | None = None,
     value_receipt: ValueGateReceipt | None = None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None = None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
 ) -> object:
     """Issue an opaque proof after the canonical live comparison admission.
 
@@ -2169,6 +2324,7 @@ def prove_canonical_promotion_receipt_for_comparison(
         design_problem=design_problem,
         value_receipt=value_receipt,
         open_world_resolver=open_world_resolver,
+        epoch_validity_resolver=epoch_validity_resolver,
     )
     return _issue_canonical_promotion_comparison_proof(admission)
 
@@ -2209,6 +2365,7 @@ def _validate_promotion_receipt_with_bound_session(
     design_problem: DesignProblem | None,
     value_receipt: ValueGateReceipt | None,
     open_world_resolver: OpenWorldRiskArtifactResolver | None,
+    epoch_validity_resolver: core_contracts.EpochValidityN9EvidenceResolver | None,
     confidence_ledger_session: ConfidenceLedgerSession | None,
     expected_authority_provenance: Literal["canonical_repo", "verification"],
 ) -> tuple[dict[str, Any], ...]:
@@ -2296,6 +2453,26 @@ def _validate_promotion_receipt_with_bound_session(
                 != promotion_candidate_summary_content_hash(replay_input.candidate_summary)
             ):
                 issues.append({"code": "open_world_projection_binding_mismatch"})
+    epoch_projection = replay_input.epoch_validity_projection
+    if epoch_projection is not None:
+        if epoch_validity_resolver is None:
+            issues.append({"code": "epoch_validity_resolver_not_established"})
+        else:
+            resolved_epoch = epoch_validity_resolver.resolve_projection_verified(
+                projection=epoch_projection,
+                expected_problem_content_hash=(
+                    replay_input.design_problem_binding.problem_content_hash
+                ),
+            )
+            if isinstance(resolved_epoch, core_contracts.EpochValidityGateNonReceipt):
+                issues.append(
+                    {
+                        "code": resolved_epoch.code,
+                        "status": resolved_epoch.status,
+                    }
+                )
+            elif resolved_epoch != epoch_projection:
+                issues.append({"code": "epoch_validity_projection_binding_mismatch"})
     replay_cg2_attempt = _resolve_cg2_owner_promotability(replay_input)
     replay_base_obligations = _compile_obligations(
         replay_input,
@@ -2511,6 +2688,11 @@ def _validate_promotion_receipt_with_bound_session(
         expected_refusal_reasons.append(
             "open_world_risk:" + receipt.owner_projection.open_world_gate.limitation_code
         )
+    if (
+        receipt.owner_projection.epoch_validity_projection is None
+        and receipt.promotion_lane != "contract_testing"
+    ):
+        expected_refusal_reasons.append("epoch_validity:projection_not_established")
     if not denominator_complete:
         expected_refusal_reasons.append("promotion_obligation_denominator_mismatch")
     if expected_projection is None:
@@ -2598,6 +2780,7 @@ def _validate_promotion_receipt_with_bound_session(
     expected_gate_hash = _gate_outcome_hash(
         receipt.obligations,
         open_world_gate=receipt.owner_projection.open_world_gate,
+        epoch_validity_projection=(receipt.owner_projection.epoch_validity_projection),
     )
     if receipt.gate_outcome_hash != expected_gate_hash:
         issues.append(
@@ -3470,14 +3653,22 @@ def _gate_outcome_hash(
     obligations: Sequence[PromotionObligationRecord],
     *,
     open_world_gate: OpenWorldRiskPromotionGate | None = None,
+    epoch_validity_projection: core_contracts.EpochValidityN9Projection | None = None,
 ) -> str:
     obligation_rows = [item.model_dump(mode="json") for item in obligations]
-    if open_world_gate is None:
+    if open_world_gate is None and epoch_validity_projection is None:
         return gy_content_hash(obligation_rows)
     return gy_content_hash(
         {
             "obligations": obligation_rows,
-            "open_world_gate": open_world_gate.model_dump(mode="json"),
+            "open_world_gate": (
+                open_world_gate.model_dump(mode="json") if open_world_gate is not None else None
+            ),
+            "epoch_validity_projection": (
+                epoch_validity_projection.model_dump(mode="json")
+                if epoch_validity_projection is not None
+                else None
+            ),
         }
     )
 

@@ -28,6 +28,10 @@ models, and provenance payloads that let `fabric`, `foundry`, `scientist`, `lex`
 - **Chronology proof contracts** - `chronology.py` defines the policy-free full-prefix wire
   algebra, owner-qualified native reconciliation, and typed retained limitations. It deliberately
   does not own native denominator completeness, acceptance, authority heads, or custody.
+- **Epoch-validity intake contracts** - `decision_validity.py` carries sealed pre-N9 subjects,
+  persisted gate evidence, complete pending/completed batch receipts, and the exact persisted
+  completion evidence used by downstream owners. Request DTOs never carry status, targets,
+  verifier identity, or owner denominators.
 
 ## Public API
 
@@ -39,6 +43,7 @@ Main ref families:
 - `provenance.py`
 - `bounded_liveness.py`
 - `chronology.py` (re-exported from the admitted `polisyos.core` root facade)
+- `decision_validity.py` (including the typed epoch-batch intake and pre-N9 gate evidence)
 - `policy_design_case_projection.py`
 - `runtime.py` also exposes `UniversalPolicyDesignCase` and `UniversalAuthorityProfile`
   for the universal grammar compiler.

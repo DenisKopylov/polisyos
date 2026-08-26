@@ -11,6 +11,7 @@ import pytest
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts.execution_plan import MethodCatalogSnapshot, MethodCatalogSnapshotRef
@@ -38,15 +39,11 @@ from polisyos.runtime.quality.assurance_case import PolicyDesignCaseAuthorityErr
 from polisyos.runtime.quality.authority_reconciliation import reconcile_authority_ref
 from polisyos.runtime.quality.design_problem import DesignProblem, DesignProblemAuthorityError
 from polisyos.runtime.quality.generation_cycle import (
-    CandidateGroundingObservation,
-    GenerationCycleController,
-    PendingN8ValuePort,
-    PromotionPortObservation,
-    SimulationPortObservation,
+    N4GenerationPort,
 )
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
-    RecursiveGenerationCycleController,
 )
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
 from polisyos.scientist.orchestration.llm.gateway_client import GatewayLLMResponse, GatewayToolCall
@@ -364,52 +361,15 @@ class _PlainLanguageGenerationPort:
         )
 
 
-class _PlainLanguageGroundingPort:
-    def __call__(
-        self,
-        *,
-        candidate: Any,
-        **kwargs: Any,
-    ) -> CandidateGroundingObservation:
-        del kwargs
-        return CandidateGroundingObservation(
-            candidate_id=str(candidate.candidate_id),
-            status="grounding_gap",
-            grounding_score=0.2,
-            issue_codes=("plain_language_lane0_grounding_gap",),
-            current_valid=False,
-        )
+class _PlainLanguageN4GenerationPort(N4GenerationPort):
+    """Run the deterministic fixture through the canonical production N4 seam."""
 
+    def __init__(self) -> None:
+        super().__init__(model_id="plain-language-fixture")
+        self._delegate = _PlainLanguageGenerationPort()
 
-class _PlainLanguageSimulationPort:
-    def __call__(self, *, candidate: Any, **kwargs: Any) -> SimulationPortObservation:
-        del kwargs
-        return SimulationPortObservation(
-            candidate_id=str(candidate.candidate_id),
-            status="simulation_pending_n5",
-            authority_blockers=("plain_language_lane0_n5_pending",),
-        )
-
-
-class _PlainLanguagePromotionPort:
-    def __call__(self, **kwargs: Any) -> PromotionPortObservation:
-        del kwargs
-        return PromotionPortObservation()
-
-
-def _plain_language_leaf_cycle_factory(
-    node_ref: str,
-    problem: DesignProblem,
-) -> GenerationCycleController:
-    del node_ref, problem
-    return GenerationCycleController(
-        generation_port=_PlainLanguageGenerationPort(),
-        grounding_port=_PlainLanguageGroundingPort(),
-        simulation_port=_PlainLanguageSimulationPort(),
-        value_port=PendingN8ValuePort(),
-        promotion_port=_PlainLanguagePromotionPort(),
-        repo_root=REPO_ROOT,
-    )
+    async def __call__(self, problem: DesignProblem, *, cycle_index: int) -> object:
+        return await self._delegate(problem, cycle_index=cycle_index)
 
 
 def _design_problem_tool_args(*, constraint_source: str = "UAH 10b budget cap") -> dict[str, Any]:
@@ -521,9 +481,9 @@ async def test_design_problem_front_door_uses_gateway_tool_calling_and_preflight
     tool_schema = gateway.generate_calls[0]["tools"][0]["function"]["parameters"]
     assert "$defs" not in tool_schema
     assert "$ref" not in json.dumps(tool_schema)
-    time_object = tool_schema["properties"]["jurisdiction_time"]["properties"][
-        "time_semantics"
-    ]["anyOf"][0]
+    time_object = tool_schema["properties"]["jurisdiction_time"]["properties"]["time_semantics"][
+        "anyOf"
+    ][0]
     assert time_object["anyOf"] == [
         {
             "required": ["step_count"],
@@ -629,9 +589,9 @@ def test_design_problem_provider_constraint_exposes_existing_time_rule() -> None
         sort_keys=True,
         separators=(",", ":"),
     )
-    time_union = provider_schema["properties"]["jurisdiction_time"]["properties"][
-        "time_semantics"
-    ]["anyOf"]
+    time_union = provider_schema["properties"]["jurisdiction_time"]["properties"]["time_semantics"][
+        "anyOf"
+    ]
     time_schema = next(item for item in time_union if item.get("type") == "object")
 
     assert canonical_after == canonical_before
@@ -694,7 +654,7 @@ async def test_design_problem_front_door_types_provider_output_truncation() -> N
                         arguments={},
                         error_envelope={
                             "reason": "tool_call_arguments_parse_error",
-                            "details": {"arguments_preview": "{\"objectives\":"},
+                            "details": {"arguments_preview": '{"objectives":'},
                         },
                     )
                 ],
@@ -760,10 +720,11 @@ async def test_design_problem_front_door_keeps_nontruncated_malformed_output_str
 
 
 @pytest.mark.asyncio
-async def test_plain_language_front_door_calls_real_design_problem_compiler() -> None:
+async def test_plain_language_front_door_calls_real_design_problem_compiler(
+    tmp_path: Path,
+) -> None:
     raw_request = (
-        "Design a wartime MSME credit guarantee for Ukraine within the stated "
-        "UAH 10b budget cap."
+        "Design a wartime MSME credit guarantee for Ukraine within the stated UAH 10b budget cap."
     )
     gateway = _FakeDesignProblemGateway(
         models=["Qwen/Qwen3-235B-A22B-Instruct-2507-FP8"],
@@ -775,13 +736,10 @@ async def test_plain_language_front_door_calls_real_design_problem_compiler() ->
         model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
         compiler_gateway=gateway,
         span_support_client=_DeterministicSpanSupportClient(),
-        controller=RecursiveGenerationCycleController.for_contract_testing(
-            cycle_controller_factory=_plain_language_leaf_cycle_factory,
-            repo_root=REPO_ROOT,
-        ),
-        budget_state=BudgetState(
-            limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}
-        ),
+        root_n4_generation_port=_PlainLanguageN4GenerationPort(),
+        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "promotion-cas")),
+        repo_root=REPO_ROOT,
+        budget_state=BudgetState(limits={"run": BudgetLimit(key="run", max_usd=Decimal("5.0"))}),
         recursive_budget=RecursiveCycleBudget(
             max_depth=0,
             max_nodes=1,
@@ -873,8 +831,7 @@ async def test_design_problem_front_door_accepts_supported_paraphrase() -> None:
 
     problem = await build_design_problem_from_nl_request(
         nl_request=(
-            "Assess credit guarantees for MSMEs. Keep fiscal exposure below ten "
-            "billion hryvnia."
+            "Assess credit guarantees for MSMEs. Keep fiscal exposure below ten billion hryvnia."
         ),
         context=_intent_context(),
         model_name="Qwen/Qwen3-235B-A22B-Instruct-2507-FP8",
@@ -1925,9 +1882,7 @@ def test_serious_nl_pipeline_phase_24_persists_runtime_quality_refs_fail_closed(
         for report_key in _PHASE_24_REQUIRED_RUNTIME_REFS:
             envelope = params["runtime_quality_evidence"][report_key]["authority_envelope"]
             closure = envelope["same_input_closure"]
-            closure_identities.add(
-                tuple(closure.get(field) for field in closure_identity_fields)
-            )
+            closure_identities.add(tuple(closure.get(field) for field in closure_identity_fields))
         assert len(closure_identities) == 1
     finally:
         service.close()
@@ -2066,17 +2021,18 @@ def test_serious_nl_pipeline_materializes_policy_intent_before_scientist_workflo
     assert policy_design_case_payload["intent_envelope"]["intent_id"] == (
         "intent-R_policy_intent_materialized"
     )
-    assert policy_design_case_payload["capability_ledger"]["ledger_ref"] == (
-        capability_ledger_payload["ledger_ref"]
+    assert (
+        policy_design_case_payload["capability_ledger"]["ledger_ref"]
+        == (capability_ledger_payload["ledger_ref"])
     )
     assert policy_design_case_payload["nodes"][0]["node_type"] == "concept_spine"
     assert policy_design_case_payload["jurisdiction_spine"]["jurisdiction_spine_ref"] == (
         jurisdiction_spine_ref
     )
     assert runtime_evidence["policy_intent_envelope"]["runtime_event_ref"].startswith("sha256:")
-    assert runtime_evidence["policy_design_capability_ledger"][
-        "runtime_event_ref"
-    ].startswith("sha256:")
+    assert runtime_evidence["policy_design_capability_ledger"]["runtime_event_ref"].startswith(
+        "sha256:"
+    )
     assert runtime_evidence["policy_design_case"]["runtime_event_ref"].startswith("sha256:")
     for report_key, evidence in runtime_evidence.items():
         if report_key == "policy_intent_envelope":
@@ -2306,7 +2262,7 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
                 "catalog_db_path": "datasets_full_20990101/dataset_catalog.duckdb",
                 "dataset_path": "datasets_full_20990101/panel.csv",
                 "data_dictionary_path": "datasets_full_20990101/data_dictionary.json",
-            }
+            },
         },
     }
     (production_data_root / "manifest.json").write_text(
@@ -2396,8 +2352,7 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
         "requirements": [
             {
                 "requirement_id": (
-                    "scenario:ukraine_msme_wartime_credit_support:data:"
-                    "production_msme_panel"
+                    "scenario:ukraine_msme_wartime_credit_support:data:production_msme_panel"
                 ),
                 "domain": "data",
                 "expected_family": "production_msme_panel",
@@ -2561,22 +2516,18 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
     fabric_trace = variant["retrieval_context"]["production_data_evidence_context"][
         "fabric_retrieval_trace"
     ]
-    assert fabric_trace["scenario_evidence_contract_id"] == scenario_evidence_contract[
-        "contract_id"
-    ]
-    assert fabric_trace["selected_contract_binding"]["status"] == "satisfied"
-    assert fabric_trace["selected_contract_binding"]["expected_family"] == (
-        "production_msme_panel"
+    assert (
+        fabric_trace["scenario_evidence_contract_id"] == scenario_evidence_contract["contract_id"]
     )
+    assert fabric_trace["selected_contract_binding"]["status"] == "satisfied"
+    assert fabric_trace["selected_contract_binding"]["expected_family"] == ("production_msme_panel")
     assert fabric_trace["selected_contract_bindings"][0]["candidate_ref"] == (
         "production_data:curated:production_msme_panel:contract.production_msme_panel"
     )
     assert fabric_trace["selected_sources"][0]["selection_status"] == (
         "claim_admissible_contract_selected"
     )
-    assert fabric_trace["selected_sources"][0]["authority_surface"] == (
-        "claim_admissible_contract"
-    )
+    assert fabric_trace["selected_sources"][0]["authority_surface"] == ("claim_admissible_contract")
     assert fabric_trace["fabric_spine_bindings"]["consumed_requirement_ids"] == [
         "scenario:ukraine_msme_wartime_credit_support:data:production_msme_panel"
     ]
@@ -2589,14 +2540,15 @@ def test_production_data_canary_materializes_local_lane_without_external_fetch(
     ]["selected_contract_binding_refs"] == [
         "production_data:curated:production_msme_panel:contract.production_msme_panel"
     ]
-    assert variant["retrieval_context"]["fabric_spine_bindings"][
-        "consumed_requirement_ids"
-    ] == [
+    assert variant["retrieval_context"]["fabric_spine_bindings"]["consumed_requirement_ids"] == [
         "scenario:ukraine_msme_wartime_credit_support:data:production_msme_panel"
     ]
-    assert variant["retrieval_context"]["production_data_evidence_context"][
-        "scenario_binding_findings"
-    ][0]["status"] == "satisfied"
+    assert (
+        variant["retrieval_context"]["production_data_evidence_context"][
+            "scenario_binding_findings"
+        ][0]["status"]
+        == "satisfied"
+    )
     assert record is not None
     progress_variant = record.progress["variants"]["simulated_qwen_1"]
     assert progress_variant["production_data_evidence_context"]["root"] == str(production_data_root)

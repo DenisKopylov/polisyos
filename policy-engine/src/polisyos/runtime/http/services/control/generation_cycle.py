@@ -92,7 +92,7 @@ async def compile_and_run_recursive_generation_cycle(
     raw_request: str,
     context: Mapping[str, object],
     model_name: str,
-    compiler_gateway: _DesignProblemGatewayClient,
+    compiler_gateway: _DesignProblemGatewayClient | None,
     controller: RecursiveGenerationCycleController | None = None,
     budget_state: BudgetState,
     recursive_budget: RecursiveCycleBudget,
@@ -137,11 +137,36 @@ async def compile_and_run_recursive_generation_cycle(
 
         revalidate_cycle_substrate_context(cycle_substrate_context)
 
-    resolved_controller = controller or build_default_recursive_generation_cycle_controller(
-        repo_root=repo_root,
-        model_id=model_name,
-        promotion_runtime=promotion_runtime,
-    )
+    if controller is not None:
+        if getattr(controller, "_authority_scope", None) != "production":
+            raise DesignProblemAuthorityError(
+                "recursive_controller_not_production_scoped",
+                "The HTTP composition rejects contract-testing recursive controllers.",
+            )
+        if getattr(controller, "_promotion_runtime", None) is not promotion_runtime:
+            raise DesignProblemAuthorityError(
+                "recursive_controller_foreign_promotion_runtime",
+                "The HTTP composition requires its container-owned promotion runtime.",
+            )
+        if (
+            getattr(controller, "_epoch_subject_authority", None)
+            is not promotion_runtime.epoch_subject_authority
+            or getattr(controller, "_epoch_validity_gate", None)
+            is not promotion_runtime.epoch_validity_gate
+            or getattr(controller, "_epoch_n9_evidence_resolver", None)
+            is not promotion_runtime.epoch_n9_evidence_resolver
+        ):
+            raise DesignProblemAuthorityError(
+                "recursive_controller_epoch_owner_binding_mismatch",
+                "The HTTP composition derives every epoch dependency from one runtime.",
+            )
+        resolved_controller = controller
+    else:
+        resolved_controller = build_default_recursive_generation_cycle_controller(
+            repo_root=repo_root,
+            model_id=model_name,
+            promotion_runtime=promotion_runtime,
+        )
 
     root_ref = f"design-problem://{problem_ref.removeprefix('sha256:')}"
     recursive_graph = derive_recursive_design_graph(

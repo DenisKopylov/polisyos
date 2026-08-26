@@ -315,6 +315,7 @@ async def _build_live_payload_in_verification_namespace(
         ),
         repo_root=repo_root,
         generated_at=_FIXED_GENERATED_AT,
+        authority_scope="contract_testing",
     )
     run = await controller.run(
         problem,

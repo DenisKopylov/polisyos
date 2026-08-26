@@ -41,6 +41,8 @@ from polisyos.core.contracts.control import (
     DecisionValidityLifecycleSummary,
     DecisionValidityPendingReview,
     DecisionValiditySummaryResponse,
+    EpochValidityBatchRequest,
+    EpochValidityBatchResponse,
     ExecutionProfile,
     IndexStatsResponse,
     IngestRequest,
@@ -60,7 +62,7 @@ from polisyos.core.contracts.control import (
 from polisyos.core.contracts.decision_validity import DecisionDependencyEvent
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.security.tenant_context import tenant_scope
-from polisyos.runtime.http.errors import forbidden, unprocessable_entity
+from polisyos.runtime.http.errors import conflict, forbidden, unprocessable_entity
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,
     PolicyFlagForbiddenError,
@@ -99,6 +101,7 @@ from polisyos.runtime.quality.event_log import (
     DiagnosticEventPayloadPolicy,
     RuntimeDiagnosticEventLog,
 )
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.source_truth import (
     SourceTruthContractError,
     detect_source_truth_conflict,
@@ -122,6 +125,22 @@ from ..control_worker import ControlWorker
 
 logger = get_logger(__name__)
 _SERIOUS_EXECUTION_PROFILES = frozenset({"research", "governed", "production"})
+_EPOCH_VALIDITY_INTAKE_FAILURE_CODES = frozenset(
+    {
+        "verifier_not_configured",
+        "ref_unresolved",
+        "content_hash_mismatch",
+        "signature_unverified",
+        "authority_purpose_mismatch",
+        "query_context_mismatch",
+        "dependency_denominator_unresolved",
+        "target_denominator_mismatch",
+        "verifier_provenance_untrusted",
+        "epoch_pending_verification_binding_mismatch",
+        "epoch_completed_verification_binding_mismatch",
+        "decision_validity_epoch_receipt_unresolved",
+    }
+)
 
 
 def _default_runtime_metrics() -> MetricsRegistry:
@@ -142,11 +161,20 @@ def _clean_runtime_text(value: object) -> str | None:
 if TYPE_CHECKING:
     from collections.abc import Callable, Iterator
 
+    from polisyos.core import contracts as core_contracts
     from polisyos.core.artifacts.protocol import ArtifactStore, AsyncArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
     from polisyos.fabric.connectors.profiles.registry import SourceProfileRegistry
     from polisyos.fabric.connectors.registry import ConnectorRegistry
     from polisyos.fabric.retrieval import RetrievalProviders, RetrievalService
+    from polisyos.runtime.http.services.control.generation_cycle import (
+        CompiledRecursiveGenerationCycleRun,
+    )
+    from polisyos.runtime.http.services.control.nl_pipeline import (
+        _DesignProblemGatewayClient,
+    )
+    from polisyos.runtime.quality.recursive_generation_cycle import RecursiveCycleBudget
+    from polisyos.scientist import BudgetState
 
     from ...step_up import StepUpReplayStore
     from ..control_registry_providers import ControlRegistryProviders
@@ -159,10 +187,22 @@ if TYPE_CHECKING:
 
 
 class ControlPlaneService(
-    ControlPlaneWorkspaceLoopTransitionMixin, CapabilityManifestMixin, LexPipelineMixin,
+    ControlPlaneWorkspaceLoopTransitionMixin,
+    CapabilityManifestMixin,
+    LexPipelineMixin,
     NaturalLanguageRunMixin,
 ):
     """Bridge HTTP control requests to durable jobs and domain pipelines."""
+
+    @staticmethod
+    def build_decision_validity_owner(store: ArtifactStore) -> DecisionValidityService:
+        """Build the canonical Decision Validity owner over ``store``."""
+        return DecisionValidityService(store)
+
+    @staticmethod
+    def is_decision_validity_owner(candidate: object) -> bool:
+        """Return whether ``candidate`` is the canonical owner service type."""
+        return isinstance(candidate, DecisionValidityService)
 
     def __init__(
         self,
@@ -177,6 +217,8 @@ class ControlPlaneService(
         retrieval_service: RetrievalService | None = None,
         policy_resolver: RuntimeExecutionPolicyResolver | None = None,
         registry_providers: ControlRegistryProviders | None = None,
+        decision_validity_service: DecisionValidityService | None = None,
+        promotion_runtime: PromotionRuntime | None = None,
     ) -> None:
         from polisyos.fabric.retrieval import RetrievalService
 
@@ -228,6 +270,25 @@ class ControlPlaneService(
             store=self._control_store,
             artifact_store=self._artifact_store,
         )
+        if decision_validity_service is not None and not isinstance(
+            decision_validity_service, DecisionValidityService
+        ):
+            raise ValueError("decision_validity_owner_invalid")
+        self._decision_validity_service = decision_validity_service or DecisionValidityService(
+            self._artifact_store
+        )
+        if promotion_runtime is not None and not isinstance(promotion_runtime, PromotionRuntime):
+            raise ValueError("promotion_runtime_owner_invalid")
+        self._promotion_runtime = promotion_runtime or PromotionRuntime(
+            store=self._artifact_store,
+            completed_epoch_batches=self._decision_validity_service,
+        )
+        if (
+            self._promotion_runtime.store is not self._artifact_store
+            or self._promotion_runtime.epoch_n9_evidence_resolver._completed_batches
+            is not self._decision_validity_service
+        ):
+            raise ValueError("promotion_runtime_decision_validity_owner_mismatch")
 
         self._retrieval = retrieval_service or RetrievalService(
             curated_dir=_resolve_curated_dir(),
@@ -246,6 +307,47 @@ class ControlPlaneService(
     def scenario_head_store(self) -> ScenarioHeadStore:
         """Expose the narrow durable scenario-head authority to the runtime container."""
         return cast("ScenarioHeadStore", self._control_store)
+
+    def reconcile_epoch_validity_for_subject(
+        self,
+        *,
+        subject_ref: core_contracts.ArtifactRef,
+    ) -> (
+        core_contracts.PersistedEpochValidityGateEvidence
+        | core_contracts.EpochValidityGateNonReceipt
+    ):
+        """Delegate one pre-N9 gate to the exact container-owned runtime."""
+
+        return self._promotion_runtime.epoch_validity_gate.reconcile_before_n9(
+            subject_ref=subject_ref
+        )
+
+    async def compile_and_run_recursive_generation_cycle(
+        self,
+        *,
+        raw_request: str,
+        context: Mapping[str, object],
+        model_name: str,
+        compiler_gateway: _DesignProblemGatewayClient | None,
+        budget_state: BudgetState,
+        recursive_budget: RecursiveCycleBudget,
+    ) -> CompiledRecursiveGenerationCycleRun:
+        """Run the HTTP composition through its container-owned epoch strangle."""
+
+        from polisyos.runtime.http.services.control.generation_cycle import (
+            compile_and_run_recursive_generation_cycle,
+        )
+
+        return await compile_and_run_recursive_generation_cycle(
+            raw_request=raw_request,
+            context=context,
+            model_name=model_name,
+            compiler_gateway=compiler_gateway,
+            budget_state=budget_state,
+            recursive_budget=recursive_budget,
+            promotion_runtime=self._promotion_runtime,
+            repo_root=Path.cwd(),
+        )
 
     @property
     def step_up_replay_store(self) -> StepUpReplayStore:
@@ -404,8 +506,7 @@ class ControlPlaneService(
         return {
             "trace_id": str(trace_id or f"trace_{job_id}"),
             "span_id": f"span_{uuid.uuid4().hex[:16]}",
-            "parent_span_id": str(parent_span_id or span_id or stored_parent_span_id or "")
-            or None,
+            "parent_span_id": str(parent_span_id or span_id or stored_parent_span_id or "") or None,
         }
 
     def _emit_runtime_diagnostic_event(
@@ -446,9 +547,7 @@ class ControlPlaneService(
             schema_version=DIAGNOSTIC_EVENT_SCHEMA_VERSION,
             trace_id=str(trace["trace_id"]),
             span_id=str(trace["span_id"]),
-            parent_span_id=(
-                str(trace["parent_span_id"]) if trace.get("parent_span_id") else None
-            ),
+            parent_span_id=(str(trace["parent_span_id"]) if trace.get("parent_span_id") else None),
             run_id=str(run_id or "run-unknown"),
             job_id=job_id,
             tenant_id=tenant_id,
@@ -1081,17 +1180,66 @@ class ControlPlaneService(
                     )
                     return
                 if job.kind == "natural_language_run":
+                    from decimal import Decimal
+
+                    from polisyos.common import async_tools
+                    from polisyos.runtime.quality.recursive_generation_cycle import (
+                        RecursiveCycleBudget,
+                    )
+                    from polisyos.scientist import BudgetState
+
                     capability_manifest_ref = (
                         job.capability_manifest_ref or self._refresh_capability_manifest(job=job)
                     )
-                    progress = self._legacy_shadow_progress(
-                        job=job,
-                        phase="natural_language_run",
-                        reason=(
-                            "/runs/nl remains legacy-shadow until the workspace loop "
-                            "owns the NL operation proposer; NL pipeline execution is withheld."
-                        ),
+                    model_rows = payload.get("llm_models")
+                    model_name = (
+                        str(model_rows[0]) if isinstance(model_rows, list) and model_rows else ""
                     )
+                    if not model_name:
+                        raise RuntimeError("llm_model_unconfigured")
+                    max_cycles = max(1, min(int(payload.get("max_iterations") or 1), 3))
+                    budget_usd = Decimal(str(payload.get("run_budget_usd") or "5"))
+                    compiled = async_tools.run_coro_sync(
+                        self.compile_and_run_recursive_generation_cycle(
+                            raw_request=str(payload.get("request") or ""),
+                            context=cast("Mapping[str, object]", payload.get("context") or {}),
+                            model_name=model_name,
+                            compiler_gateway=None,
+                            budget_state=BudgetState.model_validate(
+                                {
+                                    "limits": {
+                                        "run": {"key": "run", "max_usd": budget_usd},
+                                    }
+                                }
+                            ),
+                            recursive_budget=RecursiveCycleBudget(
+                                max_depth=0,
+                                max_nodes=1,
+                                min_cycles_per_leaf=1,
+                                max_cycles_per_leaf=max_cycles,
+                            ),
+                        ),
+                        timeout_seconds=max(120.0, 120.0 * max_cycles),
+                    )
+                    compiled_ref = self._put_json_artifact(
+                        compiled.model_dump(mode="json"),
+                        kind="runtime.compiled_recursive_generation_cycle",
+                        schema_name="polisyos.runtime.CompiledRecursiveGenerationCycleRun",
+                    )
+                    refusal_reasons = tuple(
+                        receipt.reason
+                        for leaf in compiled.recursive_run.leaf_nodes
+                        if leaf.cycle_run is not None
+                        for receipt in (leaf.cycle_run.promotion_port,)
+                        if receipt.reason is not None
+                    )
+                    progress = {
+                        "state": "completed",
+                        "phase": "natural_language_run",
+                        "run_id": str(job.run_id or payload.get("run_id") or ""),
+                        "compiled_recursive_generation_cycle_ref": compiled_ref,
+                        "promotion_refusal_reasons": list(refusal_reasons),
+                    }
                     self._control_store.complete_job(
                         job_id=job.job_id,
                         run_id=str(job.run_id or payload.get("run_id") or ""),
@@ -1110,9 +1258,14 @@ class ControlPlaneService(
                         event_payload={
                             "job_kind": job.kind,
                             "capability_manifest_ref": str(capability_manifest_ref),
-                            "legacy_path_disposition": "candidate_only_ring2_withheld",
+                            "compiled_recursive_generation_cycle_ref": compiled_ref,
+                            "epoch_strangle_disposition": (
+                                "candidate_only_typed_negative"
+                                if refusal_reasons
+                                else "candidate_only"
+                            ),
                         },
-                        artifact_refs=[str(capability_manifest_ref)],
+                        artifact_refs=[str(capability_manifest_ref), compiled_ref],
                     )
                     return
                 if job.kind == "lex_pipeline":
@@ -1129,9 +1282,7 @@ class ControlPlaneService(
         except Exception as exc:
             logger.exception("Control job %s failed: %s", job.job_id, exc)
             progress = (
-                dict(exc.progress)
-                if isinstance(exc, _WorkflowExecutionNonAuthorityError)
-                else None
+                dict(exc.progress) if isinstance(exc, _WorkflowExecutionNonAuthorityError) else None
             )
             self._emit_runtime_diagnostic_event(
                 job_id=job.job_id,
@@ -1271,8 +1422,15 @@ class ControlPlaneService(
             source_ref=request.source_ref,
             payload=dict(request.payload),
         )
-        service = DecisionValidityService(self._artifact_store)
-        evaluations = service.record_dependency_event(event=event)
+        try:
+            evaluations = self._decision_validity_service.record_dependency_event(event=event)
+        except ValueError as exc:
+            if str(exc) != "semantic_epoch_dependency_requires_owner_batch":
+                raise
+            raise unprocessable_entity(
+                "Semantic-epoch dependencies require the owner-verified batch intake.",
+                code="semantic_epoch_dependency_requires_owner_batch",
+            ) from exc
         affected_statuses: dict[str, int] = {}
         affected_packets: list[str] = []
         for evaluation in evaluations:
@@ -1310,6 +1468,49 @@ class ControlPlaneService(
             ),
         )
 
+    def admit_epoch_validity_batch(
+        self,
+        request: EpochValidityBatchRequest,
+        *,
+        request_id: str | None = None,
+    ) -> EpochValidityBatchResponse:
+        """Delegate the two-field request to the container-owned owner intake."""
+
+        try:
+            receipt = self._decision_validity_service.admit_epoch_validity_batch(
+                transition_artifact_ref=request.transition_artifact_ref,
+                requested_query_context_ref=request.requested_query_context_ref,
+            )
+        except ValueError as exc:
+            code = str(exc)
+            if code == "batch_pending":
+                raise conflict("An epoch validity batch is already pending.", code=code) from exc
+            if code not in _EPOCH_VALIDITY_INTAKE_FAILURE_CODES:
+                raise
+            raise unprocessable_entity(
+                "The epoch validity batch failed owner verification.",
+                code=code,
+            ) from exc
+        except RuntimeError as exc:
+            if str(exc) not in {
+                "decision_validity_owner_state_corrupt",
+                "decision_validity_epoch_receipt_unresolved",
+            }:
+                raise
+            raise unprocessable_entity(
+                "The Decision Validity owner state could not be verified.",
+                code="decision_validity_owner_state_corrupt",
+            ) from exc
+        return EpochValidityBatchResponse(
+            meta=_build_api_meta(request_id),
+            batch_id=receipt.batch_id,
+            state=receipt.state,
+            transition=receipt.transition_artifact_ref,
+            completion_receipt=receipt,
+            affected_packet_refs=receipt.affected_packet_refs,
+            claim_bridge_result_refs=receipt.claim_bridge_result_refs,
+        )
+
     def get_decision_validity_summary(
         self,
         packet_ref: str,
@@ -1318,8 +1519,7 @@ class ControlPlaneService(
         request_id: str | None = None,
     ) -> DecisionValiditySummaryResponse:
         """Read the latest decision-validity lifecycle summary for a decision packet ref."""
-        service = DecisionValidityService(self._artifact_store)
-        summary = service.get_summary(packet_ref)
+        summary = self._decision_validity_service.get_summary(packet_ref)
         lifecycle_payload = dict(summary.get("lifecycle") or {})
         return DecisionValiditySummaryResponse(
             meta=_build_api_meta(request_id),
@@ -1385,14 +1585,14 @@ class ControlPlaneService(
             core_runs_root=self._core_runs_root,
         )
         run = run_index.get_run(run_id)
-        feedback = FeedbackService(store=self._artifact_store, run_index=run_index)
-        prepared = feedback.prepare_reissue(run)
-        job_id = uuid.uuid4().hex
         policy = self._resolve_execution_policy(
             requested_profile=_coerce_optional_execution_profile(run.details.execution_profile),
             policy_flags=PolicyFlags(),
             principal=principal,
         )
+        feedback = FeedbackService(store=self._artifact_store, run_index=run_index)
+        prepared = feedback.prepare_reissue(run)
+        job_id = uuid.uuid4().hex
         payload = {
             "run_id": prepared.reissued_run_id,
             "state_payload": prepared.state_payload,
@@ -1422,6 +1622,7 @@ class ControlPlaneService(
 
     def _run_legacy_scientist_workflow(self, state_payload: dict[str, Any]) -> None:
         from polisyos.scientist.api import run_experiment
+
         run_experiment(state_payload, store=self._artifact_store)
 
     # ---- NL launch (agent circuit) ----------------------------------------
@@ -2035,7 +2236,6 @@ class ControlPlaneService(
             total_size_bytes=0,
             entries=[],
         )
-
 
 
 __all__ = ["ControlPlaneService"]

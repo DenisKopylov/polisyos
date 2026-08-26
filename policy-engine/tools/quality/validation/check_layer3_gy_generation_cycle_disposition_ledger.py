@@ -43,9 +43,7 @@ DEFAULT_LEDGER_PATH = Path(
 )
 NOTEBOOK_PATH = Path("architecture/policy_design_case/layer3_gy_n0_investigation.md")
 FAMILY_ID = "policy-design-case-layer3-gy-generation-cycle-disposition-ledger"
-SCHEMA_VERSION = (
-    "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1"
-)
+SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.generation_cycle_disposition_ledger.v1"
 DISPOSITIONS = {"USE_AS_IS", "REWORK_TO_FIT", "DELETE"}
 BRIDGE_DISPOSITIONS = {"BUILD_NEW_BRIDGE", "BUILD_NEW_FOUNDATION_CONTRACT", "REWORK_TO_FIT"}
 TASK_STATUSES = {"pending", "landed"}
@@ -163,7 +161,9 @@ def validate_ledger(repo_root: Path, ledger: dict[str, Any]) -> dict[str, Any]:
         if status not in TASK_STATUSES:
             issues.append({"code": "task_status_invalid", "task_id": task_id, "status": status})
 
-    bridges = _dict_of_dicts(ledger.get("bridge_artifacts"), field="bridge_artifacts", issues=issues)
+    bridges = _dict_of_dicts(
+        ledger.get("bridge_artifacts"), field="bridge_artifacts", issues=issues
+    )
     for bridge_id in REQUIRED_BRIDGES:
         if bridge_id not in bridges:
             issues.append({"code": "bridge_artifact_missing", "bridge": bridge_id})
@@ -253,7 +253,11 @@ def _validate_owner(repo_root: Path, owner: dict[str, Any], issues: list[dict[st
     consuming_task = owner.get("consuming_task")
     if consuming_task and consuming_task not in REQUIRED_TASKS:
         issues.append(
-            {"code": "owner_consuming_task_unknown", "owner_id": owner_id, "task_id": consuming_task}
+            {
+                "code": "owner_consuming_task_unknown",
+                "owner_id": owner_id,
+                "task_id": consuming_task,
+            }
         )
     if not _anchor_resolves(repo_root, str(owner.get("owner_path") or "")):
         issues.append(
@@ -342,7 +346,9 @@ def _parse_notebook_candidate_owners(
         if not stripped.startswith("- "):
             continue
         if current_disposition is None:
-            issues.append({"code": "notebook_owner_bullet_outside_disposition", "line": line_number})
+            issues.append(
+                {"code": "notebook_owner_bullet_outside_disposition", "line": line_number}
+            )
             continue
         match = NOTEBOOK_OWNER_BULLET_RE.match(stripped)
         if match is None:
@@ -433,7 +439,9 @@ def _validate_task_mapping(
     tasks: dict[str, dict[str, Any]],
     issues: list[dict[str, Any]],
 ) -> None:
-    mapping = _dict_of_dicts(ledger.get("task_owner_mapping"), field="task_owner_mapping", issues=issues)
+    mapping = _dict_of_dicts(
+        ledger.get("task_owner_mapping"), field="task_owner_mapping", issues=issues
+    )
     for task_id in REQUIRED_TASKS:
         if task_id not in mapping:
             issues.append({"code": "task_mapping_missing", "task_id": task_id})
@@ -560,6 +568,8 @@ def _validate_source_reconciliation(
                     "anchor": anchor,
                 }
             )
+
+
 def _validate_strangle_obligations(
     repo_root: Path,
     owners: list[dict[str, Any]],
@@ -841,8 +851,7 @@ def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
         v2_owner_refusal_is_bound = bool(
             payload.get("schema_version")
             == "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
-            and production_refusal.get("receipt_kind")
-            == "first_vertical_owner_data_gap"
+            and production_refusal.get("receipt_kind") == "first_vertical_owner_data_gap"
             and production_refusal.get("status") == "value_blocked"
             and production_refusal.get("value_receipt") is None
             and owner_availability.get("status") == "unavailable"
@@ -859,20 +868,23 @@ def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
             and denominators.get("catalog_snapshot_stable") is True
             and isinstance(denominators.get("registered_method_count"), int)
             and isinstance(denominators.get("value_capable_method_count"), int)
-            and 0 < denominators["value_capable_method_count"]
+            and 0
+            < denominators["value_capable_method_count"]
             < denominators["registered_method_count"]
             and education_refusal.get("selected_method_fqn")
             in set(denominators.get("value_capable_methods") or ())
-            and education_refusal.get("authority_blockers")
-            == ["method_estimand_binding_mismatch"]
+            and education_refusal.get("authority_blockers") == ["method_estimand_binding_mismatch"]
         )
-        controller = GenerationCycleController(repo_root=root)
+        controller = GenerationCycleController(
+            repo_root=root,
+            authority_scope="contract_testing",
+        )
         cycle_source = (root / "src/polisyos/runtime/quality/generation_cycle.py").read_text(
             encoding="utf-8"
         )
-        workspace_source = (
-            root / "src/polisyos/runtime/quality/workspace/loop.py"
-        ).read_text(encoding="utf-8")
+        workspace_source = (root / "src/polisyos/runtime/quality/workspace/loop.py").read_text(
+            encoding="utf-8"
+        )
         return {
             "red_mutation_ids": tuple(sorted(mutation_ids)),
             "source_flip_ids": source_flip_ids,
@@ -880,16 +892,11 @@ def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
                 getattr(controller, "_value_port", None),
                 FoundryValuePort,
             ),
-            "pending_value_port_production_call_count": cycle_source.count(
-                "PendingN8ValuePort()"
-            ),
+            "pending_value_port_production_call_count": cycle_source.count("PendingN8ValuePort()"),
             "cycle_imports_scientist_stage_b": (
-                "CompileFoundry" in cycle_source
-                or "scientist.nodes.builtins" in cycle_source
+                "CompileFoundry" in cycle_source or "scientist.nodes.builtins" in cycle_source
             ),
-            "cycle_imports_policy_runtime_support": (
-                "policy_runtime_support" in cycle_source
-            ),
+            "cycle_imports_policy_runtime_support": ("policy_runtime_support" in cycle_source),
             "workspace_fixed_method_count": workspace_source.count(
                 "causal.inference.synthetic_control@1.0.0"
             ),
@@ -903,10 +910,8 @@ def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
             ),
             "production_owner_inputs": (
                 (
-                    production.get("input_source")
-                    == "production_owner_access_no_runtime_hints"
-                    and production.get("audit_replay_source")
-                    == "real_owner_rederive_value_ready"
+                    production.get("input_source") == "production_owner_access_no_runtime_hints"
+                    and production.get("audit_replay_source") == "real_owner_rederive_value_ready"
                 )
                 or v2_owner_refusal_is_bound
             ),
@@ -921,8 +926,7 @@ def _n8_value_gate_evidence(repo_root: str) -> dict[str, Any] | None:
                 or (
                     len(content_bound_component_receipts) >= 2
                     and {
-                        str(proof.get("domain_role"))
-                        for proof in content_bound_component_receipts
+                        str(proof.get("domain_role")) for proof in content_bound_component_receipts
                     }
                     >= {"education", "unseen_pack_shape"}
                 )
@@ -1265,7 +1269,9 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
         notes=["non_default_round_trip_probe"],
     )
     bundle = TrinityBundle(
-        problem_frame=ProblemFrame(problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL),
+        problem_frame=ProblemFrame(
+            problem_id="problem_ua_msme_credit", domain=ProblemDomain.FISCAL
+        ),
         policy_spec=PolicySpec(
             policy_id="policy_ua_msme_credit",
             problem_frame_ref="sha256:" + "a" * 64,
@@ -1310,9 +1316,7 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
         target_domain="wartime_msme",
         selection_diagram_ref=intervention_atom_target_selector_ref(intervention),
         interaction_complex_ref=InteractionComplexRef(artifact_id="sha256:" + "4" * 64),
-        interference_certificate_ref=InterferenceCertificateRef(
-            artifact_id="sha256:" + "5" * 64
-        ),
+        interference_certificate_ref=InterferenceCertificateRef(artifact_id="sha256:" + "5" * 64),
         available_data_refs=(
             "data_snapshot:ua_msme_credit_panel",
             "data_snapshot:ua_wartime_firm_survival",
@@ -1321,9 +1325,7 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
     )
     base_identification_plan = identification_plan_for_intervention(causal)
     identification_conditions = tuple(
-        condition.model_copy(update={"required": False})
-        if index == 0
-        else condition
+        condition.model_copy(update={"required": False}) if index == 0 else condition
         for index, condition in enumerate(base_identification_plan.conditions)
     )
     identification_plan = base_identification_plan.model_copy(
@@ -1416,9 +1418,7 @@ def _sample_intervention_atom_binding_inputs() -> dict[str, Any]:
             identification_mode=str(intervention.identification_mode.value),
             strategic_response_expected=intervention.strategic_response_expected,
             transmission_channels=tuple(
-                item.model_dump(mode="json")
-                if hasattr(item, "model_dump")
-                else item
+                item.model_dump(mode="json") if hasattr(item, "model_dump") else item
                 for item in intervention.transmission_channels
             ),
             notes=tuple(intervention.notes),
@@ -1497,19 +1497,14 @@ def _sample_intervention_atom_binding() -> Any:
 def _intervention_atom_binding_sample_default_justifications() -> dict[str, str]:
     return {
         "atom.schema_version": (
-            "artifact schema sentinel; constrained to "
-            "INTERVENTION_ATOM_BINDING_SCHEMA_VERSION"
+            "artifact schema sentinel; constrained to INTERVENTION_ATOM_BINDING_SCHEMA_VERSION"
         ),
         "atom.measurement_expectations_authority": (
             "measurement expectations are metadata-only by contract; constrained to "
             "supporting_metadata"
         ),
-        "intervention.target.kind": (
-            "selector discriminator; constrained by SelectorPredicate"
-        ),
-        "causal.intervention_type": (
-            "proof-kernel discriminator; constrained by NodeIntervention"
-        ),
+        "intervention.target.kind": ("selector discriminator; constrained by SelectorPredicate"),
+        "causal.intervention_type": ("proof-kernel discriminator; constrained by NodeIntervention"),
         "causal_context.interaction_complex_ref.kind": (
             "artifact reference discriminator; constrained by InteractionComplexRef"
         ),
@@ -1600,9 +1595,7 @@ def _intervention_atom_binding_sample_non_default_report(
                     if child_path not in justifications:
                         issues.append(
                             {
-                                "code": (
-                                    "intervention_atom_binding_sample_default_unjustified"
-                                ),
+                                "code": ("intervention_atom_binding_sample_default_unjustified"),
                                 "field_path": child_path,
                             }
                         )
@@ -1863,11 +1856,19 @@ def _production_data_substrate_registry_landed(repo_root: Path) -> bool:
         l5 = load_l5_catalog_authority(default_substrate_catalog_paths(repo_root))
         registry = build_substrate_registry_from_existing_catalogs(repo_root)
         layers = {entry.layer for entry in registry.entries}
-        if not {SubstrateLayer.L1, SubstrateLayer.L2, SubstrateLayer.L3, SubstrateLayer.L4, SubstrateLayer.L5, SubstrateLayer.L6} <= layers:
+        if (
+            not {
+                SubstrateLayer.L1,
+                SubstrateLayer.L2,
+                SubstrateLayer.L3,
+                SubstrateLayer.L4,
+                SubstrateLayer.L5,
+                SubstrateLayer.L6,
+            }
+            <= layers
+        ):
             return False
-        proxy = registry.resolve(family_id="household_distribution", layer=SubstrateLayer.L5)[
-            0
-        ]
+        proxy = registry.resolve(family_id="household_distribution", layer=SubstrateLayer.L5)[0]
         if proxy.identification_mode != "proxy_identified":
             return False
         expected_proxy_tier = l5.expected_trust_tier("household_distribution")
@@ -1931,20 +1932,14 @@ def _intervention_substrate_lift_landed(repo_root: Path) -> bool:
 
         behavior = intervention_substrate_behavior_report(repo_root)
         registry = build_substrate_registry_from_existing_catalogs(repo_root)
-        l6_families = {
-            entry.family_id
-            for entry in registry.resolve(layer=SubstrateLayer.L6)
-        }
+        l6_families = {entry.family_id for entry in registry.resolve(layer=SubstrateLayer.L6)}
         required_families = {
             "l6_intervention_knob_dictionary",
             "l6_lex_intervention_map",
             "l6_observation_contract_routes",
             "l6_policy_scenario_templates",
         }
-        return (
-            behavior.get("status") == "pass"
-            and required_families <= l6_families
-        )
+        return behavior.get("status") == "pass" and required_families <= l6_families
     except Exception:
         return False
 
@@ -2019,7 +2014,9 @@ def _value_outer_set_strangle_receipt_landed(repo_root: Path) -> bool:
 
 
 def _design_generation_contract_landed(repo_root: Path) -> bool:
-    return _design_generation_contract_report(repo_root.resolve().as_posix()).get("status") == "pass"
+    return (
+        _design_generation_contract_report(repo_root.resolve().as_posix()).get("status") == "pass"
+    )
 
 
 def _generation_cycle_contract_landed(repo_root: Path) -> bool:
@@ -2123,9 +2120,7 @@ def _validate_method_availability_gate(
                     }
                 )
             continue
-        if expected_available != live_available or (
-            expected_available and smoke_status != "pass"
-        ):
+        if expected_available != live_available or (expected_available and smoke_status != "pass"):
             issues.append(
                 {
                     "code": "method_availability_gate_drift",
@@ -2297,9 +2292,7 @@ def _smoke_foundry_bayesian_bvar() -> str:
     from polisyos.foundry.methods.catalog.econometrics.protocols import TimeSeriesData
 
     state = TimeSeriesData(
-        endog=np.column_stack(
-            [np.arange(12, dtype=float), np.arange(12, dtype=float) * 2.0 + 1.0]
-        )
+        endog=np.column_stack([np.arange(12, dtype=float), np.arange(12, dtype=float) * 2.0 + 1.0])
     )
     result = BayesianVAREstimator.pure_step(state, {"n_lags": 1, "prior_scale": 0.5})
     return f"bvar_method={result['result'].method_name};n_obs={result['result'].n_obs}"

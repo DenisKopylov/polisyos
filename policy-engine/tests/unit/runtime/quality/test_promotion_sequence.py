@@ -840,6 +840,7 @@ def test_supported_owner_bound_offer_round_trips_through_generic_validator() -> 
     )
     assert data.risk_spend is not None
     assert data.risk_spend.deterministic_proof is True
+    assert receipt.owner_projection.epoch_validity_projection is None
     assert (
         promotion_sequence_module._validate_promotion_receipt_with_bound_session(
             receipt,
@@ -848,6 +849,7 @@ def test_supported_owner_bound_offer_round_trips_through_generic_validator() -> 
             design_problem=None,
             value_receipt=None,
             open_world_resolver=None,
+            epoch_validity_resolver=None,
             confidence_ledger_session=session,
             expected_authority_provenance="verification",
         )
@@ -1477,12 +1479,12 @@ def test_n9_port_rebinds_every_adaptive_receipt_to_one_final_ledger_head(
         "_legacy_policy_promotion_callers",
         lambda repo_root: (),
     )
-    port = CanonicalN9PromotionPort(
-        repo_root=REPO_ROOT,
-        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "cas")),
-    )
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
     problem_id = f"adaptive_ledger_{uuid4().hex}"
-    from tests.unit.runtime.quality.test_generation_cycle import _problem
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
 
     problem = _problem(problem_id)
     first = _summary()
@@ -1493,7 +1495,18 @@ def test_n9_port_rebinds_every_adaptive_receipt_to_one_final_ledger_head(
         }
     )
 
-    observation = port(summaries=(first, second), problem=problem)  # type: ignore[arg-type]
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(first, second),
+    )
+    port = CanonicalN9PromotionPort(
+        repo_root=REPO_ROOT,
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+    )
+    assert port.epoch_validity_resolver is runtime.epoch_n9_evidence_resolver
+    observation = port(admitted_batch=admitted_batch, problem=problem)
     receipts = tuple(
         CanonicalPromotionReceipt.model_validate(item) for item in observation.receipts
     )
@@ -1511,6 +1524,7 @@ def test_n9_port_rebinds_every_adaptive_receipt_to_one_final_ledger_head(
         validate_canonical_promotion_receipt(
             item,
             open_world_resolver=port.open_world_resolver,
+            epoch_validity_resolver=port.epoch_validity_resolver,
         )
         == ()
         for item in receipts
@@ -1526,26 +1540,30 @@ def test_promotion_context_cannot_supply_open_world_gate(
         "_legacy_policy_promotion_callers",
         lambda repo_root: (),
     )
-    problem_id = f"open_world_context_{uuid4().hex}"
-    problem = SimpleNamespace(
-        design_problem_id=problem_id,
-        model_spec_ref=None,
-        schema_version="policyos.runtime.design_problem.test.v1",
-        model_dump=lambda **kwargs: {
-            "design_problem_id": problem_id,
-            "schema_version": "policyos.runtime.design_problem.test.v1",
-        },
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        _positive_epoch_admitted_batch,
+        _problem,
+    )
+
+    problem = _problem(f"open_world_context_{uuid4().hex}")
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_summary(),),
     )
     port = CanonicalN9PromotionPort(
         context_provider=lambda summary, owner_problem: {
             "open_world_gate": (summary, owner_problem)
         },
-        promotion_runtime=PromotionRuntime(store=FileSystemCAS(tmp_path / "cas")),
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
         repo_root=REPO_ROOT,
     )
+    assert port.epoch_validity_resolver is runtime.epoch_n9_evidence_resolver
 
     with pytest.raises(ValueError, match="promotion_context_cannot_supply_open_world_gate"):
-        port(summaries=(_summary(),), problem=problem)  # type: ignore[arg-type]
+        port(admitted_batch=admitted_batch, problem=problem)
 
 
 def test_absent_open_world_runtime_freezes_production_promotion(
@@ -1568,13 +1586,13 @@ def test_absent_open_world_runtime_freezes_production_promotion(
     )
 
     result = CanonicalN9PromotionPort(repo_root=REPO_ROOT)(
-        summaries=(_summary(),),
+        admitted_batch=None,  # type: ignore[arg-type]
         problem=problem,  # type: ignore[arg-type]
     )
 
     assert result.status == "not_promoted"
     assert result.receipts == ()
-    assert result.reason == "open_world_risk_refused:promotion_runtime_not_established"
+    assert result.reason == "epoch_validity_refused:promotion_runtime_not_established"
 
 
 def test_verification_port_never_certifies_candidates() -> None:
@@ -1637,6 +1655,18 @@ def test_n9_port_exposes_no_custom_ledger_namespace_injection(
 ) -> None:
     with pytest.raises(TypeError, match="unexpected keyword argument"):
         CanonicalN9PromotionPort(**{kwarg: value})  # type: ignore[arg-type]
+
+
+def test_n9_port_rejects_epoch_resolver_from_another_runtime(tmp_path: Path) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "owner-cas"))
+    foreign = PromotionRuntime(store=FileSystemCAS(tmp_path / "foreign-cas"))
+
+    with pytest.raises(ValueError, match="epoch_n9_evidence_resolver_owner_mismatch"):
+        CanonicalN9PromotionPort(
+            promotion_runtime=runtime,
+            epoch_n9_evidence_resolver=foreign.epoch_n9_evidence_resolver,
+            repo_root=REPO_ROOT,
+        )
 
 
 def test_probabilistic_certificate_bypassing_ledger_is_rejected() -> None:
@@ -2278,6 +2308,7 @@ def test_promotion_comparison_refuses_v2_without_open_world_owner_fact() -> None
     legacy_owner = legacy_receipt["owner_projection"]
     legacy_owner["schema_version"] = "policyos.policy_design_case.layer3_gy.n9_owner_projection.v1"
     legacy_owner.pop("open_world_gate")
+    legacy_owner.pop("epoch_validity_projection")
     legacy_owner["projection_hash"] = gy_content_hash(
         {key: value for key, value in legacy_owner.items() if key != "projection_hash"}
     )

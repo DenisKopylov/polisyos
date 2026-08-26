@@ -41,6 +41,7 @@ from polisyos.runtime.quality.workspace.loop import (
 )
 
 if TYPE_CHECKING:
+    from polisyos.core import contracts as core_contracts
     from polisyos.runtime.quality.cycle_substrate import CycleSubstrateContext
     from polisyos.runtime.quality.open_world_risk import PromotionRuntime
     from polisyos.scientist import BudgetState
@@ -466,11 +467,11 @@ def _branch_binding_issue(
 
 def build_default_recursive_generation_cycle_controller(
     *,
+    promotion_runtime: PromotionRuntime,
     repo_root: Path | None = None,
     model_id: str | None = None,
-    promotion_runtime: PromotionRuntime | None = None,
 ) -> RecursiveGenerationCycleController:
-    """Build the production router whose leaves are canonical N6 controllers."""
+    """Build the production router from one container-owned promotion runtime."""
 
     return RecursiveGenerationCycleController(
         repo_root=repo_root,
@@ -488,10 +489,31 @@ class RecursiveGenerationCycleController:
         repo_root: Path | None = None,
         model_id: str | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        epoch_subject_authority: core_contracts.EpochValidityPreN9SubjectAuthority | None = None,
+        epoch_validity_gate: core_contracts.EpochValidityAuthorityGate | None = None,
+        epoch_n9_evidence_resolver: core_contracts.EpochValidityN9EvidenceResolver | None = None,
     ) -> None:
+        if promotion_runtime is not None and any(
+            dependency is not None
+            for dependency in (
+                epoch_subject_authority,
+                epoch_validity_gate,
+                epoch_n9_evidence_resolver,
+            )
+        ):
+            raise ValueError("recursive_epoch_dependencies_must_be_runtime_derived")
         self._repo_root = (repo_root or Path.cwd()).resolve()
         self._leaf_model_id = model_id
         self._promotion_runtime = promotion_runtime
+        self._epoch_subject_authority = epoch_subject_authority or getattr(
+            promotion_runtime, "epoch_subject_authority", None
+        )
+        self._epoch_validity_gate = epoch_validity_gate or getattr(
+            promotion_runtime, "epoch_validity_gate", None
+        )
+        self._epoch_n9_evidence_resolver = epoch_n9_evidence_resolver or getattr(
+            promotion_runtime, "epoch_n9_evidence_resolver", None
+        )
         self._cycle_controller_factory: CycleControllerFactory | None = None
         self._authority_scope: Literal["production", "contract_testing"] = "production"
         self._joint_simulation_controller = JointSimulationHorizonController()
@@ -523,6 +545,14 @@ class RecursiveGenerationCycleController:
         n4_generation_ports_by_node: Mapping[str, N4GenerationPort] | None = None,
     ) -> RecursiveGenerationCycleRun:
         """Run N6 at leaves and conservatively route terminals toward the root."""
+
+        if self._authority_scope == "production" and (
+            self._promotion_runtime is None
+            or self._epoch_subject_authority is None
+            or self._epoch_validity_gate is None
+            or self._epoch_n9_evidence_resolver is None
+        ):
+            raise RecursiveGenerationCycleError("recursive_epoch_owner_not_established")
 
         node_refs = tuple(recursive_graph.node_refs)
         if len(node_refs) != len(set(node_refs)):

@@ -2,21 +2,29 @@
 
 from __future__ import annotations
 
+import fcntl
+import hashlib
 import json
+import os
+import threading
 import uuid
+from collections.abc import Callable
+from contextlib import contextmanager
 from datetime import datetime, timedelta
+from functools import wraps
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, TypeVar, cast
+from typing import TYPE_CHECKING, Any, Concatenate, TypeVar, cast
 
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.timestamps import to_iso_utc, utc_now
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import content_hash, from_canonical_bytes
 from polisyos.core.contracts.decision_validity import (
     DecisionDependencyEvent,
+    DecisionDependencyKind,
     DecisionLifecycleJob,
     DecisionTriggerRecord,
     DecisionTriggerType,
@@ -24,6 +32,13 @@ from polisyos.core.contracts.decision_validity import (
     DecisionValidityEvaluation,
     DecisionValidityStatus,
     DecisionValidityTransition,
+    EpochTransitionVerificationReceipt,
+    EpochTransitionVerifier,
+    EpochValidityBatchCompletionStatement,
+    EpochValidityBatchReceipt,
+    EpochValidityBatchTarget,
+    EpochValidityPendingBatch,
+    PersistedEpochValidityBatchEvidence,
 )
 from polisyos.core.contracts.feedback import DecisionMonitoringContract
 from polisyos.scientist.orchestration.engine.operational_monitoring import get_operational_monitor
@@ -86,12 +101,24 @@ class _DecisionDependencyIndex(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     dependency_key: str
+    dependency_kind: DecisionDependencyKind
+    artifact_id: str | None = None
     packet_refs: list[str] = Field(default_factory=list)
     lineage_keys: list[str] = Field(default_factory=list)
     updated_at: datetime = Field(default_factory=utc_now)
 
 
-class DecisionValidityStateStore:
+class _PersistedEpochBatchReceiptState(BaseModel):
+    """Local index binding a batch id to exact CAS receipt bytes."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    receipt: EpochValidityBatchReceipt
+    receipt_artifact_ref: ArtifactRef
+    receipt_content_hash: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class _DecisionValidityStateStore:
     """Persist decision validity packets, lineage heads, dependencies, and dedupe state."""
 
     def __init__(self, cas: ArtifactStore | Path) -> None:
@@ -107,10 +134,17 @@ class DecisionValidityStateStore:
         self._lineages = self._base / "lineages"
         self._dependencies = self._base / "dependencies"
         self._dedupes = self._base / "dedupes"
+        self._epoch_pending = self._base / "epoch_pending"
+        self._epoch_receipts = self._base / "epoch_receipts"
+        self._epoch_lock_path = self._base / "epoch_batch.lock"
+        self._owner_process_lock = threading.RLock()
+        self._owner_transaction_state = threading.local()
         self._packets.mkdir(parents=True, exist_ok=True)
         self._lineages.mkdir(parents=True, exist_ok=True)
         self._dependencies.mkdir(parents=True, exist_ok=True)
         self._dedupes.mkdir(parents=True, exist_ok=True)
+        self._epoch_pending.mkdir(parents=True, exist_ok=True)
+        self._epoch_receipts.mkdir(parents=True, exist_ok=True)
 
     @staticmethod
     def make_key(value: str) -> str:
@@ -130,19 +164,21 @@ class DecisionValidityStateStore:
         return self._dedupes / f"{self.make_key(dedupe_key)}.json"
 
     def load_packet(self, packet_ref: str) -> _DecisionPacketState | None:
-        return self._load_model(self._packet_path(packet_ref), _DecisionPacketState)
+        return self._load_model_strict(self._packet_path(packet_ref), _DecisionPacketState)
 
     def save_packet(self, state: _DecisionPacketState) -> None:
         self._save_model(self._packet_path(state.packet_ref), state)
 
     def load_lineage(self, lineage_key: str) -> _DecisionLineageState | None:
-        return self._load_model(self._lineage_path(lineage_key), _DecisionLineageState)
+        return self._load_model_strict(self._lineage_path(lineage_key), _DecisionLineageState)
 
     def save_lineage(self, state: _DecisionLineageState) -> None:
         self._save_model(self._lineage_path(state.decision_lineage_key), state)
 
     def load_dependency(self, dependency_key: str) -> _DecisionDependencyIndex | None:
-        return self._load_model(self._dependency_path(dependency_key), _DecisionDependencyIndex)
+        return self._load_model_strict(
+            self._dependency_path(dependency_key), _DecisionDependencyIndex
+        )
 
     def save_dependency(self, state: _DecisionDependencyIndex) -> None:
         self._save_model(self._dependency_path(state.dependency_key), state)
@@ -153,10 +189,12 @@ class DecisionValidityStateStore:
             return None
         try:
             payload = json.loads(path.read_text(encoding="utf-8"))
-        except (OSError, ValueError, json.JSONDecodeError):
-            return None
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            raise RuntimeError("decision_validity_owner_state_corrupt") from exc
         value = payload.get("event_id")
-        return value if isinstance(value, str) and value else None
+        if not isinstance(value, str) or not value:
+            raise RuntimeError("decision_validity_owner_state_corrupt")
+        return value
 
     def save_dedupe_event_id(self, dedupe_key: str, event_id: str) -> None:
         path = self._dedupe_path(dedupe_key)
@@ -166,6 +204,116 @@ class DecisionValidityStateStore:
             encoding="utf-8",
         )
         temp.replace(path)
+
+    def load_epoch_pending(self, batch_id: str) -> EpochValidityPendingBatch | None:
+        """Load one durable phase-one freeze."""
+
+        return self._load_model_strict(
+            self._epoch_pending / f"{self.make_key(batch_id)}.json",
+            EpochValidityPendingBatch,
+        )
+
+    def save_epoch_pending(self, batch: EpochValidityPendingBatch) -> None:
+        """Atomically publish the complete target denominator before mutation."""
+
+        self._save_model(
+            self._epoch_pending / f"{self.make_key(batch.batch_id)}.json",
+            batch,
+        )
+
+    def list_epoch_pending(self) -> tuple[EpochValidityPendingBatch, ...]:
+        """Enumerate every durable freeze for restart-safe owner reads."""
+
+        batches: list[EpochValidityPendingBatch] = []
+        for item in sorted(self._epoch_pending.glob("*.json")):
+            batch = self._load_model_strict(item, EpochValidityPendingBatch)
+            if batch is None:  # pragma: no cover - glob established existence
+                raise RuntimeError("decision_validity_epoch_pending_disappeared")
+            batches.append(batch)
+        return tuple(batches)
+
+    def clear_epoch_pending(self, batch_id: str) -> None:
+        """Clear phase one only after a completed receipt is durable."""
+
+        target = self._epoch_pending / f"{self.make_key(batch_id)}.json"
+        try:
+            target.unlink()
+        except FileNotFoundError:
+            pass
+        else:
+            self._fsync_directory(target.parent)
+
+    def load_epoch_receipt(self, batch_id: str) -> EpochValidityBatchReceipt | None:
+        evidence = self.load_epoch_receipt_evidence(batch_id)
+        return evidence.receipt if evidence is not None else None
+
+    def load_epoch_receipt_evidence(self, batch_id: str) -> _PersistedEpochBatchReceiptState | None:
+        return self._load_model_strict(
+            self._epoch_receipts / f"{self.make_key(batch_id)}.json",
+            _PersistedEpochBatchReceiptState,
+        )
+
+    def save_epoch_receipt(
+        self,
+        receipt: EpochValidityBatchReceipt,
+        *,
+        receipt_artifact_ref: ArtifactRef,
+        receipt_content_hash: str,
+    ) -> None:
+        self._save_model(
+            self._epoch_receipts / f"{self.make_key(receipt.batch_id)}.json",
+            _PersistedEpochBatchReceiptState(
+                receipt=receipt,
+                receipt_artifact_ref=receipt_artifact_ref,
+                receipt_content_hash=receipt_content_hash,
+            ),
+        )
+
+    @contextmanager
+    def owner_transaction(self):
+        """Serialize every mutation that can change an owner denominator.
+
+        The process-local lock makes the critical section thread-safe.  The
+        outermost entry also takes the shared file lock, so independent
+        service instances and processes use the same owner boundary.  Nested
+        service calls reuse the outer transaction instead of re-locking it.
+        """
+
+        with self._owner_process_lock:
+            depth = int(getattr(self._owner_transaction_state, "depth", 0))
+            descriptor: int | None = None
+            if depth == 0:
+                descriptor = os.open(self._epoch_lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+                fcntl.flock(descriptor, fcntl.LOCK_EX)
+                self._owner_transaction_state.descriptor = descriptor
+            self._owner_transaction_state.depth = depth + 1
+            try:
+                yield
+            finally:
+                next_depth = int(self._owner_transaction_state.depth) - 1
+                self._owner_transaction_state.depth = next_depth
+                if next_depth == 0:
+                    outer_descriptor = int(self._owner_transaction_state.descriptor)
+                    fcntl.flock(outer_descriptor, fcntl.LOCK_UN)
+                    os.close(outer_descriptor)
+                    del self._owner_transaction_state.descriptor
+
+    epoch_batch_transaction = owner_transaction
+
+    def current_projection_generation_ref(self) -> str:
+        """Content-bind every file that can change the owner validity projection."""
+
+        digest = hashlib.sha256()
+        roots = (self._packets, self._epoch_pending, self._epoch_receipts)
+        for root in roots:
+            for item in sorted(root.glob("*.json")):
+                relative = item.relative_to(self._base).as_posix().encode("utf-8")
+                payload = item.read_bytes()
+                digest.update(len(relative).to_bytes(8, "big"))
+                digest.update(relative)
+                digest.update(len(payload).to_bytes(8, "big"))
+                digest.update(payload)
+        return "sha256:" + digest.hexdigest()
 
     @staticmethod
     def _load_model(path: Path, model_type: type[_StateModel]) -> _StateModel | None:
@@ -181,13 +329,68 @@ class DecisionValidityStateStore:
             return None
 
     @staticmethod
+    def _load_model_strict(path: Path, model_type: type[_StateModel]) -> _StateModel | None:
+        if not path.exists():
+            return None
+        try:
+            payload = json.loads(path.read_text(encoding="utf-8"))
+            return cast("_StateModel", model_type.model_validate(payload))
+        except _DECISION_VALIDITY_JSON_LOAD_ERRORS + _DECISION_VALIDITY_MODEL_ERRORS as exc:
+            raise RuntimeError("decision_validity_owner_state_corrupt") from exc
+
+    @staticmethod
     def _save_model(path: Path, model: BaseModel) -> None:
-        temp = path.with_suffix(".json.tmp")
-        temp.write_text(
-            json.dumps(model.model_dump(mode="json"), sort_keys=True, separators=(",", ":")),
-            encoding="utf-8",
-        )
+        payload = json.dumps(
+            model.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
+        ).encode("utf-8")
+        temp = path.with_name(f".{path.name}.{uuid.uuid4().hex}.tmp")
+        descriptor = os.open(temp, os.O_CREAT | os.O_EXCL | os.O_WRONLY, 0o600)
+        try:
+            with os.fdopen(descriptor, "wb", closefd=False) as stream:
+                stream.write(payload)
+                stream.flush()
+                os.fsync(stream.fileno())
+        finally:
+            os.close(descriptor)
         temp.replace(path)
+        _DecisionValidityStateStore._fsync_directory(path.parent)
+
+    @staticmethod
+    def _fsync_directory(directory: Path) -> None:
+        descriptor = os.open(directory, os.O_RDONLY)
+        try:
+            os.fsync(descriptor)
+        finally:
+            os.close(descriptor)
+
+
+class NoEpochTransitionVerifier:
+    """Production default: no transition verifier has been configured."""
+
+    verifier_provenance_ref = None
+
+    def verify(
+        self,
+        *,
+        transition_artifact_ref: ArtifactRef,
+        requested_query_context_ref: str,
+        expected_authority_purpose: str,
+    ) -> EpochTransitionVerificationReceipt:
+        del transition_artifact_ref, requested_query_context_ref, expected_authority_purpose
+        raise ValueError("verifier_not_configured")
+
+
+def _owner_transactional[**P, R](
+    method: Callable[Concatenate[Any, P], R],
+) -> Callable[Concatenate[Any, P], R]:
+    """Run one public owner mutation under the shared re-entrant transaction."""
+
+    @wraps(method)
+    def wrapped(self: Any, *args: P.args, **kwargs: P.kwargs) -> R:
+        with self._state.owner_transaction():
+            return method(self, *args, **kwargs)
+
+    return wrapped
 
 
 class DecisionValidityService:
@@ -198,11 +401,410 @@ class DecisionValidityService:
         store: ArtifactStore,
         *,
         reevaluate_ttl_seconds: int = 300,
+        epoch_transition_verifier: EpochTransitionVerifier | None = None,
     ) -> None:
         self._store = store
-        self._state = DecisionValidityStateStore(store)
+        self._state = _DecisionValidityStateStore(store)
         self._ttl = max(0, int(reevaluate_ttl_seconds))
+        self._epoch_transition_verifier = epoch_transition_verifier or NoEpochTransitionVerifier()
 
+    def state_generation(self) -> int:
+        """Return the number of persisted owner-projection records (test diagnostic)."""
+
+        return sum(
+            1
+            for root in (
+                self._state._packets,
+                self._state._epoch_pending,
+                self._state._epoch_receipts,
+            )
+            for _ in root.glob("*.json")
+        )
+
+    def current_projection_generation_ref(self) -> str:
+        """Return the content-bound cache identity for all current validity facts."""
+
+        return self._state.current_projection_generation_ref()
+
+    @_owner_transactional
+    def admit_epoch_validity_batch(
+        self,
+        *,
+        transition_artifact_ref: ArtifactRef,
+        requested_query_context_ref: str,
+    ) -> EpochValidityBatchReceipt:
+        """Verify and apply one complete owner-indexed epoch transition batch."""
+
+        verifier = self._epoch_transition_verifier
+        receipt = verifier.verify(
+            transition_artifact_ref=transition_artifact_ref,
+            requested_query_context_ref=requested_query_context_ref,
+            expected_authority_purpose="decision_validity_epoch_transition",
+        )
+        self._validate_epoch_transition_receipt(
+            receipt=receipt,
+            transition_artifact_ref=transition_artifact_ref,
+            requested_query_context_ref=requested_query_context_ref,
+        )
+        batch_id = _epoch_batch_id(
+            transition_artifact_ref=transition_artifact_ref,
+            requested_query_context_ref=requested_query_context_ref,
+        )
+        with self._state.epoch_batch_transaction():
+            completed = self._load_completed_epoch_receipt(batch_id)
+            pending = self._state.load_epoch_pending(batch_id)
+            if completed is not None:
+                self._require_completed_matches_verification(
+                    completed=completed,
+                    receipt=receipt,
+                )
+                if pending is not None:
+                    self._require_pending_matches_verification(
+                        pending=pending,
+                        receipt=receipt,
+                    )
+                    self._state.clear_epoch_pending(batch_id)
+                return completed
+
+            if pending is None:
+                active = self._state.list_epoch_pending()
+                if active:
+                    raise ValueError("batch_pending")
+                expected_targets, expected_denominator = self._resolve_epoch_target_denominator(
+                    dependency_keys=receipt.dependency_keys
+                )
+                observed_targets = {
+                    (row.packet_ref, row.dependency_key, row.decision_lineage_key)
+                    for row in receipt.targets
+                }
+                if observed_targets != expected_targets:
+                    raise ValueError("target_denominator_mismatch")
+                if receipt.dependency_denominator_ref != expected_denominator:
+                    raise ValueError("dependency_denominator_unresolved")
+                pending = EpochValidityPendingBatch(
+                    batch_id=batch_id,
+                    transition_artifact_ref=receipt.transition_artifact_ref,
+                    transition_content_hash=receipt.transition_content_hash,
+                    requested_query_context_ref=receipt.requested_query_context_ref,
+                    verifier_provenance_ref=receipt.verifier_provenance_ref,
+                    dependency_denominator_ref=receipt.dependency_denominator_ref,
+                    adjudication_denominator_ref=receipt.adjudication_denominator_ref,
+                    targets=receipt.targets,
+                )
+                # Phase one is the authoritative freeze and precedes every packet write.
+                self._state.save_epoch_pending(pending)
+            else:
+                # Resume the exact frozen denominator; later owner-index changes do
+                # not rewrite a batch that was already admitted.
+                self._require_pending_matches_verification(
+                    pending=pending,
+                    receipt=receipt,
+                )
+
+            applied = list(pending.applied_packet_refs)
+            targets_by_packet: dict[str, list[EpochValidityBatchTarget]] = {}
+            for target in pending.targets:
+                targets_by_packet.setdefault(target.packet_ref, []).append(target)
+            for packet_ref, packet_targets in targets_by_packet.items():
+                if packet_ref in applied:
+                    continue
+                statuses = [row.status for row in packet_targets]
+                status = statuses[0]
+                for candidate_status in statuses[1:]:
+                    status = _max_status(status, candidate_status)
+                reasons = _dedupe_strings([row.reason for row in packet_targets])
+                reason = (
+                    reasons[0] if len(reasons) == 1 else "epoch_batch_targets:" + "|".join(reasons)
+                )
+                event = DecisionDependencyEvent(
+                    event_id=(f"{batch_id}:{_DecisionValidityStateStore.make_key(packet_ref)}"),
+                    dedupe_key=(f"{batch_id}:{_DecisionValidityStateStore.make_key(packet_ref)}"),
+                    trigger_type=DecisionTriggerType.HISTORICAL_SEMANTIC_REVISION,
+                    status=status,
+                    reason=reason,
+                    dependency_keys=[row.dependency_key for row in packet_targets],
+                    source_ref=str(receipt.transition_artifact_ref.artifact_id),
+                    payload={
+                        "epoch_batch_id": batch_id,
+                        "requested_query_context_ref": requested_query_context_ref,
+                        "dependency_denominator_ref": receipt.dependency_denominator_ref,
+                        "adjudication_denominator_ref": receipt.adjudication_denominator_ref,
+                        "target_dispositions": [
+                            row.model_dump(mode="json") for row in packet_targets
+                        ],
+                    },
+                )
+                self._apply_event_to_packet(packet_ref=packet_ref, event=event)
+                applied.append(packet_ref)
+                pending = pending.model_copy(update={"applied_packet_refs": tuple(applied)})
+                self._state.save_epoch_pending(pending)
+
+            affected_packet_refs = tuple(dict.fromkeys(row.packet_ref for row in pending.targets))
+            completion = EpochValidityBatchCompletionStatement(
+                batch_id=batch_id,
+                transition_artifact_ref=receipt.transition_artifact_ref,
+                transition_content_hash=receipt.transition_content_hash,
+                requested_query_context_ref=receipt.requested_query_context_ref,
+                dependency_denominator_ref=receipt.dependency_denominator_ref,
+                adjudication_denominator_ref=receipt.adjudication_denominator_ref,
+                verifier_provenance_ref=receipt.verifier_provenance_ref,
+                affected_packet_refs=affected_packet_refs,
+                predicate_class="independently_reconciled",
+            )
+            completion_ref = self._store.put_json(
+                completion.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind="scientist.decision_validity_epoch_batch_completion",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name=("polisyos.decision-validity.epoch-batch-completion.v1"),
+                        version="1.0",
+                    ),
+                    inputs=[
+                        InputRef(
+                            artifact_id=transition_artifact_ref.artifact_id,
+                            role="epoch_transition",
+                        )
+                    ],
+                ),
+            )
+            result = EpochValidityBatchReceipt(
+                batch_id=batch_id,
+                transition_artifact_ref=receipt.transition_artifact_ref,
+                transition_content_hash=receipt.transition_content_hash,
+                requested_query_context_ref=receipt.requested_query_context_ref,
+                dependency_denominator_ref=receipt.dependency_denominator_ref,
+                adjudication_denominator_ref=receipt.adjudication_denominator_ref,
+                verifier_provenance_ref=receipt.verifier_provenance_ref,
+                completion_receipt_ref=completion_ref,
+                affected_packet_refs=affected_packet_refs,
+            )
+            result_ref = self._store.put_json(
+                result.model_dump(mode="json"),
+                ArtifactWriteOptions(
+                    kind="scientist.decision_validity_epoch_batch_receipt",
+                    media_type="application/json",
+                    schema=SchemaInfo(
+                        name="polisyos.decision-validity.epoch-batch-receipt.v1",
+                        version="1.0",
+                    ),
+                    inputs=[
+                        InputRef(
+                            artifact_id=transition_artifact_ref.artifact_id,
+                            role="epoch_transition",
+                        ),
+                        InputRef(
+                            artifact_id=completion_ref.artifact_id,
+                            role="completion_statement",
+                        ),
+                    ],
+                ),
+            )
+            result_raw = self._store.get_bytes(result_ref.artifact_id)
+            result_hash = "sha256:" + hashlib.sha256(result_raw).hexdigest()
+            self._state.save_epoch_receipt(
+                result,
+                receipt_artifact_ref=result_ref,
+                receipt_content_hash=result_hash,
+            )
+            self._state.clear_epoch_pending(batch_id)
+            return result
+
+    @staticmethod
+    def _require_pending_matches_verification(
+        *,
+        pending: EpochValidityPendingBatch,
+        receipt: EpochTransitionVerificationReceipt,
+    ) -> None:
+        expected = (
+            receipt.transition_artifact_ref,
+            receipt.transition_content_hash,
+            receipt.requested_query_context_ref,
+            receipt.verifier_provenance_ref,
+            receipt.dependency_denominator_ref,
+            receipt.adjudication_denominator_ref,
+            receipt.targets,
+        )
+        observed = (
+            pending.transition_artifact_ref,
+            pending.transition_content_hash,
+            pending.requested_query_context_ref,
+            pending.verifier_provenance_ref,
+            pending.dependency_denominator_ref,
+            pending.adjudication_denominator_ref,
+            pending.targets,
+        )
+        if observed != expected:
+            raise ValueError("epoch_pending_verification_binding_mismatch")
+
+    @staticmethod
+    def _require_completed_matches_verification(
+        *,
+        completed: EpochValidityBatchReceipt,
+        receipt: EpochTransitionVerificationReceipt,
+    ) -> None:
+        expected_packets = tuple(dict.fromkeys(row.packet_ref for row in receipt.targets))
+        if (
+            completed.transition_artifact_ref != receipt.transition_artifact_ref
+            or completed.transition_content_hash != receipt.transition_content_hash
+            or completed.requested_query_context_ref != receipt.requested_query_context_ref
+            or completed.dependency_denominator_ref != receipt.dependency_denominator_ref
+            or completed.adjudication_denominator_ref != receipt.adjudication_denominator_ref
+            or completed.verifier_provenance_ref != receipt.verifier_provenance_ref
+            or completed.affected_packet_refs != expected_packets
+        ):
+            raise ValueError("epoch_completed_verification_binding_mismatch")
+
+    def _load_completed_epoch_receipt(self, batch_id: str) -> EpochValidityBatchReceipt | None:
+        evidence = self._state.load_epoch_receipt_evidence(batch_id)
+        if evidence is None:
+            return None
+        try:
+            report = self._store.verify(evidence.receipt_artifact_ref.artifact_id)
+            raw = self._store.get_bytes(evidence.receipt_artifact_ref.artifact_id)
+            parsed = EpochValidityBatchReceipt.model_validate(from_canonical_bytes(raw))
+            completion_report = self._store.verify(parsed.completion_receipt_ref.artifact_id)
+            completion_raw = self._store.get_bytes(parsed.completion_receipt_ref.artifact_id)
+            completion = EpochValidityBatchCompletionStatement.model_validate(
+                from_canonical_bytes(completion_raw)
+            )
+            transition_report = self._store.verify(parsed.transition_artifact_ref.artifact_id)
+            transition_raw = self._store.get_bytes(parsed.transition_artifact_ref.artifact_id)
+        except _DECISION_VALIDITY_ARTIFACT_LOAD_ERRORS as exc:
+            raise RuntimeError("decision_validity_epoch_receipt_unresolved") from exc
+        observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
+        observed_transition_hash = "sha256:" + hashlib.sha256(transition_raw).hexdigest()
+        if (
+            not report.ok
+            or not completion_report.ok
+            or not transition_report.ok
+            or observed_hash != evidence.receipt_content_hash
+            or observed_transition_hash != parsed.transition_content_hash
+            or parsed != evidence.receipt
+            or completion.batch_id != parsed.batch_id
+            or completion.transition_artifact_ref != parsed.transition_artifact_ref
+            or completion.transition_content_hash != parsed.transition_content_hash
+            or completion.requested_query_context_ref != parsed.requested_query_context_ref
+            or completion.dependency_denominator_ref != parsed.dependency_denominator_ref
+            or completion.adjudication_denominator_ref != parsed.adjudication_denominator_ref
+            or completion.verifier_provenance_ref != parsed.verifier_provenance_ref
+            or completion.affected_packet_refs != parsed.affected_packet_refs
+        ):
+            raise RuntimeError("decision_validity_epoch_receipt_unresolved")
+        return parsed
+
+    def resolve_completed_epoch_batch_evidence(
+        self,
+        *,
+        batch_receipt_ref: ArtifactRef,
+    ) -> PersistedEpochValidityBatchEvidence:
+        """Resolve exact completed bytes by ref for the Claim owner bridge."""
+
+        for item in sorted(self._state._epoch_receipts.glob("*.json")):
+            state = self._state._load_model_strict(
+                item,
+                _PersistedEpochBatchReceiptState,
+            )
+            if state is None or state.receipt_artifact_ref != batch_receipt_ref:
+                continue
+            parsed = self._load_completed_epoch_receipt(state.receipt.batch_id)
+            if parsed is None:
+                break
+            raw = self._store.get_bytes(batch_receipt_ref.artifact_id)
+            return PersistedEpochValidityBatchEvidence(
+                batch_receipt_ref=batch_receipt_ref,
+                batch_receipt_content_hash=state.receipt_content_hash,
+                receipt_bytes=raw,
+                receipt=parsed,
+            )
+        raise ValueError("decision_validity_epoch_receipt_unresolved")
+
+    def resolve_completed_epoch_batch_evidence_by_id(
+        self,
+        *,
+        batch_id: str,
+    ) -> PersistedEpochValidityBatchEvidence:
+        """Resolve the exact artifact handle produced for one admitted batch."""
+
+        state = self._state.load_epoch_receipt_evidence(batch_id)
+        if state is None:
+            raise ValueError("decision_validity_epoch_receipt_unresolved")
+        return self.resolve_completed_epoch_batch_evidence(
+            batch_receipt_ref=state.receipt_artifact_ref
+        )
+
+    def _validate_epoch_transition_receipt(
+        self,
+        *,
+        receipt: EpochTransitionVerificationReceipt,
+        transition_artifact_ref: ArtifactRef,
+        requested_query_context_ref: str,
+    ) -> None:
+        if receipt.predicate_class != "independently_reconciled":
+            raise ValueError("verifier_provenance_untrusted")
+        expected_provenance = getattr(
+            self._epoch_transition_verifier,
+            "verifier_provenance_ref",
+            None,
+        )
+        if expected_provenance is None or receipt.verifier_provenance_ref != expected_provenance:
+            raise ValueError("verifier_provenance_untrusted")
+        try:
+            self._store.get_bytes(expected_provenance.artifact_id)
+            provenance_report = self._store.verify(expected_provenance.artifact_id)
+            provenance_manifest = self._store.get_manifest(expected_provenance.artifact_id)
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("verifier_provenance_untrusted") from exc
+        if (
+            not provenance_report.ok
+            or expected_provenance.kind != "chronology.epoch_transition_verifier"
+            or provenance_manifest.kind != "chronology.epoch_transition_verifier"
+        ):
+            raise ValueError("verifier_provenance_untrusted")
+        if receipt.transition_artifact_ref != transition_artifact_ref:
+            raise ValueError("ref_unresolved")
+        if receipt.requested_query_context_ref != requested_query_context_ref:
+            raise ValueError("query_context_mismatch")
+        if receipt.authority_purpose != "decision_validity_epoch_transition":
+            raise ValueError("authority_purpose_mismatch")
+        try:
+            raw = self._store.get_bytes(transition_artifact_ref.artifact_id)
+            report = self._store.verify(transition_artifact_ref.artifact_id)
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:
+            raise ValueError("ref_unresolved") from exc
+        observed_hash = "sha256:" + hashlib.sha256(raw).hexdigest()
+        if not report.ok or receipt.transition_content_hash != observed_hash:
+            raise ValueError("content_hash_mismatch")
+
+    def _resolve_epoch_target_denominator(
+        self,
+        *,
+        dependency_keys: tuple[str, ...],
+    ) -> tuple[set[tuple[str, str, str]], str]:
+        rows: list[dict[str, object]] = []
+        targets: set[tuple[str, str, str]] = set()
+        for key in sorted(dependency_keys):
+            owner = self._state.load_dependency(key)
+            if owner is None or owner.dependency_kind != DecisionDependencyKind.SEMANTIC_EPOCH:
+                raise ValueError("dependency_denominator_unresolved")
+            rows.append(
+                {
+                    "dependency_key": owner.dependency_key,
+                    "dependency_kind": owner.dependency_kind.value,
+                    "artifact_id": owner.artifact_id,
+                    "packet_refs": sorted(owner.packet_refs),
+                    "lineage_keys": sorted(owner.lineage_keys),
+                }
+            )
+            for packet_ref in owner.packet_refs:
+                packet = self._state.load_packet(packet_ref)
+                if packet is None:
+                    raise ValueError("dependency_denominator_unresolved")
+                targets.add((packet_ref, key, packet.decision_lineage_key))
+        raw = json.dumps(rows, sort_keys=True, separators=(",", ":")).encode("utf-8")
+        return targets, "sha256:" + hashlib.sha256(raw).hexdigest()
+
+    @_owner_transactional
     def register_decision_packet(
         self,
         *,
@@ -234,7 +836,16 @@ class DecisionValidityService:
         self._register_dependencies(
             packet_ref=packet_ref,
             decision_lineage_key=envelope.decision_lineage_key,
-            dependency_keys=dependency_keys,
+            dependencies=tuple(
+                dependency
+                for section in (
+                    envelope.normative_basis,
+                    envelope.data_basis,
+                    envelope.knowledge_basis,
+                    envelope.transportability_basis,
+                )
+                for dependency in section.dependencies
+            ),
         )
         packet_state = self._state.load_packet(packet_ref)
         self._state.save_lineage(
@@ -259,6 +870,7 @@ class DecisionValidityService:
             )
         return persisted
 
+    @_owner_transactional
     def ensure_evaluation(
         self,
         packet_ref: str,
@@ -277,7 +889,7 @@ class DecisionValidityService:
             if age <= timedelta(seconds=self._ttl):
                 loaded = self._load_evaluation(current_state.evaluation_ref)
                 if loaded is not None:
-                    return loaded
+                    return self._overlay_epoch_pending(loaded)
 
         payload = (
             packet_payload if packet_payload is not None else self._load_packet_payload(packet_ref)
@@ -287,10 +899,48 @@ class DecisionValidityService:
             packet_payload=payload,
             current_state=current_state,
         )
-        return self._persist_evaluation(
+        persisted = self._persist_evaluation(
             packet_ref=packet_ref,
             evaluation=evaluation,
             sticky_triggers=list(current_state.sticky_triggers) if current_state else [],
+        )
+        return self._overlay_epoch_pending(persisted)
+
+    def read_current_projection(self, packet_ref: str) -> DecisionValidityEvaluation:
+        """Read current owner state plus a restart-safe pending-batch overlay."""
+
+        state = self._state.load_packet(packet_ref)
+        if state is not None and state.evaluation_ref is not None:
+            loaded = self._load_evaluation(state.evaluation_ref)
+            if loaded is not None:
+                return self._overlay_epoch_pending(loaded)
+        return self.ensure_evaluation(packet_ref)
+
+    def _overlay_epoch_pending(
+        self,
+        evaluation: DecisionValidityEvaluation,
+    ) -> DecisionValidityEvaluation:
+        pending = tuple(
+            batch
+            for batch in self._state.list_epoch_pending()
+            if any(target.packet_ref == evaluation.decision_packet_ref for target in batch.targets)
+        )
+        if not pending:
+            return evaluation
+        status = _max_status(evaluation.status, DecisionValidityStatus.STALE)
+        reasons = _dedupe_strings(
+            [
+                *evaluation.reasons,
+                *(f"epoch_validity_batch_pending:{batch.batch_id}" for batch in pending),
+            ]
+        )
+        return evaluation.model_copy(
+            update={
+                "status": status,
+                "reasons": reasons,
+                "review_required": _is_review_required_status(status),
+                "recommended_action": _recommended_action(status),
+            }
         )
 
     def get_evaluation(
@@ -364,11 +1014,18 @@ class DecisionValidityService:
         )
         return self.record_dependency_event(event=event)
 
+    @_owner_transactional
     def record_dependency_event(
         self,
         *,
         event: DecisionDependencyEvent,
     ) -> list[DecisionValidityEvaluation]:
+        owner_rows = tuple(self._state.load_dependency(key) for key in event.dependency_keys)
+        if any(
+            row is not None and row.dependency_kind == DecisionDependencyKind.SEMANTIC_EPOCH
+            for row in owner_rows
+        ):
+            raise ValueError("semantic_epoch_dependency_requires_owner_batch")
         if self._state.load_dedupe_event_id(event.dedupe_key):
             cached_evaluations: list[DecisionValidityEvaluation] = []
             for dependency_key in event.dependency_keys:
@@ -402,6 +1059,7 @@ class DecisionValidityService:
             evaluations.append(self._apply_event_to_packet(packet_ref=packet_ref, event=event))
         return evaluations
 
+    @_owner_transactional
     def mark_packet_trigger(
         self,
         *,
@@ -435,6 +1093,7 @@ class DecisionValidityService:
         self._state.save_dedupe_event_id(event.dedupe_key, event.event_id)
         return self._apply_event_to_packet(packet_ref=packet_ref, event=event)
 
+    @_owner_transactional
     def backfill_packet(self, packet_ref: str) -> DecisionValidityEvaluation:
         payload = self._load_packet_payload(packet_ref)
         evaluation = self.ensure_evaluation(packet_ref, packet_payload=payload, force=True)
@@ -474,9 +1133,12 @@ class DecisionValidityService:
         sticky = _dedupe_trigger_records([*sticky, *triggers])
         lifecycle_events = _dedupe_events([*state.lifecycle_events, event])
         lifecycle_jobs = list(state.lifecycle_jobs)
+        job_key = hashlib.sha256(
+            f"{packet_ref}\0{event.event_id}\0evaluation".encode()
+        ).hexdigest()[:24]
         lifecycle_jobs.append(
             DecisionLifecycleJob(
-                job_id=f"decision_eval_{uuid.uuid4().hex[:12]}",
+                job_id=f"decision_eval_{job_key}",
                 job_kind="evaluation",
                 packet_ref=packet_ref,
                 decision_lineage_key=state.decision_lineage_key,
@@ -607,6 +1269,7 @@ class DecisionValidityService:
         self._state.save_packet(packet_state)
         return evaluation
 
+    @_owner_transactional
     def update_feedback_refs(
         self,
         packet_ref: str,
@@ -910,12 +1573,24 @@ class DecisionValidityService:
         *,
         packet_ref: str,
         decision_lineage_key: str,
-        dependency_keys: list[str],
+        dependencies: tuple[object, ...],
     ) -> None:
-        for dependency_key in dependency_keys:
+        for dependency in dependencies:
+            dependency_key = str(dependency.key)
+            dependency_kind = DecisionDependencyKind(dependency.kind)
+            artifact_id = getattr(dependency, "artifact_id", None)
             dependency_state = self._state.load_dependency(dependency_key)
             if dependency_state is None:
-                dependency_state = _DecisionDependencyIndex(dependency_key=dependency_key)
+                dependency_state = _DecisionDependencyIndex(
+                    dependency_key=dependency_key,
+                    dependency_kind=dependency_kind,
+                    artifact_id=artifact_id,
+                )
+            elif (
+                dependency_state.dependency_kind != dependency_kind
+                or dependency_state.artifact_id != artifact_id
+            ):
+                raise ValueError("decision_dependency_owner_identity_mismatch")
             packet_refs = list(dependency_state.packet_refs)
             lineage_keys = list(dependency_state.lineage_keys)
             if packet_ref not in packet_refs:
@@ -1032,11 +1707,12 @@ def _dedupe_jobs(
     values: list[DecisionLifecycleJob],
 ) -> list[DecisionLifecycleJob]:
     deduped: list[DecisionLifecycleJob] = []
-    seen: set[str] = set()
+    seen: set[tuple[str, str | None, str]] = set()
     for item in values:
-        if item.job_id in seen:
+        key = (item.packet_ref, item.trigger_event_id, item.job_kind)
+        if key in seen:
             continue
-        seen.add(item.job_id)
+        seen.add(key)
         deduped.append(item)
     return deduped
 
@@ -1064,6 +1740,23 @@ def _build_event_dedupe_key(
             )
         )
     )
+
+
+def _epoch_batch_id(
+    *,
+    transition_artifact_ref: ArtifactRef,
+    requested_query_context_ref: str,
+) -> str:
+    payload = json.dumps(
+        {
+            "transition_artifact_id": str(transition_artifact_ref.artifact_id),
+            "transition_kind": transition_artifact_ref.kind,
+            "requested_query_context_ref": requested_query_context_ref,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    return "epoch_batch_" + hashlib.sha256(payload).hexdigest()
 
 
 def _trigger_records_from_event(
@@ -1185,5 +1878,4 @@ def _is_review_required_status(status: DecisionValidityStatus) -> bool:
 
 __all__ = [
     "DecisionValidityService",
-    "DecisionValidityStateStore",
 ]

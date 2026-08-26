@@ -2716,6 +2716,7 @@ def _build_cycle_trace(
                 ),
                 repo_root=root,
                 cycle_substrate_context=cycle_substrate_context,
+                authority_scope="contract_testing",
             )
             run_result = await controller.run(
                 problem,

@@ -219,6 +219,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"),
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"),
     ("POST", "/api/v1/control/data/resolve"),
+    ("POST", "/api/v1/control/decision-validity/epoch-batches"),
     ("POST", "/api/v1/control/decision-validity/events"),
     ("POST", "/api/v1/control/lex/search"),
     ("POST", "/api/v1/control/lex/trigger"),
@@ -266,6 +267,10 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "POST",
         "/api/v1/control/decision-validity/events",
     ): RuntimePermission.DECISIONS_VALIDITY_PUBLISH,
+    (
+        "POST",
+        "/api/v1/control/decision-validity/epoch-batches",
+    ): RuntimePermission.DECISIONS_VALIDITY_PUBLISH,
     ("POST", "/api/v1/control/lex/search"): RuntimePermission.KNOWLEDGE_SEARCH,
     ("POST", "/api/v1/control/lex/trigger"): RuntimePermission.KNOWLEDGE_TRIGGER,
     ("POST", "/api/v1/control/runs"): RuntimePermission.RUNS_LAUNCH,
@@ -294,32 +299,21 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/analysis/continuation"): "persist-continuation-branch",
     ("POST", "/api/v1/analysis/lyapunov"): "analyze-lyapunov",
     ("POST", "/api/v1/artifacts/batch"): "get-artifact-batch",
-    ("POST", "/api/v1/artifacts/{packet_id}/render"): (
-        "render-bureaucratic-artifact"
-    ),
-    ("POST", "/api/v1/control/analytics/sae/causal-frontier"): (
-        "estimate-causal-frontier-sae"
-    ),
+    ("POST", "/api/v1/artifacts/{packet_id}/render"): ("render-bureaucratic-artifact"),
+    ("POST", "/api/v1/control/analytics/sae/causal-frontier"): ("estimate-causal-frontier-sae"),
     ("POST", "/api/v1/control/data/discover"): "discover-data-sources",
     ("POST", "/api/v1/control/data/ingest"): "ingest-data",
     ("POST", "/api/v1/control/data/preview"): "preview-fetch-plan",
-    ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"): (
-        "approve-data-promotion"
-    ),
-    ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"): (
-        "reject-data-promotion"
-    ),
+    ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"): ("approve-data-promotion"),
+    ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"): ("reject-data-promotion"),
     ("POST", "/api/v1/control/data/resolve"): "resolve-data-needs",
-    ("POST", "/api/v1/control/decision-validity/events"): (
-        "publish-decision-validity-event"
-    ),
+    ("POST", "/api/v1/control/decision-validity/events"): ("publish-decision-validity-event"),
+    ("POST", "/api/v1/control/decision-validity/epoch-batches"): ("admit-epoch-validity-batch"),
     ("POST", "/api/v1/control/lex/search"): "search-lex-graph",
     ("POST", "/api/v1/control/lex/trigger"): "trigger-lex-pipeline",
     ("POST", "/api/v1/control/runs"): "launch-run",
     ("POST", "/api/v1/control/runs/nl"): "launch-nl-run",
-    ("POST", "/api/v1/control/runs/{run_id}/feedback/evaluate"): (
-        "evaluate-run-feedback"
-    ),
+    ("POST", "/api/v1/control/runs/{run_id}/feedback/evaluate"): ("evaluate-run-feedback"),
     ("POST", "/api/v1/control/runs/{run_id}/reissue"): "reissue-run",
     ("POST", "/api/v1/fabric/impact"): "analyze-fabric-impact",
     ("POST", "/api/v1/fabric/quality/batch"): "get-fabric-quality-batch",
@@ -328,9 +322,7 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/mobility/bounds"): "compute-mobility-bounds",
     ("POST", "/api/v1/mobility/estimate"): "estimate-mobility",
     ("POST", "/api/v1/runs/batch"): "get-runs-batch",
-    ("POST", "/api/v1/runs/{run_id}/production-approval"): (
-        "create-run-production-approval"
-    ),
+    ("POST", "/api/v1/runs/{run_id}/production-approval"): ("create-run-production-approval"),
     ("POST", "/api/v1/runs/{run_id}/scenarios"): "create-run-scenario",
 }
 _HIGH_STAKES_MUTATING_OPERATIONS = (
@@ -338,6 +330,7 @@ _HIGH_STAKES_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/approve"),
     ("POST", "/api/v1/control/data/promotion/{promotion_id}/reject"),
     ("POST", "/api/v1/control/decision-validity/events"),
+    ("POST", "/api/v1/control/decision-validity/epoch-batches"),
     ("POST", "/api/v1/control/runs/{run_id}/reissue"),
     ("POST", "/api/v1/runs/{run_id}/production-approval"),
 )
@@ -352,9 +345,7 @@ def _mutation_operation_params() -> tuple[object, ...]:
 
 
 def _high_stakes_mutation_params() -> tuple[object, ...]:
-    assert set(_HIGH_STAKES_MUTATING_OPERATIONS).issubset(
-        _MUTATING_OPERATION_CASE_IDS
-    )
+    assert set(_HIGH_STAKES_MUTATING_OPERATIONS).issubset(_MUTATING_OPERATION_CASE_IDS)
     return tuple(
         pytest.param(operation, id=_MUTATING_OPERATION_CASE_IDS[operation])
         for operation in _HIGH_STAKES_MUTATING_OPERATIONS
@@ -501,6 +492,7 @@ def _create_authorized_matrix_run(
     *,
     cell_id: str,
     run_id: str,
+    execution_profile: str | None = None,
 ) -> str:
     store = FileSystemCAS(runtime_api_env["cas_root"])
     registry_ref = store.put_json(
@@ -518,6 +510,7 @@ def _create_authorized_matrix_run(
         tenant_id=runtime_api_env["tenant_a"],
         cell_id=cell_id,
     )
+    run.run_manifest.execution_profile = execution_profile
     run.finalize()
     return run_id
 
@@ -532,9 +525,7 @@ def _causal_frontier_body() -> dict[str, Any]:
                 "policy_indicator": 1.0 if index >= 4 else 0.0,
                 "covariates": {"trend": float(index) / 7.0},
             }
-            for index, estimate in enumerate(
-                [0.8, 1.0, 1.2, 1.4, 2.8, 3.0, 3.2, 3.4]
-            )
+            for index, estimate in enumerate([0.8, 1.0, 1.2, 1.4, 2.8, 3.0, 3.2, 3.4])
         ],
         "edges": [
             {
@@ -696,6 +687,15 @@ def _authorized_mutation_request(
                 "change_reason": "DS20 authorized publication proof",
             },
         }
+    if case_id == "admit-epoch-validity-batch":
+        return default_path, {
+            "transition_artifact_ref": {
+                "artifact_id": runtime_api_env["root_artifact_id"],
+                "kind": "chronology.epoch_transition",
+                "media_type": "application/vnd.polisyos.chronology+json",
+            },
+            "requested_query_context_ref": "sha256:" + "d" * 64,
+        }
     if case_id == "search-lex-graph":
         return default_path, {
             "query": "authorization",
@@ -712,9 +712,7 @@ def _authorized_mutation_request(
     if case_id == "launch-run":
         return default_path, {
             "mode": "workflow",
-            "data_source": {
-                "data_snapshot_ref": runtime_api_env["root_artifact_id"]
-            },
+            "data_source": {"data_snapshot_ref": runtime_api_env["root_artifact_id"]},
             "checkpoint_policy": "strict",
             "params": {"seed": 42},
         }
@@ -729,9 +727,7 @@ def _authorized_mutation_request(
             cell_id=cell_id,
             run_id=f"R_ds20_{case_id.replace('-', '_')}",
         )
-        client.app.state.runtime_container.runtime_api_context.run_index.refresh(
-            force=True
-        )
+        client.app.state.runtime_container.runtime_api_context.run_index.refresh(force=True)
         if case_id == "evaluate-run-feedback":
             feedback = client.app.state.runtime_container.runtime_api_context.feedback
             monkeypatch.setattr(
@@ -805,9 +801,7 @@ def _authorized_mutation_request(
         scorecard_ref = _create_production_scorecard(runtime_api_env, cell_id=cell_id)
         return default_path, {"quality_scorecard_ref": scorecard_ref}
     if case_id == "create-run-scenario":
-        quantity_response = runtime_api_env["client"].get(
-            f"/api/v1/runs/{run_id}/quantities"
-        )
+        quantity_response = runtime_api_env["client"].get(f"/api/v1/runs/{run_id}/quantities")
         assert quantity_response.status_code == 200
         quantity = next(
             item
@@ -921,9 +915,7 @@ def test_mutating_operation_without_permission_is_denied_403(
     method, route_path = operation
     permission = _EXPECTED_MUTATING_PERMISSIONS[operation]
     opa = _CaptureOPA()
-    bearer = _fixture_bearer(
-        f"matrix-no-permission-{_MUTATING_OPERATION_CASE_IDS[operation]}"
-    )
+    bearer = _fixture_bearer(f"matrix-no-permission-{_MUTATING_OPERATION_CASE_IDS[operation]}")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=opa,
@@ -1046,7 +1038,11 @@ def test_mutating_operation_authorized_request_reaches_handler(
             **request_options,
         )
 
-    assert response.status_code == 200, response.text
+    if case_id == "admit-epoch-validity-batch":
+        assert response.status_code == 422, response.text
+        assert response.json()["code"] == "verifier_not_configured"
+    else:
+        assert response.status_code == 200, response.text
     assert isinstance(response.json(), dict)
     assert len(opa.inputs) == 1
     assert opa.inputs[0].request_method == method
@@ -1284,7 +1280,7 @@ def test_new_sibling_mutating_route_is_automatically_in_denominator(
     client, _ = _build_permissionless_client(runtime_api_env)
     app = cast("FastAPI", client.app)
 
-    @app.post("/api/v1/ds20/synthetic-route-30")
+    @app.post("/api/v1/ds20/synthetic-route-31")
     def _unguarded_mutation() -> dict[str, bool]:
         return {"mutated": True}
 
@@ -1292,10 +1288,10 @@ def test_new_sibling_mutating_route_is_automatically_in_denominator(
     synthetic_route = next(
         route
         for route in _live_mutating_routes(client.app)
-        if route.path == "/api/v1/ds20/synthetic-route-30"
+        if route.path == "/api/v1/ds20/synthetic-route-31"
     )
-    assert len(operations) == 30
-    assert ("POST", "/api/v1/ds20/synthetic-route-30") in operations
+    assert len(operations) == 31
+    assert ("POST", "/api/v1/ds20/synthetic-route-31") in operations
 
     dependencies = _action_permission_dependencies(synthetic_route)
     assert not dependencies
@@ -1306,7 +1302,7 @@ def test_new_sibling_mutating_route_is_automatically_in_denominator(
     )
     with pytest.raises(
         RuntimeError,
-        match=r"POST /api/v1/ds20/synthetic-route-30",
+        match=r"POST /api/v1/ds20/synthetic-route-31",
     ):
         authorization.assert_mutating_route_authorization_contract(app)
 
@@ -2448,9 +2444,7 @@ def test_persisted_default_scenario_head_wins_list_projection(runtime_api_env) -
     assert created.status_code == 200, created.json()
     assert listed.status_code == 200, listed.json()
     authoritative = [
-        scenario
-        for scenario in listed.json()["scenarios"]
-        if scenario["id"] == default_id
+        scenario for scenario in listed.json()["scenarios"] if scenario["id"] == default_id
     ]
     assert len(authoritative) == 1
     assert authoritative[0]["policy_question"] == body["policy_question"]
@@ -2846,9 +2840,7 @@ def test_unsafe_mutation_cannot_shadow_or_disable_opa_deny(
             allow_empty_body=True,
         ),
     )
-    claims_bearer = _fixture_bearer(
-        f"unsafe-opa-deny-{authz_enforce}-{authz_shadow_mode}"
-    )
+    claims_bearer = _fixture_bearer(f"unsafe-opa-deny-{authz_enforce}-{authz_shadow_mode}")
     client, cell, provider = _build_secure_client(
         runtime_api_env,
         opa_client=_DenyOPA(),
@@ -3040,7 +3032,11 @@ def test_delegated_effective_scope_governs_binding_and_execution_policy(
     assert observed_binding_scopes
     assert all(scope is not None for scope in observed_binding_scopes)
     assert all(scope.user_sub == "delegated-analyst" for scope in observed_binding_scopes if scope)
-    assert all(scope.roles == frozenset({PolicyOSRole.ANALYST}) for scope in observed_binding_scopes if scope)
+    assert all(
+        scope.roles == frozenset({PolicyOSRole.ANALYST})
+        for scope in observed_binding_scopes
+        if scope
+    )
     assert opa.scopes
     assert all(scope is not None for scope in opa.scopes)
     assert all(scope.user_sub == "delegated-analyst" for scope in opa.scopes if scope)
@@ -3053,9 +3049,7 @@ def test_delegated_effective_scope_governs_binding_and_execution_policy(
         if line.strip()
     ]
     execution_audits = [
-        entry
-        for entry in audit_entries
-        if entry["endpoint"] == "/api/v1/control/runs/nl"
+        entry for entry in audit_entries if entry["endpoint"] == "/api/v1/control/runs/nl"
     ]
     assert execution_audits
     assert execution_audits[-1]["actor"] == "delegated-analyst"

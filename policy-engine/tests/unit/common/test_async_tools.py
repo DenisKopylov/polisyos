@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import time
+from contextvars import ContextVar
 
 import pytest
+
 from polisyos.common.async_tools import get_shared_executor, run_blocking_async, run_coro_sync
 
 
@@ -16,6 +18,22 @@ def test_run_coro_sync_works_inside_running_loop() -> None:
         return run_coro_sync(asyncio.sleep(0.01, result=11))
 
     assert asyncio.run(_wrapper()) == 11
+
+
+def test_run_coro_sync_preserves_context_inside_running_loop() -> None:
+    owner_scope: ContextVar[str | None] = ContextVar("owner_scope", default=None)
+
+    async def _read_scope() -> str | None:
+        return owner_scope.get()
+
+    async def _wrapper() -> str | None:
+        token = owner_scope.set("tenant-owner")
+        try:
+            return run_coro_sync(_read_scope())
+        finally:
+            owner_scope.reset(token)
+
+    assert asyncio.run(_wrapper()) == "tenant-owner"
 
 
 def test_run_coro_sync_times_out_instead_of_hanging() -> None:

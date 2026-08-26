@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from datetime import UTC, datetime
 from types import SimpleNamespace
 from uuid import uuid4
@@ -8,6 +9,8 @@ import pytest
 
 import polisyos.runtime.http.services.control.generation_cycle as generation_cycle_service
 from polisyos.common.async_tools import get_shared_executor
+from polisyos.core import canon
+from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.contracts.control import IngestRequest, NaturalLanguageRunRequest
 from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
@@ -29,14 +32,12 @@ from polisyos.runtime.http.services.control_registry_providers import (
 from polisyos.runtime.http.services.task_runner import TaskRunner
 from polisyos.runtime.quality.design_problem import DesignProblemAuthorityError
 from polisyos.runtime.quality.generation_cycle import N4GenerationPort
-from polisyos.runtime.quality.open_world_risk import (
-    OpenWorldRiskPromotionGate,
-    VerifiedOpenWorldRiskVector,
-)
+from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
     build_default_recursive_generation_cycle_controller,
 )
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 try:  # pragma: no cover - optional runtime dependency
     from fastapi.testclient import TestClient
@@ -91,6 +92,11 @@ def test_runtime_api_defaults_core_runs_root_to_cas_runs(tmp_path) -> None:
 
     assert app.state.runtime_api_ctx.core_runs_root == cas_root / "runs"
     assert app.state.runtime_container.config.core_runs_root == cas_root / "runs"
+    cache_root = tmp_path / "runtime-http-cache"
+    assert os.environ["POLISYOS_CACHE_HOME"] == cache_root.as_posix()
+    catalog_graph = app.state.runtime_container.control_registry_providers.gy_catalog_graph
+    assert catalog_graph is not None
+    assert catalog_graph._store._db_path.is_relative_to(cache_root)
 
 
 def test_runtime_container_exposes_one_promotion_owner_runtime(tmp_path) -> None:
@@ -100,6 +106,97 @@ def test_runtime_container_exposes_one_promotion_owner_runtime(tmp_path) -> None
     assert app.state.promotion_runtime.resolver is (
         app.state.runtime_container.promotion_runtime.resolver
     )
+
+
+@pytest.mark.parametrize(
+    ("override_name", "failure_code"),
+    [
+        ("decision_validity_service", "decision_validity_owner_invalid"),
+        ("control_service", "control_service_owner_invalid"),
+    ],
+)
+def test_runtime_container_types_malformed_owner_overrides(
+    tmp_path,
+    override_name: str,
+    failure_code: str,
+) -> None:
+    overrides = RuntimeContainerOverrides(**{override_name: object()})  # type: ignore[arg-type]
+
+    with pytest.raises(ValueError, match=failure_code):
+        create_runtime_api_app(
+            cas_root=tmp_path / ".polisyos" / "cas",
+            container_overrides=overrides,
+        )
+
+
+def test_control_service_types_malformed_promotion_runtime(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / ".polisyos")
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="external",
+        state_store_backend="sqlite",
+        sqlite_path=".polisyos/control.sqlite3",
+        postgres_dsn=None,
+    )
+
+    with pytest.raises(ValueError, match="promotion_runtime_owner_invalid"):
+        ControlPlaneService(
+            cas_root=tmp_path / ".polisyos",
+            core_runs_root=tmp_path / ".polisyos" / "runs",
+            artifact_store=store,
+            retrieval_service=_NoOpRetrievalService(),
+            policy_resolver=resolver,
+            registry_providers=_build_registry_providers(),
+            promotion_runtime=object(),  # type: ignore[arg-type]
+        )
+
+
+def test_control_service_rejects_foreign_promotion_store(tmp_path) -> None:
+    store = FileSystemCAS(tmp_path / "owner-cas")
+    decision_validity = DecisionValidityService(store)
+    foreign_runtime = PromotionRuntime(
+        store=FileSystemCAS(tmp_path / "foreign-cas"),
+        completed_epoch_batches=decision_validity,
+    )
+    resolver = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="external",
+        state_store_backend="sqlite",
+        sqlite_path=".polisyos/control.sqlite3",
+        postgres_dsn=None,
+    )
+
+    with pytest.raises(ValueError, match="promotion_runtime_decision_validity_owner_mismatch"):
+        ControlPlaneService(
+            cas_root=tmp_path / ".polisyos",
+            core_runs_root=tmp_path / ".polisyos" / "runs",
+            artifact_store=store,
+            retrieval_service=_NoOpRetrievalService(),
+            policy_resolver=resolver,
+            registry_providers=_build_registry_providers(),
+            decision_validity_service=decision_validity,
+            promotion_runtime=foreign_runtime,
+        )
+
+
+@pytest.mark.asyncio
+async def test_runtime_container_exposes_one_decision_validity_owner(tmp_path) -> None:
+    app = create_runtime_api_app(cas_root=tmp_path / ".polisyos" / "cas")
+
+    await app.state.runtime_container.startup(app)
+    try:
+        assert app.state._control_service._decision_validity_service is (
+            app.state.runtime_container.decision_validity_service
+        )
+        assert app.state._control_service._promotion_runtime is (
+            app.state.runtime_container.promotion_runtime
+        )
+        assert (
+            app.state.runtime_container.promotion_runtime.epoch_n9_evidence_resolver._completed_batches
+            is app.state.runtime_container.decision_validity_service
+        )
+    finally:
+        await app.state.runtime_container.shutdown(app)
 
 
 @pytest.mark.asyncio
@@ -191,25 +288,34 @@ async def test_direct_recursive_http_and_replay_share_one_owner_context_ref(
 
     leaf = compiled.recursive_run.leaf_nodes[0]
     assert leaf.cycle_run is not None
-    receipt = leaf.cycle_run.promotion_port.receipts[0]
-    gate = OpenWorldRiskPromotionGate.model_validate(receipt["owner_projection"]["open_world_gate"])
-    verified = runtime.resolver.resolve_verified(
-        vector_artifact_ref=gate.vector_artifact_ref,
-        expected_raw_cas_hash=gate.raw_cas_hash,
-        expected_semantic_hash=gate.semantic_hash,
-        requested_query_context_ref=gate.requested_query_context_ref,
-        expected_aggregate_context_ref=gate.aggregate_context_ref,
-        expected_bound_member_ref=gate.bound_member_ref,
-        expected_candidate_occurrence_ref=gate.candidate_occurrence_ref,
-        expected_verifier_provenance_ref=gate.verifier_provenance_ref,
+    assert leaf.cycle_run.promotion_port.receipts == ()
+    assert leaf.cycle_run.promotion_port.reason == (
+        "epoch_validity_refused:policy_admission_missing"
     )
-    assert isinstance(verified, VerifiedOpenWorldRiskVector)
-    assert verified.aggregate_context_ref == gate.aggregate_context_ref
-    assert len(compiled.open_world_risk_limitations) == 1
-    limitation = compiled.open_world_risk_limitations[0]
-    assert limitation.vector_artifact_ref == gate.vector_artifact_ref
-    assert limitation.status == "not_established"
-    assert limitation.code == "deployment_scope_not_established"
+
+    subject_kind = "runtime.promotion.pre_n9_epoch_validity_subject"
+    subject_ids = tuple(
+        artifact_id
+        for artifact_id in runtime.store.iter_artifact_ids()
+        if runtime.store.get_manifest(artifact_id).kind == subject_kind
+    )
+    assert len(subject_ids) == 1
+    subject = __import__(
+        "polisyos.core.contracts.decision_validity",
+        fromlist=["PreN9EpochValiditySubjectStatement"],
+    ).PreN9EpochValiditySubjectStatement.model_validate_json(
+        runtime.store.get_bytes(subject_ids[0])
+    )
+    member = runtime.context_repository.resolve_bound_member(
+        bound_member_ref=subject.bound_member_ref
+    )
+    aggregate = runtime.context_repository.resolve_verified(
+        context_ref=member.statement.aggregate_context_ref
+    )
+    assert aggregate.context_ref == subject.owner_query_context_ref
+    replayed_epoch = runtime.resolve_verified_epoch_query(bound_member_ref=subject.bound_member_ref)
+    assert replayed_epoch.candidate.occurrence_ref == subject.candidate_occurrence_ref
+    assert replayed_epoch.qualification_failure_codes == ("policy_admission_missing",)
 
 
 def test_runtime_principal_preserves_cell_id_in_policy_actor() -> None:
@@ -261,11 +367,63 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
 ) -> None:
+    from polisyos.runtime.quality import promotion_sequence as promotion_sequence_module
+    from tests.unit.runtime.quality.test_generation_cycle import (
+        REPO_ROOT,
+        _budget,
+        _CgfGenerationPort,
+        _problem,
+    )
+
     service = _build_control_service(tmp_path)
     try:
+        monkeypatch.setattr(
+            promotion_sequence_module,
+            "_legacy_policy_promotion_callers",
+            lambda repo_root: (),
+        )
+        problem = _problem(f"worker_epoch_strangle_{uuid4().hex}")
+
+        async def compile_problem(**kwargs):
+            del kwargs
+            return problem
+
+        class _CanonicalFixtureN4Port(N4GenerationPort):
+            def __init__(self) -> None:
+                super().__init__(model_id="fixture-model")
+                self._delegate = _CgfGenerationPort()
+
+            async def __call__(self, problem, *, cycle_index):
+                return await self._delegate(problem, cycle_index=cycle_index)
+
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "build_design_problem_from_nl_request",
+            compile_problem,
+        )
+        recursive_budget = RecursiveCycleBudget(
+            max_depth=0,
+            max_nodes=1,
+            min_cycles_per_leaf=1,
+            max_cycles_per_leaf=1,
+        )
+        compiled_fixture = (
+            await generation_cycle_service.compile_and_run_recursive_generation_cycle(
+                raw_request=problem.nl_provenance.raw_request,
+                context={},
+                model_name="fixture-model",
+                compiler_gateway=object(),  # type: ignore[arg-type]
+                budget_state=_budget(),
+                recursive_budget=recursive_budget,
+                root_n4_generation_port=_CanonicalFixtureN4Port(),
+                promotion_runtime=service._promotion_runtime,
+                repo_root=REPO_ROOT,
+            )
+        )
+
         launch = await service.launch_nl_run(
             NaturalLanguageRunRequest(
-                request="Check worker scope propagation",
+                request=problem.nl_provenance.raw_request,
                 llm_model="simulated-qwen",
             ),
             principal=RuntimePrincipal.from_user_claims(_fixture_claims()),
@@ -273,21 +431,42 @@ async def test_process_nl_job_enters_persisted_tenant_scope(
         record = service._control_store.get_job(launch.job_id)
         assert record is not None
 
-        def _execute_nl_pipeline(**kwargs):
+        async def _compile_worker_request(**kwargs):
             assert get_current_tenant_id_or_none() == "tenant-fixture"
             assert get_current_cell_id() == "cell-fixture"
-            return {
-                "run_id": kwargs["run_id"],
-                "capability_manifest_ref": kwargs["capability_manifest_ref"],
-            }
+            assert kwargs["raw_request"] == problem.nl_provenance.raw_request
+            assert kwargs["promotion_runtime"] is service._promotion_runtime
+            assert service._promotion_runtime.store is service._artifact_store
+            return compiled_fixture
 
-        monkeypatch.setattr(service, "_execute_nl_pipeline", _execute_nl_pipeline)
+        monkeypatch.setattr(
+            generation_cycle_service,
+            "compile_and_run_recursive_generation_cycle",
+            _compile_worker_request,
+        )
 
         service._process_control_job(record)
 
         completed = service._control_store.get_job(launch.job_id)
         assert completed is not None
         assert completed.state == "completed"
+        assert completed.progress["promotion_refusal_reasons"] == [
+            "epoch_validity_refused:policy_admission_missing"
+        ]
+        compiled_ref = ArtifactID.model_validate(
+            completed.progress["compiled_recursive_generation_cycle_ref"]
+        )
+        assert service._artifact_store.get_manifest(compiled_ref).kind == (
+            "runtime.compiled_recursive_generation_cycle"
+        )
+        persisted = generation_cycle_service.CompiledRecursiveGenerationCycleRun.model_validate(
+            canon.from_canonical_bytes(service._artifact_store.get_bytes(compiled_ref))
+        )
+        leaf = persisted.recursive_run.leaf_nodes[0]
+        assert leaf.cycle_run is not None
+        assert leaf.cycle_run.promotion_port.reason == (
+            "epoch_validity_refused:policy_admission_missing"
+        )
     finally:
         service.close()
 

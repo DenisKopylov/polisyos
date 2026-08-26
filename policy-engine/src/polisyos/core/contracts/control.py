@@ -16,6 +16,7 @@ from .decision_validity import (
     DecisionTriggerType,
     DecisionValidityStatus,
     DecisionValidityTransition,
+    EpochValidityBatchReceipt,
 )
 from .policy_design_case_projection import PolicyDesignCaseProjection
 from .runtime import ApiMeta
@@ -196,6 +197,29 @@ class DecisionValidityEventResponse(BaseModel):
     affected_packets: list[str] = Field(default_factory=list)
     affected_statuses: dict[str, int] = Field(default_factory=dict)
     message: str
+
+
+class EpochValidityBatchRequest(BaseModel):
+    """Admit an epoch transition by ref and owner query coordinate only."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    transition_artifact_ref: ArtifactRef
+    requested_query_context_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+
+
+class EpochValidityBatchResponse(BaseModel):
+    """Return the owner-derived completion without echoing caller policy fields."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    meta: ApiMeta
+    batch_id: str = Field(min_length=1)
+    state: Literal["completed"]
+    transition: ArtifactRef
+    completion_receipt: EpochValidityBatchReceipt
+    affected_packet_refs: tuple[str, ...] = ()
+    claim_bridge_result_refs: tuple[ArtifactRef, ...] = ()
 
 
 class DecisionValidityPendingReview(BaseModel):
@@ -1474,6 +1498,8 @@ __all__ = [
     "DecisionValidityPendingReview",
     "DecisionValiditySummaryResponse",
     "DiscoveryCandidate",
+    "EpochValidityBatchRequest",
+    "EpochValidityBatchResponse",
     "ExecutionMode",
     "ExecutionProfile",
     "FetchPlan",

@@ -26,6 +26,8 @@ from polisyos.core.contracts.control import (
     DecisionValidityEventRequest,
     DecisionValidityEventResponse,
     DecisionValiditySummaryResponse,
+    EpochValidityBatchRequest,
+    EpochValidityBatchResponse,
     IndexStatsResponse,
     IngestRequest,
     IngestResponse,
@@ -132,6 +134,18 @@ _PUBLISH_DECISION_VALIDITY_AUTHZ = require_action_permission(
         source=ResourceBindingSource.REQUEST_COMPOSITE,
         resource_kind="runtime.decision_validity.event",
         selector_fields=("source_ref", "dependency_keys", "dedupe_key"),
+    ),
+)
+_ADMIT_EPOCH_VALIDITY_BATCH_AUTHZ = require_action_permission(
+    RuntimePermission.DECISIONS_VALIDITY_PUBLISH,
+    ResourceBindingSpec(
+        source=ResourceBindingSource.REQUEST_COMPOSITE,
+        resource_kind="runtime.decision_validity.epoch_batch",
+        selector_fields=("transition_artifact_ref", "requested_query_context_ref"),
+        required_selector_fields=(
+            "transition_artifact_ref",
+            "requested_query_context_ref",
+        ),
     ),
 )
 _INGEST_DATA_AUTHZ = require_action_permission(
@@ -492,6 +506,31 @@ if router is not None:
         control = _get_control_service(request)
         request_id = ensure_request_id(request)
         return control.publish_decision_validity_event(body, request_id=request_id)
+
+    @router.post(
+        "/decision-validity/epoch-batches",
+        response_model=EpochValidityBatchResponse,
+        operation_id="admit_epoch_validity_batch",
+        summary="Admit one owner-verified semantic-epoch validity batch",
+        dependencies=[
+            Depends(_ADMIT_EPOCH_VALIDITY_BATCH_AUTHZ),
+            Depends(_PUBLISH_DECISION_VALIDITY_STEP_UP),
+        ],
+    )
+    def admit_epoch_validity_batch(
+        body: EpochValidityBatchRequest,
+        request: Request,
+    ) -> EpochValidityBatchResponse:
+        set_authz_resource(
+            request,
+            tenant_id=getattr(request.state, "tenant_id", None),
+            kind="control.admit_epoch_validity_batch",
+        )
+        control = _get_control_service(request)
+        return control.admit_epoch_validity_batch(
+            body,
+            request_id=ensure_request_id(request),
+        )
 
     @router.get(
         "/runs/{run_id}/decision-validity",

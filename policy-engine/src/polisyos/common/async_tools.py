@@ -105,11 +105,13 @@ def run_coro_sync[T](coro: Awaitable[T], *, timeout_seconds: float | None = None
         loop = None
 
     if loop and loop.is_running():
-        future = _get_shared_executor().submit(
+        context = contextvars.copy_context()
+        call = functools.partial(
             _run_coro_in_fresh_loop,
             coro,
             timeout_seconds=timeout,
         )
+        future = _get_shared_executor().submit(context.run, call)
         try:
             return future.result(timeout=timeout + 1.0)
         except concurrent.futures.TimeoutError as exc:

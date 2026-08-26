@@ -59,6 +59,12 @@ middleware. It never synthesizes a fixture identity; the explicit development
 fixture middleware may still install development-only claims before the route
 executes.
 
+The runtime container appoints one Decision Validity service for control and promotion. Read-only
+run-index/debug adapters may open their own service view, but every view resolves the same locked
+persistent owner state. Direct, recursive, HTTP, and offline promotion paths resolve the same
+persisted epoch-validity subject and gate evidence; a route-local state or caller-shaped projection
+cannot bypass that owner.
+
 ## Depends on / depended on by
 
 Depends on: `polisyos.common.async_tools`, `polisyos.core.artifacts`,

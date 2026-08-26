@@ -14,6 +14,30 @@ history_id = "gy-n12-clusters-2-4"
 # Closure requires an appointed signer other than the epoch producer to issue
 # content-bound policy, admission, owner-provenance and owner-relation bytes for
 # the complete selection key, followed by independent verification.
+#
+# Bounded residual: no Decision-Validity epoch-transition signing authority or
+# owner-held transition-producer identity carrier is appointed.  The strict
+# owner intake is implemented, but production transition issuance returns
+# `epoch_transition_signer_not_established`; even exact signed bytes cannot
+# self-appoint their producer identity.  The plan-frozen positive generation-
+# control node is therefore retained as an unsatisfied residual rather than
+# being laundered through a test verifier.  Closure requires the justification
+# custodian to appoint both roles, a production composition to construct
+# `EpochValidityTransitionProducer`, and the controller to pass only its exact
+# signed artifact ref into the Decision-Validity intake.
+#
+# Bounded residual: no Decision-Validity-owned current-packet lineage reader is
+# appointed to the pre-N9 subject authority. Production can therefore derive
+# only the first-decision subject (`current_decision_packet_ref = null`,
+# `packet_epoch_refs = []`). The N9 resolver rejects any shaped current receipt
+# as `epoch_validity_prior_binding_unresolved`; currentness is never inferred.
+# Closure requires Scientist Decision Validity to expose a content-bound,
+# read-only lookup keyed by `decision_packet_lineage_key_ref` that returns the
+# exact lineage-head packet, its packet-bound epoch refs and the independently
+# verified prior completed binding and denominators. Direct, recursive, HTTP
+# and offline-replay roots must resolve that same owner carrier, while
+# authentic-old/head-advance, missing, substituted and denominator-drift
+# falsifiers fail closed.
 
 [[entries]]
 ordinal = 0

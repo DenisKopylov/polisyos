@@ -15,10 +15,13 @@ from uuid import uuid4
 import pytest
 
 import polisyos.runtime.quality.promotion_sequence as promotion_sequence_module
-from polisyos.core.artifacts import FileSystemCAS
+from polisyos.core import canon
+from polisyos.core import contracts as core_contracts
+from polisyos.core.artifacts import ArtifactWriteOptions, FileSystemCAS
 from polisyos.data_requirement import DataQualityMinimums, DataRequirementScope, DataRequirementSpec
 from polisyos.data_requirement.compiler import compile_data_requirements_for_scenario
 from polisyos.pdc import gy_content_hash
+from polisyos.runtime.quality import epoch_validity_cascade as epoch_cascade_module
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionCaptureProvenance,
     AcquisitionOwnerArtifact,
@@ -78,6 +81,7 @@ from polisyos.runtime.quality.intervention_substrate import InterventionLeverRef
 from polisyos.runtime.quality.open_world_risk import (
     OpenWorldRiskVectorArtifactRepository,
     PromotionRuntime,
+    VerifiedOpenWorldRiskVector,
 )
 from polisyos.runtime.quality.promotion_sequence import (
     CanonicalN9PromotionPort,
@@ -96,6 +100,7 @@ from polisyos.runtime.quality.substrate_registry import (
 )
 from polisyos.runtime.quality.world_model_record import WorldModelRecordError
 from polisyos.scientist.orchestration.engine.budget import BudgetLimit, BudgetState
+from polisyos.scientist.validation.decision_validity import DecisionValidityService
 from tools.quality.validation import check_layer3_gy_generation_cycle_contract as contract
 
 REPO_ROOT = Path(__file__).resolve().parents[4]
@@ -517,6 +522,7 @@ async def test_disposition_only_n4_result_never_falls_back_to_grammar() -> None:
         generation_port=_DispositionOnlyGenerationPort(),
         value_port=PendingN8ValuePort(),
         promotion_port=_NoPromotionPort(),
+        authority_scope="contract_testing",
         repo_root=REPO_ROOT,
     ).run(
         _problem("education_disposition_only"),
@@ -548,6 +554,7 @@ async def test_mixed_n4_result_keeps_non_binding_disposition_in_denominator() ->
         generation_port=_MixedBindingAndDispositionPort(),
         value_port=PendingN8ValuePort(),
         promotion_port=_NoPromotionPort(),
+        authority_scope="contract_testing",
         repo_root=REPO_ROOT,
     ).run(
         _problem("mixed_disposition_denominator"),
@@ -689,6 +696,771 @@ def _open_world_summary(candidate_id: str = "open_world_candidate") -> Candidate
         high_proxy=False,
         low_grounding=False,
     )
+
+
+class _AppointedTestEpochVerifier:
+    """Test-only verifier whose receipt is still checked by the real DV owner."""
+
+    def __init__(self, verifier_provenance_ref: core_contracts.ArtifactRef) -> None:
+        self.verifier_provenance_ref = verifier_provenance_ref
+        self.receipt: core_contracts.EpochTransitionVerificationReceipt | None = None
+
+    def verify(self, **_kwargs: Any) -> core_contracts.EpochTransitionVerificationReceipt:
+        assert self.receipt is not None
+        return self.receipt
+
+
+def _positive_epoch_admitted_batch(
+    *,
+    runtime: PromotionRuntime,
+    problem: DesignProblem,
+    summaries: tuple[CandidateSummary, ...],
+) -> core_contracts.PersistedPreN9AdmittedCandidateBatch:
+    """Test-only owner appointment; production remains policy-admission missing."""
+
+    prepared = runtime._prepare_completed_generation(problem=problem, summaries=summaries)
+    assert hasattr(prepared, "candidate_denominator")
+    aggregate = prepared.contexts.aggregate_context
+    verifier_provenance_ref = runtime.store.put_json(
+        {"verifier": "appointed-test-epoch-transition-verifier"},
+        ArtifactWriteOptions(
+            kind="chronology.epoch_transition_verifier",
+            media_type="application/json",
+        ),
+    )
+    verifier = _AppointedTestEpochVerifier(verifier_provenance_ref)
+    decision_validity = DecisionValidityService(
+        runtime.store,
+        epoch_transition_verifier=verifier,
+    )
+    admissions = []
+    for ordinal, bound in enumerate(prepared.contexts.ordered_bound_members):
+        subject = runtime.epoch_subject_authority.persist_for_n9(
+            bound_member_ref=bound.bound_member_ref
+        )
+        candidate = aggregate.statement.ordered_candidate_contexts[ordinal]
+        dependency_key = f"epoch::test-owner::{candidate.candidate.candidate_id}"
+        envelope = core_contracts.DecisionValidityEnvelope(
+            decision_lineage_key=f"test-epoch-lineage::{candidate.candidate.candidate_id}",
+            policy_fingerprint=f"test-epoch-policy::{candidate.candidate.candidate_id}",
+            knowledge_basis=core_contracts.DecisionBasisSection(
+                dependencies=[
+                    core_contracts.DecisionDependencyRef(
+                        kind=core_contracts.DecisionDependencyKind.SEMANTIC_EPOCH,
+                        key=dependency_key,
+                        artifact_id=str(candidate.epoch_query.query_artifact_ref.artifact_id),
+                    )
+                ]
+            ),
+        )
+        baseline = core_contracts.DecisionValidityEvaluation(
+            decision_lineage_key=envelope.decision_lineage_key,
+            status=core_contracts.DecisionValidityStatus.ACTIVE,
+            dependency_keys=envelope.dependency_keys(),
+        )
+        packet_ref = runtime.store.put_json(
+            {
+                "schema_version": "3.4",
+                "decision_validity_envelope": envelope.model_dump(mode="json"),
+                "decision_validity_baseline": baseline.model_dump(mode="json"),
+            },
+            ArtifactWriteOptions(
+                kind="scientist.decision_packet",
+                media_type="application/json",
+            ),
+        )
+        packet_id = str(packet_ref.artifact_id)
+        decision_validity.register_decision_packet(
+            packet_ref=packet_id,
+            envelope=envelope,
+            baseline=baseline,
+        )
+        transition_ref = runtime.store.put_json(
+            {"candidate_id": candidate.candidate.candidate_id, "ordinal": ordinal},
+            ArtifactWriteOptions(
+                kind="chronology.epoch_transition",
+                media_type="application/json",
+            ),
+        )
+        transition_bytes = runtime.store.get_bytes(transition_ref.artifact_id)
+        _, dependency_denominator_ref = decision_validity._resolve_epoch_target_denominator(
+            dependency_keys=(dependency_key,)
+        )
+        adjudication_denominator_ref = gy_content_hash(
+            {"candidate": candidate.candidate.candidate_id, "kind": "adjudication"}
+        )
+        verifier.receipt = core_contracts.EpochTransitionVerificationReceipt(
+            transition_artifact_ref=transition_ref,
+            transition_content_hash="sha256:" + hashlib.sha256(transition_bytes).hexdigest(),
+            requested_query_context_ref=(candidate.epoch_query.native_requested_query_context_ref),
+            authority_purpose="decision_validity_epoch_transition",
+            verifier_provenance_ref=verifier_provenance_ref,
+            dependency_keys=(dependency_key,),
+            dependency_denominator_ref=dependency_denominator_ref,
+            adjudication_denominator_ref=adjudication_denominator_ref,
+            targets=(
+                core_contracts.EpochValidityBatchTarget(
+                    packet_ref=packet_id,
+                    decision_lineage_key=envelope.decision_lineage_key,
+                    dependency_key=dependency_key,
+                    status=core_contracts.DecisionValidityStatus.STALE,
+                    reason="test_epoch_advanced",
+                ),
+            ),
+            predicate_class="independently_reconciled",
+        )
+        completed = decision_validity.admit_epoch_validity_batch(
+            transition_artifact_ref=transition_ref,
+            requested_query_context_ref=(candidate.epoch_query.native_requested_query_context_ref),
+        )
+        completed_evidence = decision_validity.resolve_completed_epoch_batch_evidence_by_id(
+            batch_id=completed.batch_id
+        )
+        gate = core_contracts.EpochValidityGateReceipt(
+            status="batch_completed",
+            subject_ref=subject.subject_ref,
+            subject_content_hash=subject.subject_content_hash,
+            current_decision_packet_ref=None,
+            packet_epoch_refs=(),
+            current_epoch_head_refs=(candidate.epoch_query.native_requested_query_context_ref,),
+            dependency_denominator_ref=completed.dependency_denominator_ref,
+            adjudication_denominator_ref=completed.adjudication_denominator_ref,
+            prior_completed_binding_ref=None,
+            completed_batch_receipt_ref=completed_evidence.batch_receipt_ref,
+            requested_query_context_ref=candidate.epoch_query.native_requested_query_context_ref,
+            failure_codes=(),
+        )
+        gate_ref, gate_hash, _ = epoch_cascade_module._persist_model(
+            store=runtime.store,
+            value=gate,
+            profile_record="epoch_validity_gate_receipt",
+        )
+        occurrence = runtime.context_repository.resolve_occurrence(
+            occurrence_ref=bound.statement.candidate_occurrence_ref
+        )
+        admissions.append(
+            core_contracts.PreN9AdmittedCandidate(
+                aggregate_context_ref=aggregate.context_ref,
+                aggregate_context_content_hash=aggregate.semantic_hash,
+                bound_member_ref=bound.bound_member_ref,
+                bound_member_content_hash=bound.bound_member_content_hash,
+                candidate_occurrence_ref=bound.statement.candidate_occurrence_ref,
+                candidate_occurrence_content_hash=core_contracts.c4_semantic_digest(
+                    "candidate_occurrence", occurrence
+                ),
+                subject_ref=subject.subject_ref,
+                subject_content_hash=subject.subject_content_hash,
+                gate_evidence_ref=gate_ref,
+                gate_evidence_content_hash=gate_hash,
+            )
+        )
+    runtime.epoch_n9_evidence_resolver = (
+        epoch_cascade_module.ArtifactEpochValidityN9EvidenceResolver(
+            store=runtime.store,
+            contexts=runtime.context_repository,
+            verifier_provenance_ref=runtime.verifier_provenance_ref,
+            completed_batches=decision_validity,
+        )
+    )
+    return epoch_cascade_module.seal_pre_n9_admitted_candidate_batch(
+        store=runtime.store,
+        denominator=prepared.candidate_denominator,
+        contexts=prepared.contexts,
+        admissions=admissions,
+    )
+
+
+def test_core_generation_controller_cannot_bypass_epoch_gate(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The real post-loop composition reaches DV and never calls N9 on no policy."""
+
+    class _ForbiddenN9:
+        called = False
+
+        def __call__(self, **_kwargs: Any) -> PromotionPortObservation:
+            self.called = True
+            raise AssertionError("N9 must not run without an admitted epoch policy")
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    qualify_calls = 0
+    real_qualify = runtime.semantic_epoch_service.qualify_chronology_query
+
+    def _counted_qualify(**kwargs: Any) -> Any:
+        nonlocal qualify_calls
+        qualify_calls += 1
+        return real_qualify(**kwargs)
+
+    monkeypatch.setattr(
+        runtime.semantic_epoch_service,
+        "qualify_chronology_query",
+        _counted_qualify,
+    )
+    n9 = _ForbiddenN9()
+    controller = GenerationCycleController(
+        promotion_runtime=runtime,
+        promotion_port=n9,
+        authority_scope="contract_testing",
+    )
+
+    result = controller._promote_completed_generation(
+        summaries=(_open_world_summary(),),
+        problem=_problem("epoch_gate_negative_path"),
+    )
+
+    assert result.status == "not_promoted"
+    assert result.reason == "epoch_validity_refused:policy_admission_missing"
+    # One invocation persists the owner query and a second, independent
+    # invocation requalifies it at the pre-N9 gate.  Keeping only the stored
+    # failure-code markers therefore makes this falsifier red.
+    assert qualify_calls == 2
+    assert n9.called is False
+
+
+def test_gate_derives_query_context_from_owner_context_not_controller(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """Stored failure-code markers cannot replace a fresh service result."""
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem("gate_owner_query_context")
+    prepared = runtime._prepare_completed_generation(
+        problem=problem,
+        summaries=(_open_world_summary("gate_owner_query_context_candidate"),),
+    )
+    assert hasattr(prepared, "contexts")
+    bound = prepared.contexts.ordered_bound_members[0]
+    subject = runtime.epoch_subject_authority.persist_for_n9(
+        bound_member_ref=bound.bound_member_ref
+    )
+    epoch_query = prepared.contexts.aggregate_context.statement.ordered_candidate_contexts[
+        0
+    ].epoch_query
+    statement = epoch_cascade_module._read_model(
+        store=runtime.store,
+        ref=epoch_query.query_artifact_ref,
+        model=epoch_cascade_module.PersistedEpochPromotionQueryStatement,
+        profile_record="epoch_query_evidence",
+    )
+    assert isinstance(
+        statement,
+        epoch_cascade_module.PersistedEpochPromotionQueryStatement,
+    )
+    stored = statement.qualification_result
+    substituted_query = stored.query.model_copy(
+        update={
+            "requested_query_context_ref": "sha256:"
+            + hashlib.sha256(b"controller-substitution").hexdigest()
+        }
+    )
+    monkeypatch.setattr(
+        runtime.semantic_epoch_service,
+        "qualify_chronology_query",
+        lambda **_kwargs: stored.model_copy(update={"query": substituted_query}),
+    )
+
+    result = runtime.epoch_validity_gate.reconcile_before_n9(subject_ref=subject.subject_ref)
+
+    assert isinstance(result, core_contracts.EpochValidityGateNonReceipt)
+    assert result.code == "epoch_validity_subject_unresolved"
+    assert epoch_query.qualification_failure_codes == ("policy_admission_missing",)
+
+
+def test_first_decision_uses_candidate_subject_without_fabricated_prior_packet(
+    tmp_path: Path,
+) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    prepared = runtime._prepare_completed_generation(
+        problem=_problem("epoch_gate_first_decision"),
+        summaries=(_open_world_summary("first_decision_candidate"),),
+    )
+    assert hasattr(prepared, "contexts")
+    bound = prepared.contexts.ordered_bound_members[0]
+    persisted = runtime.epoch_subject_authority.persist_for_n9(
+        bound_member_ref=bound.bound_member_ref
+    )
+    payload = canon.from_canonical_bytes(runtime.store.get_bytes(persisted.subject_ref.artifact_id))
+    subject = core_contracts.PreN9EpochValiditySubjectStatement.model_validate(payload)
+
+    assert subject.current_decision_packet_ref is None
+    assert subject.packet_epoch_refs == ()
+    assert subject.bound_member_ref == bound.bound_member_ref
+
+
+def test_owr_and_epoch_gate_bind_identical_owner_context_ref(tmp_path: Path) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem("identical_owner_context")
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_open_world_summary("identical_context_candidate"),),
+    )
+    row = admitted.ordered_admissions[0]
+    aggregate = runtime.context_repository.resolve_verified(context_ref=row.aggregate_context_ref)
+    assert hasattr(aggregate, "statement")
+    epoch = runtime.epoch_n9_evidence_resolver.resolve_verified(
+        admission=row,
+        expected_design_problem_ref=aggregate.statement.design_problem_binding_ref,
+    )
+    open_world = runtime.open_world_authority.prepare_verified_projection(
+        bound_member_ref=row.bound_member_ref
+    )
+
+    assert isinstance(epoch, core_contracts.EpochValidityN9Projection)
+    assert isinstance(open_world, VerifiedOpenWorldRiskVector)
+    assert epoch.owner_query_context_ref == open_world.aggregate_context_ref
+    assert (
+        epoch.owner_query_context_content_hash == open_world.vector.aggregate_context_content_hash
+    )
+
+
+def test_canonical_n9_resolves_sealed_epoch_gate_evidence(tmp_path: Path) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem("sealed_epoch_gate")
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_open_world_summary("sealed_epoch_candidate"),),
+    )
+    row = admitted.ordered_admissions[0]
+    aggregate = runtime.context_repository.resolve_verified(context_ref=row.aggregate_context_ref)
+
+    projection = runtime.epoch_n9_evidence_resolver.resolve_verified(
+        admission=row,
+        expected_design_problem_ref=aggregate.statement.design_problem_binding_ref,
+    )
+
+    assert isinstance(projection, core_contracts.EpochValidityN9Projection)
+    assert projection.subject_ref == row.subject_ref
+    assert projection.gate_receipt_ref == row.gate_evidence_ref
+    assert projection.predicate_class == "independently_reconciled"
+
+
+@pytest.mark.parametrize("mutation", ["missing", "duplicate", "reordered"])
+def test_pre_n9_admission_batch_is_an_exact_ordered_denominator(
+    tmp_path: Path,
+    mutation: str,
+) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=_problem(f"admission_denominator_{mutation}"),
+        summaries=(
+            _open_world_summary(f"admission_{mutation}_a"),
+            _open_world_summary(f"admission_{mutation}_b"),
+        ),
+    )
+    denominator_statement = runtime.context_repository.resolve_denominator(
+        denominator_ref=admitted.candidate_denominator_ref
+    )
+    denominator = epoch_cascade_module.PersistedPromotionCandidateDenominator(
+        denominator_ref=admitted.candidate_denominator_ref,
+        denominator_content_hash=admitted.candidate_denominator_content_hash,
+        statement=denominator_statement,
+    )
+    aggregate = runtime.context_repository.resolve_verified(
+        context_ref=admitted.aggregate_context_ref
+    )
+    assert hasattr(aggregate, "statement")
+    contexts = epoch_cascade_module.PersistedPromotionContextBatch(
+        aggregate_context=aggregate,
+        ordered_bound_members=tuple(
+            runtime.context_repository.resolve_bound_member(bound_member_ref=row.bound_member_ref)
+            for row in admitted.ordered_admissions
+        ),
+    )
+    rows = admitted.ordered_admissions
+    changed = {
+        "missing": rows[:-1],
+        "duplicate": (rows[0], rows[0]),
+        "reordered": tuple(reversed(rows)),
+    }[mutation]
+
+    with pytest.raises(ValueError, match="epoch_validity_admission_denominator_mismatch"):
+        epoch_cascade_module.seal_pre_n9_admitted_candidate_batch(
+            store=runtime.store,
+            denominator=denominator,
+            contexts=contexts,
+            admissions=changed,
+        )
+
+
+def test_pre_n9_batch_rejects_shaped_denominator_hash(tmp_path: Path) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem("shaped_denominator_hash")
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_open_world_summary("shaped_denominator_hash_candidate"),),
+    )
+    changed = admitted.model_copy(
+        update={"candidate_denominator_content_hash": "sha256:" + "f" * 64}
+    )
+    changed = changed.model_copy(
+        update={
+            "batch_content_hash": core_contracts.c4_semantic_digest(
+                "pre_n9_admitted_candidate_batch", changed
+            )
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="pre_n9_admitted_batch_denominator_binding_mismatch",
+    ):
+        CanonicalN9PromotionPort(
+            promotion_runtime=runtime,
+            epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+            repo_root=REPO_ROOT,
+        )(admitted_batch=changed, problem=problem)
+
+
+def test_positive_epoch_gate_cannot_carry_failure_codes(tmp_path: Path) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=_problem("positive_gate_failure_code"),
+        summaries=(_open_world_summary("positive_gate_failure_code_candidate"),),
+    )
+    row = admitted.ordered_admissions[0]
+    gate = epoch_cascade_module._read_model(
+        store=runtime.store,
+        ref=row.gate_evidence_ref,
+        model=core_contracts.EpochValidityGateReceipt,
+        profile_record="epoch_validity_gate_receipt",
+    )
+    payload = gate.model_dump(mode="json")
+    payload["failure_codes"] = ["caller_shaped_positive"]
+
+    with pytest.raises(ValueError, match="epoch_validity_positive_status_has_failure_codes"):
+        core_contracts.EpochValidityGateReceipt.model_validate(payload)
+
+
+def test_completed_epoch_receipt_bytes_are_reloaded_before_n9(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem("tampered_completed_epoch_receipt")
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_open_world_summary("tampered_completed_epoch_candidate"),),
+    )
+    row = admitted.ordered_admissions[0]
+    aggregate = runtime.context_repository.resolve_verified(context_ref=row.aggregate_context_ref)
+    gate = epoch_cascade_module._read_model(
+        store=runtime.store,
+        ref=row.gate_evidence_ref,
+        model=core_contracts.EpochValidityGateReceipt,
+        profile_record="epoch_validity_gate_receipt",
+    )
+    assert gate.completed_batch_receipt_ref is not None
+    completed_id = gate.completed_batch_receipt_ref.artifact_id
+    real_get_bytes = runtime.store.get_bytes
+
+    def _tamper_completed_receipt(artifact_id):
+        if artifact_id == completed_id:
+            return b'{"forged":"completed-receipt"}'
+        return real_get_bytes(artifact_id)
+
+    monkeypatch.setattr(runtime.store, "get_bytes", _tamper_completed_receipt)
+    result = runtime.epoch_n9_evidence_resolver.resolve_verified(
+        admission=row,
+        expected_design_problem_ref=aggregate.statement.design_problem_binding_ref,
+    )
+
+    assert isinstance(result, core_contracts.EpochValidityGateNonReceipt)
+    assert result.code == "epoch_validity_gate_evidence_unresolved"
+
+
+def test_completed_epoch_transition_bytes_are_reloaded_before_n9(
+    tmp_path: Path,
+) -> None:
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem("tampered_completed_epoch_transition")
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_open_world_summary("tampered_completed_transition_candidate"),),
+    )
+    row = admitted.ordered_admissions[0]
+    aggregate = runtime.context_repository.resolve_verified(context_ref=row.aggregate_context_ref)
+    gate = epoch_cascade_module._read_model(
+        store=runtime.store,
+        ref=row.gate_evidence_ref,
+        model=core_contracts.EpochValidityGateReceipt,
+        profile_record="epoch_validity_gate_receipt",
+    )
+    assert gate.completed_batch_receipt_ref is not None
+    completed_owner = runtime.epoch_n9_evidence_resolver._completed_batches
+    assert completed_owner is not None
+    completed = completed_owner.resolve_completed_epoch_batch_evidence(
+        batch_receipt_ref=gate.completed_batch_receipt_ref
+    )
+    transition_blob, _ = runtime.store._paths(completed.receipt.transition_artifact_ref.artifact_id)
+    transition_blob.write_bytes(b'{"forged":"transition"}')
+
+    result = runtime.epoch_n9_evidence_resolver.resolve_verified(
+        admission=row,
+        expected_design_problem_ref=aggregate.statement.design_problem_binding_ref,
+    )
+
+    assert isinstance(result, core_contracts.EpochValidityGateNonReceipt)
+    assert result.code == "epoch_validity_gate_evidence_unresolved"
+
+
+def test_missing_or_mutated_owner_context_freezes_n9(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "owner-cas"))
+    foreign_runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "foreign-cas"))
+    problem = _problem("authentic_second_owner_context")
+    summary = _open_world_summary("authentic_second_context_candidate")
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
+    foreign = _positive_epoch_admitted_batch(
+        runtime=foreign_runtime,
+        problem=problem,
+        summaries=(summary, _open_world_summary("foreign_denominator_extra_candidate")),
+    )
+    foreign_export = tmp_path / "foreign-owner-context"
+    foreign_runtime.store.export_subgraph(
+        foreign_runtime.store.iter_artifact_ids(),
+        foreign_export,
+        compress=False,
+    )
+    imported = runtime.store.import_subgraph(foreign_export, verify_integrity=True)
+    assert imported.imported_artifacts > 0
+    foreign_first = foreign.ordered_admissions[0]
+    assert runtime.store.verify(foreign_first.aggregate_context_ref.artifact_id).ok
+    assert runtime.store.verify(foreign_first.bound_member_ref.artifact_id).ok
+    foreign_aggregate = runtime.context_repository.resolve_verified(
+        context_ref=foreign_first.aggregate_context_ref
+    )
+    assert hasattr(foreign_aggregate, "statement")
+    assert foreign_aggregate.semantic_hash == foreign_first.aggregate_context_content_hash
+    foreign_member = runtime.context_repository.resolve_bound_member(
+        bound_member_ref=foreign_first.bound_member_ref
+    )
+    assert foreign_member.bound_member_content_hash == foreign_first.bound_member_content_hash
+    first = admitted.ordered_admissions[0].model_copy(
+        update={
+            "aggregate_context_ref": foreign_first.aggregate_context_ref,
+            "aggregate_context_content_hash": foreign_first.aggregate_context_content_hash,
+            "bound_member_ref": foreign_first.bound_member_ref,
+            "bound_member_content_hash": foreign_first.bound_member_content_hash,
+        }
+    )
+    changed = admitted.model_copy(update={"ordered_admissions": (first,)})
+    changed = changed.model_copy(
+        update={
+            "batch_content_hash": core_contracts.c4_semantic_digest(
+                "pre_n9_admitted_candidate_batch",
+                changed,
+            )
+        }
+    )
+
+    result = CanonicalN9PromotionPort(
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )(admitted_batch=changed, problem=problem)
+
+    assert result.status == "not_promoted"
+    assert result.reason == "epoch_validity_refused:epoch_validity_gate_evidence_unresolved"
+
+
+def test_old_packet_after_prior_head_advance_requires_validity_batch(
+    tmp_path: Path,
+) -> None:
+    """Absent owner authority can never relabel an authentic old subject current."""
+
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    prepared = runtime._prepare_completed_generation(
+        problem=_problem("authentic_old_subject"),
+        summaries=(_open_world_summary("authentic_old_candidate"),),
+    )
+    bound = prepared.contexts.ordered_bound_members[0]
+    persisted = runtime.epoch_subject_authority.persist_for_n9(
+        bound_member_ref=bound.bound_member_ref
+    )
+    subject = epoch_cascade_module._read_model(
+        store=runtime.store,
+        ref=persisted.subject_ref,
+        model=core_contracts.PreN9EpochValiditySubjectStatement,
+        profile_record="pre_n9_epoch_subject",
+    )
+    old_subject = subject.model_copy(
+        update={
+            "current_decision_packet_ref": runtime.verifier_provenance_ref,
+            "packet_epoch_refs": ("sha256:" + hashlib.sha256(b"authentic-old-epoch").hexdigest(),),
+        }
+    )
+    old_ref, _, _ = epoch_cascade_module._persist_model(
+        store=runtime.store,
+        value=old_subject,
+        profile_record="pre_n9_epoch_subject",
+    )
+
+    result = runtime.epoch_validity_gate.reconcile_before_n9(subject_ref=old_ref)
+
+    assert isinstance(result, core_contracts.EpochValidityGateNonReceipt)
+    assert result.code == "policy_admission_missing"
+
+
+def test_post_n9_packet_binds_exact_subject_and_gate_receipt(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """The emitted N9 receipt binds the exact owner admission handles."""
+
+    monkeypatch.setattr(
+        promotion_sequence_module,
+        "_legacy_policy_promotion_callers",
+        lambda repo_root: (),
+    )
+    runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
+    problem = _problem("post_n9_exact_epoch_binding")
+    admitted = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(_open_world_summary("post_n9_exact_epoch_candidate"),),
+    )
+    admission = admitted.ordered_admissions[0]
+    observation = CanonicalN9PromotionPort(
+        promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
+        repo_root=REPO_ROOT,
+    )(admitted_batch=admitted, problem=problem)
+    assert observation.receipts
+    receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
+    projection = receipt.owner_projection.epoch_validity_projection
+
+    assert projection is not None
+    assert (
+        projection.owner_query_context_ref,
+        projection.owner_query_context_content_hash,
+        projection.bound_member_ref,
+        projection.bound_member_content_hash,
+        projection.candidate_occurrence_ref,
+        projection.candidate_occurrence_content_hash,
+        projection.subject_ref,
+        projection.subject_content_hash,
+        projection.gate_receipt_ref,
+        projection.gate_receipt_content_hash,
+    ) == (
+        admission.aggregate_context_ref,
+        admission.aggregate_context_content_hash,
+        admission.bound_member_ref,
+        admission.bound_member_content_hash,
+        admission.candidate_occurrence_ref,
+        admission.candidate_occurrence_content_hash,
+        admission.subject_ref,
+        admission.subject_content_hash,
+        admission.gate_evidence_ref,
+        admission.gate_evidence_content_hash,
+    )
+    subject = epoch_cascade_module._read_model(
+        store=runtime.store,
+        ref=projection.subject_ref,
+        model=core_contracts.PreN9EpochValiditySubjectStatement,
+        profile_record="pre_n9_epoch_subject",
+    )
+    gate = epoch_cascade_module._read_model(
+        store=runtime.store,
+        ref=projection.gate_receipt_ref,
+        model=core_contracts.EpochValidityGateReceipt,
+        profile_record="epoch_validity_gate_receipt",
+    )
+    assert gate.subject_ref == projection.subject_ref
+    assert gate.subject_content_hash == projection.subject_content_hash
+    assert gate.completed_batch_receipt_ref is not None
+    assert subject.owner_query_context_ref == projection.owner_query_context_ref
+    resolved = runtime.epoch_n9_evidence_resolver.resolve_projection_verified(
+        projection=projection,
+        expected_problem_content_hash=(
+            receipt.owner_projection.design_problem_binding.problem_content_hash
+        ),
+    )
+    assert resolved == projection
+
+    foreign_runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "foreign-cas"))
+    second = _positive_epoch_admitted_batch(
+        runtime=foreign_runtime,
+        problem=problem,
+        summaries=(_open_world_summary("post_n9_authentic_substitute"),),
+    ).ordered_admissions[0]
+    foreign_export = tmp_path / "authentic-substitute"
+    foreign_runtime.store.export_subgraph(
+        foreign_runtime.store.iter_artifact_ids(),
+        foreign_export,
+        compress=False,
+    )
+    imported = runtime.store.import_subgraph(foreign_export, verify_integrity=True)
+    assert imported.imported_artifacts > 0
+    assert runtime.store.verify(second.subject_ref.artifact_id).ok
+    assert runtime.store.verify(second.gate_evidence_ref.artifact_id).ok
+    substituted = projection.model_copy(
+        update={
+            "subject_ref": second.subject_ref,
+            "subject_content_hash": second.subject_content_hash,
+            "gate_receipt_ref": second.gate_evidence_ref,
+            "gate_receipt_content_hash": second.gate_evidence_content_hash,
+        }
+    )
+    rejected = runtime.epoch_n9_evidence_resolver.resolve_projection_verified(
+        projection=substituted,
+        expected_problem_content_hash=(
+            receipt.owner_projection.design_problem_binding.problem_content_hash
+        ),
+    )
+    assert isinstance(rejected, core_contracts.EpochValidityGateNonReceipt)
+    assert rejected.code == "epoch_validity_gate_evidence_unresolved"
+
+
+def test_offline_epoch_projection_types_corrupt_completed_owner_state(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runtime, _, _, receipt = _run_open_world_n9_case(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+    projection = receipt.owner_projection.epoch_validity_projection
+    assert projection is not None
+    completed_owner = runtime.epoch_n9_evidence_resolver._completed_batches
+    assert completed_owner is not None
+
+    def corrupt_completed_owner_state(**_kwargs):
+        raise RuntimeError("decision_validity_owner_state_corrupt")
+
+    monkeypatch.setattr(
+        completed_owner,
+        "resolve_completed_epoch_batch_evidence",
+        corrupt_completed_owner_state,
+    )
+    resolved = runtime.epoch_n9_evidence_resolver.resolve_projection_verified(
+        projection=projection,
+        expected_problem_content_hash=(
+            receipt.owner_projection.design_problem_binding.problem_content_hash
+        ),
+    )
+
+    assert isinstance(resolved, core_contracts.EpochValidityGateNonReceipt)
+    assert resolved.code == "epoch_validity_gate_evidence_unresolved"
 
 
 def _domain_problem(
@@ -1496,6 +2268,7 @@ async def test_missing_canonical_registry_never_mints_n6_bootstrap_authority(
         grounding_port=_AcquisitionGrounding(),
         value_port=PendingN8ValuePort(),
         promotion_port=_NoPromotionPort(),
+        authority_scope="contract_testing",
         acquisition_owner_gateway=RecordedAcquisitionOwnerGateway(artifacts_by_requirement={}),
         repo_root=REPO_ROOT,
     ).run(
@@ -2228,6 +3001,7 @@ async def test_proxy_gap_candidate_stays_quarantined_before_any_promotion() -> N
         grounding_port=PolicyGroundingPort(),
         value_port=PendingN8ValuePort(),
         promotion_port=_FabricatedPromotionPort(),
+        authority_scope="contract_testing",
     )
 
     run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
@@ -2536,6 +3310,7 @@ async def test_value_block_feeds_revision_before_promotion() -> None:
         generation_port=_CgfGenerationPort(),
         value_port=_BlockedValuePort(),
         promotion_port=_FabricatedPromotionPort(),
+        authority_scope="contract_testing",
     )
 
     run = await controller.run(_problem(), budget_state=_budget(), max_cycles=1)
@@ -2631,13 +3406,8 @@ def test_every_promotion_input_is_preceded_by_produce_persist_and_fresh_resolve(
 ) -> None:
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
     events: list[str] = []
-    original_batch = runtime._prepare_completed_generation
-    original_gate = runtime.prepare_verified_gate
+    original_gate = runtime.open_world_authority.prepare_verified_projection
     original_n9 = promotion_sequence_module._run_canonical_promotion_sequence_with_owner_gate
-
-    def prepare_batch(**kwargs: Any) -> Any:
-        events.append("produce_persist_context")
-        return original_batch(**kwargs)
 
     def prepare_gate(**kwargs: Any) -> Any:
         events.append("fresh_resolve_vector")
@@ -2647,8 +3417,11 @@ def test_every_promotion_input_is_preceded_by_produce_persist_and_fresh_resolve(
         events.append("n9")
         return original_n9(*args, **kwargs)
 
-    monkeypatch.setattr(runtime, "_prepare_completed_generation", prepare_batch)
-    monkeypatch.setattr(runtime, "prepare_verified_gate", prepare_gate)
+    monkeypatch.setattr(
+        runtime.open_world_authority,
+        "prepare_verified_projection",
+        prepare_gate,
+    )
     monkeypatch.setattr(
         promotion_sequence_module,
         "_run_canonical_promotion_sequence_with_owner_gate",
@@ -2661,12 +3434,19 @@ def test_every_promotion_input_is_preceded_by_produce_persist_and_fresh_resolve(
     )
     summary = _open_world_summary()
     problem = _problem(f"open_world_ordered_gate_{uuid4().hex}")
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
+    events.clear()
     observation = CanonicalN9PromotionPort(
         promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
         repo_root=REPO_ROOT,
-    )(summaries=(summary,), problem=problem)
+    )(admitted_batch=admitted_batch, problem=problem)
 
-    assert events == ["produce_persist_context", "fresh_resolve_vector", "n9"]
+    assert events == ["fresh_resolve_vector", "n9"]
     assert observation.status == "not_promoted"
     receipt = CanonicalPromotionReceipt.model_validate(observation.receipts[0])
     gate = receipt.owner_projection.open_world_gate
@@ -2686,10 +3466,16 @@ def _run_open_world_n9_case(
     runtime = PromotionRuntime(store=FileSystemCAS(tmp_path / "cas"))
     problem = _problem(f"open_world_replay_{tmp_path.name}_{uuid4().hex}")
     summary = _open_world_summary()
+    admitted_batch = _positive_epoch_admitted_batch(
+        runtime=runtime,
+        problem=problem,
+        summaries=(summary,),
+    )
     observation = CanonicalN9PromotionPort(
         promotion_runtime=runtime,
+        epoch_n9_evidence_resolver=runtime.epoch_n9_evidence_resolver,
         repo_root=REPO_ROOT,
-    )(summaries=(summary,), problem=problem)
+    )(admitted_batch=admitted_batch, problem=problem)
     assert observation.receipts
     return (
         runtime,
@@ -2707,17 +3493,56 @@ def test_offline_replay_recomputes_open_world_vector_and_verifier_provenance(
         tmp_path=tmp_path,
         monkeypatch=monkeypatch,
     )
-    fresh_resolver = OpenWorldRiskVectorArtifactRepository(store=FileSystemCAS(tmp_path / "cas"))
+    fresh_store = FileSystemCAS(tmp_path / "cas")
+    fresh_resolver = OpenWorldRiskVectorArtifactRepository(store=fresh_store)
+    fresh_epoch_resolver = PromotionRuntime(
+        store=fresh_store,
+        completed_epoch_batches=DecisionValidityService(fresh_store),
+    ).epoch_n9_evidence_resolver
 
     issues = validate_canonical_promotion_receipt(
         receipt,
         candidate_summary=summary,
         design_problem=problem,
         open_world_resolver=fresh_resolver,
+        epoch_validity_resolver=fresh_epoch_resolver,
     )
 
     assert issues == ()
     assert runtime.resolver is not fresh_resolver
+
+
+def test_offline_replay_rejects_missing_or_mutated_epoch_gate_evidence(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    runtime, problem, summary, receipt = _run_open_world_n9_case(
+        tmp_path=tmp_path,
+        monkeypatch=monkeypatch,
+    )
+
+    missing = validate_canonical_promotion_receipt(
+        receipt,
+        candidate_summary=summary,
+        design_problem=problem,
+        open_world_resolver=runtime.resolver,
+    )
+    assert "epoch_validity_resolver_not_established" in {issue["code"] for issue in missing}
+
+    projection = receipt.owner_projection.epoch_validity_projection
+    assert projection is not None
+    gate_blob, _ = runtime.store._paths(projection.gate_receipt_ref.artifact_id)
+    gate_blob.write_bytes(b'{"forged":"gate"}')
+
+    rejected = validate_canonical_promotion_receipt(
+        receipt,
+        candidate_summary=summary,
+        design_problem=problem,
+        open_world_resolver=runtime.resolver,
+        epoch_validity_resolver=runtime.epoch_n9_evidence_resolver,
+    )
+
+    assert "epoch_validity_gate_evidence_unresolved" in {issue["code"] for issue in rejected}
 
 
 def test_fresh_process_replay_rejects_deleted_or_mutated_open_world_vector(

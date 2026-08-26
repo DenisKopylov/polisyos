@@ -10,7 +10,6 @@ __all__ = [
     "CorrectionMethod",
     "CounterfactualFairnessEstimator",
     "DecisionValidityService",
-    "DecisionValidityStateStore",
     "FairnessAuditConfig",
     "FairnessAuditEstimator",
     "FairnessAuditEstimatorFamily",
@@ -107,10 +106,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "DecisionValidityService": (
         "polisyos.scientist.validation.decision_validity",
         "DecisionValidityService",
-    ),
-    "DecisionValidityStateStore": (
-        "polisyos.scientist.validation.decision_validity",
-        "DecisionValidityStateStore",
     ),
     "FamilyErrorSummary": ("polisyos.scientist.validation.benchmarks", "FamilyErrorSummary"),
     "MetricValidationTypeIBenchResult": (

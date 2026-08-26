@@ -22,6 +22,16 @@ The old first-level packages `polisyos.scientist.decision_validity`,
 `verification` were removed after reaching zero non-compat callers. New code
 should import from this validation hub.
 
+## Epoch-validity owner intake
+
+`DecisionValidityService` admits an epoch transition only through its configured verifier. It
+reconciles the complete owner target denominator, persists the complete pending freeze before the
+first packet mutation, resumes idempotently after a crash, and exposes completed evidence only by
+content-bound receipt ref. Generic dependency events cannot admit or clear semantic-epoch state.
+The production composition has no epoch-transition signing authority, so positive signed
+transition issuance remains absent; an explicitly appointed test verifier proves the intake
+mechanism without promoting that retained institutional gap.
+
 ## Common Commands
 
 Run from the repository root (`policy-engine/`).

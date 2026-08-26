@@ -30,6 +30,7 @@ _HIGH_STAKES_OPERATIONS = {
         "/api/v1/control/data/promotion/{promotion_id}/reject",
     ): "promotion",
     ("POST", "/api/v1/control/decision-validity/events"): "publication",
+    ("POST", "/api/v1/control/decision-validity/epoch-batches"): "publication",
     ("POST", "/api/v1/control/runs/{run_id}/reissue"): "revocation",
     (
         "POST",
@@ -121,11 +122,11 @@ def _production_approval_test_context(
         writer="tests.ds20.step_up",
     )
     claims = _claims(
-            tenant_id=runtime_api_env["tenant_a"],
-            cell_id=cell.cell_id,
-            jti=f"jwt-{suffix}",
-            roles=frozenset({PolicyOSRole.ADMIN}),
-        )
+        tenant_id=runtime_api_env["tenant_a"],
+        cell_id=cell.cell_id,
+        jti=f"jwt-{suffix}",
+        roles=frozenset({PolicyOSRole.ADMIN}),
+    )
     provider.put_claim(
         bearer,
         claims.model_copy(update={"mfa_verified": mfa_verified}),
@@ -630,8 +631,7 @@ def test_step_up_collaborator_failures_deny_before_mutation(
     packets_before = {
         str(artifact_id)
         for artifact_id in context["store"].iter_artifact_ids()
-        if context["store"].get_manifest(artifact_id).kind
-        == "runtime.production_approval_packet"
+        if context["store"].get_manifest(artifact_id).kind == "runtime.production_approval_packet"
     }
 
     response = context["client"].post(
@@ -646,8 +646,7 @@ def test_step_up_collaborator_failures_deny_before_mutation(
     packets_after = {
         str(artifact_id)
         for artifact_id in context["store"].iter_artifact_ids()
-        if context["store"].get_manifest(artifact_id).kind
-        == "runtime.production_approval_packet"
+        if context["store"].get_manifest(artifact_id).kind == "runtime.production_approval_packet"
     }
 
     assert response.status_code == 503, response.json()
@@ -1060,8 +1059,7 @@ def test_replayed_step_up_assertion_is_denied(runtime_api_env, tmp_path: Path) -
     packets_before = {
         str(artifact_id)
         for artifact_id in context["store"].iter_artifact_ids()
-        if context["store"].get_manifest(artifact_id).kind
-        == "runtime.production_approval_packet"
+        if context["store"].get_manifest(artifact_id).kind == "runtime.production_approval_packet"
     }
     first = context["client"].post(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}/production-approval",
@@ -1071,8 +1069,7 @@ def test_replayed_step_up_assertion_is_denied(runtime_api_env, tmp_path: Path) -
     packets_after_first = {
         str(artifact_id)
         for artifact_id in context["store"].iter_artifact_ids()
-        if context["store"].get_manifest(artifact_id).kind
-        == "runtime.production_approval_packet"
+        if context["store"].get_manifest(artifact_id).kind == "runtime.production_approval_packet"
     }
     replay = context["client"].post(
         f"/api/v1/runs/{runtime_api_env['core_run_id']}/production-approval",
@@ -1082,8 +1079,7 @@ def test_replayed_step_up_assertion_is_denied(runtime_api_env, tmp_path: Path) -
     packets_after_replay = {
         str(artifact_id)
         for artifact_id in context["store"].iter_artifact_ids()
-        if context["store"].get_manifest(artifact_id).kind
-        == "runtime.production_approval_packet"
+        if context["store"].get_manifest(artifact_id).kind == "runtime.production_approval_packet"
     }
 
     assert first.status_code == 200, first.json()
@@ -1096,9 +1092,7 @@ def test_replayed_step_up_assertion_is_denied(runtime_api_env, tmp_path: Path) -
     assert verified_context.subject == "user-1"
     assert verified_context.tenant_id == runtime_api_env["tenant_a"]
     assert verified_context.method == "POST"
-    assert verified_context.route_path == (
-        "/api/v1/runs/{run_id}/production-approval"
-    )
+    assert verified_context.route_path == ("/api/v1/runs/{run_id}/production-approval")
     assert verified_context.permission == "runs.production_approval.create"
     assert verified_context.step_up_class.value == "production_approval"
     assert verified_context.scorecard_ref == context["scorecard_ref"]
@@ -1170,9 +1164,7 @@ def test_production_approval_binds_persisted_scorecard_in_step_up(
     assert len(verifier.contexts) == 1
     verified_context = verifier.contexts[0]
     normalized_scorecard = dict(context["scorecard_payload"])
-    normalized_scorecard["evidence_refs"] = {
-        "quality_scorecard": context["scorecard_ref"]
-    }
+    normalized_scorecard["evidence_refs"] = {"quality_scorecard": context["scorecard_ref"]}
     normalized_scorecard.update(
         {
             "quality_scorecard_ref": context["scorecard_ref"],
@@ -1183,12 +1175,15 @@ def test_production_approval_binds_persisted_scorecard_in_step_up(
             "run_id": runtime_api_env["core_run_id"],
         }
     )
-    expected_scorecard_sha256 = "sha256:" + hashlib.sha256(
-        to_canonical_bytes(
-            normalized_scorecard,
-            spec=CanonSpec(forbid_floats=False),
-        )
-    ).hexdigest()
+    expected_scorecard_sha256 = (
+        "sha256:"
+        + hashlib.sha256(
+            to_canonical_bytes(
+                normalized_scorecard,
+                spec=CanonSpec(forbid_floats=False),
+            )
+        ).hexdigest()
+    )
     expected_body_sha256 = "sha256:" + hashlib.sha256(raw_body).hexdigest()
     assert verified_context.scorecard_ref == context["scorecard_ref"]
     assert verified_context.scorecard_sha256 == expected_scorecard_sha256

@@ -737,6 +737,34 @@ class DecisionValidityService:
             batch_receipt_ref=state.receipt_artifact_ref
         )
 
+    @_owner_transactional
+    def enumerate_completed_epoch_batch_evidence(
+        self,
+    ) -> tuple[PersistedEpochValidityBatchEvidence, ...]:
+        """Walk the complete owner receipt index under its transaction lock."""
+
+        evidence: list[PersistedEpochValidityBatchEvidence] = []
+        for item in sorted(self._state._epoch_receipts.glob("*.json")):
+            state = self._state._load_model_strict(
+                item,
+                _PersistedEpochBatchReceiptState,
+            )
+            if state is None:
+                raise ValueError("decision_validity_epoch_receipt_index_unresolved")
+            parsed = self._load_completed_epoch_receipt(state.receipt.batch_id)
+            if parsed is None or parsed != state.receipt:
+                raise ValueError("decision_validity_epoch_receipt_index_unresolved")
+            raw = self._store.get_bytes(state.receipt_artifact_ref.artifact_id)
+            evidence.append(
+                PersistedEpochValidityBatchEvidence(
+                    batch_receipt_ref=state.receipt_artifact_ref,
+                    batch_receipt_content_hash=state.receipt_content_hash,
+                    receipt_bytes=raw,
+                    receipt=parsed,
+                )
+            )
+        return tuple(evidence)
+
     def _validate_epoch_transition_receipt(
         self,
         *,

@@ -386,6 +386,16 @@ class EpochValidityCompletedBatchEvidenceResolver(Protocol):
         ...
 
 
+class EpochValidityCompletedBatchEvidenceDenominator(Protocol):
+    """Canonical owner walk over every completed epoch-batch receipt."""
+
+    def enumerate_completed_epoch_batch_evidence(
+        self,
+    ) -> tuple[PersistedEpochValidityBatchEvidence, ...]:
+        """Return a complete, content-verified receipt denominator."""
+        ...
+
+
 class EpochTransitionVerifier(Protocol):
     """Resolve exact transition bytes under one appointed verifier identity."""
 

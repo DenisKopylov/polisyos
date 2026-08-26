@@ -404,7 +404,7 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 79
+    assert metrics["register_ids"] == 92
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_entries"] == 261
@@ -424,6 +424,38 @@ def test_real_census_replays_published_invariants() -> None:
     atlas_ids = {row.debt_id for row in checker._snapshot(REPO_ROOT).atlas_debts}
     assert "ds4-three-canonical-waist-vocabularies" in atlas_ids
     assert "master_inherited_debt_action = flag_for_architect_insertion_at_c20" not in atlas_ids
+
+
+def test_ds10_debt_projection_has_only_declared_informational_findings() -> None:
+    """Require every DS10 non-closure to survive as executable owned debt."""
+    checker = _checker()
+    report = checker.audit_repository(REPO_ROOT)
+    ds10_ids = {
+        "ds10-adapter-registry-data-only-free-growth",
+        "ds10-adapter-admission-capability-discovery-bridge",
+        "ds10-owner-signed-capability-purpose-binding",
+        "ds10-global-case-index-producer-allocation",
+        "ds10-capability-discovery-stable-facades",
+        "ds10-causal-method-index-provider-bridge",
+        "ds10-c13-print-receipt-reissue",
+        "ds10-debt-ledger-frontend-denominator-label",
+        "ds10-connector-acquisition-content",
+        "ds10-layer3-owner-ledger-rejection-richness",
+        "ds10-lex-pipeline-mutation-boundary",
+        "ds10-public-decision-rendering",
+        "ds10-world-agent-capability-discovery-boundary",
+    }
+    registered_ids = {row.debt_id for row in checker._snapshot(REPO_ROOT).debts}
+
+    assert ds10_ids <= registered_ids
+    # Which informational classes actually occur depends on register state -
+    # `register_withholds_source_standing` had exactly one member, `GY-DEF9`, and the
+    # measurement-lies bundle closed it. The declared set is the contract; the observed
+    # set is a subset of it. Equality would pin a transient.
+    assert {finding.code for finding in report.findings} <= {
+        "register_supplies_missing_standing",
+        "register_withholds_source_standing",
+    }
 
 
 def test_real_gy_parser_covers_all_six_forms_and_last_hit_wins() -> None:
@@ -526,11 +558,11 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
     assert "bridge_missing" not in gap8
-    assert "| `DEBT-REGISTER.md` | 79 | 79 | 48 |" in rendered
+    assert "| `DEBT-REGISTER.md` | 92 | 92 | 59 |" in rendered
     assert "| Atlas master debt table | 22 | 22 | 8 |" in rendered
     assert (
         "| `frontend-disposition-register.json` entries | 261 | 261 | 0 | "
-        "deleted=19, rebind_pending=184, retire_disposition=25, use_as_is=17, "
+        "deleted=19, rebind_pending=179, retire_disposition=25, use_as_is=22, "
         "wire_disposition=16 |" in rendered
     )
     assert (
@@ -595,7 +627,12 @@ def test_open_work_records_property_posture_and_branch_relevance() -> None:
     # slice lingering there is loss mode 5, the class the ledger exists to catch.
     assert not [line for line in rendered.splitlines() if "| `DS9` |" in line]
 
-    for slice_id in ("DS10", "DS12", "DS14", "DS15", "DS17"):
+    ds10 = next(line for line in rendered.splitlines() if "| `DS10` |" in line)
+    assert "| `in-flight` |" in ds10
+    assert "attached branch declared by slice plan" in ds10
+    assert "codex/ds10-capability-discovery-plan" in ds10
+
+    for slice_id in ("DS12", "DS14", "DS15", "DS17"):
         row = next(line for line in rendered.splitlines() if f"| `{slice_id}` |" in line)
         assert "unblocking property `not_established`" in row
         assert "measured 2026-08-22" in row

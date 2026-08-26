@@ -11,7 +11,7 @@ import time
 from collections import Counter, defaultdict
 from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass
-from datetime import UTC, datetime
+from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import Any, Literal
 
@@ -25,11 +25,13 @@ from polisyos.runtime.quality.capability_index import (
     AuthorityEnvelope,
     CapabilityConflictRecord,
     CapabilityIndex,
+    CapabilityIndexDiscoveryRow,
     CapabilityScope,
     CapabilitySourceAsset,
     EvidenceCapability,
     FailureModeNode,
     FreshnessEnvelope,
+    LegalNormOwnerTruth,
     QualityScore,
     RightsEnvelope,
     capability_is_production_admissible,
@@ -49,9 +51,7 @@ CAPABILITY_INDEX_PROV = "capability_index_v1.prov.ttl"
 CAPABILITY_WHITE_SPACE_REPORT = "capability_white_space_report_v1.json"
 CAPABILITY_CONFLICT_REPORT = "capability_conflict_report_v1.json"
 
-PHASE1_ARTIFACT_PROFILE_SCHEMA_VERSION = (
-    "policyos.capability_index.phase1_artifact_profile.v1"
-)
+PHASE1_ARTIFACT_PROFILE_SCHEMA_VERSION = "policyos.capability_index.phase1_artifact_profile.v1"
 CAPABILITY_INDEX_OUTPUT_FILENAMES = (
     CAPABILITY_INDEX_DUCKDB,
     CAPABILITY_INDEX_MANIFEST,
@@ -106,6 +106,8 @@ L5_DERIVED_PARQUET_NAMES = frozenset(
         "survival_hazard_estimates.parquet",
     }
 )
+
+
 @dataclass(frozen=True)
 class CapabilityIndexCompilerConfig:
     """Compiler configuration for fixture, full, and incremental builds."""
@@ -137,6 +139,7 @@ class CapabilityIndexBuildResult:
     conflict_report_path: Path
     summary: Mapping[str, Any]
     manifest: Mapping[str, Any]
+    capability_index: CapabilityIndex | None = None
 
 
 @dataclass(frozen=True)
@@ -189,11 +192,18 @@ def compile_capability_index(
     output_dir = config.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
     generated_at = config.generated_at or datetime.now(UTC).replace(microsecond=0).isoformat()
+    release_snapshot_at = _release_snapshot_at(generated_at)
     input_fingerprints = discover_input_fingerprints(production_data_root)
-    previous_manifest = _load_json(config.previous_manifest_path) if config.previous_manifest_path else None
+    previous_manifest = (
+        _load_json(config.previous_manifest_path) if config.previous_manifest_path else None
+    )
     incremental = _incremental_state(previous_manifest, input_fingerprints)
 
-    if config.mode == "incremental" and previous_manifest and not incremental["changed_input_labels"]:
+    if (
+        config.mode == "incremental"
+        and previous_manifest
+        and not incremental["changed_input_labels"]
+    ):
         return _copy_previous_incremental_outputs(
             config=config,
             output_dir=output_dir,
@@ -211,6 +221,7 @@ def compile_capability_index(
             config,
             production_data_root,
             rebuilt_labels,
+            release_snapshot_at=release_snapshot_at,
         )
         capabilities = _merge_incremental_capabilities(
             previous_capabilities=previous_capabilities,
@@ -219,7 +230,12 @@ def compile_capability_index(
         )
     else:
         capabilities = list(
-            _compile_capabilities_for_input_labels(config, production_data_root, INPUT_GROUPS)
+            _compile_capabilities_for_input_labels(
+                config,
+                production_data_root,
+                INPUT_GROUPS,
+                release_snapshot_at=release_snapshot_at,
+            )
         )
 
     incremental = {
@@ -233,7 +249,14 @@ def compile_capability_index(
     if config.inject_same_construct_conflict:
         capabilities.append(
             _build_fixture_conflicting_capability(
-                next((capability for capability in capabilities if not capability.compatibility_only), None)
+                next(
+                    (
+                        capability
+                        for capability in capabilities
+                        if not capability.compatibility_only
+                    ),
+                    None,
+                )
             )
         )
 
@@ -325,7 +348,137 @@ def compile_capability_index(
         conflict_report_path=output_dir / CAPABILITY_CONFLICT_REPORT,
         summary=summary,
         manifest=manifest,
+        capability_index=capability_index,
     )
+
+
+def build_capability_discovery_snapshot(
+    capability_index: CapabilityIndex,
+) -> tuple[CapabilityIndexDiscoveryRow, ...]:
+    """Project release-index rows for the kinds the index genuinely owns.
+
+    L4 world-model rows are intentionally excluded. Scientist agent/tool
+    capability discovery has a different owner and must enter through its
+    registry provider.
+    """
+
+    observed_at = _release_snapshot_at(capability_index.generated_at)
+    rows: list[CapabilityIndexDiscoveryRow] = []
+    for capability in capability_index.capabilities:
+        resource_kind = _discovery_resource_kind(capability)
+        if resource_kind is None:
+            continue
+        owner_truth = (
+            _legal_norm_owner_truth(capability, release_snapshot_at=observed_at)
+            if resource_kind == "legal_norm"
+            else None
+        )
+        if resource_kind == "legal_norm" and owner_truth is None:
+            continue
+        payload = capability.model_dump(mode="json", by_alias=True)
+        digest = "sha256:" + _sha256_json(payload)
+        source_refs = tuple(asset.ref for asset in capability.source_assets)
+        freshness_ref = (
+            capability.freshness_envelope.source_release_ref or capability_index.release_ref
+        )
+        rows.append(
+            CapabilityIndexDiscoveryRow(
+                capability_ref=capability.capability_id,
+                content_digest=digest,
+                resource_kind=resource_kind,
+                construct_refs=tuple(
+                    dict.fromkeys(
+                        (
+                            f"construct:{capability.construct_id.removeprefix('construct:')}",
+                            *capability.concept_spine_refs,
+                        )
+                    )
+                ),
+                label=capability.construct_id.replace("_", " "),
+                description=(
+                    f"{capability.evidence_mode} capability from "
+                    f"{', '.join(asset.source_layer for asset in capability.source_assets)}"
+                ),
+                producer_ref=capability_index.release_ref,
+                snapshot_ref=(
+                    f"{capability_index.release_ref}@{capability_index.compiler_version}"
+                ),
+                freshness_ref=freshness_ref,
+                provenance_refs=(
+                    source_refs or capability.lineage_refs or (capability_index.release_ref,)
+                ),
+                owner_truth=owner_truth,
+                may_not_use_for=tuple(
+                    dict.fromkeys(
+                        (
+                            *capability.may_not_use_for,
+                            *capability.authority_envelope.may_not_use_for,
+                            "execution_authority",
+                            "publication_authority",
+                        )
+                    )
+                ),
+                time={
+                    "observed_at": observed_at,
+                    "valid_from": observed_at,
+                    "valid_until": None,
+                    "freshness": _discovery_freshness(capability),
+                },
+            )
+        )
+    return tuple(sorted(rows, key=lambda row: (row.resource_kind, row.capability_ref)))
+
+
+def _discovery_resource_kind(capability: EvidenceCapability) -> str | None:
+    modalities = set(capability.modality)
+    layers = {asset.source_layer for asset in capability.source_assets}
+    if "foundry_method_contract" in modalities:
+        return "method"
+    if "fabric_data" in modalities and "L1" in layers:
+        return "dataset"
+    if "lex_norm" in modalities and "L3" in layers:
+        return "legal_norm"
+    return None
+
+
+def _discovery_freshness(capability: EvidenceCapability) -> str:
+    freshness = capability.freshness_envelope.freshness_class.casefold()
+    if "stale" in freshness or capability.capability_lifecycle.state in {
+        "deprecated",
+        "withdrawn",
+    }:
+        return "stale"
+    if freshness:
+        return "current"
+    return "unknown"
+
+
+def _legal_norm_owner_truth(
+    capability: EvidenceCapability,
+    *,
+    release_snapshot_at: datetime,
+) -> LegalNormOwnerTruth | None:
+    payload = capability.metadata.get("legal_norm_owner_truth")
+    if not isinstance(payload, Mapping):
+        return None
+    effective_from = _iso_date(payload.get("effective_from"))
+    effective_to_raw = payload.get("effective_to")
+    effective_to = _iso_date(effective_to_raw) if effective_to_raw else None
+    if effective_from is None or (effective_to_raw and effective_to is None):
+        return None
+    try:
+        truth = LegalNormOwnerTruth.model_validate(
+            {
+                **payload,
+                "effective_from": effective_from,
+                "effective_to": effective_to,
+                "temporal_snapshot_at": release_snapshot_at,
+                "provenance_refs": tuple(payload.get("provenance_refs") or ()),
+            }
+        )
+        return truth
+    except ValueError:
+        return None
 
 
 def validate_capability_authority(capability: EvidenceCapability) -> None:
@@ -350,6 +503,8 @@ def _compile_capabilities_for_input_labels(
     config: CapabilityIndexCompilerConfig,
     production_data_root: Path,
     input_labels: Sequence[str],
+    *,
+    release_snapshot_at: datetime,
 ) -> tuple[EvidenceCapability, ...]:
     labels = set(input_labels)
     capabilities: list[EvidenceCapability] = []
@@ -383,6 +538,7 @@ def _compile_capabilities_for_input_labels(
             load_lex_capabilities(
                 production_data_root,
                 max_capabilities=config.max_lex_capabilities,
+                release_snapshot_at=release_snapshot_at,
             )
         )
     if "l4_ukraine_panels" in labels:
@@ -394,7 +550,9 @@ def _compile_capabilities_for_input_labels(
             )
         )
     if "l5_calibration_registries" in labels:
-        capabilities.extend(load_calibration_capabilities(production_data_root, calibration_context))
+        capabilities.extend(
+            load_calibration_capabilities(production_data_root, calibration_context)
+        )
     if "l6_foundry_method_contracts" in labels:
         capabilities.extend(load_foundry_capabilities(production_data_root, foundry_context))
     if "l7_curated_contracts" in labels:
@@ -421,7 +579,9 @@ def _incremental_rebuild_labels(changed_input_labels: Sequence[str]) -> tuple[st
     return tuple(sorted(rebuilt))
 
 
-def _load_previous_capabilities(previous_manifest_path: Path | None) -> tuple[EvidenceCapability, ...]:
+def _load_previous_capabilities(
+    previous_manifest_path: Path | None,
+) -> tuple[EvidenceCapability, ...]:
     if previous_manifest_path is None:
         return ()
     duckdb_path = previous_manifest_path.resolve().parent / CAPABILITY_INDEX_DUCKDB
@@ -581,7 +741,10 @@ def load_dataset_catalog_capabilities(
               d.id
             LIMIT ?
         """
-        rows = [dict(zip([col[0] for col in con.description], row, strict=True)) for row in con.execute(sql, [max_capabilities]).fetchall()]
+        rows = [
+            dict(zip([col[0] for col in con.description], row, strict=True))
+            for row in con.execute(sql, [max_capabilities]).fetchall()
+        ]
 
     capabilities = []
     for row in rows:
@@ -612,7 +775,9 @@ def load_dataset_catalog_capabilities(
                 ),
                 construct=construct,
                 modality=("fabric_data",),
-                evidence_mode="observed" if row.get("has_proxy_alignment") != 1 else "proxy_observational",
+                evidence_mode="observed"
+                if row.get("has_proxy_alignment") != 1
+                else "proxy_observational",
                 concept_spine_refs=(f"concept:{construct}",),
                 scope=CapabilityScope(
                     geography=_coverage_geography(row.get("coverage_countries")),
@@ -846,9 +1011,7 @@ def load_scholar_capabilities(
                     breakdown=breakdown,
                 ),
                 source_assets=tuple(source_assets),
-                limitations=(
-                    "Scholar support cannot satisfy direct runtime outcome observation.",
-                ),
+                limitations=("Scholar support cannot satisfy direct runtime outcome observation.",),
                 authority_envelope=AuthorityEnvelope(
                     research="admissible",
                     governed_pilot="admissible_as_scholarly_support",
@@ -879,6 +1042,7 @@ def load_lex_capabilities(
     production_data_root: Path,
     *,
     max_capabilities: int,
+    release_snapshot_at: datetime,
 ) -> tuple[EvidenceCapability, ...]:
     """Load L3 Lex KG normative facts, thresholds, amendments, audit, refs, entities."""
 
@@ -907,8 +1071,17 @@ def load_lex_capabilities(
                 nf.object_en,
                 nf.trust_tier,
                 nf.fused_confidence,
+                nf.grounding_status,
+                nf.canonical_status,
+                nf.reference_resolution_status,
+                nf.hallucination_flags_json,
+                nf.doc_id,
+                nf.provision_citation,
                 nf.effective_from,
                 nf.effective_to,
+                nf.temporal_state,
+                nf.temporal_resolution_status,
+                nf.extraction_source,
                 ta.audit_id,
                 ref.reference_id,
                 ent.entity_id,
@@ -931,6 +1104,20 @@ def load_lex_capabilities(
         construct = _legal_construct(metric, row.get("applies_to"))
         confidence = _score(row.get("fused_confidence"), default=0.7)
         threshold_id = _safe_text(row.get("threshold_id"))
+        capability_id = deterministic_capability_id(
+            construct,
+            "lex_norm",
+            threshold_id,
+            metric,
+        )
+        legal_truth = _build_legal_norm_owner_truth(
+            row,
+            capability_ref=capability_id,
+            lex_path=path,
+            release_snapshot_at=release_snapshot_at,
+        )
+        if legal_truth is None:
+            continue
         source_assets = [
             CapabilitySourceAsset(
                 ref=f"duckdb:{path.name}:lex_rule_thresholds:{threshold_id}",
@@ -969,12 +1156,7 @@ def load_lex_capabilities(
                 )
         capabilities.append(
             EvidenceCapability(
-                capability_id=deterministic_capability_id(
-                    construct,
-                    "lex_norm",
-                    threshold_id,
-                    metric,
-                ),
+                capability_id=capability_id,
                 construct=construct,
                 modality=("lex_norm",),
                 evidence_mode="legal_threshold",
@@ -1017,10 +1199,113 @@ def load_lex_capabilities(
                     "metric": metric,
                     "operator": _optional_str(row.get("operator")),
                     "unit": _optional_str(row.get("unit")),
+                    "legal_norm_owner_truth": legal_truth.model_dump(
+                        mode="json",
+                        exclude={"temporal_snapshot_at"},
+                    ),
                 },
             )
         )
     return tuple(capabilities)
+
+
+def _build_legal_norm_owner_truth(
+    row: Mapping[str, Any],
+    *,
+    capability_ref: str,
+    lex_path: Path,
+    release_snapshot_at: datetime,
+) -> LegalNormOwnerTruth | None:
+    """Admit only grounded, hallucination-clear, temporally resolved Lex rows."""
+
+    fact_id = _optional_str(row.get("fact_id"))
+    document_ref = _optional_str(row.get("doc_id"))
+    citation = _optional_str(row.get("provision_citation"))
+    jurisdiction = _optional_str(row.get("jurisdiction"))
+    audit_id = _optional_str(row.get("audit_id"))
+    reference_id = _optional_str(row.get("reference_id"))
+    effective_from = _iso_date(row.get("effective_from"))
+    effective_to_raw = _optional_str(row.get("effective_to"))
+    effective_to = _iso_date(effective_to_raw) if effective_to_raw else None
+    required = (
+        fact_id,
+        document_ref,
+        citation,
+        jurisdiction,
+        audit_id,
+        reference_id,
+        effective_from,
+    )
+    if any(value is None for value in required):
+        return None
+    if _optional_str(row.get("grounding_status")) != "grounded":
+        return None
+    if _optional_str(row.get("canonical_status")) not in {"canonical", "canonicalized"}:
+        return None
+    if _optional_str(row.get("reference_resolution_status")) != "resolved":
+        return None
+    if _optional_str(row.get("temporal_state")) != "effective":
+        return None
+    if _optional_str(row.get("temporal_resolution_status")) != "resolved":
+        return None
+    if not _hallucination_flags_are_clear(row.get("hallucination_flags_json")):
+        return None
+    if effective_to_raw and effective_to is None:
+        return None
+    provenance_refs = (
+        f"duckdb:{lex_path.name}:lex_normative_facts:{fact_id}",
+        f"duckdb:{lex_path.name}:lex_temporal_audit:{audit_id}",
+        f"duckdb:{lex_path.name}:lex_references:{reference_id}",
+    )
+    try:
+        return LegalNormOwnerTruth(
+            legal_norm_ref=capability_ref,
+            normative_fact_ref=provenance_refs[0],
+            source_document_ref=document_ref,
+            provision_citation=citation,
+            grounding_status="grounded",
+            hallucination_status="verified_clear",
+            jurisdiction=jurisdiction,
+            effective_from=effective_from,
+            effective_to=effective_to,
+            temporal_state="effective",
+            temporal_resolution_status="resolved",
+            temporal_snapshot_at=release_snapshot_at,
+            temporal_audit_ref=provenance_refs[1],
+            provenance_refs=provenance_refs,
+        )
+    except ValueError:
+        return None
+
+
+def _hallucination_flags_are_clear(raw: object) -> bool:
+    if not isinstance(raw, str) or not raw.strip():
+        return False
+    try:
+        flags = json.loads(raw)
+    except json.JSONDecodeError:
+        return False
+    return isinstance(flags, (list, dict)) and not flags
+
+
+def _iso_date(raw: object) -> date | None:
+    value = _optional_str(raw)
+    if value is None:
+        return None
+    try:
+        return date.fromisoformat(value[:10])
+    except ValueError:
+        return None
+
+
+def _release_snapshot_at(raw: str) -> datetime:
+    try:
+        snapshot = datetime.fromisoformat(raw.replace("Z", "+00:00"))
+    except ValueError as exc:
+        raise ValueError("capability release snapshot must be an ISO-8601 datetime") from exc
+    if snapshot.tzinfo is None:
+        raise ValueError("capability release snapshot must be timezone-aware")
+    return snapshot
 
 
 def load_calibration_registries(production_data_root: Path) -> CalibrationContext:
@@ -1068,7 +1353,9 @@ def load_calibration_registries(production_data_root: Path) -> CalibrationContex
         if isinstance(value, list)
     }
     regimes = schema_regime.get("regimes") or {}
-    current_regime = "ukraine_schema_v2" if "ukraine_schema_v2" in regimes else next(iter(regimes), None)
+    current_regime = (
+        "ukraine_schema_v2" if "ukraine_schema_v2" in regimes else next(iter(regimes), None)
+    )
     return CalibrationContext(
         source_assets=tuple(source_assets),
         coverage_rules=coverage_rules,
@@ -1220,7 +1507,9 @@ def load_calibration_capabilities(
                     },
                 ),
                 source_assets=calibration_context.source_assets,
-                limitations=("Calibration registry context cannot satisfy outcome evidence alone.",),
+                limitations=(
+                    "Calibration registry context cannot satisfy outcome evidence alone.",
+                ),
                 authority_envelope=AuthorityEnvelope(
                     research="admissible_as_context",
                     governed_pilot="admissible_as_governance_context",
@@ -1256,7 +1545,9 @@ def load_foundry_method_contracts(production_data_root: Path) -> FoundryRouteCon
         target = route.get("target_contract") or {}
         contract_id = _safe_text(target.get("contract_id") if isinstance(target, Mapping) else "")
         if family and contract_id:
-            targets_by_family[family] = tuple(sorted({*targets_by_family.get(family, ()), contract_id}))
+            targets_by_family[family] = tuple(
+                sorted({*targets_by_family.get(family, ()), contract_id})
+            )
     return FoundryRouteContext(
         source_assets=(
             CapabilitySourceAsset(
@@ -1294,7 +1585,9 @@ def load_foundry_capabilities(
                 modality=("foundry_method_contract",),
                 evidence_mode="method_contract_route",
                 concept_spine_refs=(f"concept:{construct}",),
-                scope=CapabilityScope(geography="UA", population=family, entity_scope="method_input"),
+                scope=CapabilityScope(
+                    geography="UA", population=family, entity_scope="method_input"
+                ),
                 identification_mode="method_contract_routed",
                 trust_tier="compiled_method_manifest",
                 quality_score=QualityScore(
@@ -1442,9 +1735,7 @@ def detect_same_construct_conflicts(
                 capability_refs=refs,
                 evidence_refs=tuple(
                     sorted(
-                        asset.ref
-                        for capability in group
-                        for asset in capability.source_assets[:2]
+                        asset.ref for capability in group for asset in capability.source_assets[:2]
                     )
                 ),
             )
@@ -1693,8 +1984,7 @@ def _legal_authority_gap(capability: EvidenceCapability) -> bool:
     if "blocked" not in production:
         return False
     if any(
-        marker in production
-        for marker in ("construct_validity", "freshness", "rights", "sample")
+        marker in production for marker in ("construct_validity", "freshness", "rights", "sample")
     ):
         return False
     return "lex_norm" not in capability.modality
@@ -2313,7 +2603,9 @@ def _build_firm_fundamentals_capability(
             if "survival_hazard_estimates" in by_family
             else "proxy_unvalidated",
             "validated_by": [
-                asset.ref for asset in source_assets if asset.role in {"proxy_validation", "bias_correction"}
+                asset.ref
+                for asset in source_assets
+                if asset.role in {"proxy_validation", "bias_correction"}
             ],
         },
         limitations=(
@@ -2358,7 +2650,11 @@ def _build_firm_fundamentals_capability(
 def _build_fixture_conflicting_capability(
     reference: EvidenceCapability | None = None,
 ) -> EvidenceCapability:
-    construct = reference.construct_id if reference is not None else _construct_from_text("fixture conflict")
+    construct = (
+        reference.construct_id
+        if reference is not None
+        else _construct_from_text("fixture conflict")
+    )
     scope = (
         reference.scope
         if reference is not None
@@ -2401,7 +2697,10 @@ def _build_fixture_conflicting_capability(
 
 def _profile_ukraine_parquets(production_data_root: Path) -> tuple[ParquetProfile, ...]:
     profiles = []
-    for path in (*_l4_ukraine_panel_paths(production_data_root), *_l5_derived_parquet_paths(production_data_root)):
+    for path in (
+        *_l4_ukraine_panel_paths(production_data_root),
+        *_l5_derived_parquet_paths(production_data_root),
+    ):
         family = path.parent.name
         source_layer = "L4"
         if path.stem == "survival_hazard_estimates":
@@ -3170,9 +3469,7 @@ def _authority_for_panel(coverage: float, source_family: str) -> AuthorityEnvelo
     production = "admissible" if coverage >= 0.9 else "blocked_construct_validity_below_floor"
     return AuthorityEnvelope(
         research="admissible",
-        governed_pilot="admissible_with_limitation"
-        if coverage >= 0.5
-        else "blocked_low_coverage",
+        governed_pilot="admissible_with_limitation" if coverage >= 0.5 else "blocked_low_coverage",
         production=production,
         authoritative_for=("data_evidence",),
         may_not_use_for=("production_closeout_without_review",)
@@ -3289,7 +3586,9 @@ def _slug(value: str) -> str:
 def _release_ref_from_path(path: Path) -> str:
     parts = path.parts
     for part in parts:
-        if part.startswith(("local_data_", "ukraine_server_support_", "datasets_full_", "policyos_", "lex-")):
+        if part.startswith(
+            ("local_data_", "ukraine_server_support_", "datasets_full_", "policyos_", "lex-")
+        ):
             return part
     return path.parent.name
 

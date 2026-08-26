@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 const {
   cycleDensityMock,
   useCapabilitiesMock,
+  useCapabilitySearchMock,
   useConnectorsMock,
   useHealthMock,
   usePermissionMock,
@@ -14,6 +15,7 @@ const {
 } = vi.hoisted(() => ({
   cycleDensityMock: vi.fn(),
   useCapabilitiesMock: vi.fn(),
+  useCapabilitySearchMock: vi.fn(),
   useConnectorsMock: vi.fn(),
   useHealthMock: vi.fn(),
   usePermissionMock: vi.fn(),
@@ -24,6 +26,10 @@ const {
 
 vi.mock("@/api/hooks/useCapabilities", () => ({
   useCapabilities: (...args: unknown[]) => useCapabilitiesMock(...args),
+}));
+vi.mock("@/api/hooks/useCapabilitySearch", () => ({
+  createCapabilitySearchRequest: () => ({}),
+  useCapabilitySearch: (...args: unknown[]) => useCapabilitySearchMock(...args),
 }));
 
 vi.mock("@/api/hooks/useConnectors", () => ({
@@ -75,9 +81,9 @@ vi.mock("@/app/providers/ThemeProvider", () => ({
 }));
 
 vi.mock("@/shared/i18n/LocaleProvider", async () => {
-  const actual = await vi.importActual<typeof import("@/shared/i18n/LocaleProvider")>(
-    "@/shared/i18n/LocaleProvider",
-  );
+  const actual = await vi.importActual<
+    typeof import("@/shared/i18n/LocaleProvider")
+  >("@/shared/i18n/LocaleProvider");
   return {
     ...actual,
     useI18n: () => ({
@@ -133,6 +139,32 @@ describe("PlatformHealthPage", () => {
           },
         ],
         runtime_api_version: "2026.03",
+        default_execution_profile: "governed",
+      },
+      error: null,
+      isError: false,
+      isLoading: false,
+    });
+    useCapabilitySearchMock.mockReset();
+    useCapabilitySearchMock.mockReturnValue({
+      data: {
+        response: {
+          frontier: {
+            completeness_status: "complete",
+            incompleteness_reasons: [],
+          },
+          results: [
+            {
+              authority_result: { state: "bridge_missing" },
+              capability_ref: "capability:legal_norm:generated",
+              description: "Owner-projected legal norm.",
+              discovery_result: { state: "discoverable" },
+              execution_result: { state: "not_established" },
+              label: "Generated owner row",
+              resource_kind: "legal_norm",
+            },
+          ],
+        },
       },
       error: null,
       isError: false,
@@ -183,8 +215,10 @@ describe("PlatformHealthPage", () => {
     expect(screen.getByTestId("platform-page")).toBeInTheDocument();
     expect(screen.getByText("pages.platform.heroTitle")).toBeInTheDocument();
     expect(screen.getAllByText("runtime-api")).not.toHaveLength(0);
-    expect(screen.getAllByText("Workflow runs")).not.toHaveLength(0);
-    expect(screen.getAllByText("Promotion lane")).not.toHaveLength(0);
+    expect(screen.getByText("Generated owner row")).toBeInTheDocument();
+    expect(screen.queryByText("Workflow runs")).not.toBeInTheDocument();
+    expect(screen.queryByText("Promotion lane")).not.toBeInTheDocument();
+    expect(screen.getByText(/Candidate · discoverable/)).toBeInTheDocument();
     expect(screen.getByText("world-bank")).toBeInTheDocument();
     expect(
       screen.getByText("pages.platform.connectorUnavailable"),

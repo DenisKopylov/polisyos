@@ -18,6 +18,7 @@ from typing import Any, Literal
 
 from pydantic import AliasChoices, Field, model_validator
 
+from polisyos.core.contracts import DiscoveryPosture  # noqa: TC001
 from polisyos.pdc import AuthorityBoundary, Layer2ReadinessModel
 from polisyos.runtime.quality.proving_ground.pinned_route_demand_home import (
     read_layer3_gx_construct_bundle_id,
@@ -70,7 +71,6 @@ HealthMetricId = Literal[
     "demand-pull-vs-abstention",
     "search-recall@known-seeds+index-staleness",
 ]
-DiscoveryPosture = Literal["discoverable", "executable", "admitted_authority"]
 ResourceKind = Literal[
     "dataset",
     "claim",

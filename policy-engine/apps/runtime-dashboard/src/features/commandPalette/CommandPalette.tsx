@@ -21,9 +21,9 @@ import {
 import type { LucideIcon } from "lucide-react";
 
 import {
-  isDiscoveryCapabilityEnabled,
-  useCapabilityDiscovery,
-} from "@/api/hooks/useCapabilities";
+  createCapabilitySearchRequest,
+  useCapabilitySearch,
+} from "@/api/hooks/useCapabilitySearch";
 import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import {
   CommandDialog,
@@ -105,15 +105,29 @@ function SurfaceCommandItem({
 
 export function CommandPalette() {
   const [open, setOpen] = useState(false);
+  const [capabilityQuery, setCapabilityQuery] = useState("");
   const location = useLocation();
   const navigate = useNavigate();
   const authzDecision = useAuthzDecision();
-  const capabilityDiscovery = useCapabilityDiscovery();
   const { flags } = useFeatureFlags();
   const { t } = useI18n();
   const { resolvedTheme, toggleTheme } = useTheme();
   const { cycleDensity, density } = useDensity();
   const commandPaletteEnabled = flags.enableCommandPalette;
+  const capabilitySearchRequest = useMemo(
+    () =>
+      createCapabilitySearchRequest(
+        capabilityQuery,
+        "command-palette-capability-discovery",
+      ),
+    [capabilityQuery],
+  );
+  const capabilitySearch = useCapabilitySearch(
+    capabilitySearchRequest,
+    undefined,
+    open && capabilityQuery.trim().length > 0,
+  );
+  const capabilityCandidates = capabilitySearch.data?.response.results ?? [];
 
   useGlobalShortcut(
     "command-palette",
@@ -153,8 +167,6 @@ export function CommandPalette() {
       getCommandPaletteSurfaceEntries({
         canAccessPermission: (permission) =>
           authzDecision.kind === "verified" && authzDecision.can(permission),
-        hasCapability: (capability) =>
-          isDiscoveryCapabilityEnabled(capabilityDiscovery, capability),
         isWorkspaceAllowed: (workspaceKey) =>
           authzDecision.kind === "verified" &&
           authzDecision.isWorkspaceAllowed(workspaceKey),
@@ -165,7 +177,7 @@ export function CommandPalette() {
         },
         runId: currentRunId,
       }),
-    [authzDecision, capabilityDiscovery, currentRunId, flags],
+    [authzDecision, currentRunId, flags],
   );
   const navigationItems = surfaceEntries.filter(
     (surface) => surface.command.group === "navigation",
@@ -188,7 +200,11 @@ export function CommandPalette() {
       title={t("shared.ui.command.paletteTitle")}
       closeLabel={t("common.close")}
     >
-      <CommandInput placeholder={t("commandPalette.placeholder")} />
+      <CommandInput
+        placeholder={t("commandPalette.placeholder")}
+        value={capabilityQuery}
+        onValueChange={setCapabilityQuery}
+      />
       <CommandList>
         <CommandEmpty>{t("commandPalette.noResults")}</CommandEmpty>
 
@@ -243,6 +259,56 @@ export function CommandPalette() {
                   }
                 />
               ))}
+            </CommandGroup>
+          </>
+        ) : null}
+
+        {capabilityQuery.trim().length > 0 ? (
+          <>
+            <CommandSeparator />
+            <CommandGroup heading={t("capabilityDiscovery.title")}>
+              {capabilityCandidates.map((candidate) => (
+                <CommandItem
+                  key={candidate.capability_ref}
+                  value={[
+                    candidate.label,
+                    candidate.description,
+                    candidate.capability_ref,
+                    candidate.resource_kind,
+                  ].join(" ")}
+                  onSelect={() =>
+                    runCommand(() => {
+                      void navigate(
+                        `/evidence?capability=${encodeURIComponent(candidate.capability_ref)}`,
+                      );
+                    })
+                  }
+                >
+                  <Database />
+                  <span>
+                    {candidate.label} · Candidate · {candidate.resource_kind} ·{" "}
+                    {candidate.discovery_result.state} ·{" "}
+                    {candidate.execution_result.state} ·{" "}
+                    {candidate.authority_result.state}
+                  </span>
+                </CommandItem>
+              ))}
+              {capabilitySearch.data && capabilityCandidates.length === 0 ? (
+                <CommandItem disabled>
+                  <Database />
+                  <span>
+                    Candidate frontier ·{" "}
+                    {
+                      capabilitySearch.data.response.frontier
+                        .completeness_status
+                    }
+                    {capabilitySearch.data.response.frontier
+                      .incompleteness_reasons.length > 0
+                      ? ` · ${capabilitySearch.data.response.frontier.incompleteness_reasons.join(", ")}`
+                      : ""}
+                  </span>
+                </CommandItem>
+              ) : null}
             </CommandGroup>
           </>
         ) : null}

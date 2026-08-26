@@ -8,8 +8,9 @@ const { useRunsSampleMock } = vi.hoisted(() => ({
 vi.mock("@/features/runs", () => ({
   useRunsSample: () => useRunsSampleMock(),
 }));
-vi.mock("@/api/hooks/useCapabilities", () => ({
-  useCapabilities: () => ({ data: { features: [] } }),
+vi.mock("@/api/hooks/useCapabilitySearch", () => ({
+  createCapabilitySearchRequest: () => ({}),
+  useCapabilitySearch: () => ({ data: undefined }),
 }));
 vi.mock("@/api/hooks/useHealth", () => ({
   useHealth: () => ({

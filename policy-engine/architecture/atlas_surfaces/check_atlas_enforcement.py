@@ -4,11 +4,13 @@
 from __future__ import annotations
 
 import argparse
+import ast
 import copy
 import hashlib
 import importlib.util
 import json
 import re
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -30,6 +32,818 @@ AUTHORITY_SEMANTIC_COPY_PATH = (
     "apps/runtime-dashboard/src/shared/ui/AuthoritySemanticCopy.ts"
 )
 GENERATED_RUNTIME_TYPES_PATH = ATLAS_DIR.parents[1] / "packages/runtime-api-client/types.ts"
+
+_CAPABILITY_DISCOVERY_RENDER_PROBE = r"""
+const fs = require("fs");
+const nodePath = require("path");
+const path = nodePath.posix;
+const createRequire = require("module").createRequire;
+const dashboardRequire = createRequire(
+  nodePath.resolve(process.cwd(), "apps/runtime-dashboard/package.json"),
+);
+const ts = dashboardRequire("typescript");
+const request = JSON.parse(fs.readFileSync(0, "utf8"));
+const sources = new Map(Object.entries(request.sources));
+const isProductionDashboardSource = sourcePath =>
+  sourcePath.startsWith("apps/runtime-dashboard/src/")
+  && /\.tsx?$/.test(sourcePath)
+  && !/\.d\.ts$/.test(sourcePath)
+  && !/(?:^|\/)(?:test|tests|__tests__|__mocks__)(?:\/|$)/.test(sourcePath)
+  && !/\.(?:test|spec|stories|story)\.tsx?$/.test(sourcePath);
+const resolveRelative = (fromPath, specifier) => {
+  if (!specifier.startsWith(".")) return null;
+  const base = path.normalize(path.join(path.dirname(fromPath), specifier));
+  const candidates = [
+    base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`,
+  ];
+  for (const candidate of candidates) {
+    if (sources.has(candidate)) return candidate;
+  }
+  return null;
+};
+const resolveDashboardAlias = specifier => {
+  if (!specifier.startsWith("@/")) return null;
+  const base = path.normalize(`apps/runtime-dashboard/src/${specifier.slice(2)}`);
+  const candidates = [
+    base, `${base}.ts`, `${base}.tsx`, `${base}/index.ts`, `${base}/index.tsx`,
+  ];
+  for (const candidate of candidates) {
+    if (sources.has(candidate)) return candidate;
+  }
+  return null;
+};
+const sourceFiles = new Map();
+for (const [sourcePath, source] of sources) {
+  sourceFiles.set(sourcePath, ts.createSourceFile(
+    sourcePath, source, ts.ScriptTarget.Latest, true,
+    sourcePath.endsWith(".tsx") ? ts.ScriptKind.TSX : ts.ScriptKind.TS,
+  ));
+}
+const staticEdges = (sourcePath, includeDashboardAliases = false) => {
+  const edges = [];
+  for (const statement of sourceFiles.get(sourcePath)?.statements ?? []) {
+    if ((ts.isImportDeclaration(statement) || ts.isExportDeclaration(statement))
+      && statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier)) {
+      const specifier = statement.moduleSpecifier.text;
+      const resolved = resolveRelative(sourcePath, specifier)
+        ?? (includeDashboardAliases ? resolveDashboardAlias(specifier) : null);
+      if (resolved) edges.push(resolved);
+    }
+  }
+  return edges;
+};
+const productionSourcePaths = [...sources.keys()].filter(isProductionDashboardSource);
+const ownerRoots = productionSourcePaths.filter(sourcePath =>
+  /(?:^|\/)CapabilityDiscovery[^/]*\.tsx?$/.test(sourcePath)
+  || sourcePath.includes("/capabilityDiscovery/")
+  || sourcePath === "apps/runtime-dashboard/src/api/hooks/useCapabilitySearch.ts"
+);
+const ownerRootSet = new Set(ownerRoots);
+const consumerRoots = productionSourcePaths.filter(sourcePath =>
+  staticEdges(sourcePath, true).some(targetPath => ownerRootSet.has(targetPath))
+);
+const roots = [...new Set([...ownerRoots, ...consumerRoots])];
+const reachable = new Set(roots);
+const queue = [...roots];
+while (queue.length) {
+  const sourcePath = queue.shift();
+  for (const targetPath of staticEdges(sourcePath)) {
+    if (!reachable.has(targetPath)) {
+      reachable.add(targetPath);
+      queue.push(targetPath);
+    }
+  }
+}
+const compilerOptions = {
+  target: ts.ScriptTarget.ES2022,
+  module: ts.ModuleKind.ESNext,
+  moduleResolution: ts.ModuleResolutionKind.Bundler,
+  jsx: ts.JsxEmit.ReactJSX,
+  skipLibCheck: true,
+  noEmit: true,
+};
+const compilerHost = ts.createCompilerHost(compilerOptions, true);
+const defaultGetSourceFile = compilerHost.getSourceFile.bind(compilerHost);
+const defaultFileExists = compilerHost.fileExists.bind(compilerHost);
+const defaultReadFile = compilerHost.readFile.bind(compilerHost);
+const defaultResolveModule = ts.resolveModuleName;
+const processRoot = process.cwd().replaceAll("\\", "/");
+const sourceKey = fileName => {
+  const normalized = path.normalize(fileName.replaceAll("\\", "/"));
+  if (sources.has(normalized)) return normalized;
+  const relative = path.relative(processRoot, normalized);
+  return sources.has(relative) ? relative : null;
+};
+compilerHost.getSourceFile = (fileName, languageVersion, onError, shouldCreateNew) => {
+  const key = sourceKey(fileName);
+  return key ? sourceFiles.get(key)
+    : defaultGetSourceFile(fileName, languageVersion, onError, shouldCreateNew);
+};
+compilerHost.fileExists = fileName => Boolean(sourceKey(fileName)) || defaultFileExists(fileName);
+compilerHost.readFile = fileName => {
+  const key = sourceKey(fileName);
+  return key ? sources.get(key) : defaultReadFile(fileName);
+};
+compilerHost.resolveModuleNames = (moduleNames, containingFile) => {
+  const containingKey = sourceKey(containingFile) ?? containingFile.replaceAll("\\", "/");
+  return moduleNames.map(specifier => {
+    const resolved = resolveRelative(containingKey, specifier)
+      ?? resolveDashboardAlias(specifier);
+    if (resolved) {
+      return {
+        resolvedFileName: resolved,
+        extension: resolved.endsWith(".tsx") ? ts.Extension.Tsx : ts.Extension.Ts,
+        isExternalLibraryImport: false,
+      };
+    }
+    return defaultResolveModule(
+      specifier, containingFile, compilerOptions, compilerHost,
+    ).resolvedModule;
+  });
+};
+const program = ts.createProgram(
+  [...new Set([...reachable, ...productionSourcePaths])].sort(),
+  compilerOptions,
+  compilerHost,
+);
+const typeChecker = program.getTypeChecker();
+const moduleInfoByPath = new Map();
+const hasModifier = (node, modifier) =>
+  Boolean(node.modifiers?.some(item => item.kind === modifier));
+for (const sourcePath of [...reachable].sort()) {
+  const sourceFile = sourceFiles.get(sourcePath);
+  const declarations = new Map();
+  const declaredNames = new Set();
+  const lexicalDeclarations = new Map();
+  const imports = new Map();
+  const exports = new Map();
+  const starExports = [];
+  function collect(node) {
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name)) {
+      const named = lexicalDeclarations.get(node.name.text) ?? [];
+      named.push(node);
+      lexicalDeclarations.set(node.name.text, named);
+    }
+    ts.forEachChild(node, collect);
+  }
+  collect(sourceFile);
+  for (const statement of sourceFile.statements) {
+    if (ts.isVariableStatement(statement)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (!ts.isIdentifier(declaration.name)) continue;
+        declaredNames.add(declaration.name.text);
+        if (declaration.initializer) {
+          declarations.set(declaration.name.text, declaration.initializer);
+        }
+      }
+    } else if ((ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement))
+      && statement.name) {
+      declaredNames.add(statement.name.text);
+    }
+    if (ts.isImportDeclaration(statement) && ts.isStringLiteral(statement.moduleSpecifier)) {
+      const resolved = resolveRelative(sourcePath, statement.moduleSpecifier.text);
+      const importClause = statement.importClause;
+      if (!importClause || importClause.isTypeOnly) continue;
+      if (importClause.name) {
+        imports.set(importClause.name.text, {
+          kind: "binding", targetPath: resolved, exported: "default",
+        });
+      }
+      const bindings = importClause.namedBindings;
+      if (bindings && ts.isNamedImports(bindings)) {
+        for (const element of bindings.elements) {
+          if (element.isTypeOnly) continue;
+          imports.set(element.name.text, {
+            kind: "binding", targetPath: resolved,
+            exported: element.propertyName?.text ?? element.name.text,
+          });
+        }
+      } else if (bindings && ts.isNamespaceImport(bindings)) {
+        imports.set(bindings.name.text, { kind: "namespace", targetPath: resolved });
+      }
+      continue;
+    }
+    if (ts.isVariableStatement(statement)
+      && hasModifier(statement, ts.SyntaxKind.ExportKeyword)) {
+      for (const declaration of statement.declarationList.declarations) {
+        if (ts.isIdentifier(declaration.name)) {
+          exports.set(declaration.name.text, { kind: "local", local: declaration.name.text });
+        }
+      }
+      continue;
+    }
+    if (ts.isExportAssignment(statement) && !statement.isExportEquals) {
+      exports.set("default", { kind: "expression", expression: statement.expression });
+      continue;
+    }
+    if ((ts.isFunctionDeclaration(statement) || ts.isClassDeclaration(statement))
+      && hasModifier(statement, ts.SyntaxKind.ExportKeyword)) {
+      const exported = hasModifier(statement, ts.SyntaxKind.DefaultKeyword)
+        ? "default" : statement.name?.text;
+      if (exported) exports.set(exported, { kind: "runtime" });
+      continue;
+    }
+    if (!ts.isExportDeclaration(statement) || statement.isTypeOnly) continue;
+    const specifier = statement.moduleSpecifier && ts.isStringLiteral(statement.moduleSpecifier)
+      ? statement.moduleSpecifier.text : null;
+    const targetPath = specifier === null ? null : resolveRelative(sourcePath, specifier);
+    if (!statement.exportClause) {
+      starExports.push({ targetPath, specifier });
+      continue;
+    }
+    if (ts.isNamedExports(statement.exportClause)) {
+      for (const element of statement.exportClause.elements) {
+        if (element.isTypeOnly) continue;
+        const exported = element.name.text;
+        const imported = element.propertyName?.text ?? element.name.text;
+        exports.set(exported, specifier === null
+          ? { kind: "local", local: imported }
+          : { kind: "reexport", targetPath, exported: imported, specifier });
+      }
+    } else if (ts.isNamespaceExport(statement.exportClause)) {
+      exports.set(statement.exportClause.name.text, { kind: "namespace", targetPath, specifier });
+    }
+  }
+  moduleInfoByPath.set(sourcePath, {
+    sourceFile, declarations, declaredNames, lexicalDeclarations, imports, exports, starExports,
+  });
+}
+const outcome = (status, extras = {}) => ({ status, ...extras });
+const unresolved = () => outcome("unresolved");
+const missing = () => outcome("missing");
+const runtime = () => outcome("runtime");
+const expressionOutcome = (node, sourcePath) => outcome("expression", { node, sourcePath });
+const unwrap = node => {
+  while (node && (ts.isParenthesizedExpression(node) || ts.isAsExpression(node)
+    || ts.isTypeAssertionExpression(node) || ts.isNonNullExpression(node)
+    || ts.isSatisfiesExpression?.(node))) {
+    node = node.expression;
+  }
+  return node;
+};
+const lexicalScope = node => {
+  for (let current = node.parent; current; current = current.parent) {
+    if (ts.isFunctionLike(current) || ts.isBlock(current) || ts.isSourceFile(current)) {
+      return current;
+    }
+  }
+  return null;
+};
+const ancestorDistance = (ancestor, node) => {
+  let distance = 0;
+  for (let current = node; current; current = current.parent) {
+    if (current === ancestor) return distance;
+    distance += 1;
+  }
+  return null;
+};
+const resolveLocal = (sourcePath, local, seen, referenceNode = null) => {
+  const info = moduleInfoByPath.get(sourcePath);
+  if (!info) return unresolved();
+  let declaration = null;
+  if (referenceNode) {
+    let parameterDistance = Number.POSITIVE_INFINITY;
+    let distance = 0;
+    for (let current = referenceNode.parent; current; current = current.parent) {
+      distance += 1;
+      if (ts.isFunctionLike(current)
+        && current.parameters.some(parameter => bindingContains(parameter.name, local))) {
+        parameterDistance = distance;
+        break;
+      }
+    }
+    let bestDistance = Number.POSITIVE_INFINITY;
+    for (const candidate of info.lexicalDeclarations.get(local) ?? []) {
+      const scope = lexicalScope(candidate);
+      const distance = scope ? ancestorDistance(scope, referenceNode) : null;
+      if (distance !== null && distance < bestDistance && distance < parameterDistance) {
+        declaration = candidate;
+        bestDistance = distance;
+      }
+    }
+    if (!declaration && parameterDistance < Number.POSITIVE_INFINITY) return runtime();
+  } else if (info.declarations.has(local)) {
+    declaration = { initializer: info.declarations.get(local), pos: -1 };
+  }
+  const token = `local:${sourcePath}:${local}:${declaration?.pos ?? "missing"}`;
+  if (seen.has(token)) return unresolved();
+  const nextSeen = new Set(seen);
+  nextSeen.add(token);
+  if (declaration?.initializer) {
+    return resolveValue(declaration.initializer, sourcePath, nextSeen);
+  }
+  return info.declaredNames.has(local) ? runtime() : missing();
+};
+const resolveExport = (sourcePath, exported, seen) => {
+  const token = `export:${sourcePath}:${exported}`;
+  if (seen.has(token)) return unresolved();
+  const nextSeen = new Set(seen);
+  nextSeen.add(token);
+  const info = moduleInfoByPath.get(sourcePath);
+  if (!info) return unresolved();
+  const direct = info.exports.get(exported);
+  if (direct) {
+    if (direct.kind === "expression") {
+      return resolveValue(direct.expression, sourcePath, nextSeen);
+    }
+    if (direct.kind === "local") {
+      const resolved = resolveLocal(sourcePath, direct.local, nextSeen);
+      return resolved.status === "missing" ? unresolved() : resolved;
+    }
+    if (direct.kind === "reexport") {
+      if (!direct.targetPath) return unresolved();
+      const resolved = resolveExport(direct.targetPath, direct.exported, nextSeen);
+      return resolved.status === "missing" ? unresolved() : resolved;
+    }
+    if (direct.kind === "namespace") {
+      return direct.targetPath
+        ? outcome("namespace", { targetPath: direct.targetPath }) : unresolved();
+    }
+    return runtime();
+  }
+  if (exported === "default") return missing();
+  const candidates = [];
+  let sawUnresolved = false;
+  for (const star of info.starExports) {
+    if (!star.targetPath) {
+      sawUnresolved = true;
+      continue;
+    }
+    const resolved = resolveExport(star.targetPath, exported, nextSeen);
+    if (resolved.status === "unresolved") sawUnresolved = true;
+    else if (resolved.status !== "missing") candidates.push(resolved);
+  }
+  if (candidates.length > 1) return unresolved();
+  if (candidates.length === 1) return candidates[0];
+  return sawUnresolved ? unresolved() : missing();
+};
+const bindingContains = (binding, name) => {
+  if (ts.isIdentifier(binding)) return binding.text === name;
+  if (ts.isObjectBindingPattern(binding) || ts.isArrayBindingPattern(binding)) {
+    return binding.elements.some(element =>
+      ts.isBindingElement(element) && bindingContains(element.name, name));
+  }
+  return false;
+};
+function resolveValue(node, sourcePath, seen = new Set()) {
+  node = unwrap(node);
+  if (!node) return runtime();
+  if (ts.isIdentifier(node)) {
+    const local = resolveLocal(sourcePath, node.text, seen, node);
+    if (local.status !== "missing") return local;
+    const binding = moduleInfoByPath.get(sourcePath)?.imports.get(node.text);
+    if (!binding) return runtime();
+    if (!binding.targetPath) return unresolved();
+    if (binding.kind === "namespace") {
+      return outcome("namespace", { targetPath: binding.targetPath });
+    }
+    const resolved = resolveExport(binding.targetPath, binding.exported, seen);
+    return resolved.status === "missing" ? unresolved() : resolved;
+  }
+  if (ts.isPropertyAccessExpression(node)) {
+    const base = resolveValue(node.expression, sourcePath, seen);
+    if (base.status === "unresolved") return base;
+    if (base.status === "namespace") {
+      const resolved = resolveExport(base.targetPath, node.name.text, seen);
+      return resolved.status === "missing" ? unresolved() : resolved;
+    }
+    if (base.status === "expression") {
+      const value = unwrap(base.node);
+      if (value && ts.isObjectLiteralExpression(value)) {
+        for (const property of value.properties) {
+          if (!ts.isPropertyAssignment(property)) continue;
+          const name = ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name)
+            ? property.name.text : null;
+          if (name === node.name.text) {
+            return resolveValue(property.initializer, base.sourcePath, seen);
+          }
+        }
+        return unresolved();
+      }
+    }
+    return runtime();
+  }
+  if (ts.isElementAccessExpression(node)) {
+    const key = stringValue(node.argumentExpression, sourcePath, seen);
+    if (key.status === "unresolved") return key;
+    if (key.status !== "literal") return runtime();
+    const base = resolveValue(node.expression, sourcePath, seen);
+    if (base.status === "unresolved") return base;
+    if (base.status === "namespace") {
+      const resolved = resolveExport(base.targetPath, key.value, seen);
+      return resolved.status === "missing" ? unresolved() : resolved;
+    }
+    if (base.status === "expression") {
+      const value = unwrap(base.node);
+      if (value && ts.isObjectLiteralExpression(value)) {
+        for (const property of value.properties) {
+          if (!ts.isPropertyAssignment(property)) continue;
+          const name = ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name)
+            ? property.name.text : null;
+          if (name === key.value) {
+            return resolveValue(property.initializer, base.sourcePath, seen);
+          }
+        }
+        return unresolved();
+      }
+    }
+    return runtime();
+  }
+  return expressionOutcome(node, sourcePath);
+}
+function stringValue(node, sourcePath, seen = new Set()) {
+  const resolved = resolveValue(node, sourcePath, seen);
+  if (resolved.status !== "expression") return resolved;
+  const value = unwrap(resolved.node);
+  if (value && ts.isStringLiteralLike(value)) {
+    return outcome("literal", { value: value.text });
+  }
+  return runtime();
+}
+const isSemanticPostureField = name =>
+  /^(?:discovery|execution|authority)(?:_result|_posture)?$/.test(name);
+const semanticRowType = (type, seen = new Set()) => {
+  if (!type || seen.has(type.id)) return false;
+  const nextSeen = new Set(seen);
+  nextSeen.add(type.id);
+  if (type.isUnionOrIntersection?.()) {
+    return type.types.some(member => semanticRowType(member, nextSeen));
+  }
+  const names = new Set(typeChecker.getPropertiesOfType(type).map(property => property.name));
+  return names.has("capability_ref") || names.has("resource_kind")
+    || [...names].some(isSemanticPostureField);
+};
+const nodeHasSemanticRowType = node => {
+  try {
+    return semanticRowType(typeChecker.getTypeAtLocation(node));
+  } catch {
+    return false;
+  }
+};
+const capabilityManifestType = (type, seen = new Set()) => {
+  if (!type || seen.has(type.id)) return false;
+  const nextSeen = new Set(seen);
+  nextSeen.add(type.id);
+  if (type.isUnionOrIntersection?.()) {
+    return type.types.some(member => capabilityManifestType(member, nextSeen));
+  }
+  let properties;
+  try {
+    properties = new Set(
+      typeChecker.getPropertiesOfType(typeChecker.getApparentType(type))
+        .map(property => property.name),
+    );
+  } catch {
+    return false;
+  }
+  if (!properties.has("features")) return false;
+  const ownerMarkers = [
+    "constraints", "runtime_api_version", "supported_execution_profiles",
+    "default_execution_profile", "worker_backend", "state_store_backend",
+  ];
+  return ownerMarkers.filter(name => properties.has(name)).length >= 2;
+};
+const nodeHasCapabilityManifestType = node => {
+  try {
+    return capabilityManifestType(typeChecker.getTypeAtLocation(node));
+  } catch {
+    return false;
+  }
+};
+const isTypeOnlyUse = node => {
+  for (let current = node.parent; current; current = current.parent) {
+    if (ts.isTypeNode(current)) return true;
+    if (ts.isStatement(current) || ts.isSourceFile(current)) return false;
+  }
+  return false;
+};
+const collectionHasSemanticRows = node => {
+  try {
+    const collectionType = typeChecker.getTypeAtLocation(node);
+    const elementType = typeChecker.getIndexTypeOfType(collectionType, ts.IndexKind.Number);
+    return semanticRowType(elementType);
+  } catch {
+    return false;
+  }
+};
+const symbolDeclaration = node => {
+  try {
+    const symbol = typeChecker.getSymbolAtLocation(node);
+    return symbol?.valueDeclaration ?? symbol?.declarations?.[0] ?? null;
+  } catch {
+    return null;
+  }
+};
+const resultCollectionOrigin = (node, seen = new Set()) => {
+  node = unwrap(node);
+  if (!node) return false;
+  const token = `collection:${node.getSourceFile().fileName}:${node.pos}:${node.end}`;
+  if (seen.has(token)) return false;
+  const nextSeen = new Set(seen);
+  nextSeen.add(token);
+  if (collectionHasSemanticRows(node)) return true;
+  if (ts.isPropertyAccessExpression(node) && node.name.text === "results") return true;
+  if (ts.isElementAccessExpression(node)
+    && ts.isStringLiteralLike(node.argumentExpression)
+    && node.argumentExpression.text === "results") return true;
+  if (ts.isIdentifier(node)) {
+    const declaration = symbolDeclaration(node);
+    if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      return resultCollectionOrigin(declaration.initializer, nextSeen);
+    }
+  }
+  return false;
+};
+const callbackParameterHasRowOrigin = parameter => {
+  const callback = parameter.parent;
+  const call = callback.parent;
+  if (!ts.isCallExpression(call) || !call.arguments.includes(callback)) return false;
+  const callee = unwrap(call.expression);
+  if (!callee || (!ts.isPropertyAccessExpression(callee)
+    && !ts.isElementAccessExpression(callee))) return false;
+  return resultCollectionOrigin(callee.expression);
+};
+const bindingPattern = declaration => {
+  if (!declaration || !ts.isBindingElement(declaration)) return null;
+  let current = declaration.parent;
+  while (ts.isBindingElement(current.parent)) current = current.parent.parent;
+  return ts.isObjectBindingPattern(current) || ts.isArrayBindingPattern(current)
+    ? current : null;
+};
+const bindingPatternHasRowOrigin = pattern => {
+  if (nodeHasSemanticRowType(pattern)) return true;
+  const owner = pattern.parent;
+  if (ts.isParameter(owner)) return callbackParameterHasRowOrigin(owner);
+  if (ts.isVariableDeclaration(owner) && owner.initializer) {
+    return semanticRowOrigin(owner.initializer);
+  }
+  return false;
+};
+const bindingFieldName = declaration => {
+  if (!declaration || !ts.isBindingElement(declaration)) return null;
+  if (declaration.propertyName
+    && (ts.isIdentifier(declaration.propertyName)
+      || ts.isStringLiteralLike(declaration.propertyName))) {
+    return declaration.propertyName.text;
+  }
+  return ts.isIdentifier(declaration.name) ? declaration.name.text : null;
+};
+function semanticRowOrigin(node, seen = new Set()) {
+  node = unwrap(node);
+  if (!node) return false;
+  const token = `row:${node.getSourceFile().fileName}:${node.pos}:${node.end}`;
+  if (seen.has(token)) return false;
+  const nextSeen = new Set(seen);
+  nextSeen.add(token);
+  if (nodeHasSemanticRowType(node)) return true;
+  if (ts.isIdentifier(node)) {
+    const declaration = symbolDeclaration(node);
+    if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+      return semanticRowOrigin(declaration.initializer, nextSeen);
+    }
+    if (declaration && ts.isParameter(declaration)) {
+      return callbackParameterHasRowOrigin(declaration);
+    }
+    const pattern = bindingPattern(declaration);
+    if (pattern) return bindingPatternHasRowOrigin(pattern);
+  }
+  return false;
+}
+const violations = [];
+for (const sourcePath of [...reachable].sort()) {
+  if (/\/(?:workspaceConfig|surfaceRegistry)\.[^/]+$/i.test(sourcePath)) continue;
+  const sourceFile = sourceFiles.get(sourcePath);
+  const semanticField = (node, seen = new Set(), fieldPath = sourcePath) => {
+    node = unwrap(node);
+    if (!node) return outcome("runtime");
+    if (ts.isPropertyAccessExpression(node)) {
+      return outcome("field", {
+        name: node.name.text,
+        contextualId: semanticRowOrigin(node.expression),
+      });
+    }
+    if (ts.isElementAccessExpression(node)) {
+      const name = stringValue(node.argumentExpression, fieldPath, seen);
+      if (name.status !== "literal") return name;
+      return outcome("field", {
+        name: name.value,
+        contextualId: semanticRowOrigin(node.expression),
+      });
+    }
+    if (ts.isIdentifier(node)) {
+      const declaration = symbolDeclaration(node);
+      const pattern = bindingPattern(declaration);
+      const destructuredField = bindingFieldName(declaration);
+      if (pattern && destructuredField && bindingPatternHasRowOrigin(pattern)) {
+        return outcome("field", {
+          name: destructuredField,
+          contextualId: destructuredField === "id",
+        });
+      }
+      if (declaration && ts.isVariableDeclaration(declaration) && declaration.initializer) {
+        const aliasedField = semanticField(declaration.initializer, seen, fieldPath);
+        if (aliasedField.status === "field") return aliasedField;
+      }
+      const token = `field:${fieldPath}:${node.text}`;
+      if (seen.has(token)) return unresolved();
+      const nextSeen = new Set(seen);
+      nextSeen.add(token);
+      const resolved = resolveValue(node, fieldPath, nextSeen);
+      if (resolved.status === "expression"
+        && (resolved.node !== node || resolved.sourcePath !== fieldPath)) {
+        return semanticField(resolved.node, nextSeen, resolved.sourcePath);
+      }
+    }
+    return runtime();
+  };
+  const propertyName = (property, propertyPath = sourcePath) => {
+    if (ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name)) {
+      return outcome("literal", { value: property.name.text });
+    }
+    if (ts.isComputedPropertyName(property.name)) {
+      return stringValue(property.name.expression, propertyPath);
+    }
+    return runtime();
+  };
+  const semanticObject = (node, seen = new Set(), objectPath = sourcePath) => {
+    const resolved = resolveValue(node, objectPath, seen);
+    if (resolved.status !== "expression") {
+      return { status: resolved.status, names: new Set() };
+    }
+    const value = unwrap(resolved.node);
+    if (!value || !ts.isObjectLiteralExpression(value)) {
+      return { status: "runtime", names: new Set() };
+    }
+    const names = new Set();
+    let status = "expression";
+    for (const property of value.properties.filter(ts.isPropertyAssignment)) {
+      const name = propertyName(property, resolved.sourcePath);
+      if (name.status === "literal") names.add(name.value);
+      else if (name.status === "unresolved") status = "unresolved";
+    }
+    return { status, names };
+  };
+  const record = (node, kind) => {
+    const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+    violations.push({ path: sourcePath, line: position.line + 1, kind });
+  };
+  function inspect(node) {
+    if (ts.isObjectLiteralExpression(node)) {
+      const properties = node.properties.filter(ts.isPropertyAssignment);
+      const nameResults = properties.map(property => propertyName(property));
+      const names = new Set(nameResults.filter(item => item.status === "literal")
+        .map(item => item.value));
+      const rowContext = ["capability_ref", "resource_kind", "candidate_ref", "adapter_id"]
+        .some(name => names.has(name));
+      for (const property of properties) {
+        const name = propertyName(property);
+        if (name.status !== "literal") {
+          if (name.status === "unresolved" && rowContext) {
+            record(property, "unresolved_semantic_value");
+          }
+          continue;
+        }
+        const semantic = name.value === "capability_ref" || name.value === "resource_kind"
+          || name.value === "adapter_id" || name.value === "candidate_ref"
+          || (name.value === "kind" && names.has("capability_ref"))
+          || (name.value === "id" && rowContext);
+        if (!semantic) continue;
+        const value = stringValue(property.initializer, sourcePath);
+        if (value.status === "unresolved") {
+          record(property, "unresolved_semantic_value");
+        } else if (value.status === "literal") {
+          if (name.value === "capability_ref" || name.value === "resource_kind") {
+            record(property, `authored_${name.value}`);
+          } else if (name.value === "kind") {
+            record(property, "authored_resource_kind");
+          } else {
+            record(property, "authored_adapter_id");
+          }
+        }
+      }
+    }
+    if (ts.isArrayLiteralExpression(node) && node.elements.some(element => {
+      const item = semanticObject(element);
+      if (item.status === "unresolved") {
+        record(node, "unresolved_semantic_value");
+        return false;
+      }
+      return item.names.has("capability_ref") || item.names.has("resource_kind")
+        || item.names.has("candidate_ref") || item.names.has("adapter_id");
+    })) record(node, "authored_result_array");
+    if (ts.isBinaryExpression(node) && [
+      ts.SyntaxKind.EqualsEqualsToken, ts.SyntaxKind.EqualsEqualsEqualsToken,
+      ts.SyntaxKind.ExclamationEqualsToken, ts.SyntaxKind.ExclamationEqualsEqualsToken,
+    ].includes(node.operatorToken.kind)) {
+      const pairs = [
+        [semanticField(node.left), stringValue(node.right, sourcePath)],
+        [semanticField(node.right), stringValue(node.left, sourcePath)],
+      ];
+      for (const [field, value] of pairs) {
+        if (field.status !== "field") continue;
+        const semantic = field.name === "capability_ref" || field.name === "resource_kind"
+          || (field.name === "kind" && field.contextualId) || field.name === "adapter_id"
+          || field.name === "candidate_ref" || (field.name === "id" && field.contextualId);
+        if (!semantic) continue;
+        if (value.status === "unresolved") {
+          record(node, "unresolved_semantic_value");
+          break;
+        }
+        if (value.status === "literal") {
+          record(node, "literal_result_branch");
+          break;
+        }
+      }
+    }
+    if (ts.isCaseClause(node)) {
+      const switchStatement = node.parent?.parent;
+      const field = switchStatement && ts.isSwitchStatement(switchStatement)
+        ? semanticField(switchStatement.expression) : runtime();
+      const value = stringValue(node.expression, sourcePath);
+      const semantic = field.status === "field" && (
+        field.name === "capability_ref" || field.name === "resource_kind"
+        || (field.name === "kind" && field.contextualId) || field.name === "adapter_id"
+        || field.name === "candidate_ref" || (field.name === "id" && field.contextualId)
+      );
+      if (semantic && value.status === "unresolved") {
+        record(node, "unresolved_semantic_value");
+      } else if (semantic && value.status === "literal") {
+        record(node, "literal_result_branch");
+      }
+    }
+    ts.forEachChild(node, inspect);
+  }
+  inspect(sourceFile);
+}
+for (const sourcePath of [...productionSourcePaths].sort()) {
+  const sourceFile = sourceFiles.get(sourcePath);
+  const recordLegacyRead = (node, syntax) => {
+    const position = sourceFile.getLineAndCharacterOfPosition(node.getStart(sourceFile));
+    violations.push({
+      path: sourcePath,
+      line: position.line + 1,
+      kind: `legacy_manifest_features_read_${syntax}`,
+    });
+  };
+  const bindingFieldName = element => {
+    if (element.propertyName
+      && (ts.isIdentifier(element.propertyName)
+        || ts.isStringLiteralLike(element.propertyName))) {
+      return element.propertyName.text;
+    }
+    return ts.isIdentifier(element.name) ? element.name.text : null;
+  };
+  const objectPatternReadsFeatures = pattern => pattern.elements.some(element =>
+    ts.isBindingElement(element) && bindingFieldName(element) === "features"
+  );
+  const assignmentPatternReadsFeatures = expression => {
+    const pattern = unwrap(expression);
+    if (!pattern || !ts.isObjectLiteralExpression(pattern)) return false;
+    return pattern.properties.some(property => {
+      if (ts.isShorthandPropertyAssignment(property)) {
+        return property.name.text === "features";
+      }
+      if (!ts.isPropertyAssignment(property)) return false;
+      return (ts.isIdentifier(property.name) || ts.isStringLiteralLike(property.name))
+        && property.name.text === "features";
+    });
+  };
+  const parameterIsExecutable = parameter => Boolean(parameter.parent?.body);
+  function inspectLegacyManifestReads(node) {
+    if (!isTypeOnlyUse(node) && ts.isPropertyAccessExpression(node)
+      && node.name.text === "features"
+      && nodeHasCapabilityManifestType(node.expression)) {
+      recordLegacyRead(node, "property_access");
+    }
+    if (!isTypeOnlyUse(node) && ts.isElementAccessExpression(node)
+      && ts.isStringLiteralLike(node.argumentExpression)
+      && node.argumentExpression.text === "features"
+      && nodeHasCapabilityManifestType(node.expression)) {
+      recordLegacyRead(node, "element_access");
+    }
+    if (ts.isVariableDeclaration(node) && ts.isObjectBindingPattern(node.name)
+      && node.initializer && objectPatternReadsFeatures(node.name)
+      && nodeHasCapabilityManifestType(node.initializer)) {
+      recordLegacyRead(node.name, "destructure");
+    }
+    if (ts.isParameter(node) && parameterIsExecutable(node)
+      && ts.isObjectBindingPattern(node.name)
+      && objectPatternReadsFeatures(node.name)
+      && nodeHasCapabilityManifestType(node)) {
+      recordLegacyRead(node.name, "destructure");
+    }
+    if (ts.isBinaryExpression(node)
+      && node.operatorToken.kind === ts.SyntaxKind.EqualsToken
+      && assignmentPatternReadsFeatures(node.left)
+      && nodeHasCapabilityManifestType(node.right)) {
+      recordLegacyRead(node.left, "destructure");
+    }
+    ts.forEachChild(node, inspectLegacyManifestReads);
+  }
+  inspectLegacyManifestReads(sourceFile);
+}
+process.stdout.write(JSON.stringify(violations));
+"""
 
 _SEMANTIC_COPY_DECLARATION_PROBE = (
     r"""
@@ -849,6 +1663,496 @@ def _issuer_set_drift(
 
 def _valid_sha256(value: object) -> bool:
     return isinstance(value, str) and re.fullmatch(r"sha256:[a-f0-9]{64}", value) is not None
+
+
+def _scope_nodes(node: ast.AST) -> list[ast.AST]:
+    """Return nodes in one lexical scope without descending into child scopes."""
+    nodes: list[ast.AST] = []
+
+    def visit(current: ast.AST) -> None:
+        nodes.append(current)
+        for child in ast.iter_child_nodes(current):
+            if child is not node and isinstance(
+                child, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda)
+            ):
+                continue
+            visit(child)
+
+    visit(node)
+    return nodes
+
+
+_PYTHON_CAPABILITY_CONTRACTS = {
+    "polisyos.core.contracts.CapabilityFeatureInfo": "feature",
+    "polisyos.core.contracts.control.CapabilityFeatureInfo": "feature",
+    "polisyos.core.contracts.CapabilityManifestResponse": "manifest",
+    "polisyos.core.contracts.control.CapabilityManifestResponse": "manifest",
+}
+
+
+def _python_source_module(path: str) -> str | None:
+    """Return the import module represented by one source path."""
+    marker = "src/"
+    offset = path.find(marker)
+    if offset < 0 or not path.endswith(".py"):
+        return None
+    module = path[offset + len(marker) : -3].replace("/", ".")
+    return module.removesuffix(".__init__")
+
+
+def _python_import_module(
+    source_path: str,
+    imported: ast.ImportFrom,
+    modules_by_path: Mapping[str, str],
+) -> str | None:
+    """Resolve an absolute or relative import to its module name."""
+    if imported.level == 0:
+        return imported.module
+    source_module = modules_by_path.get(source_path)
+    if source_module is None:
+        return None
+    package_parts = source_module.split(".")
+    if not source_path.endswith("/__init__.py"):
+        package_parts = package_parts[:-1]
+    ascend = imported.level - 1
+    if ascend > len(package_parts):
+        return None
+    base = package_parts[: len(package_parts) - ascend]
+    if imported.module:
+        base.extend(imported.module.split("."))
+    return ".".join(base)
+
+
+def _python_scope_binding(scope: ast.AST, name: str) -> tuple[str, ast.AST] | None:
+    """Find one name's assignment, function, or import inside a lexical scope."""
+    for node in reversed(_scope_nodes(scope)):
+        if isinstance(node, (ast.Assign, ast.AnnAssign)):
+            targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+            if node.value is not None and any(
+                isinstance(target, ast.Name) and target.id == name for target in targets
+            ):
+                return "value", node.value
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            for alias in node.names:
+                local_name = alias.asname or alias.name.split(".")[0]
+                if local_name == name:
+                    return "import", node
+    body = getattr(scope, "body", ())
+    statements = body if isinstance(body, list) else ()
+    for statement in reversed(statements):
+        if (
+            isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef))
+            and statement.name == name
+        ):
+            return "definition", statement
+    return None
+
+
+def _python_lookup_binding(
+    path: str,
+    scope: ast.AST,
+    name: str,
+    trees: Mapping[str, ast.Module],
+) -> tuple[str, ast.AST] | None:
+    """Resolve a local binding, falling back to its module scope."""
+    binding = _python_scope_binding(scope, name)
+    if binding is not None or scope is trees[path]:
+        return binding
+    return _python_scope_binding(trees[path], name)
+
+
+def _python_import_binding(
+    path: str,
+    name: str,
+    imported: ast.Import | ast.ImportFrom,
+    modules_by_path: Mapping[str, str],
+    paths_by_module: Mapping[str, str],
+) -> tuple[str, str | None, str]:
+    """Return a qualified module plus optional local source and exported symbol."""
+    if isinstance(imported, ast.ImportFrom):
+        module = _python_import_module(path, imported, modules_by_path)
+        for alias in imported.names:
+            if (alias.asname or alias.name) == name:
+                qualified = f"{module}.{alias.name}" if module else alias.name
+                return qualified, paths_by_module.get(module or ""), alias.name
+    else:
+        for alias in imported.names:
+            if (alias.asname or alias.name.split(".")[0]) == name:
+                qualified = alias.name if alias.asname else alias.name.split(".")[0]
+                return qualified, paths_by_module.get(alias.name), ""
+    return name, None, ""
+
+
+def _python_resolve_callable(
+    path: str,
+    scope: ast.AST,
+    expression: ast.AST,
+    *,
+    trees: Mapping[str, ast.Module],
+    modules_by_path: Mapping[str, str],
+    paths_by_module: Mapping[str, str],
+    visited: set[tuple[str, int, str]],
+) -> str | tuple[str, ast.AST] | None:
+    """Resolve contract constructors and local/imported helper functions."""
+    token = (path, id(scope), ast.dump(expression, include_attributes=False))
+    if token in visited:
+        return None
+    visited.add(token)
+    if isinstance(expression, ast.Name):
+        binding = _python_lookup_binding(path, scope, expression.id, trees)
+        if binding is None:
+            return None
+        kind, target = binding
+        if kind == "value":
+            return _python_resolve_callable(
+                path,
+                scope,
+                target,
+                trees=trees,
+                modules_by_path=modules_by_path,
+                paths_by_module=paths_by_module,
+                visited=visited,
+            )
+        if kind == "definition":
+            return path, target
+        qualified, target_path, exported = _python_import_binding(
+            path, expression.id, target, modules_by_path, paths_by_module
+        )
+        if qualified in _PYTHON_CAPABILITY_CONTRACTS:
+            return _PYTHON_CAPABILITY_CONTRACTS[qualified]
+        if target_path and exported:
+            return _python_resolve_callable(
+                target_path,
+                trees[target_path],
+                ast.Name(id=exported),
+                trees=trees,
+                modules_by_path=modules_by_path,
+                paths_by_module=paths_by_module,
+                visited=visited,
+            )
+        return None
+    if isinstance(expression, ast.Attribute):
+        parts: list[str] = [expression.attr]
+        current = expression.value
+        while isinstance(current, ast.Attribute):
+            parts.append(current.attr)
+            current = current.value
+        if not isinstance(current, ast.Name):
+            return None
+        binding = _python_lookup_binding(path, scope, current.id, trees)
+        if binding is None or binding[0] != "import":
+            return None
+        qualified, target_path, _ = _python_import_binding(
+            path, current.id, binding[1], modules_by_path, paths_by_module
+        )
+        qualified = ".".join((qualified, *reversed(parts)))
+        if qualified in _PYTHON_CAPABILITY_CONTRACTS:
+            return _PYTHON_CAPABILITY_CONTRACTS[qualified]
+        if target_path:
+            return _python_resolve_callable(
+                target_path,
+                trees[target_path],
+                ast.Name(id=parts[0]),
+                trees=trees,
+                modules_by_path=modules_by_path,
+                paths_by_module=paths_by_module,
+                visited=visited,
+            )
+    return None
+
+
+def _python_feature_contributors(
+    path: str,
+    scope: ast.AST,
+    expression: ast.AST,
+    *,
+    root_ref: str,
+    trees: Mapping[str, ast.Module],
+    modules_by_path: Mapping[str, str],
+    paths_by_module: Mapping[str, str],
+    visited: set[tuple[str, int, int]],
+) -> set[str]:
+    """Trace one manifest features expression to constructors or unresolved imports."""
+    token = (path, id(scope), id(expression))
+    if token in visited:
+        return set()
+    visited.add(token)
+    contributors: set[str] = set()
+    if isinstance(expression, ast.Name):
+        binding = _python_lookup_binding(path, scope, expression.id, trees)
+        if binding is None:
+            return contributors
+        kind, target = binding
+        if kind == "value":
+            contributors.update(
+                _python_feature_contributors(
+                    path,
+                    scope,
+                    target,
+                    root_ref=root_ref,
+                    trees=trees,
+                    modules_by_path=modules_by_path,
+                    paths_by_module=paths_by_module,
+                    visited=visited,
+                )
+            )
+            for node in _scope_nodes(scope):
+                if (
+                    isinstance(node, ast.Call)
+                    and isinstance(node.func, ast.Attribute)
+                    and isinstance(node.func.value, ast.Name)
+                    and node.func.value.id == expression.id
+                    and node.func.attr in {"append", "extend"}
+                ):
+                    for argument in node.args:
+                        contributors.update(
+                            _python_feature_contributors(
+                                path,
+                                scope,
+                                argument,
+                                root_ref=root_ref,
+                                trees=trees,
+                                modules_by_path=modules_by_path,
+                                paths_by_module=paths_by_module,
+                                visited=visited,
+                            )
+                        )
+            return contributors
+        if kind == "import":
+            qualified, target_path, exported = _python_import_binding(
+                path, expression.id, target, modules_by_path, paths_by_module
+            )
+            if target_path and exported:
+                target_scope = trees[target_path]
+                if _python_lookup_binding(target_path, target_scope, exported, trees) is None:
+                    contributors.add(
+                        f"unresolved_manifest_features:{root_ref}:{qualified}"
+                    )
+                else:
+                    contributors.update(
+                        _python_feature_contributors(
+                            target_path,
+                            target_scope,
+                            ast.Name(id=exported),
+                            root_ref=root_ref,
+                            trees=trees,
+                            modules_by_path=modules_by_path,
+                            paths_by_module=paths_by_module,
+                            visited=visited,
+                        )
+                    )
+            elif qualified not in _PYTHON_CAPABILITY_CONTRACTS:
+                contributors.add(f"unresolved_manifest_features:{root_ref}:{qualified}")
+            return contributors
+    if isinstance(expression, ast.Call):
+        resolved = _python_resolve_callable(
+            path,
+            scope,
+            expression.func,
+            trees=trees,
+            modules_by_path=modules_by_path,
+            paths_by_module=paths_by_module,
+            visited=set(),
+        )
+        if resolved == "feature":
+            return {f"{path}:{expression.lineno}"}
+        if isinstance(resolved, tuple):
+            helper_path, helper = resolved
+            for node in _scope_nodes(helper):
+                if isinstance(node, ast.Return) and node.value is not None:
+                    contributors.update(
+                        _python_feature_contributors(
+                            helper_path,
+                            helper,
+                            node.value,
+                            root_ref=root_ref,
+                            trees=trees,
+                            modules_by_path=modules_by_path,
+                            paths_by_module=paths_by_module,
+                            visited=visited,
+                        )
+                    )
+            for argument in (*expression.args, *(item.value for item in expression.keywords)):
+                contributors.update(
+                    _python_feature_contributors(
+                        path,
+                        scope,
+                        argument,
+                        root_ref=root_ref,
+                        trees=trees,
+                        modules_by_path=modules_by_path,
+                        paths_by_module=paths_by_module,
+                        visited=visited,
+                    )
+                )
+            return contributors
+    for child in ast.iter_child_nodes(expression):
+        contributors.update(
+            _python_feature_contributors(
+                path,
+                scope,
+                child,
+                root_ref=root_ref,
+                trees=trees,
+                modules_by_path=modules_by_path,
+                paths_by_module=paths_by_module,
+                visited=visited,
+            )
+        )
+    return contributors
+
+
+def control_capability_manifest_contributors(
+    sources: Mapping[str, str] | None = None,
+) -> tuple[str, ...]:
+    """Enumerate authored manifest contributors through local and imported value flow."""
+    if sources is None:
+        source_root = status_checker.REPO_ROOT / "src/polisyos"
+        sources = {
+            path.relative_to(status_checker.REPO_ROOT).as_posix(): path.read_text(encoding="utf-8")
+            for path in sorted(source_root.rglob("*.py"))
+        }
+    trees = {
+        path: ast.parse(source, filename=path)
+        for path, source in sorted(sources.items())
+        if path.endswith(".py")
+    }
+    modules_by_path = {
+        path: module for path in trees if (module := _python_source_module(path)) is not None
+    }
+    paths_by_module = {module: path for path, module in modules_by_path.items()}
+    owner_modules = {"polisyos.core.contracts", "polisyos.core.contracts.control"}
+    manifest_paths = {
+        path
+        for path, tree in trees.items()
+        if any(
+            (
+                isinstance(node, ast.ImportFrom)
+                and node.module in owner_modules
+                and any(alias.name == "CapabilityManifestResponse" for alias in node.names)
+            )
+            or (
+                isinstance(node, ast.Import)
+                and any(alias.name in owner_modules for alias in node.names)
+            )
+            for node in ast.walk(tree)
+        )
+    }
+    changed = True
+    while changed:
+        changed = False
+        for path, tree in trees.items():
+            if path in manifest_paths:
+                continue
+            for imported in (node for node in ast.walk(tree) if isinstance(node, ast.ImportFrom)):
+                module = _python_import_module(path, imported, modules_by_path)
+                if paths_by_module.get(module or "") in manifest_paths:
+                    manifest_paths.add(path)
+                    changed = True
+                    break
+    contributors: set[str] = set()
+    for path, tree in trees.items():
+        if path not in manifest_paths:
+            continue
+        scopes: list[ast.AST] = [tree]
+        scopes.extend(
+            node
+            for node in ast.walk(tree)
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef, ast.Lambda))
+        )
+        for scope in scopes:
+            for node in _scope_nodes(scope):
+                if not isinstance(node, ast.Call):
+                    continue
+                resolved = _python_resolve_callable(
+                    path,
+                    scope,
+                    node.func,
+                    trees=trees,
+                    modules_by_path=modules_by_path,
+                    paths_by_module=paths_by_module,
+                    visited=set(),
+                )
+                if resolved != "manifest":
+                    continue
+                for keyword in node.keywords:
+                    if keyword.arg != "features":
+                        continue
+                    contributors.update(
+                        _python_feature_contributors(
+                            path,
+                            scope,
+                            keyword.value,
+                            root_ref=f"{path}:{node.lineno}",
+                            trees=trees,
+                            modules_by_path=modules_by_path,
+                            paths_by_module=paths_by_module,
+                            visited=set(),
+                        )
+                    )
+    return tuple(sorted(contributors))
+
+
+def _capability_discovery_live_sources(
+    source_overrides: Mapping[str, str] | None,
+) -> tuple[dict[str, str], dict[str, str]]:
+    """Derive the Python-owner and dashboard-render source sets for live checks."""
+    if source_overrides is not None:
+        python_sources = {
+            path: source for path, source in source_overrides.items() if path.endswith(".py")
+        }
+        render_sources = {
+            path: source
+            for path, source in source_overrides.items()
+            if path.endswith((".ts", ".tsx"))
+        }
+        return python_sources, render_sources
+
+    repo_root = status_checker.REPO_ROOT
+    python_root = repo_root / "src/polisyos"
+    dashboard_root = repo_root / "apps/runtime-dashboard/src"
+    python_sources = {
+        path.relative_to(repo_root).as_posix(): path.read_text(encoding="utf-8")
+        for path in sorted(python_root.rglob("*.py"))
+    }
+    render_sources = {
+        path.relative_to(repo_root).as_posix(): path.read_text(encoding="utf-8")
+        for suffix in ("*.ts", "*.tsx")
+        for path in sorted(dashboard_root.rglob(suffix))
+    }
+    return python_sources, render_sources
+
+
+def check_capability_discovery_result_boundary(sources: Mapping[str, str]) -> list[str]:
+    """Reject authored capability rows and literal branches in the generic render boundary."""
+    node_binary = shutil.which("node")
+    if node_binary is None:
+        raise RuntimeError("capability discovery render scan requires node")
+    completed = subprocess.run(  # noqa: S603 - executable and program are controlled constants.
+        [node_binary, "-e", _CAPABILITY_DISCOVERY_RENDER_PROBE],
+        cwd=status_checker.REPO_ROOT,
+        input=json.dumps({"sources": dict(sorted(sources.items()))}),
+        capture_output=True,
+        check=False,
+        text=True,
+    )
+    if completed.returncode != 0:
+        raise RuntimeError("capability discovery render scan failed: " + completed.stderr.strip())
+    violations = json.loads(completed.stdout)
+    if not isinstance(violations, list):
+        raise RuntimeError("capability discovery render scan returned invalid findings")
+    return sorted(
+        {
+            "hardcoded_discovery_result:"
+            + str(violation.get("path", "unknown"))
+            + ":"
+            + str(violation.get("line", 0))
+            + ":"
+            + str(violation.get("kind", "unknown"))
+            for violation in violations
+            if isinstance(violation, Mapping)
+        }
+    )
 
 
 def _capability_discovery_errors(
@@ -1968,13 +3272,32 @@ def validate_enforcement(
     """Validate the governed DS4 bridge and declaration-level DS5 census."""
     inventory = status_checker._load_json(status_checker.INVENTORY_PATH)
     debt = status_checker._load_json(status_checker.WAIST_DEBT_PATH)
+    typescript_overrides = (
+        None
+        if source_overrides is None
+        else {
+            path: source
+            for path, source in source_overrides.items()
+            if path.endswith((".ts", ".tsx"))
+        }
+    )
     scan = _enforcement_scan(
-        source_overrides,
+        typescript_overrides,
         inventory=inventory,
         validate_override_diagnostics=source_overrides is not None,
     )
     scan["generatedOwnerReceipt"] = _generated_owner_receipt(inventory)
     errors = _override_diagnostic_errors(scan)
+    python_sources, render_sources = _capability_discovery_live_sources(source_overrides)
+    manifest_contributors = control_capability_manifest_contributors(python_sources)
+    render_errors = check_capability_discovery_result_boundary(render_sources)
+    scan["capabilityManifestContributors"] = list(manifest_contributors)
+    scan["capabilityDiscoveryRenderErrors"] = render_errors
+    errors.extend(
+        f"authored_capability_manifest_feature:{contributor}"
+        for contributor in manifest_contributors
+    )
+    errors.extend(render_errors)
     should_enforce_escapes = (
         source_overrides is None if enforce_authority_escapes is None else enforce_authority_escapes
     )
@@ -2639,6 +3962,68 @@ def _corruption_probes(
         item.get("code") for item in scan.get("overrideDiagnostics", [])
     ] != [2322] or not any(error.endswith(":TS2322") for error in errors):
         escaped.append("capability-discovery-benign-and-brand")
+
+    python_probe_dir = "src/polisyos/runtime/http/services/control"
+    python_rows_path = f"{python_probe_dir}/ds10_corruption_rows.py"
+    python_manifest_path = f"{python_probe_dir}/ds10_corruption_manifest.py"
+    python_contributors = control_capability_manifest_contributors(
+        {
+            python_rows_path: dedent(
+                """
+                from polisyos.core.contracts.control import CapabilityFeatureInfo as Feature
+                FeatureAlias = Feature
+                marker_only = Feature(
+                    key="marker", label="Marker", description="benign", category="probe",
+                )
+                def rows():
+                    return [FeatureAlias(
+                        key="generated", label="Generated",
+                        description="corruption", category="probe",
+                    )]
+                """
+            ),
+            python_manifest_path: dedent(
+                """
+                from polisyos.core.contracts.control import CapabilityManifestResponse as Manifest
+                from .ds10_corruption_rows import rows
+                def build(meta):
+                    return Manifest(meta=meta, features=rows())
+                """
+            ),
+        }
+    )
+    if len(python_contributors) != 1 or not python_contributors[0].startswith(
+        python_rows_path + ":"
+    ):
+        escaped.append("capability-discovery-python-manifest-contributor")
+
+    render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+    render_root = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+    render_sibling = f"{render_dir}/CapabilityDiscoveryRows.tsx"
+    render_values = f"{render_dir}/CapabilityDiscoveryValues.ts"
+    fixed_chrome = "apps/runtime-dashboard/src/app/surfaces/workspaceConfig.ts"
+    render_errors = check_capability_discovery_result_boundary(
+        {
+            render_root: (
+                'import { selected } from "./CapabilityDiscoveryValues";\n'
+                "export function render(result: { resource_kind: string }) {\n"
+                "  return result.resource_kind === selected ? null : null;\n"
+                "}\n"
+            ),
+            render_sibling: (
+                'const selected = "capability-corruption-probe";\n'
+                'const row = { ["capability_ref"]: selected, ["resource_kind"]: "agent" };\n'
+                "export const rows = [row];\n"
+            ),
+            render_values: 'export const selected = "agent";\n',
+            fixed_chrome: (
+                "type WorkspaceConfig = { route: string; tab: string };\n"
+                'export const workspace: WorkspaceConfig = { route: "runs", tab: "overview" };\n'
+            ),
+        }
+    )
+    if not render_errors or any(fixed_chrome in error for error in render_errors):
+        escaped.append("capability-discovery-generic-render-boundary")
 
     errors, scan = validate_enforcement(
         source_overrides={

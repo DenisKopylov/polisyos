@@ -26,6 +26,12 @@ describe("surface registry", () => {
     ).toBe(true);
   });
 
+  it("keeps fixed surfaces independent of capability discovery", () => {
+    expect(
+      SURFACE_REGISTRY.every((surface) => !("requiredCapabilities" in surface)),
+    ).toBe(true);
+  });
+
   it("resolves nested panels under parent surfaces", () => {
     expect(getSurfaceById("runs.causalAtlas")?.parentId).toBe("runs.causal");
     expect(
@@ -193,10 +199,9 @@ describe("surface registry", () => {
     ).toBe(true);
   });
 
-  it("filters command surfaces through workspace, capability, and permission gates", () => {
+  it("filters command surfaces through fixed availability and permission gates", () => {
     const surfaces = getCommandPaletteSurfaceEntries({
       canAccessPermission: (permission) => permission !== "runs.review",
-      hasCapability: (capability) => capability !== "evaluator_reports",
       isWorkspaceAllowed: (workspaceKey) => workspaceKey !== "lexKnowledge",
       runId: "run-42",
     });
@@ -210,7 +215,7 @@ describe("surface registry", () => {
     ).toBe(false);
     expect(
       surfaces.some((surface) => surface.id === "runs.stressTestTheatre"),
-    ).toBe(false);
+    ).toBe(true);
     expect(
       surfaces.some((surface) => surface.id === "runs.fairnessAudit"),
     ).toBe(false);

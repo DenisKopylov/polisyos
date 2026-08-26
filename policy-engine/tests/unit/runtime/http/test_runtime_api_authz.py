@@ -213,6 +213,7 @@ _EXPECTED_MUTATING_OPERATIONS = (
     ("POST", "/api/v1/artifacts/batch"),
     ("POST", "/api/v1/artifacts/{packet_id}/render"),
     ("POST", "/api/v1/control/analytics/sae/causal-frontier"),
+    ("POST", "/api/v1/control/capabilities/search"),
     ("POST", "/api/v1/control/data/discover"),
     ("POST", "/api/v1/control/data/ingest"),
     ("POST", "/api/v1/control/data/preview"),
@@ -251,6 +252,7 @@ _EXPECTED_MUTATING_PERMISSIONS = {
         "POST",
         "/api/v1/control/analytics/sae/causal-frontier",
     ): RuntimePermission.EVIDENCE_SAE_ANALYZE,
+    ("POST", "/api/v1/control/capabilities/search"): RuntimePermission.EVIDENCE_DISCOVER,
     ("POST", "/api/v1/control/data/discover"): RuntimePermission.EVIDENCE_DISCOVER,
     ("POST", "/api/v1/control/data/ingest"): RuntimePermission.EVIDENCE_ACQUIRE,
     ("POST", "/api/v1/control/data/preview"): RuntimePermission.EVIDENCE_PREVIEW,
@@ -301,6 +303,7 @@ _MUTATING_OPERATION_CASE_IDS = {
     ("POST", "/api/v1/artifacts/batch"): "get-artifact-batch",
     ("POST", "/api/v1/artifacts/{packet_id}/render"): ("render-bureaucratic-artifact"),
     ("POST", "/api/v1/control/analytics/sae/causal-frontier"): ("estimate-causal-frontier-sae"),
+    ("POST", "/api/v1/control/capabilities/search"): "search-capabilities",
     ("POST", "/api/v1/control/data/discover"): "discover-data-sources",
     ("POST", "/api/v1/control/data/ingest"): "ingest-data",
     ("POST", "/api/v1/control/data/preview"): "preview-fetch-plan",
@@ -623,6 +626,22 @@ def _authorized_mutation_request(
         return f"/api/v1/artifacts/{packet_id}/render", {"genre": "expert_vysnovok"}
     if case_id == "estimate-causal-frontier-sae":
         return default_path, _causal_frontier_body()
+    if case_id == "search-capabilities":
+        return default_path, {
+            "search": {
+                "request_id": "search:authz-matrix",
+                "query_text": "generated capability",
+                "construct_refs": ["construct:generated"],
+                "intent": "capability_discovery",
+                "required_layers": ["runtime_registry"],
+                "authority_purpose": "review_capability_candidates",
+                "allowed_modes": ["exact"],
+                "budget": {"top_k": 5},
+                "rule_version": "policyos.ds10.discovery.v1",
+            },
+            "resource_kinds": ["case"],
+            "audience": "REVIEWER",
+        }
     if case_id == "discover-data-sources":
         return default_path, {
             "data_needs": [_data_need()],
@@ -1232,6 +1251,59 @@ def test_each_mutating_operation_projects_action_permission_extension(
         assert resource_binding["resource_kind"]
 
 
+def test_capability_search_routes_share_one_safe_dependency_and_deny_before_handler(
+    runtime_api_env,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """POST and compatibility GET must share the exact evidence-discovery gate."""
+    client, bearer = _build_permissionless_client(runtime_api_env)
+    with client:
+        service = client.app.state._control_service
+        monkeypatch.setattr(
+            service,
+            "search_capabilities",
+            lambda *args, **kwargs: (_ for _ in ()).throw(
+                AssertionError("authorization denial must precede the handler")
+            ),
+        )
+        responses = (
+            client.post(
+                "/api/v1/control/capabilities/search",
+                headers={
+                    "Authorization": f"Bearer {bearer}",
+                    "X-Tenant-ID": runtime_api_env["tenant_a"],
+                },
+                json={},
+            ),
+            client.get(
+                "/api/v1/control/data/catalog/search?metric=gdp",
+                headers={
+                    "Authorization": f"Bearer {bearer}",
+                    "X-Tenant-ID": runtime_api_env["tenant_a"],
+                },
+            ),
+        )
+
+    assert [response.status_code for response in responses] == [403, 403]
+    assert [response.json()["code"] for response in responses] == [
+        "action_permission_denied",
+        "action_permission_denied",
+    ]
+
+    schema = client.app.openapi()
+    for method, path in (
+        ("post", "/api/v1/control/capabilities/search"),
+        ("get", "/api/v1/control/data/catalog/search"),
+    ):
+        operation = schema["paths"][path][method]
+        assert operation["x-polisyos-action-permission"] == "evidence.discover"
+        assert operation["x-polisyos-resource-binding"] == {
+            "source": "tenant_collection",
+            "resource_kind": "runtime.capability_discovery.search",
+            "allow_empty_body": True,
+        }
+
+
 def test_resource_binding_contract_projects_required_selector_and_parent_invariants(
     runtime_api_env,
 ) -> None:
@@ -1295,7 +1367,7 @@ def test_new_sibling_mutating_route_is_automatically_in_denominator(
         for route in _live_mutating_routes(client.app)
         if route.path == "/api/v1/ds20/synthetic-route-31"
     )
-    assert len(operations) == 31
+    assert len(operations) == 32
     assert ("POST", "/api/v1/ds20/synthetic-route-31") in operations
 
     dependencies = _action_permission_dependencies(synthetic_route)

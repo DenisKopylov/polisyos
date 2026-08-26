@@ -2,7 +2,6 @@ import type { ReactNode } from "react";
 import { Suspense } from "react";
 import { useLocation } from "react-router-dom";
 
-import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import {
@@ -11,7 +10,6 @@ import {
   type WorkspaceLayout,
 } from "@/app/workspaces";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { isCapabilityEnabled } from "@/shared/lib/capabilities";
 import { PageErrorBoundary } from "@/shared/components/ErrorBoundary";
 import { Card, EmptyState, PageSkeleton } from "@polisyos/atlas-ui";
 
@@ -51,7 +49,6 @@ export function WorkspaceBoundary({
 }: WorkspaceBoundaryProps) {
   const location = useLocation();
   const { t } = useI18n();
-  const capabilitiesQuery = useCapabilities();
   const authzDecision = useAuthzDecision();
   const { flags } = useFeatureFlags();
 
@@ -62,9 +59,6 @@ export function WorkspaceBoundary({
   const workspaceAllowed =
     authzDecision.kind === "verified" &&
     authzDecision.isWorkspaceAllowed(workspaceKey);
-  const missingCapabilities = workspace.requiredCapabilities.filter(
-    (capability) => !isCapabilityEnabled(capabilitiesQuery.data, capability),
-  );
 
   if (!workspaceEnabled) {
     return (
@@ -83,17 +77,6 @@ export function WorkspaceBoundary({
         <EmptyState
           title={t("common.unavailable")}
           body={t("shell.header.workspaceAccessDenied")}
-        />
-      </Card>
-    );
-  }
-
-  if (!capabilitiesQuery.isLoading && missingCapabilities.length > 0) {
-    return (
-      <Card>
-        <EmptyState
-          title={t("common.unavailable")}
-          body={`Required runtime capabilities are disabled: ${missingCapabilities.join(", ")}`}
         />
       </Card>
     );

@@ -13,6 +13,9 @@ from polisyos.runtime.http.dependencies import RuntimeApiContext, build_runtime_
 from polisyos.runtime.http.mutation_policy import build_runtime_mutation_services
 from polisyos.runtime.http.resilience import build_runtime_opa_async_guard
 from polisyos.runtime.http.services.control import ControlPlaneService
+from polisyos.runtime.http.services.control.capability_discovery import (
+    CapabilityDiscoveryService,
+)
 from polisyos.runtime.http.services.control_registry_providers import (
     ControlRegistryProviders,
     resolve_control_registry_providers,
@@ -251,6 +254,19 @@ class RuntimeServiceContainer:
                 # mutated deployment authority.  Keep startup observable while
                 # removing the unregistered resolver from every consumer seam.
                 self.production_approval_resolver = None
+            control_service.bind_capability_discovery_service(
+                CapabilityDiscoveryService(
+                    providers=(self.control_registry_providers.capability_discovery_providers),
+                    operation_registry=(
+                        self.control_registry_providers.capability_live_operation_registry
+                    ),
+                    conformance_verifier=(
+                        self.control_registry_providers.capability_conformance_verifier
+                    ),
+                    policy_resolver=control_service.execution_policy_resolver,
+                    production_approval_resolver=self.production_approval_resolver,
+                )
+            )
             self._bind_legacy_state(app)
             self.lifecycle.mark("ready")
         except (AttributeError, KeyError, OSError, RuntimeError, TypeError, ValueError) as exc:

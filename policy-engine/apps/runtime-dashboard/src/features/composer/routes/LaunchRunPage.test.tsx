@@ -143,32 +143,15 @@ describe("LaunchRunPage", () => {
           max_nl_iterations: 4,
           max_parallel_models: 3,
         },
-        features: [
-          {
-            description: "Multi-model natural language runs",
-            enabled: true,
-            key: "multimodel_nl",
-            label: "Multi-model",
+        fallback_rules: {
+          execution_policy: {
+            auto_materialization: true,
+            multimodel_nl: true,
+            producer_ref: "runtime/http/services/_control_contracts.py",
+            required_preflight: true,
           },
-          {
-            description: "Required preflight checks",
-            enabled: true,
-            key: "required_preflight",
-            label: "Preflight",
-          },
-          {
-            description: "Automatic materialization",
-            enabled: true,
-            key: "auto_materialization",
-            label: "Auto materialization",
-          },
-          {
-            description: "Promotion lane",
-            enabled: true,
-            key: "promotion_lane",
-            label: "Promotion lane",
-          },
-        ],
+        },
+        features: [],
       },
     });
     useLlmProfilesMock.mockReset();
@@ -204,20 +187,13 @@ describe("LaunchRunPage", () => {
     });
   });
 
-  it("renders the atlas briefing chrome with runtime capability tiles", () => {
+  it("renders fixed composer chrome without discovery capability tiles", () => {
     renderLaunchRunPage();
 
     expect(screen.getByTestId("composer-page")).toBeInTheDocument();
     expect(
-      screen.getAllByText("pages.composer.runtimeSignalsTitle").length,
-    ).toBeGreaterThan(0);
-
-    const capabilityTiles = screen.getByTestId("composer-capability-tiles");
-    expect(capabilityTiles).toBeInTheDocument();
-    expect(
-      within(capabilityTiles).getByText("Multi-model"),
-    ).toBeInTheDocument();
-    expect(within(capabilityTiles).getByText("Preflight")).toBeInTheDocument();
+      screen.queryByTestId("composer-capability-tiles"),
+    ).not.toBeInTheDocument();
   });
 
   it("passes only settled Authz tenant-user scope to composer hydration", async () => {
@@ -241,7 +217,9 @@ describe("LaunchRunPage", () => {
         checkpointPolicy: "strict",
         domainHint: "custom",
         executionIntent: "",
-        expectedOutputs: [{ description: "Decision packet", kind: "decision_packet" }],
+        expectedOutputs: [
+          { description: "Decision packet", kind: "decision_packet" },
+        ],
         governanceConstraints: [
           { rule: "legal review", scope: "legal", severity: "warning" },
         ],
@@ -287,7 +265,9 @@ describe("LaunchRunPage", () => {
         checkpointPolicy: "strict" as const,
         domainHint: "custom",
         executionIntent: "",
-        expectedOutputs: [{ description: "Decision packet", kind: "decision_packet" }],
+        expectedOutputs: [
+          { description: "Decision packet", kind: "decision_packet" },
+        ],
         governanceConstraints: [
           { rule: "legal review", scope: "legal", severity: "warning" },
         ],
@@ -353,7 +333,9 @@ describe("LaunchRunPage", () => {
         checkpointPolicy: "strict" as const,
         domainHint: "custom",
         executionIntent: "Tenant A intent",
-        expectedOutputs: [{ description: "Decision packet", kind: "decision_packet" }],
+        expectedOutputs: [
+          { description: "Decision packet", kind: "decision_packet" },
+        ],
         governanceConstraints: [
           { rule: "legal review", scope: "legal", severity: "warning" },
         ],
@@ -375,7 +357,9 @@ describe("LaunchRunPage", () => {
 
     const user = userEvent.setup();
     renderLaunchRunPage("/compose", <ComposerIdentityRerenderHarness />);
-    expect(await screen.findByDisplayValue("Tenant A request")).toBeInTheDocument();
+    expect(
+      await screen.findByDisplayValue("Tenant A request"),
+    ).toBeInTheDocument();
     expect(
       screen.getByText("pages.composer.restoredDraftTitle"),
     ).toBeInTheDocument();
@@ -386,7 +370,9 @@ describe("LaunchRunPage", () => {
 
     await user.click(screen.getByRole("button", { name: "Refresh identity" }));
 
-    expect(screen.queryByDisplayValue("Tenant A request")).not.toBeInTheDocument();
+    expect(
+      screen.queryByDisplayValue("Tenant A request"),
+    ).not.toBeInTheDocument();
     expect(
       screen.queryByText("pages.composer.restoredDraftTitle"),
     ).not.toBeInTheDocument();
@@ -405,7 +391,10 @@ describe("LaunchRunPage", () => {
     const user = userEvent.setup();
     renderLaunchRunPage();
 
-    await user.type(screen.getByTestId("composer-nl-brief"), "Discard this draft");
+    await user.type(
+      screen.getByTestId("composer-nl-brief"),
+      "Discard this draft",
+    );
     await waitFor(() => expect(saveComposerDraftMock).toHaveBeenCalled());
     await user.click(
       screen.getByRole("button", { name: "pages.composer.reset" }),
@@ -497,86 +486,38 @@ describe("LaunchRunPage", () => {
       });
       await Promise.resolve();
     });
-    expect(useComposerDraftStore.getState().drafts["nl:new"]?.values).toMatchObject({
+    expect(
+      useComposerDraftStore.getState().drafts["nl:new"]?.values,
+    ).toMatchObject({
       nlRequest: "New draft",
     });
   });
 
-  it("feature enabled state cannot select Glyph authority clothing", () => {
+  it("does not project execution policy as capability discovery chrome", () => {
     loadComposerDraftMock.mockReturnValue(new Promise(() => undefined));
-    const features = [
-      {
-        category: "governance",
-        description: "Multi-model natural language runs",
-        key: "multimodel_nl",
-        label: "Multi-model",
-      },
-      {
-        category: "governance",
-        description: "Required preflight checks",
-        key: "required_preflight",
-        label: "Preflight",
-      },
-      {
-        category: "governance",
-        description: "Automatic materialization",
-        key: "auto_materialization",
-        label: "Auto materialization",
-      },
-      {
-        category: "governance",
-        description: "Promotion lane",
-        key: "promotion_lane",
-        label: "Promotion lane",
-      },
-    ];
     const capabilities = (enabled: boolean) => ({
       data: {
         constraints: {
           max_nl_iterations: 4,
           max_parallel_models: 3,
         },
-        features: features.map((feature) => ({ ...feature, enabled })),
+        fallback_rules: {
+          execution_policy: {
+            auto_materialization: enabled,
+            multimodel_nl: enabled,
+            producer_ref: "runtime/http/services/_control_contracts.py",
+            required_preflight: enabled,
+          },
+        },
+        features: [],
       },
     });
-    const clothing = (tiles: HTMLElement) => ({
-      badges: within(tiles)
-        .getAllByText("governance")
-        .map((badge) => badge.className),
-      glyphs: within(tiles)
-        .getAllByRole("presentation", { hidden: true })
-        .map((glyph) => ({
-          color: glyph.style.color,
-          intent: glyph.getAttribute("data-glyph-intent"),
-        })),
-    });
-
     useCapabilitiesMock.mockReturnValue(capabilities(true));
-    const enabledView = renderLaunchRunPage();
-    const enabledClothing = clothing(
-      screen.getByTestId("composer-capability-tiles"),
-    );
-    enabledView.unmount();
-
-    useCapabilitiesMock.mockReturnValue(capabilities(false));
     renderLaunchRunPage();
-    const disabledClothing = clothing(
-      screen.getByTestId("composer-capability-tiles"),
-    );
 
-    expect(enabledClothing).toEqual(disabledClothing);
     expect(
-      enabledClothing.glyphs.every(
-        ({ color, intent }) => color === "" && intent === null,
-      ),
-    ).toBe(true);
-    expect(
-      enabledClothing.badges.every(
-        (className) =>
-          className.includes("bg-white/65") &&
-          className.includes("text-muted"),
-      ),
-    ).toBe(true);
+      screen.queryByTestId("composer-capability-tiles"),
+    ).not.toBeInTheDocument();
   });
 
   it("does not raise readiness from local model-count scoring", () => {
@@ -608,37 +549,39 @@ describe("LaunchRunPage", () => {
   });
 
   it("hydrates and discards a saved workflow draft for replans", async () => {
-    loadComposerDraftMock.mockImplementation(async (_scope: unknown, key: string) => {
-      if (key === "workflow:run-42") {
-        return {
-          fromRunId: "run-42",
-          key,
-          mode: "workflow",
-          updatedAt: Date.now(),
-          values: {
-            checkpointPolicy: "strict",
-            customParams: [],
-            dataSourceRef: "sha256:draft-snapshot",
-            dataSourceType: "snapshot",
-            executionIntent: "Saved operator intent",
-            expectedOutputs: [
-              { description: "Decision packet", kind: "decision_packet" },
-            ],
-            governanceConstraints: [
-              {
-                rule: "Block illegal outcomes",
-                scope: "legal",
-                severity: "blocker",
-              },
-            ],
-            modelSpecRef: "",
-            policySpecRef: "",
-            trinityRef: "",
-          },
-        };
-      }
-      return null;
-    });
+    loadComposerDraftMock.mockImplementation(
+      async (_scope: unknown, key: string) => {
+        if (key === "workflow:run-42") {
+          return {
+            fromRunId: "run-42",
+            key,
+            mode: "workflow",
+            updatedAt: Date.now(),
+            values: {
+              checkpointPolicy: "strict",
+              customParams: [],
+              dataSourceRef: "sha256:draft-snapshot",
+              dataSourceType: "snapshot",
+              executionIntent: "Saved operator intent",
+              expectedOutputs: [
+                { description: "Decision packet", kind: "decision_packet" },
+              ],
+              governanceConstraints: [
+                {
+                  rule: "Block illegal outcomes",
+                  scope: "legal",
+                  severity: "blocker",
+                },
+              ],
+              modelSpecRef: "",
+              policySpecRef: "",
+              trinityRef: "",
+            },
+          };
+        }
+        return null;
+      },
+    );
 
     const user = userEvent.setup();
     renderLaunchRunPage("/compose?fromRun=run-42");

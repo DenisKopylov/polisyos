@@ -3590,16 +3590,16 @@ DS6_REGISTER_TRANSITION_FINDING_IDS = {
     "baseline-test-a11y-rendered-contrast-incomplete-debt",
 }
 
-DS8_QUERY_KEYS_IDENTITY = (
+DS10_QUERY_KEYS_IDENTITY = (
     "apps/runtime-dashboard/src/api/queryKeys.ts#ts-identity=eyJkZWNsYXJhdGlv"
     "bl9jaGFpbiI6WyJ2YXJpYWJsZTpxdWVyeUtleXMiLCJzeW1ib2w6cXVlcnlLZXlzIiwicmVz"
     "b2x2ZWQ6cXVlcnlLZXlzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9z"
     "cmMvYXBpL3F1ZXJ5S2V5cy50czpWYXJpYWJsZURlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0"
-    "b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJmOThhM2JkMWZi"
-    "YjM2NTFjYjNlNDFkZTcwMmQwNTQ4YTFjN2YxOTcwMjBiMzdiZTY4NzIwYmQ4MGQ2NmJhZDc2"
+    "b3IiOiJxdWVyeUtleXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIyYWEzMGRlMWI2"
+    "OTIwNDRjYjQ5MjE1MzVjNjFjNzM0Y2ZhMGFhZDFhMDMyZjRhYTg0MGY0ODU3ZDBlZWZhMzcx"
     "Iiwicm9sZSI6InZhcmlhYmxlX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1"
     "bnRpbWUtZGFzaGJvYXJkL3NyYy9hcGkvcXVlcnlLZXlzLnRzIiwic3RydWN0dXJhbF9wYXRo"
-    "IjpbIkZpcnN0U3RhdGVtZW50OjMiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFy"
+    "IjpbIkZpcnN0U3RhdGVtZW50OjQiLCJWYXJpYWJsZURlY2xhcmF0aW9uTGlzdDoxIiwiVmFy"
     "aWFibGVEZWNsYXJhdGlvbjowIl0sInZlcnNpb24iOjF9"
 )
 
@@ -3802,7 +3802,7 @@ PRODUCER_BINDING_DEBT_DESCRIPTORS = {
                 "cHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL2FwaS9ob29rcy91c2VBdXRoTW"
                 "UudHMiLCJzdHJ1Y3R1cmFsX3BhdGgiOltdLCJ2ZXJzaW9uIjoxfQ"
             ),
-            DS8_QUERY_KEYS_IDENTITY,
+            DS10_QUERY_KEYS_IDENTITY,
         ],
         "rationale": (
             "The runtime HTTP AuthMeResponse, OpenAPI schema, generated client, "
@@ -4682,15 +4682,15 @@ BENIGN_BADGE_BASES = (
 
 BENIGN_BADGE_CLASS_COUNTS: dict[str, int] = {
     "interaction_or_editor_state": 13,
-    "transport_or_runtime_health": 20,
-    "workflow_or_lifecycle_display_without_terminality_inference": 25,
-    "layout_or_counts": 21,
-    "opaque_metadata_or_taxonomy": 25,
+    "transport_or_runtime_health": 21,
+    "workflow_or_lifecycle_display_without_terminality_inference": 27,
+    "layout_or_counts": 19,
+    "opaque_metadata_or_taxonomy": 22,
 }
 
 if set(BENIGN_BADGE_CLASS_COUNTS) != set(BENIGN_BADGE_BASES):
     raise RuntimeError("benign Badge class vocabulary drift")
-if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 104:
+if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 102:
     raise RuntimeError("benign Badge class count drift")
 
 AUTHORITY_PRESENTATION_DEBT_SPECS = {
@@ -4706,10 +4706,10 @@ AUTHORITY_PRESENTATION_DEBT_SPECS.update(
 )
 
 AUTHORITY_PRESENTATION_COUNTS = {
-    "badge_total": 163,
+    "badge_total": 161,
     "badge_branded": 6,
     "badge_debt": 53,
-    "badge_benign": 104,
+    "badge_benign": 102,
     "prop_total": 18,
     "prop_branded": 2,
     "prop_debt": 11,
@@ -4720,7 +4720,7 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
-    "sha256:467214c3fad4b257a06aa7103a4c71015d741d074d1f3bd677cd8caa272b393c"
+    "sha256:cf18b1aed1f8425dd855737cb7a2655bed48bc7ab3836f13a332cb3fd478f5a0"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
     "sha256:7f75fcc3b2ce0011713eee1b18259c76b45ec2d3eda6a66b78507982641ee5f9"
@@ -4756,7 +4756,7 @@ def _badge_classification_errors(
     scan: Mapping[str, Any],
     classifications: Mapping[str, str] | None = None,
 ) -> list[str]:
-    """Validate the exact 163-site Badge partition as a finite set property."""
+    """Validate the exact 161-site Badge partition as a finite set property."""
     errors: list[str] = []
     sites = scan.get("badgeSites", [])
     if not isinstance(sites, list):
@@ -6290,6 +6290,84 @@ FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
     **DS9_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
 }
 
+DS10_REMOVED_AUTHORITY_BADGE_IDENTITIES = frozenset(
+    {
+        "062c1fe3f9e5ecaa59f778b965257dbc63be53dd48f0750430b4cf02631e73e3",
+        "0b4ac8ba80f99e7e9d1bff295a1829fc21accba56ddf0fee804568f642dbcebe",
+        "0d02be3c6130a3b628b630687a44aa17c3758ffda106bf5ff46a74baadcc7ec4",
+        "16950ecbf6fed6faf6a6d058a4e03dfc850ac9326c49df23b1ac67ec33efeb0d",
+        "3e7cc757db7eddb95fe154ec05b066c4cccf23a240e0943f0675a40eba9f87a4",
+        "790d822d3220078d0202ff5acf18234e4989dddaa8f0763460945f568889a957",
+        "7e370a0c39a64ebb37b0b55f2a0121ab95430348581ba3f8e30cf90887a8722c",
+        "91670222405793ddbb75edddf1eadf419dde7e4b57aefbf01c7ae6cdce0c89a9",
+        "94f7d09333cadd11a89176ef32d1646677e0070113e346a24bcf0e2f21e29d20",
+        "a608cbead8d75af67ec3a67b1bffcafec43289a959882c3f7ff1f08b943a4ef2",
+        "c022809e1cbe4280802c442f8f3a1e5867f5dfecf68b2e57f51a7f18d64008c1",
+        "e207cfa4958f3074a81ab79b4964b8590be8beef112d00da0cd7955daa5f053a",
+        "e8b7a946aac35f592f9723ee7e896716d5bed248e926322a0aedc08a271b036d",
+        "eef12bc2ad51233243467d1e006c5a973e0fa138838dffc80cfe3e533ce7afc5",
+        "f0d793a57b01628de090845cb7c5822c23e9f3eccae704bc732c2d5644b22433",
+        "dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71",
+    }
+)
+DS10_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    # Search completeness is producer/runtime truth, never authority.
+    "9b6957580db774bf2a63b6db6cef57de5af045485a79785cef1f3ca1083157b5": (
+        "benign:transport_or_runtime_health"
+    ),
+    # Candidate and discovery states are visibly non-terminal status clothing.
+    "0fb289a129fe3608f1753e45888ab4a0b5a31db8c30370a611c33677358e414b": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    # Existing Evidence counts/taxonomy moved when capability chrome was removed.
+    "4fc8ab35628c8dfc1ffd8aabf69100113f5322c9d2392b19054ec087cf126ae7": (
+        "benign:layout_or_counts"
+    ),
+    "9a34a55819c6a677ec19ee1b663051b106a4417c6d62459402ffacee2deed4a9": (
+        "benign:layout_or_counts"
+    ),
+    "b0b268ca3ec1da6900dfaccbcbea7559c4307a46098dce0d53143120eb69de5f": (
+        "benign:layout_or_counts"
+    ),
+    "058392dec56cdc629eee230434da29b16ee3391223f4ecaabf6bcb320e6e3a24": (
+        "benign:layout_or_counts"
+    ),
+    "a3c9dadc06d9ad78eaa25debd612b158116c643c117430b56b43acb663d02cdd": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    # Platform reports a count and a candidate-grade discovery state.
+    "a25ca1f34db11f34a31a59f04fb3ab601a6d9cbec3813c0f54864a8ed822006e": (
+        "benign:layout_or_counts"
+    ),
+    "25bd9b306ea3a8e8137baff2ab495e31e7d06c4071239e4d90570f458c4d27bf": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "dfc72b6a2459a5f1bbae0f083d12aa72bfbd5bf7fbc428729b36504914a27c71": (
+        "benign:transport_or_runtime_health"
+    ),
+    # Run-detail sites retain their pre-existing non-authority classifications.
+    "dbe9710ceb60817af97733abdfa27ca081c78b89a98e2242ffc4f6166567e256": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "5684c71e7fde2485d3193d42e95f3e84732ac3cacc9c63fcbf38d54d3dc7186c": (
+        "benign:opaque_metadata_or_taxonomy"
+    ),
+    "7b7a686875b59b4b487be6ffd6040155dbbbea162d3034ae49e8de6a81a40695": (
+        "benign:workflow_or_lifecycle_display_without_terminality_inference"
+    ),
+    "c240d2feaa07748f063fcff49d11df7617c812f95f3341136ca14d54f644c66b": (
+        "benign:transport_or_runtime_health"
+    ),
+}
+FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS = {
+    **{
+        identity: classification
+        for identity, classification in FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS.items()
+        if identity not in DS10_REMOVED_AUTHORITY_BADGE_IDENTITIES
+    },
+    **DS10_ADDED_AUTHORITY_BADGE_CLASSIFICATIONS,
+}
+
 DS9_REMOVED_AUTHORITY_PROP_IDENTITIES = frozenset(
     {
         "39f8c143570efef26b5c310b1bf429389358d39fe5bf936a40c19ee6c7211c79",
@@ -7791,6 +7869,28 @@ DS8_BASELINE_CONTENT_REANCHORS = frozenset(
         ),
     }
 )
+DS10_BASELINE_CONTENT_REANCHORS = frozenset(
+    {
+        (
+            "C06",
+            "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts",
+        ),
+        (
+            "C06",
+            "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+        ),
+        (
+            "C08",
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "DataIntelligencePanel.test.tsx",
+        ),
+        (
+            "C08",
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "DataIntelligencePanel.tsx",
+        ),
+    }
+)
 DS8_COMPANION_REFERENCE_PATHS = {
     "c06-cgf-public-vocabulary-producer-debt": (
         "architecture/atlas_surfaces/ds4-waist-debt-register.json"
@@ -7834,6 +7934,474 @@ DS8_STRANGLE_CLOSURE_PATHS = {
     ),
 }
 DS8_DEFERRED_EXIT_CONDITION = "approved_named_successor_slice_moves_row"
+
+# DS10 owns these ten existing DS1 roots. Fixed chrome remains local; only the
+# five explicitly rebound roots carry successor receipts.
+DS10_CAPABILITY_DISCOVERY_ROOTS: dict[str, tuple[str, str, tuple[str, ...]]] = {
+    "route-knowledge": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/app/routes/routeManifest.ts",
+            "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+            "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx",
+        ),
+    ),
+    "feature-command-palette": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx",
+            "apps/runtime-dashboard/src/app/surfaces/surfaceRegistry.ts",
+            "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx",
+        ),
+    ),
+    "feature-lex": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+            "apps/runtime-dashboard/src/features/evidence/export/capabilityDiscoveryTwin.ts",
+        ),
+    ),
+    "api-op-get-control-capabilities": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts",
+            "apps/runtime-dashboard/src/shared/lib/capabilities.ts",
+            "apps/runtime-dashboard/src/app/workspaces.ts",
+        ),
+    ),
+    "api-op-search-data-catalog": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/api/hooks/useCapabilitySearch.ts",
+            "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx",
+        ),
+    ),
+    "api-op-get-data-index-stats": ("use_as_is", "not_applicable", ()),
+    "api-op-get-lex-graph-stats": ("use_as_is", "not_applicable", ()),
+    "api-op-search-lex-graph": ("use_as_is", "not_applicable", ()),
+    "api-op-get-lex-pipeline-status": ("use_as_is", "not_applicable", ()),
+    "api-op-trigger-lex-pipeline": ("use_as_is", "not_applicable", ()),
+}
+
+DS10_CAPABILITY_DISCOVERY_METADATA = {
+    "decision_date": "2026-08-26",
+    "seed_rule": "ds10_capability_discovery_adjudication",
+    "rationale": (
+        "DS10 separates fixed chrome and execution policy from generic "
+        "capability discovery without inferring authority or admission."
+    ),
+}
+DS10_RETIRED_CAPABILITY_DISCOVERY_SUCCESSORS = {
+    "api-op-search-data-catalog": {
+        "unit_id": "feature-capability-discovery",
+        "consumer_refs": [
+            "apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts",
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "DataIntelligencePanel.tsx",
+        ],
+    }
+}
+DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES = (
+    "c13_print_receipt_invalid:C13 current evidence drift:"
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx",
+)
+DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES = {
+    "apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx": (
+        "514ddff6df513859ec99e2b429e50b7e6bf5c6417b320f416c2a576a744777df",
+        "443f022e4e202c91fdc5e42dd6173fabead87397404a16908ae5b757c17b3591",
+    ),
+    "apps/runtime-dashboard/e2e/runtime-dashboard.visual.spec.ts": (
+        "c472f411f4ee512a9e1a54057b8c5a3a64130d6df8a6d79a6c09a4e5efeca8d9",
+        "3a69dd559452400e50eec543fdf365c03cf5b3d358b6fc04adcb1b8953ce9ab8",
+    ),
+}
+
+
+def _validate_ds10_capability_discovery_roots(
+    entries: Mapping[str, Mapping[str, Any]], errors: list[str]
+) -> None:
+    """Reject drift in the exact ten-root DS10 disposition decision."""
+    ds10_entries = {
+        unit_id: entry
+        for unit_id, entry in entries.items()
+        if entry.get("owner_slice") == "DS10"
+    }
+    if set(ds10_entries) != set(DS10_CAPABILITY_DISCOVERY_ROOTS):
+        errors.append("ds10_capability_discovery_root_denominator_drift")
+    for unit_id, (disposition, strangle_status, consumer_refs) in (
+        DS10_CAPABILITY_DISCOVERY_ROOTS.items()
+    ):
+        entry = entries.get(unit_id)
+        if not isinstance(entry, Mapping):
+            errors.append(f"ds10_capability_discovery_root_missing:{unit_id}")
+            continue
+        if entry.get("owner") != "team-design" or entry.get("owner_slice") != "DS10":
+            errors.append(f"ds10_capability_discovery_owner_drift:{unit_id}")
+        if (entry.get("disposition"), entry.get("strangle_status")) != (
+            disposition,
+            strangle_status,
+        ):
+            errors.append(f"ds10_capability_discovery_transition_drift:{unit_id}")
+        if any(
+            entry.get(field) != expected
+            for field, expected in DS10_CAPABILITY_DISCOVERY_METADATA.items()
+        ):
+            errors.append(f"ds10_capability_discovery_governance_drift:{unit_id}")
+        successor = entry.get("successor")
+        if consumer_refs:
+            expected_successor = {
+                "unit_id": "feature-capability-discovery",
+                "consumer_refs": list(consumer_refs),
+            }
+            if successor != expected_successor:
+                errors.append(f"ds10_capability_discovery_successor_drift:{unit_id}")
+        elif successor is not None:
+            errors.append(f"ds10_capability_discovery_unexpected_successor:{unit_id}")
+
+
+def _ds10_capability_discovery_candidate_text(
+    original_text: str, *, verify_idempotency: bool = True
+) -> str:
+    """Adjudicate exactly ten DS10 roots while preserving every peer byte."""
+    original_data = json.loads(original_text)
+    ds8_coverage = original_data.get("ds8_strangle_coverage")
+    if not isinstance(ds8_coverage, Mapping):
+        raise ValueError("DS10 writer requires the DS8 coverage object")
+    ds8_errors = validate_ds8_strangle_coverage(ds8_coverage)
+    if ds8_errors:
+        raise ValueError("DS10 writer rejected DS8 drift: " + ";".join(ds8_errors))
+
+    replacements: list[tuple[int, int, str]] = []
+    opening_metadata = {
+        "decision_date": "2026-07-17",
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": (
+            "DS1 does not record this narrow unit as implemented; its owning slice "
+            "must rebind or retire it without creating a parallel owner."
+        ),
+    }
+    candidate_metadata = DS10_CAPABILITY_DISCOVERY_METADATA
+    for unit_id, (disposition, strangle_status, consumer_refs) in (
+        DS10_CAPABILITY_DISCOVERY_ROOTS.items()
+    ):
+        start, end, stored = _json_entry_object_span(original_text, unit_id)
+        if (
+            stored.get("owner") != "team-design"
+            or stored.get("owner_slice") != "DS10"
+        ):
+            raise ValueError(f"DS10 root owner preimage drift:{unit_id}")
+        target_successor = (
+            {
+                "unit_id": "feature-capability-discovery",
+                "consumer_refs": list(consumer_refs),
+            }
+            if consumer_refs
+            else None
+        )
+        opening = (
+            stored.get("disposition") == "rebind_pending"
+            and stored.get("strangle_status") == "pending"
+            and stored.get("successor") is None
+            and all(stored.get(key) == value for key, value in opening_metadata.items())
+        )
+        admitted_successors = [target_successor]
+        retired_successor = DS10_RETIRED_CAPABILITY_DISCOVERY_SUCCESSORS.get(
+            unit_id
+        )
+        if retired_successor is not None:
+            admitted_successors.append(retired_successor)
+        admitted = (
+            stored.get("disposition") == disposition
+            and stored.get("strangle_status") == strangle_status
+            and stored.get("successor") in admitted_successors
+            and all(
+                stored.get(key) == value
+                for key, value in candidate_metadata.items()
+            )
+        )
+        if not opening and not admitted:
+            raise ValueError(f"DS10 root preimage drift:{unit_id}")
+        candidate_row = dict(stored)
+        candidate_row.update(candidate_metadata)
+        candidate_row["disposition"] = disposition
+        candidate_row["strangle_status"] = strangle_status
+        if target_successor is None:
+            candidate_row.pop("successor", None)
+        else:
+            candidate_row["successor"] = target_successor
+        replacements.append((start, end, _render_root_entry(candidate_row)))
+
+    candidate = original_text
+    for start, end, replacement in sorted(replacements, reverse=True):
+        candidate = candidate[:start] + replacement + candidate[end:]
+
+    original_spans = [
+        (unit_id, *_json_entry_object_span(original_text, unit_id)[:2])
+        for unit_id in DS10_CAPABILITY_DISCOVERY_ROOTS
+    ]
+    candidate_spans = [
+        (unit_id, *_json_entry_object_span(candidate, unit_id)[:2])
+        for unit_id in DS10_CAPABILITY_DISCOVERY_ROOTS
+    ]
+
+    def gaps(text: str, spans: Sequence[tuple[str, int, int]]) -> list[str]:
+        result: list[str] = []
+        previous = 0
+        for _unit_id, start, end in sorted(spans, key=lambda row: row[1]):
+            result.append(text[previous:start])
+            previous = end
+        result.append(text[previous:])
+        return result
+
+    if gaps(original_text, original_spans) != gaps(candidate, candidate_spans):
+        raise ValueError("DS10 writer changed bytes outside its ten roots")
+    candidate_data = json.loads(candidate)
+    errors: list[str] = []
+    _validate_ds10_capability_discovery_roots(
+        {row["unit_id"]: row for row in candidate_data["entries"]}, errors
+    )
+    if errors:
+        raise ValueError("DS10 writer candidate rejected: " + ";".join(errors))
+    if verify_idempotency:
+        repeated = _ds10_capability_discovery_candidate_text(
+            candidate, verify_idempotency=False
+        )
+        if repeated != candidate:
+            raise ValueError("DS10 writer candidate is not idempotent")
+    return candidate
+
+
+def _ds10_protected_signing_census_candidate_text(original_text: str) -> str:
+    """Surgically admit the complete live browser-signing identity set."""
+    marker = '  "reference_censuses": ['
+    if original_text.count(marker) != 1:
+        raise ValueError("DS10 reference-census container drift")
+    array_start = original_text.index(marker) + len(marker) - 1
+    array_end = _json_container_end(original_text, array_start)
+    start, end, stored = _json_object_span_by_identity(
+        original_text,
+        field="census_id",
+        value="census-browser-signing-protected-live",
+        within=(array_start, array_end + 1),
+    )
+    probes = stored.get("probes")
+    if not isinstance(probes, list) or len(probes) != 1:
+        raise ValueError("DS10 protected-signing probe cardinality drift")
+    probe = probes[0]
+    if not isinstance(probe, Mapping) or probe.get("kind") != "reference_count":
+        raise ValueError("DS10 protected-signing probe kind drift")
+    observed = _recompute_probe(probe)
+    anchors = [_c21b_identity_anchor(reference) for reference in observed]
+    if any(anchor is None for anchor in anchors):
+        raise ValueError("DS10 protected-signing observation is unmappable")
+    identities = _typescript_reference_identities_from_anchors(
+        [anchor for anchor in anchors if anchor is not None]
+    )
+    encoded = sorted(identity["encoded_identity"] for identity in identities)
+    matches, diagnostic = _probe_observation_matches_stored_mode(encoded, observed)
+    if matches is not True or diagnostic is not None:
+        raise ValueError(
+            "DS10 protected-signing identity reconciliation failed:"
+            + str(diagnostic)
+        )
+
+    refreshed = copy.deepcopy(dict(stored))
+    refreshed_probe = refreshed["probes"][0]
+    refreshed_probe["expected_count"] = len(encoded)
+    refreshed_probe["observed_refs"] = encoded
+    replacement = _render_root_entry(refreshed)
+    candidate = original_text[:start] + replacement + original_text[end:]
+    _repeated_start, repeated_end, repeated = _json_object_span_by_identity(
+        candidate,
+        field="census_id",
+        value="census-browser-signing-protected-live",
+        within=(array_start, _json_container_end(candidate, array_start) + 1),
+    )
+    if repeated != refreshed or candidate[:start] != original_text[:start]:
+        raise ValueError("DS10 protected-signing census replacement drift")
+    if candidate[repeated_end:] != original_text[end:]:
+        raise ValueError("DS10 protected-signing census changed peer bytes")
+    return candidate
+
+
+def _ds10_c13_external_nonclosure_admission(
+    errors: Sequence[str],
+    *,
+    source_bytes: Mapping[str, bytes] | None = None,
+) -> tuple[tuple[str, ...], list[str]]:
+    """Admit the exact fail-fast C13 error only after a complete binding census."""
+    declared = DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES[0]
+    cardinality = errors.count(declared)
+    if cardinality > 1:
+        return (), ["ds10_c13_external_error_cardinality_drift"]
+
+    receipt = _c13_independent_print_receipt()
+    bindings = {
+        str(row["path"]): str(row["sha256"])
+        for row in receipt["source_bindings"]
+    }
+    if source_bytes is None:
+        source_bytes = {
+            source_ref: (REPO_ROOT / source_ref).read_bytes()
+            for source_ref in bindings
+        }
+    if set(source_bytes) != set(bindings):
+        return (), ["ds10_c13_external_source_binding_census_drift"]
+    if cardinality == 0:
+        try:
+            _c13_verify_current_print_evidence(receipt, evidence_bytes=source_bytes)
+        except ValueError:
+            return (), ["ds10_c13_unexposed_current_evidence_drift"]
+        return (), []
+
+    observed_mismatches = {
+        source_ref: (
+            expected_sha256,
+            hashlib.sha256(source_bytes[source_ref]).hexdigest(),
+        )
+        for source_ref, expected_sha256 in bindings.items()
+        if hashlib.sha256(source_bytes[source_ref]).hexdigest() != expected_sha256
+    }
+    if observed_mismatches != DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES:
+        return (), ["ds10_c13_external_source_binding_census_drift"]
+
+    replay_bytes = dict(source_bytes)
+    for source_ref in observed_mismatches:
+        replay_bytes[source_ref] = _c03_git_bytes(
+            "show",
+            f"{C13_VERIFIED_REVISION}:policy-engine/{source_ref}",
+        )
+    try:
+        _c13_verify_current_print_evidence(receipt, evidence_bytes=replay_bytes)
+    except ValueError:
+        return (), ["ds10_c13_external_receipt_replay_drift"]
+    return DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES, []
+
+
+def _ds10_blocking_register_errors(
+    errors: Sequence[str],
+    *,
+    admitted_external_errors: Sequence[str] = (),
+) -> list[str]:
+    """Return all errors except one independently admitted external residual."""
+    remaining = list(errors)
+    for admitted in admitted_external_errors:
+        if admitted not in DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES:
+            raise ValueError(f"DS10 undeclared external register error:{admitted}")
+        if remaining.count(admitted) == 1:
+            remaining.remove(admitted)
+    return remaining
+
+
+def _write_ds10_capability_discovery_family() -> dict[str, Any]:
+    """Atomically write DS10 roots and their exact governed companions."""
+    original_register = REGISTER_PATH.read_text(encoding="utf-8")
+    original_report = REPORT_PATH.read_text(encoding="utf-8")
+    original_baseline = BASELINE_PATH.read_text(encoding="utf-8")
+    baseline_candidate = _ds10_baseline_manifest_candidate_text(original_baseline)
+    baseline_data = json.loads(baseline_candidate)
+    refreshed_register = _ds10_protected_signing_census_candidate_text(
+        original_register
+    )
+    refreshed_register = _refresh_supplemental_findings_text(refreshed_register)
+    register_candidate = _ds10_capability_discovery_candidate_text(refreshed_register)
+    data = json.loads(register_candidate)
+    register_errors = validate_register(
+        data,
+        report_parity=False,
+        baseline_manifest=baseline_data,
+    )
+    admitted_external_errors, external_admission_errors = (
+        _ds10_c13_external_nonclosure_admission(register_errors)
+    )
+    pre_errors = [
+        *external_admission_errors,
+        *_ds10_blocking_register_errors(
+            register_errors,
+            admitted_external_errors=admitted_external_errors,
+        ),
+    ]
+    pre_errors.extend(
+        "baseline_" + error
+        for error in validate_baseline_manifest(
+            baseline_data,
+            verify_source_bytes=True,
+        )
+    )
+    if pre_errors:
+        raise ValueError("DS10 family candidate rejected: " + ";".join(pre_errors))
+    report_candidate = render_report(data)
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+        BASELINE_PATH: baseline_candidate,
+    }
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        if REGISTER_PATH.read_text(encoding="utf-8") != register_candidate:
+            errors.append("ds10_register_readback_drift")
+        if REPORT_PATH.read_text(encoding="utf-8") != report_candidate:
+            errors.append("ds10_report_readback_drift")
+        if BASELINE_PATH.read_text(encoding="utf-8") != baseline_candidate:
+            errors.append("ds10_baseline_readback_drift")
+        stored = _load_json(REGISTER_PATH)
+        stored_baseline = _load_json(BASELINE_PATH)
+        _validate_ds10_capability_discovery_roots(
+            {row["unit_id"]: row for row in stored["entries"]}, errors
+        )
+        errors.extend(
+            validate_ds8_strangle_coverage(stored["ds8_strangle_coverage"])
+        )
+        stored_register_errors = validate_register(
+            stored, baseline_manifest=stored_baseline
+        )
+        stored_admitted, stored_admission_errors = (
+            _ds10_c13_external_nonclosure_admission(stored_register_errors)
+        )
+        errors.extend(stored_admission_errors)
+        errors.extend(
+            _ds10_blocking_register_errors(
+                stored_register_errors,
+                admitted_external_errors=stored_admitted,
+            )
+        )
+        errors.extend(
+            "baseline_" + error
+            for error in validate_baseline_manifest(
+                stored_baseline,
+                verify_source_bytes=True,
+            )
+        )
+        return errors
+
+    def pre_promote() -> None:
+        if REGISTER_PATH.read_text(encoding="utf-8") != original_register:
+            raise ValueError("DS10 register preimage moved before promotion")
+        if REPORT_PATH.read_text(encoding="utf-8") != original_report:
+            raise ValueError("DS10 report preimage moved before promotion")
+        if BASELINE_PATH.read_text(encoding="utf-8") != original_baseline:
+            raise ValueError("DS10 baseline preimage moved before promotion")
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=pre_promote,
+    )
+    return {
+        "roots": len(DS10_CAPABILITY_DISCOVERY_ROOTS),
+        "ds8_assignments": len(data["ds8_strangle_coverage"]["assignments"]),
+        "baseline_reanchors": len(DS10_BASELINE_CONTENT_REANCHORS),
+        "declared_external_nonclosures": list(admitted_external_errors),
+        "c13_external_source_binding_mismatches": len(
+            DS10_C13_EXTERNAL_SOURCE_BINDING_MISMATCHES
+        ),
+    }
 
 
 def _load_json(path: Path) -> dict[str, Any]:
@@ -8785,15 +9353,20 @@ def _replace_unique_text(
     raise ValueError(f"DS8 status preimage is ambiguous: {label}")
 
 
-def _ds8_baseline_manifest_candidate_text(original_text: str) -> str:
-    """Re-anchor exactly three DS8-touched lint-resolution source receipts."""
+def _baseline_manifest_content_candidate_text(
+    original_text: str,
+    *,
+    reanchors: frozenset[tuple[str, str]],
+    owner: str,
+) -> str:
+    """Surgically re-anchor an owner's exact lint-resolution source receipts."""
     match = re.search(
         r'^    "resolution_content_bindings":\s*(\[)',
         original_text,
         re.MULTILINE,
     )
     if match is None:
-        raise ValueError("DS8 baseline resolution bindings are missing")
+        raise ValueError(f"{owner} baseline resolution bindings are missing")
     array_start = match.start(1)
     array_end = _json_container_end(original_text, array_start)
     index = array_start + 1
@@ -8806,7 +9379,7 @@ def _ds8_baseline_manifest_candidate_text(original_text: str) -> str:
         if index >= array_end:
             break
         if original_text[index] != "{":
-            raise ValueError("DS8 baseline resolution row is malformed")
+            raise ValueError(f"{owner} baseline resolution row is malformed")
         object_end = _json_container_end(original_text, index)
         row = json.loads(original_text[index : object_end + 1])
         key = (str(row.get("cluster_id")), str(row.get("path")))
@@ -8814,20 +9387,20 @@ def _ds8_baseline_manifest_candidate_text(original_text: str) -> str:
         index = object_end + 1
 
     counts = Counter(key for key, _start, _end, _row in spans)
-    if any(counts[key] != 1 for key in DS8_BASELINE_CONTENT_REANCHORS):
-        raise ValueError("DS8 baseline resolution target cardinality drift")
+    if any(counts[key] != 1 for key in reanchors):
+        raise ValueError(f"{owner} baseline resolution target cardinality drift")
     replacements: list[tuple[int, int, str]] = []
     for key, object_start, object_end, row in spans:
-        if key not in DS8_BASELINE_CONTENT_REANCHORS:
+        if key not in reanchors:
             continue
         source_path = REPO_ROOT / key[1]
         if not source_path.is_file():
-            raise ValueError(f"DS8 baseline source is missing: {key[1]}")
+            raise ValueError(f"{owner} baseline source is missing: {key[1]}")
         old = f'"sha256": "{row["sha256"]}"'
         new = f'"sha256": "{hashlib.sha256(source_path.read_bytes()).hexdigest()}"'
         object_text = original_text[object_start : object_end + 1]
         if object_text.count(old) != 1:
-            raise ValueError(f"DS8 baseline hash span is ambiguous: {key}")
+            raise ValueError(f"{owner} baseline hash span is ambiguous: {key}")
         relative_start = object_text.index(old)
         replacements.append(
             (
@@ -8842,8 +9415,26 @@ def _ds8_baseline_manifest_candidate_text(original_text: str) -> str:
     candidate_data = json.loads(candidate)
     errors = validate_baseline_manifest(candidate_data)
     if errors:
-        raise ValueError("DS8 baseline candidate rejected: " + ";".join(errors))
+        raise ValueError(f"{owner} baseline candidate rejected: " + ";".join(errors))
     return candidate
+
+
+def _ds8_baseline_manifest_candidate_text(original_text: str) -> str:
+    """Re-anchor exactly three DS8-touched lint-resolution source receipts."""
+    return _baseline_manifest_content_candidate_text(
+        original_text,
+        reanchors=DS8_BASELINE_CONTENT_REANCHORS,
+        owner="DS8",
+    )
+
+
+def _ds10_baseline_manifest_candidate_text(original_text: str) -> str:
+    """Re-anchor exactly four DS10-touched lint-resolution source receipts."""
+    return _baseline_manifest_content_candidate_text(
+        original_text,
+        reanchors=DS10_BASELINE_CONTENT_REANCHORS,
+        owner="DS10",
+    )
 
 
 def _ds8_status_inventory_candidate_text(
@@ -13323,6 +13914,7 @@ def validate_register(
         errors.append("register_duplicate_unit")
     entry_by_id = {entry["unit_id"]: entry for entry in entries}
     _validate_ds9_c07_adjudication(data, entry_by_id, errors)
+    _validate_ds10_capability_discovery_roots(entry_by_id, errors)
     for entry in entries:
         if (
             "aggregate_disposition_receipt" in entry
@@ -15055,6 +15647,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="atomically adjudicate the exact DS9 C07 register family",
     )
     parser.add_argument(
+        "--write-ds10-capability-discovery",
+        action="store_true",
+        help="surgically adjudicate the exact ten DS10 capability-discovery roots",
+    )
+    parser.add_argument(
         "--migrate-c21b",
         action="store_true",
         help="surgically migrate gated TypeScript reference strings to C21a identities",
@@ -15102,6 +15699,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.write_ds10_capability_discovery:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"write_ds10_capability_discovery"}:
+            sys.stderr.write("DS10 transition requires only --write-ds10-capability-discovery\n")
+            return 1
+        try:
+            summary = _write_ds10_capability_discovery_family()
+        except (OSError, ValueError, RuntimeError, KeyError) as exc:
+            sys.stderr.write(f"DS10 transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("materialized DS10 capability-discovery register/report family\n")
+        sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        return 0
 
     if args.write_ds9_human_decision_integrity:
         selected = {

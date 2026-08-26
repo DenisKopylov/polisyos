@@ -14,7 +14,6 @@ import {
 } from "recharts";
 
 import { PrefetchLink } from "@/app/routes/PrefetchLink";
-import { useSuspenseCapabilities } from "@/api/hooks/useCapabilities";
 import { useSuspenseDataIndexStats } from "@/api/hooks/useDataIndexStats";
 import { useSuspenseDataPromotionCandidates } from "@/api/hooks/useDataPromotionCandidates";
 import { useLexGraphStats } from "@/api/hooks/useLexGraphStats";
@@ -26,7 +25,6 @@ import {
   useSuspenseRunsSample,
 } from "@/features/runs";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
-import { isCapabilityEnabled } from "@/shared/lib/capabilities";
 import { DEFAULT_LEX_OUTPUT_DIR } from "@/shared/lib/constants";
 import {
   formatDuration,
@@ -73,13 +71,9 @@ function DashboardMetric({
 
 function DashboardHeroContent() {
   const { t } = useI18n();
-  const capabilitiesQuery = useSuspenseCapabilities();
   const healthQuery = useSuspenseHealth();
   const runsQuery = useSuspenseRunsSample();
-  const lexStatsQuery = useLexGraphStats(
-    DEFAULT_LEX_OUTPUT_DIR,
-    isCapabilityEnabled(capabilitiesQuery.data, "lex_pipeline"),
-  );
+  const lexStatsQuery = useLexGraphStats(DEFAULT_LEX_OUTPUT_DIR);
 
   const runs = runsQuery.data?.runs ?? [];
   const decisionQueue = useMemo(() => getDecisionQueue(runs), [runs]);
@@ -313,11 +307,7 @@ function DashboardStatusChartContent() {
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={statusBreakdown}>
           <CartesianGrid stroke={chartTheme.grid} vertical={false} />
-          <XAxis
-            dataKey="status"
-            stroke={chartTheme.axis}
-            fontSize={12}
-          />
+          <XAxis dataKey="status" stroke={chartTheme.axis} fontSize={12} />
           <YAxis allowDecimals={false} stroke={chartTheme.axis} fontSize={12} />
           <Tooltip
             formatter={(value) => [

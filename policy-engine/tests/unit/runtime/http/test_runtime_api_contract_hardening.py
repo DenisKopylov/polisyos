@@ -12,6 +12,7 @@ import pytest
 if find_spec("fastapi") is None:  # pragma: no cover - optional dependency guard
     pytest.skip("fastapi is not installed", allow_module_level=True)
 
+from polisyos.core.contracts.capability_discovery import CapabilityDiscoveryResponse
 from polisyos.runtime.http.app import export_runtime_openapi_schema
 from polisyos.runtime.http.openapi_contract import validate_runtime_openapi_contract
 from polisyos.runtime.http.permissions import RuntimePermission
@@ -51,6 +52,39 @@ def test_openapi_contract_includes_examples_and_problem_payloads() -> None:
     assert violations == []
 
 
+def test_capability_discovery_examples_cover_truthful_postures_without_authority() -> None:
+    schema = export_runtime_openapi_schema()
+    for method, path in (
+        ("post", "/api/v1/control/capabilities/search"),
+        ("get", "/api/v1/control/data/catalog/search"),
+    ):
+        examples = schema["paths"][path][method]["responses"]["200"]["content"]["application/json"][
+            "examples"
+        ]
+        assert set(examples) == {
+            "discoverable_executable_authority_not_established",
+            "candidate_only",
+            "no_hit_incomplete",
+            "case_producer_missing",
+        }
+        packets = [
+            CapabilityDiscoveryResponse.model_validate(example["value"])
+            for example in examples.values()
+        ]
+        assert all(
+            item.authority_result.state != "admitted_authority"
+            for packet in packets
+            for item in packet.results
+        )
+        assert packets[0].results[0].discovery_result.state == "discoverable"
+        assert packets[0].results[0].execution_result.state == "executable"
+        assert packets[0].results[0].authority_result.state == "not_established"
+        assert packets[1].results[0].execution_result.state == "not_established"
+        assert packets[1].results[0].authority_result.state == "candidate_only"
+        assert packets[2].frontier.completeness_status == "recall_unmeasured"
+        assert packets[3].frontier.incompleteness_reasons == ("case:producer_missing",)
+
+
 def test_openapi_exposes_strict_human_decision_unions() -> None:
     schema = export_runtime_openapi_schema()
     gate = schema["paths"]["/api/v1/runs/{run_id}/human-decision-gate"]["get"]
@@ -62,9 +96,9 @@ def test_openapi_exposes_strict_human_decision_unions() -> None:
     gate_schema = schema["components"]["schemas"]["HumanDecisionGateResponse"]
     assert "submission" in gate_schema["properties"]
     assert "continuation" in gate_schema["properties"]
-    replay = schema["components"]["schemas"]["HumanDecisionSubmissionSurface"][
-        "properties"
-    ]["selector"]
+    replay = schema["components"]["schemas"]["HumanDecisionSubmissionSurface"]["properties"][
+        "selector"
+    ]
     assert replay["discriminator"]["propertyName"] == "source_kind"
     assert len(replay["oneOf"]) == 2
     pa2 = schema["components"]["schemas"]["HumanDecisionPA2ReplaySelector"]
@@ -143,9 +177,9 @@ def test_openapi_exposes_strict_human_decision_unions() -> None:
         "gate": gate,
         "create": create,
         "record": schema["paths"]["/api/v1/runs/{run_id}/human-decisions"]["get"],
-        "review": schema["paths"][
-            "/api/v1/runs/{run_id}/human-decisions/review-effectiveness"
-        ]["get"],
+        "review": schema["paths"]["/api/v1/runs/{run_id}/human-decisions/review-effectiveness"][
+            "get"
+        ],
     }
     values = {
         name: operation["responses"][next(iter(operation["responses"]))]["content"][
@@ -162,9 +196,9 @@ def test_openapi_exposes_strict_human_decision_unions() -> None:
 def test_run_paper_success_example_recomputes_its_declared_projection_hash() -> None:
     schema = export_runtime_openapi_schema()
     operation = schema["paths"]["/api/v1/runs/{run_id}/paper"]["get"]
-    example = operation["responses"]["200"]["content"]["application/json"]["examples"][
-        "default"
-    ]["value"]
+    example = operation["responses"]["200"]["content"]["application/json"]["examples"]["default"][
+        "value"
+    ]
     packet = RunPaperPacket.model_validate(example)
 
     semantic_projection = build_run_paper_semantic_projection(
@@ -374,6 +408,41 @@ def test_generated_runtime_client_includes_governed_projection_wrappers() -> Non
     assert "getRuntimeChannelRegistry" in names
 
 
+def test_generated_runtime_client_includes_capability_search_wrapper(tmp_path: Path) -> None:
+    repo_root = Path(__file__).resolve().parents[4]
+    spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
+    spec = json.loads(spec_path.read_text(encoding="utf-8"))
+    operations = generate_runtime_client._extract_operations(spec)
+
+    assert "searchCapabilities" in {operation.name for operation in operations}
+
+    runtime_ts = tmp_path / "runtimeApiClient.ts"
+    runtime_js = tmp_path / "runtimeApiClient.js"
+    canonical_ts = tmp_path / "canonicalRuntimeApiClient.ts"
+    canonical_js = tmp_path / "canonicalRuntimeApiClient.js"
+    runtime_ts.write_text(
+        generate_runtime_client._render_ts(spec, operations),
+        encoding="utf-8",
+    )
+    runtime_js.write_text(
+        generate_runtime_client._render_js(operations),
+        encoding="utf-8",
+    )
+    _canonicalize_runtime_client(
+        repo_root,
+        spec_path,
+        runtime_ts,
+        runtime_js,
+        canonical_ts,
+        canonical_js,
+    )
+
+    for client_path in (runtime_ts, runtime_js, canonical_ts, canonical_js):
+        source = client_path.read_text(encoding="utf-8")
+        assert "async searchCapabilities(" in source
+        assert "`/api/v1/control/capabilities/search`" in source
+
+
 def test_generated_runtime_js_client_accepts_params_for_body_operations() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     spec_path = repo_root / "schemas" / "runtime_api_v1.openapi.json"
@@ -481,9 +550,7 @@ def test_shared_client_generation_is_package_owned_and_version_pinned() -> None:
     repo_root = Path(__file__).resolve().parents[4]
     client_root = repo_root / "packages" / "runtime-api-client"
     manifest = json.loads((client_root / "package.json").read_text(encoding="utf-8"))
-    generator = (client_root / "scripts/generate-runtime-api-client.sh").read_text(
-        encoding="utf-8"
-    )
+    generator = (client_root / "scripts/generate-runtime-api-client.sh").read_text(encoding="utf-8")
     readme = (client_root / "README.md").read_text(encoding="utf-8")
     expected_invocation = f"npx --yes openapi-typescript@{OPENAPI_TYPESCRIPT_VERSION}"
 

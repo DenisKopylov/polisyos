@@ -4378,9 +4378,474 @@
         "title": "CandidateLeverSpace",
         "type": "object"
       },
+      "CapabilityAuthorityPostureResult": {
+        "additionalProperties": false,
+        "description": "Typed purpose-bound authority result independent of discovery/execution.",
+        "properties": {
+          "authority_purpose": {
+            "minLength": 1,
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "binding_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Binding Ref"
+          },
+          "currentness_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Currentness Ref"
+          },
+          "producer_ref": {
+            "minLength": 1,
+            "title": "Producer Ref",
+            "type": "string"
+          },
+          "provenance_refs": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Provenance Refs",
+            "type": "array"
+          },
+          "reason_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "admitted_authority",
+              "candidate_only",
+              "producer_missing",
+              "bridge_missing",
+              "artifact_missing",
+              "invalid_source",
+              "revalidation_required",
+              "authority_blocked",
+              "not_established"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "time": {
+            "$ref": "#/components/schemas/CapabilityTimeSemantics"
+          }
+        },
+        "required": [
+          "producer_ref",
+          "provenance_refs",
+          "time",
+          "state",
+          "authority_purpose"
+        ],
+        "title": "CapabilityAuthorityPostureResult",
+        "type": "object"
+      },
+      "CapabilityDiscoveryItem": {
+        "additionalProperties": false,
+        "description": "One candidate with three sibling posture results and authority boundaries.",
+        "properties": {
+          "authoritative_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Authoritative For",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "minLength": 1,
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "authority_result": {
+            "$ref": "#/components/schemas/CapabilityAuthorityPostureResult"
+          },
+          "capability_ref": {
+            "minLength": 1,
+            "title": "Capability Ref",
+            "type": "string"
+          },
+          "content_digest": {
+            "pattern": "^sha256:[0-9a-fA-F]{64}$",
+            "title": "Content Digest",
+            "type": "string"
+          },
+          "description": {
+            "minLength": 1,
+            "title": "Description",
+            "type": "string"
+          },
+          "discovery_result": {
+            "$ref": "#/components/schemas/CapabilityDiscoveryPostureResult"
+          },
+          "execution_result": {
+            "$ref": "#/components/schemas/CapabilityExecutionPostureResult"
+          },
+          "label": {
+            "minLength": 1,
+            "title": "Label",
+            "type": "string"
+          },
+          "may_not_use_for": {
+            "items": {
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "provenance_refs": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Provenance Refs",
+            "type": "array"
+          },
+          "resource_kind": {
+            "enum": [
+              "method",
+              "dataset",
+              "source",
+              "legal_norm",
+              "case",
+              "agent"
+            ],
+            "title": "Resource Kind",
+            "type": "string"
+          },
+          "rule_version": {
+            "minLength": 1,
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.capability_discovery.v1",
+            "default": "policyos.capability_discovery.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "time": {
+            "$ref": "#/components/schemas/CapabilityTimeSemantics"
+          }
+        },
+        "required": [
+          "capability_ref",
+          "content_digest",
+          "resource_kind",
+          "label",
+          "description",
+          "discovery_result",
+          "execution_result",
+          "authority_result",
+          "authoritative_for",
+          "may_not_use_for",
+          "authority_purpose",
+          "provenance_refs",
+          "rule_version",
+          "time"
+        ],
+        "title": "CapabilityDiscoveryItem",
+        "type": "object"
+      },
+      "CapabilityDiscoveryPostureResult": {
+        "additionalProperties": false,
+        "description": "Typed searched-index result, never execution or authority evidence.",
+        "properties": {
+          "freshness_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Freshness Ref"
+          },
+          "producer_ref": {
+            "minLength": 1,
+            "title": "Producer Ref",
+            "type": "string"
+          },
+          "provenance_refs": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Provenance Refs",
+            "type": "array"
+          },
+          "reason_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "snapshot_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Snapshot Ref"
+          },
+          "state": {
+            "enum": [
+              "discoverable",
+              "no_match",
+              "producer_missing",
+              "producer_unavailable",
+              "index_unavailable",
+              "index_stale",
+              "recall_unmeasured",
+              "budget_cutoff",
+              "incomplete"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "time": {
+            "$ref": "#/components/schemas/CapabilityTimeSemantics"
+          }
+        },
+        "required": [
+          "producer_ref",
+          "provenance_refs",
+          "time",
+          "state"
+        ],
+        "title": "CapabilityDiscoveryPostureResult",
+        "type": "object"
+      },
+      "CapabilityDiscoveryRequest": {
+        "additionalProperties": false,
+        "description": "Capability kind filter wrapped around a real semantic search request.",
+        "properties": {
+          "audience": {
+            "enum": [
+              "REVIEWER",
+              "EXPERT",
+              "MACHINE"
+            ],
+            "title": "Audience",
+            "type": "string"
+          },
+          "resource_kinds": {
+            "items": {
+              "enum": [
+                "method",
+                "dataset",
+                "source",
+                "legal_norm",
+                "case",
+                "agent"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Resource Kinds",
+            "type": "array"
+          },
+          "search": {
+            "$ref": "#/components/schemas/SearchRequest"
+          }
+        },
+        "required": [
+          "search",
+          "resource_kinds",
+          "audience"
+        ],
+        "title": "CapabilityDiscoveryRequest",
+        "type": "object"
+      },
+      "CapabilityDiscoveryResponse": {
+        "additionalProperties": false,
+        "description": "Replayable capability discovery response with candidate-grade frontier truth.",
+        "properties": {
+          "audience": {
+            "enum": [
+              "REVIEWER",
+              "EXPERT",
+              "MACHINE"
+            ],
+            "title": "Audience",
+            "type": "string"
+          },
+          "authority_purpose": {
+            "minLength": 1,
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "frontier": {
+            "$ref": "#/components/schemas/SearchFrontier"
+          },
+          "meta": {
+            "$ref": "#/components/schemas/ApiMeta"
+          },
+          "provenance_refs": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Provenance Refs",
+            "type": "array"
+          },
+          "request": {
+            "$ref": "#/components/schemas/CapabilityDiscoveryRequest"
+          },
+          "request_digest": {
+            "pattern": "^sha256:[0-9a-fA-F]{64}$",
+            "title": "Request Digest",
+            "type": "string"
+          },
+          "results": {
+            "items": {
+              "$ref": "#/components/schemas/CapabilityDiscoveryItem"
+            },
+            "title": "Results",
+            "type": "array"
+          },
+          "rule_version": {
+            "minLength": 1,
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.capability_discovery.v1",
+            "default": "policyos.capability_discovery.v1",
+            "title": "Schema Version",
+            "type": "string"
+          },
+          "time": {
+            "$ref": "#/components/schemas/CapabilityTimeSemantics"
+          }
+        },
+        "required": [
+          "meta",
+          "request",
+          "request_digest",
+          "authority_purpose",
+          "audience",
+          "results",
+          "frontier",
+          "rule_version",
+          "provenance_refs",
+          "time"
+        ],
+        "title": "CapabilityDiscoveryResponse",
+        "type": "object"
+      },
+      "CapabilityExecutionPostureResult": {
+        "additionalProperties": false,
+        "description": "Typed live-registry, conformance, and policy execution result.",
+        "properties": {
+          "conformance_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conformance Ref"
+          },
+          "operation_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Operation Ref"
+          },
+          "policy_ref": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Policy Ref"
+          },
+          "producer_ref": {
+            "minLength": 1,
+            "title": "Producer Ref",
+            "type": "string"
+          },
+          "provenance_refs": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Provenance Refs",
+            "type": "array"
+          },
+          "reason_codes": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Reason Codes",
+            "type": "array"
+          },
+          "state": {
+            "enum": [
+              "executable",
+              "not_executable",
+              "operation_missing",
+              "conformance_failed",
+              "policy_disabled",
+              "producer_missing",
+              "execution_blocked",
+              "not_established"
+            ],
+            "title": "State",
+            "type": "string"
+          },
+          "time": {
+            "$ref": "#/components/schemas/CapabilityTimeSemantics"
+          }
+        },
+        "required": [
+          "producer_ref",
+          "provenance_refs",
+          "time",
+          "state"
+        ],
+        "title": "CapabilityExecutionPostureResult",
+        "type": "object"
+      },
       "CapabilityFeatureInfo": {
         "additionalProperties": false,
-        "description": "Describe one runtime feature flag and its rollout stage/disable reason.",
+        "description": "Describe one fixed runtime-policy feature, never a discovery posture.",
         "properties": {
           "category": {
             "title": "Category",
@@ -4622,6 +5087,51 @@
           "debt_algebra"
         ],
         "title": "CapabilityRealityPayload",
+        "type": "object"
+      },
+      "CapabilityTimeSemantics": {
+        "additionalProperties": false,
+        "description": "Producer observation, validity interval, and declared freshness.",
+        "properties": {
+          "freshness": {
+            "enum": [
+              "current",
+              "stale",
+              "unknown"
+            ],
+            "title": "Freshness",
+            "type": "string"
+          },
+          "observed_at": {
+            "format": "date-time",
+            "title": "Observed At",
+            "type": "string"
+          },
+          "valid_from": {
+            "format": "date-time",
+            "title": "Valid From",
+            "type": "string"
+          },
+          "valid_until": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Valid Until"
+          }
+        },
+        "required": [
+          "observed_at",
+          "valid_from",
+          "valid_until",
+          "freshness"
+        ],
+        "title": "CapabilityTimeSemantics",
         "type": "object"
       },
       "CausalFrontierAreaRecord": {
@@ -7992,38 +8502,6 @@
           "explanation_inputs"
         ],
         "title": "CycleBoardRow",
-        "type": "object"
-      },
-      "DataCatalogSearchResponse": {
-        "additionalProperties": false,
-        "description": "Return catalog search matches and the total result count for a query.",
-        "properties": {
-          "matches": {
-            "items": {
-              "$ref": "#/components/schemas/MetricCandidate"
-            },
-            "title": "Matches",
-            "type": "array"
-          },
-          "meta": {
-            "$ref": "#/components/schemas/ApiMeta"
-          },
-          "query": {
-            "title": "Query",
-            "type": "string"
-          },
-          "total_matches": {
-            "default": 0,
-            "minimum": 0.0,
-            "title": "Total Matches",
-            "type": "integer"
-          }
-        },
-        "required": [
-          "meta",
-          "query"
-        ],
-        "title": "DataCatalogSearchResponse",
         "type": "object"
       },
       "DataDiscoverRequest": {
@@ -26754,6 +27232,360 @@
         "title": "ScenarioRef",
         "type": "object"
       },
+      "SearchCandidate": {
+        "additionalProperties": false,
+        "description": "One candidate returned by a reusable search ledger.",
+        "properties": {
+          "authority_boundary": {
+            "additionalProperties": true,
+            "title": "Authority Boundary",
+            "type": "object"
+          },
+          "candidate_ref": {
+            "minLength": 1,
+            "title": "Candidate Ref",
+            "type": "string"
+          },
+          "evidence_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Evidence Refs",
+            "type": "array"
+          },
+          "limitation_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Limitation Refs",
+            "type": "array"
+          },
+          "match_mode": {
+            "enum": [
+              "exact",
+              "alias",
+              "lexical",
+              "semantic",
+              "relational",
+              "derived"
+            ],
+            "title": "Match Mode",
+            "type": "string"
+          },
+          "may_not_use_for": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "May Not Use For",
+            "type": "array"
+          },
+          "score": {
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Score",
+            "type": "number"
+          },
+          "source_layer": {
+            "minLength": 1,
+            "title": "Source Layer",
+            "type": "string"
+          }
+        },
+        "required": [
+          "candidate_ref",
+          "source_layer",
+          "match_mode",
+          "score"
+        ],
+        "title": "SearchCandidate",
+        "type": "object"
+      },
+      "SearchFrontier": {
+        "additionalProperties": false,
+        "description": "Search ledger plus observed counters, cutoff, and typed completeness.",
+        "properties": {
+          "actual_cutoff": {
+            "anyOf": [
+              {
+                "minimum": 0.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Actual Cutoff"
+          },
+          "candidates": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SearchCandidate"
+            },
+            "title": "Candidates",
+            "type": "array"
+          },
+          "completeness_status": {
+            "enum": [
+              "complete",
+              "complete_no_match",
+              "recall_unmeasured",
+              "budget_cutoff",
+              "index_stale",
+              "producer_unavailable",
+              "producer_missing"
+            ],
+            "title": "Completeness Status",
+            "type": "string"
+          },
+          "configured_store_path": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Configured Store Path"
+          },
+          "corpus_kind": {
+            "enum": [
+              "canonical",
+              "bounded_surrogate",
+              "temp_store",
+              "fixture"
+            ],
+            "title": "Corpus Kind",
+            "type": "string"
+          },
+          "corpus_path": {
+            "minLength": 1,
+            "title": "Corpus Path",
+            "type": "string"
+          },
+          "corpus_ref": {
+            "minLength": 1,
+            "title": "Corpus Ref",
+            "type": "string"
+          },
+          "corpus_snapshot_hash": {
+            "pattern": "^sha256:[0-9a-fA-F]{64}$",
+            "title": "Corpus Snapshot Hash",
+            "type": "string"
+          },
+          "evaluated_count": {
+            "minimum": 0.0,
+            "title": "Evaluated Count",
+            "type": "integer"
+          },
+          "incompleteness": {
+            "additionalProperties": true,
+            "title": "Incompleteness",
+            "type": "object"
+          },
+          "incompleteness_reasons": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Incompleteness Reasons",
+            "type": "array"
+          },
+          "index_freshness": {
+            "additionalProperties": true,
+            "title": "Index Freshness",
+            "type": "object"
+          },
+          "index_version_refs": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Index Version Refs",
+            "type": "array"
+          },
+          "indexes_used": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Indexes Used",
+            "type": "array"
+          },
+          "no_hit_frontier": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "No Hit Frontier",
+            "type": "array"
+          },
+          "query_expansion_traces": {
+            "default": [],
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "title": "Query Expansion Traces",
+            "type": "array"
+          },
+          "query_plan": {
+            "additionalProperties": true,
+            "title": "Query Plan",
+            "type": "object"
+          },
+          "rejected_candidates": {
+            "default": [],
+            "items": {
+              "$ref": "#/components/schemas/SearchCandidate"
+            },
+            "title": "Rejected Candidates",
+            "type": "array"
+          },
+          "replay_command": {
+            "minLength": 1,
+            "title": "Replay Command",
+            "type": "string"
+          },
+          "replay_expected_output_hash": {
+            "pattern": "^sha256:[0-9a-fA-F]{64}$",
+            "title": "Replay Expected Output Hash",
+            "type": "string"
+          },
+          "replay_key": {
+            "minLength": 1,
+            "title": "Replay Key",
+            "type": "string"
+          },
+          "request_ref": {
+            "minLength": 1,
+            "title": "Request Ref",
+            "type": "string"
+          },
+          "requested_count": {
+            "minimum": 0.0,
+            "title": "Requested Count",
+            "type": "integer"
+          },
+          "returned_count": {
+            "minimum": 0.0,
+            "title": "Returned Count",
+            "type": "integer"
+          },
+          "schema_version": {
+            "const": "policyos.core.contracts.search.v1",
+            "default": "policyos.core.contracts.search.v1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_ref",
+          "corpus_ref",
+          "corpus_path",
+          "corpus_snapshot_hash",
+          "corpus_kind",
+          "indexes_used",
+          "replay_key",
+          "replay_command",
+          "replay_expected_output_hash",
+          "requested_count",
+          "evaluated_count",
+          "returned_count",
+          "completeness_status",
+          "incompleteness_reasons"
+        ],
+        "title": "SearchFrontier",
+        "type": "object"
+      },
+      "SearchRequest": {
+        "additionalProperties": false,
+        "description": "Reusable search request contract shared across Layer 3 slices.",
+        "properties": {
+          "allowed_modes": {
+            "items": {
+              "enum": [
+                "exact",
+                "alias",
+                "lexical",
+                "semantic",
+                "relational",
+                "derived"
+              ],
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Allowed Modes",
+            "type": "array"
+          },
+          "authority_purpose": {
+            "minLength": 1,
+            "title": "Authority Purpose",
+            "type": "string"
+          },
+          "budget": {
+            "additionalProperties": true,
+            "title": "Budget",
+            "type": "object"
+          },
+          "construct_refs": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Construct Refs",
+            "type": "array"
+          },
+          "intent": {
+            "minLength": 1,
+            "title": "Intent",
+            "type": "string"
+          },
+          "query_text": {
+            "minLength": 1,
+            "title": "Query Text",
+            "type": "string"
+          },
+          "request_id": {
+            "minLength": 1,
+            "title": "Request Id",
+            "type": "string"
+          },
+          "required_layers": {
+            "items": {
+              "type": "string"
+            },
+            "minItems": 1,
+            "title": "Required Layers",
+            "type": "array"
+          },
+          "rule_version": {
+            "minLength": 1,
+            "title": "Rule Version",
+            "type": "string"
+          },
+          "schema_version": {
+            "const": "policyos.core.contracts.search.v1",
+            "default": "policyos.core.contracts.search.v1",
+            "title": "Schema Version",
+            "type": "string"
+          }
+        },
+        "required": [
+          "request_id",
+          "query_text",
+          "construct_refs",
+          "intent",
+          "required_layers",
+          "authority_purpose",
+          "allowed_modes",
+          "rule_version"
+        ],
+        "title": "SearchRequest",
+        "type": "object"
+      },
       "SimulationResultRef-Input": {
         "additionalProperties": false,
         "description": "Artifact reference for the top-level simulation result bundle returned by Foundry.",
@@ -33516,35 +34348,16 @@
                       "default_execution_profile": "dev",
                       "default_locale": "en",
                       "fallback_rules": {
+                        "execution_policy": {
+                          "auto_materialization": true,
+                          "multimodel_nl": true,
+                          "producer_ref": "runtime/http/services/_control_contracts.py",
+                          "required_preflight": true
+                        },
                         "mock_fallback_allowed": true,
                         "policy_flag_required_for_mock_fallback": false
                       },
-                      "features": [
-                        {
-                          "category": "runs",
-                          "description": "Use the agent circuit to transform NL requests into executable policy runs.",
-                          "enabled": true,
-                          "key": "natural_language_runs",
-                          "label": "Natural-language runs",
-                          "stage": "active"
-                        },
-                        {
-                          "category": "governance",
-                          "description": "Run execution-plan preflight diagnostics before execution.",
-                          "enabled": true,
-                          "key": "required_preflight",
-                          "label": "Required preflight",
-                          "stage": "active"
-                        },
-                        {
-                          "category": "platform",
-                          "description": "Dedicated tenant/authz/audit admin surfaces.",
-                          "enabled": false,
-                          "key": "security_admin_layer",
-                          "label": "Security / admin layer",
-                          "stage": "deferred"
-                        }
-                      ],
+                      "features": [],
                       "meta": {
                         "generated_at": "2026-02-11T12:00:00Z",
                         "request_id": "req_0123456789abcdef",
@@ -33569,14 +34382,7 @@
                         "uk"
                       ],
                       "worker_backend": "embedded",
-                      "workspaces": [
-                        "command_center",
-                        "scenario_composer",
-                        "runs_decisions",
-                        "evidence_fabric",
-                        "lex_knowledge",
-                        "platform_health"
-                      ]
+                      "workspaces": []
                     }
                   }
                 },
@@ -33774,6 +34580,802 @@
         "tags": [
           "control-plane"
         ]
+      }
+    },
+    "/api/v1/control/capabilities/search": {
+      "post": {
+        "operationId": "search_capabilities",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CapabilityDiscoveryRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "examples": {
+                  "candidate_only": {
+                    "summary": "candidate only",
+                    "value": {
+                      "audience": "REVIEWER",
+                      "authority_purpose": "review_capability_candidates",
+                      "frontier": {
+                        "actual_cutoff": null,
+                        "candidates": [
+                          {
+                            "authority_boundary": {
+                              "authoritative_for": []
+                            },
+                            "candidate_ref": "capability:method:generated",
+                            "evidence_refs": [
+                              "evidence:method:owner"
+                            ],
+                            "limitation_refs": [],
+                            "match_mode": "exact",
+                            "may_not_use_for": [
+                              "publication_authority"
+                            ],
+                            "score": 0.9,
+                            "source_layer": "owner"
+                          }
+                        ],
+                        "completeness_status": "complete",
+                        "configured_store_path": null,
+                        "corpus_kind": "canonical",
+                        "corpus_path": "runtime/quality/capability_discovery.py",
+                        "corpus_ref": "runtime-quality:capability-provider-registry",
+                        "corpus_snapshot_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "evaluated_count": 1,
+                        "incompleteness": {
+                          "status": "complete"
+                        },
+                        "incompleteness_reasons": [],
+                        "index_freshness": {
+                          "index:capability-owner": {
+                            "state": "current"
+                          }
+                        },
+                        "index_version_refs": [
+                          "snapshot:capability-owner"
+                        ],
+                        "indexes_used": [
+                          "index:capability-owner"
+                        ],
+                        "no_hit_frontier": [],
+                        "query_expansion_traces": [],
+                        "query_plan": {
+                          "resource_kinds": [
+                            "method"
+                          ]
+                        },
+                        "rejected_candidates": [],
+                        "replay_command": "python -m polisyos.runtime.quality.capability_discovery --help",
+                        "replay_expected_output_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "replay_key": "capability-discovery:openapi:candidate_only",
+                        "request_ref": "search:openapi:candidate_only",
+                        "requested_count": 5,
+                        "returned_count": 1,
+                        "schema_version": "policyos.core.contracts.search.v1"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "provenance_refs": [
+                        "runtime-quality:capability-provider-registry"
+                      ],
+                      "request": {
+                        "audience": "REVIEWER",
+                        "resource_kinds": [
+                          "method"
+                        ],
+                        "search": {
+                          "allowed_modes": [
+                            "exact"
+                          ],
+                          "authority_purpose": "review_capability_candidates",
+                          "budget": {
+                            "top_k": 5
+                          },
+                          "construct_refs": [
+                            "construct:generated"
+                          ],
+                          "intent": "capability_discovery",
+                          "query_text": "generated capability",
+                          "request_id": "search:openapi:candidate_only",
+                          "required_layers": [
+                            "runtime_registry"
+                          ],
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.core.contracts.search.v1"
+                        }
+                      },
+                      "request_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                      "results": [
+                        {
+                          "authoritative_for": [],
+                          "authority_purpose": "review_capability_candidates",
+                          "authority_result": {
+                            "authority_purpose": "review_capability_candidates",
+                            "binding_ref": null,
+                            "currentness_ref": null,
+                            "producer_ref": "runtime-quality:capability-authority-composer",
+                            "provenance_refs": [
+                              "policyos.ds10.capability_authority.v1"
+                            ],
+                            "reason_codes": [
+                              "not_established",
+                              "owner_binding_producer_missing"
+                            ],
+                            "state": "candidate_only",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "capability_ref": "capability:method:generated",
+                          "content_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+                          "description": "Owner-projected candidate for posture illustration.",
+                          "discovery_result": {
+                            "freshness_ref": "freshness:method:owner",
+                            "producer_ref": "producer:method:owner",
+                            "provenance_refs": [
+                              "provenance:method:owner"
+                            ],
+                            "reason_codes": [],
+                            "snapshot_ref": "snapshot:method:owner",
+                            "state": "discoverable",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "execution_result": {
+                            "conformance_ref": null,
+                            "operation_ref": null,
+                            "policy_ref": null,
+                            "producer_ref": "runtime-quality:capability-execution-reconciler",
+                            "provenance_refs": [
+                              "provenance:method:owner"
+                            ],
+                            "reason_codes": [
+                              "live_operation_registry_not_established"
+                            ],
+                            "state": "not_established",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "label": "Generated method",
+                          "may_not_use_for": [
+                            "publication_authority",
+                            "discovery_as_execution_authority"
+                          ],
+                          "provenance_refs": [
+                            "provenance:method:owner",
+                            "policyos.ds10.capability_authority.v1"
+                          ],
+                          "resource_kind": "method",
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.capability_discovery.v1",
+                          "time": {
+                            "freshness": "current",
+                            "observed_at": "2026-02-11T12:00:00Z",
+                            "valid_from": "2026-02-11T12:00:00Z",
+                            "valid_until": "2026-02-11T13:00:00Z"
+                          }
+                        }
+                      ],
+                      "rule_version": "policyos.ds10.discovery.v1",
+                      "schema_version": "policyos.capability_discovery.v1",
+                      "time": {
+                        "freshness": "current",
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "valid_from": "2026-02-11T12:00:00Z",
+                        "valid_until": "2026-02-11T13:00:00Z"
+                      }
+                    }
+                  },
+                  "case_producer_missing": {
+                    "summary": "case producer missing",
+                    "value": {
+                      "audience": "REVIEWER",
+                      "authority_purpose": "review_capability_candidates",
+                      "frontier": {
+                        "actual_cutoff": null,
+                        "candidates": [],
+                        "completeness_status": "producer_missing",
+                        "configured_store_path": null,
+                        "corpus_kind": "canonical",
+                        "corpus_path": "runtime/quality/capability_discovery.py",
+                        "corpus_ref": "runtime-quality:capability-provider-registry",
+                        "corpus_snapshot_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "evaluated_count": 0,
+                        "incompleteness": {
+                          "status": "producer_missing"
+                        },
+                        "incompleteness_reasons": [
+                          "case:producer_missing"
+                        ],
+                        "index_freshness": {
+                          "index:capability-owner": {
+                            "state": "current"
+                          }
+                        },
+                        "index_version_refs": [
+                          "snapshot:capability-owner"
+                        ],
+                        "indexes_used": [
+                          "index:capability-owner"
+                        ],
+                        "no_hit_frontier": [
+                          "case"
+                        ],
+                        "query_expansion_traces": [],
+                        "query_plan": {
+                          "resource_kinds": [
+                            "case"
+                          ]
+                        },
+                        "rejected_candidates": [],
+                        "replay_command": "python -m polisyos.runtime.quality.capability_discovery --help",
+                        "replay_expected_output_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "replay_key": "capability-discovery:openapi:case_producer_missing",
+                        "request_ref": "search:openapi:case_producer_missing",
+                        "requested_count": 5,
+                        "returned_count": 0,
+                        "schema_version": "policyos.core.contracts.search.v1"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "provenance_refs": [
+                        "runtime-quality:capability-provider-registry"
+                      ],
+                      "request": {
+                        "audience": "REVIEWER",
+                        "resource_kinds": [
+                          "case"
+                        ],
+                        "search": {
+                          "allowed_modes": [
+                            "exact"
+                          ],
+                          "authority_purpose": "review_capability_candidates",
+                          "budget": {
+                            "top_k": 5
+                          },
+                          "construct_refs": [
+                            "construct:generated"
+                          ],
+                          "intent": "capability_discovery",
+                          "query_text": "generated capability",
+                          "request_id": "search:openapi:case_producer_missing",
+                          "required_layers": [
+                            "runtime_registry"
+                          ],
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.core.contracts.search.v1"
+                        }
+                      },
+                      "request_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                      "results": [],
+                      "rule_version": "policyos.ds10.discovery.v1",
+                      "schema_version": "policyos.capability_discovery.v1",
+                      "time": {
+                        "freshness": "current",
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "valid_from": "2026-02-11T12:00:00Z",
+                        "valid_until": "2026-02-11T13:00:00Z"
+                      }
+                    }
+                  },
+                  "discoverable_executable_authority_not_established": {
+                    "summary": "discoverable executable authority not established",
+                    "value": {
+                      "audience": "REVIEWER",
+                      "authority_purpose": "review_capability_candidates",
+                      "frontier": {
+                        "actual_cutoff": null,
+                        "candidates": [
+                          {
+                            "authority_boundary": {
+                              "authoritative_for": []
+                            },
+                            "candidate_ref": "capability:method:generated",
+                            "evidence_refs": [
+                              "evidence:method:owner"
+                            ],
+                            "limitation_refs": [],
+                            "match_mode": "exact",
+                            "may_not_use_for": [
+                              "publication_authority"
+                            ],
+                            "score": 0.9,
+                            "source_layer": "owner"
+                          }
+                        ],
+                        "completeness_status": "complete",
+                        "configured_store_path": null,
+                        "corpus_kind": "canonical",
+                        "corpus_path": "runtime/quality/capability_discovery.py",
+                        "corpus_ref": "runtime-quality:capability-provider-registry",
+                        "corpus_snapshot_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "evaluated_count": 1,
+                        "incompleteness": {
+                          "status": "complete"
+                        },
+                        "incompleteness_reasons": [],
+                        "index_freshness": {
+                          "index:capability-owner": {
+                            "state": "current"
+                          }
+                        },
+                        "index_version_refs": [
+                          "snapshot:capability-owner"
+                        ],
+                        "indexes_used": [
+                          "index:capability-owner"
+                        ],
+                        "no_hit_frontier": [],
+                        "query_expansion_traces": [],
+                        "query_plan": {
+                          "resource_kinds": [
+                            "method"
+                          ]
+                        },
+                        "rejected_candidates": [],
+                        "replay_command": "python -m polisyos.runtime.quality.capability_discovery --help",
+                        "replay_expected_output_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "replay_key": "capability-discovery:openapi:discoverable_executable_authority_not_established",
+                        "request_ref": "search:openapi:discoverable_executable_authority_not_established",
+                        "requested_count": 5,
+                        "returned_count": 1,
+                        "schema_version": "policyos.core.contracts.search.v1"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "provenance_refs": [
+                        "runtime-quality:capability-provider-registry"
+                      ],
+                      "request": {
+                        "audience": "REVIEWER",
+                        "resource_kinds": [
+                          "method"
+                        ],
+                        "search": {
+                          "allowed_modes": [
+                            "exact"
+                          ],
+                          "authority_purpose": "review_capability_candidates",
+                          "budget": {
+                            "top_k": 5
+                          },
+                          "construct_refs": [
+                            "construct:generated"
+                          ],
+                          "intent": "capability_discovery",
+                          "query_text": "generated capability",
+                          "request_id": "search:openapi:discoverable_executable_authority_not_established",
+                          "required_layers": [
+                            "runtime_registry"
+                          ],
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.core.contracts.search.v1"
+                        }
+                      },
+                      "request_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                      "results": [
+                        {
+                          "authoritative_for": [],
+                          "authority_purpose": "review_capability_candidates",
+                          "authority_result": {
+                            "authority_purpose": "review_capability_candidates",
+                            "binding_ref": null,
+                            "currentness_ref": null,
+                            "producer_ref": "runtime-quality:capability-authority-composer",
+                            "provenance_refs": [
+                              "policyos.ds10.capability_authority.v1"
+                            ],
+                            "reason_codes": [
+                              "not_established",
+                              "owner_binding_producer_missing"
+                            ],
+                            "state": "not_established",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "capability_ref": "capability:method:generated",
+                          "content_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+                          "description": "Owner-projected candidate for posture illustration.",
+                          "discovery_result": {
+                            "freshness_ref": "freshness:method:owner",
+                            "producer_ref": "producer:method:owner",
+                            "provenance_refs": [
+                              "provenance:method:owner"
+                            ],
+                            "reason_codes": [],
+                            "snapshot_ref": "snapshot:method:owner",
+                            "state": "discoverable",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "execution_result": {
+                            "conformance_ref": "conformance:method:owner",
+                            "operation_ref": "operation:method:owner",
+                            "policy_ref": "policy:method:enabled",
+                            "producer_ref": "runtime-quality:capability-execution-reconciler",
+                            "provenance_refs": [
+                              "provenance:method:owner"
+                            ],
+                            "reason_codes": [],
+                            "state": "executable",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "label": "Generated method",
+                          "may_not_use_for": [
+                            "publication_authority",
+                            "discovery_as_execution_authority"
+                          ],
+                          "provenance_refs": [
+                            "provenance:method:owner",
+                            "policyos.ds10.capability_authority.v1"
+                          ],
+                          "resource_kind": "method",
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.capability_discovery.v1",
+                          "time": {
+                            "freshness": "current",
+                            "observed_at": "2026-02-11T12:00:00Z",
+                            "valid_from": "2026-02-11T12:00:00Z",
+                            "valid_until": "2026-02-11T13:00:00Z"
+                          }
+                        }
+                      ],
+                      "rule_version": "policyos.ds10.discovery.v1",
+                      "schema_version": "policyos.capability_discovery.v1",
+                      "time": {
+                        "freshness": "current",
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "valid_from": "2026-02-11T12:00:00Z",
+                        "valid_until": "2026-02-11T13:00:00Z"
+                      }
+                    }
+                  },
+                  "no_hit_incomplete": {
+                    "summary": "no hit incomplete",
+                    "value": {
+                      "audience": "REVIEWER",
+                      "authority_purpose": "review_capability_candidates",
+                      "frontier": {
+                        "actual_cutoff": null,
+                        "candidates": [],
+                        "completeness_status": "recall_unmeasured",
+                        "configured_store_path": null,
+                        "corpus_kind": "canonical",
+                        "corpus_path": "runtime/quality/capability_discovery.py",
+                        "corpus_ref": "runtime-quality:capability-provider-registry",
+                        "corpus_snapshot_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "evaluated_count": 0,
+                        "incompleteness": {
+                          "status": "recall_unmeasured"
+                        },
+                        "incompleteness_reasons": [
+                          "dataset:recall_unmeasured"
+                        ],
+                        "index_freshness": {
+                          "index:capability-owner": {
+                            "state": "current"
+                          }
+                        },
+                        "index_version_refs": [
+                          "snapshot:capability-owner"
+                        ],
+                        "indexes_used": [
+                          "index:capability-owner"
+                        ],
+                        "no_hit_frontier": [
+                          "dataset"
+                        ],
+                        "query_expansion_traces": [],
+                        "query_plan": {
+                          "resource_kinds": [
+                            "dataset"
+                          ]
+                        },
+                        "rejected_candidates": [],
+                        "replay_command": "python -m polisyos.runtime.quality.capability_discovery --help",
+                        "replay_expected_output_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "replay_key": "capability-discovery:openapi:no_hit_incomplete",
+                        "request_ref": "search:openapi:no_hit_incomplete",
+                        "requested_count": 5,
+                        "returned_count": 0,
+                        "schema_version": "policyos.core.contracts.search.v1"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "provenance_refs": [
+                        "runtime-quality:capability-provider-registry"
+                      ],
+                      "request": {
+                        "audience": "REVIEWER",
+                        "resource_kinds": [
+                          "dataset"
+                        ],
+                        "search": {
+                          "allowed_modes": [
+                            "exact"
+                          ],
+                          "authority_purpose": "review_capability_candidates",
+                          "budget": {
+                            "top_k": 5
+                          },
+                          "construct_refs": [
+                            "construct:generated"
+                          ],
+                          "intent": "capability_discovery",
+                          "query_text": "generated capability",
+                          "request_id": "search:openapi:no_hit_incomplete",
+                          "required_layers": [
+                            "runtime_registry"
+                          ],
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.core.contracts.search.v1"
+                        }
+                      },
+                      "request_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                      "results": [],
+                      "rule_version": "policyos.ds10.discovery.v1",
+                      "schema_version": "policyos.capability_discovery.v1",
+                      "time": {
+                        "freshness": "current",
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "valid_from": "2026-02-11T12:00:00Z",
+                        "valid_until": "2026-02-11T13:00:00Z"
+                      }
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/CapabilityDiscoveryResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "400": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Malformed request payload or parameters.",
+                    "value": {
+                      "code": "bad_request",
+                      "detail": "bad_request while processing request.",
+                      "error": "bad_request",
+                      "instance": "/api/v1/control/capabilities/search",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 400,
+                      "status_code": 400,
+                      "title": "Bad request",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Malformed request payload or parameters."
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authentication is required for this route.",
+                    "value": {
+                      "code": "unauthorized",
+                      "detail": "unauthorized while processing request.",
+                      "error": "unauthorized",
+                      "instance": "/api/v1/control/capabilities/search",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 401,
+                      "status_code": 401,
+                      "title": "Unauthorized",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authentication is required for this route."
+          },
+          "403": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Authenticated principal cannot access this resource.",
+                    "value": {
+                      "code": "forbidden",
+                      "detail": "forbidden while processing request.",
+                      "error": "forbidden",
+                      "instance": "/api/v1/control/capabilities/search",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 403,
+                      "status_code": 403,
+                      "title": "Forbidden",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Authenticated principal cannot access this resource."
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested resource does not exist.",
+                    "value": {
+                      "code": "not_found",
+                      "detail": "not_found while processing request.",
+                      "error": "not_found",
+                      "instance": "/api/v1/control/capabilities/search",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 404,
+                      "status_code": 404,
+                      "title": "Not found",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested resource does not exist."
+          },
+          "406": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Requested representation is not supported for this resource.",
+                    "value": {
+                      "code": "not_acceptable",
+                      "detail": "not_acceptable while processing request.",
+                      "error": "not_acceptable",
+                      "instance": "/api/v1/control/capabilities/search",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 406,
+                      "status_code": 406,
+                      "title": "Not acceptable",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Requested representation is not supported for this resource."
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              },
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Request validation failed.",
+                    "value": {
+                      "code": "request_validation_failed",
+                      "detail": "request_validation_failed while processing request.",
+                      "error": "request_validation_failed",
+                      "instance": "/api/v1/control/capabilities/search",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 422,
+                      "status_code": 422,
+                      "title": "Request validation failed",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Validation Error"
+          },
+          "500": {
+            "content": {
+              "application/problem+json": {
+                "examples": {
+                  "default": {
+                    "summary": "Unexpected runtime API failure.",
+                    "value": {
+                      "code": "internal_error",
+                      "detail": "internal_error while processing request.",
+                      "error": "internal_error",
+                      "instance": "/api/v1/control/capabilities/search",
+                      "request_id": "req_0123456789abcdef",
+                      "status": 500,
+                      "status_code": 500,
+                      "title": "Internal error",
+                      "type": "about:blank"
+                    }
+                  }
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/RuntimeApiProblem"
+                }
+              }
+            },
+            "description": "Unexpected runtime API failure."
+          }
+        },
+        "summary": "Search owner-backed runtime capabilities",
+        "tags": [
+          "control-plane"
+        ],
+        "x-polisyos-action-permission": "evidence.discover",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "resource_kind": "runtime.capability_discovery.search",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/control/data/binding-profiles": {
@@ -34276,44 +35878,579 @@
             "content": {
               "application/json": {
                 "examples": {
-                  "default": {
-                    "summary": "search_data_catalog response example",
+                  "candidate_only": {
+                    "summary": "candidate only",
                     "value": {
-                      "matches": [
-                        {
-                          "candidate_id": "cand_usa_gdp_1",
-                          "confidence": 0.91,
-                          "connector_id": "worldbank.wdi",
-                          "coverage_estimate": 0.88,
-                          "dataset_id": "NY.GDP.MKTP.CD",
-                          "filters_template": {
-                            "country": [
-                              "{ISO3}"
-                            ]
-                          },
-                          "freshness_score": 0.8,
-                          "latency_estimate_ms": 320,
-                          "match_reason": "catalog_query_match",
-                          "metadata": {},
-                          "metric_id": "us.macro.gdp_nominal",
-                          "profile_id": "worldbank_wdi",
-                          "rank": 1,
-                          "source_lane": "fastlane",
-                          "trust_score": 0.95
-                        }
-                      ],
+                      "audience": "REVIEWER",
+                      "authority_purpose": "review_capability_candidates",
+                      "frontier": {
+                        "actual_cutoff": null,
+                        "candidates": [
+                          {
+                            "authority_boundary": {
+                              "authoritative_for": []
+                            },
+                            "candidate_ref": "capability:method:generated",
+                            "evidence_refs": [
+                              "evidence:method:owner"
+                            ],
+                            "limitation_refs": [],
+                            "match_mode": "exact",
+                            "may_not_use_for": [
+                              "publication_authority"
+                            ],
+                            "score": 0.9,
+                            "source_layer": "owner"
+                          }
+                        ],
+                        "completeness_status": "complete",
+                        "configured_store_path": null,
+                        "corpus_kind": "canonical",
+                        "corpus_path": "runtime/quality/capability_discovery.py",
+                        "corpus_ref": "runtime-quality:capability-provider-registry",
+                        "corpus_snapshot_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "evaluated_count": 1,
+                        "incompleteness": {
+                          "status": "complete"
+                        },
+                        "incompleteness_reasons": [],
+                        "index_freshness": {
+                          "index:capability-owner": {
+                            "state": "current"
+                          }
+                        },
+                        "index_version_refs": [
+                          "snapshot:capability-owner"
+                        ],
+                        "indexes_used": [
+                          "index:capability-owner"
+                        ],
+                        "no_hit_frontier": [],
+                        "query_expansion_traces": [],
+                        "query_plan": {
+                          "resource_kinds": [
+                            "method"
+                          ]
+                        },
+                        "rejected_candidates": [],
+                        "replay_command": "python -m polisyos.runtime.quality.capability_discovery --help",
+                        "replay_expected_output_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "replay_key": "capability-discovery:openapi:candidate_only",
+                        "request_ref": "search:openapi:candidate_only",
+                        "requested_count": 5,
+                        "returned_count": 1,
+                        "schema_version": "policyos.core.contracts.search.v1"
+                      },
                       "meta": {
                         "generated_at": "2026-02-11T12:00:00Z",
                         "request_id": "req_0123456789abcdef",
                         "source_kinds": []
                       },
-                      "query": "gdp*",
-                      "total_matches": 1
+                      "provenance_refs": [
+                        "runtime-quality:capability-provider-registry"
+                      ],
+                      "request": {
+                        "audience": "REVIEWER",
+                        "resource_kinds": [
+                          "method"
+                        ],
+                        "search": {
+                          "allowed_modes": [
+                            "exact"
+                          ],
+                          "authority_purpose": "review_capability_candidates",
+                          "budget": {
+                            "top_k": 5
+                          },
+                          "construct_refs": [
+                            "construct:generated"
+                          ],
+                          "intent": "capability_discovery",
+                          "query_text": "generated capability",
+                          "request_id": "search:openapi:candidate_only",
+                          "required_layers": [
+                            "runtime_registry"
+                          ],
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.core.contracts.search.v1"
+                        }
+                      },
+                      "request_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                      "results": [
+                        {
+                          "authoritative_for": [],
+                          "authority_purpose": "review_capability_candidates",
+                          "authority_result": {
+                            "authority_purpose": "review_capability_candidates",
+                            "binding_ref": null,
+                            "currentness_ref": null,
+                            "producer_ref": "runtime-quality:capability-authority-composer",
+                            "provenance_refs": [
+                              "policyos.ds10.capability_authority.v1"
+                            ],
+                            "reason_codes": [
+                              "not_established",
+                              "owner_binding_producer_missing"
+                            ],
+                            "state": "candidate_only",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "capability_ref": "capability:method:generated",
+                          "content_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+                          "description": "Owner-projected candidate for posture illustration.",
+                          "discovery_result": {
+                            "freshness_ref": "freshness:method:owner",
+                            "producer_ref": "producer:method:owner",
+                            "provenance_refs": [
+                              "provenance:method:owner"
+                            ],
+                            "reason_codes": [],
+                            "snapshot_ref": "snapshot:method:owner",
+                            "state": "discoverable",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "execution_result": {
+                            "conformance_ref": null,
+                            "operation_ref": null,
+                            "policy_ref": null,
+                            "producer_ref": "runtime-quality:capability-execution-reconciler",
+                            "provenance_refs": [
+                              "provenance:method:owner"
+                            ],
+                            "reason_codes": [
+                              "live_operation_registry_not_established"
+                            ],
+                            "state": "not_established",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "label": "Generated method",
+                          "may_not_use_for": [
+                            "publication_authority",
+                            "discovery_as_execution_authority"
+                          ],
+                          "provenance_refs": [
+                            "provenance:method:owner",
+                            "policyos.ds10.capability_authority.v1"
+                          ],
+                          "resource_kind": "method",
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.capability_discovery.v1",
+                          "time": {
+                            "freshness": "current",
+                            "observed_at": "2026-02-11T12:00:00Z",
+                            "valid_from": "2026-02-11T12:00:00Z",
+                            "valid_until": "2026-02-11T13:00:00Z"
+                          }
+                        }
+                      ],
+                      "rule_version": "policyos.ds10.discovery.v1",
+                      "schema_version": "policyos.capability_discovery.v1",
+                      "time": {
+                        "freshness": "current",
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "valid_from": "2026-02-11T12:00:00Z",
+                        "valid_until": "2026-02-11T13:00:00Z"
+                      }
+                    }
+                  },
+                  "case_producer_missing": {
+                    "summary": "case producer missing",
+                    "value": {
+                      "audience": "REVIEWER",
+                      "authority_purpose": "review_capability_candidates",
+                      "frontier": {
+                        "actual_cutoff": null,
+                        "candidates": [],
+                        "completeness_status": "producer_missing",
+                        "configured_store_path": null,
+                        "corpus_kind": "canonical",
+                        "corpus_path": "runtime/quality/capability_discovery.py",
+                        "corpus_ref": "runtime-quality:capability-provider-registry",
+                        "corpus_snapshot_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "evaluated_count": 0,
+                        "incompleteness": {
+                          "status": "producer_missing"
+                        },
+                        "incompleteness_reasons": [
+                          "case:producer_missing"
+                        ],
+                        "index_freshness": {
+                          "index:capability-owner": {
+                            "state": "current"
+                          }
+                        },
+                        "index_version_refs": [
+                          "snapshot:capability-owner"
+                        ],
+                        "indexes_used": [
+                          "index:capability-owner"
+                        ],
+                        "no_hit_frontier": [
+                          "case"
+                        ],
+                        "query_expansion_traces": [],
+                        "query_plan": {
+                          "resource_kinds": [
+                            "case"
+                          ]
+                        },
+                        "rejected_candidates": [],
+                        "replay_command": "python -m polisyos.runtime.quality.capability_discovery --help",
+                        "replay_expected_output_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "replay_key": "capability-discovery:openapi:case_producer_missing",
+                        "request_ref": "search:openapi:case_producer_missing",
+                        "requested_count": 5,
+                        "returned_count": 0,
+                        "schema_version": "policyos.core.contracts.search.v1"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "provenance_refs": [
+                        "runtime-quality:capability-provider-registry"
+                      ],
+                      "request": {
+                        "audience": "REVIEWER",
+                        "resource_kinds": [
+                          "case"
+                        ],
+                        "search": {
+                          "allowed_modes": [
+                            "exact"
+                          ],
+                          "authority_purpose": "review_capability_candidates",
+                          "budget": {
+                            "top_k": 5
+                          },
+                          "construct_refs": [
+                            "construct:generated"
+                          ],
+                          "intent": "capability_discovery",
+                          "query_text": "generated capability",
+                          "request_id": "search:openapi:case_producer_missing",
+                          "required_layers": [
+                            "runtime_registry"
+                          ],
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.core.contracts.search.v1"
+                        }
+                      },
+                      "request_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                      "results": [],
+                      "rule_version": "policyos.ds10.discovery.v1",
+                      "schema_version": "policyos.capability_discovery.v1",
+                      "time": {
+                        "freshness": "current",
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "valid_from": "2026-02-11T12:00:00Z",
+                        "valid_until": "2026-02-11T13:00:00Z"
+                      }
+                    }
+                  },
+                  "discoverable_executable_authority_not_established": {
+                    "summary": "discoverable executable authority not established",
+                    "value": {
+                      "audience": "REVIEWER",
+                      "authority_purpose": "review_capability_candidates",
+                      "frontier": {
+                        "actual_cutoff": null,
+                        "candidates": [
+                          {
+                            "authority_boundary": {
+                              "authoritative_for": []
+                            },
+                            "candidate_ref": "capability:method:generated",
+                            "evidence_refs": [
+                              "evidence:method:owner"
+                            ],
+                            "limitation_refs": [],
+                            "match_mode": "exact",
+                            "may_not_use_for": [
+                              "publication_authority"
+                            ],
+                            "score": 0.9,
+                            "source_layer": "owner"
+                          }
+                        ],
+                        "completeness_status": "complete",
+                        "configured_store_path": null,
+                        "corpus_kind": "canonical",
+                        "corpus_path": "runtime/quality/capability_discovery.py",
+                        "corpus_ref": "runtime-quality:capability-provider-registry",
+                        "corpus_snapshot_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "evaluated_count": 1,
+                        "incompleteness": {
+                          "status": "complete"
+                        },
+                        "incompleteness_reasons": [],
+                        "index_freshness": {
+                          "index:capability-owner": {
+                            "state": "current"
+                          }
+                        },
+                        "index_version_refs": [
+                          "snapshot:capability-owner"
+                        ],
+                        "indexes_used": [
+                          "index:capability-owner"
+                        ],
+                        "no_hit_frontier": [],
+                        "query_expansion_traces": [],
+                        "query_plan": {
+                          "resource_kinds": [
+                            "method"
+                          ]
+                        },
+                        "rejected_candidates": [],
+                        "replay_command": "python -m polisyos.runtime.quality.capability_discovery --help",
+                        "replay_expected_output_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "replay_key": "capability-discovery:openapi:discoverable_executable_authority_not_established",
+                        "request_ref": "search:openapi:discoverable_executable_authority_not_established",
+                        "requested_count": 5,
+                        "returned_count": 1,
+                        "schema_version": "policyos.core.contracts.search.v1"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "provenance_refs": [
+                        "runtime-quality:capability-provider-registry"
+                      ],
+                      "request": {
+                        "audience": "REVIEWER",
+                        "resource_kinds": [
+                          "method"
+                        ],
+                        "search": {
+                          "allowed_modes": [
+                            "exact"
+                          ],
+                          "authority_purpose": "review_capability_candidates",
+                          "budget": {
+                            "top_k": 5
+                          },
+                          "construct_refs": [
+                            "construct:generated"
+                          ],
+                          "intent": "capability_discovery",
+                          "query_text": "generated capability",
+                          "request_id": "search:openapi:discoverable_executable_authority_not_established",
+                          "required_layers": [
+                            "runtime_registry"
+                          ],
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.core.contracts.search.v1"
+                        }
+                      },
+                      "request_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                      "results": [
+                        {
+                          "authoritative_for": [],
+                          "authority_purpose": "review_capability_candidates",
+                          "authority_result": {
+                            "authority_purpose": "review_capability_candidates",
+                            "binding_ref": null,
+                            "currentness_ref": null,
+                            "producer_ref": "runtime-quality:capability-authority-composer",
+                            "provenance_refs": [
+                              "policyos.ds10.capability_authority.v1"
+                            ],
+                            "reason_codes": [
+                              "not_established",
+                              "owner_binding_producer_missing"
+                            ],
+                            "state": "not_established",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "capability_ref": "capability:method:generated",
+                          "content_digest": "sha256:3333333333333333333333333333333333333333333333333333333333333333",
+                          "description": "Owner-projected candidate for posture illustration.",
+                          "discovery_result": {
+                            "freshness_ref": "freshness:method:owner",
+                            "producer_ref": "producer:method:owner",
+                            "provenance_refs": [
+                              "provenance:method:owner"
+                            ],
+                            "reason_codes": [],
+                            "snapshot_ref": "snapshot:method:owner",
+                            "state": "discoverable",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "execution_result": {
+                            "conformance_ref": "conformance:method:owner",
+                            "operation_ref": "operation:method:owner",
+                            "policy_ref": "policy:method:enabled",
+                            "producer_ref": "runtime-quality:capability-execution-reconciler",
+                            "provenance_refs": [
+                              "provenance:method:owner"
+                            ],
+                            "reason_codes": [],
+                            "state": "executable",
+                            "time": {
+                              "freshness": "current",
+                              "observed_at": "2026-02-11T12:00:00Z",
+                              "valid_from": "2026-02-11T12:00:00Z",
+                              "valid_until": "2026-02-11T13:00:00Z"
+                            }
+                          },
+                          "label": "Generated method",
+                          "may_not_use_for": [
+                            "publication_authority",
+                            "discovery_as_execution_authority"
+                          ],
+                          "provenance_refs": [
+                            "provenance:method:owner",
+                            "policyos.ds10.capability_authority.v1"
+                          ],
+                          "resource_kind": "method",
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.capability_discovery.v1",
+                          "time": {
+                            "freshness": "current",
+                            "observed_at": "2026-02-11T12:00:00Z",
+                            "valid_from": "2026-02-11T12:00:00Z",
+                            "valid_until": "2026-02-11T13:00:00Z"
+                          }
+                        }
+                      ],
+                      "rule_version": "policyos.ds10.discovery.v1",
+                      "schema_version": "policyos.capability_discovery.v1",
+                      "time": {
+                        "freshness": "current",
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "valid_from": "2026-02-11T12:00:00Z",
+                        "valid_until": "2026-02-11T13:00:00Z"
+                      }
+                    }
+                  },
+                  "no_hit_incomplete": {
+                    "summary": "no hit incomplete",
+                    "value": {
+                      "audience": "REVIEWER",
+                      "authority_purpose": "review_capability_candidates",
+                      "frontier": {
+                        "actual_cutoff": null,
+                        "candidates": [],
+                        "completeness_status": "recall_unmeasured",
+                        "configured_store_path": null,
+                        "corpus_kind": "canonical",
+                        "corpus_path": "runtime/quality/capability_discovery.py",
+                        "corpus_ref": "runtime-quality:capability-provider-registry",
+                        "corpus_snapshot_hash": "sha256:1111111111111111111111111111111111111111111111111111111111111111",
+                        "evaluated_count": 0,
+                        "incompleteness": {
+                          "status": "recall_unmeasured"
+                        },
+                        "incompleteness_reasons": [
+                          "dataset:recall_unmeasured"
+                        ],
+                        "index_freshness": {
+                          "index:capability-owner": {
+                            "state": "current"
+                          }
+                        },
+                        "index_version_refs": [
+                          "snapshot:capability-owner"
+                        ],
+                        "indexes_used": [
+                          "index:capability-owner"
+                        ],
+                        "no_hit_frontier": [
+                          "dataset"
+                        ],
+                        "query_expansion_traces": [],
+                        "query_plan": {
+                          "resource_kinds": [
+                            "dataset"
+                          ]
+                        },
+                        "rejected_candidates": [],
+                        "replay_command": "python -m polisyos.runtime.quality.capability_discovery --help",
+                        "replay_expected_output_hash": "sha256:2222222222222222222222222222222222222222222222222222222222222222",
+                        "replay_key": "capability-discovery:openapi:no_hit_incomplete",
+                        "request_ref": "search:openapi:no_hit_incomplete",
+                        "requested_count": 5,
+                        "returned_count": 0,
+                        "schema_version": "policyos.core.contracts.search.v1"
+                      },
+                      "meta": {
+                        "generated_at": "2026-02-11T12:00:00Z",
+                        "request_id": "req_0123456789abcdef",
+                        "source_kinds": []
+                      },
+                      "provenance_refs": [
+                        "runtime-quality:capability-provider-registry"
+                      ],
+                      "request": {
+                        "audience": "REVIEWER",
+                        "resource_kinds": [
+                          "dataset"
+                        ],
+                        "search": {
+                          "allowed_modes": [
+                            "exact"
+                          ],
+                          "authority_purpose": "review_capability_candidates",
+                          "budget": {
+                            "top_k": 5
+                          },
+                          "construct_refs": [
+                            "construct:generated"
+                          ],
+                          "intent": "capability_discovery",
+                          "query_text": "generated capability",
+                          "request_id": "search:openapi:no_hit_incomplete",
+                          "required_layers": [
+                            "runtime_registry"
+                          ],
+                          "rule_version": "policyos.ds10.discovery.v1",
+                          "schema_version": "policyos.core.contracts.search.v1"
+                        }
+                      },
+                      "request_digest": "sha256:4444444444444444444444444444444444444444444444444444444444444444",
+                      "results": [],
+                      "rule_version": "policyos.ds10.discovery.v1",
+                      "schema_version": "policyos.capability_discovery.v1",
+                      "time": {
+                        "freshness": "current",
+                        "observed_at": "2026-02-11T12:00:00Z",
+                        "valid_from": "2026-02-11T12:00:00Z",
+                        "valid_until": "2026-02-11T13:00:00Z"
+                      }
                     }
                   }
                 },
                 "schema": {
-                  "$ref": "#/components/schemas/DataCatalogSearchResponse"
+                  "$ref": "#/components/schemas/CapabilityDiscoveryResponse"
                 }
               }
             },
@@ -34507,10 +36644,16 @@
             "description": "Unexpected runtime API failure."
           }
         },
-        "summary": "Search metric catalog candidates",
+        "summary": "Search dataset capabilities through the canonical owner",
         "tags": [
           "control-plane"
-        ]
+        ],
+        "x-polisyos-action-permission": "evidence.discover",
+        "x-polisyos-resource-binding": {
+          "allow_empty_body": true,
+          "resource_kind": "runtime.capability_discovery.search",
+          "source": "tenant_collection"
+        }
       }
     },
     "/api/v1/control/data/connectors": {

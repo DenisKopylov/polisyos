@@ -14,6 +14,11 @@ export type SurfaceCommandGroup =
   | "workspaceSurfaces";
 export type SurfaceContextRequirement = "runId";
 export type SurfacePermissionKey = "evidence.review" | "runs.review";
+/** Local, typed fixed-chrome availability; discovery never controls it. */
+export type SurfaceAvailability = {
+  featureFlag?: FeatureFlagKey;
+  permissionKey?: SurfacePermissionKey;
+};
 
 export type RunDetailSurfaceKey =
   | "overview"
@@ -34,7 +39,7 @@ export type SurfaceHrefContext = {
   runId?: string | null;
 };
 
-export type SurfaceRegistryEntry = {
+export type SurfaceRegistryEntry = SurfaceAvailability & {
   aliases: readonly string[];
   command: {
     enabled: boolean;
@@ -50,9 +55,7 @@ export type SurfaceRegistryEntry = {
   labelKey: string;
   legacyAliases?: readonly string[];
   parentId?: SurfaceId;
-  permissionKey?: SurfacePermissionKey;
   placement: SurfacePlacement;
-  requiredCapabilities: readonly string[];
   resolveHref: (context: SurfaceHrefContext) => string | null;
   routeId?: string;
   semanticExplanationId: string;
@@ -96,7 +99,6 @@ export const WORKSPACE_SURFACES: readonly SurfaceRegistryEntry[] =
       kind: "workspace",
       labelKey: `shell.nav.${workspaceKey}`,
       placement: "sidebar",
-      requiredCapabilities: workspace.requiredCapabilities,
       resolveHref: () => workspace.path,
       routeId: workspace.key,
       semanticExplanationId: `surface.workspace.${workspaceKey}`,
@@ -116,7 +118,6 @@ export const WORKSPACE_CHILD_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "workspace.runsDecisions",
     permissionKey: "runs.review",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: () => "/runs/cycle-board",
     routeId: "runs.cycleBoard",
     semanticExplanationId: "surface.runs.cycleBoard",
@@ -135,7 +136,6 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "pages.runs.tabs.overview",
     legacyAliases: ["decision"],
     placement: "workspace-tab",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) => (runId ? `/runs/${runId}/overview` : null),
     routeId: "runs.tab.overview",
     semanticExplanationId: "surface.runs.overview",
@@ -152,7 +152,6 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "pages.runs.tabs.causal",
     legacyAliases: ["causal", "graph"],
     placement: "workspace-tab",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) => (runId ? `/runs/${runId}/causal` : null),
     routeId: "runs.tab.causal",
     semanticExplanationId: "surface.runs.causal",
@@ -170,7 +169,6 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     legacyAliases: ["governance"],
     permissionKey: "runs.review",
     placement: "workspace-tab",
-    requiredCapabilities: ["evaluator_reports"],
     resolveHref: ({ runId }) => (runId ? `/runs/${runId}/governance` : null),
     routeId: "runs.tab.governance",
     semanticExplanationId: "surface.runs.governance",
@@ -187,7 +185,6 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     legacyAliases: ["evidence"],
     permissionKey: "evidence.review",
     placement: "workspace-tab",
-    requiredCapabilities: ["promotion_lane"],
     resolveHref: ({ runId }) => (runId ? `/runs/${runId}/evidence` : null),
     routeId: "runs.tab.evidence",
     semanticExplanationId: "surface.runs.evidence",
@@ -203,7 +200,6 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "pages.runs.tabs.workflow",
     legacyAliases: ["lineage", "workflow"],
     placement: "workspace-tab",
-    requiredCapabilities: ["unified_dag"],
     resolveHref: ({ runId }) => (runId ? `/runs/${runId}/workflow` : null),
     routeId: "runs.tab.workflow",
     semanticExplanationId: "surface.runs.workflow",
@@ -220,7 +216,6 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "pages.runs.tabs.artifacts",
     legacyAliases: ["artifacts"],
     placement: "workspace-tab",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) => (runId ? `/runs/${runId}/artifacts` : null),
     routeId: "runs.tab.artifacts",
     semanticExplanationId: "surface.runs.artifacts",
@@ -236,7 +231,6 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "pages.runs.tabs.agents",
     legacyAliases: ["agents", "models"],
     placement: "workspace-tab",
-    requiredCapabilities: ["natural_language_runs"],
     resolveHref: ({ runId }) => (runId ? `/runs/${runId}/agents` : null),
     routeId: "runs.tab.agents",
     semanticExplanationId: "surface.runs.agents",
@@ -252,7 +246,6 @@ export const RUN_DETAIL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "pages.runs.tabs.debug",
     legacyAliases: ["timeline", "nodes", "debug"],
     placement: "workspace-tab",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) => (runId ? `/runs/${runId}/debug` : null),
     routeId: "runs.tab.debug",
     semanticExplanationId: "surface.runs.debug",
@@ -272,7 +265,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.freshnessBraid.label",
     parentId: "workspace.evidenceFabric",
     placement: "panel",
-    requiredCapabilities: ["source_profiles"],
     resolveHref: ({ runId }) =>
       searchHref("/evidence", { runId, surface: "freshness-braid" }),
     routeId: "surface.fabric.freshnessBraid",
@@ -290,7 +282,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.connectorCards.label",
     parentId: "workspace.evidenceFabric",
     placement: "panel",
-    requiredCapabilities: ["source_profiles"],
     resolveHref: ({ runId }) =>
       searchHref("/evidence", { runId, surface: "connector-cards" }),
     routeId: "surface.fabric.connectorCards",
@@ -307,7 +298,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.runChoreography.label",
     parentId: "runs.workflow",
     placement: "panel",
-    requiredCapabilities: ["unified_dag"],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/workflow`, { surface: "choreography" })
@@ -327,7 +317,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.ambientTelemetry.label",
     parentId: "workspace.runsDecisions",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -349,7 +338,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.causalAtlas.label",
     parentId: "runs.causal",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/causal`, { surface: "causal-atlas" })
@@ -370,7 +358,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.identifiabilitySurface.label",
     parentId: "runs.causal",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -392,7 +379,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.sensitivityRotor.label",
     parentId: "runs.overview",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -414,7 +400,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.cohortTimeTraveler.label",
     parentId: "runs.overview",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -436,7 +421,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.stressTestTheatre.label",
     parentId: "runs.governance",
     placement: "panel",
-    requiredCapabilities: ["evaluator_reports"],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -459,7 +443,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "runs.governance",
     permissionKey: "runs.review",
     placement: "panel",
-    requiredCapabilities: ["evaluator_reports"],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/governance`, { surface: "disputes" })
@@ -478,7 +461,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.stakeholderLens.label",
     parentId: "runs.overview",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -500,7 +482,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "runs.governance",
     permissionKey: "runs.review",
     placement: "panel",
-    requiredCapabilities: ["evaluator_reports"],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/governance`, {
@@ -522,7 +503,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "runs.governance",
     permissionKey: "runs.review",
     placement: "panel",
-    requiredCapabilities: ["evaluator_reports"],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/governance`, { surface: "harm-surface" })
@@ -542,7 +522,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "runs.evidence",
     permissionKey: "evidence.review",
     placement: "panel",
-    requiredCapabilities: ["promotion_lane"],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -564,7 +543,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "runs.governance",
     permissionKey: "runs.review",
     placement: "panel",
-    requiredCapabilities: ["evaluator_reports"],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/governance`, {
@@ -587,7 +565,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "runs.governance",
     permissionKey: "runs.review",
     placement: "panel",
-    requiredCapabilities: ["evaluator_reports"],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/governance`, {
@@ -609,7 +586,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.argumentMap.label",
     parentId: "runs.overview",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, { surface: "argument-map" })
@@ -629,7 +605,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.comprehensionLayer.label",
     parentId: "runs.overview",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -650,7 +625,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.glossaryLens.label",
     parentId: "runs.overview",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, { surface: "glossary-lens" })
@@ -669,7 +643,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.confidenceLadder.label",
     parentId: "runs.overview",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -690,7 +663,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.modelCard.label",
     parentId: "runs.artifacts",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, { surface: "model-card" })
@@ -709,7 +681,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.publicViewer.label",
     parentId: "runs.artifacts",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, { surface: "public-viewer" })
@@ -728,7 +699,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.coverageMap.label",
     parentId: "runs.evidence",
     placement: "panel",
-    requiredCapabilities: ["promotion_lane"],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, { surface: "coverage-map" })
@@ -748,7 +718,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.thresholdContract.label",
     parentId: "runs.overview",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -769,7 +738,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.globalTrustDial.label",
     parentId: "runs.overview",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -791,7 +759,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "runs.overview",
     permissionKey: "runs.review",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -813,7 +780,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "runs.artifacts",
     permissionKey: "runs.review",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -835,7 +801,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     parentId: "runs.overview",
     permissionKey: "runs.review",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -857,7 +822,6 @@ export const PANEL_SURFACES: readonly SurfaceRegistryEntry[] = [
     labelKey: "surfaceRegistry.panels.bureaucraticForms.label",
     parentId: "runs.artifacts",
     placement: "panel",
-    requiredCapabilities: [],
     resolveHref: ({ runId }) =>
       runId
         ? searchHref(`/runs/${runId}/overview`, {
@@ -919,7 +883,6 @@ export function getRunDetailSurfaceKey(surface: SurfaceRegistryEntry) {
 export function getCommandPaletteSurfaceEntries(
   context: SurfaceHrefContext & {
     canAccessPermission?: (permission: SurfacePermissionKey) => boolean;
-    hasCapability?: (capability: string) => boolean;
     isFeatureEnabled?: (featureFlag: FeatureFlagKey) => boolean;
     isWorkspaceAllowed?: (workspaceKey: WorkspaceKey) => boolean;
     isWorkspaceEnabled?: (workspaceKey: WorkspaceKey) => boolean;
@@ -948,15 +911,6 @@ export function getCommandPaletteSurfaceEntries(
     if (
       surface.permissionKey &&
       context.canAccessPermission?.(surface.permissionKey) === false
-    ) {
-      return [];
-    }
-
-    if (
-      context.hasCapability &&
-      !surface.requiredCapabilities.every((capability) =>
-        context.hasCapability?.(capability),
-      )
     ) {
       return [];
     }

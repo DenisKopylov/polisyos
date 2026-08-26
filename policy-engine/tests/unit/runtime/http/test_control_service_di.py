@@ -242,6 +242,28 @@ def _build_registry_providers() -> ControlRegistryProviders:
     )
 
 
+def test_registry_bundle_preserves_injected_capability_owner_seams() -> None:
+    """Composition must preserve independent discovery, operation, and verifier owners."""
+    discovery_provider = SimpleNamespace(resource_kind="method")
+    operation_registry = SimpleNamespace()
+    conformance_verifier = SimpleNamespace()
+    base = _build_registry_providers()
+
+    providers = ControlRegistryProviders(
+        connectors=base.connectors,
+        source_profiles=base.source_profiles,
+        binding_profiles=base.binding_profiles,
+        model_profiles=base.model_profiles,
+        capability_discovery_providers=(discovery_provider,),
+        capability_live_operation_registry=operation_registry,
+        capability_conformance_verifier=conformance_verifier,
+    )
+
+    assert providers.capability_discovery_providers == (discovery_provider,)
+    assert providers.capability_live_operation_registry is operation_registry
+    assert providers.capability_conformance_verifier is conformance_verifier
+
+
 def test_control_service_uses_injected_registry_providers(
     monkeypatch: pytest.MonkeyPatch,
     tmp_path,
@@ -470,4 +492,10 @@ def test_runtime_container_passes_control_registry_provider_override(tmp_path) -
     with TestClient(app) as client:
         response = client.get("/api/v1/health")
         assert response.status_code == 200
-        assert app.state._control_service._registry_providers is providers
+        service = app.state._control_service
+        assert service._registry_providers is providers
+        discovery = service._capability_discovery_service
+        assert discovery is not None
+        assert discovery._composer._providers == {}
+        assert discovery._composer._execution_resolver._operation_registry is None
+        assert discovery._composer._execution_resolver._conformance_verifier is None

@@ -1,4 +1,8 @@
 import { governanceDebugQueryOptions } from "@/api/hooks/useGovernanceDebug";
+import {
+  capabilitySearchQueryOptions,
+  createCapabilitySearchRequest,
+} from "@/api/hooks/useCapabilitySearch";
 import { runAgentsQueryOptions } from "@/api/hooks/useRunAgents";
 import { runDetailsQueryOptions } from "@/api/hooks/useRunDetails";
 import { runErrorsQueryOptions } from "@/api/hooks/useRunErrors";
@@ -19,6 +23,7 @@ import type { RunDetailTab } from "@/features/runs";
 
 export type RunTabKey = RunDetailTab;
 type RunTabQueryOptions =
+  | ReturnType<typeof capabilitySearchQueryOptions>
   | ReturnType<typeof governanceDebugQueryOptions>
   | ReturnType<typeof runAgentsQueryOptions>
   | ReturnType<typeof runDetailsQueryOptions>
@@ -133,11 +138,32 @@ export async function primeEvidenceWorkspace(urlLike: string | URL) {
   const workspacePrefetchKeys =
     resolveRoutePrefetchEntry("/evidence")?.entry.handle.prefetch ?? [];
   await primeWorkspace(workspacePrefetchKeys);
+  await ensureQueryData(
+    capabilitySearchQueryOptions(
+      createCapabilitySearchRequest(
+        "evidence",
+        "evidence-capability-discovery",
+      ),
+    ),
+  );
   const search = parseEvidenceSearchParams(resolveUrl(urlLike));
   if (search.runId) {
     await ensureQueryData(runEvidenceContextQueryOptions(search.runId));
   }
   return search;
+}
+
+async function primeCapabilityDiscoveryWorkspace(pathname: string) {
+  const resolved = resolveRoutePrefetchEntry(pathname);
+  await primeWorkspace(resolved?.entry.handle.prefetch ?? []);
+  await ensureQueryData(
+    capabilitySearchQueryOptions(
+      createCapabilitySearchRequest(
+        pathname === "/platform" ? "" : "evidence",
+        `${pathname.slice(1) || "dashboard"}-capability-discovery`,
+      ),
+    ),
+  );
 }
 
 export async function prefetchRouteHref(href: string) {
@@ -152,6 +178,15 @@ export async function prefetchRouteHref(href: string) {
     if (resolved.entry.handle.prefetch?.length) {
       await primeWorkspace(resolved.entry.handle.prefetch);
     }
+    return;
+  }
+
+  if (resolved.entry.kind === "capabilityDiscovery") {
+    if (resolved.entry.pattern === "/evidence") {
+      await primeEvidenceWorkspace(url);
+      return;
+    }
+    await primeCapabilityDiscoveryWorkspace(url.pathname);
     return;
   }
 

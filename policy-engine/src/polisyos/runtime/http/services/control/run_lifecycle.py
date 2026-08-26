@@ -19,6 +19,11 @@ from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_a
 from polisyos.core.artifacts.manifest import ArtifactManifest, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.contracts import (
+    CapabilityDiscoveryRequest,
+    CapabilityDiscoveryResponse,
+    SearchRequest,
+)
 from polisyos.core.contracts.control import (
     BindingProfileInfo,
     BindingProfilesListResponse,
@@ -30,7 +35,6 @@ from polisyos.core.contracts.control import (
     ControlOutboxEventsResponse,
     ControlWorkerLeaseInfo,
     ControlWorkersResponse,
-    DataCatalogSearchResponse,
     DataDiscoverRequest,
     DataDiscoverResponse,
     DataPreviewRequest,
@@ -167,6 +171,7 @@ if TYPE_CHECKING:
     from ...step_up import StepUpReplayStore
     from ..control_registry_providers import ControlRegistryProviders
     from ..scenario_heads import ScenarioHeadStore
+    from .capability_discovery import CapabilityDiscoveryService
 
     class _HumanDecisionSignedArtifactStore(Protocol):
         def get_manifest_bytes(self, artifact_id: artifacts.ArtifactID | str) -> bytes: ...
@@ -781,6 +786,7 @@ class ControlPlaneService(
         self._metrics = metrics if metrics is not None else _default_runtime_metrics()
         self._tracer = tracer if tracer is not None else _default_runtime_tracer()
         self._policy_resolver = policy_resolver or RuntimeExecutionPolicyResolver.from_env()
+        self._capability_discovery_service: CapabilityDiscoveryService | None = None
         if registry_providers is None:
             raise ValueError(
                 "ControlPlaneService requires typed registry_providers from the "
@@ -858,6 +864,17 @@ class ControlPlaneService(
         """Expose only the custodied human-decision persistence boundary."""
 
         return self._human_decision_sink
+
+    @property
+    def execution_policy_resolver(self) -> RuntimeExecutionPolicyResolver:
+        """Expose the policy owner needed by container-only capability composition."""
+        return self._policy_resolver
+
+    def bind_capability_discovery_service(self, service: CapabilityDiscoveryService) -> None:
+        """Bind the sole container-composed discovery owner once."""
+        if self._capability_discovery_service is not None:
+            raise RuntimeError("capability discovery service is already bound")
+        self._capability_discovery_service = service
 
     def close(self) -> None:
         """Stop embedded workers and release durable control-plane resources."""
@@ -2418,19 +2435,47 @@ class ControlPlaneService(
         geography: str | None = None,
         limit: int = 25,
         request_id: str | None = None,
-    ) -> DataCatalogSearchResponse:
-        """Search local metric catalog candidates by metric text and optional geography."""
-        matches = self._retrieval.search_catalog(
-            metric_query=metric_query,
-            geography=geography,
-            limit=limit,
+    ) -> CapabilityDiscoveryResponse:
+        """Delegate the legacy dataset address to canonical capability discovery."""
+        budget: dict[str, object] = {"top_k": limit}
+        if geography is not None:
+            budget["geography"] = geography
+        return self.search_capabilities(
+            CapabilityDiscoveryRequest(
+                search=SearchRequest(
+                    request_id=request_id or f"catalog:{uuid.uuid4().hex}",
+                    query_text=metric_query,
+                    construct_refs=(metric_query,),
+                    intent="capability_discovery",
+                    required_layers=("L1",),
+                    authority_purpose="review_capability_candidates",
+                    allowed_modes=("exact", "alias", "lexical", "semantic"),
+                    budget=budget,
+                    rule_version="policyos.runtime.http.capability_discovery.v1",
+                ),
+                resource_kinds=("dataset",),
+                audience="REVIEWER",
+            ),
+            request_id=request_id,
         )
-        return DataCatalogSearchResponse(
-            meta=_build_api_meta(request_id),
-            query=metric_query,
-            matches=matches,
-            total_matches=len(matches),
+
+    def search_capabilities(
+        self,
+        request: CapabilityDiscoveryRequest,
+        *,
+        request_id: str | None = None,
+    ) -> CapabilityDiscoveryResponse:
+        """Search through the sole injected owner and persist the exact response packet."""
+        service = self._capability_discovery_service
+        if service is None:
+            raise RuntimeError("capability discovery service is not bound")
+        response = service.search(request, meta=_build_api_meta(request_id))
+        self._put_json_artifact(
+            response.model_dump(mode="json"),
+            kind="runtime.capability_discovery_response",
+            schema_name="polisyos.core.contracts.CapabilityDiscoveryResponse",
         )
+        return response
 
     def get_data_index_stats(self, *, request_id: str | None = None) -> IndexStatsResponse:
         """Return retrieval index statistics for `/control/data/index/stats`."""

@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 # ruff: noqa: S101
+import hashlib
+import json
+from datetime import UTC, datetime
 from typing import Any
 
 import pytest
 from hypothesis import HealthCheck, given, settings
 from hypothesis import strategies as st
 
+from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
 from polisyos.runtime.quality.capability_index import (
     AcquisitionStrategy,
     AuthorityEnvelope,
@@ -20,6 +24,11 @@ from polisyos.runtime.quality.capability_index import (
     RightsEnvelope,
 )
 from polisyos.runtime.quality.capability_resolver import (
+    CapabilityConformanceReceipt,
+    CapabilityConformanceVerifier,
+    CapabilityExecutionResolver,
+    CapabilityLiveOperationReceipt,
+    CapabilityLiveOperationRegistry,
     RequirementToCapabilityQuery,
     RequirementToCapabilityResolver,
 )
@@ -198,9 +207,7 @@ def test_population_filter_mismatch_is_rejected_before_selection() -> None:
     assert result.rejected_alternatives[0]["capability_ref"] == (
         "capability:firm_survival_households"
     )
-    assert result.rejected_alternatives[0]["rejection_reason"] == (
-        "population_filter_mismatch"
-    )
+    assert result.rejected_alternatives[0]["rejection_reason"] == ("population_filter_mismatch")
     assert result.rejected_alternatives[0]["rejection_severity"] == "hard"
 
 
@@ -295,6 +302,266 @@ def test_default_fixture_is_removed_from_production_resolution_path() -> None:
         RequirementToCapabilityResolver.default_fixture()
 
 
+class _OperationRegistry(CapabilityLiveOperationRegistry):
+    def __init__(self, receipt: CapabilityLiveOperationReceipt | None) -> None:
+        self._receipt = receipt
+
+    def resolve_operation(self, capability_ref: str) -> CapabilityLiveOperationReceipt | None:
+        return self._receipt
+
+
+class _ConformanceVerifier(CapabilityConformanceVerifier):
+    def __init__(self, receipt: CapabilityConformanceReceipt | None) -> None:
+        self._receipt = receipt
+
+    def verify_conformance(
+        self,
+        *,
+        capability_ref: str,
+        operation: CapabilityLiveOperationReceipt,
+        observed_at: datetime,
+    ) -> CapabilityConformanceReceipt | None:
+        return self._receipt
+
+
+def _operation_receipt(*, requested_profile: str | None = None) -> CapabilityLiveOperationReceipt:
+    content = {
+        "capability_ref": "capability:method:generated",
+        "operation_ref": "operation:method:generated",
+        "requested_profile": requested_profile,
+        "producer_ref": "operation-registry:owner",
+        "snapshot_ref": "operation-registry:snapshot:test",
+        "snapshot_digest": "sha256:" + "1" * 64,
+        "provenance_refs": ("operation-registry:snapshot:test",),
+    }
+    return CapabilityLiveOperationReceipt(
+        **content,
+        operation_digest="sha256:" + _test_content_digest(content),
+    )
+
+
+def _conformance_receipt(
+    operation: CapabilityLiveOperationReceipt,
+    *,
+    valid_until: datetime = datetime(2026, 8, 26, tzinfo=UTC),
+) -> CapabilityConformanceReceipt:
+    content = {
+        "capability_ref": operation.capability_ref,
+        "operation_ref": operation.operation_ref,
+        "operation_digest": operation.operation_digest,
+        "conformance_ref": "conformance:method:generated",
+        "conformance_passed": True,
+        "valid_until": valid_until,
+        "producer_ref": "conformance-verifier:owner",
+        "snapshot_ref": "conformance-verifier:snapshot:test",
+        "snapshot_digest": "sha256:" + "2" * 64,
+        "provenance_refs": ("conformance-verifier:snapshot:test",),
+    }
+    return CapabilityConformanceReceipt(
+        **content,
+        conformance_digest="sha256:" + _test_content_digest(content),
+    )
+
+
+def _test_content_digest(value: object) -> str:
+    payload = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def test_execution_requires_operation_conformance_and_current_policy() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="production",
+        worker_backend="external",
+        state_store_backend="postgres",
+        sqlite_path=":memory:",
+        postgres_dsn="postgresql://runtime",
+    )
+    operation = _operation_receipt(requested_profile="dev")
+    conformance = _conformance_receipt(operation)
+    resolver = CapabilityExecutionResolver(
+        operation_registry=_OperationRegistry(operation),
+        conformance_verifier=_ConformanceVerifier(conformance),
+        policy_resolver=policy,
+    )
+
+    result = resolver.resolve(
+        capability_ref="capability:method:generated",
+        producer_ref="execution:method-registry",
+        provenance_refs=("registry:operations",),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "policy_disabled"
+    assert "execution_profile_downgrade_forbidden" in result.reason_codes
+    assert result.operation_ref == "operation:method:generated"
+    assert result.conformance_ref == "conformance:method:generated"
+    assert result.policy_ref is None
+
+
+def test_execution_rejects_expired_conformance_receipt() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=":memory:",
+        postgres_dsn=None,
+    )
+    operation = _operation_receipt()
+    conformance = _conformance_receipt(
+        operation,
+        valid_until=datetime(2026, 8, 24, tzinfo=UTC),
+    )
+    resolver = CapabilityExecutionResolver(
+        operation_registry=_OperationRegistry(operation),
+        conformance_verifier=_ConformanceVerifier(conformance),
+        policy_resolver=policy,
+    )
+
+    result = resolver.resolve(
+        capability_ref="capability:method:generated",
+        producer_ref="execution:method-registry",
+        provenance_refs=("registry:operations",),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "conformance_failed"
+    assert result.reason_codes == ("conformance_expired",)
+
+
+def test_execution_does_not_fall_back_from_discovery_metadata() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=":memory:",
+        postgres_dsn=None,
+    )
+    resolver = CapabilityExecutionResolver(
+        operation_registry=None,
+        conformance_verifier=None,
+        policy_resolver=policy,
+    )
+
+    result = resolver.resolve(
+        capability_ref="capability:source:metadata-only",
+        producer_ref="execution:source-registry",
+        provenance_refs=("fabric:best-effort-metadata",),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "not_established"
+    assert result.reason_codes == ("live_operation_registry_not_established",)
+
+
+def test_raw_registration_sequence_is_not_an_execution_producer() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=":memory:",
+        postgres_dsn=None,
+    )
+    with pytest.raises(TypeError, match="registrations"):
+        CapabilityExecutionResolver(  # type: ignore[call-arg]
+            registrations=(),
+            policy_resolver=policy,
+        )
+
+
+def test_content_mutated_operation_receipt_cannot_become_executable() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=":memory:",
+        postgres_dsn=None,
+    )
+    operation = _operation_receipt().model_copy(
+        update={"operation_ref": "operation:method:mutated"}
+    )
+    resolver = CapabilityExecutionResolver(
+        operation_registry=_OperationRegistry(operation),
+        conformance_verifier=_ConformanceVerifier(None),
+        policy_resolver=policy,
+    )
+
+    result = resolver.resolve(
+        capability_ref="capability:method:generated",
+        producer_ref="execution:method-registry",
+        provenance_refs=("registry:operations",),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "not_established"
+    assert result.reason_codes == ("operation_receipt_content_mismatch",)
+
+
+def test_content_mutated_conformance_receipt_cannot_become_executable() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=":memory:",
+        postgres_dsn=None,
+    )
+    operation = _operation_receipt()
+    conformance = _conformance_receipt(operation).model_copy(
+        update={"conformance_ref": "conformance:method:mutated"}
+    )
+    resolver = CapabilityExecutionResolver(
+        operation_registry=_OperationRegistry(operation),
+        conformance_verifier=_ConformanceVerifier(conformance),
+        policy_resolver=policy,
+    )
+
+    result = resolver.resolve(
+        capability_ref="capability:method:generated",
+        producer_ref="execution:method-registry",
+        provenance_refs=("registry:operations",),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "not_established"
+    assert result.reason_codes == ("conformance_receipt_content_mismatch",)
+
+
+def test_verified_operation_conformance_and_policy_are_executable() -> None:
+    policy = RuntimeExecutionPolicyResolver(
+        default_profile="dev",
+        worker_backend="embedded",
+        state_store_backend="sqlite",
+        sqlite_path=":memory:",
+        postgres_dsn=None,
+    )
+    operation = _operation_receipt()
+    conformance = _conformance_receipt(operation)
+    resolver = CapabilityExecutionResolver(
+        operation_registry=_OperationRegistry(operation),
+        conformance_verifier=_ConformanceVerifier(conformance),
+        policy_resolver=policy,
+    )
+
+    result = resolver.resolve(
+        capability_ref="capability:method:generated",
+        producer_ref="execution:method-registry",
+        provenance_refs=("discovery:index",),
+        observed_at=datetime(2026, 8, 25, tzinfo=UTC),
+    )
+
+    assert result.state == "executable"
+    assert result.operation_ref == "operation:method:generated"
+    assert result.conformance_ref == "conformance:method:generated"
+    assert result.policy_ref.startswith("runtime-execution-policy:sha256:")
+    assert "operation-registry:snapshot:test" in result.provenance_refs
+    assert "conformance-verifier:snapshot:test" in result.provenance_refs
+
+
 def test_cross_modal_traceability_uses_same_construct_and_capability_index_ref() -> None:
     resolver = RequirementToCapabilityResolver(
         capabilities=(
@@ -326,8 +593,10 @@ def test_cross_modal_traceability_uses_same_construct_and_capability_index_ref()
     )
 
     assert data.construct_ref == scholar.construct_ref == "construct:firm_survival"
-    assert data.capability_index_ref == scholar.capability_index_ref == (
-        "capability-index:test-fixture"
+    assert (
+        data.capability_index_ref
+        == scholar.capability_index_ref
+        == ("capability-index:test-fixture")
     )
 
 

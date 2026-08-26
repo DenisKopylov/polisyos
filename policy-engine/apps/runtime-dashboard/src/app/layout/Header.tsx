@@ -1,7 +1,10 @@
 import { useLocation } from "react-router-dom";
 
 import { useAuthzDecision } from "@/app/authz/AuthzProvider";
-import { useCapabilities } from "@/api/hooks/useCapabilities";
+import {
+  createCapabilitySearchRequest,
+  useCapabilitySearch,
+} from "@/api/hooks/useCapabilitySearch";
 import { useHealth } from "@/api/hooks/useHealth";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
 import { useInterfaceMode } from "@/app/providers/InterfaceModeProvider";
@@ -35,7 +38,9 @@ function resolveHealthBadge(status: string | undefined, unavailable: string) {
 export default function Header() {
   const location = useLocation();
   const healthQuery = useHealth();
-  const capabilitiesQuery = useCapabilities();
+  const capabilitySearchQuery = useCapabilitySearch(
+    createCapabilitySearchRequest("", "header-capability-discovery"),
+  );
   const runsQuery = useRunsSample();
   const runsLive = useRunsLiveStatus();
   const authzDecision = useAuthzDecision();
@@ -46,9 +51,7 @@ export default function Header() {
   const { locale, setLocale, t } = useI18n();
   const workspace = WORKSPACES[resolveWorkspaceKey(location.pathname)];
   const header = workspace.resolveHeader(location.pathname);
-  const activeFeatures = (capabilitiesQuery.data?.features ?? []).filter(
-    (feature) => feature.enabled,
-  ).length;
+  const capabilityCount = capabilitySearchQuery.data?.response.results.length;
   const reviewRuns = (runsQuery.data?.runs ?? []).filter(
     (run) => run.decision_review_required === true,
   ).length;
@@ -119,7 +122,8 @@ export default function Header() {
                 : t("shell.header.checking")}
             </Badge>
             <Badge kind="neutral">
-              {t("shell.header.capabilities")}: {activeFeatures}
+              {t("shell.header.capabilities")}:{" "}
+              {capabilityCount ?? t("common.unknown")}
             </Badge>
             <Badge {...authorityStatusBadgeProps(reviewPresentation)}>
               {reviewPresentation.recognition === "unrecognized"

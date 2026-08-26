@@ -10,6 +10,7 @@ from contextlib import redirect_stderr, redirect_stdout
 from io import StringIO
 from pathlib import Path
 from textwrap import dedent
+from time import monotonic
 from typing import Any, Mapping
 
 ATLAS_DIR = Path(__file__).resolve().parent
@@ -593,10 +594,10 @@ class AtlasEnforcementTests(unittest.TestCase):
                 1,
             ),
             "local_parameter": capability_source.replace(
-                "export function useCapabilityDiscovery(): CapabilityDiscovery {",
+                "export function useCapabilityManifestAvailability(): CapabilityDiscovery {",
                 "function issueLocalManifest(\n  local: CapabilityManifestResponse,\n): CapabilityDiscovery {\n"
                 "  return issueCapabilityDiscovery({ manifest: local, state: \"available\" });\n}\n\n"
-                "export function useCapabilityDiscovery(): CapabilityDiscovery {",
+                "export function useCapabilityManifestAvailability(): CapabilityDiscovery {",
                 1,
             ),
             "helper_wrapped_query": capability_source.replace(
@@ -775,6 +776,956 @@ class AtlasEnforcementTests(unittest.TestCase):
         for packet in malformed_packets:
             with self.subTest(packet=packet):
                 self.assertTrue(checker._capability_discovery_errors(packet))
+
+    def test_ds10_python_manifest_strangle_resolves_import_and_module_aliases(self) -> None:
+        """Reject direct feature constructors only when they feed manifest features."""
+        direct_path = "src/polisyos/runtime/http/services/control/direct_probe.py"
+        module_path = "src/polisyos/runtime/http/services/control/module_probe.py"
+        unrelated_path = "src/polisyos/runtime/http/services/control/unrelated_probe.py"
+        contributors = checker.control_capability_manifest_contributors(
+            {
+                direct_path: dedent(
+                    """
+                    from polisyos.core.contracts.control import (
+                        CapabilityFeatureInfo as Feature,
+                        CapabilityManifestResponse as Manifest,
+                    )
+                    def build(meta):
+                        projected = [Feature(key="generated", label="Generated",
+                                             description="probe", category="probe")]
+                        rows = tuple(projected)
+                        return Manifest(meta=meta, features=rows)
+                    """
+                ),
+                module_path: dedent(
+                    """
+                    import polisyos.core.contracts.control
+                    def build(meta):
+                        rows = []
+                        rows.append(polisyos.core.contracts.control.CapabilityFeatureInfo(
+                            key="generated", label="Generated",
+                            description="probe", category="probe",
+                        ))
+                        return polisyos.core.contracts.control.CapabilityManifestResponse(
+                            meta=meta, features=rows,
+                        )
+                    """
+                ),
+                unrelated_path: dedent(
+                    """
+                    from polisyos.core.contracts.control import CapabilityFeatureInfo
+                    diagnostic = CapabilityFeatureInfo(
+                        key="generated", label="Generated",
+                        description="not returned in a manifest", category="probe",
+                    )
+                    """
+                ),
+            }
+        )
+
+        self.assertEqual(2, len(contributors))  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            any(row.startswith(f"{direct_path}:") for row in contributors)
+        )
+        self.assertTrue(  # noqa: PT009
+            any(row.startswith(f"{module_path}:") for row in contributors)
+        )
+        self.assertFalse(  # noqa: PT009
+            any(row.startswith(f"{unrelated_path}:") for row in contributors)
+        )
+
+    def test_ds10_python_manifest_strangle_follows_indirect_and_cross_module_flow(self) -> None:
+        """Reject assigned constructor aliases, helper returns, and imported row values."""
+        base_dir = "src/polisyos/runtime/http/services/control"
+        fixtures = (
+            (
+                "assigned-constructor-alias",
+                {
+                    f"{base_dir}/assigned_alias_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import (
+                            CapabilityFeatureInfo as Feature,
+                            CapabilityManifestResponse as Manifest,
+                        )
+                        FeatureAlias = Feature
+                        def build(meta):
+                            rows = [FeatureAlias(
+                                key="generated", label="Generated",
+                                description="probe", category="probe",
+                            )]
+                            return Manifest(meta=meta, features=rows)
+                        """
+                    )
+                },
+                f"{base_dir}/assigned_alias_probe.py:",
+            ),
+            (
+                "helper-return-flow",
+                {
+                    f"{base_dir}/helper_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import (
+                            CapabilityFeatureInfo as Feature,
+                            CapabilityManifestResponse as Manifest,
+                        )
+                        def rows():
+                            return [Feature(
+                                key="generated", label="Generated",
+                                description="probe", category="probe",
+                            )]
+                        def build(meta):
+                            return Manifest(meta=meta, features=rows())
+                        """
+                    )
+                },
+                f"{base_dir}/helper_probe.py:",
+            ),
+            (
+                "cross-module-flow",
+                {
+                    f"{base_dir}/rows_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import CapabilityFeatureInfo as Feature
+                        authored_rows = [Feature(
+                            key="generated", label="Generated",
+                            description="probe", category="probe",
+                        )]
+                        """
+                    ),
+                    f"{base_dir}/manifest_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import CapabilityManifestResponse
+                        from .rows_probe import authored_rows
+                        def build(meta):
+                            return CapabilityManifestResponse(meta=meta, features=authored_rows)
+                        """
+                    ),
+                },
+                f"{base_dir}/rows_probe.py:",
+            ),
+            (
+                "unresolved-import-fails-closed",
+                {
+                    f"{base_dir}/unresolved_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import CapabilityManifestResponse
+                        from .missing_rows import authored_rows
+                        def build(meta):
+                            return CapabilityManifestResponse(meta=meta, features=authored_rows)
+                        """
+                    )
+                },
+                f"unresolved_manifest_features:{base_dir}/unresolved_probe.py:",
+            ),
+            (
+                "missing-imported-export-fails-closed",
+                {
+                    f"{base_dir}/empty_rows_probe.py": "unrelated_rows = []\n",
+                    f"{base_dir}/missing_export_probe.py": dedent(
+                        """
+                        from polisyos.core.contracts.control import CapabilityManifestResponse
+                        from .empty_rows_probe import authored_rows
+                        def build(meta):
+                            return CapabilityManifestResponse(meta=meta, features=authored_rows)
+                        """
+                    ),
+                },
+                f"unresolved_manifest_features:{base_dir}/missing_export_probe.py:",
+            ),
+        )
+
+        for label, sources, expected_prefix in fixtures:
+            with self.subTest(label=label):
+                contributors = checker.control_capability_manifest_contributors(sources)
+                self.assertTrue(  # noqa: PT009
+                    any(row.startswith(expected_prefix) for row in contributors), contributors
+                )
+
+    def test_ds10_generic_render_boundary_rejects_indirect_and_sibling_literals(self) -> None:
+        """Reject authored rows/branches through an imported sibling while accepting chrome."""
+        generated_ref = "".join(("capability", "-", "boundary", "-", "probe"))
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryPanel.tsx"
+                ): (
+                    'import { renderRows } from "./CapabilityDiscoveryRows";\n'
+                    "export const panel = renderRows;\n"
+                ),
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryRows.tsx"
+                ): (
+                    f'const selected = "{generated_ref}";\n'
+                    'const rows = [{ capability_ref: selected, resource_kind: "dataset" }];\n'
+                    "export function renderRows(result: {\n"
+                    "  capability_ref: string; adapter_id: string;\n"
+                    "}) {\n"
+                    "  switch (result.adapter_id) { case selected: return rows; }\n"
+                    "  return result.capability_ref === selected ? rows : [];\n"
+                    "}\n"
+                ),
+                "apps/runtime-dashboard/src/app/surfaces/workspaceConfig.ts": (
+                    "type WorkspaceConfig = { route: string; tab: string };\n"
+                    "export const workspace: WorkspaceConfig = "
+                    '{ route: "runs", tab: "overview" };\n'
+                ),
+            }
+        )
+
+        self.assertTrue(errors)  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            all("CapabilityDiscoveryRows.tsx" in error for error in errors)
+        )
+        self.assertFalse(  # noqa: PT009
+            any("workspaceConfig" in error for error in errors)
+        )
+
+    def test_ds10_generic_render_boundary_follows_real_picker_consumers(self) -> None:
+        """Reject a hook consumer and its helper without treating fixed chrome as discovery."""
+        hook_path = "apps/runtime-dashboard/src/api/hooks/useCapabilitySearch.ts"
+        consumer_path = (
+            "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx"
+        )
+        rows_path = "apps/runtime-dashboard/src/features/commandPalette/pickerRows.ts"
+        generated_ref = "capability:command-palette:hardcoded"
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                hook_path: dedent(
+                    """
+                    export type CapabilitySearchResult = {
+                      capability_ref: string;
+                      resource_kind: string;
+                    };
+                    export function useCapabilitySearch(): {
+                      results: readonly CapabilitySearchResult[];
+                    } {
+                      return { results: [] };
+                    }
+                    """
+                ),
+                consumer_path: dedent(
+                    f"""
+                    import {{ useCapabilitySearch }} from "@/api/hooks/useCapabilitySearch";
+                    import {{ pickerRows }} from "./pickerRows";
+                    type SurfaceEntry = {{ kind: "route" | "action" }};
+                    export function render(entry: SurfaceEntry) {{
+                      const fixedChrome = entry.kind === "route";
+                      return useCapabilitySearch().results.map((result) =>
+                        result.capability_ref === "{generated_ref}"
+                          ? pickerRows
+                          : fixedChrome,
+                      );
+                    }}
+                    """
+                ),
+                rows_path: dedent(
+                    f"""
+                    const generatedRef = "{generated_ref}";
+                    export const pickerRows = [{{
+                      capability_ref: generatedRef,
+                      resource_kind: "method",
+                    }}];
+                    """
+                ),
+            }
+        )
+
+        self.assertEqual(  # noqa: PT009
+            1,
+            sum(
+                consumer_path in error and error.endswith(":literal_result_branch")
+                for error in errors
+            ),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(
+                rows_path in error and error.endswith(":authored_capability_ref")
+                for error in errors
+            ),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(
+                rows_path in error and error.endswith(":authored_resource_kind")
+                for error in errors
+            ),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(
+                rows_path in error and error.endswith(":authored_result_array")
+                for error in errors
+            ),
+            errors,
+        )
+
+    def test_ds10_legacy_manifest_feature_reads_cover_all_production_typescript(self) -> None:
+        """Reject executable legacy-manifest reads without scanning declarations or tests."""
+        manifest_shape = """
+            type CapabilityManifest = {
+              runtime_api_version: string;
+              supported_execution_profiles: string[];
+              constraints: Record<string, unknown>;
+              features: Array<{ category: string; enabled: boolean; label: string }>;
+            };
+        """
+        violating_sources = (
+            (
+                "platform-property-access",
+                "apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.tsx",
+                manifest_shape
+                + """
+                    declare const capabilitiesQuery: { data?: CapabilityManifest };
+                    const features = capabilitiesQuery.data?.features ?? [];
+                    export const rendered = features.map((feature) => feature.label);
+                """,
+                "property_access",
+            ),
+            (
+                "evidence-element-access",
+                "apps/runtime-dashboard/src/features/evidence/routes/EvidenceFabricPage.tsx",
+                manifest_shape
+                + """
+                    declare const capabilitiesQuery: { data?: CapabilityManifest };
+                    const enabled = (capabilitiesQuery.data?.["features"] ?? []).filter(
+                      (feature) => feature.category === "evidence",
+                    );
+                    export const rendered = enabled.map((feature) => feature.label);
+                """,
+                "element_access",
+            ),
+            (
+                "destructured-features",
+                "apps/runtime-dashboard/src/features/composer/routes/ManifestConsumer.tsx",
+                manifest_shape
+                + """
+                    declare const manifest: CapabilityManifest;
+                    const { features: executionFeatures } = manifest;
+                    export const enabled = executionFeatures.some((feature) => feature.enabled);
+                """,
+                "destructure",
+            ),
+        )
+        for label, path, source, syntax in violating_sources:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(
+                    {path: ts_source(source)}
+                )
+                self.assertTrue(  # noqa: PT009 - include the source-specific receipt.
+                    any(
+                        path in error and error.endswith(f":legacy_manifest_features_read_{syntax}")
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+        excluded_or_declarative_sources = (
+            (
+                "schema-and-declaration-only",
+                "apps/runtime-dashboard/src/api/manifestSchema.ts",
+                manifest_shape
+                + """
+                    type FeatureRows = CapabilityManifest["features"];
+                    declare const runtimeManifest: CapabilityManifest;
+                    declare function inspectManifest(
+                      { features }: CapabilityManifest,
+                    ): void;
+                    export type { FeatureRows };
+                    void runtimeManifest;
+                """,
+            ),
+            (
+                "unrelated-runtime-features",
+                "apps/runtime-dashboard/src/app/surfaces/fixedChrome.ts",
+                """
+                    const fixedChrome = { features: ["runs", "evidence"] };
+                    export const routes = fixedChrome.features;
+                """,
+            ),
+            (
+                "unit-test-file",
+                "apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.test.tsx",
+                manifest_shape
+                + """
+                    declare const manifest: CapabilityManifest;
+                    export const rows = manifest.features;
+                """,
+            ),
+            (
+                "story-file",
+                "apps/runtime-dashboard/src/features/platform/routes/PlatformHealthPage.stories.tsx",
+                manifest_shape
+                + """
+                    declare const manifest: CapabilityManifest;
+                    export const rows = manifest["features"];
+                """,
+            ),
+            (
+                "test-directory",
+                "apps/runtime-dashboard/src/test/manifestConsumer.tsx",
+                manifest_shape
+                + """
+                    declare const manifest: CapabilityManifest;
+                    export const { features } = manifest;
+                """,
+            ),
+        )
+        for label, path, source in excluded_or_declarative_sources:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(
+                    {path: ts_source(source)}
+                )
+                self.assertEqual([], errors, (label, errors))  # noqa: PT009
+
+    def test_ds10_generic_render_boundary_resolves_imported_values_and_computed_rows(self) -> None:
+        """Reject imported branch literals and indirect rows with computed semantic keys."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        values_path = f"{render_dir}/CapabilityDiscoveryValues.ts"
+        rows_path = f"{render_dir}/CapabilityDiscoveryRows.tsx"
+        generated_id = "".join(("capability", "-", "imported", "-", "probe"))
+        sources = {
+            root_path: (
+                'import { importedId, importedKind } from "./CapabilityDiscoveryValues";\n'
+                "export function render(result: { id: string; resource_kind: string }) {\n"
+                "  if (result.id === importedId) return null;\n"
+                "  if (result.resource_kind === importedKind) return null;\n"
+                "  return null;\n"
+                "}\n"
+            ),
+            values_path: (
+                f'export const importedId = "{generated_id}";\n'
+                'export const importedKind = "agent";\n'
+            ),
+            rows_path: (
+                f'const importedId = "{generated_id}";\n'
+                'const row = { ["capability_ref"]: importedId, '
+                '["resource_kind"]: "agent" };\n'
+                "export const rows = [row];\n"
+            ),
+        }
+
+        errors = checker.check_capability_discovery_result_boundary(sources)
+
+        self.assertEqual(  # noqa: PT009
+            2,
+            sum(
+                root_path in error and error.endswith(":literal_result_branch") for error in errors
+            ),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(rows_path in error and ":authored_capability_ref" in error for error in errors),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(rows_path in error and ":authored_resource_kind" in error for error in errors),
+            errors,
+        )
+        self.assertTrue(  # noqa: PT009
+            any(
+                rows_path in error and error.endswith(":authored_result_array") for error in errors
+            ),
+            errors,
+        )
+
+    def test_ds10_generic_render_boundary_resolves_static_es_module_graph(self) -> None:
+        """Reject semantic literals through every static ES module binding form."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        fixtures = (
+            (
+                "default-import-and-literal-export",
+                {
+                    root_path: (
+                        'import selected from "./CapabilityDiscoveryValues";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": 'export default "agent";\n',
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "namespace-member",
+                {
+                    root_path: (
+                        'import * as values from "./CapabilityDiscoveryValues";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === values.selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const selected = "capability-namespace-probe";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "unrelated-lexical-shadow-does-not-rebind-import",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryValues";\n'
+                        "function unrelated(runtimeValue: string) {\n"
+                        "  const selected = runtimeValue;\n"
+                        "  return selected;\n"
+                        "}\n"
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const selected = "capability-module-binding";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "named-reexport-alias-chain",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryBarrelA";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrelA.ts": (
+                        'export { relay as selected } from "./CapabilityDiscoveryBarrelB";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrelB.ts": (
+                        'export { origin as relay } from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const origin = "dataset";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "default-reexport-chain",
+                {
+                    root_path: (
+                        'import selected from "./CapabilityDiscoveryBarrel";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export { origin as default } from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const origin = "capability-default-reexport";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "star-reexport-chain",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryBarrel";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export * from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const selected = "source";\n'
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "default-export-identifier",
+                {
+                    root_path: (
+                        'import selected from "./CapabilityDiscoveryValues";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'const selected = "capability-default-identifier";\n'
+                        "export default selected;\n"
+                    ),
+                },
+                root_path,
+                "literal_result_branch",
+            ),
+            (
+                "imported-result-row-through-star",
+                {
+                    root_path: (
+                        'import { row } from "./CapabilityDiscoveryBarrel";\n'
+                        "export const rows = [row];\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export * from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const row = { capability_ref: "capability-row-probe", '
+                        'resource_kind: "agent" };\n'
+                    ),
+                },
+                root_path,
+                "authored_result_array",
+            ),
+        )
+
+        for label, sources, finding_path, finding_kind in fixtures:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(sources)
+                self.assertTrue(  # noqa: PT009
+                    any(
+                        finding_path in error and error.endswith(f":{finding_kind}")
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_ds10_generic_render_boundary_propagates_namespace_barrel_provenance(
+        self,
+    ) -> None:
+        """Resolve or fail closed on semantic values carried by namespace barrels."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        fixtures = (
+            (
+                "namespace-barrel-literal",
+                {
+                    root_path: (
+                        'import { lookup } from "./CapabilityDiscoveryBarrel";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === lookup.kind;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export * as lookup from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const kind = "agent";\n'
+                    ),
+                },
+                "literal_result_branch",
+            ),
+            (
+                "aliased-namespace-barrel-chain",
+                {
+                    root_path: (
+                        'import { lookup } from "./CapabilityDiscoveryBarrelA";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === lookup.kind;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrelA.ts": (
+                        'export { catalog as lookup } from "./CapabilityDiscoveryBarrelB";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrelB.ts": (
+                        'export * as catalog from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const kind = "dataset";\n'
+                    ),
+                },
+                "literal_result_branch",
+            ),
+            (
+                "unresolved-namespace-member",
+                {
+                    root_path: (
+                        'import { lookup } from "./CapabilityDiscoveryBarrel";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === lookup.missing;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryBarrel.ts": (
+                        'export * as lookup from "./CapabilityDiscoveryValues";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const kind = "agent";\n'
+                    ),
+                },
+                "unresolved_semantic_value",
+            ),
+        )
+
+        for label, sources, finding_kind in fixtures:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(sources)
+                self.assertTrue(  # noqa: PT009
+                    any(
+                        root_path in error and error.endswith(f":{finding_kind}")
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_ds10_generic_render_boundary_derives_result_id_from_row_provenance(self) -> None:
+        """Reject row IDs by result origin/type across callbacks, aliases, and destructuring."""
+        render_path = (
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "CapabilityDiscoveryPanel.tsx"
+        )
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                render_path: (
+                    "type Row = { id: string; capability_ref: string; resource_kind: string };\n"
+                    "type Response = { results: readonly Row[] };\n"
+                    "export function render(response: Response, collection: readonly Row[]) {\n"
+                    "  const direct = response.results.map(item =>\n"
+                    '    item.id === "capability-hardcoded-item");\n'
+                    "  const renamed = collection.map(entry =>\n"
+                    '    entry.id === "capability-hardcoded-entry");\n'
+                    "  const destructured = response.results.map(({ id, capability_ref }) =>\n"
+                    '    id === "capability-hardcoded-destructured");\n'
+                    "  const aliased = response.results.map(item => {\n"
+                    "    const record = item;\n"
+                    '    return record.id === "capability-hardcoded-alias";\n'
+                    "  });\n"
+                    "  return [direct, renamed, destructured, aliased];\n"
+                    "}\n"
+                )
+            }
+        )
+
+        self.assertEqual(  # noqa: PT009
+            4,
+            sum(error.endswith(":literal_result_branch") for error in errors),
+            errors,
+        )
+
+    def test_ds10_generic_render_boundary_keeps_ui_ids_and_runtime_row_values_benign(
+        self,
+    ) -> None:
+        """Accept renamed UI ID branches and runtime values on semantic result rows."""
+        render_path = (
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "CapabilityDiscoveryPanel.tsx"
+        )
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                render_path: (
+                    "type Row = { id: string; capability_ref: string };\n"
+                    'const resultHeading = { id: "capability-search-heading", role: "heading" };\n'
+                    "export function render(rows: readonly Row[], selected: string) {\n"
+                    '  const headingMatch = resultHeading.id === "capability-search-heading";\n'
+                    "  const rowMatches = rows.map(item => item.id === selected);\n"
+                    "  return [headingMatch, rowMatches];\n"
+                    "}\n"
+                ),
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryRuntimeNamespace.tsx"
+                ): (
+                    'import { lookup } from "./CapabilityDiscoveryRuntimeBarrel";\n'
+                    "export const render = (row: { resource_kind: string }) => "
+                    "row.resource_kind === lookup.kind;\n"
+                ),
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryRuntimeBarrel.ts"
+                ): 'export * as lookup from "./CapabilityDiscoveryRuntimeValues";\n',
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryRuntimeValues.ts"
+                ): (
+                    "declare function deriveKind(): string;\n"
+                    "export const kind = deriveKind();\n"
+                ),
+            }
+        )
+
+        self.assertEqual([], errors)  # noqa: PT009
+
+    def test_ds10_generic_render_boundary_fails_closed_on_unresolved_module_values(
+        self,
+    ) -> None:
+        """Reject missing exports and cyclic aliases used by semantic result branches."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        fixtures = (
+            (
+                "missing-export",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryValues";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryValues.ts": (
+                        'export const unrelated = "agent";\n'
+                    ),
+                },
+            ),
+            (
+                "alias-cycle",
+                {
+                    root_path: (
+                        'import { selected } from "./CapabilityDiscoveryAliasA";\n'
+                        "export const render = (result: { resource_kind: string }) => "
+                        "result.resource_kind === selected;\n"
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryAliasA.ts": (
+                        'export { selected } from "./CapabilityDiscoveryAliasB";\n'
+                    ),
+                    f"{render_dir}/CapabilityDiscoveryAliasB.ts": (
+                        'export { selected } from "./CapabilityDiscoveryAliasA";\n'
+                    ),
+                },
+            ),
+        )
+
+        for label, sources in fixtures:
+            with self.subTest(label=label):
+                errors = checker.check_capability_discovery_result_boundary(sources)
+                self.assertTrue(  # noqa: PT009
+                    any(
+                        root_path in error
+                        and error.endswith(":unresolved_semantic_value")
+                        for error in errors
+                    ),
+                    errors,
+                )
+
+    def test_ds10_generic_render_boundary_bounds_star_cycles(self) -> None:
+        """Terminate a repository-scale cyclic re-export graph and fail closed."""
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        root_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        module_count = 80
+        sources = {
+            root_path: (
+                'import { selected } from "./CapabilityDiscoveryCycle0";\n'
+                "export const render = (result: { resource_kind: string }) => "
+                "result.resource_kind === selected;\n"
+            )
+        }
+        for index in range(module_count):
+            next_index = (index + 1) % module_count
+            sources[f"{render_dir}/CapabilityDiscoveryCycle{index}.ts"] = (
+                f'export * from "./CapabilityDiscoveryCycle{next_index}";\n'
+            )
+
+        started = monotonic()
+        errors = checker.check_capability_discovery_result_boundary(sources)
+        elapsed = monotonic() - started
+
+        self.assertLess(elapsed, 5.0)  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            any(error.endswith(":unresolved_semantic_value") for error in errors),
+            errors,
+        )
+
+    def test_ds10_generic_render_boundary_keeps_plain_ids_and_runtime_values_benign(
+        self,
+    ) -> None:
+        """Accept a11y object IDs and data-driven branch values outside authored rows."""
+        render_path = (
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "CapabilityDiscoveryPanel.tsx"
+        )
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                render_path: (
+                    'import { selected } from "./CapabilityDiscoveryValues";\n'
+                    'const heading = { id: "capability-search-heading", role: "heading" };\n'
+                    "export function render(result: { id: string }, selected: string) {\n"
+                    "  void heading;\n"
+                    "  return result.id === selected;\n"
+                    "}\n"
+                ),
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryValues.ts"
+                ): 'export const selected = "capability-shadowed-import";\n',
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryLocalShadow.tsx"
+                ): (
+                    'const selected = "capability-shadowed-local";\n'
+                    "export function render(result: { id: string }, selected: string) {\n"
+                    "  return result.id === selected;\n"
+                    "}\n"
+                ),
+            }
+        )
+
+        self.assertEqual([], errors)  # noqa: PT009
+
+    def test_ds10_generic_render_boundary_keeps_result_id_branch_semantic(self) -> None:
+        """Reject a literal result ID without treating every plain object ID as semantic."""
+        render_path = (
+            "apps/runtime-dashboard/src/features/evidence/components/"
+            "CapabilityDiscoveryPanel.tsx"
+        )
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                render_path: (
+                    "export function render(result: { id: string; capability_ref: string }) {\n"
+                    '  return result.id === "capability-hardcoded-result";\n'
+                    "}\n"
+                )
+            }
+        )
+
+        self.assertEqual(  # noqa: PT009
+            [f"hardcoded_discovery_result:{render_path}:2:literal_result_branch"],
+            errors,
+        )
+
+    def test_ds10_generic_render_boundary_accepts_data_driven_mapping(self) -> None:
+        """Keep generic result mapping green when it carries no authored row or kind switch."""
+        errors = checker.check_capability_discovery_result_boundary(
+            {
+                (
+                    "apps/runtime-dashboard/src/features/evidence/components/"
+                    "CapabilityDiscoveryPanel.tsx"
+                ): (
+                    "export function Panel({ results }: { results: readonly unknown[] }) {\n"
+                    "  return results.map((result) => JSON.stringify(result));\n"
+                    "}\n"
+                )
+            }
+        )
+
+        self.assertEqual([], errors)  # noqa: PT009
+
+    def test_ds10_validate_enforcement_runs_both_checks_on_derived_sources(self) -> None:
+        """Bind both generic checks to the live validation entry point."""
+        python_path = "src/polisyos/runtime/http/services/control/generated_probe.py"
+        render_dir = "apps/runtime-dashboard/src/features/evidence/components"
+        render_path = f"{render_dir}/CapabilityDiscoveryPanel.tsx"
+        errors, scan = checker.validate_enforcement(
+            source_overrides={
+                python_path: dedent(
+                    """
+                    from polisyos.core.contracts.control import (
+                        CapabilityFeatureInfo as Feature,
+                        CapabilityManifestResponse as Manifest,
+                    )
+                    def build(meta):
+                        rows = [Feature(key="generated", label="Generated",
+                                        description="probe", category="probe")]
+                        return Manifest(meta=meta, features=rows)
+                    """
+                ),
+                render_path: (
+                    'const selected = "capability-boundary-probe";\n'
+                    'export const rows = [{ capability_ref: selected, resource_kind: "method" }];\n'
+                ),
+            },
+            enforce_authority_escapes=False,
+        )
+
+        self.assertEqual(1, len(scan["capabilityManifestContributors"]))  # noqa: PT009
+        self.assertTrue(scan["capabilityDiscoveryRenderErrors"])  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            any(error.startswith("authored_capability_manifest_feature:") for error in errors)
+        )
+        self.assertTrue(  # noqa: PT009
+            any(error.startswith("hardcoded_discovery_result:") for error in errors)
+        )
 
     def test_real_illegal_edges_fail_custom_and_dependency_engines(self) -> None:
         errors, receipt = checker._architecture_recurrence_errors()

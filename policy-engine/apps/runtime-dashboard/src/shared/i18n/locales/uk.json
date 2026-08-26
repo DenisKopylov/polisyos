@@ -3271,6 +3271,16 @@
     "approvalNeedsReview": "Перевірте evidence готовності до approval перед релізом.",
     "qualityNeedsReview": "Докази якості потребують перевірки оператором."
   },
+  "capabilityDiscovery": {
+    "eyebrow": "Пошук спроможностей",
+    "title": "Пошук спроможностей",
+    "downloadMachine": "Завантажити MACHINE JSON",
+    "searchLabel": "Шукати спроможності",
+    "unavailable": "Пошук спроможностей недоступний.",
+    "complete": "Неповноту не зафіксовано.",
+    "noHit": "Спроможностей за цим запитом не знайдено. Нижче наведено frontier пошуку.",
+    "frontier": "Frontier пошуку"
+  },
   "compliance": {
     "badgeLabel": "Відповідність",
     "badgeAriaLabel": "Переглянути стан відповідності стандартам доступності та безпеки",

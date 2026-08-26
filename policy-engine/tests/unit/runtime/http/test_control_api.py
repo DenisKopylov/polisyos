@@ -289,18 +289,34 @@ class TestCapabilities:
         assert body["state_store_backend"] == "sqlite"
         assert "features" in body
         assert isinstance(body["features"], list)
-        feature_keys = {item["key"] for item in body["features"]}
-        assert "natural_language_runs" in feature_keys
-        assert "required_preflight" in feature_keys
-        assert "security_admin_layer" in feature_keys
-        assert "durable_control_plane" in feature_keys
-        assert "control_plane_local_waiver" in feature_keys
+        assert body["features"] == []
+        assert body["workspaces"] == []
         assert body["constraints"]["max_parallel_models"] == 16
         assert body["constraints"]["durable_control_profiles"] == [
             "research",
             "governed",
             "production",
         ]
+
+    def test_get_control_capabilities_projects_current_execution_policy(
+        self,
+        runtime_api_env,
+        monkeypatch: pytest.MonkeyPatch,
+    ):
+        monkeypatch.setenv("POLISYOS_LLM_MULTIMODEL_ENABLED", "false")
+        monkeypatch.setenv("POLISYOS_REQUIRED_PREFLIGHT_ENABLED", "true")
+        monkeypatch.setenv("POLISYOS_AUTO_MATERIALIZATION_ENABLED", "false")
+
+        response = runtime_api_env["client"].get("/api/v1/control/capabilities")
+
+        assert response.status_code == 200
+        policy = response.json()["fallback_rules"]["execution_policy"]
+        assert policy == {
+            "auto_materialization": False,
+            "multimodel_nl": False,
+            "producer_ref": "runtime/http/services/_control_contracts.py",
+            "required_preflight": True,
+        }
 
     def test_get_control_capabilities_reports_selected_production_data_manifest(
         self,
@@ -1750,15 +1766,15 @@ class TestDataRetrievalControl:
         assert body["preview"]["dataset_id"] == "missing.dataset"
         assert "meta" in body
 
-    def test_data_catalog_search_returns_matches(self, runtime_api_env):
-        client = runtime_api_env["client"]
-        resp = client.get("/api/v1/control/data/catalog/search?metric=us.macro&limit=5")
+    def test_data_catalog_search_returns_capability_frontier(self, runtime_api_env):
+        with runtime_api_env["client"] as client:
+            resp = client.get("/api/v1/control/data/catalog/search?metric=us.macro&limit=5")
         assert resp.status_code == 200
         body = resp.json()
-        assert "matches" in body
-        assert isinstance(body["matches"], list)
-        assert body["query"] == "us.macro"
-        assert "meta" in body
+        assert body["request"]["resource_kinds"] == ["dataset"]
+        assert body["request"]["search"]["query_text"] == "us.macro"
+        assert body["frontier"]["completeness_status"] == "producer_missing"
+        assert body["results"] == []
 
     def test_data_index_stats_returns_stats(self, runtime_api_env):
         client = runtime_api_env["client"]

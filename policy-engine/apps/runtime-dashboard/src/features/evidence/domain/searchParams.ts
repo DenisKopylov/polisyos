@@ -17,6 +17,7 @@ const evidenceSurfaceSchema = z.enum(["freshness-braid", "connector-cards"]);
 
 const evidenceSearchSchema = z.object({
   artifactId: z.string().trim().min(1).optional().catch(undefined),
+  capability: z.string().trim().min(1).optional().catch(undefined),
   focus: evidenceFocusSchema.optional().catch(undefined),
   needId: z.string().trim().min(1).optional().catch(undefined),
   planId: z.string().trim().min(1).optional().catch(undefined),
@@ -36,6 +37,7 @@ export function parseEvidenceSearchParams(
 export function buildEvidenceHref(search?: Partial<EvidenceSearchParams>) {
   return buildSearchHref("/evidence", {
     artifactId: search?.artifactId,
+    capability: search?.capability,
     focus: search?.focus,
     needId: search?.needId,
     planId: search?.planId,

@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "react-router-dom";
 
-import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useLexGraphStats } from "@/api/hooks/useLexGraphStats";
 import { useLexPipelineStatus } from "@/api/hooks/useLexPipelineStatus";
 import { useLexSearch, type LexSearchRequest } from "@/api/hooks/useLexSearch";
@@ -34,7 +33,6 @@ export default function LexKnowledgeGraph() {
   const { t } = useI18n();
   const [searchParams, setSearchParams] = useSearchParams();
   const lexSearch = parseLexSearchParams(searchParams);
-  const capabilitiesQuery = useCapabilities();
   useTelemetryReadyMark("lex.knowledge.page", { routeId: "lex.knowledge" });
   // --- Pipeline form state ---
   const [cardsPath, setCardsPath] = useState(DEFAULT_CARDS);
@@ -210,9 +208,7 @@ export default function LexKnowledgeGraph() {
           </div>
           <div className="flex flex-wrap gap-2">
             <span className="border-accent/20 bg-accent/10 text-accent rounded-full border px-3 py-1 text-xs font-semibold">
-              {(capabilitiesQuery.data?.features ?? []).find(
-                (feature) => feature.key === "lex_pipeline",
-              )?.label ?? t("pages.lex.featureLabel")}
+              {t("pages.lex.featureLabel")}
             </span>
             <PrefetchButton
               to="/runs"

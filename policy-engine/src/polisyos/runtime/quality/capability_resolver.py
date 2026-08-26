@@ -9,14 +9,26 @@ authority.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Iterable, Mapping, Sequence
+from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal, Protocol
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import contracts as core_contracts
+from polisyos.core.contracts import (
+    CapabilityExecutionPostureResult,
+    CapabilityTimeSemantics,
+    ExecutionProfile,
+)
+from polisyos.runtime.http.execution_policy import (
+    ExecutionProfileError,
+    PolicyFlagForbiddenError,
+    RuntimeExecutionPolicyResolver,
+)
 from polisyos.runtime.quality.capability_authority import (
     CapabilityBindingResult as _AuthorityCapabilityBindingResult,
 )
@@ -48,12 +60,10 @@ RequirementToCapabilityQuery = core_contracts.RequirementToCapabilityQuery
 construct_for_legacy_family = core_contracts.construct_for_legacy_family
 legacy_family_for_construct = core_contracts.legacy_family_for_construct
 
-REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION = (
-    "requirement-to-capability-resolver-v1.0"
-)
+REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION = "requirement-to-capability-resolver-v1.0"
 DEFAULT_CAPABILITY_INDEX_REF = "capability-index:policy-evidence-phase4-governed-rows"
-GOVERNED_CAPABILITY_ROWS_PATH = (
-    Path("architecture/policy_design_case/layer2_s3_governed_capability_rows.json")
+GOVERNED_CAPABILITY_ROWS_PATH = Path(
+    "architecture/policy_design_case/layer2_s3_governed_capability_rows.json"
 )
 
 type CapabilityBindingResult = _AuthorityCapabilityBindingResult
@@ -95,6 +105,295 @@ class _CandidateEvaluation(BaseModel):
     rejected: dict[str, Any] | None = None
 
 
+class CapabilityLiveOperationReceipt(BaseModel):
+    """Content-bound receipt returned by the live operation registry owner."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.capability_live_operation_receipt.v1"] = (
+        "policyos.capability_live_operation_receipt.v1"
+    )
+    capability_ref: str = Field(min_length=1)
+    operation_ref: str = Field(min_length=1)
+    requested_profile: ExecutionProfile | None = None
+    producer_ref: str = Field(min_length=1)
+    snapshot_ref: str = Field(min_length=1)
+    snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    operation_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    provenance_refs: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _snapshot_is_in_provenance(self) -> CapabilityLiveOperationReceipt:
+        if self.snapshot_ref not in self.provenance_refs:
+            raise ValueError("operation snapshot_ref must be carried in provenance")
+        return self
+
+
+class CapabilityConformanceReceipt(BaseModel):
+    """Content-bound current conformance receipt from a separate verifier."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    schema_version: Literal["policyos.capability_conformance_receipt.v1"] = (
+        "policyos.capability_conformance_receipt.v1"
+    )
+    capability_ref: str = Field(min_length=1)
+    operation_ref: str = Field(min_length=1)
+    operation_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    conformance_ref: str = Field(min_length=1)
+    conformance_passed: bool
+    valid_until: datetime
+    producer_ref: str = Field(min_length=1)
+    snapshot_ref: str = Field(min_length=1)
+    snapshot_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    conformance_digest: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    provenance_refs: tuple[str, ...] = Field(min_length=1)
+
+    @model_validator(mode="after")
+    def _snapshot_is_in_provenance(self) -> CapabilityConformanceReceipt:
+        if self.snapshot_ref not in self.provenance_refs:
+            raise ValueError("conformance snapshot_ref must be carried in provenance")
+        return self
+
+
+class CapabilityLiveOperationRegistry(Protocol):
+    """Injected C03 boundary for resolving current live operations."""
+
+    def resolve_operation(self, capability_ref: str) -> CapabilityLiveOperationReceipt | None:
+        """Return the owner's bound live-operation receipt, if registered."""
+        ...
+
+
+class CapabilityConformanceVerifier(Protocol):
+    """Injected independent verifier for operation conformance currentness."""
+
+    def verify_conformance(
+        self,
+        *,
+        capability_ref: str,
+        operation: CapabilityLiveOperationReceipt,
+        observed_at: datetime,
+    ) -> CapabilityConformanceReceipt | None:
+        """Return current conformance evidence bound to the operation receipt."""
+        ...
+
+
+class CapabilityExecutionResolver:
+    """Reconcile operation, conformance, and deployment policy independently."""
+
+    def __init__(
+        self,
+        *,
+        operation_registry: CapabilityLiveOperationRegistry | None,
+        conformance_verifier: CapabilityConformanceVerifier | None,
+        policy_resolver: RuntimeExecutionPolicyResolver,
+    ) -> None:
+        self._operation_registry = operation_registry
+        self._conformance_verifier = conformance_verifier
+        self._policy_resolver = policy_resolver
+
+    def resolve(
+        self,
+        *,
+        capability_ref: str,
+        producer_ref: str,
+        provenance_refs: tuple[str, ...],
+        observed_at: datetime | None = None,
+    ) -> CapabilityExecutionPostureResult:
+        """Resolve execution without consulting discovery rank or metadata."""
+
+        checked_at = observed_at or datetime.now(UTC)
+        if checked_at.tzinfo is None:
+            raise ValueError("execution reconciliation observed_at must be timezone-aware")
+        time = CapabilityTimeSemantics(
+            observed_at=checked_at,
+            valid_from=checked_at,
+            valid_until=None,
+            freshness="current",
+        )
+        operation_registry = self._operation_registry
+        if operation_registry is None:
+            return CapabilityExecutionPostureResult(
+                state="not_established",
+                producer_ref=producer_ref,
+                reason_codes=("live_operation_registry_not_established",),
+                provenance_refs=provenance_refs,
+                time=time,
+            )
+        operation = operation_registry.resolve_operation(capability_ref)
+        if operation is None:
+            return CapabilityExecutionPostureResult(
+                state="operation_missing",
+                producer_ref=producer_ref,
+                reason_codes=("operation_registration_missing",),
+                provenance_refs=provenance_refs,
+                time=time,
+            )
+        if type(operation) is not CapabilityLiveOperationReceipt:
+            return CapabilityExecutionPostureResult(
+                state="not_established",
+                producer_ref=producer_ref,
+                reason_codes=("operation_receipt_invalid_source",),
+                provenance_refs=provenance_refs,
+                time=time,
+            )
+        operation_provenance = tuple(
+            dict.fromkeys((*provenance_refs, operation.snapshot_ref, *operation.provenance_refs))
+        )
+        if operation.capability_ref != capability_ref:
+            return CapabilityExecutionPostureResult(
+                state="not_established",
+                producer_ref=producer_ref,
+                reason_codes=("operation_receipt_capability_mismatch",),
+                provenance_refs=operation_provenance,
+                time=time,
+            )
+        if operation.operation_digest != _operation_receipt_digest(operation):
+            return CapabilityExecutionPostureResult(
+                state="not_established",
+                producer_ref=producer_ref,
+                reason_codes=("operation_receipt_content_mismatch",),
+                provenance_refs=operation_provenance,
+                time=time,
+            )
+        conformance_verifier = self._conformance_verifier
+        if conformance_verifier is None:
+            return CapabilityExecutionPostureResult(
+                state="not_established",
+                producer_ref=producer_ref,
+                operation_ref=operation.operation_ref,
+                reason_codes=("conformance_verifier_not_established",),
+                provenance_refs=operation_provenance,
+                time=time,
+            )
+        conformance = conformance_verifier.verify_conformance(
+            capability_ref=capability_ref,
+            operation=operation,
+            observed_at=checked_at,
+        )
+        if conformance is None:
+            return CapabilityExecutionPostureResult(
+                state="not_established",
+                producer_ref=producer_ref,
+                operation_ref=operation.operation_ref,
+                reason_codes=("conformance_not_established",),
+                provenance_refs=operation_provenance,
+                time=time,
+            )
+        if type(conformance) is not CapabilityConformanceReceipt:
+            return CapabilityExecutionPostureResult(
+                state="not_established",
+                producer_ref=producer_ref,
+                operation_ref=operation.operation_ref,
+                reason_codes=("conformance_receipt_invalid_source",),
+                provenance_refs=operation_provenance,
+                time=time,
+            )
+        conformance_provenance = tuple(
+            dict.fromkeys(
+                (*operation_provenance, conformance.snapshot_ref, *conformance.provenance_refs)
+            )
+        )
+        if (
+            conformance.capability_ref != capability_ref
+            or conformance.operation_ref != operation.operation_ref
+            or conformance.operation_digest != operation.operation_digest
+        ):
+            return CapabilityExecutionPostureResult(
+                state="not_established",
+                producer_ref=producer_ref,
+                operation_ref=operation.operation_ref,
+                reason_codes=("conformance_receipt_operation_mismatch",),
+                provenance_refs=conformance_provenance,
+                time=time,
+            )
+        if conformance.conformance_digest != _conformance_receipt_digest(conformance):
+            return CapabilityExecutionPostureResult(
+                state="not_established",
+                producer_ref=producer_ref,
+                operation_ref=operation.operation_ref,
+                reason_codes=("conformance_receipt_content_mismatch",),
+                provenance_refs=conformance_provenance,
+                time=time,
+            )
+        if not conformance.conformance_passed:
+            return CapabilityExecutionPostureResult(
+                state="conformance_failed",
+                producer_ref=producer_ref,
+                operation_ref=operation.operation_ref,
+                conformance_ref=conformance.conformance_ref,
+                reason_codes=("conformance_failed",),
+                provenance_refs=conformance_provenance,
+                time=time,
+            )
+        if conformance.valid_until.tzinfo is None or conformance.valid_until <= checked_at:
+            reason = (
+                "conformance_currentness_not_established"
+                if conformance.valid_until.tzinfo is None
+                else "conformance_expired"
+            )
+            return CapabilityExecutionPostureResult(
+                state="conformance_failed",
+                producer_ref=producer_ref,
+                operation_ref=operation.operation_ref,
+                conformance_ref=conformance.conformance_ref,
+                reason_codes=(reason,),
+                provenance_refs=conformance_provenance,
+                time=time,
+            )
+        try:
+            policy = self._policy_resolver.resolve(requested_profile=operation.requested_profile)
+        except (ExecutionProfileError, PolicyFlagForbiddenError) as exc:
+            return CapabilityExecutionPostureResult(
+                state="policy_disabled",
+                producer_ref=producer_ref,
+                operation_ref=operation.operation_ref,
+                conformance_ref=conformance.conformance_ref,
+                reason_codes=(getattr(exc, "code", "execution_policy_blocked"),),
+                provenance_refs=conformance_provenance,
+                time=time,
+            )
+        policy_ref = f"runtime-execution-policy:sha256:{policy.config_fingerprint}"
+        return CapabilityExecutionPostureResult(
+            state="executable",
+            producer_ref=producer_ref,
+            operation_ref=operation.operation_ref,
+            conformance_ref=conformance.conformance_ref,
+            policy_ref=policy_ref,
+            provenance_refs=tuple(dict.fromkeys((*conformance_provenance, policy_ref))),
+            time=time,
+        )
+
+
+def _operation_receipt_digest(receipt: CapabilityLiveOperationReceipt) -> str:
+    return "sha256:" + _execution_content_digest(
+        receipt.model_dump(
+            mode="python",
+            exclude={"schema_version", "operation_digest"},
+        )
+    )
+
+
+def _conformance_receipt_digest(receipt: CapabilityConformanceReceipt) -> str:
+    return "sha256:" + _execution_content_digest(
+        receipt.model_dump(
+            mode="python",
+            exclude={"schema_version", "conformance_digest"},
+        )
+    )
+
+
+def _execution_content_digest(value: object) -> str:
+    payload = json.dumps(
+        value,
+        ensure_ascii=False,
+        sort_keys=True,
+        separators=(",", ":"),
+        default=str,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
 class RequirementToCapabilityResolver:
     """Resolve semantic evidence requirements against a capability index slice."""
 
@@ -128,13 +427,10 @@ class RequirementToCapabilityResolver:
         """Load governed capability rows from the persisted Policy Design Case artifact."""
 
         root = _repo_root() if repo_root is None else Path(repo_root)
-        payload = json.loads(
-            (root / GOVERNED_CAPABILITY_ROWS_PATH).read_text(encoding="utf-8")
-        )
+        payload = json.loads((root / GOVERNED_CAPABILITY_ROWS_PATH).read_text(encoding="utf-8"))
         return cls(
             capabilities=tuple(
-                _capability_payload_from_json(row)
-                for row in payload.get("capabilities") or ()
+                _capability_payload_from_json(row) for row in payload.get("capabilities") or ()
             ),
             failure_modes=tuple(payload.get("failure_modes") or ()),
             acquisition_strategies=tuple(payload.get("acquisition_strategies") or ()),
@@ -290,10 +586,7 @@ class RequirementToCapabilityResolver:
             conflict.model_dump(mode="json")
             for conflict in self.conflicts
             if _bare_construct(conflict.construct_id) == _bare_construct(query.construct)
-            and (
-                not conflict.capability_refs
-                or refs.intersection(set(conflict.capability_refs))
-            )
+            and (not conflict.capability_refs or refs.intersection(set(conflict.capability_refs)))
             and _geography_matches(query.geography, conflict.geography)
         )
 
@@ -375,9 +668,7 @@ class RequirementToCapabilityResolver:
                 "construct_ref": f"construct:{_bare_construct(query.construct)}",
                 "capability_index_ref": self.capability_index_ref,
                 "rejected_alternatives": tuple(dict(item) for item in rejected_alternatives),
-                "acquisition_strategies": tuple(
-                    dict(item) for item in acquisition_strategies
-                ),
+                "acquisition_strategies": tuple(dict(item) for item in acquisition_strategies),
                 "reviewer_queue": tuple(dict(item) for item in reviewer_queue),
                 "blocked_reasons": tuple(blocked_reasons),
             }
@@ -443,8 +734,7 @@ def _candidate_rejection(
             capability=capability,
         )
     if any(
-        _mode_matches(capability.evidence_mode, mode)
-        for mode in query.forbidden_evidence_modes
+        _mode_matches(capability.evidence_mode, mode) for mode in query.forbidden_evidence_modes
     ):
         reason = (
             "llm_candidate_unverified"
@@ -453,8 +743,7 @@ def _candidate_rejection(
         )
         return _rejection(capability_ref, reason, "hard", capability=capability)
     if query.required_evidence_modes and not any(
-        _mode_matches(capability.evidence_mode, mode)
-        for mode in query.required_evidence_modes
+        _mode_matches(capability.evidence_mode, mode) for mode in query.required_evidence_modes
     ):
         return _rejection(
             capability_ref,
@@ -816,6 +1105,11 @@ __all__ = [
     "REQUIREMENT_TO_CAPABILITY_QUERY_SCHEMA_VERSION",
     "REQUIREMENT_TO_CAPABILITY_RESOLVER_RULE_VERSION",
     "CapabilityBindingResult",
+    "CapabilityConformanceReceipt",
+    "CapabilityConformanceVerifier",
+    "CapabilityExecutionResolver",
+    "CapabilityLiveOperationReceipt",
+    "CapabilityLiveOperationRegistry",
     "RequirementTimeWindow",
     "RequirementToCapabilityQuery",
     "RequirementToCapabilityResolver",

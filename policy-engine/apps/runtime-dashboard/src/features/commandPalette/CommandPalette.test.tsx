@@ -1,5 +1,5 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { render, screen } from "@testing-library/react";
+import { act, render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 
 import {
@@ -17,6 +17,7 @@ const {
   useFeatureFlagsMock,
   useGlobalShortcutMock,
   useAuthzDecisionMock,
+  useCapabilitySearchMock,
   useMaybeAuthzMock,
 } = vi.hoisted(() => ({
   cycleDensityMock: vi.fn(),
@@ -26,8 +27,20 @@ const {
   useFeatureFlagsMock: vi.fn(),
   useGlobalShortcutMock: vi.fn(),
   useAuthzDecisionMock: vi.fn(),
+  useCapabilitySearchMock: vi.fn(),
   useMaybeAuthzMock: vi.fn(),
 }));
+
+vi.mock("@/api/hooks/useCapabilitySearch", async () => {
+  const actual = await vi.importActual<
+    typeof import("@/api/hooks/useCapabilitySearch")
+  >("@/api/hooks/useCapabilitySearch");
+  return {
+    ...actual,
+    useCapabilitySearch: (...args: unknown[]) =>
+      useCapabilitySearchMock(...args),
+  };
+});
 
 vi.mock("react-router-dom", async () => {
   const actual =
@@ -60,8 +73,20 @@ vi.mock("@polisyos/atlas-ui", () => ({
   CommandDialog: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
   ),
-  CommandInput: ({ placeholder }: { placeholder?: string }) => (
-    <input aria-label={placeholder} />
+  CommandInput: ({
+    onValueChange,
+    placeholder,
+    value,
+  }: {
+    onValueChange?: (value: string) => void;
+    placeholder?: string;
+    value?: string;
+  }) => (
+    <input
+      aria-label={placeholder}
+      value={value}
+      onChange={(event) => onValueChange?.(event.target.value)}
+    />
   ),
   CommandList: ({ children }: { children: React.ReactNode }) => (
     <div>{children}</div>
@@ -181,6 +206,7 @@ describe("CommandPalette", () => {
     useFeatureFlagsMock.mockReset();
     useGlobalShortcutMock.mockReset();
     useAuthzDecisionMock.mockReset();
+    useCapabilitySearchMock.mockReset();
     useMaybeAuthzMock.mockReset();
     locationPathnameMock.mockReturnValue("/runs/run-1/overview");
     mockRuntimeGetSuccess(ownerCapabilityManifest);
@@ -196,6 +222,7 @@ describe("CommandPalette", () => {
       isWorkspaceAllowed: () => true,
       kind: "verified",
     });
+    useCapabilitySearchMock.mockReturnValue({ data: undefined });
   });
 
   afterEach(() => {
@@ -362,7 +389,7 @@ describe("CommandPalette", () => {
     ).not.toBeInTheDocument();
   });
 
-  it("keeps fixed surfaces visible while loading capability discovery hides gates", () => {
+  it("keeps fixed surfaces visible while capability discovery is unavailable", () => {
     mockRuntimeGetFailure(500, {
       code: "capabilities_unavailable",
       detail: "Capability manifest is unavailable",
@@ -376,10 +403,10 @@ describe("CommandPalette", () => {
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /pages\.runs\.tabs\.governance/i }),
-    ).not.toBeInTheDocument();
+    ).toBeInTheDocument();
   });
 
-  it("shows only capability-required entries enabled by owner discovery", async () => {
+  it("keeps fixed entries independent of owner discovery", async () => {
     renderCommandPalette();
 
     expect(
@@ -389,6 +416,69 @@ describe("CommandPalette", () => {
     ).toBeInTheDocument();
     expect(
       screen.queryByRole("button", { name: /pages\.runs\.tabs\.evidence/i }),
-    ).not.toBeInTheDocument();
+    ).toBeInTheDocument();
+  });
+
+  it("renders open capability candidates only from the generic search hook", async () => {
+    const user = userEvent.setup();
+    useCapabilitySearchMock.mockReturnValue({
+      data: {
+        response: {
+          frontier: {
+            completeness_status: "complete",
+            incompleteness_reasons: [],
+          },
+          results: [
+            {
+              authority_result: { state: "bridge_missing" },
+              capability_ref: "capability:generated:owner-row",
+              description: "Generated owner-index candidate",
+              discovery_result: { state: "discoverable" },
+              execution_result: { state: "not_established" },
+              label: "Generated owner row",
+              resource_kind: "legal_norm",
+            },
+          ],
+        },
+      },
+    });
+    renderCommandPalette();
+
+    act(() => {
+      const openPalette = useGlobalShortcutMock.mock.calls[0]?.[3] as
+        | (() => void)
+        | undefined;
+      openPalette?.();
+    });
+    await user.type(
+      screen.getByLabelText("commandPalette.placeholder"),
+      "generated",
+    );
+
+    expect(useCapabilitySearchMock).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        resource_kinds: [
+          "method",
+          "dataset",
+          "source",
+          "legal_norm",
+          "case",
+          "agent",
+        ],
+        search: expect.objectContaining({
+          construct_refs: ["generated"],
+          query_text: "generated",
+        }),
+      }),
+      undefined,
+      true,
+    );
+    const candidate = screen.getByRole("button", {
+      name: /Generated owner row · Candidate · legal_norm · discoverable · not_established · bridge_missing/i,
+    });
+    await user.click(candidate);
+    expect(navigateMock).toHaveBeenCalledWith(
+      "/evidence?capability=capability%3Agenerated%3Aowner-row",
+    );
   });
 });

@@ -748,13 +748,6 @@
       "source_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
       "source_root": "data_forge",
       "source_file": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
-      "target_module": "polisyos.core.contracts",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.data_forge.domains.academic.knowledge.skg_query",
-      "source_root": "data_forge",
-      "source_file": "src/polisyos/data_forge/domains/academic/knowledge/skg_query.py",
       "target_module": "polisyos.ir.analytics.context",
       "target_root": "ir"
     },
@@ -5655,13 +5648,6 @@
       "source_module": "polisyos.foundry.agent_sim.wiring.executors",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/agent_sim/wiring/executors.py",
-      "target_module": "polisyos.core.contracts",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.agent_sim.wiring.executors",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/agent_sim/wiring/executors.py",
       "target_module": "polisyos.ir.observation.contracts",
       "target_root": "ir"
     },
@@ -6177,13 +6163,6 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.foundry.contracts.state",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/contracts/state.py",
-      "target_module": "polisyos.core.contracts",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.foundry.data_plane.bindings",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/data_plane/bindings.py",
@@ -6202,13 +6181,6 @@
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/data_plane/bindings.py",
       "target_module": "polisyos.core.canon",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.data_plane.bindings",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/data_plane/bindings.py",
-      "target_module": "polisyos.core.contracts",
       "target_root": "core"
     },
     {
@@ -12512,13 +12484,6 @@
       "target_root": "ir"
     },
     {
-      "source_module": "polisyos.obligation_rules.catalog",
-      "source_root": "obligation_rules",
-      "source_file": "src/polisyos/obligation_rules/catalog.py",
-      "target_module": "polisyos.core.contracts",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.runtime.api",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/api.py",
@@ -14346,13 +14311,6 @@
       "target_root": "scientist"
     },
     {
-      "source_module": "polisyos.runtime.quality.concept_spine",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/concept_spine.py",
-      "target_module": "polisyos.core.contracts",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.runtime.quality.data_forge_binding",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/data_forge_binding.py",
@@ -14371,13 +14329,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
       "target_module": "polisyos.core.canon",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.data_state_substrate",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/data_state_substrate.py",
-      "target_module": "polisyos.core.contracts",
       "target_root": "core"
     },
     {
@@ -14955,13 +14906,6 @@
       "target_root": "foundry"
     },
     {
-      "source_module": "polisyos.runtime.quality.proving_ground.substrate_grounding_search",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/proving_ground/substrate_grounding_search.py",
-      "target_module": "polisyos.core.contracts",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.runtime.quality.replay",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/replay.py",
@@ -15050,13 +14994,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/skip_blockers.py",
       "target_module": "polisyos.core.contracts.skip_blockers",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.soft_gate_telemetry",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/soft_gate_telemetry.py",
-      "target_module": "polisyos.core.contracts",
       "target_root": "core"
     },
     {
@@ -15232,13 +15169,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/world_model_record.py",
       "target_module": "polisyos.core.canon",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.world_model_record",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/world_model_record.py",
-      "target_module": "polisyos.core.contracts",
       "target_root": "core"
     },
     {
@@ -15736,13 +15666,6 @@
       "source_root": "scholar",
       "source_file": "src/polisyos/scholar/search/jobs.py",
       "target_module": "polisyos.core.canon",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scholar.search.jobs",
-      "source_root": "scholar",
-      "source_file": "src/polisyos/scholar/search/jobs.py",
-      "target_module": "polisyos.core.contracts",
       "target_root": "core"
     },
     {
@@ -20985,13 +20908,6 @@
       "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
-      "target_module": "polisyos.core.contracts",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.causal.build_literature_prior",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/causal/build_literature_prior.py",
       "target_module": "polisyos.foundry.methods.catalog.causal.invariance_tests",
       "target_root": "foundry"
     },
@@ -21070,13 +20986,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
       "target_module": "polisyos.core.components",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/causal/reconcile_causal_graph.py",
-      "target_module": "polisyos.core.contracts",
       "target_root": "core"
     },
     {
@@ -23547,13 +23456,6 @@
       "source_module": "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
-      "target_module": "polisyos.core.contracts",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/nodes/builtins/simulate/run_causal_evaluation.py",
       "target_module": "polisyos.foundry.methods.catalog",
       "target_root": "foundry"
     },
@@ -24297,13 +24199,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/retry.py",
       "target_module": "polisyos.core.artifacts.store",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.engine.retry",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/engine/retry.py",
-      "target_module": "polisyos.core.contracts",
       "target_root": "core"
     },
     {

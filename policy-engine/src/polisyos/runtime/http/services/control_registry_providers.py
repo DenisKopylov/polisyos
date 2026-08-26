@@ -9,6 +9,12 @@ from typing import TYPE_CHECKING, Any, Protocol, cast
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
+    from polisyos.runtime.quality.capability_discovery import CapabilityDiscoveryProvider
+    from polisyos.runtime.quality.capability_resolver import (
+        CapabilityConformanceVerifier,
+        CapabilityLiveOperationRegistry,
+    )
+
 
 class ConnectorRegistryLike(Protocol):
     """Connector registry surface required by runtime control APIs."""
@@ -46,6 +52,9 @@ class ControlRegistryProviders:
     binding_profiles: BindingProfileRegistryLike
     model_profiles: ModelProfileRegistryLike
     gy_catalog_graph: Any | None = None
+    capability_discovery_providers: tuple[CapabilityDiscoveryProvider, ...] = ()
+    capability_live_operation_registry: CapabilityLiveOperationRegistry | None = None
+    capability_conformance_verifier: CapabilityConformanceVerifier | None = None
 
 
 ConnectorRegistryFactory = Callable[[], ConnectorRegistryLike]
@@ -62,6 +71,9 @@ def resolve_control_registry_providers(
     binding_profiles: BindingProfileRegistryLike | None = None,
     model_profiles: ModelProfileRegistryLike | None = None,
     gy_catalog_graph: Any | None = None,
+    capability_discovery_providers: tuple[CapabilityDiscoveryProvider, ...] = (),
+    capability_live_operation_registry: CapabilityLiveOperationRegistry | None = None,
+    capability_conformance_verifier: CapabilityConformanceVerifier | None = None,
     connectors_factory: ConnectorRegistryFactory | None = None,
     source_profiles_factory: SourceProfileRegistryFactory | None = None,
     binding_profiles_factory: BindingProfileRegistryFactory | None = None,
@@ -112,6 +124,9 @@ def resolve_control_registry_providers(
         binding_profiles=binding_profiles,
         model_profiles=model_profiles,
         gy_catalog_graph=gy_catalog_graph,
+        capability_discovery_providers=capability_discovery_providers,
+        capability_live_operation_registry=capability_live_operation_registry,
+        capability_conformance_verifier=capability_conformance_verifier,
     )
 
 

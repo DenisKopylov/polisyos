@@ -7,11 +7,23 @@ import {
   type ScenarioScope,
 } from "@/app/providers/scenario-scope";
 import type { ProjectionId } from "@polisyos/runtime-api-client";
+import type { components } from "./types";
 
 export const queryKeys = {
   authMe: () => ["auth", "me"] as const,
   health: () => ["runtime", "health"] as const,
   capabilities: () => ["control", "capabilities"] as const,
+  capabilitySearch: (
+    request: components["schemas"]["CapabilityDiscoveryRequest"],
+    serverEpoch: string | null = null,
+  ) =>
+    [
+      "control",
+      "capabilities",
+      "search",
+      { serverEpoch: serverEpoch ?? "unobserved" },
+      request,
+    ] as const,
   governedProjection: (projectionId: ProjectionId) =>
     ["runtime", "governed-projection", projectionId] as const,
   cycleBoardProjection: () =>
@@ -223,19 +235,6 @@ export const queryKeys = {
   dataIndexStats: () => ["control", "data", "index", "stats"] as const,
   dataPromotionCandidates: () =>
     ["control", "data", "promotion", "candidates"] as const,
-  dataCatalogSearch: (
-    metricQuery: string,
-    geography: string | null,
-    limit: number,
-  ) =>
-    [
-      "control",
-      "data",
-      "catalog",
-      "search",
-      { metricQuery, geography, limit },
-    ] as const,
-
   // Lex knowledge graph
   lexPipelineStatus: (pipelineId: string) =>
     ["lex", "pipeline", pipelineId] as const,

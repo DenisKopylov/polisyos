@@ -31,6 +31,9 @@ from polisyos.pdc import (
     EvidenceBasis,
     GyComparisonAdmission,
     GyComparisonOwnerRule,
+    Layer2S6BlindSpotPostureInput,
+    Layer2S7DelegationPostureInput,
+    Layer2S8ValuePostureInput,
     PromotionFailClosedReason,
     PromotionGateId,
     PromotionObligationClass,
@@ -47,11 +50,6 @@ from polisyos.pdc import (
     gy_recorded_content_hash,
     is_gy_declared_non_authority_block,
     promotion_obligation_instance_id,
-)
-from polisyos.pdc._impl.layer2_design_search import (  # noqa: TC001
-    Layer2S6BlindSpotPostureInput,
-    Layer2S7DelegationPostureInput,
-    Layer2S8ValuePostureInput,
 )
 from polisyos.runtime.quality.confidence_ledger import (
     DEFAULT_REGISTRY_RELATIVE_PATH,

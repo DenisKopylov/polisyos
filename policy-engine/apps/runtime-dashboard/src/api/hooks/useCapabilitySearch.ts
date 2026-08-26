@@ -108,8 +108,10 @@ export async function fetchCapabilitySearch(
 export function capabilitySearchQueryOptions(
   request: CapabilitySearchRequest,
   baseUrl?: string,
+  enabled = true,
 ) {
   return queryOptions({
+    enabled,
     queryKey: queryKeys.capabilitySearch(request),
     queryFn: () =>
       fetchCapabilitySearch(request, authAwareRuntimeFetch, baseUrl),
@@ -121,6 +123,7 @@ export function capabilitySearchQueryOptions(
 export function useCapabilitySearch(
   request: CapabilitySearchRequest,
   baseUrl?: string,
+  enabled = true,
 ) {
-  return useQuery(capabilitySearchQueryOptions(request, baseUrl));
+  return useQuery(capabilitySearchQueryOptions(request, baseUrl, enabled));
 }

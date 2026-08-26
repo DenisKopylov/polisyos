@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Outlet, useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useAuthzDecision } from "@/app/authz/AuthzProvider";
 import { getRunReviewTabPermission } from "@/app/authz/permissions";
 import { useFeatureFlags } from "@/app/providers/FeatureFlagProvider";
@@ -103,10 +102,9 @@ function runDetailProvenance(
 
 function RunBootstrapState({ runId }: { runId: string }) {
   const { t } = useI18n();
-  const capabilitiesQuery = useCapabilities();
   const authzDecision = useAuthzDecision(),
     { flags } = useFeatureFlags();
-  const tabs = getVisibleRunInspectorTabs(capabilitiesQuery.data, {
+  const tabs = getVisibleRunInspectorTabs({
     canAccessTab: (tab) => {
       const permission = getRunReviewTabPermission(tab);
       return permission
@@ -168,7 +166,6 @@ function RunBootstrapState({ runId }: { runId: string }) {
 
 function RunInspectorContent() {
   const { t, label } = useI18n();
-  const capabilitiesQuery = useCapabilities();
   const { runId } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -269,7 +266,7 @@ function RunInspectorContent() {
     summary.selectedPromotion,
     summary.transportStatus,
   ]);
-  const tabs = getVisibleRunInspectorTabs(capabilitiesQuery.data, {
+  const tabs = getVisibleRunInspectorTabs({
     canAccessTab: (tab) => {
       const permission = getRunReviewTabPermission(tab);
       return permission

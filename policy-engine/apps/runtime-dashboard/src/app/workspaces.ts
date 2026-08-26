@@ -1,6 +1,5 @@
 import { dataIndexStatsQueryOptions } from "@/api/hooks/useDataIndexStats";
 import { dataPromotionCandidatesQueryOptions } from "@/api/hooks/useDataPromotionCandidates";
-import { capabilitiesQueryOptions } from "@/api/hooks/useCapabilities";
 import { connectorsQueryOptions } from "@/api/hooks/useConnectors";
 import { healthQueryOptions } from "@/api/hooks/useHealth";
 import { llmProfilesQueryOptions } from "@/api/hooks/useLlmProfiles";
@@ -34,7 +33,6 @@ export type WorkspaceLayout =
   | "chat";
 
 export type WorkspacePrefetchKey =
-  | "capabilities"
   | "connectors"
   | "dataIndexStats"
   | "dataPromotionCandidates"
@@ -50,7 +48,6 @@ export type WorkspaceAppearancePreferences = {
 };
 
 type WorkspaceBootstrapQueryOptions =
-  | ReturnType<typeof capabilitiesQueryOptions>
   | ReturnType<typeof connectorsQueryOptions>
   | ReturnType<typeof dataIndexStatsQueryOptions>
   | ReturnType<typeof dataPromotionCandidatesQueryOptions>
@@ -72,7 +69,6 @@ export type WorkspaceConfig = {
   featureFlag?: FeatureFlagKey;
   layout: WorkspaceLayout;
   modeVisibility?: InterfaceMode[];
-  requiredCapabilities: string[];
   resolveHeader: (pathname: string) => WorkspaceHeader;
 };
 
@@ -92,7 +88,6 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     aliases: [],
     layout: "overview",
     modeVisibility: ["clerk", "analyst"],
-    requiredCapabilities: [],
     resolveHeader: () => ({
       eyebrowKey: "shell.routes.commandCenterEyebrow",
       titleKey: "shell.routes.commandCenterTitle",
@@ -106,7 +101,6 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     featureFlag: "enableScenarioComposer",
     layout: "form",
     modeVisibility: ["analyst"],
-    requiredCapabilities: ["workflow_runs"],
     resolveHeader: () => ({
       eyebrowKey: "pages.composer.title",
       titleKey: "pages.composer.heroTitle",
@@ -120,7 +114,6 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     featureFlag: "enableRunsWorkspace",
     layout: "master-detail",
     modeVisibility: ["clerk", "analyst"],
-    requiredCapabilities: ["workflow_runs"],
     resolveHeader: (pathname) =>
       pathname === "/runs/cycle-board"
         ? {
@@ -144,7 +137,6 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     aliases: ["/sources", "/data"],
     layout: "full-width",
     modeVisibility: ["analyst"],
-    requiredCapabilities: ["source_profiles"],
     resolveHeader: () => ({
       eyebrowKey: "shell.routes.evidenceEyebrow",
       titleKey: "shell.routes.evidenceTitle",
@@ -158,7 +150,6 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     featureFlag: "enableLexKnowledge",
     layout: "full-width",
     modeVisibility: ["analyst"],
-    requiredCapabilities: ["lex_pipeline"],
     resolveHeader: () => ({
       eyebrowKey: "shell.nav.lexKnowledge",
       titleKey: "shell.routes.lexTitle",
@@ -172,7 +163,6 @@ export const WORKSPACES: Record<WorkspaceKey, WorkspaceConfig> = {
     featureFlag: "enablePlatformHealth",
     layout: "full-width",
     modeVisibility: ["analyst"],
-    requiredCapabilities: [],
     resolveHeader: () => ({
       eyebrowKey: "shell.header.runtime",
       titleKey: "shell.routes.platformTitle",
@@ -236,8 +226,6 @@ export function buildBootstrapQueryOptions(
   key: WorkspacePrefetchKey,
 ): WorkspaceBootstrapQueryOptions {
   switch (key) {
-    case "capabilities":
-      return capabilitiesQueryOptions();
     case "connectors":
       return connectorsQueryOptions();
     case "dataIndexStats":

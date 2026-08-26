@@ -46,9 +46,9 @@ not changed.
 
 ## Wave reduction measured from the repaired baseline
 
-- Application lines added: **65988**
-- Application lines deleted: **24527**
-- Net application LOC reduction: **-41461**
+- Application lines added: **68035**
+- Application lines deleted: **24817**
+- Net application LOC reduction: **-43218**
 - Application files deleted: **90**
 
 ## Wave-end full verification
@@ -100,9 +100,9 @@ No merge or push is performed.
 | Disposition | Root units |
 | --- | ---: |
 | `deleted` | 19 |
-| `rebind_pending` | 184 |
+| `rebind_pending` | 179 |
 | `retire_disposition` | 25 |
-| `use_as_is` | 17 |
+| `use_as_is` | 22 |
 | `wire_disposition` | 16 |
 | **Total DS1 roots** | **261** |
 
@@ -367,7 +367,7 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `route-run-debug` | `route-run-debug` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `route-artifact` | `route-artifact` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `route-evidence` | `route-evidence` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
-| `route-knowledge` | `route-knowledge` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
+| `route-knowledge` | `route-knowledge` | 0 | `rebind_pending` | `strangled` | `DS10` | `feature-capability-discovery` |
 | `route-platform` | `route-platform` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `route-redirect-launch` | `route-redirect-launch` | 0 | `use_as_is` | `not_applicable` | `DS4` | `—` |
 | `route-redirect-sources` | `route-redirect-sources` | 0 | `use_as_is` | `not_applicable` | `DS4` | `—` |
@@ -384,14 +384,14 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `feature-causal` | `feature-causal` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `feature-clerk` | `feature-clerk` | 0 | `rebind_pending` | `pending` | `DS14` | `—` |
 | `feature-collaboration` | `feature-collaboration` | 0 | `deleted` | `strangled` | `DS19` | `census-collaboration-delete` |
-| `feature-command-palette` | `feature-command-palette` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
+| `feature-command-palette` | `feature-command-palette` | 0 | `rebind_pending` | `strangled` | `DS10` | `feature-capability-discovery` |
 | `feature-composer` | `feature-composer` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `feature-dashboard` | `feature-dashboard` | 0 | `rebind_pending` | `pending` | `DS7` | `—` |
 | `feature-evidence` | `feature-evidence` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
 | `feature-export` | `feature-export` | 0 | `rebind_pending` | `pending` | `DS12` | `—` |
 | `feature-landing` | `feature-landing` | 0 | `rebind_pending` | `pending` | `DS11` | `—` |
 | `feature-layout-empty` | `feature-layout-empty` | 0 | `deleted` | `strangled` | `DS19` | `census-layout-placeholder-delete` |
-| `feature-lex` | `feature-lex` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
+| `feature-lex` | `feature-lex` | 0 | `rebind_pending` | `strangled` | `DS10` | `feature-capability-discovery` |
 | `feature-onboarding-orphan` | `feature-onboarding-orphan` | 0 | `deleted` | `strangled` | `DS19` | `census-onboarding-delete` |
 | `feature-platform` | `feature-platform` | 0 | `rebind_pending` | `pending` | `DS6` | `—` |
 | `feature-runs` | `feature-runs` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
@@ -425,13 +425,13 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `api-op-render-bureaucratic-artifact` | `api-op-render-bureaucratic-artifact` | 0 | `rebind_pending` | `pending` | `DS8` | `—` |
 | `api-op-get-auth-me` | `api-op-get-auth-me` | 0 | `rebind_pending` | `pending` | `DS5` | `—` |
 | `api-op-estimate-causal-frontier-sae` | `api-op-estimate-causal-frontier-sae` | 0 | `retire_disposition` | `not_applicable` | `DS3` | `—` |
-| `api-op-get-control-capabilities` | `api-op-get-control-capabilities` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
+| `api-op-get-control-capabilities` | `api-op-get-control-capabilities` | 0 | `rebind_pending` | `strangled` | `DS10` | `feature-capability-discovery` |
 | `api-op-list-binding-profiles` | `api-op-list-binding-profiles` | 0 | `wire_disposition` | `not_applicable` | `DS3` | `—` |
 | `api-op-get-cache-status` | `api-op-get-cache-status` | 0 | `rebind_pending` | `pending` | `DS3` | `—` |
-| `api-op-search-data-catalog` | `api-op-search-data-catalog` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
+| `api-op-search-data-catalog` | `api-op-search-data-catalog` | 0 | `rebind_pending` | `strangled` | `DS10` | `feature-capability-discovery` |
 | `api-op-list-connectors` | `api-op-list-connectors` | 0 | `rebind_pending` | `pending` | `DS15` | `—` |
 | `api-op-discover-data-sources` | `api-op-discover-data-sources` | 0 | `rebind_pending` | `pending` | `DS15` | `—` |
-| `api-op-get-data-index-stats` | `api-op-get-data-index-stats` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
+| `api-op-get-data-index-stats` | `api-op-get-data-index-stats` | 0 | `use_as_is` | `not_applicable` | `DS10` | `—` |
 | `api-op-ingest-data` | `api-op-ingest-data` | 0 | `rebind_pending` | `pending` | `DS15` | `—` |
 | `api-op-preview-fetch-plan` | `api-op-preview-fetch-plan` | 0 | `rebind_pending` | `pending` | `DS15` | `—` |
 | `api-op-list-source-profiles` | `api-op-list-source-profiles` | 0 | `rebind_pending` | `pending` | `DS15` | `—` |
@@ -442,10 +442,10 @@ Declared bounded residual: site-to-owner-instance provider, receiver, key, and p
 | `api-op-get-packet-decision-validity` | `api-op-get-packet-decision-validity` | 0 | `wire_disposition` | `not_applicable` | `DS3` | `—` |
 | `api-op-publish-decision-validity-event` | `api-op-publish-decision-validity-event` | 0 | `wire_disposition` | `not_applicable` | `DS3` | `—` |
 | `api-op-get-control-job-status` | `api-op-get-control-job-status` | 0 | `rebind_pending` | `pending` | `DS14` | `—` |
-| `api-op-get-lex-graph-stats` | `api-op-get-lex-graph-stats` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
-| `api-op-search-lex-graph` | `api-op-search-lex-graph` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
-| `api-op-get-lex-pipeline-status` | `api-op-get-lex-pipeline-status` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
-| `api-op-trigger-lex-pipeline` | `api-op-trigger-lex-pipeline` | 0 | `rebind_pending` | `pending` | `DS10` | `—` |
+| `api-op-get-lex-graph-stats` | `api-op-get-lex-graph-stats` | 0 | `use_as_is` | `not_applicable` | `DS10` | `—` |
+| `api-op-search-lex-graph` | `api-op-search-lex-graph` | 0 | `use_as_is` | `not_applicable` | `DS10` | `—` |
+| `api-op-get-lex-pipeline-status` | `api-op-get-lex-pipeline-status` | 0 | `use_as_is` | `not_applicable` | `DS10` | `—` |
+| `api-op-trigger-lex-pipeline` | `api-op-trigger-lex-pipeline` | 0 | `use_as_is` | `not_applicable` | `DS10` | `—` |
 | `api-op-list-llm-profiles` | `api-op-list-llm-profiles` | 0 | `rebind_pending` | `pending` | `DS14` | `—` |
 | `api-op-list-control-outbox` | `api-op-list-control-outbox` | 0 | `retire_disposition` | `not_applicable` | `DS3` | `—` |
 | `api-op-launch-run` | `api-op-launch-run` | 0 | `rebind_pending` | `pending` | `DS9` | `—` |
@@ -893,6 +893,36 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 
 ## Commits
 
+- `9d4fbc050 docs(atlas): bind DS10 growth to complete frontend set`
+- `290b5ef14 docs(atlas): register DS10 capability bridge blocker`
+- `c279bbd14 chore(api): regenerate capability discovery ABI`
+- `4a33f3eae fix(api): include capability search in generated client`
+- `18c667141 fix(api): narrow capability discovery claims`
+- `1c1587059 feat(api): expose capability search and strangle authored manifest`
+- `5093c1951 fix(runtime): recompute legal capability temporal truth`
+- `db4cb758a fix(runtime): bind discovery to verified owner evidence`
+- `d38860720 feat(runtime): compose registry-backed capability discovery`
+- `0d0e3c92c fix(atlas): bind discovery lint to semantic provenance`
+- `e77f99ec0 fix(atlas): resolve capability discovery module graphs`
+- `481fe2de5 fix(atlas): close indirect capability enumeration escapes`
+- `26b271655 feat(core): define independent capability discovery postures`
+- `fd69e66cb docs(atlas): make DS10 census receipts replayable`
+- `d134aa5d5 test(atlas): make DS10 discovery reds behavioral`
+- `a5755a584 test(atlas): bind DS10 discovery reds`
+- `8f760b813 docs(atlas): plan DS10 capability discovery`
+- `c31c8cec7 docs(atlas): close DS9 and register its unproven residual`
+- `39ac0eb21 fix(architecture): reconcile public surface after the DS9 merge`
+- `fd243d1ad merge(atlas): land DS9 human decision integrity`
+- `af90dafc2 docs(atlas): close DS9 execution receipts`
+- `63de3e82c test(runtime): classify DS9 approval companion honestly`
+- `33334e8f2 docs(atlas): correct live debt denominator`
+- `fa6845af1 test(runtime): preserve DS9 strangle denominator`
+- `60ed5de5f test(runtime): prove DS9 production signature refusals`
+- `6555ce7b0 docs(governance): bind DS9 debt closure receipts`
+- `ea1a886f5 docs(governance): correct DS9 debt provenance`
+- `2c798e620 chore(governance): close receipt-backed DS9 debts`
+- `8697fe1aa docs(atlas): record DS9 verification and consumer handoff`
+- `04ec7914e fix(atlas): close DS9 authority presentation and register scope`
 - `b7006c2b2 fix(atlas): bind production gate GET to signed basis`
 - `9791abd99 feat(atlas): land accountable human decision workspace`
 - `17a36756c fix(architecture): inventory and regenerate DS9 public surfaces`
@@ -900,12 +930,15 @@ Immutable base `23a2c797bececb1757253aa4f1e8ef5999c81601` to source freeze `4022
 - `20467fceb fix(runtime): bind production approval to decision integrity`
 - `587de3599 feat(runtime): enforce human decision routes and step-up`
 - `3b1a87fd0 feat(runtime): persist custodied human decision records`
+- `e17f768eb plan(debt): close deep-import-baseline-stale in both registers`
+- `5cc68c43e merge(architecture): adjudicate the six deep-import edges; the release gate is green`
 - `76be63c1f chore(governance): admit DS9 owner plan and pin red controls`
 - `5a6de66ce Merge branch 'main' into codex/ds9-human-decision-integrity-plan`
 - `715c25f1e plan(gy): record Cluster 1 landing and reconcile what its merge moved`
 - `911657027 merge(gy): land GY-N12 Cluster 1 — the Foundry owner boundary, refusing honestly`
 - `b9aec624c docs(atlas): bind DS9 measured slice plan`
 - `f2c202997 feat(foundry): bind and carry admitted dependency profile identity`
+- `3c125f5c9 fix(architecture): adjudicate stale deep imports`
 - `52e450a2b docs(gy-n12): split generated guardrail execution`
 - `48845eb63 docs(gy-n12): content-bind appointed tooling`
 - `c92b143c7 docs(gy-n12): appoint hermetic task tooling`

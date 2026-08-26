@@ -22,12 +22,12 @@ from polisyos.runtime.quality.capability_resolver import (
 if TYPE_CHECKING:
     from collections.abc import Sequence
 
+    from polisyos.core import contracts as core_contracts
     from polisyos.core.contracts.capability_discovery import (
         CapabilityDiscoveryRequest,
         CapabilityDiscoveryResponse,
         CapabilityResourceKind,
     )
-    from polisyos.core.contracts.runtime import ApiMeta
     from polisyos.runtime.http.execution_policy import RuntimeExecutionPolicyResolver
     from polisyos.runtime.quality.approval import ProductionApprovalPacketResolver
 
@@ -60,7 +60,7 @@ class CapabilityDiscoveryService:
         self,
         request: CapabilityDiscoveryRequest,
         *,
-        meta: ApiMeta,
+        meta: core_contracts.ApiMeta,
     ) -> CapabilityDiscoveryResponse:
         """Return C02 federation output without strengthening any posture."""
         return self._composer.search(request, meta=meta)

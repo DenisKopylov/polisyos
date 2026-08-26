@@ -165,20 +165,18 @@ describe("route boundaries", () => {
     );
   });
 
-  it("blocks workspaces with missing required capabilities", () => {
+  it("keeps fixed workspaces available when the capability manifest is unavailable", () => {
     isCapabilityEnabledMock.mockReturnValue(false);
 
     render(
       <MemoryRouter initialEntries={["/runs"]}>
         <WorkspaceBoundary workspaceKey="runsDecisions">
-          <div>content</div>
+          <div data-testid="fixed-workspace-content">content</div>
         </WorkspaceBoundary>
       </MemoryRouter>,
     );
 
-    expect(screen.getByTestId("empty-state")).toHaveTextContent(
-      "workflow_runs",
-    );
+    expect(screen.getByTestId("fixed-workspace-content")).toBeInTheDocument();
   });
 
   it("renders workspace content in the configured layout and shows suspense fallbacks", () => {

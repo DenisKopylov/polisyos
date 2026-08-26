@@ -114,8 +114,12 @@
     {
       "census_id": "census-browser-signing-protected-live",
       "captured_at": "2026-07-17T10:30:00+03:00",
-      "covers_unit_ids": ["derivation-browser-signature"],
-      "ds1_evidence_ids": ["derivation-browser-signature"],
+      "covers_unit_ids": [
+        "derivation-browser-signature"
+      ],
+      "ds1_evidence_ids": [
+        "derivation-browser-signature"
+      ],
       "result": "protected_live_chain",
       "probes": [
         {
@@ -192,7 +196,9 @@
       "probes": [
         {
           "kind": "path_absent",
-          "targets": ["apps/runtime-dashboard/src/features/collaboration"],
+          "targets": [
+            "apps/runtime-dashboard/src/features/collaboration"
+          ],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
@@ -229,13 +235,19 @@
     {
       "census_id": "census-onboarding-delete",
       "captured_at": "2026-07-17T11:38:00+03:00",
-      "covers_unit_ids": ["feature-onboarding-orphan"],
-      "ds1_evidence_ids": ["feature-onboarding-orphan"],
+      "covers_unit_ids": [
+        "feature-onboarding-orphan"
+      ],
+      "ds1_evidence_ids": [
+        "feature-onboarding-orphan"
+      ],
       "result": "zero_consumers",
       "probes": [
         {
           "kind": "path_absent",
-          "targets": ["apps/runtime-dashboard/src/features/onboarding"],
+          "targets": [
+            "apps/runtime-dashboard/src/features/onboarding"
+          ],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
@@ -268,20 +280,28 @@
     {
       "census_id": "census-layout-placeholder-delete",
       "captured_at": "2026-07-17T11:40:00+03:00",
-      "covers_unit_ids": ["feature-layout-empty"],
-      "ds1_evidence_ids": ["feature-layout-empty"],
+      "covers_unit_ids": [
+        "feature-layout-empty"
+      ],
+      "ds1_evidence_ids": [
+        "feature-layout-empty"
+      ],
       "result": "zero_consumers",
       "probes": [
         {
           "kind": "path_absent",
-          "targets": ["apps/runtime-dashboard/src/features/layout"],
+          "targets": [
+            "apps/runtime-dashboard/src/features/layout"
+          ],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
         },
         {
           "kind": "reference_count",
-          "targets": ["features/layout"],
+          "targets": [
+            "features/layout"
+          ],
           "scan_roots": [
             "apps/runtime-dashboard/src",
             "apps/runtime-dashboard/e2e",
@@ -350,20 +370,29 @@
     {
       "census_id": "census-duplicate-clerk-index-delete",
       "captured_at": "2026-07-17T11:47:00+03:00",
-      "covers_unit_ids": ["route-home-clerk-duplicate"],
-      "ds1_evidence_ids": ["route-home-clerk-duplicate"],
+      "covers_unit_ids": [
+        "route-home-clerk-duplicate"
+      ],
+      "ds1_evidence_ids": [
+        "route-home-clerk-duplicate"
+      ],
       "result": "zero_consumers",
       "probes": [
         {
           "kind": "path_absent",
-          "targets": ["apps/runtime-dashboard/src/features/clerk/route.tsx"],
+          "targets": [
+            "apps/runtime-dashboard/src/features/clerk/route.tsx"
+          ],
           "scan_roots": [],
           "expected_count": 0,
           "observed_refs": []
         },
         {
           "kind": "reference_count",
-          "targets": ["clerkChatRoute", "routeId: \"clerk.chat\""],
+          "targets": [
+            "clerkChatRoute",
+            "routeId: \"clerk.chat\""
+          ],
           "scan_roots": [
             "apps/runtime-dashboard/src",
             "apps/runtime-dashboard/e2e",
@@ -387,7 +416,10 @@
         "cache-whatif-scenarios",
         "feature-whatif::legacy-local-whatif-subgraph"
       ],
-      "ds1_evidence_ids": ["cache-whatif-scenarios", "feature-whatif"],
+      "ds1_evidence_ids": [
+        "cache-whatif-scenarios",
+        "feature-whatif"
+      ],
       "result": "zero_consumers",
       "probes": [
         {
@@ -434,8 +466,12 @@
     {
       "census_id": "census-ds4-c03b-dormant-primitives",
       "captured_at": "2026-07-18T16:20:00+03:00",
-      "covers_unit_ids": ["ui-primitives-root"],
-      "ds1_evidence_ids": ["ui-primitives-root"],
+      "covers_unit_ids": [
+        "ui-primitives-root"
+      ],
+      "ds1_evidence_ids": [
+        "ui-primitives-root"
+      ],
       "result": "zero_consumers",
       "probes": [
         {
@@ -447,7 +483,10 @@
             "Sheet",
             "Tabs"
           ],
-          "scan_roots": ["apps/runtime-dashboard/src", "packages"],
+          "scan_roots": [
+            "apps/runtime-dashboard/src",
+            "packages"
+          ],
           "expected_count": 0,
           "observed_refs": [],
           "checked_import_forms": [
@@ -534,7 +573,9 @@
             "enqueuePromotionDecision",
             "queueStatus"
           ],
-          "scan_roots": ["apps/runtime-dashboard/src"],
+          "scan_roots": [
+            "apps/runtime-dashboard/src"
+          ],
           "expected_count": 0,
           "observed_refs": []
         }
@@ -547,8 +588,12 @@
     {
       "census_id": "census-review-attention-delete",
       "captured_at": "2026-08-18T22:54:04+03:00",
-      "covers_unit_ids": ["cache-review-attention"],
-      "ds1_evidence_ids": ["cache-review-attention"],
+      "covers_unit_ids": [
+        "cache-review-attention"
+      ],
+      "ds1_evidence_ids": [
+        "cache-review-attention"
+      ],
       "result": "zero_consumers",
       "probes": [
         {
@@ -1446,12 +1491,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission.",
+      "successor": {
+        "unit_id": "feature-capability-discovery",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/app/routes/routeManifest.ts",
+          "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+          "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx"
+        ]
+      }
     },
     {
       "unit_id": "route-platform",
@@ -1685,12 +1738,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission.",
+      "successor": {
+        "unit_id": "feature-capability-discovery",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx",
+          "apps/runtime-dashboard/src/app/surfaces/surfaceRegistry.ts",
+          "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx"
+        ]
+      }
     },
     {
       "unit_id": "feature-composer",
@@ -1784,12 +1845,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission.",
+      "successor": {
+        "unit_id": "feature-capability-discovery",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+          "apps/runtime-dashboard/src/features/evidence/export/capabilityDiscoveryTwin.ts"
+        ]
+      }
     },
     {
       "unit_id": "feature-onboarding-orphan",
@@ -2319,7 +2387,9 @@
       "unit_id": "ui-temporal",
       "evidence_link": {
         "ds1_entry_id": "ui-temporal",
-        "ds2_adoption_ids": ["component-decision-timeline"]
+        "ds2_adoption_ids": [
+          "component-decision-timeline"
+        ]
       },
       "disposition": "rebind_pending",
       "strangle_status": "strangled",
@@ -2733,12 +2803,20 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission.",
+      "successor": {
+        "unit_id": "feature-capability-discovery",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts",
+          "apps/runtime-dashboard/src/shared/lib/capabilities.ts",
+          "apps/runtime-dashboard/src/app/workspaces.ts"
+        ]
+      }
     },
     {
       "unit_id": "api-op-list-binding-profiles",
@@ -2780,12 +2858,19 @@
         "ds2_adoption_ids": []
       },
       "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "strangle_status": "strangled",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission.",
+      "successor": {
+        "unit_id": "feature-capability-discovery",
+        "consumer_refs": [
+          "apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts",
+          "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx"
+        ]
+      }
     },
     {
       "unit_id": "api-op-list-connectors",
@@ -2821,13 +2906,13 @@
         "ds1_entry_id": "api-op-get-data-index-stats",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission."
     },
     {
       "unit_id": "api-op-ingest-data",
@@ -2985,13 +3070,13 @@
         "ds1_entry_id": "api-op-get-lex-graph-stats",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission."
     },
     {
       "unit_id": "api-op-search-lex-graph",
@@ -2999,13 +3084,13 @@
         "ds1_entry_id": "api-op-search-lex-graph",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission."
     },
     {
       "unit_id": "api-op-get-lex-pipeline-status",
@@ -3013,13 +3098,13 @@
         "ds1_entry_id": "api-op-get-lex-pipeline-status",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission."
     },
     {
       "unit_id": "api-op-trigger-lex-pipeline",
@@ -3027,13 +3112,13 @@
         "ds1_entry_id": "api-op-trigger-lex-pipeline",
         "ds2_adoption_ids": []
       },
-      "disposition": "rebind_pending",
-      "strangle_status": "pending",
+      "disposition": "use_as_is",
+      "strangle_status": "not_applicable",
       "owner": "team-design",
       "owner_slice": "DS10",
-      "decision_date": "2026-07-17",
-      "seed_rule": "ds1_incomplete_rebind_pending",
-      "rationale": "DS1 does not record this narrow unit as implemented; its owning slice must rebind or retire it without creating a parallel owner."
+      "decision_date": "2026-08-26",
+      "seed_rule": "ds10_capability_discovery_adjudication",
+      "rationale": "DS10 separates fixed chrome and execution policy from generic capability discovery without inferring authority or admission."
     },
     {
       "unit_id": "api-op-list-llm-profiles",
@@ -5673,7 +5758,9 @@
       "unit_id": "route-app-layout::ru-ui-catalog",
       "parent_ds1_entry_id": "route-app-layout",
       "scope_kind": "legacy_continuity",
-      "scope_refs": ["apps/runtime-dashboard/src/shared/i18n/locales/ru.json"],
+      "scope_refs": [
+        "apps/runtime-dashboard/src/shared/i18n/locales/ru.json"
+      ],
       "disposition": "frozen_legacy_continuity",
       "strangle_status": "not_applicable",
       "continuity_guard": {
@@ -10523,7 +10610,9 @@
       "negative_id": "DS1-N001",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:813",
       "lifecycle": "still_required",
-      "affected_unit_ids": ["derivation-browser-signature"],
+      "affected_unit_ids": [
+        "derivation-browser-signature"
+      ],
       "may_count_as_passing_test": false,
       "rationale": "DS19 preserves the seeded negative until an executable deletion makes its original substrate wholly or partially obsolete."
     },
@@ -10635,8 +10724,12 @@
       "negative_id": "DS1-N015",
       "source_ref": "docs/reference/frontend/atlas-live-application-audit.md:827",
       "lifecycle": "partially_reduced",
-      "affected_unit_ids": ["feature-whatif::legacy-local-whatif-subgraph"],
-      "deletion_census_ids": ["census-whatif-local-subgraph-delete"],
+      "affected_unit_ids": [
+        "feature-whatif::legacy-local-whatif-subgraph"
+      ],
+      "deletion_census_ids": [
+        "census-whatif-local-subgraph-delete"
+      ],
       "may_count_as_passing_test": false,
       "rationale": "Deleting the unpartitioned local WhatIf store removes one named cache case, but Clerk, causal, dispute, review-attention, operator-craft, and composer local-state cases still require their owning slices."
     },
@@ -10658,7 +10751,9 @@
         "flag-enable-command-palette",
         "flag-enable-what-if-analysis"
       ],
-      "deletion_census_ids": ["census-collaboration-delete"],
+      "deletion_census_ids": [
+        "census-collaboration-delete"
+      ],
       "may_count_as_passing_test": false,
       "rationale": "Deleting the orphan collaboration surface removes one formerly reachable feature case, but the other three consumer-missing flags still require DS5 wiring and the collaboration key still requires DS5 retirement."
     },
@@ -10679,7 +10774,9 @@
         "worker-dag-layout",
         "worker-json-parse"
       ],
-      "deletion_census_ids": ["census-zero-consumer-workers-delete"],
+      "deletion_census_ids": [
+        "census-zero-consumer-workers-delete"
+      ],
       "may_count_as_passing_test": false,
       "rationale": "All three zero-consumer worker substrates named by this negative were deleted under a fresh census; the negative is obsolete by scope reduction and is not counted as a passing test."
     },
@@ -10705,7 +10802,9 @@
         "transport-rest-collaboration",
         "transport-ws-collaboration"
       ],
-      "deletion_census_ids": ["census-collaboration-delete"],
+      "deletion_census_ids": [
+        "census-collaboration-delete"
+      ],
       "may_count_as_passing_test": false,
       "rationale": "The five phantom collaboration HTTP/WS paths are deleted, while the real review WebSocket and SSE channels still require DS3 governed contract coverage."
     },

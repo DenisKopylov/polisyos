@@ -2,6 +2,7 @@ import { renderHook, waitFor } from "@testing-library/react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
+  capabilitySearchQueryOptions,
   fetchCapabilitySearch,
   useCapabilitySearch,
 } from "@/api/hooks/useCapabilitySearch";
@@ -73,7 +74,13 @@ const response = {
 describe("capability search hook", () => {
   afterEach(() => vi.restoreAllMocks());
 
-  it("uses the generic POST endpoint, captures exact bytes, and keys data by server epoch", async () => {
+  it("can defer an unopened search surface without changing its generic key", () => {
+    const options = capabilitySearchQueryOptions(request, undefined, false);
+    expect(options.enabled).toBe(false);
+    expect(options.queryKey).toEqual(queryKeys.capabilitySearch(request));
+  });
+
+  it("uses the generic POST endpoint and captures exact bytes plus the server epoch", async () => {
     vi.stubGlobal(
       "fetch",
       vi.fn().mockResolvedValue(
@@ -113,6 +120,7 @@ describe("capability search hook", () => {
       },
     );
     expect(result.current.data?.rawBytes).toBeInstanceOf(Uint8Array);
+    expect(result.current.data?.serverEpoch).toBe("epoch-42");
     expect(
       queryClient.getQueryData(queryKeys.capabilitySearch(request)),
     ).toMatchObject({ response });

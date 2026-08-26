@@ -102,11 +102,15 @@ describe("workspace registry", () => {
     expect(resolveWorkspaceKey("/health")).toBe("platformHealth");
   });
 
-  it("keeps workspace metadata decision-complete", () => {
-    expect(buildBootstrapQueryOptions("capabilities").queryKey).toEqual([
-      "control",
-      "capabilities",
-    ]);
+  it("keeps fixed workspace chrome free of capability-manifest requirements", () => {
+    expect(
+      Object.values(WORKSPACES).every(
+        (workspace) => !("requiredCapabilities" in workspace),
+      ),
+    ).toBe(true);
+  });
+
+  it("keeps workspace bootstrap metadata independent of discovery", () => {
     expect(buildBootstrapQueryOptions("runsSample").queryKey).toEqual([
       "runtime",
       "runs",
@@ -118,7 +122,6 @@ describe("workspace registry", () => {
 
   it("builds bootstrap query options for every registered bootstrap key", () => {
     const keys = [
-      "capabilities",
       "connectors",
       "dataIndexStats",
       "dataPromotionCandidates",
@@ -129,7 +132,6 @@ describe("workspace registry", () => {
       "sourceProfiles",
     ] as const;
     const buildByKey = {
-      capabilities: () => buildBootstrapQueryOptions("capabilities"),
       connectors: () => buildBootstrapQueryOptions("connectors"),
       dataIndexStats: () => buildBootstrapQueryOptions("dataIndexStats"),
       dataPromotionCandidates: () =>

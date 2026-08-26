@@ -66,12 +66,6 @@ import {
 } from "../state/composerDraftRepository";
 import { useComposerDraftStore } from "../state/useComposerDraftStore";
 
-type CapabilityHighlight = {
-  description?: string | null;
-  key: string;
-  label: string;
-};
-
 type RecentLaunch = {
   runId: string;
   status: RunLaunchResponse["status"];
@@ -79,7 +73,6 @@ type RecentLaunch = {
 
 type SectionSharedProps = {
   autoMaterializationEnabled: boolean;
-  capabilityHighlights: CapabilityHighlight[];
   fromRunId: string | null;
   onLaunchCreated: (runId: string, status: RunLaunchResponse["status"]) => void;
   preflightEnabled: boolean;
@@ -106,13 +99,6 @@ const EMPTY_GOVERNANCE_CONSTRAINT = {
   severity: "warning",
 };
 
-const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
-  auto_materialization: "evidence",
-  multimodel_nl: "counterfactual",
-  promotion_lane: "transport",
-  required_preflight: "governance-pass",
-};
-
 function providerBadge(provider: string) {
   const normalized = provider.toLowerCase();
   if (normalized === "openai") return "bg-green-500/10 text-green-700";
@@ -120,10 +106,6 @@ function providerBadge(provider: string) {
   if (normalized === "google") return "bg-sky-500/10 text-sky-700";
   if (normalized === "gonka") return "bg-orange-500/10 text-orange-700";
   return "bg-text/10 text-text";
-}
-
-function resolveCapabilityGlyph(key: string): GlyphName {
-  return CAPABILITY_GLYPHS[key] ?? "intervention";
 }
 
 function AtlasFormSection({
@@ -746,51 +728,6 @@ function RecentLaunchesSection({
   );
 }
 
-function CapabilityHighlightsSection({
-  capabilityHighlights,
-}: {
-  capabilityHighlights: CapabilityHighlight[];
-}) {
-  const { t } = useI18n();
-
-  return (
-    <AtlasRailSection
-      eyebrow={t("pages.composer.capabilityContext")}
-      title={t("pages.composer.runtimeSignalsTitle")}
-    >
-      <div className="space-y-2">
-        {capabilityHighlights.map((feature) => (
-          <div
-            key={feature.key}
-            className="rounded-[18px] border border-white/10 bg-white/5 p-3"
-          >
-            <div className="flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <span className="grid size-8 place-items-center rounded-full bg-white/8">
-                  <Glyph
-                    decorative
-                    name={resolveCapabilityGlyph(feature.key)}
-                    size={14}
-                  />
-                </span>
-                <strong className="block text-[#fff8ef]">
-                  {feature.label}
-                </strong>
-              </div>
-              <Badge kind="neutral" className="bg-white/10 text-white/70">
-                {feature.key}
-              </Badge>
-            </div>
-            <span className="mt-2 block text-sm leading-6 text-white/70">
-              {feature.description || feature.key}
-            </span>
-          </div>
-        ))}
-      </div>
-    </AtlasRailSection>
-  );
-}
-
 function SummaryCards({
   constraintCount,
   expectedOutputsCount,
@@ -1025,7 +962,9 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
     dirtyRef.current = isDirty;
   }, [isDirty]);
 
-  const scopeKey = scope ? JSON.stringify([scope.tenantId, scope.userId]) : null;
+  const scopeKey = scope
+    ? JSON.stringify([scope.tenantId, scope.userId])
+    : null;
 
   const persistLatest = useCallback(() => {
     if (!scope) {
@@ -1143,7 +1082,7 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
   return {
     activeDraft:
       scopeKey !== null && hydratedScopeKey === scopeKey
-        ? drafts[draftKey] ?? restoredDraft ?? null
+        ? (drafts[draftKey] ?? restoredDraft ?? null)
         : null,
     discardDraft,
     isDirty,
@@ -1153,7 +1092,6 @@ function useComposerDraftPersistence<TValues extends ComposerDraftValues>({
 
 export function WorkflowComposerSection({
   autoMaterializationEnabled,
-  capabilityHighlights,
   fromRunId,
   onLaunchCreated,
   preflightEnabled,
@@ -1542,9 +1480,6 @@ export function WorkflowComposerSection({
           expectedOutputsCount={workflowOutputs.fields.length}
           preflightEnabled={preflightEnabled}
         />
-        <CapabilityHighlightsSection
-          capabilityHighlights={capabilityHighlights}
-        />
         <RecentLaunchesSection recentLaunches={recentLaunches} />
       </AtlasRail>
     </section>
@@ -1553,7 +1488,6 @@ export function WorkflowComposerSection({
 
 export function NaturalLanguageComposerSection({
   autoMaterializationEnabled,
-  capabilityHighlights,
   fromRunId,
   llmProfiles,
   llmProfilesError,
@@ -1973,9 +1907,6 @@ export function NaturalLanguageComposerSection({
           selectedLlmModels={selectedLlmModels}
           selectedProfiles={selectedProfiles}
           toggleModel={toggleModel}
-        />
-        <CapabilityHighlightsSection
-          capabilityHighlights={capabilityHighlights}
         />
         <RecentLaunchesSection recentLaunches={recentLaunches} />
       </AtlasRail>

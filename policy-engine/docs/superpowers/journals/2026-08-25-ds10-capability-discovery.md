@@ -423,3 +423,54 @@ concrete production provider existed, and
 because a provider filter was the rejected late seam. Those two were already in
 the slice's C02 denominator. The slice-wide unique mechanism count is therefore
 **31/50**; the amendment plus C05's two widenings bring rounds to **10/15**.
+
+## C06 fixed chrome, generic palette, and root adjudication
+
+The complete 14-direct-plus-one-downstream manifest census is now partitioned by
+plane. Workspace routes, run tabs, panels, dashboard/Lex navigation, and fixed
+command entries use typed local `SurfaceAvailability` plus their existing authz
+and rollout owners; discovery cannot hide or unlock them. Composer execution
+checks still read the server-produced manifest through execution-policy-named
+helpers, but its four manifest-derived “capability highlight” tiles and the
+downstream `ComposerModeSections` prop channel are gone. Lex trigger remains a
+dedicated authenticated mutation and never enters discovery results.
+
+The first C06 delta left the command palette with fixed commands only. That
+would have met chrome separation while missing the approved open-result half, so
+the source freeze was explicitly invalidated. The palette now binds its input to
+`useCapabilitySearch`, requests all six contract kinds, and renders returned rows
+generically with candidate clothing and the three independent posture states.
+Selecting a candidate navigates to the evidence surface; it grants no action or
+permission. The hook gained an `enabled` gate so a closed or empty palette does
+not generate an owner query. Reopening the C05 hook is a CC14 path exception; the
+rejected seam was an always-on search. It adds no unique slice path or round.
+
+The register writer changes exactly the ten DS10 root objects: five
+`rebind_pending/strangled` with successor receipts and five
+`use_as_is/not_applicable` without successors. The live register remains 261
+entries/261 unique, while the separate DS8 denominator remains 217 assignments/
+217 unique and its raw object bytes equal the C05 preimage. Review found that the
+first writer implementation parsed and serialized the whole governed JSON even
+though its resulting diff happened to be bounded. That mechanism was replaced
+with a ten-object span writer, non-target byte equality, idempotency, failure-
+atomic register/report promotion, and a same-count DS8 corruption rejection.
+This is a P29/P39 narrowing and consumes no round.
+
+RED-first fixed-chrome tests initially failed three identities in 1.50s. The
+current focused dashboard wave is GREEN: 11 files / 92 tests in 8s against 30s,
+uptime `09:51 up 2 days, 4 mins` before/after. The exact DS10 root and renamed
+manifest-reviewer mutation identities are GREEN: 2 passed in 13s against 300s,
+uptime `09:57 up 2 days, 10 mins` -> `09:57 up 2 days, 11 mins`. The surgical
+writer/corruption pair is separately GREEN at 2 passed in 5.7s.
+
+The broad two-file Atlas architecture command was manually interrupted at its
+300s ceiling and is a non-receipt. Before interruption it reproduced the known
+slice-base TypeScript `RangeError`, exposed generated authority/supplemental
+register drift that C07's narrow register regeneration owns, and found one DS10
+test mutation still targeting the retired `useCapabilityDiscovery` spelling.
+The latter was repaired to `useCapabilityManifestAvailability` and its exact
+identity is green. No interrupted output is counted as a suite receipt.
+
+C06 has its 12 declared mechanism paths plus the reused hook exception above.
+It adds 12 unique paths, so the slice is **43/50**. Its three planned widenings
+bring the running round total to **13/15**.

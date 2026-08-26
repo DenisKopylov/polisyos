@@ -594,10 +594,10 @@ class AtlasEnforcementTests(unittest.TestCase):
                 1,
             ),
             "local_parameter": capability_source.replace(
-                "export function useCapabilityDiscovery(): CapabilityDiscovery {",
+                "export function useCapabilityManifestAvailability(): CapabilityDiscovery {",
                 "function issueLocalManifest(\n  local: CapabilityManifestResponse,\n): CapabilityDiscovery {\n"
                 "  return issueCapabilityDiscovery({ manifest: local, state: \"available\" });\n}\n\n"
-                "export function useCapabilityDiscovery(): CapabilityDiscovery {",
+                "export function useCapabilityManifestAvailability(): CapabilityDiscovery {",
                 1,
             ),
             "helper_wrapped_query": capability_source.replace(

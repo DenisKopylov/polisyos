@@ -6,13 +6,10 @@ import { useCapabilities } from "@/api/hooks/useCapabilities";
 import { useLlmProfiles } from "@/api/hooks/useLlmProfiles";
 import { useI18n } from "@/shared/i18n/LocaleProvider";
 import {
-  getCapability,
-  isCapabilityEnabled,
-  readNumericConstraint,
+  isExecutionPolicyEnabled,
+  readExecutionPolicyConstraint,
 } from "@/shared/lib/capabilities";
 import { cn, formatNumber } from "@/shared/lib/utils";
-import { Glyph } from "@/shared/brand/Glyph";
-import type { GlyphName } from "@/shared/brand/glyph-vocabulary";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 import { Badge, Button } from "@polisyos/atlas-ui";
 import { ProvenanceStrip } from "@/shared/ui";
@@ -25,7 +22,6 @@ import {
 
 type Mode = "workflow" | "nl";
 type RecentLaunch = { runId: string; status: RunLaunchResponse["status"] };
-type CapabilityHighlight = NonNullable<ReturnType<typeof getCapability>>;
 
 const composerHeroProvenance: ProvenanceItem[] = [
   {
@@ -44,20 +40,6 @@ const composerHeroProvenance: ProvenanceItem[] = [
     label: "Guardrails",
   },
 ];
-
-// Glyphs carry owner facts without deriving authority posture.
-// Generated VerificationMetadata is the only trust-clothing input.
-// Capability flags therefore cannot recolor these glyphs.
-const CAPABILITY_GLYPHS: Record<string, GlyphName> = {
-  auto_materialization: "evidence",
-  multimodel_nl: "counterfactual",
-  promotion_lane: "transport",
-  required_preflight: "governance-pass",
-};
-
-function resolveCapabilityGlyph(key: string): GlyphName {
-  return CAPABILITY_GLYPHS[key] ?? "intervention";
-}
 
 function ComposerSummaryMetric({
   label,
@@ -123,31 +105,6 @@ function ComposerJourneyStep({
         )}
       >
         {body}
-      </p>
-    </div>
-  );
-}
-
-function ComposerCapabilityTile({ feature }: { feature: CapabilityHighlight }) {
-  return (
-    <div className="rounded-[24px] border border-[rgba(23,25,29,0.07)] bg-white/72 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
-      <div className="flex items-center justify-between gap-3">
-        <span className="grid size-9 place-items-center rounded-full bg-[rgba(23,25,29,0.06)]">
-          <Glyph
-            decorative
-            name={resolveCapabilityGlyph(feature.key)}
-            size={16}
-          />
-        </span>
-        <Badge kind="neutral" className="px-2 py-1 text-[10px]">
-          {feature.category}
-        </Badge>
-      </div>
-      <strong className="mt-4 block text-sm leading-5 font-semibold">
-        {feature.label}
-      </strong>
-      <p className="text-muted mt-2 text-sm leading-6">
-        {feature.description || feature.key}
       </p>
     </div>
   );
@@ -247,48 +204,29 @@ export default function LaunchRunPage() {
   );
   const [recentLaunches, setRecentLaunches] = useState<RecentLaunch[]>([]);
 
-  const manifest = capabilitiesQuery.data;
+  const executionPolicyManifest = capabilitiesQuery.data;
   const llmProfiles = llmProfilesQuery.data?.profiles ?? [];
-  const multimodelCapability = getCapability(manifest, "multimodel_nl");
-  const preflightCapability = getCapability(manifest, "required_preflight");
-  const autoMaterializationCapability = getCapability(
-    manifest,
+  const multimodelEnabled = isExecutionPolicyEnabled(
+    executionPolicyManifest,
+    "multimodel_nl",
+  );
+  const preflightEnabled = isExecutionPolicyEnabled(
+    executionPolicyManifest,
+    "required_preflight",
+  );
+  const autoMaterializationEnabled = isExecutionPolicyEnabled(
+    executionPolicyManifest,
     "auto_materialization",
   );
-  const promotionLaneCapability = getCapability(manifest, "promotion_lane");
-  const multimodelEnabled = isCapabilityEnabled(manifest, "multimodel_nl");
-  const preflightEnabled = isCapabilityEnabled(manifest, "required_preflight");
-  const autoMaterializationEnabled = isCapabilityEnabled(
-    manifest,
-    "auto_materialization",
-  );
-  const maxParallelConstraint = readNumericConstraint(
-    manifest,
+  const maxParallelConstraint = readExecutionPolicyConstraint(
+    executionPolicyManifest,
     "max_parallel_models",
     4,
   );
-  const maxIterationsConstraint = readNumericConstraint(
-    manifest,
+  const maxIterationsConstraint = readExecutionPolicyConstraint(
+    executionPolicyManifest,
     "max_nl_iterations",
     5,
-  );
-  const capabilityHighlights = useMemo(
-    () =>
-      [
-        multimodelCapability,
-        preflightCapability,
-        autoMaterializationCapability,
-        promotionLaneCapability,
-      ].filter((feature): feature is NonNullable<typeof feature> =>
-        Boolean(feature),
-      ),
-    [
-      autoMaterializationCapability,
-      multimodelCapability,
-      preflightCapability,
-      promotionLaneCapability,
-      manifest,
-    ],
   );
   const journeySteps = useMemo(
     () => [
@@ -326,24 +264,21 @@ export default function LaunchRunPage() {
     () => [
       {
         kind: preflightEnabled ? "ok" : ("warn" as const),
-        label: preflightCapability?.label ?? t("pages.composer.plan"),
+        label: t("pages.composer.plan"),
         value: preflightEnabled
           ? t("pages.composer.preflightRequired")
           : t("pages.composer.preflightOptional"),
       },
       {
         kind: multimodelEnabled ? "ok" : ("neutral" as const),
-        label:
-          multimodelCapability?.label ?? t("pages.composer.maxParallelModels"),
+        label: t("pages.composer.maxParallelModels"),
         value: multimodelEnabled
           ? formatNumber(maxParallelConstraint)
           : t("common.disabled"),
       },
       {
         kind: autoMaterializationEnabled ? "ok" : ("neutral" as const),
-        label:
-          autoMaterializationCapability?.label ??
-          t("pages.composer.capabilityContext"),
+        label: t("pages.composer.capabilityContext"),
         value: autoMaterializationEnabled
           ? t("common.enabled")
           : t("common.disabled"),
@@ -355,13 +290,10 @@ export default function LaunchRunPage() {
       },
     ],
     [
-      autoMaterializationCapability,
       autoMaterializationEnabled,
       maxIterationsConstraint,
       maxParallelConstraint,
-      multimodelCapability,
       multimodelEnabled,
-      preflightCapability,
       preflightEnabled,
       t,
     ],
@@ -432,10 +364,6 @@ export default function LaunchRunPage() {
                     tone="accent"
                   />
                   <ComposerSummaryMetric
-                    label={t("pages.composer.journeyMetrics.capabilities")}
-                    value={formatNumber(capabilityHighlights.length)}
-                  />
-                  <ComposerSummaryMetric
                     label={t("pages.composer.journeyMetrics.models")}
                     value={formatNumber(llmProfiles.length)}
                   />
@@ -462,37 +390,7 @@ export default function LaunchRunPage() {
               </Button>
             </div>
 
-            <div className="grid gap-3 xl:grid-cols-[minmax(0,1.08fr)_minmax(0,0.92fr)]">
-              <div className="space-y-3">
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="eyebrow">
-                      {t("pages.composer.capabilityContext")}
-                    </p>
-                    <h3 className="text-xl font-semibold tracking-[-0.03em]">
-                      {t("pages.composer.runtimeSignalsTitle")}
-                    </h3>
-                  </div>
-                  <Badge kind="neutral" className="px-2 py-1 text-[10px]">
-                    {t("pages.composer.capabilitiesVisible", {
-                      count: formatNumber(capabilityHighlights.length),
-                    })}
-                  </Badge>
-                </div>
-
-                <div
-                  className="grid gap-3 md:grid-cols-2"
-                  data-testid="composer-capability-tiles"
-                >
-                  {capabilityHighlights.map((feature) => (
-                    <ComposerCapabilityTile
-                      key={feature.key}
-                      feature={feature}
-                    />
-                  ))}
-                </div>
-              </div>
-
+            <div>
               <div className="rounded-[28px] border border-[rgba(23,25,29,0.08)] bg-white/58 p-5 shadow-[inset_0_1px_0_rgba(255,255,255,0.55)]">
                 <div className="flex flex-wrap items-start justify-between gap-3">
                   <div>
@@ -548,10 +446,6 @@ export default function LaunchRunPage() {
                 }
               />
               <ComposerRailStat
-                label={t("pages.composer.journeyMetrics.capabilities")}
-                value={formatNumber(capabilityHighlights.length)}
-              />
-              <ComposerRailStat
                 label={t("pages.composer.journeyMetrics.models")}
                 value={formatNumber(llmProfiles.length)}
               />
@@ -569,7 +463,6 @@ export default function LaunchRunPage() {
       {mode === "workflow" ? (
         <WorkflowComposerSection
           autoMaterializationEnabled={autoMaterializationEnabled}
-          capabilityHighlights={capabilityHighlights}
           fromRunId={fromRunId}
           onLaunchCreated={addRecentLaunch}
           preflightEnabled={preflightEnabled}
@@ -578,7 +471,6 @@ export default function LaunchRunPage() {
       ) : (
         <NaturalLanguageComposerSection
           autoMaterializationEnabled={autoMaterializationEnabled}
-          capabilityHighlights={capabilityHighlights}
           fromRunId={fromRunId}
           llmProfiles={llmProfiles}
           llmProfilesError={llmProfilesQuery.error}

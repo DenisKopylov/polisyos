@@ -7835,6 +7835,251 @@ DS8_STRANGLE_CLOSURE_PATHS = {
 }
 DS8_DEFERRED_EXIT_CONDITION = "approved_named_successor_slice_moves_row"
 
+# DS10 owns these ten existing DS1 roots. Fixed chrome remains local; only the
+# five explicitly rebound roots carry successor receipts.
+DS10_CAPABILITY_DISCOVERY_ROOTS: dict[str, tuple[str, str, tuple[str, ...]]] = {
+    "route-knowledge": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/app/routes/routeManifest.ts",
+            "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+            "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx",
+        ),
+    ),
+    "feature-command-palette": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/features/commandPalette/CommandPalette.tsx",
+            "apps/runtime-dashboard/src/app/surfaces/surfaceRegistry.ts",
+            "apps/runtime-dashboard/src/features/evidence/components/CapabilityDiscoveryPanel.tsx",
+        ),
+    ),
+    "feature-lex": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/features/lex/routes/LexKnowledgeGraphPage.tsx",
+            "apps/runtime-dashboard/src/features/evidence/export/capabilityDiscoveryTwin.ts",
+        ),
+    ),
+    "api-op-get-control-capabilities": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/api/hooks/useCapabilities.ts",
+            "apps/runtime-dashboard/src/shared/lib/capabilities.ts",
+            "apps/runtime-dashboard/src/app/workspaces.ts",
+        ),
+    ),
+    "api-op-search-data-catalog": (
+        "rebind_pending",
+        "strangled",
+        (
+            "apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts",
+            "apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx",
+        ),
+    ),
+    "api-op-get-data-index-stats": ("use_as_is", "not_applicable", ()),
+    "api-op-get-lex-graph-stats": ("use_as_is", "not_applicable", ()),
+    "api-op-search-lex-graph": ("use_as_is", "not_applicable", ()),
+    "api-op-get-lex-pipeline-status": ("use_as_is", "not_applicable", ()),
+    "api-op-trigger-lex-pipeline": ("use_as_is", "not_applicable", ()),
+}
+
+
+def _validate_ds10_capability_discovery_roots(
+    entries: Mapping[str, Mapping[str, Any]], errors: list[str]
+) -> None:
+    """Reject drift in the exact ten-root DS10 disposition decision."""
+    ds10_entries = {
+        unit_id: entry
+        for unit_id, entry in entries.items()
+        if entry.get("owner_slice") == "DS10"
+    }
+    if set(ds10_entries) != set(DS10_CAPABILITY_DISCOVERY_ROOTS):
+        errors.append("ds10_capability_discovery_root_denominator_drift")
+    for unit_id, (disposition, strangle_status, consumer_refs) in (
+        DS10_CAPABILITY_DISCOVERY_ROOTS.items()
+    ):
+        entry = entries.get(unit_id)
+        if not isinstance(entry, Mapping):
+            errors.append(f"ds10_capability_discovery_root_missing:{unit_id}")
+            continue
+        if entry.get("owner") != "team-design" or entry.get("owner_slice") != "DS10":
+            errors.append(f"ds10_capability_discovery_owner_drift:{unit_id}")
+        if (entry.get("disposition"), entry.get("strangle_status")) != (
+            disposition,
+            strangle_status,
+        ):
+            errors.append(f"ds10_capability_discovery_transition_drift:{unit_id}")
+        successor = entry.get("successor")
+        if consumer_refs:
+            if not isinstance(successor, Mapping) or tuple(
+                successor.get("consumer_refs", ())
+            ) != consumer_refs:
+                errors.append(f"ds10_capability_discovery_successor_drift:{unit_id}")
+        elif successor is not None:
+            errors.append(f"ds10_capability_discovery_unexpected_successor:{unit_id}")
+
+
+def _ds10_capability_discovery_candidate_text(
+    original_text: str, *, verify_idempotency: bool = True
+) -> str:
+    """Adjudicate exactly ten DS10 roots while preserving every peer byte."""
+    original_data = json.loads(original_text)
+    ds8_coverage = original_data.get("ds8_strangle_coverage")
+    if not isinstance(ds8_coverage, Mapping):
+        raise ValueError("DS10 writer requires the DS8 coverage object")
+    ds8_errors = validate_ds8_strangle_coverage(ds8_coverage)
+    if ds8_errors:
+        raise ValueError("DS10 writer rejected DS8 drift: " + ";".join(ds8_errors))
+
+    replacements: list[tuple[int, int, str]] = []
+    opening_metadata = {
+        "decision_date": "2026-07-17",
+        "seed_rule": "ds1_incomplete_rebind_pending",
+        "rationale": (
+            "DS1 does not record this narrow unit as implemented; its owning slice "
+            "must rebind or retire it without creating a parallel owner."
+        ),
+    }
+    candidate_metadata = {
+        "decision_date": "2026-08-26",
+        "seed_rule": "ds10_capability_discovery_adjudication",
+        "rationale": (
+            "DS10 separates fixed chrome and execution policy from generic "
+            "capability discovery without inferring authority or admission."
+        ),
+    }
+    for unit_id, (disposition, strangle_status, consumer_refs) in (
+        DS10_CAPABILITY_DISCOVERY_ROOTS.items()
+    ):
+        start, end, stored = _json_entry_object_span(original_text, unit_id)
+        if (
+            stored.get("owner") != "team-design"
+            or stored.get("owner_slice") != "DS10"
+        ):
+            raise ValueError(f"DS10 root owner preimage drift:{unit_id}")
+        target_successor = (
+            {
+                "unit_id": "feature-capability-discovery",
+                "consumer_refs": list(consumer_refs),
+            }
+            if consumer_refs
+            else None
+        )
+        opening = (
+            stored.get("disposition") == "rebind_pending"
+            and stored.get("strangle_status") == "pending"
+            and stored.get("successor") is None
+            and all(stored.get(key) == value for key, value in opening_metadata.items())
+        )
+        admitted = (
+            stored.get("disposition") == disposition
+            and stored.get("strangle_status") == strangle_status
+            and stored.get("successor") == target_successor
+            and all(
+                stored.get(key) == value
+                for key, value in candidate_metadata.items()
+            )
+        )
+        if not opening and not admitted:
+            raise ValueError(f"DS10 root preimage drift:{unit_id}")
+        candidate_row = dict(stored)
+        candidate_row.update(candidate_metadata)
+        candidate_row["disposition"] = disposition
+        candidate_row["strangle_status"] = strangle_status
+        if target_successor is None:
+            candidate_row.pop("successor", None)
+        else:
+            candidate_row["successor"] = target_successor
+        replacements.append((start, end, _render_root_entry(candidate_row)))
+
+    candidate = original_text
+    for start, end, replacement in sorted(replacements, reverse=True):
+        candidate = candidate[:start] + replacement + candidate[end:]
+
+    original_spans = [
+        (unit_id, *_json_entry_object_span(original_text, unit_id)[:2])
+        for unit_id in DS10_CAPABILITY_DISCOVERY_ROOTS
+    ]
+    candidate_spans = [
+        (unit_id, *_json_entry_object_span(candidate, unit_id)[:2])
+        for unit_id in DS10_CAPABILITY_DISCOVERY_ROOTS
+    ]
+
+    def gaps(text: str, spans: Sequence[tuple[str, int, int]]) -> list[str]:
+        result: list[str] = []
+        previous = 0
+        for _unit_id, start, end in sorted(spans, key=lambda row: row[1]):
+            result.append(text[previous:start])
+            previous = end
+        result.append(text[previous:])
+        return result
+
+    if gaps(original_text, original_spans) != gaps(candidate, candidate_spans):
+        raise ValueError("DS10 writer changed bytes outside its ten roots")
+    candidate_data = json.loads(candidate)
+    errors: list[str] = []
+    _validate_ds10_capability_discovery_roots(
+        {row["unit_id"]: row for row in candidate_data["entries"]}, errors
+    )
+    if errors:
+        raise ValueError("DS10 writer candidate rejected: " + ";".join(errors))
+    if verify_idempotency:
+        repeated = _ds10_capability_discovery_candidate_text(
+            candidate, verify_idempotency=False
+        )
+        if repeated != candidate:
+            raise ValueError("DS10 writer candidate is not idempotent")
+    return candidate
+
+
+def _write_ds10_capability_discovery_family() -> dict[str, Any]:
+    """Surgically write only the ten approved DS10 root transitions."""
+    original_register = REGISTER_PATH.read_text(encoding="utf-8")
+    original_report = REPORT_PATH.read_text(encoding="utf-8")
+    register_candidate = _ds10_capability_discovery_candidate_text(original_register)
+    data = json.loads(register_candidate)
+    report_candidate = render_report(data)
+    candidates = {
+        REGISTER_PATH: register_candidate,
+        REPORT_PATH: report_candidate,
+    }
+
+    def validate_after() -> list[str]:
+        errors: list[str] = []
+        if REGISTER_PATH.read_text(encoding="utf-8") != register_candidate:
+            errors.append("ds10_register_readback_drift")
+        if REPORT_PATH.read_text(encoding="utf-8") != report_candidate:
+            errors.append("ds10_report_readback_drift")
+        stored = _load_json(REGISTER_PATH)
+        _validate_ds10_capability_discovery_roots(
+            {row["unit_id"]: row for row in stored["entries"]}, errors
+        )
+        errors.extend(
+            validate_ds8_strangle_coverage(stored["ds8_strangle_coverage"])
+        )
+        return errors
+
+    def pre_promote() -> None:
+        if REGISTER_PATH.read_text(encoding="utf-8") != original_register:
+            raise ValueError("DS10 register preimage moved before promotion")
+        if REPORT_PATH.read_text(encoding="utf-8") != original_report:
+            raise ValueError("DS10 report preimage moved before promotion")
+
+    _failure_atomic_write_texts(
+        candidates,
+        validate_after=validate_after,
+        pre_promote=pre_promote,
+    )
+    return {
+        "roots": len(DS10_CAPABILITY_DISCOVERY_ROOTS),
+        "ds8_assignments": len(data["ds8_strangle_coverage"]["assignments"]),
+    }
+
 
 def _load_json(path: Path) -> dict[str, Any]:
     return json.loads(path.read_text(encoding="utf-8"))
@@ -13323,6 +13568,7 @@ def validate_register(
         errors.append("register_duplicate_unit")
     entry_by_id = {entry["unit_id"]: entry for entry in entries}
     _validate_ds9_c07_adjudication(data, entry_by_id, errors)
+    _validate_ds10_capability_discovery_roots(entry_by_id, errors)
     for entry in entries:
         if (
             "aggregate_disposition_receipt" in entry
@@ -15055,6 +15301,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="atomically adjudicate the exact DS9 C07 register family",
     )
     parser.add_argument(
+        "--write-ds10-capability-discovery",
+        action="store_true",
+        help="surgically adjudicate the exact ten DS10 capability-discovery roots",
+    )
+    parser.add_argument(
         "--migrate-c21b",
         action="store_true",
         help="surgically migrate gated TypeScript reference strings to C21a identities",
@@ -15102,6 +15353,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.write_ds10_capability_discovery:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"write_ds10_capability_discovery"}:
+            sys.stderr.write("DS10 transition requires only --write-ds10-capability-discovery\n")
+            return 1
+        try:
+            summary = _write_ds10_capability_discovery_family()
+        except (OSError, ValueError, RuntimeError, KeyError) as exc:
+            sys.stderr.write(f"DS10 transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("materialized DS10 capability-discovery register/report family\n")
+        sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        return 0
 
     if args.write_ds9_human_decision_integrity:
         selected = {

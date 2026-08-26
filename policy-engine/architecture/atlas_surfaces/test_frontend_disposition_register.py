@@ -24,6 +24,66 @@ ATLAS_DIR = Path(__file__).resolve().parent
 CHECKER_PATH = ATLAS_DIR / "check_frontend_disposition_register.py"
 REGISTER_PATH = ATLAS_DIR / "frontend-disposition-register.json"
 
+
+def test_ds10_capability_discovery_roots_are_exactly_adjudicated() -> None:
+    """Keep the DS10 ten-root decision separate from the DS8 assignment sub-register."""
+    data = json.loads(REGISTER_PATH.read_text(encoding="utf-8"))
+    entries = {row["unit_id"]: row for row in data["entries"]}
+    errors: list[str] = []
+    checker._validate_ds10_capability_discovery_roots(entries, errors)
+    assert errors == []
+    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217
+
+
+def test_ds10_writer_emits_five_rebind_five_use_as_is_and_preserves_217_assignments() -> None:
+    """Make the DS10 writer surgical, idempotent, and hostile to DS8 drift."""
+    current_text = REGISTER_PATH.read_text(encoding="utf-8")
+    replacements: list[tuple[int, int, str]] = []
+    for unit_id in checker.DS10_CAPABILITY_DISCOVERY_ROOTS:
+        start, end, stored = checker._json_entry_object_span(current_text, unit_id)
+        opening = dict(stored)
+        opening.update(
+            {
+                "decision_date": "2026-07-17",
+                "disposition": "rebind_pending",
+                "rationale": (
+                    "DS1 does not record this narrow unit as implemented; its owning "
+                    "slice must rebind or retire it without creating a parallel owner."
+                ),
+                "seed_rule": "ds1_incomplete_rebind_pending",
+                "strangle_status": "pending",
+            }
+        )
+        opening.pop("successor", None)
+        replacements.append((start, end, checker._render_root_entry(opening)))
+    opening_text = current_text
+    for start, end, replacement in sorted(replacements, reverse=True):
+        opening_text = opening_text[:start] + replacement + opening_text[end:]
+
+    candidate = checker._ds10_capability_discovery_candidate_text(opening_text)
+    assert checker._ds10_capability_discovery_candidate_text(candidate) == candidate
+    data = json.loads(candidate)
+    ds10 = [row for row in data["entries"] if row["owner_slice"] == "DS10"]
+    assert Counter(row["strangle_status"] for row in ds10) == {
+        "not_applicable": 5,
+        "strangled": 5,
+    }
+    assert Counter(row["disposition"] for row in ds10) == {
+        "rebind_pending": 5,
+        "use_as_is": 5,
+    }
+    assert len(data["ds8_strangle_coverage"]["assignments"]) == 217
+
+    corrupted = copy.deepcopy(data)
+    corrupted["ds8_strangle_coverage"]["assignments"][0][
+        "disposition"
+    ] = "new_in_slice"
+    with pytest.raises(ValueError, match="DS10 writer rejected DS8 drift"):
+        checker._ds10_capability_discovery_candidate_text(
+            json.dumps(corrupted, indent=2) + "\n"
+        )
+
+
 _SPEC = importlib.util.spec_from_file_location("frontend_disposition_checker", CHECKER_PATH)
 if _SPEC is None or _SPEC.loader is None:  # pragma: no cover - import bootstrap guard
     raise RuntimeError(f"Unable to import disposition checker from {CHECKER_PATH}")

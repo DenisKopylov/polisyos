@@ -36,8 +36,10 @@ import {
   setActiveRouteViewTiming,
 } from "@/shared/telemetry/routeContext";
 
-const CaseWorkspacePage = lazy(
-  () => import("@/features/runs/routes/CaseWorkspacePage"),
+const CaseWorkspacePage = lazy(() =>
+  import("@/features/runs").then(({ CaseWorkspacePage: Page }) => ({
+    default: Page,
+  })),
 );
 
 const caseWorkspaceRoute: RouteObject = {

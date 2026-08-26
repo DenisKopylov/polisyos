@@ -1990,14 +1990,14 @@ class ControlPlaneService(
             core_runs_root=self._core_runs_root,
         )
         run = run_index.get_run(run_id)
-        feedback = FeedbackService(store=self._artifact_store, run_index=run_index)
-        prepared = feedback.prepare_reissue(run)
-        job_id = uuid.uuid4().hex
         policy = self._resolve_execution_policy(
             requested_profile=_coerce_optional_execution_profile(run.details.execution_profile),
             policy_flags=PolicyFlags(),
             principal=principal,
         )
+        feedback = FeedbackService(store=self._artifact_store, run_index=run_index)
+        prepared = feedback.prepare_reissue(run)
+        job_id = uuid.uuid4().hex
         payload = {
             "run_id": prepared.reissued_run_id,
             "state_payload": prepared.state_payload,

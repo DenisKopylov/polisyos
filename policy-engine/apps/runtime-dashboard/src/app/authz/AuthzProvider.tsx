@@ -4,13 +4,27 @@ import {
   useContext,
   useMemo,
 } from "react";
+import type { RuntimePermission } from "@polisyos/runtime-api-client";
 
 import { useAuthMe } from "@/api/hooks/useAuthMe";
-import {
-  type PermissionKey,
-  WORKSPACE_PERMISSIONS,
-} from "@/app/authz/permissions";
 import type { WorkspaceKey } from "@/app/workspaces";
+
+export type PermissionKey = RuntimePermission;
+
+export const WORKSPACE_PERMISSIONS: Partial<
+  Record<WorkspaceKey, PermissionKey>
+> = {
+  commandCenter: "dashboard.view",
+  evidenceFabric: "evidence.view",
+  lexKnowledge: "knowledge.view",
+  platformHealth: "platform.view",
+  runsDecisions: "runs.view",
+  scenarioComposer: "runs.launch",
+};
+
+export function getWorkspacePermission(workspaceKey: WorkspaceKey) {
+  return WORKSPACE_PERMISSIONS[workspaceKey];
+}
 
 type AuthzContextValue = {
   can: (permission: PermissionKey) => boolean;

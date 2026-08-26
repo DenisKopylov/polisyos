@@ -627,7 +627,7 @@ def build_runtime_api_env(
         },
         kind="ir.normative_arbitration_result",
     )
-    monitoring_contract_ref = _put_json(
+    monitoring_contract_ref = _put_json_raw(
         store,
         {
             "schema_version": "1.0",

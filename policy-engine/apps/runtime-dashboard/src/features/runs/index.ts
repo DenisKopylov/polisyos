@@ -38,3 +38,4 @@ export type {
   RunDetailLegacySearchParams,
   RunsListSearchParams,
 } from "@/features/runs/domain/searchParams";
+export { default as CaseWorkspacePage } from "@/features/runs/routes/CaseWorkspacePage";

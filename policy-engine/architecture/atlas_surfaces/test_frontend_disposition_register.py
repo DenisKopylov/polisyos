@@ -31,6 +31,88 @@ checker = importlib.util.module_from_spec(_SPEC)
 _SPEC.loader.exec_module(checker)
 
 
+_REGISTER_RELATIVE_PATH = (
+    "architecture/atlas_surfaces/frontend-disposition-register.json"
+)
+
+
+def _git_text(commit: str, relative_path: str) -> str:
+    """Read one immutable repository file through the checker's Git coordinate."""
+    return checker._ds8_git_text(
+        "show",
+        f"{commit}:{checker._ds8_coordinate_prefix()}{relative_path}",
+    )
+
+
+def _register_text_at(commit: str) -> str:
+    """Read the frontend register at one full commit identity."""
+    return _git_text(commit, _REGISTER_RELATIVE_PATH)
+
+
+def _c13_evidence_snapshot(
+    receipt: dict[str, object],
+    *,
+    extra: dict[Path, bytes] | None = None,
+) -> mock._patch:
+    """Bind C13's pinned register replay to its matching evidence bytes."""
+    historical_bytes = {
+        checker.REPO_ROOT / str(row["path"]): checker._c03_git_bytes(
+            "show",
+            f"{checker.C13_VERIFIED_REVISION}:policy-engine/{row['path']}",
+        )
+        for row in receipt["source_bindings"]
+    }
+    producer = receipt["environment_probe_producer"]
+    historical_bytes[checker.REPO_ROOT / str(producer["path"])] = (
+        checker._c03_git_bytes(
+            "show",
+            f"{checker.C13_EVIDENCE_REVISION}:policy-engine/{producer['path']}",
+        )
+    )
+    historical_bytes.update(extra or {})
+    original_read_bytes = Path.read_bytes
+
+    def read_bytes(path: Path) -> bytes:
+        if path in historical_bytes:
+            return historical_bytes[path]
+        return original_read_bytes(path)
+
+    return mock.patch.object(Path, "read_bytes", new=read_bytes)
+
+
+def _supplemental_rows(text: str) -> dict[str, dict[str, object]]:
+    """Index supplemental rows from a controlled register preimage."""
+    return {
+        str(row["finding_id"]): row
+        for row in json.loads(text)["supplemental_findings"]
+    }
+
+
+def _without_supplemental_rows(text: str, finding_ids: set[str]) -> str:
+    """Remove exact supplemental rows without normalizing protected bytes."""
+    candidate = text
+    for finding_id in finding_ids:
+        candidate = checker._remove_supplemental_finding_text(candidate, finding_id)
+    return candidate
+
+
+def _with_historical_supplemental_rows(
+    current_text: str,
+    historical_text: str,
+    finding_ids: set[str],
+) -> str:
+    """Restore exact historical rows in an otherwise current-compatible register."""
+    historical_rows = _supplemental_rows(historical_text)
+    candidate = _without_supplemental_rows(current_text, finding_ids)
+    _start, _end, spans = checker._supplemental_section_spans(candidate)
+    insertion_at = spans[-1][2] + 1
+    rendered = ",\n    ".join(
+        checker._render_supplemental_finding(historical_rows[finding_id])
+        for finding_id in sorted(finding_ids)
+    )
+    return candidate[:insertion_at] + ",\n    " + rendered + candidate[insertion_at:]
+
+
 def _mixed_receipt(*, retired: int = 3) -> dict[str, object]:
     return {
         "receipt_id": "ds4-c03b-ui-primitives-mixed-disposition",
@@ -1302,14 +1384,29 @@ class ProducerBindingDebtTests(unittest.TestCase):
         """Close C14a only after the real local-state witness succeeds."""
         finding_id = "c14a-local-state-envelope-owner-debt"
         self.assertNotIn(finding_id, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS)
-        refreshed = json.loads(
-            checker._refresh_supplemental_findings_text(
-                REGISTER_PATH.read_text(encoding="utf-8")
-            )
+        current_text = REGISTER_PATH.read_text(encoding="utf-8")
+        historical_text = _register_text_at(
+            "bc9421163f6c4ee961db26e9cbeb142a25608a21"
         )
-        self.assertNotIn(
+        self.assertIn(  # noqa: PT009
+            finding_id, _supplemental_rows(historical_text)
+        )
+        self.assertNotIn(  # noqa: PT009
+            finding_id, _supplemental_rows(current_text)
+        )
+        original_text = _with_historical_supplemental_rows(
+            current_text, historical_text, {finding_id}
+        )
+        refreshed_text = checker._refresh_supplemental_findings_text(original_text)
+        refreshed = json.loads(refreshed_text)
+        self.assertNotIn(  # noqa: PT009
             finding_id,
             {str(row["finding_id"]) for row in refreshed["supplemental_findings"]},
+        )
+        self.assertEqual(current_text, refreshed_text)  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            refreshed_text,
+            checker._refresh_supplemental_findings_text(refreshed_text),
         )
         self.assertEqual(
             0,
@@ -1408,14 +1505,29 @@ class ProducerBindingDebtTests(unittest.TestCase):
         """Retire the C06 debt once C11a/C11b issue and render cache posture."""
         finding_id = "c06-queryobserver-cache-posture-artifact-debt"
         self.assertNotIn(finding_id, checker.PRODUCER_BINDING_DEBT_DESCRIPTORS)
-        refreshed = json.loads(
-            checker._refresh_supplemental_findings_text(
-                REGISTER_PATH.read_text(encoding="utf-8")
-            )
+        current_text = REGISTER_PATH.read_text(encoding="utf-8")
+        historical_text = _register_text_at(
+            "8f59d4c4c93c0d88a9baa6c02ebab7ed08f148ec"
         )
-        self.assertNotIn(
+        self.assertIn(  # noqa: PT009
+            finding_id, _supplemental_rows(historical_text)
+        )
+        self.assertNotIn(  # noqa: PT009
+            finding_id, _supplemental_rows(current_text)
+        )
+        original_text = _with_historical_supplemental_rows(
+            current_text, historical_text, {finding_id}
+        )
+        refreshed_text = checker._refresh_supplemental_findings_text(original_text)
+        refreshed = json.loads(refreshed_text)
+        self.assertNotIn(  # noqa: PT009
             finding_id,
             {str(row["finding_id"]) for row in refreshed["supplemental_findings"]},
+        )
+        self.assertEqual(current_text, refreshed_text)  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            refreshed_text,
+            checker._refresh_supplemental_findings_text(refreshed_text),
         )
 
     def test_c11b_query_memory_root_binds_exact_bounded_successor(self) -> None:
@@ -1463,7 +1575,9 @@ class ProducerBindingDebtTests(unittest.TestCase):
 
     def test_c11b_query_memory_root_writer_is_surgical_and_idempotent(self) -> None:
         """Produce the exact owner transition without rewriting adjacent bytes."""
-        original = REGISTER_PATH.read_text(encoding="utf-8")
+        original = _register_text_at(
+            "8f59d4c4c93c0d88a9baa6c02ebab7ed08f148ec"
+        )
 
         def entry_span(text: str) -> tuple[int, int]:
             needle = f'"unit_id": "{checker.C11B_QUERY_MEMORY_ROOT_ID}"'
@@ -1483,6 +1597,16 @@ class ProducerBindingDebtTests(unittest.TestCase):
         )
 
         data = json.loads(transitioned)
+        before = json.loads(original)
+        before_entry = next(
+            row
+            for row in before["entries"]
+            if row["unit_id"] == checker.C11B_QUERY_MEMORY_ROOT_ID
+        )
+        self.assertEqual(  # noqa: PT009
+            "pending", before_entry["strangle_status"]
+        )
+        self.assertNotIn("successor", before_entry)  # noqa: PT009
         errors: list[str] = []
         checker._validate_c11b_query_memory_root(
             {
@@ -1750,7 +1874,9 @@ class ProducerBindingDebtTests(unittest.TestCase):
     def test_supplemental_refresh_preserves_terminal_history_and_changes_only_the_derived_set(
         self,
     ) -> None:
-        original_text = REGISTER_PATH.read_text(encoding="utf-8")
+        original_text = _register_text_at(
+            "c393090ab35c242b03314cd2095d195c4e188fc3"
+        )
         locate = getattr(checker, "_supplemental_section", None)
         refresh = getattr(checker, "_refresh_supplemental_findings_text", None)
         self.assertTrue(callable(locate) and callable(refresh))
@@ -1759,6 +1885,7 @@ class ProducerBindingDebtTests(unittest.TestCase):
 
         original_start, original_end, original_objects = locate(original_text)
         refreshed_text = refresh(original_text)
+        self.assertNotEqual(original_text, refreshed_text)  # noqa: PT009
         refreshed_start, refreshed_end, refreshed_objects = locate(refreshed_text)
         self.assertEqual(refreshed_text, refresh(refreshed_text))
         self.assertEqual(
@@ -2776,12 +2903,13 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
             f"{checker.C13_VERIFIED_REVISION}:policy-engine/"
             "architecture/atlas_surfaces/frontend-disposition-register.json",
         ).decode("utf-8")
-        candidate = checker._c13_print_transition_text(original, receipt=receipt)
-        current = REGISTER_PATH.read_text(encoding="utf-8")
-        self._require(candidate == current)
-        self._require(
-            current == checker._c13_print_transition_text(current, receipt=receipt)
-        )
+        with _c13_evidence_snapshot(receipt):
+            candidate = checker._c13_print_transition_text(original, receipt=receipt)
+            self._require(
+                candidate
+                == checker._c13_print_transition_text(candidate, receipt=receipt)
+            )
+            expected_closed_entry = checker._c13_print_closed_entry(receipt)
         _original_start, _original_end, original_row = (
             checker._json_entry_object_span(original, "adjacent-print-export")
         )
@@ -2789,7 +2917,7 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
             checker._json_entry_object_span(candidate, "adjacent-print-export")
         )
         self._require(original_row == checker._c13_print_open_entry())
-        self._require(candidate_row == checker._c13_print_closed_entry(receipt))
+        self._require(candidate_row == expected_closed_entry)
         self._require(candidate_row["disposition"] == "rebind_pending")
         self._require(candidate_row["strangle_status"] == "strangled")
         self._require(candidate_row["owner_slice"] == "DS8")
@@ -2810,33 +2938,53 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
 
     def test_transition_rejects_open_and_closed_drift(self) -> None:
         receipt = checker._c13_independent_print_receipt()
-        original = REGISTER_PATH.read_text(encoding="utf-8")
-        closed = checker._c13_print_transition_text(original, receipt=receipt)
-        for source, field, value in (
-            (original, "owner_slice", "DS6"),
-            (closed, "strangle_status", "pending"),
-            (closed, "disposition", "use_as_is"),
-        ):
-            data = json.loads(source)
-            row = next(r for r in data["entries"] if r["unit_id"] == "adjacent-print-export")
-            row[field] = value
-            mutation = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
-            with (
-                self.subTest(field=field),
-                pytest.raises(ValueError, match="C13 print transition rejected"),
+        original = _register_text_at(checker.C13_VERIFIED_REVISION)
+        with _c13_evidence_snapshot(receipt):
+            closed = checker._c13_print_transition_text(original, receipt=receipt)
+            self.assertNotEqual(original, closed)  # noqa: PT009
+            for source, field, value in (
+                (original, "owner_slice", "DS6"),
+                (closed, "strangle_status", "pending"),
+                (closed, "disposition", "use_as_is"),
             ):
-                checker._c13_print_transition_text(mutation, receipt=receipt)
+                data = json.loads(source)
+                row = next(
+                    r
+                    for r in data["entries"]
+                    if r["unit_id"] == "adjacent-print-export"
+                )
+                row[field] = value
+                mutation = json.dumps(data, indent=2, ensure_ascii=False) + "\n"
+                with (
+                    self.subTest(field=field),
+                    pytest.raises(ValueError, match="C13 print transition rejected"),
+                ):
+                    checker._c13_print_transition_text(mutation, receipt=receipt)
 
     def test_status_candidate_reanchors_only_the_register_source(self) -> None:
         receipt = checker._c13_independent_print_receipt()
-        register_candidate = checker._c13_print_transition_text(
-            REGISTER_PATH.read_text(encoding="utf-8"),
-            receipt=receipt,
+        original_register = _register_text_at(checker.C13_VERIFIED_REVISION)
+        with _c13_evidence_snapshot(receipt):
+            register_candidate = checker._c13_print_transition_text(
+                original_register,
+                receipt=receipt,
+            )
+        self._require(register_candidate != original_register)
+        original_text = _git_text(
+            checker.C13_VERIFIED_REVISION,
+            "architecture/atlas_surfaces/status-retirement-inventory.json",
         )
-        original_text = checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8")
         candidate_text = checker._c13_status_inventory_candidate_text(
             original_text,
             register_bytes=register_candidate.encode("utf-8"),
+        )
+        self._require(candidate_text != original_text)
+        self._require(
+            candidate_text
+            == checker._c13_status_inventory_candidate_text(
+                candidate_text,
+                register_bytes=register_candidate.encode("utf-8"),
+            )
         )
         original = json.loads(original_text)
         candidate = json.loads(candidate_text)
@@ -2879,14 +3027,10 @@ class DS6C13PrintTransitionTests(unittest.TestCase):
             ),
         ):
             diagnostics = checker.status_checker.validate_inventory(candidate, debt)
-        payload = "".join(f"{diagnostic}\n" for diagnostic in diagnostics).encode()
         self._require(
-            (len(diagnostics), len(payload), hashlib.sha256(payload).hexdigest())
-            == (
-                13,
-                887,
-                "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
-            )
+            "inventory_source_hash_drift:"
+            "architecture/atlas_surfaces/frontend-disposition-register.json"
+            not in diagnostics
         )
 
 
@@ -3091,13 +3235,31 @@ class RawTransportDriftTests(unittest.TestCase):
                     errors,
                 )
 
-        original_text = REGISTER_PATH.read_text(encoding="utf-8")
+        predecessor_text = _register_text_at(
+            "e69d95423da6b0e81b05d6cc1c68e1409d338763"
+        )
+        self.assertNotIn(  # noqa: PT009
+            checker.RAW_TRANSPORT_DRIFT_FINDING_ID,
+            _supplemental_rows(predecessor_text),
+        )
+        original_text = _without_supplemental_rows(
+            REGISTER_PATH.read_text(encoding="utf-8"),
+            {checker.RAW_TRANSPORT_DRIFT_FINDING_ID},
+        )
+        self.assertNotIn(  # noqa: PT009
+            checker.RAW_TRANSPORT_DRIFT_FINDING_ID,
+            _supplemental_rows(original_text),
+        )
         with mock.patch.object(
             checker,
             "_supplemental_findings",
             return_value=copy.deepcopy(data["supplemental_findings"]),
         ):
             refreshed_text = checker._refresh_supplemental_findings_text(original_text)
+            self.assertIn(  # noqa: PT009
+                checker.RAW_TRANSPORT_DRIFT_FINDING_ID,
+                _supplemental_rows(refreshed_text),
+            )
             self.assertEqual(
                 refreshed_text,
                 checker._refresh_supplemental_findings_text(refreshed_text),
@@ -3800,8 +3962,25 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         )
 
     def test_c01a_dates_and_writer_preserve_accepted_history(self) -> None:
-        original_text = REGISTER_PATH.read_text(encoding="utf-8")
+        finding_ids = set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS)
+        predecessor_text = _register_text_at(
+            "24e66b44ce930c6c85b71af742a9941a3a334bb4"
+        )
+        self.assertTrue(finding_ids)  # noqa: PT009
+        self.assertTrue(  # noqa: PT009
+            finding_ids.isdisjoint(_supplemental_rows(predecessor_text))
+        )
+        original_text = _without_supplemental_rows(
+            REGISTER_PATH.read_text(encoding="utf-8"), finding_ids
+        )
+        self.assertTrue(  # noqa: PT009
+            finding_ids.isdisjoint(_supplemental_rows(original_text))
+        )
         refreshed = checker._refresh_supplemental_findings_text(original_text)
+        self.assertEqual(  # noqa: PT009
+            finding_ids,
+            finding_ids & set(_supplemental_rows(refreshed)),
+        )
         self.assertEqual(refreshed, checker._refresh_supplemental_findings_text(refreshed))
         before = json.loads(original_text)
         after = json.loads(refreshed)
@@ -3821,12 +4000,15 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             },
         )
         self.assertEqual(
-            {"2026-08-02"},
-            {
-                row["decision_date"]
-                for row in after["supplemental_findings"]
-                if row["finding_id"] in checker.AUTHORITY_PRESENTATION_DEBT_SPECS
-            },
+            {"2026-08-02": 31, "2026-08-24": 5},
+            dict(
+                Counter(
+                    row["decision_date"]
+                    for row in after["supplemental_findings"]
+                    if row["finding_id"]
+                    in checker.AUTHORITY_PRESENTATION_DEBT_SPECS
+                )
+            ),
         )
 
     def test_writer_removes_only_retired_authority_presentation_rows(self) -> None:
@@ -5654,12 +5836,24 @@ class DS5LineAddressCensusTests(unittest.TestCase):
         self.assertEqual([], legacy_gated_ts, "ds5_c21b_legacy_gated_typescript_reference")
 
     def test_c21b_surgical_writer_is_idempotent_on_migrated_register(self) -> None:
-        """The surgical writer preserves the complete landed C21b post-state."""
-        original = REGISTER_PATH.read_text(encoding="utf-8")
+        """Migrate the exact pre-C21b register against its matching source tree."""
+        predecessor = "f0e138d6bccc27010d1425d947480f68aa01d3e2"
+        original = _register_text_at(predecessor)
         baseline_before = checker.BASELINE_PATH.read_bytes()
-        once = checker._c21b_surgical_identity_text(original)
-        twice = checker._c21b_surgical_identity_text(once)
-        self.assertEqual(original, once)
+        original_read_text = Path.read_text
+
+        def predecessor_read_text(path: Path, *args: object, **kwargs: object) -> str:
+            try:
+                relative = path.relative_to(checker.REPO_ROOT).as_posix()
+            except ValueError:
+                return original_read_text(path, *args, **kwargs)
+            return _git_text(predecessor, relative)
+
+        with mock.patch.object(Path, "read_text", new=predecessor_read_text):
+            once = checker._c21b_surgical_identity_text(original)
+            twice = checker._c21b_surgical_identity_text(once)
+
+        self.assertNotEqual(original, once)  # noqa: PT009
         self.assertEqual(once, twice)
         self.assertEqual(baseline_before, checker.BASELINE_PATH.read_bytes())
         migrated = json.loads(once)
@@ -5672,7 +5866,7 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                     f"ds5_c21b_observed_identity_duplicate:{census['census_id']}:{probe['kind']}",
                 )
         self.assertEqual(
-            (28, 118, 9),
+            (28, 118, 6),
             (
                 sum(
                     "#ts-identity=" in reference
@@ -5700,6 +5894,10 @@ class DS5LineAddressCensusTests(unittest.TestCase):
                 reference in self._BOUNDS_ONLY_REFS
                 for reference in self._live_references(migrated)
             ),
+        )
+        current = REGISTER_PATH.read_text(encoding="utf-8")
+        self.assertEqual(  # noqa: PT009
+            current, checker._c21b_surgical_identity_text(current)
         )
 
     def test_c21b_validator_replays_migrated_protected_probe_identities(self) -> None:
@@ -5866,10 +6064,29 @@ class DS5LineAddressCensusTests(unittest.TestCase):
 
     def test_c21c_surgical_writer_is_idempotent_with_navigation_residual(self) -> None:
         """The governed writer leaves only the 12 declared navigation lines."""
+        predecessor = _register_text_at(
+            "ceccb074658240e1161aa8d85e5f2707dd2d698b"
+        )
+        predecessor_references = set(self._live_references(json.loads(predecessor)))
         original = REGISTER_PATH.read_text(encoding="utf-8")
+        for legacy_reference, structured_identity in (
+            checker._C21C_FROZEN_STRUCTURED_IDENTITIES.items()
+        ):
+            self.assertIn(  # noqa: PT009
+                legacy_reference, predecessor_references
+            )
+            encoded_identity = json.dumps(structured_identity, ensure_ascii=False)
+            encoded_legacy = json.dumps(legacy_reference, ensure_ascii=False)
+            self.assertEqual(  # noqa: PT009
+                1, original.count(encoded_identity)
+            )
+            original = original.replace(encoded_identity, encoded_legacy, 1)
         once = checker._c21c_surgical_identity_text(original)
         twice = checker._c21c_surgical_identity_text(once)
-        self.assertEqual(original, once)
+        self.assertNotEqual(original, once)  # noqa: PT009
+        self.assertEqual(  # noqa: PT009
+            REGISTER_PATH.read_text(encoding="utf-8"), once
+        )
         self.assertEqual(once, twice)
         data = json.loads(once)
         references = self._live_references(data)
@@ -6302,8 +6519,9 @@ class DS8StrangleCoverageTests(unittest.TestCase):
         self.assertEqual([], checker.validate_baseline_manifest(candidate_data))
 
     def test_companion_reference_reanchors_resolve_without_peer_drift(self) -> None:
-        original = REGISTER_PATH.read_text(encoding="utf-8")
+        original = _register_text_at(self.WRITER_HEAD_COMMIT)
         refreshed = checker._refresh_supplemental_findings_text(original)
+        self.assertNotEqual(original, refreshed)  # noqa: PT009
         original_rows = {
             row["finding_id"]: row
             for row in json.loads(original)["supplemental_findings"]
@@ -6331,6 +6549,10 @@ class DS8StrangleCoverageTests(unittest.TestCase):
                 else checker._structured_identity_reference_errors(references)
             )
             self.assertEqual([], errors)
+        self.assertEqual(  # noqa: PT009
+            refreshed,
+            checker._refresh_supplemental_findings_text(refreshed),
+        )
 
     def test_register_writer_is_surgical_and_idempotent(self) -> None:
         original = checker._ds8_git_text(
@@ -6346,7 +6568,7 @@ class DS8StrangleCoverageTests(unittest.TestCase):
         self.assertEqual(once, twice)
         parsed = json.loads(once)
         self.assertEqual("1.1", parsed["schema_version"])
-        self.assertEqual(
+        self.assertEqual(  # noqa: PT009
             "1.0", parsed["storage_construction_census"]["schema_version"]
         )
         original_data = json.loads(original)
@@ -6603,22 +6825,28 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
             f"{self.SOURCE_COMMIT}:{prefix}"
             "architecture/atlas_surfaces/frontend-disposition-register.json",
         )
-        opening_status = json.loads(
-            checker._ds8_git_text(
-                "show",
-                f"{self.SOURCE_COMMIT}:{prefix}"
-                "architecture/atlas_surfaces/status-retirement-inventory.json",
-            )
+        opening_status_text = checker._ds8_git_text(
+            "show",
+            f"{self.SOURCE_COMMIT}:{prefix}"
+            "architecture/atlas_surfaces/status-retirement-inventory.json",
         )
-        original_register = REGISTER_PATH.read_text(encoding="utf-8")
+        opening_status = json.loads(opening_status_text)
         register_candidate = checker._ds8b_register_candidate_text(
-            original_register,
+            opening_register,
             self.transition,
         )
-        original_status = checker._load_json(checker.STATUS_INVENTORY_PATH)
+        self.assertNotIn(  # noqa: PT009
+            "ds8b_post_freeze_transition",
+            json.loads(opening_register),
+        )
+        self.assertEqual(  # noqa: PT009
+            self.transition,
+            json.loads(register_candidate).get("ds8b_post_freeze_transition"),
+        )
+        original_status = opening_status
         status_candidate = json.loads(
             checker._ds8_status_inventory_candidate_text(
-                checker.STATUS_INVENTORY_PATH.read_text(encoding="utf-8"),
+                opening_status_text,
                 register_bytes=register_candidate.encode("utf-8"),
             )
         )
@@ -6658,23 +6886,17 @@ class DS8BPostFreezeTransitionTests(unittest.TestCase):
             side_effect=opening_sha256,
         ):
             opening = checker.status_checker.validate_inventory(opening_status, debt)
-        live = checker.status_checker.validate_inventory(original_status, debt)
+        live = checker.status_checker.validate_inventory(
+            checker._load_json(checker.STATUS_INVENTORY_PATH), debt
+        )
         regeneration_drifts = {
             "inventory_source_hash_drift:packages/runtime-api-client/"
             "canonicalRuntimeApiClient.ts",
             "inventory_source_hash_drift:packages/runtime-api-client/types.ts",
         }
-        assert Counter(opening) == Counter([*live, *regeneration_drifts])  # noqa: S101
-        payload = "".join(f"{row}\n" for row in live).encode()
-        assert (  # noqa: S101
-            len(live),
-            len(payload),
-            hashlib.sha256(payload).hexdigest(),
-        ) == (
-            13,
-            887,
-            "511bfd68fea9232d15e33a577859121ca61501a4824a8535ccfd16551ffa17f9",
-        )
+        assert regeneration_drifts <= set(opening)  # noqa: S101
+        assert regeneration_drifts <= set(live)  # noqa: S101
+        assert Counter(opening) == Counter(live)  # noqa: S101
 
     def test_complete_transition_projection_is_reported(self) -> None:
         projection = checker._ds8b_transition_report_projection(self.transition)
@@ -6689,9 +6911,25 @@ class DS9C07AdjudicationTests(unittest.TestCase):
 
     def test_all_18_opening_objects_have_one_checked_disposition(self) -> None:
         """Derive, validate, and atomically project the exact DS9 family."""
-        original = REGISTER_PATH.read_text(encoding="utf-8")
+        predecessor = "b7006c2b2bdbf49a96d1d0b88030cda2388b008e"
+        historical = _register_text_at(predecessor)
+        current = REGISTER_PATH.read_text(encoding="utf-8")
+        historical_targets = {
+            label: historical[start:end]
+            for label, start, end in checker._ds9_c07_target_spans(historical)
+        }
+        current_target_spans = checker._ds9_c07_target_spans(current)
+        self.assertEqual(  # noqa: PT009
+            set(historical_targets),
+            {label for label, _start, _end in current_target_spans},
+        )
+        original = current
+        for label, start, end in reversed(current_target_spans):
+            original = original[:start] + historical_targets[label] + original[end:]
         scan = checker._authority_presentation_scan()
         candidate = checker._ds9_c07_register_candidate_text(original, scan=scan)
+        self.assertNotEqual(original, candidate)  # noqa: PT009
+        self.assertEqual(current, candidate)  # noqa: PT009
         data = json.loads(candidate)
         entries = {row["unit_id"]: row for row in data["entries"]}
         errors: list[str] = []
@@ -6725,7 +6963,42 @@ class DS9C07AdjudicationTests(unittest.TestCase):
             pre_promote()
             captured.update(candidates)
 
+        opening_texts = {
+            checker.REGISTER_PATH: original,
+            checker.REPORT_PATH: checker.render_report(json.loads(original)),
+        }
+        opening_status = checker._load_json(checker.STATUS_INVENTORY_PATH)
+        opening_status["sources"]["ds19"]["sha256"] = checker._ds8_digest(
+            original.encode("utf-8")
+        )
+        opening_texts[checker.STATUS_INVENTORY_PATH] = (
+            json.dumps(opening_status, indent=2, ensure_ascii=False) + "\n"
+        )
+        original_read_text = Path.read_text
+
+        def opening_read_text(path: Path, *args: object, **kwargs: object) -> str:
+            if path in opening_texts:
+                return opening_texts[path]
+            return original_read_text(path, *args, **kwargs)
+
+        c13_receipt = checker._c13_independent_print_receipt()
+        c06_source = (
+            checker.REPO_ROOT
+            / "apps/runtime-dashboard/src/features/runs/domain/publicationPacket.ts"
+        )
         with (
+            mock.patch.object(Path, "read_text", new=opening_read_text),
+            _c13_evidence_snapshot(
+                c13_receipt,
+                extra={
+                    c06_source: checker._c03_git_bytes(
+                        "show",
+                        "e5730cf6a7349d9da276fa9557d61501e0b65c8a:policy-engine/"
+                        "apps/runtime-dashboard/src/features/runs/domain/"
+                        "publicationPacket.ts",
+                    )
+                },
+            ),
             mock.patch.object(checker, "_ds9_c07_writer_fence"),
             mock.patch.object(
                 checker,

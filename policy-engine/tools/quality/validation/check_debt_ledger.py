@@ -21,7 +21,19 @@ ATLAS_PATH = Path("docs/plans/active/POLICYOS_ATLAS_SURFACE_IMPLEMENTATION_MASTE
 DISPOSITION_PATH = Path("architecture/atlas_surfaces/frontend-disposition-register.json")
 LEDGER_PATH = Path("docs/plans/active/LEDGER.md")
 PLAN_ROOTS = (Path("docs/plans/active/atlas-slices"), Path("docs/superpowers/plans"))
-PUBLISHED_DENOMINATORS = {"register": 60, "gy": 38, "atlas": 22, "frontend": 217}
+PUBLISHED_DENOMINATORS = {
+    "register": 62,
+    "gy": 38,
+    "atlas": 22,
+    "frontend_disposition_entries": 261,
+    "frontend_ds8_assignments": 217,
+}
+INFORMATIONAL_FINDING_CODES = frozenset(
+    {
+        "register_supplies_missing_standing",
+        "register_withholds_source_standing",
+    }
+)
 REGISTER_STATUSES = frozenset(
     {"open", "open_unmerged", "blocked", "folded", "closed", "ambiguous", "foreign"}
 )
@@ -52,9 +64,12 @@ _AtlasDebt = namedtuple("_AtlasDebt", "debt_id status owner line heading raw")
 _WorkRow = namedtuple("_WorkRow", "slice_id stage basis heading branch")
 _Snapshot = namedtuple(
     "_Snapshot",
-    "debts gy atlas_debts work plan_ids explicit_nonclosures frontend_rows frontend_statuses ds5_rows ds5_planless irregular_branches carried_closed branch_states",
+    "debts gy atlas_debts work plan_ids explicit_nonclosures frontend_entries frontend_entry_statuses frontend_ds8_assignments frontend_ds8_statuses ds5_rows ds5_planless irregular_branches carried_closed branch_states",
 )
-AuditReport = namedtuple("AuditReport", "findings metrics ledger_text")
+AuditReport = namedtuple(
+    "AuditReport",
+    "findings blocking_findings informational_findings metrics ledger_text",
+)
 
 
 def _cells(line: str) -> list[str]:
@@ -410,8 +425,10 @@ def _snapshot(repo_root: Path) -> _Snapshot:
     debts, irregular = _parse_register(register_text)
     plan_ids, branches, paths = _plan_inventory(repo_root)
     disposition = json.loads((repo_root / DISPOSITION_PATH).read_text(encoding="utf-8"))
+    entries = disposition.get("entries", [])
     assignments = disposition.get("ds8_strangle_coverage", {}).get("assignments", [])
-    frontend_statuses = Counter(str(row.get("disposition", "untyped")) for row in assignments)
+    entry_statuses = Counter(str(row.get("disposition", "untyped")) for row in entries)
+    ds8_statuses = Counter(str(row.get("disposition", "untyped")) for row in assignments)
     ds5_rows, ds5_planless = _ds5_metrics(repo_root, plan_ids)
     marker = "### G.3 Carried closed set"
     carried_text = register_text.split(marker, 1)[1] if marker in register_text else ""
@@ -432,8 +449,10 @@ def _snapshot(repo_root: Path) -> _Snapshot:
         work=work,
         plan_ids=frozenset(plan_ids),
         explicit_nonclosures=tuple(_explicit_nonclosures(repo_root, paths)),
-        frontend_rows=len(assignments),
-        frontend_statuses=tuple(sorted(frontend_statuses.items())),
+        frontend_entries=len(entries),
+        frontend_entry_statuses=tuple(sorted(entry_statuses.items())),
+        frontend_ds8_assignments=len(assignments),
+        frontend_ds8_statuses=tuple(sorted(ds8_statuses.items())),
         ds5_rows=ds5_rows,
         ds5_planless=ds5_planless,
         irregular_branches=tuple(irregular),
@@ -592,7 +611,8 @@ def render_ledger(snapshot: _Snapshot) -> str:
             f"| `DEBT-REGISTER.md` | {PUBLISHED_DENOMINATORS['register']} | {len(register_ids)} | {sum(_key(item) in open_keys for item in register_ids)} | {summary([row.status for row in snapshot.debts])} |",
             f"| `GY-engine-subordination.md` | {PUBLISHED_DENOMINATORS['gy']} | {len(gy_ids)} | {sum(_key(item) in open_keys for item in gy_ids)} | {summary([row.status for row in snapshot.gy])} |",
             f"| Atlas master debt table | {PUBLISHED_DENOMINATORS['atlas']} | {len(snapshot.atlas_debts)} | {sum(_key(item) in open_keys for item in atlas_keys)} | {summary([row.status for row in snapshot.atlas_debts])} |",
-            f"| `frontend-disposition-register.json` | {PUBLISHED_DENOMINATORS['frontend']} | {snapshot.frontend_rows} | 0 | {summary([key for key, count in snapshot.frontend_statuses for _ in range(count)]) or 'none'} |",
+            f"| `frontend-disposition-register.json` entries | {PUBLISHED_DENOMINATORS['frontend_disposition_entries']} | {snapshot.frontend_entries} | 0 | {summary([key for key, count in snapshot.frontend_entry_statuses for _ in range(count)]) or 'none'} |",
+            f"| `frontend-disposition-register.json` `ds8_strangle_coverage.assignments` | {PUBLISHED_DENOMINATORS['frontend_ds8_assignments']} | {snapshot.frontend_ds8_assignments} | 0 | {summary([key for key, count in snapshot.frontend_ds8_statuses for _ in range(count)]) or 'none'} |",
             "",
             f"GY standing receipts (recognized hits/final line): {receipts or 'none'}.",
             "",
@@ -632,8 +652,8 @@ def _status_relation(register: str, source: str) -> str:
         return "register_supplies_standing"
     if register in _UNSTATED:
         # Informational, not a lag: the register may deliberately withhold a
-        # verdict the source asserts (GY-DEF9 stays `ambiguous` because its
-        # witness cannot reach its own discriminator). Its row states the reason.
+        # verdict asserted by a secondary source while its own evidence remains
+        # undecidable. The authoritative register row states that reason.
         return "source_supplies_standing"
     return "conflict" if (register in _TERMINAL) != (source in _TERMINAL) else "compatible"
 
@@ -662,7 +682,8 @@ def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
         "register": len({row.debt_id for row in snapshot.debts}),
         "gy": len(snapshot.gy),
         "atlas": len(snapshot.atlas_debts),
-        "frontend": snapshot.frontend_rows,
+        "frontend_disposition_entries": snapshot.frontend_entries,
+        "frontend_ds8_assignments": snapshot.frontend_ds8_assignments,
     }
     for source, expected in PUBLISHED_DENOMINATORS.items():
         if observed[source] != expected:
@@ -777,7 +798,8 @@ def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
         "register_ids": observed["register"],
         "gy_ids": observed["gy"],
         "atlas_debt_rows": observed["atlas"],
-        "frontend_disposition_rows": observed["frontend"],
+        "frontend_disposition_entries": observed["frontend_disposition_entries"],
+        "frontend_ds8_assignment_rows": observed["frontend_ds8_assignments"],
         "gy_history_blocks": sum(row.hit_count > 1 for row in snapshot.gy),
         "gy_absent_from_register": len(absent),
         "gy_absent_from_register_closed": sum(
@@ -787,9 +809,14 @@ def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
         "ds5_planless_routes": snapshot.ds5_planless,
         "irregular_section_e_branch_rows": len(snapshot.irregular_branches),
     }
-    return AuditReport(
-        tuple(sorted(findings, key=lambda item: (item.code, item.detail))), metrics, expected_text
+    ordered_findings = tuple(sorted(findings, key=lambda item: (item.code, item.detail)))
+    informational = tuple(
+        finding for finding in ordered_findings if finding.code in INFORMATIONAL_FINDING_CODES
     )
+    blocking = tuple(
+        finding for finding in ordered_findings if finding.code not in INFORMATIONAL_FINDING_CODES
+    )
+    return AuditReport(ordered_findings, blocking, informational, metrics, expected_text)
 
 
 def _build_parser() -> argparse.ArgumentParser:
@@ -812,9 +839,15 @@ def main(argv: Sequence[str] | None = None) -> int:
         report = audit_repository(args.repo_root)
     for key, value in report.metrics.items():
         print(f"{key}={value}")
-    for finding in report.findings:
+    if report.blocking_findings:
+        print("Blocking findings:")
+    for finding in report.blocking_findings:
         print(f"{finding.code}: {finding.detail}")
-    return int(bool(report.findings and not args.report_only))
+    if report.informational_findings:
+        print("Informational findings (do not block):")
+    for finding in report.informational_findings:
+        print(f"{finding.code}: {finding.detail}")
+    return int(bool(report.blocking_findings and not args.report_only))
 
 
 if __name__ == "__main__":

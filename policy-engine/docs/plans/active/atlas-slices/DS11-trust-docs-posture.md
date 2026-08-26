@@ -156,7 +156,7 @@ cluster may define a second closure contract.
   PUBLIC, REVIEWER/EXPERT, and MACHINE projections.
 - [ ] **CC13** Accessibility renders two different truths: the dated internal
   2026-Q2 pre-audit evidence is historical and bounded; external certification
-  and countersign remain blocked, and the pinned current page suite's three
+  and countersign remain blocked, and the pinned current page suite's four
   run-paper failures remain visible. Neither `WCAG certified` nor a current
   unbounded-conformance claim can be emitted.
 - [ ] **CC14** The custody commitment is a first-class `planned` claim sourced to
@@ -334,7 +334,7 @@ row field intact and the row must remain non-supported.
 | release guardrail | `uv run polisyos-tools architecture guardrails check` = 0 with required generated freshness green; `user 40.04 + sys 40.61 = 80.65s`; uptime `16:17 up 2 days, 6:30` -> `16:19 up 2 days, 6:32` |
 | focused Trust View baseline | Vitest reports **4 files / 6 tests green**; independent exact-path `rg` counts `1 + 1 + 3 + 1` test identities in `DisputeBadge.a11y`, `VerificationStatus.a11y`, `TrustViewAuthority`, and `trustViewArchitecture`; `user 7.55 + sys 1.49 = 9.04s`; uptime `16:24 up 2 days, 6:37` before/after |
 | frontend disposition baseline | exact `--check` completes red only on `c13_print_receipt_invalid:.../RunDetailLayout.tsx`; `user 77.44 + sys 10.24 = 87.68s`; uptime `16:22 up 2 days, 6:35` -> `16:23 up 2 days, 6:36` |
-| complete page-a11y baseline | two independent JSON-reporter executions agree on **20/24 pass** and the same four failures: `src/test/a11y/color-blind-simulation.spec.ts:122` (DS10 capability-discovery color-blind distinction), general color-blind axe and run-report axe both expose `dlitem`, and the run-report screen-reader snapshot lacks the named `Export JSON` action; the raw receipt names all 24 identities; replay A `user 212.21 + sys 29.76 = 241.97s`, replay B `user 287.42 + sys 40.22 = 327.64s` |
+| complete page-a11y baseline | the committed raw JSON receipt independently establishes **20/24 pass** and four failures: `src/test/a11y/color-blind-simulation.spec.ts:122` keeps signal pairs distinguishable for deuteranope, protanope, and tritanope viewers; `e2e/a11y/routes.a11y.spec.ts:44` run-report axe exposes `dlitem`; `src/test/a11y/screen-reader-snapshots.spec.ts:26` runs-list lacks named `Open run`; and `src/test/a11y/screen-reader-snapshots.spec.ts:37` run-report lacks named `Export JSON`. A second measured `20/24` execution is recorded only as `consumer_asserted` agreement because no second raw artifact is committed; it cannot support a gate or row. Replay A `user 212.21 + sys 29.76 = 241.97s`, replay B `user 287.42 + sys 40.22 = 327.64s` |
 | planning debt-ledger admission | read-only `check_debt_ledger.py --check --report-only` reports exactly 10 DS11 `explicit_nonclosure_missing` rows plus `ledger_render_drift`; the checker's parsed IDs and an independent count of the 10 bullets under `## Explicit non-closure` agree; `user 0.40 + sys 0.30 = 0.70s`; uptime `17:08 up 2 days, 7:21` before/after. These are the expected planning-handback reds until C00 uses the sole register writer and regenerates the ledger. |
 
 The release guardrail and frontend disposition checker are different gates. The
@@ -810,7 +810,7 @@ run its falsifier; do not patch another instance.
 
 **P39 only:** this plan; execution journal
 `docs/superpowers/journals/2026-08-26-ds11-trust-docs-posture.md`; red test
-shells; debt-register/ledger rows required by explicit non-closures; and timing
+witnesses; debt-register/ledger rows required by explicit non-closures; and timing
 receipts, including raw page-a11y output plus the later normalized companion at
 `docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/receipt.json`. No
 product contract, producer, source metadata, generated output, route, or
@@ -915,7 +915,7 @@ Opening semantic rows are fixed by evidence, not target counts:
 - the 2026-Q2 internal pre-audit completion is eligible only as the narrow
   historical fact content-bound to its dated body spans; any unsupported
   owner/review/jurisdiction predicate blocks it;
-- current accessibility conformance is `blocked` by the three pinned run-paper
+- current accessibility conformance is `blocked` by the four pinned run-paper
   failures; external certification is separately `blocked` pending a content-
   bound countersign; and
 - source declarations missing claim-specific review, jurisdiction, or evidence
@@ -1139,7 +1139,7 @@ git rev-parse --show-prefix
 | register-family lock | C00 debt-ledger admission, C04 disposition transition, and C06 reconciliation are separate acquisitions; completed read-only debt reporting `user+sys=0.70s` -> fixed **30s** for its record writer/check; completed frontend base check `user+sys=87.68s` -> fixed **180s** for no-corruption checks; a surgical disposition writer/corruption transaction freezes at `max(180s, 2x first completed user+sys)` and never widens mid-run |
 | focused dashboard | ordinary lane; completed 4-file Trust View baseline `user+sys=9.04s` -> fixed **30s** per focused Vitest invocation |
 | release guardrail | ordinary read-only closeout lane; completed `user+sys=80.65s` -> fixed **180s**; no `sync` |
-| visual/a11y lane | C00/C06 complete page-a11y no-writer checks use the measured `user+sys=126.80s` baseline and fixed **270s** ceiling; C03 route a11y is focused; the C06 visual transaction uses one worker and zero retries, with its own completed no-writer measurement freezing `max(60s, 2x user+sys)` before a writer; missing browser/killed run is a tooling non-receipt |
+| visual/a11y lane | C00/C06 complete page-a11y no-writer checks use completed `user+sys` receipts of `241.97s` and `327.64s`; the fixed ceiling is **655.28s**, exactly `2 × max(241.97, 327.64)`, so the measured replay-B timing is retained rather than forced into a fictitious 270s fit. C03 route a11y is focused; the C06 visual transaction uses one worker and zero retries, with its own completed no-writer measurement freezing `max(60s, 2x user+sys)` before a writer; missing browser/killed run is a tooling non-receipt |
 
 The visual commands differ only by the first writer flag and use the exact grep:
 

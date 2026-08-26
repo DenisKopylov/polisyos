@@ -2,7 +2,7 @@
 
 ## Admission and scope
 
-- Execution entry: `8e5832bbd` on attached
+- Execution entry: `8e5832bbdb0f206b6221112f4a1502b45981bd40` on attached
   `codex/ds11-trust-docs-posture-plan`; prefix is empty at repository root and
   `policy-engine/` at product root. The immutable policy-source base remains
   `f935e0c2e9359bc1202ce5d36ea706de58f7aaab`.
@@ -11,15 +11,16 @@
 - User-approved execution amendments: hard slice mechanism ceiling `34` (sum
   stays `23`, slack `11`, widening ceiling `9`); CC09 is tested in both
   directions. The later real page-a11y receipt corrected the supplied
-  `21/24`/three-failure baseline to `20/24`/four failures, including the
-  DS10 color-blind identity. This is a P35/P41 measurement correction, not a
-  DS10 repair.
+  `21/24`/three-failure baseline to `20/24`/four failures: color-blind
+  distinguishability, run-report axe `dlitem`, runs-list missing `Open run`,
+  and run-report missing `Export JSON`. This is a P35/P41 measurement
+  correction, not a DS10 repair.
 - Pattern pass: P01/P02/P05/P10/P29/P35–P41. DS11 remains
   `absent/unallocated`; C00 adds no product contract, producer, bridge,
   consumer, source metadata, or production/tooling mechanism.
 - Path/round accounting: `0/0` C00 mechanism paths; one red-test/register
   transaction; `0/9` widening. P39 companions are the plan, this journal,
-  two red test shells, debt register/ledger, and page-a11y receipt set.
+  two red test witnesses, debt register/ledger, and page-a11y receipt set.
 
 ## Complete-set entry census
 
@@ -53,7 +54,7 @@ after. `user + sys` is the completed-command ceiling measure.
 | package-import fail-closed gate | 1 | `54.90 + 5.16 = 60.06s` | `18:26` -> `18:27` | no writer; JSON `finding_count=142`, not supplied `143`; known member `polisyos.runtime -> polisyos.runtime.quality` |
 | frontend disposition `--check` | 1 | `195.14 + 27.53 = 222.67s` | `18:33` -> `18:37` | no writer; only `c13_print_receipt_invalid:.../RunDetailLayout.tsx` |
 | page-a11y JSON replay A | 1 | `212.21 + 29.76 = 241.97s` | `18:28` -> `18:30` | no product writer; `20/24`, four failures |
-| page-a11y JSON replay B | 1 | `287.42 + 40.22 = 327.64s` | `18:32` -> `18:35` | receipt writer only; same `20/24`, four failures |
+| page-a11y JSON replay B | 1 | `287.42 + 40.22 = 327.64s` | `18:32` -> `18:35` | no committed raw result; observed `20/24`, four failures is `consumer_asserted` and cannot support a gate or row; it still freezes the C06 ceiling at `655.28s = 2 × 327.64s` |
 | debt report-only check | 0 | `0.43 + 0.35 = 0.78s` | `18:28` -> `18:28` | no writer; pre-write DS11 omissions and ledger drift observed |
 | debt ledger writer | 1 | `2.01 + 2.05 = 4.06s` | `18:30` -> `18:30` | sole register-family writer; all DS11 rows rendered; inherited denominator mismatch `92 != 102` remains |
 | debt ledger `--check` | 1 | `1.05 + 0.99 = 2.04s` | `18:38` -> `18:39` | no `explicit_nonclosure_missing`, `ledger_missing_id`, or `ledger_render_drift` for DS11; only denominator mismatch remains |
@@ -72,7 +73,9 @@ The complete raw set is exactly `run-1/results.json`, `run-1/.last-run.json`,
 `docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/`. The normalized
 receipt content-binds 24 identities, 20 passes, four failures, exit `1`, the
 exact JSON reporter command, raw SHA-256s, and the four known base identities.
-No green or certification state was authored.
+It establishes only run 1; the second measured agreement is
+`consumer_asserted` / `not_established` for a consumer without its raw result
+and cannot support a row or gate. No green or certification state was authored.
 
 ## C00 handback
 
@@ -80,4 +83,6 @@ Changed paths are P39-only companions. Both CC09 direction reds are pinned;
 the runtime-owned `RuntimeClaimRegistry` and all C01 production paths remain
 untouched. Debt rows preserve their ratified capability labels, owners, and
 closure commands. The remaining inherited package/debt/page reds are recorded
-as evidence, not repaired in C00.
+as evidence, not repaired in C00. The direct handwritten `source_rows`
+free-growth witness is C00's red seam only; C01/C05 must replace or extend it
+with a real scratch Python producer walk before CC06.

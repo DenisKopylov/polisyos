@@ -2,7 +2,7 @@
   "schema_version": "policyos.ds11.page_a11y_base_receipt.v1",
   "authority_purpose": "historical_currentness_limitation",
   "status": "blocked",
-  "execution_entry_commit": "8e5832bbd",
+  "execution_entry_commit": "8e5832bbdb0f206b6221112f4a1502b45981bd40",
   "policy_source_base_commit": "f935e0c2e9359bc1202ce5d36ea706de58f7aaab",
   "command": "PLAYWRIGHT_JSON_OUTPUT_FILE=<receipt-relative-output> corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test e2e/a11y --project=chromium --reporter=json",
   "result": {
@@ -131,8 +131,12 @@
   ],
   "replay_agreement": {
     "completed_replays": 2,
-    "status": "agrees",
-    "observed": "20 passed / 4 failed / 24 collected",
+    "establishment_class": "consumer_asserted",
+    "admissibility": "not_established",
+    "status": "not_established",
+    "committed_raw_runs": 1,
+    "observed_second_run": "20 passed / 4 failed / 24 collected",
+    "limitation": "Only run-1 raw results are committed. The second execution is measured in the execution journal but has no content-bound raw result for an independent consumer, so its agreement cannot support a row or gate.",
     "added_base_failure": "../src/test/a11y/color-blind-simulation.spec.ts::keeps signal pairs distinguishable for deuteranope, protanope, and tritanope viewers"
   },
   "raw_receipts": {

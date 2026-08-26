@@ -578,7 +578,7 @@ def _cache_health_component(cache_store: Any | None) -> HealthComponentSnapshot 
 def _world_health_component(fact_log_root: Path | None) -> HealthComponentSnapshot | None:
     if fact_log_root is None:
         return None
-    from polisyos.fabric.world.store.segments import load_world_fact_manifests
+    from polisyos.fabric.world import load_world_fact_manifests
 
     reasons: list[str] = []
     details: dict[str, Any] = {"fact_log_root": str(fact_log_root)}

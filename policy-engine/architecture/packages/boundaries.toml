@@ -144,7 +144,6 @@ forbidden_dependencies = [
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",
   "polisyos.berl",
-  "polisyos.calibration",
   "polisyos.ddm",
 ]
 
@@ -189,7 +188,6 @@ allowed_dependencies = [
   "polisyos.obligation_graph",
 ]
 forbidden_dependencies = [
-  "polisyos.runtime",
   "polisyos.data_forge.kernel",
   "polisyos.data_forge.domains",
 ]

@@ -1522,6 +1522,7 @@ def test_pdc_exports_runtime_consumed_design_search_symbols() -> None:
         "Layer2S6BlindSpotPostureInput",
         "Layer2S7DelegationPostureInput",
         "Layer2S8ValuePostureInput",
+        "SearchIteration",
         "run_s2_shadow_design_loop",
     }
 

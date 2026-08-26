@@ -42,6 +42,7 @@ from polisyos.foundry.methods.selection import (
 from polisyos.pdc import (
     CounterexampleRecord,
     RefinementDecision,
+    SearchIteration,
     SearchTerminalKind,
     SearchTerminalState,
     TypedDiagnosticRecord,
@@ -49,7 +50,6 @@ from polisyos.pdc import (
     gy_artifact_self_identity_projection,
     gy_content_hash,
 )
-from polisyos.pdc._impl.layer2_design_search import SearchIteration
 from polisyos.runtime.quality.acquisition_planner import (
     AcquisitionPlannerReport,
     AcquisitionReceipt,

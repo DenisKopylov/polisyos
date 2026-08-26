@@ -10,7 +10,7 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import TYPE_CHECKING, Literal, Protocol, Self
+from typing import TYPE_CHECKING, Literal, NoReturn, Protocol, Self
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -904,6 +904,49 @@ class SemanticEpochHistoryRepository(Protocol):
     def resolve_scope_history_by_ref(
         self, *, scope_identity_ref: Digest, authority_purpose: str
     ) -> EpochScopeHistory: ...
+
+
+class _UnallocatedSemanticEpochHistoryRepository:
+    """Reject any owner-history read from the query-only composition.
+
+    A missing predicate-policy admission is decided before adapter evidence is
+    read.  This object records that boundary without constructing an empty
+    history and accidentally presenting it as owner state.
+    """
+
+    @staticmethod
+    def _unavailable() -> NoReturn:
+        raise RuntimeError("epoch_resolution_owner_components_not_established")
+
+    def append_if_current(
+        self,
+        *,
+        expected_head_refs: tuple[Digest, ...],
+        manifest_ref: ArtifactRef,
+        native_member_ref: ArtifactRef,
+        predecessor_refs: tuple[Digest, ...],
+        expected_resulting_history_snapshot_hash: Digest,
+    ) -> EpochHistoryAppendReceipt:
+        del (
+            expected_head_refs,
+            manifest_ref,
+            native_member_ref,
+            predecessor_refs,
+            expected_resulting_history_snapshot_hash,
+        )
+        self._unavailable()
+
+    def resolve_scope_history(
+        self, *, scope: EpochScopeIdentity, authority_purpose: str
+    ) -> EpochScopeHistory:
+        del scope, authority_purpose
+        self._unavailable()
+
+    def resolve_scope_history_by_ref(
+        self, *, scope_identity_ref: Digest, authority_purpose: str
+    ) -> EpochScopeHistory:
+        del scope_identity_ref, authority_purpose
+        self._unavailable()
 
 
 class EpochBoundaryOwnerAdapter(Protocol):
@@ -1933,6 +1976,46 @@ class SemanticEpochService:
         self._artifact_store = artifact_store
         self._qualification_consumer = qualification_consumer
         self._chronology_adapter = chronology_adapter
+        self._resolution_components_established = True
+
+    @classmethod
+    def for_unallocated_policy_query(cls, *, artifact_store: ArtifactStore) -> SemanticEpochService:
+        """Build the query band without inventing boundary/history owners.
+
+        This composition can establish the procedural
+        ``policy_admission_missing`` result.  Semantic-resolution entry points
+        remain blocked because no boundary, facet, or history owner is
+        appointed by this constructor.
+        """
+
+        service = object.__new__(cls)
+        history = _UnallocatedSemanticEpochHistoryRepository()
+        service._artifact_store = artifact_store
+        service._qualification_consumer = QualificationConsumer.from_unallocated_policy_authority()
+        service._chronology_adapter = (
+            SemanticEpochQualificationAdapter.from_unallocated_policy_authority(
+                history=history,
+                artifacts=artifact_store,
+            )
+        )
+        service._resolution_components_established = False
+        return service
+
+    def qualify_chronology_query(
+        self,
+        *,
+        query: chronology_contract.NativeChronologyQuery,
+    ) -> chronology_contract.NativeChronologyQualificationResult:
+        """Invoke the real epoch adapter through the configured C2 consumer."""
+
+        return self._qualification_consumer.qualify(
+            adapter=self._chronology_adapter,
+            request=query,
+        )
+
+    def _require_resolution_components(self) -> None:
+        if not self._resolution_components_established:
+            raise RuntimeError("epoch_resolution_owner_components_not_established")
 
     def _owner_query(
         self, *, kind: BoundaryOwnerKind, query: EpochResolutionQuery
@@ -2280,6 +2363,7 @@ class SemanticEpochService:
     ) -> PersistedSemanticEpochProductionReceipt:
         """Resolve complete owner inputs, append native history, and persist C2 proof."""
 
+        self._require_resolution_components()
         try:
             batches, facets = self._collect(query=query)
             history = self._history.resolve_scope_history(
@@ -2320,6 +2404,7 @@ class SemanticEpochService:
     ) -> PreparedSemanticEpoch:
         """Persist a stable candidate/stamp without moving a native head."""
 
+        self._require_resolution_components()
         batches, facets = self._collect(
             query=query,
             boundary_candidate_refs=boundary_candidate_refs,
@@ -2445,6 +2530,7 @@ class SemanticEpochService:
     ) -> epoch_contract.AcquisitionBoundaryResolutionQuery:
         """Derive the sole registered acquisition owner's native query."""
 
+        self._require_resolution_components()
         registrations = tuple(
             row
             for row in self._boundary_registry.registrations
@@ -2465,6 +2551,7 @@ class SemanticEpochService:
     ) -> PreparedSemanticEpoch:
         """Prepare one acquisition candidate through its registry-owned route."""
 
+        self._require_resolution_components()
         registrations = tuple(
             row
             for row in self._boundary_registry.registrations
@@ -2485,6 +2572,7 @@ class SemanticEpochService:
     ) -> PersistedSemanticEpochProductionReceipt:
         """Re-enumerate owner state and append only the admitted stable candidate."""
 
+        self._require_resolution_components()
         prepared_for_failure: PreparedSemanticEpoch | None = None
         try:
 

@@ -9,6 +9,7 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts import FileSystemCAS, PutOptions
 from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.contracts import chronology as chronology_contract
 from polisyos.core.contracts import epoch as epoch_contract
 from polisyos.data_forge.domains.catalog.knowledge.overlay import (
     CatalogAcquisitionOverlay,
@@ -85,6 +86,21 @@ def _query(store: FileSystemCAS) -> epoch.EpochResolutionQuery:
         purpose_admission_cutoff_evidence_ref=evidence["purpose_admission_cutoff"][0],
         purpose_admission_cutoff_ref=evidence["purpose_admission_cutoff"][1],
         requested_query_context_ref=context_ref,
+    )
+
+
+def _chronology_query() -> chronology_contract.NativeChronologyQuery:
+    return chronology_contract.NativeChronologyQuery(
+        domain=chronology_contract.ChronologyProofDomain(
+            format=chronology_contract.FULL_PREFIX_FORMAT,
+            profile=chronology_contract.FULL_PREFIX_PROFILE,
+            proof_domain="semantic-epoch",
+            family="epoch",
+            scope_ref=_digest("query-only-scope"),
+            authority_purpose="n9_promotion",
+        ),
+        requested_cutoff_ref=_digest("query-only-cutoff"),
+        requested_query_context_ref=_digest("query-only-context"),
     )
 
 
@@ -1043,3 +1059,28 @@ def test_production_acquisition_invokes_epoch_adapter_and_returns_policy_admissi
     finally:
         read_session.close()
         overlay.close()
+
+
+def test_query_only_semantic_epoch_service_cannot_resolve_owner_history(
+    tmp_path: Any,
+) -> None:
+    """The procedural negative never fabricates an empty resolution owner."""
+
+    store = FileSystemCAS(tmp_path / "cas")
+    service = epoch.SemanticEpochService.for_unallocated_policy_query(artifact_store=store)
+
+    qualification = service.qualify_chronology_query(query=_chronology_query())
+
+    assert isinstance(
+        qualification,
+        chronology_contract.NativeChronologyPolicyResolutionFailed,
+    )
+    assert isinstance(
+        qualification.failure,
+        chronology_contract.PolicyAdmissionMissingFailure,
+    )
+    with pytest.raises(
+        RuntimeError,
+        match="epoch_resolution_owner_components_not_established",
+    ):
+        service.resolve_and_persist_epoch(query=_query(store))

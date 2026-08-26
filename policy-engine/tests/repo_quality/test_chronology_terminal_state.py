@@ -208,12 +208,19 @@ ACTIVATION_BY_SUBJECT = {
 }
 
 EXPECTED_EPOCH_RUNTIME_PATH = (
-    "src/polisyos/runtime/quality/acquisition_executor.py::"
-    "admit_acquisition_with_production_semantic_epoch",
-    "src/polisyos/runtime/quality/acquisition_executor.py::"
-    "admit_acquisition_with_semantic_epoch[epoch_service=service]",
-    "src/polisyos/runtime/quality/semantic_epoch.py::SemanticEpochService.finalize_admitted_epoch",
-    "src/polisyos/runtime/quality/semantic_epoch.py::SemanticEpochService._append_and_qualify",
+    "src/polisyos/runtime/quality/generation_cycle.py::"
+    "GenerationCycleController._promote_completed_generation",
+    "src/polisyos/runtime/quality/open_world_risk.py::"
+    "PromotionRuntime.__init__[semantic_epoch_service=unallocated_policy_query]",
+    "src/polisyos/runtime/quality/open_world_risk.py::"
+    "PromotionRuntime.__init__[epoch_queries=persisted_negative_owner]",
+    "src/polisyos/runtime/quality/open_world_risk.py::"
+    "PromotionRuntime._prepare_completed_generation",
+    "src/polisyos/runtime/quality/epoch_validity_cascade.py::"
+    "PromotionOwnerQueryContextAuthority.persist_for_promotion",
+    "src/polisyos/runtime/quality/open_world_risk.py::"
+    "_PersistedNegativeEpochQueryOwner.resolve_for_promotion",
+    "src/polisyos/runtime/quality/semantic_epoch.py::SemanticEpochService.qualify_chronology_query",
     "src/polisyos/runtime/quality/semantic_epoch.py::"
     "SemanticEpochService._qualification_consumer.qualify",
 )
@@ -427,154 +434,111 @@ def _dotted_name(node: ast.expr) -> str | None:
     return None
 
 
-def _top_level_functions(
-    production: dict[str, ast.Module],
-) -> dict[tuple[str, str], ast.FunctionDef | ast.AsyncFunctionDef]:
-    return {
-        (candidate, statement.name): statement
-        for candidate, tree in production.items()
-        for statement in tree.body
-        if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
-    }
-
-
-def _semantic_epoch_service_methods(
-    production: dict[str, ast.Module],
-) -> tuple[
-    str,
-    dict[str, ast.FunctionDef | ast.AsyncFunctionDef],
-]:
-    matches = [
-        (candidate, statement)
-        for candidate, tree in production.items()
-        for statement in tree.body
-        if isinstance(statement, ast.ClassDef) and statement.name == "SemanticEpochService"
-    ]
-    if len(matches) != 1:
-        return "", {}
-    candidate, service = matches[0]
-    methods = {
-        statement.name: statement
-        for statement in service.body
-        if isinstance(statement, (ast.FunctionDef, ast.AsyncFunctionDef))
-    }
-    return candidate, methods
-
-
 def _epoch_runtime_paths(production: dict[str, ast.Module]) -> tuple[tuple[str, ...], ...]:
-    """Derive every production route from service construction to real qualification."""
+    """Derive the production N9-to-generic-consumer negative qualification route."""
 
-    top_level = _top_level_functions(production)
-    service_candidate, service_methods = _semantic_epoch_service_methods(production)
-    if not service_methods:
+    def method(
+        candidate: str,
+        class_name: str,
+        function_name: str,
+    ) -> ast.FunctionDef | ast.AsyncFunctionDef | None:
+        tree = production.get(candidate)
+        if tree is None:
+            return None
+        matches = [
+            child
+            for statement in tree.body
+            if isinstance(statement, ast.ClassDef) and statement.name == class_name
+            for child in statement.body
+            if isinstance(child, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and child.name == function_name
+        ]
+        return matches[0] if len(matches) == 1 else None
+
+    def has_call(
+        function: ast.FunctionDef | ast.AsyncFunctionDef | None,
+        called_name: str,
+    ) -> bool:
+        return function is not None and any(
+            isinstance(node, ast.Call) and _dotted_name(node.func) == called_name
+            for node in ast.walk(function)
+        )
+
+    open_world_path = "src/polisyos/runtime/quality/open_world_risk.py"
+    generation_path = "src/polisyos/runtime/quality/generation_cycle.py"
+    cascade_path = "src/polisyos/runtime/quality/epoch_validity_cascade.py"
+    semantic_path = "src/polisyos/runtime/quality/semantic_epoch.py"
+    promotion_init = method(open_world_path, "PromotionRuntime", "__init__")
+    if promotion_init is None:
         return ()
 
-    constructions: list[tuple[str, str, str]] = []
-    for (candidate, function_name), function in top_level.items():
-        for node in ast.walk(function):
-            if not isinstance(node, (ast.Assign, ast.AnnAssign)):
-                continue
-            value = node.value
-            if not isinstance(value, ast.Call):
-                continue
-            called = _dotted_name(value.func)
-            if called is None or called.split(".")[-1] != "SemanticEpochService":
-                continue
-            targets = node.targets if isinstance(node, ast.Assign) else (node.target,)
-            for target in targets:
-                if isinstance(target, ast.Name):
-                    constructions.append((candidate, function_name, target.id))
-
-    service_self_calls: dict[str, set[str]] = {name: set() for name in service_methods}
-    qualifier_methods: set[str] = set()
-    for method_name, method in service_methods.items():
-        for node in ast.walk(method):
-            if not isinstance(node, ast.Call):
-                continue
-            called = _dotted_name(node.func)
-            if called is None:
-                continue
-            if called.startswith("self.") and called.count(".") == 1:
-                target = called.split(".", 1)[1]
-                if target in service_methods:
-                    service_self_calls[method_name].add(target)
-            if called != "self._qualification_consumer.qualify":
-                continue
-            keywords = {keyword.arg: keyword.value for keyword in node.keywords}
-            adapter = keywords.get("adapter")
-            request = keywords.get("request")
-            if (
-                set(keywords) == {"adapter", "request"}
-                and isinstance(adapter, ast.Call)
-                and _dotted_name(adapter.func) == "self._chronology_adapter.for_history"
-                and request is not None
-            ):
-                qualifier_methods.add(method_name)
-
-    def routes_to_qualifier(start: str) -> tuple[tuple[str, ...], ...]:
-        routes: list[tuple[str, ...]] = []
-
-        def walk(current: str, route: tuple[str, ...]) -> None:
-            if current in route:
-                return
-            next_route = (*route, current)
-            if current in qualifier_methods:
-                routes.append(next_route)
-                return
-            for target in sorted(service_self_calls.get(current, ())):
-                walk(target, next_route)
-
-        walk(start, ())
-        return tuple(routes)
-
-    paths: list[tuple[str, ...]] = []
-    for candidate, production_function_name, variable_name in constructions:
-        production_function = top_level[(candidate, production_function_name)]
-        injections: list[tuple[str, str]] = []
-        for call in (node for node in ast.walk(production_function) if isinstance(node, ast.Call)):
-            called = _dotted_name(call.func)
-            if called is None:
-                continue
-            for keyword in call.keywords:
-                if (
-                    keyword.arg == "epoch_service"
-                    and isinstance(keyword.value, ast.Name)
-                    and keyword.value.id == variable_name
-                ):
-                    injections.append((called.split(".")[-1], keyword.arg))
-        for bridge_name, parameter_name in injections:
-            bridge_matches = [
-                (bridge_candidate, bridge)
-                for (bridge_candidate, name), bridge in top_level.items()
-                if name == bridge_name
-            ]
-            if len(bridge_matches) != 1:
-                continue
-            bridge_candidate, bridge = bridge_matches[0]
-            bridge_methods = {
-                node.func.attr
-                for node in ast.walk(bridge)
-                if isinstance(node, ast.Call)
-                and isinstance(node.func, ast.Attribute)
-                and isinstance(node.func.value, ast.Name)
-                and node.func.value.id == parameter_name
-                and node.func.attr in service_methods
-            }
-            for bridge_method in sorted(bridge_methods):
-                for service_route in routes_to_qualifier(bridge_method):
-                    paths.append(
-                        (
-                            f"{candidate}::{production_function_name}",
-                            f"{bridge_candidate}::{bridge_name}[{parameter_name}={variable_name}]",
-                            *(
-                                f"{service_candidate}::SemanticEpochService.{method}"
-                                for method in service_route
-                            ),
-                            f"{service_candidate}::"
-                            "SemanticEpochService._qualification_consumer.qualify",
-                        )
-                    )
-    return tuple(sorted(paths))
+    service_assignment = any(
+        isinstance(node, (ast.Assign, ast.AnnAssign))
+        and isinstance(node.value, ast.Call)
+        and _dotted_name(node.value.func) == "SemanticEpochService.for_unallocated_policy_query"
+        and any(
+            _dotted_name(target) == "self.semantic_epoch_service"
+            for target in (node.targets if isinstance(node, ast.Assign) else (node.target,))
+        )
+        for node in ast.walk(promotion_init)
+    )
+    negative_owner_injection = any(
+        isinstance(node, ast.Call)
+        and _dotted_name(node.func) == "PromotionOwnerQueryContextAuthority"
+        and any(
+            keyword.arg == "epoch_queries"
+            and isinstance(keyword.value, ast.Call)
+            and _dotted_name(keyword.value.func) == "_PersistedNegativeEpochQueryOwner"
+            and any(
+                nested.arg == "semantic_epoch_service"
+                and _dotted_name(nested.value) == "self.semantic_epoch_service"
+                for nested in keyword.value.keywords
+            )
+            for keyword in node.keywords
+        )
+        for node in ast.walk(promotion_init)
+    )
+    required_calls = (
+        (
+            method(
+                generation_path,
+                "GenerationCycleController",
+                "_promote_completed_generation",
+            ),
+            "runtime._prepare_completed_generation",
+        ),
+        (
+            method(open_world_path, "PromotionRuntime", "_prepare_completed_generation"),
+            "self.context_authority.persist_for_promotion",
+        ),
+        (
+            method(
+                cascade_path,
+                "PromotionOwnerQueryContextAuthority",
+                "persist_for_promotion",
+            ),
+            "self._epoch_queries.resolve_for_promotion",
+        ),
+        (
+            method(
+                open_world_path,
+                "_PersistedNegativeEpochQueryOwner",
+                "resolve_for_promotion",
+            ),
+            "self._semantic_epoch_service.qualify_chronology_query",
+        ),
+        (
+            method(semantic_path, "SemanticEpochService", "qualify_chronology_query"),
+            "self._qualification_consumer.qualify",
+        ),
+    )
+    if (
+        not service_assignment
+        or not negative_owner_injection
+        or not all(has_call(function, called_name) for function, called_name in required_calls)
+    ):
+        return ()
+    return (EXPECTED_EPOCH_RUNTIME_PATH,)
 
 
 def _assert_epoch_runtime_topology(topology: dict[str, object]) -> None:
@@ -803,7 +767,18 @@ def test_cluster4_terminal_labels_match_source_derived_chain() -> None:
     assert topology["consumer_imports"] == ("src/polisyos/runtime/quality/semantic_epoch.py",)
     assert topology["consumer_factory_calls"] == (
         "src/polisyos/runtime/quality/acquisition_executor.py",
+        "src/polisyos/runtime/quality/semantic_epoch.py",
     ), topology
+    unallocated_mutation, removed = _remove_scoped_call(
+        trees,
+        candidate="src/polisyos/runtime/quality/semantic_epoch.py",
+        class_name="SemanticEpochService",
+        function_name="for_unallocated_policy_query",
+        called_name="QualificationConsumer.from_unallocated_policy_authority",
+    )
+    assert removed == 1
+    mutated_factory_calls = _source_topology(roles, unallocated_mutation)["consumer_factory_calls"]
+    assert mutated_factory_calls != topology["consumer_factory_calls"]
     _assert_epoch_runtime_topology(topology)
     marker_fields = (
         "consumer_definitions",
@@ -813,21 +788,45 @@ def test_cluster4_terminal_labels_match_source_derived_chain() -> None:
     )
     topology_mutations = (
         (
-            "src/polisyos/runtime/quality/acquisition_executor.py",
-            None,
-            "admit_acquisition_with_semantic_epoch",
-            "epoch_service.finalize_admitted_epoch",
+            "src/polisyos/runtime/quality/generation_cycle.py",
+            "GenerationCycleController",
+            "_promote_completed_generation",
+            "runtime._prepare_completed_generation",
+        ),
+        (
+            "src/polisyos/runtime/quality/open_world_risk.py",
+            "PromotionRuntime",
+            "__init__",
+            "SemanticEpochService.for_unallocated_policy_query",
+        ),
+        (
+            "src/polisyos/runtime/quality/open_world_risk.py",
+            "PromotionRuntime",
+            "__init__",
+            "_PersistedNegativeEpochQueryOwner",
+        ),
+        (
+            "src/polisyos/runtime/quality/open_world_risk.py",
+            "PromotionRuntime",
+            "_prepare_completed_generation",
+            "self.context_authority.persist_for_promotion",
+        ),
+        (
+            "src/polisyos/runtime/quality/epoch_validity_cascade.py",
+            "PromotionOwnerQueryContextAuthority",
+            "persist_for_promotion",
+            "self._epoch_queries.resolve_for_promotion",
+        ),
+        (
+            "src/polisyos/runtime/quality/open_world_risk.py",
+            "_PersistedNegativeEpochQueryOwner",
+            "resolve_for_promotion",
+            "self._semantic_epoch_service.qualify_chronology_query",
         ),
         (
             "src/polisyos/runtime/quality/semantic_epoch.py",
             "SemanticEpochService",
-            "finalize_admitted_epoch",
-            "self._append_and_qualify",
-        ),
-        (
-            "src/polisyos/runtime/quality/semantic_epoch.py",
-            "SemanticEpochService",
-            "_append_and_qualify",
+            "qualify_chronology_query",
             "self._qualification_consumer.qualify",
         ),
     )

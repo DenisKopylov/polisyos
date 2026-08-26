@@ -809,25 +809,29 @@ def test_generated_family_probe_and_narrow_reference_writer_are_scratch_bounded(
     tmp_path: Path,
 ) -> None:
     """Catch incomplete C02 seams, output escape, or broad reference regeneration."""
-    repo = tmp_path / "repo"
-    _copy_compiler_inputs(repo)
-    manifest = _write_generated_manifest(repo)
     checker = _checker()
-    family = checker.validate_generated_family(repo)
+    family = checker.validate_generated_family(REPO_ROOT)
     assert family.default_freshness_check is True
     assert family.stale_output_behavior == "fail"
     assert family.outputs == ("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",)
     assert sum("{output_root}" in item for item in family.output_probe_command) == 1
 
     output_root = tmp_path / "probe"
-    observed = checker.run_generated_family_output_probe(repo, output_root=output_root)
+    observed = checker.run_generated_family_output_probe(
+        REPO_ROOT,
+        source_root=tmp_path / "source",
+        output_root=output_root,
+    )
     assert observed == family.outputs
+    assert (output_root / family.outputs[0]).read_bytes() == (
+        REPO_ROOT / family.outputs[0]
+    ).read_bytes()
     reference_root = tmp_path / "reference"
-    written = checker.write_generated_reference(repo, output_root=reference_root)
+    written = checker.write_generated_reference(REPO_ROOT, output_root=reference_root)
     assert written == reference_root / "docs/reference/generated-artifacts.md"
     guardrails = _owner("tools.devx.architecture.guardrails")
     expected = guardrails.render_generated_artifacts_markdown(
-        guardrails._parse_generated_artifacts(manifest)
+        guardrails._parse_generated_artifacts(REPO_ROOT / GENERATED_MANIFEST_PATH)
     ).encode()
     assert written.read_bytes() == expected
     assert {
@@ -835,6 +839,33 @@ def test_generated_family_probe_and_narrow_reference_writer_are_scratch_bounded(
         for path in reference_root.rglob("*")
         if path.is_file()
     } == {"docs/reference/generated-artifacts.md"}
+
+
+def test_generated_family_probe_executes_the_declared_command(tmp_path: Path) -> None:
+    """Catch bypassing a broken executable while retaining accepted marker arguments."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    manifest = _write_generated_manifest(repo)
+    checker = _checker()
+    original_command = checker.validate_generated_family(repo).output_probe_command
+    manifest.write_text(
+        manifest.read_text(encoding="utf-8").replace(
+            'output_probe_command = ["uv",',
+            'output_probe_command = ["ds11-command-does-not-exist",',
+        ),
+        encoding="utf-8",
+    )
+    mutated_command = checker.validate_generated_family(repo).output_probe_command
+    assert original_command[0] == "uv"
+    assert mutated_command[0] == "ds11-command-does-not-exist"
+    assert mutated_command[1:] == original_command[1:]
+
+    with pytest.raises(ValueError, match=r"executable|command|available"):
+        checker.run_generated_family_output_probe(
+            repo,
+            source_root=tmp_path / "source",
+            output_root=tmp_path / "probe",
+        )
 
 
 def test_live_generated_family_is_the_default_freshness_persistence_bridge() -> None:

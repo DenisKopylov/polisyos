@@ -370,3 +370,49 @@ provenance remained valid while its self-supplied subject was relabeled to
   companions. The planned ledger therefore remains `5/34` mechanisms and
   `4/9` widening rounds. The generated-artifact token remains held through the
   commit and branch readback.
+
+### C02 review repair round 1 — execute the manifest probe
+
+- Bucket: this is a new P29/P38 focused-regression defect class, command-
+  authority bypass, rather than another instance of the C01 paragraph-
+  whitespace proxy or the C02 `uv` output escape. The helper parsed and
+  marker-checked `output_probe_command` but then bypassed it with direct
+  in-process compiler/writer calls. A nonexistent executable with the same
+  `--write`, `--output-root`, and `{output_root}` markers therefore stayed
+  green.
+- RED changes only the parsed command's executable from `uv` to
+  `ds11-command-does-not-exist`, proves the remaining argv is byte-for-byte
+  unchanged, and observes `Failed: DID NOT RAISE`. Exit `1`; `user 19.86 + sys
+  0.87 = 20.73s`; uptime `00:13` -> `00:14`.
+- The repaired helper copies an explicit dedicated source sibling through the
+  existing architecture isolation owner, proves `.git` is absent, substitutes
+  `{output_root}` in the exact parsed argv, checks executable availability, and
+  invokes it with `subprocess.run(..., shell=False)` in a bounded deterministic
+  environment. It requires exit `0`, the exact sole declared output, byte
+  identity to the committed artifact, and unchanged original-repository and
+  scratch-outside-output snapshots.
+- Two diagnostic runs correctly exposed an incomplete interpreter-path
+  receipt: both returned `env: python: No such file or directory` (`user 21.64
+  + sys 6.60 = 28.24s`, uptime `00:15` -> `00:16`; then `user 21.56 + sys 6.57
+  = 28.13s`, uptime `00:16` -> `00:17`). The final environment names the
+  copied source's linked `.venv/bin` explicitly; it does not rewrite manifest
+  argv. The real live probe then passes with `user 52.72 + sys 8.04 = 60.76s`,
+  uptime `00:17` -> `00:18`.
+- The post-format two-test wave passes (`user 52.33 + sys 9.86 = 62.19s`;
+  uptime `00:19` -> `00:21`). The complete focused two-file wave passes (`user
+  102.68 + sys 10.11 = 112.79s`; uptime `00:21` -> `00:23`). Targeted Ruff lint
+  and format are clean. The unchanged architecture guardrail passes and reports
+  one generator-observed trust-posture output (`user 55.82 + sys 13.35 =
+  69.17s`; uptime `00:23` -> `00:24`). After strengthening the falsifier's
+  only-executable-change proof, its final run passes (`user 20.39 + sys 0.91 =
+  21.30s`; uptime `00:24` -> `00:25`).
+- The token was reacquired exclusively before the repair and remains held
+  through its separate commit/readback. Every material receipt remains below
+  `155.80s`. This append-only repair changes the already-counted checker and
+  focused test seams plus this mandatory journal companion; it adds no unique
+  mechanism path or widening round. The ledger remains `5/34` and `4/9`.
+- Final self-review removed the original-repository snapshot's optional Git
+  path and uses the complete filesystem snapshot directly. On that final source,
+  the two-test wave passes (`user 60.73 + sys 17.58 = 78.31s`; uptime `00:27`
+  -> `00:28`), targeted Ruff remains clean, and the architecture guardrail
+  passes again (`user 56.43 + sys 13.12 = 69.55s`; uptime `00:29` -> `00:30`).

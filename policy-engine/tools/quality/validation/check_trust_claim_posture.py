@@ -7,7 +7,10 @@ import codecs
 import hashlib
 import io
 import json
+import os
 import re
+import shutil
+import subprocess
 import sys
 import tokenize
 from collections.abc import Mapping, Sequence
@@ -1152,21 +1155,108 @@ def validate_generated_family(repo_root: Path) -> GeneratedFamilyBinding:
     )
 
 
-def run_generated_family_output_probe(repo_root: Path, *, output_root: Path) -> tuple[str, ...]:
-    """Run the in-process fixed writer and prove its complete output set."""
+def run_generated_family_output_probe(
+    repo_root: Path,
+    *,
+    source_root: Path,
+    output_root: Path,
+) -> tuple[str, ...]:
+    """Execute the manifest probe in an isolated source and prove exact output bytes."""
+    from tools.devx.architecture import guardrails
+
     family = validate_generated_family(repo_root)
-    root = output_root.resolve()
-    before = (
-        {path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file()}
-        if root.exists()
-        else set()
+    repo = repo_root.resolve()
+    source = source_root.resolve()
+    output = output_root.resolve()
+    if source.parent != output.parent or source == output:
+        raise ValueError("output probe source_root and output_root must be dedicated siblings")
+    if source.exists() or output.exists():
+        raise ValueError("output probe source_root and output_root must not already exist")
+    if source.is_relative_to(repo) or output.is_relative_to(repo):
+        raise ValueError("output probe scratch roots must be outside repo_root")
+
+    guardrails._copy_isolated_probe_source(repo, source)
+    if (source / ".git").exists():
+        raise ValueError("output probe source_root must not contain .git")
+    output.mkdir(parents=True)
+    temporary_root = output / ".tmp"
+    temporary_root.mkdir()
+
+    rendered_command = tuple(
+        item.replace("{output_root}", str(output)) for item in family.output_probe_command
     )
-    register, _ = compile_claim_posture_register(repo_root, register_as_of=_DEFAULT_REGISTER_AS_OF)
-    write_claim_posture_register(register, output_root=root)
-    after = {path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file()}
-    observed = tuple(sorted(after - before))
+    executable_path = os.pathsep.join(
+        (str(source / ".venv/bin"), str(Path(sys.executable).parent), "/usr/bin", "/bin")
+    )
+    if shutil.which(rendered_command[0], path=executable_path) is None:
+        raise ValueError(
+            f"generated-family output probe executable is unavailable: {rendered_command[0]}"
+        )
+    environment = {
+        "LANG": "C.UTF-8",
+        "LC_ALL": "C.UTF-8",
+        "PATH": executable_path,
+        "PYTHONDONTWRITEBYTECODE": "1",
+        "PYTHONHASHSEED": "0",
+        "PYTHONIOENCODING": "utf-8",
+        "PYTHONNOUSERSITE": "1",
+        "PYTHONPATH": os.pathsep.join((str(source / "src"), str(source))),
+        "TMPDIR": str(temporary_root),
+        "TZ": "UTC",
+    }
+
+    scratch_root = source.parent
+    output_prefix = output.relative_to(scratch_root).as_posix()
+
+    def outside_output_snapshot() -> dict[str, str]:
+        return {
+            relative: state
+            for relative, state in guardrails._snapshot_filesystem_tree(scratch_root).items()
+            if relative != output_prefix and not relative.startswith(f"{output_prefix}/")
+        }
+
+    repo_before = guardrails._snapshot_filesystem_tree(repo)
+    scratch_before = outside_output_snapshot()
+    completed = subprocess.run(  # noqa: S603 - exact trusted manifest argv; no shell.
+        rendered_command,
+        cwd=source,
+        env=environment,
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    repo_changes = guardrails._changed_snapshot_paths(
+        repo_before,
+        guardrails._snapshot_filesystem_tree(repo),
+    )
+    scratch_changes = guardrails._changed_snapshot_paths(
+        scratch_before,
+        outside_output_snapshot(),
+    )
+    escaped = tuple(sorted({*repo_changes, *(f"scratch/{item}" for item in scratch_changes)}))
+    if escaped:
+        raise ValueError(
+            "generated-family output probe wrote outside output_root: " + ", ".join(escaped)
+        )
+    if completed.returncode != 0:
+        command_output = ((completed.stdout or "") + (completed.stderr or "")).strip()
+        raise ValueError(
+            "generated-family output probe command failed "
+            f"with exit {completed.returncode}: {command_output}"
+        )
+
+    observed = tuple(
+        sorted(path.relative_to(output).as_posix() for path in output.rglob("*") if path.is_file())
+    )
     if observed != family.outputs:
         raise ValueError("generated-family output probe differs from declared outputs")
+    for relative in observed:
+        expected = repo / relative
+        candidate = output / relative
+        if not expected.is_file():
+            raise ValueError(f"generated-family committed artifact is missing: {relative}")
+        if candidate.read_bytes() != expected.read_bytes():
+            raise ValueError(f"generated-family output differs from committed artifact: {relative}")
     return observed
 
 

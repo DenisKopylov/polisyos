@@ -182,25 +182,27 @@ def _strict_register(posture: Any) -> Any:
         paragraph_end_line=90,
         anti_roles=(anti_role,),
         derivation_receipt_digests=("sha256:" + "6" * 64, "sha256:" + "7" * 64),
+        owner="team-architecture",
+        last_reviewed=date(2026, 7, 20),
+        decision_status="accepted",
+        authoritative_for=("system_identity",),
+        may_not_use_for=("jurisdiction_specific_legal_conclusion",),
+        identity_statement_digest="sha256:" + "9" * 64,
+        identity_statement_start_line=28,
+        identity_statement_end_line=31,
+    )
+    identity_member = posture.AdmittedSourceMember(
+        path=identity.path,
+        content_digest=identity.content_digest,
     )
     return posture.build_posture_register(
         register_as_of=date(2026, 8, 26),
-        admitted_sources=(member,),
+        admitted_sources=(member, identity_member),
         ast_derivation=ast_receipt,
         token_derivation=token_receipt,
         identity_boundary=identity,
         source_inventory=(inventory,),
         source_bindings=(source_binding,),
-        projection_groups=tuple(
-            posture.ProjectionGroup(group_id=group_id, claim_ids=())
-            for group_id in (
-                "methodology",
-                "evidence_envelope",
-                "limitations",
-                "accessibility",
-                "custody",
-            )
-        ),
     )
 
 
@@ -259,6 +261,15 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
         source_ref="architecture/packages/example.toml",
         establishment_class="recomputed",
     )
+    verifier = register.admitted_verifiers[0]
+    evidence = base.evidence_bindings[0].model_copy(
+        update={
+            "ref": verifier.content_ref,
+            "content_digest": verifier.content_digest,
+            "verifier_ref": verifier.ref,
+            "verifier_provenance_ref": verifier.provenance_ref,
+        }
+    )
     supported = base.model_copy(
         update={
             "source_state": "supported",
@@ -267,6 +278,8 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
             "jurisdiction_establishment": "recomputed",
             "review_on": date(2026, 8, 1),
             "review_due": date(2026, 9, 1),
+            "evidence_refs": (evidence.ref,),
+            "evidence_bindings": (evidence,),
             "limitation_refs": (),
             "predicates": predicates,
         }
@@ -278,6 +291,8 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
             family="methodology",
             register_as_of=date(2026, 8, 26),
             identity_boundary=register.identity_boundary,
+            admitted_sources=register.admitted_sources,
+            admitted_verifiers=register.admitted_verifiers,
         )[0]
         == "supported"
     )
@@ -296,6 +311,8 @@ def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None
             family="methodology",
             register_as_of=date(2026, 8, 26),
             identity_boundary=register.identity_boundary,
+            admitted_sources=register.admitted_sources,
+            admitted_verifiers=register.admitted_verifiers,
         )
         assert state == "blocked"
         assert blockers
@@ -311,12 +328,14 @@ def test_grounded_performance_requires_governed_evidence_and_prerequisite() -> N
         )
         == "blocked"
     )
+    register = _strict_register(posture)
+    verifier = register.admitted_verifiers[0]
     governed = posture.EvidenceBinding(
-        ref="cas:governed-performance",
-        content_digest="sha256:" + "8" * 64,
+        ref=verifier.content_ref,
+        content_digest=verifier.content_digest,
         subject_binding="grounded_performance",
-        verifier_ref="verifier:independent",
-        verifier_provenance_ref="provenance:independent",
+        verifier_ref=verifier.ref,
+        verifier_provenance_ref=verifier.provenance_ref,
         establishment_class="independently_reconciled",
         source_as_of=date(2026, 8, 26),
         supersession_ref=None,
@@ -327,6 +346,9 @@ def test_grounded_performance_requires_governed_evidence_and_prerequisite() -> N
             support_predicates=required,
             family="grounded_performance",
             governed_performance_prerequisite=governed,
+            admitted_sources=register.admitted_sources,
+            admitted_verifiers=register.admitted_verifiers,
+            register_as_of=date(2026, 8, 26),
         )
         == "supported"
     )

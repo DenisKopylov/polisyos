@@ -31,5 +31,13 @@ receipt, the generated-family output probe, and the narrow generated-reference
 writer. Those seams remain blocked or historical until their typed evidence and
 purpose requirements are independently established.
 
+The compiler always emits the fixed opening identity, custody, accessibility,
+certification, current-conformance, and grounded-performance rows, including
+blocked rows when a document basis is unavailable. Projection memberships are
+recomputed from those rows. Evidence digests resolve against admitted source
+bytes, and verifier references resolve against the closed verifier set derived
+from the typed identity, document, and receipt bases; marker prefixes and
+nonempty verifier names carry no authority.
+
 Tests live under `tests/unit/scientist/evidence`, with nested claim and
 provenance tests under `claims/` and `provenance/`.

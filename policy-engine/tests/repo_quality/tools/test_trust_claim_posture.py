@@ -428,9 +428,170 @@ def test_identity_parser_derives_seven_anti_roles_including_crm() -> None:
     assert boundary.paragraph_start_line <= 88 <= boundary.paragraph_end_line
 
 
+def test_compiler_emits_fixed_semantic_rows_and_complete_projection_membership(
+    tmp_path: Path,
+) -> None:
+    """Catch empty semantic groups or omission of a required blocked posture family."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    register, _ = _checker().compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    assert register.rule_version == "policyos.trust.claim_posture_rules.v2"
+    rows = {row.subject: row for row in register.claims}
+
+    required = {
+        "system_identity",
+        "universal_custody_commitment",
+        "historical_internal_accessibility_pre_audit",
+        "current_accessibility_conformance",
+        "external_accessibility_certification",
+        "grounded_performance",
+    }
+    assert required <= set(rows)
+    assert rows["system_identity"].effective_state == "supported"
+    assert rows["universal_custody_commitment"].effective_state == "planned"
+    assert {
+        (binding.owner.owner, binding.prerequisite_refs, binding.closure_signal)
+        for binding in rows["universal_custody_commitment"].source_bindings
+    } == {
+        (
+            "team-runtime",
+            ("DS11-PUBLISHED-SIGNATURE-WATCHER",),
+            "uv run pytest tests/integration/runtime_quality/"
+            "test_published_signature_custody.py::"
+            "test_every_public_signature_is_watched_for_staleness -q",
+        ),
+        (
+            "team-scientist",
+            ("DS11-CLAIM-LIFECYCLE-ORCHESTRATION",),
+            "uv run pytest tests/integration/scientist/governance/"
+            "test_claim_lifecycle_orchestration.py::"
+            "test_monitor_event_persists_claim_supersession_without_in_place_edit -q",
+        ),
+        (
+            "team-design",
+            ("DS11-PUBLIC-SIGNATURE-POPULATION",),
+            "uv run pytest tests/unit/runtime/http/test_public_export.py::"
+            "test_first_governed_public_signature_is_custody_bound -q",
+        ),
+    }
+    assert rows["historical_internal_accessibility_pre_audit"].effective_state == "blocked"
+    assert rows["current_accessibility_conformance"].effective_state == "blocked"
+    assert rows["external_accessibility_certification"].effective_state == "blocked"
+    assert rows["grounded_performance"].effective_state == "blocked"
+
+    groups = {group.group_id: group.claim_ids for group in register.projection_groups}
+    assert all(groups.values())
+    memberships = {claim_id for claim_ids in groups.values() for claim_id in claim_ids}
+    claim_ids = {row.claim_id for row in register.claims}
+    assert memberships == claim_ids
+    assert all(
+        len(claim_ids_) == len(set(claim_ids_)) and set(claim_ids_) <= claim_ids
+        for claim_ids_ in groups.values()
+    )
+
+    identity = rows["system_identity"].source_bindings[0]
+    evidence = identity.evidence_bindings[0]
+    admitted = {member.path: member.content_digest for member in register.admitted_sources}
+    verifiers = {verifier.ref: verifier for verifier in register.admitted_verifiers}
+    verifier = verifiers[evidence.verifier_ref]
+    assert admitted[evidence.ref] == evidence.content_digest == identity.content_digest
+    assert verifier.content_ref == evidence.ref
+    assert verifier.content_digest == evidence.content_digest
+    assert verifier.provenance_ref == evidence.verifier_provenance_ref
+
+    orphaned = register.model_dump(mode="json")
+    identity_claim_id = rows["system_identity"].claim_id
+    for group in orphaned["projection_groups"]:
+        group["claim_ids"] = [
+            claim_id for claim_id in group["claim_ids"] if claim_id != identity_claim_id
+        ]
+    with pytest.raises(ValueError, match="projection_groups"):
+        _owner("polisyos.scientist.evidence.claims.posture").validate_posture_register(orphaned)
+
+
+def test_marker_preserving_byte_mutation_and_unknown_verifier_fail_closed(
+    tmp_path: Path,
+) -> None:
+    """Catch prefix/nonempty marker checks that ignore admitted bytes and verifier identity."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    checker = _checker()
+    posture = _owner("polisyos.scientist.evidence.claims.posture")
+    register, payload = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    row = next(item for item in register.claims if item.subject == "system_identity")
+    binding = row.source_bindings[0]
+
+    changed_sources = tuple(
+        member.model_copy(update={"content_digest": "sha256:" + "0" * 64})
+        if member.path == binding.coordinate.path
+        else member
+        for member in register.admitted_sources
+    )
+    state, blockers, _ = posture.evaluate_claim_posture(
+        (binding,),
+        subject=row.subject,
+        family=row.family,
+        register_as_of=FROZEN_AS_OF,
+        identity_boundary=register.identity_boundary,
+        admitted_sources=changed_sources,
+        admitted_verifiers=register.admitted_verifiers,
+    )
+    assert state == "blocked"
+    assert {
+        "DS11-SOURCE-CONTENT-NOT-BOUND",
+        "DS11-EVIDENCE-NOT-INDEPENDENTLY-BOUND",
+    } <= set(blockers)
+
+    evidence = binding.evidence_bindings[0]
+    unknown = evidence.model_copy(
+        update={
+            "verifier_ref": "verifier:unknown-but-nonempty",
+            "verifier_provenance_ref": "provenance:unknown-but-nonempty",
+        }
+    )
+    unknown_binding = binding.model_copy(
+        update={"evidence_bindings": (unknown,), "evidence_refs": (unknown.ref,)}
+    )
+    state, blockers, _ = posture.evaluate_claim_posture(
+        (unknown_binding,),
+        subject=row.subject,
+        family=row.family,
+        register_as_of=FROZEN_AS_OF,
+        identity_boundary=register.identity_boundary,
+        admitted_sources=register.admitted_sources,
+        admitted_verifiers=register.admitted_verifiers,
+    )
+    assert state == "blocked"
+    assert "DS11-EVIDENCE-NOT-INDEPENDENTLY-BOUND" in blockers
+
+    authored = register.model_dump(mode="json")
+    authored_row = next(item for item in authored["claims"] if item["subject"] == row.subject)
+    authored_row["source_bindings"][0]["evidence_bindings"][0]["verifier_ref"] = (
+        "verifier:unknown-but-nonempty"
+    )
+    with pytest.raises(ValueError, match="authored effective posture"):
+        posture.validate_posture_register(authored)
+
+    identity_path = repo / IDENTITY_PATH
+    identity_path.write_bytes(identity_path.read_bytes() + b"\n")
+    with pytest.raises(ValueError, match="DS11-GENERATED-DRIFT"):
+        checker.validate_register_against_live_sources(
+            payload,
+            repo_root=repo,
+            register_as_of=FROZEN_AS_OF,
+        )
+    identity_path.write_bytes(
+        identity_path.read_bytes().replace(b"epistemic custodian", b"chat assistant")
+    )
+    mutated, _ = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    mutated_identity = next(item for item in mutated.claims if item.subject == "system_identity")
+    assert mutated_identity.effective_state == "blocked"
+
+
 def test_accessibility_frontmatter_is_strictly_bound_to_complete_body(tmp_path: Path) -> None:
     """Catch frontmatter surviving removal or duplication of its cited body fact."""
     repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
     body = _write_accessibility_document(repo)
     checker = _checker()
     binding = checker.derive_accessibility_document(repo)
@@ -438,6 +599,17 @@ def test_accessibility_frontmatter_is_strictly_bound_to_complete_body(tmp_path: 
     assert binding.source_as_of == date(2026, 4, 22)
     assert all(item.establishment_class == "recomputed" for item in binding.bindings)
     assert all(item.byte_end > item.byte_start for item in binding.bindings)
+    register, _ = checker.compile_claim_posture_register(repo, register_as_of=FROZEN_AS_OF)
+    historical = next(
+        row
+        for row in register.claims
+        if row.subject == "historical_internal_accessibility_pre_audit"
+    )
+    assert historical.effective_state == "blocked"
+    assert "DS11-JURISDICTION-NOT-ESTABLISHED" in historical.blocker_codes
+    historical_binding = historical.source_bindings[0]
+    assert historical_binding.content_digest == binding.content_digest
+    assert historical_binding.evidence_bindings[0].content_digest == binding.content_digest
     path = repo / A11Y_PATH
     path.write_bytes(path.read_bytes().replace(b"Internal pre-audit complete", b"Removed fact"))
     with pytest.raises(ValueError, match=r"body|selector|digest"):

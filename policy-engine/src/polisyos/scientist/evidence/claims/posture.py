@@ -12,7 +12,7 @@ from typing import Literal, Self
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 CLAIM_POSTURE_SCHEMA = "policyos.trust.claim_posture_register.v1"
-CLAIM_POSTURE_RULE_VERSION = "policyos.trust.claim_posture_rules.v1"
+CLAIM_POSTURE_RULE_VERSION = "policyos.trust.claim_posture_rules.v2"
 CLAIM_POSTURE_SLICE_BASE_REF = "f935e0c2e9359bc1202ce5d36ea706de58f7aaab"
 
 REQUIRED_SUPPORT_PREDICATES: tuple[str, ...] = (
@@ -225,6 +225,25 @@ class EvidenceBinding(_StrictModel):
     supersession_ref: str | None
 
 
+class AdmittedVerifier(_StrictModel):
+    """Closed verifier identity derived from one typed admitted basis."""
+
+    ref: str
+    verifier_kind: Literal[
+        "identity_boundary_derivation",
+        "accessibility_document_derivation",
+        "page_a11y_receipt_derivation",
+    ]
+    content_ref: str
+    content_digest: str
+    provenance_ref: str
+    provenance_digest: str
+    establishment_class: Literal[
+        EstablishmentClass.RECOMPUTED,
+        EstablishmentClass.INDEPENDENTLY_RECONCILED,
+    ]
+
+
 class SupportPredicate(_StrictModel):
     """One decisive support predicate frozen at admission."""
 
@@ -337,6 +356,14 @@ class IdentityBoundaryBinding(_StrictModel):
     paragraph_end_line: int = Field(ge=1)
     anti_roles: tuple[AntiRoleBinding, ...]
     derivation_receipt_digests: tuple[str, str]
+    owner: str
+    last_reviewed: date
+    decision_status: str
+    authoritative_for: tuple[str, ...]
+    may_not_use_for: tuple[str, ...]
+    identity_statement_digest: str
+    identity_statement_start_line: int = Field(ge=1)
+    identity_statement_end_line: int = Field(ge=1)
 
 
 class DocumentProjectionSelector(_StrictModel):
@@ -437,7 +464,7 @@ class ClaimPostureRegisterV1(_StrictModel):
     """Strict deterministic trust-claim posture register."""
 
     schema_version: Literal["policyos.trust.claim_posture_register.v1"]
-    rule_version: Literal["policyos.trust.claim_posture_rules.v1"]
+    rule_version: Literal["policyos.trust.claim_posture_rules.v2"]
     slice_base_ref: Literal["f935e0c2e9359bc1202ce5d36ea706de58f7aaab"]
     register_as_of: date
     admitted_sources: tuple[AdmittedSourceMember, ...]
@@ -445,6 +472,7 @@ class ClaimPostureRegisterV1(_StrictModel):
     ast_derivation: SourceDerivationReceipt
     token_derivation: SourceDerivationReceipt
     identity_boundary: IdentityBoundaryBinding
+    admitted_verifiers: tuple[AdmittedVerifier, ...]
     accessibility_document: AccessibilityDocumentBinding | None
     page_a11y_receipt: PageA11yReceiptBinding | None
     source_inventory: tuple[SourceInventoryRow, ...]
@@ -476,6 +504,24 @@ class ClaimPostureRegisterV1(_StrictModel):
             raise ValueError("projection_groups must contain the closed sorted group set")
         if self.source_set_digest != _source_set_digest(self.admitted_sources):
             raise ValueError("source_set_digest does not bind admitted source membership")
+        admitted_by_path = {item.path: item.content_digest for item in self.admitted_sources}
+        if (
+            admitted_by_path.get(self.identity_boundary.path)
+            != self.identity_boundary.content_digest
+        ):
+            raise ValueError("identity_boundary does not bind admitted source bytes")
+        expected_verifiers = derive_admitted_verifiers(
+            identity_boundary=self.identity_boundary,
+            accessibility_document=self.accessibility_document,
+            page_a11y_receipt=self.page_a11y_receipt,
+        )
+        if self.admitted_verifiers != expected_verifiers:
+            raise ValueError("admitted_verifiers differ from typed artifact basis")
+        if any(
+            admitted_by_path.get(verifier.content_ref) != verifier.content_digest
+            for verifier in self.admitted_verifiers
+        ):
+            raise ValueError("admitted verifier content differs from admitted source bytes")
         for row in self.claims:
             state, blockers, limitations = evaluate_claim_posture(
                 row.source_bindings,
@@ -483,6 +529,8 @@ class ClaimPostureRegisterV1(_StrictModel):
                 family=row.family,
                 register_as_of=self.register_as_of,
                 identity_boundary=self.identity_boundary,
+                admitted_sources=self.admitted_sources,
+                admitted_verifiers=self.admitted_verifiers,
             )
             if (row.effective_state, row.blocker_codes, row.limitations) != (
                 state,
@@ -490,6 +538,8 @@ class ClaimPostureRegisterV1(_StrictModel):
                 limitations,
             ):
                 raise ValueError("authored effective posture differs from recomputation")
+        if self.projection_groups != _projection_groups(self.claims):
+            raise ValueError("projection_groups differ from produced semantic rows")
         if self.payload_digest != _payload_digest(self):
             raise ValueError("payload_digest does not bind the canonical payload")
         return self
@@ -504,6 +554,9 @@ def compose_effective_state(
     closure_signal: str | None = None,
     family: str | None = None,
     governed_performance_prerequisite: EvidenceBinding | None = None,
+    admitted_sources: Sequence[AdmittedSourceMember] = (),
+    admitted_verifiers: Sequence[AdmittedVerifier] = (),
+    register_as_of: date | None = None,
 ) -> ClaimPostureState:
     """Compose source states without ranking them or laundering weak states."""
     states = tuple(SourceClaimState(item) for item in source_states)
@@ -536,10 +589,14 @@ def compose_effective_state(
         evidence = governed_performance_prerequisite
         if (
             evidence is None
-            or evidence.establishment_class not in positive_classes
-            or not evidence.content_digest
-            or not evidence.verifier_ref
-            or not evidence.verifier_provenance_ref
+            or register_as_of is None
+            or not _evidence_is_admitted(
+                evidence,
+                subject=evidence.subject_binding,
+                admitted_sources=admitted_sources,
+                admitted_verifiers=admitted_verifiers,
+                register_as_of=register_as_of,
+            )
         ):
             return ClaimPostureState.BLOCKED
     return ClaimPostureState.SUPPORTED
@@ -552,6 +609,8 @@ def evaluate_claim_posture(
     family: str,
     register_as_of: date,
     identity_boundary: IdentityBoundaryBinding | None = None,
+    admitted_sources: Sequence[AdmittedSourceMember] = (),
+    admitted_verifiers: Sequence[AdmittedVerifier] = (),
 ) -> tuple[ClaimPostureState, tuple[str, ...], tuple[str, ...]]:
     """Recompute effective state, blockers, and limitations for source arms."""
     blockers: set[str] = set()
@@ -583,11 +642,18 @@ def evaluate_claim_posture(
             binding,
             register_as_of=register_as_of,
             identity_boundary=identity_boundary,
+            admitted_sources=admitted_sources,
+            admitted_verifiers=admitted_verifiers,
         )
         predicates_by_kind = {item.kind: item for item in binding.predicates}
         if set(predicates_by_kind) != set(REQUIRED_SUPPORT_PREDICATES):
             blockers.add("DS11-GATE-PREDICATE-SET-INCOMPLETE")
-        for kind in REQUIRED_SUPPORT_PREDICATES:
+        required_facts = (
+            tuple(kind for kind in REQUIRED_SUPPORT_PREDICATES if kind != "no_blocker")
+            if binding.source_state == SourceClaimState.PLANNED
+            else REQUIRED_SUPPORT_PREDICATES
+        )
+        for kind in required_facts:
             predicate = predicates_by_kind.get(kind)
             fact, issue_code = facts[kind]
             if (
@@ -610,6 +676,9 @@ def evaluate_claim_posture(
         closure_signal=closure_signals[0] if closure_signals else None,
         family=family,
         governed_performance_prerequisite=governed,
+        admitted_sources=admitted_sources,
+        admitted_verifiers=admitted_verifiers,
+        register_as_of=register_as_of,
     )
     if blockers:
         state = ClaimPostureState.BLOCKED
@@ -621,30 +690,33 @@ def _recomputed_binding_facts(
     *,
     register_as_of: date,
     identity_boundary: IdentityBoundaryBinding | None,
+    admitted_sources: Sequence[AdmittedSourceMember],
+    admitted_verifiers: Sequence[AdmittedVerifier],
 ) -> dict[str, tuple[bool, str]]:
     positive = {
         EstablishmentClass.RECOMPUTED,
         EstablishmentClass.INDEPENDENTLY_RECONCILED,
     }
+    admitted_by_path = {item.path: item.content_digest for item in admitted_sources}
     evidence_valid = bool(binding.evidence_bindings) and all(
         evidence.ref in binding.evidence_refs
-        and evidence.subject_binding == binding.subject
-        and evidence.content_digest.startswith("sha256:")
-        and bool(evidence.verifier_ref)
-        and bool(evidence.verifier_provenance_ref)
-        and evidence.establishment_class in positive
-        and evidence.source_as_of <= register_as_of
-        and evidence.supersession_ref is None
+        and _evidence_is_admitted(
+            evidence,
+            subject=binding.subject,
+            admitted_sources=admitted_sources,
+            admitted_verifiers=admitted_verifiers,
+            register_as_of=register_as_of,
+        )
         for evidence in binding.evidence_bindings
     )
     identity_valid = (
         identity_boundary is not None
         and binding.identity_boundary_ref == identity_boundary.path
-        and identity_boundary.content_digest.startswith("sha256:")
+        and admitted_by_path.get(identity_boundary.path) == identity_boundary.content_digest
     )
     return {
         "content_bound_source": (
-            binding.content_digest.startswith("sha256:")
+            admitted_by_path.get(binding.coordinate.path) == binding.content_digest
             and binding.resolution == SourceResolution.RESOLVED,
             "DS11-SOURCE-CONTENT-NOT-BOUND",
         ),
@@ -699,7 +771,6 @@ def build_posture_register(
     page_a11y_receipt: PageA11yReceiptBinding | None = None,
     source_inventory: Sequence[SourceInventoryRow],
     source_bindings: Sequence[ClaimSourceBinding],
-    projection_groups: Sequence[ProjectionGroup],
 ) -> ClaimPostureRegisterV1:
     """Build a canonical register while recomputing every authority-bearing field."""
     members = tuple(sorted(admitted_sources, key=lambda item: item.path))
@@ -708,8 +779,19 @@ def build_posture_register(
         source_bindings,
         register_as_of=register_as_of,
         identity_boundary=identity_boundary,
+        admitted_sources=members,
+        admitted_verifiers=derive_admitted_verifiers(
+            identity_boundary=identity_boundary,
+            accessibility_document=accessibility_document,
+            page_a11y_receipt=page_a11y_receipt,
+        ),
     )
-    groups = tuple(sorted(projection_groups, key=lambda item: item.group_id))
+    verifiers = derive_admitted_verifiers(
+        identity_boundary=identity_boundary,
+        accessibility_document=accessibility_document,
+        page_a11y_receipt=page_a11y_receipt,
+    )
+    groups = _projection_groups(claims)
     payload = {
         "schema_version": CLAIM_POSTURE_SCHEMA,
         "rule_version": CLAIM_POSTURE_RULE_VERSION,
@@ -720,6 +802,7 @@ def build_posture_register(
         "ast_derivation": ast_derivation,
         "token_derivation": token_derivation,
         "identity_boundary": identity_boundary,
+        "admitted_verifiers": verifiers,
         "accessibility_document": accessibility_document,
         "page_a11y_receipt": page_a11y_receipt,
         "source_inventory": inventory,
@@ -758,6 +841,8 @@ def _claim_rows(
     *,
     register_as_of: date,
     identity_boundary: IdentityBoundaryBinding,
+    admitted_sources: Sequence[AdmittedSourceMember],
+    admitted_verifiers: Sequence[AdmittedVerifier],
 ) -> tuple[ClaimPostureRow, ...]:
     grouped: dict[str, list[ClaimSourceBinding]] = {}
     for binding in bindings:
@@ -786,6 +871,8 @@ def _claim_rows(
             family=family,
             register_as_of=register_as_of,
             identity_boundary=identity_boundary,
+            admitted_sources=admitted_sources,
+            admitted_verifiers=admitted_verifiers,
         )
         allowed = set(ordered[0].authoritative_for)
         for binding in ordered[1:]:
@@ -817,6 +904,146 @@ def _claim_rows(
             )
         )
     return tuple(sorted(rows, key=lambda item: item.claim_id))
+
+
+def derive_admitted_verifiers(
+    *,
+    identity_boundary: IdentityBoundaryBinding,
+    accessibility_document: AccessibilityDocumentBinding | None,
+    page_a11y_receipt: PageA11yReceiptBinding | None,
+) -> tuple[AdmittedVerifier, ...]:
+    """Derive the closed verifier set from typed artifact bases, never supplied names."""
+    values = [
+        _admitted_verifier(
+            ref="verifier:identity-boundary:dual-derivation",
+            verifier_kind="identity_boundary_derivation",
+            content_ref=identity_boundary.path,
+            content_digest=identity_boundary.content_digest,
+            provenance_parts=(
+                identity_boundary.frontmatter_digest,
+                identity_boundary.identity_statement_digest,
+                identity_boundary.paragraph_digest,
+                *identity_boundary.derivation_receipt_digests,
+            ),
+            establishment_class=EstablishmentClass.INDEPENDENTLY_RECONCILED,
+        )
+    ]
+    if accessibility_document is not None:
+        values.append(
+            _admitted_verifier(
+                ref="verifier:accessibility-document:selector-resolution",
+                verifier_kind="accessibility_document_derivation",
+                content_ref=accessibility_document.path,
+                content_digest=accessibility_document.content_digest,
+                provenance_parts=(
+                    accessibility_document.frontmatter_digest,
+                    accessibility_document.body_digest,
+                    *(item.exact_text_digest for item in accessibility_document.bindings),
+                ),
+                establishment_class=EstablishmentClass.RECOMPUTED,
+            )
+        )
+    if page_a11y_receipt is not None:
+        receipt_ref = f"{page_a11y_receipt.path}/receipt.json"
+        values.append(
+            _admitted_verifier(
+                ref="verifier:page-a11y-receipt:raw-recomputation",
+                verifier_kind="page_a11y_receipt_derivation",
+                content_ref=receipt_ref,
+                content_digest=page_a11y_receipt.content_digest,
+                provenance_parts=tuple(
+                    item.content_digest for item in page_a11y_receipt.admitted_sources
+                ),
+                establishment_class=EstablishmentClass.RECOMPUTED,
+            )
+        )
+    return tuple(sorted(values, key=lambda item: item.ref))
+
+
+def _admitted_verifier(
+    *,
+    ref: str,
+    verifier_kind: Literal[
+        "identity_boundary_derivation",
+        "accessibility_document_derivation",
+        "page_a11y_receipt_derivation",
+    ],
+    content_ref: str,
+    content_digest: str,
+    provenance_parts: Sequence[str],
+    establishment_class: Literal[
+        EstablishmentClass.RECOMPUTED,
+        EstablishmentClass.INDEPENDENTLY_RECONCILED,
+    ],
+) -> AdmittedVerifier:
+    encoded = json.dumps(tuple(provenance_parts), separators=(",", ":")).encode("utf-8")
+    provenance_digest = "sha256:" + hashlib.sha256(encoded).hexdigest()
+    return AdmittedVerifier(
+        ref=ref,
+        verifier_kind=verifier_kind,
+        content_ref=content_ref,
+        content_digest=content_digest,
+        provenance_ref=f"provenance:{verifier_kind}:{provenance_digest}",
+        provenance_digest=provenance_digest,
+        establishment_class=establishment_class,
+    )
+
+
+def _evidence_is_admitted(
+    evidence: EvidenceBinding,
+    *,
+    subject: str | None,
+    admitted_sources: Sequence[AdmittedSourceMember],
+    admitted_verifiers: Sequence[AdmittedVerifier],
+    register_as_of: date,
+) -> bool:
+    admitted = {item.path: item.content_digest for item in admitted_sources}
+    verifiers = {item.ref: item for item in admitted_verifiers}
+    verifier = verifiers.get(evidence.verifier_ref)
+    return bool(
+        subject is not None
+        and evidence.subject_binding == subject
+        and admitted.get(evidence.ref) == evidence.content_digest
+        and verifier is not None
+        and verifier.content_ref == evidence.ref
+        and verifier.content_digest == evidence.content_digest
+        and verifier.provenance_ref == evidence.verifier_provenance_ref
+        and verifier.establishment_class
+        in {EstablishmentClass.RECOMPUTED, EstablishmentClass.INDEPENDENTLY_RECONCILED}
+        and evidence.establishment_class
+        in {EstablishmentClass.RECOMPUTED, EstablishmentClass.INDEPENDENTLY_RECONCILED}
+        and evidence.source_as_of <= register_as_of
+        and evidence.supersession_ref is None
+    )
+
+
+def _projection_groups(claims: Sequence[ClaimPostureRow]) -> tuple[ProjectionGroup, ...]:
+    grouped: dict[str, set[str]] = {
+        "methodology": set(),
+        "evidence_envelope": set(),
+        "limitations": set(),
+        "accessibility": set(),
+        "custody": set(),
+    }
+    for row in claims:
+        if row.family == "accessibility":
+            grouped["accessibility"].add(row.claim_id)
+        elif row.family == "custody":
+            grouped["custody"].add(row.claim_id)
+        elif row.family == "grounded_performance":
+            grouped["evidence_envelope"].add(row.claim_id)
+        else:
+            grouped["methodology"].add(row.claim_id)
+        if (
+            row.effective_state != ClaimPostureState.SUPPORTED
+            or row.blocker_codes
+            or row.limitations
+        ):
+            grouped["limitations"].add(row.claim_id)
+    return tuple(
+        ProjectionGroup(group_id=group_id, claim_ids=tuple(sorted(claim_ids)))
+        for group_id, claim_ids in sorted(grouped.items())
+    )
 
 
 def _source_set_digest(members: Sequence[AdmittedSourceMember]) -> str:

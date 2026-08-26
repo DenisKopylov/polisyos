@@ -23,6 +23,7 @@ from polisyos.scientist.evidence.claims.posture import (
     AccessibilityEvidenceKind,
     AccessibilityPurpose,
     AdmittedSourceMember,
+    AdmittedVerifier,
     AntiRoleBinding,
     ClaimPostureRegisterV1,
     ClaimPostureRow,
@@ -30,22 +31,26 @@ from polisyos.scientist.evidence.claims.posture import (
     ClaimSourceBinding,
     DocumentProjectionIndex,
     EstablishmentClass,
+    EvidenceBinding,
     GeneratedFamilyBinding,
     IdentityBoundaryBinding,
     LiteralSite,
+    OwnerBinding,
     PageA11yFailureBinding,
     PageA11yReceiptBinding,
-    ProjectionGroup,
     ReconciledSourceDerivation,
     ResolvedDocumentBinding,
+    SourceClaimState,
     SourceCoordinate,
     SourceDerivation,
     SourceDerivationReceipt,
     SourceInventoryRole,
     SourceInventoryRow,
     SourceResolution,
+    SupportPredicate,
     build_posture_register,
     canonical_register_bytes,
+    derive_admitted_verifiers,
     validate_posture_register,
 )
 from tools.quality.validation.trust_claim_posture_sources import (
@@ -62,6 +67,9 @@ _GENERATED_MANIFEST_PATH = Path("architecture/generated_artifacts.toml")
 _GENERATED_REFERENCE_PATH = Path("docs/reference/generated-artifacts.md")
 _OUTPUT_PATH = Path("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json")
 _DEFAULT_REGISTER_AS_OF = date(2026, 8, 26)
+_RATIFIED_IDENTITY_DIGEST = (
+    "sha256:774f6dfb9aa655a079d6c6a2f00ef6442bad9f0ea9b84f370a4e808c5616a332"
+)
 
 
 @dataclass(frozen=True)
@@ -200,6 +208,35 @@ def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
     raw = path.read_bytes()
     text = raw.decode("utf-8")
     frontmatter, body = _split_frontmatter(text)
+    metadata = yaml.safe_load(frontmatter)
+    if not isinstance(metadata, dict):
+        raise ValueError("ratified identity frontmatter is malformed")
+    owner = metadata.get("owner")
+    last_reviewed = metadata.get("last_reviewed")
+    decision_status = metadata.get("decision_status")
+    authoritative_for = metadata.get("authoritative_for")
+    may_not_use_for = metadata.get("may_not_use_for")
+    if (
+        not isinstance(owner, str)
+        or not isinstance(last_reviewed, date)
+        or not isinstance(decision_status, str)
+        or not isinstance(authoritative_for, list)
+        or not all(isinstance(item, str) for item in authoritative_for)
+        or not isinstance(may_not_use_for, list)
+        or not all(isinstance(item, str) for item in may_not_use_for)
+    ):
+        raise ValueError("ratified identity authority frontmatter is incomplete")
+    identity_section = re.search(
+        r"## 1\. The decision in one sentence\s+(.+?)\s+## 2\.",
+        body,
+        flags=re.DOTALL,
+    )
+    if identity_section is None:
+        raise ValueError("ratified system-identity statement is absent")
+    identity_statements = re.findall(r"\*\*(.+?)\*\*", identity_section.group(1), re.DOTALL)
+    if len(identity_statements) != 1:
+        raise ValueError("ratified system-identity statement is ambiguous")
+    identity_statement = identity_statements[0]
     match = re.search(
         r"\*\*Anti-roles \(binding\):\*\*\s*(.+?)(?:\n\n|\Z)",
         body,
@@ -222,6 +259,10 @@ def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
         raise ValueError("independent anti-role normalizers disagree")
     paragraph_start = body[: match.start(1)].count("\n") + text[: text.index(body)].count("\n") + 1
     paragraph_end = paragraph_start + match.group(1).count("\n")
+    identity_start = (
+        body[: identity_section.start(1)].count("\n") + text[: text.index(body)].count("\n") + 1
+    )
+    identity_end = identity_start + identity_section.group(1).count("\n")
     source_digest = "sha256:" + hashlib.sha256(raw).hexdigest()
     paragraph_digest = "sha256:" + hashlib.sha256(match.group(1).encode("utf-8")).hexdigest()
     anti_roles = tuple(
@@ -252,6 +293,15 @@ def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
         paragraph_end_line=paragraph_end,
         anti_roles=anti_roles,
         derivation_receipt_digests=(method_a, method_b),
+        owner=owner,
+        last_reviewed=last_reviewed,
+        decision_status=decision_status,
+        authoritative_for=tuple(authoritative_for),
+        may_not_use_for=tuple(may_not_use_for),
+        identity_statement_digest="sha256:"
+        + hashlib.sha256(identity_statement.encode("utf-8")).hexdigest(),
+        identity_statement_start_line=identity_start,
+        identity_statement_end_line=identity_end,
     )
 
 
@@ -555,6 +605,440 @@ def evaluate_scope_assumption(
     )
 
 
+def _semantic_predicates(
+    *,
+    satisfied: set[str],
+    evidence_refs: tuple[str, ...],
+) -> tuple[SupportPredicate, ...]:
+    issues = {
+        "content_bound_source": "DS11-SOURCE-CONTENT-NOT-BOUND",
+        "purpose_permission": "DS11-AUTHORITY-PURPOSE-DENIED",
+        "accountable_owner": "DS11-OWNER-NOT-ESTABLISHED",
+        "applicable_jurisdiction": "DS11-JURISDICTION-NOT-ESTABLISHED",
+        "current_review": "DS11-REVIEW-MISSING-OR-STALE",
+        "content_bound_evidence": "DS11-EVIDENCE-NOT-INDEPENDENTLY-BOUND",
+        "identity_boundary": "DS11-IDENTITY-BOUNDARY-NOT-ESTABLISHED",
+        "no_blocker": "DS11-SOURCE-BLOCKER-PRESENT",
+    }
+    return tuple(
+        SupportPredicate(
+            kind=kind,
+            satisfied=kind in satisfied,
+            establishment_class=(
+                EstablishmentClass.RECOMPUTED
+                if kind in satisfied
+                else EstablishmentClass.NOT_ESTABLISHED
+            ),
+            evidence_refs=evidence_refs if kind in satisfied else (),
+            issue_code=None if kind in satisfied else issues[kind],
+        )
+        for kind in sorted(issues)
+    )
+
+
+def _semantic_evidence(
+    *,
+    subject: str,
+    verifier: AdmittedVerifier,
+    source_as_of: date,
+    establishment_class: EstablishmentClass = EstablishmentClass.RECOMPUTED,
+) -> EvidenceBinding:
+    return EvidenceBinding(
+        ref=verifier.content_ref,
+        content_digest=verifier.content_digest,
+        subject_binding=subject,
+        verifier_ref=verifier.ref,
+        verifier_provenance_ref=verifier.provenance_ref,
+        establishment_class=establishment_class,
+        source_as_of=source_as_of,
+        supersession_ref=None,
+    )
+
+
+def _semantic_binding(
+    *,
+    coordinate: SourceCoordinate,
+    content_digest: str,
+    source_state: SourceClaimState,
+    subject: str,
+    family: str,
+    authoritative_for: tuple[str, ...],
+    may_not_use_for: tuple[str, ...],
+    owner: OwnerBinding,
+    jurisdiction: str | None,
+    jurisdiction_establishment: EstablishmentClass,
+    review_on: date | None,
+    review_due: date | None,
+    source_as_of: date | None,
+    evidence: EvidenceBinding | None,
+    limitation_refs: tuple[str, ...],
+    prerequisite_refs: tuple[str, ...] = (),
+    closure_signal: str | None = None,
+    predicate_facts: set[str] | None = None,
+) -> ClaimSourceBinding:
+    evidence_bindings = () if evidence is None else (evidence,)
+    evidence_refs = () if evidence is None else (evidence.ref,)
+    return ClaimSourceBinding(
+        coordinate=coordinate,
+        content_digest=content_digest,
+        resolution=SourceResolution.RESOLVED,
+        source_state=source_state,
+        subject=subject,
+        family=family,
+        authoritative_for=authoritative_for,
+        may_not_use_for=may_not_use_for,
+        authority_purpose=subject,
+        owner=owner,
+        jurisdiction=jurisdiction,
+        jurisdiction_establishment=jurisdiction_establishment,
+        review_on=review_on,
+        review_due=review_due,
+        source_as_of=source_as_of,
+        evidence_refs=evidence_refs,
+        evidence_bindings=evidence_bindings,
+        limitation_refs=limitation_refs,
+        prerequisite_refs=prerequisite_refs,
+        identity_boundary_ref=_IDENTITY_PATH.as_posix(),
+        declared_scope_assumption=None,
+        supersedes_ref=None,
+        superseded_by_ref=None,
+        predicates=_semantic_predicates(
+            satisfied=predicate_facts or set(),
+            evidence_refs=evidence_refs,
+        ),
+        closure_signal=closure_signal,
+    )
+
+
+def _compile_semantic_bindings(
+    *,
+    identity: IdentityBoundaryBinding,
+    accessibility_document: AccessibilityDocumentBinding | None,
+    page_receipt: PageA11yReceiptBinding | None,
+) -> tuple[ClaimSourceBinding, ...]:
+    """Produce the fixed C02 posture rows from admitted typed facts."""
+    verifiers = derive_admitted_verifiers(
+        identity_boundary=identity,
+        accessibility_document=accessibility_document,
+        page_a11y_receipt=page_receipt,
+    )
+    verifier_by_kind = {item.verifier_kind: item for item in verifiers}
+    identity_verifier = verifier_by_kind["identity_boundary_derivation"]
+    identity_coordinate = SourceCoordinate(
+        path=identity.path,
+        symbol="ratified_system_identity",
+        line=identity.identity_statement_start_line,
+        column=0,
+        field_name="authoritative_for",
+        use_kind="declaration",
+    )
+    identity_owner = OwnerBinding(
+        owner=identity.owner,
+        basis="ratified_document",
+        source_ref=identity.path,
+        establishment_class=EstablishmentClass.RECOMPUTED,
+    )
+    identity_is_exact_ratified_source = identity.content_digest == _RATIFIED_IDENTITY_DIGEST
+    review_due = identity.last_reviewed + timedelta(days=365)
+    complete_facts = {
+        "content_bound_source",
+        "purpose_permission",
+        "accountable_owner",
+        "applicable_jurisdiction",
+        "current_review",
+        "content_bound_evidence",
+        "identity_boundary",
+        "no_blocker",
+    }
+    identity_evidence = _semantic_evidence(
+        subject="system_identity",
+        verifier=identity_verifier,
+        source_as_of=identity.last_reviewed,
+        establishment_class=EstablishmentClass.INDEPENDENTLY_RECONCILED,
+    )
+    bindings: list[ClaimSourceBinding] = [
+        _semantic_binding(
+            coordinate=identity_coordinate,
+            content_digest=identity.content_digest,
+            source_state=(
+                SourceClaimState.SUPPORTED
+                if identity_is_exact_ratified_source
+                else SourceClaimState.BLOCKED
+            ),
+            subject="system_identity",
+            family="methodology",
+            authoritative_for=identity.authoritative_for,
+            may_not_use_for=identity.may_not_use_for,
+            owner=identity_owner,
+            jurisdiction="non_jurisdiction_specific",
+            jurisdiction_establishment=EstablishmentClass.RECOMPUTED,
+            review_on=identity.last_reviewed,
+            review_due=review_due,
+            source_as_of=identity.last_reviewed,
+            evidence=identity_evidence,
+            limitation_refs=(
+                "Bounded to non-jurisdiction-specific system identity."
+                if identity_is_exact_ratified_source
+                else "System identity source differs from the ratified byte boundary.",
+            ),
+            predicate_facts=(
+                complete_facts
+                if identity_is_exact_ratified_source
+                else complete_facts - {"no_blocker"}
+            ),
+        )
+    ]
+
+    custody_prerequisites = (
+        (
+            "team-runtime",
+            "DS11-PUBLISHED-SIGNATURE-WATCHER",
+            "uv run pytest tests/integration/runtime_quality/"
+            "test_published_signature_custody.py::"
+            "test_every_public_signature_is_watched_for_staleness -q",
+        ),
+        (
+            "team-scientist",
+            "DS11-CLAIM-LIFECYCLE-ORCHESTRATION",
+            "uv run pytest tests/integration/scientist/governance/"
+            "test_claim_lifecycle_orchestration.py::"
+            "test_monitor_event_persists_claim_supersession_without_in_place_edit -q",
+        ),
+        (
+            "team-design",
+            "DS11-PUBLIC-SIGNATURE-POPULATION",
+            "uv run pytest tests/unit/runtime/http/test_public_export.py::"
+            "test_first_governed_public_signature_is_custody_bound -q",
+        ),
+    )
+    custody_facts = complete_facts - {"no_blocker"}
+    for owner_name, prerequisite, closure_signal in custody_prerequisites:
+        evidence = _semantic_evidence(
+            subject="universal_custody_commitment",
+            verifier=identity_verifier,
+            source_as_of=identity.last_reviewed,
+            establishment_class=EstablishmentClass.INDEPENDENTLY_RECONCILED,
+        )
+        bindings.append(
+            _semantic_binding(
+                coordinate=identity_coordinate,
+                content_digest=identity.content_digest,
+                source_state=(
+                    SourceClaimState.PLANNED
+                    if identity_is_exact_ratified_source
+                    else SourceClaimState.BLOCKED
+                ),
+                subject="universal_custody_commitment",
+                family="custody",
+                authoritative_for=("universal_custody_commitment",),
+                may_not_use_for=identity.may_not_use_for,
+                owner=OwnerBinding(
+                    owner=owner_name,
+                    basis="closure_commitment",
+                    source_ref=identity.path,
+                    establishment_class=EstablishmentClass.RECOMPUTED,
+                ),
+                jurisdiction="non_jurisdiction_specific",
+                jurisdiction_establishment=EstablishmentClass.RECOMPUTED,
+                review_on=identity.last_reviewed,
+                review_due=review_due,
+                source_as_of=identity.last_reviewed,
+                evidence=evidence,
+                limitation_refs=(f"Planned prerequisite: {prerequisite}",),
+                prerequisite_refs=(prerequisite,),
+                closure_signal=closure_signal,
+                predicate_facts=custody_facts,
+            )
+        )
+
+    unavailable_digest = "sha256:" + "0" * 64
+    a11y_path = _A11Y_PATH.as_posix()
+    a11y_coordinate = SourceCoordinate(
+        path=a11y_path,
+        symbol="ds11_projection_index",
+        line=1,
+        column=0,
+        field_name="authoritative_for",
+        use_kind="declaration",
+    )
+    if accessibility_document is not None:
+        selector_values = {item.key: item.value for item in accessibility_document.bindings}
+        a11y_owner = OwnerBinding(
+            owner=selector_values.get("assessment_owner"),
+            basis="ratified_document",
+            source_ref=accessibility_document.path,
+            establishment_class=EstablishmentClass.RECOMPUTED,
+        )
+        a11y_verifier = verifier_by_kind["accessibility_document_derivation"]
+        historical_evidence = _semantic_evidence(
+            subject="historical_internal_accessibility_pre_audit",
+            verifier=a11y_verifier,
+            source_as_of=accessibility_document.source_as_of,
+        )
+        a11y_authoritative = tuple(
+            item.purpose for item in accessibility_document.authoritative_for
+        )
+        a11y_denied = tuple(item.purpose for item in accessibility_document.may_not_use_for)
+        historical_facts = complete_facts - {"applicable_jurisdiction"}
+        a11y_digest = accessibility_document.content_digest
+        a11y_source_as_of = accessibility_document.source_as_of
+        a11y_review_due = accessibility_document.source_as_of + timedelta(days=365)
+    else:
+        a11y_owner = OwnerBinding(
+            owner=None,
+            basis="not_established",
+            source_ref=None,
+            establishment_class=EstablishmentClass.NOT_ESTABLISHED,
+        )
+        historical_evidence = None
+        a11y_authoritative = ()
+        a11y_denied = (
+            "current_accessibility_conformance",
+            "external_accessibility_certification",
+        )
+        historical_facts = {"identity_boundary"}
+        a11y_digest = unavailable_digest
+        a11y_source_as_of = None
+        a11y_review_due = None
+    bindings.append(
+        _semantic_binding(
+            coordinate=a11y_coordinate,
+            content_digest=a11y_digest,
+            source_state=(
+                SourceClaimState.SUPPORTED
+                if accessibility_document is not None
+                else SourceClaimState.BLOCKED
+            ),
+            subject="historical_internal_accessibility_pre_audit",
+            family="accessibility",
+            authoritative_for=a11y_authoritative,
+            may_not_use_for=a11y_denied,
+            owner=a11y_owner,
+            jurisdiction=None,
+            jurisdiction_establishment=EstablishmentClass.NOT_ESTABLISHED,
+            review_on=a11y_source_as_of,
+            review_due=a11y_review_due,
+            source_as_of=a11y_source_as_of,
+            evidence=historical_evidence,
+            limitation_refs=(
+                "Historical internal pre-audit only; jurisdiction is not established."
+                if accessibility_document is not None
+                else "Accessibility document projection basis is unavailable.",
+            ),
+            predicate_facts=historical_facts,
+        )
+    )
+
+    if page_receipt is not None:
+        receipt_verifier = verifier_by_kind["page_a11y_receipt_derivation"]
+        current_evidence = _semantic_evidence(
+            subject="current_accessibility_conformance",
+            verifier=receipt_verifier,
+            source_as_of=page_receipt.source_as_of,
+        )
+        receipt_path = f"{page_receipt.path}/receipt.json"
+        current_coordinate = a11y_coordinate.model_copy(
+            update={"path": receipt_path, "symbol": "page_a11y_receipt"}
+        )
+        current_digest = page_receipt.content_digest
+        current_date = page_receipt.source_as_of
+    else:
+        current_evidence = None
+        current_coordinate = a11y_coordinate
+        current_digest = unavailable_digest
+        current_date = None
+    blocked_owner = OwnerBinding(
+        owner="team-design",
+        basis="closure_commitment",
+        source_ref=identity.path,
+        establishment_class=EstablishmentClass.RECOMPUTED,
+    )
+    bindings.append(
+        _semantic_binding(
+            coordinate=current_coordinate,
+            content_digest=current_digest,
+            source_state=SourceClaimState.BLOCKED,
+            subject="current_accessibility_conformance",
+            family="accessibility",
+            authoritative_for=("historical_page_accessibility_result",),
+            may_not_use_for=("current_accessibility_conformance",),
+            owner=blocked_owner,
+            jurisdiction=None,
+            jurisdiction_establishment=EstablishmentClass.NOT_ESTABLISHED,
+            review_on=current_date,
+            review_due=current_date,
+            source_as_of=current_date,
+            evidence=current_evidence,
+            limitation_refs=(
+                "Current accessibility conformance is blocked by the admitted failing page suite."
+                if page_receipt is not None
+                else "Current page-accessibility evidence is unavailable.",
+            ),
+            predicate_facts={"identity_boundary"},
+        )
+    )
+    external_evidence = None
+    if accessibility_document is not None:
+        external_evidence = _semantic_evidence(
+            subject="external_accessibility_certification",
+            verifier=verifier_by_kind["accessibility_document_derivation"],
+            source_as_of=accessibility_document.source_as_of,
+        )
+    bindings.append(
+        _semantic_binding(
+            coordinate=a11y_coordinate,
+            content_digest=a11y_digest,
+            source_state=SourceClaimState.BLOCKED,
+            subject="external_accessibility_certification",
+            family="accessibility",
+            authoritative_for=a11y_authoritative,
+            may_not_use_for=tuple(sorted({*a11y_denied, "external_accessibility_certification"})),
+            owner=blocked_owner,
+            jurisdiction=None,
+            jurisdiction_establishment=EstablishmentClass.NOT_ESTABLISHED,
+            review_on=a11y_source_as_of,
+            review_due=a11y_review_due,
+            source_as_of=a11y_source_as_of,
+            evidence=external_evidence,
+            limitation_refs=("External accessibility countersign is absent.",),
+            prerequisite_refs=("DS11-EXTERNAL-A11Y-COUNTERSIGN",),
+            predicate_facts={"identity_boundary"},
+        )
+    )
+    bindings.append(
+        _semantic_binding(
+            coordinate=identity_coordinate,
+            content_digest=identity.content_digest,
+            source_state=SourceClaimState.BLOCKED,
+            subject="grounded_performance",
+            family="grounded_performance",
+            authoritative_for=(),
+            may_not_use_for=("grounded_performance",),
+            owner=OwnerBinding(
+                owner="team-runtime",
+                basis="closure_commitment",
+                source_ref=identity.path,
+                establishment_class=EstablishmentClass.RECOMPUTED,
+            ),
+            jurisdiction="non_jurisdiction_specific",
+            jurisdiction_establishment=EstablishmentClass.RECOMPUTED,
+            review_on=identity.last_reviewed,
+            review_due=review_due,
+            source_as_of=identity.last_reviewed,
+            evidence=None,
+            limitation_refs=("No governed grounded-performance evidence is admitted.",),
+            predicate_facts={
+                "content_bound_source",
+                "accountable_owner",
+                "applicable_jurisdiction",
+                "current_review",
+                "identity_boundary",
+            },
+        )
+    )
+    return tuple(bindings)
+
+
 def compile_claim_posture_register(
     repo_root: Path,
     *,
@@ -566,7 +1050,7 @@ def compile_claim_posture_register(
     token_result = derive_token_sources(root)
     reconciled = reconcile_source_derivations(ast_result, token_result)
     identity = derive_identity_boundary(root)
-    bindings = compile_source_claim_bindings(reconciled, package_owners={})
+    source_bindings = compile_source_claim_bindings(reconciled, package_owners={})
     identity_member = AdmittedSourceMember(
         path=identity.path,
         content_digest=identity.content_digest,
@@ -587,6 +1071,11 @@ def compile_claim_posture_register(
     if (root / _PAGE_RECEIPT_PATH).is_dir():
         page_receipt = derive_page_a11y_receipt(root)
         page_members = page_receipt.admitted_sources
+    semantic_bindings = _compile_semantic_bindings(
+        identity=identity,
+        accessibility_document=accessibility_document,
+        page_receipt=page_receipt,
+    )
     register = build_posture_register(
         register_as_of=register_as_of,
         admitted_sources=(
@@ -601,17 +1090,7 @@ def compile_claim_posture_register(
         accessibility_document=accessibility_document,
         page_a11y_receipt=page_receipt,
         source_inventory=reconciled.rows,
-        source_bindings=bindings,
-        projection_groups=tuple(
-            ProjectionGroup(group_id=group_id, claim_ids=())
-            for group_id in (
-                "methodology",
-                "evidence_envelope",
-                "limitations",
-                "accessibility",
-                "custody",
-            )
-        ),
+        source_bindings=(*source_bindings, *semantic_bindings),
     )
     payload = canonical_register_bytes(register)
     validate_posture_register(payload)

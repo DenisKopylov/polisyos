@@ -609,6 +609,10 @@ def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dic
     consumer_exports: list[str] = []
     consumer_factory_calls: list[str] = []
     concrete_adapters: list[tuple[str, str]] = []
+    public_definitions: list[str] = []
+    public_imports: list[str] = []
+    public_exports: list[str] = []
+    public_calls: list[str] = []
     common_definitions: Counter[str] = Counter()
     common_calls: dict[str, list[str]] = {
         "FullPrefixVerifier": [],
@@ -624,6 +628,8 @@ def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dic
             if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef)):
                 if node.name == "QualificationConsumer":
                     consumer_definitions.append(candidate)
+                if node.name == "project_pre_n9_open_world_limitations":
+                    public_definitions.append(candidate)
                 if node.name in common_names:
                     common_definitions[node.name] += 1
             if isinstance(node, (ast.Import, ast.ImportFrom)):
@@ -633,11 +639,15 @@ def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dic
                     module is not None and module.endswith("chronology_qualification")
                 ):
                     consumer_imports.append(candidate)
+                if "project_pre_n9_open_world_limitations" in names:
+                    public_imports.append(candidate)
             if isinstance(node, ast.Call):
                 called = _dotted_name(node.func)
                 if called is not None and "QualificationConsumer" in called.split("."):
                     consumer_factory_calls.append(candidate)
                 if called is not None:
+                    if called.split(".")[-1] == "project_pre_n9_open_world_limitations":
+                        public_calls.append(candidate)
                     for common_name in common_calls:
                         if called.split(".")[-1] == common_name:
                             common_calls[common_name].append(candidate)
@@ -664,6 +674,11 @@ def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dic
                         and element.value == "QualificationConsumer"
                     ):
                         consumer_exports.append(candidate)
+                    if (
+                        isinstance(element, ast.Constant)
+                        and element.value == "project_pre_n9_open_world_limitations"
+                    ):
+                        public_exports.append(candidate)
     return {
         "production_file_count": len(production),
         "consumer_definitions": tuple(sorted(consumer_definitions)),
@@ -672,6 +687,10 @@ def _source_topology(roles: dict[str, str], trees: dict[str, ast.Module]) -> dic
         "consumer_factory_calls": tuple(sorted(consumer_factory_calls)),
         "epoch_runtime_paths": _epoch_runtime_paths(production),
         "concrete_adapters": tuple(sorted(concrete_adapters)),
+        "public_definitions": tuple(sorted(public_definitions)),
+        "public_imports": tuple(sorted(public_imports)),
+        "public_exports": tuple(sorted(public_exports)),
+        "public_calls": tuple(sorted(public_calls)),
         "common_definitions": dict(common_definitions),
         "common_calls": {name: tuple(sorted(paths)) for name, paths in common_calls.items()},
     }
@@ -856,9 +875,33 @@ def test_cluster4_terminal_labels_match_source_derived_chain() -> None:
             "src/polisyos/core/security/chronology_anchor.py",
             "src/polisyos/core/security/chronology_anchor.py",
             "src/polisyos/runtime/quality/chronology_proof.py",
+            "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
         ),
-        "build_full_prefix_bundle": ("src/polisyos/runtime/quality/chronology_qualification.py",),
+        "build_full_prefix_bundle": (
+            "src/polisyos/runtime/quality/chronology_qualification.py",
+            "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+        ),
     }
+    assert topology["public_definitions"] == ("src/polisyos/runtime/quality/public_export.py",)
+    assert topology["public_exports"] == ("src/polisyos/runtime/quality/public_export.py",)
+    assert topology["public_imports"] == (
+        "src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+    )
+    assert topology["public_calls"] == (
+        "src/polisyos/runtime/http/services/control/generation_cycle.py",
+        "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+        "tools/quality/validation/check_layer3_gy_epoch_chronology_contract.py",
+    )
+    public_mutation, removed = _remove_scoped_call(
+        trees,
+        candidate="src/polisyos/runtime/http/services/control/generation_cycle.py",
+        class_name=None,
+        function_name="compile_and_run_recursive_generation_cycle",
+        called_name="project_pre_n9_open_world_limitations",
+    )
+    assert removed == 1
+    assert _source_topology(roles, public_mutation)["public_calls"] != topology["public_calls"]
 
     history = _load_history()
     state = {entry.payload.subject_key: entry.payload.status for entry in history.entries}

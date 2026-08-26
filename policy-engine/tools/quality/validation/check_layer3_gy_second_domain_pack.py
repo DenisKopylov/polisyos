@@ -145,6 +145,7 @@ from tools.quality.validation.check_layer3_gy_design_generation_contract import 
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy_second_domain_pack.v1"
 RULE_VERSION = "policyos.layer3.gy.n10a.owner_derived_second_domain_pack.v1"
 PRODUCER = "tools.quality.validation.check_layer3_gy_second_domain_pack"
+VALIDATOR_ID = "policyos.layer3.gy.n10a.second-domain-pack"
 CENSUS_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_census.json"
 PACK_OUTPUT = "architecture/policy_design_case/layer3_gy_second_domain_pack.json"
 SMOKE_PROBLEM_OUTPUT = (
@@ -1105,11 +1106,34 @@ def write(
     n4_capture_journal: Path | None = None,
     expected_transition_manifest: Mapping[str, Any] | None = None,
     persist: bool = True,
+    candidate_dir: Path | None = None,
 ) -> dict[str, Any]:
     """Write byte-stable generated artifacts after owner rederivation."""
 
     started = time.monotonic()
     root = repo_root.resolve()
+    git_root = Path(
+        subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], cwd=root, text=True
+        ).strip()
+    ).resolve()
+    if candidate_dir is not None and persist:
+        raise ValueError("candidate_dir_conflicts_with_persist")
+    candidate_root: Path | None = None
+    if candidate_dir is not None:
+        if candidate_dir.is_symlink():
+            raise ValueError("candidate_dir_symlink")
+        candidate_root = candidate_dir.expanduser().resolve()
+        if candidate_root.is_relative_to(git_root):
+            raise ValueError("candidate_dir_inside_repository")
+        if candidate_root.exists():
+            raise ValueError("candidate_dir_already_exists")
+    governed_preimages = {
+        relative_path: (root / relative_path).read_bytes()
+        if (root / relative_path).is_file()
+        else None
+        for relative_path in ARTIFACT_OUTPUTS
+    }
     _require_n10a_source_scope_clean(root)
     bundle = build_live_bundle(
         root,
@@ -1169,6 +1193,29 @@ def write(
             path = root / relative_path
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_text(_canonical_json(payload) + "\n", encoding="utf-8")
+    elif candidate_root is not None:
+        candidate_root.mkdir(parents=True, exist_ok=False)
+        for relative_path, payload in by_path.items():
+            candidate_path = candidate_root / relative_path
+            candidate_path.parent.mkdir(parents=True, exist_ok=True)
+            data = (_canonical_json(payload) + "\n").encode("utf-8")
+            descriptor = os.open(
+                candidate_path,
+                os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+                0o600,
+            )
+            try:
+                with os.fdopen(descriptor, "wb", closefd=False) as handle:
+                    handle.write(data)
+                    handle.flush()
+                    os.fsync(handle.fileno())
+            finally:
+                os.close(descriptor)
+        for relative_path, preimage in governed_preimages.items():
+            governed = root / relative_path
+            observed = governed.read_bytes() if governed.is_file() else None
+            if observed != preimage:
+                raise RuntimeError("candidate_write_changed_governed_target")
     return {
         "status": "pass" if not issues else "fail",
         "issues": issues,
@@ -1176,6 +1223,8 @@ def write(
         "artifact_transitions": artifact_transitions,
         "transition_manifest": transition_manifest,
         "write_performed": persist,
+        "candidate_write_performed": candidate_root is not None,
+        "candidate_dir": str(candidate_root) if candidate_root is not None else None,
         "query_timings_seconds": _mapping(bundle["runtime_metrics"].get("query_timings_seconds")),
         "wall_time_seconds": round(max(0.0, time.monotonic() - started), 6),
     }
@@ -7244,12 +7293,61 @@ def _source_path_from_repo_relative(repo_root: Path, source_path: str) -> Path:
 
 def _render_report(report: Mapping[str, Any], output_format: str) -> None:
     if output_format == "json":
-        print(_canonical_json(report))
+        print(
+            json.dumps(
+                _json_value(report),
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            )
+        )
         return
     print(f"status={report.get('status')}")
     for issue in _list_of_mappings(report.get("issues")):
         print(f"- {issue.get('code')}: {issue}")
     print(f"wall_time_seconds={report.get('wall_time_seconds')}")
+
+
+def _semantic_report(
+    report: Mapping[str, Any],
+    *,
+    mode: str,
+) -> dict[str, Any]:
+    """Normalize one CLI result without changing its documented process exit."""
+
+    observed = dict(report)
+    if mode == "corrupt-field-drift-check":
+        semantic_issues = [
+            issue
+            for issue in _list_of_mappings(observed.get("issues"))
+            if str(issue.get("code", "")).startswith("corrupt_field_drift_")
+        ]
+        semantic_status = str(observed.get("status") or "pass")
+    else:
+        semantic_status = str(observed.get("status") or "fail")
+        semantic_issues = _list_of_mappings(observed.get("issues"))
+    payload: dict[str, Any] = {
+        **observed,
+        "validator": VALIDATOR_ID,
+        "mode": mode,
+        "status": semantic_status,
+        "issues": semantic_issues,
+    }
+    payload.pop("receipt_sha256", None)
+    payload["receipt_sha256"] = (
+        "sha256:"
+        + hashlib.sha256(
+            json.dumps(
+                _json_value(payload),
+                sort_keys=True,
+                separators=(",", ":"),
+                ensure_ascii=False,
+                allow_nan=False,
+            ).encode("utf-8")
+        ).hexdigest()
+    )
+    return payload
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -7260,6 +7358,7 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--expected-source-freeze", required=True)
     parser.add_argument("--check", action="store_true")
     parser.add_argument("--write", action="store_true")
+    parser.add_argument("--candidate-dir", type=Path)
     parser.add_argument("--measure-write-transition", action="store_true")
     parser.add_argument("--expected-transition-manifest", type=Path)
     parser.add_argument("--capture-stage1-n4", action="store_true")
@@ -7277,7 +7376,13 @@ def main(argv: list[str] | None = None) -> int:
     )
     if args.measure_write_transition:
         incompatible = any(
-            (args.check, args.write, args.rederive_audit, args.corrupt_field_drift_check)
+            (
+                args.check,
+                args.write,
+                args.candidate_dir is not None,
+                args.rederive_audit,
+                args.corrupt_field_drift_check,
+            )
         )
         if incompatible or capture_selected > 1:
             parser.error("select exactly one action")
@@ -7287,6 +7392,7 @@ def main(argv: list[str] | None = None) -> int:
             for value in (
                 args.check,
                 args.write,
+                args.candidate_dir is not None,
                 args.capture_stage1_n4,
                 args.accept_stage1_n4_journal is not None,
                 args.rederive_audit,
@@ -7340,6 +7446,13 @@ def main(argv: list[str] | None = None) -> int:
                 n4_capture_journal=args.accept_stage1_n4_journal,
                 expected_transition_manifest=expected_manifest,
             )
+        elif args.candidate_dir is not None:
+            report = write(
+                root,
+                expected_source_freeze=args.expected_source_freeze,
+                persist=False,
+                candidate_dir=args.candidate_dir,
+            )
         elif args.rederive_audit:
             report = rederive_audit(
                 root,
@@ -7365,15 +7478,34 @@ def main(argv: list[str] | None = None) -> int:
             "status": "fail",
             "issues": [{"code": "source_hash_checkout_path_dependent", "error": str(exc)}],
         }
-    except (OwnerDataUnavailableError, RuntimeError, ValueError) as exc:
+    except (OSError, OwnerDataUnavailableError, RuntimeError, ValueError) as exc:
         report = {
             "status": "fail",
             "issues": [{"code": "second_domain_pack_execution_failed", "error": str(exc)}],
         }
-    _render_report(report, args.output_format)
     if args.corrupt_field_drift_check:
-        return 1 if report.get("status") == "fail" else 2
-    return 0 if report.get("status") == "pass" else 1
+        exit_code = 1 if report.get("status") == "fail" else 2
+    else:
+        exit_code = 0 if report.get("status") == "pass" else 1
+    mode = next(
+        name
+        for name, selected in (
+            ("check", args.check),
+            ("write", args.write),
+            ("candidate-dir", args.candidate_dir is not None),
+            ("measure-write-transition", args.measure_write_transition),
+            ("capture-stage1-n4", args.capture_stage1_n4),
+            ("accept-stage1-n4-journal", args.accept_stage1_n4_journal is not None),
+            ("rederive-audit", args.rederive_audit),
+            ("corrupt-field-drift-check", args.corrupt_field_drift_check),
+        )
+        if selected
+    )
+    _render_report(
+        _semantic_report(report, mode=mode),
+        args.output_format,
+    )
+    return exit_code
 
 
 if __name__ == "__main__":

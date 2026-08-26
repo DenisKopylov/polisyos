@@ -7,17 +7,25 @@ from time import perf_counter as _timing_perf_counter
 
 _TIMING_STARTED_AT = _timing_perf_counter()
 
+# A detected corruption is this mode's completed healthy terminal.  The semantic
+# envelope says ``pass`` while the process retains exit 1 so older callers cannot
+# confuse the mutation lane with an ordinary positive check.
+TIMING_HEALTHY_TERMINAL_EXIT_CODES: dict[str, list[int]] = {
+    "corrupt-field-drift-check": [1],
+}
+
 import argparse
 import asyncio
 import contextlib
 import hashlib
 import io
 import json
+import os
 import re
 import subprocess
 import sys
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from copy import deepcopy
 from dataclasses import asdict, dataclass, replace
 from datetime import UTC, datetime
@@ -52,6 +60,7 @@ from polisyos.runtime.quality.generation_cycle import (
 from tools.lib.timing import run_timed_entrypoint
 
 OUTPUT_PATH = "architecture/policy_design_case/layer3_gy_value_gate_contract.json"
+VALIDATOR_ID = "policyos.layer3.gy.n8.value-gate-contract"
 SCHEMA_VERSION = "policyos.policy_design_case.layer3_gy.value_gate_contract.v2"
 VALUE_GATE_RULE_VERSION = "policyos.layer3.gy.n8.value_gate.v2"
 CONTENT_HASH_EXCLUDED_TOP_LEVEL = {"contract_content_hash"}
@@ -4533,6 +4542,111 @@ def _write_json(path: Path, payload: Mapping[str, Any]) -> None:
     path.write_text(json.dumps(payload, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _semantic_envelope(
+    *,
+    mode: str,
+    status: str,
+    issues: Sequence[Mapping[str, Any]],
+    **evidence: Any,
+) -> dict[str, Any]:
+    """Bind semantic status independently from a mode's process exit."""
+
+    report: dict[str, Any] = {
+        "validator": VALIDATOR_ID,
+        "mode": mode,
+        "status": status,
+        "issues": [dict(issue) for issue in issues],
+        **evidence,
+    }
+    encoded = json.dumps(
+        report,
+        sort_keys=True,
+        separators=(",", ":"),
+        ensure_ascii=False,
+        allow_nan=False,
+    ).encode("utf-8")
+    report["receipt_sha256"] = "sha256:" + hashlib.sha256(encoded).hexdigest()
+    return report
+
+
+def write_candidate_catalog_provenance(
+    repo_root: Path,
+    *,
+    candidate_path: Path,
+    expected_source_freeze: str,
+) -> dict[str, Any]:
+    """Write one N8 reissue candidate outside the repository, never its target."""
+
+    root = repo_root.resolve()
+    git_root = Path(
+        subprocess.check_output(
+            ["git", "rev-parse", "--show-toplevel"], cwd=root, text=True
+        ).strip()
+    ).resolve()
+    candidate = candidate_path.expanduser()
+    head = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    if head != expected_source_freeze:
+        raise ValueError("candidate_source_freeze_mismatch")
+    candidate_parent = candidate.parent.resolve()
+    resolved_candidate = candidate_parent / candidate.name
+    if resolved_candidate.is_relative_to(git_root):
+        raise ValueError("candidate_path_inside_repository")
+    if candidate.exists() or candidate.is_symlink():
+        raise ValueError("candidate_path_already_exists")
+    recorded_path = root / OUTPUT_PATH
+    recorded_bytes = recorded_path.read_bytes()
+    recorded = _load_json(recorded_path)
+    live_denominators, live_ambient_manifest = _candidate_catalog_denominator_evidence_cached()
+    payload = _catalog_provenance_reissue_payload(
+        recorded,
+        live_denominators,
+        live_ambient_manifest,
+    )
+    validation = validate_payload_result(
+        payload,
+        expected_source_freeze=expected_source_freeze,
+    )
+    if validation.governing_issues:
+        raise ValueError(
+            "candidate_payload_invalid:"
+            + "|".join(str(issue.get("code")) for issue in validation.governing_issues)
+        )
+    candidate_parent.mkdir(parents=True, exist_ok=True)
+    candidate_bytes = (json.dumps(payload, indent=2, sort_keys=True) + "\n").encode("utf-8")
+    descriptor = os.open(
+        resolved_candidate,
+        os.O_WRONLY | os.O_CREAT | os.O_EXCL,
+        0o600,
+    )
+    try:
+        with os.fdopen(descriptor, "wb", closefd=False) as handle:
+            handle.write(candidate_bytes)
+            handle.flush()
+            os.fsync(handle.fileno())
+    finally:
+        os.close(descriptor)
+    directory = os.open(candidate_parent, os.O_RDONLY)
+    try:
+        os.fsync(directory)
+    finally:
+        os.close(directory)
+    if recorded_path.read_bytes() != recorded_bytes:
+        raise RuntimeError("candidate_write_changed_governed_target")
+    candidate_bytes = resolved_candidate.read_bytes()
+    return _semantic_envelope(
+        mode="candidate-reissue-catalog-provenance",
+        status="pass",
+        issues=(),
+        expected_source_freeze=expected_source_freeze,
+        candidate_path=str(resolved_candidate),
+        candidate_sha256="sha256:" + hashlib.sha256(candidate_bytes).hexdigest(),
+        candidate_bytes=len(candidate_bytes),
+        governed_target=OUTPUT_PATH,
+        governed_preimage_sha256="sha256:" + hashlib.sha256(recorded_bytes).hexdigest(),
+        governed_write_performed=False,
+    )
+
+
 def _catalog_provenance_reissue_payload(
     recorded: Mapping[str, Any],
     live_denominators: Mapping[str, Any],
@@ -4727,11 +4841,13 @@ def check_result(
     )
 
 
-def corrupt_field_drift_check(
+def corrupt_field_drift_results(
     repo_root: Path,
     *,
     expected_source_freeze: str,
-) -> int:
+) -> tuple[dict[str, Any], ...]:
+    """Return every corruption result without assigning a process status."""
+
     base = build_payload(
         repo_root,
         expected_source_freeze=expected_source_freeze,
@@ -4798,6 +4914,20 @@ def corrupt_field_drift_check(
                 "rejected": expected_code in codes,
             }
         )
+    return tuple(results)
+
+
+def corrupt_field_drift_check(
+    repo_root: Path,
+    *,
+    expected_source_freeze: str,
+) -> int:
+    """Keep the legacy inverted process terminal for direct callers."""
+
+    results = corrupt_field_drift_results(
+        repo_root,
+        expected_source_freeze=expected_source_freeze,
+    )
     if all(result["rejected"] for result in results):
         print(
             "corrupt-field drift check: PASS corruptions rejected "
@@ -4817,6 +4947,7 @@ def main(argv: list[str] | None = None) -> int:
     modes.add_argument("--check-catalog-provenance", action="store_true")
     modes.add_argument("--write", action="store_true")
     modes.add_argument("--reissue-catalog-provenance", action="store_true")
+    modes.add_argument("--candidate-reissue-catalog-provenance", type=Path)
     modes.add_argument("--corrupt-field-drift-check", action="store_true")
     modes.add_argument("--rederive-audit", action="store_true")
     modes.add_argument("--source-flip-mutations", action="store_true")
@@ -4825,111 +4956,121 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
     repo_root = _repo_root()
     _ensure_src_path(repo_root)
-    if args.corrupt_field_drift_check:
-        return corrupt_field_drift_check(
-            repo_root,
-            expected_source_freeze=args.expected_source_freeze,
+    mode = next(
+        name
+        for name, selected in (
+            ("check", args.check),
+            ("check-catalog-provenance", args.check_catalog_provenance),
+            ("write", args.write),
+            ("reissue-catalog-provenance", args.reissue_catalog_provenance),
+            (
+                "candidate-reissue-catalog-provenance",
+                args.candidate_reissue_catalog_provenance is not None,
+            ),
+            ("corrupt-field-drift-check", args.corrupt_field_drift_check),
+            ("rederive-audit", args.rederive_audit),
+            ("source-flip-mutations", args.source_flip_mutations),
         )
-    if args.rederive_audit:
-        result = run_rederive_audit_result(
-            repo_root,
-            expected_source_freeze=args.expected_source_freeze,
-        )
-        if result.governing_issues:
-            print(
-                json.dumps(
-                    {
-                        "issues": list(result.governing_issues),
-                        "ambient_findings": list(result.ambient_findings),
-                    },
-                    sort_keys=True,
-                )
-            )
-            return 1
-        return 0
-    if args.source_flip_mutations:
-        results = run_source_flip_mutations(repo_root)
-        failures = tuple(row for row in results if row.get("result") != "RED")
-        print(json.dumps({"results": list(results)}, sort_keys=True))
-        return 1 if failures else 0
-    if args.check_catalog_provenance:
-        result = check_catalog_provenance_result(
-            repo_root,
-            expected_source_freeze=args.expected_source_freeze,
-        )
-        if result.governing_issues:
-            print(
-                json.dumps(
-                    {
-                        "status": "fail",
-                        "issues": list(result.governing_issues),
-                        "ambient_findings": list(result.ambient_findings),
-                    },
-                    sort_keys=True,
-                )
-            )
-            return 1
-        print(
-            json.dumps(
-                {
-                    "status": "pass",
-                    "path": OUTPUT_PATH,
-                    "scope": "catalog_provenance",
-                    "ambient_findings": list(result.ambient_findings),
-                },
-                sort_keys=True,
-            )
-        )
-        return 0
-    if args.reissue_catalog_provenance:
-        print(
-            json.dumps(
-                {
-                    "status": "not_established",
-                    "code": "catalog_dependency_authority_not_established",
-                },
-                sort_keys=True,
-            )
-        )
-        return 1
-    if args.write:
-        print(
-            json.dumps(
-                {
-                    "status": "not_established",
-                    "code": "catalog_dependency_authority_not_established",
-                },
-                sort_keys=True,
-            )
-        )
-        return 1
-    result = check_result(
-        repo_root,
-        expected_source_freeze=args.expected_source_freeze,
+        if selected
     )
-    if result.governing_issues:
-        print(
-            json.dumps(
-                {
-                    "status": "fail",
-                    "issues": list(result.governing_issues),
-                    "ambient_findings": list(result.ambient_findings),
-                },
-                sort_keys=True,
+    try:
+        if args.candidate_reissue_catalog_provenance is not None:
+            report = write_candidate_catalog_provenance(
+                repo_root,
+                candidate_path=args.candidate_reissue_catalog_provenance,
+                expected_source_freeze=args.expected_source_freeze,
             )
+            exit_code = 0
+        elif args.corrupt_field_drift_check:
+            results = corrupt_field_drift_results(
+                repo_root,
+                expected_source_freeze=args.expected_source_freeze,
+            )
+            survived = tuple(row for row in results if not row["rejected"])
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not survived else "fail",
+                issues=tuple(
+                    {
+                        "code": "corrupt_field_drift_not_detected",
+                        "case_id": row["case_id"],
+                    }
+                    for row in survived
+                ),
+                results=list(results),
+            )
+            exit_code = 1 if not survived else 0
+        elif args.rederive_audit:
+            captured = io.StringIO()
+            with contextlib.redirect_stdout(captured):
+                result = run_rederive_audit_result(
+                    repo_root,
+                    expected_source_freeze=args.expected_source_freeze,
+                )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not result.governing_issues else "fail",
+                issues=result.governing_issues,
+                ambient_findings=list(result.ambient_findings),
+                legacy_output=captured.getvalue().strip(),
+            )
+            exit_code = 1 if result.governing_issues else 0
+        elif args.source_flip_mutations:
+            results = run_source_flip_mutations(repo_root)
+            failures = tuple(row for row in results if row.get("result") != "RED")
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not failures else "fail",
+                issues=tuple(
+                    {"code": "source_flip_survived", "mutation_id": row.get("mutation_id")}
+                    for row in failures
+                ),
+                results=list(results),
+            )
+            exit_code = 1 if failures else 0
+        elif args.check_catalog_provenance:
+            result = check_catalog_provenance_result(
+                repo_root,
+                expected_source_freeze=args.expected_source_freeze,
+            )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not result.governing_issues else "fail",
+                issues=result.governing_issues,
+                ambient_findings=list(result.ambient_findings),
+                path=OUTPUT_PATH,
+                scope="catalog_provenance",
+            )
+            exit_code = 1 if result.governing_issues else 0
+        elif args.reissue_catalog_provenance or args.write:
+            report = _semantic_envelope(
+                mode=mode,
+                status="not_established",
+                issues=({"code": "catalog_dependency_authority_not_established"},),
+            )
+            exit_code = 1
+        else:
+            result = check_result(
+                repo_root,
+                expected_source_freeze=args.expected_source_freeze,
+            )
+            report = _semantic_envelope(
+                mode=mode,
+                status="pass" if not result.governing_issues else "fail",
+                issues=result.governing_issues,
+                ambient_findings=list(result.ambient_findings),
+                path=OUTPUT_PATH,
+            )
+            exit_code = 1 if result.governing_issues else 0
+    except (OSError, RuntimeError, TypeError, ValueError) as exc:
+        report = _semantic_envelope(
+            mode=mode,
+            status="fail",
+            issues=({"code": "value_gate_execution_failed", "error": str(exc)},),
         )
-        return 1
-    print(
-        json.dumps(
-            {
-                "status": "pass",
-                "path": OUTPUT_PATH,
-                "ambient_findings": list(result.ambient_findings),
-            },
-            sort_keys=True,
-        )
-    )
-    return 0
+        exit_code = 1
+    print(json.dumps(report, sort_keys=True))
+    return exit_code
 
 
 if __name__ == "__main__":

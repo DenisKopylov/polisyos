@@ -54,6 +54,11 @@ holding the register-family lock; debt/ledger records use that same lock; visual
 snapshots only while holding the visual lane. No two serialized resources
 co-hold.
 
+**Execution amendment (2026-08-26):** the execution instruction approves a
+hard slice-wide mechanism ceiling of **34** paths. The declared mechanism sum
+remains 23 and the widening ceiling remains 9; this corrects the planning
+ceiling only and authorizes no additional mechanism path.
+
 Ceilings are charged in completed `user + sys`, never wall time. Every command
 records `uptime` immediately before and after, selected-test count, exit code,
 `user`, `sys`, ceiling, and whether it wrote. A sleeping laptop, a killed run,
@@ -198,11 +203,11 @@ cluster may define a second closure contract.
   added; those consequences are explicitly `surface_out_of_scope`.
 - [ ] **CC23** Targeted model, compiler, generator, route, twin, Trust View,
   DS11 route-a11y, and visual tests pass. The complete page-a11y suite produces
-  **25 tests / 22 pass / 3 inherited failures**: a denominator exactly one larger
+  **25 tests / 21 pass / 4 inherited failures**: a denominator exactly one larger
   than the pinned base. Independent `--list`/source enumeration proves the
   25-test set; the execution receipt proves the outcome set and the `/trust`
-  pass. Exactly the three run-paper failures remain unless their independent
-  owner reissues that evidence first. The global frontend disposition check likewise produces
+  pass. The four pinned base failures remain unless their independent owners
+  reissue their evidence first. The global frontend disposition check likewise produces
   exactly its pinned base C13 error and no new error; release guardrails remain
   green with zero creep.
 - [ ] **CC24** The committed attached branch is read back after writing and proves
@@ -329,7 +334,7 @@ row field intact and the row must remain non-supported.
 | release guardrail | `uv run polisyos-tools architecture guardrails check` = 0 with required generated freshness green; `user 40.04 + sys 40.61 = 80.65s`; uptime `16:17 up 2 days, 6:30` -> `16:19 up 2 days, 6:32` |
 | focused Trust View baseline | Vitest reports **4 files / 6 tests green**; independent exact-path `rg` counts `1 + 1 + 3 + 1` test identities in `DisputeBadge.a11y`, `VerificationStatus.a11y`, `TrustViewAuthority`, and `trustViewArchitecture`; `user 7.55 + sys 1.49 = 9.04s`; uptime `16:24 up 2 days, 6:37` before/after |
 | frontend disposition baseline | exact `--check` completes red only on `c13_print_receipt_invalid:.../RunDetailLayout.tsx`; `user 77.44 + sys 10.24 = 87.68s`; uptime `16:22 up 2 days, 6:35` -> `16:23 up 2 days, 6:36` |
-| complete page-a11y baseline | execution text and saved HTML report agree on **21/24 pass** and the same three run-paper failures: general color-blind axe and run-report axe both expose `dlitem`, while the run-report screen-reader snapshot lacks the named `Export JSON` action; independent `--list` plus source enumeration both yield 24 = 17 derived routes + 7 fixed tests; `user 111.16 + sys 15.64 = 126.80s`; uptime `16:37 up 2 days, 6:50` -> `16:39 up 2 days, 6:52` |
+| complete page-a11y baseline | two independent JSON-reporter executions agree on **20/24 pass** and the same four failures: `src/test/a11y/color-blind-simulation.spec.ts:122` (DS10 capability-discovery color-blind distinction), general color-blind axe and run-report axe both expose `dlitem`, and the run-report screen-reader snapshot lacks the named `Export JSON` action; the raw receipt names all 24 identities; replay A `user 212.21 + sys 29.76 = 241.97s`, replay B `user 287.42 + sys 40.22 = 327.64s` |
 | planning debt-ledger admission | read-only `check_debt_ledger.py --check --report-only` reports exactly 10 DS11 `explicit_nonclosure_missing` rows plus `ledger_render_drift`; the checker's parsed IDs and an independent count of the 10 bullets under `## Explicit non-closure` agree; `user 0.40 + sys 0.30 = 0.70s`; uptime `17:08 up 2 days, 7:21` before/after. These are the expected planning-handback reds until C00 uses the sole register writer and regenerates the ledger. |
 
 The release guardrail and frontend disposition checker are different gates. The
@@ -340,7 +345,7 @@ reissue another slice's print evidence.
 
 The complete targeted page-a11y suite is also red at the exact base. Its dated
 Q2 pre-audit is valid only as a historical receipt, not evidence of current
-conformance. C00 freezes the three-test failure set and complete page-suite
+conformance. C00 freezes the four-test failure set and complete page-suite
 denominator; C06 requires zero DS11 additions and records the inherited current-
 conformance limitation rather than repairing the run paper.
 
@@ -726,6 +731,7 @@ All names are pinned in C00 before implementation:
 tests/unit/scientist/evidence/claims/test_posture.py::test_blocked_vetoes_planned_and_supported
 tests/unit/scientist/evidence/claims/test_posture.py::test_candidate_or_planned_never_composes_to_supported
 tests/unit/scientist/evidence/claims/test_posture.py::test_grounded_performance_requires_governed_evidence_and_prerequisite
+tests/unit/scientist/evidence/claims/test_posture.py::test_posture_artifact_cannot_enter_runtime_claim_registry
 tests/repo_quality/tools/test_trust_claim_posture.py::test_source_partition_matches_ast_and_tokenize_file_for_file
 tests/repo_quality/tools/test_trust_claim_posture.py::test_new_authority_producer_grows_register_without_register_edit
 tests/repo_quality/tools/test_trust_claim_posture.py::test_identity_parser_derives_seven_anti_roles_including_crm
@@ -734,6 +740,7 @@ tests/repo_quality/tools/test_trust_claim_posture.py::test_internal_a11y_evidenc
 tests/repo_quality/tools/test_trust_claim_posture.py::test_metadata_without_independent_source_basis_cannot_support
 tests/repo_quality/tools/test_trust_claim_posture.py::test_declared_scope_assumption_is_limitation_not_support
 tests/repo_quality/tools/test_trust_claim_posture.py::test_generator_is_byte_deterministic_and_scratch_bounded
+tests/repo_quality/tools/test_trust_claim_posture.py::test_runtime_producer_evidence_binding_cannot_enter_posture_compiler
 apps/runtime-dashboard/src/features/trust/components/ClaimPostureRegister.free-growth.test.tsx
 apps/runtime-dashboard/src/features/trust/export/trustPostureTwin.test.ts
 apps/runtime-dashboard/src/features/trust/routes/TrustPosturePage.a11y.test.tsx
@@ -760,8 +767,8 @@ constant are mandatory P39 companions outside caps. They are still committed
 with their mechanism. Never split one mechanism across commits to fit a cap.
 
 The declared cluster caps total **23 unique mechanism paths**. The hard
-slice-wide ceiling is **30 unique mechanism paths**; path 31 is a real stop.
-Slack is seven paths (30.4%), derived from three compiler paths, two source/
+slice-wide ceiling is **34 unique mechanism paths**; path 35 is a real stop.
+Slack is 11 paths (32.4%), derived from three compiler paths, two source/
 lifecycle paths (one a11y source document and the load-bearing generated-
 family manifest), thirteen public-route/locale seams, and five measured Trust
 View issuer/consumer paths—not copied from DS9 or DS10. The manifest is counted
@@ -783,7 +790,7 @@ finding bucket and transaction.
 A production path outside a cluster's declared list is pre-authorized only when
 a named closure item requires it and no existing seam suffices. Before editing,
 record the CC item, path, and rejected seam. The path still counts against the
-cluster cap and 30-path ceiling. A second finding in one class invokes P40:
+cluster cap and 34-path ceiling. A second finding in one class invokes P40:
 widen the mechanism to the needed quantity or declare a bounded residual and
 run its falsifier; do not patch another instance.
 
@@ -821,12 +828,12 @@ seven-role extraction, feature/status denominators, runtime-registry seam, and
 custody production-call scan from the exact execution base. Pin every
 disagreement as data. Capture the global frontend check's exact base stderr and
 complete input denominator before DS11 touches Trust View. Run the complete
-page-a11y suite once with no writer and bind its full 24-test denominator and
-three-test failure set before DS11 adds a route.
+page-a11y suite with no product writer and bind its full 24-test denominator and
+four-test failure set before DS11 adds a route.
 
 **Acceptance:** CC01, CC02, and CC07 entry receipts reproduce; every named DS11
 test is collected and red only for missing DS11 behavior; the release guardrail
-is green; the one inherited C13 red and three inherited page-a11y failures
+is green; the one inherited C13 red and four inherited page-a11y failures
 reproduce; the debt-ledger check has zero DS11 missing/nonclosure/render-drift
 findings after its writer; no product mechanism changed.
 
@@ -861,7 +868,10 @@ the checker owns the independent tokenizer reconciliation, artifact validation,
 identity/copy binding, deterministic writer, and `--check`. Public API export is
 not added. Rule version changes are explicit and force regeneration.
 
-**Acceptance:** CC03-CC09 and CC15-CC18 model/compiler negatives pass. Removing
+**Acceptance:** CC03-CC09 and CC15-CC18 model/compiler negatives pass, including
+both CC09 direction tests: `test_posture_artifact_cannot_enter_runtime_claim_registry`
+and `test_runtime_producer_evidence_binding_cannot_enter_posture_compiler`.
+Removing
 the property while retaining markers fails: a constructor-only model, a literal
 subject list, a row-count assertion, a self-attested verifier, or an authored
 effective status cannot satisfy the tests. The first complete no-writer
@@ -1074,10 +1084,10 @@ signal, regenerate the ledger through its writer, verify the global frontend
 error-set delta and complete page-a11y error-set delta, and read the committed
 branch—not the index—back after the C06 commit.
 
-**Acceptance:** CC23-CC24 pass; actual unique mechanisms <=30, widening <=9;
+**Acceptance:** CC23-CC24 pass; actual unique mechanisms <=34, widening <=9;
 every non-closure below is still precise; `git diff --check` passes; attached
 branch readback contains the plan, receipts, generated artifact, and no
-unrelated changes. The page suite is exactly 25 collected / 22 pass / 3 base
+unrelated changes. The page suite is exactly 25 collected / 21 pass / 4 base
 failures and has no DS11 route failure, with its denominator increased by the
 one derived `/trust` surface.
 
@@ -1220,8 +1230,9 @@ website-copy semantics remain precisely non-closed.
   `team-design` accessibility evidence lane; closure signal:
   `uv run pytest tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact -q`.
 - `DS11-CURRENT-PAGE-A11Y` — base-proven `verification_missing`: the complete
-  page suite is 21/24, with two axe `dlitem` failures and one missing named
-  export-action snapshot, all in the run paper; `team-design` run-paper/a11y
+  page suite is 20/24, with the DS10 color-blind distinction failure, two axe
+  `dlitem` failures, and one missing named export-action snapshot, all in the
+  run paper; `team-design` run-paper/a11y
   lane; closure signal: two independent no-writer invocations of
   `corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages` exit
   zero with identical collected identities and reissue the content-bound
@@ -1279,7 +1290,7 @@ branch readback.
 
 Anything that adds a runtime endpoint, auth exception, OpenAPI/client ABI,
 Python public facade, public signature, performance claim, scope-adjudication
-contract, arbitrary copy channel, new source family, or raises the 30-path /
+contract, arbitrary copy channel, new source family, or raises the 34-path /
 9-widening-round ceilings requires an owner-approved plan amendment before code.
 
 ## Non-negotiables

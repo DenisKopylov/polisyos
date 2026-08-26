@@ -1,0 +1,147 @@
+{
+  "schema_version": "policyos.ds11.page_a11y_base_receipt.v1",
+  "authority_purpose": "historical_currentness_limitation",
+  "status": "blocked",
+  "execution_entry_commit": "8e5832bbd",
+  "policy_source_base_commit": "f935e0c2e9359bc1202ce5d36ea706de58f7aaab",
+  "command": "PLAYWRIGHT_JSON_OUTPUT_FILE=<receipt-relative-output> corepack pnpm --filter @polisyos/runtime-dashboard exec playwright test e2e/a11y --project=chromium --reporter=json",
+  "result": {
+    "collected": 24,
+    "passed": 20,
+    "failed": 4,
+    "skipped": 0,
+    "duration_ms": 223817.08599999998,
+    "exit_code": 1
+  },
+  "collected_identities": [
+    {
+      "identity": "../src/test/a11y/color-blind-simulation.spec.ts::keeps signal pairs distinguishable for deuteranope, protanope, and tritanope viewers",
+      "status": "failed"
+    },
+    {
+      "identity": "../src/test/a11y/color-blind-simulation.spec.ts::DS10 capability discovery candidate clothing passes opaque-background WCAG AA contrast",
+      "status": "passed"
+    },
+    {
+      "identity": "../src/test/a11y/keyboard-journeys.spec.ts::opens a run and downloads the decision packet with keyboard only in at most 20 tab stops",
+      "status": "passed"
+    },
+    {
+      "identity": "../src/test/a11y/keyboard-journeys.spec.ts::DS10 capability discovery supports keyboard search and MACHINE download",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::login passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::dashboard passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::composer passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::runs-list passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-compare passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-report passes axe",
+      "status": "failed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-overview passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-governance passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-evidence passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-workflow passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-artifacts passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-agents passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-debug passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::artifact passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::evidence passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::knowledge passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::platform passes axe",
+      "status": "passed"
+    },
+    {
+      "identity": "../src/test/a11y/screen-reader-snapshots.spec.ts::runs list exposes named landmarks and actions",
+      "status": "failed"
+    },
+    {
+      "identity": "../src/test/a11y/screen-reader-snapshots.spec.ts::run report exposes named export actions and timeline content",
+      "status": "failed"
+    },
+    {
+      "identity": "../src/test/a11y/screen-reader-snapshots.spec.ts::DS10 capability discovery announces candidate-grade incomplete frontier truth",
+      "status": "passed"
+    }
+  ],
+  "inherited_failure_identities": [
+    {
+      "identity": "../src/test/a11y/color-blind-simulation.spec.ts::keeps signal pairs distinguishable for deuteranope, protanope, and tritanope viewers",
+      "status": "failed"
+    },
+    {
+      "identity": "a11y/routes.a11y.spec.ts::run-report passes axe",
+      "status": "failed"
+    },
+    {
+      "identity": "../src/test/a11y/screen-reader-snapshots.spec.ts::runs list exposes named landmarks and actions",
+      "status": "failed"
+    },
+    {
+      "identity": "../src/test/a11y/screen-reader-snapshots.spec.ts::run report exposes named export actions and timeline content",
+      "status": "failed"
+    }
+  ],
+  "replay_agreement": {
+    "completed_replays": 2,
+    "status": "agrees",
+    "observed": "20 passed / 4 failed / 24 collected",
+    "added_base_failure": "../src/test/a11y/color-blind-simulation.spec.ts::keeps signal pairs distinguishable for deuteranope, protanope, and tritanope viewers"
+  },
+  "raw_receipts": {
+    "results_json": "run-1/results.json",
+    "results_sha256": "3f17c328b49944b9673ea5045bfec8477cc5e00b2c9c6be51409be987bedfb30",
+    "last_run_json": "run-1/.last-run.json",
+    "last_run_sha256": "288adf690beae126b165ce3d930e7bd8a9008db6a6891ea18bc8a8c951b73219",
+    "environment_before": "environment-before.json",
+    "environment_after": "environment-after.json"
+  },
+  "limitation": "This is a dated negative run receipt, not evidence of current accessibility conformance or external certification."
+}

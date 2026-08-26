@@ -174,10 +174,7 @@ const admittedVerifierSchema = z
     content_digest: z.string(),
     provenance_ref: z.string(),
     provenance_digest: z.string(),
-    establishment_class: z.enum([
-      "recomputed",
-      "independently_reconciled",
-    ]),
+    establishment_class: z.enum(["recomputed", "independently_reconciled"]),
   })
   .strict();
 
@@ -355,9 +352,7 @@ export const claimPostureRegisterSchema = z
   .object({
     schema_version: z.literal("policyos.trust.claim_posture_register.v1"),
     rule_version: z.literal("policyos.trust.claim_posture_rules.v3"),
-    slice_base_ref: z.literal(
-      "f935e0c2e9359bc1202ce5d36ea706de58f7aaab",
-    ),
+    slice_base_ref: z.literal("f935e0c2e9359bc1202ce5d36ea706de58f7aaab"),
     register_as_of: isoDateSchema,
     admitted_sources: z.array(admittedSourceMemberSchema),
     source_set_digest: z.string(),
@@ -374,9 +369,622 @@ export const claimPostureRegisterSchema = z
   })
   .strict();
 
-export type ClaimPostureAudience = z.infer<
-  typeof claimPostureAudienceSchema
->;
+export type ClaimPostureAudience = z.infer<typeof claimPostureAudienceSchema>;
 export type ClaimPostureRegister = z.infer<typeof claimPostureRegisterSchema>;
 export type ClaimPostureRow = ClaimPostureRegister["claims"][number];
 export type ClaimSourceBinding = ClaimPostureRow["source_bindings"][number];
+
+const REQUIRED_SUPPORT_PREDICATES = [
+  "content_bound_source",
+  "purpose_permission",
+  "accountable_owner",
+  "applicable_jurisdiction",
+  "current_review",
+  "content_bound_evidence",
+  "identity_boundary",
+  "no_blocker",
+] as const;
+
+const POSITIVE_ESTABLISHMENT_CLASSES = new Set([
+  "recomputed",
+  "independently_reconciled",
+]);
+
+const CLOSED_PROJECTION_GROUPS = [
+  "accessibility",
+  "custody",
+  "evidence_envelope",
+  "limitations",
+  "methodology",
+] as const;
+
+type AdmittedVerifier = ClaimPostureRegister["admitted_verifiers"][number];
+type EstablishmentClass = ClaimSourceBinding["jurisdiction_establishment"];
+type ProjectionGroup = ClaimPostureRegister["projection_groups"][number];
+
+function pythonString(value: string, ensureAscii: boolean): string {
+  const encoded = JSON.stringify(value);
+  if (!ensureAscii) return encoded;
+  return encoded.replace(
+    /[\u007f-\uffff]/g,
+    (character) =>
+      `\\u${character.charCodeAt(0).toString(16).padStart(4, "0")}`,
+  );
+}
+
+function pythonFloat(value: number): string {
+  if (!Number.isFinite(value)) {
+    throw new TypeError("non-finite numbers are not canonical JSON");
+  }
+  if (Object.is(value, -0)) return "-0.0";
+  const magnitude = Math.abs(value);
+  if (magnitude !== 0 && (magnitude < 1e-4 || magnitude >= 1e16)) {
+    const [mantissa, exponent = "0"] = value.toExponential().split("e");
+    const sign = exponent.startsWith("-") ? "-" : "+";
+    const digits = exponent.replace(/^[+-]/u, "").padStart(2, "0");
+    return `${mantissa}e${sign}${digits}`;
+  }
+  return Number.isInteger(value) ? `${value}.0` : value.toString();
+}
+
+function pythonJson(
+  value: unknown,
+  options: Readonly<{
+    ensureAscii: boolean;
+    sortKeys: boolean;
+    floatField?: string;
+  }>,
+  fieldName?: string,
+): string {
+  if (value === null) return "null";
+  if (typeof value === "boolean") return value ? "true" : "false";
+  if (typeof value === "string")
+    return pythonString(value, options.ensureAscii);
+  if (typeof value === "number") {
+    return fieldName === options.floatField
+      ? pythonFloat(value)
+      : JSON.stringify(value);
+  }
+  if (Array.isArray(value)) {
+    return `[${value.map((item) => pythonJson(item, options)).join(",")}]`;
+  }
+  if (typeof value === "object") {
+    const record = value as Record<string, unknown>;
+    const keys = Object.keys(record);
+    if (options.sortKeys) keys.sort();
+    return `{${keys
+      .map(
+        (key) =>
+          `${pythonString(key, options.ensureAscii)}:${pythonJson(
+            record[key],
+            options,
+            key,
+          )}`,
+      )
+      .join(",")}}`;
+  }
+  throw new TypeError("unsupported canonical JSON value");
+}
+
+async function sha256(value: string): Promise<string> {
+  const subtle = globalThis.crypto?.subtle;
+  if (!subtle) throw new TypeError("Web Crypto digest is unavailable");
+  const digest = await subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return `sha256:${[...new Uint8Array(digest)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("")}`;
+}
+
+async function sourceSetDigest(
+  register: ClaimPostureRegister,
+): Promise<string> {
+  const members = register.admitted_sources.map((member) => [
+    member.path,
+    member.content_digest,
+  ]);
+  return sha256(pythonJson(members, { ensureAscii: false, sortKeys: false }));
+}
+
+async function payloadDigest(register: ClaimPostureRegister): Promise<string> {
+  const { payload_digest: _payloadDigest, ...payload } = register;
+  return sha256(
+    pythonJson(payload, {
+      ensureAscii: false,
+      floatField: "duration_ms",
+      sortKeys: true,
+    }),
+  );
+}
+
+function isSortedUnique(values: readonly string[]): boolean {
+  return values.every(
+    (value, index) =>
+      (index === 0 || values[index - 1]! < value) &&
+      values.indexOf(value) === index,
+  );
+}
+
+function sameStrings(
+  left: readonly string[],
+  right: readonly string[],
+): boolean {
+  return (
+    left.length === right.length &&
+    left.every((value, index) => value === right[index])
+  );
+}
+
+function sameStringSet(
+  left: readonly string[],
+  right: readonly string[],
+): boolean {
+  return (
+    new Set(left).size === new Set(right).size &&
+    [...new Set(left)].every((value) => new Set(right).has(value))
+  );
+}
+
+function positiveEstablishment(value: EstablishmentClass): boolean {
+  return POSITIVE_ESTABLISHMENT_CLASSES.has(value);
+}
+
+function validateSourceBinding(binding: ClaimSourceBinding): boolean {
+  if (
+    binding.resolution === "resolved"
+      ? !binding.subject
+      : binding.subject !== null
+  ) {
+    return false;
+  }
+  if (
+    binding.review_on !== null &&
+    binding.review_due !== null &&
+    binding.review_due < binding.review_on
+  ) {
+    return false;
+  }
+  if (
+    (binding.supersedes_ref !== null) !==
+    (binding.superseded_by_ref !== null)
+  ) {
+    return false;
+  }
+  const predicateKinds = binding.predicates.map((predicate) => predicate.kind);
+  if (
+    !sameStringSet(predicateKinds, REQUIRED_SUPPORT_PREDICATES) ||
+    predicateKinds.length !== new Set(predicateKinds).size
+  ) {
+    return false;
+  }
+  return sameStringSet(
+    binding.evidence_refs,
+    binding.evidence_bindings.map((evidence) => evidence.ref),
+  );
+}
+
+async function admittedVerifier(
+  values: Readonly<{
+    ref: string;
+    verifierKind: AdmittedVerifier["verifier_kind"];
+    contentRef: string;
+    contentDigest: string;
+    provenanceParts: readonly string[];
+    establishmentClass: AdmittedVerifier["establishment_class"];
+  }>,
+): Promise<AdmittedVerifier> {
+  const provenanceDigest = await sha256(
+    pythonJson(values.provenanceParts, {
+      ensureAscii: true,
+      sortKeys: false,
+    }),
+  );
+  return {
+    ref: values.ref,
+    verifier_kind: values.verifierKind,
+    content_ref: values.contentRef,
+    content_digest: values.contentDigest,
+    provenance_ref: `provenance:${values.verifierKind}:${provenanceDigest}`,
+    provenance_digest: provenanceDigest,
+    establishment_class: values.establishmentClass,
+  };
+}
+
+async function deriveAdmittedVerifiers(
+  register: ClaimPostureRegister,
+): Promise<AdmittedVerifier[]> {
+  const identity = register.identity_boundary;
+  const values: AdmittedVerifier[] = [
+    await admittedVerifier({
+      ref: "verifier:identity-boundary:dual-derivation",
+      verifierKind: "identity_boundary_derivation",
+      contentRef: identity.path,
+      contentDigest: identity.content_digest,
+      provenanceParts: [
+        identity.frontmatter_digest,
+        identity.identity_statement_digest,
+        identity.paragraph_digest,
+        ...identity.derivation_receipt_digests,
+      ],
+      establishmentClass: "independently_reconciled",
+    }),
+  ];
+  const accessibility = register.accessibility_document;
+  if (accessibility !== null) {
+    values.push(
+      await admittedVerifier({
+        ref: "verifier:accessibility-document:selector-resolution",
+        verifierKind: "accessibility_document_derivation",
+        contentRef: accessibility.path,
+        contentDigest: accessibility.content_digest,
+        provenanceParts: [
+          accessibility.frontmatter_digest,
+          accessibility.body_digest,
+          ...accessibility.bindings.map((binding) => binding.exact_text_digest),
+        ],
+        establishmentClass: "recomputed",
+      }),
+    );
+  }
+  const pageReceipt = register.page_a11y_receipt;
+  if (pageReceipt !== null) {
+    values.push(
+      await admittedVerifier({
+        ref: "verifier:page-a11y-receipt:raw-recomputation",
+        verifierKind: "page_a11y_receipt_derivation",
+        contentRef: `${pageReceipt.path}/receipt.json`,
+        contentDigest: pageReceipt.content_digest,
+        provenanceParts: pageReceipt.admitted_sources.map(
+          (member) => member.content_digest,
+        ),
+        establishmentClass: "recomputed",
+      }),
+    );
+  }
+  return values.sort((left, right) =>
+    left.ref < right.ref ? -1 : left.ref > right.ref ? 1 : 0,
+  );
+}
+
+function sameVerifier(
+  left: AdmittedVerifier,
+  right: AdmittedVerifier,
+): boolean {
+  return (
+    left.ref === right.ref &&
+    left.verifier_kind === right.verifier_kind &&
+    left.content_ref === right.content_ref &&
+    left.content_digest === right.content_digest &&
+    left.provenance_ref === right.provenance_ref &&
+    left.provenance_digest === right.provenance_digest &&
+    left.establishment_class === right.establishment_class
+  );
+}
+
+function bindingFacts(
+  binding: ClaimSourceBinding,
+  register: ClaimPostureRegister,
+): Readonly<
+  Record<
+    (typeof REQUIRED_SUPPORT_PREDICATES)[number],
+    readonly [boolean, string]
+  >
+> {
+  const admitted = new Map(
+    register.admitted_sources.map((member) => [
+      member.path,
+      member.content_digest,
+    ]),
+  );
+  const verifiers = new Map(
+    register.admitted_verifiers.map((verifier) => [verifier.ref, verifier]),
+  );
+  const evidenceValid =
+    binding.evidence_bindings.length > 0 &&
+    binding.evidence_bindings.every((evidence) => {
+      const verifier = verifiers.get(evidence.verifier_ref);
+      return (
+        binding.evidence_refs.includes(evidence.ref) &&
+        binding.subject !== null &&
+        evidence.subject_binding === binding.subject &&
+        admitted.get(evidence.ref) === evidence.content_digest &&
+        verifier !== undefined &&
+        verifier.content_ref === evidence.ref &&
+        verifier.content_digest === evidence.content_digest &&
+        verifier.provenance_ref === evidence.verifier_provenance_ref &&
+        positiveEstablishment(verifier.establishment_class) &&
+        positiveEstablishment(evidence.establishment_class) &&
+        evidence.source_as_of <= register.register_as_of &&
+        evidence.supersession_ref === null
+      );
+    });
+  const identity = register.identity_boundary;
+  const identityValid =
+    binding.identity_boundary_ref === identity.path &&
+    admitted.get(identity.path) === identity.content_digest;
+  return {
+    content_bound_source: [
+      admitted.get(binding.coordinate.path) === binding.content_digest &&
+        binding.resolution === "resolved",
+      "DS11-SOURCE-CONTENT-NOT-BOUND",
+    ],
+    purpose_permission: [
+      binding.subject !== null &&
+        binding.authority_purpose !== null &&
+        binding.authoritative_for.includes(binding.authority_purpose) &&
+        !binding.may_not_use_for.includes(binding.authority_purpose),
+      "DS11-AUTHORITY-PURPOSE-DENIED",
+    ],
+    accountable_owner: [
+      Boolean(binding.owner.owner) &&
+        Boolean(binding.owner.source_ref) &&
+        positiveEstablishment(binding.owner.establishment_class),
+      "DS11-OWNER-NOT-ESTABLISHED",
+    ],
+    applicable_jurisdiction: [
+      Boolean(binding.jurisdiction) &&
+        positiveEstablishment(binding.jurisdiction_establishment),
+      "DS11-JURISDICTION-NOT-ESTABLISHED",
+    ],
+    current_review: [
+      binding.review_on !== null &&
+        binding.review_due !== null &&
+        binding.review_on <= register.register_as_of &&
+        register.register_as_of <= binding.review_due,
+      "DS11-REVIEW-MISSING-OR-STALE",
+    ],
+    content_bound_evidence: [
+      evidenceValid,
+      "DS11-EVIDENCE-NOT-INDEPENDENTLY-BOUND",
+    ],
+    identity_boundary: [
+      identityValid,
+      "DS11-IDENTITY-BOUNDARY-NOT-ESTABLISHED",
+    ],
+    no_blocker: [
+      binding.resolution === "resolved" &&
+        binding.source_state === "supported" &&
+        binding.declared_scope_assumption === null &&
+        binding.superseded_by_ref === null,
+      "DS11-SOURCE-BLOCKER-PRESENT",
+    ],
+  };
+}
+
+function composedState(
+  bindings: readonly ClaimSourceBinding[],
+  family: string,
+): ClaimPostureRow["effective_state"] {
+  const states = bindings.map((binding) => binding.source_state);
+  if (
+    states.length === 0 ||
+    states.some((state) =>
+      ["blocked", "candidate", "not_established"].includes(state),
+    )
+  ) {
+    return "blocked";
+  }
+  if (states.includes("planned")) {
+    return bindings.some((binding) => binding.owner.owner) &&
+      bindings.some((binding) => binding.closure_signal)
+      ? "planned"
+      : "blocked";
+  }
+  const predicates = bindings[0]?.predicates ?? [];
+  const kinds = predicates.map((predicate) => predicate.kind);
+  if (
+    kinds.length !== new Set(kinds).size ||
+    !sameStringSet(kinds, REQUIRED_SUPPORT_PREDICATES) ||
+    predicates.some(
+      (predicate) =>
+        !predicate.satisfied ||
+        !positiveEstablishment(predicate.establishment_class),
+    ) ||
+    family === "grounded_performance"
+  ) {
+    return "blocked";
+  }
+  return "supported";
+}
+
+function evaluateClaim(
+  row: ClaimPostureRow,
+  register: ClaimPostureRegister,
+): Readonly<{
+  state: ClaimPostureRow["effective_state"];
+  blockers: string[];
+  limitations: string[];
+}> {
+  const blockers = new Set<string>();
+  const limitations = new Set<string>();
+  for (const binding of row.source_bindings) {
+    if (binding.declared_scope_assumption !== null) {
+      limitations.add(
+        `Declared scope assumption: ${binding.declared_scope_assumption}`,
+      );
+      blockers.add("DS11-GATE-PREDICATE-NOT-ESTABLISHED");
+    }
+    binding.limitation_refs.forEach((limitation) =>
+      limitations.add(limitation),
+    );
+    if (binding.resolution === "runtime_bound") {
+      blockers.add("DS11-SOURCE-RUNTIME-BOUND");
+    } else if (binding.resolution === "ambiguous") {
+      blockers.add("DS11-SOURCE-DERIVATION-DISAGREEMENT");
+    }
+    if (
+      row.subject !== null &&
+      (binding.authority_purpose === null ||
+        !binding.authoritative_for.includes(binding.authority_purpose) ||
+        binding.may_not_use_for.includes(binding.authority_purpose))
+    ) {
+      blockers.add("DS11-AUTHORITY-PURPOSE-DENIED");
+    }
+    const predicates = new Map(
+      binding.predicates.map((predicate) => [predicate.kind, predicate]),
+    );
+    if (!sameStringSet([...predicates.keys()], REQUIRED_SUPPORT_PREDICATES)) {
+      blockers.add("DS11-GATE-PREDICATE-SET-INCOMPLETE");
+    }
+    const facts = bindingFacts(binding, register);
+    const requiredFacts =
+      binding.source_state === "planned"
+        ? REQUIRED_SUPPORT_PREDICATES.filter((kind) => kind !== "no_blocker")
+        : REQUIRED_SUPPORT_PREDICATES;
+    for (const kind of requiredFacts) {
+      const predicate = predicates.get(kind);
+      const [fact, issueCode] = facts[kind];
+      if (
+        predicate === undefined ||
+        !predicate.satisfied ||
+        !fact ||
+        !positiveEstablishment(predicate.establishment_class)
+      ) {
+        blockers.add(predicate?.issue_code ?? issueCode);
+      }
+    }
+  }
+  return {
+    state:
+      blockers.size > 0
+        ? "blocked"
+        : composedState(row.source_bindings, row.family),
+    blockers: [...blockers].sort(),
+    limitations: [...limitations].sort(),
+  };
+}
+
+function deriveProjectionGroups(
+  claims: readonly ClaimPostureRow[],
+): ProjectionGroup[] {
+  const grouped = new Map<string, Set<string>>(
+    CLOSED_PROJECTION_GROUPS.map((groupId) => [groupId, new Set()]),
+  );
+  for (const row of claims) {
+    const primaryGroup =
+      row.family === "accessibility"
+        ? "accessibility"
+        : row.family === "custody"
+          ? "custody"
+          : row.family === "grounded_performance"
+            ? "evidence_envelope"
+            : "methodology";
+    grouped.get(primaryGroup)!.add(row.claim_id);
+    if (
+      row.effective_state !== "supported" ||
+      row.blocker_codes.length > 0 ||
+      row.limitations.length > 0
+    ) {
+      grouped.get("limitations")!.add(row.claim_id);
+    }
+  }
+  return CLOSED_PROJECTION_GROUPS.map((groupId) => ({
+    group_id: groupId,
+    claim_ids: [...grouped.get(groupId)!].sort(),
+  }));
+}
+
+function sameProjectionGroups(
+  left: readonly ProjectionGroup[],
+  right: readonly ProjectionGroup[],
+): boolean {
+  return (
+    left.length === right.length &&
+    left.every(
+      (group, index) =>
+        group.group_id === right[index]?.group_id &&
+        sameStrings(group.claim_ids, right[index]?.claim_ids ?? []),
+    )
+  );
+}
+
+/** Replay every canonical v3 root invariant after structural parsing. */
+export async function validateClaimPostureRegisterSemantics(
+  register: ClaimPostureRegister,
+): Promise<boolean> {
+  try {
+    const admittedPaths = register.admitted_sources.map(
+      (member) => member.path,
+    );
+    const inventoryPaths = register.source_inventory.map((row) => row.path);
+    const claimIds = register.claims.map((row) => row.claim_id);
+    if (
+      !isSortedUnique(admittedPaths) ||
+      !isSortedUnique(inventoryPaths) ||
+      !isSortedUnique(claimIds) ||
+      !sameStrings(
+        register.projection_groups.map((group) => group.group_id),
+        CLOSED_PROJECTION_GROUPS,
+      )
+    ) {
+      return false;
+    }
+    if ((await sourceSetDigest(register)) !== register.source_set_digest) {
+      return false;
+    }
+    const admitted = new Map(
+      register.admitted_sources.map((member) => [
+        member.path,
+        member.content_digest,
+      ]),
+    );
+    if (
+      admitted.get(register.identity_boundary.path) !==
+      register.identity_boundary.content_digest
+    ) {
+      return false;
+    }
+    const expectedVerifiers = await deriveAdmittedVerifiers(register);
+    if (
+      register.admitted_verifiers.length !== expectedVerifiers.length ||
+      register.admitted_verifiers.some(
+        (verifier, index) => !sameVerifier(verifier, expectedVerifiers[index]!),
+      ) ||
+      register.admitted_verifiers.some(
+        (verifier) =>
+          admitted.get(verifier.content_ref) !== verifier.content_digest,
+      )
+    ) {
+      return false;
+    }
+    for (const row of register.claims) {
+      if (
+        row.source_bindings.some((binding) => !validateSourceBinding(binding))
+      ) {
+        return false;
+      }
+      const evaluated = evaluateClaim(row, register);
+      if (
+        row.effective_state !== evaluated.state ||
+        !sameStrings(row.blocker_codes, evaluated.blockers) ||
+        !sameStrings(row.limitations, evaluated.limitations)
+      ) {
+        return false;
+      }
+    }
+    if (
+      !sameProjectionGroups(
+        register.projection_groups,
+        deriveProjectionGroups(register.claims),
+      )
+    ) {
+      return false;
+    }
+    return (await payloadDigest(register)) === register.payload_digest;
+  } catch {
+    return false;
+  }
+}
+
+/** Structurally and semantically admit one untrusted posture candidate. */
+export async function admitClaimPostureRegister(
+  candidate: unknown,
+): Promise<ClaimPostureRegister | null> {
+  const parsed = claimPostureRegisterSchema.safeParse(candidate);
+  if (!parsed.success) return null;
+  return (await validateClaimPostureRegisterSemantics(parsed.data))
+    ? parsed.data
+    : null;
+}

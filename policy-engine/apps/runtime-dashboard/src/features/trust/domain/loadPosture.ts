@@ -1,5 +1,5 @@
 import {
-  claimPostureRegisterSchema,
+  admitClaimPostureRegister,
   type ClaimPostureRegister,
 } from "./posture";
 
@@ -68,13 +68,13 @@ export async function loadPosture(
   } catch {
     return { status: "unavailable", reason: "invalid_artifact" };
   }
-  const admitted = claimPostureRegisterSchema.safeParse(candidate);
-  if (!admitted.success) {
+  const admitted = await admitClaimPostureRegister(candidate);
+  if (admitted === null) {
     return { status: "unavailable", reason: "invalid_artifact" };
   }
   return {
     status: "available",
-    register: admitted.data,
+    register: admitted,
     rawBytes: capturedBytes,
   };
 }

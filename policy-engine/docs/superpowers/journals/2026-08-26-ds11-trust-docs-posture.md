@@ -495,3 +495,40 @@ provenance remained valid while its self-supplied subject was relabeled to
   slice-wide closure remains `verification_missing` until the owned C04–C06
   repair/corruption/closeout work lands. The custody watcher itself remains
   bridge-missing and is rendered only as the artifact's planned claim.
+
+### C03 review repair round 1 — semantic admission and visible DOM truth
+
+- P40 bucket: the findings narrow existing C03 P29/P32/P38/P35 mechanisms one
+  level deeper; they are not a new capability class, path, or widening round.
+- Repair RED ran the domain, full-DOM, and free-growth tests against
+  `e0eea3143`: 8 intended failures exposed shape-only admission, claim values
+  supplied by `data-*`, CSS-hidden content acceptance, and the six-row sampled
+  denominator. Exit `1`; `real 5.62`, `user 14.44`, `sys 1.33`; uptime `01:12`
+  before/after, up 2d15:25.
+- The browser admission seam now awaits strict Zod parsing plus a generic
+  replay of the canonical Pydantic v3 root calculus: ordering/uniqueness,
+  source-binding semantics, admitted-source and verifier/evidence binding,
+  effective posture, closed projection membership, and Python-compatible
+  `source_set_digest`/`payload_digest` SHA-256 serialization. Missing Web
+  Crypto fails unavailable.
+- Review caught and removed an intermediate `sr-only` JSON shadow-value seam
+  before final GREEN. The decoder now takes claim-bearing values from the
+  actually presented heading, state, date, source, blocker, and limitation
+  text. `data-null` only marks null type. `aria-hidden`, `hidden`, CSS
+  `display:none`, and CSS `visibility:hidden` on decoded elements or ancestors
+  fail closed.
+- The independent DOM test renders, decodes, and compares all 342 committed
+  PUBLIC rows, asserts the independently counted total and known
+  `system_identity` member, then falsifies omission, reorder, visible claim ID,
+  subject, status, source path/symbol/review, and hidden limitation variants.
+  The admitted free-growth fixture now updates row evidence subjects, sorted
+  claim/group membership, both digests, and crosses the real loader seam.
+- Final repair wave: seven focused files, 58/58 pass, exit `0`, `real 14.01`,
+  `user 36.96`, `sys 3.00`; uptime `01:25` before/after, up 2d15:38 ->
+  2d15:39. App typecheck passes (`real 10.23`, `user 18.12`, `sys 0.48`;
+  uptime `01:26`, up 2d15:39 before/after). Dedicated route/a11y passes 3/3 (`real 2.82`,
+  `user 5.51`, `sys 0.82`; uptime `01:24` before/after). Exact visual list
+  remains one test in one file (`real 0.72`, `user 0.69`, `sys 0.07`).
+- Repair path audit is append-only within seven already-owned C03
+  mechanism/test paths plus this journal and the ignored report. Production
+  mechanism accounting remains exactly `18/34`; widening remains `7/9`.

@@ -15,7 +15,8 @@ const artifactValue = JSON.parse(
 async function readBlobBytes(blob: Blob): Promise<Uint8Array> {
   return new Promise<Uint8Array>((resolveBytes, reject) => {
     const reader = new FileReader();
-    reader.onerror = () => reject(reader.error ?? new Error("Blob read failed"));
+    reader.onerror = () =>
+      reject(reader.error ?? new Error("Blob read failed"));
     reader.onload = () =>
       resolveBytes(new Uint8Array(reader.result as ArrayBuffer));
     reader.readAsArrayBuffer(blob);
@@ -55,27 +56,28 @@ describe("trust posture MACHINE and DOM twins", () => {
       import("./trustPostureTwin"),
     ]);
     const register = domain.claimPostureRegisterSchema.parse(artifactValue);
-    const selectedClaims = register.claims.slice(0, 6);
-    const selectedIds = new Set(selectedClaims.map((claim) => claim.claim_id));
-    const sample = {
-      ...register,
-      claims: selectedClaims,
-      projection_groups: register.projection_groups.map((group) => ({
-        ...group,
-        claim_ids: group.claim_ids.filter((claimId) => selectedIds.has(claimId)),
-      })),
-    };
     const view = render(
       createElement(component.ClaimPostureRegister, {
         audience: "PUBLIC",
-        register: sample,
+        register,
       }),
     );
 
-    expect(twin.decodeTrustPostureDom(view.container)).toEqual(
-      twin.expectedTrustPostureTwin(sample),
+    const decoded = twin.decodeTrustPostureDom(view.container);
+    expect(decoded).toHaveLength(342);
+    expect(decoded).toContainEqual(
+      expect.objectContaining({
+        claimId:
+          "claim-posture:9a661b29488b699fbcbe59efcf760bcf43004682d727f6c3e7dad8c7b925b594",
+        subject: "system_identity",
+      }),
     );
-    expect(() => twin.assertTrustPostureDomParity(view.container, sample)).not.toThrow();
+    expect(twin.decodeTrustPostureDom(view.container)).toEqual(
+      twin.expectedTrustPostureTwin(register),
+    );
+    expect(() =>
+      twin.assertTrustPostureDomParity(view.container, register),
+    ).not.toThrow();
 
     const mutations: Array<(root: HTMLElement) => void> = [
       (root) => root.querySelector("[data-trust-claim-row]")?.remove(),
@@ -87,12 +89,55 @@ describe("trust posture MACHINE and DOM twins", () => {
       },
       (root) => {
         const state = root.querySelector("[data-trust-effective-state]");
-        if (state) state.textContent = "supported";
+        if (state) {
+          state.textContent =
+            state.textContent === "supported" ? "blocked" : "supported";
+        }
+      },
+      (root) => {
+        const subject = root.querySelector(
+          '[data-trust-subject][data-null="false"]',
+        );
+        if (subject) subject.textContent = "visible-subject-forgery";
+      },
+      (root) => {
+        const claimId = root.querySelector("[data-trust-claim-id]");
+        if (claimId) claimId.textContent = "claim-posture:visible-forgery";
+      },
+      (root) => {
+        const source = root.querySelector("[data-trust-source-path]");
+        if (source) source.textContent = "visible/source/forgery.ts";
+      },
+      (root) => {
+        const symbol = root.querySelector(
+          '[data-trust-source-symbol][data-null="false"]',
+        );
+        if (symbol) symbol.textContent = "visible-symbol-forgery";
+      },
+      (root) => {
+        const review = root.querySelector(
+          '[data-trust-review-on][data-null="false"]',
+        );
+        if (review) review.textContent = "2099-12-31";
       },
       (root) =>
         root
           .querySelector("[data-trust-limitation]")
           ?.setAttribute("aria-hidden", "true"),
+      (root) => {
+        const limitation = root.querySelector<HTMLElement>(
+          "[data-trust-limitation]",
+        );
+        if (limitation) limitation.style.display = "none";
+      },
+      (root) => {
+        const limitation = root.querySelector<HTMLElement>(
+          "[data-trust-limitation]",
+        );
+        if (limitation?.parentElement) {
+          limitation.parentElement.style.visibility = "hidden";
+        }
+      },
       (root) => root.querySelector("[data-trust-source]")?.remove(),
       (root) => root.querySelector("[data-trust-review-on]")?.remove(),
     ];
@@ -100,9 +145,9 @@ describe("trust posture MACHINE and DOM twins", () => {
     for (const mutate of mutations) {
       const root = view.container.cloneNode(true) as HTMLElement;
       mutate(root);
-      expect(() => twin.assertTrustPostureDomParity(root, sample)).toThrow(
+      expect(() => twin.assertTrustPostureDomParity(root, register)).toThrow(
         /DS11-DOM-PARITY-DRIFT/,
       );
     }
-  });
+  }, 30_000);
 });

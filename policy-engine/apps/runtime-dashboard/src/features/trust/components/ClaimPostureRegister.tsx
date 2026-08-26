@@ -12,18 +12,13 @@ type ClaimPostureRegisterProps = Readonly<{
   register: ClaimPostureRegisterArtifact;
 }>;
 
-function nullableAttributes(value: string | null) {
-  return {
-    "data-null": value === null ? "true" : "false",
-    "data-value": value ?? "",
-  };
+function nullableMarker(value: string | null) {
+  return { "data-null": value === null ? "true" : "false" };
 }
 
 function sourceLabel(row: ClaimPostureRow): string {
   const coordinate = row.source_bindings[0]?.coordinate;
-  return coordinate
-    ? `${coordinate.path}:${coordinate.line}`
-    : row.claim_id;
+  return coordinate ? `${coordinate.path}:${coordinate.line}` : row.claim_id;
 }
 
 /** Render artifact-owned posture rows without enumerating claim subjects. */
@@ -79,13 +74,16 @@ export function ClaimPostureRegister({
             <div data-trust-claim-bearing>
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
-                  <p className="font-mono text-[0.68rem] break-all text-[var(--slate)]">
+                  <p
+                    className="font-mono text-[0.68rem] break-all text-[var(--slate)]"
+                    data-trust-claim-id
+                  >
                     {row.claim_id}
                   </p>
                   <h3
                     className="mt-1 text-base font-semibold break-words text-[var(--ink)]"
                     data-trust-subject
-                    {...nullableAttributes(row.subject)}
+                    {...nullableMarker(row.subject)}
                   >
                     {row.subject ?? sourceLabel(row)}
                   </h3>
@@ -146,27 +144,23 @@ export function ClaimPostureRegister({
               <dl className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
                 <div>
                   <dt className="font-semibold">{t("trust.reviewOnLabel")}</dt>
-                  <dd
-                    data-trust-review-on
-                    {...nullableAttributes(row.review_on)}
-                  >
+                  <dd data-trust-review-on {...nullableMarker(row.review_on)}>
                     {row.review_on ?? t("trust.notEstablished")}
                   </dd>
                 </div>
                 <div>
                   <dt className="font-semibold">{t("trust.reviewDueLabel")}</dt>
-                  <dd
-                    data-trust-review-due
-                    {...nullableAttributes(row.review_due)}
-                  >
+                  <dd data-trust-review-due {...nullableMarker(row.review_due)}>
                     {row.review_due ?? t("trust.notEstablished")}
                   </dd>
                 </div>
                 <div>
-                  <dt className="font-semibold">{t("trust.sourceAsOfLabel")}</dt>
+                  <dt className="font-semibold">
+                    {t("trust.sourceAsOfLabel")}
+                  </dt>
                   <dd
                     data-trust-source-as-of
-                    {...nullableAttributes(row.source_as_of)}
+                    {...nullableMarker(row.source_as_of)}
                   >
                     {row.source_as_of ?? t("trust.notEstablished")}
                   </dd>
@@ -188,7 +182,10 @@ export function ClaimPostureRegister({
                         <span data-trust-source-path>
                           {binding.coordinate.path}
                         </span>
-                        :<span data-trust-source-line>{binding.coordinate.line}</span>
+                        :
+                        <span data-trust-source-line>
+                          {binding.coordinate.line}
+                        </span>
                         :
                         <span data-trust-source-column>
                           {binding.coordinate.column}
@@ -197,36 +194,50 @@ export function ClaimPostureRegister({
                       <p className="mt-1 text-[var(--slate)]">
                         <span
                           data-trust-source-symbol
-                          {...nullableAttributes(binding.coordinate.symbol)}
+                          {...nullableMarker(binding.coordinate.symbol)}
                         >
-                          {binding.coordinate.symbol ?? t("trust.notEstablished")}
+                          {binding.coordinate.symbol ??
+                            t("trust.notEstablished")}
                         </span>{" "}
-                        · <span data-trust-source-field>{binding.coordinate.field_name}</span>{" "}
-                        · <span data-trust-source-use>{binding.coordinate.use_kind}</span>{" "}
-                        · <span data-trust-source-resolution>{binding.resolution}</span>{" "}
-                        · <span data-trust-source-state>{binding.source_state}</span>
+                        ·{" "}
+                        <span data-trust-source-field>
+                          {binding.coordinate.field_name}
+                        </span>{" "}
+                        ·{" "}
+                        <span data-trust-source-use>
+                          {binding.coordinate.use_kind}
+                        </span>{" "}
+                        ·{" "}
+                        <span data-trust-source-resolution>
+                          {binding.resolution}
+                        </span>{" "}
+                        ·{" "}
+                        <span data-trust-source-state>
+                          {binding.source_state}
+                        </span>
                       </p>
-                      <span
-                        className="sr-only"
-                        data-trust-source-subject
-                        {...nullableAttributes(binding.subject)}
-                      >
-                        {binding.subject ?? t("trust.notEstablished")}
-                      </span>
-                      <span
-                        className="sr-only"
-                        data-trust-source-review-on
-                        {...nullableAttributes(binding.review_on)}
-                      >
-                        {binding.review_on ?? t("trust.notEstablished")}
-                      </span>
-                      <span
-                        className="sr-only"
-                        data-trust-source-review-due
-                        {...nullableAttributes(binding.review_due)}
-                      >
-                        {binding.review_due ?? t("trust.notEstablished")}
-                      </span>
+                      <p className="mt-1 text-[var(--slate)]">
+                        <span
+                          data-trust-source-subject
+                          {...nullableMarker(binding.subject)}
+                        >
+                          {binding.subject ?? t("trust.notEstablished")}
+                        </span>{" "}
+                        ·{" "}
+                        <span
+                          data-trust-source-review-on
+                          {...nullableMarker(binding.review_on)}
+                        >
+                          {binding.review_on ?? t("trust.notEstablished")}
+                        </span>{" "}
+                        ·{" "}
+                        <span
+                          data-trust-source-review-due
+                          {...nullableMarker(binding.review_due)}
+                        >
+                          {binding.review_due ?? t("trust.notEstablished")}
+                        </span>
+                      </p>
                     </li>
                   ))}
                 </ol>
@@ -234,7 +245,8 @@ export function ClaimPostureRegister({
             </div>
 
             <p className="mt-3 text-xs text-[var(--slate)]">
-              {t("trust.groupsLabel")}: {groupsByClaim.get(row.claim_id)?.join(", ") ?? ""}
+              {t("trust.groupsLabel")}:{" "}
+              {groupsByClaim.get(row.claim_id)?.join(", ") ?? ""}
             </p>
 
             {audience !== "PUBLIC" ? (

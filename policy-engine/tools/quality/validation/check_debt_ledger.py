@@ -4,9 +4,15 @@
 from __future__ import annotations
 
 import argparse
+import ast
+import hashlib
+import importlib.util
 import json
+import os
 import re
+import shlex
 import subprocess
+import sys
 from collections import Counter, namedtuple
 from collections.abc import Sequence
 from pathlib import Path
@@ -30,6 +36,10 @@ PUBLISHED_DENOMINATORS = {
 }
 INFORMATIONAL_FINDING_CODES = frozenset(
     {
+        "closure_signal_ast_collection_disagreement",
+        "closure_signal_collection_host_unknown",
+        "closure_signal_count_exit_disagreement",
+        "closure_signal_runner_unsupported",
         "register_supplies_missing_standing",
         "register_withholds_source_standing",
     }
@@ -70,6 +80,11 @@ AuditReport = namedtuple(
     "AuditReport",
     "findings blocking_findings informational_findings metrics ledger_text",
 )
+_AstReceipt = namedtuple("_AstReceipt", "path_exists found collection_safe detail")
+_CollectionReceipt = namedtuple(
+    "_CollectionReceipt", "collected_count returncode failure_kind detail"
+)
+_ParsedSelection = namedtuple("_ParsedSelection", "runner selector argv issue origin")
 
 
 def _cells(line: str) -> list[str]:
@@ -678,7 +693,470 @@ def _git_commit_is_ancestor(repo_root: Path, commit: str) -> bool | None:
     return None
 
 
-def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
+_PYTEST_IDENTITY_RE = re.compile(
+    r"(?<![\w./-])(?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.py"
+    r"(?:::[A-Za-z_][A-Za-z0-9_.\-\[\]]*)+"
+)
+_PYTEST_TARGET_RE = re.compile(r"(?:[A-Za-z0-9_.-]+/)+[A-Za-z0-9_.-]+\.py(?:::[^\s]+)*$")
+_PYTHON_EXE_RE = re.compile(r"python(?:\d+(?:\.\d+)*)?$")
+_PYTEST_IGNORED_FLAGS = frozenset({"-q", "--quiet", "-x", "--no-header", "--disable-warnings"})
+_PYTEST_SELECTED_COUNT_MARKER = "DEBT_CLOSURE_SIGNAL_SELECTED_COUNT="
+
+
+def _active_closure_signal(row: _DebtRow) -> str:
+    cells = _cells(row.raw)
+    signal = cells[-1] if cells else ""
+    superseded = signal.upper().find("**CLOSURE SIGNAL SUPERSEDED")
+    return signal[superseded:] if superseded >= 0 else signal
+
+
+def _pytest_command(tokens: list[str]) -> tuple[list[str] | None, str | None]:
+    if tokens[:3] == ["uv", "run", "pytest"]:
+        return tokens[3:], None
+    if (
+        len(tokens) >= 3
+        and _PYTHON_EXE_RE.fullmatch(Path(tokens[0]).name)
+        and tokens[1:3] == ["-m", "pytest"]
+    ):
+        return tokens[3:], None
+    if tokens and Path(tokens[0]).name in {"pytest", "py.test"}:
+        return tokens[1:], None
+    if "pytest" in tokens:
+        return None, "pytest wrapper grammar is unsupported"
+    return None, None
+
+
+def _bounded_pytest_args(tokens: list[str]) -> tuple[str | None, tuple[str, ...], str | None]:
+    target: str | None = None
+    selected: list[str] = []
+    index = 0
+    while index < len(tokens):
+        token = tokens[index]
+        if _PYTEST_TARGET_RE.fullmatch(token):
+            if target is not None:
+                return None, (), "multiple pytest targets are unsupported"
+            target = token
+            selected.append(token)
+        elif token in {"-k", "--keyword", "-m", "--markexpr"}:
+            if index + 1 >= len(tokens):
+                return None, (), f"{token} has no value"
+            selected.extend((token, tokens[index + 1]))
+            index += 1
+        elif token.startswith(("--keyword=", "--markexpr=")):
+            selected.append(token)
+        elif token in _PYTEST_IGNORED_FLAGS or re.fullmatch(r"-q+", token):
+            pass
+        else:
+            return None, (), f"pytest token is unsupported: {token}"
+        index += 1
+    if target is None:
+        return None, (), "pytest target is absent or unbounded"
+    return target, tuple(selected), None
+
+
+def _parsed_selections(row: _DebtRow) -> tuple[_ParsedSelection, ...]:
+    signal = _active_closure_signal(row)
+    parsed: list[_ParsedSelection] = []
+    covered: set[str] = set()
+    for command in re.findall(r"`([^`\n]+)`", signal):
+        try:
+            tokens = shlex.split(command)
+        except ValueError as exc:
+            if "pytest" in command or "vitest" in command:
+                parsed.append(_ParsedSelection("unknown", command, (), str(exc), "command"))
+            continue
+        if "vitest" in tokens:
+            target = next((token for token in tokens if ".test." in token), "<vitest>")
+            parsed.append(
+                _ParsedSelection(
+                    "vitest",
+                    target,
+                    (),
+                    "Vitest selection is unsupported by design; resolve this row manually",
+                    "command",
+                )
+            )
+            continue
+        command_args, wrapper_issue = _pytest_command(tokens)
+        if wrapper_issue:
+            parsed.append(_ParsedSelection("pytest", command, (), wrapper_issue, "command"))
+            continue
+        if command_args is None:
+            continue
+        target, argv, issue = _bounded_pytest_args(command_args)
+        parsed.append(_ParsedSelection("pytest", target or command, argv, issue, "command"))
+        if target and issue is None:
+            covered.add(target)
+    for identity in _PYTEST_IDENTITY_RE.findall(signal):
+        if identity not in covered:
+            parsed.append(
+                _ParsedSelection("pytest", identity, (identity,), None, "identity_without_command")
+            )
+    return tuple(dict.fromkeys(parsed))
+
+
+def _ast_selector_receipt(repo_root: Path, selector: str) -> _AstReceipt:
+    path_text, separator, node_text = selector.partition("::")
+    relative = Path(path_text)
+    if relative.is_absolute() or ".." in relative.parts:
+        return _AstReceipt(False, False, False, "target escapes the repository")
+    resolved_root = repo_root.resolve()
+    resolved_path = (repo_root / relative).resolve(strict=False)
+    try:
+        resolved_relative = resolved_path.relative_to(resolved_root)
+    except ValueError:
+        return _AstReceipt(False, False, False, "target resolves outside the repository")
+    supported_root = resolved_relative.parts[:1] in {("tests",), ("architecture",)}
+    supported_name = (
+        resolved_relative.name.startswith("test_") and resolved_relative.suffix == ".py"
+    )
+    if not supported_root or not supported_name:
+        return _AstReceipt(
+            False,
+            False,
+            False,
+            "target is outside the supported test roots or is not test_*.py",
+        )
+    path = repo_root / relative
+    if not path.is_file():
+        return _AstReceipt(False, False, True, "file absent")
+    try:
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=path_text)
+    except (OSError, SyntaxError, UnicodeError) as exc:
+        return _AstReceipt(True, None, True, f"AST unavailable: {type(exc).__name__}: {exc}")
+    if not separator:
+        found = any(
+            isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+            and node.name.startswith("test")
+            for node in ast.walk(tree)
+        )
+        return _AstReceipt(
+            True, found, True, "test definition present" if found else "no test definition"
+        )
+    body: Sequence[ast.stmt] = tree.body
+    parts = [part.split("[", 1)[0] for part in node_text.split("::")]
+    for offset, part in enumerate(parts):
+        match = next(
+            (
+                node
+                for node in body
+                if isinstance(node, (ast.ClassDef, ast.FunctionDef, ast.AsyncFunctionDef))
+                and node.name == part
+            ),
+            None,
+        )
+        if match is None:
+            return _AstReceipt(
+                True,
+                False,
+                True,
+                f"AST node absent at {'::'.join(parts[: offset + 1])}",
+            )
+        if offset < len(parts) - 1:
+            if not isinstance(match, ast.ClassDef):
+                return _AstReceipt(True, False, True, f"AST node is not a class: {part}")
+            body = match.body
+    return _AstReceipt(True, True, True, "AST node present")
+
+
+def _collected_count(output: str) -> int | None:
+    matches = re.findall(rf"{_PYTEST_SELECTED_COUNT_MARKER}(\d+)", output)
+    return int(matches[0]) if len(matches) == 1 else None
+
+
+def _legacy_collected_count(output: str) -> int | None:
+    patterns = (
+        r"\b(\d+)\s+selected\b",
+        r"\bcollected\s+(\d+)\s+items?\b",
+        r"\b(\d+)\s+tests?\s+collected\b",
+    )
+    for pattern in patterns:
+        matches = re.findall(pattern, output, flags=re.IGNORECASE)
+        if matches:
+            return int(matches[-1])
+    if re.search(r"\b(?:no tests (?:collected|ran)|collected 0 items?)\b", output, re.I):
+        return 0
+    return None
+
+
+def pytest_collection_finish(session: Any) -> None:
+    """Publish the post-deselection item count for bounded collection subprocesses."""
+    reporter = session.config.pluginmanager.get_plugin("terminalreporter")
+    try:
+        from _pytest.mark.structures import NOTSET
+    except ImportError:
+        message = "DEBT_CLOSURE_SIGNAL_SELECTED_COUNT_UNAVAILABLE=pytest-NOTSET"
+        if reporter is None:
+            print(message, flush=True)
+        else:
+            reporter.write_line(message)
+        return
+    resolving = 0
+    for item in session.items:
+        callspec = getattr(item, "callspec", None)
+        if callspec is not None and any(value is NOTSET for value in callspec.params.values()):
+            continue
+        if item.get_closest_marker("skip") is not None:
+            continue
+        if any(
+            not marker.args
+            and "condition" not in marker.kwargs
+            and marker.kwargs.get("run", True) is False
+            for marker in item.iter_markers("xfail")
+        ):
+            continue
+        # Conditional `skipif`/`xfail` markers are deliberately not evaluated
+        # here. Evaluating authored conditions would turn collection into a
+        # code-execution surface; runtime-conditional selection remains a
+        # declared bounded limitation.
+        resolving += 1
+    marker = f"{_PYTEST_SELECTED_COUNT_MARKER}{resolving}"
+    if reporter is None:
+        print(marker, flush=True)
+    else:
+        reporter.write_line(marker)
+
+
+def _repository_import_roots(repo_root: Path) -> frozenset[str]:
+    roots: set[str] = set()
+    for import_base in (repo_root, repo_root / "src"):
+        try:
+            children = tuple(import_base.iterdir())
+        except OSError:
+            continue
+        for child in children:
+            name = child.stem if child.is_file() and child.suffix == ".py" else child.name
+            if name.isidentifier() and (child.is_dir() or child.suffix == ".py"):
+                roots.add(name)
+    return frozenset(roots)
+
+
+def _external_import_is_host_unknown(repo_root: Path, output: str) -> bool:
+    matches = re.findall(r"ModuleNotFoundError: No module named ['\"]([^'\"]+)", output)
+    if not matches:
+        return False
+    top = matches[-1].split(".", 1)[0]
+    # Python import names are not derivable from distribution names (`sklearn`
+    # versus `scikit-learn`), and lock identity alone does not prove a venv was
+    # fully synchronized. Derive repository roots from the two paths actually
+    # placed on PYTHONPATH; only a missing root outside that complete set is a
+    # declared host unknown.
+    return top not in _repository_import_roots(repo_root)
+
+
+def _collection_environment_issue(repo_root: Path) -> str | None:
+    repo_lock = repo_root / "uv.lock"
+    prefix = Path(sys.prefix).resolve()
+    environment_lock = prefix.parent / "uv.lock" if prefix.name == ".venv" else None
+    if not repo_lock.is_file():
+        return "repository uv.lock is absent"
+    if environment_lock is None or not environment_lock.is_file():
+        return "collector environment is not bound to a project uv.lock"
+    try:
+        repo_digest = hashlib.sha256(repo_lock.read_bytes()).digest()
+        environment_digest = hashlib.sha256(environment_lock.read_bytes()).digest()
+    except OSError as exc:
+        return f"collector lock identity unreadable: {exc}"
+    if repo_digest != environment_digest:
+        return "collector environment uv.lock differs from the audited repository"
+    return None
+
+
+def _collect_pytest_selection(repo_root: Path, argv: tuple[str, ...]) -> _CollectionReceipt:
+    try:
+        pytest_available = importlib.util.find_spec("pytest") is not None
+    except (ImportError, ValueError):
+        pytest_available = False
+    if not pytest_available:
+        return _CollectionReceipt(None, None, "host_unknown", "pytest is unavailable")
+    if environment_issue := _collection_environment_issue(repo_root):
+        return _CollectionReceipt(None, None, "host_unknown", environment_issue)
+    env = os.environ.copy()
+    source_paths = (str(repo_root / "src"), str(repo_root))
+    inherited = env.get("PYTHONPATH")
+    env["PYTHONPATH"] = os.pathsep.join((*source_paths, inherited) if inherited else source_paths)
+    env["PYTHONDONTWRITEBYTECODE"] = "1"
+    env["PYTEST_ADDOPTS"] = ""
+    command = (
+        sys.executable,
+        "-m",
+        "pytest",
+        "--collect-only",
+        "-p",
+        "no:cacheprovider",
+        "-p",
+        "tools.quality.validation.check_debt_ledger",
+        "--color=no",
+        *argv,
+    )
+    try:
+        result = subprocess.run(
+            command,
+            cwd=repo_root,
+            capture_output=True,
+            text=True,
+            env=env,
+            check=False,
+        )
+    except OSError as exc:
+        return _CollectionReceipt(None, None, "host_unknown", f"collector unavailable: {exc}")
+    output = "\n".join((result.stdout, result.stderr)).strip()
+    count = _collected_count(output)
+    marker_count = len(re.findall(rf"{_PYTEST_SELECTED_COUNT_MARKER}\d+", output))
+    legacy_count = _legacy_collected_count(output)
+    tail = " | ".join(line.strip() for line in output.splitlines()[-3:] if line.strip())
+    detail = tail[:600] or "collector emitted no diagnostic"
+    if marker_count != 1:
+        marker_issue = (
+            "trusted selected-count marker absent"
+            if marker_count == 0
+            else f"trusted selected-count marker duplicated ({marker_count})"
+        )
+        detail = f"{marker_issue}; legacy_count={legacy_count}; {detail}"
+    collection_error = (
+        bool(re.search(r"(?m)^ERROR collecting\s", output))
+        or "ImportError while loading conftest" in output
+        or "ConftestImportFailure" in output
+        or any(
+            re.search(r"\b\d+\s+errors?(?:,|\s+in\s+\d)", line, flags=re.IGNORECASE)
+            and "collected" in line.lower()
+            for line in output.splitlines()
+        )
+    )
+    if result.returncode < 0:
+        failure_kind = "host_unknown"
+        detail = f"collector terminated by signal {-result.returncode}; {detail}"
+    elif collection_error:
+        failure_kind = (
+            "host_unknown"
+            if _external_import_is_host_unknown(repo_root, output)
+            else "collection_failed"
+        )
+    elif result.returncode in {0, 4, 5}:
+        failure_kind = None
+    elif _external_import_is_host_unknown(repo_root, output):
+        failure_kind = "host_unknown"
+    else:
+        failure_kind = "collection_failed"
+    if count is None and failure_kind is None:
+        failure_kind = "host_unknown"
+        detail = f"collected item count unreadable; {detail}"
+    return _CollectionReceipt(count, result.returncode, failure_kind, detail)
+
+
+def _exit_collection_reading(returncode: int | None) -> str:
+    return {
+        0: "selects>=1",
+        4: "unresolvable",
+        5: "selects=0",
+        2: "collection_failed",
+        3: "collection_failed",
+    }.get(returncode, "host_unknown" if returncode is None else "collection_failed")
+
+
+def _closure_signal_findings(
+    repo_root: Path,
+    rows: Sequence[_DebtRow],
+    collection_receipts: dict[tuple[Path, tuple[str, ...]], _CollectionReceipt] | None = None,
+) -> tuple[list[Finding], Counter[str]]:
+    findings: list[Finding] = []
+    metrics: Counter[str] = Counter()
+    for row in rows:
+        for selection in _parsed_selections(row):
+            metrics[f"runner_{selection.runner}"] += 1
+            metrics[f"origin_{selection.origin}"] += 1
+            if selection.issue:
+                code = (
+                    "closure_signal_runner_unsupported"
+                    if selection.runner == "vitest"
+                    else "closure_signal_input_unresolvable"
+                )
+                findings.append(
+                    Finding(
+                        code,
+                        f"{row.debt_id}: {selection.selector}; {selection.issue}",
+                    )
+                )
+                continue
+            ast_receipt = _ast_selector_receipt(repo_root, selection.selector)
+            if not ast_receipt.collection_safe:
+                findings.append(
+                    Finding(
+                        "closure_signal_identity_unresolvable",
+                        f"{row.debt_id}: {selection.selector}; ast={ast_receipt.detail}; "
+                        "collected=not-run; exit=not-run",
+                    )
+                )
+                continue
+            cache_key = (repo_root, selection.argv)
+            if collection_receipts is not None and cache_key in collection_receipts:
+                receipt = collection_receipts[cache_key]
+            else:
+                receipt = _collect_pytest_selection(repo_root, selection.argv)
+                if collection_receipts is not None:
+                    collection_receipts[cache_key] = receipt
+            base = (
+                f"{row.debt_id}: {selection.selector}; ast={ast_receipt.found}; "
+                f"collected={receipt.collected_count}; exit={receipt.returncode}"
+            )
+            if receipt.collected_count is not None:
+                count_reading = "selects>=1" if receipt.collected_count >= 1 else "selects=0"
+                exit_reading = _exit_collection_reading(receipt.returncode)
+                if count_reading != exit_reading:
+                    findings.append(
+                        Finding(
+                            "closure_signal_count_exit_disagreement",
+                            f"{base}; count={count_reading}; exit={exit_reading}",
+                        )
+                    )
+                if ast_receipt.found is not None and ast_receipt.found != (
+                    receipt.collected_count >= 1
+                ):
+                    findings.append(
+                        Finding(
+                            "closure_signal_ast_collection_disagreement",
+                            f"{base}; ast_detail={ast_receipt.detail}",
+                        )
+                    )
+            if receipt.failure_kind == "host_unknown":
+                findings.append(
+                    Finding(
+                        "closure_signal_collection_host_unknown",
+                        f"{base}; {receipt.detail}",
+                    )
+                )
+                continue
+            if receipt.failure_kind == "collection_failed":
+                findings.append(
+                    Finding(
+                        "closure_signal_collection_failed",
+                        f"{base}; {receipt.detail}",
+                    )
+                )
+                continue
+            if receipt.collected_count is None:
+                findings.append(
+                    Finding(
+                        "closure_signal_collection_host_unknown",
+                        f"{base}; collected count unavailable; {receipt.detail}",
+                    )
+                )
+            elif receipt.collected_count == 0:
+                code = (
+                    "closure_signal_identity_unresolvable"
+                    if not ast_receipt.path_exists or ast_receipt.found is False
+                    else "closure_signal_selects_nothing"
+                )
+                findings.append(Finding(code, f"{base}; {receipt.detail}"))
+    metrics.update(finding.code for finding in findings)
+    return findings, metrics
+
+
+def audit_repository(
+    repo_root: Path = REPO_ROOT,
+    *,
+    _collection_receipts: dict[tuple[Path, tuple[str, ...]], _CollectionReceipt] | None = None,
+) -> AuditReport:
     repo_root = repo_root.resolve()
     snapshot = _snapshot(repo_root)
     findings: list[Finding] = []
@@ -705,6 +1183,10 @@ def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
             row.section != "G" and row.status != "closed" for row in rows
         ):
             findings.append(Finding("closed_open_conflict", debt_id))
+    closure_findings, closure_metrics = _closure_signal_findings(
+        repo_root, snapshot.debts, _collection_receipts
+    )
+    findings.extend(closure_findings)
     branch_states = dict(snapshot.branch_states)
     declared_status_indexes = {"A": 3, "B": 3, "C": 3, "D": 2, "F": 1, "G": 1}
     for row in snapshot.debts:
@@ -833,6 +1315,27 @@ def audit_repository(repo_root: Path = REPO_ROOT) -> AuditReport:
         "ds5_nonclosure_rows": snapshot.ds5_rows,
         "ds5_planless_routes": snapshot.ds5_planless,
         "irregular_section_e_branch_rows": len(snapshot.irregular_branches),
+        "closure_signal_pytest_selections": closure_metrics["runner_pytest"],
+        "closure_signal_unsupported_runners": closure_metrics["runner_vitest"]
+        + closure_metrics["runner_unknown"],
+        "closure_signal_identities_without_commands": closure_metrics[
+            "origin_identity_without_command"
+        ],
+        "closure_signal_identity_unresolvable": closure_metrics[
+            "closure_signal_identity_unresolvable"
+        ],
+        "closure_signal_input_unresolvable": closure_metrics["closure_signal_input_unresolvable"],
+        "closure_signal_selects_nothing": closure_metrics["closure_signal_selects_nothing"],
+        "closure_signal_collection_failed": closure_metrics["closure_signal_collection_failed"],
+        "closure_signal_collection_host_unknown": closure_metrics[
+            "closure_signal_collection_host_unknown"
+        ],
+        "closure_signal_ast_collection_disagreements": closure_metrics[
+            "closure_signal_ast_collection_disagreement"
+        ],
+        "closure_signal_count_exit_disagreements": closure_metrics[
+            "closure_signal_count_exit_disagreement"
+        ],
     }
     ordered_findings = tuple(sorted(findings, key=lambda item: (item.code, item.detail)))
     informational = tuple(
@@ -858,10 +1361,11 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = _build_parser().parse_args(argv)
-    report = audit_repository(args.repo_root)
+    collection_receipts: dict[tuple[Path, tuple[str, ...]], _CollectionReceipt] = {}
+    report = audit_repository(args.repo_root, _collection_receipts=collection_receipts)
     if args.write:
         atomic_write_text(args.repo_root / LEDGER_PATH, report.ledger_text)
-        report = audit_repository(args.repo_root)
+        report = audit_repository(args.repo_root, _collection_receipts=collection_receipts)
     for key, value in report.metrics.items():
         print(f"{key}={value}")
     if report.blocking_findings:

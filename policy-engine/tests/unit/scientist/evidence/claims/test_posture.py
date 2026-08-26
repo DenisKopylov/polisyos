@@ -8,13 +8,19 @@ import pytest
 
 from polisyos.runtime.quality.claim_registry import normalize_runtime_claim_registry
 
+_POSTURE_MODULE = "polisyos.scientist.evidence.claims.posture"
+
 
 def _posture_api(name: str):
     """Load one required C01 semantic API or fail with the guarded behavior."""
     try:
-        module = importlib.import_module("polisyos.scientist.evidence.claims.posture")
-    except ModuleNotFoundError:
-        pytest.fail(f"C01 posture module is absent; required semantic API: {name}")
+        module = importlib.import_module(_POSTURE_MODULE)
+    except ModuleNotFoundError as exc:
+        if exc.name == _POSTURE_MODULE or (
+            exc.name is not None and _POSTURE_MODULE.startswith(f"{exc.name}.")
+        ):
+            pytest.fail(f"C01 posture module is absent; required semantic API: {name}")
+        raise
     api = getattr(module, name, None)
     if not callable(api):
         pytest.fail(f"C01 posture module lacks required semantic API: {name}")

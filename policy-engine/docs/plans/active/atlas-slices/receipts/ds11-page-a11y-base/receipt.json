@@ -136,7 +136,8 @@
     "status": "not_established",
     "committed_raw_runs": 1,
     "observed_second_run": "20 passed / 4 failed / 24 collected",
-    "limitation": "Only run-1 raw results are committed. The second execution is measured in the execution journal but has no content-bound raw result for an independent consumer, so its agreement cannot support a row or gate.",
+    "limitation": "Only run-1 raw results are committed. The second execution is measured in the execution journal but has no content-bound raw result for an independent consumer, so its semantic/result agreement cannot support a semantic product gate or posture row.",
+    "operational_timing_predicate_owner": "docs/plans/active/atlas-slices/DS11-trust-docs-posture.md#serialized-resources-and-fixed-ceilings; docs/superpowers/journals/2026-08-26-ds11-trust-docs-posture.md#gate-and-command-receipts",
     "added_base_failure": "../src/test/a11y/color-blind-simulation.spec.ts::keeps signal pairs distinguishable for deuteranope, protanope, and tritanope viewers"
   },
   "raw_receipts": {

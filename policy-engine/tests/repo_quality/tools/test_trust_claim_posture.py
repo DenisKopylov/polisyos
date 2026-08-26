@@ -13,8 +13,12 @@ def _owner_api(module_name: str, name: str):
     """Load one required C01 owner API or fail with the guarded behavior."""
     try:
         module = importlib.import_module(module_name)
-    except ModuleNotFoundError:
-        pytest.fail(f"C01 owner module is absent: {module_name}; required API: {name}")
+    except ModuleNotFoundError as exc:
+        if exc.name == module_name or (
+            exc.name is not None and module_name.startswith(f"{exc.name}.")
+        ):
+            pytest.fail(f"C01 owner module is absent: {module_name}; required API: {name}")
+        raise
     api = getattr(module, name, None)
     if not callable(api):
         pytest.fail(f"C01 owner module lacks required semantic API: {module_name}.{name}")

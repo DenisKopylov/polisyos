@@ -11,10 +11,11 @@
 - User-approved execution amendments: hard slice mechanism ceiling `34` (sum
   stays `23`, slack `11`, widening ceiling `9`); CC09 is tested in both
   directions. The later real page-a11y receipt corrected the supplied
-  `21/24`/three-failure baseline to `20/24`/four failures: color-blind
-  distinguishability, run-report axe `dlitem`, runs-list missing `Open run`,
-  and run-report missing `Export JSON`. This is a P35/P41 measurement
-  correction, not a DS10 repair.
+  `21/24`/three-failure baseline to `20/24` and
+  [DS11-A11Y-BASE-FAILURE-SET-4](../../plans/active/atlas-slices/DS11-trust-docs-posture.md#ds11-a11y-base-failure-set-4):
+  color-blind distinguishability, run-report axe `dlitem`, runs-list
+  screenreader missing `Open run`, and run-report screenreader missing
+  `Export JSON`. This is a P35/P41 measurement correction, not a DS10 repair.
 - Pattern pass: P01/P02/P05/P10/P29/P35–P41. DS11 remains
   `absent/unallocated`; C00 adds no product contract, producer, bridge,
   consumer, source metadata, or production/tooling mechanism.
@@ -53,8 +54,8 @@ after. `user + sys` is the completed-command ceiling measure.
 | plain `lint_imports.py` policy/exceptions command | 1 | `0.75 + 0.28 = 1.03s` | `18:26` -> `18:26` | no writer; `84 + 4 = 88` inherited red |
 | package-import fail-closed gate | 1 | `54.90 + 5.16 = 60.06s` | `18:26` -> `18:27` | no writer; JSON `finding_count=142`, not supplied `143`; known member `polisyos.runtime -> polisyos.runtime.quality` |
 | frontend disposition `--check` | 1 | `195.14 + 27.53 = 222.67s` | `18:33` -> `18:37` | no writer; only `c13_print_receipt_invalid:.../RunDetailLayout.tsx` |
-| page-a11y JSON replay A | 1 | `212.21 + 29.76 = 241.97s` | `18:28` -> `18:30` | no product writer; `20/24`, four failures |
-| page-a11y JSON replay B | 1 | `287.42 + 40.22 = 327.64s` | `18:32` -> `18:35` | no committed raw result; observed `20/24`, four failures is `consumer_asserted` and cannot support a gate or row; it still freezes the C06 ceiling at `655.28s = 2 × 327.64s` |
+| page-a11y JSON replay A | 1 | `212.21 + 29.76 = 241.97s` | `18:28` -> `18:30` | no product writer; `20/24` and [DS11-A11Y-BASE-FAILURE-SET-4](../../plans/active/atlas-slices/DS11-trust-docs-posture.md#ds11-a11y-base-failure-set-4) |
+| page-a11y JSON replay B | 1 | `287.42 + 40.22 = 327.64s` | `18:32` -> `18:35` | semantic/result observation `20/24` and [DS11-A11Y-BASE-FAILURE-SET-4](../../plans/active/atlas-slices/DS11-trust-docs-posture.md#ds11-a11y-base-failure-set-4) is `consumer_asserted` / `not_established`, so cannot support a semantic product gate or posture row. Separately, `/usr/bin/time -p` supplied completed-process `user` and `sys`; the harness recomputes the operational-only ceiling `2 × max(241.97, 327.64) = 655.28s`. That predicate may set only a harness timeout/stop budget, never product semantics or another gate. |
 | debt report-only check | 0 | `0.43 + 0.35 = 0.78s` | `18:28` -> `18:28` | no writer; pre-write DS11 omissions and ledger drift observed |
 | debt ledger writer | 1 | `2.01 + 2.05 = 4.06s` | `18:30` -> `18:30` | sole register-family writer; all DS11 rows rendered; inherited denominator mismatch `92 != 102` remains |
 | debt ledger `--check` | 1 | `1.05 + 0.99 = 2.04s` | `18:38` -> `18:39` | no `explicit_nonclosure_missing`, `ledger_missing_id`, or `ledger_render_drift` for DS11; only denominator mismatch remains |
@@ -71,11 +72,14 @@ The complete raw set is exactly `run-1/results.json`, `run-1/.last-run.json`,
 `environment-before.json`, `environment-after.json`, and normalized
 `receipt.json` under
 `docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base/`. The normalized
-receipt content-binds 24 identities, 20 passes, four failures, exit `1`, the
-exact JSON reporter command, raw SHA-256s, and the four known base identities.
-It establishes only run 1; the second measured agreement is
+receipt content-binds 24 identities, 20 passes, and
+[DS11-A11Y-BASE-FAILURE-SET-4](../../plans/active/atlas-slices/DS11-trust-docs-posture.md#ds11-a11y-base-failure-set-4), exit `1`, the exact JSON reporter command,
+raw SHA-256s, and those exact known base identities. It establishes only run 1;
+the second measured agreement is
 `consumer_asserted` / `not_established` for a consumer without its raw result
-and cannot support a row or gate. No green or certification state was authored.
+and cannot support a semantic product gate or posture row. The separately
+recomputed completed-process resource measurement may set only its harness
+timeout/stop budget. No green or certification state was authored.
 
 ## C00 handback
 

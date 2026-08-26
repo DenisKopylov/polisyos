@@ -6,7 +6,7 @@ import re
 from dataclasses import dataclass
 from datetime import date, timedelta
 
-from polisyos.lex.common import parse_iso_date
+from polisyos.common.timestamps import parse_iso_date
 
 _MONTHS = {
     "січня": 1,

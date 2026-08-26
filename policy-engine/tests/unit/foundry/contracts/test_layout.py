@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from polisyos.foundry.methods.layout import build_slot_family_manifest
 from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY, SlotScope
+from polisyos.ir.kernel.slots import build_slot_family_manifest
 
 
 def test_slot_family_manifest_includes_cell_families() -> None:
@@ -29,3 +29,12 @@ def test_slot_family_manifest_includes_cell_families() -> None:
     assert global_family.scope == SlotScope.GLOBAL
     assert global_family.state_prefix is None
     assert global_family.entity_size_key is None
+
+
+def test_foundry_layout_reexports_ir_slot_family_manifest_builder() -> None:
+    """Keep the former Foundry import path as a compatibility consumer."""
+    from polisyos.foundry.methods.layout import (
+        build_slot_family_manifest as foundry_build_slot_family_manifest,
+    )
+
+    assert foundry_build_slot_family_manifest is build_slot_family_manifest

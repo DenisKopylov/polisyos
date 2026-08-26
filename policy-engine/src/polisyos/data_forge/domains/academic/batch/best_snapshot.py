@@ -28,7 +28,7 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     next_skg_version,
 )
 from polisyos.data_forge.kernel.io import sha256_file
-from polisyos.scientist.cross_graph.feedback import AcademicBenchmarkSuite, load_benchmark_suite
+from polisyos.ir.analytics.cross_graph import AcademicBenchmarkSuite, load_benchmark_suite
 
 logger = get_logger(__name__)
 

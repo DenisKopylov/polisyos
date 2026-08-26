@@ -5,6 +5,7 @@ from __future__ import annotations
 import hashlib
 import json
 from enum import Enum
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
@@ -34,6 +35,87 @@ _INTERFACE_MAPPING_SCHEMA_NAME = "ir.interface_mapping"
 _INTERFACE_MAPPING_SCHEMA_VERSION = "1.0"
 _COMPOSITION_CERTIFICATE_SCHEMA_NAME = "ir.composition_certificate"
 _COMPOSITION_CERTIFICATE_SCHEMA_VERSION = "1.2"
+
+
+class BenchmarkCausalEdge(BaseModel):
+    """Neutral causal-edge descriptor used by an academic benchmark suite."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    cause: str
+    effect: str
+
+
+class BenchmarkScholarQuery(BaseModel):
+    """Neutral scholar-coverage query used by an academic benchmark suite."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    cause: str
+    effect: str
+    min_trust: float = Field(default=0.5, ge=0.0, le=1.0)
+    support_mode: str = "hybrid"
+    min_results: int = 1
+
+
+class BenchmarkCredibilityPolicy(BaseModel):
+    """Evidence thresholds used when an academic benchmark evaluates a causal edge."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    min_confidence: float = Field(default=0.7, ge=0.0, le=1.0)
+    min_unique_works: int = Field(default=2, ge=1)
+    require_conflict_free: bool = True
+    min_design_tier: int | None = Field(default=3, ge=1, le=4)
+    max_evidence_age_years: int | None = Field(default=None, ge=1)
+
+
+class AcademicBenchmarkScenario(BaseModel):
+    """Neutral scenario definition used by an academic benchmark suite."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    scenario_id: str
+    title: str
+    policy_domain: str = ""
+    weight: float = Field(default=1.0, ge=0.1)
+    credibility_policy: BenchmarkCredibilityPolicy = Field(
+        default_factory=BenchmarkCredibilityPolicy
+    )
+    causal_edges: list[BenchmarkCausalEdge] = Field(default_factory=list)
+    parameters: list[str] = Field(default_factory=list)
+    scholar_queries: list[BenchmarkScholarQuery] = Field(default_factory=list)
+
+
+class AcademicBenchmarkSuite(BaseModel):
+    """Neutral, serializable suite definition for academic benchmark scenarios."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    suite_id: str = "academic_usefulness"
+    scenarios: list[AcademicBenchmarkScenario] = Field(default_factory=list)
+
+
+def load_benchmark_suite(path: Path) -> AcademicBenchmarkSuite:
+    """Load an academic benchmark suite from its JSON representation."""
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(payload, dict) and "scenarios" in payload:
+        return AcademicBenchmarkSuite.model_validate(payload)
+    if isinstance(payload, list):
+        return AcademicBenchmarkSuite(
+            scenarios=[AcademicBenchmarkScenario.model_validate(item) for item in payload]
+        )
+    raise ValueError(f"Unsupported benchmark suite payload at {path}")
+
+
+def write_need_backlog(path: Path, items: list[dict[str, Any]]) -> None:
+    """Write cross-graph evidence needs as a JSONL producer artifact."""
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as fh:
+        for item in items:
+            fh.write(json.dumps(item, ensure_ascii=False) + "\n")
 
 
 class InterfaceRole(str, Enum):

@@ -5,6 +5,7 @@ import json
 import numpy as np
 import pandas as pd
 import pytest
+
 from polisyos.data_forge.domains.ukraine.builders import (
     MemoryAwareScheduler,
     ScheduledTask,
@@ -40,15 +41,17 @@ from polisyos.data_forge.domains.ukraine.models import (
     StageId,
     build_default_pipeline_config,
 )
-from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
-from polisyos.ir.model_layer.types import TimeFrequency
-from polisyos.scientist.governance import (
+from polisyos.ir.analytics.calibration import (
     CalibrationRunManifest,
     HoldoutScoresManifest,
     SpecificationCurveSummaryManifest,
     StrategicResponseMetricsManifest,
-    StrategicResponseRunner,
     TransportabilitySummaryManifest,
+)
+from polisyos.ir.model_layer.types import TimeFrequency
+from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
+from polisyos.scientist.governance import (
+    StrategicResponseRunner,
     build_family_eligibility_registry,
 )
 
@@ -66,6 +69,17 @@ def test_memory_aware_scheduler_runs_tasks_in_order() -> None:
 
     assert observed == ["a", "b"]
     assert list(results) == ["a", "b"]
+
+
+def test_scientist_reexports_ir_owned_d4_release_read_contracts() -> None:
+    """Keep Scientist's published names as consumers of the lower D4 schema."""
+    from polisyos.scientist import governance
+
+    assert governance.CalibrationRunManifest is CalibrationRunManifest
+    assert governance.HoldoutScoresManifest is HoldoutScoresManifest
+    assert governance.SpecificationCurveSummaryManifest is SpecificationCurveSummaryManifest
+    assert governance.StrategicResponseMetricsManifest is StrategicResponseMetricsManifest
+    assert governance.TransportabilitySummaryManifest is TransportabilitySummaryManifest
 
 
 def test_memory_aware_scheduler_rejects_oversized_task() -> None:

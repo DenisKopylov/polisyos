@@ -16,7 +16,7 @@ from polisyos.data_forge.domains.academic.knowledge.skg_store import (
     EVIDENCE_WEIGHTS as _SKG_EVIDENCE_WEIGHTS,
 )
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
-from polisyos.scientist.cross_graph.feedback import (
+from polisyos.ir.analytics.cross_graph import (
     AcademicBenchmarkScenario,
     AcademicBenchmarkSuite,
     BenchmarkCausalEdge,

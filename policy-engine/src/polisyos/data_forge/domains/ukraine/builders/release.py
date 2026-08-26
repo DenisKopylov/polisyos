@@ -8,29 +8,29 @@ from decimal import Decimal
 from polisyos.data_forge.domains.ukraine.manifests import ReleaseManifest, write_manifest
 from polisyos.data_forge.domains.ukraine.resources import directory_size_bytes
 from polisyos.foundry.validation.release_acceptance import ReleaseAcceptanceRunner
-from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.observation.contracts import (
-    IdentificationMode,
-    StrategicResponseChannel,
-)
-from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.model_layer.types import SelectorOperator
-from polisyos.lex.interventions import (
-    InterventionKnobSpec,
-    LexInterventionCompiler,
-    LexProvisionDirective,
-    TemporalInterventionSequencer,
-)
-from polisyos.scientist.governance import (
+from polisyos.ir.analytics.calibration import (
     CalibrationRunManifest,
     HoldoutScoresManifest,
     SpecificationCurveSummaryManifest,
     StrategicResponseMetricsManifest,
     TransportabilitySummaryManifest,
+)
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.model_layer.types import SelectorOperator
+from polisyos.ir.observation.contracts import (
+    IdentificationMode,
+    StrategicResponseChannel,
+)
+from polisyos.ir.trinity import TrinityBundle
+from polisyos.lex.interventions import (
+    InterventionKnobSpec,
+    LexInterventionCompiler,
+    LexProvisionDirective,
+    TemporalInterventionSequencer,
 )
 
 from .common import *

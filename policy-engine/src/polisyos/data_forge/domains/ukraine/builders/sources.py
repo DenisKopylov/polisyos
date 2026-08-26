@@ -27,9 +27,8 @@ from polisyos.foundry.methods.catalog.network.protocols import (
     MultiplexNetworkData,
     NetworkData,
 )
-from polisyos.foundry.methods.layout import build_slot_family_manifest
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
-from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest
 from polisyos.ir.observation.bundles import (
     ContractCompatibilityTarget,
     ObservationContractArtifact,

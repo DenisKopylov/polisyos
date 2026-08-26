@@ -11,6 +11,14 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.legal.contracts import (
+    LegalDocSource,
+    LexIngestOptions,
+    LexIngestResult,
+    WorldEventRefLike,
+)
+from polisyos.data_forge.errors import LexError, LexIngestError, LexValidationError
+from polisyos.data_forge.kernel.artifacts import load_doc_meta_artifact
 from polisyos.fabric.docs import (
     DocSourceSpec,
     chunk_doc,
@@ -38,14 +46,6 @@ from polisyos.ir.world.event import (
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import doc_source_id
-from polisyos.lex.artifacts import load_doc_meta_artifact
-from polisyos.lex.errors import LexError, LexIngestError, LexValidationError
-from polisyos.lex.types import (
-    LegalDocSource,
-    LexIngestOptions,
-    LexIngestResult,
-    WorldEventRefLike,
-)
 
 if TYPE_CHECKING:
     from pathlib import Path

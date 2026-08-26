@@ -11,6 +11,13 @@ from datetime import UTC, date, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from polisyos.common.timestamps import latest_object_by_subject, parse_iso_date
+from polisyos.data_forge.domains.legal.contracts import (
+    ActiveVersionResult,
+    ActiveVersionStrategy,
+    LexVersionIndexOptions,
+    LexVersionIndexResult,
+)
 from polisyos.data_forge.domains.legal.corpus.index import (
     DocSourcePropsV1,
     VersionEntryV1,
@@ -20,9 +27,17 @@ from polisyos.data_forge.domains.legal.corpus.index import (
     persist_doc_source_props,
     persist_version_index,
 )
+from polisyos.data_forge.errors import (
+    LexError,
+    LexNotReadyError,
+    LexValidationError,
+    LexVersioningError,
+)
+from polisyos.data_forge.kernel.artifacts import load_doc_meta_artifact
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_world_node_facts,
+    load_world_facts,
     stable_world_provenance_v1,
     write_world_fact_segment,
 )
@@ -38,21 +53,6 @@ from polisyos.ir.world.event import (
     WorldObjectRef,
 )
 from polisyos.ir.world.predicates import WORLD_ARTIFACT_ID, WORLD_PROPS_REF, rel
-from polisyos.lex.artifacts import load_doc_meta_artifact
-from polisyos.lex.common import latest_object_by_subject, parse_iso_date
-from polisyos.lex.errors import (
-    LexError,
-    LexNotReadyError,
-    LexValidationError,
-    LexVersioningError,
-)
-from polisyos.lex.factlog import load_world_facts
-from polisyos.lex.types import (
-    ActiveVersionResult,
-    ActiveVersionStrategy,
-    LexVersionIndexOptions,
-    LexVersionIndexResult,
-)
 
 if TYPE_CHECKING:
     import pandas as pd

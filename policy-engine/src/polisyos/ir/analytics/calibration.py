@@ -4,12 +4,201 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+import numpy as np
 from pydantic import BaseModel, ConfigDict, Field
+
+from polisyos.ir.analytics.transportability import (
+    TransportabilityResult,
+    TransportabilityStatus,
+    TransportMode,
+)
+from polisyos.ir.observation.contracts import ObservationFamily, StrategicResponseChannel
 
 if TYPE_CHECKING:
     from polisyos.ir.model_layer.types import TimeFrequency
+    from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 else:
     from polisyos.ir.model_layer.types import TimeFrequency
+
+
+class SplitWindow(BaseModel):
+    """Time split used by train/validation/holdout calibration logic."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    split_id: str
+    start: str
+    end: str
+
+
+class CalibrationCandidateScore(BaseModel):
+    """Split-aware score summary for one calibration candidate."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    candidate_id: str
+    candidate_kind: str
+    train_fit_score: float = Field(ge=0.0, le=1.0)
+    validation_fit_score: float = Field(ge=0.0, le=1.0)
+    robustness_penalty: float = Field(ge=0.0, le=1.0)
+    measurement_fit_score: float = Field(ge=0.0, le=1.0)
+    interference_fit_score: float = Field(ge=0.0, le=1.0)
+    transportability_score: float = Field(ge=0.0, le=1.0)
+    strategic_plausibility_score: float = Field(ge=0.0, le=1.0)
+    governance_penalty: float = Field(ge=0.0, le=1.0)
+    validation_composite_score: float = Field(ge=0.0, le=1.0)
+    used_holdout: bool = False
+    holdout_fit_score: float | None = Field(default=None, ge=0.0, le=1.0)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class CalibrationRunManifest(BaseModel):
+    """Typed D4 calibration-run artifact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    run_id: str
+    split_windows: list[SplitWindow] = Field(default_factory=list)
+    candidates: list[CalibrationCandidateScore] = Field(default_factory=list)
+    selected_candidate_id: str
+    selected_on_split: str = "validation"
+    frozen_before_holdout: bool = True
+    used_families: list[ObservationFamily] = Field(default_factory=list)
+    excluded_families: list[str] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class HoldoutScoresManifest(BaseModel):
+    """Typed holdout-score artifact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    candidate_id: str
+    overall_score: float = Field(ge=0.0, le=1.0)
+    by_family: dict[str, float] = Field(default_factory=dict)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+
+class TransportabilityChannelResult(BaseModel):
+    """Transportability score for one channel/family pair."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    channel_id: str
+    family: ObservationFamily
+    status: TransportabilityStatus
+    transport_mode: TransportMode
+    final_confidence: float = Field(ge=0.0, le=1.0)
+    source_regime_id: str = "regime_a"
+    target_regime_id: str = "regime_b"
+    notes: list[str] = Field(default_factory=list)
+
+
+class TransportabilitySummaryManifest(BaseModel):
+    """Typed transportability evidence artifact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    aggregate_score: float = Field(ge=0.0, le=1.0)
+    n_transportable_channels: int = Field(default=0, ge=0)
+    channels: list[TransportabilityChannelResult] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    def to_transportability_result(self) -> TransportabilityResult:
+        """Project the stored summary into the canonical transport result."""
+        identified = self.n_transportable_channels >= 3 and self.aggregate_score >= 0.6
+        return TransportabilityResult(
+            query="blueprint_transportability_screen",
+            status=(
+                TransportabilityStatus.IDENTIFIED
+                if identified
+                else TransportabilityStatus.PARTIALLY_IDENTIFIED
+            ),
+            transport_mode=(
+                TransportMode.TRANSPORT_FORMULA if identified else TransportMode.BOUNDS_ONLY
+            ),
+            base_confidence=self.aggregate_score,
+            final_confidence=self.aggregate_score,
+            source_context_id="ua_regime_a",
+            target_context_id="ua_regime_b",
+            notes=[
+                f"transportable_channels={self.n_transportable_channels}",
+                *[
+                    f"{item.channel_id}:{item.status.value}:{item.final_confidence:.3f}"
+                    for item in self.channels
+                ],
+            ],
+        )
+
+
+class StrategicResponseChannelMetric(BaseModel):
+    """Quantified strategic-response metric for one intervention channel."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    channel_id: str
+    intervention_kind: str
+    family: ObservationFamily
+    plausibility_score: float = Field(ge=0.0, le=1.0)
+    quantified: bool = False
+    fallback_mode: str
+    transmission_channels: list[StrategicResponseChannel] = Field(default_factory=list)
+    notes: list[str] = Field(default_factory=list)
+
+
+class StrategicResponseMetricsManifest(BaseModel):
+    """Typed D4 strategic-response artifact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    aggregate_plausibility: float = Field(ge=0.0, le=1.0)
+    quantified_channels: int = Field(default=0, ge=0)
+    channels: list[StrategicResponseChannelMetric] = Field(default_factory=list)
+    strategic_summary: dict[str, Any] = Field(default_factory=dict)
+
+
+class SpecificationCurveScenario(BaseModel):
+    """One specification-curve combination scored on eligible families."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    source_combination_id: str
+    included_families: list[ObservationFamily] = Field(default_factory=list)
+    estimate: float
+    trust_weight: float = Field(ge=0.0)
+
+
+class SpecificationCurveSummaryManifest(BaseModel):
+    """Typed specification-curve robustness artifact."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
+    robustness_score: float = Field(ge=0.0, le=1.0)
+    scenarios: list[SpecificationCurveScenario] = Field(default_factory=list)
+    metadata: dict[str, Any] = Field(default_factory=dict)
+
+    def to_specification_curve_input(self) -> SpecificationCurveInput:
+        """Project the stored summary into the canonical curve input."""
+        from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
+
+        estimates = [float(item.estimate) for item in self.scenarios]
+        if not estimates:
+            estimates = [0.0]
+        mean_weight = (
+            float(np.mean([item.trust_weight for item in self.scenarios]))
+            if self.scenarios
+            else 1.0
+        )
+        return SpecificationCurveInput(
+            specification_ids=[item.source_combination_id for item in self.scenarios] or ["empty"],
+            estimates=estimates,
+            standard_errors=[max(0.01, (1.0 - mean_weight) * 0.25)] * len(estimates),
+        )
 
 
 class TargetAlignConfig(BaseModel):

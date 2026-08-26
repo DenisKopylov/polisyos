@@ -12,6 +12,7 @@ from dataclasses import dataclass, replace
 
 from polisyos.common.logger import get_logger
 from polisyos.data_forge.domains.legal.batch.jurisdictions import normalize_jurisdiction_code
+from polisyos.data_forge.domains.legal.contracts import LexStructureOptions
 from polisyos.data_forge.domains.legal.corpus.structure import (
     _POINT_RE_LIST,
     _SUBPOINT_RE,
@@ -21,7 +22,6 @@ from polisyos.data_forge.domains.legal.corpus.structure import (
     _LineSpan,
     _ruleset_for,
 )
-from polisyos.lex.types import LexStructureOptions
 
 logger = get_logger(__name__)
 

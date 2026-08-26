@@ -6,89 +6,23 @@ import json
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
-from pydantic import BaseModel, ConfigDict, Field
-
 from polisyos.ir.analytics.cross_graph import (
+    AcademicBenchmarkScenario,
+    AcademicBenchmarkSuite,
+    BenchmarkCausalEdge,
+    BenchmarkCredibilityPolicy,
+    BenchmarkScholarQuery,
     CrossGraphEvidenceProfile,
     EvidenceNeedAssessment,
     EvidenceNeedType,
     EvidenceStatus,
     TransportStatus,
+    load_benchmark_suite,
+    write_need_backlog,
 )
 
 if TYPE_CHECKING:
     from polisyos.data_forge.read_api.academic import ScholarKnowledgeGraph
-
-
-class BenchmarkCausalEdge(BaseModel):
-    """Benchmark causal edge public type."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    cause: str
-    effect: str
-
-
-class BenchmarkScholarQuery(BaseModel):
-    """Benchmark scholar query public type."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    cause: str
-    effect: str
-    min_trust: float = Field(default=0.5, ge=0.0, le=1.0)
-    support_mode: str = "hybrid"
-    min_results: int = 1
-
-
-class BenchmarkCredibilityPolicy(BaseModel):
-    """Thresholds that decide when academic evidence is strong enough to count in benchmark review."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    min_confidence: float = Field(default=0.7, ge=0.0, le=1.0)
-    min_unique_works: int = Field(default=2, ge=1)
-    require_conflict_free: bool = True
-    min_design_tier: int | None = Field(default=3, ge=1, le=4)
-    max_evidence_age_years: int | None = Field(default=None, ge=1)
-
-
-class AcademicBenchmarkScenario(BaseModel):
-    """Academic benchmark scenario public type."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    scenario_id: str
-    title: str
-    policy_domain: str = ""
-    weight: float = Field(default=1.0, ge=0.1)
-    credibility_policy: BenchmarkCredibilityPolicy = Field(
-        default_factory=BenchmarkCredibilityPolicy
-    )
-    causal_edges: list[BenchmarkCausalEdge] = Field(default_factory=list)
-    parameters: list[str] = Field(default_factory=list)
-    scholar_queries: list[BenchmarkScholarQuery] = Field(default_factory=list)
-
-
-class AcademicBenchmarkSuite(BaseModel):
-    """Academic benchmark suite public type."""
-
-    model_config = ConfigDict(extra="forbid", frozen=True)
-
-    suite_id: str = "academic_usefulness"
-    scenarios: list[AcademicBenchmarkScenario] = Field(default_factory=list)
-
-
-def load_benchmark_suite(path: Path) -> AcademicBenchmarkSuite:
-    """Load benchmark suite."""
-    payload = json.loads(path.read_text(encoding="utf-8"))
-    if isinstance(payload, dict) and "scenarios" in payload:
-        return AcademicBenchmarkSuite.model_validate(payload)
-    if isinstance(payload, list):
-        return AcademicBenchmarkSuite(
-            scenarios=[AcademicBenchmarkScenario.model_validate(item) for item in payload]
-        )
-    raise ValueError(f"Unsupported benchmark suite payload at {path}")
 
 
 def build_need_backlog(
@@ -129,14 +63,6 @@ def build_need_backlog(
         )
     )
     return items[:max_items] if max_items is not None else items
-
-
-def write_need_backlog(path: Path, items: list[dict[str, Any]]) -> None:
-    """Write prioritized evidence needs to a JSONL backlog for offline sourcing or analyst triage."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w", encoding="utf-8") as fh:
-        for item in items:
-            fh.write(json.dumps(item, ensure_ascii=False) + "\n")
 
 
 def append_need_backlog(path: Path, items: list[dict[str, Any]]) -> int:

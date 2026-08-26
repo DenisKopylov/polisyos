@@ -327,7 +327,7 @@ standing is recorded in **G.2**, not struck.
 
 | id | status | why it could not be settled |
 | --- | --- | --- |
-| — | — | No current ambiguous debt. `GY-DEF9` moved to G.2 on its measured standing. |
+| `calibration-report-fixture-blanket-fields` | `ambiguous` | Observed by the measurement-lies bundle at `7615c002a` and reported in prose only: a calibration-report fixture carries blanket-added fields its calibration producer ignores. **No coordinates were supplied**, and the architect's search did not locate them — `calibration` returns zero hits in `tests/unit/runtime/http/test_runs_api.py`, and six other files match `CalibrationReport` without an obvious blanket-field fixture. Registered `ambiguous` rather than invented with a false-precise identity, per rule 5. **To settle:** the bundle executor names the file and the fixture, or a fresh census locates a calibration fixture whose fields the producer drops. It affected neither named endpoint and needs no production change. |
 
 **What the Rev-1 census's two proxies actually missed**, measured while resolving these — both are
 `P38` at their own boundary and both are cheap to fix:

@@ -37,6 +37,7 @@ from polisyos.runtime.quality.recursive_generation_cycle import (
     RecursiveCycleBudget,
     build_default_recursive_generation_cycle_controller,
 )
+from polisyos.scientist.evidence.claims.head_index import UnappointedClaimLedgerOwner
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 try:  # pragma: no cover - optional runtime dependency
@@ -194,6 +195,22 @@ async def test_runtime_container_exposes_one_decision_validity_owner(tmp_path) -
         assert (
             app.state.runtime_container.promotion_runtime.epoch_n9_evidence_resolver._completed_batches
             is app.state.runtime_container.decision_validity_service
+        )
+        assert app.state._control_service._epoch_claim_lifecycle_bridge is (
+            app.state.runtime_container.epoch_claim_lifecycle_bridge
+        )
+        assert app.state.runtime_container.epoch_claim_lifecycle_bridge.completed_batches is (
+            app.state.runtime_container.decision_validity_service
+        )
+        assert app.state.runtime_container.epoch_claim_lifecycle_bridge.claim_owner is (
+            app.state.runtime_container.claim_ledger_owner
+        )
+        assert isinstance(
+            app.state.runtime_container.claim_ledger_owner,
+            UnappointedClaimLedgerOwner,
+        )
+        assert app.state.runtime_container.claim_ledger_owner.store is (
+            app.state.runtime_container.runtime_api_context.store
         )
     finally:
         await app.state.runtime_container.shutdown(app)

@@ -5,7 +5,7 @@ from __future__ import annotations
 import hashlib
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import UTC, datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from pydantic import ValidationError
 
@@ -19,6 +19,9 @@ from polisyos.runtime.quality.contestability import (
     PolicyDesignContestabilityError,
     verified_recourse_pointer_for_publication,
 )
+
+if TYPE_CHECKING:
+    from polisyos.scientist import ClaimLedgerCurrentHeadProjection
 
 POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION = (
     contracts.POLICY_DESIGN_CASE_PROJECTION_SCHEMA_VERSION
@@ -331,6 +334,7 @@ def build_policy_design_case_projection_semantics(
     generated_at: datetime | None = None,
     audience: contracts.PolicyDesignCaseAudience | str | None = None,
     closeout_verdict: Mapping[str, Any] | None = None,
+    claim_current_head: ClaimLedgerCurrentHeadProjection | None = None,
 ) -> dict[str, Any]:
     """Build projection labels that read, but cannot create, case authority."""
 
@@ -380,9 +384,12 @@ def build_policy_design_case_projection_semantics(
         policy_design_case=validated_case,
         audience=audience_value,
     )
-    projection_gaps = _dedupe_gaps(
-        [*projection_gaps, *participation_surface["projection_gaps"]]
+    projection_gaps = _dedupe_gaps([*projection_gaps, *participation_surface["projection_gaps"]])
+    claim_gaps, claim_blocked, claim_stale = _claim_current_head_effects(
+        claim_current_head,
+        audience=audience_value,
     )
+    projection_gaps = _dedupe_gaps([*projection_gaps, *claim_gaps])
     contested_records = _contested_records(
         source_payload=source,
         policy_design_case=validated_case,
@@ -403,7 +410,8 @@ def build_policy_design_case_projection_semantics(
         validated_case,
         source_payload=source,
         surface=surface,
-        forced_blocked=bool(recourse_gap or closeout_truth.get("blocker_codes")),
+        forced_blocked=bool(recourse_gap or closeout_truth.get("blocker_codes") or claim_blocked),
+        forced_stale=claim_stale,
     )
     primary_state = _primary_state(states)
     authority_chain = _mapping(validated_case.get("authority_chain"))
@@ -458,6 +466,7 @@ def build_policy_design_case_projection_semantics(
                 source,
                 ("decision_context", "public_export_status"),
             ),
+            **_claim_current_head_source_state(claim_current_head),
         },
         "may_be_used_for": list(_MAY_BE_USED_FOR),
         "may_not_be_used_for": list(_MAY_NOT_BE_USED_FOR),
@@ -475,6 +484,7 @@ def build_policy_design_case_projection_from_runtime_graph(
     surface: str,
     generated_at: datetime | None = None,
     audience: contracts.PolicyDesignCaseAudience | str | None = None,
+    claim_current_head: ClaimLedgerCurrentHeadProjection | None = None,
 ) -> dict[str, Any]:
     """Build a projection whose source payload is derived from the W8.A graph."""
 
@@ -498,15 +508,14 @@ def build_policy_design_case_projection_from_runtime_graph(
         generated_at=generated_at,
         audience=audience,
         closeout_verdict=graph.closeout_verdict or {},
+        claim_current_head=claim_current_head,
     )
     projection["source_state"] = {
         **dict(projection.get("source_state") or {}),
         "runtime_pdc_graph_ref": graph.graph_ref,
         "runtime_pdc_graph_schema_version": graph.schema_version,
         "runtime_pdc_graph_projection_policy": graph.projection_source_policy,
-        "runtime_pdc_graph_consumed_fields": list(
-            _RUNTIME_GRAPH_PROJECTION_CONSUMED_FIELDS
-        ),
+        "runtime_pdc_graph_consumed_fields": list(_RUNTIME_GRAPH_PROJECTION_CONSUMED_FIELDS),
     }
     projection["source_authority_refs"] = {
         **dict(projection.get("source_authority_refs") or {}),
@@ -565,12 +574,115 @@ def assert_policy_design_projection_not_authority(
     return typed.model_dump(mode="json", exclude_none=True)
 
 
+def _claim_current_head_effects(
+    projection: ClaimLedgerCurrentHeadProjection | None,
+    *,
+    audience: contracts.PolicyDesignCaseAudience,
+) -> tuple[list[dict[str, Any]], bool, bool]:
+    """Return projection-only limitations from one owner-current Claim view."""
+
+    if projection is None:
+        return [], False, False
+    gaps: list[dict[str, Any]] = []
+    blocked = projection.claim_currentness != "current"
+    stale = False
+    if blocked:
+        gaps.append(
+            _claim_current_head_gap(
+                code="claim_current_head_not_established",
+                message=("Claim Ledger currentness is not established for the owner head."),
+                owner=projection.owner_key.claim_owner_ref,
+                evidence_ref=str(projection.head_ref.artifact_id),
+                claim_ids=projection.pending_affected_claim_ids,
+                audience=audience,
+                severity="critical",
+                publication_effect="publication_blocked",
+                closeout_effect="closeout_blocked",
+            )
+        )
+    hard_block_actions = {"blocked", "invalidated", "withdrawn"}
+    stale_actions = {"marked_stale", "merged", "split", "superseded"}
+    for limitation in projection.lifecycle_limitations:
+        action = limitation.action
+        action_blocked = action in hard_block_actions or action == "review_required"
+        action_stale = action in stale_actions
+        blocked = blocked or action_blocked
+        stale = stale or action_stale
+        gaps.append(
+            _claim_current_head_gap(
+                code=f"claim_lifecycle_{action}",
+                message=(f"Claim owner current head records {action} for {limitation.claim_id}."),
+                owner=projection.owner_key.claim_owner_ref,
+                evidence_ref=str(projection.head_ref.artifact_id),
+                claim_ids=(limitation.claim_id,),
+                audience=audience,
+                severity="critical" if action in hard_block_actions else "error",
+                publication_effect=(
+                    "publication_blocked" if action_blocked else "reissue_required"
+                ),
+                closeout_effect=("closeout_blocked" if action_blocked else "reissue_required"),
+            )
+        )
+    return gaps, blocked, stale
+
+
+def _claim_current_head_gap(
+    *,
+    code: str,
+    message: str,
+    owner: str,
+    evidence_ref: str,
+    claim_ids: tuple[str, ...],
+    audience: contracts.PolicyDesignCaseAudience,
+    severity: str,
+    publication_effect: str,
+    closeout_effect: str,
+) -> dict[str, Any]:
+    return {
+        "gap_id": f"claim-current-head:{code}",
+        "gap_code": code,
+        "gap_family": "claim_ledger_current_head",
+        "severity": severity,
+        "message": message,
+        "audience_visibility": [audience.value],
+        "claim_ids": list(claim_ids),
+        "source": "scientist.claim_ledger_owner",
+        "owner": owner,
+        "evidence_ref": evidence_ref,
+        "next_action": ("Resolve the Claim owner lifecycle and advance its verified current head."),
+        "publication_effect": publication_effect,
+        "closeout_effect": closeout_effect,
+    }
+
+
+def _claim_current_head_source_state(
+    projection: ClaimLedgerCurrentHeadProjection | None,
+) -> dict[str, Any]:
+    if projection is None:
+        return {}
+    return {
+        "claim_currentness": projection.claim_currentness,
+        "claim_bridge_pending": projection.claim_bridge_pending,
+        "claim_head_ref": str(projection.head_ref.artifact_id),
+        "claim_head_content_hash": projection.head_content_hash,
+        "claim_head_generation": projection.head_generation,
+        "claim_ledger_ref": str(projection.ledger_artifact_ref.artifact_id),
+        "claim_pending_receipt_refs": list(projection.pending_receipt_refs),
+        "claim_pending_batch_receipt_refs": list(projection.pending_batch_receipt_refs),
+        "claim_pending_affected_ids": list(projection.pending_affected_claim_ids),
+        "claim_pending_mapping_unresolved": projection.pending_mapping_unresolved,
+        "claim_lifecycle_limited_ids": [row.claim_id for row in projection.lifecycle_limitations],
+        "claim_current_head_predicate_class": projection.predicate_class,
+    }
+
+
 def _projection_states(
     case: Mapping[str, Any],
     *,
     source_payload: Mapping[str, Any],
     surface: str,
     forced_blocked: bool = False,
+    forced_stale: bool = False,
 ) -> tuple[str, ...]:
     states: set[str] = {"projection_only"}
     surface_name = _text(surface).casefold()
@@ -586,7 +698,7 @@ def _projection_states(
         states.add("blocked")
     if _is_contested(case) or _is_contested(source_payload):
         states.add("contested")
-    if _is_stale(case) or _is_stale(source_payload):
+    if forced_stale or _is_stale(case) or _is_stale(source_payload):
         states.add("stale")
     if _is_publishable(source_payload) and not states & {"blocked", "contested", "stale", "draft"}:
         states.add("publishable")
@@ -616,12 +728,9 @@ def _assert_capability_binding_results_projection_safe(
 ) -> None:
     for binding in _capability_binding_rows(source):
         authority_role = _text(binding.get("authority_role")).casefold()
-        authoritative_for = {
-            _text(item) for item in _sequence(binding.get("authoritative_for"))
-        }
+        authoritative_for = {_text(item) for item in _sequence(binding.get("authoritative_for"))}
         if authority_role == "projection_only" and (
-            bool(binding.get("satisfies_claim_evidence"))
-            or bool(authoritative_for)
+            bool(binding.get("satisfies_claim_evidence")) or bool(authoritative_for)
         ):
             raise PolicyDesignCaseProjectionError(
                 "capability_binding_projection_laundering",
@@ -810,15 +919,13 @@ def verify_policy_design_case_projection_consumer_contract(
                             "Machine projection must preserve reconstructable source, "
                             "authority, or audit refs."
                         ),
-                        )
                     )
+                )
             if graph is not None:
                 source_state = dict(typed.source_state)
                 consumed_fields = {
                     _text(value)
-                    for value in _sequence(
-                        source_state.get("runtime_pdc_graph_consumed_fields")
-                    )
+                    for value in _sequence(source_state.get("runtime_pdc_graph_consumed_fields"))
                     if _text(value)
                 }
                 if typed.projection_policy != _RUNTIME_GRAPH_PROJECTION_POLICY:
@@ -832,9 +939,10 @@ def verify_policy_design_case_projection_consumer_contract(
                             ),
                         )
                     )
-                if typed.source_ref != graph.graph_ref or source_state.get(
-                    "runtime_pdc_graph_ref"
-                ) != graph.graph_ref:
+                if (
+                    typed.source_ref != graph.graph_ref
+                    or source_state.get("runtime_pdc_graph_ref") != graph.graph_ref
+                ):
                     audience_issues.append(
                         _contract_issue(
                             "policy_design_projection_runtime_graph_ref_mismatch",
@@ -1028,10 +1136,13 @@ def verify_s11_predictive_projection_consumer_contract(
             s11_record=s11_record,
         )
         issues.extend(audience_issues)
-        if _audience(
-            projection_payload.get("audience") or audience,
-            surface="s11_predictive_projection",
-        ) is contracts.PolicyDesignCaseAudience.PUBLIC:
+        if (
+            _audience(
+                projection_payload.get("audience") or audience,
+                surface="s11_predictive_projection",
+            )
+            is contracts.PolicyDesignCaseAudience.PUBLIC
+        ):
             public_projection = _s11_public_projection(projection_payload, s11_record)
         consumer_contracts.append(
             {
@@ -1086,10 +1197,13 @@ def verify_s12_resource_projection_consumer_contract(
             s12_record=s12_record,
         )
         issues.extend(audience_issues)
-        if _audience(
-            projection_payload.get("audience") or audience,
-            surface="s12_resource_projection",
-        ) is contracts.PolicyDesignCaseAudience.PUBLIC:
+        if (
+            _audience(
+                projection_payload.get("audience") or audience,
+                surface="s12_resource_projection",
+            )
+            is contracts.PolicyDesignCaseAudience.PUBLIC
+        ):
             public_projection = _s12_public_projection(projection_payload, s12_record)
         consumer_contracts.append(
             {
@@ -1147,10 +1261,13 @@ def verify_s13_post_deploy_accountability_projection_consumer_contract(
             s13_record=s13_record,
         )
         issues.extend(audience_issues)
-        if _audience(
-            projection_payload.get("audience") or audience,
-            surface="s13_accountability_projection",
-        ) is contracts.PolicyDesignCaseAudience.PUBLIC:
+        if (
+            _audience(
+                projection_payload.get("audience") or audience,
+                surface="s13_accountability_projection",
+            )
+            is contracts.PolicyDesignCaseAudience.PUBLIC
+        ):
             public_projection = _s13_public_projection(projection_payload, s13_record)
         consumer_contracts.append(
             {
@@ -1208,10 +1325,13 @@ def verify_s14_universality_projection_consumer_contract(
             s14_record=s14_record,
         )
         issues.extend(audience_issues)
-        if _audience(
-            projection_payload.get("audience") or audience,
-            surface="s14_universality_projection",
-        ) is contracts.PolicyDesignCaseAudience.PUBLIC:
+        if (
+            _audience(
+                projection_payload.get("audience") or audience,
+                surface="s14_universality_projection",
+            )
+            is contracts.PolicyDesignCaseAudience.PUBLIC
+        ):
             public_projection = _s14_public_projection(projection_payload, s14_record)
         consumer_contracts.append(
             {
@@ -1260,8 +1380,7 @@ def _s10_forecast_projection_record(projection: Mapping[str, Any]) -> dict[str, 
     ):
         return {}
     authority_boundary = _mapping(
-        projection.get("authority_boundary")
-        or projection.get("forecast_authority_boundary")
+        projection.get("authority_boundary") or projection.get("forecast_authority_boundary")
     )
     calibration_status = _s10_calibration_status(projection)
     return {
@@ -1271,9 +1390,7 @@ def _s10_forecast_projection_record(projection: Mapping[str, Any]) -> dict[str, 
             projection.get("forecast_authority_disposition_reason")
         ),
         "forecast_support_label": _text(projection.get("forecast_support_label")),
-        "forecast_calibration_record_ref": _text(
-            projection.get("forecast_calibration_record_ref")
-        ),
+        "forecast_calibration_record_ref": _text(projection.get("forecast_calibration_record_ref")),
         "observable_subset_calibration_status": calibration_status,
         "design_graph_ref": _text(projection.get("design_graph_ref")),
         "prediction_context_ref": _text(projection.get("prediction_context_ref")),
@@ -1283,14 +1400,10 @@ def _s10_forecast_projection_record(projection: Mapping[str, Any]) -> dict[str, 
         "credible_evaluation_evidence_ref": _text(
             projection.get("credible_evaluation_evidence_ref")
         ),
-        "uncertainty_interval_refs": _text_list(
-            projection.get("uncertainty_interval_refs")
-        ),
+        "uncertainty_interval_refs": _text_list(projection.get("uncertainty_interval_refs")),
         "s5_forecast_support_ref": _text(projection.get("s5_forecast_support_ref")),
         "s6_firewall_status_refs": _text_list(projection.get("s6_firewall_status_refs")),
-        "s8_value_choice_provenance_ref": _text(
-            projection.get("s8_value_choice_provenance_ref")
-        ),
+        "s8_value_choice_provenance_ref": _text(projection.get("s8_value_choice_provenance_ref")),
         "s8_value_tradeoff_disclosure_ref": _text(
             projection.get("s8_value_tradeoff_disclosure_ref")
         ),
@@ -1315,8 +1428,7 @@ def _s11_predictive_projection_record(projection: Mapping[str, Any]) -> dict[str
     ):
         return {}
     authority_boundary = _mapping(
-        projection.get("authority_boundary")
-        or projection.get("predictive_authority_boundary")
+        projection.get("authority_boundary") or projection.get("predictive_authority_boundary")
     )
     return {
         "s11_predictive_posture_ref": _text(
@@ -1328,8 +1440,7 @@ def _s11_predictive_projection_record(projection: Mapping[str, Any]) -> dict[str
             or projection.get("predictive_authority_status")
         ),
         "predictive_axis_upgrade_refs": _text_list(
-            projection.get("predictive_axis_upgrade_refs")
-            or projection.get("axis_upgrade_refs")
+            projection.get("predictive_axis_upgrade_refs") or projection.get("axis_upgrade_refs")
         ),
         "predictive_axis_rows": [
             _mapping(row)
@@ -1342,13 +1453,9 @@ def _s11_predictive_projection_record(projection: Mapping[str, Any]) -> dict[str
         "per_axis_predictive_calibration_threshold_ref": _text(
             projection.get("per_axis_predictive_calibration_threshold_ref")
         ),
-        "proof_carrying_analytics_ref": _text(
-            projection.get("proof_carrying_analytics_ref")
-        ),
+        "proof_carrying_analytics_ref": _text(projection.get("proof_carrying_analytics_ref")),
         "ir_analytics_bridge_ref": _text(projection.get("ir_analytics_bridge_ref")),
-        "residual_limitation_refs": _text_list(
-            projection.get("residual_limitation_refs")
-        ),
+        "residual_limitation_refs": _text_list(projection.get("residual_limitation_refs")),
         "weakest_boundary_reason": _text(projection.get("weakest_boundary_reason")),
         "s11_public_limitation": _text(projection.get("s11_public_limitation")),
         "authority_boundary": authority_boundary,
@@ -1460,12 +1567,9 @@ def _s11_public_projection(
     )
     return {
         "authority_role": "projection_only",
-        "effective_predictive_posture": _text(
-            s11_record.get("effective_predictive_posture")
-        ),
+        "effective_predictive_posture": _text(s11_record.get("effective_predictive_posture")),
         "s11_public_limitation": _text(
-            projection.get("s11_public_limitation")
-            or s11_record.get("s11_public_limitation")
+            projection.get("s11_public_limitation") or s11_record.get("s11_public_limitation")
         ),
         "may_not_be_used_for": may_not,
     }
@@ -1479,8 +1583,7 @@ def _s12_resource_projection_record(projection: Mapping[str, Any]) -> dict[str, 
     ):
         return {}
     authority_boundary = _mapping(
-        projection.get("resource_authority_boundary")
-        or projection.get("authority_boundary")
+        projection.get("resource_authority_boundary") or projection.get("authority_boundary")
     )
     return {
         "s12_resource_posture_ref": _text(projection.get("s12_resource_posture_ref")),
@@ -1495,22 +1598,14 @@ def _s12_resource_projection_record(projection: Mapping[str, Any]) -> dict[str, 
         "voi_site_count": _int(projection.get("voi_site_count")),
         "typed_budget_refs": _text_list(projection.get("typed_budget_refs")),
         "pareto_archive_ref": _text(projection.get("pareto_archive_ref")),
-        "envelope_growth_ledger_ref": _text(
-            projection.get("envelope_growth_ledger_ref")
-        ),
+        "envelope_growth_ledger_ref": _text(projection.get("envelope_growth_ledger_ref")),
         "growth_thermometer_ref": _text(projection.get("growth_thermometer_ref")),
         "override_rate_trend": _text(projection.get("override_rate_trend")),
         "reuse_rate_trend": _text(projection.get("reuse_rate_trend")),
         "held_out_status": _text(projection.get("held_out_status")),
-        "resource_allocation_disposition": _text(
-            projection.get("resource_allocation_disposition")
-        ),
-        "residual_limitation_refs": _text_list(
-            projection.get("residual_limitation_refs")
-        ),
-        "s12_public_growth_limitation": _text(
-            projection.get("s12_public_growth_limitation")
-        ),
+        "resource_allocation_disposition": _text(projection.get("resource_allocation_disposition")),
+        "residual_limitation_refs": _text_list(projection.get("residual_limitation_refs")),
+        "s12_public_growth_limitation": _text(projection.get("s12_public_growth_limitation")),
         "authority_boundary": authority_boundary,
         "may_not_be_used_for": _unique_texts(
             [
@@ -1622,8 +1717,7 @@ def _s12_projection_issues(
                 "s12_hidden_pareto_allocation_scalar",
                 audience=audience,
                 message=(
-                    "S12 allocation projection cannot hide the Pareto frontier "
-                    "behind a scalar."
+                    "S12 allocation projection cannot hide the Pareto frontier behind a scalar."
                 ),
             )
         )
@@ -1708,45 +1802,27 @@ def _s13_accountability_projection_record(projection: Mapping[str, Any]) -> dict
             projection.get("learning_update_proposal_refs")
         ),
         "envelope_revision_ref": _text(projection.get("envelope_revision_ref")),
-        "certified_envelope_delta_ref": _text(
-            projection.get("certified_envelope_delta_ref")
-        ),
+        "certified_envelope_delta_ref": _text(projection.get("certified_envelope_delta_ref")),
         "assurance_case_delta_ref": _text(projection.get("assurance_case_delta_ref")),
         "attribution_status": _text(projection.get("attribution_status")),
         "attribution_classes": _text_list(projection.get("attribution_classes")),
         "learning_change_control_classes": _text_list(
             projection.get("learning_change_control_classes")
         ),
-        "lifecycle_reissue_disposition": _text(
-            projection.get("lifecycle_reissue_disposition")
-        ),
-        "envelope_revision_direction": _text(
-            projection.get("envelope_revision_direction")
-        ),
+        "lifecycle_reissue_disposition": _text(projection.get("lifecycle_reissue_disposition")),
+        "envelope_revision_direction": _text(projection.get("envelope_revision_direction")),
         "assurance_case_change": _text(projection.get("assurance_case_change")),
         "mape_k_trace_ref": _text(projection.get("mape_k_trace_ref")),
         "public_revision_state_ref": _text(projection.get("public_revision_state_ref")),
-        "public_accountability_note_ref": _text(
-            projection.get("public_accountability_note_ref")
-        ),
-        "public_accountability_note": _text(
-            projection.get("public_accountability_note")
-        ),
-        "closed_case_historical_meaning": _text(
-            projection.get("closed_case_historical_meaning")
-        ),
+        "public_accountability_note_ref": _text(projection.get("public_accountability_note_ref")),
+        "public_accountability_note": _text(projection.get("public_accountability_note")),
+        "closed_case_historical_meaning": _text(projection.get("closed_case_historical_meaning")),
         "owner": _text(projection.get("owner")),
         "deadline": _text(projection.get("deadline")),
         "action_item_status": _text(projection.get("action_item_status")),
-        "action_item_closure_refs": _text_list(
-            projection.get("action_item_closure_refs")
-        ),
-        "oversight_effectiveness_ref": _text(
-            projection.get("oversight_effectiveness_ref")
-        ),
-        "oversight_accountability_state": _text(
-            projection.get("oversight_accountability_state")
-        ),
+        "action_item_closure_refs": _text_list(projection.get("action_item_closure_refs")),
+        "oversight_effectiveness_ref": _text(projection.get("oversight_effectiveness_ref")),
+        "oversight_accountability_state": _text(projection.get("oversight_accountability_state")),
         "reissue_actions": _text_list(projection.get("reissue_actions")),
         "historical_prior_influence_refs": _text_list(
             projection.get("historical_prior_influence_refs")
@@ -1821,10 +1897,7 @@ def _s13_projection_issues(
             _contract_issue(
                 "s13_learning_update_as_current_evidence_authority",
                 audience=audience,
-                message=(
-                    "S13 learning updates cannot be projected as current evidence "
-                    "authority."
-                ),
+                message=("S13 learning updates cannot be projected as current evidence authority."),
             )
         )
     if _s13_authority_laundered(projection, s13_record):
@@ -1887,25 +1960,15 @@ def _s13_public_projection(
     )
     return {
         "authority_role": "projection_only",
-        "accountability_posture_ref": _text(
-            s13_record.get("accountability_posture_ref")
-        ),
-        "public_revision_state_ref": _text(
-            s13_record.get("public_revision_state_ref")
-        ),
-        "public_accountability_note_ref": _text(
-            s13_record.get("public_accountability_note_ref")
-        ),
+        "accountability_posture_ref": _text(s13_record.get("accountability_posture_ref")),
+        "public_revision_state_ref": _text(s13_record.get("public_revision_state_ref")),
+        "public_accountability_note_ref": _text(s13_record.get("public_accountability_note_ref")),
         "public_accountability_note": _text(
             projection.get("public_accountability_note")
             or s13_record.get("public_accountability_note")
         ),
-        "envelope_revision_direction": _text(
-            s13_record.get("envelope_revision_direction")
-        ),
-        "closed_case_historical_meaning": _text(
-            s13_record.get("closed_case_historical_meaning")
-        )
+        "envelope_revision_direction": _text(s13_record.get("envelope_revision_direction")),
+        "closed_case_historical_meaning": _text(s13_record.get("closed_case_historical_meaning"))
         or "preserved",
         "may_not_be_used_for": may_not,
     }
@@ -1921,22 +1984,12 @@ def _s14_universality_projection_record(projection: Mapping[str, Any]) -> dict[s
     authority_boundary = _mapping(projection.get("authority_boundary"))
     return {
         "authority_role": _text(projection.get("authority_role")) or "projection_only",
-        "s14_universality_assurance_ref": _text(
-            projection.get("s14_universality_assurance_ref")
-        ),
+        "s14_universality_assurance_ref": _text(projection.get("s14_universality_assurance_ref")),
         "universality_claim_gate_ref": _text(projection.get("universality_claim_gate_ref")),
-        "universality_claim_disposition": _text(
-            projection.get("universality_claim_disposition")
-        ),
-        "declared_operation_envelope_ref": _text(
-            projection.get("declared_operation_envelope_ref")
-        ),
-        "d4_corpus_track_coverage_ref": _text(
-            projection.get("d4_corpus_track_coverage_ref")
-        ),
-        "d4_corpus_track_coverage_status": _text(
-            projection.get("d4_corpus_track_coverage_status")
-        ),
+        "universality_claim_disposition": _text(projection.get("universality_claim_disposition")),
+        "declared_operation_envelope_ref": _text(projection.get("declared_operation_envelope_ref")),
+        "d4_corpus_track_coverage_ref": _text(projection.get("d4_corpus_track_coverage_ref")),
+        "d4_corpus_track_coverage_status": _text(projection.get("d4_corpus_track_coverage_status")),
         "expert_oracle_bootstrap_ref": _text(projection.get("expert_oracle_bootstrap_ref")),
         "expert_oracle_seed_only_layer_refs": _text_list(
             projection.get("expert_oracle_seed_only_layer_refs")
@@ -1948,17 +2001,11 @@ def _s14_universality_projection_record(projection: Mapping[str, Any]) -> dict[s
             projection.get("universality_baseline_comparison_ref")
         ),
         "baseline_comparison_status": _text(projection.get("baseline_comparison_status")),
-        "grounded_authority_coverage_ref": _text(
-            projection.get("grounded_authority_coverage_ref")
-        ),
+        "grounded_authority_coverage_ref": _text(projection.get("grounded_authority_coverage_ref")),
         "grounded_authority_status": _text(projection.get("grounded_authority_status")),
         "a_firewall_refs": _text_list(projection.get("a_firewall_refs")),
-        "claim_evidence_binding_refs": _text_list(
-            projection.get("claim_evidence_binding_refs")
-        ),
-        "value_choice_provenance_refs": _text_list(
-            projection.get("value_choice_provenance_refs")
-        ),
+        "claim_evidence_binding_refs": _text_list(projection.get("claim_evidence_binding_refs")),
+        "value_choice_provenance_refs": _text_list(projection.get("value_choice_provenance_refs")),
         "mandate_legitimacy_refs": _text_list(projection.get("mandate_legitimacy_refs")),
         "capacity_check_refs": _text_list(projection.get("capacity_check_refs")),
         "evaluation_status_composition_ref": _text(
@@ -1967,9 +2014,7 @@ def _s14_universality_projection_record(projection: Mapping[str, Any]) -> dict[s
         "status_composition_limit_refs": _text_list(
             projection.get("status_composition_limit_refs")
         ),
-        "envelope_revision_dynamics_ref": _text(
-            projection.get("envelope_revision_dynamics_ref")
-        ),
+        "envelope_revision_dynamics_ref": _text(projection.get("envelope_revision_dynamics_ref")),
         "envelope_revision_dynamics_status": _text(
             projection.get("envelope_revision_dynamics_status")
         ),
@@ -1979,33 +2024,23 @@ def _s14_universality_projection_record(projection: Mapping[str, Any]) -> dict[s
             for row in _sequence(projection.get("axis_scorecard_rows"))
             if isinstance(row, Mapping)
         ],
-        "out_of_envelope_axis_refs": _text_list(
-            projection.get("out_of_envelope_axis_refs")
-        ),
+        "out_of_envelope_axis_refs": _text_list(projection.get("out_of_envelope_axis_refs")),
         "not_tested_axis_refs": _text_list(projection.get("not_tested_axis_refs")),
         "hard_corner_case_refs": _text_list(projection.get("hard_corner_case_refs")),
         "sealed_battery_run_ref": _text(projection.get("sealed_battery_run_ref")),
         "sealed_battery_freeze_hash": _text(projection.get("sealed_battery_freeze_hash")),
-        "sealed_battery_integrity_status": _text(
-            projection.get("sealed_battery_integrity_status")
-        ),
-        "mechanism_generality_report_ref": _text(
-            projection.get("mechanism_generality_report_ref")
-        ),
+        "sealed_battery_integrity_status": _text(projection.get("sealed_battery_integrity_status")),
+        "mechanism_generality_report_ref": _text(projection.get("mechanism_generality_report_ref")),
         "mechanism_generality_status": _text(projection.get("mechanism_generality_status")),
         "sublinear_marginal_bespoke_cost_status": _text(
             projection.get("sublinear_marginal_bespoke_cost_status")
         ),
         "skeptic_defeater_refs": _text_list(projection.get("skeptic_defeater_refs")),
-        "skeptic_defeater_statuses": _mapping(
-            projection.get("skeptic_defeater_statuses")
-        ),
+        "skeptic_defeater_statuses": _mapping(projection.get("skeptic_defeater_statuses")),
         "s9_projection_faithfulness_refs": _text_list(
             projection.get("s9_projection_faithfulness_refs")
         ),
-        "public_universality_limitation": _text(
-            projection.get("public_universality_limitation")
-        ),
+        "public_universality_limitation": _text(projection.get("public_universality_limitation")),
         "replay_digest": _text(projection.get("replay_digest")),
         "authority_boundary": authority_boundary,
         "may_not_be_used_for": _unique_texts(
@@ -2119,49 +2154,27 @@ def _s14_public_projection(
     )
     return {
         "authority_role": "projection_only",
-        "universality_claim_disposition": _text(
-            s14_record.get("universality_claim_disposition")
-        ),
-        "declared_operation_envelope_ref": _text(
-            s14_record.get("declared_operation_envelope_ref")
-        ),
-        "s14_universality_assurance_ref": _text(
-            s14_record.get("s14_universality_assurance_ref")
-        ),
-        "universality_claim_gate_ref": _text(
-            s14_record.get("universality_claim_gate_ref")
-        ),
-        "d4_corpus_track_coverage_ref": _text(
-            s14_record.get("d4_corpus_track_coverage_ref")
-        ),
-        "d4_corpus_track_coverage_status": _text(
-            s14_record.get("d4_corpus_track_coverage_status")
-        ),
-        "d4_breadth_limitation_summary": _text(
-            s14_record.get("d4_corpus_track_coverage_status")
-        )
+        "universality_claim_disposition": _text(s14_record.get("universality_claim_disposition")),
+        "declared_operation_envelope_ref": _text(s14_record.get("declared_operation_envelope_ref")),
+        "s14_universality_assurance_ref": _text(s14_record.get("s14_universality_assurance_ref")),
+        "universality_claim_gate_ref": _text(s14_record.get("universality_claim_gate_ref")),
+        "d4_corpus_track_coverage_ref": _text(s14_record.get("d4_corpus_track_coverage_ref")),
+        "d4_corpus_track_coverage_status": _text(s14_record.get("d4_corpus_track_coverage_status")),
+        "d4_breadth_limitation_summary": _text(s14_record.get("d4_corpus_track_coverage_status"))
         or "unknown",
-        "expert_oracle_bootstrap_ref": _text(
-            s14_record.get("expert_oracle_bootstrap_ref")
-        ),
+        "expert_oracle_bootstrap_ref": _text(s14_record.get("expert_oracle_bootstrap_ref")),
         "expert_oracle_seed_only_layer_refs": _text_list(
             s14_record.get("expert_oracle_seed_only_layer_refs")
         ),
         "breadth_floor_config_ref": _text(s14_record.get("breadth_floor_config_ref")),
         "breadth_floor_status": _text(s14_record.get("breadth_floor_status")),
         "excluded_domain_refs": _text_list(s14_record.get("excluded_domain_refs")),
-        "grounded_authority_coverage_ref": _text(
-            s14_record.get("grounded_authority_coverage_ref")
-        ),
-        "grounded_authority_status": _text(
-            s14_record.get("grounded_authority_status")
-        ),
+        "grounded_authority_coverage_ref": _text(s14_record.get("grounded_authority_coverage_ref")),
+        "grounded_authority_status": _text(s14_record.get("grounded_authority_status")),
         "universality_baseline_comparison_ref": _text(
             s14_record.get("universality_baseline_comparison_ref")
         ),
-        "baseline_comparison_status": _text(
-            s14_record.get("baseline_comparison_status")
-        ),
+        "baseline_comparison_status": _text(s14_record.get("baseline_comparison_status")),
         "evaluation_status_composition_ref": _text(
             s14_record.get("evaluation_status_composition_ref")
         ),
@@ -2169,19 +2182,13 @@ def _s14_public_projection(
             s14_record.get("status_composition_limit_refs")
         ),
         "axis_scorecard_ref": _text(s14_record.get("axis_scorecard_ref")),
-        "out_of_envelope_axis_refs": _text_list(
-            s14_record.get("out_of_envelope_axis_refs")
-        ),
+        "out_of_envelope_axis_refs": _text_list(s14_record.get("out_of_envelope_axis_refs")),
         "not_tested_axis_refs": _text_list(s14_record.get("not_tested_axis_refs")),
-        "mechanism_generality_status": _text(
-            s14_record.get("mechanism_generality_status")
-        ),
+        "mechanism_generality_status": _text(s14_record.get("mechanism_generality_status")),
         "sublinear_marginal_bespoke_cost_status": _text(
             s14_record.get("sublinear_marginal_bespoke_cost_status")
         ),
-        "skeptic_defeater_statuses": dict(
-            _mapping(s14_record.get("skeptic_defeater_statuses"))
-        ),
+        "skeptic_defeater_statuses": dict(_mapping(s14_record.get("skeptic_defeater_statuses"))),
         "s9_projection_faithfulness_refs": _text_list(
             s14_record.get("s9_projection_faithfulness_refs")
         ),
@@ -2256,9 +2263,7 @@ def _s10_projection_issues(
                 message="S10 projection must preserve design graph and prediction context refs.",
             )
         )
-    if tier == "simulation_only_advisory" and bool(
-        projection.get("evidence_authority_claimed")
-    ):
+    if tier == "simulation_only_advisory" and bool(projection.get("evidence_authority_claimed")):
         issues.append(
             _contract_issue(
                 "s10_simulation_only_laundered_as_evidence",
@@ -2278,8 +2283,7 @@ def _s10_projection_issues(
         )
     calibration_status = _text(s10_record.get("observable_subset_calibration_status"))
     if tier == "observable_calibrated" and (
-        not _text(s10_record.get("forecast_calibration_record_ref"))
-        or calibration_status != "pass"
+        not _text(s10_record.get("forecast_calibration_record_ref")) or calibration_status != "pass"
     ):
         issues.append(
             _contract_issue(
@@ -2309,8 +2313,7 @@ def _s10_projection_issues(
                 "s10_validated_model_missing_source_or_method_validity",
                 audience=audience,
                 message=(
-                    "Validated local forecast projection requires source and "
-                    "method-validity refs."
+                    "Validated local forecast projection requires source and method-validity refs."
                 ),
             )
         )
@@ -2358,8 +2361,7 @@ def _s10_projection_issues(
                 "s10_prediction_authority_laundering",
                 audience=audience,
                 message=(
-                    "S10 projection crossed from forecast support into "
-                    "recommendation authority."
+                    "S10 projection crossed from forecast support into recommendation authority."
                 ),
             )
         )
@@ -2450,9 +2452,7 @@ def _s9_consumer_projection(
         "run_id": _text(projection.get("run_id")),
         "source_ref": source_ref,
         "source_ref_fingerprint": _fingerprint(source_ref) if source_ref else None,
-        "primary_state": "blocked"
-        if closeout_truth.get("blocker_codes")
-        else "projection_only",
+        "primary_state": "blocked" if closeout_truth.get("blocker_codes") else "projection_only",
         "states": [
             "projection_only",
             *(["blocked"] if closeout_truth.get("blocker_codes") else []),
@@ -2555,8 +2555,7 @@ def _s9_closeout_truth(closeout_truth: Mapping[str, Any]) -> dict[str, Any]:
         "blocker_codes": blocker_codes,
         "limitation_codes": _text_list(closeout_truth.get("limitation_codes")),
         "omission_codes": _text_list(closeout_truth.get("omission_codes")),
-        "contested_state": _text(closeout_truth.get("contested_state"))
-        or "not_contested",
+        "contested_state": _text(closeout_truth.get("contested_state")) or "not_contested",
         "blockers": blockers,
     }
 
@@ -2567,8 +2566,7 @@ def _s9_deficit_register(projection: Mapping[str, Any]) -> list[dict[str, Any]]:
         rows.append(
             {
                 **row,
-                "deficit_family": _text(row.get("deficit_family"))
-                or "projection_faithfulness",
+                "deficit_family": _text(row.get("deficit_family")) or "projection_faithfulness",
                 "disposition": _text(row.get("disposition")) or "requires_review",
             }
         )
@@ -2654,8 +2652,7 @@ def _s9_projection_issues(
         if isinstance(row, Mapping)
     }
     missing_deficit_codes = sorted(
-        {_text(code) for code in expected_deficit_codes if _text(code)}
-        - actual_deficit_codes
+        {_text(code) for code in expected_deficit_codes if _text(code)} - actual_deficit_codes
     )
     for code in missing_deficit_codes:
         issues.append(
@@ -2742,14 +2739,11 @@ def _s9_revision_issues(
     expected = _text(expected_source_revision_ref)
     if not expected:
         return []
-    actual = _text(
-        projection.get("source_revision_ref") or faithfulness.get("source_revision_ref")
-    )
+    actual = _text(projection.get("source_revision_ref") or faithfulness.get("source_revision_ref"))
     if actual == expected:
         return []
     has_reissue_route = any(
-        _text(projection.get(key) or faithfulness.get(key))
-        for key in ("reissue_ref", "reopen_ref")
+        _text(projection.get(key) or faithfulness.get(key)) for key in ("reissue_ref", "reopen_ref")
     ) or bool(projection.get("s9_reissue_required"))
     if has_reissue_route:
         return []
@@ -3058,8 +3052,7 @@ def _projection_gaps(
     ):
         gaps.append(
             _gap(
-                gap_code=_text(issue.get("code") or issue.get("issue_code"))
-                or "closeout_omission",
+                gap_code=_text(issue.get("code") or issue.get("issue_code")) or "closeout_omission",
                 gap_family="omission",
                 severity=_text(issue.get("severity")) or "omission",
                 message=_text(issue.get("message")) or "Closeout omission is present.",
@@ -3216,8 +3209,7 @@ def _normalize_omission(
     return {
         "omission_id": _text(raw.get("omission_id")) or f"omission:{code}",
         "omission_code": code,
-        "omission_family": _text(raw.get("omission_family") or raw.get("family"))
-        or "projection",
+        "omission_family": _text(raw.get("omission_family") or raw.get("family")) or "projection",
         "reason": _text(raw.get("reason") or raw.get("message")) or code,
         "audience_visibility": [item.value for item in visibility],
         "claim_ids": _text_list(raw.get("claim_ids") or raw.get("claim_refs")),
@@ -3225,8 +3217,7 @@ def _normalize_omission(
         "owner": _text(raw.get("owner")),
         "evidence_ref": _text(raw.get("evidence_ref")),
         "manifest_ref": _text(raw.get("manifest_ref")),
-        "publication_effect": _text(raw.get("publication_effect"))
-        or "omission_manifest_required",
+        "publication_effect": _text(raw.get("publication_effect")) or "omission_manifest_required",
         "closeout_effect": _text(raw.get("closeout_effect")) or "limited_closeout",
     }
 
@@ -3444,8 +3435,7 @@ def _normalize_participation_row(
         "source_kind": _text(raw_row.get("source_kind")) or "unknown",
         "consultation_mode": _text(raw_row.get("consultation_mode")),
         "provenance_class": _text(raw_row.get("provenance_class")) or "unknown",
-        "representativeness_class": _text(raw_row.get("representativeness_class"))
-        or "unknown",
+        "representativeness_class": _text(raw_row.get("representativeness_class")) or "unknown",
         "public_projection_effect": _text(raw_row.get("public_projection_effect"))
         or _text(evaluation.get("case_closeout_effect"))
         or "show_participation_status",

@@ -15,6 +15,10 @@ from typing import Any
 
 __all__ = [
     "BudgetState",
+    "ClaimLedgerCurrentHeadProjection",
+    "ClaimLedgerOwnerPort",
+    "ClaimLifecycleBridgeAdvanced",
+    "EpochClaimLifecycleBridgeService",
     "ExperimentState",
     "KnowledgeToolkit",
     "ToolContractSummary",
@@ -22,6 +26,8 @@ __all__ = [
     "ToolLoopResult",
     "ToolRegistry",
     "build_governance_pipeline",
+    "build_default_claim_ledger_owner",
+    "build_epoch_claim_lifecycle_bridge",
     "build_knowledge_tool_registry",
     "create_traced_gateway_client",
     "discover_scientist_nodes",
@@ -36,6 +42,22 @@ __all__ = [
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "BudgetState": ("polisyos.scientist.orchestration.engine.budget", "BudgetState"),
+    "ClaimLedgerCurrentHeadProjection": (
+        "polisyos.scientist.evidence.claims.head_index",
+        "ClaimLedgerCurrentHeadProjection",
+    ),
+    "ClaimLedgerOwnerPort": (
+        "polisyos.scientist.evidence.claims.head_index",
+        "ClaimLedgerOwnerPort",
+    ),
+    "ClaimLifecycleBridgeAdvanced": (
+        "polisyos.scientist.evidence.claims.head_index",
+        "ClaimLifecycleBridgeAdvanced",
+    ),
+    "EpochClaimLifecycleBridgeService": (
+        "polisyos.scientist.governance.continuous.lifecycle_bridge",
+        "EpochClaimLifecycleBridgeService",
+    ),
     "ExperimentState": ("polisyos.scientist.orchestration.engine.state", "ExperimentState"),
     "KnowledgeToolkit": ("polisyos.scientist.agent.knowledge_tools", "KnowledgeToolkit"),
     "ToolContractSummary": ("polisyos.scientist.agent.tool_contracts", "ToolContractSummary"),
@@ -43,6 +65,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "ToolLoopResult": ("polisyos.scientist.agent.tools.tool_loop", "ToolLoopResult"),
     "ToolRegistry": ("polisyos.scientist.agent.tools.registry", "ToolRegistry"),
     "build_governance_pipeline": ("polisyos.scientist.api", "build_governance_pipeline"),
+    "build_default_claim_ledger_owner": (
+        "polisyos.scientist.evidence.claims.head_index",
+        "build_default_claim_ledger_owner",
+    ),
+    "build_epoch_claim_lifecycle_bridge": (
+        "polisyos.scientist.governance.continuous.lifecycle_bridge",
+        "build_epoch_claim_lifecycle_bridge",
+    ),
     "build_knowledge_tool_registry": (
         "polisyos.scientist.agent.tools.knowledge_tools_adapter",
         "build_knowledge_tool_registry",

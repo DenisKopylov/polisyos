@@ -15,14 +15,20 @@ from polisyos.ir.analytics.cross_graph import load_cross_graph_evidence_profile
 from polisyos.ir.analytics.distributional import load_distributional_report
 from polisyos.ir.analytics.uncertainty import load_uncertainty_envelope
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.scientist.methods.doe.stress_report import StressTestReport
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
-from polisyos.scientist.orchestration.engine.protocol import NodeError, NodeEvent, NodeOutcome, NodeSpec
-from polisyos.scientist.orchestration.engine.state import ExperimentState
-from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.governance.calibration_validation import (
     load_calibration_validation_bundle,
+)
+from polisyos.scientist.methods.doe.stress_report import StressTestReport
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.judge_stack import (
+    JudgeVerdict,
+    PolicyPromotionResult,
+    to_search_uncertainty_envelope,
+)
+from polisyos.scientist.methods.search.pareto_registry import ParetoRegistrySnapshot
+from polisyos.scientist.methods.search.readiness import (
+    DecisionReadinessContract,
+    load_decision_readiness_contract,
 )
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -50,6 +56,19 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_VALIDATION_REPORT_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import (
+    ClaimCapableExecutionContext,
+    ExecutionContext,
+)
+from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
+from polisyos.scientist.orchestration.engine.protocol import (
+    NodeError,
+    NodeEvent,
+    NodeOutcome,
+    NodeSpec,
+)
+from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.orchestration.engine.state_branching import branch_state
 from polisyos.scientist.policy_design.objectives import PolicyEvaluationVector
 from polisyos.scientist.policy_design.output import (
     PolicyArtifactBuilder,
@@ -63,17 +82,6 @@ from polisyos.scientist.policy_design.schema import (
     load_policy_candidate_schema,
 )
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.methods.search.judge_stack import (
-    JudgeVerdict,
-    PolicyPromotionResult,
-    to_search_uncertainty_envelope,
-)
-from polisyos.scientist.methods.search.pareto_registry import ParetoRegistrySnapshot
-from polisyos.scientist.methods.search.readiness import (
-    DecisionReadinessContract,
-    load_decision_readiness_contract,
-)
 from polisyos.scientist.validation.phase5_preflight import (
     Phase5ArtifactPreflightInput,
     Phase5ValidationBlocked,
@@ -337,8 +345,21 @@ class BuildPolicyOutputBundleNode:
                 ),
             },
         )
+        if not isinstance(ctx, ClaimCapableExecutionContext):
+            return NodeOutcome(
+                status="fail",
+                state=state,
+                error=NodeError(
+                    code="claim_ledger_owner_not_established",
+                    message="claim_ledger_owner_not_established",
+                ),
+            )
         try:
-            bundle_ref = PolicyArtifactBuilder().build(ctx.store, build_input)
+            bundle_ref = PolicyArtifactBuilder().build(
+                ctx.store,
+                build_input,
+                claim_owner=ctx.claim_ledger_owner,
+            )
         except ValueError as exc:
             return NodeOutcome(
                 status="fail",

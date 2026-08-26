@@ -6,18 +6,18 @@ from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.scientist.evidence.claims.audit import (
     CLAIM_LEDGER_V2_KIND,
-    append_and_persist_claim_event,
-    append_only_audit_summary,
-    claim_ledger_v2_inputs,
-    load_append_only_claim_ledger,
-    load_claim_ledger_as_append_only,
-    persist_append_only_claim_ledger,
-    retention_window_for_export,
+    _append_only_audit_summary,
+    _claim_ledger_v2_inputs,
+    _load_append_only_claim_ledger,
+    _load_claim_ledger_as_append_only,
+    _persist_append_only_claim_ledger,
+    _retention_window_for_export,
 )
-from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
+from polisyos.scientist.evidence.claims.ledger import _persist_claim_ledger
 from polisyos.scientist.evidence.claims.lifecycle import (
     ClaimLifecycleAction,
     ClaimLifecycleEvent,
+    append_lifecycle_event,
     build_initial_append_only_ledger,
 )
 from polisyos.scientist.evidence.claims.models import (
@@ -58,7 +58,7 @@ def _ledger() -> ClaimLedger:
 
 def test_append_only_claim_ledger_persists_and_loads(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
-    legacy_ref = persist_claim_ledger(store, _ledger())
+    legacy_ref = _persist_claim_ledger(store, _ledger())
     append_only = build_initial_append_only_ledger(
         _ledger(),
         actor_id="node",
@@ -67,12 +67,12 @@ def test_append_only_claim_ledger_persists_and_loads(tmp_path) -> None:
         base_ledger_ref=legacy_ref,
     )
 
-    ref = persist_append_only_claim_ledger(
+    ref = _persist_append_only_claim_ledger(
         store,
         append_only,
-        inputs=claim_ledger_v2_inputs(base_ledger_ref=legacy_ref),
+        inputs=_claim_ledger_v2_inputs(base_ledger_ref=legacy_ref),
     )
-    loaded = load_append_only_claim_ledger(store, ref)
+    loaded = _load_append_only_claim_ledger(store, ref)
     manifest = store.get_manifest(ref.artifact_id)
 
     assert ref.kind == CLAIM_LEDGER_V2_KIND
@@ -82,16 +82,16 @@ def test_append_only_claim_ledger_persists_and_loads(tmp_path) -> None:
 
 def test_legacy_claim_ledger_loads_as_append_only_compatibility_view(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
-    legacy_ref = persist_claim_ledger(store, _ledger())
+    legacy_ref = _persist_claim_ledger(store, _ledger())
 
-    loaded = load_claim_ledger_as_append_only(store, legacy_ref)
+    loaded = _load_claim_ledger_as_append_only(store, legacy_ref)
 
     assert loaded.schema_version == "2.0"
     assert loaded.base_ledger_ref == legacy_ref
     assert loaded.retention_policy["legacy_status"] == "legacy_no_events"
 
 
-def test_append_and_persist_claim_event_preserves_actor_and_order(tmp_path) -> None:
+def test_append_then_persist_claim_event_preserves_actor_and_order(tmp_path) -> None:
     store = FileSystemCAS(tmp_path)
     append_only = build_initial_append_only_ledger(
         _ledger(),
@@ -110,9 +110,10 @@ def test_append_and_persist_claim_event_preserves_actor_and_order(tmp_path) -> N
         reviewer_refs=[_ref("2")],
     )
 
-    updated, ref = append_and_persist_claim_event(store, append_only, event)
-    loaded = load_append_only_claim_ledger(store, ref)
-    summary = append_only_audit_summary(loaded)
+    updated = append_lifecycle_event(append_only, event)
+    ref = _persist_append_only_claim_ledger(store, updated)
+    loaded = _load_append_only_claim_ledger(store, ref)
+    summary = _append_only_audit_summary(loaded)
 
     assert updated.events[-1] == event
     assert summary["event_count"] == 2
@@ -139,7 +140,7 @@ def test_retention_window_is_bounded_without_mutating_ledger() -> None:
     )
     append_only = append_only.model_copy(update={"events": [*append_only.events, event]})
 
-    window = retention_window_for_export(append_only)
+    window = _retention_window_for_export(append_only)
 
     assert window["retention_applied"] is True
     assert window["included_event_ids"] == ["event_reviewed"]

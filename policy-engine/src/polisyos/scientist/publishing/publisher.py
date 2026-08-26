@@ -14,12 +14,16 @@ from polisyos.core.artifacts.store import PutOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.scientist.evidence.claims.export import (
     ClaimExportAudience,
-    blocked_claim_summary,
-    claim_ledger_summary,
-    export_claim_ledger,
+    ClaimLedgerExport,
 )
-from polisyos.scientist.evidence.claims.lifecycle import AppendOnlyClaimLedger
-from polisyos.scientist.evidence.claims.models import ClaimLedger, ClaimPublishability
+from polisyos.scientist.evidence.claims.head_index import (
+    ClaimLedgerCurrentHeadProjection,
+    ClaimLedgerExportService,
+    ClaimLedgerHeadResolutionNonReceipt,
+    ClaimLedgerOwnerKey,
+    ClaimLedgerOwnerPort,
+    project_claim_ledger_current_head,
+)
 from polisyos.scientist.governance.continuous.reports import (
     DecisionValidityReport,
     export_public_validity_report,
@@ -101,6 +105,12 @@ class DecisionGradeExport(BaseModel):
         _validate_trust_refs(
             trust, claims_ref=self.claims_ref, research_dag_ref=self.research_dag_ref
         )
+        current_head = ClaimLedgerCurrentHeadProjection.model_validate(
+            self.payload.get("claim_current_head")
+        )
+        if current_head.ledger_artifact_ref != self.claims_ref:
+            raise ValueError("decision-grade claim current-head trust mismatch")
+        _validate_current_head_trust(trust, current_head=current_head)
 
         blocked_count = _blocked_count(self.payload)
         visible_blocked = _has_visible_blocked_claims(self.payload)
@@ -126,9 +136,9 @@ def compile_decision_grade_export(
     *,
     run_id: str,
     audience: OutputAudience | str,
-    claims_ref: ArtifactRef,
     research_dag_ref: ArtifactRef,
-    claim_ledger: ClaimLedger | AppendOnlyClaimLedger,
+    claim_owner: ClaimLedgerOwnerPort,
+    claim_owner_key: ClaimLedgerOwnerKey,
     research_dag: ResearchDAGArtifact,
     decision_payload: Mapping[str, Any] | None = None,
     evidence_bundle_ref: ArtifactRef | None = None,
@@ -143,18 +153,44 @@ def compile_decision_grade_export(
 ) -> DecisionGradeExport:
     """Compile one audience-specific output from governed research artifacts."""
 
-    _validate_compile_sources(
-        run_id=run_id,
-        claims_ref=claims_ref,
-        claim_ledger=claim_ledger,
-        research_dag=research_dag,
-    )
     resolved_audience = OutputAudience(audience)
     decision = dict(decision_payload or {})
     claim_audience = _claim_export_audience(resolved_audience)
-    claim_export = export_claim_ledger(claim_ledger, audience=claim_audience)
-    ledger_summary = claim_ledger_summary(claim_ledger)
-    blocked_summary = blocked_claim_summary(claim_ledger)
+    before = claim_owner.resolve_current(owner_key=claim_owner_key)
+    if isinstance(before, ClaimLedgerHeadResolutionNonReceipt):
+        raise ValueError(before.code)
+    claim_export = ClaimLedgerExportService(claim_owner=claim_owner).export(
+        owner_key=claim_owner_key,
+        audience=claim_audience,
+    )
+    if isinstance(claim_export, ClaimLedgerHeadResolutionNonReceipt):
+        raise ValueError(claim_export.code)
+    confirmed_export = ClaimLedgerExportService(claim_owner=claim_owner).export(
+        owner_key=claim_owner_key,
+        audience=claim_audience,
+    )
+    if isinstance(confirmed_export, ClaimLedgerHeadResolutionNonReceipt):
+        raise ValueError(confirmed_export.code)
+    after = claim_owner.resolve_current(owner_key=claim_owner_key)
+    if isinstance(after, ClaimLedgerHeadResolutionNonReceipt):
+        raise ValueError(after.code)
+    if after != before or confirmed_export != claim_export:
+        raise ValueError("claim_head_changed_during_export")
+    if claim_export.audience != claim_audience:
+        raise ValueError("claim_owner_export_audience_mismatch")
+    claim_current_head = project_claim_ledger_current_head(
+        head=before,
+        claim_export=claim_export,
+    )
+    claims_ref = before.statement.ledger_artifact_ref
+    _validate_compile_sources(
+        run_id=run_id,
+        claims_ref=claims_ref,
+        claim_export=claim_export,
+        research_dag=research_dag,
+    )
+    ledger_summary = _claim_summary_from_export(claim_export)
+    blocked_summary = _blocked_summary_from_export(claim_export)
     replay_export = public_replay_export(research_dag)
     governance = _continuous_governance_payload(
         continuous_governance_report,
@@ -162,8 +198,9 @@ def compile_decision_grade_export(
     )
     trust = _trust_provenance(
         claims_ref=claims_ref,
+        claim_current_head=claim_current_head,
         research_dag_ref=research_dag_ref,
-        claim_ledger=claim_ledger,
+        claim_export=claim_export,
         research_dag=research_dag,
         research_replay=replay_export,
         continuous_governance=governance,
@@ -183,6 +220,7 @@ def compile_decision_grade_export(
         "research_dag_summary": _research_dag_summary(research_dag, replay_export),
         "continuous_governance": governance,
         "trust_provenance": trust,
+        "claim_current_head": claim_current_head.model_dump(mode="json"),
         "metadata": dict(metadata or {}),
     }
 
@@ -212,7 +250,10 @@ def compile_decision_grade_export(
             "claim_ledger_export": claim_export.model_dump(mode="json"),
             "blocked_claim_summary": blocked_summary,
             "reviewer_controls": _reviewer_controls(human_review_packet),
-            "evidence": _evidence_payload(claim_ledger, evidence_bundle_ref=evidence_bundle_ref),
+            "evidence": _evidence_payload(
+                claim_export,
+                evidence_bundle_ref=evidence_bundle_ref,
+            ),
             "research_replay": replay_export,
         }
     elif resolved_audience is OutputAudience.EXPERT:
@@ -266,9 +307,9 @@ def compile_decision_grade_export(
 def compile_decision_grade_exports(
     *,
     run_id: str,
-    claims_ref: ArtifactRef,
     research_dag_ref: ArtifactRef,
-    claim_ledger: ClaimLedger | AppendOnlyClaimLedger,
+    claim_owner: ClaimLedgerOwnerPort,
+    claim_owner_key: ClaimLedgerOwnerKey,
     research_dag: ResearchDAGArtifact,
     audiences: tuple[OutputAudience | str, ...] = tuple(OutputAudience),
     **kwargs: Any,
@@ -279,9 +320,9 @@ def compile_decision_grade_exports(
         OutputAudience(audience): compile_decision_grade_export(
             run_id=run_id,
             audience=OutputAudience(audience),
-            claims_ref=claims_ref,
             research_dag_ref=research_dag_ref,
-            claim_ledger=claim_ledger,
+            claim_owner=claim_owner,
+            claim_owner_key=claim_owner_key,
             research_dag=research_dag,
             **kwargs,
         )
@@ -299,10 +340,25 @@ def assert_decision_grade_exports_consistent(
     export_list = list(exports)
     if not export_list:
         raise ValueError("at least one decision-grade export is required")
-    claims_ids = {str(item.claims_ref.artifact_id) for item in export_list}
-    dag_ids = {str(item.research_dag_ref.artifact_id) for item in export_list}
-    if len(claims_ids) != 1 or len(dag_ids) != 1:
+    claims_refs = {_artifact_ref_key(item.claims_ref) for item in export_list}
+    dag_refs = {_artifact_ref_key(item.research_dag_ref) for item in export_list}
+    if len(claims_refs) != 1 or len(dag_refs) != 1:
         raise ValueError("decision-grade exports must share claims_ref and research_dag_ref")
+    owner_views = {
+        (
+            _artifact_ref_mapping_key(item.payload["trust_provenance"].get("claim_head_ref")),
+            item.payload["trust_provenance"].get("claim_head_content_hash"),
+            item.payload["trust_provenance"].get("claim_head_generation"),
+            item.payload["trust_provenance"].get("claim_currentness"),
+            tuple(item.payload["trust_provenance"].get("pending_receipt_refs", ())),
+            tuple(item.payload["trust_provenance"].get("pending_batch_receipt_refs", ())),
+            tuple(item.payload["trust_provenance"].get("pending_affected_claim_ids", ())),
+            item.payload["trust_provenance"].get("pending_mapping_unresolved"),
+        )
+        for item in export_list
+    }
+    if len(owner_views) != 1:
+        raise ValueError("decision-grade exports must share one current Claim owner projection")
 
 
 def decision_grade_export_inputs(export: DecisionGradeExport) -> list[InputRef]:
@@ -318,9 +374,61 @@ def persist_decision_grade_export(
     store: Any,
     export: DecisionGradeExport,
     *,
+    claim_owner: ClaimLedgerOwnerPort,
+    claim_owner_key: ClaimLedgerOwnerKey,
     inputs: list[InputRef] | None = None,
 ) -> ArtifactRef:
-    """Persist a decision-grade export as a CAS artifact."""
+    """Persist only after re-resolving its exact owner-held Claim projection."""
+
+    claim_audience = _claim_export_audience(export.audience)
+    before = claim_owner.resolve_current(owner_key=claim_owner_key)
+    if isinstance(before, ClaimLedgerHeadResolutionNonReceipt):
+        raise ValueError(before.code)
+    claim_export = ClaimLedgerExportService(claim_owner=claim_owner).export(
+        owner_key=claim_owner_key,
+        audience=claim_audience,
+    )
+    if isinstance(claim_export, ClaimLedgerHeadResolutionNonReceipt):
+        raise ValueError(claim_export.code)
+    after = claim_owner.resolve_current(owner_key=claim_owner_key)
+    if isinstance(after, ClaimLedgerHeadResolutionNonReceipt):
+        raise ValueError(after.code)
+    current_projection = project_claim_ledger_current_head(
+        head=before,
+        claim_export=claim_export,
+    )
+    if (
+        before != after
+        or export.claims_ref != before.statement.ledger_artifact_ref
+        or ClaimLedgerCurrentHeadProjection.model_validate(export.payload.get("claim_current_head"))
+        != current_projection
+        or export.payload.get("claim_ledger_summary") != _claim_summary_from_export(claim_export)
+    ):
+        raise ValueError("decision_grade_claim_owner_projection_mismatch")
+    blocked_summary = _blocked_summary_from_export(claim_export)
+    if export.audience is OutputAudience.PUBLIC:
+        expected_blocked = {
+            "schema_version": "1.0",
+            "run_id": export.run_id,
+            "blocked_count": blocked_summary.get("blocked_count", 0),
+            "blocked_claims_omitted": bool(blocked_summary.get("blocked_count", 0)),
+        }
+        if (
+            export.payload.get("approved_claims")
+            != _visible_claims(claim_export.model_dump(mode="json"))
+            or export.payload.get("blocked_claim_summary") != expected_blocked
+            or export.omissions
+            != _omissions_for_claim_export(
+                claim_export,
+                audience=OutputAudience.PUBLIC,
+            )
+        ):
+            raise ValueError("decision_grade_claim_owner_projection_mismatch")
+    elif (
+        export.payload.get("claim_ledger_export") != claim_export.model_dump(mode="json")
+        or export.payload.get("blocked_claim_summary") != blocked_summary
+    ):
+        raise ValueError("decision_grade_claim_owner_projection_mismatch")
 
     return store.put_json(
         export,
@@ -348,16 +456,14 @@ def _validate_compile_sources(
     *,
     run_id: str,
     claims_ref: ArtifactRef,
-    claim_ledger: ClaimLedger | AppendOnlyClaimLedger,
+    claim_export: ClaimLedgerExport,
     research_dag: ResearchDAGArtifact,
 ) -> None:
-    if claim_ledger.run_id != run_id:
+    if claim_export.run_id != run_id:
         raise ValueError("claim ledger run_id must match decision-grade export run_id")
     if research_dag.run_id != run_id:
         raise ValueError("research DAG run_id must match decision-grade export run_id")
-    if research_dag.claim_ledger_ref is not None and (
-        str(research_dag.claim_ledger_ref.artifact_id) != str(claims_ref.artifact_id)
-    ):
+    if research_dag.claim_ledger_ref is not None and research_dag.claim_ledger_ref != claims_ref:
         raise ValueError("research DAG claim_ledger_ref must match claims_ref")
 
 
@@ -390,17 +496,78 @@ def _claim_export_audience(audience: OutputAudience) -> ClaimExportAudience:
     return ClaimExportAudience.MACHINE
 
 
-def _claims_for_ledger(ledger: ClaimLedger | AppendOnlyClaimLedger) -> list[Any]:
-    return list(
-        ledger.current_claims if isinstance(ledger, AppendOnlyClaimLedger) else ledger.claims
-    )
+def _claim_summary_from_export(export: ClaimLedgerExport) -> dict[str, Any]:
+    publishability_counts: dict[str, int] = {}
+    for claim in export.claims:
+        publishability_counts[claim.publishability] = (
+            publishability_counts.get(claim.publishability, 0) + 1
+        )
+    review_required = [
+        claim.claim_id for claim in export.claims if claim.publishability == "review_required"
+    ]
+    lifecycle_limitations = export.metadata.get("lifecycle_limitation_by_claim", {})
+    if isinstance(lifecycle_limitations, Mapping):
+        review_required = sorted(
+            {
+                *review_required,
+                *(
+                    str(claim_id)
+                    for claim_id, action in lifecycle_limitations.items()
+                    if action == "review_required"
+                ),
+            }
+        )
+    return {
+        "schema_version": export.schema_version,
+        "run_id": export.run_id,
+        "claim_count": len(export.claims),
+        "family_assignment_count": export.metadata.get("family_assignment_count", 0),
+        "baseline_record_count": export.metadata.get("baseline_record_count", 0),
+        "alternative_record_count": export.metadata.get("alternative_record_count", 0),
+        "comparison_record_count": export.metadata.get("comparison_record_count", 0),
+        "lifecycle_status": export.lifecycle_status,
+        "publishability_counts": publishability_counts,
+        "blocked_claim_ids": list(export.blocked_claim_ids),
+        "review_required_claim_ids": review_required,
+        "publication_ready": (
+            not export.blocked_claim_ids
+            and not review_required
+            and not export.metadata.get("lifecycle_limited_claim_ids")
+            and export.metadata.get("claim_currentness") == "current"
+        ),
+        "claim_currentness": export.metadata.get("claim_currentness"),
+        "claim_bridge_pending": bool(export.metadata.get("claim_bridge_pending")),
+    }
+
+
+def _blocked_summary_from_export(export: ClaimLedgerExport) -> dict[str, Any]:
+    blocked = [
+        {
+            "claim_id": claim.claim_id,
+            "text": claim.text,
+            "blocked_reasons": list(claim.blocked_reasons),
+            "counterevidence_ref_count": claim.counterevidence_ref_count,
+            "reviewer_ref_count": claim.reviewer_ref_count,
+        }
+        for claim in export.claims
+        if claim.claim_id in export.blocked_claim_ids and claim.visible
+    ]
+    return {
+        "schema_version": export.schema_version,
+        "run_id": export.run_id,
+        "lifecycle_status": export.lifecycle_status,
+        "blocked_count": len(export.blocked_claim_ids),
+        "blocked_claims": blocked,
+        "superseded_claim_ids": list(export.superseded_claim_ids),
+    }
 
 
 def _trust_provenance(
     *,
     claims_ref: ArtifactRef,
+    claim_current_head: ClaimLedgerCurrentHeadProjection,
     research_dag_ref: ArtifactRef,
-    claim_ledger: ClaimLedger | AppendOnlyClaimLedger,
+    claim_export: ClaimLedgerExport,
     research_dag: ResearchDAGArtifact,
     research_replay: Mapping[str, Any],
     continuous_governance: Mapping[str, Any],
@@ -410,16 +577,24 @@ def _trust_provenance(
     reissue_packet_ref: ArtifactRef | None,
     withdrawal_record_ref: ArtifactRef | None,
 ) -> dict[str, Any]:
-    claims = _claims_for_ledger(claim_ledger)
-    blocked_count = sum(
-        1 for claim in claims if claim.publishability is ClaimPublishability.BLOCKED
-    )
     return {
         "schema_version": "1.0",
         "claims_ref": _artifact_ref_payload(claims_ref),
+        "claim_head_ref": _artifact_ref_payload(claim_current_head.head_ref),
+        "claim_head_content_hash": claim_current_head.head_content_hash,
+        "claim_head_generation": claim_current_head.head_generation,
+        "claim_currentness": claim_current_head.claim_currentness,
+        "claim_bridge_pending": claim_current_head.claim_bridge_pending,
+        "pending_receipt_refs": list(claim_current_head.pending_receipt_refs),
+        "pending_batch_receipt_refs": list(claim_current_head.pending_batch_receipt_refs),
+        "pending_affected_claim_ids": list(claim_current_head.pending_affected_claim_ids),
+        "pending_mapping_unresolved": claim_current_head.pending_mapping_unresolved,
+        "completed_batch_denominator_established": (
+            claim_current_head.completed_batch_denominator_established
+        ),
         "research_dag_ref": _artifact_ref_payload(research_dag_ref),
-        "claim_count": len(claims),
-        "blocked_claim_count": blocked_count,
+        "claim_count": len(claim_export.claims),
+        "blocked_claim_count": len(claim_export.blocked_claim_ids),
         "research_step_count": len(research_replay.get("steps", []) or []),
         "research_dag_status": research_replay.get("replay_status")
         or legacy_replay_status(research_dag),
@@ -435,6 +610,31 @@ def _trust_provenance(
             "withdrawal_record_ref": _optional_artifact_ref_payload(withdrawal_record_ref),
         },
     }
+
+
+def _validate_current_head_trust(
+    trust: Mapping[str, Any],
+    *,
+    current_head: ClaimLedgerCurrentHeadProjection,
+) -> None:
+    """Reject any serialized trust view that diverges from its typed owner read."""
+
+    expected = {
+        "claim_head_ref": _artifact_ref_payload(current_head.head_ref),
+        "claim_head_content_hash": current_head.head_content_hash,
+        "claim_head_generation": current_head.head_generation,
+        "claim_currentness": current_head.claim_currentness,
+        "claim_bridge_pending": current_head.claim_bridge_pending,
+        "pending_receipt_refs": list(current_head.pending_receipt_refs),
+        "pending_batch_receipt_refs": list(current_head.pending_batch_receipt_refs),
+        "pending_affected_claim_ids": list(current_head.pending_affected_claim_ids),
+        "pending_mapping_unresolved": current_head.pending_mapping_unresolved,
+        "completed_batch_denominator_established": (
+            current_head.completed_batch_denominator_established
+        ),
+    }
+    if any(trust.get(key) != value for key, value in expected.items()):
+        raise ValueError("decision-grade claim current-head trust mismatch")
 
 
 def _research_dag_summary(
@@ -460,6 +660,17 @@ def _public_summary(
     decision_payload: Mapping[str, Any],
     claim_export_payload: Mapping[str, Any],
 ) -> str:
+    metadata = claim_export_payload.get("metadata")
+    if isinstance(metadata, Mapping) and metadata.get("claim_currentness") != "current":
+        return "Public claim summary withheld while Claim Ledger currentness is not established."
+    omitted = claim_export_payload.get("omitted_claim_ids")
+    if isinstance(omitted, list) and omitted:
+        for claim in claim_export_payload.get("claims", []) or []:
+            if isinstance(claim, Mapping) and claim.get("visible") is True:
+                text = claim.get("text")
+                if isinstance(text, str) and text.strip():
+                    return text.strip()
+        return "Public claim summary withheld because owner-qualified claims are limited."
     for key in ("policy_summary", "policy_answer", "summary"):
         value = decision_payload.get(key)
         if isinstance(value, str) and value.strip():
@@ -498,6 +709,9 @@ def _public_limits(
     return {
         "claim_count": ledger_summary.get("claim_count", 0),
         "blocked_claim_count": blocked_summary.get("blocked_count", 0),
+        "claim_currentness": ledger_summary.get("claim_currentness"),
+        "claim_bridge_pending": bool(ledger_summary.get("claim_bridge_pending")),
+        "publication_ready": bool(ledger_summary.get("publication_ready")),
         "review_required_claim_ids": list(
             ledger_summary.get("review_required_claim_ids", []) or []
         ),
@@ -535,16 +749,18 @@ def _reviewer_controls(packet: HumanReviewPacket | None) -> dict[str, Any]:
 
 
 def _evidence_payload(
-    ledger: ClaimLedger | AppendOnlyClaimLedger,
+    claim_export: ClaimLedgerExport,
     *,
     evidence_bundle_ref: ArtifactRef | None,
 ) -> dict[str, Any]:
-    claims = _claims_for_ledger(ledger)
+    claims = claim_export.claims
     return {
         "evidence_bundle_ref": _optional_artifact_ref_payload(evidence_bundle_ref),
-        "evidence_ref_count": sum(len(claim.evidence_refs) for claim in claims),
-        "counterevidence_ref_count": sum(len(claim.counterevidence_refs) for claim in claims),
-        "claims_without_evidence": [claim.claim_id for claim in claims if not claim.evidence_refs],
+        "evidence_ref_count": sum(claim.evidence_ref_count for claim in claims),
+        "counterevidence_ref_count": sum(claim.counterevidence_ref_count for claim in claims),
+        "claims_without_evidence": [
+            claim.claim_id for claim in claims if claim.evidence_ref_count == 0
+        ],
     }
 
 
@@ -621,8 +837,7 @@ def _frontend_trust_view(
         "approved_claim_ids": [
             claim.get("claim_id")
             for claim in claim_export.get("claims", []) or []
-            if isinstance(claim, Mapping)
-            and claim.get("publishability") == ClaimPublishability.PUBLISHABLE.value
+            if isinstance(claim, Mapping) and claim.get("publishability") == "publishable"
         ],
         "blocked_claim_ids": blocked_claim_ids,
         "research_step_count": trust.get("research_step_count", 0),
@@ -675,6 +890,19 @@ def _artifact_ref_payload(ref: ArtifactRef) -> dict[str, str]:
     }
 
 
+def _artifact_ref_key(ref: ArtifactRef) -> tuple[str, str, str]:
+    return (str(ref.artifact_id), ref.kind, ref.media_type)
+
+
+def _artifact_ref_mapping_key(value: object) -> tuple[str, str, str]:
+    if not isinstance(value, Mapping):
+        raise ValueError("trust_provenance artifact ref is not a mapping")
+    try:
+        return _artifact_ref_key(ArtifactRef.model_validate(value))
+    except (TypeError, ValueError) as exc:
+        raise ValueError("trust_provenance artifact ref is invalid") from exc
+
+
 def _optional_artifact_ref_payload(ref: ArtifactRef | None) -> dict[str, str] | None:
     return _artifact_ref_payload(ref) if ref is not None else None
 
@@ -689,9 +917,9 @@ def _validate_trust_refs(
     dag = trust.get("research_dag_ref")
     if not isinstance(claims, Mapping) or not isinstance(dag, Mapping):
         raise ValueError("trust_provenance requires claims_ref and research_dag_ref")
-    if str(claims.get("artifact_id")) != str(claims_ref.artifact_id):
+    if _artifact_ref_mapping_key(claims) != _artifact_ref_key(claims_ref):
         raise ValueError("trust_provenance claims_ref does not match export claims_ref")
-    if str(dag.get("artifact_id")) != str(research_dag_ref.artifact_id):
+    if _artifact_ref_mapping_key(dag) != _artifact_ref_key(research_dag_ref):
         raise ValueError("trust_provenance research_dag_ref does not match export research_dag_ref")
 
 
@@ -704,8 +932,7 @@ def _blocked_count(payload: Mapping[str, Any]) -> int:
         return sum(
             1
             for claim in claim_export.get("claims", []) or []
-            if isinstance(claim, Mapping)
-            and claim.get("publishability") == ClaimPublishability.BLOCKED.value
+            if isinstance(claim, Mapping) and claim.get("publishability") == "blocked"
         )
     return 0
 
@@ -720,7 +947,7 @@ def _has_visible_blocked_claims(payload: Mapping[str, Any]) -> bool:
     if isinstance(claim_export, Mapping):
         return any(
             isinstance(claim, Mapping)
-            and claim.get("publishability") == ClaimPublishability.BLOCKED.value
+            and claim.get("publishability") == "blocked"
             and claim.get("visible") is True
             for claim in claim_export.get("claims", []) or []
         )

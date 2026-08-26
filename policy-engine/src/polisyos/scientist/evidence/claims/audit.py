@@ -7,24 +7,25 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from polisyos.core import artifacts as core_artifacts
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec, from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes, to_canonical_bytes
 from polisyos.scientist.evidence.claims.ledger import CLAIM_LEDGER_KIND
 from polisyos.scientist.evidence.claims.lifecycle import (
     AppendOnlyClaimLedger,
-    ClaimLifecycleEvent,
-    append_lifecycle_event,
     build_initial_append_only_ledger,
 )
 from polisyos.scientist.evidence.claims.models import ClaimLedger
+
+ArtifactStore = core_artifacts.ArtifactStore
 
 CLAIM_LEDGER_V2_KIND = "scientist.claim_ledger_v2"
 CLAIM_LEDGER_V2_SCHEMA_NAME = "polisyos.scientist.claims.AppendOnlyClaimLedger"
 CLAIM_LEDGER_V2_SCHEMA_VERSION = "2.0"
 
 
-def claim_ledger_v2_inputs(
+def _claim_ledger_v2_inputs(
     *,
     base_ledger_ref: ArtifactRef | None = None,
     source_artifact_refs: Iterable[ArtifactRef] = (),
@@ -48,7 +49,7 @@ def claim_ledger_v2_inputs(
     return inputs
 
 
-def persist_append_only_claim_ledger(
+def _persist_append_only_claim_ledger(
     store: FileSystemCAS,
     ledger: AppendOnlyClaimLedger,
     *,
@@ -59,7 +60,7 @@ def persist_append_only_claim_ledger(
     manifest_inputs = (
         list(inputs)
         if inputs is not None
-        else claim_ledger_v2_inputs(base_ledger_ref=ledger.base_ledger_ref)
+        else _claim_ledger_v2_inputs(base_ledger_ref=ledger.base_ledger_ref)
     )
     return store.put_json(
         ledger,
@@ -76,18 +77,37 @@ def persist_append_only_claim_ledger(
     )
 
 
-def load_append_only_claim_ledger(
-    store: FileSystemCAS,
+def _load_append_only_claim_ledger(
+    store: ArtifactStore,
     ref: ArtifactRef,
 ) -> AppendOnlyClaimLedger:
-    """Load a persisted append-only Claim Ledger v2 artifact."""
+    """Load one exact-profile append-only Claim Ledger v2 artifact."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
-    return AppendOnlyClaimLedger.model_validate(payload)
+    raw = store.get_bytes(ref.artifact_id)
+    manifest = store.get_manifest(ref.artifact_id)
+    report = store.verify(ref.artifact_id)
+    expected_schema = SchemaInfo(
+        name=CLAIM_LEDGER_V2_SCHEMA_NAME,
+        version=CLAIM_LEDGER_V2_SCHEMA_VERSION,
+    )
+    if (
+        not report.ok
+        or ref.kind != CLAIM_LEDGER_V2_KIND
+        or ref.kind != manifest.kind
+        or ref.media_type != "application/json"
+        or ref.media_type != manifest.media_type
+        or manifest.artifact_schema != expected_schema
+        or str(ref.artifact_id) != str(manifest.artifact_id)
+    ):
+        raise ValueError("claim_ledger_v2_profile_mismatch")
+    ledger = AppendOnlyClaimLedger.model_validate(from_canonical_bytes(raw))
+    if to_canonical_bytes(ledger, CanonSpec(forbid_floats=False)) != raw:
+        raise ValueError("claim_ledger_v2_canonical_mismatch")
+    return ledger
 
 
-def load_claim_ledger_as_append_only(
-    store: FileSystemCAS,
+def _load_claim_ledger_as_append_only(
+    store: ArtifactStore,
     ref: ArtifactRef,
     *,
     actor_id: str = "legacy_loader",
@@ -95,11 +115,12 @@ def load_claim_ledger_as_append_only(
 ) -> AppendOnlyClaimLedger:
     """Load v2 ledgers or wrap legacy v1 ledgers as `legacy_no_events` compatible v2."""
 
-    payload = from_canonical_bytes(store.get_bytes(ref.artifact_id))
     try:
-        return AppendOnlyClaimLedger.model_validate(payload)
-    except ValidationError:
-        legacy = ClaimLedger.model_validate(payload)
+        return _load_append_only_claim_ledger(store, ref)
+    except (ValidationError, ValueError):
+        from polisyos.scientist.evidence.claims.ledger import _load_claim_ledger
+
+        legacy = _load_claim_ledger(store, ref)
         return build_initial_append_only_ledger(
             legacy,
             actor_id=actor_id,
@@ -109,27 +130,7 @@ def load_claim_ledger_as_append_only(
         )
 
 
-def append_and_persist_claim_event(
-    store: FileSystemCAS,
-    ledger: AppendOnlyClaimLedger,
-    event: ClaimLifecycleEvent,
-    *,
-    previous_ledger_ref: ArtifactRef | None = None,
-) -> tuple[AppendOnlyClaimLedger, ArtifactRef]:
-    """Append one event and persist the resulting immutable ledger artifact."""
-
-    updated = append_lifecycle_event(ledger, event)
-    ref = persist_append_only_claim_ledger(
-        store,
-        updated,
-        inputs=claim_ledger_v2_inputs(
-            base_ledger_ref=previous_ledger_ref or ledger.base_ledger_ref
-        ),
-    )
-    return updated, ref
-
-
-def append_only_audit_summary(ledger: AppendOnlyClaimLedger) -> dict[str, Any]:
+def _append_only_audit_summary(ledger: AppendOnlyClaimLedger) -> dict[str, Any]:
     """Return compact audit metadata for packet and reviewer surfaces."""
 
     actor_ids = sorted({event.actor_id for event in ledger.events})
@@ -137,12 +138,8 @@ def append_only_audit_summary(ledger: AppendOnlyClaimLedger) -> dict[str, Any]:
         "schema_version": ledger.schema_version,
         "run_id": ledger.run_id,
         "event_count": len(ledger.events),
-        "first_event_at": (
-            ledger.events[0].occurred_at.isoformat() if ledger.events else None
-        ),
-        "latest_event_at": (
-            ledger.events[-1].occurred_at.isoformat() if ledger.events else None
-        ),
+        "first_event_at": (ledger.events[0].occurred_at.isoformat() if ledger.events else None),
+        "latest_event_at": (ledger.events[-1].occurred_at.isoformat() if ledger.events else None),
         "actor_ids": actor_ids,
         "append_only_ordered": ledger.events
         == sorted(ledger.events, key=lambda event: event.occurred_at),
@@ -150,7 +147,7 @@ def append_only_audit_summary(ledger: AppendOnlyClaimLedger) -> dict[str, Any]:
     }
 
 
-def retention_window_for_export(ledger: AppendOnlyClaimLedger) -> dict[str, Any]:
+def _retention_window_for_export(ledger: AppendOnlyClaimLedger) -> dict[str, Any]:
     """Return the bounded-retention export window without mutating the ledger."""
 
     max_events = ledger.retention_policy.get("max_events")
@@ -173,11 +170,4 @@ __all__ = [
     "CLAIM_LEDGER_V2_KIND",
     "CLAIM_LEDGER_V2_SCHEMA_NAME",
     "CLAIM_LEDGER_V2_SCHEMA_VERSION",
-    "append_and_persist_claim_event",
-    "append_only_audit_summary",
-    "claim_ledger_v2_inputs",
-    "load_append_only_claim_ledger",
-    "load_claim_ledger_as_append_only",
-    "persist_append_only_claim_ledger",
-    "retention_window_for_export",
 ]

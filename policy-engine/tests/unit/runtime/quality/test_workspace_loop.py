@@ -42,6 +42,13 @@ from polisyos.runtime.quality.workspace.loop import (
 from polisyos.scientist.agent.protocols import DataNeedSpec
 
 
+@pytest.fixture(autouse=True)
+def _isolate_catalog_cache(monkeypatch: pytest.MonkeyPatch, tmp_path: Path) -> None:
+    """Keep default catalog fixtures out of the appointed tooling home."""
+
+    monkeypatch.setenv("POLISYOS_CACHE_HOME", (tmp_path / "polisyos-cache").as_posix())
+
+
 def _observed_independent_graph(
     *,
     parent_workspace_id: str,
@@ -212,8 +219,12 @@ def test_slice0_groundable_fixture_exits_partial_without_design_candidate() -> N
     assert "Slice-0 estimate-port authority only." in contract.authority_boundary.known_limits
     assert contract.frontier_snapshot.promoted_candidates
     assert contract.search_ledger.replay_levels == ["A", "B", "C"]
-    assert all(result.checked_preconditions for result in contract.search_ledger.applicability_results)
-    assert {result.status for result in contract.search_ledger.applicability_results} == {"applicable"}
+    assert all(
+        result.checked_preconditions for result in contract.search_ledger.applicability_results
+    )
+    assert {result.status for result in contract.search_ledger.applicability_results} == {
+        "applicable"
+    }
     assert {
         item["predicate_id"]
         for result in contract.search_ledger.applicability_results
@@ -307,8 +318,14 @@ def test_slice0_semantic_benchmark_feeds_incompleteness_record(tmp_path: Path) -
     benchmark_run = contract.incompleteness_record.search_quality["semantic_benchmark_run"]
 
     assert benchmark_run["benchmark_id"] == "layer3_gy_slice0_semantic_adequacy_v1"
-    assert benchmark_run["benchmark_ref"] == "architecture/policy_design_case/layer3_gy_semantic_benchmark.json"
-    assert benchmark_run["benchmark_version"] == "policyos.policy_design_case.layer3_gy.semantic_benchmark.v1"
+    assert (
+        benchmark_run["benchmark_ref"]
+        == "architecture/policy_design_case/layer3_gy_semantic_benchmark.json"
+    )
+    assert (
+        benchmark_run["benchmark_version"]
+        == "policyos.policy_design_case.layer3_gy.semantic_benchmark.v1"
+    )
     assert benchmark_run["label_owner"] == "team-runtime-quality"
     assert benchmark_run["reviewer"] == "policy-design-case-verifier"
     assert benchmark_run["queries"] == ["Ukraine MSME credit access World Bank firm measurement"]
@@ -331,17 +348,17 @@ def test_slice0_acquire_continuation_emits_costed_acquisition_required_terminal(
         "local_tourism_site_traffic"
     )
     assert (
-        contract.voi_audit.selected_action["operation_proposal_ref"]
-        == "slice0.acquire.costed_plan"
+        contract.voi_audit.selected_action["operation_proposal_ref"] == "slice0.acquire.costed_plan"
     )
     assert contract.voi_audit.cost_basis["money_usd"] == 3640.0
     assert contract.voi_audit.cost_basis["basis_ref"] == (
         "gap-cost-basis:local_tourism_site_traffic:v1"
     )
     assert contract.next_best_actions[0]["data_need_spec"]["metric"] == "local_tourism_site_traffic"
-    assert OperationClass.ACQUIRE.value not in contract.incompleteness_record.coverage[
-        "operations_attempted"
-    ]
+    assert (
+        OperationClass.ACQUIRE.value
+        not in contract.incompleteness_record.coverage["operations_attempted"]
+    )
     assert all(
         invocation.operation_id != "slice0.acquire.costed_plan"
         for invocation in contract.search_ledger.invocations
@@ -743,9 +760,7 @@ def test_groundable_estimate_consumes_measurement_rows_not_synthetic_stub(
     assert payload["measurement_rows"]
     assert payload["measurement_rows"][0]["value"] is not None
     assert payload["measurement_root_ref"] in {
-        root.uri
-        for envelope in contract.artifact_envelopes
-        for root in envelope.producer_roots
+        root.uri for envelope in contract.artifact_envelopes for root in envelope.producer_roots
     }
     assert "synthetic" not in json.dumps(payload).lower()
 

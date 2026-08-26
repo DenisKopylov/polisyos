@@ -865,9 +865,13 @@
         "polisyos.scientist.methods.research_dag"
       ],
       "major_subsystem": true,
-      "export_count": 18,
+      "export_count": 24,
       "exports": [
         "BudgetState",
+        "ClaimLedgerCurrentHeadProjection",
+        "ClaimLedgerOwnerPort",
+        "ClaimLifecycleBridgeAdvanced",
+        "EpochClaimLifecycleBridgeService",
         "ExperimentState",
         "KnowledgeToolkit",
         "ToolContractSummary",
@@ -875,6 +879,8 @@
         "ToolLoopResult",
         "ToolRegistry",
         "build_governance_pipeline",
+        "build_default_claim_ledger_owner",
+        "build_epoch_claim_lifecycle_bridge",
         "build_knowledge_tool_registry",
         "create_traced_gateway_client",
         "discover_scientist_nodes",

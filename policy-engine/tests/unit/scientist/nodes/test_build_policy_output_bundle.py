@@ -33,10 +33,10 @@ from polisyos.ir.governance.problem_frame import (
 )
 from polisyos.ir.kernel.values import MoneyValue
 from polisyos.ir.model_layer.model_spec import AssumptionSpec, AssumptionType, ModelSpec
+from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
 from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.model_layer.types import OptimizationDirection, SelectorOperator
-from polisyos.scientist.orchestration.engine.state_branching import branch_state as real_branch_state
+from polisyos.scientist.evidence.claims.head_index import build_default_claim_ledger_owner
 from polisyos.scientist.governance.backtest_matrix import BacktestKind, BacktestMatrixResult
 from polisyos.scientist.governance.calibration_leaderboard import (
     CalibrationLeaderboardEntry,
@@ -47,6 +47,13 @@ from polisyos.scientist.governance.calibration_validation import (
     persist_calibration_validation_bundle,
 )
 from polisyos.scientist.governance.stress_scenarios import StressScenarioKind, StressScenarioResult
+from polisyos.scientist.methods.search import (
+    ActionableSideInformation,
+    persist_actionable_side_information,
+)
+from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
+from polisyos.scientist.methods.search.funnel.types import FunnelStageResult, UncertaintyEnvelope
+from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
 from polisyos.scientist.nodes.builtins.decide.build_decision_packet import BuildDecisionPacketNode
 from polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle import (
     BuildPolicyOutputBundleNode,
@@ -64,6 +71,13 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
 )
+from polisyos.scientist.orchestration.engine.context import (
+    ClaimCapableExecutionContext,
+    ExecutionContext,
+)
+from polisyos.scientist.orchestration.engine.state_branching import (
+    branch_state as real_branch_state,
+)
 from polisyos.scientist.policy_design.objectives import (
     ConstraintStatus,
     ObjectiveChannelValue,
@@ -79,13 +93,26 @@ from polisyos.scientist.policy_design.output import (
 )
 from polisyos.scientist.policy_design.schema import PolicyCandidateSchema, TargetPopulationSpec
 from polisyos.scientist.policy_design.translator import TranslatorComplianceResult
-from polisyos.scientist.methods.search import (
-    ActionableSideInformation,
-    persist_actionable_side_information,
-)
-from polisyos.scientist.methods.search.funnel.orchestrator import FunnelOutcome
-from polisyos.scientist.methods.search.funnel.types import FunnelStageResult, UncertaintyEnvelope
-from polisyos.scientist.methods.search.readiness import DecisionReadiness, DecisionReadinessContract
+
+
+def _claim_capable_context(ctx: ExecutionContext) -> ClaimCapableExecutionContext:
+    """Appoint the real Claim owner port only for positive policy-output cases."""
+
+    return ClaimCapableExecutionContext(
+        store=ctx.store,
+        run=ctx.run,
+        logger=ctx.logger,
+        tracer=ctx.tracer,
+        metrics=ctx.metrics,
+        audit=ctx.audit,
+        depth=ctx.depth,
+        fabric=ctx.fabric,
+        foundry=ctx.foundry,
+        scholar=ctx.scholar,
+        lex=ctx.lex,
+        memory=ctx.memory,
+        claim_ledger_owner=build_default_claim_ledger_owner(store=ctx.store),
+    )
 
 
 def _passing_judge_verdict() -> dict[str, object]:
@@ -328,7 +355,14 @@ def test_build_policy_output_bundle_writes_refs(execution_context, minimal_state
     state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
     state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
-    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+    ownerless = BuildPolicyOutputBundleNode().execute(execution_context, state)
+    assert ownerless.status == "fail"
+    assert ownerless.error is not None
+    assert ownerless.error.code == "claim_ledger_owner_not_established"
+
+    outcome = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), state
+    )
 
     assert outcome.status == "ok"
     assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in outcome.state.artifacts_index
@@ -398,7 +432,9 @@ def test_build_policy_output_bundle_propagates_actionable_side_information(
     state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
     state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
-    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+    outcome = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), state
+    )
 
     assert outcome.status == "ok"
     bundle = load_policy_artifact_bundle(
@@ -422,7 +458,9 @@ def test_build_policy_output_bundle_fails_when_required_inputs_missing(
     state = minimal_state.model_copy(deep=True)
     state.params.update({"workflow_id": "scientist_policy_design", "policy_mode": True})
 
-    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+    outcome = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), state
+    )
 
     assert outcome.status == "fail"
     assert outcome.error is not None
@@ -447,7 +485,9 @@ def test_build_policy_output_bundle_refuses_when_phase3_gate_missing(
         }
     )
 
-    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+    outcome = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), state
+    )
 
     assert outcome.status == "fail"
     assert outcome.error is not None
@@ -531,7 +571,9 @@ def test_build_policy_output_bundle_embeds_calibration_validation_summary(
     state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
     state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
-    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+    outcome = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), state
+    )
 
     assert outcome.status == "ok"
     bundle = load_policy_artifact_bundle(
@@ -573,7 +615,9 @@ def test_build_policy_output_bundle_degrades_invalid_distributional_report(
     state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
     state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
-    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+    outcome = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), state
+    )
 
     assert outcome.status == "ok"
     assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in outcome.state.artifacts_index
@@ -612,7 +656,9 @@ def test_build_policy_output_bundle_degrades_invalid_uncertainty_envelope(
     state.artifacts_index[ARTIFACT_WELFARE_BUNDLE_REF] = welfare_ref
     state.artifacts_index[ARTIFACT_OPTIMIZATION_AMBIGUITY_CERTIFICATE_REF] = ambiguity_ref
 
-    outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+    outcome = BuildPolicyOutputBundleNode().execute(
+        _claim_capable_context(execution_context), state
+    )
 
     assert outcome.status == "ok"
     assert ARTIFACT_POLICY_OUTPUT_BUNDLE_REF in outcome.state.artifacts_index
@@ -655,7 +701,9 @@ def test_build_policy_output_bundle_uses_branch_state_for_declared_outputs(
         "polisyos.scientist.nodes.builtins.decide.build_policy_output_bundle.branch_state",
         _spy_branch,
     ):
-        outcome = BuildPolicyOutputBundleNode().execute(execution_context, state)
+        outcome = BuildPolicyOutputBundleNode().execute(
+            _claim_capable_context(execution_context), state
+        )
 
     assert outcome.status == "ok"
     assert observed["write_paths"] == (

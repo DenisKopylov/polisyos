@@ -30,9 +30,9 @@ from the plan text plus git history. Three measured causes:
 Two further findings the census produced:
 
 - **`GY-DEF23` and `GY-GAP8` landed as registrations on `main` at `911657027`.** The
-  strict `GY-DEF23` intake remains unmerged on `codex/gy-n12-c4-epoch-validity`, while
-  `GY-GAP8` still has zero production calls. A registration's presence on `main` does
-  not close the capability it records.
+  strict `GY-DEF23` intake and the orchestrated `GY-GAP8` Claim-owner bridge are
+  implemented on `codex/gy-n12-c4-epoch-validity`. Both stay branch-local until
+  that boundary lands; registration or implementation off `main` is not closure.
 - **`GY-GAP7` is neither open nor closed** — it was folded into `GY-PA1` as its first cluster.
   The old vocabulary had no word for that, so it read as open forever.
 
@@ -256,7 +256,7 @@ searches both.
 | `ds5-waist-successors-routed-to-unscoped-slices` | DS5's enforcement-waist table declares **27 structured non-closure rows over 58 sites**, each with a successor slice and typed capability labels — a better form than prose. But **11 of the 27 route to slices with no plan file in either `atlas-slices/` or `superpowers/plans/`**: DS9 (5), DS12 (3), DS15, DS14, DS18. The table is the detail; this row is the routing defect. | those five slices are **candidates, not owners** | `blocked` | each named slice acquires a plan, and its DS5 rows move into that plan's scope. `GY-GAP3` rule: routing to a lane that does not own a capability leaves it unowned |
 | ~~`gy-plan-records-no-per-task-status`~~ | The GY plan defined **37 task bullets** and **29 carried only a `Done when:` clause** with no per-task status; task state lived in the line-7 revision log, which is history and not state. This was **the blocker on a complete task census**. | GY lane | `closed` | **CLOSED 2026-08-23** by the §8.5 task-standing table, now the single authority for GY task status: **37 rows — 24 `executed`, 1 `in_flight`, 1 `not_executable`, 11 `not_started`, 0 `ambiguous`**, each citing a closure commit that is an ancestor of `main`, a revision entry naming it closed, or a delivered artifact present in the tree. `check_debt_ledger.py` parses it and indexes non-terminal rows into `LEDGER.md`. |
 | `GY-DEF23` | The Cluster-4 branch implements the typed epoch intake, rejects caller status/keys, freezes the complete target denominator before mutation, and strangles direct/recursive/HTTP N9. The authority-grade transition producer remains `producer_missing`: no production signer or owner-held producer identity exists, so the plan-frozen positive generation-control node is retained as a residual rather than proved by a fixture. | Scientist Decision Validity | `open` | Registered on `main` at `911657027`; partial Task 4.4 mechanism is `open_unmerged` on `codex/gy-n12-c4-epoch-validity`. Close only when `gy-n12-epoch-transition-signing-authority-unappointed` closes and the production call derives the signed transition before entering this strict intake. |
-| `GY-GAP8` | Claim Ledger lifecycle bridge implemented in isolation — one definition, **zero source calls** across a complete **2,591-file tracked-source AST walk**, independently reconciled to a 2,591-file filesystem walk, with zero parse errors. `implemented_but_not_orchestrated`, explicitly **not** `bridge_missing` | Scientist governance | `open` | Closure signal `C5-PREREQ-CLAIM-DV-LIFECYCLE` sequences it after `GY-DEF23`. **Landed on `main` 2026-08-23 at `911657027`** with GY-N12 Cluster 1; merging registered it, it did not close it. |
+| `GY-GAP8` | **State on `codex/gy-n12-c4-epoch-validity`: `implemented`, `open_unmerged`.** The production control composition passes only a persisted completed Decision-Validity batch ref, packet ref and query coordinate into the Claim owner; the owner re-verifies the receipt, advances the durable Claim head, persists exact pending state across crashes, and every public export re-resolves that current head. Raw detector events and shaped receipts cannot bridge. | Scientist governance | `open_unmerged` | Close when the Task 4.5 boundary is an ancestor of `main` and its exact source-derived denominator plus `test_completed_epoch_batch_is_only_authority_input_to_claim_bridge`, `test_crash_after_dv_completion_keeps_claim_bridge_pending_public_freeze`, and `test_stale_caller_ledger_cannot_bypass_current_head_public_export` remain green. This closes orchestration only; it does not close the separately registered epoch-transition signer debt. |
 | `gy-n12-epoch-predicate-policy-authority-unappointed` | **States: `absent/unallocated`.** The production epoch composition has no appointed predicate-policy admission signer. The epoch producer therefore invokes the real generic consumer against the canonical empty admission index and returns `policy_admission_missing`; it must never self-admit policy, provenance or owner-relation bytes. | PolicyOS justification custodian — epoch-family predicate-policy admission signer | `open_unmerged` | On `codex/gy-n12-c4-epoch-validity`. Close only when that institution is formally appointed, issues exact content-bound policy/admission/owner-provenance/owner-relation artifacts for the complete selection key, an independent verifier admits them, and the same production call no longer returns `policy_admission_missing`. |
 | `gy-n12-epoch-transition-signing-authority-unappointed` | **States: `producer_missing`, `absent/unallocated`.** The strict Decision-Validity epoch intake is implemented, but the production transition producer is `producer_missing` and its signer and owner-held producer-identity carrier are `absent/unallocated`. Production returns `epoch_transition_signer_not_established`; exact signed bytes cannot appoint their own producer identity, so the plan-frozen positive generation-control node remains an explicit residual rather than being proved by a test verifier. | PolicyOS justification custodian — Decision-Validity epoch-transition signing and producer-identity owner | `open_unmerged` | On `codex/gy-n12-c4-epoch-validity`. Close when the institution appoints both roles, `EpochValidityTransitionProducer` has a production constructor, exact signed evidence resolves to an independently held producer identity, and generation control passes only the resulting artifact ref/query context into the strict intake; missing/substituted signer, producer identity, purpose, query and bytes leave zero Decision-Validity state. |
 | `gy-n12-epoch-current-decision-lineage-carrier-unallocated` | **States: `absent/unallocated`.** The pre-N9 subject authority has no Decision-Validity-owned current-packet lineage reader. Production derives only the first-decision subject (`current_decision_packet_ref = null`, `packet_epoch_refs = []`); a shaped current receipt fails `epoch_validity_prior_binding_unresolved`, and currentness is never inferred. | Scientist Decision Validity — decision-packet lineage/currentness owner | `open_unmerged` | On `codex/gy-n12-c4-epoch-validity`. Close when a content-bound read-only lookup keyed by the derived `decision_packet_lineage_key_ref` returns the exact lineage-head packet, packet-bound epoch refs and independently verified prior completed binding/denominators; direct, recursive, HTTP and offline-replay roots resolve that same carrier, and authentic-old/head-advance, missing, substituted and denominator-drift falsifiers fail closed. |
@@ -333,17 +333,18 @@ identity is computed over the import closure. All four surfaced from one task in
 
 ### β2 — the authority-intake cluster (new task, after β1)
 
-`control-plane-fixture-drift` · `case-record-not-run-bound` · `GY-DEF23` · `GY-GAP8`
+`control-plane-fixture-drift` · `case-record-not-run-bound` · `GY-DEF23`
 
 One subject: **an authority boundary that trusts what it is handed, or was never wired at all.**
 `DecisionMonitoringContract` rejects fixture fields at the control-plane run paths; `DesignRecord`
 has a persistence helper with zero production callers and no run/case/tenant binding; Decision
-Validity accepts caller-supplied `status` and `dependency_keys` at its intake; the Claim Ledger
-lifecycle bridge has one definition and zero source calls.
+Validity accepts caller-supplied `status` and `dependency_keys` at its intake. The former
+zero-call Claim Ledger bridge is now orchestrated on the unmerged GY-N12 Cluster-4 branch and
+leaves this group when that boundary becomes an ancestor of `main`.
 
-`GY-DEF23` and `GY-GAP8` are already sequenced by `GY-N12`'s plan as `C5-PREREQ-CLAIM-DV-LIFECYCLE`
-and arrive on `main` with that branch — they are the natural spine of this group, not additions to
-it. `case-record-not-run-bound` is the `GY-GAP4` shape one slice later: a producer route that
+`GY-DEF23` remains the authority-intake spine; `GY-GAP8` is its independently closable lifecycle
+consumer and is `open_unmerged` rather than still unwired. `case-record-not-run-bound` is the
+`GY-GAP4` shape one slice later: a producer route that
 exists but was never told it owns the binding.
 
 ### γ — natural additions to open tasks; **do not schedule separately**
@@ -442,8 +443,8 @@ So the fixture supplies the artifact and the contract reads a field nobody sets.
 wrong is the owner's ruling** — populate the field in the fixture, or derive it from outputs by
 kind. Zero production bytes changed; `git diff` shows no path under `src/`.
 
-`case-record-not-run-bound`, `GY-DEF23` and `GY-GAP8` are untouched and sequenced behind
-`GY-N12`'s merge.
+`case-record-not-run-bound` and `GY-DEF23` remain open. `GY-GAP8` has a branch-local closure
+candidate and remains `open_unmerged` until `GY-N12`'s merge.
 
 ### γ — all four absorptions **verified**, not asserted
 

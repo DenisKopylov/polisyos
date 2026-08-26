@@ -36,17 +36,17 @@ from polisyos.ir.analytics.causal_graph import (
     persist_causal_graph_model,
 )
 from polisyos.ir.registry.refs import CausalGraphModelRef
-from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
-from polisyos.scientist.evidence.claims.projections import project_causal_validity_bundle_claims
 from polisyos.scientist.compute.job_spec import JobResult, JobSpec
 from polisyos.scientist.compute.runner import run_job
-from polisyos.scientist.orchestration.engine.frontier_runtime import (
-    FrontierRuntimeConfig,
-    build_frontier_runtime_report,
-)
+from polisyos.scientist.evidence.claims.projections import project_causal_validity_bundle_claims
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_GRAPH_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
+)
+from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
+from polisyos.scientist.orchestration.engine.frontier_runtime import (
+    FrontierRuntimeConfig,
+    build_frontier_runtime_report,
 )
 
 if TYPE_CHECKING:
@@ -178,12 +178,16 @@ def persist_causal_validity_bundle(
         run_id=state.run_id,
         source_artifact_refs=claim_source_refs,
     )
-    claims_ref = persist_claim_ledger(
-        ctx.store,
-        claim_ledger,
-        inputs=bundle_inputs or None,
-    )
-    payload["claims_ref"] = str(claims_ref.artifact_id)
+    if isinstance(ctx, ClaimCapableExecutionContext):
+        claims_ref = ctx.claim_ledger_owner.persist_candidate_ledger(
+            ledger=claim_ledger,
+            inputs=tuple(bundle_inputs),
+        )
+        payload["claims_ref"] = str(claims_ref.artifact_id)
+        payload["claim_ledger_status"] = "candidate"
+    else:
+        payload["claim_ledger_status"] = "not_established"
+        payload["claim_ledger_limitation_code"] = "claim_ledger_owner_not_established"
     return ctx.store.put_json(
         payload,
         PutOptions(

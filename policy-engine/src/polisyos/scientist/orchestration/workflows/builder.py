@@ -25,6 +25,7 @@ from polisyos.core.security.tenant_context import (
 )
 from polisyos.scientist.adapters.fabric_bridge import DefaultFabricPort
 from polisyos.scientist.adapters.foundry_bridge import DefaultFoundryPort
+from polisyos.scientist.evidence.claims import build_default_claim_ledger_owner
 from polisyos.scientist.methods.research_dag.projections import RESEARCH_DAG_FEATURE_FLAG
 from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_DATA_SNAPSHOT_REF,
@@ -40,7 +41,10 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     acquire_run_lock,
     normalize_checkpoint_policy,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.context import (
+    ClaimCapableExecutionContext,
+    ExecutionContext,
+)
 from polisyos.scientist.orchestration.engine.executor import (
     WorkflowExecutionResult,
     WorkflowExecutor,
@@ -277,7 +281,7 @@ def build_execution_context(
     audit: AuditLog | None = None,
     memory: object | None = None,
     depth: int = 0,
-) -> ExecutionContext:
+) -> ClaimCapableExecutionContext:
     """Create the engine execution context shared by all nodes in one run.
 
     Args:
@@ -317,7 +321,7 @@ def build_execution_context(
     if resolved_metrics is None and engine_metrics_factory is not None:
         resolved_metrics = engine_metrics_factory()
 
-    return ExecutionContext(
+    return ClaimCapableExecutionContext(
         store=store,
         run=run,
         logger=cast(
@@ -333,6 +337,7 @@ def build_execution_context(
         scholar=scholar,
         lex=lex,
         memory=memory,
+        claim_ledger_owner=build_default_claim_ledger_owner(store=store),
     )
 
 
@@ -451,9 +456,7 @@ def _attach_foundry_method_obligation_report_if_required(
     state.reports_index[OBLIGATION_REPORT_REF_KEY] = report_ref
     state.reports_index["foundry_method_obligation_report"] = report_ref
     state.params[OBLIGATION_REPORT_REF_KEY] = str(report_ref.artifact_id)
-    state.params["foundry_method_obligation_report_status"] = str(
-        report.get("status") or ""
-    )
+    state.params["foundry_method_obligation_report_status"] = str(report.get("status") or "")
     state.params["foundry_method_obligation_report_blocking_issue_count"] = int(
         report.get("blocking_issue_count") or 0
     )

@@ -1,0 +1,21 @@
+{
+  "schema_version": "polisyos.gy.claim-dependency-field-registry.v1",
+  "model": "polisyos.scientist.evidence.claims.models.ClaimRecord",
+  "fields": [
+    {"field_path": "alternative_refs[]", "dependency_kind": "alternative", "value_kind": "string"},
+    {"field_path": "authority_profile_refs[]", "dependency_kind": "authority_profile", "value_kind": "string"},
+    {"field_path": "baseline_refs[]", "dependency_kind": "baseline", "value_kind": "string"},
+    {"field_path": "comparison_refs[]", "dependency_kind": "comparison", "value_kind": "string"},
+    {"field_path": "concept_spine_refs[]", "dependency_kind": "concept_spine", "value_kind": "string"},
+    {"field_path": "counterevidence_refs[].artifact_id", "dependency_kind": "counterevidence", "value_kind": "artifact_id"},
+    {"field_path": "evidence_refs[].artifact_id", "dependency_kind": "evidence", "value_kind": "artifact_id"},
+    {"field_path": "facet_refs[]", "dependency_kind": "facet", "value_kind": "string"},
+    {"field_path": "method_need_preconditions[].facet_refs[]", "dependency_kind": "method_precondition_facet", "value_kind": "string"},
+    {"field_path": "method_need_preconditions[].obligation_refs[]", "dependency_kind": "method_precondition_obligation", "value_kind": "string"},
+    {"field_path": "obligation_refs[]", "dependency_kind": "obligation", "value_kind": "string"},
+    {"field_path": "provenance_ref.artifact_id", "dependency_kind": "provenance", "value_kind": "artifact_id"},
+    {"field_path": "reviewer_refs[].artifact_id", "dependency_kind": "reviewer", "value_kind": "artifact_id"},
+    {"field_path": "source_attribution[]", "dependency_kind": "source_attribution", "value_kind": "string"},
+    {"field_path": "uncertainty_profile_ref.artifact_id", "dependency_kind": "uncertainty", "value_kind": "artifact_id"}
+  ]
+}

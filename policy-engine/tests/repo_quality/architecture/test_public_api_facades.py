@@ -53,3 +53,21 @@ def test_root_facades_define_all_and_no_star_reexport() -> None:
 
         assert has_all, f"{init_path} must define curated __all__"
         assert not has_star_import, f"{init_path} must not use star re-export"
+
+
+def test_scientist_claim_authority_facade_preserves_owner_objects() -> None:
+    scientist = importlib.import_module("polisyos.scientist")
+    claims = importlib.import_module("polisyos.scientist.evidence.claims.head_index")
+    bridge = importlib.import_module("polisyos.scientist.governance.continuous.lifecycle_bridge")
+
+    expected = {
+        "ClaimLedgerCurrentHeadProjection": claims.ClaimLedgerCurrentHeadProjection,
+        "ClaimLedgerOwnerPort": claims.ClaimLedgerOwnerPort,
+        "ClaimLifecycleBridgeAdvanced": claims.ClaimLifecycleBridgeAdvanced,
+        "build_default_claim_ledger_owner": claims.build_default_claim_ledger_owner,
+        "EpochClaimLifecycleBridgeService": bridge.EpochClaimLifecycleBridgeService,
+        "build_epoch_claim_lifecycle_bridge": bridge.build_epoch_claim_lifecycle_bridge,
+    }
+    assert set(expected) <= set(scientist.__all__)
+    for name, owner_object in expected.items():
+        assert getattr(scientist, name) is owner_object

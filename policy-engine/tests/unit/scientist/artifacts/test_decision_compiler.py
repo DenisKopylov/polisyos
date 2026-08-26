@@ -174,6 +174,7 @@ def test_compiles_public_decision_artifact_from_final_refs() -> None:
     assert artifact["run_id"] == "run-msme-001"
     assert artifact["decision_context"]["quality_status"] == "pass"
     assert artifact["decision_context"]["approval_state"] == "approval_ready"
+    assert artifact["decision_context"]["public_export_status"] == "blocked"
     assert recommendation["citation_refs"] == [
         "source.msme_panel",
         "norm.ua.credit_guarantee",
@@ -257,8 +258,36 @@ def test_publishable_decision_artifact_rejects_major_claim_without_pdc_registry(
     }
 
 
+def test_legacy_publishable_compiler_rejects_forged_current_head_markers() -> None:
+    forged = {
+        "claim_currentness": "current",
+        "claim_head_ref": _sha("8"),
+        "claim_head_content_hash": _sha("9"),
+        "claim_bridge_pending": False,
+    }
+    inputs = _publishable_inputs(
+        metadata=forged,
+        spine_context=forged,
+        runtime_authority={**_runtime_authority(), **forged},
+    )
+
+    with pytest.raises(DecisionArtifactCompilationError) as exc_info:
+        compile_publishable_decision_artifact(**inputs)
+
+    assert "claim_ledger_owner_not_established" in {
+        issue["code"] for issue in exc_info.value.issues
+    }
+    assert exc_info.value.draft_artifact["publishability"] == "blocked"
+    assert exc_info.value.draft_artifact["artifact_kind"] == "draft_decision_packet"
+    assert exc_info.value.draft_artifact["authority_role"] == "projection"
+    assert exc_info.value.draft_artifact["decision_context"]["public_export_status"] == "blocked"
+    assert exc_info.value.draft_artifact["compiler_issues"] == exc_info.value.issues
+
+
 def test_publishable_decision_artifact_mints_policy_design_case_claim_node() -> None:
-    artifact = compile_publishable_decision_artifact(**_publishable_inputs())
+    with pytest.raises(DecisionArtifactCompilationError) as exc_info:
+        compile_publishable_decision_artifact(**_publishable_inputs())
+    artifact = exc_info.value.draft_artifact
 
     contract = artifact["claim_evidence_contract"]["policy_design_case_claim_contract"]
     assert contract["status"] == "pass"
@@ -344,13 +373,15 @@ def test_publishable_decision_artifact_rejects_claim_registry_prose_backfill() -
 
 
 def test_publishable_decision_artifact_records_statement_evidence_contract() -> None:
-    artifact = compile_publishable_decision_artifact(**_publishable_inputs())
+    with pytest.raises(DecisionArtifactCompilationError) as exc_info:
+        compile_publishable_decision_artifact(**_publishable_inputs())
+    artifact = exc_info.value.draft_artifact
 
-    assert artifact["artifact_kind"] == "publishable_decision_artifact"
-    assert artifact["authority_role"] == "final_decision_artifact"
-    assert artifact["publishability"] == "publishable"
+    assert artifact["artifact_kind"] == "draft_decision_packet"
+    assert artifact["authority_role"] == "projection"
+    assert artifact["publishability"] == "blocked"
     contract = artifact["claim_evidence_contract"]
-    assert contract["status"] == "pass"
+    assert contract["status"] == "blocked"
     statement_scopes = {statement["statement_scope"] for statement in contract["statements"]}
     assert {
         "recommendation",
@@ -365,16 +396,19 @@ def test_publishable_decision_artifact_records_statement_evidence_contract() -> 
 
 
 def test_publishable_decision_artifact_reads_policy_design_case_projection_semantics() -> None:
-    artifact = compile_publishable_decision_artifact(
-        **_publishable_inputs(policy_design_case=policy_design_case())
-    )
+    with pytest.raises(DecisionArtifactCompilationError) as exc_info:
+        compile_publishable_decision_artifact(
+            **_publishable_inputs(policy_design_case=policy_design_case())
+        )
+    artifact = exc_info.value.draft_artifact
 
     projection = artifact["projection_semantics"]
-    assert projection["primary_state"] == "publishable"
+    assert projection["primary_state"] == "blocked"
     assert projection["authority_role"] == "projection_only"
     assert projection["projection_policy"] == "reads_policy_design_case_only"
-    assert "publishable" in projection["states"]
-    assert artifact["authority_role"] == "final_decision_artifact"
+    assert "publishable" not in projection["states"]
+    assert "blocked" in projection["states"]
+    assert artifact["authority_role"] == "projection"
 
 
 @pytest.mark.parametrize(
@@ -491,7 +525,7 @@ def test_public_decision_artifact_marks_source_truth_conflicts_not_publishable()
     )
 
 
-def test_public_decision_artifact_detects_runtime_scorecard_projection_conflict() -> None:
+def test_public_decision_artifact_does_not_invent_conflict_when_both_surfaces_block() -> None:
     artifact = compile_public_decision_artifact(
         run_id="run-public-conflict-001",
         final_claims=[_complete_major_recommendation()],
@@ -506,7 +540,7 @@ def test_public_decision_artifact_detects_runtime_scorecard_projection_conflict(
     )
 
     assert artifact["decision_context"]["public_export_status"] == "blocked"
-    conflict = artifact["source_truth_conflicts"][0]
-    assert conflict["field_family"] == "approval_readiness_public_status"
-    assert conflict["failure_code"] == "hds_approval_readiness_authority_conflict"
-    assert "public_export_status" in conflict["lost_fields"]
+    assert "source_truth_conflicts" not in artifact
+    assert (
+        artifact["public_export_constraints"]["source_truth_conflicts_block_publication"] is False
+    )

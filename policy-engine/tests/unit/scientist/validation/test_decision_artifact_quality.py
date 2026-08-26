@@ -1,10 +1,10 @@
 from __future__ import annotations
 
+from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 from polisyos.scientist.artifacts.decision_compiler import (
     DecisionArtifactCompilationError,
     compile_publishable_decision_artifact,
 )
-from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 from polisyos.scientist.validation.decision_artifact_quality import (
     build_decision_artifact_quality_report,
 )
@@ -153,7 +153,7 @@ def _complete_artifact(
     return artifact, final_claims
 
 
-def test_quality_report_passes_complete_serious_decision_artifact() -> None:
+def test_quality_report_rejects_ownerless_serious_decision_artifact() -> None:
     artifact, final_claims = _complete_artifact()
 
     report = build_decision_artifact_quality_report(
@@ -171,16 +171,18 @@ def test_quality_report_passes_complete_serious_decision_artifact() -> None:
         profile="production",
     )
 
-    assert report["status"] == "pass"
-    assert report["blocking_issue_count"] == 0
+    assert report["status"] == "fail"
+    assert report["blocking_issue_count"] > 0
     assert report["decision_artifact_quality_report_ref"].startswith("sha256:")
-    assert report["decision_artifact_quality_report_ref"] == (
-        repeated["decision_artifact_quality_report_ref"]
+    assert (
+        report["decision_artifact_quality_report_ref"]
+        == (repeated["decision_artifact_quality_report_ref"])
     )
     assert report["parallel_evaluation"]["uses_compiled_output"] is True
     assert "policy_grounding_matrix_ref" in report["input_refs"]
     assert "quality_scorecard_ref" in report["input_refs"]
-    assert report["claim_evidence_contract"]["status"] == "pass"
+    assert report["claim_evidence_contract"]["status"] == "blocked"
+    assert "claim_ledger_owner_not_established" in {issue["code"] for issue in report["issues"]}
 
 
 def test_quality_report_fails_without_runtime_claim_registry_entry() -> None:
@@ -231,9 +233,12 @@ def test_quality_report_accepts_runtime_claim_registry_projection() -> None:
         profile="production",
     )
 
-    assert report["status"] == "pass"
+    issue_codes = {issue["code"] for issue in report["issues"]}
+    assert report["status"] == "fail"
     assert report["runtime_claim_registry"]["status"] == "pass"
     assert report["summary"]["runtime_claim_registry_entry_count"] == 1
+    assert "claim_ledger_owner_not_established" in issue_codes
+    assert "publishable_artifact_source_truth_conflict" not in issue_codes
 
 
 def test_quality_report_fails_when_public_ready_contract_is_missing() -> None:
@@ -309,8 +314,7 @@ def test_quality_report_fails_overstated_certainty_and_public_secrets() -> None:
     artifact, final_claims = _complete_artifact(
         _complete_major_recommendation(
             text=(
-                "The benchmark proves this model will definitely cause a fully "
-                "compliant outcome."
+                "The benchmark proves this model will definitely cause a fully compliant outcome."
             ),
             uncertainty="No uncertainty.",
         )
@@ -343,10 +347,6 @@ def test_quality_report_fails_when_public_artifact_drops_citations() -> None:
         profile="production",
     )
 
-    issue = next(
-        issue
-        for issue in report["issues"]
-        if issue["code"] == "citation_refs_dropped"
-    )
+    issue = next(issue for issue in report["issues"] if issue["code"] == "citation_refs_dropped")
     assert report["status"] == "fail"
     assert issue["claim_id"] == "rec_credit_guarantee"

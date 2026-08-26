@@ -7,13 +7,13 @@ from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.nodes.builtins.governance.run_governance import RunGovernanceNode
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CLAIMS_REF,
     REPORT_GOVERNANCE_REPORT_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def test_governance_rejects_selected_workflow_with_decision_artifact_without_claims_ref(
@@ -52,10 +52,9 @@ def test_governance_rejects_selected_workflow_with_decision_artifact_without_cla
 
     assert outcome.status == "ok"
     assert report["verdict"] == "reject"
-    assert ARTIFACT_CLAIMS_REF in outcome.state.artifacts_index
-    assert report["links"]["claims_ref"]["artifact_id"] == str(
-        outcome.state.artifacts_index[ARTIFACT_CLAIMS_REF].artifact_id
-    )
+    assert ARTIFACT_CLAIMS_REF not in outcome.state.artifacts_index
+    assert report["links"].get("claims_ref") is None
+    assert any(issue["code"] == "claim_ledger_owner_not_established" for issue in report["issues"])
     assert any(
         issue["code"] == "claim_spine.naked_decision_claims"
         and issue["details"]["status"] == "blocked"

@@ -15,7 +15,7 @@ from opentelemetry.context import attach, detach
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.async_store import ensure_async_artifact_store
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
-from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.contracts.control import (
@@ -105,6 +105,12 @@ from polisyos.runtime.quality.open_world_risk import PromotionRuntime
 from polisyos.runtime.quality.source_truth import (
     SourceTruthContractError,
     detect_source_truth_conflict,
+)
+from polisyos.scientist import (
+    ClaimLifecycleBridgeAdvanced,
+    EpochClaimLifecycleBridgeService,
+    build_default_claim_ledger_owner,
+    build_epoch_claim_lifecycle_bridge,
 )
 from polisyos.scientist.orchestration.llm.provider_verification import run_provider_preflight
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
@@ -219,6 +225,7 @@ class ControlPlaneService(
         registry_providers: ControlRegistryProviders | None = None,
         decision_validity_service: DecisionValidityService | None = None,
         promotion_runtime: PromotionRuntime | None = None,
+        epoch_claim_lifecycle_bridge: EpochClaimLifecycleBridgeService | None = None,
     ) -> None:
         from polisyos.fabric.retrieval import RetrievalService
 
@@ -289,6 +296,25 @@ class ControlPlaneService(
             is not self._decision_validity_service
         ):
             raise ValueError("promotion_runtime_decision_validity_owner_mismatch")
+        if epoch_claim_lifecycle_bridge is None:
+            claim_owner = build_default_claim_ledger_owner(store=self._artifact_store)
+            self._epoch_claim_lifecycle_bridge = build_epoch_claim_lifecycle_bridge(
+                completed_batches=self._decision_validity_service,
+                claim_owner=claim_owner,
+                artifacts=self._artifact_store,
+            )
+        else:
+            if not isinstance(epoch_claim_lifecycle_bridge, EpochClaimLifecycleBridgeService):
+                raise ValueError("epoch_claim_lifecycle_bridge_owner_invalid")
+            if (
+                epoch_claim_lifecycle_bridge.artifacts is not self._artifact_store
+                or epoch_claim_lifecycle_bridge.completed_batches
+                is not self._decision_validity_service
+                or getattr(epoch_claim_lifecycle_bridge.claim_owner, "store", None)
+                is not self._artifact_store
+            ):
+                raise ValueError("epoch_claim_lifecycle_bridge_owner_store_mismatch")
+            self._epoch_claim_lifecycle_bridge = epoch_claim_lifecycle_bridge
 
         self._retrieval = retrieval_service or RetrievalService(
             curated_dir=_resolve_curated_dir(),
@@ -1501,6 +1527,25 @@ class ControlPlaneService(
                 "The Decision Validity owner state could not be verified.",
                 code="decision_validity_owner_state_corrupt",
             ) from exc
+        completed_evidence = (
+            self._decision_validity_service.resolve_completed_epoch_batch_evidence_by_id(
+                batch_id=receipt.batch_id
+            )
+        )
+        claim_bridge_result_refs: list[ArtifactRef] = []
+        for packet_id in receipt.affected_packet_refs:
+            packet_manifest = self._artifact_store.get_manifest(packet_id)
+            bridge_result = self._epoch_claim_lifecycle_bridge.bridge_completed_batch(
+                batch_receipt_ref=completed_evidence.batch_receipt_ref,
+                decision_packet_ref=ArtifactRef(
+                    artifact_id=packet_manifest.artifact_id,
+                    kind=packet_manifest.kind,
+                    media_type=packet_manifest.media_type,
+                ),
+                requested_query_context_ref=receipt.requested_query_context_ref,
+            )
+            if isinstance(bridge_result, ClaimLifecycleBridgeAdvanced):
+                claim_bridge_result_refs.append(bridge_result.bridge_result.bridge_result_ref)
         return EpochValidityBatchResponse(
             meta=_build_api_meta(request_id),
             batch_id=receipt.batch_id,
@@ -1508,7 +1553,7 @@ class ControlPlaneService(
             transition=receipt.transition_artifact_ref,
             completion_receipt=receipt,
             affected_packet_refs=receipt.affected_packet_refs,
-            claim_bridge_result_refs=receipt.claim_bridge_result_refs,
+            claim_bridge_result_refs=tuple(claim_bridge_result_refs),
         )
 
     def get_decision_validity_summary(

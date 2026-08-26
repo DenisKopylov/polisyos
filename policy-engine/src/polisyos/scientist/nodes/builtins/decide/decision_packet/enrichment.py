@@ -79,19 +79,11 @@ from polisyos.ir.registry.refs import (
     WelfareBundleRef,
 )
 from polisyos.scholar.search.models import WebEvidenceBundle
-from polisyos.scientist.evidence.claims.audit import (
-    claim_ledger_v2_inputs,
-    persist_append_only_claim_ledger,
+from polisyos.scientist.evidence.claims.head_index import (
+    ClaimLedgerIssuanceNonReceipt,
+    PreparedClaimLedgerInitialization,
 )
-from polisyos.scientist.evidence.claims.export import (
-    blocked_claim_summary,
-    claim_ledger_summary,
-)
-from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
-from polisyos.scientist.evidence.claims.lifecycle import (
-    CLAIM_LEDGER_V2_FLAG,
-    build_initial_append_only_ledger,
-)
+from polisyos.scientist.evidence.claims.lifecycle import CLAIM_LEDGER_V2_FLAG
 from polisyos.scientist.evidence.claims.projections import project_decision_packet_claims
 from polisyos.scientist.evidence.claims.readiness import summarize_ledger_readiness
 from polisyos.scientist.evidence.claims.validators import (
@@ -180,7 +172,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_TRINITY_BUNDLE_REF,
     REPORT_LEGAL_REPORT_REF,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.context import (
+    ClaimCapableExecutionContext,
+    ExecutionContext,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.policy_design.phase3 import resolve_phase3_gate
 
@@ -288,40 +283,65 @@ def _attach_claim_ledger_to_packet(
         source_artifact_refs=source_refs,
         decision_readiness_ref=decision_readiness_ref,
     )
-    claims_ref = persist_claim_ledger(ctx.store, ledger)
+    if not isinstance(ctx, ClaimCapableExecutionContext):
+        packet_payload["claim_readiness_summary"] = summarize_ledger_readiness(ledger)
+        packet_payload["claim_ledger_status"] = "not_established"
+        packet_payload["claim_ledger_limitation_code"] = "claim_ledger_owner_not_established"
+        return _ClaimLedgerAttachment(
+            authority_status="not_established",
+            limitation_code="claim_ledger_owner_not_established",
+        )
+
+    claim_owner = ctx.claim_ledger_owner
+    claims_ref = claim_owner.persist_candidate_ledger(
+        ledger=ledger,
+        inputs=tuple(
+            InputRef(artifact_id=ref.artifact_id, role=f"claim_source[{index}]")
+            for index, ref in enumerate(source_refs)
+        ),
+    )
     packet_payload["claims_ref"] = str(claims_ref.artifact_id)
-    packet_payload["claim_ledger_status"] = "available"
-    packet_payload["claim_readiness_summary"] = summarize_ledger_readiness(ledger)
-    packet_payload["claim_ledger_summary"] = claim_ledger_summary(ledger)
-    packet_payload["blocked_claim_summary"] = blocked_claim_summary(ledger)
-    claim_ledger_v2_ref = None
-    if is_feature_enabled(state.params, CLAIM_LEDGER_V2_FLAG, default=False):
-        append_only_ledger = build_initial_append_only_ledger(
-            ledger,
-            actor_id="scientist.node_build_decision_packet",
-            reason="Projected decision packet claims into append-only Claim Ledger v2.",
-            base_ledger_ref=claims_ref,
-            retention_policy={"max_events": 500},
-        )
-        claim_ledger_v2_ref = persist_append_only_claim_ledger(
-            ctx.store,
-            append_only_ledger,
-            inputs=claim_ledger_v2_inputs(
-                base_ledger_ref=claims_ref,
-                source_artifact_refs=source_refs,
-            ),
-        )
-        packet_payload["claim_ledger_v2_ref"] = str(claim_ledger_v2_ref.artifact_id)
-        packet_payload["claim_ledger_summary"] = claim_ledger_summary(append_only_ledger)
-        packet_payload["blocked_claim_summary"] = blocked_claim_summary(append_only_ledger)
     artifacts = packet_payload.get("artifacts")
     if isinstance(artifacts, dict):
         artifacts[ARTIFACT_CLAIMS_REF] = str(claims_ref.artifact_id)
+    candidate_projection = claim_owner.project_candidate_ledger(ledger=ledger)
+    packet_payload["claim_readiness_summary"] = summarize_ledger_readiness(ledger)
+    packet_payload["claim_ledger_summary"] = candidate_projection.ledger_summary
+    packet_payload["blocked_claim_summary"] = candidate_projection.blocked_summary
+    if not is_feature_enabled(state.params, CLAIM_LEDGER_V2_FLAG, default=False):
+        packet_payload["claim_ledger_status"] = "not_established"
+        packet_payload["claim_ledger_limitation_code"] = "claim_root_issuance_not_established"
+        return _ClaimLedgerAttachment(
+            claims_ref=claims_ref,
+            authority_status="not_established",
+            limitation_code="claim_root_issuance_not_established",
+        )
+
+    prepared = claim_owner.prepare_initial_ledger(
+        base_claims_ref=claims_ref,
+        source_artifact_refs=source_refs,
+    )
+    if isinstance(prepared, ClaimLedgerIssuanceNonReceipt):
+        packet_payload["claim_ledger_status"] = "not_established"
+        packet_payload["claim_ledger_limitation_code"] = prepared.code
+        return _ClaimLedgerAttachment(
+            claims_ref=claims_ref,
+            authority_status="not_established",
+            limitation_code=prepared.code,
+        )
+    if not isinstance(prepared, PreparedClaimLedgerInitialization):
+        raise ValueError("claim_root_preparation_result_invalid")
+    claim_ledger_v2_ref = prepared.initial_ledger_ref
+    packet_payload["claim_ledger_v2_ref"] = str(claim_ledger_v2_ref.artifact_id)
+    packet_payload["claim_ledger_status"] = "prepared_not_current"
+    if isinstance(artifacts, dict):
         if claim_ledger_v2_ref is not None:
             artifacts[ARTIFACT_CLAIM_LEDGER_V2_REF] = str(claim_ledger_v2_ref.artifact_id)
     return _ClaimLedgerAttachment(
         claims_ref=claims_ref,
         claim_ledger_v2_ref=claim_ledger_v2_ref,
+        preparation=prepared,
+        authority_status="prepared",
     )
 
 

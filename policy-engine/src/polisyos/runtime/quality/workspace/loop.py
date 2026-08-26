@@ -103,7 +103,10 @@ from polisyos.runtime.quality.workspace.workflow_playbook_projection import (
     select_playbook_for_intent,
     trace_playbook_execution,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist import build_default_claim_ledger_owner
+from polisyos.scientist.orchestration.engine.context import (
+    ClaimCapableExecutionContext,
+)
 from polisyos.scientist.orchestration.engine.state import ExperimentState
 from polisyos.scientist.orchestration.workflows.builder import build_registry_with_builtin_nodes
 
@@ -291,6 +294,7 @@ class WorkspaceSearchExitContract(SearchExitContract):
     artifact_envelopes: list[ArtifactEnvelope] = Field(default_factory=list)
     authority_derivation_traces: list[AuthorityDerivationTrace] = Field(default_factory=list)
 
+
 WorkspaceLoopRunProof = ProductionLoopRunProof
 
 
@@ -321,8 +325,7 @@ def _slug(value: str) -> str:
 
 
 _GY_COMPOSITION_CERTIFICATES_REPO_REF = (
-    "repo://architecture/policy_design_case/"
-    "layer3_gy_composition_certificates.json"
+    "repo://architecture/policy_design_case/layer3_gy_composition_certificates.json"
 )
 
 
@@ -582,8 +585,7 @@ def _operation_discovery_evidence(operation_class: OperationClass) -> dict[str, 
         return {
             "source_kind": "layer2_composition_engine",
             "source_ref": (
-                "polisyos.runtime.quality.design_axes.coupling_composition."
-                "compose_subdesigns"
+                "polisyos.runtime.quality.design_axes.coupling_composition.compose_subdesigns"
             ),
             "source_lookup": {
                 "composition_receipt": "CompositionReceipt",
@@ -697,15 +699,9 @@ def _slot_names(slots: object) -> list[str]:
 
 def _measurement_summary(rows: list[dict[str, Any]]) -> dict[str, Any]:
     values = [
-        value
-        for row in rows
-        if (value := _numeric_measurement_value(row.get("value"))) is not None
+        value for row in rows if (value := _numeric_measurement_value(row.get("value"))) is not None
     ]
-    years = [
-        int(row["year"])
-        for row in rows
-        if isinstance(row.get("year"), int)
-    ]
+    years = [int(row["year"]) for row in rows if isinstance(row.get("year"), int)]
     if not values:
         return {
             "row_count": 0,
@@ -934,7 +930,7 @@ class WorkspaceLoop:
             return self._artifact_store
         return FileSystemCAS(Path(tempfile.gettempdir()) / "polisyos-gy-phase2-cas")
 
-    def _phase2_context(self, *, workspace_id: str) -> tuple[ExecutionContext, object]:
+    def _phase2_context(self, *, workspace_id: str) -> tuple[ClaimCapableExecutionContext, object]:
         store = self._phase2_store()
         bundle = build_default_registry_bundle(store)
         run = RunContext.start(
@@ -943,10 +939,11 @@ class WorkspaceLoop:
             run_id=f"run-{_slug(workspace_id)}",
         )
         return (
-            ExecutionContext(
+            ClaimCapableExecutionContext(
                 store=store,
                 run=run,
                 logger=logging.getLogger(f"polisyos.gy.phase2.{workspace_id}"),
+                claim_ledger_owner=build_default_claim_ledger_owner(store=store),
             ),
             bundle.bundle_ref,
         )
@@ -1311,9 +1308,7 @@ class WorkspaceLoop:
                 workspace_id=workspace_id,
                 invocation_id="invoke-phase2-estimate",
                 state_facts=state_facts,
-                required_inputs=[
-                    item for item in required_inputs if not state_facts.get(item)
-                ],
+                required_inputs=[item for item in required_inputs if not state_facts.get(item)],
             )
         )
         operation_invocations: list[OperationInvocationRecord] = []
@@ -1426,9 +1421,7 @@ class WorkspaceLoop:
                     open_production_findings = list(consumed.open_production_findings)
         trace = trace_playbook_execution(
             selection=selection,
-            executed_operation_classes=list(
-                dict.fromkeys(executed_operation_classes).keys()
-            ),
+            executed_operation_classes=list(dict.fromkeys(executed_operation_classes).keys()),
             deviated_from_default=bool(blockers),
             deviation_operation=OperationClass.REFINE if blockers else None,
             deviation_reason="missing_phase2_input" if blockers else None,
@@ -1529,10 +1522,7 @@ class WorkspaceLoop:
             raise WorkspaceInvariantError(f"forbidden Slice-0 terminal emitted: {terminal['kind']}")
         artifact_envelopes_by_role = self._build_artifacts(manifest, terminal["kind"])
         self._assert_ring1_producer_artifacts(artifact_envelopes_by_role)
-        artifacts = {
-            role: envelope.ref
-            for role, envelope in artifact_envelopes_by_role.items()
-        }
+        artifacts = {role: envelope.ref for role, envelope in artifact_envelopes_by_role.items()}
         self._assert_workspace_artifact_cut_lines(
             terminal_kind=str(terminal["kind"]),
             output_artifacts=list(artifacts.values()),
@@ -1566,11 +1556,10 @@ class WorkspaceLoop:
                     authority_boundary=authority,
                     applicability_result_ref="applicability-verify",
                     certified_envelope_ref=(
-                        artifact_envelopes_by_role["estimate"]
-                        .certified_operation_envelope.envelope_id
-                        if artifact_envelopes_by_role[
+                        artifact_envelopes_by_role[
                             "estimate"
-                        ].certified_operation_envelope
+                        ].certified_operation_envelope.envelope_id
+                        if artifact_envelopes_by_role["estimate"].certified_operation_envelope
                         else None
                     ),
                 )
@@ -1684,9 +1673,7 @@ class WorkspaceLoop:
                             "claim_type": "estimate",
                         },
                         "multiplicity": {"min": 1, "max": 1},
-                        "provided_authority": child_exit.authority_boundary.model_dump(
-                            mode="json"
-                        ),
+                        "provided_authority": child_exit.authority_boundary.model_dump(mode="json"),
                     },
                     context={"writer_role": "system_verifier"},
                 )
@@ -1909,9 +1896,7 @@ class WorkspaceLoop:
         manifest: WorkspaceFixtureManifest,
         terminal_kind: str,
     ) -> dict[str, ArtifactEnvelope]:
-        measurement_admitted = (
-            terminal_kind == SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value
-        )
+        measurement_admitted = terminal_kind == SearchTerminalKind.GROUNDED_PARTIAL_ADMISSIBLE.value
         if manifest.expected_catalog_binding_refs and measurement_admitted:
             producer = MeasurementRootProducer(artifact_store=self._artifact_store)
             dataset_envelope = producer.produce_from_catalog(
@@ -1970,9 +1955,7 @@ class WorkspaceLoop:
             if isinstance(row, dict)
         ]
         measurement_root_ref = (
-            dataset_envelope.producer_roots[0].uri
-            if dataset_envelope.producer_roots
-            else None
+            dataset_envelope.producer_roots[0].uri if dataset_envelope.producer_roots else None
         )
         estimate_payload = {
             "fixture_id": manifest.fixture_id,
@@ -2037,9 +2020,7 @@ class WorkspaceLoop:
         ):
             if hit.id not in expected_refs:
                 continue
-            hit_payload = canonical_catalog_result_for_workspace_loop(
-                hit.model_dump(mode="json")
-            )
+            hit_payload = canonical_catalog_result_for_workspace_loop(hit.model_dump(mode="json"))
             rows = measurement_rows_for_catalog_payload(hit_payload)
             if rows:
                 return {
@@ -2062,8 +2043,7 @@ class WorkspaceLoop:
         )
         if scan.has_findings:
             raise ValueError(
-                "GY loop payload blocked by secret/PII scan: "
-                + ",".join(scan.finding_kinds)
+                "GY loop payload blocked by secret/PII scan: " + ",".join(scan.finding_kinds)
             )
         from polisyos.runtime.http.services.control.artifacts import write_authority_artifact
 
@@ -2354,9 +2334,7 @@ class WorkspaceLoop:
                 if source_missing or search_quality["known_seeds_missed"] or semantic_failed
                 else 0.0,
                 "estimated_cost": "out_of_scope_slice0",
-                "reason_not_taken": (
-                    "ACQUIRE continuation was not selected for this terminal."
-                ),
+                "reason_not_taken": ("ACQUIRE continuation was not selected for this terminal."),
             }
         ]
         if acquisition_plan is not None:
@@ -2424,9 +2402,7 @@ class WorkspaceLoop:
                 "novelty": {"disabled_slice0": 0},
                 "recursion": {"disabled_slice0": 0},
             },
-            "exhausted": (
-                ["search_quality.min_recall_at_known_seeds"] if recall_deficit else []
-            ),
+            "exhausted": (["search_quality.min_recall_at_known_seeds"] if recall_deficit else []),
         }
         return SearchIncompletenessRecord(
             record_id=f"incomplete-{manifest.fixture_id.replace('_', '-')}",
@@ -2494,8 +2470,7 @@ class WorkspaceLoop:
                 "selected_action": {},
                 "continuation_allowed": False,
                 "reason": (
-                    "Higher-precedence terminal selected before costed acquisition "
-                    "continuation."
+                    "Higher-precedence terminal selected before costed acquisition continuation."
                 ),
             }
         )
@@ -2635,8 +2610,7 @@ class WorkspaceLoop:
             decision_rule_ref=WORKSPACE_ANYTIME_EXIT_RULE_VERSION,
             threshold=0.0,
             candidate_actions=[
-                {"operation_proposal_ref": item["operation_proposal_ref"]}
-                for item in candidates
+                {"operation_proposal_ref": item["operation_proposal_ref"]} for item in candidates
             ],
             agent_suggested_scores={},
             normalized_scores={
@@ -2748,9 +2722,7 @@ class WorkspaceLoop:
             candidate_refs=output_artifact_refs
             or [f"artifact:slice0:{_slug(workspace_id)}:no-design-candidate"],
             counterexample_refs=[],
-            refinement_decision_refs=[
-                result.result_id for result in applicability_results
-            ],
+            refinement_decision_refs=[result.result_id for result in applicability_results],
             deterministic_replay_key=f"{WORKSPACE_LOOP_SCHEMA_VERSION}:{workspace_id}:slice0",
             counterexample_conversion_rate=0.0,
             grammar_diversity_minimum=0,
@@ -2857,25 +2829,19 @@ def _formal_preconditions_for_operation(operation_class: OperationClass) -> list
         OperationClass.ACQUIRE: [
             {
                 "predicate_id": "slice0.acquire_missing_distribution",
-                "description": (
-                    "ACQUIRE requires a named missing distribution before planning."
-                ),
+                "description": ("ACQUIRE requires a named missing distribution before planning."),
                 "severity": "hard",
             },
             {
                 "predicate_id": "slice0.acquire_data_need_spec",
-                "description": (
-                    "ACQUIRE must reuse scientist.agent.protocols.DataNeedSpec."
-                ),
+                "description": ("ACQUIRE must reuse scientist.agent.protocols.DataNeedSpec."),
                 "severity": "hard",
             },
             {
                 "predicate_id": "slice0.acquire_positive_voi",
-                "description": (
-                    "ACQUIRE continuation requires deterministic positive VOI."
-                ),
+                "description": ("ACQUIRE continuation requires deterministic positive VOI."),
                 "severity": "hard",
-            }
+            },
         ],
         OperationClass.DECOMPOSE: [
             {
@@ -2900,8 +2866,7 @@ def _formal_preconditions_for_operation(operation_class: OperationClass) -> list
             {
                 "predicate_id": "gy.compose_requires_composition_certificate",
                 "description": (
-                    "COMPOSE emits a CompositionCertificate before "
-                    "PolicyProgram promotion."
+                    "COMPOSE emits a CompositionCertificate before PolicyProgram promotion."
                 ),
                 "severity": "hard",
             },

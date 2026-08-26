@@ -137,9 +137,25 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
 
     notes: list[str] = []
     try:
+        from pydantic import ValidationError
+
         from polisyos.core.artifacts.ids import ArtifactID
         from polisyos.core.artifacts.manifest import ArtifactRef
         from polisyos.core.artifacts.store import FileSystemCAS
+        from polisyos.core.contracts.c4_persisted_profiles import c4_semantic_digest
+        from polisyos.scientist.evidence.claims.export import (
+            ClaimExportAudience,
+            _format_resolved_claim_ledger,
+        )
+        from polisyos.scientist.evidence.claims.head_index import (
+            CLAIM_LEDGER_AUTHORITY_PURPOSE,
+            ClaimBridgePendingProjection,
+            ClaimLedgerHeadStatement,
+            ClaimLedgerOwnerKey,
+            ClaimLedgerOwnerKeyDerivationInput,
+            PersistedClaimLedgerHead,
+            derive_claim_ledger_owner_scope_ref,
+        )
         from polisyos.scientist.evidence.claims.lifecycle import AppendOnlyClaimLedger
         from polisyos.scientist.evidence.claims.models import (
             ClaimPublishability,
@@ -147,6 +163,14 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             ClaimSupportStatus,
             ClaimType,
         )
+        from polisyos.scientist.methods.research_dag.models import (
+            ResearchDAGArtifact,
+            ResearchDAGEdge,
+            ResearchDAGNode,
+            ResearchEdgeType,
+            ResearchNodeType,
+        )
+        from polisyos.scientist.methods.search.readiness import DecisionReadiness
         from polisyos.scientist.orchestration.orchestrator.decision_card import DecisionCard
         from polisyos.scientist.publishing.publisher import (
             DecisionGradeExport,
@@ -159,15 +183,6 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             load_decision_grade_export,
             persist_decision_grade_export,
         )
-        from polisyos.scientist.methods.research_dag.models import (
-            ResearchDAGArtifact,
-            ResearchDAGEdge,
-            ResearchDAGNode,
-            ResearchEdgeType,
-            ResearchNodeType,
-        )
-        from polisyos.scientist.methods.search.readiness import DecisionReadiness
-        from pydantic import ValidationError
     except Exception as exc:  # pragma: no cover - surfaced in payload.
         return False, [f"phase2_7_import_failed:{exc.__class__.__name__}:{exc}"]
 
@@ -240,11 +255,68 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     )
     claims_ref = _ref("claims", kind="scientist.claim_ledger_v2")
     dag_ref = _ref("dag", kind="scientist.research_dag")
+
+    derivation = ClaimLedgerOwnerKeyDerivationInput(
+        base_claims_ref=claims_ref,
+        base_claims_content_hash=str(claims_ref.artifact_id),
+        requested_authority_purpose=CLAIM_LEDGER_AUTHORITY_PURPOSE,
+    )
+    claim_owner_key = ClaimLedgerOwnerKey(
+        scope_ref=derive_claim_ledger_owner_scope_ref(derivation),
+        claim_owner_ref="phase2-7-fixture-owner",
+        authority_purpose=CLAIM_LEDGER_AUTHORITY_PURPOSE,
+        derivation_input=derivation,
+    )
+    head_statement = ClaimLedgerHeadStatement(
+        root_identity=str(_ref("root-identity").artifact_id),
+        root_receipt_ref=_ref("root", kind="scientist.claims.ledger_root"),
+        root_receipt_content_hash=str(_ref("root-content").artifact_id),
+        owner_key=claim_owner_key,
+        ledger_artifact_ref=claims_ref,
+        ledger_raw_cas_hash=str(claims_ref.artifact_id),
+        generation=0,
+        predecessor_head_ref=None,
+        bridge_result_refs=(),
+        issuance_verifier_receipt_ref=_ref(
+            "issuance-verifier",
+            kind="scientist.claims.ledger_root_verification",
+        ),
+        issuance_verifier_receipt_content_hash=str(_ref("issuance-verifier-content").artifact_id),
+    )
+
+    class _FixtureClaimOwner:
+        def __init__(self) -> None:
+            self.head = PersistedClaimLedgerHead(
+                head_ref=_ref("head", kind="scientist.claims.ledger_head"),
+                head_content_hash=c4_semantic_digest("claim_ledger_head", head_statement),
+                statement=head_statement,
+            )
+
+        def resolve_current(self, *, owner_key: object) -> object:
+            del owner_key
+            return self.head
+
+        def export_current(
+            self,
+            *,
+            owner_key: object,
+            audience: ClaimExportAudience,
+        ) -> object:
+            del owner_key
+            return _format_resolved_claim_ledger(
+                ledger,
+                audience=audience,
+                pending_projection=ClaimBridgePendingProjection(
+                    completed_batch_denominator_established=True,
+                ),
+            )
+
+    claim_owner = _FixtureClaimOwner()
     exports = compile_decision_grade_exports(
         run_id="run_phase2_7",
-        claims_ref=claims_ref,
         research_dag_ref=dag_ref,
-        claim_ledger=ledger,
+        claim_owner=claim_owner,
+        claim_owner_key=claim_owner_key,
         research_dag=dag,
         decision_payload={"policy_summary": "Public claim."},
     )
@@ -270,7 +342,12 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         inputs = decision_grade_export_inputs(machine_export)
         if [item.role for item in inputs] != ["claims", "research_dag"]:
             notes.append("decision_grade_export_lineage_inputs_missing")
-        export_ref = persist_decision_grade_export(store, machine_export)
+        export_ref = persist_decision_grade_export(
+            store,
+            machine_export,
+            claim_owner=claim_owner,
+            claim_owner_key=claim_owner_key,
+        )
         if load_decision_grade_export(store, export_ref) != machine_export:
             notes.append("decision_grade_export_cas_roundtrip_failed")
 
@@ -278,9 +355,9 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         compile_decision_grade_export(
             run_id="wrong_run",
             audience=OutputAudience.MACHINE,
-            claims_ref=claims_ref,
             research_dag_ref=dag_ref,
-            claim_ledger=ledger,
+            claim_owner=claim_owner,
+            claim_owner_key=claim_owner_key,
             research_dag=dag,
         )
     except ValueError:
@@ -299,61 +376,26 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
     else:
         notes.append("blank_omission_reason_not_blocked")
 
+    silent_blocker = exports[OutputAudience.PUBLIC].model_dump(mode="json")
+    silent_blocker["omissions"] = []
     try:
-        DecisionGradeExport(
-            run_id="run_phase2_7",
-            audience=OutputAudience.PUBLIC,
-            claims_ref=claims_ref,
-            research_dag_ref=dag_ref,
-            payload={
-                "trust_provenance": {
-                    "claims_ref": {
-                        "artifact_id": str(claims_ref.artifact_id),
-                        "kind": claims_ref.kind,
-                        "media_type": claims_ref.media_type,
-                    },
-                    "research_dag_ref": {
-                        "artifact_id": str(dag_ref.artifact_id),
-                        "kind": dag_ref.kind,
-                        "media_type": dag_ref.media_type,
-                    },
-                },
-                "blocked_claim_summary": {"blocked_count": 1, "blocked_claims": []},
-            },
-        )
+        DecisionGradeExport.model_validate(silent_blocker)
     except ValidationError:
         pass
     else:
         notes.append("silent_blocker_omission_not_blocked")
+    unrelated_omission = {
+        **silent_blocker,
+        "omissions": [
+            OutputOmissionRecord(
+                field_path="claim_ledger_export.claims[claim_draft]",
+                audience=OutputAudience.PUBLIC,
+                reason="draft claim hidden from public audience",
+            ).model_dump(mode="json")
+        ],
+    }
     try:
-        DecisionGradeExport(
-            run_id="run_phase2_7",
-            audience=OutputAudience.PUBLIC,
-            claims_ref=claims_ref,
-            research_dag_ref=dag_ref,
-            payload={
-                "trust_provenance": {
-                    "claims_ref": {
-                        "artifact_id": str(claims_ref.artifact_id),
-                        "kind": claims_ref.kind,
-                        "media_type": claims_ref.media_type,
-                    },
-                    "research_dag_ref": {
-                        "artifact_id": str(dag_ref.artifact_id),
-                        "kind": dag_ref.kind,
-                        "media_type": dag_ref.media_type,
-                    },
-                },
-                "blocked_claim_summary": {"blocked_count": 1, "blocked_claims": []},
-            },
-            omissions=[
-                OutputOmissionRecord(
-                    field_path="claim_ledger_export.claims[claim_draft]",
-                    audience=OutputAudience.PUBLIC,
-                    reason="draft claim hidden from public audience",
-                )
-            ],
-        )
+        DecisionGradeExport.model_validate(unrelated_omission)
     except ValidationError:
         pass
     else:

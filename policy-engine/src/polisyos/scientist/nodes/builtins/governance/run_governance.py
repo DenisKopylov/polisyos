@@ -41,7 +41,6 @@ from polisyos.ir.governance.gate import (
     GateVerdict,
 )
 from polisyos.ir.registry.refs import NormativeArbitrationResultRef
-from polisyos.scientist.evidence.claims.ledger import persist_claim_ledger
 from polisyos.scientist.evidence.claims.projections import project_governance_report_claims
 from polisyos.scientist.evidence.claims.validators import (
     is_claim_spine_enabled,
@@ -71,7 +70,10 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     REPORT_GOVERNANCE_REPORT_REF,
     REPORT_LEGAL_REPORT_REF,
 )
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.context import (
+    ClaimCapableExecutionContext,
+    ExecutionContext,
+)
 from polisyos.scientist.orchestration.engine.error_semantics import emit_degraded_path
 from polisyos.scientist.orchestration.engine.protocol import NodeEvent, NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.state import ExperimentState
@@ -418,11 +420,27 @@ class RunGovernanceNode:
                 run_id=new_state.run_id,
                 source_artifact_refs=_claim_source_artifact_refs(new_state),
             )
-            claims_ref = persist_claim_ledger(ctx.store, claim_ledger)
-            new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
-            report = report.model_copy(
-                update={"links": report.links.model_copy(update={"claims_ref": claims_ref})}
-            )
+            if isinstance(ctx, ClaimCapableExecutionContext):
+                claims_ref = ctx.claim_ledger_owner.persist_candidate_ledger(ledger=claim_ledger)
+                new_state.artifacts_index[ARTIFACT_CLAIMS_REF] = claims_ref
+                report = report.model_copy(
+                    update={"links": report.links.model_copy(update={"claims_ref": claims_ref})}
+                )
+            else:
+                report = report.model_copy(
+                    update={
+                        "issues": [
+                            *report.issues,
+                            {
+                                "code": "claim_ledger_owner_not_established",
+                                "message": (
+                                    "Claim candidate persistence requires the "
+                                    "canonical Claim owner port."
+                                ),
+                            },
+                        ]
+                    }
+                )
         report_ref_payload = ctx.store.put_json(
             report,
             PutOptions(

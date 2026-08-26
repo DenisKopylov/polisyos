@@ -6,8 +6,12 @@ from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
-from polisyos.scientist.evidence.claims.export import ClaimExportAudience, export_claim_ledger
-from polisyos.scientist.evidence.claims.ledger import load_claim_ledger, persist_claim_ledger
+from polisyos.scientist.evidence.claims.export import (
+    ClaimExportAudience,
+    _format_resolved_claim_ledger,
+)
+from polisyos.scientist.evidence.claims.head_index import ClaimBridgePendingProjection
+from polisyos.scientist.evidence.claims.ledger import _load_claim_ledger, _persist_claim_ledger
 from polisyos.scientist.evidence.claims.models import (
     AlternativeRejectionReason,
     AlternativeStatus,
@@ -137,9 +141,7 @@ def test_compiler_emits_full_comparison_records_and_claim_registry_refs(
                 {
                     "method_id": "foundry.bounds.credit_access",
                     "claim_id": superiority_claim.claim_id,
-                    "method_output_refs": {
-                        "selected": "foundry-output:credit-access-bounds"
-                    },
+                    "method_output_refs": {"selected": "foundry-output:credit-access-bounds"},
                     "limitation_refs": {"scope": "foundry-limitation:regional-transfer"},
                     "uncertainty_envelope_refs": {"bounds": "uncertainty:credit-access"},
                     "baseline_refs": list(superiority_claim.baseline_refs),
@@ -189,7 +191,13 @@ def test_compiler_emits_full_comparison_records_and_claim_registry_refs(
     updated_claim = next(
         claim for claim in compiled.claims if claim.claim_id == superiority_claim.claim_id
     )
-    exported = export_claim_ledger(compiled, audience=ClaimExportAudience.MACHINE)
+    exported = _format_resolved_claim_ledger(
+        compiled,
+        audience=ClaimExportAudience.MACHINE,
+        pending_projection=ClaimBridgePendingProjection(
+            completed_batch_denominator_established=True,
+        ),
+    )
 
     assert comparison.claim_id == superiority_claim.claim_id
     assert set(comparison.baseline_types_covered) >= {
@@ -222,8 +230,8 @@ def test_compiler_emits_full_comparison_records_and_claim_registry_refs(
     assert exported.comparison_records[0]["comparison_id"] == comparison.comparison_id
 
     store = FileSystemCAS(tmp_path)
-    ref = persist_claim_ledger(store, compiled)
-    loaded = load_claim_ledger(store, ref)
+    ref = _persist_claim_ledger(store, compiled)
+    loaded = _load_claim_ledger(store, ref)
     assert loaded.comparison_records == compiled.comparison_records
 
 
@@ -250,7 +258,9 @@ def test_superiority_publication_and_registry_fail_without_w8c_comparison_record
 def test_layer3_g3_bridge_is_baseline_comparison_evidence_without_authority_escalation(
     tmp_path: Path,
 ) -> None:
-    g3 = importlib.import_module("polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search")
+    g3 = importlib.import_module(
+        "polisyos.runtime.quality.proving_ground.proof_carrying_analytics_search"
+    )
     ledger = _claim_ledger()
     superiority_claim = next(
         claim for claim in ledger.claims if claim.claim_use is ClaimUse.SUPERIORITY
@@ -278,9 +288,7 @@ def test_layer3_g3_bridge_is_baseline_comparison_evidence_without_authority_esca
     )
 
     comparison = gate.compiled_ledger_payload["comparison_records"][0]
-    evidence_refs = {
-        evidence["evidence_ref"] for evidence in comparison["comparison_evidence"]
-    }
+    evidence_refs = {evidence["evidence_ref"] for evidence in comparison["comparison_evidence"]}
 
     assert gate.status == "pass"
     assert gate.comparison_record_count == 1

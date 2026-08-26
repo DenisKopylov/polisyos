@@ -18,6 +18,7 @@ from polisyos.scientist.orchestration.engine.checkpoint import (
     CheckpointScopeMismatchError,
     resolve_latest_checkpoint,
 )
+from polisyos.scientist.orchestration.engine.context import ClaimCapableExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import NodeOutcome, NodeSpec
 from polisyos.scientist.orchestration.engine.runner import (
     _activity_worker as activity_worker_module,
@@ -64,6 +65,8 @@ def test_build_worker_context_reconstructs_run_and_registry_bundle() -> None:
     assert ctx.run.tenant_id == "tenant-1"
     assert ctx.run.cell_id == "cell-1"
     assert str(ctx.run.run_manifest.registry_bundle.artifact_id) == "sha256:" + "c" * 64
+    assert isinstance(ctx, ClaimCapableExecutionContext)
+    assert ctx.claim_ledger_owner is not None
 
 
 def test_build_worker_context_bootstraps_registry_bundle_when_missing() -> None:
@@ -72,6 +75,8 @@ def test_build_worker_context_bootstraps_registry_bundle_when_missing() -> None:
     assert ctx.run.run_manifest.run_id == "worker-run-2"
     assert ctx.run.run_manifest.registry_bundle.kind == "core.registry_bundle"
     assert ctx.metrics is None or len(ctx.metrics.recent_trace_correlations()) == 1
+    assert isinstance(ctx, ClaimCapableExecutionContext)
+    assert ctx.claim_ledger_owner is not None
 
 
 def test_node_worker_rejects_transported_scope_before_context_or_execution(

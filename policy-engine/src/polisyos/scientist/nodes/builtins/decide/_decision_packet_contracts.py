@@ -2,8 +2,8 @@
 
 from __future__ import annotations
 
-from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from dataclasses import dataclass, replace
+from typing import TYPE_CHECKING, Literal
 
 from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_CLAIM_LEDGER_V2_REF,
@@ -12,6 +12,9 @@ from polisyos.scientist.nodes.builtins.state_keys import (
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.manifest import ArtifactRef
+    from polisyos.scientist.evidence.claims.head_index import (
+        PreparedClaimLedgerInitialization,
+    )
     from polisyos.scientist.nodes.builtins.decide.decision_packet_support import ReplayReadiness
     from polisyos.scientist.orchestration.engine.state import ExperimentState
 
@@ -29,8 +32,13 @@ class DecisionPacketBuildRequest:
 
 @dataclass(frozen=True)
 class ClaimLedgerAttachment:
+    """Candidate Claim bytes plus a separately promoted currentness state."""
+
     claims_ref: ArtifactRef | None = None
     claim_ledger_v2_ref: ArtifactRef | None = None
+    preparation: PreparedClaimLedgerInitialization | None = None
+    authority_status: Literal["disabled", "not_established", "prepared", "current"] = "disabled"
+    limitation_code: str | None = None
 
     @property
     def artifacts(self) -> list[ArtifactRef]:
@@ -42,6 +50,8 @@ class ClaimLedgerAttachment:
 
     @property
     def write_paths(self) -> tuple[str, ...]:
+        if self.authority_status != "current":
+            return ()
         paths: list[str] = []
         if self.claims_ref is not None:
             paths.append(f"artifacts_index.{ARTIFACT_CLAIMS_REF}")
@@ -50,10 +60,23 @@ class ClaimLedgerAttachment:
         return tuple(paths)
 
     def apply_to_state(self, state: ExperimentState) -> None:
+        if self.authority_status != "current":
+            return
         if self.claims_ref is not None:
             state.artifacts_index[ARTIFACT_CLAIMS_REF] = self.claims_ref
         if self.claim_ledger_v2_ref is not None:
             state.artifacts_index[ARTIFACT_CLAIM_LEDGER_V2_REF] = self.claim_ledger_v2_ref
+
+    def mark_current(self) -> ClaimLedgerAttachment:
+        """Return the same sealed refs after a verified generation-zero head."""
+
+        if self.preparation is None or self.claim_ledger_v2_ref is None:
+            raise ValueError("claim_root_preparation_missing")
+        return replace(
+            self,
+            authority_status="current",
+            limitation_code=None,
+        )
 
 
 _DecisionPacketBuildRequest = DecisionPacketBuildRequest

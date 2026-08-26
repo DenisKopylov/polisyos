@@ -7,8 +7,8 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.artifacts.manifest import ArtifactRef  # noqa: TC001
-from polisyos.scientist.methods.search.readiness import DecisionReadiness  # noqa: TC001
+from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.scientist.methods.search.readiness import DecisionReadiness
 
 
 class ClaimType(str, Enum):
@@ -319,9 +319,9 @@ class BaselineComparisonRecord(BaseModel):
         if not self.comparison_limitation_refs:
             raise ValueError("comparison records require explicit comparison_limitation_refs")
         option_refs = {option.option_ref for option in self.option_comparisons}
-        required_refs = set(self.baseline_refs) | set(self.alternative_refs) | {
-            self.selected_option_ref
-        }
+        required_refs = (
+            set(self.baseline_refs) | set(self.alternative_refs) | {self.selected_option_ref}
+        )
         missing = sorted(required_refs - option_refs)
         if missing:
             raise ValueError(f"comparison records are missing option comparisons {missing}")
@@ -444,7 +444,13 @@ class AlternativeRecord(BaseModel):
 
 
 class ClaimRecord(BaseModel):
-    """One typed claim plus its support, counterevidence, and release state."""
+    """One typed claim plus its support, counterevidence, and release state.
+
+    Reference-bearing paths are reconciled against the tracked Claim dependency
+    registry by the Claim owner. Adding such a path without a registry row makes
+    epoch-to-Claim membership ``not_established``; this model never supplies its
+    own completeness authority.
+    """
 
     model_config = ConfigDict(extra="forbid")
 

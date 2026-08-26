@@ -79,7 +79,7 @@ DECISION_PACKET_TOKENS: dict[Path, tuple[str, ...]] = {
         "validate_human_reviewed_readiness",
     ),
     Path("tests/unit/scientist/nodes/test_decision_packet_node_v3.py"): (
-        'payload["claims_ref"]',
+        '"claims_ref" not in payload',
         'payload["research_dag_ref"]',
         "missing_claims_ref_for_decision_bearing_payload",
     ),
@@ -151,18 +151,14 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
         from polisyos.scientist.agent.runtime_capabilities import AgentCapabilityId
         from polisyos.scientist.agent.tool_contracts import summarize_tool_contracts
         from polisyos.scientist.agent.tools.schema import ToolDefinition
+        from polisyos.scientist.evals.authority import (
+            BenchmarkAuthority,
+            PromotionEvidenceRequest,
+        )
         from polisyos.scientist.evidence.claims.validators import (
             SELECTED_FAIL_CLOSED_WORKFLOWS,
             validate_naked_decision_claims,
             validate_state_claim_projection,
-        )
-        from polisyos.scientist.orchestration.engine.frontier_runtime import (
-            FrontierRuntimeConfig,
-            build_frontier_runtime_report,
-        )
-        from polisyos.scientist.evals.authority import (
-            BenchmarkAuthority,
-            PromotionEvidenceRequest,
         )
         from polisyos.scientist.governance.human_review.audit import signature_for_decision
         from polisyos.scientist.governance.human_review.decisions import human_review_status
@@ -177,12 +173,16 @@ def _import_and_validate(repo_root: Path) -> tuple[bool, list[str]]:
             validate_human_reviewed_readiness,
         )
         from polisyos.scientist.governance.human_review.packets import build_review_packet
+        from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
         from polisyos.scientist.nodes.builtins.state_keys import (
             ARTIFACT_CLAIMS_REF,
             ARTIFACT_POLICY_OUTPUT_BUNDLE_REF,
             ARTIFACT_RESEARCH_DAG_REF,
         )
-        from polisyos.scientist.methods.search.benchmark_registry import BenchmarkRegistry
+        from polisyos.scientist.orchestration.engine.frontier_runtime import (
+            FrontierRuntimeConfig,
+            build_frontier_runtime_report,
+        )
     except Exception as exc:  # pragma: no cover - surfaced in gate payload.
         return False, [f"wave1_import_failed:{exc.__class__.__name__}:{exc}"]
 

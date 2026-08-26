@@ -6,6 +6,7 @@ from datetime import UTC, datetime
 import pytest
 
 import polisyos.runtime.quality.projection_semantics as projection_semantics_module
+from polisyos.core.artifacts import ArtifactRef
 from polisyos.core.contracts.policy_design_case_projection import (
     PolicyDesignCaseAudience,
     PolicyDesignCaseProjection,
@@ -25,6 +26,14 @@ from polisyos.runtime.quality.projection_semantics import (
     build_policy_design_case_projection_semantics,
     verify_policy_design_case_projection_consumer_contract,
 )
+from polisyos.scientist.evidence.claims.head_index import (
+    CLAIM_LEDGER_AUTHORITY_PURPOSE,
+    ClaimLedgerCurrentHeadProjection,
+    ClaimLedgerLifecycleLimitation,
+    ClaimLedgerOwnerKey,
+    ClaimLedgerOwnerKeyDerivationInput,
+    derive_claim_ledger_owner_scope_ref,
+)
 from tests._helpers.policy_design_case_projection import policy_design_case, sha
 
 S9_RULE_VERSION_REF = "policyos.layer2.s9.projection_lowering.v1"
@@ -37,10 +46,95 @@ S13_RULE_VERSION_REF = "policyos.layer2.s13.post_deploy_accountability.v1"
 S14_RULE_VERSION_REF = "policyos.layer2.s14.universality_assurance.v1"
 
 
-def _s9_consumer_verifier() -> object:
-    return (
-        projection_semantics_module.verify_s9_projection_faithfulness_for_pdc_consumer_contract
+def _claim_ref(char: str, *, kind: str) -> ArtifactRef:
+    return ArtifactRef(
+        artifact_id=sha(char),
+        kind=kind,
+        media_type="application/octet-stream",
     )
+
+
+def _claim_current_head_projection(
+    *,
+    current: bool,
+    lifecycle: tuple[ClaimLedgerLifecycleLimitation, ...] = (),
+) -> ClaimLedgerCurrentHeadProjection:
+    derivation = ClaimLedgerOwnerKeyDerivationInput(
+        base_claims_ref=_claim_ref("1", kind="scientist.claim_ledger"),
+        base_claims_content_hash=sha("1"),
+        requested_authority_purpose=CLAIM_LEDGER_AUTHORITY_PURPOSE,
+    )
+    owner_key = ClaimLedgerOwnerKey(
+        scope_ref=derive_claim_ledger_owner_scope_ref(derivation),
+        claim_owner_ref="fixture-projection-owner",
+        authority_purpose=CLAIM_LEDGER_AUTHORITY_PURPOSE,
+        derivation_input=derivation,
+    )
+    return ClaimLedgerCurrentHeadProjection(
+        run_id="run-projection-current-head",
+        owner_key=owner_key,
+        root_identity=sha("2"),
+        root_receipt_ref=_claim_ref("2", kind="scientist.claims.ledger_root"),
+        root_receipt_content_hash=sha("2"),
+        head_ref=_claim_ref("3", kind="scientist.claims.ledger_head"),
+        head_content_hash=sha("3"),
+        head_generation=4,
+        ledger_artifact_ref=_claim_ref("4", kind="scientist.claim_ledger_v2"),
+        ledger_raw_cas_hash=sha("4"),
+        issuance_verifier_receipt_ref=_claim_ref(
+            "5", kind="scientist.claims.ledger_root_verification"
+        ),
+        issuance_verifier_receipt_content_hash=sha("5"),
+        claim_currentness="current" if current else "not_established",
+        claim_bridge_pending=not current,
+        completed_batch_denominator_established=True,
+        pending_receipt_refs=(sha("6"),) if not current else (),
+        lifecycle_limitations=lifecycle,
+    )
+
+
+def test_claim_owner_current_head_constrains_projection_without_minting_authority() -> None:
+    source = {
+        "artifact_kind": "publishable_decision_artifact",
+        "authority_role": "final_decision_artifact",
+        "publishability": "publishable",
+    }
+    blocked = build_policy_design_case_projection_semantics(
+        policy_design_case=policy_design_case(),
+        surface="public_export",
+        source_payload=source,
+        claim_current_head=_claim_current_head_projection(current=False),
+    )
+    stale = build_policy_design_case_projection_semantics(
+        policy_design_case=policy_design_case(),
+        surface="public_export",
+        source_payload=source,
+        claim_current_head=_claim_current_head_projection(
+            current=True,
+            lifecycle=(
+                ClaimLedgerLifecycleLimitation(
+                    claim_id="claim-stale",
+                    action="marked_stale",
+                ),
+            ),
+        ),
+    )
+
+    assert "blocked" in blocked["states"]
+    assert "publishable" not in blocked["states"]
+    assert blocked["source_state"]["claim_currentness"] == "not_established"
+    assert blocked["source_state"]["claim_head_ref"] == sha("3")
+    assert any(
+        row["gap_code"] == "claim_current_head_not_established"
+        for row in blocked["projection_gaps"]
+    )
+    assert "stale" in stale["states"]
+    assert "publishable" not in stale["states"]
+    assert stale["source_state"]["claim_lifecycle_limited_ids"] == ["claim-stale"]
+
+
+def _s9_consumer_verifier() -> object:
+    return projection_semantics_module.verify_s9_projection_faithfulness_for_pdc_consumer_contract
 
 
 def _s9_faithfulness_payload(**overrides: object) -> dict[str, object]:
@@ -161,9 +255,7 @@ def _s10_projection_payload(**overrides: object) -> dict[str, object]:
             "s8_value_tradeoff_disclosure_ref": "pdc://layer2/s8/ua-msme/tradeoff",
             "scalar_summary_allowed": False,
             "pareto_frontier_ref": "foundry://welfare/frontier/ua-msme",
-            "rejected_nondominated_alternative_refs": [
-                "alternative://ua-msme/cash-transfer"
-            ],
+            "rejected_nondominated_alternative_refs": ["alternative://ua-msme/cash-transfer"],
         },
         "authority_boundary": {
             "authoritative_for": ["forecast_support_tiering"],
@@ -276,9 +368,7 @@ def _s12_projection_payload(**overrides: object) -> dict[str, object]:
         "authority_role": "projection_only",
         "projection_policy": "reads_resource_economics_posture_as_constraint",
         "s12_resource_posture_ref": "pdc://layer2/s12/ua-msme/resource-posture",
-        "resource_allocation_policy_ref": (
-            "pdc://layer2/s12/ua-msme/resource-allocation-policy"
-        ),
+        "resource_allocation_policy_ref": ("pdc://layer2/s12/ua-msme/resource-allocation-policy"),
         "explore_exploit_posture": "balanced_governed",
         "explore_exploit_dial_ref": "pdc://layer2/s7/ua-msme/explore-exploit-dial",
         "voi_allocation_refs": [
@@ -367,12 +457,8 @@ def _s13_projection_payload(**overrides: object) -> dict[str, object]:
         "projection_policy": "reads_s13_post_deploy_accountability_posture",
         "accountability_posture_ref": "pdc://layer2/s13/ua-msme/accountability-posture",
         "deployment_dossier_ref": "pdc://layer2/s13/ua-msme/deployment-dossier",
-        "divergence_record_refs": [
-            "pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"
-        ],
-        "learning_update_proposal_refs": [
-            "learning-proposal://ua-msme/envelope-shrink"
-        ],
+        "divergence_record_refs": ["pdc://layer2/s13/ua-msme/divergence/seeded-disconfirmation"],
+        "learning_update_proposal_refs": ["learning-proposal://ua-msme/envelope-shrink"],
         "envelope_revision_ref": "envelope-revision://ua-msme/shrink/001",
         "certified_envelope_delta_ref": "certified-envelope-delta://ua-msme/s12-growth",
         "assurance_case_delta_ref": "assurance-delta://ua-msme/s13/weakened",
@@ -456,9 +542,7 @@ def _s13_projection_payload(**overrides: object) -> dict[str, object]:
 def _issue_codes(result: dict[str, object]) -> set[str]:
     issues = result.get("issues", [])
     return {
-        str(issue.get("code"))
-        for issue in issues
-        if isinstance(issue, dict) and issue.get("code")
+        str(issue.get("code")) for issue in issues if isinstance(issue, dict) and issue.get("code")
     } | {str(code) for code in result.get("issue_codes", [])}
 
 
@@ -914,20 +998,24 @@ def test_projection_contract_rejects_public_audience_hiding_blockers_or_conteste
 
 
 def test_projection_semantics_surfaces_participation_requirement_downgrades_safely() -> None:
-    requirement = ParticipationProvenanceCompiler().compile(
-        {
-            "run_id": "run-w7e",
-            "claims": [
-                {
-                    "claim_id": "claim-preference",
-                    "claim_family": "preference",
-                    "authority_level": "production",
-                    "population_scope": "affected_population",
-                    "text": "Affected population preference claim.",
-                }
-            ],
-        }
-    ).requirements[0]
+    requirement = (
+        ParticipationProvenanceCompiler()
+        .compile(
+            {
+                "run_id": "run-w7e",
+                "claims": [
+                    {
+                        "claim_id": "claim-preference",
+                        "claim_family": "preference",
+                        "authority_level": "production",
+                        "population_scope": "affected_population",
+                        "text": "Affected population preference claim.",
+                    }
+                ],
+            }
+        )
+        .requirements[0]
+    )
     evaluation = evaluate_participation_requirement(
         requirement,
         [
@@ -956,9 +1044,7 @@ def test_projection_semantics_surfaces_participation_requirement_downgrades_safe
         source_payload={
             "public_export_classification": "public_redacted_projection",
             "evidence_class": "redacted_derived",
-            "participation_requirement_evaluations": [
-                evaluation.model_dump(mode="json")
-            ],
+            "participation_requirement_evaluations": [evaluation.model_dump(mode="json")],
         },
         audience=PolicyDesignCaseAudience.PUBLIC,
         source_ref=sha("8"),
@@ -1223,11 +1309,12 @@ def test_s10_projection_semantics_preserves_uncertainty_and_boundary() -> None:
     result = verifier(projections={"machine": {**payload, "audience": "MACHINE"}})
 
     assert result["status"] == "pass"
-    assert result["s10_forecast_projection"]["uncertainty_interval_refs"] == (
-        payload["uncertainty_interval_refs"]
+    assert (
+        result["s10_forecast_projection"]["uncertainty_interval_refs"]
+        == (payload["uncertainty_interval_refs"])
     )
-    assert result["s10_forecast_projection"]["authority_boundary"] == (
-        payload["authority_boundary"]
+    assert (
+        result["s10_forecast_projection"]["authority_boundary"] == (payload["authority_boundary"])
     )
 
 
@@ -1260,11 +1347,9 @@ def test_expert_and_machine_projection_surface_s11_confidence_and_residual_limit
     assert result["status"] == "pass"
     s11_projection = result["s11_predictive_projection"]
     assert s11_projection["predictive_axis_rows"][0]["confidence"] == 0.78
-    assert s11_projection["residual_limitation_refs"] == (
-        expert["residual_limitation_refs"]
-    )
-    assert s11_projection["proof_carrying_analytics_ref"] == (
-        expert["proof_carrying_analytics_ref"]
+    assert s11_projection["residual_limitation_refs"] == (expert["residual_limitation_refs"])
+    assert (
+        s11_projection["proof_carrying_analytics_ref"] == (expert["proof_carrying_analytics_ref"])
     )
 
 
@@ -1334,10 +1419,7 @@ def test_projection_semantics_blocks_allocation_as_recommendation_authority() ->
 
 
 def test_expert_machine_projection_surfaces_attribution_and_envelope_revision() -> None:
-    verifier = (
-        projection_semantics_module
-        .verify_s13_post_deploy_accountability_projection_consumer_contract
-    )
+    verifier = projection_semantics_module.verify_s13_post_deploy_accountability_projection_consumer_contract
     expert = _s13_projection_payload(audience="EXPERT")
     machine = _s13_projection_payload(audience="MACHINE")
 
@@ -1353,11 +1435,10 @@ def test_expert_machine_projection_surfaces_attribution_and_envelope_revision() 
     assert s13_projection["replay_digest"].startswith("sha256:")
 
 
-def test_reviewer_projection_surfaces_mape_k_trace_action_closure_oversight_state_and_existing_reissue_disposition() -> None:
-    verifier = (
-        projection_semantics_module
-        .verify_s13_post_deploy_accountability_projection_consumer_contract
-    )
+def test_reviewer_projection_surfaces_mape_k_trace_action_closure_oversight_state_and_existing_reissue_disposition() -> (
+    None
+):
+    verifier = projection_semantics_module.verify_s13_post_deploy_accountability_projection_consumer_contract
     reviewer = _s13_projection_payload(audience="REVIEWER")
 
     result = verifier(projections={"reviewer": reviewer})
@@ -1374,10 +1455,7 @@ def test_reviewer_projection_surfaces_mape_k_trace_action_closure_oversight_stat
 
 
 def test_projection_blocks_learning_update_as_current_evidence_authority() -> None:
-    verifier = (
-        projection_semantics_module
-        .verify_s13_post_deploy_accountability_projection_consumer_contract
-    )
+    verifier = projection_semantics_module.verify_s13_post_deploy_accountability_projection_consumer_contract
     payload = _s13_projection_payload(
         audience="MACHINE",
         authority_role="projection_only",
@@ -1395,10 +1473,7 @@ def test_projection_blocks_learning_update_as_current_evidence_authority() -> No
 
 
 def test_projection_blocks_s13_as_universality_or_production_authority() -> None:
-    verifier = (
-        projection_semantics_module
-        .verify_s13_post_deploy_accountability_projection_consumer_contract
-    )
+    verifier = projection_semantics_module.verify_s13_post_deploy_accountability_projection_consumer_contract
     payload = _s13_projection_payload(
         audience="PUBLIC",
         authority_role="production_rollout_authority",
@@ -1588,7 +1663,5 @@ def test_s14_projection_allows_universal_claim_only_with_assurance_refs() -> Non
     assert result["status"] == "pass"
     public_projection = result["public_projection"]
     assert public_projection["authority_role"] == "projection_only"
-    assert public_projection["universality_claim_disposition"] == (
-        "universal_claim_limited"
-    )
+    assert public_projection["universality_claim_disposition"] == ("universal_claim_limited")
     assert "production_recommendation" in public_projection["may_not_be_used_for"]

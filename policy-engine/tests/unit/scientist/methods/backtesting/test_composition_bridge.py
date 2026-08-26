@@ -11,7 +11,9 @@ from polisyos.ir.analytics.causal_graph import (
 )
 from polisyos.ir.analytics.causal_queries import CausalQuery, QueryType
 from polisyos.ir.analytics.cross_graph import SCMFragment
-from polisyos.scientist.methods.backtesting.composition_bridge import replay_fragment_composition_case
+from polisyos.scientist.methods.backtesting.composition_bridge import (
+    replay_fragment_composition_case,
+)
 
 
 def _edge(src: str, dst: str, *, bidirected: bool = False) -> CausalEdge:
@@ -185,6 +187,8 @@ def test_replay_fragment_composition_case_accepts_injected_store_factory(
         "training": _graph(["employment_rate", "wages"], [_edge("employment_rate", "wages")]),
     }
     captured_roots = []
+    captured_contexts = []
+    context_type = composition_bridge_module.ClaimCapableExecutionContext
 
     def _unexpected_default(root):
         del root
@@ -199,10 +203,20 @@ def test_replay_fragment_composition_case_accepts_injected_store_factory(
 
         return build_artifact_store(ArtifactStoreConfig(root=str(root)))
 
+    def _claim_context(*args, **kwargs):
+        context = context_type(*args, **kwargs)
+        captured_contexts.append(context)
+        return context
+
     monkeypatch.setattr(
         composition_bridge_module,
         "_default_composition_store_factory",
         _unexpected_default,
+    )
+    monkeypatch.setattr(
+        composition_bridge_module,
+        "ClaimCapableExecutionContext",
+        _claim_context,
     )
 
     result = replay_fragment_composition_case(
@@ -214,4 +228,6 @@ def test_replay_fragment_composition_case_accepts_injected_store_factory(
     )
 
     assert captured_roots == [tmp_path / "cas_injected"]
+    assert len(captured_contexts) == 1
+    assert captured_contexts[0].claim_ledger_owner is not None
     assert result.persisted_artifacts["composition_certificate"] is True

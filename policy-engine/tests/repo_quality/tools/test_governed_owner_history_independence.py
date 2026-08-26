@@ -414,18 +414,25 @@ def _worker_main(producer_id: str, history_kind: str, product_root: Path) -> int
 
     from polisyos.runtime.quality.confidence_ledger import ConfidenceLedgerSession
 
-    original_from_repo = ConfidenceLedgerSession.__dict__["from_repo"]
+    from_repo_code = ConfidenceLedgerSession.from_repo.__func__.__code__
     from_repo_calls: list[str] = []
+    monitoring_tool = sys.monitoring.PROFILER_ID
+    if sys.monitoring.get_tool(monitoring_tool) is not None:
+        raise AssertionError("Python profiler monitoring slot is already in use")
 
-    def fail_if_reached(cls: type[object], *args: object, **kwargs: object) -> None:
-        del cls, args, kwargs
+    def observe_from_repo(_code: object, _instruction_offset: int) -> None:
         from_repo_calls.append(f"{producer_id}:{history_kind}")
-        raise AssertionError(f"from_repo_reached:{producer_id}:{history_kind}")
 
-    type.__setattr__(
-        ConfidenceLedgerSession,
-        "from_repo",
-        classmethod(fail_if_reached),
+    sys.monitoring.use_tool_id(monitoring_tool, "gy-def9-from-repo-observer")
+    sys.monitoring.register_callback(
+        monitoring_tool,
+        sys.monitoring.events.PY_START,
+        observe_from_repo,
+    )
+    sys.monitoring.set_local_events(
+        monitoring_tool,
+        from_repo_code,
+        sys.monitoring.events.PY_START,
     )
     try:
         output, verification_count, non_promotable_count, lineage_count = _run_owner(
@@ -433,7 +440,13 @@ def _worker_main(producer_id: str, history_kind: str, product_root: Path) -> int
             producer_id,
         )
     finally:
-        type.__setattr__(ConfidenceLedgerSession, "from_repo", original_from_repo)
+        sys.monitoring.set_local_events(monitoring_tool, from_repo_code, 0)
+        sys.monitoring.register_callback(
+            monitoring_tool,
+            sys.monitoring.events.PY_START,
+            None,
+        )
+        sys.monitoring.free_tool_id(monitoring_tool)
 
     digest_after, final_file_count = _tree_digest(authority_root)
     result = {

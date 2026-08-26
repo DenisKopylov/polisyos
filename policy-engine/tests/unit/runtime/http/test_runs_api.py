@@ -19,13 +19,12 @@ from polisyos.core.security.identity import PolicyOSRole
 from polisyos.core.trace import RunTerminality
 from polisyos.core.trace.record import TraceRecord, TraceRefs
 from polisyos.core.trace.sink import JsonlTraceSink
+from polisyos.runtime.http import dev_identity_middleware
 from polisyos.runtime.http.routes import runs as runs_routes
 from polisyos.runtime.http.services.channel_contracts import RunDetailSnapshot
+from polisyos.scientist.validation import DecisionValidityStateStore
 from tests.unit.runtime.http.test_runtime_api_authz import (
-    _AllowOPA,
-    _build_secure_client,
     _claims,
-    _fixture_bearer,
     _install_bound_test_step_up,
 )
 
@@ -1357,33 +1356,66 @@ def test_evaluate_feedback_endpoint_persists_monitoring_report(runtime_api_env) 
     assert payload["reissue_plan_ref"] is not None
 
 
-def test_reissue_endpoint_fails_closed_without_durable_control_plane(runtime_api_env) -> None:
-    bearer = _fixture_bearer("reissue-inherited-control-plane")
-    client, cell, provider = _build_secure_client(
-        runtime_api_env,
-        opa_client=_AllowOPA(),
-        claims_by_token={},
-        raise_server_exceptions=False,
-    )
-    provider.put_claim(
-        bearer,
-        _claims(
+def test_reissue_endpoint_fails_closed_without_durable_control_plane(
+    runtime_api_env,
+    monkeypatch,
+) -> None:
+    client = runtime_api_env["client"]
+    monkeypatch.setattr(
+        dev_identity_middleware,
+        "build_fixture_identity_claims",
+        lambda: _claims(
             tenant_id=runtime_api_env["tenant_a"],
-            cell_id=cell.cell_id,
-            jti="jwt-reissue-inherited-control-plane",
+            cell_id=runtime_api_env["cell_a"],
+            jti="fixture-admin-reissue-inherited-control-plane",
             roles=frozenset({PolicyOSRole.ADMIN}),
         ),
     )
+    step_up = _install_bound_test_step_up(client)
 
-    with client:
-        response = client.post(
-            f"/api/v1/control/runs/{runtime_api_env['core_run_id']}/reissue",
-            headers={
-                "Authorization": f"Bearer {bearer}",
-                "X-Tenant-ID": runtime_api_env["tenant_a"],
-                "X-PolicyOS-Step-Up": _install_bound_test_step_up(client),
-            },
+    store = runtime_api_env["app"].state.runtime_api_ctx.store
+    packet_ref = runtime_api_env["decision_packet_artifact_id"]
+    validity_state = DecisionValidityStateStore(store)
+    # A fresh run index materializes read-derived validity evaluations. Exclude
+    # only that known read-through artifact; every other CAS kind must be stable.
+    artifacts_before = {
+        str(artifact_id): store.get_manifest(artifact_id).kind
+        for artifact_id in store.iter_artifact_ids()
+        if store.get_manifest(artifact_id).kind != "scientist.decision_validity_evaluation"
+    }
+    packet_state_before = validity_state.load_packet(packet_ref)
+    feedback_state_before = {
+        field: getattr(packet_state_before, field, None)
+        for field in (
+            "monitoring_contract_ref",
+            "latest_monitoring_report_ref",
+            "latest_compare_report_ref",
+            "latest_reissue_plan_ref",
         )
+    }
+
+    response = client.post(
+        f"/api/v1/control/runs/{runtime_api_env['core_run_id']}/reissue",
+        headers={"X-PolicyOS-Step-Up": step_up},
+    )
+    artifacts_after = {
+        str(artifact_id): store.get_manifest(artifact_id).kind
+        for artifact_id in store.iter_artifact_ids()
+        if store.get_manifest(artifact_id).kind != "scientist.decision_validity_evaluation"
+    }
+    packet_state_after = validity_state.load_packet(packet_ref)
+    feedback_state_after = {
+        field: getattr(packet_state_after, field, None)
+        for field in (
+            "monitoring_contract_ref",
+            "latest_monitoring_report_ref",
+            "latest_compare_report_ref",
+            "latest_reissue_plan_ref",
+        )
+    }
+
+    assert artifacts_after == artifacts_before
+    assert feedback_state_after == feedback_state_before
     assert response.status_code == 422
 
     payload = response.json()

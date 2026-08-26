@@ -1,7 +1,14 @@
-import type { RuntimePermission } from "@polisyos/runtime-api-client";
-
-import type { WorkspaceKey } from "@/app/workspaces";
+import {
+  type PermissionKey,
+  WORKSPACE_PERMISSIONS,
+} from "@/app/authz/AuthzProvider";
 import { RUN_DETAIL_TAB_REGISTRY, type RunDetailTab } from "@/features/runs";
+
+export {
+  getWorkspacePermission,
+  type PermissionKey,
+  WORKSPACE_PERMISSIONS,
+} from "@/app/authz/AuthzProvider";
 
 export const PERMISSION_KEYS = [
   "dashboard.view",
@@ -16,20 +23,7 @@ export const PERMISSION_KEYS = [
   "runs.launch",
   "runs.review",
   "runs.view",
-] as const satisfies readonly RuntimePermission[];
-
-export type PermissionKey = RuntimePermission;
-
-export const WORKSPACE_PERMISSIONS: Partial<
-  Record<WorkspaceKey, PermissionKey>
-> = {
-  commandCenter: "dashboard.view",
-  evidenceFabric: "evidence.view",
-  lexKnowledge: "knowledge.view",
-  platformHealth: "platform.view",
-  runsDecisions: "runs.view",
-  scenarioComposer: "runs.launch",
-};
+] as const satisfies readonly PermissionKey[];
 
 export const RUN_REVIEW_TAB_PERMISSIONS: Partial<
   Record<RunDetailTab, PermissionKey>
@@ -38,10 +32,6 @@ export const RUN_REVIEW_TAB_PERMISSIONS: Partial<
     tab.permissionKey ? [[tab.key, tab.permissionKey]] : [],
   ),
 ) as Partial<Record<RunDetailTab, PermissionKey>>;
-
-export function getWorkspacePermission(workspaceKey: WorkspaceKey) {
-  return WORKSPACE_PERMISSIONS[workspaceKey];
-}
 
 export function getRunReviewTabPermission(tab: RunDetailTab) {
   return RUN_REVIEW_TAB_PERMISSIONS[tab];

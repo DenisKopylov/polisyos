@@ -404,10 +404,11 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 60
+    assert metrics["register_ids"] == 62
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
-    assert metrics["frontend_disposition_rows"] == 217
+    assert metrics["frontend_disposition_entries"] == 261
+    assert metrics["frontend_ds8_assignment_rows"] == 217
     assert metrics["gy_history_blocks"] == 6
     assert metrics["gy_absent_from_register"] == 15
     assert metrics["gy_absent_from_register_closed"] == 15
@@ -419,7 +420,6 @@ def test_real_census_replays_published_invariants() -> None:
     # a new class, or one of these resolving — must be acknowledged here, not absorbed.
     assert {item.code for item in report.findings} == {
         "register_supplies_missing_standing",
-        "register_withholds_source_standing",
     }
     atlas_ids = {row.debt_id for row in checker._snapshot(REPO_ROOT).atlas_debts}
     assert "ds4-three-canonical-waist-vocabularies" in atlas_ids
@@ -526,8 +526,17 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     gap8 = next(line for line in rendered.splitlines() if "[`GY-GAP8`]" in line)
     assert "contract_only" not in gap3
     assert "bridge_missing" not in gap8
-    assert "| `DEBT-REGISTER.md` | 60 | 60 | 36 |" in rendered
-    assert "| Atlas master debt table | 22 | 22 | 9 |" in rendered
+    assert "| `DEBT-REGISTER.md` | 62 | 62 | 31 |" in rendered
+    assert "| Atlas master debt table | 22 | 22 | 8 |" in rendered
+    assert (
+        "| `frontend-disposition-register.json` entries | 261 | 261 | 0 | "
+        "deleted=19, rebind_pending=184, retire_disposition=25, use_as_is=17, "
+        "wire_disposition=16 |" in rendered
+    )
+    assert (
+        "| `frontend-disposition-register.json` `ds8_strangle_coverage.assignments` "
+        "| 217 | 217 | 0 |" in rendered
+    )
 
 
 def test_capability_states_require_evidence_scoped_to_the_debt_subject() -> None:
@@ -609,14 +618,18 @@ def test_ds9_claims_and_splits_only_approved_debt_scope() -> None:
 
     dashboard_import = rows["case-workspace-route-bypasses-feature-barrel"]
     assert dashboard_import.section == "C"
-    assert dashboard_import.status == "open_unmerged"
+    assert dashboard_import.status == "closed"
     assert dashboard_import.owner == "team-frontend"
+
+    def9 = rows["GY-DEF9"]
+    assert def9.section == "G"
+    assert def9.status == "closed"
 
     rendered = checker.render_ledger(checker._snapshot(REPO_ROOT))
     assert "[`ds8-approval-authority`]" not in rendered
     assert "[`DS20-B-scorecard-provenance-intake-effect`]" not in rendered
     assert "[`decision-validity-fixed-temp-concurrency`]" in rendered
-    assert "[`case-workspace-route-bypasses-feature-barrel`]" in rendered
+    assert "[`case-workspace-route-bypasses-feature-barrel`]" not in rendered
 
 
 def test_reconciled_secondary_closures_are_not_reported_as_missing() -> None:
@@ -639,6 +652,54 @@ def test_report_only_preserves_findings_but_returns_zero(tmp_path: Path, capsys:
     assert checker.main(["--check", "--repo-root", str(repo)]) == 1
     assert checker.main(["--check", "--report-only", "--repo-root", str(repo)]) == 0
     assert "register_denominator_mismatch" in capsys.readouterr().out
+
+
+def test_informational_relations_do_not_block_strict_mode(capsys: object) -> None:
+    checker = _checker()
+    report = checker.audit_repository(REPO_ROOT)
+
+    assert frozenset(
+        {
+            "register_supplies_missing_standing",
+            "register_withholds_source_standing",
+        }
+    ) == checker.INFORMATIONAL_FINDING_CODES
+    assert report.blocking_findings == ()
+    assert report.informational_findings
+    assert {item.code for item in report.informational_findings}.issubset(
+        checker.INFORMATIONAL_FINDING_CODES
+    )
+    assert checker.main(["--check", "--repo-root", str(REPO_ROOT)]) == 0
+    output = capsys.readouterr().out
+    assert "Informational findings (do not block):" in output
+    assert "register_supplies_missing_standing:" in output
+
+
+def test_blocking_finding_alongside_informational_relations_still_exits_one(
+    tmp_path: Path, capsys: object
+) -> None:
+    checker = _checker()
+    gy = """# GY
+- **GY-GAP3 — relation fixture.**
+
+  **STANDING RECORDED (fixture): ambiguous.**
+"""
+    repo = _fixture(
+        tmp_path,
+        a_rows="| `GY-GAP3` | subject | team-runtime | `open` | predicate |",
+        gy=gy,
+        ledger=_ledger(),
+    )
+
+    report = checker.audit_repository(repo)
+    assert "ledger_missing_id" in {item.code for item in report.blocking_findings}
+    assert "register_supplies_missing_standing" in {
+        item.code for item in report.informational_findings
+    }
+    assert checker.main(["--check", "--repo-root", str(repo)]) == 1
+    output = capsys.readouterr().out
+    assert "Blocking findings:" in output
+    assert "Informational findings (do not block):" in output
 
 
 def test_write_regenerates_then_reads_back(tmp_path: Path) -> None:

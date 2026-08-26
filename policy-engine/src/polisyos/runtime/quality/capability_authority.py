@@ -15,7 +15,7 @@ from typing import TYPE_CHECKING, Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from polisyos.core.contracts.capability_discovery import (
+from polisyos.core.contracts import (
     CapabilityAuthorityPostureResult,
     CapabilityDiscoveryAudience,
     CapabilityTimeSemantics,

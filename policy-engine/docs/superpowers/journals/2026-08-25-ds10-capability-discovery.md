@@ -653,3 +653,110 @@ final hand-back.
 The source tree is frozen, all 22 checkboxes are closed against the indexed
 evidence, every open boundary has an owner and executable command, and no stop
 condition fired.
+
+## Stable-facade follow-up — 2026-08-26
+
+### Entry, red, and corrected ownership
+
+The follow-up began attached and clean at
+`040000ed970b093f50a1fdaba8018a33c918ebdb` on
+`codex/ds10-capability-discovery-plan`; `git rev-parse --show-prefix` returned
+`policy-engine/`. The release guardrail was red at that head, not merely a
+deferred informational check. Its red-first replay completed at exit 1 with
+exactly the 12 DS10-owned edges listed above: 178.20s real, 77.02s user +
+67.11s sys, under the declared 500s ceiling; uptime
+`14:48 up 2 days, 5:02` -> `14:51 up 2 days, 5:05`.
+
+The owner correction is now implemented. DS10 created
+`core.contracts.capability_discovery` and all nine callers of it; the other
+three edges consume existing search/control contracts. The lazy facade grows
+from 31 to 32 mapped modules and exposes all 15 capability-discovery names,
+plus `SearchCompletenessStatus`, `SearchFrontier`, and `ExecutionProfile`.
+All 12 imports route through `polisyos.core.contracts`; a 21-name runtime
+identity probe and a broader 24-name review probe found zero missing,
+mismatched, or colliding exports, and all nine consumer modules import without
+a cycle.
+
+The first post-route replay correctly invalidated the source freeze: importing
+through an internal facade still left nine source-module edges because the
+guardrail recognizes only declared supported entrypoints. That completed red
+at 106.42s real, 37.30s user + 38.36s sys, uptime
+`15:06 up 2 days, 5:19` -> `15:08 up 2 days, 5:21`. Core therefore declares
+`polisyos.core.contracts` as its second supported entrypoint. The strict
+two-output renderer then records 426 facade exports: the inventory changes
+`+439/-1` lines and the reference changes `+441/-1`, including the 15 new
+capability names and the three completed search/control names. The final narrow
+render completed in 0.16s (0.09 user + 0.03 sys), uptime unchanged at
+`15:09 up 2 days, 5:22`. No hand-edited generated output was used.
+
+That supported-entrypoint declaration made 15 historical
+`-> polisyos.core.contracts` baseline rows stale. The second post-freeze replay
+completed red in 102.50s (37.20 user + 36.03 sys), uptime
+`15:10 up 2 days, 5:23` -> `15:12 up 2 days, 5:25`, on those removals only.
+The dedicated baseline renderer—not the broad guardrail sync—then produced the
+semantic transaction **3,648 -> 3,633 rows, 15 removals, 0 additions**; every
+removed target is exactly `polisyos.core.contracts`. It completed in 7.99s
+(7.34 user + 0.23 sys), uptime `15:12 up 2 days, 5:25` ->
+`15:13 up 2 days, 5:26`. No new edge or exception entered the baseline.
+
+### Final receipts and three separate predicates
+
+The production blast-radius wave is 43/43 green across the contract facade,
+public-surface policy, discovery composer, and real FastAPI route in 42.85s
+(40.10 user + 2.71 sys), uptime `15:04 up 2 days, 5:17` -> the same uptime,
+under 300s. After the supported-entrypoint amendment, the affected facade and
+public-inventory subset is 16/16 green in 2.76s (1.98 user + 0.32 sys), uptime
+`15:09 up 2 days, 5:22` -> the same uptime. Scoped Ruff diagnostics are green.
+Ruff format-check still names only
+`runtime/quality/proving_ground/pre_adapter_grounding_inventory.py`: 9/10
+changed production files are formatted, while that one is the already recorded
+owner/formatter whole-file conflict and was not rewritten for a one-line import
+route.
+
+The predicates remain separate:
+
+1. **Release guardrail:** final exit 0, generated families fresh, architecture
+   guardrail passed; 100.57s real, 36.65s user + 36.24s sys, uptime
+   `15:13 up 2 days, 5:26` -> `15:15 up 2 days, 5:28`, under 500s. This is the
+   red-at-`040000ed9` -> zero-edge green closure.
+2. **Plain import linter:** final branch exit 1 with **90 = 84 expired + 6
+   unexpired**; 1.67s real, 0.71s user + 0.26s sys, uptime unchanged at
+   `15:15 up 2 days, 5:28`, under 30s. DS10 adds no finding to this predicate.
+   Current `main` is 88 = 84 + 4 because two unrelated later facade repairs are
+   absent from this non-rebased branch.
+3. **Package-import gate:** final branch exit 1 with **145 findings**; 59.09s
+   real, 52.31s user + 4.19s sys, uptime
+   `15:15 up 2 days, 5:28` -> `15:16 up 2 days, 5:29`, under 300s. The branch
+   stood at 147 before facade graduation; the two DS10 aggregate hidden-coupling
+   findings disappear. Current `main` stands at 143; merging DS10 adds no net
+   finding there, while this attached branch correctly does not copy its two
+   unrelated later repairs.
+
+Debt `ds10-capability-discovery-stable-facades` is struck closed and re-owned to
+the DS10 slice. The narrow debt writer removes it from `LEDGER.md`; its expected
+composite exit remains 1 on the same ten
+`register_supplies_missing_standing` plus one
+`register_withholds_source_standing` informational rows (1.17s real, 0.62 user
++ 0.49 sys, uptime unchanged at `15:00 up 2 days, 5:14`).
+
+### Accounting and deletion-record correction
+
+Two independent mechanism derivations agree on **48/54**: prior closeout 46,
+plus `src/polisyos/core/contracts/__init__.py`, plus
+`architecture/public_surface/contract.toml`; alternatively, the complete
+base-to-follow-up set classified under P39 yields the same two new mechanisms.
+The 12 callers were already among the 46. Plan/journal/debt/ledger, the two
+public-surface outputs, and the contracting deep-import baseline are mandatory
+companions outside the cap. The supported-entrypoint path was required because
+the runtime-only facade seam left the release predicate red. No widening round
+is consumed: **14/15**.
+
+The corrected dashboard deletion census is exactly two paths:
+
+- `apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts`;
+- `apps/runtime-dashboard/src/api/hooks/dataCatalogSearch.test.tsx`.
+
+`apps/runtime-dashboard/src/features/evidence/components/DataIntelligencePanel.tsx`
+and `apps/runtime-dashboard/src/features/evidence/domain/searchParams.ts` are
+modified, not deleted. The stable-facade debt is the only retired non-closure;
+all other DS10 non-closures and owners remain unchanged.

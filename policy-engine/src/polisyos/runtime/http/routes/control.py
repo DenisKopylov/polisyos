@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.core.contracts.capability_discovery import (
+from polisyos.core.contracts import (
     CapabilityDiscoveryRequest,
     CapabilityDiscoveryResponse,
 )

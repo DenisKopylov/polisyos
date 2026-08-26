@@ -23,7 +23,7 @@ if TYPE_CHECKING:
     from collections.abc import Sequence
 
     from polisyos.core import contracts as core_contracts
-    from polisyos.core.contracts.capability_discovery import (
+    from polisyos.core.contracts import (
         CapabilityDiscoveryRequest,
         CapabilityDiscoveryResponse,
         CapabilityResourceKind,

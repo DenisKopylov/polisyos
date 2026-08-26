@@ -1151,7 +1151,6 @@ Every row has an executable signal and owner. Prose alone owns nothing.
 | admitted-adapter capability-discovery bridge | `producer_missing + artifact_missing`; the real G3 admission builder can grow only a semantic bridge-adapter set, while the complete 61-row admission family supplies no DS10 resource kind, capability purpose, passport/evidence/currentness receipt, or concrete capability-discovery provider. Inferring `method` would be P38. The 2026-08-26 amendment corrects the earlier mistake of making this true upstream gap a CC15 blocker: DS10 free growth is owner-index row growth within the approved six-kind contract | `team-architecture`, producer lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_adapter_registry_capability_discovery.py::test_admitted_adapter_emits_typed_capability_kind_purpose_passport_evidence_and_currentness -q` |
 | owner-signed typed capability-purpose authority binding | `bridge_missing + artifact_missing`; DS9 currentness binds its expected consumer/audience but has no typed capability ref/digest/purpose join, and opaque `governed_action_key` cannot substitute; DS10 defines/consumes only a fail-closed port | `team-runtime`, producer lane `runtime/quality` (DS9 authority owner) | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_owner_signed_capability_purpose_binding_joins_ds9_currentness -q` |
 | global case index | `absent/unallocated`; DS10 renders `producer_missing`, adds no store/index | `team-architecture` owns owner allocation; eventual producer owner then replaces it | `uv run pytest tests/unit/runtime/http/test_capability_discovery_api.py::test_case_provider_is_backed_by_canonical_global_index -q` |
-| stable Python facade graduation | `surface_out_of_scope`; DS10's external surface is HTTP/OpenAPI and the internal typed module is not added to `polisyos.core.contracts` facade | `team-polisyos` public-surface owner | after an owner-approved facade change/regeneration: `uv run polisyos-tools architecture guardrails check` |
 | default causal-method CapabilityIndex bridge | `bridge_missing + semantic_test_missing`; causal backend/family availability remains an execution-policy projection and cannot be promoted to indexed discovery | `foundry/methods`, producer bridge lane `runtime/quality` | `uv run pytest tests/unit/runtime/quality/test_capability_discovery.py::test_default_causal_method_index_provider_projects_owner_rows_without_execution_promotion -q` |
 | DS6 C13 print receipt reissue | `verification_missing`; C13 currentness is `not_established`. A complete 11-binding census found exactly two stale whole-file bindings after the DS10 slice diff: `RunDetailLayout.tsx` and the shared visual spec. The fail-fast global checker exposes the first and stays red; DS10 neither rewrites another slice's evidence nor treats the old receipt as current. Its atomic writer admits that one exposed error only after hash-pinning the complete 2/11 mismatch set and replaying every other C13 conjunct from the receipt; every adjacent, duplicate, differently hashed, or additional mismatch aborts | `team-design`, DS6 independent print-evidence lane | reissue from two distinct zero-retry/no-writer Playwright outputs, then `uv run pytest architecture/atlas_surfaces/test_frontend_disposition_register.py::DS6C13PrintTransitionTests::test_independent_receipt_binds_the_full_conjunction_and_current_bytes -q` and `.venv/bin/python architecture/atlas_surfaces/check_frontend_disposition_register.py --check` both exit zero |
 | debt-checker frontend denominator label | P38: stdout `frontend_disposition_rows=217` measures the DS8 assignment sub-register, not the 261-row live root; DS10 never uses it as the live denominator | `tools/quality/validation` debt-ledger owner | `uv run pytest tests/repo_quality/tools/test_debt_ledger_checker.py::test_frontend_disposition_metric_names_live_root_and_ds8_assignments_separately -q` |
@@ -1222,3 +1221,51 @@ adapter content, invents a case index, adds a mutation/permission, or raises the
   and DS12 public decisions remain with their named owners.
 - No `guardrails sync`, full-suite substitution for the targeted commands,
   unmeasured ceiling widening, hand-edited generated output, or unreported path.
+
+## Amendment — 2026-08-26 stable-facade closure
+
+The closeout at `040000ed970b093f50a1fdaba8018a33c918ebdb` left the release
+guardrail red on exactly 12 DS10-owned cross-root imports. The earlier C01
+ruling that `capability_discovery` facade routing was `surface_out_of_scope`
+was based on the wrong owner boundary: DS10 created the contract module and all
+nine imports of it. This owner-approved amendment retires that non-closure and
+the associated `ds10-capability-discovery-stable-facades` debt. No edge is
+transferred to `team-polisyos`.
+
+The narrowing adds all 15 `capability_discovery.__all__` names to the existing
+lazy `polisyos.core.contracts` facade, completes the existing `.search` entry
+for `SearchCompletenessStatus` and `SearchFrontier`, completes `.control` for
+`ExecutionProfile`, and re-spells all 12 caller edges through that facade. The
+facade grows from 31 to 32 mapped modules. Runtime identity, `TYPE_CHECKING`,
+and facade `__all__` are checked together; an import path that only appeases the
+AST scanner is not closure.
+
+The hard mechanism ceiling is raised from 50 to **54**. The 12 callers are
+already in the slice's 46-path set. The initial facade-only replay stayed red:
+the deep-import guardrail recognizes a facade only when it is a declared
+supported entrypoint. Therefore `src/polisyos/core/contracts/__init__.py` and
+`architecture/public_surface/contract.toml` are the two required new mechanism
+paths, and the final account is **48/54**. The rejected seam was a runtime-only
+lazy facade that remained internal to the public-surface policy and therefore
+could not close the release gate. The plan, journal, debt register, generated
+ledger, and two generated public-surface files are P39 companions. This is
+narrowing and consumes no round: **14/15** remains the final round account. The
+follow-up commit boundary is
+`refactor(core): close DS10 contract facade edges`.
+
+The registered public-surface generator is run after declaring
+`polisyos.core.contracts` as Core's second supported entrypoint. This is the
+existing lazy contracts door, not a second contract implementation. The
+generated `architecture/public_surface/inventory.json` and
+`docs/reference/public-surface.md` record the complete facade surface; the
+deep-import baseline is narrowly regenerated as a mandatory companion because
+the newly supported facade makes 15 historical `-> polisyos.core.contracts`
+rows stale. The semantic delta is **3,648 -> 3,633, 15 removals, 0 additions**;
+every removed row targets exactly the graduated facade. No new deep edge or
+baseline exception is accepted, and the broad guardrail sync is never run.
+
+The historical deletion record is also made explicit: the complete dashboard
+diff deletes only `apps/runtime-dashboard/src/api/hooks/useDataCatalogSearch.ts`
+and `apps/runtime-dashboard/src/api/hooks/dataCatalogSearch.test.tsx`.
+`DataIntelligencePanel.tsx` and
+`features/evidence/domain/searchParams.ts` were modified, not deleted.

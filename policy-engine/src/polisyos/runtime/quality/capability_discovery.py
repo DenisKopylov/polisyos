@@ -16,14 +16,12 @@ from typing import TYPE_CHECKING, Literal, Protocol
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from polisyos.core.contracts.capability_discovery import (
+from polisyos.core.contracts import (
     CapabilityDiscoveryItem,
     CapabilityDiscoveryPostureResult,
     CapabilityDiscoveryRequest,
     CapabilityDiscoveryResponse,
     CapabilityResourceKind,
-)
-from polisyos.core.contracts.search import (
     SearchCandidate,
     SearchCompletenessStatus,
     SearchFrontier,

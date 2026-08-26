@@ -19,11 +19,11 @@ from typing import Any, Literal, Protocol
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import contracts as core_contracts
-from polisyos.core.contracts.capability_discovery import (
+from polisyos.core.contracts import (
     CapabilityExecutionPostureResult,
     CapabilityTimeSemantics,
+    ExecutionProfile,
 )
-from polisyos.core.contracts.control import ExecutionProfile  # noqa: TC001
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,
     PolicyFlagForbiddenError,

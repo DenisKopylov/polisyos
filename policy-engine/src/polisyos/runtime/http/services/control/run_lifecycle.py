@@ -19,9 +19,10 @@ from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_a
 from polisyos.core.artifacts.manifest import ArtifactManifest, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import CanonSpec, from_canonical_bytes
-from polisyos.core.contracts.capability_discovery import (
+from polisyos.core.contracts import (
     CapabilityDiscoveryRequest,
     CapabilityDiscoveryResponse,
+    SearchRequest,
 )
 from polisyos.core.contracts.control import (
     BindingProfileInfo,
@@ -62,7 +63,6 @@ from polisyos.core.contracts.control import (
     WorkflowRunRequest,
 )
 from polisyos.core.contracts.decision_validity import DecisionDependencyEvent
-from polisyos.core.contracts.search import SearchRequest
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.core.security.tenant_context import tenant_scope
 from polisyos.runtime.http.errors import forbidden, unprocessable_entity

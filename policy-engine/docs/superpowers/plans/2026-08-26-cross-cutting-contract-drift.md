@@ -17,6 +17,7 @@
 - Never edit `src/polisyos/fabric/_adapters/observability.py`; it remains outside every rewrite set.
 - Do not edit `architecture/imports/policy.toml`, `architecture/packages/boundaries.toml`, the twelve import-relocation rows, `src/polisyos/pdc/__init__.py`, `src/polisyos/runtime/quality/generation_cycle.py`, or `src/polisyos/runtime/quality/data_state_substrate.py`.
 - Public contract additions are exactly `polisyos.common.config`, `polisyos.core.security`, and `polisyos.core.trace`; do not add `polisyos.core.observability` this round and do not publish any security submodule.
+- The deep-import baseline may change only by the independently derived 52-edge shrink caused by those three newly supported entrypoints (security 47, trace 4, config 1); zero added edges are admissible.
 - Every set-level count comes from two whole-population derivations with path and file-type denominators; disagreement is reported, not normalized away.
 - Verification is blast-radius tests, recomputed writers/checkers, Ruff, and the three separately reported repository predicates.
 
@@ -135,6 +136,7 @@
 
 **Files:**
 - Modify by canonical writer: `architecture/public_surface/inventory.json`
+- Modify by canonical writer: `architecture/baselines/imports/deep_import.json`
 - Modify by canonical writer: `docs/reference/public-surface.md`
 
 **Interfaces:**
@@ -143,7 +145,7 @@
 
 - [x] **Step 1: Run the canonical writer**
 
-  Run `uv run polisyos-tools architecture guardrails sync --skip-deep-import-baseline`. Never rewrite `architecture/baselines/imports/deep_import.json`.
+  Run `uv run polisyos-tools architecture guardrails sync`. Accept only the measured 3,631 -> 3,579 deep-import baseline shrink: 52 removed entries and zero additions.
 
 - [ ] **Step 2: Run inventory checks**
 

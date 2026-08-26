@@ -134,7 +134,7 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/common/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.common"]
+supported_entrypoints = ["polisyos.common", "polisyos.common.config"]
 major_subsystem = false
 notes = "Shared helper boundary for config, logging, serialization, and migrations."
 
@@ -145,7 +145,12 @@ facade_mode = "lazy_facade"
 owner = "team-polisyos"
 readme = "src/polisyos/core/README.md"
 reference_doc = "docs/reference/public-surface.md"
-supported_entrypoints = ["polisyos.core", "polisyos.core.contracts"]
+supported_entrypoints = [
+  "polisyos.core",
+  "polisyos.core.contracts",
+  "polisyos.core.security",
+  "polisyos.core.trace",
+]
 major_subsystem = true
 notes = "Cross-layer contracts, CAS, registry, observability, and security primitives."
 

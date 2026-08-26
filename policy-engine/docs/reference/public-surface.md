@@ -110,7 +110,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 ## `polisyos.common`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.common`
+- Supported entrypoints: `polisyos.common`, `polisyos.common.config`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/common/README.md`
@@ -123,6 +123,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
 | `polisyos.common` | `src/polisyos/common/__init__.py` | `lazy_facade` | 7 |
+| `polisyos.common.config` | `src/polisyos/common/config.py` | `eager_exports` | 8 |
 
 #### `polisyos.common`
 
@@ -144,6 +145,27 @@ timestamps
 
 </details>
 
+#### `polisyos.common.config`
+
+- Source: `src/polisyos/common/config.py`
+- Facade: `eager_exports`
+- Summary: Explicit process bootstrap helpers for env defaults, validation, and logging.
+
+<details><summary>Entrypoint exports (8)</summary>
+
+```text
+EnvVarSpec
+ProcessBootstrapConfig
+apply_process_bootstrap
+build_process_bootstrap_config
+configure_logging
+current_runtime_toggles
+get_env_registry
+validate_process_bootstrap_config
+```
+
+</details>
+
 <details><summary>Supported exports (7)</summary>
 
 ```text
@@ -161,7 +183,7 @@ timestamps
 ## `polisyos.core`
 
 - Classification: `public_stable`
-- Supported entrypoints: `polisyos.core`, `polisyos.core.contracts`
+- Supported entrypoints: `polisyos.core`, `polisyos.core.contracts`, `polisyos.core.security`, `polisyos.core.trace`
 - Facade policy: expected `lazy_facade`, observed `lazy_facade`
 - Owner: `team-polisyos`
 - README: `src/polisyos/core/README.md`
@@ -175,6 +197,8 @@ timestamps
 | --- | --- | --- | ---: |
 | `polisyos.core` | `src/polisyos/core/__init__.py` | `lazy_facade` | 21 |
 | `polisyos.core.contracts` | `src/polisyos/core/contracts/__init__.py` | `lazy_facade` | 426 |
+| `polisyos.core.security` | `src/polisyos/core/security/__init__.py` | `lazy_facade` | 90 |
+| `polisyos.core.trace` | `src/polisyos/core/trace/__init__.py` | `eager_exports` | 5 |
 
 #### `polisyos.core`
 
@@ -645,6 +669,127 @@ deserialize_skip_blocker_record
 evaluate_skip_blocker_policy
 legacy_family_for_construct
 serialize_skip_blocker_record
+```
+
+</details>
+
+#### `polisyos.core.security`
+
+- Source: `src/polisyos/core/security/__init__.py`
+- Facade: `lazy_facade`
+- Summary: Lazy facade for tenant routing, audit, identity, authz, TEE, and SBOM security APIs.
+
+<details><summary>Entrypoint exports (90)</summary>
+
+```text
+SECURITY_ASSURANCE_REPORT_REF_KEY
+SECURITY_REPORT_FILE
+TENANT_HEADER
+AccessScope
+AttestationDeniedError
+AttestationPolicy
+AttestationReport
+AttestationResult
+AttestationStatus
+AuditActor
+AuditCorrelation
+AuditEventType
+AuditLog
+AuditResource
+AuthorizationDeniedError
+AuthorizationError
+AuthzDecision
+AuthzInput
+AuthzResult
+CellAssignment
+CellCapacityError
+CellRegistry
+CellResolution
+CellSpec
+CellTier
+ChainVerificationResult
+ChainVerifier
+ChainedAuditSink
+ChainedLogEntry
+ColdTierBackend
+CrossTenantAccessError
+DatabaseBackend
+DelegationContextClaims
+DelegationError
+DelegationTokenManager
+DelegationVerificationError
+DuckDBLegacyBackend
+HotTierBackend
+IdentityError
+IdentityNotAvailableError
+IdentityVerificationError
+InTotoStatement
+IsolationLevel
+LocalJsonlBackend
+MFARequiredError
+MissingTenantHeaderError
+NamespacedArtifactStore
+NoOpVerifier
+OPAClient
+PIIAccessLevel
+PolicyOSRole
+PostgresBackend
+RoutingResult
+SBOMGenerator
+SBOMMetadata
+SBOMVerificationResult
+SBOMVerifier
+SEVSNPVerifier
+SPIFFEIdentityProvider
+SecuritySettings
+ServiceIdentity
+ServiceIdentityInfo
+TEEGatekeeper
+TEEPlatform
+TenantContext
+TenantContextNotSetError
+TenantIsolationError
+TenantNotFoundError
+TenantQuotaLimits
+TenantQuotaRegistry
+TenantRoutingError
+TenantSpec
+TokenValidationError
+UserIdentityClaims
+VulnerabilityRecord
+VulnerabilitySeverity
+build_default_audit_backends_from_env
+build_security_assurance_report
+get_current_access_scope_or_none
+get_current_cell_id
+get_current_tenant_id
+get_current_tenant_id_or_none
+get_security_settings
+require_tenant_context
+reset_current_access_scope
+resolve_routing
+security_gates_from_report
+set_current_access_scope
+tenant_scope
+validate_tenant_id
+```
+
+</details>
+
+#### `polisyos.core.trace`
+
+- Source: `src/polisyos/core/trace/__init__.py`
+- Facade: `eager_exports`
+- Summary: Exports trace records and sinks used to persist run-level execution telemetry.
+
+<details><summary>Entrypoint exports (5)</summary>
+
+```text
+CompositeTraceSink
+JsonlTraceSink
+RunTerminality
+TraceRecord
+TraceSink
 ```
 
 </details>

@@ -8,10 +8,12 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.common.logger import get_logger
 from polisyos.core.observability import get_metrics
-from polisyos.core.security.access_scope import AccessScope
-from polisyos.core.security.exceptions import MFARequiredError, TokenValidationError
-from polisyos.core.security.identity import SPIFFEIdentityProvider, UserIdentityClaims
-from polisyos.core.security.tenant_context import (
+from polisyos.core.security import (
+    AccessScope,
+    MFARequiredError,
+    SPIFFEIdentityProvider,
+    TokenValidationError,
+    UserIdentityClaims,
     reset_current_access_scope,
     set_current_access_scope,
 )
@@ -34,6 +36,7 @@ if TYPE_CHECKING:
     from starlette.types import ASGIApp as _ASGIApp
 
     from polisyos.core.observability import MetricsRegistry
+
     class _BaseHTTPMiddleware:
         def __init__(self, app: _ASGIApp) -> None: ...
 else:

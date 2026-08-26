@@ -9,7 +9,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from polisyos.core.security.tenant_context import get_current_tenant_id_or_none
+from polisyos.core.security import get_current_tenant_id_or_none
 
 _SLUG_RE = re.compile(r"[^a-z0-9_.-]+")
 

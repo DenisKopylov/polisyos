@@ -161,7 +161,7 @@ class SimulationDB:
     def as_backend(self):
         """Return a DatabaseBackend-compatible adapter around this SimulationDB."""
         self._ensure_open()
-        from polisyos.core.security.db_backend import DuckDBLegacyBackend
+        from polisyos.core.security import DuckDBLegacyBackend
 
         return DuckDBLegacyBackend(self)
 

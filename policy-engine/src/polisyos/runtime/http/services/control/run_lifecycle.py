@@ -64,7 +64,7 @@ from polisyos.core.contracts.control import (
 )
 from polisyos.core.contracts.decision_validity import DecisionDependencyEvent
 from polisyos.core.observability import get_metrics, get_tracer
-from polisyos.core.security.tenant_context import tenant_scope
+from polisyos.core.security import tenant_scope
 from polisyos.runtime.http.errors import forbidden, unprocessable_entity
 from polisyos.runtime.http.execution_policy import (
     ExecutionProfileError,

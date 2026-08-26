@@ -7931,7 +7931,7 @@ class NaturalLanguageRunMixin:
                     selected_variant["causal_statistical_validity_report_ref"] = causal_validity_ref
                     selected_variant["causal_statistical_validity"] = causal_statistical_validity
 
-                    from polisyos.core.security.quality_gates import (
+                    from polisyos.core.security import (
                         SECURITY_ASSURANCE_REPORT_REF_KEY,
                         build_security_assurance_report,
                     )

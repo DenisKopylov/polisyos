@@ -16,7 +16,7 @@ from polisyos.core.artifacts.backends.config import (
 )
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.contracts.runtime import ApiMeta, SourceKind
-from polisyos.core.security.access_scope import AccessScope
+from polisyos.core.security import AccessScope
 
 from .errors import forbidden, service_unavailable, unauthorized
 from .resilience import guard_runtime_cas

@@ -17,6 +17,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "AuditEventType": ("polisyos.core.security.audit_models", "AuditEventType"),
     "AuditResource": ("polisyos.core.security.audit_models", "AuditResource"),
     "ChainedLogEntry": ("polisyos.core.security.audit_models", "ChainedLogEntry"),
+    "AuditLog": ("polisyos.core.security.audit_protocol", "AuditLog"),
     "ChainedAuditSink": ("polisyos.core.security.audit_sink", "ChainedAuditSink"),
     "LocalJsonlBackend": ("polisyos.core.security.audit_sink", "LocalJsonlBackend"),
     "HotTierBackend": ("polisyos.core.security.audit_sink", "HotTierBackend"),
@@ -55,6 +56,7 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     "DatabaseBackend": ("polisyos.core.security.db_backend", "DatabaseBackend"),
     "PostgresBackend": ("polisyos.core.security.db_backend", "PostgresBackend"),
     "DuckDBLegacyBackend": ("polisyos.core.security.db_backend", "DuckDBLegacyBackend"),
+    "validate_tenant_id": ("polisyos.core.security.db_backend", "validate_tenant_id"),
     "TenantIsolationError": (
         "polisyos.core.security.exceptions",
         "TenantIsolationError",
@@ -102,6 +104,34 @@ _EXPORTS: dict[str, tuple[str, str]] = {
     ),
     "TenantRoutingError": ("polisyos.core.security.router", "TenantRoutingError"),
     "CellRegistry": ("polisyos.core.security.registry", "CellRegistry"),
+    "NamespacedArtifactStore": (
+        "polisyos.core.security.namespace",
+        "NamespacedArtifactStore",
+    ),
+    "SECURITY_ASSURANCE_REPORT_REF_KEY": (
+        "polisyos.core.security.quality_gates",
+        "SECURITY_ASSURANCE_REPORT_REF_KEY",
+    ),
+    "SECURITY_REPORT_FILE": (
+        "polisyos.core.security.quality_gates",
+        "SECURITY_REPORT_FILE",
+    ),
+    "build_security_assurance_report": (
+        "polisyos.core.security.quality_gates",
+        "build_security_assurance_report",
+    ),
+    "security_gates_from_report": (
+        "polisyos.core.security.quality_gates",
+        "security_gates_from_report",
+    ),
+    "TenantQuotaRegistry": (
+        "polisyos.core.security.quota_registry",
+        "TenantQuotaRegistry",
+    ),
+    "TenantQuotaLimits": (
+        "polisyos.core.security.tenant_quota",
+        "TenantQuotaLimits",
+    ),
     "TenantContext": ("polisyos.core.security.tenant_context", "TenantContext"),
     "tenant_scope": ("polisyos.core.security.tenant_context", "tenant_scope"),
     "require_tenant_context": (
@@ -156,6 +186,10 @@ _EXPORTS: dict[str, tuple[str, str]] = {
         "polisyos.core.security.sbom",
         "SBOMVerificationResult",
     ),
+    "InTotoStatement": (
+        "polisyos.core.security.slsa.models",
+        "InTotoStatement",
+    ),
     "VulnerabilityRecord": ("polisyos.core.security.sbom", "VulnerabilityRecord"),
     "VulnerabilitySeverity": ("polisyos.core.security.sbom", "VulnerabilitySeverity"),
 }
@@ -169,6 +203,7 @@ if TYPE_CHECKING:
         AuditResource,
         ChainedLogEntry,
     )
+    from polisyos.core.security.audit_protocol import AuditLog
     from polisyos.core.security.audit_sink import (
         ChainedAuditSink,
         ColdTierBackend,
@@ -197,6 +232,7 @@ if TYPE_CHECKING:
         DatabaseBackend,
         DuckDBLegacyBackend,
         PostgresBackend,
+        validate_tenant_id,
     )
     from polisyos.core.security.delegation import (
         DelegationContextClaims,
@@ -226,6 +262,14 @@ if TYPE_CHECKING:
         SPIFFEIdentityProvider,
         UserIdentityClaims,
     )
+    from polisyos.core.security.namespace import NamespacedArtifactStore
+    from polisyos.core.security.quality_gates import (
+        SECURITY_ASSURANCE_REPORT_REF_KEY,
+        SECURITY_REPORT_FILE,
+        build_security_assurance_report,
+        security_gates_from_report,
+    )
+    from polisyos.core.security.quota_registry import TenantQuotaRegistry
     from polisyos.core.security.registry import (
         CellRegistry,
         CellResolution,
@@ -249,6 +293,7 @@ if TYPE_CHECKING:
         SecuritySettings,
         get_security_settings,
     )
+    from polisyos.core.security.slsa.models import InTotoStatement
     from polisyos.core.security.tee import (
         AttestationPolicy,
         AttestationReport,
@@ -273,8 +318,11 @@ if TYPE_CHECKING:
         set_current_access_scope,
         tenant_scope,
     )
+    from polisyos.core.security.tenant_quota import TenantQuotaLimits
 
 __all__ = [
+    "SECURITY_ASSURANCE_REPORT_REF_KEY",
+    "SECURITY_REPORT_FILE",
     "TENANT_HEADER",
     "AccessScope",
     "AttestationDeniedError",
@@ -285,6 +333,7 @@ __all__ = [
     "AuditActor",
     "AuditCorrelation",
     "AuditEventType",
+    "AuditLog",
     "AuditResource",
     "AuthorizationDeniedError",
     "AuthorizationError",
@@ -313,10 +362,12 @@ __all__ = [
     "IdentityError",
     "IdentityNotAvailableError",
     "IdentityVerificationError",
+    "InTotoStatement",
     "IsolationLevel",
     "LocalJsonlBackend",
     "MFARequiredError",
     "MissingTenantHeaderError",
+    "NamespacedArtifactStore",
     "NoOpVerifier",
     "OPAClient",
     "PIIAccessLevel",
@@ -338,6 +389,8 @@ __all__ = [
     "TenantContextNotSetError",
     "TenantIsolationError",
     "TenantNotFoundError",
+    "TenantQuotaLimits",
+    "TenantQuotaRegistry",
     "TenantRoutingError",
     "TenantSpec",
     "TokenValidationError",
@@ -345,6 +398,7 @@ __all__ = [
     "VulnerabilityRecord",
     "VulnerabilitySeverity",
     "build_default_audit_backends_from_env",
+    "build_security_assurance_report",
     "get_current_access_scope_or_none",
     "get_current_cell_id",
     "get_current_tenant_id",
@@ -353,8 +407,10 @@ __all__ = [
     "require_tenant_context",
     "reset_current_access_scope",
     "resolve_routing",
+    "security_gates_from_report",
     "set_current_access_scope",
     "tenant_scope",
+    "validate_tenant_id",
 ]
 
 

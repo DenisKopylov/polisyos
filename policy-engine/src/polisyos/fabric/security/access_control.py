@@ -12,8 +12,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from polisyos.core.security.access_scope import AccessScope
-from polisyos.core.security.identity import PIIAccessLevel
+from polisyos.core.security import AccessScope, PIIAccessLevel
 from polisyos.fabric.io.atomic import append_text_locked
 
 

@@ -14,7 +14,7 @@ from polisyos.core.contracts.runtime import (
     RunTimelineSummary,
     RunTimelineView,
 )
-from polisyos.core.trace.record import TraceRecord
+from polisyos.core.trace import TraceRecord
 
 if TYPE_CHECKING:
     from datetime import datetime

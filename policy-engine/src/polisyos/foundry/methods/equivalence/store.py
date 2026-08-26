@@ -17,17 +17,7 @@ from polisyos.core.artifacts.signing import (
 from polisyos.core.artifacts.store import FileSystemCAS
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon.canon_json import CanonSpec, from_canonical_bytes
-from polisyos.core.security.slsa.models import (
-    BuildDefinition,
-    BuilderInfo,
-    BuildMetadata,
-    DigestSet,
-    InTotoStatement,
-    ResourceDescriptor,
-    RunDetails,
-    SLSAProvenancePredicate,
-    Subject,
-)
+from polisyos.core.security import InTotoStatement
 from polisyos.foundry.methods.equivalence.protocol import (
     EQUIVALENCE_CERTIFICATE_KIND,
     EQUIVALENCE_CERTIFICATE_SCHEMA,
@@ -181,13 +171,13 @@ def _build_equivalence_attestation(
 ) -> InTotoStatement:
     created_at = _coerce_timestamp(certificate.created_at)
     finished_at = created_at or datetime.now(UTC).replace(microsecond=0)
-    dependencies = [
-        ResourceDescriptor(
-            uri=f"cas://sha256:{input_ref.artifact_id.hex}",
-            digest=DigestSet(sha256=input_ref.artifact_id.hex),
-            name=input_ref.role,
-            annotations={},
-        )
+    dependencies: list[dict[str, Any]] = [
+        {
+            "uri": f"cas://sha256:{input_ref.artifact_id.hex}",
+            "digest": {"sha256": input_ref.artifact_id.hex},
+            "name": input_ref.role,
+            "annotations": {},
+        }
         for input_ref in inputs
     ]
     internal_parameters: dict[str, Any] = {
@@ -210,32 +200,34 @@ def _build_equivalence_attestation(
         "provenance": dict(certificate.provenance),
     }
 
-    return InTotoStatement(
-        subject=[
-            Subject(
-                name=f"cas://sha256:{certificate_ref.artifact_id.hex}",
-                digest=DigestSet(sha256=certificate_ref.artifact_id.hex),
-            )
-        ],
-        predicate=SLSAProvenancePredicate(
-            buildDefinition=BuildDefinition(
-                build_type="https://polisyos.io/BackendEquivalenceCertificate/v1",
-                external_parameters=external_parameters,
-                internal_parameters=internal_parameters,
-                resolved_dependencies=dependencies,
-            ),
-            runDetails=RunDetails(
-                builder=BuilderInfo(
-                    id=builder_id,
-                    version={"polisyos.xbeq": certificate.comparator_version},
-                ),
-                metadata=BuildMetadata(
-                    invocation_id=certificate.certificate_id,
-                    started_on=finished_at,
-                    finished_on=finished_at,
-                ),
-            ),
-        ),
+    return InTotoStatement.model_validate(
+        {
+            "subject": [
+                {
+                    "name": f"cas://sha256:{certificate_ref.artifact_id.hex}",
+                    "digest": {"sha256": certificate_ref.artifact_id.hex},
+                }
+            ],
+            "predicate": {
+                "buildDefinition": {
+                    "build_type": "https://polisyos.io/BackendEquivalenceCertificate/v1",
+                    "external_parameters": external_parameters,
+                    "internal_parameters": internal_parameters,
+                    "resolved_dependencies": dependencies,
+                },
+                "runDetails": {
+                    "builder": {
+                        "id": builder_id,
+                        "version": {"polisyos.xbeq": certificate.comparator_version},
+                    },
+                    "metadata": {
+                        "invocation_id": certificate.certificate_id,
+                        "started_on": finished_at,
+                        "finished_on": finished_at,
+                    },
+                },
+            },
+        }
     )
 
 

@@ -14,9 +14,10 @@ from typing import TYPE_CHECKING, Any, Never, cast
 from anyio import to_thread
 
 from polisyos.common.logger import get_logger
-from polisyos.core.security.access_scope import AccessScope
-from polisyos.core.security.authz import AuthzInput, OPAClient
-from polisyos.core.security.tenant_context import (
+from polisyos.core.security import (
+    AccessScope,
+    AuthzInput,
+    OPAClient,
     get_current_access_scope_or_none,
     reset_current_access_scope,
     set_current_access_scope,
@@ -269,7 +270,7 @@ if TYPE_CHECKING:
     from starlette.routing import Match
     from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-    from polisyos.core.security.delegation import DelegationTokenManager
+    from polisyos.core.security import DelegationTokenManager
 else:
     try:  # pragma: no cover - optional runtime dependency
         from fastapi.routing import APIRoute

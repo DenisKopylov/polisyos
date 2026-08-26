@@ -42,7 +42,7 @@
 - Consumes: `architecture/policies/cross_cutting_concerns.toml`, `architecture/public_surface/contract.toml`, and every `src/polisyos/**/*.py` import statement.
 - Produces: executable semantic nodes for the three closed interfaces and lazy-resolution checks for ten new security root names.
 
-- [ ] **Step 1: Add the cross-contract failing checks**
+- [x] **Step 1: Add the cross-contract failing checks**
 
   Parse the live concern and public-surface contracts. Derive the unique `public_status = "public"` canonical interfaces, declare only `polisyos.core.observability` as the bounded residual tied to `core-observability-canonical-interface-contract-drift`, and assert every other interface is supported. Walk the full source AST and assert every cross-package import of a non-deferred interface targets the exact facade rather than a submodule.
 
@@ -53,7 +53,7 @@
   tests/repo_quality/architecture/test_last_mile_cross_cutting_concerns.py::test_phase1_5_closed_public_canonical_interfaces_use_exact_facades
   ```
 
-- [ ] **Step 2: Add the security facade failing check**
+- [x] **Step 2: Add the security facade failing check**
 
   Parameterize identity checks for these root exports and canonical sources:
 
@@ -74,7 +74,7 @@
 
   Also assert `_validate_tenant_id` is not exported.
 
-- [ ] **Step 3: Run the exact nodes and verify RED**
+- [x] **Step 3: Run the exact nodes and verify RED**
 
   Run the two new cross-contract nodes and the new security facade test file. Expected failures are the three absent supported entrypoints, the 45 security plus three trace deep statements, and the ten absent security root exports. A collection error or zero selected tests is not an admissible red receipt.
 
@@ -88,15 +88,15 @@
 - Consumes: the ratified `canonical_interface_plus_package_adapters` decisions.
 - Produces: three supported entrypoints and a lazy security facade with 90 exports: the existing 80, nine straightforward exports, and aggregate `InTotoStatement`.
 
-- [ ] **Step 1: Register only the three approved facades**
+- [x] **Step 1: Register only the three approved facades**
 
   Add `polisyos.common.config` to the `polisyos.common` row and add `polisyos.core.security` plus `polisyos.core.trace` to the `polisyos.core` row. Preserve the file's schema and surgical formatting.
 
-- [ ] **Step 2: Extend the lazy security facade**
+- [x] **Step 2: Extend the lazy security facade**
 
   Add all ten mappings above to `_EXPORTS`, their `TYPE_CHECKING` imports, and `__all__`. Keep `_EXPORTS` and `__all__` equal; do not expose `_validate_tenant_id` or the other eight SLSA component models.
 
-- [ ] **Step 3: Run the security facade tests**
+- [x] **Step 3: Run the security facade tests**
 
   Expected: all ten identities resolve to the canonical defining objects, and the private alias remains unavailable.
 
@@ -109,25 +109,25 @@
 
 **Interfaces:**
 - Consumes: the root facades from Task 2.
-- Produces: 47/47 exact security statements, 4/4 exact trace statements, and the already-exact config statement; no touched observability import.
+- Produces: all 45 original deep security statements routed through the exact facade, 4/4 exact trace statements, and the already-exact config statement; Ruff may consolidate adjacent exact security statements, but no deep statement remains and no observability import is touched.
 
-- [ ] **Step 1: Re-spell 43 ordinary security statements**
+- [x] **Step 1: Re-spell 43 ordinary security statements**
 
   Preserve imported names and aliases while changing the source to `polisyos.core.security`.
 
-- [ ] **Step 2: Replace the private tenant validator**
+- [x] **Step 2: Replace the private tenant validator**
 
   In `fabric/storage/duckdb_adapter.py`, import and call `validate_tenant_id`. The old private alias is the same function object today, so signature, exception translation, and fail-closed behavior remain identical.
 
-- [ ] **Step 3: Resolve the SLSA carve-out without flattening nine names**
+- [x] **Step 3: Resolve the SLSA carve-out without flattening nine names**
 
   Import only `InTotoStatement` from the security root. Build the same strict nested statement through `InTotoStatement.model_validate({...})`; preserve aliases `buildDefinition` and `runDetails`, defaults, datetimes, digests, and serialized bytes. The existing attested-equivalence test is the behavior characterization.
 
-- [ ] **Step 4: Re-spell the three trace statements**
+- [x] **Step 4: Re-spell the three trace statements**
 
   Import `TraceRecord` and `RunTerminality` from `polisyos.core.trace`; do not change the already-exact Scientist consumer.
 
-- [ ] **Step 5: Run focused consumer checks and the AST contract nodes**
+- [x] **Step 5: Run focused consumer checks and the AST contract nodes**
 
   Run tenant validation/storage access-control tests, equivalence attestation persistence, trace consumer tests, and both repository-quality nodes. Expected: the selected closed-interface deep-import census is empty.
 
@@ -141,7 +141,7 @@
 - Consumes: the manifest and live facade `__all__` values.
 - Produces: deterministic inventory/reference projections with 32 supported entrypoints and the security facade's selected 90-name API.
 
-- [ ] **Step 1: Run the canonical writer**
+- [x] **Step 1: Run the canonical writer**
 
   Run `uv run polisyos-tools architecture guardrails sync --skip-deep-import-baseline`. Never rewrite `architecture/baselines/imports/deep_import.json`.
 
@@ -158,18 +158,18 @@
 - Modify mandatory denominator tests: `tests/repo_quality/tools/test_debt_ledger_checker.py`
 
 **Interfaces:**
-- Consumes: executed test identities, final AST receipts, and the debt lifecycle rule that branch-local work remains `open` until merged to `main`.
+- Consumes: executed test identities, final AST receipts, and the debt lifecycle rule that newly registered branch-local work remains `open_unmerged` until merged to `main`.
 - Produces: class-member rows for security, trace, config, and observability; deterministic ledger projection.
 
-- [ ] **Step 1: Reword security and add three missing rows**
+- [x] **Step 1: Reword security and add three missing rows**
 
-  Keep all four rows `open` on this branch. Reword security as a member of the class and append the denominator correction plus carve-out rulings. Add trace/config rows with the executed green nodes. Add observability with its 252-statement/220-file sizing, an executable AST zero predicate, and a scoped multi-task proposal.
+  Keep the pre-existing security row `open`; mark the three rows first registered on this branch `open_unmerged`. Reword security as a member of the class and append the denominator correction plus carve-out rulings. Add trace/config rows with the executed green nodes. Add observability with its 252-statement/220-file sizing, an executable AST zero predicate, and a scoped multi-task proposal.
 
-- [ ] **Step 2: Execute every closure signal before recording it**
+- [x] **Step 2: Execute every closure signal before recording it**
 
   Run each named pytest selector with nonzero collection, then its body. Run the observability AST predicate and record its current nonzero result as the open-state receipt rather than claiming closure.
 
-- [ ] **Step 3: Recompute denominator pins and regenerate**
+- [x] **Step 3: Recompute denominator pins and regenerate**
 
   Derive register totals twice, update only the measured constants/assertions, run `check_debt_ledger.py --write`, then `--check` and the targeted checker tests.
 

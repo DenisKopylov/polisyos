@@ -10,8 +10,7 @@ from polisyos.core.artifacts.backends.config import (
     build_artifact_store,
 )
 from polisyos.core.canon import CanonSpec, to_canonical_bytes
-from polisyos.core.security.db_backend import validate_tenant_id
-from polisyos.core.security.quota_registry import TenantQuotaRegistry
+from polisyos.core.security import TenantQuotaRegistry, validate_tenant_id
 
 if TYPE_CHECKING:
     from polisyos.core.artifacts.ids import ArtifactID
@@ -20,7 +19,7 @@ if TYPE_CHECKING:
     from polisyos.core.artifacts.store import ExportReport, ImportReport
     from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
-    from polisyos.core.security.tenant_quota import TenantQuotaLimits
+    from polisyos.core.security import TenantQuotaLimits
 
 
 def tenant_scoped_cas_root(root: str | Path, tenant_id: str) -> Path:

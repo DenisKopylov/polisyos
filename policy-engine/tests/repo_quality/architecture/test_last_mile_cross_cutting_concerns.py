@@ -1,12 +1,16 @@
 from __future__ import annotations
 
+import ast
 import tomllib
 from pathlib import Path
 
-from tools.quality.validation import check_package_import_gates
+from tools.quality.validation import check_debt_ledger, check_package_import_gates
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 CONCERN_CONTRACT = REPO_ROOT / "architecture" / "policies" / "cross_cutting_concerns.toml"
+PUBLIC_SURFACE_CONTRACT = REPO_ROOT / "architecture" / "public_surface" / "contract.toml"
+SOURCE_ROOT = REPO_ROOT / "src" / "polisyos"
+DEBT_REGISTER = REPO_ROOT / "docs" / "plans" / "active" / "DEBT-REGISTER.md"
 NAME_REGISTRY = REPO_ROOT / "architecture" / "name_registry.toml"
 ADR_INDEX = REPO_ROOT / "docs" / "adr" / "index.toml"
 ADR_0148 = (
@@ -25,11 +29,78 @@ REQUIRED_PHASE_1_5_CONCERNS = {
     "tracing",
     "calibration",
 }
+DEFERRED_PUBLIC_CANONICAL_INTERFACES = {
+    "polisyos.core.observability": "core-observability-canonical-interface-contract-drift",
+}
 
 
 def _load_toml(path: Path) -> dict:
     with path.open("rb") as stream:
         return tomllib.load(stream)
+
+
+def _public_canonical_interfaces() -> set[str]:
+    contract = _load_toml(CONCERN_CONTRACT)
+    return {
+        str(concern["canonical_interface"])
+        for concern in contract["concern"]
+        if concern.get("public_status") == "public"
+    }
+
+
+def _supported_entrypoints() -> set[str]:
+    contract = _load_toml(PUBLIC_SURFACE_CONTRACT)
+    return {
+        str(entrypoint)
+        for package in contract["package"]
+        for entrypoint in package["supported_entrypoints"]
+    }
+
+
+def _registered_debt_ids() -> set[str]:
+    debts, _ = check_debt_ledger._parse_register(DEBT_REGISTER.read_text(encoding="utf-8"))
+    return {str(debt.debt_id) for debt in debts}
+
+
+def _cross_package_deep_imports(interfaces: set[str]) -> list[str]:
+    violations: list[str] = []
+    for path in sorted(SOURCE_ROOT.rglob("*.py")):
+        source_root = path.relative_to(SOURCE_ROOT).parts[0]
+        tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+        for node in ast.walk(tree):
+            targets: list[str] = []
+            if isinstance(node, ast.Import):
+                targets.extend(alias.name for alias in node.names)
+            elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
+                targets.append(node.module)
+            else:
+                continue
+            for interface in interfaces:
+                owner_root = interface.split(".")[1]
+                if source_root == owner_root:
+                    continue
+                if any(target.startswith(f"{interface}.") for target in targets):
+                    violations.append(
+                        f"{path.relative_to(REPO_ROOT)}:{node.lineno} -> {interface}.*"
+                    )
+                    break
+    return violations
+
+
+def test_phase1_5_public_canonical_interfaces_are_supported_or_registered_deferred() -> None:
+    public_interfaces = _public_canonical_interfaces()
+    supported_entrypoints = _supported_entrypoints()
+    deferred_interfaces = set(DEFERRED_PUBLIC_CANONICAL_INTERFACES)
+
+    assert deferred_interfaces <= public_interfaces
+    assert set(DEFERRED_PUBLIC_CANONICAL_INTERFACES.values()) <= _registered_debt_ids()
+    assert public_interfaces - supported_entrypoints == deferred_interfaces
+
+
+def test_phase1_5_closed_public_canonical_interfaces_use_exact_facades() -> None:
+    closed_interfaces = _public_canonical_interfaces() - set(DEFERRED_PUBLIC_CANONICAL_INTERFACES)
+
+    assert _cross_package_deep_imports(closed_interfaces) == []
 
 
 def _write_contract(
@@ -108,8 +179,8 @@ def test_phase1_5_contract_has_required_canonical_home_decisions_and_adr() -> No
         contract["canonical_home_contract"]["adr"]
         == "docs/adr/repository-structure-0148-cross-cutting-concern-canonical-homes.md"
     )
-    assert REQUIRED_PHASE_1_5_CONCERNS <= set(concerns)
-    assert REQUIRED_PHASE_1_5_CONCERNS <= set(registry_decisions)
+    assert set(concerns) >= REQUIRED_PHASE_1_5_CONCERNS
+    assert set(registry_decisions) >= REQUIRED_PHASE_1_5_CONCERNS
     assert "RSR-0148" in adr_rows
 
     for name in REQUIRED_PHASE_1_5_CONCERNS:

@@ -56,7 +56,7 @@ co-hold.
 
 **Execution amendment (2026-08-26):** the execution instruction approves a
 hard slice-wide mechanism ceiling of **34** paths. The declared mechanism sum
-remains 23 and the widening ceiling remains 9; this corrects the planning
+is **26**, leaving **8** paths of slack, and the widening ceiling remains 9; this corrects the planning
 ceiling only and authorizes no additional mechanism path.
 
 Ceilings are charged in completed `user + sys`, never wall time. Every command
@@ -353,7 +353,8 @@ binding, not to an unqualified count.
 | coordinate | repository-root `git rev-parse --show-prefix` = empty; product-root result = `policy-engine/`; top level `/Users/deniskopylov/polisyos` |
 | release guardrail | `uv run polisyos-tools architecture guardrails check` = 0 with required generated freshness green; `user 40.04 + sys 40.61 = 80.65s`; uptime `16:17 up 2 days, 6:30` -> `16:19 up 2 days, 6:32` |
 | focused Trust View baseline | Vitest reports **4 files / 6 tests green**; independent exact-path `rg` counts `1 + 1 + 3 + 1` test identities in `DisputeBadge.a11y`, `VerificationStatus.a11y`, `TrustViewAuthority`, and `trustViewArchitecture`; `user 7.55 + sys 1.49 = 9.04s`; uptime `16:24 up 2 days, 6:37` before/after |
-| frontend disposition baseline | exact `--check` completes red only on `c13_print_receipt_invalid:.../RunDetailLayout.tsx`; `user 77.44 + sys 10.24 = 87.68s`; uptime `16:22 up 2 days, 6:35` -> `16:23 up 2 days, 6:36` |
+| package-import exact-base replay | at exact slice base `f935e0c2e`, exit `1` with JSON `finding_count=143`; `user 83.89 + sys 4.49 = 88.38s`; uptime `22:40` -> `22:42`. The earlier 142 is invalidated as a shared-source-root reading; no current-branch count is claimed. |
+| frontend disposition baseline | exact `--check` completes red only on `c13_print_receipt_invalid:.../RunDetailLayout.tsx`; `user 195.14 + sys 27.53 = 222.67s`; uptime `18:33` -> `18:37` |
 | complete page-a11y baseline | the committed raw JSON receipt independently establishes **20/24 pass** and [DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4). A second measured `20/24` execution is recorded only as `consumer_asserted` agreement because no second raw artifact is committed; it cannot support a semantic product gate or posture row. Replay A `user 212.21 + sys 29.76 = 241.97s`, replay B `user 287.42 + sys 40.22 = 327.64s` |
 | planning debt-ledger admission | read-only `check_debt_ledger.py --check --report-only` reports exactly 10 DS11 `explicit_nonclosure_missing` rows plus `ledger_render_drift`; the checker's parsed IDs and an independent count of the 10 bullets under `## Explicit non-closure` agree; `user 0.40 + sys 0.30 = 0.70s`; uptime `17:08 up 2 days, 7:21` before/after. These are the expected planning-handback reds until C00 uses the sole register writer and regenerates the ledger. |
 
@@ -787,18 +788,18 @@ frontend disposition/debt/ledger rows; snapshots; and tests that pin a moved
 constant are mandatory P39 companions outside caps. They are still committed
 with their mechanism. Never split one mechanism across commits to fit a cap.
 
-The declared cluster caps total **23 unique mechanism paths**. The hard
+The declared cluster caps total **26 unique mechanism paths**. The hard
 slice-wide ceiling is **34 unique mechanism paths**; path 35 is a real stop.
-Slack is 11 paths (32.4%), derived from three compiler paths, two source/
+Slack is 8 paths (23.5%), derived from three compiler paths, two source/
 lifecycle paths (one a11y source document and the load-bearing generated-
-family manifest), thirteen public-route/locale seams, and five measured Trust
+family manifest), thirteen public-route/locale seams, and eight measured Trust
 View issuer/consumer paths—not copied from DS9 or DS10. The manifest is counted
 because it creates the CI bridge; the deterministic JSON and rendered reference
 are P39 records produced by that mechanism, not hidden mechanism paths.
 
 The cap has two derivations: table arithmetic and a parser that unions the
 declared Add/Modify mechanism lists while excluding P39 companions. Both must
-return 23 and independently sum the declared widening budgets to 7; known
+return 26 (`3 + 2 + 13 + 8`) and independently sum the declared widening budgets to 7; known
 mechanism member `src/polisyos/scientist/evidence/claims/posture.py` and known
 widening member C03's three rounds.
 
@@ -821,7 +822,7 @@ run its falsifier; do not patch another instance.
 | C01 | Define the strict posture calculus, dual source derivations, producer, and checker. | 3 | 2 widening |
 | C02 | Bind a11y source metadata, register the generated family, and persist deterministic posture bytes. | 2 | 2 widening |
 | C03 | Render the public methodology/envelope/limitations/a11y/register route and exact-byte MACHINE twin. | 13 | 3 widening |
-| C04 | Rebind the two inherited Trust View authority roots through private exhaustive issuers. | 5 | 2 repair rounds; 0 widening when narrowing-only |
+| C04 | Rebind the two inherited Trust View authority roots through private exhaustive issuers. | 8 | 2 repair rounds; 0 widening when narrowing-only |
 | C05 | Reproduce generated bytes and run the source/artifact/copy corruption wave. | 0 mechanism | 1 regeneration transaction; 0 widening |
 | C06 | Freeze, review, run targeted a11y/visual/release lanes, register debts, and read back closure. | 0 mechanism | 1 verification transaction; 0 widening |
 
@@ -990,7 +991,9 @@ closed interface labels and frames. `/trust` is public and static; it never
 calls a protected runtime API or stores claim state client-side.
 
 **P39 companions:** focused route/component/a11y/free-growth/twin tests, public
-route visual helper, visual snapshots, and the complete browser denominator in
+route visual helper, `apps/runtime-dashboard/e2e/ds11-runtime-dashboard.visual.spec.ts`
+and its own snapshots (test title contains `DS11 trust posture`; no visual config edit),
+and the complete browser denominator in
 `apps/runtime-dashboard/e2e/helpers/runtime-dashboard.ts`. That helper adds the
 `trust` readiness key, `trust-posture-page` test ID, and `/trust` surface; it is a
 test-denominator companion, not product routing. `routeManifest.ts` remains
@@ -1020,7 +1023,7 @@ corepack pnpm --filter @polisyos/runtime-dashboard exec tsc -p tsconfig.app.json
 
 ### C04 — Trust View private issuer repair
 
-**Mechanism cap:** 5. **Rounds:** at most 2 repair rounds; narrowing consumes no
+**Mechanism cap:** 8. **Rounds:** at most 2 repair rounds; narrowing consumes no
 widening round.
 
 The exhaustive two-root denominator is
@@ -1036,6 +1039,15 @@ census. No third DS11 Trust View authority root is silently excluded.
 3. `apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx`
 4. `apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx`
 5. `apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx`
+6. `apps/runtime-dashboard/src/shared/ui/trust-view/index.ts`
+7. `apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx`
+8. `apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx`
+
+Two independent derivations agree on this eight-path production mechanism set
+over the complete **625-file** dashboard production denominator (**304 `.ts`**
+and **321 `.tsx`**). A disagreeing scout set proposed `HashChip.tsx` and
+`TrustViewBridge.tsx`; both are transports rather than clothing/issuer
+mechanisms and are explicitly excluded rather than silently substituted.
 
 One private issuer consumes the canonical runtime `VerificationMetadata`
 contract owned at `src/polisyos/core/contracts/runtime.py`, transported through
@@ -1160,7 +1172,7 @@ git rev-parse --show-prefix
 | resource | cluster / ceiling and evidence |
 | --- | --- |
 | generated-artifact token | C02 and C05 as separate acquisitions; C01 first completes the exact no-writer compiler/checker with an uptime pair, then freezes `max(30s, 2x completed user+sys)` before C02's manifest/artifact/reference writer; no manifest/output writer overlaps register or visuals |
-| register-family lock | C00 debt-ledger admission, C04 disposition transition, and C06 reconciliation are separate acquisitions; completed read-only debt reporting `user+sys=0.70s` -> fixed **30s** for its record writer/check; completed frontend base check `user+sys=87.68s` -> fixed **180s** for no-corruption checks; a surgical disposition writer/corruption transaction freezes at `max(180s, 2x first completed user+sys)` and never widens mid-run |
+| register-family lock | C00 debt-ledger admission, C04 disposition transition, and C06 reconciliation are separate acquisitions; completed read-only debt reporting `user+sys=0.70s` -> fixed **30s** for its record writer/check; completed frontend transaction `user 195.14 + sys 27.53 = 222.67s` -> fixed **445.34s** for no-corruption checks; a surgical disposition writer/corruption transaction freezes at `max(445.34s, 2x first completed user+sys)` and never widens mid-run |
 | focused dashboard | ordinary lane; completed 4-file Trust View baseline `user+sys=9.04s` -> fixed **30s** per focused Vitest invocation |
 | release guardrail | ordinary read-only closeout lane; completed `user+sys=80.65s` -> fixed **180s**; no `sync` |
 | visual/a11y lane | Semantic/result agreement for replay B remains `consumer_asserted` / `not_established` and cannot support a semantic product gate or posture row. Separately, the completed-process `user+sys` ceiling is a **recomputed operational-resource predicate**: `/usr/bin/time -p` supplied `user` and `sys` for each completed invocation, and the harness recomputes `2 × max(241.97, 327.64) = 655.28s`. It may set only this harness timeout/stop budget; it cannot support product semantics, posture, certification, or any other semantic gate. C03 route a11y is focused; the C06 visual transaction uses one worker and zero retries, with its own completed no-writer measurement freezing `max(60s, 2x user+sys)` before a writer; missing browser/killed run is a tooling non-receipt |
@@ -1225,7 +1237,7 @@ Read the failure/repair register again before C00 and C06 closeout.
 | P35/P36 | loose 104 grep, 16/29 dashboard counts, or adjacent prose becomes authority | complete denominators, two methods, known member, exact source ID/section |
 | P37/P38 | authored status, pending job, package owner, or keyword blacklist stands in for the guarded property | independently established predicate labels; blocked unknowns; structural no-free-copy boundary with declared residual |
 | P33/P34 | tests teach to two named phrases or exclude a failing source without finishing isolation | synonym/indirect/default/dynamic/sibling mutations; scratch free growth; complete error-set comparison |
-| P39 | budget counts mandatory plan/tests/generated/register companions | 23 mechanisms, companions outside, one mechanism never split |
+| P39 | budget counts mandatory plan/tests/generated/register companions | 26 mechanisms, companions outside, one mechanism never split |
 | P40/P41 | repeat instance repairs or export the base C13 red as DS11 debt | bucket second finding; exact-base replay plus final error-set delta and changed-input accounting |
 
 Target closure state is `typed contract + source-derived producer + persisted

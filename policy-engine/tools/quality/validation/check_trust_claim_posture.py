@@ -351,7 +351,10 @@ def derive_accessibility_document(repo_root: Path) -> AccessibilityDocumentBindi
     if source_selector is None:
         raise ValueError("accessibility source_as_of binding is absent")
     limitation = "It does not replace the planned third-party countersign."
-    if body.count(limitation) != 1:
+    limitation_occurrences = sum(
+        " ".join(paragraph.split()).count(limitation) for paragraph in re.split(r"\n[ \t]*\n", body)
+    )
+    if limitation_occurrences != 1:
         raise ValueError("accessibility limitation is absent or duplicated")
     return AccessibilityDocumentBinding(
         path=_A11Y_PATH.as_posix(),

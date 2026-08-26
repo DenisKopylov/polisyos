@@ -689,6 +689,65 @@ def test_nonperformance_verifiers_cannot_mint_grounded_performance(
         posture.validate_posture_register(authored)
 
 
+def test_live_accessibility_projection_index_binds_the_unchanged_audit_body() -> None:
+    """Catch removal, rebinding, or purpose widening of the live audit projection index."""
+    binding = _checker().derive_accessibility_document(REPO_ROOT)
+
+    assert binding.body_digest == (
+        "sha256:0e4a0280ab30e1c69cb373d438906aa50d36bd9765ec36e533b6fea1a7df93f0"
+    )
+    assert {item.key for item in binding.bindings} == {
+        "assessment_owner",
+        "audit_type",
+        "evaluation_scope",
+        "external_countersign_status",
+        "internal_pre_audit_status",
+        "product_under_review",
+        "source_as_of",
+    }
+    assert tuple(item.purpose for item in binding.authoritative_for) == (
+        "historical_internal_accessibility_pre_audit",
+    )
+    assert tuple(item.purpose for item in binding.may_not_use_for) == (
+        "current_accessibility_conformance",
+        "external_accessibility_certification",
+    )
+
+
+def test_accessibility_limitation_ignores_markdown_wrap_but_binds_exact_words(
+    tmp_path: Path,
+) -> None:
+    """Catch literal-line proxies or acceptance of a semantically changed limitation."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    original_body = _write_accessibility_document(repo)
+    path = repo / A11Y_PATH
+    original_digest = sha256(original_body).hexdigest()
+    wrapped_body = original_body.replace(
+        b"It does not replace the planned third-party countersign.",
+        b"It does not replace the planned\nthird-party countersign.",
+    )
+    wrapped_digest = sha256(wrapped_body).hexdigest()
+    path.write_bytes(
+        path.read_bytes()
+        .replace(original_digest.encode(), wrapped_digest.encode())
+        .replace(original_body, wrapped_body)
+    )
+
+    binding = _checker().derive_accessibility_document(repo)
+    assert binding.limitation_refs == ("It does not replace the planned third-party countersign.",)
+
+    mutated_body = wrapped_body.replace(b"does not replace", b"does not supersede")
+    mutated_digest = sha256(mutated_body).hexdigest()
+    path.write_bytes(
+        path.read_bytes()
+        .replace(wrapped_digest.encode(), mutated_digest.encode())
+        .replace(wrapped_body, mutated_body)
+    )
+    with pytest.raises(ValueError, match="accessibility limitation"):
+        _checker().derive_accessibility_document(repo)
+
+
 def test_accessibility_frontmatter_is_strictly_bound_to_complete_body(tmp_path: Path) -> None:
     """Catch frontmatter surviving removal or duplication of its cited body fact."""
     repo = tmp_path / "repo"
@@ -776,6 +835,19 @@ def test_generated_family_probe_and_narrow_reference_writer_are_scratch_bounded(
         for path in reference_root.rglob("*")
         if path.is_file()
     } == {"docs/reference/generated-artifacts.md"}
+
+
+def test_live_generated_family_is_the_default_freshness_persistence_bridge() -> None:
+    """Catch removal or weakening of the live generated-committed family."""
+    family = _checker().validate_generated_family(REPO_ROOT)
+
+    assert family.family_id == "trust-claim-posture-register"
+    assert family.lifecycle == "generated_committed"
+    assert family.stale_output_behavior == "fail"
+    assert family.default_freshness_check is True
+    assert family.outputs == ("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",)
+    assert "--write" in family.output_probe_command
+    assert "--output-root" in family.output_probe_command
 
 
 def test_c02_cli_flags_default_date_and_repo_root_writer_work_in_scratch(

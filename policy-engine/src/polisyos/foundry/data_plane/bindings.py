@@ -9,9 +9,11 @@ synthetic runtime state.
 
 from __future__ import annotations
 
+import json
 from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
+from pathlib import Path
 from typing import Any
 
 import jax.numpy as jnp
@@ -21,7 +23,7 @@ from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.contracts import ValueOuterSet
-from polisyos.core.contracts.fabric import DataSnapshot
+from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import (
     FeedbackConfig,
     FeedbackStateSnapshot,
@@ -32,12 +34,25 @@ from polisyos.core.contracts.foundry import (
     StateSnapshotRef,
 )
 from polisyos.core.registry import load_registry_bundle_content
+from polisyos.data_forge import read_api
 from polisyos.foundry.contracts.state import FeedbackState, GlobalState
 from polisyos.foundry.execute.executor import (
     get_state_path,
     load_state_snapshot,
     put_state_snapshot,
     set_state_path,
+)
+from polisyos.foundry.methods.catalog.causal.protocols import (
+    DynamicTreatmentData,
+    NetworkCausalData,
+    PanelObservationalData,
+)
+from polisyos.foundry.methods.catalog.econometrics.protocols import PanelData
+from polisyos.foundry.methods.catalog.microsim.protocols import SurveyMicroData
+from polisyos.foundry.methods.catalog.ml.protocols import SurvivalData
+from polisyos.foundry.methods.catalog.network.protocols import (
+    MultiplexNetworkData,
+    NetworkData,
 )
 from polisyos.ir.kernel import SlotRegistry, SlotScope, SlotSpec, SlotValueType
 
@@ -65,6 +80,185 @@ class InputBindingsBuildResult:
     input_binding_report_ref: FoundryInputBindingReportRef
     bound_state_snapshot_ref: StateSnapshotRef
     applied_binding_ids: tuple[str, ...]
+
+
+@dataclass(frozen=True)
+class UkraineFoundryIntakeResult:
+    """Typed result transported from the Ukraine intake bridge to orchestration."""
+
+    data_snapshot_ref: DataSnapshotRef
+    proxy_identification_bundle: dict[str, Any]
+    method_contracts: dict[str, Any]
+    receipt_ref: ArtifactRef
+
+
+def load_ukraine_foundry_intake(
+    store: FileSystemCAS,
+    *,
+    stage_manifests: Mapping[str, str | Path],
+    allowed_root: Path,
+) -> UkraineFoundryIntakeResult:
+    """Content-bind Ukraine producer receipts and construct Foundry method inputs.
+
+    The function is the only Ukraine-to-Foundry intake surface.  It verifies
+    every declared producer output before constructing the concrete Foundry
+    method DTOs; its receipt establishes artifact identity, not governance or
+    method-validity authority.
+
+    Args:
+        store: CAS receiving the persisted, inspectable intake receipt.
+        stage_manifests: Exact ``d0_p0`` through ``d3`` producer manifest
+            paths, keyed by stage ID.
+        allowed_root: Root that contains those manifests and all producer
+            outputs.
+
+    Returns:
+        A mapping containing the validated Fabric snapshot reference, the
+        proxy bundle for causal readiness, concrete Foundry method DTOs, and a
+        persisted-receipt-ready inspection payload.
+
+    Raises:
+        ValueError: If a stage receipt, required output, JSON payload, or
+            concrete Foundry contract is missing or invalid.
+    """
+
+    required_outputs = {
+        "d0_p0": ("runtime_bundle_manifest.json",),
+        "d1": (
+            "proxy_identification_bundle_v1.json",
+            "multiplex_network_data.json",
+            "trade_network_data.json",
+            "trade_network_causal_data.json",
+            "distress_network_data.json",
+            "distress_network_causal_data.json",
+            "public_service_network_data.json",
+            "public_service_network_causal_data.json",
+        ),
+        "d2": (
+            "panel_observational_contract.json",
+            "dynamic_treatment_contract.json",
+            "microsim_survey_contract_preview.json",
+            "survival_contract.json",
+            "panel_econometric_contract.json",
+        ),
+        "d3": ("microsim_survey_contract_v1.json",),
+    }
+    missing_stages = sorted(set(required_outputs).difference(stage_manifests))
+    if missing_stages:
+        raise ValueError("missing Ukraine stage manifests: " + ",".join(missing_stages))
+
+    try:
+        receipts = {
+            stage_id: read_api.ukraine.load_verified_stage_artifacts(
+                Path(stage_manifests[stage_id]),
+                allowed_root=allowed_root,
+                expected_stage=stage_id,
+                required_outputs=outputs,
+            )
+            for stage_id, outputs in required_outputs.items()
+        }
+    except Exception as exc:
+        raise ValueError(f"Ukraine intake receipt verification failed: {exc}") from exc
+
+    runtime_bundle = _load_verified_json_output(receipts["d0_p0"], "runtime_bundle_manifest.json")
+    data_snapshot_id = runtime_bundle.get("data_snapshot_artifact_id")
+    if not isinstance(data_snapshot_id, str) or not data_snapshot_id.strip():
+        raise ValueError("runtime_bundle_manifest is missing data_snapshot_artifact_id")
+    try:
+        data_snapshot_ref = DataSnapshotRef(artifact_id=data_snapshot_id)
+    except Exception as exc:
+        raise ValueError("runtime_bundle_manifest has invalid data_snapshot_artifact_id") from exc
+
+    contract_specs: tuple[tuple[str, str, str, type[Any]], ...] = (
+        ("d1_multiplex_network", "d1", "multiplex_network_data.json", MultiplexNetworkData),
+        ("d1_trade_network", "d1", "trade_network_data.json", NetworkData),
+        ("d1_trade_network_causal", "d1", "trade_network_causal_data.json", NetworkCausalData),
+        ("d1_distress_network", "d1", "distress_network_data.json", NetworkData),
+        (
+            "d1_distress_network_causal",
+            "d1",
+            "distress_network_causal_data.json",
+            NetworkCausalData,
+        ),
+        ("d1_public_service_network", "d1", "public_service_network_data.json", NetworkData),
+        (
+            "d1_public_service_network_causal",
+            "d1",
+            "public_service_network_causal_data.json",
+            NetworkCausalData,
+        ),
+        ("d2_panel_observational", "d2", "panel_observational_contract.json", PanelObservationalData),
+        ("d2_dynamic_treatment", "d2", "dynamic_treatment_contract.json", DynamicTreatmentData),
+        ("d2_microsim_survey", "d2", "microsim_survey_contract_preview.json", SurveyMicroData),
+        ("d2_survival", "d2", "survival_contract.json", SurvivalData),
+        ("d2_panel_econometric", "d2", "panel_econometric_contract.json", PanelData),
+        ("d3_microsim_survey", "d3", "microsim_survey_contract_v1.json", SurveyMicroData),
+    )
+    method_contracts: dict[str, Any] = {}
+    validated_contracts: dict[str, dict[str, str]] = {}
+    for contract_name, stage_id, output_name, model_type in contract_specs:
+        try:
+            method_contracts[contract_name] = model_type.model_validate(
+                _load_verified_json_output(receipts[stage_id], output_name)
+            )
+        except Exception as exc:
+            raise ValueError(f"invalid Ukraine method contract {contract_name}: {exc}") from exc
+        output = receipts[stage_id].outputs[output_name]
+        validated_contracts[contract_name] = {
+            "contract_id": str(model_type.contract_id),
+            "output_path": output.path,
+            "sha256": output.sha256,
+        }
+
+    proxy_identification_bundle = _load_verified_json_output(
+        receipts["d1"], "proxy_identification_bundle_v1.json"
+    )
+    if not proxy_identification_bundle.get("proxy_channels"):
+        raise ValueError("Ukraine proxy-identification bundle has no proxy_channels")
+
+    receipt = {
+        "schema_version": "polisyos.foundry.ukraine_intake_receipt.v1",
+        "authority_purpose": "producer_artifact_content_binding",
+        "may_not_use_for": ["governance_admissibility", "method_validity"],
+        "stage_receipts": {
+            stage_id: receipt.model_dump(mode="json") for stage_id, receipt in receipts.items()
+        },
+        "validated_contracts": validated_contracts,
+        "proxy_identification_bundle": {
+            "output_path": receipts["d1"].outputs["proxy_identification_bundle_v1.json"].path,
+            "sha256": receipts["d1"].outputs["proxy_identification_bundle_v1.json"].sha256,
+        },
+    }
+    receipt_ref = store.put_json(
+        receipt,
+        PutOptions(
+            kind="foundry.ukraine_intake_receipt",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.foundry.UkraineIntakeReceipt", version="1.0"),
+        ),
+    )
+
+    return UkraineFoundryIntakeResult(
+        data_snapshot_ref=data_snapshot_ref,
+        proxy_identification_bundle=proxy_identification_bundle,
+        method_contracts=method_contracts,
+        receipt_ref=receipt_ref,
+    )
+
+
+def _load_verified_json_output(receipt: Any, output_name: str) -> dict[str, Any]:
+    """Load one receipt-bound JSON producer output as an object."""
+
+    output = receipt.outputs.get(output_name)
+    if output is None:
+        raise ValueError(f"verified receipt lacks required output: {output_name}")
+    try:
+        payload = json.loads(Path(output.path).read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        raise ValueError(f"invalid JSON output {output_name}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise ValueError(f"JSON output {output_name} must be an object")
+    return payload
 
 
 def build_input_bindings(

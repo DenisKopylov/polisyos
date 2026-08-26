@@ -20,11 +20,16 @@ from polisyos.core import contracts as core_contracts
 from polisyos.pdc import PromotionObligationClass
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.epoch_validity_cascade import (
+    ArtifactEpochValidityAuthorityGate,
+    ArtifactEpochValidityN9EvidenceResolver,
+    ArtifactEpochValidityPreN9SubjectAuthority,
     ArtifactPromotionCandidateDenominatorOwner,
     ArtifactPromotionOwnerQueryContextRepository,
     DeploymentPromotionQueryEvidence,
     EpochPromotionQueryEvidence,
     PersistedBoundPromotionCandidateContext,
+    PersistedEpochPromotionQueryStatement,
+    PersistedPromotionCandidateDenominator,
     PersistedPromotionContextBatch,
     PromotionCandidateIdentity,
     PromotionOwnerQueryContextAuthority,
@@ -38,6 +43,7 @@ from polisyos.runtime.quality.epoch_validity_cascade import (
     promotion_epoch_query,
 )
 from polisyos.runtime.quality.generation_cycle import CandidateSummary  # noqa: TC001
+from polisyos.runtime.quality.semantic_epoch import SemanticEpochService
 
 ArtifactID = artifacts.ArtifactID
 ArtifactRef = artifacts.ArtifactRef
@@ -1011,20 +1017,19 @@ class OpenWorldRiskPromotionGate(_StrictModel):
         )
 
 
-class _UnreachableEpochCandidateAdapter:
-    def reconcile_candidate(
-        self, request: core_contracts.chronology.NativeChronologyQuery
-    ) -> core_contracts.chronology.NativeChronologyCandidate:
-        del request
-        raise AssertionError("unallocated policy authority must reject before candidate read")
-
-
 class _PersistedNegativeEpochQueryOwner:
     """Persist the exact no-admission result; it does not self-admit policy."""
 
-    def __init__(self, *, store: ArtifactStore, provenance_ref: ArtifactRef) -> None:
+    def __init__(
+        self,
+        *,
+        store: ArtifactStore,
+        provenance_ref: ArtifactRef,
+        semantic_epoch_service: SemanticEpochService,
+    ) -> None:
         self._store = store
         self._provenance_ref = provenance_ref
+        self._semantic_epoch_service = semantic_epoch_service
 
     def resolve_for_promotion(
         self,
@@ -1032,15 +1037,12 @@ class _PersistedNegativeEpochQueryOwner:
         design_problem_binding_ref: ArtifactRef,
         candidate: PromotionCandidateIdentity,
     ) -> EpochPromotionQueryEvidence:
-        from polisyos.runtime.quality.chronology_qualification import QualificationConsumer
-
         query = promotion_epoch_query(
             design_problem_binding_ref=design_problem_binding_ref,
             candidate=candidate,
         )
-        qualification = QualificationConsumer.from_unallocated_policy_authority().qualify(
-            adapter=_UnreachableEpochCandidateAdapter(),
-            request=query,
+        qualification = self._semantic_epoch_service.qualify_chronology_query(
+            query=query,
         )
         if not isinstance(
             qualification,
@@ -1050,12 +1052,12 @@ class _PersistedNegativeEpochQueryOwner:
             core_contracts.chronology.PolicyAdmissionMissingFailure,
         ):
             raise ValueError("epoch_policy_missing_result_not_established")
-        payload = {
-            "schema_version": c4_profile("epoch_query_evidence").schema_name,
-            "design_problem_binding_ref": design_problem_binding_ref.model_dump(mode="json"),
-            "candidate": candidate.model_dump(mode="json"),
-            "qualification_result": qualification.model_dump(mode="json"),
-        }
+        payload = PersistedEpochPromotionQueryStatement(
+            schema_version=c4_profile("epoch_query_evidence").schema_name,
+            design_problem_binding_ref=design_problem_binding_ref,
+            candidate=candidate,
+            qualification_result=qualification,
+        )
         ref, semantic_hash, _ = _persist_model(
             store=self._store,
             value=payload,
@@ -1138,6 +1140,7 @@ def persist_and_verify_design_problem_snapshot(
 class PromotionRuntimeBatch:
     """One complete post-loop context and its freshly reloaded gates."""
 
+    candidate_denominator: PersistedPromotionCandidateDenominator
     contexts: PersistedPromotionContextBatch
     gates_by_candidate_id: Mapping[str, OpenWorldRiskPromotionGate]
 
@@ -1145,7 +1148,14 @@ class PromotionRuntimeBatch:
 class PromotionRuntime:
     """Container-owned negative-path composition shared by direct/recursive/HTTP N9."""
 
-    def __init__(self, *, store: ArtifactStore) -> None:
+    def __init__(
+        self,
+        *,
+        store: ArtifactStore,
+        completed_epoch_batches: (
+            core_contracts.EpochValidityCompletedBatchEvidenceResolver | None
+        ) = None,
+    ) -> None:
         self.store = store
         self.verifier_provenance_ref = store.put_bytes(
             _VERIFIER_PROVENANCE_BYTES,
@@ -1154,6 +1164,9 @@ class PromotionRuntime:
             ),
         )
         self.candidates = ArtifactPromotionCandidateDenominatorOwner(artifacts=store)
+        self.semantic_epoch_service = SemanticEpochService.for_unallocated_policy_query(
+            artifact_store=store
+        )
         context_verifier = ArtifactPromotionOwnerQueryContextRepository(artifacts=store)
         self.context_repository = ArtifactPromotionOwnerQueryContextRepository(
             artifacts=store,
@@ -1162,7 +1175,9 @@ class PromotionRuntime:
         self.context_authority = PromotionOwnerQueryContextAuthority(
             candidates=self.candidates,
             epoch_queries=_PersistedNegativeEpochQueryOwner(
-                store=store, provenance_ref=self.verifier_provenance_ref
+                store=store,
+                provenance_ref=self.verifier_provenance_ref,
+                semantic_epoch_service=self.semantic_epoch_service,
             ),
             deployment_queries=_PersistedDeploymentQueryOwner(
                 store=store, provenance_ref=self.verifier_provenance_ref
@@ -1184,6 +1199,21 @@ class PromotionRuntime:
         self.open_world_authority = OpenWorldRiskPromotionAuthority(
             producer=self.vector_producer,
             resolver=OpenWorldRiskVectorArtifactRepository(store=store),
+        )
+        self.epoch_subject_authority = ArtifactEpochValidityPreN9SubjectAuthority(
+            store=store,
+            contexts=self.context_repository,
+        )
+        self.epoch_validity_gate = ArtifactEpochValidityAuthorityGate(
+            store=store,
+            contexts=self.context_repository,
+            semantic_epoch_service=self.semantic_epoch_service,
+        )
+        self.epoch_n9_evidence_resolver = ArtifactEpochValidityN9EvidenceResolver(
+            store=store,
+            contexts=self.context_repository,
+            verifier_provenance_ref=self.verifier_provenance_ref,
+            completed_batches=completed_epoch_batches,
         )
 
     @property
@@ -1266,6 +1296,7 @@ class PromotionRuntime:
                 ),
             )
         return PromotionRuntimeBatch(
+            candidate_denominator=denominator,
             contexts=contexts,
             gates_by_candidate_id=gates,
         )

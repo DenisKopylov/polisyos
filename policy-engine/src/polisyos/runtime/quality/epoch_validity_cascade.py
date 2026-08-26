@@ -23,11 +23,13 @@ from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts, canon
 from polisyos.core import contracts as core_contracts
+from polisyos.pdc import gy_content_hash
 from polisyos.runtime.quality.design_problem import DesignProblem
 from polisyos.runtime.quality.generation_cycle import CandidateSummary  # noqa: TC001
 from polisyos.runtime.quality.semantic_epoch import (
     SemanticEpochHistoryRepository,
     SemanticEpochManifest,
+    SemanticEpochService,
 )
 
 ArtifactID = artifacts.ArtifactID
@@ -972,6 +974,26 @@ class EpochPromotionQueryEvidence(_StrictModel):
     predicate_class: Literal["independently_reconciled"]
 
 
+class PersistedEpochPromotionQueryStatement(_StrictModel):
+    """Exact query/result bytes reloaded by the pre-N9 gate."""
+
+    schema_version: Literal["polisyos.promotion.semantic-epoch-query.v1"]
+    design_problem_binding_ref: ArtifactRef
+    candidate: PromotionCandidateIdentity
+    qualification_result: core_contracts.chronology.NativeChronologyQualificationResult
+
+    @model_validator(mode="after")
+    def _query_is_derived_from_owner_fields(self) -> PersistedEpochPromotionQueryStatement:
+        expected = promotion_epoch_query(
+            design_problem_binding_ref=self.design_problem_binding_ref,
+            candidate=self.candidate,
+        )
+        result_query = getattr(self.qualification_result, "query", None)
+        if result_query != expected:
+            raise ValueError("epoch_query_evidence_owner_binding_mismatch")
+        return self
+
+
 class DeploymentPromotionQueryEvidence(_StrictModel):
     family: Literal["deployment_scope"]
     candidate: PromotionCandidateIdentity
@@ -1296,7 +1318,7 @@ class ArtifactPromotionCandidateDenominatorOwner:
             )
         try:
             snapshot = self._load_snapshot(completed_batch.owner_snapshot_ref)
-        except (KeyError, OSError, TypeError, ValueError):
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_candidate_denominator_mismatch"
             )
@@ -1381,7 +1403,7 @@ class ArtifactPromotionOwnerQueryContextRepository:
     ) -> PersistedPromotionOwnerQueryContext | PromotionOwnerQueryContextNonReceipt:
         try:
             context_bytes = self._artifacts.get_bytes(context_ref.artifact_id)
-        except (KeyError, OSError, TypeError, ValueError):
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
             return PromotionOwnerQueryContextNonReceipt(
                 status="rejected", code="promotion_query_context_binding_mismatch"
             )
@@ -1930,8 +1952,399 @@ class PromotionOwnerQueryContextAuthority:
         )
 
 
+class ArtifactEpochValidityPreN9SubjectAuthority:
+    """Derive the complete first-decision subject from persisted owner handles."""
+
+    def __init__(
+        self,
+        *,
+        store: ArtifactStore,
+        contexts: ArtifactPromotionOwnerQueryContextRepository,
+    ) -> None:
+        self._store = store
+        self._contexts = contexts
+
+    def persist_for_n9(
+        self, *, bound_member_ref: ArtifactRef
+    ) -> core_contracts.decision_validity.PersistedPreN9EpochValiditySubject:
+        member = self._contexts.resolve_bound_member(bound_member_ref=bound_member_ref)
+        aggregate = self._contexts.resolve_verified(
+            context_ref=member.statement.aggregate_context_ref
+        )
+        if isinstance(aggregate, PromotionOwnerQueryContextNonReceipt):
+            raise ValueError("pre_n9_owner_query_context_unresolved")
+        occurrence = self._contexts.resolve_occurrence(
+            occurrence_ref=member.statement.candidate_occurrence_ref
+        )
+        candidate = aggregate.statement.ordered_candidate_contexts[member.statement.ordinal]
+        if candidate.candidate.occurrence_ref != member.statement.candidate_occurrence_ref:
+            raise ValueError("pre_n9_subject_candidate_binding_mismatch")
+        statement = core_contracts.decision_validity.PreN9EpochValiditySubjectStatement(
+            owner_query_context_ref=aggregate.context_ref,
+            owner_query_context_content_hash=aggregate.semantic_hash,
+            bound_member_ref=member.bound_member_ref,
+            bound_member_content_hash=member.bound_member_content_hash,
+            candidate_occurrence_ref=member.statement.candidate_occurrence_ref,
+            candidate_occurrence_content_hash=c4_semantic_digest(
+                "candidate_occurrence", occurrence
+            ),
+            decision_packet_lineage_key_ref=_semantic_hash(
+                "polisyos.decision-validity.pre-n9-lineage.v1",
+                {
+                    "design_problem_binding_ref": (aggregate.statement.design_problem_binding_ref),
+                    "candidate_id": occurrence.candidate_id,
+                },
+            ),
+            current_decision_packet_ref=None,
+            packet_epoch_refs=(),
+        )
+        subject_ref, subject_hash, _ = _persist_model(
+            store=self._store,
+            value=statement,
+            profile_record="pre_n9_epoch_subject",
+        )
+        return core_contracts.decision_validity.PersistedPreN9EpochValiditySubject(
+            subject_ref=subject_ref,
+            subject_content_hash=subject_hash,
+        )
+
+
+class ArtifactEpochValidityAuthorityGate:
+    """Reload a subject and return the honest no-policy production result."""
+
+    def __init__(
+        self,
+        *,
+        store: ArtifactStore,
+        contexts: ArtifactPromotionOwnerQueryContextRepository,
+        semantic_epoch_service: SemanticEpochService,
+    ) -> None:
+        self._store = store
+        self._contexts = contexts
+        self._semantic_epoch_service = semantic_epoch_service
+
+    def reconcile_before_n9(
+        self, *, subject_ref: ArtifactRef
+    ) -> (
+        core_contracts.decision_validity.PersistedEpochValidityGateEvidence
+        | core_contracts.decision_validity.EpochValidityGateNonReceipt
+    ):
+        try:
+            subject = _read_model(
+                store=self._store,
+                ref=subject_ref,
+                model=core_contracts.decision_validity.PreN9EpochValiditySubjectStatement,
+                profile_record="pre_n9_epoch_subject",
+            )
+            if not isinstance(
+                subject,
+                core_contracts.decision_validity.PreN9EpochValiditySubjectStatement,
+            ):
+                raise TypeError("pre_n9_epoch_subject_model_mismatch")
+            subject_hash = c4_semantic_digest("pre_n9_epoch_subject", subject)
+            member = self._contexts.resolve_bound_member(bound_member_ref=subject.bound_member_ref)
+            aggregate = self._contexts.resolve_verified(context_ref=subject.owner_query_context_ref)
+            if isinstance(aggregate, PromotionOwnerQueryContextNonReceipt):
+                raise ValueError("pre_n9_owner_query_context_unresolved")
+            if (
+                subject.owner_query_context_content_hash != aggregate.semantic_hash
+                or subject.bound_member_content_hash != member.bound_member_content_hash
+                or subject.candidate_occurrence_ref != member.statement.candidate_occurrence_ref
+            ):
+                raise ValueError("pre_n9_epoch_subject_binding_mismatch")
+            candidate = aggregate.statement.ordered_candidate_contexts[member.statement.ordinal]
+            query_statement = _read_model(
+                store=self._store,
+                ref=candidate.epoch_query.query_artifact_ref,
+                model=PersistedEpochPromotionQueryStatement,
+                profile_record="epoch_query_evidence",
+            )
+            if not isinstance(query_statement, PersistedEpochPromotionQueryStatement):
+                raise TypeError("epoch_query_evidence_model_mismatch")
+            if (
+                query_statement.design_problem_binding_ref
+                != aggregate.statement.design_problem_binding_ref
+                or query_statement.candidate != candidate.candidate
+                or c4_semantic_digest("epoch_query_evidence", query_statement)
+                != candidate.epoch_query.query_artifact_content_hash
+            ):
+                raise ValueError("epoch_query_evidence_owner_binding_mismatch")
+            stored = query_statement.qualification_result
+            fresh = self._semantic_epoch_service.qualify_chronology_query(query=stored.query)
+            if fresh != stored:
+                raise ValueError("epoch_query_qualification_result_drift")
+            query_ref = stored.query.requested_query_context_ref
+            expected_codes = (
+                (stored.failure.code,)
+                if isinstance(
+                    stored,
+                    core_contracts.chronology.NativeChronologyPolicyResolutionFailed,
+                )
+                else ()
+            )
+            if (
+                candidate.epoch_query.native_requested_query_context_ref != query_ref
+                or candidate.epoch_query.qualification_status
+                != getattr(
+                    stored,
+                    "status",
+                    getattr(getattr(stored, "failure", None), "status", None),
+                )
+                or candidate.epoch_query.qualification_failure_codes != expected_codes
+            ):
+                raise ValueError("epoch_query_evidence_summary_projection_mismatch")
+            if isinstance(
+                stored,
+                core_contracts.chronology.NativeChronologyPolicyResolutionFailed,
+            ) and isinstance(
+                stored.failure,
+                core_contracts.chronology.PolicyAdmissionMissingFailure,
+            ):
+                return core_contracts.decision_validity.EpochValidityGateNonReceipt(
+                    status="not_established",
+                    code="policy_admission_missing",
+                    subject_ref=subject_ref,
+                    requested_query_context_ref=query_ref,
+                )
+            del subject_hash
+            return core_contracts.decision_validity.EpochValidityGateNonReceipt(
+                status="not_established",
+                code="epoch_transition_signer_not_established",
+                subject_ref=subject_ref,
+                requested_query_context_ref=query_ref,
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return core_contracts.decision_validity.EpochValidityGateNonReceipt(
+                status="rejected",
+                code="epoch_validity_subject_unresolved",
+                subject_ref=subject_ref,
+                requested_query_context_ref=_semantic_hash(
+                    "polisyos.decision-validity.unresolved-subject.v1",
+                    {"subject_ref": subject_ref},
+                ),
+            )
+
+
+class ArtifactEpochValidityN9EvidenceResolver:
+    """Independently reload positive subject/gate evidence for canonical N9."""
+
+    def __init__(
+        self,
+        *,
+        store: ArtifactStore,
+        contexts: ArtifactPromotionOwnerQueryContextRepository,
+        verifier_provenance_ref: ArtifactRef,
+        completed_batches: (
+            core_contracts.decision_validity.EpochValidityCompletedBatchEvidenceResolver | None
+        ) = None,
+    ) -> None:
+        self._store = store
+        self._contexts = contexts
+        self._verifier_provenance_ref = verifier_provenance_ref
+        self._completed_batches = completed_batches
+
+    def resolve_verified(
+        self,
+        *,
+        admission: core_contracts.decision_validity.PreN9AdmittedCandidate,
+        expected_design_problem_ref: ArtifactRef,
+    ) -> (
+        core_contracts.decision_validity.EpochValidityN9Projection
+        | core_contracts.decision_validity.EpochValidityGateNonReceipt
+    ):
+        try:
+            subject = _read_model(
+                store=self._store,
+                ref=admission.subject_ref,
+                model=core_contracts.decision_validity.PreN9EpochValiditySubjectStatement,
+                profile_record="pre_n9_epoch_subject",
+            )
+            gate = _read_model(
+                store=self._store,
+                ref=admission.gate_evidence_ref,
+                model=core_contracts.decision_validity.EpochValidityGateReceipt,
+                profile_record="epoch_validity_gate_receipt",
+            )
+            if not isinstance(
+                subject,
+                core_contracts.decision_validity.PreN9EpochValiditySubjectStatement,
+            ) or not isinstance(gate, core_contracts.decision_validity.EpochValidityGateReceipt):
+                raise TypeError("epoch_validity_gate_model_mismatch")
+            aggregate = self._contexts.resolve_verified(context_ref=admission.aggregate_context_ref)
+            member = self._contexts.resolve_bound_member(
+                bound_member_ref=admission.bound_member_ref
+            )
+            if isinstance(aggregate, PromotionOwnerQueryContextNonReceipt):
+                raise ValueError("epoch_validity_aggregate_unresolved")
+            if (
+                aggregate.statement.design_problem_binding_ref != expected_design_problem_ref
+                or admission.aggregate_context_content_hash != aggregate.semantic_hash
+                or admission.bound_member_content_hash != member.bound_member_content_hash
+                or member.statement.aggregate_context_ref != admission.aggregate_context_ref
+                or member.statement.candidate_occurrence_ref != admission.candidate_occurrence_ref
+                or subject.owner_query_context_ref != admission.aggregate_context_ref
+                or subject.bound_member_ref != admission.bound_member_ref
+                or subject.candidate_occurrence_ref != admission.candidate_occurrence_ref
+                or c4_semantic_digest("pre_n9_epoch_subject", subject)
+                != admission.subject_content_hash
+                or c4_semantic_digest("epoch_validity_gate_receipt", gate)
+                != admission.gate_evidence_content_hash
+                or gate.subject_ref != admission.subject_ref
+                or gate.subject_content_hash != admission.subject_content_hash
+                or gate.status not in {"current", "batch_completed"}
+            ):
+                raise ValueError("epoch_validity_n9_binding_mismatch")
+            if gate.status == "current":
+                # A shaped prior-binding ref is not an owner receipt.  The
+                # current arm remains closed until an owner reader for that
+                # separately persisted binding is installed.
+                raise ValueError("epoch_validity_prior_binding_unresolved")
+            completed_ref = gate.completed_batch_receipt_ref
+            if completed_ref is None or self._completed_batches is None:
+                raise ValueError("epoch_validity_completed_batch_unresolved")
+            completed = self._completed_batches.resolve_completed_epoch_batch_evidence(
+                batch_receipt_ref=completed_ref
+            )
+            if (
+                completed.batch_receipt_ref != completed_ref
+                or completed.receipt.requested_query_context_ref != gate.requested_query_context_ref
+                or completed.receipt.dependency_denominator_ref != gate.dependency_denominator_ref
+                or completed.receipt.adjudication_denominator_ref
+                != gate.adjudication_denominator_ref
+                or (
+                    gate.current_decision_packet_ref is not None
+                    and str(gate.current_decision_packet_ref.artifact_id)
+                    not in completed.receipt.affected_packet_refs
+                )
+            ):
+                raise ValueError("epoch_validity_completed_batch_binding_mismatch")
+            return core_contracts.decision_validity.EpochValidityN9Projection(
+                owner_query_context_ref=admission.aggregate_context_ref,
+                owner_query_context_content_hash=admission.aggregate_context_content_hash,
+                bound_member_ref=admission.bound_member_ref,
+                bound_member_content_hash=admission.bound_member_content_hash,
+                candidate_occurrence_ref=admission.candidate_occurrence_ref,
+                candidate_occurrence_content_hash=(admission.candidate_occurrence_content_hash),
+                subject_ref=admission.subject_ref,
+                subject_content_hash=admission.subject_content_hash,
+                gate_receipt_ref=admission.gate_evidence_ref,
+                gate_receipt_content_hash=admission.gate_evidence_content_hash,
+                requested_query_context_ref=gate.requested_query_context_ref,
+                current_decision_packet_ref=gate.current_decision_packet_ref,
+                completed_batch_receipt_ref=gate.completed_batch_receipt_ref,
+                verifier_provenance_ref=self._verifier_provenance_ref,
+                status=gate.status,
+                predicate_class="independently_reconciled",
+            )
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return core_contracts.decision_validity.EpochValidityGateNonReceipt(
+                status="rejected",
+                code="epoch_validity_gate_evidence_unresolved",
+                subject_ref=admission.subject_ref,
+                requested_query_context_ref=_semantic_hash(
+                    "polisyos.decision-validity.unresolved-gate.v1",
+                    {"gate_ref": admission.gate_evidence_ref},
+                ),
+            )
+
+    def resolve_projection_verified(
+        self,
+        *,
+        projection: core_contracts.decision_validity.EpochValidityN9Projection,
+        expected_problem_content_hash: Digest,
+    ) -> (
+        core_contracts.decision_validity.EpochValidityN9Projection
+        | core_contracts.decision_validity.EpochValidityGateNonReceipt
+    ):
+        """Rebuild handles from the projection and re-read every owner artifact."""
+
+        admission = core_contracts.decision_validity.PreN9AdmittedCandidate(
+            aggregate_context_ref=projection.owner_query_context_ref,
+            aggregate_context_content_hash=projection.owner_query_context_content_hash,
+            bound_member_ref=projection.bound_member_ref,
+            bound_member_content_hash=projection.bound_member_content_hash,
+            candidate_occurrence_ref=projection.candidate_occurrence_ref,
+            candidate_occurrence_content_hash=(projection.candidate_occurrence_content_hash),
+            subject_ref=projection.subject_ref,
+            subject_content_hash=projection.subject_content_hash,
+            gate_evidence_ref=projection.gate_receipt_ref,
+            gate_evidence_content_hash=projection.gate_receipt_content_hash,
+        )
+        try:
+            aggregate = self._contexts.resolve_verified(
+                context_ref=projection.owner_query_context_ref
+            )
+            if isinstance(aggregate, PromotionOwnerQueryContextNonReceipt):
+                raise ValueError("epoch_validity_aggregate_unresolved")
+            problem_raw = self._store.get_bytes(
+                aggregate.statement.design_problem_binding_ref.artifact_id
+            )
+            problem = DesignProblem.model_validate(canon.from_canonical_bytes(problem_raw))
+            if gy_content_hash(problem.model_dump(mode="json")) != expected_problem_content_hash:
+                raise ValueError("epoch_validity_design_problem_binding_mismatch")
+            resolved = self.resolve_verified(
+                admission=admission,
+                expected_design_problem_ref=(aggregate.statement.design_problem_binding_ref),
+            )
+            if (
+                not isinstance(
+                    resolved,
+                    core_contracts.decision_validity.EpochValidityN9Projection,
+                )
+                or resolved != projection
+            ):
+                raise ValueError("epoch_validity_projection_binding_mismatch")
+            return resolved
+        except (KeyError, OSError, RuntimeError, TypeError, ValueError):
+            return core_contracts.decision_validity.EpochValidityGateNonReceipt(
+                status="rejected",
+                code="epoch_validity_gate_evidence_unresolved",
+                subject_ref=projection.subject_ref,
+                requested_query_context_ref=(projection.requested_query_context_ref),
+            )
+
+
+def seal_pre_n9_admitted_candidate_batch(
+    *,
+    store: ArtifactStore,
+    denominator: PersistedPromotionCandidateDenominator,
+    contexts: PersistedPromotionContextBatch,
+    admissions: Sequence[core_contracts.decision_validity.PreN9AdmittedCandidate],
+) -> core_contracts.decision_validity.PersistedPreN9AdmittedCandidateBatch:
+    """Seal an exact ordered bijection against the completed generation denominator."""
+
+    expected_refs = tuple(
+        str(ref.artifact_id) for ref in denominator.statement.ordered_occurrence_refs
+    )
+    observed_refs = tuple(str(row.candidate_occurrence_ref.artifact_id) for row in admissions)
+    if expected_refs != observed_refs or len(admissions) != len(contexts.ordered_bound_members):
+        raise ValueError("epoch_validity_admission_denominator_mismatch")
+    aggregate = contexts.aggregate_context
+    draft = core_contracts.decision_validity.PersistedPreN9AdmittedCandidateBatch(
+        aggregate_context_ref=aggregate.context_ref,
+        aggregate_context_content_hash=aggregate.semantic_hash,
+        candidate_denominator_ref=denominator.denominator_ref,
+        candidate_denominator_content_hash=denominator.denominator_content_hash,
+        ordered_admissions=tuple(admissions),
+        batch_content_hash="sha256:" + "0" * 64,
+    )
+    batch_hash = c4_semantic_digest("pre_n9_admitted_candidate_batch", draft)
+    batch = draft.model_copy(update={"batch_content_hash": batch_hash})
+    _, persisted_hash, _ = _persist_model(
+        store=store,
+        value=batch,
+        profile_record="pre_n9_admitted_candidate_batch",
+    )
+    if persisted_hash != batch_hash:
+        raise ValueError("epoch_validity_admission_batch_hash_mismatch")
+    return batch
+
+
 __all__ = [
     "AdvisoryPerturbationEvent",
+    "ArtifactEpochValidityAuthorityGate",
+    "ArtifactEpochValidityN9EvidenceResolver",
+    "ArtifactEpochValidityPreN9SubjectAuthority",
     "ArtifactPromotionCandidateDenominatorOwner",
     "ArtifactPromotionOwnerQueryContextRepository",
     "BoundPromotionCandidateContextStatement",
@@ -1972,4 +2385,5 @@ __all__ = [
     "promotion_candidate_summary_content_hash",
     "promotion_epoch_query",
     "resolve_owner_target_dispositions",
+    "seal_pre_n9_admitted_candidate_batch",
 ]

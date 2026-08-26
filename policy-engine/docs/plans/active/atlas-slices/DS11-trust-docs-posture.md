@@ -1254,9 +1254,9 @@ website-copy semantics remain precisely non-closed.
   `team-design` accessibility evidence lane; closure signal:
   `uv run pytest tests/repo_quality/docs/test_accessibility_evidence.py::test_external_countersign_is_content_bound_current_and_scope_exact -q`.
 - `DS11-CURRENT-PAGE-A11Y` — base-proven `verification_missing`: the complete
-  page suite is 20/24, with the DS10 color-blind distinction failure, two axe
-  `dlitem` failures, and one missing named export-action snapshot, all in the
-  run paper; `team-design` run-paper/a11y
+  page suite is 20/24, with
+  [DS11-A11Y-BASE-FAILURE-SET-4](#ds11-a11y-base-failure-set-4) in the run
+  paper; `team-design` run-paper/a11y
   lane; closure signal: two independent no-writer invocations of
   `corepack pnpm --filter @polisyos/runtime-dashboard run test:a11y:pages` exit
   zero with identical collected identities and reissue the content-bound

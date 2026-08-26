@@ -17,6 +17,9 @@ from polisyos.runtime.quality.claim_registry import build_runtime_claim_registry
 REPO_ROOT = Path(__file__).resolve().parents[3]
 FROZEN_AS_OF = date(2026, 8, 26)
 IDENTITY_PATH = "docs/system-design-decisions/policyos-identity-and-custody-boundary.md"
+A11Y_PATH = "docs/compliance/A11Y_AUDIT_2026Q2.md"
+PAGE_RECEIPT_PATH = "docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base"
+GENERATED_MANIFEST_PATH = "architecture/generated_artifacts.toml"
 
 
 def _owner(module_name: str) -> Any:
@@ -95,6 +98,111 @@ def _valid_runtime_registry(binding_ref: str) -> dict[str, object]:
         ],
         run_id="ds11-cc09-probe",
     )
+
+
+def _write_accessibility_document(repo: Path) -> bytes:
+    body = (
+        b"# Accessibility Audit 2026 Q2\n"
+        b"- Audit type: Internal pre-audit evidence packet and external audit handoff\n"
+        b"- Audit status: Internal pre-audit complete\n"
+        b"- Internal completion date: 2026-04-22\n"
+        b"- External audit status: Scheduled for Q2 2026, vendor countersign pending\n"
+        b"- Product under review: `@polisyos/runtime-dashboard@0.1.0`\n"
+        b"- Evaluation scope: `policy-engine/apps/runtime-dashboard`\n"
+        b"- Assessment owner: Denis Kopylov\n\n"
+        b"It does not replace the planned third-party countersign.\n"
+    )
+    body_digest = sha256(body).hexdigest()
+    selectors = {
+        "audit_type": (
+            "Internal pre-audit evidence packet and external audit handoff",
+            "- Audit type: Internal pre-audit evidence packet and external audit handoff",
+        ),
+        "internal_pre_audit_status": (
+            "Internal pre-audit complete",
+            "- Audit status: Internal pre-audit complete",
+        ),
+        "source_as_of": ("2026-04-22", "- Internal completion date: 2026-04-22"),
+        "external_countersign_status": (
+            "Scheduled for Q2 2026, vendor countersign pending",
+            "- External audit status: Scheduled for Q2 2026, vendor countersign pending",
+        ),
+        "product_under_review": (
+            "@polisyos/runtime-dashboard@0.1.0",
+            "- Product under review: `@polisyos/runtime-dashboard@0.1.0`",
+        ),
+        "evaluation_scope": (
+            "policy-engine/apps/runtime-dashboard",
+            "- Evaluation scope: `policy-engine/apps/runtime-dashboard`",
+        ),
+        "assessment_owner": ("Denis Kopylov", "- Assessment owner: Denis Kopylov"),
+    }
+    binding_lines = "\n".join(
+        f"    {key}:\n      value: {json.dumps(value)}\n"
+        f"      exact_text: {json.dumps(exact_text)}\n      occurrence: 1"
+        for key, (value, exact_text) in selectors.items()
+    )
+    frontmatter = (
+        "---\n"
+        "ds11_projection_index:\n"
+        "  schema_version: policyos.trust.document_projection_index.v1\n"
+        f"  body_sha256: {body_digest}\n"
+        "  bindings:\n"
+        f"{binding_lines}\n"
+        "  authoritative_for:\n"
+        "    - purpose: historical_internal_accessibility_pre_audit\n"
+        "      basis: [audit_type, internal_pre_audit_status, source_as_of]\n"
+        "  may_not_use_for:\n"
+        "    - purpose: current_accessibility_conformance\n"
+        "      basis: [source_as_of]\n"
+        "    - purpose: external_accessibility_certification\n"
+        "      basis: [external_countersign_status]\n"
+        "---\n"
+    ).encode()
+    path = repo / A11Y_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_bytes(frontmatter + body)
+    return body
+
+
+def _copy_page_receipt(repo: Path) -> Path:
+    destination = repo / PAGE_RECEIPT_PATH
+    shutil.copytree(REPO_ROOT / PAGE_RECEIPT_PATH, destination)
+    return destination
+
+
+def _write_generated_manifest(repo: Path) -> Path:
+    path = repo / GENERATED_MANIFEST_PATH
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        """[generated_artifacts]
+version = 1
+
+[[family]]
+id = "trust-claim-posture-register"
+label = "Trust claim posture register"
+owner = "team-architecture"
+approval_owner = "team-architecture"
+lifecycle = "generated_committed"
+generator = "DS11 trust claim posture compiler write mode"
+verifier = "DS11 trust claim posture checker and architecture guardrails"
+promotion_target = "static trust posture artifact consumed by the public /trust surface"
+stale_output_behavior = "fail"
+source_of_truth = "tracked posture sources"
+outputs = ["apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"]
+regenerate_commands = ["uv run python tools/quality/validation/check_trust_claim_posture.py --repo-root . --write"]
+commit_policy = "committed"
+freshness_rule = "Regenerate on source change."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_trust_claim_posture.py"
+check_cwd = "."
+check_command = ["uv", "run", "python", "tools/quality/validation/check_trust_claim_posture.py", "--repo-root", ".", "--check"]
+default_freshness_check = true
+output_probe_command = ["uv", "run", "python", "tools/quality/validation/check_trust_claim_posture.py", "--repo-root", ".", "--write", "--output-root", "{output_root}"]
+""",
+        encoding="utf-8",
+    )
+    return path
 
 
 def test_source_partition_matches_ast_and_tokenize_file_for_file() -> None:
@@ -197,7 +305,72 @@ def test_literal_censuses_reconcile_for_both_complete_walks() -> None:
         assert receipt.may_not_use_for_raw_file_count - 1 == 116
 
 
-def test_new_authority_producer_grows_both_complete_walks_without_register_edit(
+def test_all_declaration_forms_survive_and_ambiguity_never_invents_subject(
+    tmp_path: Path,
+) -> None:
+    """Catch parameter promotion, declaration-site loss, or guessed ambiguity subjects."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    probe = repo / "src/polisyos/declaration_forms.py"
+    probe.write_text(
+        "def carrier(authoritative_for=('parameter_default',)):\n"
+        "    return authoritative_for\n\n"
+        "class Producer:\n"
+        "    pass\n\n"
+        "keyword = Producer(authoritative_for=('keyword_claim',))\n"
+        "mapping = {'authoritative_for': ('dict_claim',)}\n"
+        "dynamic_value = tuple(value for value in ('dynamic_claim',))\n"
+        "dynamic = Producer(authoritative_for=dynamic_value)\n",
+        encoding="utf-8",
+    )
+    sources = _sources()
+    checker = _checker()
+    ast_result = sources.derive_ast_sources(repo)
+    token_result = checker.derive_token_sources(repo)
+    reconciled = checker.reconcile_source_derivations(ast_result, token_result)
+    assert not reconciled.disagreements
+    row = next(item for item in reconciled.rows if item.path.endswith("declaration_forms.py"))
+    assert any(
+        coordinate.line == 1 and coordinate.use_kind == "carrier"
+        for coordinate in row.carrier_coordinates
+    )
+    sites = {
+        (site.declaration_form, site.coordinate.line): (site.values, site.resolution)
+        for site in row.authoritative_sites
+    }
+    assert sites[("keyword", 7)] == (("keyword_claim",), "resolved")
+    assert sites[("dict_key", 8)] == (("dict_claim",), "resolved")
+    assert sites[("keyword", 10)] == ((), "runtime_bound")
+    assert all(site.coordinate.line != 1 for site in row.authoritative_sites)
+
+    token_row = next(item for item in token_result.rows if item.path == row.path)
+    target = next(site for site in token_row.authoritative_sites if site.coordinate.line == 7)
+    changed_site = target.model_copy(update={"values": ("different_claim",)})
+    changed_row = token_row.model_copy(
+        update={
+            "authoritative_sites": tuple(
+                changed_site if site == target else site for site in token_row.authoritative_sites
+            )
+        }
+    )
+    changed_token = token_result.model_copy(
+        update={
+            "rows": tuple(
+                changed_row if item.path == row.path else item for item in token_result.rows
+            )
+        }
+    )
+    ambiguous = checker.reconcile_source_derivations(ast_result, changed_token)
+    ambiguous_row = next(item for item in ambiguous.rows if item.path == row.path)
+    assert ambiguous_row.role == "ambiguous"
+    bindings = sources.compile_source_claim_bindings(ambiguous, package_owners={})
+    affected = [item for item in bindings if item.coordinate.path == row.path]
+    assert affected
+    assert all(item.subject is None for item in affected)
+    assert all(item.resolution == "ambiguous" for item in affected)
+
+
+def test_new_authority_producer_grows_register_without_register_edit(
     tmp_path: Path,
 ) -> None:
     """Catch subject-map coupling or a walk that ignores a new real Python producer."""
@@ -255,9 +428,115 @@ def test_identity_parser_derives_seven_anti_roles_including_crm() -> None:
     assert boundary.paragraph_start_line <= 88 <= boundary.paragraph_end_line
 
 
+def test_accessibility_frontmatter_is_strictly_bound_to_complete_body(tmp_path: Path) -> None:
+    """Catch frontmatter surviving removal or duplication of its cited body fact."""
+    repo = tmp_path / "repo"
+    body = _write_accessibility_document(repo)
+    checker = _checker()
+    binding = checker.derive_accessibility_document(repo)
+    assert binding.body_digest == "sha256:" + sha256(body).hexdigest()
+    assert binding.source_as_of == date(2026, 4, 22)
+    assert all(item.establishment_class == "recomputed" for item in binding.bindings)
+    assert all(item.byte_end > item.byte_start for item in binding.bindings)
+    path = repo / A11Y_PATH
+    path.write_bytes(path.read_bytes().replace(b"Internal pre-audit complete", b"Removed fact"))
+    with pytest.raises(ValueError, match=r"body|selector|digest"):
+        checker.derive_accessibility_document(repo)
+
+
+def test_page_receipt_recomputes_all_five_files_and_rejects_authored_drift(
+    tmp_path: Path,
+) -> None:
+    """Catch trust in authored receipt counts, identities, digests, or replay claims."""
+    repo = tmp_path / "repo"
+    receipt_root = _copy_page_receipt(repo)
+    checker = _checker()
+    receipt = checker.derive_page_a11y_receipt(repo)
+    assert (receipt.collected, receipt.passed, receipt.failed, receipt.skipped) == (
+        24,
+        20,
+        4,
+        0,
+    )
+    assert len(receipt.admitted_sources) == 5
+    assert receipt.replay_establishment == "not_established"
+    assert {item.issue_signature for item in receipt.failures} == {
+        "axe:dlitem",
+        "accessible_name:Open run",
+        "accessible_name:Export JSON",
+    }
+    normalized_path = receipt_root / "receipt.json"
+    normalized = json.loads(normalized_path.read_text())
+    normalized["result"]["passed"] = 21
+    normalized_path.write_text(json.dumps(normalized), encoding="utf-8")
+    with pytest.raises(ValueError, match=r"receipt|passed|recompute"):
+        checker.derive_page_a11y_receipt(repo)
+
+
+def test_generated_family_probe_and_narrow_reference_writer_are_scratch_bounded(
+    tmp_path: Path,
+) -> None:
+    """Catch incomplete C02 seams, output escape, or broad reference regeneration."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    manifest = _write_generated_manifest(repo)
+    checker = _checker()
+    family = checker.validate_generated_family(repo)
+    assert family.default_freshness_check is True
+    assert family.stale_output_behavior == "fail"
+    assert family.outputs == ("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json",)
+    assert sum("{output_root}" in item for item in family.output_probe_command) == 1
+
+    output_root = tmp_path / "probe"
+    observed = checker.run_generated_family_output_probe(repo, output_root=output_root)
+    assert observed == family.outputs
+    reference_root = tmp_path / "reference"
+    written = checker.write_generated_reference(repo, output_root=reference_root)
+    assert written == reference_root / "docs/reference/generated-artifacts.md"
+    guardrails = _owner("tools.devx.architecture.guardrails")
+    expected = guardrails.render_generated_artifacts_markdown(
+        guardrails._parse_generated_artifacts(manifest)
+    ).encode()
+    assert written.read_bytes() == expected
+    assert {
+        path.relative_to(reference_root).as_posix()
+        for path in reference_root.rglob("*")
+        if path.is_file()
+    } == {"docs/reference/generated-artifacts.md"}
+
+
+def test_c02_cli_flags_default_date_and_repo_root_writer_work_in_scratch(
+    tmp_path: Path,
+) -> None:
+    """Catch required-date drift or missing combined writer/reference CLI flags."""
+    repo = tmp_path / "repo"
+    _copy_compiler_inputs(repo)
+    _write_generated_manifest(repo)
+    receipt_root = _copy_page_receipt(repo)
+    checker = _checker()
+    assert checker.main(["--repo-root", str(repo), "--check-a11y-receipt"]) == 0
+    assert (
+        checker.main(
+            [
+                "--repo-root",
+                str(repo),
+                "--write",
+                "--write-generated-reference",
+            ]
+        )
+        == 0
+    )
+    assert (repo / "apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json").is_file()
+    assert (repo / "docs/reference/generated-artifacts.md").is_file()
+    assert receipt_root.is_dir()
+
+
 def test_unbound_manages_your_cases_copy_fails_identity_check() -> None:
     """Catch a copy mutation that accepts capability prose outside the sole renderer."""
     assert _checker().validate_claim_copy("manages your cases", source_row=None) == (
+        "DS11-IDENTITY-COPY-UNBOUND",
+    )
+    assert _checker().validate_claim_copy("manages your cases", source_row=object()) == (
         "DS11-IDENTITY-COPY-UNBOUND",
     )
 
@@ -272,6 +551,37 @@ def test_internal_a11y_evidence_cannot_mint_external_certification() -> None:
     )
     assert result.state == "blocked"
     assert "DS11-A11Y-CERTIFICATION-NOT-EARNED" in result.issue_codes
+    novel = _checker().evaluate_accessibility_evidence(
+        evidence_kind="self_attested_unknown",
+        requested_purpose="external_accessibility_certification",
+        source_as_of=date(2000, 1, 1),
+        countersign_ref=None,
+        register_as_of=FROZEN_AS_OF,
+    )
+    assert novel.state == "blocked"
+    assert {
+        "DS11-A11Y-EVIDENCE-KIND-UNKNOWN",
+        "DS11-A11Y-EVIDENCE-STALE",
+        "DS11-A11Y-CERTIFICATION-NOT-EARNED",
+    } <= set(novel.issue_codes)
+
+
+def test_metadata_without_independent_source_basis_cannot_support() -> None:
+    """Catch authored P37 metadata being treated as independent establishment."""
+    posture = _owner("polisyos.scientist.evidence.claims.posture")
+    predicates = tuple(
+        posture.SupportPredicate(
+            kind=kind,
+            satisfied=True,
+            establishment_class="institutionally_supplied",
+            evidence_refs=("metadata:self-attested",),
+            issue_code=None,
+        )
+        for kind in posture.REQUIRED_SUPPORT_PREDICATES
+    )
+    assert (
+        posture.compose_effective_state(("supported",), support_predicates=predicates) == "blocked"
+    )
 
 
 def test_declared_scope_assumption_is_limitation_not_support() -> None:
@@ -284,7 +594,7 @@ def test_declared_scope_assumption_is_limitation_not_support() -> None:
     assert result.limitations == ("Declared scope assumption: jurisdiction_neutral",)
 
 
-def test_generator_is_byte_deterministic_and_fixed_target_scratch_bounded(
+def test_generator_is_byte_deterministic_and_scratch_bounded(
     tmp_path: Path,
 ) -> None:
     """Catch nondeterministic bytes, arbitrary filenames, or output-root escape."""
@@ -309,7 +619,9 @@ def test_generator_is_byte_deterministic_and_fixed_target_scratch_bounded(
     assert written.read_bytes() == first_bytes
 
 
-def test_valid_runtime_registry_is_outside_posture_compiler_denominator(tmp_path: Path) -> None:
+def test_runtime_producer_evidence_binding_cannot_enter_posture_compiler(
+    tmp_path: Path,
+) -> None:
     """Catch admission of valid per-run producer evidence into posture rows or bytes."""
     repo = tmp_path / "repo"
     _copy_compiler_inputs(repo)

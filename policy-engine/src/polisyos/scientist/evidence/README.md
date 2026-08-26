@@ -22,5 +22,14 @@ ratified-document walks. It is distinct from the per-run runtime claim registry:
 neither artifact may discharge the other artifact's evidence requirements.
 `claims/posture.py` is internal and is not a package-facade export.
 
+The posture contract requires the exact eight-predicate authority basis and
+content-bound evidence objects; authored predicate booleans are cross-checked
+against source, purpose, owner, jurisdiction, review time, verifier provenance,
+identity, and blocker facts. The checker also owns the generic C02 seams for a
+strict accessibility projection index, the five-file historical page-a11y
+receipt, the generated-family output probe, and the narrow generated-reference
+writer. Those seams remain blocked or historical until their typed evidence and
+purpose requirements are independently established.
+
 Tests live under `tests/unit/scientist/evidence`, with nested claim and
 provenance tests under `claims/` and `provenance/`.

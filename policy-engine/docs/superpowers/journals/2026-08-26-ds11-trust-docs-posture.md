@@ -170,3 +170,34 @@ runtime claim-local axes and the runtime registry remains failed.
 Final delivery readback is performed from attached `HEAD` after the prescribed
 commit; the exact non-self-referential commit hash and every-path readback are
 recorded in the ignored C01 execution report.
+
+### C01 review repair — F01–F05
+
+The reviewed C01 commit was retained and repaired by a new append-only commit.
+F01/F03/F04 are narrowing; F02 completes the pre-approved C02 producer/checker
+seam inside the existing three mechanism paths and two-round widening budget.
+F05 restores all four admitted C00 test identities while keeping the stronger
+probes.
+
+- Repair RED: 10 intended failures — exact empty predicate/evidence and
+  keep-marker probes (3), declaration-form/parameter-carrier ambiguity (1),
+  accessibility document/receipt/generated-family/CLI seams (4), and strict
+  copy/accessibility evidence admission (2). Exit `1`; `real 241.35`,
+  `user 167.80`, `sys 17.31`; start uptime `21:13`.
+- Repair GREEN: 23 focused tests passed; `real 147.23`, `user 132.42`,
+  `sys 7.90`. This includes exact recomputation of all eight support facts,
+  property-removal probes, all legal declaration forms in both independent
+  derivations, subjectless disagreements, strict frontmatter/body binding,
+  five-file page receipt recomputation, narrow existing-owner generated
+  rendering, fixed output probing, and closed copy/a11y admission.
+- Post-repair no-writer CLI: exit `0`; `real 86.50`, `user 73.89`, `sys 4.01`;
+  uptime `21:34` -> `21:36`; `declared_outputs=[]`, `write_set=[]`. Completed
+  CPU is `77.90s`, so C02's repaired frozen ceiling is
+  `max(30s, 2 × 77.90s) = 155.80s`.
+- Both complete live walks still report `2,580/105/104`, roles
+  `66/5/5/28/1/0`, inclusive declaration/consumption `94/33`, direct
+  `35/13/21/5`, wrapper `59/24/28`, denied `117/34/22/44`, and zero
+  disagreements. AST receipt is
+  `sha256:c5e8f8ef92ac4a951973593a4f14b3a634f1077ce267381b7915ede30873d9f4`;
+  token receipt is
+  `sha256:984564413add3f568bed4169459764ac6a58809fae818e6d310bc5774e7b1233`.

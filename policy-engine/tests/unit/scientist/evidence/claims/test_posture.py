@@ -80,6 +80,7 @@ def _strict_register(posture: Any) -> Any:
     token_receipt = posture.SourceDerivationReceipt(method="tokenize", **receipt_kwargs)
     literal = posture.LiteralSite(
         coordinate=coordinate,
+        declaration_form="assignment",
         wrapper_kind="direct",
         values=("example_claim",),
         resolution="resolved",
@@ -87,6 +88,7 @@ def _strict_register(posture: Any) -> Any:
     denied_coordinate = coordinate.model_copy(update={"field_name": "may_not_use_for", "line": 5})
     denied = posture.LiteralSite(
         coordinate=denied_coordinate,
+        declaration_form="assignment",
         wrapper_kind="direct",
         values=("publication_authority",),
         resolution="resolved",
@@ -109,6 +111,16 @@ def _strict_register(posture: Any) -> Any:
         basis="package_contract",
         source_ref="architecture/packages/example.toml",
         establishment_class="institutionally_supplied",
+    )
+    evidence = posture.EvidenceBinding(
+        ref="cas:example-claim-evidence",
+        content_digest="sha256:" + "8" * 64,
+        subject_binding="example_claim",
+        verifier_ref="verifier:independent",
+        verifier_provenance_ref="provenance:independent",
+        establishment_class="independently_reconciled",
+        source_as_of=date(2026, 8, 20),
+        supersession_ref=None,
     )
     predicates = (
         _predicate(posture, "content_bound_source"),
@@ -142,7 +154,8 @@ def _strict_register(posture: Any) -> Any:
         review_on=None,
         review_due=None,
         source_as_of=date(2026, 8, 26),
-        evidence_refs=(),
+        evidence_refs=(evidence.ref,),
+        evidence_bindings=(evidence,),
         limitation_refs=("limitation:missing-independent-metadata",),
         prerequisite_refs=(),
         identity_boundary_ref="docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
@@ -231,6 +244,61 @@ def test_support_requires_every_independently_established_predicate() -> None:
             )
             == "blocked"
         )
+
+
+def test_empty_predicates_and_keep_marker_remove_property_probes_block() -> None:
+    """Catch marker-only support when a required authority property is removed."""
+    posture = _posture()
+    assert posture.compose_effective_state(("supported",), support_predicates=()) == "blocked"
+    register = _strict_register(posture)
+    base = register.claims[0].source_bindings[0]
+    predicates = tuple(_predicate(posture, kind) for kind in posture.REQUIRED_SUPPORT_PREDICATES)
+    owner = posture.OwnerBinding(
+        owner="team-example",
+        basis="package_contract",
+        source_ref="architecture/packages/example.toml",
+        establishment_class="recomputed",
+    )
+    supported = base.model_copy(
+        update={
+            "source_state": "supported",
+            "owner": owner,
+            "jurisdiction": "non_jurisdiction_specific",
+            "jurisdiction_establishment": "recomputed",
+            "review_on": date(2026, 8, 1),
+            "review_due": date(2026, 9, 1),
+            "limitation_refs": (),
+            "predicates": predicates,
+        }
+    )
+    assert (
+        posture.evaluate_claim_posture(
+            (supported,),
+            subject="example_claim",
+            family="methodology",
+            register_as_of=date(2026, 8, 26),
+            identity_boundary=register.identity_boundary,
+        )[0]
+        == "supported"
+    )
+    removals = (
+        {"owner": owner.model_copy(update={"owner": None})},
+        {"jurisdiction": None},
+        {"review_due": date(2000, 1, 1)},
+        {"evidence_bindings": (), "evidence_refs": ()},
+        {"identity_boundary_ref": "docs/not-admitted.md"},
+        {"resolution": "runtime_bound"},
+    )
+    for update in removals:
+        state, blockers, _ = posture.evaluate_claim_posture(
+            (supported.model_copy(update=update),),
+            subject="example_claim",
+            family="methodology",
+            register_as_of=date(2026, 8, 26),
+            identity_boundary=register.identity_boundary,
+        )
+        assert state == "blocked"
+        assert blockers
 
 
 def test_grounded_performance_requires_governed_evidence_and_prerequisite() -> None:

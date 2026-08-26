@@ -90,6 +90,22 @@ class ClaimPostureAudience(str, Enum):
     MACHINE = "MACHINE"
 
 
+class AccessibilityEvidenceKind(str, Enum):
+    """Closed evidence kinds admitted to accessibility-purpose evaluation."""
+
+    INTERNAL_PRE_AUDIT = "internal_pre_audit"
+    EXTERNAL_COUNTERSIGNED_AUDIT = "external_countersigned_audit"
+    PAGE_A11Y_RECEIPT = "page_a11y_receipt"
+
+
+class AccessibilityPurpose(str, Enum):
+    """Closed accessibility purposes with distinct authority requirements."""
+
+    HISTORICAL_INTERNAL_PRE_AUDIT = "historical_internal_accessibility_pre_audit"
+    CURRENT_CONFORMANCE = "current_accessibility_conformance"
+    EXTERNAL_CERTIFICATION = "external_accessibility_certification"
+
+
 class SourceCoordinate(_StrictModel):
     """Content coordinate for one posture field use."""
 
@@ -105,6 +121,7 @@ class LiteralSite(_StrictModel):
     """Bounded literal-resolution result for one field site."""
 
     coordinate: SourceCoordinate
+    declaration_form: Literal["assignment", "keyword", "dict_key"]
     wrapper_kind: Literal["direct", "field_default", "literal_lambda_factory", "dynamic"]
     values: tuple[str, ...]
     resolution: SourceResolution
@@ -211,7 +228,16 @@ class EvidenceBinding(_StrictModel):
 class SupportPredicate(_StrictModel):
     """One decisive support predicate frozen at admission."""
 
-    kind: str
+    kind: Literal[
+        "content_bound_source",
+        "purpose_permission",
+        "accountable_owner",
+        "applicable_jurisdiction",
+        "current_review",
+        "content_bound_evidence",
+        "identity_boundary",
+        "no_blocker",
+    ]
     satisfied: bool
     establishment_class: EstablishmentClass
     evidence_refs: tuple[str, ...]
@@ -237,6 +263,7 @@ class ClaimSourceBinding(_StrictModel):
     review_due: date | None
     source_as_of: date | None
     evidence_refs: tuple[str, ...]
+    evidence_bindings: tuple[EvidenceBinding, ...]
     limitation_refs: tuple[str, ...]
     prerequisite_refs: tuple[str, ...]
     identity_boundary_ref: str
@@ -257,6 +284,13 @@ class ClaimSourceBinding(_StrictModel):
             raise ValueError("review_due must not precede review_on")
         if bool(self.supersedes_ref) != bool(self.superseded_by_ref):
             raise ValueError("supersession fields must be paired")
+        predicate_kinds = tuple(item.kind for item in self.predicates)
+        if len(predicate_kinds) != len(set(predicate_kinds)) or set(predicate_kinds) != set(
+            REQUIRED_SUPPORT_PREDICATES
+        ):
+            raise ValueError("predicates must contain the exact closed support set")
+        if set(self.evidence_refs) != {item.ref for item in self.evidence_bindings}:
+            raise ValueError("evidence_refs must exactly name evidence_bindings")
         return self
 
 
@@ -305,6 +339,93 @@ class IdentityBoundaryBinding(_StrictModel):
     derivation_receipt_digests: tuple[str, str]
 
 
+class DocumentProjectionSelector(_StrictModel):
+    """One exact-text selector declared by a document projection index."""
+
+    value: str
+    exact_text: str
+    occurrence: Literal[1]
+
+
+class DocumentProjectionPurpose(_StrictModel):
+    """One purpose and its named body-selector basis."""
+
+    purpose: str
+    basis: tuple[str, ...]
+
+
+class DocumentProjectionIndex(_StrictModel):
+    """Strict accessibility frontmatter projection index."""
+
+    schema_version: Literal["policyos.trust.document_projection_index.v1"]
+    body_sha256: str
+    bindings: Mapping[str, DocumentProjectionSelector]
+    authoritative_for: tuple[DocumentProjectionPurpose, ...]
+    may_not_use_for: tuple[DocumentProjectionPurpose, ...]
+
+
+class ResolvedDocumentBinding(_StrictModel):
+    """One selector independently resolved against complete document body bytes."""
+
+    key: str
+    value: str
+    exact_text_digest: str
+    byte_start: int = Field(ge=0)
+    byte_end: int = Field(gt=0)
+    establishment_class: Literal[EstablishmentClass.RECOMPUTED]
+
+
+class AccessibilityDocumentBinding(_StrictModel):
+    """Content-bound accessibility document and resolved frontmatter basis."""
+
+    path: str
+    content_digest: str
+    frontmatter_digest: str
+    body_digest: str
+    source_as_of: date
+    bindings: tuple[ResolvedDocumentBinding, ...]
+    authoritative_for: tuple[DocumentProjectionPurpose, ...]
+    may_not_use_for: tuple[DocumentProjectionPurpose, ...]
+    limitation_refs: tuple[str, ...]
+
+
+class PageA11yFailureBinding(_StrictModel):
+    """Stable semantic failure derived from one Playwright spec result."""
+
+    identity: str
+    test_id: str
+    issue_signature: str
+
+
+class PageA11yReceiptBinding(_StrictModel):
+    """Five-file, independently recomputed historical page-a11y receipt."""
+
+    path: str
+    content_digest: str
+    admitted_sources: tuple[AdmittedSourceMember, ...]
+    source_as_of: date
+    collected: int = Field(ge=0)
+    passed: int = Field(ge=0)
+    failed: int = Field(ge=0)
+    skipped: int = Field(ge=0)
+    duration_ms: float = Field(ge=0)
+    exit_code: int
+    failures: tuple[PageA11yFailureBinding, ...]
+    replay_establishment: EstablishmentClass
+    limitation_refs: tuple[str, ...]
+
+
+class GeneratedFamilyBinding(_StrictModel):
+    """Strict generated-family subset required by the posture writer."""
+
+    family_id: Literal["trust-claim-posture-register"]
+    lifecycle: Literal["generated_committed"]
+    stale_output_behavior: Literal["fail"]
+    outputs: tuple[str, ...]
+    default_freshness_check: Literal[True]
+    output_probe_command: tuple[str, ...]
+
+
 class ProjectionGroup(_StrictModel):
     """Closed rendering group for ordered claim identifiers."""
 
@@ -324,6 +445,8 @@ class ClaimPostureRegisterV1(_StrictModel):
     ast_derivation: SourceDerivationReceipt
     token_derivation: SourceDerivationReceipt
     identity_boundary: IdentityBoundaryBinding
+    accessibility_document: AccessibilityDocumentBinding | None
+    page_a11y_receipt: PageA11yReceiptBinding | None
     source_inventory: tuple[SourceInventoryRow, ...]
     claims: tuple[ClaimPostureRow, ...]
     projection_groups: tuple[ProjectionGroup, ...]
@@ -359,6 +482,7 @@ class ClaimPostureRegisterV1(_StrictModel):
                 subject=row.subject,
                 family=row.family,
                 register_as_of=self.register_as_of,
+                identity_boundary=self.identity_boundary,
             )
             if (row.effective_state, row.blocker_codes, row.limitations) != (
                 state,
@@ -394,21 +518,20 @@ def compose_effective_state(
         EstablishmentClass.INDEPENDENTLY_RECONCILED,
     }
     predicates = tuple(support_predicates)
-    if any(
-        not predicate.satisfied or predicate.establishment_class not in positive_classes
-        for predicate in predicates
-    ):
-        return ClaimPostureState.BLOCKED
     if any(EstablishmentClass(item) not in positive_classes for item in establishment_classes):
         return ClaimPostureState.BLOCKED
     if SourceClaimState.PLANNED in states:
         if planned_owner and closure_signal:
             return ClaimPostureState.PLANNED
         return ClaimPostureState.BLOCKED
-    if predicates:
-        kinds = {predicate.kind for predicate in predicates}
-        if not set(REQUIRED_SUPPORT_PREDICATES).issubset(kinds):
-            return ClaimPostureState.BLOCKED
+    kinds = tuple(predicate.kind for predicate in predicates)
+    if len(kinds) != len(set(kinds)) or set(kinds) != set(REQUIRED_SUPPORT_PREDICATES):
+        return ClaimPostureState.BLOCKED
+    if any(
+        not predicate.satisfied or predicate.establishment_class not in positive_classes
+        for predicate in predicates
+    ):
+        return ClaimPostureState.BLOCKED
     if family == "grounded_performance":
         evidence = governed_performance_prerequisite
         if (
@@ -428,19 +551,17 @@ def evaluate_claim_posture(
     subject: str | None,
     family: str,
     register_as_of: date,
+    identity_boundary: IdentityBoundaryBinding | None = None,
 ) -> tuple[ClaimPostureState, tuple[str, ...], tuple[str, ...]]:
     """Recompute effective state, blockers, and limitations for source arms."""
-    del register_as_of
     blockers: set[str] = set()
     limitations: set[str] = set()
     states: list[SourceClaimState] = []
-    predicates: list[SupportPredicate] = []
     owners: list[str] = []
     closure_signals: list[str] = []
     governed: EvidenceBinding | None = None
     for binding in bindings:
         states.append(binding.source_state)
-        predicates.extend(binding.predicates)
         if binding.owner.owner:
             owners.append(binding.owner.owner)
         if binding.closure_signal:
@@ -458,15 +579,33 @@ def evaluate_claim_posture(
             or binding.authority_purpose in binding.may_not_use_for
         ):
             blockers.add("DS11-AUTHORITY-PURPOSE-DENIED")
-        for predicate in binding.predicates:
-            if not predicate.satisfied or predicate.establishment_class not in {
-                EstablishmentClass.RECOMPUTED,
-                EstablishmentClass.INDEPENDENTLY_RECONCILED,
-            }:
-                blockers.add(predicate.issue_code or "DS11-GATE-PREDICATE-NOT-ESTABLISHED")
+        facts = _recomputed_binding_facts(
+            binding,
+            register_as_of=register_as_of,
+            identity_boundary=identity_boundary,
+        )
+        predicates_by_kind = {item.kind: item for item in binding.predicates}
+        if set(predicates_by_kind) != set(REQUIRED_SUPPORT_PREDICATES):
+            blockers.add("DS11-GATE-PREDICATE-SET-INCOMPLETE")
+        for kind in REQUIRED_SUPPORT_PREDICATES:
+            predicate = predicates_by_kind.get(kind)
+            fact, issue_code = facts[kind]
+            if (
+                predicate is None
+                or not predicate.satisfied
+                or not fact
+                or predicate.establishment_class
+                not in {
+                    EstablishmentClass.RECOMPUTED,
+                    EstablishmentClass.INDEPENDENTLY_RECONCILED,
+                }
+            ):
+                blockers.add(
+                    issue_code if predicate is None else predicate.issue_code or issue_code
+                )
     state = compose_effective_state(
         states,
-        support_predicates=predicates,
+        support_predicates=bindings[0].predicates if bindings else (),
         planned_owner=owners[0] if owners else None,
         closure_signal=closure_signals[0] if closure_signals else None,
         family=family,
@@ -477,6 +616,78 @@ def evaluate_claim_posture(
     return state, tuple(sorted(blockers)), tuple(sorted(limitations))
 
 
+def _recomputed_binding_facts(
+    binding: ClaimSourceBinding,
+    *,
+    register_as_of: date,
+    identity_boundary: IdentityBoundaryBinding | None,
+) -> dict[str, tuple[bool, str]]:
+    positive = {
+        EstablishmentClass.RECOMPUTED,
+        EstablishmentClass.INDEPENDENTLY_RECONCILED,
+    }
+    evidence_valid = bool(binding.evidence_bindings) and all(
+        evidence.ref in binding.evidence_refs
+        and evidence.subject_binding == binding.subject
+        and evidence.content_digest.startswith("sha256:")
+        and bool(evidence.verifier_ref)
+        and bool(evidence.verifier_provenance_ref)
+        and evidence.establishment_class in positive
+        and evidence.source_as_of <= register_as_of
+        and evidence.supersession_ref is None
+        for evidence in binding.evidence_bindings
+    )
+    identity_valid = (
+        identity_boundary is not None
+        and binding.identity_boundary_ref == identity_boundary.path
+        and identity_boundary.content_digest.startswith("sha256:")
+    )
+    return {
+        "content_bound_source": (
+            binding.content_digest.startswith("sha256:")
+            and binding.resolution == SourceResolution.RESOLVED,
+            "DS11-SOURCE-CONTENT-NOT-BOUND",
+        ),
+        "purpose_permission": (
+            binding.subject is not None
+            and binding.authority_purpose in binding.authoritative_for
+            and binding.authority_purpose not in binding.may_not_use_for,
+            "DS11-AUTHORITY-PURPOSE-DENIED",
+        ),
+        "accountable_owner": (
+            bool(binding.owner.owner)
+            and bool(binding.owner.source_ref)
+            and binding.owner.establishment_class in positive,
+            "DS11-OWNER-NOT-ESTABLISHED",
+        ),
+        "applicable_jurisdiction": (
+            bool(binding.jurisdiction) and binding.jurisdiction_establishment in positive,
+            "DS11-JURISDICTION-NOT-ESTABLISHED",
+        ),
+        "current_review": (
+            binding.review_on is not None
+            and binding.review_due is not None
+            and binding.review_on <= register_as_of <= binding.review_due,
+            "DS11-REVIEW-MISSING-OR-STALE",
+        ),
+        "content_bound_evidence": (
+            evidence_valid,
+            "DS11-EVIDENCE-NOT-INDEPENDENTLY-BOUND",
+        ),
+        "identity_boundary": (
+            identity_valid,
+            "DS11-IDENTITY-BOUNDARY-NOT-ESTABLISHED",
+        ),
+        "no_blocker": (
+            binding.resolution == SourceResolution.RESOLVED
+            and binding.source_state == SourceClaimState.SUPPORTED
+            and binding.declared_scope_assumption is None
+            and binding.superseded_by_ref is None,
+            "DS11-SOURCE-BLOCKER-PRESENT",
+        ),
+    }
+
+
 def build_posture_register(
     *,
     register_as_of: date,
@@ -484,6 +695,8 @@ def build_posture_register(
     ast_derivation: SourceDerivationReceipt,
     token_derivation: SourceDerivationReceipt,
     identity_boundary: IdentityBoundaryBinding,
+    accessibility_document: AccessibilityDocumentBinding | None = None,
+    page_a11y_receipt: PageA11yReceiptBinding | None = None,
     source_inventory: Sequence[SourceInventoryRow],
     source_bindings: Sequence[ClaimSourceBinding],
     projection_groups: Sequence[ProjectionGroup],
@@ -491,7 +704,11 @@ def build_posture_register(
     """Build a canonical register while recomputing every authority-bearing field."""
     members = tuple(sorted(admitted_sources, key=lambda item: item.path))
     inventory = tuple(sorted(source_inventory, key=lambda item: item.path))
-    claims = _claim_rows(source_bindings, register_as_of=register_as_of)
+    claims = _claim_rows(
+        source_bindings,
+        register_as_of=register_as_of,
+        identity_boundary=identity_boundary,
+    )
     groups = tuple(sorted(projection_groups, key=lambda item: item.group_id))
     payload = {
         "schema_version": CLAIM_POSTURE_SCHEMA,
@@ -503,6 +720,8 @@ def build_posture_register(
         "ast_derivation": ast_derivation,
         "token_derivation": token_derivation,
         "identity_boundary": identity_boundary,
+        "accessibility_document": accessibility_document,
+        "page_a11y_receipt": page_a11y_receipt,
         "source_inventory": inventory,
         "claims": claims,
         "projection_groups": groups,
@@ -535,7 +754,10 @@ def canonical_register_bytes(register: ClaimPostureRegisterV1) -> bytes:
 
 
 def _claim_rows(
-    bindings: Sequence[ClaimSourceBinding], *, register_as_of: date
+    bindings: Sequence[ClaimSourceBinding],
+    *,
+    register_as_of: date,
+    identity_boundary: IdentityBoundaryBinding,
 ) -> tuple[ClaimPostureRow, ...]:
     grouped: dict[str, list[ClaimSourceBinding]] = {}
     for binding in bindings:
@@ -563,6 +785,7 @@ def _claim_rows(
             subject=subject,
             family=family,
             register_as_of=register_as_of,
+            identity_boundary=identity_boundary,
         )
         allowed = set(ordered[0].authoritative_for)
         for binding in ordered[1:]:

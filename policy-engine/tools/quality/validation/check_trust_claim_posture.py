@@ -12,20 +12,32 @@ import sys
 import tokenize
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Literal
 
+import yaml
+
 from polisyos.scientist.evidence.claims.posture import (
+    AccessibilityDocumentBinding,
+    AccessibilityEvidenceKind,
+    AccessibilityPurpose,
     AdmittedSourceMember,
     AntiRoleBinding,
     ClaimPostureRegisterV1,
+    ClaimPostureRow,
     ClaimPostureState,
+    ClaimSourceBinding,
+    DocumentProjectionIndex,
     EstablishmentClass,
+    GeneratedFamilyBinding,
     IdentityBoundaryBinding,
     LiteralSite,
+    PageA11yFailureBinding,
+    PageA11yReceiptBinding,
     ProjectionGroup,
     ReconciledSourceDerivation,
+    ResolvedDocumentBinding,
     SourceCoordinate,
     SourceDerivation,
     SourceDerivationReceipt,
@@ -44,7 +56,12 @@ from tools.quality.validation.trust_claim_posture_sources import (
 _AUTHORITY_FIELD = "authoritative_for"
 _DENIED_FIELD = "may_not_use_for"
 _IDENTITY_PATH = Path("docs/system-design-decisions/policyos-identity-and-custody-boundary.md")
+_A11Y_PATH = Path("docs/compliance/A11Y_AUDIT_2026Q2.md")
+_PAGE_RECEIPT_PATH = Path("docs/plans/active/atlas-slices/receipts/ds11-page-a11y-base")
+_GENERATED_MANIFEST_PATH = Path("architecture/generated_artifacts.toml")
+_GENERATED_REFERENCE_PATH = Path("docs/reference/generated-artifacts.md")
 _OUTPUT_PATH = Path("apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json")
+_DEFAULT_REGISTER_AS_OF = date(2026, 8, 26)
 
 
 @dataclass(frozen=True)
@@ -238,14 +255,242 @@ def derive_identity_boundary(repo_root: Path) -> IdentityBoundaryBinding:
     )
 
 
+def derive_accessibility_document(repo_root: Path) -> AccessibilityDocumentBinding:
+    """Resolve the strict accessibility projection index against complete body bytes."""
+    root = repo_root.resolve()
+    path = (root / _A11Y_PATH).resolve()
+    if not path.is_file() or not path.is_relative_to(root):
+        raise ValueError("accessibility document is missing or outside repo_root")
+    raw = path.read_bytes()
+    text = raw.decode("utf-8")
+    frontmatter, body = _split_frontmatter(text)
+    loaded = yaml.safe_load(frontmatter)
+    if not isinstance(loaded, dict) or set(loaded) != {"ds11_projection_index"}:
+        raise ValueError("accessibility frontmatter must contain only ds11_projection_index")
+    index = DocumentProjectionIndex.model_validate(loaded["ds11_projection_index"])
+    body_bytes = body.encode("utf-8")
+    body_sha = hashlib.sha256(body_bytes).hexdigest()
+    if index.body_sha256 != body_sha:
+        raise ValueError("accessibility body digest differs from projection index")
+    required_keys = {
+        key
+        for purpose in (*index.authoritative_for, *index.may_not_use_for)
+        for key in purpose.basis
+    }
+    if not required_keys or not required_keys <= set(index.bindings):
+        raise ValueError("accessibility projection basis names an unresolved binding")
+    resolved: list[ResolvedDocumentBinding] = []
+    for key, selector in sorted(index.bindings.items()):
+        exact = selector.exact_text.encode("utf-8")
+        if body_bytes.count(exact) != selector.occurrence:
+            raise ValueError(f"accessibility selector {key} is absent or duplicated in body")
+        start = body_bytes.index(exact)
+        if selector.value.encode("utf-8") not in exact:
+            raise ValueError(f"accessibility selector {key} does not bind its declared value")
+        resolved.append(
+            ResolvedDocumentBinding(
+                key=key,
+                value=selector.value,
+                exact_text_digest="sha256:" + hashlib.sha256(exact).hexdigest(),
+                byte_start=start,
+                byte_end=start + len(exact),
+                establishment_class=EstablishmentClass.RECOMPUTED,
+            )
+        )
+    source_selector = index.bindings.get("source_as_of")
+    if source_selector is None:
+        raise ValueError("accessibility source_as_of binding is absent")
+    limitation = "It does not replace the planned third-party countersign."
+    if body.count(limitation) != 1:
+        raise ValueError("accessibility limitation is absent or duplicated")
+    return AccessibilityDocumentBinding(
+        path=_A11Y_PATH.as_posix(),
+        content_digest="sha256:" + hashlib.sha256(raw).hexdigest(),
+        frontmatter_digest="sha256:" + hashlib.sha256(frontmatter.encode()).hexdigest(),
+        body_digest="sha256:" + body_sha,
+        source_as_of=date.fromisoformat(source_selector.value),
+        bindings=tuple(resolved),
+        authoritative_for=index.authoritative_for,
+        may_not_use_for=index.may_not_use_for,
+        limitation_refs=(limitation,),
+    )
+
+
+def derive_page_a11y_receipt(repo_root: Path) -> PageA11yReceiptBinding:
+    """Recompute the historical page-a11y receipt from its five admitted JSON files."""
+    root = repo_root.resolve()
+    receipt_root = (root / _PAGE_RECEIPT_PATH).resolve()
+    expected = (
+        Path("environment-after.json"),
+        Path("environment-before.json"),
+        Path("receipt.json"),
+        Path("run-1/.last-run.json"),
+        Path("run-1/results.json"),
+    )
+    files = tuple((receipt_root / item).resolve() for item in expected)
+    if any(not item.is_file() or not item.is_relative_to(receipt_root) for item in files):
+        raise ValueError("page-a11y receipt must contain all five admitted files")
+    raw_by_name = {
+        name.as_posix(): path.read_bytes() for name, path in zip(expected, files, strict=True)
+    }
+    admitted = tuple(
+        AdmittedSourceMember(
+            path=(_PAGE_RECEIPT_PATH / name).as_posix(),
+            content_digest="sha256:" + hashlib.sha256(raw_by_name[name.as_posix()]).hexdigest(),
+        )
+        for name in expected
+    )
+    normalized = json.loads(raw_by_name["receipt.json"])
+    results = json.loads(raw_by_name["run-1/results.json"])
+    last_run = json.loads(raw_by_name["run-1/.last-run.json"])
+    for name in ("environment-before.json", "environment-after.json"):
+        environment = json.loads(raw_by_name[name])
+        if not isinstance(environment, dict) or not {
+            "captured_at",
+            "node",
+            "platform",
+            "arch",
+            "cwd",
+        } <= set(environment):
+            raise ValueError("page-a11y environment receipt is malformed")
+    identities, failures = _derive_page_result_rows(results.get("suites", ()))
+    stats = results.get("stats", {})
+    observed = {
+        "collected": len(identities),
+        "passed": sum(item[1] == "passed" for item in identities),
+        "failed": sum(item[1] == "failed" for item in identities),
+        "skipped": sum(item[1] == "skipped" for item in identities),
+        "duration_ms": stats.get("duration"),
+        "exit_code": 1 if failures else 0,
+    }
+    authored_identities = tuple(
+        (item["identity"], item["status"]) for item in normalized.get("collected_identities", ())
+    )
+    authored_failures = tuple(
+        (item["identity"], item["status"])
+        for item in normalized.get("inherited_failure_identities", ())
+    )
+    if normalized.get("result") != observed or authored_identities != identities:
+        raise ValueError("page-a11y receipt result/identity differs from recomputation")
+    if authored_failures != tuple((item.identity, "failed") for item in failures):
+        raise ValueError("page-a11y receipt failure identities differ from recomputation")
+    raw_receipts = normalized.get("raw_receipts", {})
+    if (
+        raw_receipts.get("results_sha256")
+        != hashlib.sha256(raw_by_name["run-1/results.json"]).hexdigest()
+    ):
+        raise ValueError("page-a11y results receipt digest differs")
+    if (
+        raw_receipts.get("last_run_sha256")
+        != hashlib.sha256(raw_by_name["run-1/.last-run.json"]).hexdigest()
+    ):
+        raise ValueError("page-a11y last-run receipt digest differs")
+    failure_ids = {item.test_id for item in failures}
+    if last_run.get("status") != "failed" or set(last_run.get("failedTests", ())) != failure_ids:
+        raise ValueError("page-a11y last-run failures differ from results")
+    replay = normalized.get("replay_agreement", {})
+    if replay.get("admissibility") != "not_established" or replay.get("committed_raw_runs") != 1:
+        raise ValueError("page-a11y replay receipt overstates establishment")
+    return PageA11yReceiptBinding(
+        path=_PAGE_RECEIPT_PATH.as_posix(),
+        content_digest="sha256:" + hashlib.sha256(raw_by_name["receipt.json"]).hexdigest(),
+        admitted_sources=admitted,
+        source_as_of=date.fromisoformat(str(stats["startTime"])[:10]),
+        collected=observed["collected"],
+        passed=observed["passed"],
+        failed=observed["failed"],
+        skipped=observed["skipped"],
+        duration_ms=float(observed["duration_ms"]),
+        exit_code=observed["exit_code"],
+        failures=failures,
+        replay_establishment=EstablishmentClass.NOT_ESTABLISHED,
+        limitation_refs=(str(replay.get("limitation")),),
+    )
+
+
+def _derive_page_result_rows(
+    suites: Sequence[Mapping[str, object]],
+) -> tuple[tuple[tuple[str, str], ...], tuple[PageA11yFailureBinding, ...]]:
+    identities: list[tuple[str, str]] = []
+    failures: list[PageA11yFailureBinding] = []
+    for suite in suites:
+        for spec in suite.get("specs", ()):  # type: ignore[union-attr]
+            if not isinstance(spec, dict):
+                continue
+            identity = f"{spec.get('file')}::{spec.get('title')}"
+            for test in spec.get("tests", ()):
+                if not isinstance(test, dict):
+                    continue
+                raw_status = str(test.get("status"))
+                status = (
+                    "passed"
+                    if raw_status == "expected"
+                    else "skipped"
+                    if raw_status == "skipped"
+                    else "failed"
+                )
+                identities.append((identity, status))
+                if status == "failed":
+                    message = " ".join(
+                        str(result.get("error", {}).get("message", ""))
+                        for result in test.get("results", ())
+                        if isinstance(result, dict)
+                    )
+                    failures.append(
+                        PageA11yFailureBinding(
+                            identity=identity,
+                            test_id=str(spec.get("id")),
+                            issue_signature=_page_issue_signature(message),
+                        )
+                    )
+        nested = suite.get("suites", ())
+        if isinstance(nested, list):
+            nested_identities, nested_failures = _derive_page_result_rows(nested)
+            identities.extend(nested_identities)
+            failures.extend(nested_failures)
+    return tuple(identities), tuple(failures)
+
+
+def _page_issue_signature(message: str) -> str:
+    plain = re.sub(r"\x1b\[[0-9;]*m", "", message)
+    axe = re.search(r'"id"\s*:\s*"([^"]+)"', plain)
+    if axe:
+        return f"axe:{axe.group(1)}"
+    expected = re.search(r'Expected substring:\s*"(?:link|button) \\"([^"\\]+)\\""', plain)
+    if expected:
+        return f"accessible_name:{expected.group(1)}"
+    raise ValueError("page-a11y failure has no admitted semantic issue signature")
+
+
 def validate_claim_copy(
     copy: str,
     *,
     source_row: object | None,
+    admitted_sources: Sequence[AdmittedSourceMember] = (),
+    requested_purpose: str = "capability_claim",
 ) -> tuple[str, ...]:
-    """Require claim-bearing copy to pass through a validated source row."""
+    """Require copy to bind a strict, supported, admitted posture object."""
     del copy
-    if source_row is None:
+    if not isinstance(source_row, (ClaimPostureRow, ClaimSourceBinding)):
+        return ("DS11-IDENTITY-COPY-UNBOUND",)
+    admitted = {item.path: item.content_digest for item in admitted_sources}
+    bindings = (
+        source_row.source_bindings if isinstance(source_row, ClaimPostureRow) else (source_row,)
+    )
+    state = (
+        source_row.effective_state
+        if isinstance(source_row, ClaimPostureRow)
+        else source_row.source_state
+    )
+    if state != ClaimPostureState.SUPPORTED and state != "supported":
+        return ("DS11-IDENTITY-COPY-UNBOUND",)
+    if not bindings or any(
+        binding.resolution != SourceResolution.RESOLVED
+        or admitted.get(binding.coordinate.path) != binding.content_digest
+        or requested_purpose not in binding.authoritative_for
+        or requested_purpose in binding.may_not_use_for
+        for binding in bindings
+    ):
         return ("DS11-IDENTITY-COPY-UNBOUND",)
     return ()
 
@@ -256,19 +501,39 @@ def evaluate_accessibility_evidence(
     requested_purpose: str,
     source_as_of: date,
     countersign_ref: str | None,
+    register_as_of: date = date(2026, 8, 26),
 ) -> AccessibilityEvaluation:
     """Prevent internal historical evidence from minting current certification."""
-    del source_as_of
-    external = requested_purpose in {
-        "external_accessibility_certification",
-        "current_accessibility_conformance",
+    issues: set[str] = set()
+    try:
+        kind = AccessibilityEvidenceKind(evidence_kind)
+    except ValueError:
+        kind = None
+        issues.add("DS11-A11Y-EVIDENCE-KIND-UNKNOWN")
+    try:
+        purpose = AccessibilityPurpose(requested_purpose)
+    except ValueError:
+        purpose = None
+        issues.add("DS11-A11Y-PURPOSE-UNKNOWN")
+    if source_as_of > register_as_of or register_as_of - source_as_of > timedelta(days=365):
+        issues.add("DS11-A11Y-EVIDENCE-STALE")
+    external = purpose in {
+        AccessibilityPurpose.EXTERNAL_CERTIFICATION,
+        AccessibilityPurpose.CURRENT_CONFORMANCE,
     }
-    if evidence_kind == "internal_pre_audit" and (external or not countersign_ref):
-        return AccessibilityEvaluation(
-            state=ClaimPostureState.BLOCKED,
-            issue_codes=("DS11-A11Y-CERTIFICATION-NOT-EARNED",),
-        )
-    return AccessibilityEvaluation(state=ClaimPostureState.SUPPORTED, issue_codes=())
+    if external and (
+        kind != AccessibilityEvidenceKind.EXTERNAL_COUNTERSIGNED_AUDIT or not countersign_ref
+    ):
+        issues.add("DS11-A11Y-CERTIFICATION-NOT-EARNED")
+    if purpose == AccessibilityPurpose.HISTORICAL_INTERNAL_PRE_AUDIT and kind not in {
+        AccessibilityEvidenceKind.INTERNAL_PRE_AUDIT,
+        AccessibilityEvidenceKind.EXTERNAL_COUNTERSIGNED_AUDIT,
+    }:
+        issues.add("DS11-A11Y-EVIDENCE-NOT-ADMITTED")
+    return AccessibilityEvaluation(
+        state=ClaimPostureState.BLOCKED if issues else ClaimPostureState.SUPPORTED,
+        issue_codes=tuple(sorted(issues)),
+    )
 
 
 def evaluate_scope_assumption(
@@ -293,7 +558,7 @@ def evaluate_scope_assumption(
 def compile_claim_posture_register(
     repo_root: Path,
     *,
-    register_as_of: date,
+    register_as_of: date = _DEFAULT_REGISTER_AS_OF,
 ) -> tuple[ClaimPostureRegisterV1, bytes]:
     """Compile, reconcile, assemble, validate, and canonically serialize live sources."""
     root = repo_root.resolve()
@@ -306,12 +571,35 @@ def compile_claim_posture_register(
         path=identity.path,
         content_digest=identity.content_digest,
     )
+    accessibility_document = None
+    accessibility_members: tuple[AdmittedSourceMember, ...] = ()
+    accessibility_path = root / _A11Y_PATH
+    if accessibility_path.is_file() and accessibility_path.read_bytes().startswith(b"---\n"):
+        accessibility_document = derive_accessibility_document(root)
+        accessibility_members = (
+            AdmittedSourceMember(
+                path=accessibility_document.path,
+                content_digest=accessibility_document.content_digest,
+            ),
+        )
+    page_receipt = None
+    page_members: tuple[AdmittedSourceMember, ...] = ()
+    if (root / _PAGE_RECEIPT_PATH).is_dir():
+        page_receipt = derive_page_a11y_receipt(root)
+        page_members = page_receipt.admitted_sources
     register = build_posture_register(
         register_as_of=register_as_of,
-        admitted_sources=(*reconciled.admitted_sources, identity_member),
+        admitted_sources=(
+            *reconciled.admitted_sources,
+            identity_member,
+            *accessibility_members,
+            *page_members,
+        ),
         ast_derivation=ast_result.receipt,
         token_derivation=token_result.receipt,
         identity_boundary=identity,
+        accessibility_document=accessibility_document,
+        page_a11y_receipt=page_receipt,
         source_inventory=reconciled.rows,
         source_bindings=bindings,
         projection_groups=tuple(
@@ -342,6 +630,80 @@ def write_claim_posture_register(
         raise ValueError("DS11-GENERATOR-ESCAPE: output target escapes output_root")
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_bytes(canonical_register_bytes(register))
+    return target
+
+
+def validate_generated_family(repo_root: Path) -> GeneratedFamilyBinding:
+    """Parse the existing manifest owner and admit only the strict posture family."""
+    from tools.devx.architecture import guardrails
+
+    root = repo_root.resolve()
+    manifest = (root / _GENERATED_MANIFEST_PATH).resolve()
+    if not manifest.is_file() or not manifest.is_relative_to(root):
+        raise ValueError("generated-artifact manifest is missing or outside repo_root")
+    families = guardrails._parse_generated_artifacts(manifest)
+    matches = [item for item in families if item.family_id == "trust-claim-posture-register"]
+    if len(matches) != 1:
+        raise ValueError("trust posture generated family must appear exactly once")
+    family = matches[0]
+    outputs = tuple(path.relative_to(guardrails.REPO_ROOT).as_posix() for path in family.outputs)
+    probe = family.output_probe_command
+    if (
+        family.lifecycle != "generated_committed"
+        or family.stale_output_behavior != "fail"
+        or outputs != (_OUTPUT_PATH.as_posix(),)
+        or family.default_freshness_check is not True
+        or probe is None
+        or sum("{output_root}" in item for item in probe) != 1
+        or "--write" not in probe
+        or "--output-root" not in probe
+        or family.check_git_diff_paths
+    ):
+        raise ValueError("trust posture generated family violates the strict writer contract")
+    return GeneratedFamilyBinding(
+        family_id="trust-claim-posture-register",
+        lifecycle="generated_committed",
+        stale_output_behavior="fail",
+        outputs=outputs,
+        default_freshness_check=True,
+        output_probe_command=probe,
+    )
+
+
+def run_generated_family_output_probe(repo_root: Path, *, output_root: Path) -> tuple[str, ...]:
+    """Run the in-process fixed writer and prove its complete output set."""
+    family = validate_generated_family(repo_root)
+    root = output_root.resolve()
+    before = (
+        {path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file()}
+        if root.exists()
+        else set()
+    )
+    register, _ = compile_claim_posture_register(repo_root, register_as_of=_DEFAULT_REGISTER_AS_OF)
+    write_claim_posture_register(register, output_root=root)
+    after = {path.relative_to(root).as_posix() for path in root.rglob("*") if path.is_file()}
+    observed = tuple(sorted(after - before))
+    if observed != family.outputs:
+        raise ValueError("generated-family output probe differs from declared outputs")
+    return observed
+
+
+def write_generated_reference(repo_root: Path, *, output_root: Path | None = None) -> Path:
+    """Render only the generated-artifact reference through its existing owner."""
+    from tools.devx.architecture import guardrails
+
+    root = repo_root.resolve()
+    target_root = (output_root or root).resolve()
+    manifest = (root / _GENERATED_MANIFEST_PATH).resolve()
+    validate_generated_family(root)
+    target = (target_root / _GENERATED_REFERENCE_PATH).resolve()
+    if not target.is_relative_to(target_root):
+        raise ValueError("generated reference target escapes output_root")
+    rendered = guardrails.render_generated_artifacts_markdown(
+        guardrails._parse_generated_artifacts(manifest)
+    ).encode()
+    target.parent.mkdir(parents=True, exist_ok=True)
+    target.write_bytes(rendered)
     return target
 
 
@@ -437,8 +799,12 @@ def _derive_token_row(member: AdmittedSourceMember, raw: bytes) -> SourceInvento
                     use_kind="declaration",
                 )
                 declarations.append(coordinate)
-                if value_tokens is not None and _token_is_assignment_site(statement, index):
-                    site = _token_literal_site(coordinate, value_tokens)
+                if value_tokens is not None:
+                    site = _token_literal_site(
+                        coordinate,
+                        value_tokens,
+                        declaration_form=_token_declaration_form(statement, index),
+                    )
                     (authoritative_sites if field == _AUTHORITY_FIELD else forbidden_sites).append(
                         site
                     )
@@ -599,6 +965,11 @@ def _token_field(
 def _token_declaration(
     statement: Sequence[tokenize.TokenInfo], index: int
 ) -> tuple[bool, Sequence[tokenize.TokenInfo] | None]:
+    if statement and (
+        statement[0].string == "def"
+        or (len(statement) > 1 and statement[0].string == "async" and statement[1].string == "def")
+    ):
+        return False, None
     depths: list[int] = []
     depth = 0
     for item in statement:
@@ -625,6 +996,22 @@ def _token_declaration(
         if assignment is not None:
             return True, _token_value_span(statement, assignment + 1, target_depth, depths)
     return False, None
+
+
+def _token_declaration_form(
+    statement: Sequence[tokenize.TokenInfo], index: int
+) -> Literal["assignment", "keyword", "dict_key"]:
+    if statement[index].type == tokenize.STRING:
+        return "dict_key"
+    depth = 0
+    for position, item in enumerate(statement):
+        if position == index:
+            return "keyword" if depth else "assignment"
+        if item.string in {"(", "[", "{"}:
+            depth += 1
+        elif item.string in {")", "]", "}"} and depth:
+            depth -= 1
+    return "assignment"
 
 
 def _token_value_span(
@@ -824,7 +1211,10 @@ def _token_is_required_annotation(
 
 
 def _token_literal_site(
-    coordinate: SourceCoordinate, tokens: Sequence[tokenize.TokenInfo]
+    coordinate: SourceCoordinate,
+    tokens: Sequence[tokenize.TokenInfo],
+    *,
+    declaration_form: Literal["assignment", "keyword", "dict_key"],
 ) -> LiteralSite:
     strings = [item.string for item in tokens]
     wrapper: Literal["direct", "field_default", "literal_lambda_factory", "dynamic"] = "direct"
@@ -852,6 +1242,7 @@ def _token_literal_site(
         resolution = SourceResolution.RESOLVED
     return LiteralSite(
         coordinate=coordinate,
+        declaration_form=declaration_form,
         wrapper_kind=wrapper,
         values=values,
         resolution=resolution,
@@ -912,24 +1303,32 @@ def _token_receipt(
         site
         for row in rows
         for site in row.authoritative_sites
-        if site.wrapper_kind == "direct" and site.resolution == SourceResolution.RESOLVED
+        if site.declaration_form == "assignment"
+        and site.wrapper_kind == "direct"
+        and site.resolution == SourceResolution.RESOLVED
     ]
     wrapper = [
         site
         for row in rows
         for site in row.authoritative_sites
-        if site.wrapper_kind != "dynamic" and site.resolution == SourceResolution.RESOLVED
+        if site.declaration_form == "assignment"
+        and site.wrapper_kind != "dynamic"
+        and site.resolution == SourceResolution.RESOLVED
     ]
     denied = [
         site
         for row in rows
         for site in row.forbidden_sites
-        if site.wrapper_kind != "dynamic" and site.resolution == SourceResolution.RESOLVED
+        if site.declaration_form == "assignment"
+        and site.wrapper_kind != "dynamic"
+        and site.resolution == SourceResolution.RESOLVED
     ]
     denied.extend(
         site
         for site in denied_only_sites
-        if site.wrapper_kind != "dynamic" and site.resolution == SourceResolution.RESOLVED
+        if site.declaration_form == "assignment"
+        and site.wrapper_kind != "dynamic"
+        and site.resolution == SourceResolution.RESOLVED
     )
     encoded = json.dumps(
         [row.model_dump(mode="json") for row in rows],
@@ -973,10 +1372,16 @@ def _token_receipt(
 def _rows_agree(left: SourceInventoryRow, right: SourceInventoryRow) -> bool:
     def sites(
         row: SourceInventoryRow, field: str
-    ) -> tuple[tuple[int, str, tuple[str, ...], str], ...]:
+    ) -> tuple[tuple[int, str, str, tuple[str, ...], str], ...]:
         values = row.authoritative_sites if field == _AUTHORITY_FIELD else row.forbidden_sites
         return tuple(
-            (site.coordinate.line, site.wrapper_kind, site.values, site.resolution.value)
+            (
+                site.coordinate.line,
+                site.declaration_form,
+                site.wrapper_kind,
+                site.values,
+                site.resolution.value,
+            )
             for site in values
         )
 
@@ -1029,6 +1434,7 @@ def _unique_sites(values: Sequence[LiteralSite]) -> list[LiteralSite]:
             item.coordinate.line,
             item.coordinate.column,
             item.coordinate.field_name,
+            item.declaration_form,
             item.wrapper_kind,
         ): item
         for item in values
@@ -1065,10 +1471,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     modes.add_argument("--check-sources", action="store_true")
     modes.add_argument("--check", action="store_true")
     modes.add_argument("--write", action="store_true")
+    modes.add_argument("--check-a11y-receipt", action="store_true")
     modes.add_argument("--corrupt-field-drift-check", action="store_true")
     parser.add_argument("--repo-root", type=Path, default=Path(__file__).resolve().parents[3])
-    parser.add_argument("--register-as-of", type=_parse_date, required=True)
+    parser.add_argument("--register-as-of", type=_parse_date, default=_DEFAULT_REGISTER_AS_OF)
     parser.add_argument("--output-root", type=Path)
+    parser.add_argument("--write-generated-reference", action="store_true")
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     register, payload = compile_claim_posture_register(
@@ -1077,11 +1485,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     )
     report = _report(register)
     if args.write:
-        if args.output_root is None:
-            parser.error("--write requires --output-root")
-        target = write_claim_posture_register(register, output_root=args.output_root)
+        target_root = (args.output_root or args.repo_root).resolve()
+        target = write_claim_posture_register(register, output_root=target_root)
         report["declared_outputs"] = [_OUTPUT_PATH.as_posix()]
-        report["write_set"] = [target.relative_to(args.output_root.resolve()).as_posix()]
+        report["write_set"] = [target.relative_to(target_root).as_posix()]
+        if args.write_generated_reference:
+            reference = write_generated_reference(args.repo_root, output_root=target_root)
+            report["write_set"].append(reference.relative_to(target_root).as_posix())
     elif args.check:
         target = args.repo_root.resolve() / _OUTPUT_PATH
         if not target.is_file() or target.read_bytes() != payload:
@@ -1090,6 +1500,10 @@ def main(argv: Sequence[str] | None = None) -> int:
         "extra_field", repo_root=args.repo_root, register_as_of=args.register_as_of
     ):
         raise ValueError("corruption probe did not reject the artifact")
+    elif args.check_a11y_receipt:
+        derive_page_a11y_receipt(args.repo_root)
+    if args.write_generated_reference and not args.write:
+        parser.error("--write-generated-reference requires --write")
     if args.json:
         json.dump(report, sys.stdout, ensure_ascii=False, sort_keys=True, separators=(",", ":"))
         sys.stdout.write("\n")

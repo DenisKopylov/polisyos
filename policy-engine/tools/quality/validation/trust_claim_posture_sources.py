@@ -104,6 +104,13 @@ def compile_source_claim_bindings(
     identity_ref = "docs/system-design-decisions/policyos-identity-and-custody-boundary.md"
     for row in derivation.rows:
         owner = _owner_for_path(row.path, package_owners)
+        if row.resolution == SourceResolution.AMBIGUOUS:
+            coordinates = (
+                row.declaration_coordinates or row.carrier_coordinates or row.consumer_coordinates
+            )
+            if coordinates:
+                bindings.append(_unresolved_binding(row, coordinates[0], owner))
+            continue
         denied = tuple(sorted({value for site in row.forbidden_sites for value in site.values}))
         emitted = False
         for site in row.authoritative_sites:
@@ -129,6 +136,7 @@ def compile_source_claim_bindings(
                             review_due=None,
                             source_as_of=None,
                             evidence_refs=(),
+                            evidence_bindings=(),
                             limitation_refs=("Missing independent claim metadata",),
                             prerequisite_refs=(),
                             identity_boundary_ref=identity_ref,
@@ -241,11 +249,12 @@ def _derive_ast_row(member: AdmittedSourceMember, raw: bytes) -> SourceInventory
         if declaration_value is not _NO_DECLARATION:
             coord = coordinate(node, field_name, "declaration")
             declarations.append(coord)
-            if _is_assignment_target(node, parent):
-                site = _literal_site(coord, declaration_value)
-                (authority_sites if field_name == _AUTHORITY_FIELD else forbidden_sites).append(
-                    site
-                )
+            site = _literal_site(
+                coord,
+                declaration_value,
+                declaration_form=_ast_declaration_form(node, parent),
+            )
+            (authority_sites if field_name == _AUTHORITY_FIELD else forbidden_sites).append(site)
             continue
         if field_name != _AUTHORITY_FIELD:
             continue
@@ -372,32 +381,17 @@ def _declaration_value(
                 if value is None or _value_copies_field(value, field_name):
                     return _NO_DECLARATION
                 return value
-    if isinstance(node, ast.arg):
-        function = parent.get(node)
-        while function is not None and not isinstance(
-            function, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)
-        ):
-            function = parent.get(function)
-        if isinstance(function, (ast.FunctionDef, ast.AsyncFunctionDef, ast.Lambda)):
-            positional = [*function.args.posonlyargs, *function.args.args]
-            defaults: dict[ast.arg, ast.expr] = dict(
-                zip(
-                    positional[-len(function.args.defaults) :], function.args.defaults, strict=False
-                )
-            )
-            defaults.update(
-                {
-                    arg: value
-                    for arg, value in zip(
-                        function.args.kwonlyargs,
-                        function.args.kw_defaults,
-                        strict=True,
-                    )
-                    if value is not None
-                }
-            )
-            return defaults.get(node, _NO_DECLARATION)
     return _NO_DECLARATION
+
+
+def _ast_declaration_form(
+    node: ast.AST, parent: Mapping[ast.AST, ast.AST]
+) -> Literal["assignment", "keyword", "dict_key"]:
+    if isinstance(node, ast.keyword):
+        return "keyword"
+    if isinstance(node, ast.Constant) and isinstance(parent.get(node), ast.Dict):
+        return "dict_key"
+    return "assignment"
 
 
 def _value_copies_field(value: ast.AST, field_name: str) -> bool:
@@ -559,7 +553,12 @@ def _is_required_annotated_field(tree: ast.AST, line: int, column: int) -> bool:
     )
 
 
-def _literal_site(coordinate: SourceCoordinate, value: object) -> LiteralSite:
+def _literal_site(
+    coordinate: SourceCoordinate,
+    value: object,
+    *,
+    declaration_form: Literal["assignment", "keyword", "dict_key"],
+) -> LiteralSite:
     wrapper: Literal["direct", "field_default", "literal_lambda_factory", "dynamic"]
     candidate = value
     wrapper = "direct"
@@ -585,6 +584,7 @@ def _literal_site(coordinate: SourceCoordinate, value: object) -> LiteralSite:
         resolution = SourceResolution.RESOLVED
     return LiteralSite(
         coordinate=coordinate,
+        declaration_form=declaration_form,
         wrapper_kind=wrapper,
         values=values,
         resolution=resolution,
@@ -628,24 +628,32 @@ def _build_receipt(
         site
         for row in rows
         for site in row.authoritative_sites
-        if site.wrapper_kind == "direct" and site.resolution == SourceResolution.RESOLVED
+        if site.declaration_form == "assignment"
+        and site.wrapper_kind == "direct"
+        and site.resolution == SourceResolution.RESOLVED
     ]
     wrapper_sites = [
         site
         for row in rows
         for site in row.authoritative_sites
-        if site.wrapper_kind != "dynamic" and site.resolution == SourceResolution.RESOLVED
+        if site.declaration_form == "assignment"
+        and site.wrapper_kind != "dynamic"
+        and site.resolution == SourceResolution.RESOLVED
     ]
     denied_sites = [
         site
         for row in rows
         for site in row.forbidden_sites
-        if site.wrapper_kind != "dynamic" and site.resolution == SourceResolution.RESOLVED
+        if site.declaration_form == "assignment"
+        and site.wrapper_kind != "dynamic"
+        and site.resolution == SourceResolution.RESOLVED
     ]
     denied_sites.extend(
         site
         for site in denied_only_sites
-        if site.wrapper_kind != "dynamic" and site.resolution == SourceResolution.RESOLVED
+        if site.declaration_form == "assignment"
+        and site.wrapper_kind != "dynamic"
+        and site.resolution == SourceResolution.RESOLVED
     )
     row_payload = [row.model_dump(mode="json") for row in rows]
     row_digest = (
@@ -723,7 +731,7 @@ def _derive_ast_denied_sites(member: AdmittedSourceMember, raw: bytes) -> tuple[
             field_name=_DENIED_FIELD,
             use_kind="declaration",
         )
-        sites.append(_literal_site(coordinate, value))
+        sites.append(_literal_site(coordinate, value, declaration_form="assignment"))
     return tuple(_dedupe_sites(sites))
 
 
@@ -813,6 +821,7 @@ def _unresolved_binding(
         review_due=None,
         source_as_of=None,
         evidence_refs=(),
+        evidence_bindings=(),
         limitation_refs=("Unresolved source declaration",),
         prerequisite_refs=(),
         identity_boundary_ref="docs/system-design-decisions/policyos-identity-and-custody-boundary.md",
@@ -838,6 +847,7 @@ def _dedupe_sites(values: Sequence[LiteralSite]) -> list[LiteralSite]:
             item.coordinate.line,
             item.coordinate.column,
             item.coordinate.field_name,
+            item.declaration_form,
             item.wrapper_kind,
         ): item
         for item in values

@@ -92,10 +92,11 @@ Revision 3's reality note is binding. N13a proves two different sets:
 
 The first set never receives an acquisition button. The second set does not
 receive one merely because it says `binding_gap`. Across those 15, only
-`government.balance` is independently re-established as data-shaped; 14 remain
-`gap_class=not_established`, and none is structurally classified. Current
-producer, rights, planner, mandate, decision, and execution bindings must also
-resolve.
+`government.balance` is independently re-established as data-shaped; the DS15
+projection classifies 14 as `gap_class=not_established`, and none as structural.
+That `gap_class` vocabulary is introduced by DS15; it is not a field emitted by
+N13a or N13b. Current producer, rights, planner, mandate, decision, and execution
+bindings must also resolve.
 
 N13b selected `government.balance` for its demanding-stage re-entry because the
 L1 availability owner reported zero canonical observations. It is one of the
@@ -111,16 +112,42 @@ spliced into it.
 
 The positive “world grew” claim therefore has no current production receipt and
 is not merely waiting for verification. The production-safe N13b execution
-port, PA2 signed producers and institutional semantic-epoch qualification owner
+port, signed PA2 inputs and institutional semantic-epoch qualification owner
 are currently missing. DS15 consumes those as typed external inputs; it does
-not appoint them or modify N13b's write path. It renders N13b's honest negative
-history and **does not close** until those producers exist and a fresh,
-currently eligible data-shaped route produces an admitted passport, an active
-owner epoch, a positive admitted delta, and an exact same-case re-entry receipt
-after accountable approval. A fixture may prove the DS15 consumer/mechanism; it
-may not be presented as that production receipt. Until the external producers
-land, the slice is `producer_missing + verification_missing` and partial or
-blocked, however polished the surface is.
+not appoint them or modify N13b's write path.
+
+The institutional qualification band has one source-level qualification. The
+current production composition permits a candidate, passport and native overlay
+row to reach `pending_epoch_activation`, then
+`SemanticEpochService.finalize_admitted_epoch` invokes the deliberately
+unallocated `QualificationConsumer`. Its `not_established` /
+`policy_admission_missing` result returns before history append and before
+`activate_semantic_epoch`; the production test pins zero activation calls, an
+empty history and zero admitted observations. Therefore an **active but
+institutionally unqualified epoch is not reachable in the consumed code**. It
+would require changing the N13b/semantic-epoch write path, which this slice is
+forbidden to do and which is absent from the 37-path declaration. DS15 instead
+renders the real pending/unqualified state as a first-class typed disclosure,
+names the unappointed policy-admission authority and says exactly what its
+appointment would establish. It may never copy-upgrade that state to active or
+institutionally qualified.
+
+DS15 closes its bounded contract/consumer/surface mechanism after it renders
+N13b's honest negative history and proves the admitted/re-entry consumer with a
+conspicuously test-only behavioral fixture. The fixture may not be presented as
+a production receipt. A fresh positive production route is a named external
+non-closure, not an arithmetically impossible DS15 closure criterion: until its
+owners emit a current non-fixture receipt, no surface, register or handoff may
+claim that the production world grew.
+
+Two independent derivations bind that qualification ruling. Derivation A walks
+`admit_acquisition_with_semantic_epoch` end to end: pending overlay admission ->
+`finalize_admitted_epoch` -> `_append_and_qualify` -> early non-qualified return
+-> caller return before `activate_semantic_epoch`. Derivation B is the dedicated
+production-path unit test: it expects `policy_admission_missing`, zero activation
+calls, an empty history, one `pending_epoch_activation` row and zero admitted
+observations. They agree; the earlier body-only reading stopped at the finalizer
+call and missed its nested gate.
 
 Opening capability states are:
 
@@ -132,10 +159,10 @@ Opening capability states are:
 | persisted N13b audit history | 43 registered files include raw terminal evidence, aggregate quarantine facts and a re-entry trace, but no persisted `AdmissionPassport` instance, acquired snapshot or overlay epoch; one existing in-process loader validates the executor contract's global signal, while HTTP exposes only its source-manifest identity and not the signal value; the detailed family/per-row bridge, consumer and surface semantics remain missing |
 | in-process passport/overlay capability | existing recomputed passport and overlay owner, with zero current admitted observations and zero epochs; `implemented_but_not_orchestrated + surface_missing` for DS15 |
 | live acquisition command | N13b executor/passport/overlay/quarantine logic exists in process, but its only live function has no production caller, is World-Bank/local-filesystem-only, opens a fresh unguarded CAS from raw paths and lacks tenant context; the safe runtime producer handshake is `producer_missing`, then `implemented_but_not_orchestrated + surface_missing` |
-| PA2 production dispatch | gateway behavior exists but production composition and signed delegation/admission producers do not; guarded-store integration is missing; `producer_missing + implemented_but_not_orchestrated` |
-| semantic-epoch qualification | current adapter/consumer use explicitly unallocated policy authority; institutional owner is `absent/unallocated`, so production admission is `producer_missing` |
+| PA2 production dispatch | gateway behavior exists but production composition is test-only and guarded-store integration is missing; DS15 owns that engineering bridge. The gateway has no current mandate-owner appointment/revocation resolver, so that authority consumer is also missing. Opening state: `producer_missing + artifact_missing + consumer_missing + bridge_missing + implemented_but_not_orchestrated`; the signed v2 delegation artifact/authority evidence and deterministic admission-bundle producer are separate external inputs |
+| semantic-epoch qualification | current adapter/consumer use explicitly unallocated policy authority; pending passport/overlay admission is reachable, but positive semantic production, history append and epoch activation fail closed as `not_established` / `policy_admission_missing`. The institutional owner is `absent/unallocated`, and the production wrapper has no appointed-evidence injection seam: `bridge_missing` |
 | exact per-row acquisition-to-re-entry movement | `absent/unallocated` in the current Cycle Board (`GY-GAP6`); global N13b status cannot substitute |
-| successful current world-growth demonstration | `producer_missing + verification_missing`; the safe N13b execution port, signed PA2 inputs and institutional qualification owner are absent, while admitted-observation and active-epoch denominators are both zero |
+| successful current world-growth demonstration | external non-closure `absent/unallocated`; no successor production-acquisition owner is appointed, and its prerequisites remain `producer_missing + bridge_missing + verification_missing`; admitted-observation and active-epoch denominators are both zero. This limits the production-growth claim but does not block closure of DS15's bounded surface mechanism |
 | INT-R2 `GapAcquisitionCase` union | `absent/unallocated`; DS15 renders current typed refusals and does not invent the union |
 
 ## Canonical closure contract
@@ -153,17 +180,27 @@ There is no second closure contract.
       structural / 14 shape not_established`: `binding_gap` alone proves none
       of those classes. The separate capstone denominator remains `3 structural
       / 0 data-shaped`; the two sets cannot be joined by route ID or visual
-      proximity.
+      proximity. `gap_class` is explicitly a DS15 projection vocabulary, not an
+      N13a/N13b source field.
 - [ ] **CC04** One strict acquisition-surface contract carries authority
       purpose, source/content hashes, rule/schema versions, source time,
-      observed time, audience, and typed absence for every fact.
+      observed time, audience, and typed absence for every fact. The same
+      packet carries the source-derived backlog score distribution and the
+      epoch qualification disclosure; neither may be synthesized by UI copy.
 - [ ] **CC05** Structural capstone routes render their owner witness and missing
       link with `action_eligibility=not_applicable`; adding catalog rows or a
       client-authored `live_fetchable` field cannot create a button.
-- [ ] **CC06** The 15-row board is labelled “interim priority ranking,” carries
-      `ranking_only_not_voi`, and never calls its score or order VOI. Numeric VOI
-      is available only with a resolved owner decision/ranking reference and
-      expected-value/cost inputs.
+- [ ] **CC06** The 15-row board is labelled “interim residual ordering — ranking
+      only, not VOI,” carries `ranking_only_not_voi`, and discloses the complete
+      current basis: `binding_confidence=0.0` on 15/15 rows,
+      `ranking_score=0.0` on 15/15, and `route_demand=2.0` on 3/15 versus `1.0`
+      on 12/15. Rank is therefore a deterministic route-demand/lexical tie-break,
+      not a nonzero priority gradient. It also renders the uniform owner reason
+      `metric_residual_granularity_not_supported`, integration
+      `routed_to_gy_n13b`, and owner ref
+      `polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition`.
+      Numeric VOI is available only with a resolved owner decision/ranking
+      reference and expected-value/cost inputs.
 - [ ] **CC07** Route detail shows typed requirement -> costed plan -> eligible
       and ineligible strategy -> VOI or typed absence -> independent lifecycle
       facets. Cost is a gate predicate: absent, default-zero, internally
@@ -190,16 +227,21 @@ There is no second closure contract.
       `RuntimePermission.EVIDENCE_ACQUIRE`,
       `StepUpClass.ACQUISITION_APPROVAL`, DS9 human-decision step-up, exact
       resource binding, live re-resolution, and an idempotent sealed effect.
-- [ ] **CC13** The effect consumes N13b's existing
-      executor -> recomputed `AdmissionPassport` ->
-      `CatalogAcquisitionOverlay`/Fabric quarantine chain through an
-      owner-supplied tenant-bound `AcquisitionExecutionPort` over the same
-      guarded CAS/journal context. Raw `journal_path`/`cas_root` invocation is
-      refused. No second journal, quarantine store, overlay table, passport,
-      epoch allocator, or world write path exists.
+- [ ] **CC13** The effect consumes N13b's existing executor -> recomputed
+      `AdmissionPassport` -> `CatalogAcquisitionOverlay`/Fabric quarantine chain
+      only through the strict `AcquisitionExecutionPort` contract. A
+      contract-conforming test double may satisfy bounded DS15 semantic proof
+      and stays permanently fixture-badged; only the separately owned
+      `fresh_positive_production_route` requires an owner-supplied tenant-bound
+      port over the real guarded CAS/journal context. Raw
+      `journal_path`/`cas_root` invocation is refused in both lanes. No second
+      journal, quarantine store, overlay table, passport, epoch allocator, or
+      world write path exists.
 - [ ] **CC14** A fetched response without a complete recomputed passport is
       quarantined; an admitted passport without matching active overlay and
-      production receipts cannot emit world growth.
+      production receipts cannot emit world growth. A pending epoch with
+      qualification `not_established` remains pending and visibly discloses
+      `policy_admission_missing`; copy cannot call it active or qualified.
 - [ ] **CC15** `world_growth=grew` requires a matching active overlay epoch and
       positive admitted-observation delta. `reentry=advanced` or
       `deeper_terminal` additionally requires the same run, case/design problem,
@@ -228,21 +270,29 @@ There is no second closure contract.
       probe or laundering fixture identity.
 - [ ] **CC23** Slice-owned visual, responsive, keyboard, screen-reader, focus,
       and rendered-DOM/MACHINE parity receipts cover structural refusal,
-      ranking-only backlog, quarantine/no-growth, and an admitted/re-entry test
-      mechanism.
-- [ ] **CC24** A fresh non-fixture route, selected from a current tenant/run-bound
-      planner only after it is independently re-established as data-shaped,
-      visibly completes blocked reason -> cost -> PA2/DS9 approval -> execution
-      -> admitted passport -> active overlay epoch -> positive admitted delta ->
-      exact same-case re-entry. The receipt must also resolve the external
-      production N13b port, signed delegation/admission producers and
-      institutional qualification owner. Neither the historical
-      `government.balance` ID, a fixture, nor a resurrected capstone hypothesis
-      can satisfy this item.
+      all-zero ranking basis, quarantine/no-growth, pending/unqualified
+      disclosure, and an admitted/re-entry test mechanism.
+- [ ] **CC24** DS15 proves the bounded surface mechanism in two honest lanes. The
+      production lane renders the real historical `government.balance` chain as
+      quarantine/no-growth/deeper-terminal and renders any current
+      `policy_admission_missing` receipt as pending/unqualified, never active.
+      The semantic-test lane visibly completes blocked reason -> cost -> PA2/DS9
+      approval -> execution -> admitted passport -> active overlay epoch ->
+      positive admitted delta -> exact same-case re-entry through the strict
+      owner-port contract, with a permanent `behavioral_fixture_not_production`
+      authority badge. A fixture, historical ID or resurrected capstone
+      hypothesis cannot satisfy or be projected as a production-growth receipt.
+      Any future non-fixture production claim is governed by the separately
+      owned `fresh_positive_production_route` non-closure, not by this bounded
+      criterion.
 - [ ] **CC25** Freeze -> review -> one expensive verification wave -> register
-      transition -> committed-branch readback proves the full capability chain,
-      including CC24. An absent positive live receipt blocks DS15 closure; it is
-      not an acceptable closed-state non-closure.
+      transition -> committed-branch readback proves the bounded capability
+      chain, including CC24's source-honest production-negative lane and
+      explicitly badged semantic-test lane. DS15 may close that bounded scope
+      while `fresh_positive_production_route` remains `absent/unallocated`,
+      with its producer/bridge/verification prerequisites unresolved, but no
+      register or surface may claim successful production world growth until an
+      owner is appointed and the external receipt lands.
 
 ## Measured entry census
 
@@ -307,6 +357,8 @@ does not describe the already-rendered subset as `consumer_missing`.
 | N13a sample FetchPlans | `fetch_plan_generation.plans` and `sample_rows` equal path/row denominators, with execution-fence counters read separately | independent `sample_binding.projected_item_count`/expected catalog-resolution counter plus the forbidden-owner preview/execute counters | 7 plans, 0 preview, 0 execute |
 | N13a residuals | `growth_backlog` length and reverse-residual length, both all `binding_gap` | N13b local-lift denominator and row length, both all `binding_gap` | 15 |
 | backlog authority/method | complete generated `growth_backlog` scan over `authority_boundary` and `ranking_method` | canonical N13a `derive_growth_backlog` recomputation from the full reverse-residual input, content-bound again by N13b's `census_growth_backlog_projection_sha256` | 15/15 `ranking_only_not_voi` + `interim_binding_confidence_x_route_demand` |
+| backlog score basis | complete 15-row `growth_backlog` grouping over `binding_confidence`, `ranking_score` and `route_demand` | recompute all 15 rows from `reverse_demand_residuals.best_binding_confidence`, complete `demand_sources` cardinality and `derive_growth_backlog`'s score/sort formula, then require equality with the stored backlog | confidence `0.0`: 15/15; score `0.0`: 15/15; demand `2.0`: 3/15, `1.0`: 12/15 |
+| backlog VOI-owner boundary | complete 15-row grouping over `voi_owner_fit`, `voi_owner_integration` and `voi_owner_ref` | recompute all rows through `derive_growth_backlog` and validate the strict literal fields before comparing with the stored backlog | all 15: fit `metric_residual_granularity_not_supported`; integration `routed_to_gy_n13b`; ref `polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition` |
 | capstone routes | census route-evidence length, all `not_a_data_gap` | N13b capstone route count/row length, all `not_a_data_gap`, laundered count 0 | 3 |
 | N13b outputs | generated TOML output-list length | lifecycle registration count and equal path set | 43 |
 | N13b physical roles | classify the generated TOML path set by CAS blob/manifest suffix, raw journal path and top-level artifact path | walk the actual generated tree under the declared roots and pair each CAS digest's blob/manifest before counting the journal and remaining files | 22 CAS + 1 journal + 20 top-level |
@@ -321,6 +373,16 @@ from `binding_gap`:
 | --- | ---: | ---: | ---: |
 | 15 N13a `binding_gap` residuals | 0 | 1 | 14 |
 | 3 capstone route-evidence rows | 3 | 0 | 0 |
+
+At plan-entry baseline `2525da7306d329ae28fa394690e1c39133eb0d55`,
+`gap_class` has zero occurrences in the complete 2,810-file `src/` denominator
+by both an `rg --files` plus content scan and an independent `git ls-files` plus
+`git grep` scan (2,600 Python, 5 Python stubs, 10 JSON, 11 YAML and 184 other
+files). C01 intentionally changes that historical zero by defining the strict
+enum in `acquisition_surface_contracts.py`; only
+`acquisition_surface_projection.py` produces `data_gap`, `structural_gap` or
+`not_established` after independently reconciling owner evidence. N13a's
+`binding_gap`, backlog rank/score, and client input never populate it.
 
 For the residual denominator, derivation A walks the complete 15-row N13a
 backlog and resolves owner gap-shape evidence for every row; only
@@ -357,9 +419,9 @@ The separate CPI acceptance selection (`inflation`, `FP.CPI.TOTL`) is shown in
 audit detail only. It demonstrates an honest live selection and quarantine, not
 the `government.balance` case re-entry and not world growth.
 
-### Producer gates before executable C02
+### Producer and authority bands before production-positive execution
 
-Four current producer gaps are binding, not implementation trivia:
+Five current producer/authority gaps are binding, not implementation trivia:
 
 1. `execute_live_catalog_acquisition` has no production caller, accepts raw
    `journal_path`/`cas_root`, constructs a fresh unguarded `FileSystemCAS`
@@ -368,18 +430,38 @@ Four current producer gaps are binding, not implementation trivia:
    guarded CAS/journal/tenant/run and reuses the existing passport/overlay/
    quarantine logic. The port's owner lands outside this slice; DS15 never wraps
    the raw-path function with a second scratch/write path.
-2. `AgentActionAuthorityGateway` is composed only in tests today. Signed
-   `DelegationContract` and `AgentActionAdmissionBundle` producers are absent in
-   production, and its exact-`FileSystemCAS` constructor does not accept the
-   runtime's guarded artifact-store boundary. DS15 may generalize that consumer
-   to the verified ArtifactStore protocol and compose a narrow control-owned
-   gateway, but it does not manufacture the signed institutional inputs.
-3. the semantic-epoch qualification adapter and consumer explicitly use
-   unallocated policy authority, so production admission inevitably refuses
-   with `policy_admission_missing`. The institutional qualification appointment
-   remains out of scope; DS15 consumes its signed typed evidence if another
-   owner supplies it.
-4. the current N7 requirement-gap route carries no independent numeric cost
+2. `AgentActionAuthorityGateway` is composed only in tests today and its
+   exact-`FileSystemCAS` constructor does not accept the runtime's guarded
+   artifact-store boundary. Generalizing the consumer to the verified
+   ArtifactStore protocol, installing it in control composition, registering
+   exact effects and loading durable decisions are C02-owned engineering work:
+   `implemented_but_not_orchestrated + bridge_missing`.
+3. the PA2 inputs split into two external producer bands rather than one vague
+   “signed producer” blocker. A persisted signed v2 `DelegationContract` and
+   resource-to-contract-head mapping are `producer_missing + artifact_missing`;
+   its `mandate_owner_ref` and matching signature are institutional inputs, and
+   signature equality alone does not establish a current appointment or
+   revocation state. The `AgentActionAdmissionBundle` is different: it requires
+   governed deterministic-producer authority, current run/job binding and a
+   signed invocation-hash-to-CAS mapping; its absent production emitter is an
+   engineering/deployment producer gap, not an unappointed human. C02 will
+   verify and consume both bands and may prove refusal/allow behavior with typed
+   test doubles, but it does not manufacture either real signed artifact. Because the
+   current gateway has no appointment/currentness/revocation resolver, C02 owns
+   a narrow fail-closed mandate-authority consumer/bridge; the external human
+   appointment remains out of scope and `not_established` until that consumer
+   resolves owner evidence.
+4. the semantic-epoch qualification adapter and consumer explicitly use
+   unallocated policy authority. Pending passport/overlay admission is committed
+   first, but finalization returns `not_established` /
+   `policy_admission_missing` before native-history append and before overlay
+   activation. The production wrapper hard-codes both unallocated constructors,
+   so an appointed receipt has no injection seam. The institutional appointment
+   and composition replacement remain `absent/unallocated + bridge_missing` and
+   out of scope; DS15 renders the typed pending-state disclosure. A successor
+   owner must both supply authority and wire/replace that production composition
+   before any qualified/active claim.
+5. the current N7 requirement-gap route carries no independent numeric cost
    basis: optional `voi_expected_cost` is absent when N7 calls the planner
    without a VOI report, while the planner's existing hard-coded rates and
    unknown-gap default are unversioned and have no actionable owner ref. C01
@@ -394,12 +476,25 @@ Four current producer gaps are binding, not implementation trivia:
    or execution. This is the sole producer gap DS15 owns, and the estimate is
    not represented as a purchase commitment or observed invoice.
 
-C01 may land while the first three remain absent. C02 may build and verify
-fail-closed consumers, receipt persistence and a fake-port behavioral harness,
-but an executable control and CC24 remain blocked until all external refs
-resolve. Their absence renders `producer_missing`; it never authorizes an
-institutional appointment, a raw local-filesystem call, or a fixture badge
-removal.
+The PA2 split is also dual-derived. The contract/gateway derivation follows each
+strict resolver: gateway installation and guarded store are engineering;
+delegation resolution demands a persisted signed v2 contract whose signer
+matches `mandate_owner_ref`; admission resolution demands a governed
+deterministic-producer bundle bound to invocation/run/job. The independent
+construction-site census finds the gateway and bundle composed only in tests,
+the existing delegation builder unable to emit the required signed action
+envelopes/current mandate authority, and no production admission-bundle emitter.
+The derivations agree on three bands and disagree with any single “unappointed
+human producer” label.
+
+C01 may land while the external bands remain absent. C02 owns and closes the
+gateway/control engineering composition and may verify fail-closed consumers,
+receipt persistence and a fake-port behavioral harness. Real external effects
+and active production epochs remain `producer_missing + bridge_missing`, and the
+`fresh_positive_production_route` claim remains `absent/unallocated`; their
+absence does not block the bounded DS15 mechanism or authorize an institutional
+appointment, raw local-filesystem call, signature
+substitute, or fixture badge removal.
 
 ## Design rulings
 
@@ -409,7 +504,7 @@ The canonical packet keeps these independent strict facets:
 
 | facet | values / rule |
 | --- | --- |
-| `gap_class` | `data_gap`, `structural_gap`, or typed unavailable; only the owner artifact sets it |
+| `gap_class` | DS15 projection enum `data_gap`, `structural_gap`, or `not_established`; the server derives it from independently reconciled owner evidence, never from `binding_gap`, rank/score or client input |
 | `plan` | requirement, planner status, eligible/ineligible strategies, next action, cost and VOI facts with refs |
 | `cost_basis` | `established`, `missing`, `invalid`, `default_zero`, or `revalidation_required`; only `established` can enable review/execute after server recomputation from content-bound basis/rate inputs; an explicit owner-produced zero may be established, an absent/default zero may not |
 | `action_eligibility` | `not_applicable`, `producer_missing`, `revalidation_required`, `blocked`, `decision_required`, `executable` |
@@ -417,9 +512,21 @@ The canonical packet keeps these independent strict facets:
 | `execution_phase` | coarse surface state `not_started`, `requested`, `executing`, or `terminal`; every non-initial value carries an exact receipt/event ref |
 | `receipt_phase` / `recovery_state` | owner detail is `requested`, `executing_acquisition`, `world_committed_reentry_pending`, `reentering`, or `terminal`, plus `none`, `receipt_recovery_required`, or `reentry_recovery_required`; the server maps requested -> requested, all nonterminal execution/recovery detail -> executing, and terminal -> terminal |
 | `admission` | `not_reached`, `not_established`, passport `quarantined`, `admitted`, or `admitted_degraded`; no UI derivation |
+| `epoch_qualification` | `not_reached`, `not_established`, or `qualified`, plus exact code, authority role/ref, owner appointment state and `appointment_would_establish`; `not_established/policy_admission_missing` binds a pending epoch and cannot be copied into active/qualified |
 | `quarantine` | `none`, `raw_terminal`, or `passport_refused`, with exact Fabric refs; this records ledger/effect disposition separately from the passport's admission status |
 | `world_growth` | `not_established`, `no_growth`, or `grew`; `grew` requires active epoch + positive admitted delta |
 | `reentry` | `not_established`, `pending`, `advanced`, or `deeper_terminal`; exact same-case binding required |
+
+For the current production composition, the strict qualification block is:
+`epoch_state=pending_epoch_activation`, `status=not_established`,
+`code=policy_admission_missing`, `authority_role=semantic epoch policy-admission
+qualifier`, `authority_owner_ref=null`, `appointment_state=unappointed`, and
+`appointment_would_establish=authority to qualify native semantic production,
+append its history head and permit overlay activation`. It explicitly says that
+appointment would **not** establish gap shape, passport validity, positive
+delta or re-entry. A later `qualified` block requires a content-bound owner
+receipt; localized prose is projection of this block and carries no upgrade
+authority.
 
 Mixed outcomes are first-class: N13b is `data_gap + terminal + raw_terminal +
 admission:not_reached + no_growth + deeper_terminal`; an
@@ -438,9 +545,10 @@ presence cannot upgrade it:
 | cost schedule applicability and total | `recomputed` | exact versioned schedule row, record hash and server line-item recomputation agree; otherwise `not_established` |
 | current route/run closure | `independently_reconciled` | tenant/cell/run/job, completed progress, diagnostic event and compiled CAS ref agree; otherwise `not_established` |
 | accountable human approval | `independently_reconciled` | DS9 content/signature/step-up admission succeeds; raw `institutionally_supplied` input alone remains ineligible |
-| PA2 delegation/admission | `independently_reconciled` | gateway resolves and admits current signed inputs; caller assertions or absent producers are `not_established` |
+| PA2 delegation/admission | `independently_reconciled` only after C02's mandate-authority consumer resolves external evidence; current authority is `not_established` | gateway resolves the signed v2 contract, separately resolves current mandate-owner appointment/revocation evidence, and admits the deterministic bundle; signature equality, caller assertions or absent producers are `not_established` |
 | passport disposition | `recomputed` | N13b owner recomputes every decisive check; marker/status presence is `not_established` |
-| active world epoch | `independently_reconciled` | pending, production and active overlay owner receipts bind one epoch; otherwise `not_established` |
+| epoch qualification | `independently_reconciled` only after an external owner and production bridge exist; current label `not_established` | qualification receipt resolves status/code, appointed authority and source/content identity through the owner-wired production consumer; the hard-coded unallocated composition or absent owner is frozen as `not_established/policy_admission_missing`, never upgraded by copy |
+| active world epoch | `independently_reconciled` | qualified production, native-history and active overlay owner receipts bind one epoch; pending admission alone is `not_established` |
 | positive admitted delta | `recomputed` | owner before/after membership over the active epoch is positive; otherwise `no_growth`/`not_established` |
 | same-case re-entry | `independently_reconciled` | prior case/problem/gap and active overlay receipts match the post-epoch trace; otherwise `not_established` |
 | DS11 fence release | `recomputed` | landing ancestry plus two complete-prefix censuses agree; supplied `63` remains `not_established` as a gate |
@@ -467,10 +575,21 @@ gap that was never data-shaped.
 ### 3. Ranking is not VOI
 
 All 15 N13a backlog rows carry `ranking_only_not_voi` and the interim method
-`interim_binding_confidence_x_route_demand`. The board title is **Interim
-priority ranking**. It shows the method, owner boundary, raw rank and reason,
-and states “VOI not established.” It does not use “highest value,” currency,
-expected benefit, or VOI colors.
+`interim_binding_confidence_x_route_demand`. They also all carry
+`binding_confidence=0.0` and `ranking_score=0.0`; only route demand partitions
+the rows (`2.0` on 3, `1.0` on 12), after which the producer falls through to
+lexical `variable_id` tie-breaking. The board title is **Interim residual
+ordering — ranking only, not VOI**. It shows the complete zero-score basis,
+method, owner boundary, raw ordinal and reason, and states both “no nonzero
+priority gradient” and “VOI not established.” It does not use “highest value,”
+currency, expected benefit, or VOI colors.
+
+The stronger owner disclosure is first-class on every row and summarized on the
+board: `voi_owner_fit=metric_residual_granularity_not_supported`,
+`voi_owner_integration=routed_to_gy_n13b`, and
+`voi_owner_ref=polisyos.runtime.quality.acquisition_planner.plan_evidence_acquisition`.
+This is not a generic missing-value message; it names the owner and the exact
+granularity limitation.
 
 The N13b D2 source-growth row likewise has `voi_numeric_support=false` and no
 VOI ranking ref. A route's VOI facet becomes available only when the canonical
@@ -490,6 +609,7 @@ raw journal/CAS
   -> recomputed AdmissionPassport
   -> CatalogAcquisitionOverlay pending admission
   -> admitted-boundary production evidence
+  -> institutional qualification + native-history append
   -> activate that same overlay epoch
   -> post-epoch case re-entry
 ```
@@ -523,15 +643,27 @@ job. Missing/ambiguous job or ref binding is `producer_missing`; a changed
 hash/time is `revalidation_required`. No route is revived because its
 historical ID matches.
 
-The closure demonstration is selected only from that freshly resolved set. It
-is not pinned in this plan to `government.balance`, CPI, a backlog rank, or any
-other historical identifier. The selected route must start with a current
-data-shaped block on one real case, expose its owner-produced cost, pass the
-same admission chain the product will use, and return that exact case after the
-active epoch. If the fresh set has no eligible route, or every honest attempt
-ends in quarantine/no-growth, DS15 reports that result and stays partial or
-blocked; the executor may not loosen admission or revive a stale hypothesis to
-obtain a green demonstration.
+The bounded DS15 closure demonstration has no undiscovered real-route premise.
+It renders the complete current/historical owner truth, then drives a strictly
+badged behavioral fixture through the same consumer/port contract to prove the
+continuous visible motion. It is not pinned to `government.balance`, CPI, a
+backlog rank, or any historical identifier as production authority. If the
+fresh set has no eligible route, or every honest production attempt ends in
+quarantine/no-growth/pending qualification, DS15 renders that result and may
+still close its bounded surface mechanism; the executor may not loosen
+admission, remove the fixture badge or revive a stale hypothesis to obtain a
+green production claim.
+
+A later fresh positive receipt is accepted only from the freshly resolved set:
+one current data-shaped real case, owner-produced cost, the same admitted
+authority chain, active qualified epoch, positive admitted delta and exact
+same-case return. Shape establishment across the other 14 residuals is not a
+DS15 cluster: the denominator is 14 and an honest investigation may establish
+zero. That owner-grade discovery is recorded as
+`fresh_positive_production_route`, currently `absent/unallocated` because no
+successor N13b production-acquisition/data-gap owner has been appointed. Its
+eventual owner must close the producer/bridge/verification gaps before such a
+receipt exists.
 
 ## Target producer, HTTP and approval chain
 
@@ -658,12 +790,14 @@ agreement.
 | `DS15-BINDING-NOT-DATA` | retain `binding_gap` and ranking fields while removing the owner requirement-family/gap-type/L1 evidence | `gap_class=not_established`; no cost/action/button is inferred |
 | `DS15-NO-STALE-REVIVAL` | retain historical N13b IDs while changing/removing current run, planner hash, L1 availability or rule epoch | `revalidation_required`/`producer_missing`; no decision request or execute effect |
 | `DS15-RANKING-NOT-VOI` | rename/interpolate interim rank as VOI or reorder rows client-side without override metadata | contract/UI/parity test fails |
+| `DS15-ZERO-SCORE-DISCLOSURE` | with the real 15 row IDs and order held constant, remove/obscure the confidence `0.0` and score `0.0` on 15/15 or the 3/12 demand split; separately mutate one complete residual's owner evidence coherently and recompute the backlog through `derive_growth_backlog`, accepting its resulting order | the unchanged real packet must visibly say its ordinals carry no nonzero score gradient; the producer-valid mutation derives 14/15 zero rather than retaining hard-coded copy, and neither packet becomes VOI |
 | `DS15-COST-BASIS` | retain an expected-cost field while removing/changing its named schedule row, basis ref, rates, rule/hash provenance or line-item equality; leave the legacy unknown-gap fallback present and also try caller zero/default | cost becomes typed unavailable/invalid and decision request/execute stay blocked; the legacy fallback never establishes actionability |
-| `DS15-AUTHORITY-PRODUCERS` | keep approval markers while removing signed delegation/admission or institutional qualification evidence | route remains `producer_missing`; no allowed job or admission |
+| `DS15-PA2-AUTHORITY-BANDS` | keep approval/signature markers while independently removing gateway composition, the signed v2 contract/current mandate-owner authority, or the deterministic admission-bundle producer | engineering composition absence blocks the DS15 bridge; either external input absence keeps real execution `producer_missing`; signature equality cannot stand in for appointment |
+| `DS15-QUALIFICATION-DISCLOSURE` | keep the pending passport/epoch row and `policy_admission_missing`, but drop the authority owner/appointment effect, label it active/qualified, or replace the typed status with reassuring copy | contract/UI/parity test fails; the row remains pending with `not_established`, names the unappointed policy-admission authority, and states that appointment would establish native semantic production/history eligibility |
 | `DS15-DEFERRED-PA2` | persist an allowed-looking marker but remove/tamper the durable decision, cross-bind its tenant/run/source-job/route/effect, or invoke the port without gateway load + `execute_bound_effect` | no external effect; job fails closed before the port and the action head records no executing receipt |
 | `DS15-EXECUTION-PORT` | offer raw journal/CAS paths, a wrong connector, unguarded store, tenantless port or arbitrary data-shaped row | producer handshake refuses before network/world write |
 | `DS15-PASSPORT-BOUNDARY` | keep raw bytes and passport marker fields but remove one decisive schema/units/alignment/license/PII/trust check | recomputed passport refuses; quarantine renders; world delta stays zero |
-| `DS15-EPOCH-ACTIVATION` | create an admitted-looking passport without matching pending, production and active overlay receipts | no world-growth event; action fails closed |
+| `DS15-EPOCH-ACTIVATION` | create an admitted-looking passport without matching qualification, native-history, production and active overlay receipts | no world-growth event; action fails closed |
 | `DS15-REENTRY-BINDING` | keep global N13b status/counts but change case/design problem/gap/receipt, bind active overlay A while reading B, or omit post-epoch trace | per-row movement stays empty/invalid; global status cannot substitute |
 | `DS15-ACTION-HEAD` | orphan phase CAS/event/head, fork predecessor generation, or crash after active epoch | no false terminal; typed recovery resumes from exact committed phase without reacquisition |
 | `DS15-OFFLINE-AUTHORITY` | enqueue/replay decision or execution offline with a formerly valid token | no network dispatch; server rejects stale proof; no optimistic status |
@@ -686,6 +820,12 @@ ceiling is exactly **37**, derived from that declared union; there is no padded
 contingency. Path 38 is a stop and plan-amendment request. A path may narrow
 away, but an undeclared replacement or companion promoted into mechanism work
 requires the same amendment and a fresh union derivation.
+
+This amendment chooses the satisfiable CC24 restatement, not a new 14-residual
+shape-establishment cluster. Qualification/zero-score disclosures remain inside
+C01/C04's declared paths, and `gap_class` ownership is a clarification of C01's
+existing contracts/projection. Therefore the cluster arithmetic and parser
+union remain **37**; no mechanism path or widening round is added.
 
 Two independent cap derivations must agree before C01 and closeout:
 
@@ -721,11 +861,11 @@ undeclared path is a plan amendment, not a round.
 | R04 | C02 | PA2/DS9 resource binding | reuse a decision across tenant/run/source-job/route/effect or remove step-up |
 | R05 | C02 | safe N13b port plus CAS/event/action-head receipt | offer raw paths, orphan CAS/event/head, omit an owner receipt, or attempt a second fetch/epoch on recovery |
 | R06 | C02 | exact same-case re-entry without N7 rewrite | change case/gap/epoch binding and make the legacy N7 write arm raise |
-| R07 | C04 | global structural/ranking truth | add rows/cost labels or rename interim ranking as VOI |
-| R08 | C04 | route-detail facet identity | join global status, lose a receipt ref, or synthesize a mixed facet client-side |
+| R07 | C04 | global structural/ranking truth | add rows/cost labels, hide the all-zero basis or rename interim ordering as VOI |
+| R08 | C04 | route-detail facet identity | join global status, lose a receipt/qualification ref, copy-upgrade pending to active, or synthesize a mixed facet client-side |
 | R09 | C05 | online accountable action | replay stale approval or queue/execute offline |
 | R10 | C05 | continuous motion and exact-byte parity | mutate captured bytes, timeline order, focus or live-region transition |
-| R11 | C06 | evidence-backed disposition transition | remove visual/semantic/CC24 evidence while retaining ready/closed markers |
+| R11 | C06 | evidence-backed disposition transition | remove visual/semantic/CC24 bounded-scope evidence while retaining ready/closed markers or add an unsupported production-growth claim |
 
 ### C00 - admission, path fences and real reds
 
@@ -778,6 +918,10 @@ Fabric's existing `list_quarantine_records`/`build_quarantine_report` are
 consumed unchanged. The projection validates N13a/N13b sources through their
 registered schema/rule/content identities, adds the missing carrier-liveness and
 N13b audit-history governed projection definitions, and composes strict facts.
+`acquisition_surface_contracts.py` owns the new `gap_class` enum, complete
+backlog score/VOI-owner summary and typed epoch-qualification disclosure;
+`acquisition_surface_projection.py` derives each from all owner rows/receipts.
+Neither contract nor projection claims that N13a emits `gap_class`.
 It does not expose raw quarantined payload bytes, rerun a live probe, execute a
 FetchPlan, or write an overlay receipt.
 
@@ -792,14 +936,22 @@ repository-quality tests, artifacts, journals and write-path owner tests remain
 byte-identical; DS15 consumer/strangle tests import their public seams.
 
 **Named reds:** `DS15-STRUCTURAL-NOT-DATA`, `DS15-BINDING-NOT-DATA`,
-`DS15-RANKING-NOT-VOI`, `DS15-COST-BASIS`,
+`DS15-RANKING-NOT-VOI`, `DS15-ZERO-SCORE-DISCLOSURE`,
+`DS15-QUALIFICATION-DISCLOSURE`, `DS15-COST-BASIS`,
 `DS15-N13B-NEGATIVE-HONESTY`, and the
 remove-property/keep-marker passport and active-epoch mutations.
 
 **Acceptance:** strict global packet renders 12/18/144/124/15/3 and N13b
 5 attempts/2 raw responses/0 admissions/0 epochs from owner facts; structural
 and data denominators remain separate;
-ranking-only is unambiguous; a run route has a cost only from the new verified
+the DS15-owned `gap_class` provenance is explicit; both complete source scans
+are rerun and report the post-C01 denominator/occurrence set, prove the sole enum
+definition lives in the strict C01 contract, and prove all server producers
+route through `acquisition_surface_projection.py`; the strict global packet
+contains confidence/score zero on 15/15, the 3/12 demand split and all three
+uniform VOI-owner limitation fields; pending qualification contains exact
+status/code/owner/appointment effect; ranking-only is unambiguous; a run route
+has a cost only from the new verified
 planner record and cost drift blocks; no read opens a writer transaction or
 changes overlay/quarantine bytes.
 
@@ -811,8 +963,9 @@ changes overlay/quarantine bytes.
 - modify `src/polisyos/runtime/quality/generation_cycle.py`;
 - modify `src/polisyos/runtime/quality/agent_action_authority.py` to admit the
   guarded ArtifactStore protocol with equivalent CAS/signature checks and add
-  the gateway-owned deferred reservation/durable decision loader that delegates
-  the eventual effect to existing `execute_bound_effect`;
+  a fail-closed current mandate-owner authority resolver, plus the gateway-owned
+  deferred reservation/durable decision loader that delegates the eventual
+  effect to existing `execute_bound_effect`;
 - add `src/polisyos/runtime/http/services/acquisition_action_service.py`;
 - modify `src/polisyos/runtime/http/services/control/run_lifecycle.py`;
 - modify `src/polisyos/runtime/http/services/control_plane_store.py`;
@@ -901,8 +1054,19 @@ acquisition step-up; the human record remains on DS9's route/permission/step-up.
 VIEWER/SERVICE/SYSTEM cannot perform the human act. The operation is
 idempotent on tenant/run/source-job/route/planner/decision hashes and fails closed on
 partial audit, CAS, passport, production or re-entry persistence. Missing
-signed producers or the owner execution port keeps the route
-`producer_missing`; a fake port is test authority only.
+gateway composition keeps the DS15 bridge unavailable; a missing signed v2
+delegation contract/current mandate-owner authority, deterministic signed
+admission bundle or owner execution port independently keeps real execution
+`producer_missing`; the hard-coded unallocated qualification composition keeps
+epoch activation `bridge_missing` even if a receipt is merely supplied. A fake
+port or signed-input double is test authority only.
+
+C02's mandate-authority resolver is a consumer/integration contract, never an
+appointment producer. It resolves content-bound external evidence for the exact
+`mandate_owner_ref`, authority purpose, current/effective/revoked state,
+schema/rule version and signer provenance independently of the delegation
+signature. Missing, stale, mismatched or merely signer-equal evidence freezes
+the predicate as `not_established` and prevents a real allowed effect.
 
 **P39 tests, exact set:** add
 `tests/unit/runtime/quality/test_acquisition_route_loop.py`,
@@ -925,7 +1089,7 @@ Existing human-decision, acquisition-executor, overlay-visibility and N13b
 owner tests are baseline receipts, not DS15 edit targets.
 
 **Named reds:** `DS15-NO-STALE-REVIVAL`, `DS15-COST-BASIS`,
-`DS15-DEFERRED-PA2`,
+`DS15-PA2-AUTHORITY-BANDS`, `DS15-DEFERRED-PA2`,
 `DS15-PASSPORT-BOUNDARY`, `DS15-EPOCH-ACTIVATION`,
 `DS15-REENTRY-BINDING`, sibling-consumer strangle, a
 forged client status/body, cross-tenant/cross-run/cross-route record reuse, and
@@ -939,22 +1103,27 @@ consumes growth rather than writing it again.
 
 **Stop:** if the verified control-job/compiled-run closure cannot supply the
 original DesignProblem and exact planner/cost record or its job progress and
-diagnostic-event refs disagree; the signed PA2 or institutional qualification
-inputs are absent; the N13b owner has not supplied a guarded tenant-bound
-execution port; or re-entry cannot consume an already-active catalog overlay without
-editing `fabric/world/` or `data_state_substrate.py`, keep execution
-`producer_missing`/`bridge_missing`. Do not build a case-data index, scan CAS,
-call the raw-path executor, create a second world writer, or use a repository
-artifact as authorization. The narrow control-store route/action head declared
-above is an action discoverability pointer, not case/world data.
+diagnostic-event refs disagree; the gateway cannot fail closed over the
+guarded store; or re-entry cannot consume an already-active catalog overlay
+without editing `fabric/world/` or `data_state_substrate.py`, keep the owned
+bridge `producer_missing`/`bridge_missing`. Absence of the signed external PA2,
+qualification owner/composition or N13b-port inputs is not a stop for the
+bounded mechanism: it is the typed production-negative state and external
+non-closure. Do not build a
+case-data index, scan CAS, call the raw-path executor, create a second world
+writer, or use a repository artifact as authorization. The narrow control-store
+route/action head declared above is an action discoverability pointer, not
+case/world data.
 
 **Acceptance:** a fake-port test route exercises decision request -> DS9 record
 -> sealed worker -> quarantine/no-growth, and one admitted behavioral fixture
 exercises phase receipts -> real passport/overlay activation -> crash-safe exact
 same-case re-entry -> terminal receipt. Missing production inputs remain visibly
-`producer_missing`; N13b history remains its real negative. These receipts admit
-the fail-closed mechanism into C06 review, but DS15 closure additionally
-requires CC24's fresh non-fixture positive receipt.
+`producer_missing`; the fixture carries `behavioral_fixture_not_production`, and
+signer equality without resolved current mandate authority remains
+`not_established`; N13b history remains its real negative. These receipts admit the fail-closed
+bounded mechanism into C06 review. A fresh non-fixture positive receipt remains
+the separately owned production-growth non-closure.
 
 ### C03 - generated ABI transaction
 
@@ -1013,7 +1182,11 @@ The hook captures the exact response bytes and uses governed no-authority-cache
 semantics. Presentation functions only narrow/format generated contracts. The
 Cycle Board adds the global scorecard/backlog and structural route details
 without joining N13b global status onto a row. Cost and VOI absences render as
-typed states. Tier decay and quarantine are as prominent as any positive.
+typed states. The backlog renders the source-derived all-zero score basis,
+route-demand split and named VOI-owner granularity refusal; it never relies on
+ordinal alone. Passport/epoch detail renders qualification status/code,
+unappointed authority and appointment effect beside the pending/active state.
+Tier decay and quarantine are as prominent as any positive.
 
 **P39 tests, exact set:** add
 `apps/runtime-dashboard/src/features/runs/api/useAcquisitionRoutes.test.tsx`,
@@ -1042,13 +1215,19 @@ complete frontend component root, so it automatically includes these paths
 after the DS11 handoff without a C04 edit.
 
 **Named reds:** structural rows never show buttons; adding rows changes neither
-structural sufficiency nor route status; ranking-only never renders VOI; local
-sort shows override; tier decay cannot render healthy; raw response without
-passport renders quarantine; global N13b status creates no row movement.
+structural sufficiency nor route status; `DS15-ZERO-SCORE-DISCLOSURE` preserves
+the real IDs/order while testing disclosure removal, then derives the 15/15
+versus 14/15 basis from a producer-valid recomputation whose order may change;
+ranking-only never renders VOI;
+local sort shows override; `DS15-QUALIFICATION-DISCLOSURE` prevents pending/
+unqualified copy from becoming active/qualified; tier decay cannot render
+healthy; raw response without passport renders quarantine; global N13b status
+creates no row movement.
 
 **Acceptance:** REVIEWER/EXPERT see the complete owner truth; MACHINE export and
-DOM agree; the board can grow data-only from a new valid row; a structural row
-cannot become acquirable through frontend code or extra rows.
+DOM agree on gap-class provenance, zero-score/demand/VOI-owner disclosure and
+qualification state; the board can grow data-only from a new valid row; a
+structural row cannot become acquirable through frontend code or extra rows.
 
 ### C05 - accountable button and continuous visible motion (after DS11)
 
@@ -1091,9 +1270,12 @@ same-case mismatch, and `DS15-MACHINE-PARITY` mutations.
 **Acceptance:** a blocked data-shaped test case shows reason -> established,
 owner-backed estimated cost -> review -> mandate/evidence -> approved decision
 -> executing -> passport/quarantine -> growth/no-growth -> re-entry/deeper
-terminal without page or context loss. A missing, default-zero or unverified
-cost stops before review. Structural and historical-only rows have no active
-flow.
+terminal without page or context loss, and keeps its
+`behavioral_fixture_not_production` badge throughout. A pending production epoch
+shows `not_established/policy_admission_missing`, the unappointed authority and
+what appointment would establish without being relabelled active. A missing,
+default-zero or unverified cost stops before review. Structural and
+historical-only rows have no active flow.
 
 ### C06 - freeze, verify and close
 
@@ -1109,8 +1291,8 @@ blocking findings, then run the expensive wave once. Before acquiring the Atlas
 lock, execute exactly one snapshot-writer visual run followed by two no-writer
 runs, Chromium, one worker, zero retries, slice grep only. Verify keyboard
 order, focus return, 200% zoom, mobile, dark/light, axe, live-region updates,
-reduced motion, snapshot stability and CC24's real receipt. Delta-only rereview
-follows any blocking repair.
+reduced motion, snapshot stability and CC24's honest production-negative plus
+badged behavioral receipts. Delta-only rereview follows any blocking repair.
 
 Only after those receipts exist, acquire the Atlas lock for this exact P39 set:
 `architecture/atlas_surfaces/frontend-disposition-register.json`,
@@ -1124,16 +1306,20 @@ already adjudicates the transition, its source path narrows away but its test
 remains in this exact companion set.
 
 Re-derive 37 declared/37 ceiling and actual mechanism paths twice; re-derive all
-set counts; classify every red under P41 against the slice base; read the final
-file set, branch and commits from the committed branch.
+set counts, including both post-C01 `gap_class` source-tree scans and the single
+definition/producer-routing invariant; classify every red under P41 against the
+slice base; read the final file set, branch and commits from the committed
+branch.
 
 **Acceptance:** every CC has its required receipt; target chain is contract ->
 producer -> persisted planner/execution artifact -> PA2/DS9 bridge -> N13b
 passport/overlay/quarantine -> same-case re-entry -> HTTP -> UI/MACHINE ->
-negative/e2e semantic test. CC24 additionally proves the complete continuous
-motion with a fresh non-fixture receipt. If it is absent, record the precise
-partial/blocked state and do not make the C06 register/commit transition to
-closed.
+negative/e2e semantic test. CC24 proves complete continuous motion with an
+explicitly test-only authority badge while the production lane renders the real
+negative/pending states. If the fresh non-fixture receipt is absent, record
+`fresh_positive_production_route` as `absent/unallocated`, with its exact
+producer/bridge/verification prerequisites, and make no production-growth
+claim; that external non-closure does not prevent the bounded C06 transition.
 
 ## Declared mechanism file map
 
@@ -1238,9 +1424,12 @@ intersects the command's complete input denominator at zero.
 | `DS15-ROUTE-PRODUCER-MISSING` | verified completed control-job/compiled-run closure lacks exact job, planner, DesignProblem or producer binding |
 | `DS15-COST-BASIS-MISSING` | no current content-bound owner cost basis; omit action |
 | `DS15-EXECUTION-PORT-MISSING` | no tenant-bound guarded N13b production port; raw paths refused |
-| `DS15-AUTHORITY-PRODUCER-MISSING` | signed PA2 or institutional qualification producer absent |
+| `DS15-PA2-COMPOSITION-MISSING` | DS15-owned guarded gateway/control bridge absent; no DS15 execute path |
+| `DS15-DELEGATION-AUTHORITY-MISSING` | no signed v2 delegation artifact/current mandate-owner authority, or C02 authority resolver cannot admit it; signature equality alone is insufficient |
+| `DS15-ADMISSION-BUNDLE-PRODUCER-MISSING` | governed deterministic admission-bundle emitter/mapping absent; this is not a human appointment |
+| `DS15-EPOCH-QUALIFICATION-NOT-ESTABLISHED` | pending epoch is `policy_admission_missing`; authority is `absent/unallocated` and its production consumer is `bridge_missing`; render the appointment/composition effect, never active/qualified |
 | `DS15-ROUTE-REVALIDATION-REQUIRED` | historical/current hash, rule, epoch, availability, rights or mandate differs |
-| `DS15-RANKING-ONLY-NOT-VOI` | display interim priority; VOI unavailable |
+| `DS15-RANKING-ONLY-NOT-VOI` | display interim residual ordering, all-zero score basis and named owner granularity refusal; VOI unavailable |
 | `DS15-DECISION-REQUIRED` | PA2 request exists; DS9 record not yet current |
 | `DS15-DECISION-INVALID` | wrong run/route/action/record or stale decision |
 | `DS15-OFFLINE-ACTION-FORBIDDEN` | decision/execution attempted without live revalidation |
@@ -1252,7 +1441,7 @@ intersects the command's complete input denominator at zero.
 | `DS15-SHARED-SPINE-DRIFT` | second writer/store/passport/epoch path detected |
 | `DS15-GENERATED-DRIFT` | OpenAPI/client family differs from sources or scratch twin |
 | `DS15-DS11-FENCE-HELD` | held-prefix ancestry/path census not released |
-| `DS15-POSITIVE-RECEIPT-MISSING` | external producers and/or real successful demonstration not established; DS15 cannot close |
+| `DS15-POSITIVE-RECEIPT-MISSING` | successor owner is `absent/unallocated` and producer/bridge/verification receipts are not established; bounded DS15 may close, but production world growth remains an explicit non-closure and cannot be claimed |
 
 ## Pattern pass and capability state
 
@@ -1270,25 +1459,30 @@ Read the failure/repair register again before C01 design and C06 closeout.
 | P39 | count plans/tests/generated/register/snapshots as mechanisms | 37 declared mechanisms, exact 37 hard ceiling, companions explicit |
 | P40/P41 | patch the second escape or inherit a red from a nearer base | bucket second finding; exact slice-base replay and complete-input disjointness |
 
-Target closure is `typed contract/artifact + producer + persisted
-planner/execution/event + PA2/DS9 orchestration bridge + N13b
+Target bounded closure is `typed contract/artifact + owned producer + persisted
+planner/execution/event + fail-closed PA2/DS9 orchestration bridge + N13b
 passport/overlay/quarantine consumer + HTTP/UI/MACHINE surface + negative/e2e
-semantic test + fresh non-fixture continuous-motion receipt`. Until a real
-admitted acquisition reaches an active epoch with a positive admitted delta and
-same-case re-entry through the safe production port and signed external
-producers, DS15 remains `producer_missing + verification_missing` and cannot
-close, even if every mechanism test is green.
+semantic test + source-honest historical/pending projection + permanently
+badged continuous-motion fixture`. The separate production-growth claim remains
+`absent/unallocated`, with producer/bridge/verification gaps, until an owner is
+appointed and a real admitted acquisition
+reaches a qualified active epoch with a positive admitted delta and same-case
+re-entry through the safe production port and signed external inputs. That
+claim limitation must stay visible, but it is not an undiscoverable predicate
+on bounded DS15 closure.
 
-## Opening non-closures and blocking stop states
+## Opening non-closures and stop states
 
 | non-closure | precise state / boundary | closure signal |
 | --- | --- | --- |
-| successful live world growth | closure blocker: `producer_missing + verification_missing`; N13b truth is 0 admitted, 0 epochs, no growth | safe N13b production port + signed PA2 producers + institutional qualification owner, then fresh non-fixture terminal receipt binding admitted passport, active epoch, positive delta and same-case re-entry; otherwise DS15 stays partial/blocked |
+| `fresh_positive_production_route` | external claim non-closure `absent/unallocated`; no successor lane or accountable owner is appointed. N13b truth is 0 admitted, 0 epochs, no growth. The residual candidate denominator is 1 historical data-shaped (`government.balance`) + 14 shape `not_established`; the separate 3-row capstone denominator is structural and non-row-addressable | owner: **unallocated**; a future allocation must name the N13b production-acquisition/data-gap producer, then close the safe-port, signed-PA2, qualification-composition and receipt-verification gaps. Closure signal is a current independently re-established data-shaped route, qualified active epoch, positive delta and exact same-case re-entry. Bounded DS15 may close without it; production growth may not be claimed |
 | current `government.balance` acquisition button | `revalidation_required`/deeper connector-contract terminal; historical source-profile mismatch cannot authorize | fresh planner/rights/route resolution after `source_selector:11` or another honest producer route is current |
 | actionable acquisition cost | `producer_missing`; current unversioned hard-coded/default cost path has no actionable owner ref | planner-owned `PlannerAcquisitionCostSchedule@1.0` exact named row + content-bound cost record in a verified completed control-job/compiled-run closure; unknown-gap fallback remains ineligible |
 | production N13b execution handshake | `producer_missing`; raw-path local-filesystem World Bank function is in-process, not a guarded tenant-bound port | N13b owner exposes a typed production port over the same journal/CAS/passport/overlay/quarantine spine; DS15 changes no write path |
-| PA2 production composition | `producer_missing`; gateway is test-composed and signed delegation/admission producers are absent | guarded-store-compatible gateway plus current signed external inputs resolve through the control owner |
-| semantic-epoch qualification authority | institutional owner `absent/unallocated`; production admission fails closed | external owner supplies current signed qualification/consumer evidence; DS15 only verifies and consumes it |
+| PA2 gateway/control composition | DS15-owned `implemented_but_not_orchestrated + bridge_missing`; gateway is test-composed | C02 composes the guarded-store-compatible gateway, exact effects and durable decision loader; this engineering band is a bounded-closure obligation |
+| signed v2 delegation + mandate-owner authority | external `producer_missing + artifact_missing`; current builder emits no signed action envelopes, and the opening gateway is `consumer_missing + bridge_missing` for appointment/currentness/revocation because signer equality is its only owner check | C02 closes only the strict authority-consumer bridge; a deployment/DS9 successor owner must still supply the content-bound contract/head mapping plus typed current mandate-owner authority. DS15 never appoints the human owner |
+| deterministic admission-bundle producer | external `producer_missing + artifact_missing + bridge_missing`; no governed current run/job invocation-hash emitter exists | runtime/deployment owner emits and signs the governed `AgentActionAdmissionBundle` plus mapping; this is an engineering producer, not an unappointed human |
+| semantic-epoch qualification authority | institutional owner `absent/unallocated` and production consumer `bridge_missing`; the wrapper hard-codes unallocated consumer/adapter constructors. Pending passport/overlay admission exists, then finalization returns `not_established/policy_admission_missing` before history append/activation | surface always discloses status/code, unappointed policy-admission authority and what appointment plus composition would establish. A successor owner must supply current qualification evidence **and** wire/replace the production composition before any active/qualified production claim; DS15 changes neither write path |
 | GY-GAP6 evidence/register closure | out of scope; DS15 consumes/builds operational binding but edits no GY evidence/register | owning GY lane separately admits the DS15 runtime receipt under its own plan |
 | institutional principal, mandate, separation and presentation appointments | foreign signed inputs; DS15 does not appoint institutions | deployment-owned DS9 producers supply current signed inputs |
 | numeric VOI for N13a backlog or N13b D2 source growth | `producer_missing`; ranking-only, no numeric owner support | canonical planner/VOI owner emits content-bound decision/ranking ref and expected value/cost |
@@ -1302,8 +1496,10 @@ close, even if every mechanism test is green.
 
 An absent future test or receipt is `artifact_missing`, never green. Because the
 user excludes the debt register, out-of-scope obligations stay in this plan's
-stop-state table and handoff until an owner authorizes separate registration;
-CC24 is not one of those deferrable obligations.
+stop-state table and handoff until an owner authorizes separate registration.
+CC24's bounded production-negative and badged semantic-test lanes are not
+deferrable; `fresh_positive_production_route` is explicitly external and cannot
+be silently discharged by either lane.
 
 ## Commit sequence
 
@@ -1316,7 +1512,7 @@ CC24 is not one of those deferrable obligations.
 | C03 | `chore(api): regenerate acquisition route ABI` |
 | C04 | `feat(atlas): render acquisition growth surfaces` |
 | C05 | `feat(atlas): connect acquisition approval and re-entry` |
-| C06 closed | `docs(atlas): close DS15 acquisition routes` only after CC24 |
+| C06 closed | `docs(atlas): close DS15 acquisition routes` only after bounded CC24; commit/register copy must preserve the external production-growth non-closure |
 | C06 blocked/partial | `docs(atlas): record blocked DS15 acquisition state` with no ready/closed register transition |
 
 Before each commit: attached branch, prefix, exact dirty-path list, mechanism
@@ -1334,30 +1530,38 @@ The executor/architect receives:
 - logical HTTP/contract/in-process partition and the legacy-ingest non-seam;
 - independent 12/18/144/124/15/3, 43/41/2 and 22-CAS/1-journal/
   20-top-level derivations;
-- independent all-15 ranking-authority/method and zero-overlay-epoch/event/
+- independent all-15 ranking-authority/method, 15/15 zero-confidence/score,
+  3/12 route-demand, uniform VOI-owner boundary and zero-overlay-epoch/event/
   admitted-observation derivations;
 - `1 data-shaped / 0 structural / 14 shape not_established` residual split and
-  separate `3 structural / 0 data-shaped / 0 not_established` capstone split;
+  separate `3 structural / 0 data-shaped / 0 not_established` capstone split,
+  with `gap_class` named as DS15 vocabulary owned by
+  `acquisition_surface_contracts.py` and produced by
+  `acquisition_surface_projection.py`, not an N13a/N13b field;
 - `government.balance` requirement/gap/hash/rank, current source-profile
   mismatch, quarantine/no-growth/deeper-terminal receipts, and the separate CPI
   acceptance selection;
-- ranking-only presentation rules and VOI availability proof;
+- ranking-only presentation rules, all-zero basis/owner-granularity disclosure,
+  and VOI availability proof;
 - planner-owned versioned cost schedule, unknown-gap no-action fallback, and
   completed control-job/compiled-run CAS closure with progress/event/ref
   agreement;
-- exact PA2/DS9/permission/step-up action sequence, guarded-store composition
-  status and missing signed producer refs;
+- exact PA2/DS9/permission/step-up action sequence, DS15-owned guarded-store
+  composition status, external signed-v2-delegation/current-mandate-owner band,
+  and deterministic admission-bundle producer band;
 - the N13b raw-path/World-Bank-only limitation, required owner production port,
-  absent institutional qualification owner, and why each is
-  `producer_missing` rather than a DS15 appointment task;
+  absent institutional qualification owner, the real pending
+  `not_established/policy_admission_missing` disclosure, and why active but
+  unqualified is unreachable without an out-of-scope write-path change;
 - one-spine passport/quarantine/overlay/re-entry source refs plus the exact
   CAS/event/action-head receipt owner and crash-recovery phase;
 - API packets, generated ABI twins, raw-response/DOM/MACHINE hashes;
 - DS11 landing/path-fence release receipt and exact frontend wait point;
 - 37-declared/37-ceiling mechanism derivations, 11-round accounting, visual/
   a11y timing with `user + sys` and uptime pairs; and
-- every remaining out-of-scope non-closure; if the positive live receipt is
-  missing, a partial/blocked handoff that explicitly says DS15 did not close.
+- every remaining out-of-scope non-closure, including the separately owned
+  `fresh_positive_production_route`; if that receipt is missing, a bounded-close
+  handoff that explicitly says production world growth was not established.
 
 Anything that introduces a new permission, decision source kind, acquisition
 writer/store/passport/epoch allocator, public audience, current authority from a

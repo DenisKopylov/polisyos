@@ -17,11 +17,6 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
 
     stage_dir = _stage_dir(config.build_root, StageId.D4)
     ensure_dirs(stage_dir)
-    d4_config = config.stages[StageId.D4.value]
-    coverage_threshold = max(
-        0.95,
-        float(config.stages[StageId.D0_P0.value].coverage_threshold),
-    )
     request_path = _write_json(
         stage_dir / _D4_GOVERNANCE_REQUEST_OUTPUT,
         {
@@ -32,10 +27,6 @@ def build_d4_stage(config: PipelineConfig) -> StageBuildResult:
                 "release_acceptance",
                 "legal_intervention_compilation",
                 "method_validity",
-            ],
-            "coverage_threshold": coverage_threshold,
-            "waived_signoff_families": [
-                family.value for family in d4_config.final_signoff_waived_families
             ],
             "required_stage_manifests": {
                 "d0_p0": "build_run_d0_p0.json",

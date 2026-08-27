@@ -17,7 +17,7 @@ from typing import Any
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
@@ -120,6 +120,8 @@ _CHANNEL_FAMILY_MAP: tuple[tuple[str, ObservationFamily], ...] = (
 _UKRAINE_D4_REQUEST_OUTPUT = "d4_governance_request.json"
 _IDENTITY_RESOLUTION_COHORT_OUTPUT = "identity_resolution_cohort_v1.json"
 _IDENTITY_RESOLUTION_COHORT_SCHEMA = "policyos.data_forge.ukraine.identity_resolution_cohort.v1"
+_AGENT_REGISTRY_RUNTIME_OUTPUT = "agent_registry_runtime.parquet"
+_UKRAINE_D4_COVERAGE_THRESHOLD = 0.95
 
 
 class _UkraineD4GovernanceRequest(BaseModel):
@@ -130,8 +132,6 @@ class _UkraineD4GovernanceRequest(BaseModel):
     schema_version: str
     authority_purpose: str
     may_not_use_for: list[str]
-    coverage_threshold: float = Field(ge=0.0, le=1.0)
-    waived_signoff_families: list[ObservationFamily] = Field(default_factory=list)
     required_stage_manifests: dict[str, str]
 
 
@@ -142,7 +142,6 @@ class _IdentityResolutionCohortRow(BaseModel):
 
     cohort: str = Field(pattern="^(spending|procurement)$")
     raw_identity: str = Field(min_length=1)
-    resolved: bool
 
 
 class _IdentityResolutionCohort(BaseModel):
@@ -151,10 +150,10 @@ class _IdentityResolutionCohort(BaseModel):
     Expected producer JSON shape::
 
         {"schema_version": "policyos.data_forge.ukraine.identity_resolution_cohort.v1",
-         "rows": [{"cohort": "spending", "raw_identity": "...", "resolved": true}]}
+         "rows": [{"cohort": "spending", "raw_identity": "..."}]}
 
-    The bridge derives the two coverage predicates from these rows rather than
-    trusting stage-manifest metrics.
+    The bridge resolves these raw identities against a separately admitted
+    runtime registry rather than trusting producer-authored resolution flags.
     """
 
     model_config = ConfigDict(extra="forbid")
@@ -1154,7 +1153,12 @@ def _persist_verified_stage_receipt(
 def _load_d4_governance_request(payload: bytes) -> _UkraineD4GovernanceRequest:
     """Load the producer request without treating it as a governance verdict."""
 
-    request = _UkraineD4GovernanceRequest.model_validate_json(payload)
+    try:
+        request = _UkraineD4GovernanceRequest.model_validate_json(payload)
+    except ValidationError as exc:
+        raise UkraineStageArtifactVerificationError(
+            f"invalid D4 governance request: {exc}"
+        ) from exc
     if request.schema_version != "policyos.data_forge.ukraine.d4_governance_request.v1":
         raise UkraineStageArtifactVerificationError("unsupported D4 governance request schema")
     if request.authority_purpose != "producer_governance_handoff":
@@ -1175,28 +1179,62 @@ def _load_d4_governance_request(payload: bytes) -> _UkraineD4GovernanceRequest:
     return request
 
 
-def _recompute_identity_resolution_coverage(payload: bytes) -> tuple[float, float]:
-    """Recompute spending and procurement coverage from verified D0 row evidence."""
+def _normalize_identity_key(value: object) -> str:
+    """Normalize a registry identity without accepting a producer verdict."""
 
-    cohort = _IdentityResolutionCohort.model_validate_json(payload)
+    if pd.isna(value):
+        return ""
+    text = str(value).strip().lower()
+    return "".join(character for character in text if character.isalnum())
+
+
+def _recompute_identity_resolution_coverage(
+    cohort_payload: bytes,
+    registry_payload: bytes,
+) -> tuple[float, float]:
+    """Recompute D0 cohort coverage against independently admitted registry bytes."""
+
+    try:
+        cohort = _IdentityResolutionCohort.model_validate_json(cohort_payload)
+    except ValidationError as exc:
+        raise UkraineStageArtifactVerificationError(
+            f"invalid identity resolution cohort: {exc}"
+        ) from exc
     if cohort.schema_version != _IDENTITY_RESOLUTION_COHORT_SCHEMA:
         raise UkraineStageArtifactVerificationError("unsupported identity resolution cohort schema")
+    try:
+        registry = pd.read_parquet(BytesIO(registry_payload))
+    except Exception as exc:
+        raise UkraineStageArtifactVerificationError(
+            f"failed to parse admitted agent registry: {exc}"
+        ) from exc
+    identity_columns = {"agent_id", "registration_code", "tax_id", "edrpou"}
+    missing_columns = sorted(identity_columns.difference(registry.columns))
+    if missing_columns:
+        raise UkraineStageArtifactVerificationError(
+            "agent registry is missing identity columns: " + ",".join(missing_columns)
+        )
+    admitted_identities = {
+        normalized
+        for column in sorted(identity_columns)
+        for normalized in registry[column].map(_normalize_identity_key).tolist()
+        if normalized
+    }
     coverage: dict[str, float] = {}
     for cohort_name in ("spending", "procurement"):
         rows = [item for item in cohort.rows if item.cohort == cohort_name]
-        by_identity: dict[str, bool] = {}
-        for row in rows:
-            previous = by_identity.get(row.raw_identity)
-            if previous is not None and previous != row.resolved:
-                raise UkraineStageArtifactVerificationError(
-                    f"identity resolution cohort has contradictory row: {cohort_name}:{row.raw_identity}"
-                )
-            by_identity[row.raw_identity] = row.resolved
-        if not by_identity:
+        cohort_identities = {
+            normalized
+            for row in rows
+            if (normalized := _normalize_identity_key(row.raw_identity))
+        }
+        if not cohort_identities:
             raise UkraineStageArtifactVerificationError(
                 f"identity resolution cohort is missing {cohort_name} rows"
             )
-        coverage[cohort_name] = sum(by_identity.values()) / float(len(by_identity))
+        coverage[cohort_name] = len(cohort_identities & admitted_identities) / float(
+            len(cohort_identities)
+        )
     return coverage["spending"], coverage["procurement"]
 
 
@@ -1266,16 +1304,14 @@ def _household_distribution_observation_panel(cells: pd.DataFrame) -> pd.DataFra
             "observed_value": pd.to_numeric(frame["household_income_mean"], errors="coerce").fillna(
                 0.0
             ),
-            "trust_weight": pd.to_numeric(frame.get("trust_weight", 0.95), errors="coerce").fillna(
-                0.95
-            ),
-            "coverage_estimate": 0.97,
-            "measurement_bias_flag": frame.get("measurement_bias_flag", False),
-            "source_id": "household_microdata",
+            "trust_weight": 0.0,
+            "coverage_estimate": 0.0,
+            "measurement_bias_flag": True,
+            "source_id": "d3_calibrated_household_cells",
             "source_version": "d3_verified",
-            "identification_mode": IdentificationMode.POINT_IDENTIFIED.value,
-            "source_confidence_tier": SourceConfidenceTier.VALIDATED.value,
-            "proxy_source_id": None,
+            "identification_mode": IdentificationMode.BOUNDS_ONLY.value,
+            "source_confidence_tier": SourceConfidenceTier.EXPLORATORY.value,
+            "proxy_source_id": "calibrated_household_cells.parquet",
             "regime_id": "regime_a",
             "entity_id": frame["cell_id"].astype(str),
         }
@@ -1313,7 +1349,10 @@ def run_verified_ukraine_d4_governance(
         store=store,
         allowed_root=root,
         expected_stage="d0_p0",
-        required_outputs=(_IDENTITY_RESOLUTION_COHORT_OUTPUT,),
+        required_outputs=(
+            _IDENTITY_RESOLUTION_COHORT_OUTPUT,
+            _AGENT_REGISTRY_RUNTIME_OUTPUT,
+        ),
     )
     d2_receipt = load_verified_stage_artifacts(
         manifests_dir / request.required_stage_manifests["d2"],
@@ -1334,7 +1373,12 @@ def run_verified_ukraine_d4_governance(
             store,
             d0_receipt,
             _IDENTITY_RESOLUTION_COHORT_OUTPUT,
-        )
+        ),
+        load_verified_stage_output_bytes(
+            store,
+            d0_receipt,
+            _AGENT_REGISTRY_RUNTIME_OUTPUT,
+        ),
     )
     observation_panel = pd.read_parquet(
         BytesIO(
@@ -1386,13 +1430,12 @@ def run_verified_ukraine_d4_governance(
     receipt_refs = {
         name: _persist_verified_stage_receipt(store, receipt) for name, receipt in receipts.items()
     }
-    waived = tuple(request.waived_signoff_families)
     eligibility = build_family_eligibility_registry(
         observation_panel,
-        coverage_threshold=request.coverage_threshold,
+        coverage_threshold=_UKRAINE_D4_COVERAGE_THRESHOLD,
         spending_coverage=spending_coverage,
         procurement_coverage=procurement_coverage,
-        waived_families=waived,
+        waived_families=(),
         proxy_promoted_families=(ObservationFamily.LABOR_MARKET,) if labor_promoted else (),
     )
     eligibility.require_final_signoff_ready(REQUIRED_SIGNOFF_FAMILIES)
@@ -1413,9 +1456,7 @@ def run_verified_ukraine_d4_governance(
         strategic_plausibility=strategic_metrics.aggregate_plausibility,
         governance_penalty=_clip01(1.0 - strategic_metrics.aggregate_plausibility),
         interference_fit_score=_clip01(interference_report.effects.total_effect),
-        required_families=tuple(
-            family for family in REQUIRED_SIGNOFF_FAMILIES if family not in set(waived)
-        ),
+        required_families=REQUIRED_SIGNOFF_FAMILIES,
     )
     champion = next(
         item

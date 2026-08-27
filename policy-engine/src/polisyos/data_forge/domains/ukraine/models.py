@@ -189,7 +189,6 @@ class StageConfig(BaseModel):
     required_previous_stages: list[StageId] = Field(default_factory=list)
     output_artifacts: list[str] = Field(default_factory=list)
     coverage_threshold: float = Field(default=0.95, ge=0.0, le=1.0)
-    final_signoff_waived_families: list[ObservationFamily] = Field(default_factory=list)
     expected_agent_count: CountRange | None = None
     expected_cell_count: CountRange | None = None
     resource_budget: ResourceBudget = Field(default_factory=ResourceBudget)
@@ -385,17 +384,13 @@ def _default_stage_configs() -> dict[str, StageConfig]:
         StageId.D4.value: StageConfig(
             stage_id=StageId.D4,
             required_previous_stages=[StageId.D3],
-            final_signoff_waived_families=[
-                ObservationFamily.PROCUREMENT_FLOWS,
-                ObservationFamily.DISTRESS_ENFORCEMENT,
-            ],
             output_artifacts=[
                 "d4_governance_request.json",
             ],
             resource_budget=ResourceBudget(max_workers=16, memory_gib=28.0, time_budget_s=7_200.0),
             notes=[
-                "Current policy cycle treats procurement proxy and distress proxy families as diagnostic-only waivers for final sign-off.",
-                "Remaining exact-signoff uplift is focused on EDR identity bridge and labor-market evidence.",
+                "Scientist owns D4 exact-signoff thresholds and admits no producer-authored waivers.",
+                "Producer outputs remain routing and evidence candidates until Scientist verification.",
             ],
         ),
         StageId.D5.value: StageConfig(

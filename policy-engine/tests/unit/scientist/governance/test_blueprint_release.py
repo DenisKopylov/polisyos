@@ -17,7 +17,12 @@ from polisyos.data_forge.domains.ukraine.manifests import (
 from polisyos.data_forge.domains.ukraine.models import StageId, build_default_pipeline_config
 from polisyos.data_forge.read_api.ukraine import UkraineStageArtifactVerificationError
 from polisyos.scientist.governance import blueprint_release
-from polisyos.scientist.governance.blueprint_release import run_verified_ukraine_d4_governance
+from polisyos.scientist.governance.blueprint_release import (
+    _household_distribution_observation_panel,
+    _load_d4_governance_request,
+    _recompute_identity_resolution_coverage,
+    run_verified_ukraine_d4_governance,
+)
 
 
 def _write_completed_stage_manifest(
@@ -53,19 +58,28 @@ def _verified_bridge_fixture(tmp_path):
             {
                 "schema_version": "policyos.data_forge.ukraine.identity_resolution_cohort.v1",
                 "rows": [
-                    {"cohort": "spending", "raw_identity": "s1", "resolved": True},
-                    {"cohort": "spending", "raw_identity": "s2", "resolved": True},
-                    {"cohort": "procurement", "raw_identity": "p1", "resolved": True},
-                    {"cohort": "procurement", "raw_identity": "p2", "resolved": True},
+                    {"cohort": "spending", "raw_identity": "s1"},
+                    {"cohort": "spending", "raw_identity": "s2"},
+                    {"cohort": "procurement", "raw_identity": "p1"},
+                    {"cohort": "procurement", "raw_identity": "p2"},
                 ],
             }
         ),
         encoding="utf-8",
     )
+    registry_path = d0_dir / "agent_registry_runtime.parquet"
+    pd.DataFrame(
+        {
+            "agent_id": ["agent::s1", "agent::s2", "agent::p1", "agent::p2"],
+            "registration_code": ["s1", "s2", "p1", "p2"],
+            "tax_id": [None, None, None, None],
+            "edrpou": [None, None, None, None],
+        }
+    ).to_parquet(registry_path, index=False)
     _write_completed_stage_manifest(
         config,
         stage_id=StageId.D0_P0,
-        outputs=[ArtifactRecord.from_path(cohort_path)],
+        outputs=[ArtifactRecord.from_path(cohort_path), ArtifactRecord.from_path(registry_path)],
     )
 
     periods = ["2023-01-01", "2024-01-01", "2025-01-01"]
@@ -182,7 +196,10 @@ def test_verified_ukraine_d4_bridge_requires_recomputable_d0_coverage_evidence(t
 
     with pytest.raises(
         UkraineStageArtifactVerificationError,
-        match="required stage outputs are missing: identity_resolution_cohort_v1.json",
+        match=(
+            "required stage outputs are missing: "
+            "agent_registry_runtime.parquet,identity_resolution_cohort_v1.json"
+        ),
     ):
         run_verified_ukraine_d4_governance(
             build_root=config.build_root.root,
@@ -191,11 +208,11 @@ def test_verified_ukraine_d4_bridge_requires_recomputable_d0_coverage_evidence(t
         )
 
 
-def test_verified_ukraine_d4_bridge_runs_scientist_validation_and_persists_receipts(
+def test_verified_ukraine_d4_bridge_blocks_household_signoff_after_immutable_admission(
     tmp_path,
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    """Verified stage artifacts reach the real Scientist calibration-validation runner."""
+    """Producer household rows remain bounds-only after immutable admission."""
 
     config, d4_manifest_path, _ = _verified_bridge_fixture(tmp_path)
     load_verified_stage_artifacts = blueprint_release.load_verified_stage_artifacts
@@ -212,19 +229,118 @@ def test_verified_ukraine_d4_bridge_runs_scientist_validation_and_persists_recei
         _admit_then_mutate_sources,
     )
 
-    result = run_verified_ukraine_d4_governance(
-        build_root=config.build_root.root,
-        d4_manifest_path=d4_manifest_path,
-        cas_root=config.build_root.resolved_cas_root,
+    with pytest.raises(
+        ValueError,
+        match=r"families_not_exact_signoff_ready:.*household_distribution",
+    ):
+        run_verified_ukraine_d4_governance(
+            build_root=config.build_root.root,
+            d4_manifest_path=d4_manifest_path,
+            cas_root=config.build_root.resolved_cas_root,
+        )
+
+
+def test_d4_identity_coverage_is_recomputed_from_registry_bytes(tmp_path) -> None:
+    """Raw producer identities cannot declare their own resolution predicate."""
+
+    cohort = json.dumps(
+        {
+            "schema_version": "policyos.data_forge.ukraine.identity_resolution_cohort.v1",
+            "rows": [
+                {"cohort": "spending", "raw_identity": "s1"},
+                {"cohort": "spending", "raw_identity": "s2"},
+                {"cohort": "procurement", "raw_identity": "p1"},
+                {"cohort": "procurement", "raw_identity": "p2"},
+            ],
+        }
+    ).encode()
+    registry_path = tmp_path / "agent_registry_runtime.parquet"
+    pd.DataFrame(
+        {
+            "agent_id": ["agent::s1", "agent::p1"],
+            "registration_code": ["s1", "p1"],
+            "tax_id": [None, None],
+            "edrpou": [None, None],
+        }
+    ).to_parquet(registry_path, index=False)
+
+    spending, procurement = _recompute_identity_resolution_coverage(
+        cohort,
+        registry_path.read_bytes(),
     )
 
-    assert result.bundle_ref.kind == "scientist.calibration_validation_bundle"
-    assert result.bundle.status == "completed"
-    assert result.bundle.governance_verdict == "needs_revision"
-    assert set(result.bundle.metadata["producer_receipt_refs"]) == {"d0_p0", "d2", "d3", "d4"}
-    assert (
-        result.bundle.metadata["producer_receipt_authority_purpose"] == "producer_artifact_receipt"
+    assert spending == pytest.approx(0.5)
+    assert procurement == pytest.approx(0.5)
+
+
+def test_d4_rejects_producer_resolved_flags() -> None:
+    """Even all-true producer flags cannot enter the recomputed coverage gate."""
+
+    cohort = json.dumps(
+        {
+            "schema_version": "policyos.data_forge.ukraine.identity_resolution_cohort.v1",
+            "rows": [
+                {"cohort": "spending", "raw_identity": "s1", "resolved": True},
+                {"cohort": "procurement", "raw_identity": "p1", "resolved": True},
+            ],
+        }
+    ).encode()
+
+    with pytest.raises(UkraineStageArtifactVerificationError, match="resolved"):
+        _recompute_identity_resolution_coverage(cohort, b"not-consulted")
+
+
+def test_d4_waiver_flip_is_rejected_with_constant_receipt_hash(tmp_path) -> None:
+    """A stable digest cannot authorize a producer-authored signoff waiver."""
+
+    config, d4_manifest_path, _ = _verified_bridge_fixture(tmp_path)
+    store = blueprint_release.FileSystemCAS(config.build_root.resolved_cas_root)
+    receipt = blueprint_release.load_verified_stage_artifacts(
+        d4_manifest_path,
+        store=store,
+        allowed_root=config.build_root.root,
+        expected_stage="d4",
+        required_outputs=("d4_governance_request.json",),
     )
+    admitted_output = receipt.outputs["d4_governance_request.json"]
+    fixed_receipt_hash = admitted_output.sha256
+    admitted_bytes = blueprint_release.load_verified_stage_output_bytes(
+        store,
+        receipt,
+        "d4_governance_request.json",
+    )
+    _load_d4_governance_request(admitted_bytes)
+    request = json.loads(admitted_bytes)
+    request["waived_signoff_families"] = ["household_distribution"]
+
+    with pytest.raises(UkraineStageArtifactVerificationError, match="waived_signoff_families"):
+        _load_d4_governance_request(json.dumps(request).encode())
+
+    assert receipt.outputs["d4_governance_request.json"].sha256 == fixed_receipt_hash
+
+
+def test_household_projection_carries_declared_unknown_instead_of_coverage() -> None:
+    """Household synthesis cannot manufacture verifier-grade exact coverage."""
+
+    panel = _household_distribution_observation_panel(
+        pd.DataFrame(
+            {
+                "cell_id": ["cell::1"],
+                "region_code": ["01"],
+                "period_id": ["2025-01"],
+                "household_income_mean": [100.0],
+                "trust_weight": [1.0],
+                "measurement_bias_flag": [False],
+            }
+        )
+    )
+
+    assert panel["coverage_estimate"].tolist() == [0.0]
+    assert panel["measurement_bias_flag"].tolist() == [True]
+    assert panel["identification_mode"].tolist() == ["bounds_only"]
+    assert panel["source_confidence_tier"].tolist() == ["exploratory"]
+    assert panel["proxy_source_id"].tolist() == ["calibrated_household_cells.parquet"]
+    assert blueprint_release._UKRAINE_D4_COVERAGE_THRESHOLD == 0.95
 
 
 def test_verified_ukraine_d4_bridge_rejects_content_drift_before_governance(tmp_path) -> None:

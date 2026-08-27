@@ -62,28 +62,23 @@ def _identity_resolution_cohort_rows(
     frame: pd.DataFrame,
     *,
     cohort: str,
-    identity_columns: Sequence[tuple[str, str]],
+    raw_identity_columns: Sequence[str],
 ) -> list[dict[str, object]]:
-    """Project one producer cohort into unique recomputable identity evidence."""
+    """Project one producer cohort into raw identities for verifier recomputation."""
 
-    resolved_by_identity: dict[str, bool] = {}
-    for raw_column, resolved_column in identity_columns:
+    raw_identities: set[str] = set()
+    for raw_column in raw_identity_columns:
         raw_series = _coerce_string_series(frame, raw_column)
-        resolved_series = _coerce_string_series(frame, resolved_column)
-        for raw_value, resolved_value in zip(raw_series, resolved_series, strict=False):
+        for raw_value in raw_series:
             normalized = _normalize_identity_key(raw_value)
-            if not normalized:
-                continue
-            resolved_by_identity[normalized] = bool(
-                resolved_by_identity.get(normalized, False) or str(resolved_value).strip()
-            )
+            if normalized:
+                raw_identities.add(normalized)
     return [
         {
             "cohort": cohort,
             "raw_identity": raw_identity,
-            "resolved": resolved,
         }
-        for raw_identity, resolved in sorted(resolved_by_identity.items())
+        for raw_identity in sorted(raw_identities)
     ]
 
 
@@ -532,17 +527,17 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
                 *_identity_resolution_cohort_rows(
                     spending_linked,
                     cohort="spending",
-                    identity_columns=(
-                        ("_source_agent_raw_id", "source_agent_id"),
-                        ("_target_agent_raw_id", "target_agent_id"),
+                    raw_identity_columns=(
+                        "_source_agent_raw_id",
+                        "_target_agent_raw_id",
                     ),
                 ),
                 *_identity_resolution_cohort_rows(
                     prozorro_linked,
                     cohort="procurement",
-                    identity_columns=(
-                        ("_buyer_agent_raw_id", "buyer_agent_id"),
-                        ("_supplier_agent_raw_id", "supplier_agent_id"),
+                    raw_identity_columns=(
+                        "_buyer_agent_raw_id",
+                        "_supplier_agent_raw_id",
                     ),
                 ),
             ],

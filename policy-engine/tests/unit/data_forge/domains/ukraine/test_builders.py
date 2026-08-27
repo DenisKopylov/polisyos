@@ -141,16 +141,16 @@ def test_identity_resolution_cohort_rows_preserve_the_unique_coverage_denominato
     rows = _identity_resolution_cohort_rows(
         frame,
         cohort="spending",
-        identity_columns=(
-            ("_source_agent_raw_id", "source_agent_id"),
-            ("_target_agent_raw_id", "target_agent_id"),
+        raw_identity_columns=(
+            "_source_agent_raw_id",
+            "_target_agent_raw_id",
         ),
     )
 
     assert rows == [
-        {"cohort": "spending", "raw_identity": "08252623", "resolved": True},
-        {"cohort": "spending", "raw_identity": "14361575", "resolved": True},
-        {"cohort": "spending", "raw_identity": "34971128", "resolved": False},
+        {"cohort": "spending", "raw_identity": "08252623"},
+        {"cohort": "spending", "raw_identity": "14361575"},
+        {"cohort": "spending", "raw_identity": "34971128"},
     ]
 
 
@@ -406,6 +406,8 @@ def test_build_d4_stage_emits_only_a_purpose_limited_governance_handoff(tmp_path
     )
     assert request["authority_purpose"] == "producer_governance_handoff"
     assert "governance_admissibility" in request["may_not_use_for"]
+    assert "coverage_threshold" not in request
+    assert "waived_signoff_families" not in request
     assert "governance_verdict" not in request
 
 

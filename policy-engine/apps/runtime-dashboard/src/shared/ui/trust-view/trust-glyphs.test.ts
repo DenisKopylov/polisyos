@@ -19,8 +19,9 @@ describe("Trust View presentation issuer", () => {
     });
 
     expect(presentTrustPresentation(verified)).toEqual({
-      dispute: "none",
-      status: "verified",
+      dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
+      status: "unknown",
     });
     expect(
       presentTrustPresentation(
@@ -33,7 +34,11 @@ describe("Trust View presentation issuer", () => {
           verified_by: "runtime-verifier",
         }),
       ),
-    ).toEqual({ dispute: "under_review", status: "disputed" });
+    ).toEqual({
+      dispute: "under_review",
+      limitation: "content_bound_verification_receipt_missing",
+      status: "disputed",
+    });
     expect(
       presentTrustPresentation(
         issueTrustPresentation({
@@ -45,7 +50,11 @@ describe("Trust View presentation issuer", () => {
           verified_by: "runtime-verifier",
         }),
       ),
-    ).toEqual({ dispute: "disputed", status: "disputed" });
+    ).toEqual({
+      dispute: "disputed",
+      limitation: "content_bound_verification_receipt_missing",
+      status: "disputed",
+    });
     expect(
       presentTrustPresentation(
         issueTrustPresentation({
@@ -57,7 +66,11 @@ describe("Trust View presentation issuer", () => {
           verified_by: "runtime-verifier",
         }),
       ),
-    ).toEqual({ dispute: "resolved", status: "stale" });
+    ).toEqual({
+      dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
+      status: "stale",
+    });
     expect(
       presentTrustPresentation(
         issueTrustPresentation({
@@ -66,7 +79,11 @@ describe("Trust View presentation issuer", () => {
           verification_status: "pending",
         }),
       ),
-    ).toEqual({ dispute: "none", status: "pending" });
+    ).toEqual({
+      dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
+      status: "pending",
+    });
   });
 
   it("fails closed for incomplete data and makes runtime novelty explicit", () => {
@@ -80,7 +97,11 @@ describe("Trust View presentation issuer", () => {
           verified_by: "runtime-verifier",
         }),
       ),
-    ).toEqual({ dispute: "none", status: "unknown" });
+    ).toEqual({
+      dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
+      status: "unknown",
+    });
     expect(
       presentTrustPresentation(
         issueTrustPresentation({
@@ -89,7 +110,11 @@ describe("Trust View presentation issuer", () => {
           verification_status: "pending",
         }),
       ),
-    ).toEqual({ dispute: "none", status: "unknown" });
+    ).toEqual({
+      dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
+      status: "unknown",
+    });
     expect(
       presentTrustPresentation(
         issueTrustPresentation({
@@ -98,7 +123,11 @@ describe("Trust View presentation issuer", () => {
           verification_status: "verified",
         }),
       ),
-    ).toEqual({ dispute: "unrecognized", status: "unrecognized" });
+    ).toEqual({
+      dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
+      status: "unrecognized",
+    });
     expect(
       presentTrustPresentation(
         issueTrustPresentation({
@@ -107,9 +136,14 @@ describe("Trust View presentation issuer", () => {
           verification_status: "pending",
         }),
       ),
-    ).toEqual({ dispute: "unrecognized", status: "unrecognized" });
+    ).toEqual({
+      dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
+      status: "unrecognized",
+    });
     expect(presentTrustPresentation(issueTrustPresentation(null))).toEqual({
       dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
       status: "unknown",
     });
   });
@@ -139,10 +173,12 @@ describe("Trust View presentation issuer", () => {
     expect(isIssuedTrustPresentation(new Proxy(issued, {}))).toBe(false);
     expect(presentTrustPresentation(structuralLookalike)).toEqual({
       dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
       status: "unrecognized",
     });
     expect(presentTrustPresentation(issueTrustPresentation(hostile))).toEqual({
       dispute: "unrecognized",
+      limitation: "content_bound_verification_receipt_missing",
       status: "unknown",
     });
   });

@@ -4157,6 +4157,8 @@ function emptyAuthorityIssuerFacts() {
     unrecognizedNeutralFactories: [],
     ownerMembershipFactories: [],
     exportedValueConstants: [],
+    moduleAccesses: [],
+    directCalls: [],
   };
 }
 
@@ -4474,6 +4476,7 @@ function collectAuthorityIssuerFacts(
   sourceByPath,
   brandSymbols,
   generatedDefinitionPaths,
+  compilerOptions,
 ) {
   const facts = emptyAuthorityIssuerFacts();
   const governedPaths = new Set(generatedDefinitionPaths ?? []);
@@ -4567,6 +4570,7 @@ function collectAuthorityIssuerFacts(
   }
 
   const factoryDeclarations = new Map();
+  const factorySymbols = new Map();
   for (const sourceFile of moduleSources) {
     for (const symbol of moduleExports(checker, sourceFile)) {
       const declaration = symbol.valueDeclaration ?? symbol.declarations?.[0];
@@ -4666,7 +4670,162 @@ function collectAuthorityIssuerFacts(
       };
       facts.factories.push(row);
       factoryDeclarations.set(symbol.name, { declaration, row });
+      factorySymbols.set(symbol.name, symbol);
     }
+  }
+
+  const privateIssuerName = "issueTrustPresentation";
+  const privateIssuerSymbol = factorySymbols.get(privateIssuerName);
+  if (privateIssuerSymbol) {
+    const privateIssuerModulePaths = new Set(
+      (privateIssuerSymbol.declarations ?? []).map((declaration) =>
+        declarationPath(declaration),
+      ),
+    );
+    const moduleTargetsIssuer = (sourceFile, specifier) => {
+      if (!specifier || !ts.isStringLiteralLike(specifier)) return false;
+      const resolved = ts.resolveModuleName(
+        specifier.text,
+        sourceFile.fileName,
+        compilerOptions,
+        ts.sys,
+      ).resolvedModule?.resolvedFileName;
+      return Boolean(
+        resolved && privateIssuerModulePaths.has(relativePath(resolved)),
+      );
+    };
+    const moduleAccesses = [];
+    const directCalls = [];
+    const record = (sourceFile, node, kind) => {
+      moduleAccesses.push({
+        factory: privateIssuerName,
+        kind,
+        path: relativePath(sourceFile.fileName),
+        line: lineOf(sourceFile, node),
+      });
+    };
+    for (const sourceFile of sourceByPath.values()) {
+      for (const statement of sourceFile.statements) {
+        if (
+          ts.isImportDeclaration(statement) &&
+          moduleTargetsIssuer(sourceFile, statement.moduleSpecifier)
+        ) {
+          const bindings = statement.importClause?.namedBindings;
+          if (bindings && ts.isNamedImports(bindings)) {
+            for (const element of bindings.elements) {
+              if (
+                symbolIdentity(checker, element.name) === privateIssuerSymbol &&
+                element.name.text !== privateIssuerName
+              ) {
+                record(sourceFile, element, "alias");
+              }
+            }
+          }
+        }
+        if (
+          ts.isExportDeclaration(statement) &&
+          moduleTargetsIssuer(sourceFile, statement.moduleSpecifier) &&
+          (!statement.exportClause ||
+            (ts.isNamedExports(statement.exportClause) &&
+              statement.exportClause.elements.some(
+                (element) =>
+                  (element.propertyName?.text ?? element.name.text) ===
+                  privateIssuerName,
+              )))
+        ) {
+          record(sourceFile, statement, "reexport");
+        }
+      }
+
+      const visitModuleAccesses = (node) => {
+        if (
+          ts.isCallExpression(node) &&
+          ts.isIdentifier(node.expression) &&
+          node.expression.text === privateIssuerName &&
+          symbolIdentity(checker, node.expression) === privateIssuerSymbol
+        ) {
+          directCalls.push({
+            factory: privateIssuerName,
+            path: relativePath(sourceFile.fileName),
+            line: lineOf(sourceFile, node),
+          });
+        }
+        if (
+          ts.isCallExpression(node) &&
+          node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+          moduleTargetsIssuer(sourceFile, node.arguments[0])
+        ) {
+          record(sourceFile, node, "dynamic_import");
+        } else if (
+          ts.isCallExpression(node) &&
+          ts.isIdentifier(node.expression) &&
+          node.expression.text === "require" &&
+          moduleTargetsIssuer(sourceFile, node.arguments[0])
+        ) {
+          record(sourceFile, node, "require");
+        } else if (
+          ts.isCallExpression(node) &&
+          (ts.isPropertyAccessExpression(node.expression) ||
+            ts.isElementAccessExpression(node.expression))
+        ) {
+          const member = ts.isPropertyAccessExpression(node.expression)
+            ? node.expression.name
+            : node.expression.argumentExpression;
+          if (
+            member &&
+            ((ts.isIdentifier(member) && member.text === privateIssuerName) ||
+              (ts.isStringLiteralLike(member) &&
+                member.text === privateIssuerName)) &&
+            symbolIdentity(checker, member) === privateIssuerSymbol
+          ) {
+            record(sourceFile, node, "namespace_property_call");
+          }
+        } else if (
+          ts.isVariableDeclaration(node) &&
+          node.initializer &&
+          symbolIdentity(checker, unwrapExpression(node.initializer)) ===
+            privateIssuerSymbol
+        ) {
+          record(sourceFile, node, "alias");
+        } else if (
+          ts.isVariableDeclaration(node) &&
+          ts.isObjectBindingPattern(node.name) &&
+          node.initializer &&
+          node.name.elements.some((element) => {
+            const memberName = element.propertyName ?? element.name;
+            return (
+              (ts.isIdentifier(memberName) ||
+                ts.isStringLiteralLike(memberName)) &&
+              memberName.text === privateIssuerName
+            );
+          })
+        ) {
+          const namespaceType = checker.getTypeAtLocation(node.initializer);
+          let member = checker.getPropertyOfType(
+            namespaceType,
+            privateIssuerName,
+          );
+          if (member && (member.flags & ts.SymbolFlags.Alias) !== 0) {
+            member = checker.getAliasedSymbol(member);
+          }
+          if (member === privateIssuerSymbol) {
+            record(sourceFile, node, "alias");
+          }
+        }
+        ts.forEachChild(node, visitModuleAccesses);
+      };
+      visitModuleAccesses(sourceFile);
+    }
+    facts.moduleAccesses = moduleAccesses.sort((left, right) =>
+      `${left.path}:${String(left.line).padStart(8, "0")}:${left.kind}`.localeCompare(
+        `${right.path}:${String(right.line).padStart(8, "0")}:${right.kind}`,
+      ),
+    );
+    facts.directCalls = directCalls.sort((left, right) =>
+      `${left.path}:${String(left.line).padStart(8, "0")}`.localeCompare(
+        `${right.path}:${String(right.line).padStart(8, "0")}`,
+      ),
+    );
   }
 
   for (const sourceFile of moduleSources) {
@@ -5522,6 +5681,7 @@ function collectAuthorityEscapeFacts(
     sourceByPath,
     brandSymbols,
     generatedDefinitionPaths,
+    program.getCompilerOptions(),
   );
 
   const familySymbols = new Set();

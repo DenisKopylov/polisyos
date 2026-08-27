@@ -30,14 +30,16 @@ const C04_MECHANISM_PATHS = [
 
 const PRESENTATION_COMPONENTS = {
   DisputeBadge: {
-    declaration: "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+    declaration:
+      "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
     expectedConsumers: [
       "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
       "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
     ],
   },
   VerificationStatus: {
-    declaration: "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+    declaration:
+      "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
     expectedConsumers: [
       "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
       "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
@@ -150,7 +152,10 @@ function namedImportsByTarget(
       continue;
     }
     for (const element of statement.importClause.namedBindings.elements) {
-      imports.set(element.name.text, element.propertyName?.text ?? element.name.text);
+      imports.set(
+        element.name.text,
+        element.propertyName?.text ?? element.name.text,
+      );
     }
   }
   return imports;
@@ -168,7 +173,10 @@ function componentUses(
   ast: ts.SourceFile,
   imports: Map<string, string>,
 ): Array<{ component: PresentationComponent; attributes: string[] }> {
-  const uses: Array<{ component: PresentationComponent; attributes: string[] }> = [];
+  const uses: Array<{
+    component: PresentationComponent;
+    attributes: string[];
+  }> = [];
   const visit = (node: ts.Node) => {
     if (ts.isJsxSelfClosingElement(node) || ts.isJsxOpeningElement(node)) {
       const tagName = ts.isIdentifier(node.tagName) ? node.tagName.text : null;
@@ -186,7 +194,10 @@ function componentUses(
   return uses;
 }
 
-function propertyNamesInPropsType(ast: ts.SourceFile, typeName: string): string[] {
+function propertyNamesInPropsType(
+  ast: ts.SourceFile,
+  typeName: string,
+): string[] {
   const properties: string[] = [];
   const visit = (node: ts.Node) => {
     if (
@@ -200,9 +211,10 @@ function propertyNamesInPropsType(ast: ts.SourceFile, typeName: string): string[
         : node.members;
       for (const member of members) {
         if (ts.isPropertySignature(member) && member.name) {
-          const name = ts.isIdentifier(member.name) || ts.isStringLiteral(member.name)
-            ? member.name.text
-            : null;
+          const name =
+            ts.isIdentifier(member.name) || ts.isStringLiteral(member.name)
+              ? member.name.text
+              : null;
           if (name) {
             properties.push(name);
           }
@@ -215,7 +227,10 @@ function propertyNamesInPropsType(ast: ts.SourceFile, typeName: string): string[
   return properties.sort();
 }
 
-function presentationPropTypeText(ast: ts.SourceFile, typeName: string): string | null {
+function presentationPropTypeText(
+  ast: ts.SourceFile,
+  typeName: string,
+): string | null {
   let result: string | null = null;
   const visit = (node: ts.Node) => {
     if (
@@ -244,26 +259,132 @@ function presentationPropTypeText(ast: ts.SourceFile, typeName: string): string 
   return result;
 }
 
-function issuerCalls(file: string, ast: ts.SourceFile): number {
-  const imports = namedImportsByTarget(ast, file, new Set([TRUST_GLYPHS_PATH]));
-  const issuerNames = new Set(
-    [...imports].flatMap(([local, imported]) =>
-      imported === "issueTrustPresentation" ? [local] : [],
-    ),
-  );
-  let calls = 0;
+type IssuerAccessKind =
+  | "alias"
+  | "dynamic_import"
+  | "namespace_property_call"
+  | "reexport"
+  | "require";
+
+function issuerCalls(
+  file: string,
+  ast: ts.SourceFile,
+): { directCalls: number; unsafeAccesses: IssuerAccessKind[] } {
+  const directIssuerNames = new Set<string>();
+  const namespaceNames = new Set<string>();
+  const unsafeAccesses = new Set<IssuerAccessKind>();
+
+  const targetsIssuer = (specifier: ts.Expression | undefined) => {
+    if (!specifier || !ts.isStringLiteralLike(specifier)) return false;
+    const resolved = resolveModule(file, specifier.text);
+    return Boolean(resolved && sourcePath(resolved) === TRUST_GLYPHS_PATH);
+  };
+
+  for (const statement of ast.statements) {
+    if (
+      ts.isImportDeclaration(statement) &&
+      targetsIssuer(statement.moduleSpecifier)
+    ) {
+      const bindings = statement.importClause?.namedBindings;
+      if (bindings && ts.isNamespaceImport(bindings)) {
+        namespaceNames.add(bindings.name.text);
+      } else if (bindings && ts.isNamedImports(bindings)) {
+        for (const element of bindings.elements) {
+          const imported = element.propertyName?.text ?? element.name.text;
+          if (imported !== "issueTrustPresentation") continue;
+          if (element.name.text === "issueTrustPresentation") {
+            directIssuerNames.add(element.name.text);
+          } else {
+            unsafeAccesses.add("alias");
+          }
+        }
+      }
+    }
+    if (
+      ts.isExportDeclaration(statement) &&
+      targetsIssuer(statement.moduleSpecifier) &&
+      (!statement.exportClause ||
+        (ts.isNamedExports(statement.exportClause) &&
+          statement.exportClause.elements.some(
+            (element) =>
+              (element.propertyName?.text ?? element.name.text) ===
+              "issueTrustPresentation",
+          )))
+    ) {
+      unsafeAccesses.add("reexport");
+    }
+  }
+
+  let directCalls = 0;
   const visit = (node: ts.Node) => {
     if (
       ts.isCallExpression(node) &&
       ts.isIdentifier(node.expression) &&
-      issuerNames.has(node.expression.text)
+      directIssuerNames.has(node.expression.text)
     ) {
-      calls += 1;
+      directCalls += 1;
+    }
+    if (
+      ts.isCallExpression(node) &&
+      node.expression.kind === ts.SyntaxKind.ImportKeyword &&
+      targetsIssuer(node.arguments[0])
+    ) {
+      unsafeAccesses.add("dynamic_import");
+    }
+    if (
+      ts.isCallExpression(node) &&
+      ts.isIdentifier(node.expression) &&
+      node.expression.text === "require" &&
+      targetsIssuer(node.arguments[0])
+    ) {
+      unsafeAccesses.add("require");
+    }
+    if (
+      ts.isCallExpression(node) &&
+      ((ts.isPropertyAccessExpression(node.expression) &&
+        ts.isIdentifier(node.expression.expression) &&
+        namespaceNames.has(node.expression.expression.text) &&
+        node.expression.name.text === "issueTrustPresentation") ||
+        (ts.isElementAccessExpression(node.expression) &&
+          ts.isIdentifier(node.expression.expression) &&
+          namespaceNames.has(node.expression.expression.text) &&
+          ts.isStringLiteralLike(node.expression.argumentExpression) &&
+          node.expression.argumentExpression.text === "issueTrustPresentation"))
+    ) {
+      unsafeAccesses.add("namespace_property_call");
+    }
+    if (
+      ts.isVariableDeclaration(node) &&
+      node.initializer &&
+      ts.isIdentifier(node.initializer) &&
+      directIssuerNames.has(node.initializer.text)
+    ) {
+      unsafeAccesses.add("alias");
+    }
+    if (
+      ts.isVariableDeclaration(node) &&
+      ts.isObjectBindingPattern(node.name) &&
+      node.initializer &&
+      ts.isIdentifier(node.initializer) &&
+      namespaceNames.has(node.initializer.text) &&
+      node.name.elements.some(
+        (element) =>
+          (element.propertyName &&
+            ts.isIdentifier(element.propertyName) &&
+            element.propertyName.text === "issueTrustPresentation") ||
+          (ts.isIdentifier(element.name) &&
+            element.name.text === "issueTrustPresentation"),
+      )
+    ) {
+      unsafeAccesses.add("alias");
     }
     ts.forEachChild(node, visit);
   };
   visit(ast);
-  return calls;
+  return {
+    directCalls,
+    unsafeAccesses: [...unsafeAccesses].sort(),
+  };
 }
 
 function forbiddenImports(file: string): string[] {
@@ -306,9 +427,58 @@ describe("shared Trust View architecture", () => {
     expect(governedFiles.flatMap(forbiddenImports)).toEqual([]);
   });
 
+  it.each([
+    [
+      "namespace property call",
+      'import * as trust from "./trust-glyphs"; trust.issueTrustPresentation(null);',
+      "namespace_property_call",
+    ],
+    [
+      "re-export",
+      'export { issueTrustPresentation } from "./trust-glyphs";',
+      "reexport",
+    ],
+    [
+      "dynamic import",
+      'void import("./trust-glyphs").then((trust) => trust.issueTrustPresentation(null));',
+      "dynamic_import",
+    ],
+    [
+      "require",
+      'const trust = require("./trust-glyphs"); trust.issueTrustPresentation(null);',
+      "require",
+    ],
+    [
+      "local alias",
+      'import { issueTrustPresentation } from "./trust-glyphs"; const alias = issueTrustPresentation; alias(null);',
+      "alias",
+    ],
+    [
+      "destructuring alias",
+      'import * as trust from "./trust-glyphs"; const { issueTrustPresentation: alias } = trust; alias(null);',
+      "alias",
+    ],
+  ])("rejects %s access to the private issuer", (_label, source, kind) => {
+    const file = path.join(trustViewRoot, "authority-access-probe.ts");
+    const ast = ts.createSourceFile(
+      file,
+      source,
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+
+    expect(issuerCalls(file, ast)).toEqual({
+      directCalls: 0,
+      unsafeAccesses: [kind],
+    });
+  });
+
   it("censuses every production consumer over the fixed 625-file C04 denominator", () => {
     const sources = productionDashboardSources();
-    expect(sources.map(sourcePath)).toEqual(trackedProductionDashboardSources());
+    expect(sources.map(sourcePath)).toEqual(
+      trackedProductionDashboardSources(),
+    );
     expect({
       all: sources.length,
       ts: sources.filter((source) => source.endsWith(".ts")).length,
@@ -335,17 +505,25 @@ describe("shared Trust View architecture", () => {
         );
         consumers.get(use.component)?.push(sourcePath(source));
       }
-      const calls = issuerCalls(source, ast);
-      if (calls > 0) {
+      const issuer = issuerCalls(source, ast);
+      expect(issuer.unsafeAccesses).toEqual([]);
+      if (issuer.directCalls > 0) {
         issuerOwners.push(sourcePath(source));
-        expect(calls).toBe(1);
+        expect(issuer.directCalls).toBe(1);
       }
     }
 
-    for (const [component, expected] of Object.entries(PRESENTATION_COMPONENTS) as Array<
-      [PresentationComponent, (typeof PRESENTATION_COMPONENTS)[PresentationComponent]]
+    for (const [component, expected] of Object.entries(
+      PRESENTATION_COMPONENTS,
+    ) as Array<
+      [
+        PresentationComponent,
+        (typeof PRESENTATION_COMPONENTS)[PresentationComponent],
+      ]
     >) {
-      expect(consumers.get(component)?.sort()).toEqual([...expected.expectedConsumers].sort());
+      expect(consumers.get(component)?.sort()).toEqual(
+        [...expected.expectedConsumers].sort(),
+      );
     }
     expect(issuerOwners.sort()).toEqual([
       "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
@@ -357,16 +535,25 @@ describe("shared Trust View architecture", () => {
     const observedMechanisms = new Set<string>([
       TRUST_GLYPHS_PATH,
       TRUST_VIEW_BARREL_PATH,
-      ...Object.values(PRESENTATION_COMPONENTS).map(({ declaration }) => declaration),
+      ...Object.values(PRESENTATION_COMPONENTS).map(
+        ({ declaration }) => declaration,
+      ),
       ...issuerOwners,
       ...[...consumers.values()].flat(),
     ]);
-    expect([...observedMechanisms].sort()).toEqual([...C04_MECHANISM_PATHS].sort());
+    expect([...observedMechanisms].sort()).toEqual(
+      [...C04_MECHANISM_PATHS].sort(),
+    );
   });
 
   it("admits only issued presentation props and keeps the issuer private to the barrel", () => {
-    for (const [component, detail] of Object.entries(PRESENTATION_COMPONENTS) as Array<
-      [PresentationComponent, (typeof PRESENTATION_COMPONENTS)[PresentationComponent]]
+    for (const [component, detail] of Object.entries(
+      PRESENTATION_COMPONENTS,
+    ) as Array<
+      [
+        PresentationComponent,
+        (typeof PRESENTATION_COMPONENTS)[PresentationComponent],
+      ]
     >) {
       const ast = sourceFile(path.join(repoRoot, detail.declaration));
       const propsType = `${component}Props`;
@@ -375,7 +562,9 @@ describe("shared Trust View architecture", () => {
           ? ["className", "presentation"]
           : ["className", "presentation", "showLabel"],
       );
-      expect(presentationPropTypeText(ast, propsType)).toBe("TrustPresentation");
+      expect(presentationPropTypeText(ast, propsType)).toBe(
+        "TrustPresentation",
+      );
     }
 
     const barrel = sourceFile(path.join(repoRoot, TRUST_VIEW_BARREL_PATH));

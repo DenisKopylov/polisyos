@@ -12,28 +12,37 @@ export type TrustPresentation = Readonly<{
 
 export type TrustPresentationData = Readonly<{
   dispute: "none" | "disputed" | "under_review" | "resolved" | "unrecognized";
-  status: "verified" | "pending" | "disputed" | "stale" | "unknown" | "unrecognized";
+  limitation: "content_bound_verification_receipt_missing";
+  status:
+    | "verified"
+    | "pending"
+    | "disputed"
+    | "stale"
+    | "unknown"
+    | "unrecognized";
 }>;
 
 type MetadataFields = Readonly<{
   disputeStatus: unknown;
   freshness: unknown;
-  hash: unknown;
-  verificationMethod: unknown;
   verificationStatus: unknown;
-  verifiedBy: unknown;
 }>;
 
 const issuedTrustPresentations = new WeakSet<object>();
-const issuedTrustPresentationData = new WeakMap<object, TrustPresentationData>();
+const issuedTrustPresentationData = new WeakMap<
+  object,
+  TrustPresentationData
+>();
 
 const UNKNOWN_PRESENTATION: TrustPresentationData = Object.freeze({
   dispute: "unrecognized",
+  limitation: "content_bound_verification_receipt_missing",
   status: "unknown",
 });
 
 const UNRECOGNIZED_PRESENTATION: TrustPresentationData = Object.freeze({
   dispute: "unrecognized",
+  limitation: "content_bound_verification_receipt_missing",
   status: "unrecognized",
 });
 
@@ -61,7 +70,9 @@ export function isIssuedTrustPresentation(
 }
 
 /** Return safe display data, never trusting a structural presentation lookalike. */
-export function presentTrustPresentation(value: unknown): TrustPresentationData {
+export function presentTrustPresentation(
+  value: unknown,
+): TrustPresentationData {
   if (!isIssuedTrustPresentation(value)) {
     return UNRECOGNIZED_PRESENTATION;
   }
@@ -94,28 +105,32 @@ function deriveTrustPresentation(metadata: unknown): TrustPresentationData {
       ? "disputed"
       : fields.disputeStatus;
   if (dispute === "disputed" || dispute === "under_review") {
-    return Object.freeze({ dispute, status: "disputed" });
+    return presentation(dispute, "disputed");
   }
   if (fields.freshness === "stale") {
-    return Object.freeze({ dispute, status: "stale" });
+    return presentation("unrecognized", "stale");
   }
   if (
     fields.freshness === "unknown" ||
     fields.verificationStatus === "untraced"
   ) {
-    return Object.freeze({ dispute, status: "unknown" });
+    return UNKNOWN_PRESENTATION;
   }
   if (fields.verificationStatus === "pending") {
-    return Object.freeze({ dispute, status: "pending" });
+    return presentation("unrecognized", "pending");
   }
-  if (
-    hasNonBlankString(fields.hash) &&
-    hasNonBlankString(fields.verificationMethod) &&
-    hasNonBlankString(fields.verifiedBy)
-  ) {
-    return Object.freeze({ dispute, status: "verified" });
-  }
-  return Object.freeze({ dispute, status: "unknown" });
+  return UNKNOWN_PRESENTATION;
+}
+
+function presentation(
+  dispute: TrustPresentationData["dispute"],
+  status: TrustPresentationData["status"],
+): TrustPresentationData {
+  return Object.freeze({
+    dispute,
+    limitation: "content_bound_verification_receipt_missing",
+    status,
+  });
 }
 
 function readMetadataFields(metadata: unknown): MetadataFields | null {
@@ -126,10 +141,7 @@ function readMetadataFields(metadata: unknown): MetadataFields | null {
     return {
       disputeStatus: Reflect.get(metadata, "dispute_status"),
       freshness: Reflect.get(metadata, "freshness"),
-      hash: Reflect.get(metadata, "hash"),
-      verificationMethod: Reflect.get(metadata, "verification_method"),
       verificationStatus: Reflect.get(metadata, "verification_status"),
-      verifiedBy: Reflect.get(metadata, "verified_by"),
     };
   } catch {
     return null;
@@ -162,10 +174,6 @@ function isFreshness(
   value: unknown,
 ): value is NonNullable<VerificationMetadata["freshness"]> {
   return value === "current" || value === "stale" || value === "unknown";
-}
-
-function hasNonBlankString(value: unknown): value is string {
-  return typeof value === "string" && value.trim().length > 0;
 }
 
 export function truncateHash(hash: string | null | undefined, size = 8) {

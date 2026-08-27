@@ -4711,6 +4711,12 @@ DS11_C04_MECHANISM_PATHS = (
     "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx",
     "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
 )
+DS11_C04_ISSUER_CALLERS = (
+    "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
+    "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+    "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+    "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx",
+)
 DS11_C04_OPENING_ROW_SHA256 = {
     "authority-presentation-prop-dispute-status": (
         "669820665d7425076730ab3e7be3a6d6c7be2bd8bf918f0f0bbb5820cc840847"
@@ -6868,6 +6874,20 @@ def _ds11_raw_trust_root_scan() -> dict[str, Any]:
     )
 
 
+def _ds11_is_production_dashboard_source(path: str) -> bool:
+    """Match the complete 625-file Trust View production denominator."""
+    return (
+        path.startswith("apps/runtime-dashboard/src/")
+        and path.endswith((".ts", ".tsx"))
+        and not path.endswith(".d.ts")
+        and not re.search(
+            r"\.(?:a11y\.)?(?:test|spec)\.[cm]?tsx?$|\.stories\.[cm]?tsx?$",
+            path,
+        )
+        and not ("/src/test/" in path and path.endswith(".tsx"))
+    )
+
+
 def _ds11_trust_presentation_semantic_errors(
     scan: Mapping[str, Any],
     *,
@@ -6885,6 +6905,19 @@ def _ds11_trust_presentation_semantic_errors(
     }
     if not DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS <= observed_descriptors:
         errors.append("ds11_trust_presentation_descriptor_missing")
+
+    path_facts = scan.get("authorityPathFiles")
+    if not isinstance(path_facts, list):
+        errors.append("ds11_trust_presentation_mechanism_path_census_invalid")
+    else:
+        production_paths = {
+            str(row.get("path"))
+            for row in path_facts
+            if isinstance(row, Mapping)
+            and _ds11_is_production_dashboard_source(str(row.get("path", "")))
+        }
+        if production_paths != set(DS11_C04_MECHANISM_PATHS):
+            errors.append("ds11_trust_presentation_mechanism_path_drift")
 
     raw_scan = raw_scan or _ds11_raw_trust_root_scan()
     raw_facts = raw_scan.get("authorityPropCensus")
@@ -6905,12 +6938,41 @@ def _ds11_trust_presentation_semantic_errors(
     if not isinstance(issuer, Mapping):
         return [*errors, "ds11_trust_presentation_issuer_facts_invalid"]
     modules = issuer.get("modules")
-    if not isinstance(modules, list) or [
-        module.get("path")
-        for module in modules
-        if isinstance(module, Mapping)
-    ] != [DS11_TRUST_GLYPHS_PATH]:
+    if (
+        not isinstance(modules, list)
+        or len(modules) != 1
+        or not isinstance(modules[0], Mapping)
+        or modules[0].get("path") != DS11_TRUST_GLYPHS_PATH
+        or not re.fullmatch(
+            r"sha256:[0-9a-f]{64}",
+            str(modules[0].get("sourceSha256", "")),
+        )
+    ):
         errors.append("ds11_trust_presentation_issuer_module_drift")
+
+    module_accesses = issuer.get("moduleAccesses")
+    if not isinstance(module_accesses, list):
+        errors.append("ds11_trust_presentation_module_access_census_invalid")
+    elif any(
+        isinstance(access, Mapping)
+        and access.get("factory") == "issueTrustPresentation"
+        for access in module_accesses
+    ):
+        errors.append("ds11_trust_presentation_unsafe_module_access")
+
+    direct_calls = issuer.get("directCalls")
+    if not isinstance(direct_calls, list):
+        errors.append("ds11_trust_presentation_direct_call_census_invalid")
+    else:
+        production_callers = Counter(
+            str(call.get("path"))
+            for call in direct_calls
+            if isinstance(call, Mapping)
+            and call.get("factory") == "issueTrustPresentation"
+            and _ds11_is_production_dashboard_source(str(call.get("path", "")))
+        )
+        if production_callers != Counter(DS11_C04_ISSUER_CALLERS):
+            errors.append("ds11_trust_presentation_issuer_caller_drift")
 
     brands = issuer.get("brands")
     if not isinstance(brands, list) or len(brands) != 1:
@@ -7038,6 +7100,11 @@ def _ds11_trust_presentation_rows(
     }
     if set(facts) != DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS:
         raise RuntimeError("ds11_trust_presentation_finding_denominator_drift")
+    issuer_module = scan["authorityIssuerFacts"]["modules"][0]
+    issuer_evidence_ref = (
+        f"{DS11_TRUST_GLYPHS_PATH}#content-sha256="
+        f"{issuer_module['sourceSha256']}"
+    )
     evidence_identities = _authority_evidence_identities(scan)
     rows: list[dict[str, Any]] = []
     for descriptor_id in sorted(DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS):
@@ -7060,7 +7127,7 @@ def _ds11_trust_presentation_rows(
                 "status": "repaired",
                 "evidence_refs": [
                     "docs/plans/active/atlas-slices/DS11-trust-docs-posture.md#c04--trust-view-private-issuer-repair",
-                    DS11_TRUST_GLYPHS_PATH,
+                    issuer_evidence_ref,
                     evidence_identities[
                         (
                             str(fact["componentDeclarationPath"]),
@@ -11960,7 +12027,26 @@ def _ds11_trust_presentation_transition_text(
         for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
     ):
         return text
-    if any(
+    review_predecessors: dict[str, dict[str, Any]] = {}
+    for finding_id, expected in expected_rows.items():
+        predecessor = copy.deepcopy(expected)
+        bound_refs = [
+            ref
+            for ref in predecessor["evidence_refs"]
+            if ref.startswith(DS11_TRUST_GLYPHS_PATH + "#content-sha256=")
+        ]
+        if len(bound_refs) != 1:
+            raise ValueError("DS11 C04 transition generated issuer receipt drift")
+        predecessor["evidence_refs"] = [
+            DS11_TRUST_GLYPHS_PATH if ref == bound_refs[0] else ref
+            for ref in predecessor["evidence_refs"]
+        ]
+        review_predecessors[finding_id] = predecessor
+    is_review_predecessor = all(
+        stored[finding_id] == review_predecessors[finding_id]
+        for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
+    )
+    if not is_review_predecessor and any(
         _canonical_sha256(stored[finding_id])
         != DS11_C04_OPENING_ROW_SHA256[finding_id]
         for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS

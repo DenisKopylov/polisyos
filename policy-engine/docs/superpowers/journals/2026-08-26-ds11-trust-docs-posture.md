@@ -616,3 +616,74 @@ provenance remained valid while its self-supplied subject was relabeled to
   accounting moves `18/34 -> 26/34` mechanisms; widening remains `7/9`.
   No DS6 evidence was changed, and no DEBT-REGISTER/LEDGER row is added;
   any later debt-ledger decision remains C06-owned.
+
+### C04 review repair — unbound metadata and complete issuer census
+
+- P40 bucket: both findings are the existing C04 `P29`/`P32`/`P38` class one
+  level deeper. This repair narrows the already-owned issuer, scanner, checker,
+  and focused-test seams; it adds no production mechanism path or widening
+  round.
+- F1 RED: three focused frontend files reported 6 intended failures with 7
+  passes. Shape-complete generated `VerificationMetadata` still produced
+  positive `verified` and `none` clothing, stale/pending preserved positive
+  dispute labels, and no typed limitation existed. The issuer now preserves
+  only conservative negative projections (`disputed`/`under_review`, `stale`,
+  `pending`); missing, novel, or marker-complete positive metadata projects to
+  unknown/unrecognized. Every issued display datum carries the typed
+  `content_bound_verification_receipt_missing` limitation. Positive verified
+  clothing remains unavailable until a content-bound verification receipt with
+  admitted verifier provenance crosses this seam; C04 does not invent that
+  producer.
+- F2 RED: the complete 625-file frontend falsifier missed namespace/property,
+  re-export, dynamic-import, require, and local-alias access (5 failures); the
+  governed scanner had no `moduleAccesses` facts, and its complete authority
+  path set included the eight production mechanisms plus four P39 test
+  companions. A later same-class RED proved destructuring aliases and a fifth
+  direct named call hidden inside an already-counted mechanism also escaped.
+- The frontend census now rejects all named unsafe forms, including namespace
+  destructuring, while requiring exactly one direct call in each of
+  ProvenanceStrip, TrustInspector, TrustMetadata, and TrustViewBadge. The shared
+  TypeScript scanner emits unsafe module-access and direct-call facts. The
+  governed checker consumes its complete `authorityPathFiles`, applies the
+  same production exclusions as the 625-file TypeScript denominator, requires
+  the exact eight mechanisms and four one-call owners, and rejects a genuine
+  extra-call source override inside DisputeBadge.
+- Final focused frontend wave: 15 Trust View/Provenance files, 33/33 pass (exit
+  0; `real 5.10`, `user 28.11`, `sys 5.01`; uptime `17:48` before/after).
+  Dashboard typecheck passes (exit 0; `real 13.24`, `user 25.04`, `sys 0.79`;
+  uptime `17:48` before/after). Five targeted governed checker tests pass (exit
+  0; `real 64.41`, `user 88.49`, `sys 9.51`; uptime `17:48 -> 17:49`).
+- Register/report preimages were byte-identical to attached `e3df33744` before
+  the only effective writer. One attempted `uv run python` invocation was a
+  tooling non-receipt (`jsonschema` absent) and wrote nothing; system Python
+  3 carried `jsonschema 4.25.1`. The effective locked writer completed its
+  two-finding/eight-mechanism transition (exit 0; `real 50.49`, `user 65.35`,
+  `sys 7.56`; uptime `17:50 -> 17:51`). The final locked whole checker returned
+  exactly the inherited C13 receipt and no DS11 error (exit 1; `real 68.25`,
+  `user 93.31`, `sys 9.54`; uptime `17:51 -> 17:52`).
+- Path accounting remains exactly eight already-counted C04 production
+  mechanisms; `status_retirement_scan.mjs`, the governed checker/tests,
+  frontend tests, register/report, this journal, and the ignored handback are
+  P39 companions. Slice totals remain `26/34` mechanisms and `7/9` widening
+  rounds.
+
+### C04 review repair — issuer receipt content binding
+
+- Final same-class closure: the preceding writer invocation was idempotent and
+  produced no register/report diff because the repaired rows still cited the
+  issuer by plain path. RED proved a marker-preserving issuer-byte mutation did
+  not change either stored row.
+- The DS11 row producer now requires the live scanner's single issuer module
+  fact and its `sha256:<64 hex>` source digest, then emits
+  `trust-glyphs.ts#content-sha256=sha256:...` into both evidence-ref sets. The
+  transition admits only the original pinned opening rows, the exact `e3df33744`
+  repaired predecessor with its single unbound issuer ref, or the current
+  bound result. A real source override appends a marker-preserving mutation,
+  recomputes the scanner digest, and makes both stored transition rows red.
+- Six targeted governed tests pass (exit 0; `real 69.59`, `user 98.84`, `sys
+  10.20`; uptime `18:02 -> 18:04`). The final content-binding writer changes
+  only the two issuer evidence refs (exit 0; `real 50.86`, `user 66.13`, `sys
+  7.50`; uptime `18:04 -> 18:05`). The post-write locked checker again returns
+  exactly the inherited C13 receipt and no DS11 error (exit 1; `real 67.45`,
+  `user 92.64`, `sys 9.51`; uptime `18:05 -> 18:06`). Accounting remains
+  `26/34` mechanisms and `7/9` widening rounds.

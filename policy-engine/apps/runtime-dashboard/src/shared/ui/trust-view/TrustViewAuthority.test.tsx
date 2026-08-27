@@ -30,8 +30,9 @@ describe("Trust View authority", () => {
       </LocaleProvider>,
     );
 
-    expect(screen.getByText("verified")).toBeInTheDocument();
-    expect(screen.getByText("no dispute")).toBeInTheDocument();
+    expect(screen.queryByText("verified")).not.toBeInTheDocument();
+    expect(screen.queryByText("no dispute")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Unknown")).toHaveLength(2);
   });
 
   it("never renders verified from missing or projection-only metadata", () => {
@@ -82,7 +83,7 @@ describe("Trust View authority", () => {
     );
   });
 
-  it("renders verified only from the complete generated owner contract", () => {
+  it("keeps byte-identical generated owner markers below verified clothing", () => {
     const metadata = {
       dispute_status: "none",
       freshness: "current",
@@ -102,7 +103,9 @@ describe("Trust View authority", () => {
       </LocaleProvider>,
     );
 
-    expect(screen.getByText("verified")).toBeInTheDocument();
+    expect(screen.queryByText("verified")).not.toBeInTheDocument();
+    expect(screen.queryByText("no dispute")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Unknown")).toHaveLength(3);
     expect(screen.getByText("runtime-verifier")).toBeInTheDocument();
   });
 

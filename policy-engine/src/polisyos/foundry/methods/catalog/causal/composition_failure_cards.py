@@ -7,6 +7,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentReport,
     AlignmentReviewerState,
@@ -17,7 +18,6 @@ from polisyos.ir.analytics.cross_graph import CompositionCertificate, InterfaceM
 from polisyos.ir.artifacts import ArtifactStore, InputRef, get_json_artifact, put_json_artifact
 from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.registry.refs import CompositionFailureCardBundleRef
-from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 
 _COMPOSITION_FAILURE_CARD_BUNDLE_SCHEMA_NAME = "ir.composition_failure_card_bundle"
 _COMPOSITION_FAILURE_CARD_BUNDLE_SCHEMA_VERSION = "1.0"

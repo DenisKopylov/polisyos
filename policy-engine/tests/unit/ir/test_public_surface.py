@@ -134,6 +134,24 @@ def test_network_generative_block_bridge_contracts_are_exported_from_ir_surfaces
     assert ir.CausalBlockBridgeRef.__name__ == "CausalBlockBridgeRef"
 
 
+def test_failure_card_contracts_are_exported_from_stable_ir_facade() -> None:
+    from polisyos.ir import FailureSeverity as FacadeFailureSeverity
+    from polisyos.ir import TypedFailureCard as FacadeTypedFailureCard
+    from polisyos.ir import UncertaintyType as FacadeUncertaintyType
+    from polisyos.ir.analytics import uncertainty as owned_uncertainty
+
+    expected_exports = {
+        "FailureSeverity",
+        "TypedFailureCard",
+        "UncertaintyType",
+    }
+
+    assert expected_exports <= set(ir.__all__)
+    assert FacadeFailureSeverity is owned_uncertainty.FailureSeverity
+    assert FacadeTypedFailureCard is owned_uncertainty.TypedFailureCard
+    assert FacadeUncertaintyType is owned_uncertainty.UncertaintyType
+
+
 def test_welfare_ge_uncertainty_contracts_are_exported_from_ir_surfaces() -> None:
     welfare_exports = {
         "GEUncertaintyBundle",

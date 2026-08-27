@@ -8,6 +8,7 @@ from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.catalog.causal.composition_failure_cards import (
     load_composition_failure_card_bundle,
 )
+from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.ir.analytics.alignment_certification import (
     AlignmentVerificationConfig,
     load_alignment_report,
@@ -40,8 +41,7 @@ from polisyos.ir.analytics.negative_certificate import (
     load_negative_certificate,
 )
 from polisyos.ir.registry.refs import NegativeCertificateRef
-from polisyos.scientist.orchestration.engine.context import ExecutionContext
-from polisyos.scientist.orchestration.engine.state import ExperimentState
+from polisyos.scientist.methods.search.lessons import lesson_from_failure_card
 from polisyos.scientist.nodes.builtins.causal.reconcile_causal_graph import (
     ReconcileCausalGraphNode,
 )
@@ -53,6 +53,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_LITERATURE_PRIOR_REF,
     ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF,
 )
+from polisyos.scientist.orchestration.engine.context import ExecutionContext
+from polisyos.scientist.orchestration.engine.state import ExperimentState
 
 
 def _build_ctx(tmp_path):
@@ -681,6 +683,15 @@ def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_com
     assert outcome.status == "ok"
     assert ARTIFACT_RECONCILED_CAUSAL_GRAPH_REF not in outcome.state.artifacts_index
     assert ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF in outcome.state.artifacts_index
+    failure_card_bundle_ref = outcome.state.artifacts_index[
+        ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF
+    ]
+    failure_card_manifest = ctx.store.get_manifest(failure_card_bundle_ref.artifact_id)
+    assert failure_card_manifest.artifact_schema is not None
+    assert failure_card_manifest.artifact_schema.name == (
+        "ir.composition_failure_card_bundle"
+    )
+    assert failure_card_manifest.artifact_schema.version == "1.0"
     certificate = load_composition_certificate(
         ctx.store,
         outcome.state.artifacts_index[ARTIFACT_COMPOSITION_CERTIFICATE_REF],
@@ -689,9 +700,21 @@ def test_reconcile_causal_graph_node_persists_failure_card_bundle_for_broken_com
     assert certificate.failure_card_bundle_ref is not None
     bundle = load_composition_failure_card_bundle(
         ctx.store,
-        outcome.state.artifacts_index[ARTIFACT_COMPOSITION_FAILURE_CARD_BUNDLE_REF],
+        failure_card_bundle_ref,
     )
-    assert {card.failure_type for card in bundle.cards} >= {"alignment_incompatible"}
+    card = next(card for card in bundle.cards if card.failure_type == "alignment_incompatible")
+    lesson = lesson_from_failure_card(
+        card,
+        candidate_hash="candidate:broken-composition",
+        stage_name="causal_graph_reconciliation",
+        fidelity_level=4,
+        source_run_id=state.run_id,
+    )
+
+    assert type(card) is TypedFailureCard
+    assert card.severity is FailureSeverity.BLOCKER
+    assert lesson.failure_type == "alignment_incompatible"
+    assert lesson.confidence == 1.0
 
 
 def test_reconcile_causal_graph_node_rejects_disconnected_fragment_topology(tmp_path) -> None:

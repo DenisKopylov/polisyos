@@ -7,12 +7,11 @@ from dataclasses import dataclass, field
 from typing import Any, Literal
 
 from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.methods.search.failure_cards import TypedFailureCard
+from polisyos.ir import TypedFailureCard, UncertaintyType
 from polisyos.scientist.methods.search.stages import SearchStage, StageResult
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,
     UncertaintyEstimate,
-    UncertaintyType,
 )
 
 # ---------------------------------------------------------------------------

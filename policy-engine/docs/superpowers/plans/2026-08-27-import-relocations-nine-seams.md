@@ -76,9 +76,9 @@ At every seam boundary:
 
 ### Seam 6: Composition failure-card contract — 1 statement
 
-- [ ] Lower the DTO/enums to the existing IR analytics contract and make both
+- [x] Lower the DTO/enums to the existing IR analytics contract and make both
   Foundry and Scientist consume the same identity.
-- [ ] Prove producer, persisted artifact, and Scientist consumer round-trip.
+- [x] Prove producer, persisted artifact, and Scientist consumer round-trip.
 
 ### Seam 7: Policy-frontier embedders — 1 statement
 

@@ -7,6 +7,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.common.logger import get_logger
+from polisyos.ir import FailureSeverity, TypedFailureCard
 from polisyos.ir.analytics.causal import CausalEffectReport, EstimationStatus
 from polisyos.ir.analytics.cross_graph import (
     CrossGraphEvidenceProfile,
@@ -14,16 +15,15 @@ from polisyos.ir.analytics.cross_graph import (
     TransportStatus,
 )
 from polisyos.ir.analytics.distributional import DistributionalReport
+from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.autotune.models import BenchmarkEvaluation, BenchmarkSplit
 from polisyos.scientist.methods.doe.stress_report import StressTestReport
-from polisyos.scientist.governance.report import GovernanceReport
 from polisyos.scientist.methods.search.actionable_side_information import (
     ActionableSideInformation,
     persist_actionable_side_information,
     resolve_actionable_store,
 )
 from polisyos.scientist.methods.search.adversarial import PlatformMetaEvaluationReport
-from polisyos.scientist.methods.search.failure_cards import FailureSeverity, TypedFailureCard
 from polisyos.scientist.methods.search.funnel.types import FunnelStage, FunnelStageResult
 from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEnvelope,

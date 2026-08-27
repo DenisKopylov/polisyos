@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import pytest
-from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef
-from polisyos.scientist.methods.search.failure_cards import TypedFailureCard
+from pydantic import ValidationError
+
+from polisyos.ir import FailureSeverity, TypedFailureCard
+from polisyos.ir import UncertaintyType as IRUncertaintyType
+from polisyos.ir.registry.refs import ArtifactRefModel
 from polisyos.scientist.methods.search.funnel.types import (
     TypedFailureCard as ReexportedTypedFailureCard,
 )
@@ -18,7 +20,6 @@ from polisyos.scientist.methods.search.uncertainty import (
     UncertaintyEstimate,
     UncertaintyType,
 )
-from pydantic import ValidationError
 
 
 def test_uncertainty_envelope_requires_all_types() -> None:
@@ -88,23 +89,50 @@ def test_uncertainty_envelope_merge_max_prefers_higher_uncertainty() -> None:
     assert merged.uncertainties[UncertaintyType.MODEL].source == "high"
 
 
-def test_failure_card_accepts_artifact_ref() -> None:
-    ref = ArtifactRef(
-        artifact_id=ArtifactID.from_sha256_hex("a" * 64),
-        kind="scientist.test",
-        media_type="application/json",
-    )
-    card = TypedFailureCard(
-        judge_name="judge",
-        failure_type="timeout",
-        severity="warning",
-        description="Timed out",
-        evidence_ref=ref,
-    )
-    assert str(card.evidence_ref.artifact_id) == f"sha256:{'a' * 64}"
+def test_failure_card_preserves_literal_pre_move_wire_payload() -> None:
+    payload = {
+        "judge_name": "judge",
+        "failure_type": "timeout",
+        "severity": "warning",
+        "description": "Timed out",
+        "uncertainty_type": "measurement",
+        "remediation_hint": "Retry with a longer budget",
+        "evidence_ref": {
+            "artifact_id": (
+                "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+            ),
+            "kind": "scientist.test",
+            "media_type": "application/json",
+        },
+        "metric_name": "elapsed_seconds",
+        "observed_value": 31.0,
+        "threshold_value": 30.0,
+        "threshold_direction": "max",
+        "metadata": {"attempt": 2},
+    }
+
+    restored = TypedFailureCard.model_validate(payload)
+
+    assert type(restored) is TypedFailureCard
+    assert restored.severity is FailureSeverity.WARNING
+    assert restored.evidence_ref is not None
+    assert type(restored.evidence_ref) is ArtifactRefModel
+    assert restored.model_dump(mode="json") == payload
+
+
+def test_failure_card_rejects_unknown_fields() -> None:
+    with pytest.raises(ValidationError, match="extra_forbidden"):
+        TypedFailureCard(
+            judge_name="judge",
+            failure_type="timeout",
+            severity=FailureSeverity.WARNING,
+            description="Timed out",
+            unsupported_authority=True,
+        )
 
 
 def test_funnel_types_reexport_search_contracts() -> None:
     assert ReexportedUncertaintyEnvelope is UncertaintyEnvelope
+    assert UncertaintyType is IRUncertaintyType
     assert ReexportedUncertaintyType is UncertaintyType
     assert ReexportedTypedFailureCard is TypedFailureCard

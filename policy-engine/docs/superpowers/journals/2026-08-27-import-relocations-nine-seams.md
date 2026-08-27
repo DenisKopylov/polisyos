@@ -81,6 +81,7 @@ Every row below was classified before the first source edit. Result:
 | seam 3 — Core Scientist CLI | 1/10 | The already-paid tools composition module now owns all nine Scientist commands; Core's remaining three upper-runtime imports and its obsolete internal handler are gone. Cleared CO-02..04 and closed `core -> scientist` 4/4. | stands; no new module, package, public authority export, constraint loosening, or surface |
 | seam 4 — D5 release acceptance | 2/10 | A strict D5 handoff/admission/technical-receipt/Scientist-decision chain replaces Foundry's direct governance call. Cleared FS-01, the release-acceptance member of `foundry -> scientist`; the composite working tree also closes the row after the separately declared pending seams remove FS-02..05. | stands; round 2 bought the new typed D5 admission and release-decision surface, with purpose-limited authority and fail-closed predicate provenance |
 | seam 5 — calibration policy pair | 3/10 | Scientist now applies calibration meta-overrides before persisting Foundry inputs and resolves the complete CI-threshold scope before dispatch; Foundry consumes only a typed resolved policy set or declared local defaults. Cleared FS-02 and FS-03. | stands; round 3 bought the public-stable `CITestThresholdPolicySet` handoff and its explicit breaking migration surface |
+| seam 6 — composition failure-card contract | 4/10 | The dependency-neutral failure-card DTOs/enums have one IR identity consumed by the existing Foundry producer and Scientist persistence/orchestration paths. Cleared FS-04. | stands; round 4 bought the three-name stable IR contract surface and its schema/identity obligations; shared generated inventory projection is deferred intact to the final generator boundary |
 
 No round has been withdrawn.
 
@@ -321,3 +322,44 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   pass; the batched repair added the stable facade identity, exact direct versus
   compiled exception contract, and real persisted/dispatch coverage. Final
   delta review returned Ready with no remaining finding.
+
+### Seam 6 — composition failure-card contract
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 5 commit
+  `9a46a1e10` read back before staging.
+- Observed seam path set is 27 declared commit paths: 15 source mechanism
+  paths, the IR facade, 7 focused-test paths, 2 recomputing semantic validators,
+  and this plan/journal pair. The two shared generated public-inventory paths
+  are deliberately not split by hunk or attributed to this commit: their
+  current generator-complete delta jointly projects Seams 1, 6, and 7 and is
+  retained for the final sync/baseline boundary.
+- `FailureSeverity`, `TypedFailureCard`, and `UncertaintyType` now have one
+  dependency-neutral implementation in existing IR analytics and exact root
+  facade identities. Foundry emits the typed cards; Scientist challenge,
+  funnel, judge, memory, critic, and preflight consumers import that identity.
+  The old Scientist owner and test are deleted without a facade shim.
+- Persisted bundles use the existing artifact path with schema
+  `ir.composition_failure_card_bundle@1.0`; explicit conversions preserve upper
+  `ArtifactRef` consumers. Producer-to-persistence-to-Scientist consumption is
+  covered, including severity/uncertainty semantics and malformed/legacy-path
+  negatives rather than constructor-only checks.
+- Root's seven-file focused wave completed direct exit 0 with 48 passed;
+  `real=86.80s`, `user=69.33s`, `sys=4.85s`, uptime 23:42/up 3d13:55 to
+  23:44/up 3d13:57. The independently executed wider seam wave completed with
+  70 passes before review.
+- Both recomputing validators (`scientist-best-in-class-phase2-5` and Wave 2)
+  completed direct exit 0 and reported accepted. Changed-path Ruff and
+  restricted `git diff --check` completed direct exit 0.
+- Complete `rg --files -g '*.py'` enumeration found 5,665 repository Python
+  paths; its AST import walk found zero imports of the deleted Scientist module,
+  and an independent complete-tree text scan also found zero (expected `rg`
+  exit 1). Runtime identity initially imported the main checkout through the
+  ambient editable install and was rejected as a tooling non-receipt; the
+  explicit worktree `PYTHONPATH=src` probe completed exit 0 with all three
+  identities exact.
+- Capability result: typed contract, real Foundry producer, persisted bundle,
+  Scientist bridge/consumers, recomputing validators, root facade, and negative
+  semantic tests are wired. Independent review twice returned Ready after the
+  facade identity and generic consumer coverage were added. No ambiguous
+  statement remains.

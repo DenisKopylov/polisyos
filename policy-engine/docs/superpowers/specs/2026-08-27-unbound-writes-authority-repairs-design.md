@@ -137,16 +137,19 @@ must be in `M`. The implementation hand-back reports both branches and methods,
 not one fixed facade count.
 
 The owner-bypass guard derives its forbidden module set from the owner API's
-actual private Fabric backend imports and their on-disk package descendants,
-union every Fabric module whose AST contains a mutating statement against an
-owned table. It derives owned SQL targets from the Fabric schema's
-`CREATE TABLE` statements, then AST-scans every production module outside the
-owner package. It therefore fails on a caller importing a source-derived
-write-private module or issuing mutating SQL against a Fabric-owned world table
-without enumerating today's module or table names. Read/event modules are not
-forbidden merely because they are beneath `fabric.world`. The guard's source
-analysis does not import the optional facade branch. A separate complete
-census proves zero Runtime SQL against `world.*`.
+actual private `fabric.world` imports, their on-disk parents below the public
+world facade, and their package descendants, union every Fabric module whose
+AST contains a mutating statement against an owned table. It derives owned SQL
+targets from the Fabric schema's `CREATE TABLE` statements, then AST-scans
+every production module outside the owner package. It therefore fails on a
+caller importing a source-derived world-store-private module or issuing
+mutating SQL against a Fabric-owned world table without enumerating today's
+module or table names. Generic `SimulationDB` acquisition is not world-store
+authority by itself—the Fabric root publicly exports it—but the independent
+SQL predicate rejects a caller that uses any backend to mutate an owned world
+table. Read/event modules are not forbidden merely because they are beneath
+`fabric.world`. The guard's source analysis does not import the optional facade
+branch. A separate complete census proves zero Runtime SQL against `world.*`.
 
 Behavioral falsifiers prove that an external caller reaching the store without
 the facade fails the guard, and that a write leaving either a fact or a node
@@ -248,7 +251,13 @@ the durable job; `_job_tenant_scope` restores it before dispatch. When tenant
 is absent, however, `_job_tenant_scope` currently yields `nullcontext()` and the
 worker proceeds unscoped. A real-route probe with an authenticated principal
 whose tenant was `None` returned `200/accepted` and reached worker execution
-with ambient tenant and cell both absent.
+with ambient tenant and cell both absent. The current HTTP identity contract
+cannot naturally issue that principal: `UserIdentityClaims.tenant_id` is
+non-empty and fail-closed middleware rejects absent identity before routing.
+The falsifier therefore injects the tenantless `RuntimePrincipal` only at the
+route's existing `_get_principal` seam while retaining the real FastAPI route,
+queue, worker, and job readback. It does not weaken identity or middleware
+contracts merely to construct the downstream authority-boundary state.
 
 The S2 WorkspaceLoop operation therefore calls the existing strict
 `get_current_tenant_id()` before executing the S2 loop or opening any
@@ -288,14 +297,17 @@ The operation never substitutes a tenant, and specifically never borrows
 `tenant-unknown`, which remains diagnostic-event vocabulary only.
 
 The no-tenant falsifier launches through the real HTTP route, dispatches the
-real queued worker, and reads the job. Its arbitrary params deliberately carry
-forged `tenant_id="tenant-unknown"` and `cell_id="forged-cell"` siblings while
-the authenticated principal has no tenant. The test parses the returned member
-through `RunBoundDesignRecordTenantNonReceipt`, requires the exact typed
-refusal, and proves with a call spy that the S2 producer was never invoked. It
-also proves that no new S2 DesignRecord, SearchLedger, or binding kind was
-persisted, that no binding appears in job progress or a run manifest, and that
-no authority-bearing S2 artifact contains `tenant-unknown` or the forged cell.
+real queued worker, and reads the job. It monkeypatches only
+`runtime.http.routes.control._get_principal` to return an authenticated
+`RuntimePrincipal` with no tenant; normal middleware still supplies the route's
+authorization scope. Its arbitrary params deliberately carry forged
+`tenant_id="tenant-unknown"` and `cell_id="forged-cell"` siblings. The test
+parses the returned member through `RunBoundDesignRecordTenantNonReceipt`,
+requires the exact typed refusal, and proves with a call spy that the S2
+producer was never invoked. It also proves that no new S2 DesignRecord,
+SearchLedger, or binding kind was persisted, that no binding appears in job
+progress or a run manifest, and that no authority-bearing S2 artifact contains
+`tenant-unknown` or the forged cell.
 
 ### Producer, binding, and direct resolver
 

@@ -43,7 +43,7 @@
 - Produces unconditional strict DTOs `WorldSnapshotNodeWrite`, `WorldSnapshotFactWrite`, and `WorldSnapshotWriteRequest`, the typed `WorldSnapshotBackendUnavailable`, and `write_world_snapshot(db_path: Path, request: WorldSnapshotWriteRequest) -> WorldSnapshotRecord` from `polisyos.fabric.world`.
 - Preserves the 36 source-derived legacy base exports and adds the new unconditional write exports as a separately reported base delta. The materialization delta remains source-derived and conditional; it gains `WorldMaterializationPolicy` beside `ensure_world_materialized`.
 - Acquires `duckdb`, `SimulationDB`, `ensure_world_schema`, and private `create_world_snapshot` only inside `write_world_snapshot`. Only absence of the exact `duckdb` backend is translated into `WorldSnapshotBackendUnavailable`; an internal import defect propagates.
-- Consumes the existing Fabric schema in `src/polisyos/fabric/world/ddl/duckdb_world.sql` as the SQL-target source of truth. The forbidden import set is the union of `write.py`'s actual private Fabric backend imports and their on-disk package descendants with every Fabric module whose AST contains a mutating statement against a derived owned table; read/event modules are not forbidden merely because they are beneath `fabric.world`.
+- Consumes the existing Fabric schema in `src/polisyos/fabric/world/ddl/duckdb_world.sql` as the SQL-target source of truth. The forbidden import set is the union of `write.py`'s actual private `fabric.world` imports, their on-disk parents below the public world facade and descendants, with every Fabric module whose AST contains a mutating statement against a derived owned table. Generic `SimulationDB` acquisition remains admitted unless the same consumer mutates an owned world table; read/event modules are not forbidden merely because they are beneath `fabric.world`.
 
 - [ ] **Step 1: Write strict-contract and rollback falsifiers**
 
@@ -104,7 +104,7 @@ def external_world_write_violations(src_root: Path) -> tuple[str, ...]:
     """Return sorted deep-import and mutating-owned-table AST findings."""
 ```
 
-`world_write_private_modules` parses the real owner module's private Fabric imports, walks their actual package descendants, then unions every Fabric module whose AST contains a mutating statement against a DDL-derived owned table. `world_owned_tables` parses every `CREATE TABLE` target in the actual DuckDB DDL. The AST scan visits every production Python module outside the owner package and rejects an import from any derived write-private module and any mutating SQL literal (`INSERT`, `UPDATE`, `DELETE`, `MERGE`, `CREATE`, `ALTER`, `DROP`, or `TRUNCATE`) whose qualified target is in the derived table set. Mutant tests add a fourth owner backend import/package descendant and a fourth DDL table without modifying an enumerated string list and require both to be detected. The live-tree assertion is red on Runtime's current backend/store imports and SQL while legitimate `fabric.world.events` readers remain admitted.
+`world_write_private_modules` parses the real owner module's private `fabric.world` imports, walks their actual parents below the public world facade and package descendants, then unions every Fabric module whose AST contains a mutating statement against a DDL-derived owned table. `world_owned_tables` parses every `CREATE TABLE` target in the actual DuckDB DDL. The AST scan visits every production Python module outside the owner package and rejects an import from any derived world-store-private module and any mutating SQL literal (`INSERT`, `UPDATE`, `DELETE`, `MERGE`, `CREATE`, `ALTER`, `DROP`, or `TRUNCATE`) whose qualified target is in the derived table set. Mutant tests add a fourth owner package descendant, a lazy parent-package export, a generic backend plus owned-table mutation, and a fourth DDL table without modifying an enumerated string list and require all to be detected. The live-tree assertion is red on Runtime's current store imports and SQL while legitimate `fabric.world.events` readers and generic database acquisition remain admitted.
 
 - [ ] **Step 3: Run the Fabric reds and record the intended failures**
 
@@ -283,7 +283,7 @@ params = {
 
 Dispatch the real queued worker, read the job, then GET the run paper using only the returned run ID. The positive principal has a server-authenticated tenant/cell; require the terminal manifest, binding, record, and ledger to carry that exact identity and the requested case.
 
-The negative principal has no tenant while params additionally forge `tenant_id="tenant-unknown"` and `cell_id="forged-cell"`. Parse `progress["run_bound_design_record_nonreceipt"]` as:
+The negative traverses the same real HTTP route, queue, worker, and job readback, but monkeypatches only `runtime.http.routes.control._get_principal` to return `RuntimePrincipal(subject="tenantless-falsifier", authenticated=True, tenant_id=None, cell_id=None)`. This isolated seam is necessary because the production identity DTO requires a non-empty tenant and fail-closed middleware rejects absent identity before routing; do not weaken either owner. Params additionally forge `tenant_id="tenant-unknown"` and `cell_id="forged-cell"`. Parse `progress["run_bound_design_record_nonreceipt"]` as:
 
 ```python
 RunBoundDesignRecordTenantNonReceipt(

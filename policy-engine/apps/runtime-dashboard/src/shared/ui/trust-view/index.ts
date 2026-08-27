@@ -16,8 +16,6 @@ export {
 export { TrustViewToggle } from "./TrustViewToggle";
 export { VerificationStatus } from "./VerificationStatus";
 export {
-  hasVerificationOwnerContract,
   truncateHash,
-  trustPresentationFromMetadata,
   type VerificationMetadata,
 } from "./trust-glyphs";

@@ -6,6 +6,7 @@ import { Glyph, type GlyphSize } from "@/shared/brand/Glyph";
 import { GLYPH_ANCHORS } from "@/shared/brand/glyph-vocabulary";
 import type { ProvenanceItem } from "@/shared/brand/provenance-adapter";
 import { VerificationStatus } from "@/shared/ui/trust-view";
+import { issueTrustPresentation } from "@/shared/ui/trust-view/trust-glyphs";
 
 export type ProvenanceStripDensity = "comfortable" | "compact" | "condensed";
 
@@ -117,7 +118,9 @@ export function ProvenanceStrip({
               {item.label}
             </Text>
             {item.trustMetadata ? (
-              <VerificationStatus metadata={item.trustMetadata} />
+              <VerificationStatus
+                presentation={issueTrustPresentation(item.trustMetadata)}
+              />
             ) : null}
           </li>
         ))}

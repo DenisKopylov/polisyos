@@ -6,7 +6,7 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { DisputeBadge } from "./DisputeBadge";
 import { HashChip } from "./HashChip";
 import { TemporalScopeChip } from "./TemporalScopeChip";
-import { hasVerificationOwnerContract } from "./trust-glyphs";
+import { issueTrustPresentation } from "./trust-glyphs";
 import { useMaybeTrustView } from "./TrustViewBridge";
 import { VerificationStatus } from "./VerificationStatus";
 
@@ -33,11 +33,8 @@ export function TrustInspector() {
     return null;
   }
 
-  const metadata = hasVerificationOwnerContract(
-    inspectorSubject.trustMetadata,
-  )
-    ? inspectorSubject.trustMetadata
-    : null;
+  const metadata = inspectorSubject.trustMetadata ?? null;
+  const presentation = issueTrustPresentation(metadata);
   const hash = metadata?.hash ?? inspectorSubject.hash;
   const lineageId =
     inspectorSubject.kind === "quantity" || inspectorSubject.kind === "lineage"
@@ -78,8 +75,8 @@ export function TrustInspector() {
 
       <div className="space-y-4 p-4">
         <div className="flex flex-wrap items-center gap-2">
-          <VerificationStatus metadata={metadata} />
-          {metadata ? <DisputeBadge status={metadata.dispute_status} /> : null}
+          <VerificationStatus presentation={presentation} />
+          <DisputeBadge presentation={presentation} />
         </div>
 
         {hash ? (

@@ -1541,7 +1541,8 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self.assertEqual(
             checker.BASE_EXPECTED_FINDING_IDS
             | set(checker.GOVERNED_DEBT_DESCRIPTORS)
-            | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS),
+            | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS)
+            | set(checker.DS11_TRUST_PRESENTATION_FINDING_IDS),
             checker.EXPECTED_FINDING_IDS,
         )
 
@@ -3868,9 +3869,9 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         scan = checker._authority_presentation_scan()
         rows = checker._authority_presentation_rows(scan)
 
-        self.assertEqual(36, len(rows))
+        self.assertEqual(34, len(rows))
         self.assertEqual(
-            11,
+            9,
             sum(
                 row.get("authority_sink", {}).get("sink_kind") == "prop_boundary"
                 for row in rows
@@ -4035,6 +4036,481 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                     errors,
                 )
 
+    def test_ds11_trust_presentation_writer_is_exact_idempotent_and_forgery_closed(
+        self,
+    ) -> None:
+        """C04 may replace only its two pinned preimages with semantic receipts."""
+        opening = _register_text_at("52182fe26")
+        scan = checker._authority_presentation_scan()
+        self.assertEqual([], checker._ds11_trust_presentation_semantic_errors(scan))
+
+        candidate = checker._ds11_trust_presentation_transition_text(
+            opening,
+            scan=scan,
+        )
+        self.assertNotEqual(opening, candidate)
+        self.assertEqual(
+            candidate,
+            checker._ds11_trust_presentation_transition_text(candidate, scan=scan),
+        )
+        self.assertEqual(
+            [],
+            checker._ds11_trust_presentation_preservation_errors(opening, candidate),
+        )
+        opening_report = _git_text(
+            "52182fe26",
+            "docs/reference/frontend/atlas-frontend-disposition-register.md",
+        )
+        candidate_report = checker._ds11_trust_presentation_report_transition_text(
+            opening_report,
+            opening_register_text=opening,
+            candidate_register_text=candidate,
+        )
+        self.assertNotEqual(opening_report, candidate_report)
+        self.assertEqual(
+            candidate_report,
+            checker._ds11_trust_presentation_report_transition_text(
+                candidate_report,
+                opening_register_text=opening,
+                candidate_register_text=candidate,
+            ),
+        )
+        candidate_data = json.loads(candidate)
+        target_rows = {
+            row["finding_id"]: row
+            for row in candidate_data["supplemental_findings"]
+            if row["finding_id"] in checker.DS11_TRUST_PRESENTATION_FINDING_IDS
+        }
+        self.assertEqual(
+            set(checker.DS11_TRUST_PRESENTATION_FINDING_IDS), set(target_rows)
+        )
+        self.assertTrue(all(row["status"] == "repaired" for row in target_rows.values()))
+        self.assertEqual(
+            [],
+            checker._ds11_trust_presentation_candidate_errors(
+                candidate_data,
+                report_parity=False,
+            ),
+        )
+
+        def replace_target(
+            text: str, finding_id: str, replacement: dict[str, object]
+        ) -> str:
+            _start, _end, spans = checker._supplemental_section_spans(text)
+            start, end = next(
+                (start, end)
+                for candidate_id, start, end in spans
+                if candidate_id == finding_id
+            )
+            return (
+                text[:start]
+                + checker._render_supplemental_finding(replacement)
+                + text[end + 1 :]
+            )
+
+        target_id = sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
+        with self.assertRaisesRegex(ValueError, "target cardinality"):
+            checker._ds11_trust_presentation_transition_text(
+                checker._remove_supplemental_finding_text(opening, target_id),
+                scan=scan,
+            )
+
+        _start, array_end, spans = checker._supplemental_section_spans(opening)
+        target_start, target_end = next(
+            (start, end)
+            for candidate_id, start, end in spans
+            if candidate_id == target_id
+        )
+        duplicated = (
+            opening[:array_end]
+            + ",\n    "
+            + opening[target_start : target_end + 1]
+            + opening[array_end:]
+        )
+        with self.assertRaisesRegex(ValueError, "target cardinality"):
+            checker._ds11_trust_presentation_transition_text(duplicated, scan=scan)
+
+        opening_data = json.loads(opening)
+        restamped = copy.deepcopy(
+            next(
+                row
+                for row in opening_data["supplemental_findings"]
+                if row["finding_id"] == target_id
+            )
+        )
+        restamped["decision_date"] = "2026-08-27"
+        with self.assertRaisesRegex(ValueError, "predecessor restamp"):
+            checker._ds11_trust_presentation_transition_text(
+                replace_target(opening, target_id, restamped),
+                scan=scan,
+            )
+
+        with self.assertRaisesRegex(ValueError, "predecessor restamp"):
+            checker._ds11_trust_presentation_transition_text(
+                replace_target(opening, target_id, target_rows[target_id]),
+                scan=scan,
+            )
+
+        report_target = sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
+        report_start, report_end, report_row = (
+            checker._ds11_trust_presentation_report_row_span(
+                opening_report,
+                report_target,
+            )
+        )
+        forged_report = (
+            opening_report[:report_start]
+            + report_row.replace("`open_debt`", "`repaired`", 1)
+            + opening_report[report_end:]
+        )
+        with self.assertRaisesRegex(ValueError, "report transition rejected:predecessor"):
+            checker._ds11_trust_presentation_report_transition_text(
+                forged_report,
+                opening_register_text=opening,
+                candidate_register_text=candidate,
+            )
+
+        _candidate_start, _candidate_end, candidate_spans = (
+            checker._supplemental_section_spans(candidate)
+        )
+        peer_start, peer_end = next(
+            (start, end)
+            for finding_id, start, end in candidate_spans
+            if finding_id not in checker.DS11_TRUST_PRESENTATION_FINDING_IDS
+        )
+        peer_mutated = (
+            candidate[:peer_start]
+            + candidate[peer_start : peer_end + 1].replace('"rationale":', '"rationale" :', 1)
+            + candidate[peer_end + 1 :]
+        )
+        self.assertEqual(
+            ["ds11_trust_presentation_peer_drift"],
+            checker._ds11_trust_presentation_preservation_errors(
+                candidate,
+                peer_mutated,
+            ),
+        )
+
+        forged_peer = copy.deepcopy(candidate_data)
+        peer_row = next(
+            row
+            for row in forged_peer["supplemental_findings"]
+            if row["finding_id"]
+            == "authority-presentation-prop-control-approval-readiness"
+        )
+        peer_row["status"] = "repaired"
+        peer_row.pop("capability_states")
+        peer_row.pop("closure_signal")
+        schema_errors = checker._schema_errors(forged_peer, checker.SCHEMA_PATH)
+        self.assertTrue(
+            any("prop-control-approval-readiness" in error for error in schema_errors),
+            schema_errors,
+        )
+
+    def test_ds11_trust_presentation_semantics_bind_exact_mechanism_paths(
+        self,
+    ) -> None:
+        """The governed writer must consume the scanner's complete C04 path set."""
+        scan = checker._authority_presentation_scan()
+        production_paths = {
+            row["path"]
+            for row in scan["authorityPathFiles"]
+            if checker._ds11_is_production_dashboard_source(row["path"])
+        }
+        self.assertEqual(
+            set(checker.DS11_C04_MECHANISM_PATHS),
+            production_paths,
+        )
+        production_calls = [
+            row
+            for row in scan["authorityIssuerFacts"]["directCalls"]
+            if checker._ds11_is_production_dashboard_source(str(row["path"]))
+        ]
+        self.assertEqual(
+            Counter(checker.DS11_C04_ISSUER_CALLERS),
+            Counter(str(row["path"]) for row in production_calls),
+        )
+
+        missing = copy.deepcopy(scan)
+        missing["authorityPathFiles"] = missing["authorityPathFiles"][1:]
+        self.assertIn(
+            "ds11_trust_presentation_mechanism_path_drift",
+            checker._ds11_trust_presentation_semantic_errors(missing),
+        )
+
+    def test_ds11_trust_presentation_scanner_rejects_indirect_issuer_access(
+        self,
+    ) -> None:
+        """Compiler census must expose module and alias bypasses to the writer."""
+        source_path = "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx"
+        source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
+        source += """
+import * as ds11NamespaceProbe from "./trust-view/trust-glyphs";
+export {
+  issueTrustPresentation as ds11ReexportProbe,
+} from "./trust-view/trust-glyphs";
+export { issueTrustPresentation as ds11LocalReexportProbe };
+void import("./trust-view/trust-glyphs").then((module) =>
+  module.issueTrustPresentation(null),
+);
+const ds11RequireProbe = require("./trust-view/trust-glyphs");
+ds11RequireProbe.issueTrustPresentation(null);
+const ds11AliasProbe = issueTrustPresentation;
+ds11AliasProbe(null);
+const { issueTrustPresentation: ds11DestructuredProbe } = ds11NamespaceProbe;
+ds11DestructuredProbe(null);
+ds11NamespaceProbe.issueTrustPresentation(null);
+(0, issueTrustPresentation)(null);
+issueTrustPresentation.call(null, null);
+Reflect.apply(issueTrustPresentation, null, [null]);
+Promise.resolve(null).then(issueTrustPresentation);
+const ds11StoredIssuerProbe = [issueTrustPresentation];
+void ds11StoredIssuerProbe;
+"""
+        request = {
+            "authorityPathDescriptors": (
+                checker._ds11_trust_presentation_path_descriptors()
+            ),
+            "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
+            "includeDashboardProgramRoots": True,
+            "sourceOverrides": {source_path: source},
+        }
+        scan = checker.status_checker._scan_json(
+            json.dumps(request, sort_keys=True, separators=(",", ":"))
+        )
+        accesses = [
+            row
+            for row in scan["authorityIssuerFacts"]["moduleAccesses"]
+            if row["path"] == source_path
+        ]
+
+        self.assertEqual(
+            {
+                "alias",
+                "dynamic_import",
+                "namespace_import",
+                "reexport",
+                "require",
+                "value_reference",
+            },
+            {row["kind"] for row in accesses},
+        )
+        self.assertEqual(
+            2,
+            sum(row["kind"] == "reexport" for row in accesses),
+        )
+        self.assertIn(
+            "ds11_trust_presentation_unsafe_module_access",
+            checker._ds11_trust_presentation_semantic_errors(scan),
+        )
+
+    def test_ds11_trust_presentation_rejects_extra_direct_call_in_owned_path(
+        self,
+    ) -> None:
+        """An eighth mechanism path cannot hide a fifth production issuer call."""
+        source_path = (
+            "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx"
+        )
+        source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
+        source += """
+import { issueTrustPresentation } from "./trust-glyphs";
+void (issueTrustPresentation)(null);
+"""
+        request = {
+            "authorityPathDescriptors": (
+                checker._ds11_trust_presentation_path_descriptors()
+            ),
+            "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
+            "includeDashboardProgramRoots": True,
+            "sourceOverrides": {source_path: source},
+        }
+        scan = checker.status_checker._scan_json(
+            json.dumps(request, sort_keys=True, separators=(",", ":"))
+        )
+
+        self.assertEqual(
+            1,
+            sum(
+                row["path"] == source_path
+                for row in scan["authorityIssuerFacts"]["directCalls"]
+            ),
+        )
+        self.assertIn(
+            "ds11_trust_presentation_issuer_caller_drift",
+            checker._ds11_trust_presentation_semantic_errors(scan),
+        )
+
+    def test_ds11_trust_presentation_rejects_every_runtime_module_acquisition(
+        self,
+    ) -> None:
+        """Every runtime acquisition form must enter the unsafe census."""
+        source_path = "apps/runtime-dashboard/src/shared/ui/trust-view/index.ts"
+        source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
+        source += """
+export * as ds11IssuerNamespaceExport from "./trust-glyphs";
+export * from "./trust-glyphs";
+export { issueTrustPresentation as ds11IssuerReexport } from "./trust-glyphs";
+export { default as ds11IssuerDefaultReexport } from "./trust-glyphs";
+import * as ds11IssuerNamespaceImport from "./trust-glyphs";
+import ds11IssuerDefaultImport from "./trust-glyphs";
+import { issueTrustPresentation } from "./trust-glyphs";
+import { issueTrustPresentation as ds11IssuerNamedAlias } from "./trust-glyphs";
+import "./trust-glyphs";
+import ds11IssuerEquals = require("./trust-glyphs");
+void import("./trust-glyphs");
+void require("./trust-glyphs");
+"""
+        request = {
+            "authorityPathDescriptors": (
+                checker._ds11_trust_presentation_path_descriptors()
+            ),
+            "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
+            "includeDashboardProgramRoots": True,
+            "sourceOverrides": {source_path: source},
+        }
+        scan = checker.status_checker._scan_json(
+            json.dumps(request, sort_keys=True, separators=(",", ":"))
+        )
+
+        self.assertEqual(
+            Counter(
+                {
+                    "alias": 1,
+                    "default_import": 1,
+                    "dynamic_import": 1,
+                    "import_equals": 1,
+                    "named_import": 1,
+                    "namespace_import": 1,
+                    "reexport": 4,
+                    "require": 1,
+                    "side_effect_import": 1,
+                }
+            ),
+            Counter(
+                row["kind"]
+                for row in scan["authorityIssuerFacts"]["moduleAccesses"]
+                if row["path"] == source_path
+            ),
+        )
+
+    def test_ds11_trust_presentation_admits_erased_type_only_module_forms(
+        self,
+    ) -> None:
+        """Explicitly erased imports and exports are not runtime acquisitions."""
+        source_path = "apps/runtime-dashboard/src/shared/ui/trust-view/index.ts"
+        source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
+        source += """
+import type DS11TrustDefault from "./trust-glyphs";
+import type { TrustPresentation } from "./trust-glyphs";
+import type * as DS11TrustTypes from "./trust-glyphs";
+import { type TrustPresentationData } from "./trust-glyphs";
+export type * from "./trust-glyphs";
+export type * as DS11TrustTypeNamespace from "./trust-glyphs";
+export type { TrustPresentation } from "./trust-glyphs";
+export { type TrustPresentationData } from "./trust-glyphs";
+import type DS11TrustEquals = require("./trust-glyphs");
+"""
+        request = {
+            "authorityPathDescriptors": (
+                checker._ds11_trust_presentation_path_descriptors()
+            ),
+            "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
+            "includeDashboardProgramRoots": True,
+            "sourceOverrides": {source_path: source},
+        }
+        scan = checker.status_checker._scan_json(
+            json.dumps(request, sort_keys=True, separators=(",", ":"))
+        )
+
+        self.assertEqual(
+            [],
+            [
+                row
+                for row in scan["authorityIssuerFacts"]["moduleAccesses"]
+                if row["path"] == source_path
+            ],
+        )
+
+    def test_ds11_trust_presentation_issuer_receipt_is_content_bound(
+        self,
+    ) -> None:
+        """Issuer-marker preservation cannot keep repaired rows admitted."""
+        scan = checker._authority_presentation_scan()
+        issuer_module = next(
+            row
+            for row in scan["authorityIssuerFacts"]["modules"]
+            if row["path"] == checker.DS11_TRUST_GLYPHS_PATH
+        )
+        issuer_ref = (
+            f"{checker.DS11_TRUST_GLYPHS_PATH}#content-sha256="
+            f"{issuer_module['sourceSha256']}"
+        )
+        expected_rows = checker._ds11_trust_presentation_rows(scan)
+        self.assertTrue(
+            all(issuer_ref in row["evidence_refs"] for row in expected_rows)
+        )
+
+        e3df_register = _git_text(
+            "e3df33744",
+            "architecture/atlas_surfaces/frontend-disposition-register.json",
+        )
+        candidate = checker._ds11_trust_presentation_transition_text(
+            e3df_register,
+            scan=scan,
+        )
+        self.assertNotEqual(e3df_register, candidate)
+        self.assertEqual(
+            candidate,
+            checker._ds11_trust_presentation_transition_text(candidate, scan=scan),
+        )
+
+        source = (checker.REPO_ROOT / checker.DS11_TRUST_GLYPHS_PATH).read_text(
+            encoding="utf-8"
+        )
+        request = {
+            "authorityPathDescriptors": (
+                checker._ds11_trust_presentation_path_descriptors()
+            ),
+            "authorityPropDescriptors": checker._authority_prop_descriptors(),
+            "authorityIssuerCallerPaths": checker.DS11_C04_ISSUER_CALLERS,
+            "includeDashboardProgramRoots": True,
+            "sourceOverrides": {
+                checker.DS11_TRUST_GLYPHS_PATH: (
+                    source + "\n// marker-preserving source-binding mutation\n"
+                )
+            },
+        }
+        mutated_scan = checker.status_checker._scan_json(
+            json.dumps(request, sort_keys=True, separators=(",", ":"))
+        )
+        mutated_module = next(
+            row
+            for row in mutated_scan["authorityIssuerFacts"]["modules"]
+            if row["path"] == checker.DS11_TRUST_GLYPHS_PATH
+        )
+        complete_mutated_scan = copy.deepcopy(scan)
+        complete_mutated_scan["authorityIssuerFacts"]["modules"] = [
+            mutated_module
+        ]
+        errors: list[str] = []
+        checker._validate_ds11_trust_presentation_transition_findings(
+            json.loads(candidate),
+            errors,
+            scan=complete_mutated_scan,
+        )
+
+        self.assertEqual(
+            {
+                "ds11_trust_presentation_transition_drift:" + finding_id
+                for finding_id in checker.DS11_TRUST_PRESENTATION_FINDING_IDS
+            },
+            set(errors),
+        )
+
     def test_semantic_copy_debt_uses_simple_panel_only_closure_signal(self) -> None:
         finding_id = "semantic-copy-issuer-panel-consumer-deferral"
         descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
@@ -4091,8 +4567,8 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         prop_records = [record for records in prop.values() for record in records]
         self.assertEqual(161, len(badge))
         self.assertEqual(161, len(set(badge)))
-        self.assertEqual(66, len(prop_records))
-        self.assertEqual(65, len(prop))
+        self.assertEqual(70, len(prop_records))
+        self.assertEqual(69, len(prop))
         shared = [records for records in prop.values() if len(records) == 2]
         self.assertEqual(
             [[
@@ -4286,7 +4762,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             },
         )
         self.assertEqual(
-            {"2026-08-02": 31, "2026-08-24": 5},
+            {"2026-08-02": 29, "2026-08-24": 5},
             dict(
                 Counter(
                     row["decision_date"]
@@ -5293,7 +5769,7 @@ it("second", () => {
             161, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
         )
         self.assertEqual(  # noqa: PT009
-            65, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
+            69, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
         )
 
     def test_c21d_retired_address_owners_are_absent_and_counts_are_complete(self) -> None:
@@ -5312,7 +5788,7 @@ it("second", () => {
         self.assertEqual(102, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
         self.assertEqual(18, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
         self.assertEqual(  # noqa: PT009
-            30,
+            34,
             sum(
                 len(specification["consumer_paths"])
                 for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values()
@@ -5338,7 +5814,7 @@ it("second", () => {
             for records in checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.values()
             for record in records
         ]
-        self.assertEqual(66, len(prop_records))  # noqa: PT009
+        self.assertEqual(70, len(prop_records))  # noqa: PT009
 
         raw_address_residuals = {
             "benign_or_count_anchors": 0

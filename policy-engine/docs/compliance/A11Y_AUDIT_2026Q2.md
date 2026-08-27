@@ -1,3 +1,45 @@
+---
+ds11_projection_index:
+  schema_version: policyos.trust.document_projection_index.v1
+  body_sha256: 0e4a0280ab30e1c69cb373d438906aa50d36bd9765ec36e533b6fea1a7df93f0
+  bindings:
+    audit_type:
+      value: "Internal pre-audit evidence packet and external audit handoff"
+      exact_text: "- Audit type: Internal pre-audit evidence packet and external audit handoff"
+      occurrence: 1
+    internal_pre_audit_status:
+      value: "Internal pre-audit complete"
+      exact_text: "- Audit status: Internal pre-audit complete"
+      occurrence: 1
+    source_as_of:
+      value: "2026-04-22"
+      exact_text: "- Internal completion date: 2026-04-22"
+      occurrence: 1
+    external_countersign_status:
+      value: "Scheduled for Q2 2026, vendor countersign pending"
+      exact_text: "- External audit status: Scheduled for Q2 2026, vendor countersign pending"
+      occurrence: 1
+    product_under_review:
+      value: "@polisyos/runtime-dashboard@0.1.0"
+      exact_text: "- Product under review: `@polisyos/runtime-dashboard@0.1.0`"
+      occurrence: 1
+    evaluation_scope:
+      value: "policy-engine/apps/runtime-dashboard"
+      exact_text: "- Evaluation scope: `policy-engine/apps/runtime-dashboard`"
+      occurrence: 1
+    assessment_owner:
+      value: "Denis Kopylov"
+      exact_text: "- Assessment owner: Denis Kopylov"
+      occurrence: 1
+  authoritative_for:
+    - purpose: historical_internal_accessibility_pre_audit
+      basis: [audit_type, internal_pre_audit_status, source_as_of]
+  may_not_use_for:
+    - purpose: current_accessibility_conformance
+      basis: [source_as_of]
+    - purpose: external_accessibility_certification
+      basis: [external_countersign_status]
+---
 # Accessibility Audit 2026 Q2
 
 ## PolicyOS Runtime Dashboard

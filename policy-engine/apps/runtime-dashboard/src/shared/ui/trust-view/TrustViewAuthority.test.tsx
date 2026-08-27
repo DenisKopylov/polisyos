@@ -3,10 +3,38 @@ import { describe, expect, it } from "vitest";
 
 import { LocaleProvider } from "@/shared/i18n/LocaleProvider";
 
+import { DisputeBadge } from "./DisputeBadge";
 import { TrustMetadata } from "./TrustMetadata";
-import type { VerificationMetadata } from "./trust-glyphs";
+import {
+  issueTrustPresentation,
+  type TrustPresentation,
+  type VerificationMetadata,
+} from "./trust-glyphs";
+import { VerificationStatus } from "./VerificationStatus";
 
 describe("Trust View authority", () => {
+  it("renders authority clothing only from an issued presentation", () => {
+    const issued = issueTrustPresentation({
+      dispute_status: "none",
+      freshness: "current",
+      hash: "sha256:content-bound",
+      verification_method: "content_hash",
+      verification_status: "verified",
+      verified_by: "runtime-verifier",
+    });
+
+    render(
+      <LocaleProvider>
+        <VerificationStatus presentation={issued} />
+        <DisputeBadge presentation={issued} />
+      </LocaleProvider>,
+    );
+
+    expect(screen.queryByText("verified")).not.toBeInTheDocument();
+    expect(screen.queryByText("no dispute")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Unknown")).toHaveLength(2);
+  });
+
   it("never renders verified from missing or projection-only metadata", () => {
     const projectionOnly = {
       verification_status: "verified",
@@ -33,10 +61,33 @@ describe("Trust View authority", () => {
     expect(screen.queryByText("verified")).not.toBeInTheDocument();
   });
 
-  it("renders verified only from the complete generated owner contract", () => {
+  it("rejects a cast structural presentation at both clothing consumers", () => {
+    // @ts-expect-error TrustPresentation is a private, issuer-only brand.
+    const forged: TrustPresentation = Object.freeze({
+      dispute: "none",
+      status: "verified",
+    });
+
+    render(
+      <LocaleProvider>
+        <VerificationStatus presentation={forged} />
+        <DisputeBadge presentation={forged} />
+      </LocaleProvider>,
+    );
+
+    expect(screen.queryByText("verified")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Unknown")).toHaveLength(2);
+    expect(screen.getAllByLabelText("Unknown")[0]).toHaveAttribute(
+      "data-verification-source",
+      "unissued",
+    );
+  });
+
+  it("keeps byte-identical generated owner markers below verified clothing", () => {
     const metadata = {
       dispute_status: "none",
       freshness: "current",
+      hash: "sha256:content-bound",
       verification_method: "content_hash",
       verification_status: "verified",
       verified_by: "runtime-verifier",
@@ -52,7 +103,9 @@ describe("Trust View authority", () => {
       </LocaleProvider>,
     );
 
-    expect(screen.getByText("verified")).toBeInTheDocument();
+    expect(screen.queryByText("verified")).not.toBeInTheDocument();
+    expect(screen.queryByText("no dispute")).not.toBeInTheDocument();
+    expect(screen.getAllByText("Unknown")).toHaveLength(3);
     expect(screen.getByText("runtime-verifier")).toBeInTheDocument();
   });
 

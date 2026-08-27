@@ -12,7 +12,7 @@ import { DisputeBadge } from "./DisputeBadge";
 import { HashChip } from "./HashChip";
 import { TemporalScopeChip } from "./TemporalScopeChip";
 import {
-  hasVerificationOwnerContract,
+  issueTrustPresentation,
   type VerificationMetadata,
 } from "./trust-glyphs";
 import { VerificationStatus } from "./VerificationStatus";
@@ -37,9 +37,8 @@ export function TrustMetadata({
   className,
 }: TrustMetadataProps) {
   const { t } = useI18n();
-  const ownerMetadata = hasVerificationOwnerContract(metadata)
-    ? metadata
-    : null;
+  const ownerMetadata = metadata ?? null;
+  const presentation = issueTrustPresentation(ownerMetadata);
   const openInspectorPayload: TrustInspectorSubject = {
     hash: ownerMetadata?.hash ?? hash ?? undefined,
     id: subjectId,
@@ -52,7 +51,7 @@ export function TrustMetadata({
     return (
       <span className={cn("trust-metadata trust-metadata-compact", className)}>
         <TrustStatusButton subject={openInspectorPayload}>
-          <VerificationStatus metadata={ownerMetadata} showLabel={false} />
+          <VerificationStatus presentation={presentation} showLabel={false} />
         </TrustStatusButton>
         <HashChip
           hash={ownerMetadata?.hash ?? hash}
@@ -73,11 +72,9 @@ export function TrustMetadata({
     >
       <span className="flex flex-wrap items-center gap-2">
         <TrustStatusButton subject={openInspectorPayload}>
-          <VerificationStatus metadata={ownerMetadata} />
+          <VerificationStatus presentation={presentation} />
         </TrustStatusButton>
-        {ownerMetadata ? (
-          <DisputeBadge status={ownerMetadata.dispute_status} />
-        ) : null}
+        <DisputeBadge presentation={presentation} />
         <HashChip
           hash={ownerMetadata?.hash ?? hash}
           label={label}

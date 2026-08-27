@@ -42,6 +42,10 @@ test.describe("runtime-dashboard route accessibility", () => {
 
   for (const surface of DASHBOARD_ROUTE_SURFACES) {
     test(`${surface.name} passes axe`, async ({ page }) => {
+      if (surface.ready === "trust") {
+        test.setTimeout(120_000);
+      }
+
       const metadata = readFixtureMetadata();
 
       await page.goto(surface.path(metadata));

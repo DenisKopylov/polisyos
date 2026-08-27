@@ -64,7 +64,8 @@ type SurfaceReadyKey =
   | "artifact"
   | "evidence"
   | "knowledge"
-  | "platform";
+  | "platform"
+  | "trust";
 
 type RuntimeApiOverride = {
   body?:
@@ -105,6 +106,7 @@ const SURFACE_TEST_IDS: Record<SurfaceReadyKey, string[]> = {
   evidence: ["evidence-page"],
   knowledge: ["lex-page"],
   platform: ["platform-page"],
+  trust: ["trust-posture-page"],
 };
 
 export const DASHBOARD_ROUTE_SURFACES: DashboardRouteSurface[] = [
@@ -194,6 +196,11 @@ export const DASHBOARD_ROUTE_SURFACES: DashboardRouteSurface[] = [
     name: "platform",
     path: () => "/platform",
     ready: "platform",
+  },
+  {
+    name: "trust",
+    path: () => "/trust",
+    ready: "trust",
   },
 ];
 

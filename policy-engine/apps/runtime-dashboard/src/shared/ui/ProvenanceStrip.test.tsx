@@ -72,7 +72,7 @@ describe("ProvenanceStrip", () => {
     expect(within(item).getAllByLabelText("verified")).toHaveLength(1);
   });
 
-  it("generated VerificationMetadata alone changes trust posture", () => {
+  it("generated VerificationMetadata alone cannot assert verified posture", () => {
     const base = {
       glyph: "evidence" as const,
       label: "Same owner label",
@@ -96,14 +96,11 @@ describe("ProvenanceStrip", () => {
     expect(
       within(withoutMetadata).queryByLabelText("verified"),
     ).not.toBeInTheDocument();
-    const verification = within(withMetadata).getByLabelText("verified");
+    const verification = within(withMetadata).getByLabelText("Unknown");
     expect(verification).toHaveAttribute(
       "data-verification-presentation",
-      "verified",
+      "unknown",
     );
-    expect(verification).toHaveAttribute(
-      "data-verification-source",
-      "generated-owner",
-    );
+    expect(verification).toHaveAttribute("data-verification-source", "issued");
   });
 });

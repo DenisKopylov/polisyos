@@ -4259,6 +4259,12 @@ ds11AliasProbe(null);
 const { issueTrustPresentation: ds11DestructuredProbe } = ds11NamespaceProbe;
 ds11DestructuredProbe(null);
 ds11NamespaceProbe.issueTrustPresentation(null);
+(0, issueTrustPresentation)(null);
+issueTrustPresentation.call(null, null);
+Reflect.apply(issueTrustPresentation, null, [null]);
+Promise.resolve(null).then(issueTrustPresentation);
+const ds11StoredIssuerProbe = [issueTrustPresentation];
+void ds11StoredIssuerProbe;
 """
         request = {
             "authorityPathDescriptors": (
@@ -4277,9 +4283,10 @@ ds11NamespaceProbe.issueTrustPresentation(null);
             {
                 "alias",
                 "dynamic_import",
-                "namespace_property_call",
+                "namespace_import",
                 "reexport",
                 "require",
+                "value_reference",
             },
             {row["kind"] for row in accesses},
         )
@@ -4298,7 +4305,7 @@ ds11NamespaceProbe.issueTrustPresentation(null);
         source = (checker.REPO_ROOT / source_path).read_text(encoding="utf-8")
         source += """
 import { issueTrustPresentation } from "./trust-glyphs";
-void issueTrustPresentation(null);
+void (issueTrustPresentation)(null);
 """
         request = {
             "authorityPathDescriptors": (

@@ -687,3 +687,31 @@ provenance remained valid while its self-supplied subject was relabeled to
   exactly the inherited C13 receipt and no DS11 error (exit 1; `real 67.45`,
   `user 92.64`, `sys 9.51`; uptime `18:05 -> 18:06`). Accounting remains
   `26/34` mechanisms and `7/9` widening rounds.
+
+### C04 review repair — complete issuer-value-reference census
+
+- P40 bucket: the parenthesized-callee escape is the same C04 issuer-census
+  class one level deeper, so the repair widens the existing scanner property,
+  not its syntax list. No production mechanism path or widening round changes.
+- RED receipts: the frontend architecture test reported six intended failures:
+  a parenthesized direct call remained absent from the counter, while comma,
+  `.call`, `Reflect.apply`, callback, and storage references remained invisible.
+  The two governed mutations likewise showed no `value_reference` fact and no
+  fifth call for a parenthesized callee.
+- The governed scanner now unwraps transparent expression clothing and resolves
+  the issuer symbol. Every resolved issuer callee enters `directCalls`; every
+  other issuer value reference enters unsafe `moduleAccesses`. Namespace,
+  dynamic-import, require, re-export, named/local, and destructuring acquisition
+  remain forbidden. The frontend 625-file falsifier applies the same generic
+  callee-versus-value-reference property.
+- Frozen verification: frontend architecture is 15/15 (exit 0; `real 2.37`,
+  `user 3.11`, `sys 0.25`; uptime `04:12` before/after). The complete dashboard
+  typecheck is exit 0 (`real 13.14`, `user 25.30`, `sys 0.76`; uptime `04:15 ->
+  04:16`).
+  Five governed trust-presentation tests pass (exit 0; `real 77.17`, `user
+  111.41`, `sys 10.50`; uptime `04:12 -> 04:13`). The locked whole checker
+  returns exactly the inherited C13 receipt and no DS11 error (exit 1; `real
+  68.66`, `user 94.04`, `sys 9.47`; uptime `04:13 -> 04:14`). The generated
+  register is unchanged and its two issuer refs still equal the live
+  `trust-glyphs.ts` digest. Accounting remains `26/34` mechanisms and `7/9`
+  widening rounds.

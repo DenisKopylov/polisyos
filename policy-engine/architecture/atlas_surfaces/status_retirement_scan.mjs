@@ -4711,7 +4711,9 @@ function collectAuthorityIssuerFacts(
           moduleTargetsIssuer(sourceFile, statement.moduleSpecifier)
         ) {
           const bindings = statement.importClause?.namedBindings;
-          if (bindings && ts.isNamedImports(bindings)) {
+          if (bindings && ts.isNamespaceImport(bindings)) {
+            record(sourceFile, bindings, "namespace_import");
+          } else if (bindings && ts.isNamedImports(bindings)) {
             for (const element of bindings.elements) {
               if (
                 symbolIdentity(checker, element.name) === privateIssuerSymbol &&
@@ -4737,12 +4739,87 @@ function collectAuthorityIssuerFacts(
         }
       }
 
+      const expressionResolvesIssuer = (expression) => {
+        const candidate = unwrapExpression(expression);
+        if (ts.isIdentifier(candidate)) {
+          return symbolIdentity(checker, candidate) === privateIssuerSymbol;
+        }
+        if (ts.isPropertyAccessExpression(candidate)) {
+          return (
+            symbolIdentity(checker, candidate.name) === privateIssuerSymbol
+          );
+        }
+        if (ts.isElementAccessExpression(candidate)) {
+          const argument = candidate.argumentExpression;
+          if (!argument || !ts.isStringLiteralLike(argument)) return false;
+          let member = checker.getPropertyOfType(
+            checker.getTypeAtLocation(candidate.expression),
+            argument.text,
+          );
+          if (member && (member.flags & ts.SymbolFlags.Alias) !== 0) {
+            member = checker.getAliasedSymbol(member);
+          }
+          return member === privateIssuerSymbol;
+        }
+        return false;
+      };
+      const transparentExpressionRoot = (expression) => {
+        let current = expression;
+        while (
+          current.parent &&
+          unwrapExpression(current.parent) === current &&
+          current.parent !== current
+        ) {
+          current = current.parent;
+        }
+        return current;
+      };
+      const issuerDeclarationReference = (node) => {
+        const parent = node.parent;
+        if (
+          ts.isImportSpecifier(parent) ||
+          ts.isNamespaceImport(parent) ||
+          ts.isImportClause(parent) ||
+          ts.isExportSpecifier(parent)
+        ) {
+          return true;
+        }
+        return (privateIssuerSymbol.declarations ?? []).some(
+          (declaration) => declaration.name === node,
+        );
+      };
+      const issuerValueReference = (node) => {
+        if (ts.isIdentifier(node)) {
+          if (issuerDeclarationReference(node)) return false;
+          if (
+            (ts.isPropertyAccessExpression(node.parent) &&
+              node.parent.name === node) ||
+            (ts.isElementAccessExpression(node.parent) &&
+              node.parent.argumentExpression === node)
+          ) {
+            return false;
+          }
+          return symbolIdentity(checker, node) === privateIssuerSymbol;
+        }
+        return (
+          (ts.isPropertyAccessExpression(node) ||
+            ts.isElementAccessExpression(node)) &&
+          expressionResolvesIssuer(node)
+        );
+      };
+      const isDirectIssuerCallReference = (reference) => {
+        const outer = transparentExpressionRoot(reference);
+        return (
+          ts.isCallExpression(outer.parent) &&
+          outer.parent.expression === outer &&
+          expressionResolvesIssuer(outer.parent.expression)
+        );
+      };
+
       const visitModuleAccesses = (node) => {
         if (
           ts.isCallExpression(node) &&
-          ts.isIdentifier(node.expression) &&
-          node.expression.text === privateIssuerName &&
-          symbolIdentity(checker, node.expression) === privateIssuerSymbol
+          expressionResolvesIssuer(node.expression)
         ) {
           directCalls.push({
             factory: privateIssuerName,
@@ -4763,30 +4840,6 @@ function collectAuthorityIssuerFacts(
           moduleTargetsIssuer(sourceFile, node.arguments[0])
         ) {
           record(sourceFile, node, "require");
-        } else if (
-          ts.isCallExpression(node) &&
-          (ts.isPropertyAccessExpression(node.expression) ||
-            ts.isElementAccessExpression(node.expression))
-        ) {
-          const member = ts.isPropertyAccessExpression(node.expression)
-            ? node.expression.name
-            : node.expression.argumentExpression;
-          if (
-            member &&
-            ((ts.isIdentifier(member) && member.text === privateIssuerName) ||
-              (ts.isStringLiteralLike(member) &&
-                member.text === privateIssuerName)) &&
-            symbolIdentity(checker, member) === privateIssuerSymbol
-          ) {
-            record(sourceFile, node, "namespace_property_call");
-          }
-        } else if (
-          ts.isVariableDeclaration(node) &&
-          node.initializer &&
-          symbolIdentity(checker, unwrapExpression(node.initializer)) ===
-            privateIssuerSymbol
-        ) {
-          record(sourceFile, node, "alias");
         } else if (
           ts.isVariableDeclaration(node) &&
           ts.isObjectBindingPattern(node.name) &&
@@ -4811,6 +4864,9 @@ function collectAuthorityIssuerFacts(
           if (member === privateIssuerSymbol) {
             record(sourceFile, node, "alias");
           }
+        }
+        if (issuerValueReference(node) && !isDirectIssuerCallReference(node)) {
+          record(sourceFile, node, "value_reference");
         }
         ts.forEachChild(node, visitModuleAccesses);
       };

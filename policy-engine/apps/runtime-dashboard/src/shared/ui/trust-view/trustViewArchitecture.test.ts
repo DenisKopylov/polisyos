@@ -262,9 +262,25 @@ function presentationPropTypeText(
 type IssuerAccessKind =
   | "alias"
   | "dynamic_import"
-  | "namespace_property_call"
+  | "namespace_import"
   | "reexport"
-  | "require";
+  | "require"
+  | "value_reference";
+
+function unwrapIssuerExpression(expression: ts.Expression): ts.Expression {
+  let current = expression;
+  while (
+    ts.isParenthesizedExpression(current) ||
+    ts.isAsExpression(current) ||
+    ts.isTypeAssertionExpression(current) ||
+    ts.isNonNullExpression(current) ||
+    ts.isSatisfiesExpression(current) ||
+    ts.isPartiallyEmittedExpression(current)
+  ) {
+    current = current.expression;
+  }
+  return current;
+}
 
 function issuerCalls(
   file: string,
@@ -272,7 +288,7 @@ function issuerCalls(
 ): { directCalls: number; unsafeAccesses: IssuerAccessKind[] } {
   const directIssuerNames = new Set<string>();
   const namespaceNames = new Set<string>();
-  const unsafeAccesses = new Set<IssuerAccessKind>();
+  const unsafeAccesses: IssuerAccessKind[] = [];
 
   const targetsIssuer = (specifier: ts.Expression | undefined) => {
     if (!specifier || !ts.isStringLiteralLike(specifier)) return false;
@@ -288,14 +304,14 @@ function issuerCalls(
       const bindings = statement.importClause?.namedBindings;
       if (bindings && ts.isNamespaceImport(bindings)) {
         namespaceNames.add(bindings.name.text);
+        unsafeAccesses.push("namespace_import");
       } else if (bindings && ts.isNamedImports(bindings)) {
         for (const element of bindings.elements) {
           const imported = element.propertyName?.text ?? element.name.text;
           if (imported !== "issueTrustPresentation") continue;
-          if (element.name.text === "issueTrustPresentation") {
-            directIssuerNames.add(element.name.text);
-          } else {
-            unsafeAccesses.add("alias");
+          directIssuerNames.add(element.name.text);
+          if (element.name.text !== "issueTrustPresentation") {
+            unsafeAccesses.push("alias");
           }
         }
       }
@@ -311,17 +327,78 @@ function issuerCalls(
               "issueTrustPresentation",
           )))
     ) {
-      unsafeAccesses.add("reexport");
+      unsafeAccesses.push("reexport");
     }
   }
 
+  const isIssuerExpression = (expression: ts.Expression): boolean => {
+    const candidate = unwrapIssuerExpression(expression);
+    if (ts.isIdentifier(candidate)) {
+      return directIssuerNames.has(candidate.text);
+    }
+    if (
+      ts.isPropertyAccessExpression(candidate) &&
+      ts.isIdentifier(candidate.expression)
+    ) {
+      return (
+        namespaceNames.has(candidate.expression.text) &&
+        candidate.name.text === "issueTrustPresentation"
+      );
+    }
+    return (
+      ts.isElementAccessExpression(candidate) &&
+      ts.isIdentifier(candidate.expression) &&
+      namespaceNames.has(candidate.expression.text) &&
+      ts.isStringLiteralLike(candidate.argumentExpression) &&
+      candidate.argumentExpression.text === "issueTrustPresentation"
+    );
+  };
+
+  const transparentRoot = (expression: ts.Expression): ts.Expression => {
+    let current = expression;
+    while (
+      current.parent &&
+      (ts.isParenthesizedExpression(current.parent) ||
+        ts.isAsExpression(current.parent) ||
+        ts.isTypeAssertionExpression(current.parent) ||
+        ts.isNonNullExpression(current.parent) ||
+        ts.isSatisfiesExpression(current.parent) ||
+        ts.isPartiallyEmittedExpression(current.parent)) &&
+      current.parent.expression === current
+    ) {
+      current = current.parent;
+    }
+    return current;
+  };
+
+  const isIssuerReference = (node: ts.Node): node is ts.Expression => {
+    if (ts.isIdentifier(node)) {
+      if (
+        ts.isImportSpecifier(node.parent) ||
+        ts.isNamespaceImport(node.parent)
+      ) {
+        return false;
+      }
+      if (
+        (ts.isPropertyAccessExpression(node.parent) &&
+          node.parent.name === node) ||
+        (ts.isElementAccessExpression(node.parent) &&
+          node.parent.argumentExpression === node)
+      ) {
+        return false;
+      }
+      return directIssuerNames.has(node.text);
+    }
+    return (
+      (ts.isPropertyAccessExpression(node) ||
+        ts.isElementAccessExpression(node)) &&
+      isIssuerExpression(node)
+    );
+  };
+
   let directCalls = 0;
   const visit = (node: ts.Node) => {
-    if (
-      ts.isCallExpression(node) &&
-      ts.isIdentifier(node.expression) &&
-      directIssuerNames.has(node.expression.text)
-    ) {
+    if (ts.isCallExpression(node) && isIssuerExpression(node.expression)) {
       directCalls += 1;
     }
     if (
@@ -329,7 +406,7 @@ function issuerCalls(
       node.expression.kind === ts.SyntaxKind.ImportKeyword &&
       targetsIssuer(node.arguments[0])
     ) {
-      unsafeAccesses.add("dynamic_import");
+      unsafeAccesses.push("dynamic_import");
     }
     if (
       ts.isCallExpression(node) &&
@@ -337,29 +414,7 @@ function issuerCalls(
       node.expression.text === "require" &&
       targetsIssuer(node.arguments[0])
     ) {
-      unsafeAccesses.add("require");
-    }
-    if (
-      ts.isCallExpression(node) &&
-      ((ts.isPropertyAccessExpression(node.expression) &&
-        ts.isIdentifier(node.expression.expression) &&
-        namespaceNames.has(node.expression.expression.text) &&
-        node.expression.name.text === "issueTrustPresentation") ||
-        (ts.isElementAccessExpression(node.expression) &&
-          ts.isIdentifier(node.expression.expression) &&
-          namespaceNames.has(node.expression.expression.text) &&
-          ts.isStringLiteralLike(node.expression.argumentExpression) &&
-          node.expression.argumentExpression.text === "issueTrustPresentation"))
-    ) {
-      unsafeAccesses.add("namespace_property_call");
-    }
-    if (
-      ts.isVariableDeclaration(node) &&
-      node.initializer &&
-      ts.isIdentifier(node.initializer) &&
-      directIssuerNames.has(node.initializer.text)
-    ) {
-      unsafeAccesses.add("alias");
+      unsafeAccesses.push("require");
     }
     if (
       ts.isVariableDeclaration(node) &&
@@ -376,14 +431,26 @@ function issuerCalls(
             element.name.text === "issueTrustPresentation"),
       )
     ) {
-      unsafeAccesses.add("alias");
+      unsafeAccesses.push("alias");
+    }
+    if (isIssuerReference(node)) {
+      const outer = transparentRoot(node);
+      if (
+        !(
+          ts.isCallExpression(outer.parent) &&
+          outer.parent.expression === outer &&
+          isIssuerExpression(outer.parent.expression)
+        )
+      ) {
+        unsafeAccesses.push("value_reference");
+      }
     }
     ts.forEachChild(node, visit);
   };
   visit(ast);
   return {
     directCalls,
-    unsafeAccesses: [...unsafeAccesses].sort(),
+    unsafeAccesses: unsafeAccesses.sort(),
   };
 }
 
@@ -431,38 +498,86 @@ describe("shared Trust View architecture", () => {
     [
       "namespace property call",
       'import * as trust from "./trust-glyphs"; trust.issueTrustPresentation(null);',
-      "namespace_property_call",
+      "namespace_import",
+      1,
     ],
     [
       "re-export",
       'export { issueTrustPresentation } from "./trust-glyphs";',
       "reexport",
+      0,
     ],
     [
       "dynamic import",
       'void import("./trust-glyphs").then((trust) => trust.issueTrustPresentation(null));',
       "dynamic_import",
+      0,
     ],
     [
       "require",
       'const trust = require("./trust-glyphs"); trust.issueTrustPresentation(null);',
       "require",
+      0,
     ],
     [
       "local alias",
       'import { issueTrustPresentation } from "./trust-glyphs"; const alias = issueTrustPresentation; alias(null);',
-      "alias",
+      "value_reference",
+      0,
     ],
     [
       "destructuring alias",
       'import * as trust from "./trust-glyphs"; const { issueTrustPresentation: alias } = trust; alias(null);',
       "alias",
+      0,
     ],
-  ])("rejects %s access to the private issuer", (_label, source, kind) => {
-    const file = path.join(trustViewRoot, "authority-access-probe.ts");
+  ])(
+    "rejects %s access to the private issuer",
+    (_label, source, kind, calls) => {
+      const file = path.join(trustViewRoot, "authority-access-probe.ts");
+      const ast = ts.createSourceFile(
+        file,
+        source,
+        ts.ScriptTarget.Latest,
+        true,
+        ts.ScriptKind.TS,
+      );
+
+      expect(issuerCalls(file, ast)).toEqual({
+        directCalls: calls,
+        unsafeAccesses:
+          kind === "alias" ? ["alias", "namespace_import"] : [kind],
+      });
+    },
+  );
+
+  it("counts a transparently wrapped issuer callee as a direct call", () => {
+    const file = path.join(trustViewRoot, "authority-call-probe.ts");
     const ast = ts.createSourceFile(
       file,
-      source,
+      'import { issueTrustPresentation } from "./trust-glyphs"; (issueTrustPresentation)(null);',
+      ts.ScriptTarget.Latest,
+      true,
+      ts.ScriptKind.TS,
+    );
+
+    expect(issuerCalls(file, ast)).toEqual({
+      directCalls: 1,
+      unsafeAccesses: [],
+    });
+  });
+
+  it.each([
+    ["comma callee", "(0, issueTrustPresentation)(null);"],
+    ["call method", "issueTrustPresentation.call(null, null);"],
+    ["Reflect.apply", "Reflect.apply(issueTrustPresentation, null, [null]);"],
+    ["callback", "Promise.resolve(null).then(issueTrustPresentation);"],
+    ["storage", "const stored = [issueTrustPresentation]; void stored;"],
+  ])("rejects an issuer %s value reference", (_label, expression) => {
+    const file = path.join(trustViewRoot, "authority-reference-probe.ts");
+    const ast = ts.createSourceFile(
+      file,
+      `import { issueTrustPresentation } from "./trust-glyphs"; ${expression}`,
       ts.ScriptTarget.Latest,
       true,
       ts.ScriptKind.TS,
@@ -470,7 +585,7 @@ describe("shared Trust View architecture", () => {
 
     expect(issuerCalls(file, ast)).toEqual({
       directCalls: 0,
-      unsafeAccesses: [kind],
+      unsafeAccesses: ["value_reference"],
     });
   });
 

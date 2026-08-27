@@ -134,6 +134,7 @@ def _absolute_imports(
     src_root: Path,
     tree: ast.AST,
     *,
+    reject_source_modules: frozenset[str] = frozenset(),
     alias_cache: dict[tuple[str, str], frozenset[str]] | None = None,
     module_bindings_cache: dict[
         str,
@@ -154,6 +155,8 @@ def _absolute_imports(
         elif isinstance(node, ast.ImportFrom) and node.level == 0 and node.module:
             for alias in node.names:
                 imports.add((node.lineno, node.module, alias.name, node.module))
+                if node.module in reject_source_modules:
+                    continue
                 imports.update(
                     (node.lineno, resolved, alias.name, node.module)
                     for resolved in _resolved_import_from_alias(
@@ -236,6 +239,37 @@ def world_owned_tables(ddl_path: Path) -> frozenset[str]:
     )
 
 
+def _owner_private_source_modules(src_root: Path, owner_path: Path) -> frozenset[str]:
+    owner_tree = ast.parse(owner_path.read_text(encoding="utf-8"), filename=str(owner_path))
+    owner_function = next(
+        node
+        for node in owner_tree.body
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef))
+        and node.name == "write_world_snapshot"
+    )
+    owner_public_facade = _module_name(src_root, owner_path).rpartition(".")[0]
+    imported_sources = {
+        source_module
+        for _, _, _, source_module in _absolute_imports(src_root, owner_function)
+        if source_module.startswith(f"{owner_public_facade}.")
+    }
+
+    private_sources: set[str] = set()
+    for imported_source in imported_sources:
+        current = imported_source
+        while current != owner_public_facade:
+            module_source = _module_source_path(src_root, current)
+            if module_source is not None:
+                private_sources.add(current)
+                if module_source.name == "__init__.py":
+                    private_sources.update(
+                        _module_name(src_root, descendant)
+                        for descendant in module_source.parent.rglob("*.py")
+                    )
+            current = current.rpartition(".")[0]
+    return frozenset(private_sources)
+
+
 def world_write_private_modules(src_root: Path, owner_path: Path) -> frozenset[str]:
     """Derive private backend imports, descendants, and owned-table writers."""
 
@@ -285,6 +319,7 @@ def external_world_write_violations(src_root: Path) -> tuple[str, ...]:
         return (f"{owner_path.relative_to(src_root.parent).as_posix()}: owner missing",)
     owner_package = src_root / "polisyos" / "fabric"
     forbidden_modules = world_write_private_modules(src_root, owner_path)
+    private_source_modules = _owner_private_source_modules(src_root, owner_path)
     public_fabric_reexports = _public_fabric_reexports(src_root)
     owner_public_facade = _module_name(src_root, owner_path).rpartition(".")[0]
     owner_public_exports = _declared_module_exports(src_root, owner_public_facade)
@@ -304,9 +339,13 @@ def external_world_write_violations(src_root: Path) -> tuple[str, ...]:
         for lineno, imported_module, imported_name, source_module in _absolute_imports(
             src_root,
             tree,
+            reject_source_modules=private_source_modules,
             alias_cache=alias_cache,
             module_bindings_cache=module_bindings_cache,
         ):
+            if source_module in private_source_modules:
+                violations.add(f"{relative}:{lineno}: deep-import {source_module}")
+                continue
             imports_forbidden_backend = any(
                 imported_module == forbidden
                 or imported_module.startswith(f"{forbidden}.")
@@ -454,6 +493,45 @@ def test_import_from_child_and_reexport_resolve_to_private_backend(
     assert any("symbol_import.py" in violation for violation in violations)
 
 
+def test_lazy_reexport_source_package_is_forbidden_without_static_import_edge(
+    tmp_path: Path,
+) -> None:
+    src_root, owner_path = _fixture_owner_tree(tmp_path)
+    store_root = src_root / "polisyos" / "fabric" / "world" / "store"
+    store_root.mkdir()
+    (store_root / "snapshots.py").write_text(
+        "def create_world_snapshot(): pass\n",
+        encoding="utf-8",
+    )
+    (store_root / "__init__.py").write_text(
+        "from importlib import import_module as _import_module\n"
+        '_SNAPSHOT_EXPORT_NAMES = frozenset({"create_world_snapshot"})\n'
+        "def __getattr__(name):\n"
+        "    if name not in _SNAPSHOT_EXPORT_NAMES:\n"
+        "        raise AttributeError(name)\n"
+        '    return getattr(_import_module("polisyos.fabric.world.store.snapshots"), name)\n',
+        encoding="utf-8",
+    )
+    owner_path.write_text(
+        owner_path.read_text(encoding="utf-8").replace(
+            "    return write_one, write_two, write_three\n",
+            "    from polisyos.fabric.world.store.snapshots import create_world_snapshot\n"
+            "    return write_one, write_two, write_three, create_world_snapshot\n",
+        ),
+        encoding="utf-8",
+    )
+    runtime = src_root / "polisyos" / "runtime" / "lazy_symbol.py"
+    runtime.parent.mkdir(parents=True)
+    runtime.write_text(
+        "from polisyos.fabric.world.store import create_world_snapshot\n",
+        encoding="utf-8",
+    )
+
+    violations = external_world_write_violations(src_root)
+
+    assert any("lazy_symbol.py" in violation for violation in violations)
+
+
 def test_public_waist_import_is_admitted_but_direct_owner_import_is_forbidden(
     tmp_path: Path,
 ) -> None:
@@ -489,7 +567,9 @@ def test_public_waist_import_is_admitted_but_direct_owner_import_is_forbidden(
     assert any("direct.py" in violation for violation in violations)
 
 
-def test_public_shared_fabric_symbol_is_not_world_write_authority(tmp_path: Path) -> None:
+def test_shared_backend_with_owned_table_mutation_is_forbidden(
+    tmp_path: Path,
+) -> None:
     src_root, owner_path = _fixture_owner_tree(tmp_path)
     fabric_root = src_root / "polisyos" / "fabric"
     (fabric_root / "__init__.py").write_text(
@@ -512,6 +592,12 @@ def test_public_shared_fabric_symbol_is_not_world_write_authority(tmp_path: Path
     reader = src_root / "polisyos" / "runtime" / "reader.py"
     reader.parent.mkdir(parents=True)
     reader.write_text(
+        "from polisyos.fabric.io.db import SimulationDB\n"
+        'SQL = "INSERT INTO world.first_table (id) VALUES (?)"\n',
+        encoding="utf-8",
+    )
+    generic_reader = src_root / "polisyos" / "runtime" / "generic_reader.py"
+    generic_reader.write_text(
         "from polisyos.fabric.io.db import SimulationDB\n",
         encoding="utf-8",
     )
@@ -520,7 +606,8 @@ def test_public_shared_fabric_symbol_is_not_world_write_authority(tmp_path: Path
     violations = external_world_write_violations(src_root)
 
     assert "polisyos.fabric.io.db" in derived
-    assert not any("reader.py" in violation for violation in violations)
+    assert any("reader.py" in violation for violation in violations)
+    assert not any("generic_reader.py" in violation for violation in violations)
 
 
 def test_owned_table_derivation_detects_a_fourth_ddl_target(tmp_path: Path) -> None:

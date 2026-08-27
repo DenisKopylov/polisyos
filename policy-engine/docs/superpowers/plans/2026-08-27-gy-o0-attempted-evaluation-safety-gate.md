@@ -8,12 +8,14 @@
 
 **Tech stack:** Python 3.14, strict Pydantic v2 DTOs, existing `ArtifactStore`/CAS and runtime diagnostic-event owners, FastAPI's existing artifact/run surfaces, pytest, Ruff, and repository architecture guardrails.
 
-> **Execution standing: blocked before C01 on an inherited N9 producer gap.**
-> The conditional O0 mechanism below is implementation-ready only after a
-> separately scoped dependency produces and validates a real production-lane
-> `consumer_promotable=True` N9 receipt. C00 must prove that receipt from the
-> canonical owner; no constructed, contract-testing, or verification-only
-> substitute is admissible.
+> **Execution standing: executable; C00 is a census and structural-witness
+> cluster, not a blanket stop.** The current canonical N9 producer cannot emit
+> a production-lane `consumer_promotable=True` receipt. That leaves the named
+> empirical cross-gate non-closure `GY-O0-NC-01`; it does not block C01-C05 or
+> O0 closure. No constructed, contract-testing, forged, or verification-only
+> receipt may be represented as an admitted N9 receipt. Promotion independence
+> is instead proved for every input by the pure safety-core signature and the
+> per-cluster injection falsifiers below.
 
 **Binding specifications:**
 
@@ -22,6 +24,8 @@
 - `docs/reference/policy-design-search-RACE-HOG-PODS-v3.2-spec.md:410-420` and `:993-1008`
 - `docs/system-design-decisions/policyos-identity-and-custody-boundary.md:72-123`
 - `docs/system-design-decisions/stage0-custody-kernel-ratification.md:42-110`
+- `docs/system-design-decisions/int-wave-claim-semantics-ratification.md:190-208`
+  (ratified finding `INT-K06`)
 - `docs/reference/policy-design-case-failure-patterns.md`
 
 ---
@@ -45,12 +49,15 @@ missed the bold-only `GY-PA1` `not_executable` cell. That disagreement is not
 discarded: it is the reason the admitted derivations use a generic five-cell
 regex and an independent cell split, which return identical 37-row sets.
 
-Pre-implementation capability standing is **`absent/unallocated`**, not
-implemented: there is a typed mode vocabulary and a negative placeholder, but
-no admitted requirement-pack producer, persisted attempt decision,
-mode-matched certificate, execution bridge, success-path consumer, honest
-counter projection, inspectable audit artifact, or negative end-to-end semantic
-test.
+Pre-implementation O0 capability standing is **`contract_only`,
+`producer_missing`, `artifact_missing`, `bridge_missing`, `consumer_missing`,
+`verification_missing`, `surface_missing`, and `semantic_test_missing`**. It is
+not `absent/unallocated`: `FoundryValuePort`, the six-mode contract, the
+fail-closed O0 placeholder, N8, and the two evaluator chokepoints are named
+candidate owners. What is absent is the admitted EvalSafety chain: no
+requirement-pack producer, persisted attempt decision, mode-matched
+certificate, execution bridge, success-path consumer, honest counter
+projection, inspectable audit artifact, or negative end-to-end semantic test.
 
 Planning found a separate inherited premise failure behind the decisive
 near-miss test. Owner code at `promotion_sequence.py:3328-3348` always emits
@@ -69,13 +76,26 @@ dependency the exact state is `contract_only`, `producer_missing`,
 `artifact_missing`, `bridge_missing`, `consumer_missing`,
 `verification_missing`, and `semantic_test_missing`. The measurement-root
 chain exists upstream but is `implemented_but_not_orchestrated` relative to
-N8/N9 and `bridge_missing`; an authority-grade N8 measurement-obligation
-artifact remains `absent/unallocated` with producer/artifact/consumer/
-verification/semantic-test links missing. Completing GY-K and the N8
-measurement authority is not attempted-evaluation safety, cannot be priced
-from O0's measured path set, and is not silently absorbed here. Until a
-separately approved prerequisite closes both and O0 reads back a real receipt,
-C00 stops and C01-C05 do not execute.
+N8/N9 and `bridge_missing`. The authority-grade N8 measurement-obligation
+chain's first failures are **`producer_missing + bridge_missing` with a named
+candidate owner**; its complete typed standing is `producer_missing`,
+`artifact_missing`, `bridge_missing`, `consumer_missing`,
+`verification_missing`, and `semantic_test_missing`, not
+`absent/unallocated`. The canonical candidate `owner_ref` values are `GY-K
+entailment witness owner` and `measurement-rooted producer owner`; their
+refusal details state exactly **"GY-K entailment witness owner is unwired"** at
+`promotion_sequence.py:3345` and **"Measurement-rooted producer owner is
+unwired"** at `:3443`. Completing either chain is not attempted-evaluation
+safety, cannot be priced from O0's measured path set, and is not silently
+absorbed here. C00 preserves this evidence and C01-C05 proceed without claiming
+that either positive production capability exists.
+
+**Standing unwired/unowned check:** before assigning any incomplete-capability
+label, resolve candidate owners in contract, producer, refusal, and consumer
+code. `absent/unallocated` is admissible only when that complete walk finds no
+owner and no candidate. An existing root or code-named candidate routes the row
+to its first missing chain link, such as `producer_missing` or
+`bridge_missing`; "unwired" never means "unowned".
 
 The outcome is load-bearing:
 
@@ -93,6 +113,27 @@ The outcome is load-bearing:
 6. Every EvalSafety intake decision is persisted. Counters are recomputed from
    the complete, reconciled event denominator rather than incremented from
    requests.
+
+Two independent dependency derivations constrain the width of the N9 gap:
+
+| Derivation over the six outcomes | Receipt-dependent | Promotion-related but structurally dischargeable | No promotion relation |
+| --- | ---: | ---: | ---: |
+| Outcome-text inventory | 0 | item 4 only (1) | items 1, 2, 3, 5, 6 (5) |
+| Target dataflow/signature inventory | 0 | item 4 only (1) | items 1, 2, 3, 5, 6 (5) |
+
+There is no disagreement: **zero of six outcomes requires a live positive N9
+receipt**. Item 4 is the only outcome that mentions promotion, and it is a
+negative separation property. `INT-K06` ratifies a binding, falsifiable claim
+about procedure without a probabilistic or production-readiness claim; here
+that procedure claim is stronger than one empirical pair because it forbids a
+promotion-to-safety data path for every input. Items 1, 2, 3, 5, and 6 are
+independent of N9 altogether.
+
+`GY-O0-NC-01 — empirical cross-gate disagreement on a real promoted design` is
+retained as a named non-closure. Its two candidate owners are the exact
+code-named owners above. When they are wired, a real promoted design can add an
+observed promotion-safe/pilot-unsafe example; until then no fabricated receipt
+substitutes for it. **O0 closure does not wait on `GY-O0-NC-01`.**
 
 ---
 
@@ -278,7 +319,7 @@ PolicyOS produces the typed admitted/refused receipt. Production absence is
 | Six-mode taxonomy | `generation_cycle.py:150-157`; frozen N8 contract | **consolidate/extend-existing** | One strict `evaluation_modes.py` owner; compatibility import only, no fallback parser. |
 | N8 value receipt | `generation_cycle.py:430-486` | **wire-existing** | Binds the selected mode and resulting safety refs; never becomes the certificate. |
 | N9 promotion classifier | private decision-front predicate in `generation_cycle.py:5475-5510`; canonical receipt/validator in `promotion_sequence.py` | **consolidate-existing** | Move/expose the canonical predicate on the promotion owner; invoke only after safety is frozen and only for near-miss classification. |
-| N9 positive production premise | GY-K has a shadow-only contract and no production provider; measurement roots exist but do not reach an authority-grade N8/N9 obligation | **separate prerequisite; not O0 mechanism** | Complete and verify GY-K effect plus N8 measurement authority in separately scoped work. Until its real receipt exists, O0 is blocked at C00. |
+| N9 positive production premise | GY-K has a shadow-only contract and a named but unwired witness owner; measurement roots exist but their named producer owner does not reach an authority-grade N8/N9 obligation | **separate named non-closure; not O0 mechanism or closure prerequisite** | Route `GY-O0-NC-01` to the GY-K entailment-witness and measurement-rooted producer candidates. O0 proves separation structurally and does not absorb or wait on either owner. |
 | Requirement algebra, intake/request, decision, certificate/revision, typed blockers | none | **build-new** | Strict, frozen Pydantic artifacts and verification-only port in `evaluation_safety.py`. |
 | Domain-pack admission producer | no EvalSafety owner; discovery components return untyped objects | **build-new over reused discovery/CAS** | Admit/refuse strict pack, mode-basis, and appointment artifacts; raw domain hints never select a pass. |
 | Applicability facets | `SemanticFacetRegistry` and `SemanticFacetDenominatorReceipt` | **wire-existing** | Exact hash-bound facet requirements; open namespaced facet IDs, no metadata bag or domain enum. |
@@ -292,11 +333,13 @@ PolicyOS produces the typed admitted/refused receipt. Production absence is
 | Audit/API surface | artifact manifest/content/lineage/schema routes, job progress, run paper | **wire-existing** | Publish a projection ref; do not add a route or governed/static projection family. |
 | Actual pilot/deployment execution | external institution | **surface_out_of_scope** | Certificate only; no executor capability. Returned status/effects/appeals remain typed integrate-evidence for later tasks. |
 
-Conditional target capability state, after the N9 prerequisite, is complete for attempted-evaluation
-admission: typed artifact + producer + persisted artifact/event + orchestration
-bridge + consumers + verification + existing audit/API surface + negative/e2e
-semantic tests. Institutional approvals may remain absent without making the
-mechanism incomplete; their attempts block honestly.
+Target capability state after C01-C05 is complete for attempted-evaluation
+admission without an N9-positive prerequisite: typed artifact + producer +
+persisted artifact/event + orchestration bridge + consumers + verification +
+existing audit/API surface + negative/e2e semantic tests. Institutional
+approvals may remain absent without making the mechanism incomplete; their
+attempts block honestly. `GY-O0-NC-01` remains an explicitly non-closing
+empirical demonstration, not a missing EvalSafety chain link.
 
 ---
 
@@ -474,6 +517,16 @@ class EvaluationSafetyDecisionCore(BaseModel):
     valid_until: datetime | None
     safety_semantic_hash: str
 
+def decide_evaluation_safety_core(
+    *,
+    intake: EvaluationAttemptIntake,
+    request: EvaluationAttemptRequest | None,
+    admitted_pack: EvalSafetyPackAdmissionReceipt | None,
+    mode_basis: EvalSafetyModeBasis | None,
+    requirement_results: tuple[EvalSafetyRequirementResult, ...],
+    evaluated_at: datetime,
+) -> EvaluationSafetyDecisionCore: ...
+
 class EvalSafetyNearMissClassificationOffer(BaseModel):
     promotion_receipt_ref: ArtifactRef
     canonical_promotion_input_ref: ArtifactRef
@@ -600,6 +653,10 @@ class EvalSafetyMetricsProjection(BaseModel):
     denominator_decision_ids: tuple[str, ...]
     unsafe_attempt_blocked_count: int
     near_miss_count: int
+    near_miss_classification_status: Literal[
+        "complete", "partial", "not_established"
+    ]
+    unclassified_blocked_decision_ids: tuple[str, ...]
     reconciliation_status: Literal["complete", "not_established"]
     generated_at: datetime
     source_event_refs: tuple[ArtifactRef, ...]
@@ -649,12 +706,25 @@ command, transport, or execution status field.
 Promotion is absent from `EvaluationAttemptIntake`,
 `EvaluationAttemptRequest`, every `EvalSafetyRequirementResult`, and
 `EvaluationSafetyDecisionCore`. The core's `safety_semantic_hash` is recomputed
-only from those safety fields. A separate
+only from those safety fields. The pure function signature is itself a
+load-bearing structural constraint: it has no promotion receipt, promotion
+status, classification offer, or generic metadata/kwargs input through which
+promotion state can enter. A separate
 `EvalSafetyNearMissClassificationOffer` arrives after the core is frozen and
 binds the canonical N9 replay input, design problem, value receipt, candidate,
 WMR, promotion rule, and current open-world/epoch resolver bases. The final
 event may record that offer and classification, but neither its receipt nor its
 full-event hash can alter the core, its identity, or its semantic hash.
+
+The injection falsifier invokes the enclosing composition with three promotion
+states while holding every safety input fixed: omitted; maximally favorable;
+and a forged passing certificate/receipt. All three must produce the same
+pilot safety status, blockers, certificate eligibility, evaluator-spy count,
+`EvaluationSafetyDecisionCore` bytes, `decision_id`, and
+`safety_semantic_hash`. The forged state must additionally fail canonical
+resolve-bind-verify and yield no admitted promotion facet. A future real N9
+receipt may change only the containing event's post-core classification fields.
+No positive promotion artifact is needed to falsify this universal separation.
 
 The concrete `EvalSafetyVerifierPort` is container-owned. Its interface can
 only resolve and require admission; it cannot run, schedule, callback, or
@@ -720,7 +790,8 @@ The single owner executes this order:
    Recompute `safety_semantic_hash`; no decision is persisted yet, and promotion
    is absent from this computation.
 7. Only when that frozen status is blocked and a separate classification offer
-   was supplied, resolve the offer and real N9 receipt from CAS. Require exact
+   was supplied, resolve the offer and any available real N9 receipt from CAS.
+   Require exact
    receipt/replay-input/design-problem/value-receipt/candidate/WMR/rule and
    current open-world/epoch-resolver bindings before invoking the canonical
    decision-front predicate. Invalid, stale, or unavailable classification
@@ -747,11 +818,15 @@ open-world/epoch bases, while pilot safety is judged independently. Requiring
 pilot mode on both would make the classifier circular because N9 currently
 marks pilot EvalSafety `scope_insufficient`.
 
-The near-miss test obtains its positive N9 receipt through the real canonical
-N9 producer and validator. If C00 cannot produce a real
-`consumer_promotable=True` receipt, the near-miss link remains
-`verification_missing` and implementation stops; a constructed dictionary,
-contract-testing receipt, or verification-only receipt cannot close O0.
+The production classification path accepts a positive N9 receipt only through
+the real canonical producer and validator. On the current base that producer
+gap is `GY-O0-NC-01`, whose first missing links are `producer_missing` and
+`bridge_missing`; it is not generically relabelled `verification_missing` and
+does not stop implementation. A constructed dictionary, contract-testing
+receipt, forged passing certificate, or verification-only receipt cannot mint
+`promotion_safe_facet=True`. The structural injection falsifier closes O0's
+independence property now; a future real receipt adds the separately named
+empirical cross-gate observation.
 
 The injected verifier port resolves the certificate again immediately before
 evaluator work and checks exact owner/input refs, mode, candidate, WMR,
@@ -774,6 +849,18 @@ near_miss_count =
              and d.promotion_safe_facet == true
              and d.near_miss == true}|
 ```
+
+`near_miss_count` is a count of independently reconciled positive
+classifications, never an assertion that every blocked design was classified.
+The projection therefore carries `near_miss_classification_status` and the
+exact `unclassified_blocked_decision_ids`. With no real positive N9 receipt,
+`near_miss_count = 0` can be honest only alongside `partial` or
+`not_established` classification status when such blocked decisions exist.
+`unsafe_attempt_blocked_count` remains complete because its predicate depends
+only on the reconciled safety core. A pure reducer test may exercise a
+pre-classified decision event to prove the arithmetic; that contract-testing
+event is not an admitted promotion receipt and cannot discharge
+`GY-O0-NC-01`.
 
 The existing `reconcile_authority_ref` cannot establish `D`: it asks for the
 first 1,000 run/job events and filters afterward. C02 repairs that owner-level
@@ -886,7 +973,8 @@ signal:
 | Certificate matches this attempted action | `recomputed` | exact bindings immediately before work |
 | Certificate/revision is the unique current head | `recomputed` | complete CAS lineage traversal; absent, forked, cyclic, superseded, or revoked blocks |
 | Authority artifact has its exact durable event | `independently_reconciled` | verify manifest-linked event CAS, exact event-ID query, cardinality one, full canonical event equality, and record/event/authority payload-ref equality |
-| Promotion-safe facet | `independently_reconciled` | classification only, after safety status |
+| Promotion-safe facet | `independently_reconciled` or `not_established` | classification only, after safety status; absence cannot alter admission and is exposed in classification coverage |
+| Near-miss classification coverage | `recomputed` | derive exact classified/unclassified blocked decision IDs from `D`; zero near misses with incomplete coverage is never projected as a complete zero |
 | Pilot/deployment occurred; implementation/appeal/effect outcome | `not_established` in O0 | never inferred from the certificate |
 
 ### 8.2 Property versus current proxy
@@ -895,7 +983,7 @@ signal:
 | --- | --- | --- | --- |
 | Actual evaluator action has an explicit admissible mode | default mode or free `fidelity` string | real-world input labeled/defaulted as simulation | require `EvaluationExecutionContext`; hold label fixed and vary bound input provenance |
 | Retrospective data is safe/admissible for this attempt | `DataTrust is not None` or data ref is loadable | well-formed, wrong-scope/unapproved dataset runs | independently verified requirement results; spy proves `run_job` not called |
-| Pilot attempt is safe | pilot-mode membership currently returns generic unavailable | promotion-safe design with missing rollback/population protection | typed pack requirement blocker; promotion held passing |
+| Pilot attempt is safe | pilot-mode membership currently returns generic unavailable | missing rollback/population protection under omitted, maximally favorable, or forged passing promotion state | typed pack requirement blocker; inject all three states and require identical safety core/hash/certificate eligibility/evaluator count |
 | Certificate is valid | prospective marker fields are present | right-looking certificate with missing/corrupt decision event or wrong binding | resolve-bind-verify; keep markers and remove property |
 | Counters describe actual blocked attempts | a mutable increment or page-capped event query | retry double-count or omitted older event | complete CAS event census + reconciliation |
 
@@ -910,7 +998,8 @@ Relevant register rows:
 - `P01`/`P02`: do not stop at contracts or a thin N8 check; build and consume
   the persisted chain. The inherited N9 positive path is already an instance:
   GY-K is contract-only and measurement roots are not orchestrated into N8/N9,
-  so C00 stops instead of laundering either into a promotion-safe receipt.
+  so C00 records `GY-O0-NC-01` and forbids laundering either into a
+  promotion-safe receipt while the independent O0 chain proceeds.
 - `P03`: expose the informational projection through existing run/artifact
   surfaces.
 - `P04`/`P09`: `blocked`, warning/review, contested, stale, and unknown states
@@ -929,12 +1018,24 @@ Relevant register rows:
   synonyms/malformed/present-but-fake/sibling consumers.
 - `P35`/`P36`: counts use complete denominators and claims cite binding findings.
 - `P37`/`P38`: freeze predicate provenance and test the property, not labels.
+  Promotion independence is constructed by the safety-core signature and
+  injection invariance, not proxied by the current absence of a positive N9
+  receipt. Before any plan-level stop rests on an upstream gap, enumerate every
+  stated outcome and mark which ones actually depend on the missing artifact;
+  a stop may reach only that subset. For this plan the two derivations in §1
+  return 0 receipt-dependent, 1 promotion-related-but-structural, and 5
+  promotion-independent outcomes.
 - `P39`: count mechanism paths only; mandatory records/tests/generated checks
   are companions.
 - `P40`: second finding of one class widens the mechanism or becomes a declared
   bounded residual; it never consumes another instance patch.
 - `P41`: inherited red requires exact-base replay and zero intersection with the
   complete input denominator.
+
+Capability-label closeout repeats the standing unwired/unowned check from §1.
+A code-named candidate or an implemented root forbids `absent/unallocated`;
+route the gap to the first missing chain link and its candidate owner. This is a
+standing planning check, not a one-off correction for N8.
 
 Target correct pattern:
 
@@ -994,11 +1095,16 @@ No other source path is pre-authorized.
 There is no disagreement. Path 25 is a hard stop requiring a user-approved plan
 amendment.
 
+This amendment adds no mechanism path: the structural independence falsifiers
+live in the already declared test companions; `GY-O0-NC-01`, capability labels,
+and lane ceilings are plan record. Both independent derivations therefore
+remain **16 base mechanism paths and 24 hard-ceiling mechanism paths**.
+
 ### 10.3 Per-cluster mechanism caps and widening rounds
 
 | Cluster | Declared base | Hard cap | Widening budget |
 | --- | ---: | ---: | --- |
-| C00 red witnesses | 0 | 0 | 0 |
+| C00 census and structural red witnesses | 0 | 0 | 0 |
 | C01 contracts, strict mode, pure gate, canonical N9 classifier, N8 local seam | 4 | 6 | 1 round, at most 2 paths |
 | C02 persistence, exact reconciliation, counters, projection adapter | 2 | 4 | 1 round, at most 2 paths |
 | C03 container/recursive composition and existing surface | 3 | 5 | 1 round, at most 2 paths |
@@ -1101,7 +1207,9 @@ browser, dashboard, or production data writer is acquired.
 4. Run the named red behavioral falsifier before implementation. A marker-only
    or constructor-only red is insufficient.
 5. Implement the smallest owner-level repair.
-6. Run the complete declared test files, not selected test names.
+6. In the local lane, run exact red/green blast-radius selectors, recomputing
+   validators, changed-path Ruff, and guardrails. Full owner files and full
+   suites belong only to the replay/cloud lane after the plan lands.
 7. Run Ruff on changed Python paths and importer tests for changed modules.
 8. Re-run declared-set equality and branch attachment.
 9. Commit at the clean semantic boundary. Never stash as storage, rebase,
@@ -1126,51 +1234,55 @@ non-receipt. No ceiling widens during a run.
 
 Fixed numeric ceilings, derived from completed `user + sys` comparisons:
 
-| Command class | Evidence and derivation | Fixed ceiling |
+| Typed lane and command class | Evidence and derivation | Fixed ceiling |
 | --- | --- | ---: |
-| census/source-set scripts | planning executor census `user 13.70 + sys 0.42 = 14.12`; `2 × 14.12 = 28.24`, rounded up | **30s** |
-| each focused full-file backend pytest/Ruff/type/import command | current-base full `test_promotion_sequence.py` replay, uptime 22:01→22:22: `user 1134.01 + sys 45.32 = 1179.33`; `2 × 1179.33 = 2358.66`, rounded up | **2360s** |
-| architecture guardrails | DS11 `user 40.04 + sys 40.61 = 80.65`; `2 × 80.65 = 161.30`, rounded up | **180s** |
-| full `workspace ci-parity --skip-browser` | DS9/DS-INFRA completed `user + sys = 754.20`; `2 × 754.20 = 1508.40`, rounded up | **1510s** |
+| planning/local census and source-set scripts | planning executor census CPU `user 13.70 + sys 0.42 = 14.12s`; `2 × 14.12 = 28.24s`, rounded up | **30s, planning/local census lane** |
+| ordinary local focused blast-radius command: at most two exact pytest node IDs, or one changed-path Ruff/recomputing-validator invocation | Two independent current-base runs of `test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow` plus `test_scope_insufficient_cannot_mint_production_authority`: run A uptime 22:39→22:40, CPU `user 51.38 + sys 2.20 = 53.58s`; run B uptime 22:40→22:41, CPU `user 52.67 + sys 2.03 = 54.70s`. The measured disagreement is `1.12s`; use the slower basis: `2 × 54.70 = 109.40s`, rounded up. | **110s, local focused-selection lane** |
+| one full backend owner-test file | current-base full `test_promotion_sequence.py` replay, uptime 22:01→22:22, CPU `user 1134.01 + sys 45.32 = 1179.33s`; `2 × 1179.33 = 2358.66s`, rounded up | **2360s, replay/cloud lane only** |
+| architecture guardrails | DS11 CPU `user 40.04 + sys 40.61 = 80.65s`; `2 × 80.65 = 161.30s`, rounded up | **180s, local guardrail lane** |
+| full `workspace ci-parity --skip-browser` | DS9/DS-INFRA completed CPU `user + sys = 754.20s`; `2 × 754.20 = 1508.40s`, rounded up | **1510s, replay/cloud parity lane** |
 
 Every run still records its own `user`, `sys`, ordinary exit, and uptime pair.
-Run each declared full test file as its own command unless a combined wave is
-first measured and admitted; do not hide an unmeasured aggregate under the
-per-command ceiling. The operational ceiling can bound only the harness, never
-a product predicate.
+The **110s** ceiling is the ordinary local cluster default; the **2360s**
+ceiling is never permission to run a full owner file locally. Conversely, the
+110s figure is not applied to a cloud/full-file replay. Full files run as
+separate replay/cloud commands unless a combined cloud wave is first measured
+and admitted; do not hide an unmeasured aggregate under either per-command
+ceiling. The operational ceiling can bound only the harness, never a product
+predicate.
 
 ---
 
 ## 13. Cluster plan
 
-### C00 — Prove the N9 dependency, then freeze real reds and denominators
+### C00 — Preserve the N9 census, constrain its consequence, and freeze structural reds
 
 **Mechanism paths:** none.
 
 On the current base, run and preserve both independent N9 derivations described
 in §1. They establish that `EFFECT` and `MEASUREMENT` remain
 `scope_insufficient` and that no real production-lane
-`consumer_promotable=True` receipt exists. **That finding triggers the stop on
-this base before any O0 source or test edit.** A task-table Phase-5 closure row
-does not satisfy this behavioral prerequisite.
+`consumer_promotable=True` receipt exists. Record the first missing links and
+the two exact code-named candidates under `GY-O0-NC-01`; do not relabel the
+whole condition `verification_missing`, fabricate a receipt, absorb the GY-K/N8
+work, or stop C01-C05.
 
-After separately scoped GY-K and N8 measurement-authority dependencies land,
-start the O0 implementation slice from their append-only descendant, re-run
-both derivations, and require the canonical producer to emit a content-bound
-production receipt that the canonical validator accepts with zero issues. The
-receipt must be produced from the repaired owner chain, not loaded from a test
-fixture. Only then create every declared Add test companion and add failing
-cases to existing owner tests; do not commit a marker-only red.
+Before freezing reds, repeat the two §1 outcome-dependency derivations. The
+outcome-text walk and target dataflow/signature walk must each enumerate all six
+outcomes and return the same partition: 0 live-receipt-dependent, item 4 as the
+sole promotion-related structural property, and items 1, 2, 3, 5, and 6 with no
+promotion dependency. A later disagreement is reported and requires a plan
+amendment; it is never reconciled by widening the stop.
 
 Red-first behavioral witnesses:
 
-1. The canonical N9 producer/validator emits a real
-   `consumer_promotable=True` receipt and replay basis for an exact design
-   problem/value receipt/candidate/WMR/rule/open-world/epoch binding under a
-   mode where EvalSafety is not applicable. A separate classification offer
-   binds those refs to a later `field_pilot` request whose rollback and
-   population protection are missing. It reaches no evaluator/external spy and
-   returns typed blockers/near miss without changing the safety core/hash.
+1. **`O0-PROMOTION-INDEPENDENCE-C00`** freezes the procedure claim before
+   implementation: the pure safety-core function has no promotion argument,
+   catch-all kwargs, metadata bag, or promotion-bearing nested input. For the
+   same pilot-unsafe request, omitted, maximally favorable, and forged-passing
+   promotion injections must leave safety status/blockers, certificate
+   eligibility, evaluator/external spies, core bytes, decision ID, and safety
+   hash invariant. Forged/unverified input yields no admitted classification.
 2. A loadable but wrong-scope observational dataset reaches
    `RunCausalEvaluationNode`; the red asserts `run_job` is never called.
 3. `ProductionPolicyEvaluationBackend(fidelity="full")` with well-formed but
@@ -1189,11 +1301,20 @@ Re-run and save the dual six-mode, owner-method, workflow-registration, and
 admission-marker censuses. Record the known workflow coordinate-method
 disagreement without changing the admitted count.
 
-**Stop condition:** the current base is stopped with the near-miss link
-`verification_missing`. On a later prerequisite-bearing base, any failure to
-produce and independently validate the real N9 receipt stops again rather than
-constructing one. If a fourth live semantic owner appears, bucket it as a new
-executor class and use C04's single widening round before source work.
+Local focused baseline selection, under the 110s lane ceiling, is exactly:
+
+```text
+tests/unit/runtime/quality/test_promotion_sequence.py::test_fixed_time_n8_calibration_is_ledger_refused_and_stays_shadow
+tests/unit/runtime/quality/test_promotion_sequence.py::test_scope_insufficient_cannot_mint_production_authority
+```
+
+**Stop conditions:** stop only if the pure safety-core design admits promotion
+as an input, if one of the five N9-independent outcomes is newly proved to
+depend on a live receipt, or if a fourth live semantic owner appears and cannot
+fit C04's one declared widening round. The present N9 producer gap itself is a
+named non-closure, not a plan-level stop. When its two owners later wire a real
+receipt, close `GY-O0-NC-01` with the empirical cross-gate example in their
+scope; O0 is not reopened merely to add it.
 
 ### C01 — Strict mode/pack owner, pure gate/head, canonical N9 classifier, N8 seam
 
@@ -1243,16 +1364,27 @@ Red/green falsifiers:
 - `measurement_audit` without an explicit pack profile blocks;
 - present-but-fake evidence and self-verification block;
 - right markers with wrong candidate/WMR/mode/population/rule/time block;
-- promotion classification offer held passing does not change safety status;
-- switching only a canonical promotion receipt/replay basis leaves the complete
-  `EvaluationSafetyDecisionCore` and `safety_semantic_hash` byte-identical and
-  may change only the classification fields on the containing event;
+- **`O0-PROMOTION-INDEPENDENCE-C01`:** signature inspection rejects any
+  promotion parameter, catch-all kwargs, or promotion-bearing nested safety
+  input; omitted, maximally favorable, and forged-passing injections leave the
+  complete `EvaluationSafetyDecisionCore`, decision ID, certificate eligibility,
+  evaluator spy, and `safety_semantic_hash` byte-identical. A forged offer
+  yields no admitted facet; only a future real canonical receipt may change the
+  containing event's post-core classification fields;
 - forked/cyclic/revoked certificate head and post-issuance evidence invalidation
   block while certificate markers remain unchanged;
 - removing the actual verifier call while leaving fields makes the test red;
 - owner gateway spy stays at zero for every non-passing context.
 
-Run full files:
+Run exact local red/green selectors, including:
+
+```text
+tests/unit/runtime/quality/test_evaluation_safety.py::test_promotion_state_injection_cannot_change_safety_core
+tests/unit/runtime/quality/test_evaluation_safety.py::test_unseen_domain_pack_resolves_or_refuses_without_engine_conditional
+tests/unit/runtime/quality/test_value_gate.py::test_non_simulation_blocks_before_value_gateway
+```
+
+Replay/cloud owner-file denominator after the plan lands:
 
 ```text
 tests/unit/runtime/quality/test_evaluation_safety.py
@@ -1260,8 +1392,9 @@ tests/unit/runtime/quality/test_value_gate.py
 tests/unit/runtime/quality/test_promotion_sequence.py
 ```
 
-Commit only when all three are green and the mode AST/frozen-contract census still
-returns the same six members.
+Commit only when the exact local selectors, recomputing mode
+AST/frozen-contract census, changed-path Ruff, and guardrails are green. The
+cloud replay must still return the same six members over all three owner files.
 
 ### C02 — Persisted authority/event chain, honest counters, informational projection
 
@@ -1304,7 +1437,14 @@ Red/green falsifiers:
 
 - blocked attempt persists decision/event/projection but no certificate;
 - retrying the same decision does not increment either count;
-- promotion-safe blocked attempt increments both counters exactly once;
+- **`O0-PROMOTION-INDEPENDENCE-C02`:** omitted, maximally favorable, and forged
+  promotion injections leave the persisted safety core/decision identity,
+  certificate eligibility, and `unsafe_attempt_blocked_count` invariant; the
+  forged input cannot increment `near_miss_count` and appears in exact
+  unclassified coverage;
+- the pure counter reducer counts one already-classified blocked decision once
+  in both counters without treating that contract-testing event as an admitted
+  N9 receipt or an empirical cross-gate witness;
 - older events beyond the diagnostic page size remain in the CAS-derived count;
 - more than 1,000 unrelated same-run events cannot hide the exact target event,
   while duplicate exact identity or a same-ID full-event substitution fails
@@ -1320,7 +1460,15 @@ Red/green falsifiers:
 - service API contains no executor/callback parameter and an injected action
   spy remains untouched.
 
-Run full files:
+Run exact local red/green selectors, including:
+
+```text
+tests/unit/runtime/http/services/test_evaluation_safety.py::test_promotion_state_injection_cannot_change_persisted_safety_or_unsafe_count
+tests/unit/runtime/http/services/test_evaluation_safety.py::test_counter_reducer_reports_near_miss_and_unclassified_coverage_honestly
+tests/unit/runtime/quality/test_authority_reconciliation.py::test_exact_event_identity_reconciliation_is_page_position_independent
+```
+
+Replay/cloud owner-file denominator after the plan lands:
 
 ```text
 tests/unit/runtime/http/services/test_evaluation_safety.py
@@ -1354,8 +1502,10 @@ Tasks:
 
 Red/green falsifiers:
 
-- promotion-safe/pilot-unsafe control attempt persists a near miss and calls no
-  value-owner/external spy;
+- **`O0-PROMOTION-INDEPENDENCE-C03`:** one pilot-unsafe control attempt under
+  omitted, maximally favorable, and forged-passing promotion injections
+  persists the same blocked safety core and calls no value-owner/external spy;
+  forged input remains unclassified rather than minting a near miss;
 - foreign service/store, stale certificate, and cross-leaf certificate block;
 - explicit simulation leaf runs without a certificate but cannot narrow
   real-world state through O0;
@@ -1366,7 +1516,15 @@ Red/green falsifiers:
 - removing the projection's boundary/surface packet while keeping its payload
   markers makes the existing fail-closed artifact/run surface refuse it.
 
-Run full files:
+Run exact local red/green selectors, including:
+
+```text
+tests/integration/runtime_quality/test_evaluation_safety_admission.py::test_control_attempt_promotion_injection_cannot_change_admission_or_call_executor
+tests/unit/runtime/quality/test_recursive_generation_cycle_epoch_gate.py::test_non_simulation_leaf_requires_current_eval_safety_head
+tests/unit/runtime/http/test_artifact_inspector_api.py::test_eval_safety_projection_is_informational_only
+```
+
+Replay/cloud owner-file denominator after the plan lands:
 
 ```text
 tests/unit/runtime/quality/test_generation_cycle.py
@@ -1418,6 +1576,10 @@ Tasks:
 
 Red/green falsifiers:
 
+- **`O0-PROMOTION-INDEPENDENCE-C04`:** at both Scientist owner chokepoints,
+  omitted, maximally favorable, and forged-passing promotion injections leave
+  the same pilot-unsafe admission block and keep data-load/job/evaluator spies
+  at zero;
 - loadable wrong-scope dataset: node fails before load/`run_job`;
 - `simulate_only` label held fixed while real-world input provenance changes:
   backend/node blocks the divergent case;
@@ -1433,7 +1595,15 @@ Red/green falsifiers:
 - a passing certificate cannot cause execution of a pilot/deployment because
   no such executor exists in PolicyOS.
 
-Run full files:
+Run exact local red/green selectors, including:
+
+```text
+tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py::test_promotion_state_injection_cannot_bypass_eval_safety
+tests/unit/scientist/nodes/builtins/decide/test_policy_runtime_support.py::test_direct_backend_promotion_state_injection_cannot_bypass_eval_safety
+tests/unit/scientist/orchestration/workflows/test_builder_pinning.py::test_non_simulation_worker_without_eval_safety_port_fails_closed
+```
+
+Replay/cloud owner-file denominator after the plan lands:
 
 ```text
 tests/unit/scientist/nodes/builtins/simulate/test_run_causal_evaluation.py
@@ -1451,7 +1621,7 @@ Re-run both executor-owner and workflow-registration derivations. The expected
 sets remain 4 owners/6 registrations; the property change is that every live
 owner now consumes explicit mode/safety context.
 
-### C05 — Freeze, reviews, one expensive replay, and handoff
+### C05 — Freeze, reviews, focused local closure, cloud replay, and handoff
 
 **Mechanism paths:** none.
 
@@ -1464,23 +1634,39 @@ owner now consumes explicit mode/safety context.
    blocking post-freeze edit invalidates the freeze and re-prices the wave.
 5. Re-open `docs/reference/policy-design-case-failure-patterns.md` and repeat the
    pattern/capability pass.
-6. Run the expensive verification wave once.
+6. Run the focused local closure wave once. Dispatch the full owner-file and
+   CI-parity replay to the replay/cloud lane after the plan lands.
 
-Focused wave (full files, no test selectors): all files named in C01-C04 plus
-the three new test files.
+**`O0-PROMOTION-INDEPENDENCE-C05`** is the conjunction of the C00-C04
+falsifiers: re-run every named exact selector with the same omitted/maximally
+favorable/forged injection matrix and prove the safety-core signature still has
+no promotion-bearing input. A byte or behavior difference in safety status,
+blockers, certificate eligibility, decision ID/hash, or evaluator-spy count is
+a blocking O0 failure. A difference confined to independently verified
+post-core classification is permitted.
 
-Then run, independently where safe:
+Local focused lane, independently where safe:
 
 ```text
+.venv/bin/python -m pytest -q <exact red/green selectors named in C00-C04>
+.venv/bin/python -m <each recomputing validator for a changed governed owner>
 .venv/bin/python -m ruff check <all changed Python source and test paths>
 uv run polisyos-tools architecture guardrails check
+```
+
+Replay/cloud lane after the plan lands: every owner file named in C01-C04 plus
+the three new test files, one full file per command under the 2360s replay
+ceiling, followed by:
+
+```text
 python3 -m tools.cli workspace ci-parity --skip-browser
 ```
 
 Do not run a browser/dashboard suite; O0 has no frontend path. Do not modify the
-timing catalog. Apply P41 to every pre-existing red using the exact slice base
-and complete input denominator; without that proof its provenance is
-`not_established`, not inherited.
+timing catalog. Do not use the replay/cloud ceiling to justify a local full-file
+run. Apply P41 to every pre-existing red using the exact slice base and complete
+input denominator; without that proof its provenance is `not_established`, not
+inherited.
 
 ---
 
@@ -1488,13 +1674,15 @@ and complete input denominator; without that proof its provenance is
 
 | Case | Required result | Side-effect/counter assertion |
 | --- | --- | --- |
-| current base cannot produce a real production-lane N9 receipt | C00 records `verification_missing` and stops | no O0 source/test edit; no fabricated near miss |
+| current base cannot produce a real production-lane N9 receipt | record `GY-O0-NC-01` at `producer_missing + bridge_missing`; continue O0 | no fabricated near miss; classification coverage is explicit rather than a falsely complete zero |
 | explicit `simulate_only` | no EvalSafety certificate required | simulation owner only; neither counter changes |
 | absent/unknown/`simulation_only` mode | typed intake-bound block | evaluator spy zero; blocked count changes only when bound evaluator/input provenance recomputes `attempt_class=non_simulation` |
 | retrospective, missing privacy/access evidence | typed requirement block | causal job zero; blocked count +1 |
 | measurement audit, missing pack profile | `eval_safety_mode_profile_missing` | evaluator zero; blocked count +1 |
 | sandbox pilot, missing stop rule/harm bound | typed requirement blockers | no external action; blocked count +1 |
-| field pilot, real canonical N9 decision-front receipt with exact replay/design-problem/value/candidate/WMR/rule/open-world/epoch binding, rollback absent | block + `near_miss=true` | both counters +1 exactly once; changing promotion input cannot change the safety core/hash |
+| field pilot, rollback/population protection absent; promotion state omitted, maximally favorable, then forged-passing | identical typed safety block in all three branches | evaluator zero; core/decision ID/hash/certificate eligibility and blocked count identical; forged state yields no admitted facet and no near-miss increment |
+| pure counter reducer receives one already-classified blocked decision event | count deterministically without resolving promotion | both counters +1 exactly once; fixture is contract-testing evidence only and does not close `GY-O0-NC-01` |
+| future real canonical N9 decision-front receipt with exact replay/design-problem/value/candidate/WMR/rule/open-world/epoch binding, field-pilot rollback absent | block + `near_miss=true`; discharge empirical `GY-O0-NC-01` only | both counters +1 exactly once; receipt may change classification fields only, never safety core/hash |
 | deployment, complete pack but verifier absent | `eval_safety_verifier_unresolved` | no certificate/execution |
 | valid certificate for another candidate/WMR/mode/population/rule/time | typed binding block | evaluator zero |
 | issued certificate whose unique current revision/evidence head is later revoked, superseded, forked, or invalidated | typed current-head block | evaluator zero; historical certificate remains inspectable, not usable |
@@ -1504,10 +1692,12 @@ and complete input denominator; without that proof its provenance is
 | duplicate retry | same logical decision | counters unchanged |
 | conflicting duplicate identity | reconciliation `not_established` | fail closed; no arbitrary count/pass |
 
-After the separate N9 prerequisite lands, the promotion-safe/pilot-unsafe row
-is the decisive O0 acceptance test. If its promotion artifact can make the
-safety predicate pass, O0 has failed. On the current base, claiming that row
-green would itself be a fabricated-authority failure.
+The structural three-injection field-pilot row is the decisive O0 independence
+test now. If any promotion state can make the safety predicate pass, alter its
+blockers/hash/certificate eligibility, or reach an evaluator, O0 has failed.
+The future real-receipt row is stronger only as an observed example and closes
+`GY-O0-NC-01`; it is not an O0 closure prerequisite. Claiming that empirical row
+green on the current base would itself be fabricated authority.
 
 ---
 
@@ -1516,8 +1706,9 @@ green would itself be a fabricated-authority failure.
 - O1 confirmatory updater, O2 exploratory/FDR discovery, O3 world-model
   write-back, or any O-block closure claim.
 - Completing GY-K's production effect-witness chain or N8's authority-grade
-  measurement-obligation chain. They are separately scoped prerequisites, not
-  work that O0 may absorb to manufacture its near-miss witness.
+  measurement-obligation chain. They are separately scoped named candidate
+  owners for `GY-O0-NC-01`, not O0 prerequisites and not work O0 may absorb to
+  manufacture its empirical near-miss witness.
 - Institutional appointments or pretending an unappointed verifier exists.
 - Executing a pilot/deployment, monitoring it, rolling it back, notifying
   actors, administering cases/payments, or deciding appeals.
@@ -1550,8 +1741,11 @@ Final handoff must repeat verbatim:
 > attempted evaluation; it neither executes deployment nor closes the O-block.
 
 It must also report the six-mode code location, the final reuse/build split,
-the unseen-domain falsifier result, and the promotion-safe/pilot-unsafe blocked
-receipt with honest `unsafe_attempt_blocked_count` and `near_miss_count`. This
-planning handoff instead reports the current C00 `verification_missing` stop;
-those implementation results become mandatory only after the real N9
-prerequisite is proven.
+the unseen-domain falsifier result, every named structural promotion-injection
+falsifier, and honest `unsafe_attempt_blocked_count`, `near_miss_count`, and
+near-miss classification coverage. It must carry `GY-O0-NC-01` with candidate
+`owner_ref` values `GY-K entailment witness owner` and `measurement-rooted
+producer owner`, plus their exact refusal details **"GY-K entailment witness
+owner is unwired"** and **"Measurement-rooted producer owner is unwired"**,
+until a real empirical cross-gate disagreement is observed. That non-closure
+neither authorizes a fabricated receipt nor delays O0 closure.

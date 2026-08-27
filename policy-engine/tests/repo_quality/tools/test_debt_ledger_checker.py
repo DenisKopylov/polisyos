@@ -1362,8 +1362,8 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     assert "implemented_but_not_orchestrated" not in gap8
     assert "bridge_missing" not in gap8
     assert (
-        "| `DEBT-REGISTER.md` | 108 | 108 | 68 | "
-        "ambiguous=12, blocked=10, closed=40, folded=2, foreign=6, open=38 |" in rendered
+        "| `DEBT-REGISTER.md` | 108 | 108 | 66 | "
+        "ambiguous=12, blocked=10, closed=42, folded=2, foreign=6, open=36 |" in rendered
     )
     assert "| Atlas master debt table | 22 | 22 | 8 |" in rendered
     assert (

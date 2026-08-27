@@ -13,7 +13,7 @@ from pydantic import ConfigDict, Field
 
 from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_artifact_store
 from polisyos.core.artifacts.ids import ArtifactID
-from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, ProducerInfo, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.canon.canon_json import CanonSpec
@@ -417,6 +417,10 @@ def persist_benchmark_evaluation(
             schema=SchemaInfo(
                 name="polisyos.scientist.methods.autotune.BenchmarkEvaluation",
                 version=evaluation.suite_version,
+            ),
+            producer=ProducerInfo(
+                component="polisyos.scientist.methods.autotune.benchmark_evaluator",
+                version="1.0",
             ),
             inputs=merged_inputs,
         ),

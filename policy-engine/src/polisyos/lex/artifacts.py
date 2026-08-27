@@ -1,8 +1,8 @@
-"""Public lex artifacts module API."""
+"""Lex-owned readers for runtime legal artifacts."""
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.canon import from_canonical_bytes
@@ -13,21 +13,16 @@ from polisyos.lex.errors import LexValidationError
 if TYPE_CHECKING:
     from polisyos.core.artifacts.store import FileSystemCAS
 
-_E = TypeVar("_E", bound=Exception)
-
-__all__ = ["load_doc_meta_artifact", "load_json_artifact"]
-
-
-def load_json_artifact[E: Exception](
+def load_json_artifact(
     cas: FileSystemCAS,
     artifact_id: str,
     *,
-    error_cls: type[_E] = LexValidationError,
+    error_cls: type[Exception] = LexValidationError,
     payload_label: str = "artifact",
     wrap_read_errors: bool = False,
     read_error_prefix: str | None = None,
 ) -> dict:
-    """Load json artifact."""
+    """Load a JSON-object artifact with Lex caller-selected error semantics."""
     try:
         aid = ArtifactID.model_validate(artifact_id)
         payload = from_canonical_bytes(cas.get_bytes(aid))
@@ -41,17 +36,17 @@ def load_json_artifact[E: Exception](
     return payload
 
 
-def load_doc_meta_artifact[E: Exception](
+def load_doc_meta_artifact(
     cas: FileSystemCAS,
     artifact_id: str,
     *,
-    error_cls: type[_E] = LexValidationError,
+    error_cls: type[Exception] = LexValidationError,
     payload_label: str = "artifact",
     wrap_read_errors: bool = False,
     read_error_prefix: str | None = None,
     validate_ids: bool = False,
 ) -> DocMeta:
-    """Load doc meta artifact."""
+    """Load a document metadata artifact with optional identity validation."""
     payload = load_json_artifact(
         cas,
         artifact_id,
@@ -64,3 +59,6 @@ def load_doc_meta_artifact[E: Exception](
     if validate_ids:
         validate_doc_meta_ids(meta)
     return meta
+
+
+__all__ = ["load_doc_meta_artifact", "load_json_artifact"]

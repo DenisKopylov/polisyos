@@ -358,7 +358,11 @@ def build_simulation_proof_bridge_artifacts(
         composability_status=composability_status.value,
         constraint_payload=_load_payload(store, constraint_ref) if constraint_ref is not None else None,
         readiness_payload=_load_payload(store, readiness_ref) if readiness_ref is not None else None,
-        validity_payload=_load_payload(store, validity_ref) if validity_ref is not None else None,
+        validity_payload=(
+            _load_causal_validity_payload(store, validity_ref)
+            if validity_ref is not None
+            else None
+        ),
     )
     certification_status = _certification_status(
         proof=proof,
@@ -475,6 +479,32 @@ def _load_payload(store: ArtifactStore, ref: ArtifactRefModel | None) -> dict[st
     except (FileNotFoundError, OSError, TypeError, ValueError):
         return None
     return dict(payload) if isinstance(payload, Mapping) else None
+
+
+def _load_causal_validity_payload(
+    store: ArtifactStore,
+    ref: ArtifactRefModel,
+) -> dict[str, Any]:
+    """Require the Scientist-owned validity artifact, never execution evidence."""
+
+    try:
+        manifest = store.get_manifest(ref.artifact_id)
+    except (FileNotFoundError, OSError, TypeError, ValueError) as exc:
+        raise ValueError(f"causal_validity_bundle_ref manifest is unavailable: {exc}") from exc
+    schema = getattr(manifest, "artifact_schema", None)
+    schema_name = getattr(schema, "name", None)
+    if (
+        getattr(manifest, "kind", None) != "scientist.causal_validity_bundle"
+        or schema_name != "polisyos.scientist.CausalValidityBundle"
+    ):
+        raise ValueError(
+            "causal_validity_bundle_ref must identify "
+            "scientist.causal_validity_bundle / polisyos.scientist.CausalValidityBundle"
+        )
+    payload = _load_payload(store, ref)
+    if payload is None:
+        raise ValueError("causal_validity_bundle_ref payload is unavailable or invalid")
+    return payload
 
 
 def _resolve_truthfulness_receipt(

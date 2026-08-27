@@ -1,9 +1,4 @@
-"""Error hierarchy for Lex ingestion, structuring, versioning, and evaluation stages.
-
-All Lex exceptions inherit from ``LexError`` and preserve ``doc_source_id`` / ``doc_version_id``
-when available so orchestration, diagnostics, and governance tooling can attribute failures to a
-specific corpus object and pipeline stage.
-"""
+"""Lex-local error hierarchy and read-boundary error translation."""
 
 from __future__ import annotations
 
@@ -13,7 +8,7 @@ from polisyos.core.errors import ErrorCategory, PolicyOSError
 
 
 class LexError(PolicyOSError):
-    """Base error for Lex corpus workflows."""
+    """Base exception for Lex runtime legal workflows."""
 
     default_stage = "lex"
     default_category = ErrorCategory.FATAL
@@ -22,15 +17,18 @@ class LexError(PolicyOSError):
         self,
         message: str,
         *,
+        category: ErrorCategory | str | None = None,
         stage: str | None = None,
+        code: str | None = None,
         doc_source_id: str | None = None,
         doc_version_id: str | None = None,
         details: dict[str, Any] | None = None,
     ) -> None:
         super().__init__(
             message,
+            category=category,
             stage=stage or self.default_stage,
-            category=self.default_category,
+            code=code,
             details=details,
         )
         self.doc_source_id = doc_source_id
@@ -38,7 +36,7 @@ class LexError(PolicyOSError):
 
 
 class LexValidationError(LexError):
-    """Validation failure raised by schema or semantic guards in Lex."""
+    """Validation failure raised by Lex semantic guards."""
 
     default_stage = "validation"
     default_category = ErrorCategory.VALIDATION
@@ -63,16 +61,39 @@ class LexVersioningError(LexError):
 
 
 class LexIndexError(LexError):
-    """Failure raised by Lex search or indexing subsystems."""
+    """Failure raised by legal corpus index operations."""
 
     default_stage = "index"
 
 
 class LexNotReadyError(LexError):
-    """Failure raised when required Lex assets are missing or incomplete."""
+    """Failure raised when required legal assets are missing or incomplete."""
 
     default_stage = "not_ready"
 
+
+_LEX_ERROR_BY_STAGE: dict[str, type[LexError]] = {
+    "validation": LexValidationError,
+    "ingest": LexIngestError,
+    "structure": LexStructureError,
+    "versioning": LexVersioningError,
+    "index": LexIndexError,
+    "not_ready": LexNotReadyError,
+}
+
+
+def translate_policy_error(error: PolicyOSError) -> LexError:
+    """Copy a lower-layer ``PolicyOSError`` into Lex's public error hierarchy."""
+    error_cls = _LEX_ERROR_BY_STAGE.get(error.stage, LexError)
+    return error_cls(
+        error.message,
+        category=error.category,
+        stage=error.stage,
+        code=error.code,
+        doc_source_id=getattr(error, "doc_source_id", None),
+        doc_version_id=getattr(error, "doc_version_id", None),
+        details=dict(error.details),
+    )
 
 __all__ = [
     "LexError",
@@ -82,4 +103,5 @@ __all__ = [
     "LexStructureError",
     "LexValidationError",
     "LexVersioningError",
+    "translate_policy_error",
 ]

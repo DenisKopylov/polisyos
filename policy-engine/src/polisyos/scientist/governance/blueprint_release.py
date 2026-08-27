@@ -11,17 +11,25 @@ from __future__ import annotations
 import json
 from collections.abc import Sequence
 from enum import Enum
+from io import BytesIO
 from pathlib import Path
 from typing import Any
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
-from polisyos.core.artifacts.manifest import ArtifactRef
+from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import CanonSpec
 from polisyos.core.governance.profiles import ValidationProfile
-from polisyos.data_forge.read_api.ukraine import REAL_BACKTEST_BUNDLE_CONTRACT_FQN
+from polisyos.data_forge.read_api.ukraine import (
+    REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
+    UkraineStageArtifactVerificationError,
+    VerifiedUkraineStageArtifacts,
+    load_verified_stage_artifacts,
+    load_verified_stage_output_bytes,
+)
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
     AbstractionPreservationType,
@@ -30,6 +38,18 @@ from polisyos.ir.analytics.abstraction import (
     persist_abstraction_certificate,
     persist_finite_state_abstraction_map,
 )
+from polisyos.ir.analytics.calibration import (
+    CalibrationCandidateScore,
+    CalibrationRunManifest,
+    HoldoutScoresManifest,
+    SpecificationCurveScenario,
+    SpecificationCurveSummaryManifest,
+    SplitWindow,
+    StrategicResponseChannelMetric,
+    StrategicResponseMetricsManifest,
+    TransportabilityChannelResult,
+    TransportabilitySummaryManifest,
+)
 from polisyos.ir.analytics.interference import (
     ExposureMappingType,
     InterferenceCertificate,
@@ -37,32 +57,34 @@ from polisyos.ir.analytics.interference import (
     InterferenceMethod,
     NetworkInterferenceReport,
 )
-from polisyos.ir.analytics.transportability import (
-    TransportabilityResult,
-    TransportabilityStatus,
-    TransportMode,
-)
+from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
 from polisyos.ir.observation.bundles import (
     BacktestPlanBundle,
     ContractCompatibilityTarget,
 )
-from polisyos.ir.observation.contract_compilers import SpecificationCurveInput
 from polisyos.ir.observation.contracts import (
     IdentificationMode,
     ObservationFamily,
     SourceConfidenceTier,
     StrategicResponseChannel,
 )
-from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
-from polisyos.scientist.methods.discovery.utility_judge import (
-    DownstreamUtilityReport,
-    HypothesisUtilityScore,
-)
+from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.scientist.governance.accountability import GovernanceAccountabilityInput
 from polisyos.scientist.governance.backtest_matrix import BacktestKind
 from polisyos.scientist.governance.calibration import (
     CalibrationGovernanceInput,
     CalibrationGovernanceReport,
     CalibrationGovernanceRunner,
+)
+from polisyos.scientist.governance.calibration_validation import (
+    CalibrationValidationRunner,
+    CalibrationValidationRunnerInput,
+    CalibrationValidationRunnerResult,
+)
+from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
+from polisyos.scientist.methods.discovery.utility_judge import (
+    DownstreamUtilityReport,
+    HypothesisUtilityScore,
 )
 
 REQUIRED_SIGNOFF_FAMILIES: tuple[ObservationFamily, ...] = (
@@ -94,6 +116,59 @@ _CHANNEL_FAMILY_MAP: tuple[tuple[str, ObservationFamily], ...] = (
     ("household_resilience", ObservationFamily.HOUSEHOLD_DISTRIBUTION),
     ("public_service_resilience", ObservationFamily.PUBLIC_SERVICE_DOMAIN_FLOWS),
 )
+
+_UKRAINE_D4_REQUEST_OUTPUT = "d4_governance_request.json"
+_IDENTITY_RESOLUTION_COHORT_OUTPUT = "identity_resolution_cohort_v1.json"
+_IDENTITY_RESOLUTION_COHORT_SCHEMA = "policyos.data_forge.ukraine.identity_resolution_cohort.v1"
+_AGENT_REGISTRY_RUNTIME_OUTPUT = "agent_registry_runtime.parquet"
+_UKRAINE_D4_COVERAGE_THRESHOLD = 0.95
+
+
+class _UkraineD4GovernanceRequest(BaseModel):
+    """Purpose-limited producer request consumed by the Scientist D4 bridge."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str
+    authority_purpose: str
+    may_not_use_for: list[str]
+    required_stage_manifests: dict[str, str]
+
+
+class _IdentityResolutionCohortRow(BaseModel):
+    """One identity-resolution cohort record whose aggregate is recomputed upstream."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    cohort: str = Field(pattern="^(spending|procurement)$")
+    raw_identity: str = Field(min_length=1)
+
+
+class _IdentityResolutionCohort(BaseModel):
+    """Strict D0 evidence shape required for governance coverage recomputation.
+
+    Expected producer JSON shape::
+
+        {"schema_version": "policyos.data_forge.ukraine.identity_resolution_cohort.v1",
+         "rows": [{"cohort": "spending", "raw_identity": "..."}]}
+
+    The bridge resolves these raw identities against a separately admitted
+    runtime registry rather than trusting producer-authored resolution flags.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    schema_version: str
+    rows: list[_IdentityResolutionCohortRow] = Field(default_factory=list)
+
+
+def _series_correlation(left: pd.Series, right: pd.Series) -> float:
+    """Return a finite Pearson correlation for the verified labor predicate."""
+
+    if len(left) < 2 or len(right) < 2:
+        return 0.0
+    value = float(pd.Series(left, dtype=float).corr(pd.Series(right, dtype=float)))
+    return value if np.isfinite(value) else 0.0
 
 
 class FamilyTier(str, Enum):
@@ -158,54 +233,6 @@ class FamilyEligibilityRegistry(BaseModel):
             raise ValueError("families_not_exact_signoff_ready:" + ",".join(sorted(blocked)))
 
 
-class SplitWindow(BaseModel):
-    """Time split used by train/validation/holdout calibration logic."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    split_id: str
-    start: str
-    end: str
-
-
-class CalibrationCandidateScore(BaseModel):
-    """Split-aware score summary for one calibration candidate."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    candidate_id: str
-    candidate_kind: str
-    train_fit_score: float = Field(ge=0.0, le=1.0)
-    validation_fit_score: float = Field(ge=0.0, le=1.0)
-    robustness_penalty: float = Field(ge=0.0, le=1.0)
-    measurement_fit_score: float = Field(ge=0.0, le=1.0)
-    interference_fit_score: float = Field(ge=0.0, le=1.0)
-    transportability_score: float = Field(ge=0.0, le=1.0)
-    strategic_plausibility_score: float = Field(ge=0.0, le=1.0)
-    governance_penalty: float = Field(ge=0.0, le=1.0)
-    validation_composite_score: float = Field(ge=0.0, le=1.0)
-    used_holdout: bool = False
-    holdout_fit_score: float | None = Field(default=None, ge=0.0, le=1.0)
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-
-class CalibrationRunManifest(BaseModel):
-    """Typed D4 calibration-run artifact."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
-    run_id: str
-    split_windows: list[SplitWindow] = Field(default_factory=list)
-    candidates: list[CalibrationCandidateScore] = Field(default_factory=list)
-    selected_candidate_id: str
-    selected_on_split: str = "validation"
-    frozen_before_holdout: bool = True
-    used_families: list[ObservationFamily] = Field(default_factory=list)
-    excluded_families: list[str] = Field(default_factory=list)
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-
 class LossBreakdownManifest(BaseModel):
     """Typed D4 loss-breakdown artifact."""
 
@@ -219,134 +246,6 @@ class LossBreakdownManifest(BaseModel):
     governance_penalty: float = Field(ge=0.0)
     regularization: float = Field(ge=0.0)
     metadata: dict[str, Any] = Field(default_factory=dict)
-
-
-class HoldoutScoresManifest(BaseModel):
-    """Typed holdout-score artifact."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
-    candidate_id: str
-    overall_score: float = Field(ge=0.0, le=1.0)
-    by_family: dict[str, float] = Field(default_factory=dict)
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-
-class TransportabilityChannelResult(BaseModel):
-    """Transportability score for one channel/family pair."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    channel_id: str
-    family: ObservationFamily
-    status: TransportabilityStatus
-    transport_mode: TransportMode
-    final_confidence: float = Field(ge=0.0, le=1.0)
-    source_regime_id: str = "regime_a"
-    target_regime_id: str = "regime_b"
-    notes: list[str] = Field(default_factory=list)
-
-
-class TransportabilitySummaryManifest(BaseModel):
-    """Typed transportability evidence artifact."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
-    aggregate_score: float = Field(ge=0.0, le=1.0)
-    n_transportable_channels: int = Field(default=0, ge=0)
-    channels: list[TransportabilityChannelResult] = Field(default_factory=list)
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-    def to_transportability_result(self) -> TransportabilityResult:
-        identified = self.n_transportable_channels >= 3 and self.aggregate_score >= 0.6
-        return TransportabilityResult(
-            query="blueprint_transportability_screen",
-            status=(
-                TransportabilityStatus.IDENTIFIED
-                if identified
-                else TransportabilityStatus.PARTIALLY_IDENTIFIED
-            ),
-            transport_mode=(
-                TransportMode.TRANSPORT_FORMULA if identified else TransportMode.BOUNDS_ONLY
-            ),
-            base_confidence=self.aggregate_score,
-            final_confidence=self.aggregate_score,
-            source_context_id="ua_regime_a",
-            target_context_id="ua_regime_b",
-            notes=[
-                f"transportable_channels={self.n_transportable_channels}",
-                *[
-                    f"{item.channel_id}:{item.status.value}:{item.final_confidence:.3f}"
-                    for item in self.channels
-                ],
-            ],
-        )
-
-
-class StrategicResponseChannelMetric(BaseModel):
-    """Quantified strategic-response metric for one intervention channel."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    channel_id: str
-    intervention_kind: str
-    family: ObservationFamily
-    plausibility_score: float = Field(ge=0.0, le=1.0)
-    quantified: bool = False
-    fallback_mode: str
-    transmission_channels: list[StrategicResponseChannel] = Field(default_factory=list)
-    notes: list[str] = Field(default_factory=list)
-
-
-class StrategicResponseMetricsManifest(BaseModel):
-    """Typed D4 strategic-response artifact."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
-    aggregate_plausibility: float = Field(ge=0.0, le=1.0)
-    quantified_channels: int = Field(default=0, ge=0)
-    channels: list[StrategicResponseChannelMetric] = Field(default_factory=list)
-    strategic_summary: dict[str, Any] = Field(default_factory=dict)
-
-
-class SpecificationCurveScenario(BaseModel):
-    """One specification-curve combination scored on eligible families."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    source_combination_id: str
-    included_families: list[ObservationFamily] = Field(default_factory=list)
-    estimate: float
-    trust_weight: float = Field(ge=0.0)
-
-
-class SpecificationCurveSummaryManifest(BaseModel):
-    """Typed specification-curve robustness artifact."""
-
-    model_config = ConfigDict(extra="forbid")
-
-    schema_version: str = Field(default="1.0", pattern=r"^\d+\.\d+$")
-    robustness_score: float = Field(ge=0.0, le=1.0)
-    scenarios: list[SpecificationCurveScenario] = Field(default_factory=list)
-    metadata: dict[str, Any] = Field(default_factory=dict)
-
-    def to_specification_curve_input(self) -> SpecificationCurveInput:
-        estimates = [float(item.estimate) for item in self.scenarios]
-        if not estimates:
-            estimates = [0.0]
-        mean_weight = (
-            float(np.mean([item.trust_weight for item in self.scenarios]))
-            if self.scenarios
-            else 1.0
-        )
-        return SpecificationCurveInput(
-            specification_ids=[item.source_combination_id for item in self.scenarios] or ["empty"],
-            estimates=estimates,
-            standard_errors=[max(0.01, (1.0 - mean_weight) * 0.25)] * len(estimates),
-        )
 
 
 def _clip01(value: float) -> float:
@@ -1068,8 +967,8 @@ class CalibrationGovernanceEvidenceRunner:
         )
         abstraction_map_ref = persist_finite_state_abstraction_map(self._store, abstraction_map)
         certificate = AbstractionCertificate(
-            micro_graph_ref=micro_graph_ref,
-            macro_graph_ref=macro_graph_ref,
+            micro_graph_ref=ArtifactRefModel.model_validate(micro_graph_ref.model_dump()),
+            macro_graph_ref=ArtifactRefModel.model_validate(macro_graph_ref.model_dump()),
             abstraction_map_ref=abstraction_map_ref,
             preservation_type=AbstractionPreservationType.EXACT,
             preserved_queries=("policy_value",),
@@ -1232,6 +1131,436 @@ def build_downstream_utility_report(
     )
 
 
+def _persist_verified_stage_receipt(
+    store: FileSystemCAS,
+    receipt: VerifiedUkraineStageArtifacts,
+) -> ArtifactRef:
+    """Persist a purpose-limited producer receipt for Scientist provenance."""
+
+    return store.put_json(
+        receipt,
+        PutOptions(
+            kind="scientist.verified_producer_artifact_receipt",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.data_forge.ukraine.VerifiedUkraineStageArtifacts",
+                version="v2",
+            ),
+        ),
+    )
+
+
+def _load_d4_governance_request(payload: bytes) -> _UkraineD4GovernanceRequest:
+    """Load the producer request without treating it as a governance verdict."""
+
+    try:
+        request = _UkraineD4GovernanceRequest.model_validate_json(payload)
+    except ValidationError as exc:
+        raise UkraineStageArtifactVerificationError(
+            f"invalid D4 governance request: {exc}"
+        ) from exc
+    if request.schema_version != "policyos.data_forge.ukraine.d4_governance_request.v1":
+        raise UkraineStageArtifactVerificationError("unsupported D4 governance request schema")
+    if request.authority_purpose != "producer_governance_handoff":
+        raise UkraineStageArtifactVerificationError("D4 request has an invalid authority purpose")
+    if "governance_admissibility" not in request.may_not_use_for:
+        raise UkraineStageArtifactVerificationError(
+            "D4 request must disclaim governance admissibility"
+        )
+    expected_manifests = {
+        "d0_p0": "build_run_d0_p0.json",
+        "d2": "build_run_d2.json",
+        "d3": "build_run_d3.json",
+    }
+    if request.required_stage_manifests != expected_manifests:
+        raise UkraineStageArtifactVerificationError(
+            "D4 request names unexpected producer manifests"
+        )
+    return request
+
+
+def _normalize_identity_key(value: object) -> str:
+    """Normalize a registry identity without accepting a producer verdict."""
+
+    if pd.isna(value):
+        return ""
+    text = str(value).strip().lower()
+    return "".join(character for character in text if character.isalnum())
+
+
+def _recompute_identity_resolution_coverage(
+    cohort_payload: bytes,
+    registry_payload: bytes,
+) -> tuple[float, float]:
+    """Recompute D0 cohort coverage against independently admitted registry bytes."""
+
+    try:
+        cohort = _IdentityResolutionCohort.model_validate_json(cohort_payload)
+    except ValidationError as exc:
+        raise UkraineStageArtifactVerificationError(
+            f"invalid identity resolution cohort: {exc}"
+        ) from exc
+    if cohort.schema_version != _IDENTITY_RESOLUTION_COHORT_SCHEMA:
+        raise UkraineStageArtifactVerificationError("unsupported identity resolution cohort schema")
+    try:
+        registry = pd.read_parquet(BytesIO(registry_payload))
+    except Exception as exc:
+        raise UkraineStageArtifactVerificationError(
+            f"failed to parse admitted agent registry: {exc}"
+        ) from exc
+    identity_columns = {"agent_id", "registration_code", "tax_id", "edrpou"}
+    missing_columns = sorted(identity_columns.difference(registry.columns))
+    if missing_columns:
+        raise UkraineStageArtifactVerificationError(
+            "agent registry is missing identity columns: " + ",".join(missing_columns)
+        )
+    admitted_identities = {
+        normalized
+        for column in sorted(identity_columns)
+        for normalized in registry[column].map(_normalize_identity_key).tolist()
+        if normalized
+    }
+    coverage: dict[str, float] = {}
+    for cohort_name in ("spending", "procurement"):
+        rows = [item for item in cohort.rows if item.cohort == cohort_name]
+        cohort_identities = {
+            normalized
+            for row in rows
+            if (normalized := _normalize_identity_key(row.raw_identity))
+        }
+        if not cohort_identities:
+            raise UkraineStageArtifactVerificationError(
+                f"identity resolution cohort is missing {cohort_name} rows"
+            )
+        coverage[cohort_name] = len(cohort_identities & admitted_identities) / float(
+            len(cohort_identities)
+        )
+    return coverage["spending"], coverage["procurement"]
+
+
+def _recompute_labor_proxy_promotion(validation_panel: pd.DataFrame) -> bool:
+    """Recompute the D3 labor-promotion predicate from its verified row artifact."""
+
+    required = {
+        "micro_employment_rate",
+        "admin_employment_rate_proxy",
+        "micro_sample_weight",
+        "macro_labor_signal",
+    }
+    missing = sorted(required.difference(validation_panel.columns))
+    if missing:
+        raise UkraineStageArtifactVerificationError(
+            "labor validation panel is missing columns: " + ",".join(missing)
+        )
+    overlap = validation_panel.dropna(
+        subset=["micro_employment_rate", "admin_employment_rate_proxy"]
+    ).copy()
+    if overlap.empty:
+        return False
+    observed = pd.to_numeric(overlap["micro_employment_rate"], errors="coerce").fillna(0.0)
+    predicted = pd.to_numeric(overlap["admin_employment_rate_proxy"], errors="coerce").fillna(0.0)
+    weights = pd.to_numeric(overlap["micro_sample_weight"], errors="coerce").fillna(1.0)
+    employment_correlation = _series_correlation(observed, predicted)
+    employment_wmape = _wmape(
+        observed.to_numpy(dtype=float),
+        predicted.to_numpy(dtype=float),
+        weights.to_numpy(dtype=float),
+    )
+    macro_overlap = overlap.dropna(subset=["macro_labor_signal"]).copy()
+    if macro_overlap.empty:
+        macro_correlation = 0.0
+    else:
+        macro = pd.to_numeric(macro_overlap["macro_labor_signal"], errors="coerce").fillna(0.0)
+        macro = macro / max(float(macro.max()), 1.0)
+        macro_correlation = _series_correlation(
+            macro,
+            pd.to_numeric(macro_overlap["micro_employment_rate"], errors="coerce").fillna(0.0),
+        )
+    return bool(
+        len(overlap) >= 4
+        and employment_correlation >= 0.60
+        and employment_wmape <= 0.35
+        and (macro_correlation >= 0.40 or macro_overlap.empty)
+    )
+
+
+def _household_distribution_observation_panel(cells: pd.DataFrame) -> pd.DataFrame:
+    """Project verified D3 household cells into the D4 observation contract."""
+
+    if cells.empty:
+        return pd.DataFrame()
+    required = {"cell_id", "region_code", "period_id", "household_income_mean"}
+    missing = sorted(required.difference(cells.columns))
+    if missing:
+        raise UkraineStageArtifactVerificationError(
+            "calibrated household cells are missing columns: " + ",".join(missing)
+        )
+    frame = cells.copy()
+    period_start = pd.to_datetime(frame["period_id"].astype(str) + "-01", errors="coerce")
+    return pd.DataFrame(
+        {
+            "family": ObservationFamily.HOUSEHOLD_DISTRIBUTION.value,
+            "period_start": period_start.dt.strftime("%Y-%m-%d"),
+            "observed_value": pd.to_numeric(frame["household_income_mean"], errors="coerce").fillna(
+                0.0
+            ),
+            "trust_weight": 0.0,
+            "coverage_estimate": 0.0,
+            "measurement_bias_flag": True,
+            "source_id": "d3_calibrated_household_cells",
+            "source_version": "d3_verified",
+            "identification_mode": IdentificationMode.BOUNDS_ONLY.value,
+            "source_confidence_tier": SourceConfidenceTier.EXPLORATORY.value,
+            "proxy_source_id": "calibrated_household_cells.parquet",
+            "regime_id": "regime_a",
+            "entity_id": frame["cell_id"].astype(str),
+        }
+    )
+
+
+def run_verified_ukraine_d4_governance(
+    *,
+    build_root: Path,
+    d4_manifest_path: Path,
+    cas_root: Path,
+) -> CalibrationValidationRunnerResult:
+    """Run Scientist-owned D4 governance over content-bound Ukraine producer artifacts.
+
+    The bridge admits producer artifacts only after the Ukraine read API has
+    recomputed their path and content bindings. The receipts are deliberately
+    provenance inputs, not governance evidence or release approval.
+    """
+
+    root = build_root.resolve()
+    store = FileSystemCAS(cas_root)
+    d4_receipt = load_verified_stage_artifacts(
+        d4_manifest_path,
+        store=store,
+        allowed_root=root,
+        expected_stage="d4",
+        required_outputs=(_UKRAINE_D4_REQUEST_OUTPUT,),
+    )
+    request = _load_d4_governance_request(
+        load_verified_stage_output_bytes(store, d4_receipt, _UKRAINE_D4_REQUEST_OUTPUT)
+    )
+    manifests_dir = root / "manifests"
+    d0_receipt = load_verified_stage_artifacts(
+        manifests_dir / request.required_stage_manifests["d0_p0"],
+        store=store,
+        allowed_root=root,
+        expected_stage="d0_p0",
+        required_outputs=(
+            _IDENTITY_RESOLUTION_COHORT_OUTPUT,
+            _AGENT_REGISTRY_RUNTIME_OUTPUT,
+        ),
+    )
+    d2_receipt = load_verified_stage_artifacts(
+        manifests_dir / request.required_stage_manifests["d2"],
+        store=store,
+        allowed_root=root,
+        expected_stage="d2",
+        required_outputs=("observation_panel_monthly.parquet", "calibration_splits.json"),
+    )
+    d3_receipt = load_verified_stage_artifacts(
+        manifests_dir / request.required_stage_manifests["d3"],
+        store=store,
+        allowed_root=root,
+        expected_stage="d3",
+        required_outputs=("calibrated_household_cells.parquet", "labor_validation_panel.parquet"),
+    )
+    spending_coverage, procurement_coverage = _recompute_identity_resolution_coverage(
+        load_verified_stage_output_bytes(
+            store,
+            d0_receipt,
+            _IDENTITY_RESOLUTION_COHORT_OUTPUT,
+        ),
+        load_verified_stage_output_bytes(
+            store,
+            d0_receipt,
+            _AGENT_REGISTRY_RUNTIME_OUTPUT,
+        ),
+    )
+    observation_panel = pd.read_parquet(
+        BytesIO(
+            load_verified_stage_output_bytes(
+                store,
+                d2_receipt,
+                "observation_panel_monthly.parquet",
+            )
+        )
+    )
+    household_panel = _household_distribution_observation_panel(
+        pd.read_parquet(
+            BytesIO(
+                load_verified_stage_output_bytes(
+                    store,
+                    d3_receipt,
+                    "calibrated_household_cells.parquet",
+                )
+            )
+        )
+    )
+    if not household_panel.empty:
+        observation_panel = pd.concat([observation_panel, household_panel], ignore_index=True)
+    labor_promoted = _recompute_labor_proxy_promotion(
+        pd.read_parquet(
+            BytesIO(
+                load_verified_stage_output_bytes(
+                    store,
+                    d3_receipt,
+                    "labor_validation_panel.parquet",
+                )
+            )
+        )
+    )
+    splits = json.loads(
+        load_verified_stage_output_bytes(
+            store,
+            d2_receipt,
+            "calibration_splits.json",
+        )
+    )
+
+    receipts = {
+        "d0_p0": d0_receipt,
+        "d2": d2_receipt,
+        "d3": d3_receipt,
+        "d4": d4_receipt,
+    }
+    receipt_refs = {
+        name: _persist_verified_stage_receipt(store, receipt) for name, receipt in receipts.items()
+    }
+    eligibility = build_family_eligibility_registry(
+        observation_panel,
+        coverage_threshold=_UKRAINE_D4_COVERAGE_THRESHOLD,
+        spending_coverage=spending_coverage,
+        procurement_coverage=procurement_coverage,
+        waived_families=(),
+        proxy_promoted_families=(ObservationFamily.LABOR_MARKET,) if labor_promoted else (),
+    )
+    eligibility.require_final_signoff_ready(REQUIRED_SIGNOFF_FAMILIES)
+    transportability = TransportabilityRunner().run(
+        observation_panel, eligibility_registry=eligibility
+    )
+    strategic_metrics = StrategicResponseRunner().run(
+        observation_panel, eligibility_registry=eligibility
+    )
+    interference_report, interference_certificate = build_interference_evidence(
+        observation_panel, eligibility_registry=eligibility
+    )
+    calibration_run = CalibrationRunRunner().run(
+        observation_panel,
+        eligibility_registry=eligibility,
+        splits=splits,
+        transportability_score=transportability.aggregate_score,
+        strategic_plausibility=strategic_metrics.aggregate_plausibility,
+        governance_penalty=_clip01(1.0 - strategic_metrics.aggregate_plausibility),
+        interference_fit_score=_clip01(interference_report.effects.total_effect),
+        required_families=REQUIRED_SIGNOFF_FAMILIES,
+    )
+    champion = next(
+        item
+        for item in calibration_run.candidates
+        if item.candidate_id == calibration_run.selected_candidate_id
+    )
+    candidate_ref = ArtifactRef.model_validate(
+        store.put_json(
+            champion.model_dump(mode="json"),
+            PutOptions(
+                kind="scientist.calibration_candidate",
+                media_type="application/json",
+                inputs=[
+                    InputRef(artifact_id=ref.artifact_id, role=f"verified_{name}_receipt")
+                    for name, ref in receipt_refs.items()
+                ],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+    )
+    holdout_scores = HoldoutScoresManifest(
+        candidate_id=champion.candidate_id,
+        overall_score=champion.holdout_fit_score or 0.0,
+        by_family={
+            family.value: float(champion.holdout_fit_score or 0.0)
+            for family in calibration_run.used_families
+        },
+        metadata={"selected_on_split": calibration_run.selected_on_split},
+    )
+    data_sources = [
+        {"name": name, "last_updated": receipt.finished_at} for name, receipt in receipts.items()
+    ]
+    governance_report = CalibrationGovernanceEvidenceRunner(store).run(
+        candidate_ref=candidate_ref,
+        observation_families=calibration_run.used_families,
+        eligibility_registry=eligibility,
+        transportability=transportability,
+        strategic=strategic_metrics,
+        data_sources=data_sources,
+    )
+    backtest_bundles = build_required_backtest_bundles(
+        observation_panel,
+        stage_dir=cas_root / "ukraine_d4_backtest_inputs",
+        splits=splits,
+    )
+    return CalibrationValidationRunner(store).run(
+        CalibrationValidationRunnerInput(
+            run_id=f"ukraine_d4::{d4_receipt.run_id}",
+            candidate_ref=candidate_ref,
+            governance_report=governance_report,
+            calibration_fit_score=champion.validation_composite_score,
+            backtest_plan_bundles=backtest_bundles,
+            specification_curve_input=SpecificationCurveRunner()
+            .run(observation_panel, eligibility_registry=eligibility)
+            .to_specification_curve_input(),
+            downstream_utility_report=build_downstream_utility_report(
+                transportability_score=transportability.aggregate_score,
+                strategic_score=strategic_metrics.aggregate_plausibility,
+            ),
+            network_interference_report=interference_report,
+            interference_certificate=interference_certificate,
+            strategic_summary=strategic_metrics.strategic_summary,
+            baseline_metrics={
+                "policy_value": max(
+                    float(
+                        pd.to_numeric(observation_panel["observed_value"], errors="coerce")
+                        .abs()
+                        .mean()
+                    ),
+                    0.1,
+                ),
+                "holdout_score": holdout_scores.overall_score,
+            },
+            baseline_objective=max(
+                float(
+                    pd.to_numeric(observation_panel["observed_value"], errors="coerce").abs().mean()
+                ),
+                0.1,
+            ),
+            accountability_input=GovernanceAccountabilityInput(
+                candidate_id=champion.candidate_id,
+                model_name="ukraine_d4_calibration_candidate",
+                model_version=calibration_run.schema_version,
+                intended_use="D4 promotion-gate accountability and external audit review.",
+                evaluation_split=str(calibration_run.selected_on_split or "validation"),
+                dataset_name="ukraine_observation_panel_monthly",
+                dataset_version="verified_stage_receipts",
+                data_sources=sorted(item["name"] for item in data_sources),
+                known_limitations=[
+                    "Producer receipts establish file identity and content binding only, not governance admissibility."
+                ],
+            ),
+            metadata={
+                "producer_receipt_refs": {
+                    name: str(ref.artifact_id) for name, ref in receipt_refs.items()
+                },
+                "producer_receipt_authority_purpose": "producer_artifact_receipt",
+                "producer_receipt_may_not_use_for": list(d4_receipt.may_not_use_for),
+                "labor_proxy_promotion_recomputed": labor_promoted,
+            },
+        )
+    )
+
+
 __all__ = [
     "REQUIRED_SIGNOFF_FAMILIES",
     "CalibrationCandidateScore",
@@ -1253,4 +1582,5 @@ __all__ = [
     "build_family_eligibility_registry",
     "build_interference_evidence",
     "build_required_backtest_bundles",
+    "run_verified_ukraine_d4_governance",
 ]

@@ -38,14 +38,6 @@ def test_conflict_resolve_detects_directional_conflict(tmp_path) -> None:
             },
         ],
     )
-    _write_jsonl(
-        config.claim_adjudications_path,
-        [
-            {"claim_id": "c1", "publishable_edge": True, "support_status": "supported"},
-            {"claim_id": "c2", "publishable_edge": True, "support_status": "mixed"},
-        ],
-    )
-
     metrics = run_conflict_resolve(config)
 
     assert metrics["claim_sets"] == 1
@@ -60,3 +52,8 @@ def test_conflict_resolve_detects_directional_conflict(tmp_path) -> None:
         for line in config.conflict_resolutions_path.read_text(encoding="utf-8").splitlines()
     ]
     assert resolution_rows[0]["runtime_support"] == "MIXED"
+    claim_set_rows = [
+        json.loads(line)
+        for line in config.claim_sets_path.read_text(encoding="utf-8").splitlines()
+    ]
+    assert claim_set_rows[0]["publishable_claims"] == 0

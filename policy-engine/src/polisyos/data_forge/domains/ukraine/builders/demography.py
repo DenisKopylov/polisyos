@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-from polisyos.foundry.methods.catalog.microsim.protocols import SurveyMicroData
 from polisyos.ir.observation.contracts import (
     EntityScope,
     IdentificationMode,
@@ -551,17 +550,17 @@ def build_d3_stage(config: PipelineConfig) -> StageBuildResult:
     household_numeric = household.select_dtypes(include=["number"]).fillna(0.0)
     household_feature_cols = list(household_numeric.columns[:4]) or ["feature_0"]
     household_features = household_numeric[household_feature_cols].to_numpy(dtype=float)
-    household_contract = SurveyMicroData(
-        market_income=_safe_numeric_series(
+    household_contract = {
+        "market_income": _safe_numeric_series(
             household,
             "market_income" if "market_income" in household.columns else household_feature_cols[0],
         ).to_numpy(dtype=float),
-        weights=np.ones(len(household), dtype=float),
-        household_ids=np.asarray([f"hh::{idx:05d}" for idx in range(len(household))], dtype=object),
-        features=household_features,
-        feature_names=household_feature_cols,
-        metadata={"stage": "d3"},
-    )
+        "weights": np.ones(len(household), dtype=float),
+        "household_ids": np.asarray([f"hh::{idx:05d}" for idx in range(len(household))], dtype=object),
+        "features": household_features,
+        "feature_names": household_feature_cols,
+        "metadata": {"stage": "d3", "producer_stage": "d3"},
+    }
     microsim_contract_path = stage_dir / "microsim_survey_contract_v1.json"
     _write_json(microsim_contract_path, household_contract)
     outputs["microsim_survey_contract_v1.json"] = ArtifactRecord.from_path(microsim_contract_path)

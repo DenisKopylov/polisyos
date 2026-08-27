@@ -16,6 +16,7 @@ __all__ = [
     "LegalSearchResult",
     "LegalTemporalCompetence",
     "LegalThresholdEvaluation",
+    "search_legal_knowledge",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -29,6 +30,10 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "LegalSearchResult": ("polisyos.lex.knowledge.types", "LegalSearchResult"),
     "LegalTemporalCompetence": ("polisyos.lex.knowledge.types", "LegalTemporalCompetence"),
     "LegalThresholdEvaluation": ("polisyos.lex.knowledge.types", "LegalThresholdEvaluation"),
+    "search_legal_knowledge": (
+        "polisyos.lex.knowledge.cli",
+        "search_legal_knowledge",
+    ),
 }
 
 

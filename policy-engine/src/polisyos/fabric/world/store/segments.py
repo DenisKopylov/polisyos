@@ -8,20 +8,22 @@ from collections.abc import Iterable, Mapping
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from polisyos.common.logger import get_logger
 from polisyos.core.artifacts.manifest import ArtifactRef, SchemaInfo
 from polisyos.core.artifacts.write_contract import ArtifactWriteOptions
-from polisyos.fabric.evidence.fact_writer import write_fact_segment
-from polisyos.fabric.io.atomic import append_text_locked, atomic_write_text, file_lock
 from polisyos.fabric._adapters.observability import FABRIC_TRACE_NAMES
 from polisyos.fabric.data_plane.temporal import parse_datetime_utc
+from polisyos.fabric.evidence.fact_writer import write_fact_segment
+from polisyos.fabric.io.atomic import append_text_locked, atomic_write_text, file_lock
 from polisyos.fabric.world.providers import resolve_world_observability
-from polisyos.ir.loading.fact_log import Fact, FactProvenance, FactSegmentManifest
 from polisyos.ir.kernel.base import ID_PATTERN
+from polisyos.ir.loading.fact_log import Fact, FactProvenance, FactSegmentManifest
 
 if TYPE_CHECKING:
+    import pandas as pd
+
     from polisyos.core.artifacts.protocol import ArtifactStore
     from polisyos.core.observability import MetricsRegistry, PolicyOSTracer
 
@@ -34,6 +36,7 @@ SEGMENTS_INDEX_LOCK_NAME = "_segments.lock"
 
 _ID_RE = re.compile(ID_PATTERN)
 _WORLD_MUTATION_NOTE_PREFIX = "world_mutation.v1:"
+_E = TypeVar("_E", bound=Exception)
 
 
 class WorldMutationKind(str, Enum):
@@ -410,6 +413,34 @@ def load_world_fact_manifests(fact_log_root: Path) -> list[FactSegmentManifest]:
     return manifests
 
 
+def load_world_facts[E: Exception](
+    fact_log_root: Path,
+    *,
+    columns: list[str],
+    read_error_cls: type[_E] | None = None,
+    read_error_prefix: str = "failed to read fact segment",
+) -> pd.DataFrame:
+    """Load requested columns from every readable world fact segment."""
+    import pandas as pd
+
+    manifests = load_world_fact_manifests(fact_log_root)
+    frames: list[pd.DataFrame] = []
+    for manifest in manifests:
+        path = Path(manifest.path)
+        if not path.exists():
+            continue
+        try:
+            frame = pd.read_parquet(path, columns=columns)
+        except Exception as exc:
+            if read_error_cls is not None:
+                raise read_error_cls(f"{read_error_prefix} {path}: {exc}") from exc
+            raise
+        frames.append(frame)
+    if not frames:
+        return pd.DataFrame(columns=columns)
+    return pd.concat(frames, ignore_index=True)
+
+
 def vacuum_world_segment_index(fact_log_root: Path) -> list[FactSegmentManifest]:
     """Rewrite the segment index so it only references unique, existing segments."""
 
@@ -527,6 +558,7 @@ __all__ = [
     "build_world_mutation_metadata",
     "gc_world_segments",
     "load_world_fact_manifests",
+    "load_world_facts",
     "parse_world_mutation_notes",
     "persist_fact_segment_manifest",
     "provenance_with_world_mutation",

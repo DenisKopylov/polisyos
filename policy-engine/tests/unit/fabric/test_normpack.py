@@ -6,8 +6,10 @@ from decimal import Decimal
 from pathlib import Path
 
 import duckdb
+
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.data_forge.domains.legal.contracts import LegalDocSource
 from polisyos.data_forge.domains.legal.corpus import (
     build_legal_structure,
     build_version_index,
@@ -22,7 +24,7 @@ from polisyos.ir.loading.norm_pack import NormPack
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.lex.api import assemble_norm_pack
 from polisyos.lex.normpack.assemble_pack import claims_to_norm_rules
-from polisyos.lex.types import LegalDocSource, NormPackBuildRequest
+from polisyos.lex.types import NormPackBuildRequest
 
 
 def _ua_source(*, official_id: str, effective_from: str) -> LegalDocSource:

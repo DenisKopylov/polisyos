@@ -230,11 +230,13 @@ def _build_config(args: argparse.Namespace, *, stages: frozenset[str]) -> Academ
 
 
 async def _run_stage(args: argparse.Namespace, stage: str) -> None:
+    stage_name = _normalize_stage_name(stage)
+    if stage_name == "claim_adjudicate":
+        raise RuntimeError(
+            "claim-adjudicate requires the Scientist-owned claim adjudication route"
+        )
+
     from polisyos.data_forge.domains.academic.batch.benchmark import run_benchmark
-    from polisyos.data_forge.domains.academic.batch.claim_adjudicator import (
-        run_claim_adjudicate,
-        run_consensus_aggregate,
-    )
     from polisyos.data_forge.domains.academic.batch.conflict_resolve import run_conflict_resolve
     from polisyos.data_forge.domains.academic.batch.dedup import merge_and_dedup
     from polisyos.data_forge.domains.academic.batch.doc_normalize import run_doc_normalize
@@ -255,7 +257,6 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
     from polisyos.data_forge.domains.academic.batch.topic_select import run_topic_select
     from polisyos.data_forge.domains.academic.batch.transport_score import run_transport_score
 
-    stage_name = _normalize_stage_name(stage)
     result: object | None = None
     if stage_name == "run":
         cfg = _build_config(args, stages=_parse_stages(getattr(args, "stages", None)))
@@ -292,12 +293,6 @@ async def _run_stage(args: argparse.Namespace, stage: str) -> None:
         result = run_numeric_extract(cfg)
     elif stage_name == "merge_dedup":
         result = merge_and_dedup(cfg)
-    elif stage_name == "claim_adjudicate":
-        adjudication_stats = await run_claim_adjudicate(cfg)
-        adjudication_stats.update(
-            {f"consensus_{key}": value for key, value in run_consensus_aggregate(cfg).items()}
-        )
-        result = adjudication_stats
     elif stage_name == "conflict_resolve":
         result = run_conflict_resolve(cfg)
     elif stage_name == "graph_load":

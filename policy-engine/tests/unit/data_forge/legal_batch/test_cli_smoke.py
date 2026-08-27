@@ -1,6 +1,17 @@
 from __future__ import annotations
 
+import argparse
+
+import pytest
+
 from polisyos.data_forge.domains.legal.batch import cli
+
+
+def test_data_forge_cli_refuses_lex_owned_interactive_search(tmp_path) -> None:
+    with pytest.raises(RuntimeError, match="Lex-owned"):
+        cli._cmd_search(
+            argparse.Namespace(output_dir=tmp_path, query="licensing", top_k=5)
+        )
 
 
 def test_cli_embed_local_dispatch(monkeypatch, tmp_path) -> None:

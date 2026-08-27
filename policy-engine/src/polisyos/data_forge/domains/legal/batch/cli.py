@@ -976,12 +976,10 @@ def _cmd_qc(args: argparse.Namespace) -> None:
 
 
 def _cmd_benchmark(args: argparse.Namespace) -> None:
-    from polisyos.data_forge.domains.legal.batch.benchmark import run_benchmark
-
-    cfg = _minimal_cfg(args.output_dir)
-    outcome = run_benchmark(cfg)
-    if outcome.failed_checks:
-        pass
+    del args
+    raise RuntimeError(
+        "legal semantic benchmarking is Lex-owned; use polisyos.lex.run_legal_benchmark"
+    )
 
 
 def _cmd_publish(args: argparse.Namespace) -> None:
@@ -1023,24 +1021,11 @@ def _cmd_stats(args: argparse.Namespace) -> None:
 
 
 def _cmd_search(args: argparse.Namespace) -> None:
-    from polisyos.lex.knowledge.store import LegalKnowledgeStore
-
-    store = LegalKnowledgeStore(
-        db_path=args.output_dir / "lex_knowledge_graph.duckdb", index_dir=args.output_dir
+    del args
+    raise RuntimeError(
+        "interactive legal search is Lex-owned; use "
+        "python -m polisyos.lex.knowledge.cli"
     )
-    try:
-        results = store.text_search_facts(
-            args.query,
-            top_k=args.top_k,
-            trust_tier="grounded_fact",
-        )
-    finally:
-        store.close()
-
-    if not results:
-        return
-    for _i, _r in enumerate(results, 1):
-        pass
 
 
 def _count_table_rows(con, table_name: str) -> int:  # type: ignore[no-untyped-def]

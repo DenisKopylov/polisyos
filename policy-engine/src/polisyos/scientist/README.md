@@ -34,6 +34,9 @@ governance, and publishes replayable decision artifacts across the `ir`,
 - Bounded agent adapter support via the root facade: `ToolRegistry`,
   `ToolDefinition`, `run_tool_loop`, `ToolLoopResult`,
   `create_traced_gateway_client`, and tool-contract summary helpers
+- Legal-knowledge benchmark composition via `ScientistLegalBenchmarkRunner`:
+  consumes the content-bound Lex semantic receipt and adds an explicitly
+  non-authoritative Scientist retrieval diagnostic over Data Forge fixtures
 - Governance lifecycle hubs in [`governance/continuous/`](governance/continuous/) and [`governance/human_review/`](governance/human_review/): post-publication validity, reissue, withdrawal, and human oversight
 - Validation hubs in [`validation/decision_validity.py`](validation/decision_validity.py), [`validation/policy_verified/`](validation/policy_verified/), and [`validation/verification/`](validation/verification/): decision lifecycle validation, verified-policy models/services, and proof-carrying verification
 - `builtin_nodes()` and `discover_scientist_nodes()` in [`nodes/__init__.py`](nodes/__init__.py): builtin node inventory and explicit `polisyos.scientist_nodes` component discovery

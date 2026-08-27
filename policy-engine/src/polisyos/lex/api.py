@@ -9,6 +9,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
 
+from polisyos.core import errors as core_errors
 from polisyos.core.components import ENTRY_POINT_GROUP_LEX_EVALUATORS
 from polisyos.core.components.bootstrap import build_components_index
 from polisyos.core.contracts.lex import (
@@ -17,6 +18,7 @@ from polisyos.core.contracts.lex import (
     LegalReportRef,
 )
 from polisyos.data_forge.read_api import legal as legal_read_api
+from polisyos.lex.errors import translate_policy_error
 from polisyos.lex.legal_evaluation.change_proposals import (
     propose_changes_impl as _propose_changes_impl,
 )
@@ -72,11 +74,25 @@ def resolve_active_version(
         LexVersioningError: If the version-index artifact cannot be loaded or validated.
     """
 
-    return legal_read_api.resolve_active_version(
-        cas=cas,
-        doc_source_id=doc_source_id,
-        as_of_iso=as_of_iso,
-        strategy=strategy,
+    try:
+        data_forge_result = legal_read_api.resolve_active_version(
+            cas=cas,
+            doc_source_id=doc_source_id,
+            as_of_iso=as_of_iso,
+            strategy=strategy,
+        )
+    except core_errors.PolicyOSError as exc:
+        raise translate_policy_error(exc) from exc
+
+    return ActiveVersionResult(
+        doc_source_id=data_forge_result.doc_source_id,
+        as_of_iso=data_forge_result.as_of_iso,
+        selected_doc_version_id=data_forge_result.selected_doc_version_id,
+        selected_doc_meta_artifact_id=data_forge_result.selected_doc_meta_artifact_id,
+        selection_policy_id=data_forge_result.selection_policy_id,
+        used_version_index_artifact_id=data_forge_result.used_version_index_artifact_id,
+        explanation=list(data_forge_result.explanation),
+        candidates=[dict(candidate) for candidate in data_forge_result.candidates],
     )
 
 

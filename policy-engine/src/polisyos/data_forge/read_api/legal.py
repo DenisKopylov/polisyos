@@ -14,6 +14,9 @@ if TYPE_CHECKING:
 _LEGAL_DOMAIN = "polisyos.data_forge.domains.legal"
 _EXPORTS = {
     "BatchConfig": "polisyos.data_forge.domains.legal.batch.config",
+    "LegalSearchBenchmarkCase": (
+        "polisyos.data_forge.domains.legal.batch.benchmark_fixtures"
+    ),
     "DocSourcePropsV1": "polisyos.data_forge.domains.legal.corpus.index",
     "GonkaClientPool": "polisyos.data_forge.domains.legal.batch.spo_client",
     "LEGAL_BATCH_RUNTIME_MODULE": _LEGAL_DOMAIN,
@@ -33,8 +36,14 @@ _EXPORTS = {
     "build_spo_light_batch_user_prompt": "polisyos.data_forge.domains.legal.batch.spo_prompts",
     "build_spo_light_user_prompt": "polisyos.data_forge.domains.legal.batch.spo_prompts",
     "compare_lex_shadow_bundles": _LEGAL_DOMAIN,
+    "collect_amendment_quality_metrics": (
+        "polisyos.data_forge.domains.legal.batch.amendment_metrics"
+    ),
     "export_normative_claim_sets": "polisyos.data_forge.domains.legal.batch.claim_bridge",
     "iter_documents": "polisyos.data_forge.domains.legal.batch.xml_parser",
+    "legal_search_benchmark_cases": (
+        "polisyos.data_forge.domains.legal.batch.benchmark_fixtures"
+    ),
     "load_doc_source_props": "polisyos.data_forge.domains.legal.corpus.index",
     "load_lex_shadow_bundle": _LEGAL_DOMAIN,
     "load_provision_index": "polisyos.data_forge.domains.legal.corpus.index",

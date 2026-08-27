@@ -2204,7 +2204,7 @@
         "polisyos.scientist.methods.research_dag"
       ],
       "major_subsystem": true,
-      "export_count": 24,
+      "export_count": 26,
       "exports": [
         "BudgetState",
         "ClaimLedgerCurrentHeadProjection",
@@ -2213,6 +2213,8 @@
         "EpochClaimLifecycleBridgeService",
         "ExperimentState",
         "KnowledgeToolkit",
+        "ScientistLegalBenchmarkRunner",
+        "ScientistRetrievalBenchmarkOutcome",
         "ToolContractSummary",
         "ToolDefinition",
         "ToolLoopResult",
@@ -2240,7 +2242,7 @@
         {
           "module": "polisyos.scientist",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 24,
+          "export_count": 26,
           "exports": [
             "BudgetState",
             "ClaimLedgerCurrentHeadProjection",
@@ -2249,6 +2251,8 @@
             "EpochClaimLifecycleBridgeService",
             "ExperimentState",
             "KnowledgeToolkit",
+            "ScientistLegalBenchmarkRunner",
+            "ScientistRetrievalBenchmarkOutcome",
             "ToolContractSummary",
             "ToolDefinition",
             "ToolLoopResult",
@@ -4416,7 +4420,7 @@
         "polisyos.lex.knowledge"
       ],
       "major_subsystem": true,
-      "export_count": 53,
+      "export_count": 54,
       "exports": [
         "ActiveVersionResult",
         "ActiveVersionStrategy",
@@ -4431,6 +4435,7 @@
         "LegalEvaluationRequest",
         "LegalKnowledgeGraph",
         "LegalReportRef",
+        "LexBenchmarkOutcome",
         "LexError",
         "LexFabricEvidencePath",
         "LexIndexError",
@@ -4461,7 +4466,6 @@
         "TemporalInterventionSequenceCompiler",
         "TemporalInterventionSequencer",
         "TemporalInterventionStepInput",
-        "WorldEventRefLike",
         "assemble_norm_pack",
         "build_legal_authority_report",
         "build_legal_authority_requirement_artifact",
@@ -4470,7 +4474,8 @@
         "evaluate_legality",
         "lex_evidence_from_fabric_decision_data",
         "propose_changes",
-        "resolve_active_version"
+        "resolve_active_version",
+        "run_legal_benchmark"
       ],
       "has___getattr__": true,
       "has___dir__": true,
@@ -4481,7 +4486,7 @@
         {
           "module": "polisyos.lex",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 53,
+          "export_count": 54,
           "exports": [
             "ActiveVersionResult",
             "ActiveVersionStrategy",
@@ -4496,6 +4501,7 @@
             "LegalEvaluationRequest",
             "LegalKnowledgeGraph",
             "LegalReportRef",
+            "LexBenchmarkOutcome",
             "LexError",
             "LexFabricEvidencePath",
             "LexIndexError",
@@ -4526,7 +4532,6 @@
             "TemporalInterventionSequenceCompiler",
             "TemporalInterventionSequencer",
             "TemporalInterventionStepInput",
-            "WorldEventRefLike",
             "assemble_norm_pack",
             "build_legal_authority_report",
             "build_legal_authority_requirement_artifact",
@@ -4535,7 +4540,8 @@
             "evaluate_legality",
             "lex_evidence_from_fabric_decision_data",
             "propose_changes",
-            "resolve_active_version"
+            "resolve_active_version",
+            "run_legal_benchmark"
           ],
           "has___getattr__": true,
           "has___dir__": true,
@@ -4545,7 +4551,7 @@
         {
           "module": "polisyos.lex.knowledge",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 10,
+          "export_count": 11,
           "exports": [
             "LegalEntity",
             "LegalFact",
@@ -4556,7 +4562,8 @@
             "LegalRuleThresholdRow",
             "LegalSearchResult",
             "LegalTemporalCompetence",
-            "LegalThresholdEvaluation"
+            "LegalThresholdEvaluation",
+            "search_legal_knowledge"
           ],
           "has___getattr__": true,
           "has___dir__": true,

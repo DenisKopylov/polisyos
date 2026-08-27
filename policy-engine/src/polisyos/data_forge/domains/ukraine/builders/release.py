@@ -3,35 +3,9 @@
 from __future__ import annotations
 
 import shutil
-from decimal import Decimal
 
 from polisyos.data_forge.domains.ukraine.manifests import ReleaseManifest, write_manifest
 from polisyos.data_forge.domains.ukraine.resources import directory_size_bytes
-from polisyos.foundry.validation.release_acceptance import ReleaseAcceptanceRunner
-from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
-from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
-from polisyos.ir.governance.schedule import ScheduleSpec
-from polisyos.ir.governance.selector_expr import SelectorPredicate
-from polisyos.ir.model_layer.model_spec import ModelSpec
-from polisyos.ir.observation.contracts import (
-    IdentificationMode,
-    StrategicResponseChannel,
-)
-from polisyos.ir.trinity import TrinityBundle
-from polisyos.ir.model_layer.types import SelectorOperator
-from polisyos.lex.interventions import (
-    InterventionKnobSpec,
-    LexInterventionCompiler,
-    LexProvisionDirective,
-    TemporalInterventionSequencer,
-)
-from polisyos.scientist.governance import (
-    CalibrationRunManifest,
-    HoldoutScoresManifest,
-    SpecificationCurveSummaryManifest,
-    StrategicResponseMetricsManifest,
-    TransportabilitySummaryManifest,
-)
 
 from .common import *
 
@@ -140,9 +114,6 @@ def _build_graph_compression_bundle(
     runtime_agents: pd.DataFrame,
     *,
     graph_layers: dict[str, dict[str, Any]],
-    holdout_score: float,
-    transportability_score: float,
-    strategic_score: float,
 ) -> dict[str, Any]:
     if "agent_id" not in runtime_agents.columns:
         runtime_agents = runtime_agents.copy()
@@ -256,16 +227,6 @@ def _build_graph_compression_bundle(
     )
     aggregate_weight_error = float(np.mean(weight_errors)) if weight_errors else 0.0
     aggregate_overlap = float(np.mean(overlap_scores)) if overlap_scores else 1.0
-    downstream_stability = max(
-        0.0,
-        min(
-            1.0,
-            (0.45 * holdout_score)
-            + (0.3 * transportability_score)
-            + (0.25 * strategic_score)
-            - (0.2 * aggregate_weight_error),
-        ),
-    )
     return {
         "schema_version": "1.0",
         "method": "deterministic_spectral_factor_with_cell_coarsening",
@@ -274,329 +235,57 @@ def _build_graph_compression_bundle(
             "degree_preservation_score": aggregate_degree,
             "edge_weight_reconstruction_error": aggregate_weight_error,
             "neighborhood_overlap_stability": aggregate_overlap,
-            "downstream_policy_response_stability": downstream_stability,
+            "downstream_policy_response_stability": {
+                "status": "not_established",
+                "reason": "requires the absent D5 downstream bridge and consumer",
+            },
         },
     }
 
 
-def _build_release_intervention_payloads(
+def _build_d5_release_handoff_request(
     *,
     cell_registry: pd.DataFrame,
-    transportability: TransportabilitySummaryManifest,
-    strategic_metrics: StrategicResponseMetricsManifest,
-    specification_curve: SpecificationCurveSummaryManifest,
-) -> tuple[
-    dict[str, Any], dict[str, Any], dict[str, Any], dict[str, Any], pd.DataFrame, dict[str, Any]
-]:
-    compiler = LexInterventionCompiler()
-    sequencer = TemporalInterventionSequencer()
-    primary_region = _safe_first(cell_registry.get("region_code", pd.Series(dtype=str)), "00")
-    primary_sector = _safe_first(cell_registry.get("sector_id", pd.Series(dtype=str)), "unknown")
-    procurement_directive = LexProvisionDirective(
-        provision_ref="lex.ua.procurement.priority_v1",
-        intervention_id="procurement_policy",
-        intervention_kind="procurement_policy",
-        target=SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="all"),
-        schedule=ScheduleSpec(start_step=0, duration_steps=6),
-        params={
-            "intensity": Decimal("0.15"),
-            "supplier_share_cap": Decimal("0.35"),
-        },
-        knobs=[
-            InterventionKnobSpec(
-                param_id="procurement_intensity",
-                param_path="intensity",
-                default_value=Decimal("0.15"),
-                min_value=Decimal("0.05"),
-                max_value=Decimal("0.35"),
-                sensitivity_priority=2,
-            ),
-            InterventionKnobSpec(
-                param_id="supplier_share_cap",
-                param_path="supplier_share_cap",
-                default_value=Decimal("0.35"),
-                min_value=Decimal("0.15"),
-                max_value=Decimal("0.50"),
-                sensitivity_priority=3,
-            ),
-        ],
-        target_population_type="firms",
-        target_sector_ids=[primary_sector],
-        target_region_ids=[primary_region],
-        measurement_expectations={
-            "transportability_score": transportability.aggregate_score,
-            "strategic_plausibility": strategic_metrics.aggregate_plausibility,
-        },
-        identification_mode=IdentificationMode.INTERFERENCE_AWARE,
-        strategic_response_expected=True,
-        transmission_channels=[StrategicResponseChannel.PROCUREMENT_CHANNEL],
-        notes=["compiled_from_real_release_data"],
-        metadata={"governance_tags": ["procurement", "interference"]},
-    )
-    wage_directive = LexProvisionDirective(
-        provision_ref="lex.ua.wage_support.v1",
-        intervention_id="wage_subsidy_support",
-        intervention_kind="wage_subsidy",
-        target=SelectorPredicate(field="id", operator=SelectorOperator.EQUALS, value="all"),
-        schedule=ScheduleSpec(start_step=0, duration_steps=4),
-        params={
-            "subsidy_rate": Decimal("0.10"),
-            "employment_floor": Decimal("0.85"),
-        },
-        knobs=[
-            InterventionKnobSpec(
-                param_id="subsidy_rate",
-                param_path="subsidy_rate",
-                default_value=Decimal("0.10"),
-                min_value=Decimal("0.02"),
-                max_value=Decimal("0.20"),
-                sensitivity_priority=2,
-            ),
-            InterventionKnobSpec(
-                param_id="employment_floor",
-                param_path="employment_floor",
-                default_value=Decimal("0.85"),
-                min_value=Decimal("0.70"),
-                max_value=Decimal("0.98"),
-                sensitivity_priority=4,
-            ),
-        ],
-        target_population_type="employment_support",
-        target_sector_ids=[primary_sector],
-        target_region_ids=[primary_region],
-        measurement_expectations={
-            "specification_curve_robustness": specification_curve.robustness_score,
-            "strategic_plausibility": strategic_metrics.aggregate_plausibility,
-        },
-        identification_mode=IdentificationMode.SEQUENTIAL,
-        strategic_response_expected=True,
-        transmission_channels=[
-            StrategicResponseChannel.LABOR_CHANNEL,
-            StrategicResponseChannel.HOUSEHOLD_INCOME_CHANNEL,
-        ],
-        notes=["compiled_from_real_release_data"],
-        metadata={"governance_tags": ["labor", "household_income"]},
-    )
-    compiled_procurement = compiler.compile(procurement_directive)
-    compiled_wage = compiler.compile(wage_directive)
-    procurement_sequence = sequencer.compile_sequence(
-        sequence_id="procurement_policy_sequence",
-        dynamic_intervention_id="procurement_policy_program",
-        compiled_interventions=[compiled_procurement],
-        strategic_response_expected=True,
-        transmission_channels=[StrategicResponseChannel.PROCUREMENT_CHANNEL],
-        steps=[
-            {
-                "effective_date": "2025-01",
-                "intervention_id": compiled_procurement.intervention.intervention_id,
-                "parameter_overrides": {"procurement_intensity": Decimal("0.12")},
-            },
-            {
-                "effective_date": "2025-04",
-                "intervention_id": compiled_procurement.intervention.intervention_id,
-                "parameter_overrides": {"procurement_intensity": Decimal("0.18")},
-            },
-        ],
-    )
-    wage_sequence = sequencer.compile_sequence(
-        sequence_id="wage_subsidy_support_sequence",
-        dynamic_intervention_id="wage_subsidy_support_program",
-        compiled_interventions=[compiled_wage],
-        strategic_response_expected=True,
-        transmission_channels=[
-            StrategicResponseChannel.LABOR_CHANNEL,
-            StrategicResponseChannel.HOUSEHOLD_INCOME_CHANNEL,
-        ],
-        steps=[
-            {
-                "effective_date": "2025-01",
-                "intervention_id": compiled_wage.intervention.intervention_id,
-                "parameter_overrides": {"subsidy_rate": Decimal("0.08")},
-            },
-            {
-                "effective_date": "2025-03",
-                "intervention_id": compiled_wage.intervention.intervention_id,
-                "parameter_overrides": {"subsidy_rate": Decimal("0.12")},
-            },
-        ],
-    )
-    intervention_map = {
-        "schema_version": "1.0",
-        "directives": [
-            {
-                "provision_ref": procurement_directive.provision_ref,
-                "intervention": compiled_procurement.intervention.model_dump(mode="json"),
-                "eligible_target_population": procurement_directive.target_population_type,
-                "constraint_set": {
-                    "region_ids": procurement_directive.target_region_ids,
-                    "sector_ids": procurement_directive.target_sector_ids,
-                },
-                "governance_tags": procurement_directive.metadata.get("governance_tags", []),
-            },
-            {
-                "provision_ref": wage_directive.provision_ref,
-                "intervention": compiled_wage.intervention.model_dump(mode="json"),
-                "eligible_target_population": wage_directive.target_population_type,
-                "constraint_set": {
-                    "region_ids": wage_directive.target_region_ids,
-                    "sector_ids": wage_directive.target_sector_ids,
-                },
-                "governance_tags": wage_directive.metadata.get("governance_tags", []),
-            },
-        ],
-    }
-    knob_dictionary = {
-        "schema_version": "1.0",
-        "knobs": {
-            parameter.param_id: parameter.model_dump(mode="json")
-            for parameter in [*compiled_procurement.parameters, *compiled_wage.parameters]
-        },
-    }
-    temporal_sequences = {
-        "schema_version": "1.0",
-        "sequences": {
-            procurement_sequence.sequence_id: procurement_sequence.model_dump(mode="json"),
-            wage_sequence.sequence_id: wage_sequence.model_dump(mode="json"),
-        },
-    }
-    scenario_templates = {
-        "schema_version": "1.0",
-        "templates": [
-            {
-                "scenario_id": "procurement_resilience",
-                "intervention_id": compiled_procurement.intervention.intervention_id,
-                "sequence_id": procurement_sequence.sequence_id,
-                "objective": "procurement continuity under targeted supplier concentration limits",
-                "eligibility_tier_required": "A",
-            },
-            {
-                "scenario_id": "wage_subsidy_resilience",
-                "intervention_id": compiled_wage.intervention.intervention_id,
-                "sequence_id": wage_sequence.sequence_id,
-                "objective": "employment stabilization with household-income support",
-                "eligibility_tier_required": "A",
-            },
-        ],
-    }
-    crosswalk = pd.DataFrame(
-        {
-            "provision_id": [procurement_directive.provision_ref, wage_directive.provision_ref],
-            "program_id": ["program.procurement_resilience", "program.wage_support"],
-            "channel_id": ["procurement_policy", "wage_subsidy_support"],
-        }
-    )
+    graph_compression_bundle: dict[str, Any],
+    content_refs: dict[str, ArtifactRecord],
+) -> dict[str, Any]:
+    """Build a content-bound producer request for a future downstream D5 bridge."""
 
-    procurement_grid = [Decimal("0.08"), Decimal("0.12"), Decimal("0.16")]
-    wage_grid = [Decimal("0.06"), Decimal("0.10"), Decimal("0.14")]
-    procurement_trials = []
-    for intensity in procurement_grid:
-        score = float(
-            (0.5 * transportability.aggregate_score)
-            + (0.3 * strategic_metrics.aggregate_plausibility)
-            + (0.2 * specification_curve.robustness_score)
-            - (0.4 * abs(float(intensity) - 0.12))
-        )
-        procurement_trials.append({"intensity": str(intensity), "objective_score": score})
-    wage_trials = []
-    for rate in wage_grid:
-        score = float(
-            (0.45 * transportability.aggregate_score)
-            + (0.35 * strategic_metrics.aggregate_plausibility)
-            + (0.2 * specification_curve.robustness_score)
-            - (0.5 * abs(float(rate) - 0.10))
-        )
-        wage_trials.append({"subsidy_rate": str(rate), "objective_score": score})
-    best_procurement = max(procurement_trials, key=lambda item: item["objective_score"])
-    best_wage = max(wage_trials, key=lambda item: item["objective_score"])
-    advanced_trials = {
-        "schema_version": "1.0",
-        "hierarchical_policy_search": {
-            "pilot_questions": [
-                {
-                    "policy_channel": "procurement_policy",
-                    "best_candidate": best_procurement,
-                    "candidate_grid": procurement_trials,
-                },
-                {
-                    "policy_channel": "wage_subsidy_support",
-                    "best_candidate": best_wage,
-                    "candidate_grid": wage_trials,
-                },
-            ]
-        },
-        "active_disambiguation": {
-            "value_of_information_signals": [
-                {
-                    "question_id": "procurement_proxy_bias",
-                    "priority": round(1.0 - transportability.aggregate_score, 6),
-                },
-                {
-                    "question_id": "strategic_response_strength",
-                    "priority": round(1.0 - strategic_metrics.aggregate_plausibility, 6),
-                },
-            ],
-            "recommended_next_question": (
-                "procurement_proxy_bias"
-                if transportability.aggregate_score <= strategic_metrics.aggregate_plausibility
-                else "strategic_response_strength"
+    return {
+        "schema_version": "policyos.data_forge.ukraine.d5_release_handoff_request.v1",
+        "authority_purpose": "producer_release_handoff_request",
+        "capability_state": "bridge_missing",
+        "consumer_state": "consumer_missing",
+        "authoritative_for": [],
+        "may_not_use_for": [
+            "legal_intervention_compilation",
+            "governance_admissibility",
+            "release_acceptance",
+            "publication",
+        ],
+        "producer_facts": {
+            "primary_region_id": _safe_first(
+                cell_registry.get("region_code", pd.Series(dtype=str)), "00"
             ),
-        },
-        "bilevel_procurement_trial": {
-            "outer_objective": "maximize_procurement_continuity",
-            "inner_constraint": "supplier_share_cap",
-            "selected_candidate": best_procurement,
-        },
-        "interference_aware_calibration_term": {
-            "term_value": round(
-                (0.5 * transportability.aggregate_score)
-                + (0.5 * strategic_metrics.aggregate_plausibility),
-                6,
+            "primary_sector_id": _safe_first(
+                cell_registry.get("sector_id", pd.Series(dtype=str)), "unknown"
             ),
-            "depends_on": ["procurement_network", "budget_network"],
+            "graph_compression_degree_preservation_score": graph_compression_bundle[
+                "fidelity_metrics"
+            ]["degree_preservation_score"],
+            "graph_compression_edge_weight_reconstruction_error": graph_compression_bundle[
+                "fidelity_metrics"
+            ]["edge_weight_reconstruction_error"],
+        },
+        "content_refs": {
+            name: record.model_dump(mode="json")
+            for name, record in sorted(content_refs.items())
         },
     }
-    return (
-        intervention_map,
-        knob_dictionary,
-        temporal_sequences,
-        scenario_templates,
-        crosswalk,
-        advanced_trials,
-    )
-
-
-def _build_acceptance_trinity_bundle() -> TrinityBundle:
-    return TrinityBundle(
-        problem_frame=ProblemFrame(
-            problem_id="ukraine_release_acceptance",
-            domain=ProblemDomain.FISCAL,
-        ),
-        policy_spec=PolicySpec(
-            policy_id="ukraine_release_acceptance_policy",
-            interventions=[
-                InterventionSpec(
-                    intervention_id="acceptance_tax_probe",
-                    kind="income_tax",
-                    target=SelectorPredicate(
-                        field="id",
-                        operator=SelectorOperator.EQUALS,
-                        value="all",
-                    ),
-                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
-                    params={"rate": Decimal("0.05")},
-                )
-            ],
-        ),
-        model_spec=ModelSpec(
-            model_id="ukraine_release_acceptance_model",
-            data_snapshot_ref="sha256:" + ("0" * 64),
-            registry_bundle_ref="sha256:" + ("0" * 64),
-        ),
-    )
 
 
 def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
-    """Build D5 embeddings, intervention artifacts, and final release bundle."""
+    """Build D5 producer artifacts and a neutral downstream handoff request."""
 
     build_root = config.build_root
     stage_dir = _stage_dir(build_root, StageId.D5)
@@ -612,21 +301,6 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
     calibrated_household_cells_path = d3_stage / "calibrated_household_cells.parquet"
     if calibrated_household_cells_path.exists():
         calibrated_household_cells = pd.read_parquet(calibrated_household_cells_path)
-    holdout_scores = HoldoutScoresManifest.model_validate_json(
-        (d4_stage / "holdout_scores.json").read_text(encoding="utf-8")
-    )
-    transportability = TransportabilitySummaryManifest.model_validate_json(
-        (d4_stage / "transportability_results.json").read_text(encoding="utf-8")
-    )
-    strategic_metrics = StrategicResponseMetricsManifest.model_validate_json(
-        (d4_stage / "strategic_response_metrics.json").read_text(encoding="utf-8")
-    )
-    specification_curve = SpecificationCurveSummaryManifest.model_validate_json(
-        (d4_stage / "specification_curve_summary.json").read_text(encoding="utf-8")
-    )
-    d4_manifest = CalibrationRunManifest.model_validate_json(
-        (d4_stage / "calibration_run_manifest.json").read_text(encoding="utf-8")
-    )
     graph_layers = {
         "budget": _load_npz_artifact(runtime_stage / "budget_graph_sparse.npz"),
         "procurement": _load_npz_artifact(runtime_stage / "procurement_graph_sparse.npz"),
@@ -660,52 +334,32 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
     graph_compression_bundle = _build_graph_compression_bundle(
         runtime_agents,
         graph_layers=graph_layers,
-        holdout_score=holdout_scores.overall_score,
-        transportability_score=transportability.aggregate_score,
-        strategic_score=strategic_metrics.aggregate_plausibility,
     )
     outputs["graph_compression_bundle.json"] = ArtifactRecord.from_path(
         _write_json(stage_dir / "graph_compression_bundle.json", graph_compression_bundle)
     )
-    (
-        intervention_map,
-        knob_dictionary,
-        temporal_sequences,
-        policy_scenario_templates,
-        provision_crosswalk,
-        advanced_policy_trials,
-    ) = _build_release_intervention_payloads(
+    handoff_content_refs = {
+        "cell_registry": ArtifactRecord.from_path(
+            runtime_stage / "cell_registry_region_sector.parquet"
+        ),
+        "d4_governance_request": ArtifactRecord.from_path(
+            d4_stage / "d4_governance_request.json"
+        ),
+        "graph_compression_bundle": outputs["graph_compression_bundle.json"],
+    }
+    handoff_request = _build_d5_release_handoff_request(
         cell_registry=cell_registry,
-        transportability=transportability,
-        strategic_metrics=strategic_metrics,
-        specification_curve=specification_curve,
+        graph_compression_bundle=graph_compression_bundle,
+        content_refs=handoff_content_refs,
     )
-    outputs["lex_intervention_map.json"] = ArtifactRecord.from_path(
-        _write_json(stage_dir / "lex_intervention_map.json", intervention_map)
-    )
-    outputs["intervention_knob_dictionary.json"] = ArtifactRecord.from_path(
-        _write_json(stage_dir / "intervention_knob_dictionary.json", knob_dictionary)
-    )
-    outputs["temporal_intervention_sequences.json"] = ArtifactRecord.from_path(
-        _write_json(stage_dir / "temporal_intervention_sequences.json", temporal_sequences)
-    )
-    outputs["policy_scenario_templates.json"] = ArtifactRecord.from_path(
-        _write_json(stage_dir / "policy_scenario_templates.json", policy_scenario_templates)
-    )
-    outputs["provision_to_program_crosswalk.parquet"] = _write_frame(
-        stage_dir / "provision_to_program_crosswalk.parquet",
-        provision_crosswalk,
-    )
-    outputs["advanced_policy_trials.json"] = ArtifactRecord.from_path(
-        _write_json(stage_dir / "advanced_policy_trials.json", advanced_policy_trials)
+    outputs["d5_release_handoff_request.json"] = ArtifactRecord.from_path(
+        _write_json(stage_dir / "d5_release_handoff_request.json", handoff_request)
     )
 
     release_dirs = {
         "runtime_bundle_v1": stage_dir / "runtime_bundle_v1",
         "calibration_bundle_v1": stage_dir / "calibration_bundle_v1",
         "method_contract_bundle_v1": stage_dir / "method_contract_bundle_v1",
-        "governance_report_v1": stage_dir / "governance_report_v1",
-        "intervention_bundle_v1": stage_dir / "intervention_bundle_v1",
         "embedding_bundle_v1": stage_dir / "embedding_bundle_v1",
     }
     for directory in release_dirs.values():
@@ -723,8 +377,6 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
             calibration_stage / "calibration_bundle_manifest.json",
             calibration_stage / "observation_panel_monthly.parquet",
             calibration_stage / "observation_panel_annual.parquet",
-            d4_stage / "calibration_run_manifest.json",
-            d4_stage / "holdout_scores.json",
         ],
         "method_contract_bundle_v1": [
             calibration_stage / "observation_to_contract_manifest.json",
@@ -732,23 +384,6 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
             calibration_stage / "network_causal_contract_bundle_v1.json",
             calibration_stage / "bounds_estimation_bundle_v1.json",
             calibration_stage / "backtest_plan_bundle.json",
-            stage_dir / "acceptance_contract_bundle.json",
-        ],
-        "governance_report_v1": [
-            d4_stage / "governance_report_v1.json",
-            d4_stage / "governance_accountability.json",
-            d4_stage / "shock_scenario_scores.json",
-            d4_stage / "calibration_leaderboard.json",
-            d4_stage / "transportability_results.json",
-            d4_stage / "strategic_response_metrics.json",
-        ],
-        "intervention_bundle_v1": [
-            stage_dir / "lex_intervention_map.json",
-            stage_dir / "intervention_knob_dictionary.json",
-            stage_dir / "temporal_intervention_sequences.json",
-            stage_dir / "policy_scenario_templates.json",
-            stage_dir / "provision_to_program_crosswalk.parquet",
-            stage_dir / "advanced_policy_trials.json",
         ],
         "embedding_bundle_v1": [
             stage_dir / "agent_embedding_32d.npz",
@@ -756,8 +391,6 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
             stage_dir / "graph_compression_bundle.json",
         ],
     }
-    acceptance_contract_path = stage_dir / "acceptance_contract_bundle.json"
-    _write_json(acceptance_contract_path, _build_acceptance_trinity_bundle())
     for bundle_name, sources in copy_plan.items():
         for source_path in sources:
             if source_path.exists():
@@ -790,54 +423,34 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
             "compression_neighborhood_overlap_stability": graph_compression_bundle[
                 "fidelity_metrics"
             ]["neighborhood_overlap_stability"],
-            "compression_policy_response_stability": graph_compression_bundle["fidelity_metrics"][
-                "downstream_policy_response_stability"
-            ],
-            "selected_calibration_candidate_id": d4_manifest.selected_candidate_id,
         },
         validation=[],
         lineage={
+            "authority_purpose": "producer_bundle_inventory",
+            "capability_state": "bridge_missing",
+            "consumer_state": "consumer_missing",
+            "may_not_use_for": [
+                "legal_intervention_compilation",
+                "governance_admissibility",
+                "release_acceptance",
+                "publication",
+            ],
             "runtime_manifest": str(runtime_stage / "runtime_bundle_manifest.json"),
             "calibration_manifest": str(calibration_stage / "calibration_bundle_manifest.json"),
-            "d4_manifest": str(d4_stage / "calibration_run_manifest.json"),
-            "governance_report": str(d4_stage / "governance_report_v1.json"),
-            "replay_artifacts": str(d4_stage / "replay_artifacts.json"),
-            "acceptance_contract_bundle": str(
-                release_dirs["method_contract_bundle_v1"] / "acceptance_contract_bundle.json"
-            ),
+            "d4_governance_request": str(d4_stage / "d4_governance_request.json"),
         },
     )
     release_manifest_path = stage_dir / "release_manifest_v1.json"
-    write_manifest(release_manifest_path, release_manifest)
-    release_store = FileSystemCAS(stage_dir / ".release_cas")
-    acceptance_runner = ReleaseAcceptanceRunner(release_store)
-    acceptance_report = acceptance_runner.run(
-        release_manifest_path=release_manifest_path,
-        runtime_bundle_dir=release_dirs["runtime_bundle_v1"],
-        method_contract_bundle_dir=release_dirs["method_contract_bundle_v1"],
-    )
-    acceptance_report_path = _write_json(
-        stage_dir / "release_acceptance_report.json", acceptance_report
-    )
-    outputs["release_acceptance_report.json"] = ArtifactRecord.from_path(acceptance_report_path)
-
-    evidence_refs = {
-        "calibration_run_manifest": ArtifactRecord.from_path(
-            d4_stage / "calibration_run_manifest.json"
-        ),
-        "governance_report": ArtifactRecord.from_path(d4_stage / "governance_report_v1.json"),
-        "replay_artifacts": ArtifactRecord.from_path(d4_stage / "replay_artifacts.json"),
-        "release_acceptance_report": ArtifactRecord.from_path(acceptance_report_path),
-    }
-    findings: list[ValidationFinding] = []
-    if not acceptance_report.passed:
-        findings.append(
-            ValidationFinding(
-                severity="error",
-                code="release_acceptance_failed",
-                message="release bundle failed the canonical acceptance roundtrip",
-            )
+    findings: list[ValidationFinding] = [
+        ValidationFinding(
+            severity="warning",
+            code="downstream_release_authority_not_established",
+            message=(
+                "D5 produced a bundle inventory only; Lex compilation, Foundry acceptance, "
+                "and publication remain unavailable until a downstream bridge consumes the handoff."
+            ),
         )
+    ]
     if float(graph_compression_bundle["fidelity_metrics"]["degree_preservation_score"]) < 0.85:
         findings.append(
             ValidationFinding(
@@ -860,11 +473,6 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
     release_manifest = release_manifest.model_copy(
         update={
             "validation": findings,
-            "evidence_refs": evidence_refs,
-            "lineage": {
-                **release_manifest.lineage,
-                "release_acceptance_report": str(acceptance_report_path),
-            },
         }
     )
     write_manifest(release_manifest_path, release_manifest)
@@ -884,7 +492,7 @@ def build_d5_stage(config: PipelineConfig) -> StageBuildResult:
         outputs=outputs,
         findings=findings,
         metrics=release_manifest.metrics,
-        manifest_paths=[release_manifest_path, acceptance_report_path],
+        manifest_paths=[release_manifest_path],
     )
 
 

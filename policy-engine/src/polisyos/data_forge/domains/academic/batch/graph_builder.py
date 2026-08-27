@@ -12,6 +12,9 @@ from typing import TYPE_CHECKING, Any
 import duckdb
 
 from polisyos.common.logger import get_logger
+from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import (
+    load_verified_claim_adjudication_rows,
+)
 from polisyos.data_forge.domains.academic.batch.claim_ids import stable_claim_id
 from polisyos.data_forge.domains.academic.knowledge.canonical_resolver import (
     CanonicalVariableResolver,
@@ -334,22 +337,15 @@ def _claim_id(record_id: str, claim: dict) -> str:
     )
 
 
-def _load_claim_adjudications(path: Path | None) -> dict[str, dict]:
-    rows: dict[str, dict] = {}
-    if path is None or not path.exists():
-        return rows
-    with open(path, encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            row = json.loads(line)
-            if not isinstance(row, dict):
-                continue
-            claim_id = str(row.get("claim_id") or "")
-            if claim_id:
-                rows[claim_id] = row
-    return rows
+def _load_claim_adjudications(
+    path: Path | None,
+    admitted_rows: dict[str, dict[str, Any]] | None,
+) -> dict[str, dict[str, Any]]:
+    if admitted_rows is not None:
+        return dict(admitted_rows)
+    if path is not None and path.exists() and path.stat().st_size:
+        raise ValueError("claim adjudication rows require an admitted CAS receipt")
+    return {}
 
 
 def _load_rows_grouped_by_openalex_id(path: Path | None) -> dict[str, list[dict[str, Any]]]:
@@ -1043,6 +1039,7 @@ def load_graph(
     topics_catalog_path: Path | None = None,
     ingest_errors_path: Path | None = None,
     claim_adjudications_path: Path | None = None,
+    admitted_claim_adjudications: dict[str, dict[str, Any]] | None = None,
     simulation_ready_numeric_path: Path | None = None,
 ) -> GraphStats:
     """Load records into DuckDB tables (without creating indexes)."""
@@ -1096,7 +1093,10 @@ def load_graph(
                         )
                     )
 
-        claim_adjudications = _load_claim_adjudications(claim_adjudications_path)
+        claim_adjudications = _load_claim_adjudications(
+            claim_adjudications_path,
+            admitted_claim_adjudications,
+        )
         simulation_numeric_file_present = bool(
             simulation_ready_numeric_path is not None and simulation_ready_numeric_path.exists()
         )
@@ -1231,7 +1231,7 @@ def load_graph(
                         )
                     )
                     adjudication = claim_adjudications.get(cid)
-                    publishable = bool(claim.get("publish_to_graph") or False)
+                    publishable = False
                     published_strength = str(claim.get("strength") or "")
                     published_trust = float(record.trust_score)
                     if adjudication:
@@ -1291,72 +1291,6 @@ def load_graph(
                         published_trust = float(
                             adjudication.get("claim_validity_score") or published_trust
                         )
-                    elif any(
-                        key in claim
-                        for key in (
-                            "claim_type",
-                            "design_family_hint",
-                            "strong_design_evidence",
-                            "publish_to_graph",
-                            "publish_blockers",
-                        )
-                    ):
-                        claim_adjudication_batch.append(
-                            (
-                                cid,
-                                record.id,
-                                claim.get("cause", ""),
-                                claim.get("effect", ""),
-                                str(claim.get("claim_type") or ""),
-                                str(claim.get("design_family_hint") or ""),
-                                "strong"
-                                if bool(claim.get("strong_design_evidence") or False)
-                                else "weak",
-                                "unclear",
-                                "supported" if publishable else "insufficient_evidence",
-                                str(claim.get("source_basis") or ""),
-                                float(
-                                    claim.get("claim_extraction_confidence")
-                                    or record.extraction_confidence
-                                    or 0.0
-                                ),
-                                float(
-                                    claim.get("claim_extraction_confidence")
-                                    or record.extraction_confidence
-                                    or 0.0
-                                ),
-                                float(
-                                    claim.get("claim_extraction_confidence")
-                                    or record.extraction_confidence
-                                    or 0.0
-                                ),
-                                float(
-                                    claim.get("claim_extraction_confidence")
-                                    or record.extraction_confidence
-                                    or 0.0
-                                ),
-                                publishable,
-                                bool(claim.get("strong_design_evidence") or False),
-                                design_tier,
-                                "; ".join(
-                                    str(v)
-                                    for v in (claim.get("publish_blockers") or [])
-                                    if str(v).strip()
-                                ),
-                                1,
-                                1.0,
-                                None,
-                                None,
-                                1.0,
-                                False,
-                                "; ".join(
-                                    str(v)
-                                    for v in (claim.get("publish_blockers") or [])
-                                    if str(v).strip()
-                                ),
-                            )
-                        )
-
                     if publishable:
                         claim_batch.append(
                             (
@@ -1663,9 +1597,10 @@ def load_graph(
                     continue
                 cid = _claim_id(record.id, claim)
                 adjudication = claim_adjudications.get(cid)
-                publishable = bool(claim.get("publish_to_graph") or False)
-                if adjudication is not None:
-                    publishable = bool(adjudication.get("publishable_edge") or False)
+                publishable = bool(
+                    adjudication is not None
+                    and adjudication.get("publishable_edge")
+                )
                 if not publishable:
                     continue
                 src = str(claim.get("cause") or "").strip()
@@ -1892,6 +1827,7 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
         ensure_ascii=False,
     )
 
+    admitted_claim_adjudications = load_verified_claim_adjudication_rows(config)
     stats = load_graph(
         records=_iter_records(),
         db_path=config.db_path,
@@ -1908,6 +1844,7 @@ def run_graph_load(config: AcademicBatchConfig) -> GraphStats:
         claim_adjudications_path=(
             config.claim_adjudications_path if config.claim_adjudications_path.exists() else None
         ),
+        admitted_claim_adjudications=admitted_claim_adjudications,
         simulation_ready_numeric_path=(
             config.simulation_ready_numeric_path
             if config.simulation_ready_numeric_path.exists()
@@ -1968,6 +1905,7 @@ def build_graph(
     db_path: Path,
     insert_batch_size: int = 10_000,
     claim_adjudications_path: Path | None = None,
+    admitted_claim_adjudications: dict[str, dict[str, Any]] | None = None,
 ) -> GraphStats:
     """Build graph."""
     stats = load_graph(
@@ -1975,6 +1913,7 @@ def build_graph(
         db_path=db_path,
         insert_batch_size=insert_batch_size,
         claim_adjudications_path=claim_adjudications_path,
+        admitted_claim_adjudications=admitted_claim_adjudications,
     )
     build_indexes(db_path)
     return stats

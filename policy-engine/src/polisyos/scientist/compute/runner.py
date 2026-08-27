@@ -285,6 +285,9 @@ class MethodBackend:
         )
 
         evidence_payload = {
+            "authority_purpose": "method_execution",
+            "authoritative_for": ["execution_reproducibility"],
+            "may_not_use_for": ["governance_admissibility", "method_validity"],
             "method_fqn": signature.fqn,
             "backend": signature.backend.value,
             "execution_backend": getattr(signature, "execution_backend", signature.backend).value,

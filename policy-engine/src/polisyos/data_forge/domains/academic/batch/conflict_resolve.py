@@ -9,6 +9,9 @@ from collections import Counter, defaultdict
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Any
 
+from polisyos.data_forge.domains.academic.batch.admitted_claim_adjudications import (
+    load_verified_claim_adjudication_rows,
+)
 from polisyos.data_forge.kernel.pipeline.manifests import write_stage_manifest
 
 if TYPE_CHECKING:
@@ -44,15 +47,6 @@ def _load_jsonl(path: Path) -> list[dict[str, Any]]:
 def _stable_id(prefix: str, *parts: str) -> str:
     payload = "|".join(str(part or "").strip() for part in parts).encode("utf-8")
     return f"{prefix}_{hashlib.sha256(payload).hexdigest()[:24]}"
-
-
-def _adjudication_map(path: Path) -> dict[str, dict[str, Any]]:
-    rows: dict[str, dict[str, Any]] = {}
-    for row in _load_jsonl(path):
-        claim_id = str(row.get("claim_id") or "").strip()
-        if claim_id:
-            rows[claim_id] = row
-    return rows
 
 
 def _claim_rows(config: AcademicBatchConfig) -> list[dict[str, Any]]:
@@ -115,7 +109,7 @@ def run_conflict_resolve(config: AcademicBatchConfig) -> dict[str, int]:
     """Run conflict resolve."""
     started_at = datetime.now(UTC).isoformat()
     claim_rows = _claim_rows(config)
-    adjudications = _adjudication_map(config.claim_adjudications_path)
+    adjudications = load_verified_claim_adjudication_rows(config)
     if not claim_rows:
         write_stage_manifest(
             manifest_path=config.manifests_dir / "conflict_resolve.json",
@@ -164,7 +158,7 @@ def run_conflict_resolve(config: AcademicBatchConfig) -> dict[str, int]:
         for row in rows:
             claim_id = str(row.get("claim_id") or "").strip()
             adjudication = adjudications.get(claim_id, {})
-            if bool(adjudication.get("publishable_edge")) or bool(row.get("publish_to_graph")):
+            if bool(adjudication.get("publishable_edge")):
                 publishable_claims += 1
             if str(adjudication.get("support_status") or "").strip().lower() == "supported":
                 supported_claims += 1

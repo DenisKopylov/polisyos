@@ -6,7 +6,7 @@ import json
 import time
 from concurrent.futures import ProcessPoolExecutor, ThreadPoolExecutor  # noqa: F401 - legacy facade
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 import duckdb
 
@@ -60,6 +60,20 @@ if TYPE_CHECKING:
 logger = get_logger(__name__)
 
 _extract_provisions_worker = extract_provisions_worker
+
+
+class LegalBenchmarkResult(Protocol):
+    """Narrow result contract returned by an upper legal benchmark consumer."""
+
+    passed: bool
+    metrics: dict[str, float | int]
+    failed_checks: list[str]
+
+
+class LegalBenchmarkRunner(Protocol):
+    """Injected consumer bridge for the Lex-owned semantic benchmark."""
+
+    def __call__(self, config: BatchConfig) -> LegalBenchmarkResult: ...
 
 
 async def _process_spo_chunk(
@@ -950,7 +964,11 @@ async def _process_spo_chunk(
     return total_spo
 
 
-async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
+async def run_batch_pipeline(
+    config: BatchConfig,
+    *,
+    benchmark_runner: LegalBenchmarkRunner | None = None,
+) -> PipelineStats:
     """Run configured stages sequentially with bounded memory."""
     t0 = time.monotonic()
     stats = PipelineStats()
@@ -1537,9 +1555,11 @@ async def run_batch_pipeline(config: BatchConfig) -> PipelineStats:
     if "benchmark" in config.stages:
         st = time.monotonic()
         logger.info("=== Benchmark ===")
-        from polisyos.data_forge.domains.legal.batch.benchmark import run_benchmark
-
-        benchmark_outcome = run_benchmark(config)
+        if benchmark_runner is None:
+            raise RuntimeError(
+                "benchmark stage requires an injected Lex semantic benchmark runner"
+            )
+        benchmark_outcome = benchmark_runner(config)
         stats.benchmark_passed = benchmark_outcome.passed
         stats.benchmark_metrics = benchmark_outcome.metrics
         stats.benchmark_failed_checks = benchmark_outcome.failed_checks

@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import ast
 import json
+from pathlib import Path
 
 import numpy as np
 import pandas as pd
@@ -22,6 +24,7 @@ from polisyos.data_forge.domains.ukraine.builders import (
     _entity_scope_identity,
     _filter_identity_bridge_inputs,
     _graph_arrays_from_edges,
+    _identity_resolution_cohort_rows,
     _kernel_safe_id,
     _participant_resolution_coverage,
     _period_to_dates,
@@ -42,15 +45,17 @@ from polisyos.data_forge.domains.ukraine.models import (
     StageId,
     build_default_pipeline_config,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
-from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
-from polisyos.scientist.governance import (
+from polisyos.ir.analytics.calibration import (
     CalibrationRunManifest,
     HoldoutScoresManifest,
     SpecificationCurveSummaryManifest,
     StrategicResponseMetricsManifest,
-    StrategicResponseRunner,
     TransportabilitySummaryManifest,
+)
+from polisyos.ir.model_layer.types import TimeFrequency
+from polisyos.ir.observation.contracts import EntityScope, ObservationFamily
+from polisyos.scientist.governance import (
+    StrategicResponseRunner,
     build_family_eligibility_registry,
 )
 
@@ -89,6 +94,17 @@ def test_memory_aware_scheduler_runs_tasks_in_order() -> None:
 
     assert observed == ["a", "b"]
     assert list(results) == ["a", "b"]
+
+
+def test_scientist_reexports_ir_owned_d4_release_read_contracts() -> None:
+    """Keep Scientist's published names as consumers of the lower D4 schema."""
+    from polisyos.scientist import governance
+
+    assert governance.CalibrationRunManifest is CalibrationRunManifest
+    assert governance.HoldoutScoresManifest is HoldoutScoresManifest
+    assert governance.SpecificationCurveSummaryManifest is SpecificationCurveSummaryManifest
+    assert governance.StrategicResponseMetricsManifest is StrategicResponseMetricsManifest
+    assert governance.TransportabilitySummaryManifest is TransportabilitySummaryManifest
 
 
 def test_memory_aware_scheduler_rejects_oversized_task() -> None:
@@ -132,6 +148,32 @@ def test_participant_resolution_coverage_counts_raw_vs_resolved_identities() -> 
     assert coverage == pytest.approx(2 / 3)
     assert resolved == 2
     assert total == 3
+
+
+def test_identity_resolution_cohort_rows_preserve_the_unique_coverage_denominator() -> None:
+    frame = pd.DataFrame(
+        {
+            "_source_agent_raw_id": ["08252623", "08252623", "34971128"],
+            "_target_agent_raw_id": ["14361575", "14361575", None],
+            "source_agent_id": ["agent::a", "agent::a", None],
+            "target_agent_id": ["agent::b", "agent::b", None],
+        }
+    )
+
+    rows = _identity_resolution_cohort_rows(
+        frame,
+        cohort="spending",
+        raw_identity_columns=(
+            "_source_agent_raw_id",
+            "_target_agent_raw_id",
+        ),
+    )
+
+    assert rows == [
+        {"cohort": "spending", "raw_identity": "08252623"},
+        {"cohort": "spending", "raw_identity": "14361575"},
+        {"cohort": "spending", "raw_identity": "34971128"},
+    ]
 
 
 def test_validation_subset_downsamples_large_runtime_frames(
@@ -373,55 +415,22 @@ def test_build_synthetic_multiscale_payload_sanitizes_huge_cell_metrics() -> Non
     assert payload["cells"]["public_service_index"] == [1.0]
 
 
-def test_build_d4_stage_blocks_non_exact_signoff_families(tmp_path) -> None:
+def test_build_d4_stage_emits_only_a_purpose_limited_governance_handoff(tmp_path) -> None:
     config = build_default_pipeline_config(root=tmp_path / "ukraine")
-    d2_dir = config.build_root.calibration_dir / "d2"
-    d2_dir.mkdir(parents=True, exist_ok=True)
-    observation_panel = pd.DataFrame(
-        {
-            "family": ["budget_flows", "procurement_flows"],
-            "period_start": ["2024-01-01", "2024-01-01"],
-            "observed_value": [10.0, 20.0],
-            "trust_weight": [0.9, 0.9],
-            "coverage_estimate": [0.88, 0.89],
-            "measurement_bias_flag": [False, False],
-            "censoring_mask": [False, False],
-            "source_id": ["budget_transactions", "spending_contracts_procurement_proxy"],
-            "identification_mode": ["point_identified", "proxy_identified"],
-            "source_confidence_tier": ["validated", "validated"],
-            "proxy_source_id": [None, "spending_contracts_procurement_proxy"],
-            "regime_id": ["regime_a", "regime_a"],
-            "entity_id": ["agent::1", "agent::2"],
-        }
-    )
-    observation_panel.to_parquet(d2_dir / "observation_panel_monthly.parquet", index=False)
-    (d2_dir / "calibration_splits.json").write_text(
-        json.dumps(
-            {
-                "train_pre_2024": {"start": "2023-01-01", "end": "2023-12-31"},
-                "validation_2024": {"start": "2024-01-01", "end": "2024-12-31"},
-                "test_2025": {"start": "2025-01-01", "end": "2025-12-31"},
-            }
-        ),
-        encoding="utf-8",
-    )
-    config.build_root.manifests_dir.mkdir(parents=True, exist_ok=True)
-    (config.build_root.manifests_dir / "build_run_d0_p0.json").write_text(
-        json.dumps(
-            {
-                "metrics": {
-                    "runtime_cohort_coverage_spending": 0.88,
-                    "runtime_cohort_coverage_procurement": 0.89,
-                }
-            }
-        ),
-        encoding="utf-8",
-    )
-
     result = build_d4_stage(config)
 
-    assert any(finding.code == "families_not_exact_signoff_ready" for finding in result.findings)
-    assert "family_eligibility_registry.json" in result.outputs
+    assert not result.findings
+    assert set(result.outputs) == {"d4_governance_request.json"}
+    request = json.loads(
+        (config.build_root.calibration_dir / "d4" / "d4_governance_request.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert request["authority_purpose"] == "producer_governance_handoff"
+    assert "governance_admissibility" in request["may_not_use_for"]
+    assert "coverage_threshold" not in request
+    assert "waived_signoff_families" not in request
+    assert "governance_verdict" not in request
 
 
 def test_family_eligibility_registry_respects_signoff_waivers() -> None:
@@ -768,7 +777,7 @@ def test_build_d3_stage_emits_labor_validation_artifacts(tmp_path) -> None:
     assert report["overlap_rows"] >= 1
 
 
-def test_build_d5_stage_runs_release_acceptance_roundtrip(tmp_path) -> None:
+def test_build_d5_stage_emits_only_a_purpose_limited_release_handoff_request(tmp_path) -> None:
     config = build_default_pipeline_config(root=tmp_path / "ukraine")
     runtime_dir = config.build_root.runtime_dir / "d0_p0"
     d1_dir = config.build_root.runtime_dir / "d1"
@@ -848,73 +857,91 @@ def test_build_d5_stage_runs_release_acceptance_roundtrip(tmp_path) -> None:
     (d2_dir / "bounds_estimation_bundle_v1.json").write_text("{}", encoding="utf-8")
     (d2_dir / "backtest_plan_bundle.json").write_text("{}", encoding="utf-8")
 
-    (d4_dir / "calibration_run_manifest.json").write_text(
-        CalibrationRunManifest(
-            run_id="run_1",
-            selected_candidate_id="candidate::measurement_aware_multistart",
-        ).model_dump_json(indent=2),
-        encoding="utf-8",
-    )
-    (d4_dir / "holdout_scores.json").write_text(
-        HoldoutScoresManifest(
-            candidate_id="candidate::measurement_aware_multistart",
-            overall_score=0.82,
-            by_family={"budget_flows": 0.82},
-        ).model_dump_json(indent=2),
-        encoding="utf-8",
-    )
-    (d4_dir / "transportability_results.json").write_text(
-        TransportabilitySummaryManifest(
-            aggregate_score=0.91,
-            n_transportable_channels=3,
-        ).model_dump_json(indent=2),
-        encoding="utf-8",
-    )
-    (d4_dir / "strategic_response_metrics.json").write_text(
-        StrategicResponseMetricsManifest(
-            aggregate_plausibility=0.87,
-            quantified_channels=3,
-        ).model_dump_json(indent=2),
-        encoding="utf-8",
-    )
-    (d4_dir / "specification_curve_summary.json").write_text(
-        SpecificationCurveSummaryManifest(
-            robustness_score=0.79,
-        ).model_dump_json(indent=2),
-        encoding="utf-8",
-    )
-    for name in (
-        "governance_report_v1.json",
-        "governance_accountability.json",
-        "replay_artifacts.json",
-        "shock_scenario_scores.json",
-        "calibration_leaderboard.json",
-    ):
-        (d4_dir / name).write_text("{}", encoding="utf-8")
-
+    d4_result = build_d4_stage(config)
+    assert set(d4_result.outputs) == {"d4_governance_request.json"}
     result = build_d5_stage(config)
 
     assert not any(finding.severity == "error" for finding in result.findings)
-    assert "release_acceptance_report.json" in result.outputs
+    assert any(
+        finding.code == "downstream_release_authority_not_established"
+        for finding in result.findings
+    )
+    assert set(result.outputs) == set(config.stages[StageId.D5.value].output_artifacts)
+    assert "d5_release_handoff_request.json" in result.outputs
+    assert not {
+        "lex_intervention_map.json",
+        "intervention_knob_dictionary.json",
+        "temporal_intervention_sequences.json",
+        "policy_scenario_templates.json",
+        "provision_to_program_crosswalk.parquet",
+        "advanced_policy_trials.json",
+        "release_acceptance_report.json",
+    }.intersection(result.outputs)
+    handoff = json.loads(
+        (config.build_root.bundles_dir / "d5" / "d5_release_handoff_request.json").read_text(
+            encoding="utf-8"
+        )
+    )
+    assert handoff["authority_purpose"] == "producer_release_handoff_request"
+    assert handoff["capability_state"] == "bridge_missing"
+    assert handoff["consumer_state"] == "consumer_missing"
+    assert set(handoff["may_not_use_for"]) == {
+        "legal_intervention_compilation",
+        "governance_admissibility",
+        "release_acceptance",
+        "publication",
+    }
+    assert handoff["producer_facts"] == {
+        "graph_compression_degree_preservation_score": 1.0,
+        "graph_compression_edge_weight_reconstruction_error": 0.0,
+        "primary_region_id": "01",
+        "primary_sector_id": "A",
+    }
+    assert set(handoff["content_refs"]) == {
+        "cell_registry",
+        "d4_governance_request",
+        "graph_compression_bundle",
+    }
+    assert all(record["sha256"] for record in handoff["content_refs"].values())
     manifest = json.loads(
         (config.build_root.bundles_dir / "d5" / "release_manifest_v1.json").read_text(
             encoding="utf-8"
         )
     )
-    assert "release_acceptance_report" in manifest["evidence_refs"]
-    assert (
-        "acceptance_contract_bundle.json"
-        in manifest["bundle_contents"]["method_contract_bundle_v1"]
-    )
-    acceptance = json.loads(
-        (config.build_root.bundles_dir / "d5" / "release_acceptance_report.json").read_text(
+    assert manifest["evidence_refs"] == {}
+    assert manifest["lineage"]["authority_purpose"] == "producer_bundle_inventory"
+    assert manifest["lineage"]["capability_state"] == "bridge_missing"
+    assert "publication" in manifest["lineage"]["may_not_use_for"]
+    assert "intervention_bundle_v1" not in manifest["bundles"]
+    assert "governance_report_v1" not in manifest["bundles"]
+    assert "acceptance_contract_bundle.json" not in manifest["bundle_contents"][
+        "method_contract_bundle_v1"
+    ]
+    compression = json.loads(
+        (config.build_root.bundles_dir / "d5" / "graph_compression_bundle.json").read_text(
             encoding="utf-8"
         )
     )
-    assert acceptance["passed"] is True
-    assert (
-        config.build_root.bundles_dir
-        / "d5"
-        / "governance_report_v1"
-        / "governance_accountability.json"
-    ).exists()
+    assert compression["fidelity_metrics"]["downstream_policy_response_stability"] == {
+        "status": "not_established",
+        "reason": "requires the absent D5 downstream bridge and consumer",
+    }
+
+
+def test_d5_release_builder_has_no_lex_or_foundry_imports() -> None:
+    """Keep D5 producer-only until a downstream bridge is explicitly wired."""
+
+    release_path = (
+        Path(__file__).parents[5]
+        / "src/polisyos/data_forge/domains/ukraine/builders/release.py"
+    )
+    tree = ast.parse(release_path.read_text(encoding="utf-8"))
+    imported_modules = {
+        node.module
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom) and node.module is not None
+    }
+
+    assert not any(
+        module.startswith(("polisyos.lex", "polisyos.foundry")) for module in imported_modules
+    )

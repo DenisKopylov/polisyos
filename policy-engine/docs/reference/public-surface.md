@@ -95,11 +95,11 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.participation_requirement` | `internal` | `eager_exports` | 23 | `team-policyos-runtime` | `src/polisyos/participation_requirement/README.md` |
 | `polisyos.fabric` | `public_stable` | `lazy_facade` | 39 | `team-polisyos` | `src/polisyos/fabric/README.md` |
 | `polisyos.foundry` | `public_stable` | `lazy_facade` | 8 | `team-polisyos` | `src/polisyos/foundry/README.md` |
-| `polisyos.scientist` | `public_stable` | `lazy_facade` | 24 | `team-polisyos` | `src/polisyos/scientist/README.md` |
+| `polisyos.scientist` | `public_stable` | `lazy_facade` | 26 | `team-polisyos` | `src/polisyos/scientist/README.md` |
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 957 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
-| `polisyos.lex` | `public_stable` | `lazy_facade` | 53 | `team-polisyos` | `src/polisyos/lex/README.md` |
+| `polisyos.lex` | `public_stable` | `lazy_facade` | 54 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
@@ -2233,7 +2233,7 @@ select_method_candidates_for_requirements
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 24 |
+| `polisyos.scientist` | `src/polisyos/scientist/__init__.py` | `lazy_facade` | 26 |
 | `polisyos.scientist.methods.research_dag` | `src/polisyos/scientist/methods/research_dag/__init__.py` | `eager_exports` | 44 |
 
 #### `polisyos.scientist`
@@ -2242,7 +2242,7 @@ select_method_candidates_for_requirements
 - Facade: `lazy_facade`
 - Summary: Stable Scientist package facade for workflow execution and run observability.
 
-<details><summary>Entrypoint exports (24)</summary>
+<details><summary>Entrypoint exports (26)</summary>
 
 ```text
 BudgetState
@@ -2252,6 +2252,8 @@ ClaimLifecycleBridgeAdvanced
 EpochClaimLifecycleBridgeService
 ExperimentState
 KnowledgeToolkit
+ScientistLegalBenchmarkRunner
+ScientistRetrievalBenchmarkOutcome
 ToolContractSummary
 ToolDefinition
 ToolLoopResult
@@ -2330,7 +2332,7 @@ validate_source_invalidation_event
 
 </details>
 
-<details><summary>Supported exports (24)</summary>
+<details><summary>Supported exports (26)</summary>
 
 ```text
 BudgetState
@@ -2340,6 +2342,8 @@ ClaimLifecycleBridgeAdvanced
 EpochClaimLifecycleBridgeService
 ExperimentState
 KnowledgeToolkit
+ScientistLegalBenchmarkRunner
+ScientistRetrievalBenchmarkOutcome
 ToolContractSummary
 ToolDefinition
 ToolLoopResult
@@ -4459,8 +4463,8 @@ write_authority_envelope_json_schema
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.lex` | `src/polisyos/lex/__init__.py` | `lazy_facade` | 53 |
-| `polisyos.lex.knowledge` | `src/polisyos/lex/knowledge/__init__.py` | `lazy_facade` | 10 |
+| `polisyos.lex` | `src/polisyos/lex/__init__.py` | `lazy_facade` | 54 |
+| `polisyos.lex.knowledge` | `src/polisyos/lex/knowledge/__init__.py` | `lazy_facade` | 11 |
 
 #### `polisyos.lex`
 
@@ -4468,7 +4472,7 @@ write_authority_envelope_json_schema
 - Facade: `lazy_facade`
 - Summary: Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions.
 
-<details><summary>Entrypoint exports (53)</summary>
+<details><summary>Entrypoint exports (54)</summary>
 
 ```text
 ActiveVersionResult
@@ -4484,6 +4488,7 @@ InterventionKnobSpec
 LegalEvaluationRequest
 LegalKnowledgeGraph
 LegalReportRef
+LexBenchmarkOutcome
 LexError
 LexFabricEvidencePath
 LexIndexError
@@ -4514,7 +4519,6 @@ TemporalInterventionSequenceCompileResult
 TemporalInterventionSequenceCompiler
 TemporalInterventionSequencer
 TemporalInterventionStepInput
-WorldEventRefLike
 assemble_norm_pack
 build_legal_authority_report
 build_legal_authority_requirement_artifact
@@ -4524,6 +4528,7 @@ evaluate_legality
 lex_evidence_from_fabric_decision_data
 propose_changes
 resolve_active_version
+run_legal_benchmark
 ```
 
 </details>
@@ -4534,7 +4539,7 @@ resolve_active_version
 - Facade: `lazy_facade`
 - Summary: Legal knowledge graph: SPO entities, facts, and semantic search.
 
-<details><summary>Entrypoint exports (10)</summary>
+<details><summary>Entrypoint exports (11)</summary>
 
 ```text
 LegalEntity
@@ -4547,11 +4552,12 @@ LegalRuleThresholdRow
 LegalSearchResult
 LegalTemporalCompetence
 LegalThresholdEvaluation
+search_legal_knowledge
 ```
 
 </details>
 
-<details><summary>Supported exports (53)</summary>
+<details><summary>Supported exports (54)</summary>
 
 ```text
 ActiveVersionResult
@@ -4567,6 +4573,7 @@ InterventionKnobSpec
 LegalEvaluationRequest
 LegalKnowledgeGraph
 LegalReportRef
+LexBenchmarkOutcome
 LexError
 LexFabricEvidencePath
 LexIndexError
@@ -4597,7 +4604,6 @@ TemporalInterventionSequenceCompileResult
 TemporalInterventionSequenceCompiler
 TemporalInterventionSequencer
 TemporalInterventionStepInput
-WorldEventRefLike
 assemble_norm_pack
 build_legal_authority_report
 build_legal_authority_requirement_artifact
@@ -4607,6 +4613,7 @@ evaluate_legality
 lex_evidence_from_fabric_decision_data
 propose_changes
 resolve_active_version
+run_legal_benchmark
 ```
 
 </details>

@@ -6,6 +6,7 @@ from pathlib import Path
 
 from polisyos.core.artifacts.ids import ArtifactID
 from polisyos.core.artifacts.store import FileSystemCAS
+from polisyos.data_forge.domains.legal.contracts import LegalDocSource
 from polisyos.data_forge.domains.legal.corpus import (
     build_legal_structure,
     build_version_index,
@@ -14,7 +15,6 @@ from polisyos.data_forge.domains.legal.corpus import (
 from polisyos.data_forge.read_api import legal as legal_read_api
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.materialize import materialize_world_duckdb_from_fact_log
-from polisyos.lex.types import LegalDocSource
 
 
 def _load_json_artifact(cas: FileSystemCAS, artifact_id: str) -> dict:

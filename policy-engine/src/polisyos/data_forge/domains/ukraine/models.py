@@ -7,13 +7,13 @@ from pathlib import Path
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.contracts import (
     EntityScope,
     IdentificationMode,
     ObservationFamily,
     SourceConfidenceTier,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
 
 
 class StageId(str, Enum):
@@ -189,7 +189,6 @@ class StageConfig(BaseModel):
     required_previous_stages: list[StageId] = Field(default_factory=list)
     output_artifacts: list[str] = Field(default_factory=list)
     coverage_threshold: float = Field(default=0.95, ge=0.0, le=1.0)
-    final_signoff_waived_families: list[ObservationFamily] = Field(default_factory=list)
     expected_agent_count: CountRange | None = None
     expected_cell_count: CountRange | None = None
     resource_budget: ResourceBudget = Field(default_factory=ResourceBudget)
@@ -283,6 +282,7 @@ def _default_stage_configs() -> dict[str, StageConfig]:
                 "edr_identity_bridge_candidates.parquet",
                 "edr_identity_bridge_resolved.parquet",
                 "edr_identity_bridge_manifest.json",
+                "identity_resolution_cohort_v1.json",
                 "geo_index_runtime.parquet",
                 "slot_family_manifest.json",
                 "runtime_bundle_manifest.json",
@@ -384,29 +384,13 @@ def _default_stage_configs() -> dict[str, StageConfig]:
         StageId.D4.value: StageConfig(
             stage_id=StageId.D4,
             required_previous_stages=[StageId.D3],
-            final_signoff_waived_families=[
-                ObservationFamily.PROCUREMENT_FLOWS,
-                ObservationFamily.DISTRESS_ENFORCEMENT,
-            ],
             output_artifacts=[
-                "calibration_run_manifest.json",
-                "family_eligibility_registry.json",
-                "loss_breakdown.json",
-                "holdout_scores.json",
-                "shock_scenario_scores.json",
-                "calibration_leaderboard.json",
-                "transportability_results.json",
-                "strategic_response_metrics.json",
-                "specification_curve_summary.json",
-                "foundry_seed_state_v1.npz",
-                "replay_artifacts.json",
-                "governance_report_v1.json",
-                "lesson_registry_d4.json",
+                "d4_governance_request.json",
             ],
             resource_budget=ResourceBudget(max_workers=16, memory_gib=28.0, time_budget_s=7_200.0),
             notes=[
-                "Current policy cycle treats procurement proxy and distress proxy families as diagnostic-only waivers for final sign-off.",
-                "Remaining exact-signoff uplift is focused on EDR identity bridge and labor-market evidence.",
+                "Scientist owns D4 exact-signoff thresholds and admits no producer-authored waivers.",
+                "Producer outputs remain routing and evidence candidates until Scientist verification.",
             ],
         ),
         StageId.D5.value: StageConfig(
@@ -416,18 +400,11 @@ def _default_stage_configs() -> dict[str, StageConfig]:
                 "agent_embedding_32d.npz",
                 "cell_prototype_embeddings.npz",
                 "graph_compression_bundle.json",
-                "lex_intervention_map.json",
-                "intervention_knob_dictionary.json",
-                "temporal_intervention_sequences.json",
-                "policy_scenario_templates.json",
-                "provision_to_program_crosswalk.parquet",
+                "d5_release_handoff_request.json",
                 "runtime_bundle_v1/",
                 "calibration_bundle_v1/",
                 "method_contract_bundle_v1/",
-                "governance_report_v1/",
-                "intervention_bundle_v1/",
                 "embedding_bundle_v1/",
-                "release_acceptance_report.json",
                 "release_manifest_v1.json",
             ],
             resource_budget=ResourceBudget(max_workers=8, memory_gib=28.0, time_budget_s=14_400.0),

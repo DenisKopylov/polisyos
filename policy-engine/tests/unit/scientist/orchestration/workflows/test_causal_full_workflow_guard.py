@@ -20,6 +20,7 @@ def test_causal_full_workflow_contains_phase9_nodes() -> None:
     assert "build_literature_prior" in by_alias["reconcile_causal_graph"].depends_on
     assert "reconcile_causal_graph" in by_alias["run_governance"].depends_on
     assert "run_causal_evaluation" in by_alias["run_causal_queries"].depends_on
+    assert "bind_foundry_inputs" in by_alias["run_causal_evaluation"].depends_on
     assert "run_causal_queries" in by_alias["run_causal_ensemble"].depends_on
     assert "run_causal_ensemble" in by_alias["run_abm_consistency"].depends_on
     assert "run_abm_consistency" in by_alias["run_transportability"].depends_on

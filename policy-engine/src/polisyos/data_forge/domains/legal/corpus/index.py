@@ -8,9 +8,9 @@ from pydantic import BeforeValidator, ConfigDict, Field, model_validator
 
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.data_forge.errors import LexIndexError
+from polisyos.data_forge.kernel.artifacts import load_json_artifact
 from polisyos.ir.kernel.base import ARTIFACT_ID_PATTERN, ID_PATTERN, KernelModel, reject_floats_deep
-from polisyos.lex.artifacts import load_json_artifact as lex_load_json_artifact
-from polisyos.lex.errors import LexIndexError
 
 PROVISION_INDEX_KIND = "lex.corpus.provision_index"
 VERSION_INDEX_KIND = "lex.corpus.version_index"
@@ -162,7 +162,7 @@ def persist_doc_source_props(cas: FileSystemCAS, payload: DocSourcePropsV1) -> s
 def load_provision_index(cas: FileSystemCAS, artifact_id: str) -> ProvisionIndexV1:
     """Load provision index."""
     try:
-        payload = lex_load_json_artifact(
+        payload = load_json_artifact(
             cas,
             artifact_id,
             error_cls=LexIndexError,
@@ -178,7 +178,7 @@ def load_provision_index(cas: FileSystemCAS, artifact_id: str) -> ProvisionIndex
 def load_version_index(cas: FileSystemCAS, artifact_id: str) -> VersionIndexV1:
     """Load version index."""
     try:
-        payload = lex_load_json_artifact(
+        payload = load_json_artifact(
             cas,
             artifact_id,
             error_cls=LexIndexError,
@@ -194,7 +194,7 @@ def load_version_index(cas: FileSystemCAS, artifact_id: str) -> VersionIndexV1:
 def load_doc_source_props(cas: FileSystemCAS, artifact_id: str) -> DocSourcePropsV1:
     """Load doc source props."""
     try:
-        payload = lex_load_json_artifact(
+        payload = load_json_artifact(
             cas,
             artifact_id,
             error_cls=LexIndexError,

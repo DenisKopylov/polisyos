@@ -12,11 +12,19 @@ from dataclasses import dataclass
 from datetime import UTC, datetime
 from typing import TYPE_CHECKING, Literal
 
+from polisyos.data_forge.domains.legal.contracts import LexStructureOptions, LexStructureResult
 from polisyos.data_forge.domains.legal.corpus.index import (
     ProvisionEntryV1,
     ProvisionIndexV1,
     persist_provision_index,
 )
+from polisyos.data_forge.errors import (
+    LexError,
+    LexNotReadyError,
+    LexStructureError,
+    LexValidationError,
+)
+from polisyos.data_forge.kernel.artifacts import load_doc_meta_artifact, load_json_artifact
 from polisyos.fabric.world import (
     append_world_segment_index,
     emit_doc_fragment_facts,
@@ -40,9 +48,6 @@ from polisyos.ir.world.event import (
     WorldObjectRef,
 )
 from polisyos.ir.world.ids import doc_fragment_id
-from polisyos.lex.artifacts import load_doc_meta_artifact, load_json_artifact
-from polisyos.lex.errors import LexError, LexNotReadyError, LexStructureError, LexValidationError
-from polisyos.lex.types import LexStructureOptions, LexStructureResult
 
 if TYPE_CHECKING:
     from pathlib import Path

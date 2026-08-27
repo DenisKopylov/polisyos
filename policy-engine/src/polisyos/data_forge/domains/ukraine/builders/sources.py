@@ -9,30 +9,13 @@ from datetime import date, timedelta
 from pathlib import Path
 
 from polisyos.core.contracts.fabric import DataSnapshot
-from polisyos.core.registry import build_default_registry_bundle
 from polisyos.data_forge.domains.ukraine.manifests import (
     CalibrationBundleManifest,
     RuntimeBundleManifest,
     write_manifest,
 )
 from polisyos.data_forge.domains.ukraine.models import SourceConfig
-from polisyos.foundry.data_plane.bindings import build_input_bindings
-from polisyos.foundry.methods.catalog.causal.measurement_error import identify_with_proxy
-from polisyos.foundry.methods.catalog.causal.protocols import (
-    DynamicTreatmentData,
-    NetworkCausalData,
-    PanelObservationalData,
-)
-from polisyos.foundry.methods.catalog.econometrics.protocols import PanelData
-from polisyos.foundry.methods.catalog.microsim.protocols import SurveyMicroData
-from polisyos.foundry.methods.catalog.ml.protocols import SurvivalData
-from polisyos.foundry.methods.catalog.network.protocols import (
-    MultiplexNetworkData,
-    NetworkData,
-)
-from polisyos.foundry.methods.layout import build_slot_family_manifest
-from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, EdgeMark, GraphType
-from polisyos.ir.kernel import DEFAULT_SLOT_REGISTRY
+from polisyos.ir.kernel.slots import DEFAULT_SLOT_REGISTRY, build_slot_family_manifest
 from polisyos.ir.observation.bundles import (
     ContractCompatibilityTarget,
     ObservationContractArtifact,
@@ -62,6 +45,42 @@ from polisyos.ir.observation.measurement import (
 )
 
 from .common import *
+
+_PANEL_OBSERVATIONAL_CONTRACT_ID = "foundry.causal.panel_observational_data.v1"
+_DYNAMIC_TREATMENT_CONTRACT_ID = "foundry.causal.dynamic_treatment_data.v1"
+_NETWORK_CAUSAL_CONTRACT_ID = "foundry.causal.network_causal_data.v1"
+_PANEL_ECONOMETRIC_CONTRACT_ID = "foundry.econometrics.panel_data.v1"
+_SURVEY_MICRODATA_CONTRACT_ID = "foundry.microsim.survey_micro_data.v1"
+_SURVIVAL_CONTRACT_ID = "foundry.ml.survival_data.v1"
+_NETWORK_CONTRACT_ID = "foundry.network.data.v1"
+_MULTIPLEX_NETWORK_CONTRACT_ID = "foundry.network.multiplex_data.v1"
+_IDENTITY_RESOLUTION_COHORT_SCHEMA = (
+    "policyos.data_forge.ukraine.identity_resolution_cohort.v1"
+)
+
+
+def _identity_resolution_cohort_rows(
+    frame: pd.DataFrame,
+    *,
+    cohort: str,
+    raw_identity_columns: Sequence[str],
+) -> list[dict[str, object]]:
+    """Project one producer cohort into raw identities for verifier recomputation."""
+
+    raw_identities: set[str] = set()
+    for raw_column in raw_identity_columns:
+        raw_series = _coerce_string_series(frame, raw_column)
+        for raw_value in raw_series:
+            normalized = _normalize_identity_key(raw_value)
+            if normalized:
+                raw_identities.add(normalized)
+    return [
+        {
+            "cohort": cohort,
+            "raw_identity": raw_identity,
+        }
+        for raw_identity in sorted(raw_identities)
+    ]
 
 
 def _load_l5_schema_regime_registry() -> SchemaRegimeRegistry:
@@ -533,6 +552,33 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
             resolved_columns=["buyer_agent_id", "supplier_agent_id"],
         )
     )
+    identity_resolution_cohort_path = _write_json(
+        stage_dir / "identity_resolution_cohort_v1.json",
+        {
+            "schema_version": _IDENTITY_RESOLUTION_COHORT_SCHEMA,
+            "rows": [
+                *_identity_resolution_cohort_rows(
+                    spending_linked,
+                    cohort="spending",
+                    raw_identity_columns=(
+                        "_source_agent_raw_id",
+                        "_target_agent_raw_id",
+                    ),
+                ),
+                *_identity_resolution_cohort_rows(
+                    prozorro_linked,
+                    cohort="procurement",
+                    raw_identity_columns=(
+                        "_buyer_agent_raw_id",
+                        "_supplier_agent_raw_id",
+                    ),
+                ),
+            ],
+        },
+    )
+    outputs["identity_resolution_cohort_v1.json"] = ArtifactRecord.from_path(
+        identity_resolution_cohort_path
+    )
     edr_bridge_manifest["spending_coverage_after"] = spending_coverage
     edr_bridge_manifest["spending_resolved_after"] = spending_resolved
     edr_bridge_manifest["spending_total_after"] = spending_total
@@ -606,24 +652,17 @@ def build_d0_p0_stage(config: PipelineConfig) -> StageBuildResult:
         ),
         kind="fabric.data_snapshot",
     )
-    registry_bundle = build_default_registry_bundle(store)
-    bindings = build_input_bindings(
-        store,
-        data_snapshot_ref=data_snapshot_ref,
-        registry_bundle_ref=registry_bundle.bundle_ref,
-    )
-
     runtime_bundle = RuntimeBundleManifest(
         outputs=outputs,
         data_snapshot_artifact_id=str(data_snapshot_ref.artifact_id),
-        input_bindings_artifact_id=str(bindings.input_bindings_ref.artifact_id),
+        input_bindings_artifact_id=None,
         validation=[],
         metrics={
             "n_agents": runtime_agent_count,
             "n_cells": cell_count,
             "budget_graph_nnz": budget_graph_nnz,
             "procurement_graph_nnz": procurement_graph_nnz,
-            "applied_binding_ids": list(bindings.applied_binding_ids),
+            "foundry_input_bindings": "consumer_required",
             "validation_binding_agent_count": len(validation_agents),
             "validation_binding_cell_count": len(validation_cells),
         },
@@ -694,32 +733,30 @@ def _network_contracts_for_graph(
     node_features, node_states = _node_features_from_agent_registry(
         agent_registry, node_ids=node_ids
     )
-    network_payload = NetworkData(
-        adjacency=adjacency,
-        node_features=node_features,
-        node_states=node_states,
-        node_ids=list(node_ids),
-        metadata={"layer_id": layer_id},
-    )
+    network_payload = {
+        "adjacency": adjacency,
+        "node_features": node_features,
+        "node_states": node_states,
+        "node_ids": list(node_ids),
+        "metadata": {"layer_id": layer_id, "producer_stage": "d1"},
+    }
     treatment = (
         node_states > float(np.nanmedian(node_states) if len(node_states) else 0.0)
     ).astype(float)
     outcome = np.log1p(np.maximum(node_states, 0.0))
-    causal_payload = NetworkCausalData(
-        outcome=outcome,
-        treatment=treatment,
-        covariates=node_features,
-        adjacency_matrix=adjacency,
-        metadata={"layer_id": layer_id},
-    )
+    causal_payload = {
+        "outcome": outcome,
+        "treatment": treatment,
+        "covariates": node_features,
+        "adjacency_matrix": adjacency,
+        "metadata": {"layer_id": layer_id, "producer_stage": "d1"},
+    }
     outputs = {
-        f"{output_prefix}_network_data.json": _write_protocol_json(
-            stage_dir / f"{output_prefix}_network_data.json",
-            network_payload,
+        f"{output_prefix}_network_data.json": ArtifactRecord.from_path(
+            _write_json(stage_dir / f"{output_prefix}_network_data.json", network_payload)
         ),
-        f"{output_prefix}_network_causal_data.json": _write_protocol_json(
-            stage_dir / f"{output_prefix}_network_causal_data.json",
-            causal_payload,
+        f"{output_prefix}_network_causal_data.json": ArtifactRecord.from_path(
+            _write_json(stage_dir / f"{output_prefix}_network_causal_data.json", causal_payload)
         ),
     }
     return outputs
@@ -879,52 +916,23 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
         )
     )
 
-    multiplex_payload = MultiplexNetworkData(
-        adjacency_layers=np.stack([trade_adj, distress_adj, public_service_adj]),
-        node_features=_node_features_from_agent_registry(
+    multiplex_payload = {
+        "adjacency_layers": np.stack([trade_adj, distress_adj, public_service_adj]),
+        "node_features": _node_features_from_agent_registry(
             runtime_agents, node_ids=contract_node_ids
         )[0],
-        node_ids=contract_node_ids,
-        metadata={
+        "node_ids": contract_node_ids,
+        "metadata": {
             "layers": ["trade", "distress", "public_service"],
             "full_node_count": full_node_count,
             "contract_node_count": len(contract_node_ids),
             "compression_mode": "top_weighted_degree_subgraph",
+            "producer_stage": "d1",
         },
+    }
+    outputs["multiplex_network_data.json"] = ArtifactRecord.from_path(
+        _write_json(stage_dir / "multiplex_network_data.json", multiplex_payload)
     )
-    outputs["multiplex_network_data.json"] = _write_protocol_json(
-        stage_dir / "multiplex_network_data.json",
-        multiplex_payload,
-    )
-
-    proxy_graph = CausalGraphModel(
-        graph_type=GraphType.DAG,
-        nodes=["C_star", "C", "x", "y"],
-        edges=[
-            CausalEdge(src="C_star", dst="C", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="C", dst="x", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="C", dst="y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-            CausalEdge(src="x", dst="y", mark_src=EdgeMark.TAIL, mark_dst=EdgeMark.ARROW),
-        ],
-    )
-    proxy_checks = {}
-    for channel_id, family, proxy_variable, latent_variable in [
-        ("tax_debt_to_distress", ObservationFamily.DISTRESS_ENFORCEMENT, "C_star", "C"),
-        ("procurement_revenue_to_cashflow", ObservationFamily.PROCUREMENT_FLOWS, "C_star", "C"),
-        ("admin_employment_to_true_employment", ObservationFamily.LABOR_MARKET, "C_star", "C"),
-    ]:
-        result = identify_with_proxy(
-            proxy_graph,
-            treatment="x",
-            outcome="y",
-            proxy_map={latent_variable: proxy_variable},
-            measurement_model="known",
-        )
-        proxy_checks[channel_id] = {
-            "family": family.value,
-            "status": getattr(result.status, "value", str(result.status)),
-            "algorithm_version": getattr(result, "algorithm_version", "proxy_id_v1"),
-        }
 
     proxy_bundle = ProxyIdentificationBundle(
         contract_target=ContractCompatibilityTarget(
@@ -967,7 +975,15 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
                 ),
             ),
         ],
-        contract_payload={"proxy_checks": proxy_checks},
+        contract_payload={
+            "producer_stage": "d1",
+            "identification_execution": "foundry_consumer_required",
+            "proxy_channels_declared": [
+                "tax_debt_to_distress",
+                "procurement_revenue_to_cashflow",
+                "admin_employment_to_true_employment",
+            ],
+        },
         proxy_map={
             "distress": "tax_debt",
             "cashflow": "procurement_revenue",
@@ -1009,14 +1025,6 @@ def build_d1_stage(config: PipelineConfig) -> StageBuildResult:
     outputs["multiplex_graph_manifest.json"] = ArtifactRecord.from_path(multiplex_manifest_path)
 
     findings: list[ValidationFinding] = []
-    if not all(item["status"] == "identified" for item in proxy_checks.values()):
-        findings.append(
-            ValidationFinding(
-                severity="error",
-                code="proxy_identification_failed",
-                message="one or more proxy-identification channels did not return IDENTIFIED",
-            )
-        )
     return StageBuildResult(
         outputs=outputs,
         findings=findings,
@@ -1455,87 +1463,96 @@ def _build_d2_contract_artifacts(
         ],
         axis=1,
     )
-    panel_contract = PanelObservationalData(
-        outcome=outcomes,
-        treatment=treatment,
-        time_treatment=1,
-        covariates=covariates,
-        unit_ids=np.asarray([f"unit::{idx:03d}" for idx in range(n_units)], dtype=object),
-        time_index=np.asarray(["2025-01", "2025-02", "2025-03"], dtype=object),
-        metadata={"family": ObservationFamily.BUDGET_FLOWS.value},
-    )
-    outputs["panel_observational_contract.json"] = _write_protocol_json(
-        stage_dir / "panel_observational_contract.json",
-        panel_contract,
+    panel_contract = {
+        "outcome": outcomes,
+        "treatment": treatment,
+        "time_treatment": 1,
+        "covariates": covariates,
+        "unit_ids": np.asarray([f"unit::{idx:03d}" for idx in range(n_units)], dtype=object),
+        "time_index": np.asarray(["2025-01", "2025-02", "2025-03"], dtype=object),
+        "metadata": {
+            "family": ObservationFamily.BUDGET_FLOWS.value,
+            "producer_stage": "d2",
+        },
+    }
+    outputs["panel_observational_contract.json"] = ArtifactRecord.from_path(
+        _write_json(stage_dir / "panel_observational_contract.json", panel_contract)
     )
 
-    dynamic_contract = DynamicTreatmentData(
-        outcome=np.linspace(1.0, 1.5, n_units, dtype=float),
-        treatment_sequence=np.tile(np.asarray([[0, 1, 1]], dtype=int), (n_units, 1)),
-        covariate_sequence=np.tile(
+    dynamic_contract = {
+        "outcome": np.linspace(1.0, 1.5, n_units, dtype=float),
+        "treatment_sequence": np.tile(np.asarray([[0, 1, 1]], dtype=int), (n_units, 1)),
+        "covariate_sequence": np.tile(
             np.asarray([[[0.1, 0.2], [0.3, 0.2], [0.4, 0.5]]], dtype=float), (n_units, 1, 1)
         ),
-        time_ids=np.asarray(["2025-01", "2025-02", "2025-03"], dtype=object),
-        variable_names=["lagged_cashflow", "lagged_procurement"],
-        metadata={"family": ObservationFamily.PROCUREMENT_FLOWS.value},
-    )
+        "time_ids": np.asarray(["2025-01", "2025-02", "2025-03"], dtype=object),
+        "variable_names": ["lagged_cashflow", "lagged_procurement"],
+        "metadata": {
+            "family": ObservationFamily.PROCUREMENT_FLOWS.value,
+            "producer_stage": "d2",
+        },
+    }
     outputs["dtr_treatment_sequence_bundle_v1.npz"] = _write_npz(
         stage_dir / "dtr_treatment_sequence_bundle_v1.npz",
-        outcome=np.asarray(dynamic_contract.outcome),
-        treatment_sequence=np.asarray(dynamic_contract.treatment_sequence),
-        covariate_sequence=np.asarray(dynamic_contract.covariate_sequence),
+        outcome=np.asarray(dynamic_contract["outcome"]),
+        treatment_sequence=np.asarray(dynamic_contract["treatment_sequence"]),
+        covariate_sequence=np.asarray(dynamic_contract["covariate_sequence"]),
     )
     _write_json(stage_dir / "dynamic_treatment_contract.json", dynamic_contract)
     outputs["dynamic_treatment_contract.json"] = ArtifactRecord.from_path(
         stage_dir / "dynamic_treatment_contract.json"
     )
 
-    survey_contract = SurveyMicroData(
-        market_income=np.linspace(100.0, 1000.0, n_units, dtype=float),
-        weights=np.ones(n_units, dtype=float),
-        household_ids=np.asarray([f"hh::{idx:03d}" for idx in range(n_units)], dtype=object),
-        features=np.stack(
+    survey_contract = {
+        "market_income": np.linspace(100.0, 1000.0, n_units, dtype=float),
+        "weights": np.ones(n_units, dtype=float),
+        "household_ids": np.asarray([f"hh::{idx:03d}" for idx in range(n_units)], dtype=object),
+        "features": np.stack(
             [
                 np.linspace(1.0, 10.0, n_units, dtype=float),
                 np.linspace(0.0, 1.0, n_units, dtype=float),
             ],
             axis=1,
         ),
-        feature_names=["household_size", "poverty_score"],
-        metadata={"family": ObservationFamily.HOUSEHOLD_DISTRIBUTION.value},
-    )
-    outputs["microsim_survey_contract_preview.json"] = _write_protocol_json(
-        stage_dir / "microsim_survey_contract_preview.json",
-        survey_contract,
+        "feature_names": ["household_size", "poverty_score"],
+        "metadata": {
+            "family": ObservationFamily.HOUSEHOLD_DISTRIBUTION.value,
+            "producer_stage": "d2",
+        },
+    }
+    outputs["microsim_survey_contract_preview.json"] = ArtifactRecord.from_path(
+        _write_json(stage_dir / "microsim_survey_contract_preview.json", survey_contract)
     )
 
-    survival_contract = SurvivalData(
-        features=np.stack(
+    survival_contract = {
+        "features": np.stack(
             [
                 np.linspace(0.0, 1.0, n_units, dtype=float),
                 np.linspace(1.0, 0.0, n_units, dtype=float),
             ],
             axis=1,
         ),
-        durations=np.linspace(1.0, 24.0, n_units, dtype=float),
-        events=np.asarray([1 if idx % 3 else 0 for idx in range(n_units)], dtype=int),
-        feature_names=["risk_score", "liquidity_ratio"],
-        metadata={"family": ObservationFamily.FIRM_FUNDAMENTALS.value},
-    )
+        "durations": np.linspace(1.0, 24.0, n_units, dtype=float),
+        "events": np.asarray([1 if idx % 3 else 0 for idx in range(n_units)], dtype=int),
+        "feature_names": ["risk_score", "liquidity_ratio"],
+        "metadata": {
+            "family": ObservationFamily.FIRM_FUNDAMENTALS.value,
+            "producer_stage": "d2",
+        },
+    }
     outputs["survival_data_bundle_v1.parquet"] = _write_frame(
         stage_dir / "survival_data_bundle_v1.parquet",
         pd.DataFrame(
             {
-                "duration": np.asarray(survival_contract.durations),
-                "event": np.asarray(survival_contract.events),
-                "risk_score": np.asarray(survival_contract.features)[:, 0],
-                "liquidity_ratio": np.asarray(survival_contract.features)[:, 1],
+                "duration": np.asarray(survival_contract["durations"]),
+                "event": np.asarray(survival_contract["events"]),
+                "risk_score": np.asarray(survival_contract["features"])[:, 0],
+                "liquidity_ratio": np.asarray(survival_contract["features"])[:, 1],
             }
         ),
     )
-    outputs["survival_contract.json"] = _write_protocol_json(
-        stage_dir / "survival_contract.json",
-        survival_contract,
+    outputs["survival_contract.json"] = ArtifactRecord.from_path(
+        _write_json(stage_dir / "survival_contract.json", survival_contract)
     )
 
     econometric_df = pd.DataFrame(
@@ -1547,13 +1564,14 @@ def _build_d2_contract_artifacts(
             "covariate": np.linspace(0.0, 1.0, 40),
         }
     )
-    econometric_contract = PanelData.from_dataframe(
-        econometric_df,
-        dependent_col="outcome",
-        exog_cols=["treatment", "covariate"],
-        entity_col="unit_id",
-        time_col="time_id",
-    )
+    econometric_contract = {
+        "dependent": econometric_df["outcome"].to_numpy(dtype=float),
+        "exog": econometric_df[["treatment", "covariate"]].to_numpy(dtype=float),
+        "entity_ids": econometric_df["unit_id"].to_numpy(),
+        "time_ids": econometric_df["time_id"].to_numpy(),
+        "feature_names": ["treatment", "covariate"],
+        "metadata": {"producer_stage": "d2"},
+    }
     _write_json(stage_dir / "panel_econometric_contract.json", econometric_contract)
     outputs["panel_econometric_contract.json"] = ArtifactRecord.from_path(
         stage_dir / "panel_econometric_contract.json"
@@ -1640,7 +1658,7 @@ def _build_d2_contract_artifacts(
             stage_dir / "network_contract_bundle_v1.json",
             {
                 "layers": ["budget", "procurement", "trade", "distress", "public_service"],
-                "contract_id": NetworkData.contract_id,
+                "contract_id": _NETWORK_CONTRACT_ID,
             },
         )
     )
@@ -1649,7 +1667,7 @@ def _build_d2_contract_artifacts(
             stage_dir / "network_causal_contract_bundle_v1.json",
             {
                 "layers": ["budget", "procurement", "trade", "distress", "public_service"],
-                "contract_id": NetworkCausalData.contract_id,
+                "contract_id": _NETWORK_CAUSAL_CONTRACT_ID,
             },
         )
     )
@@ -1660,7 +1678,7 @@ def _build_d2_contract_artifacts(
                 family=ObservationFamily.BUDGET_FLOWS,
                 identification_mode=IdentificationMode.POINT_IDENTIFIED,
                 target_contract=ContractCompatibilityTarget(
-                    contract_id=PanelObservationalData.contract_id,
+                    contract_id=_PANEL_OBSERVATIONAL_CONTRACT_ID,
                     contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.PanelObservationalData",
                 ),
             ),
@@ -1668,7 +1686,7 @@ def _build_d2_contract_artifacts(
                 family=ObservationFamily.HOUSEHOLD_DISTRIBUTION,
                 identification_mode=IdentificationMode.POINT_IDENTIFIED,
                 target_contract=ContractCompatibilityTarget(
-                    contract_id=SurveyMicroData.contract_id,
+                    contract_id=_SURVEY_MICRODATA_CONTRACT_ID,
                     contract_fqn="polisyos.foundry.methods.catalog.microsim.protocols.SurveyMicroData",
                 ),
             ),
@@ -1676,7 +1694,7 @@ def _build_d2_contract_artifacts(
                 family=ObservationFamily.FIRM_FUNDAMENTALS,
                 identification_mode=IdentificationMode.POINT_IDENTIFIED,
                 target_contract=ContractCompatibilityTarget(
-                    contract_id=SurvivalData.contract_id,
+                    contract_id=_SURVIVAL_CONTRACT_ID,
                     contract_fqn="polisyos.foundry.methods.catalog.ml.protocols.SurvivalData",
                 ),
             ),
@@ -1684,7 +1702,7 @@ def _build_d2_contract_artifacts(
                 family=ObservationFamily.PROCUREMENT_FLOWS,
                 identification_mode=IdentificationMode.SEQUENTIAL,
                 target_contract=ContractCompatibilityTarget(
-                    contract_id=DynamicTreatmentData.contract_id,
+                    contract_id=_DYNAMIC_TREATMENT_CONTRACT_ID,
                     contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.DynamicTreatmentData",
                 ),
             ),
@@ -1694,7 +1712,7 @@ def _build_d2_contract_artifacts(
                 compiler_id="ukraine_data.panel_builder",
                 artifact_name="panel_observational_contract.json",
                 target_contract=ContractCompatibilityTarget(
-                    contract_id=PanelObservationalData.contract_id,
+                    contract_id=_PANEL_OBSERVATIONAL_CONTRACT_ID,
                     contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.PanelObservationalData",
                 ),
             ),
@@ -1702,7 +1720,7 @@ def _build_d2_contract_artifacts(
                 compiler_id="ukraine_data.survey_builder",
                 artifact_name="microsim_survey_contract_preview.json",
                 target_contract=ContractCompatibilityTarget(
-                    contract_id=SurveyMicroData.contract_id,
+                    contract_id=_SURVEY_MICRODATA_CONTRACT_ID,
                     contract_fqn="polisyos.foundry.methods.catalog.microsim.protocols.SurveyMicroData",
                 ),
             ),
@@ -1710,7 +1728,7 @@ def _build_d2_contract_artifacts(
                 compiler_id="ukraine_data.dynamic_builder",
                 artifact_name="dynamic_treatment_contract.json",
                 target_contract=ContractCompatibilityTarget(
-                    contract_id=DynamicTreatmentData.contract_id,
+                    contract_id=_DYNAMIC_TREATMENT_CONTRACT_ID,
                     contract_fqn="polisyos.foundry.methods.catalog.causal.protocols.DynamicTreatmentData",
                 ),
             ),
@@ -1718,7 +1736,7 @@ def _build_d2_contract_artifacts(
                 compiler_id="ukraine_data.survival_builder",
                 artifact_name="survival_contract.json",
                 target_contract=ContractCompatibilityTarget(
-                    contract_id=SurvivalData.contract_id,
+                    contract_id=_SURVIVAL_CONTRACT_ID,
                     contract_fqn="polisyos.foundry.methods.catalog.ml.protocols.SurvivalData",
                 ),
             ),

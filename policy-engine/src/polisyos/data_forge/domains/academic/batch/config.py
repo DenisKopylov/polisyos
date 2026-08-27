@@ -457,6 +457,22 @@ class AcademicBatchConfig:
         return self.component_dir / "claim_adjudication_passes.jsonl"
 
     @property
+    def claim_adjudication_cas_root(self) -> Path:
+        return self.component_dir / "claim_adjudication_cas"
+
+    @property
+    def claim_adjudication_registry_root(self) -> Path:
+        return self.component_dir / "claim_adjudication_registry"
+
+    @property
+    def claim_adjudication_input_ref_path(self) -> Path:
+        return self.component_dir / "claim_adjudication_input_ref.json"
+
+    @property
+    def claim_adjudication_result_ref_path(self) -> Path:
+        return self.component_dir / "claim_adjudication_result_ref.json"
+
+    @property
     def claim_adjudications_path(self) -> Path:
         return self.component_dir / "claim_adjudications.jsonl"
 

@@ -177,7 +177,18 @@ def plan_academic_batch_stages(
 ) -> tuple[AcademicBatchStagePlan, ...]:
     """Return academic batch-stage plans for a run profile."""
     return tuple(
-        AcademicBatchStagePlan(stage=stage, asset_specs=(stage.asset_spec(),))
+        AcademicBatchStagePlan(
+            stage=stage,
+            asset_specs=(
+                stage.asset_spec(
+                    owner=(
+                        "team-scientist"
+                        if stage.stage_id == "claim_adjudicate"
+                        else "team-data-forge"
+                    )
+                ),
+            ),
+        )
         for stage in select_academic_batch_stages(stages, run_profile=run_profile)
     )
 

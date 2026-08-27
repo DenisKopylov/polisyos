@@ -10,7 +10,6 @@ from typing import Any
 
 from pydantic import ConfigDict, Field, field_validator
 
-from polisyos.data_forge.read_api.academic import CLAIM_ADJUDICATION_PROMPT_VARIANTS
 from polisyos.ir.analytics.literature import (
     CausalCredibility,
     ClaimAdjudicationResult,
@@ -49,6 +48,29 @@ STRONG_DESIGN_FAMILIES = {
     DesignFamily.RDD.value,
     DesignFamily.SYNTHETIC_CONTROL.value,
 }
+
+CLAIM_ADJUDICATION_SCHEMA_HINT = """
+{
+  "paper_asserts_causality_score": <number 0..1>,
+  "claim_type": "causal_assertion|association|mechanism|descriptive|normative|review_summary",
+  "design_family": "rct|iv|did|rdd|synthetic_control|panel_fe|ols|meta_analysis|review|theoretical|unclear",
+  "causal_credibility": "strong|moderate|weak|not_causal|unclear",
+  "risk_of_bias": "low|moderate|serious|critical|unclear",
+  "support_status": "supported|mixed|counterevidence|insufficient",
+  "claim_validity_score": <number 0..1>,
+  "adjudication_confidence": <number 0..1>,
+  "adjudication_notes": "short evidence assessment"
+}
+
+Return descriptive evidence assessment only. Publication authority is computed
+by Scientist policy after schema validation; never propose a publication flag.
+""".strip()
+
+CLAIM_ADJUDICATION_PROMPT_VARIANTS = (
+    "Be conservative. Do not upgrade observational language without explicit design support.",
+    "Assess identification strategy and whether the cited spans support the stated causal claim.",
+    "Prefer weak credibility when the text lacks identification or reports only association.",
+)
 
 
 class ClaimConsensusRule(str, Enum):
@@ -607,6 +629,8 @@ def _coerce_prediction(
 
 __all__ = [
     "CLAIM_ADJUDICATION_LOOP_ID",
+    "CLAIM_ADJUDICATION_PROMPT_VARIANTS",
+    "CLAIM_ADJUDICATION_SCHEMA_HINT",
     "ClaimAdjudicationRuntimeLoader",
     "ClaimAdjudicationSearchConfig",
     "ClaimConsensusRule",

@@ -1,6 +1,12 @@
 from __future__ import annotations
 
+import json
+
 from polisyos.ir.analytics.cross_graph import (
+    AcademicBenchmarkScenario,
+    AcademicBenchmarkSuite,
+    BenchmarkCausalEdge,
+    BenchmarkScholarQuery,
     CrossGraphEvidenceProfile,
     CrossGraphEvidenceSummary,
     EvidenceNeed,
@@ -8,13 +14,12 @@ from polisyos.ir.analytics.cross_graph import (
     EvidenceNeedType,
     EvidenceStatus,
     TransportStatus,
+    load_benchmark_suite,
+    write_need_backlog,
 )
 from polisyos.ir.analytics.transportability import TransportMode
+from polisyos.scientist.cross_graph import feedback
 from polisyos.scientist.cross_graph.feedback import (
-    AcademicBenchmarkScenario,
-    AcademicBenchmarkSuite,
-    BenchmarkCausalEdge,
-    BenchmarkScholarQuery,
     build_need_backlog,
     evaluate_benchmark_suite,
 )
@@ -99,3 +104,34 @@ def test_evaluate_benchmark_suite_scores_profile_and_scholar_coverage() -> None:
     assert report["summary"]["parameter_needs_mixed"] == 1
     assert report["summary"]["governance_blockers_due_to_academic"] == 1
     assert report["summary"]["scholar_query_coverage_ratio"] == 1.0
+
+
+def test_benchmark_suite_codec_lives_in_ir_and_scientist_reexports_it(tmp_path) -> None:
+    suite_path = tmp_path / "suite.json"
+    suite_path.write_text(
+        json.dumps(
+            {
+                "suite_id": "academic_test",
+                "scenarios": [
+                    {
+                        "scenario_id": "scenario",
+                        "title": "Scenario",
+                        "causal_edges": [{"cause": "cause", "effect": "effect"}],
+                    }
+                ],
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    suite = load_benchmark_suite(suite_path)
+    backlog_path = tmp_path / "need_backlog.jsonl"
+    write_need_backlog(backlog_path, [{"need_id": "need-1"}])
+
+    assert suite.scenarios[0].causal_edges[0] == BenchmarkCausalEdge(
+        cause="cause", effect="effect"
+    )
+    assert backlog_path.read_text(encoding="utf-8") == '{"need_id": "need-1"}\n'
+    assert feedback.AcademicBenchmarkSuite is AcademicBenchmarkSuite
+    assert feedback.load_benchmark_suite is load_benchmark_suite
+    assert feedback.write_need_backlog is write_need_backlog

@@ -1256,7 +1256,7 @@ def _write_fabric_world_snapshot(
     stats: Mapping[str, Any],
 ) -> Path:
     from polisyos.fabric.io.db import SimulationDB
-    from polisyos.fabric.world.materialize import ensure_world_schema
+    from polisyos.fabric.world import ensure_world_schema
     from polisyos.fabric.world.store import create_world_snapshot
 
     snapshot_root = workspace_dir / "fabric-world"

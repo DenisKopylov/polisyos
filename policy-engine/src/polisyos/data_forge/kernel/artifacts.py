@@ -3,10 +3,22 @@
 from __future__ import annotations
 
 from enum import Enum
+from typing import TYPE_CHECKING, TypeVar
 
 from pydantic import Field, field_validator
 
+from polisyos.core.artifacts.ids import ArtifactID
+from polisyos.core.canon import from_canonical_bytes
+from polisyos.data_forge.errors import LexValidationError
+from polisyos.fabric.world import validate_doc_meta_ids
+from polisyos.ir.world.doc import DocMeta
+
 from ._base import DataForgeModel
+
+if TYPE_CHECKING:
+    from polisyos.core.artifacts.store import FileSystemCAS
+
+_E = TypeVar("_E", bound=Exception)
 
 SHA256_PATTERN = r"^[0-9a-f]{64}$"
 TRACE_ID_PATTERN = r"^[0-9a-f]{32}$"
@@ -73,9 +85,59 @@ class ArtifactRef(DataForgeModel):
         return self.uri.rsplit("@", 1)[1]
 
 
+def load_json_artifact[E: Exception](
+    cas: FileSystemCAS,
+    artifact_id: str,
+    *,
+    error_cls: type[_E] = LexValidationError,
+    payload_label: str = "artifact",
+    wrap_read_errors: bool = False,
+    read_error_prefix: str | None = None,
+) -> dict:
+    """Load a JSON-object artifact with caller-selected error semantics."""
+    try:
+        aid = ArtifactID.model_validate(artifact_id)
+        payload = from_canonical_bytes(cas.get_bytes(aid))
+    except Exception as exc:
+        if not wrap_read_errors:
+            raise
+        prefix = read_error_prefix or f"failed to read {payload_label}"
+        raise error_cls(f"{prefix} {artifact_id}: {exc}") from exc
+    if not isinstance(payload, dict):
+        raise error_cls(f"{payload_label} {artifact_id} payload must be a JSON object")
+    return payload
+
+
+def load_doc_meta_artifact[E: Exception](
+    cas: FileSystemCAS,
+    artifact_id: str,
+    *,
+    error_cls: type[_E] = LexValidationError,
+    payload_label: str = "artifact",
+    wrap_read_errors: bool = False,
+    read_error_prefix: str | None = None,
+    validate_ids: bool = False,
+) -> DocMeta:
+    """Load a document metadata artifact with optional identity validation."""
+    payload = load_json_artifact(
+        cas,
+        artifact_id,
+        error_cls=error_cls,
+        payload_label=payload_label,
+        wrap_read_errors=wrap_read_errors,
+        read_error_prefix=read_error_prefix,
+    )
+    meta = DocMeta.model_validate(payload)
+    if validate_ids:
+        validate_doc_meta_ids(meta)
+    return meta
+
+
 __all__ = [
     "ArtifactRef",
     "PIILevel",
     "ProducerVersion",
     "RetentionClass",
+    "load_doc_meta_artifact",
+    "load_json_artifact",
 ]

@@ -8,7 +8,7 @@ from dataclasses import dataclass
 from datetime import date
 from typing import Any
 
-from polisyos.lex.common import parse_iso_date
+from polisyos.common.timestamps import parse_iso_date
 
 _WS_RE = re.compile(r"\s+")
 _NON_ALNUM_RE = re.compile(r"[^0-9a-zа-яіїєґ]+", re.IGNORECASE)

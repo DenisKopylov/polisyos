@@ -3,8 +3,40 @@ from __future__ import annotations
 import asyncio
 import json
 
+import pytest
+
 from polisyos.data_forge.domains.academic.batch.config import AcademicBatchConfig
 from polisyos.data_forge.domains.academic.batch.pipeline import run_academic_pipeline
+
+
+def test_pipeline_fails_closed_without_claim_adjudication_runner(tmp_path) -> None:
+    config = AcademicBatchConfig(
+        snapshot_root=tmp_path / "snap",
+        stages=frozenset({"claim_adjudicate"}),
+    )
+
+    with pytest.raises(RuntimeError, match="Scientist-owned claim adjudication runner"):
+        asyncio.run(run_academic_pipeline(config))
+
+
+def test_pipeline_invokes_selected_claim_adjudication_runner(tmp_path) -> None:
+    config = AcademicBatchConfig(
+        snapshot_root=tmp_path / "snap",
+        stages=frozenset({"claim_adjudicate"}),
+    )
+    seen: list[AcademicBatchConfig] = []
+
+    async def _runner(cfg: AcademicBatchConfig) -> dict[str, int]:
+        seen.append(cfg)
+        return {"claims": 3, "publishable": 1}
+
+    stats = asyncio.run(
+        run_academic_pipeline(config, claim_adjudication_runner=_runner)
+    )
+
+    assert seen == [config]
+    assert stats.metrics["claim_adjudicate_claims"] == 3
+    assert stats.metrics["claim_adjudicate_publishable"] == 1
 
 
 def test_pipeline_streams_doc_normalize_into_resolve_extract(monkeypatch, tmp_path) -> None:

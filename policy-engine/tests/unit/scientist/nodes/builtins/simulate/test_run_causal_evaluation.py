@@ -149,6 +149,67 @@ def test_fail_when_method_job_has_issues(execution_context, minimal_state, artif
     assert "Causal method job failed" in outcome.error.message
 
 
+def test_method_job_carries_selected_contract_bundle_and_intake_lineage(
+    execution_context,
+    minimal_state,
+    artifact_ref_factory,
+):
+    selected_ref = artifact_ref_factory(
+        kind="foundry.ukraine_method_input",
+        data={"outcome": [[1, 2], [2, 3]]},
+    )
+    bundle_ref = artifact_ref_factory(
+        kind="foundry.ukraine_method_input_bundle",
+        data={"contracts": {}},
+    )
+    intake_ref = artifact_ref_factory(
+        kind="foundry.ukraine_intake_receipt",
+        data={"validated_contracts": {}},
+    )
+    state = minimal_state.model_copy(
+        update={
+            "observational_data_ref": selected_ref,
+            "causal_method_fqn": "causal.inference.did.standard@1.0.0",
+            "inputs": {
+                "ukraine_selected_foundry_method_contract_ref": selected_ref,
+                "ukraine_foundry_method_input_bundle_ref": bundle_ref,
+            },
+            "artifacts_index": {"ukraine_foundry_intake_receipt_ref": intake_ref},
+        }
+    )
+    captured_specs = []
+    mock_job_result = MagicMock()
+    mock_job_result.issues = ["stop after inspecting lineage"]
+
+    def _capture(spec, **kwargs):
+        del kwargs
+        captured_specs.append(spec)
+        return mock_job_result
+
+    with (
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation._load_observational_data",
+            return_value=MagicMock(),
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.ensure_causal_methods_registered",
+        ),
+        patch(
+            "polisyos.scientist.nodes.builtins.simulate.run_causal_evaluation.run_job",
+            side_effect=_capture,
+        ),
+    ):
+        outcome = RunCausalEvaluationNode().execute(execution_context, state)
+
+    assert outcome.status == "fail"
+    assert len(captured_specs) == 1
+    assert captured_specs[0].input_refs == {
+        "ukraine_selected_method_contract": selected_ref,
+        "ukraine_method_input_bundle": bundle_ref,
+        "ukraine_intake_receipt": intake_ref,
+    }
+
+
 def test_fail_when_method_output_missing_report(
     execution_context, minimal_state, artifact_ref_factory
 ):

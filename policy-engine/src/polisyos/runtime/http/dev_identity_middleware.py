@@ -4,8 +4,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, cast
 
-from polisyos.core.security.access_scope import AccessScope
-from polisyos.core.security.tenant_context import (
+from polisyos.core.security import (
+    AccessScope,
     reset_current_access_scope,
     set_current_access_scope,
 )

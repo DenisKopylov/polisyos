@@ -7,7 +7,7 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 if TYPE_CHECKING:
-    from polisyos.core.security.audit_protocol import AuditLog
+    from polisyos.core.security import AuditLog
     from polisyos.scientist.orchestration.engine.metrics_protocol import EngineMetricsCollector
 
 from polisyos.core.artifacts.protocol import ArtifactStore

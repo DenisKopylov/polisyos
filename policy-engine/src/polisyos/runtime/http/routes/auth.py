@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, Literal, cast
 from pydantic import BaseModel, ConfigDict, Field
 
 from polisyos.core.contracts.runtime import ApiMeta  # noqa: TC001 - Pydantic resolves at runtime
-from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+from polisyos.core.security import PolicyOSRole, UserIdentityClaims
 from polisyos.runtime.http.dependencies import build_meta
 from polisyos.runtime.http.errors import unauthorized
 from polisyos.runtime.http.permissions import RuntimePermission, permissions_for_roles

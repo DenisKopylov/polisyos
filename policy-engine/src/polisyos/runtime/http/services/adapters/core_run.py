@@ -9,7 +9,7 @@ from polisyos.common.logger import get_logger
 from polisyos.core.canon import from_canonical_bytes
 from polisyos.core.run.context import recover_pending_run_finalize
 from polisyos.core.run.manifest import RunManifest as CoreRunManifest
-from polisyos.core.trace.record import RunTerminality, TraceRecord
+from polisyos.core.trace import RunTerminality, TraceRecord
 
 if TYPE_CHECKING:
     from collections.abc import Iterator

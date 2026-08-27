@@ -17,9 +17,12 @@ from polisyos.core.contracts.foundry import (
     ExecuteResult,
 )
 from polisyos.core.errors import ErrorCategory, PolicyOSError
-from polisyos.core.security.settings import SecuritySettings, get_security_settings
-from polisyos.core.security.tee import AttestationResult
-from polisyos.core.security.tee_middleware import TEEGatekeeper
+from polisyos.core.security import (
+    AttestationResult,
+    SecuritySettings,
+    TEEGatekeeper,
+    get_security_settings,
+)
 from polisyos.foundry.compile.api import compile as compile_foundry
 from polisyos.foundry.execute.api import execute as execute_foundry
 from polisyos.scientist.orchestration.engine.context import FoundryPort

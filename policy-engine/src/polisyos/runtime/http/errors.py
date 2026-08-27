@@ -9,7 +9,7 @@ from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.contracts.runtime import RuntimeApiProblem
 from polisyos.core.errors import ErrorCategory, PolicyOSError
-from polisyos.core.security.exceptions import (
+from polisyos.core.security import (
     AuthorizationDeniedError,
     AuthorizationError,
     CrossTenantAccessError,

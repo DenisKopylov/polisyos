@@ -23,6 +23,14 @@ def _pandas_module() -> Any:
 
 
 def validate_tenant_id(tenant_id: str) -> None:
+    """Validate that a tenant identifier is UUID text.
+
+    Args:
+        tenant_id: Candidate tenant identifier.
+
+    Raises:
+        TenantIsolationError: If ``tenant_id`` is not a valid UUID string.
+    """
     try:
         uuid.UUID(tenant_id)
     except ValueError as exc:

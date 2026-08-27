@@ -6,7 +6,7 @@ import os
 from dataclasses import dataclass
 from typing import Any, Protocol
 
-from polisyos.core.security.identity import PolicyOSRole, UserIdentityClaims
+from polisyos.core.security import PolicyOSRole, UserIdentityClaims
 
 _FIXTURE_IDENTITY_ENV = "POLISYOS_ENABLE_DEV_FIXTURE_IDENTITY"
 _FIXTURE_IDENTITY_ISSUER = "polisyos://fixture-identity"

@@ -10,7 +10,7 @@ from typing import Any
 
 import pandas as pd
 
-from polisyos.core.security.exceptions import CrossTenantAccessError, TenantIsolationError
+from polisyos.core.security import CrossTenantAccessError, TenantIsolationError
 from polisyos.fabric.io.db import SimulationDB
 from polisyos.fabric.world.query import WorldQueryError, query_world_table
 
@@ -107,9 +107,9 @@ class DuckDBStorageAdapter(StoragePort):
 
     @contextmanager
     def tenant_scope(self, tenant_id: str) -> Iterator[StoragePort]:
-        from polisyos.core.security.db_backend import _validate_tenant_id
+        from polisyos.core.security import validate_tenant_id
 
-        _validate_tenant_id(tenant_id)
+        validate_tenant_id(tenant_id)
         if not self._tenant_column:
             raise TenantIsolationError(
                 "DuckDBStorageAdapter does not support tenant_scope without a configured "

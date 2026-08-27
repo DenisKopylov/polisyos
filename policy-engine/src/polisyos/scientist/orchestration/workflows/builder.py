@@ -18,7 +18,7 @@ from polisyos.core.artifacts.backends.config import ArtifactStoreConfig, build_a
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.registry import build_default_registry_bundle
 from polisyos.core.run.context import RunContext, new_run_id
-from polisyos.core.security.tenant_context import (
+from polisyos.core.security import (
     get_current_access_scope_or_none,
     get_current_cell_id,
     get_current_tenant_id_or_none,
@@ -66,7 +66,7 @@ if TYPE_CHECKING:
     from typing import Protocol
 
     from polisyos.core.artifacts.protocol import ArtifactStore
-    from polisyos.core.security.audit_protocol import AuditLog
+    from polisyos.core.security import AuditLog
     from polisyos.scientist.orchestration.engine.context import (
         FabricPort,
         FoundryPort,
@@ -132,7 +132,7 @@ def _resolve_store(
 def _build_quota_registry() -> QuotaRegistry | None:
     """Construct a tenant quota registry only when quota enforcement is requested."""
     try:
-        from polisyos.core.security.quota_registry import TenantQuotaRegistry
+        from polisyos.core.security import TenantQuotaRegistry
     except _WORKFLOW_BUILDER_IMPORT_ERRORS:  # pragma: no cover - optional dependency
         return None
     return cast("QuotaRegistry", TenantQuotaRegistry())
@@ -164,7 +164,7 @@ def _maybe_namespace_store(store: ArtifactStore) -> ArtifactStore:
     if _is_content_addressed_filesystem_store(store):
         return store
     try:
-        from polisyos.core.security.namespace import NamespacedArtifactStore
+        from polisyos.core.security import NamespacedArtifactStore
 
         cell_id = get_current_cell_id()
         return cast(
@@ -451,9 +451,7 @@ def _attach_foundry_method_obligation_report_if_required(
     state.reports_index[OBLIGATION_REPORT_REF_KEY] = report_ref
     state.reports_index["foundry_method_obligation_report"] = report_ref
     state.params[OBLIGATION_REPORT_REF_KEY] = str(report_ref.artifact_id)
-    state.params["foundry_method_obligation_report_status"] = str(
-        report.get("status") or ""
-    )
+    state.params["foundry_method_obligation_report_status"] = str(report.get("status") or "")
     state.params["foundry_method_obligation_report_blocking_issue_count"] = int(
         report.get("blocking_issue_count") or 0
     )

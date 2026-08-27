@@ -44,7 +44,7 @@ from polisyos.core.contracts.runtime import (
     RunWorkflowSummary,
     RunWorkflowView,
 )
-from polisyos.core.trace.record import TraceRecord
+from polisyos.core.trace import TraceRecord
 from polisyos.scientist.validation.decision_validity import DecisionValidityService
 
 if TYPE_CHECKING:

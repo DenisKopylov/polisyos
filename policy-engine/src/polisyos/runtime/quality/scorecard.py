@@ -9,6 +9,11 @@ from datetime import UTC, datetime
 from typing import Any
 
 from polisyos.core.contracts.control import POLICY_AUTHORITY_PROFILES
+from polisyos.core.security import (
+    SECURITY_ASSURANCE_REPORT_REF_KEY,
+    SECURITY_REPORT_FILE,
+    security_gates_from_report,
+)
 from polisyos.fabric.catalog.source_selection_audit import normalize_fabric_retrieval_trace
 from polisyos.foundry.validation.method_quality import normalize_foundry_method_report
 from polisyos.lex.normpack.applicability_report import (
@@ -162,9 +167,6 @@ from polisyos.runtime.quality.multiverse_specification_curve import (
 from polisyos.runtime.quality.observability_static_audit import (
     validate_observability_orchestration_static_audit_records,
 )
-from polisyos.runtime.quality.tenant_cas_approval_governance import (
-    policy_design_pass1b_hardening_scorecard_gates,
-)
 from polisyos.runtime.quality.phase_barriers import (
     PhaseBarrierId,
     PhaseBarrierRecord,
@@ -224,10 +226,8 @@ from polisyos.runtime.quality.status_deficits import (
     status_envelope_payload,
     status_envelope_scorecard_gates,
 )
-from polisyos.core.security.quality_gates import (
-    SECURITY_ASSURANCE_REPORT_REF_KEY,
-    SECURITY_REPORT_FILE,
-    security_gates_from_report,
+from polisyos.runtime.quality.tenant_cas_approval_governance import (
+    policy_design_pass1b_hardening_scorecard_gates,
 )
 from polisyos.scientist.validation.policy_grounding import (
     normalize_policy_grounding_matrix,

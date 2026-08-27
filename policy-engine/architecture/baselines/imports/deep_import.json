@@ -4609,13 +4609,6 @@
       "target_root": "common"
     },
     {
-      "source_module": "polisyos.fabric.io.db",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/io/db.py",
-      "target_module": "polisyos.core.security.db_backend",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.fabric.pii.detector",
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/pii/detector.py",
@@ -4777,45 +4770,10 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.fabric.security.access_control",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/security/access_control.py",
-      "target_module": "polisyos.core.security.access_scope",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.security.access_control",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/security/access_control.py",
-      "target_module": "polisyos.core.security.identity",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.security.adapters",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/security/adapters.py",
-      "target_module": "polisyos.core.security",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.fabric.security.governed_artifacts",
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/security/governed_artifacts.py",
       "target_module": "polisyos.core.artifacts.manifest",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.storage.duckdb_adapter",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/storage/duckdb_adapter.py",
-      "target_module": "polisyos.core.security.db_backend",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.storage.duckdb_adapter",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/storage/duckdb_adapter.py",
-      "target_module": "polisyos.core.security.exceptions",
       "target_root": "core"
     },
     {
@@ -4872,27 +4830,6 @@
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/storage/tenant_cas.py",
       "target_module": "polisyos.core.observability",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.storage.tenant_cas",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/storage/tenant_cas.py",
-      "target_module": "polisyos.core.security.db_backend",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.storage.tenant_cas",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/storage/tenant_cas.py",
-      "target_module": "polisyos.core.security.quota_registry",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.storage.tenant_cas",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/storage/tenant_cas.py",
-      "target_module": "polisyos.core.security.tenant_quota",
       "target_root": "core"
     },
     {
@@ -5117,20 +5054,6 @@
       "source_root": "fabric",
       "source_file": "src/polisyos/fabric/world/providers.py",
       "target_module": "polisyos.core.observability",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.world.query",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/world/query.py",
-      "target_module": "polisyos.core.security.access_scope",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.fabric.world.query",
-      "source_root": "fabric",
-      "source_file": "src/polisyos/fabric/world/query.py",
-      "target_module": "polisyos.core.security.db_backend",
       "target_root": "core"
     },
     {
@@ -6812,13 +6735,6 @@
       "source_file": "src/polisyos/foundry/methods/backends/ray_chain_executor.py",
       "target_module": "polisyos.core.observability.determinism",
       "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.foundry.methods.backends.runtime_fingerprint",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/methods/backends/runtime_fingerprint.py",
-      "target_module": "polisyos.common.config",
-      "target_root": "common"
     },
     {
       "source_module": "polisyos.foundry.methods.backends.runtime_fingerprint",
@@ -10888,13 +10804,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.foundry.methods.equivalence.store",
-      "source_root": "foundry",
-      "source_file": "src/polisyos/foundry/methods/equivalence/store.py",
-      "target_module": "polisyos.core.security.slsa.models",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.foundry.methods.exceptions",
       "source_root": "foundry",
       "source_file": "src/polisyos/foundry/methods/exceptions.py",
@@ -12522,34 +12431,6 @@
       "source_module": "polisyos.runtime.http.authz_middleware",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/authz_middleware.py",
-      "target_module": "polisyos.core.security.access_scope",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.authz_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/authz_middleware.py",
-      "target_module": "polisyos.core.security.authz",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.authz_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/authz_middleware.py",
-      "target_module": "polisyos.core.security.delegation",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.authz_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/authz_middleware.py",
-      "target_module": "polisyos.core.security.tenant_context",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.authz_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/authz_middleware.py",
       "target_module": "polisyos.fabric.connectors.resilience.circuit_breaker",
       "target_root": "fabric"
     },
@@ -12565,34 +12446,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/cell_router_middleware.py",
       "target_module": "polisyos.core.observability",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.cell_router_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/cell_router_middleware.py",
-      "target_module": "polisyos.core.security.exceptions",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.cell_router_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/cell_router_middleware.py",
-      "target_module": "polisyos.core.security.registry",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.cell_router_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/cell_router_middleware.py",
-      "target_module": "polisyos.core.security.router",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.cell_router_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/cell_router_middleware.py",
-      "target_module": "polisyos.core.security.tenant_context",
       "target_root": "core"
     },
     {
@@ -12645,27 +12498,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.runtime.http.dependencies",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/dependencies.py",
-      "target_module": "polisyos.core.security.access_scope",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.dev_identity_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/dev_identity_middleware.py",
-      "target_module": "polisyos.core.security.access_scope",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.dev_identity_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/dev_identity_middleware.py",
-      "target_module": "polisyos.core.security.tenant_context",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.runtime.http.errors",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/errors.py",
@@ -12677,13 +12509,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/errors.py",
       "target_module": "polisyos.core.errors",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.errors",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/errors.py",
-      "target_module": "polisyos.core.security.exceptions",
       "target_root": "core"
     },
     {
@@ -12705,34 +12530,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/jwt_auth_middleware.py",
       "target_module": "polisyos.core.observability",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.jwt_auth_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/jwt_auth_middleware.py",
-      "target_module": "polisyos.core.security.access_scope",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.jwt_auth_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/jwt_auth_middleware.py",
-      "target_module": "polisyos.core.security.exceptions",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.jwt_auth_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/jwt_auth_middleware.py",
-      "target_module": "polisyos.core.security.identity",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.jwt_auth_middleware",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/jwt_auth_middleware.py",
-      "target_module": "polisyos.core.security.tenant_context",
       "target_root": "core"
     },
     {
@@ -12796,13 +12593,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/routes/auth.py",
       "target_module": "polisyos.core.contracts.runtime",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.routes.auth",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/routes/auth.py",
-      "target_module": "polisyos.core.security.identity",
       "target_root": "core"
     },
     {
@@ -12876,34 +12666,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.runtime.http.routes.review",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/routes/review.py",
-      "target_module": "polisyos.core.security.access_scope",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.routes.review",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/routes/review.py",
-      "target_module": "polisyos.core.security.authz",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.routes.review",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/routes/review.py",
-      "target_module": "polisyos.core.security.exceptions",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.routes.review",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/routes/review.py",
-      "target_module": "polisyos.core.security.router",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.runtime.http.routes.runs",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/routes/runs.py",
@@ -12936,13 +12698,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/routes/temporal.py",
       "target_module": "polisyos.core.contracts.runtime",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.security",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/security.py",
-      "target_module": "polisyos.core.security.identity",
       "target_root": "core"
     },
     {
@@ -13013,13 +12768,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/adapters/core_run.py",
       "target_module": "polisyos.core.run.manifest",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.services.adapters.core_run",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/services/adapters/core_run.py",
-      "target_module": "polisyos.core.trace.record",
       "target_root": "core"
     },
     {
@@ -13265,13 +13013,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
       "target_module": "polisyos.core.registry",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.services.control.nl_pipeline",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/services/control/nl_pipeline.py",
-      "target_module": "polisyos.core.security.quality_gates",
       "target_root": "core"
     },
     {
@@ -13586,13 +13327,6 @@
       "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
-      "target_module": "polisyos.core.security.tenant_context",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.services.control.run_lifecycle",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/services/control/run_lifecycle.py",
       "target_module": "polisyos.data_forge.read_api.legal",
       "target_root": "data_forge"
     },
@@ -13790,13 +13524,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/debug.py",
       "target_module": "polisyos.core.contracts.runtime",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.services.debug",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/services/debug.py",
-      "target_module": "polisyos.core.trace.record",
       "target_root": "core"
     },
     {
@@ -14203,13 +13930,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/http/services/timeline.py",
       "target_module": "polisyos.core.contracts.runtime",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.http.services.timeline",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/http/services/timeline.py",
-      "target_module": "polisyos.core.trace.record",
       "target_root": "core"
     },
     {
@@ -14945,13 +14665,6 @@
       "source_root": "runtime",
       "source_file": "src/polisyos/runtime/quality/scorecard.py",
       "target_module": "polisyos.core.contracts.control",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.runtime.quality.scorecard",
-      "source_root": "runtime",
-      "source_file": "src/polisyos/runtime/quality/scorecard.py",
-      "target_module": "polisyos.core.security.quality_gates",
       "target_root": "core"
     },
     {
@@ -15834,27 +15547,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/adapters/foundry_bridge.py",
       "target_module": "polisyos.core.errors",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.adapters.foundry_bridge",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/adapters/foundry_bridge.py",
-      "target_module": "polisyos.core.security.settings",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.adapters.foundry_bridge",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/adapters/foundry_bridge.py",
-      "target_module": "polisyos.core.security.tee",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.adapters.foundry_bridge",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/adapters/foundry_bridge.py",
-      "target_module": "polisyos.core.security.tee_middleware",
       "target_root": "core"
     },
     {
@@ -18917,13 +18609,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.scientist.governance.telemetry",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/governance/telemetry.py",
-      "target_module": "polisyos.core.trace",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.scientist.methods.advanced",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/methods/advanced.py",
@@ -20755,13 +20440,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/methods/search/strategies/transfer.py",
       "target_module": "polisyos.core.artifacts.store",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.methods.search.transfer_context",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/methods/search/transfer_context.py",
-      "target_module": "polisyos.core.security.tenant_context",
       "target_root": "core"
     },
     {
@@ -23880,13 +23558,6 @@
       "target_root": "core"
     },
     {
-      "source_module": "polisyos.scientist.orchestration.engine.checkpoint",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/engine/checkpoint.py",
-      "target_module": "polisyos.core.security",
-      "target_root": "core"
-    },
-    {
       "source_module": "polisyos.scientist.orchestration.engine.context",
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/context.py",
@@ -23926,13 +23597,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/engine/context.py",
       "target_module": "polisyos.core.run.context",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.engine.context",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/engine/context.py",
-      "target_module": "polisyos.core.security.audit_protocol",
       "target_root": "core"
     },
     {
@@ -24584,34 +24248,6 @@
       "source_root": "scientist",
       "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
       "target_module": "polisyos.core.run.context",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.workflows.builder",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
-      "target_module": "polisyos.core.security.audit_protocol",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.workflows.builder",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
-      "target_module": "polisyos.core.security.namespace",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.workflows.builder",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
-      "target_module": "polisyos.core.security.quota_registry",
-      "target_root": "core"
-    },
-    {
-      "source_module": "polisyos.scientist.orchestration.workflows.builder",
-      "source_root": "scientist",
-      "source_file": "src/polisyos/scientist/orchestration/workflows/builder.py",
-      "target_module": "polisyos.core.security.tenant_context",
       "target_root": "core"
     },
     {

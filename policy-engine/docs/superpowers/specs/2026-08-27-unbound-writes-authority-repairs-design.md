@@ -3,13 +3,16 @@
 ## Authority and source freeze
 
 This spec records the 2026-08-27 corrected design for branch
-`codex/unbound-writes`, attached in its own worktree at source freeze
-`2525da7306d329ae28fa394690e1c39133eb0d55`. Fabric authority and the timing
-repair retain their approval. The case-record mechanism remains frozen until
-this revision's WorkspaceLoop seam is accepted; no case-record implementation
-was started while re-establishing it.
+`codex/unbound-writes`, attached in its own worktree. Its original design base
+was `2525da7306d329ae28fa394690e1c39133eb0d55`; before source implementation the
+branch merged current `main` at `f3e3d996b`, including DS11 commit
+`4ff11db52`, in merge commit `374b46aa0`. Fabric authority and the timing repair
+retain their approval. The re-established WorkspaceLoop seam and the distinct
+Phase-2 REFINE operation below are now accepted; no case-record implementation
+was started before that acceptance.
 
-The lane is local-only: no push, merge, or rebase. It must not modify
+The lane is local-only: no push, PR, rebase, force-push, reset, or stash. The
+required base-forward merge is complete and no further merge is planned. It must not modify
 `apps/runtime-dashboard/`, `architecture/atlas_surfaces/`,
 `docs/plans/active/DEBT-REGISTER.md`, or
 `tools/quality/validation/check_debt_ledger.py`. Architecture synchronization,
@@ -133,14 +136,17 @@ its public request/error types must be in `B`; `WorldMaterializationPolicy`
 must be in `M`. The implementation hand-back reports both branches and methods,
 not one fixed facade count.
 
-The owner-bypass guard derives its forbidden deep-module set by walking the
-actual `polisyos.fabric.world` package tree. It derives owned SQL targets from
-the Fabric schema's `CREATE TABLE` statements, then AST-scans every production
-module outside the owner package. It therefore fails on any external deep
-world import or mutating SQL statement against a Fabric-owned world table
-without enumerating today's module or table names. Its source analysis does not
-import the optional facade branch. A separate complete census proves zero
-Runtime SQL against `world.*`.
+The owner-bypass guard derives its forbidden module set from the owner API's
+actual private Fabric backend imports and their on-disk package descendants,
+union every Fabric module whose AST contains a mutating statement against an
+owned table. It derives owned SQL targets from the Fabric schema's
+`CREATE TABLE` statements, then AST-scans every production module outside the
+owner package. It therefore fails on a caller importing a source-derived
+write-private module or issuing mutating SQL against a Fabric-owned world table
+without enumerating today's module or table names. Read/event modules are not
+forbidden merely because they are beneath `fabric.world`. The guard's source
+analysis does not import the optional facade branch. A separate complete
+census proves zero Runtime SQL against `world.*`.
 
 Behavioral falsifiers prove that an external caller reaching the store without
 the facade fails the guard, and that a write leaving either a fact or a node
@@ -209,16 +215,24 @@ object with the existing strict PDC model, and calls a WorkspaceLoop method. It
 does not inspect `workflow_id`, build an `ExperimentState`, construct a
 Scientist node, or use `legacy_shadow`.
 
-The WorkspaceLoop registry replaces the existing non-executable REFINE stub
-with one concrete executable Phase-2 S2 `REFINE` registration whose discovery
-evidence points to the existing PDC producer and persistence owner. It does not
-add a competing REFINE. The registry therefore remains nine entries, moves
-from five to six executable registrations, and keeps the active seed set at
-three. REFINE remains excluded from `ACTIVE_WORKSPACE_OPERATIONS` and cannot
-enter the fixed Slice-0 trajectory. The operation records its applicability,
-invocation, ledger event, artifact envelope, and candidate-only authority
-transform before it may emit outputs. This is the correct place for the S2
-step: inside the owner waist and outside the three-operation Slice-0 seed path.
+The WorkspaceLoop registry adds one concrete executable Phase-2 S2 `REFINE`
+registration under the distinct operation ID
+`phase2.refine.layer2_s2_design_search`; its discovery evidence points to the
+existing PDC producer and persistence owner. It does not replace or inherit the
+semantics of `slice0.refine.stub`. That GY-C2-owned registration remains byte-for-
+byte unchanged, registered with `executable=False` and the same
+`fail_closed_reason`. The registry therefore moves from nine to ten entries and
+from five to six executable registrations while retaining all four existing
+stubs and the three-operation active seed set.
+
+The Slice-0 counterexample-bounds deviation selects `OperationClass.REFINE`
+and returns `SEARCH_CEILING_REPAIR_REQUIRED` before executing a registration.
+The falsifier drives that deviation and requires the same terminal and blocker
+set with zero invocations of the new operation. Any change to what that path
+reaches is an ownership-boundary stop. The new operation records its
+applicability, invocation, ledger event, artifact envelope, and candidate-only
+authority transform before it may emit outputs; it is a governed Phase-2 entry
+inside the authority waist, not GY-C2 spine-repair behavior.
 
 Input ownership is split without ambiguity. The request supplies the strict
 design-search facts. The server supplies the control job's run ID. The

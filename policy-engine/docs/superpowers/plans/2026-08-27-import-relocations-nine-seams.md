@@ -130,9 +130,9 @@ At every seam boundary:
 
 ### Seam 14: IR strategic budget identity — 1 statement
 
-- [ ] Lower the dependency-free `ComputeBudget` contract to an existing IR
+- [x] Lower the dependency-free `ComputeBudget` contract to an existing IR
   module and re-export the identical type from Scientist.
-- [ ] Add identity and round-trip assertions.
+- [x] Add identity and round-trip assertions.
 
 ### Seam 15: IR phase-4 dynamics — 1 statement
 

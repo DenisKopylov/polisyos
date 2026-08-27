@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import subprocess
+import sys
+
 import pytest
 from pydantic import ValidationError
 
@@ -56,6 +59,9 @@ from polisyos.ir.analytics.distributional import (
 )
 from polisyos.ir.analytics.dynamic_regime import RuntimeSupportStatus
 from polisyos.ir.analytics.strategic import (
+    ComputeBudget as IRComputeBudget,
+)
+from polisyos.ir.analytics.strategic import (
     FiniteStrategicPayoffTable,
     MeanFieldEquilibriumCertificate,
     MeanFieldMacroSimulationConfig,
@@ -96,6 +102,7 @@ from polisyos.ir.analytics.structural_causal_model import (
     NodeMechanism,
     StructuralCausalModelSpec,
 )
+from polisyos.ir.kernel import base as kernel_base
 from polisyos.ir.registry.refs import ArtifactRefModel, EstimandASTRef, ProofBundleRef
 from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
 
@@ -557,6 +564,79 @@ def _finite_state_scm(*, macro: bool, mismatch: bool = False) -> StructuralCausa
             ),
         ],
     )
+
+
+def test_compute_budget_is_ir_owned_and_scientist_reexports_same_identity() -> None:
+    assert getattr(kernel_base, "ComputeBudget", None) is IRComputeBudget
+    assert IRComputeBudget.__module__ == "polisyos.ir.kernel.base"
+    assert ComputeBudget is IRComputeBudget
+
+
+def test_scientist_budget_import_does_not_load_strategic_analytics_or_numpy() -> None:
+    probe = """
+import sys
+
+from polisyos.scientist.orchestration.kernel.budgets import ComputeBudget
+
+unexpected = sorted(
+    name
+    for name in sys.modules
+    if name == "polisyos.ir.analytics.strategic"
+    or name == "numpy"
+    or name.startswith("numpy.")
+)
+if unexpected:
+    raise SystemExit(f"eager modules: {unexpected}")
+assert ComputeBudget.__module__ == "polisyos.ir.kernel.base"
+"""
+
+    result = subprocess.run(
+        [sys.executable, "-I", "-c", probe],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0, result.stderr
+
+
+def test_compute_budget_json_round_trip_preserves_exact_contract() -> None:
+    budget = IRComputeBudget(max_llm_calls=7.5, max_sim_runs=3.0, max_wall_time_s=300.0)
+
+    payload = budget.model_dump_json()
+
+    assert payload == '{"max_llm_calls":7.5,"max_sim_runs":3.0,"max_wall_time_s":300.0}'
+    assert IRComputeBudget.model_validate_json(payload) == budget
+    assert dict(IRComputeBudget.model_config) == {"extra": "forbid"}
+
+
+def test_compute_budget_rejects_negative_limit() -> None:
+    with pytest.raises(ValidationError):
+        IRComputeBudget(max_sim_runs=-0.1)
+
+
+def test_strategic_solver_consumes_ir_compute_budget() -> None:
+    contract = StrategicSCM(
+        base_graph_ref=_artifact_ref("a", kind="ir.causal_graph_model"),
+        strategic_agents=("leader", "follower"),
+        utility_refs={
+            "leader": _artifact_ref("b", kind="ir.strategic_payoff_table"),
+            "follower": _artifact_ref("c", kind="ir.strategic_payoff_table"),
+        },
+        policy_rule_ref=_artifact_ref("d", kind="ir.policy_recommendation"),
+        equilibrium_concept="stackelberg",
+        compute_budget=IRComputeBudget(max_llm_calls=0.0, max_sim_runs=0.0, max_wall_time_s=30.0),
+    )
+
+    result = solve_strategic_response(
+        contract,
+        {"leader": _payoff_table("leader"), "follower": _payoff_table("follower")},
+        baseline_policy_value=10.0,
+    )
+
+    assert isinstance(contract.compute_budget, IRComputeBudget)
+    assert result.fallback_mode is StrategicFallbackMode.BLOCKED
+    assert result.blocked_reason == "strategic_compute_budget_exhausted"
 
 
 def test_strategic_ir_contracts_round_trip_via_store(tmp_path) -> None:

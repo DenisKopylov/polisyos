@@ -89,6 +89,7 @@ Every row below was classified before the first source edit. Result:
 | seam 11 — IR calibration/JAX | 7/10 | Existing Foundry measurement ownership now contains calibration-target compilation, placebo materialization, and optional JAX/NumPy tensors; IR retains neutral split/window/control declarations. Cleared IF-13 and IJ-01 separately, closing `ir -> foundry` 13/13 and `ir -> jax` 1/1. | stands; round 7 bought the two-name internal Foundry measurement execution surface; no root/package/module, stable root facade, or constraint was added |
 | seam 12 — IR backtesting | 7/10 | IR now emits sparse neutral validation-plan payloads; the existing Scientist matrix runner strictly materializes the complete bundle set before any execution. Cleared IS-01..03. | stands; existing modules, bundle surface, and Scientist plan authority were reused; no new surface, module, package, constraint, or authority publication |
 | seam 13 — IR alignment governance | 7/10 | One private Scientist chokepoint recomputes and content-binds ontology and latent-governance predicates for both real callers; IR consumes frozen governed snapshots and fails closed on absent/tampered inputs. Cleared IS-04/05. | stands; private consolidation in existing modules narrows the existing IR verifier surface and introduces no module/export/constraint/new surface |
+| seam 14 — IR strategic budget identity | 8/10 | `ComputeBudget` has one lightweight IR-kernel identity; Strategic IR and the already-published Scientist budgets path import that identity, while real Foundry budget enforcement and persistence remain intact. Cleared IS-06 and closes `ir -> scientist` 6/6. | stands; round 8 bought the new direct module-level `polisyos.ir.kernel.base.ComputeBudget` path after the first zero-round location was withdrawn for eager Strategic/NumPy import weight |
 
 No round has been withdrawn.
 
@@ -678,3 +679,44 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   `surface_out_of_scope`; `bridge_missing`, `consumer_missing`, and
   `semantic_test_missing` are closed. No widening round is consumed and the
   ledger remains 7/10.
+
+### Seam 14 — IR strategic budget identity
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 13 commit
+  `646a8002af92` read back after writing and before this boundary.
+- Observed mechanism/test path set is exactly four: existing IR kernel base,
+  existing Strategic analytics, existing Scientist budgets, and the focused IR
+  contract test. This plan/journal pair are P39 record companions.
+- IS-06 is `shared-contract-down`, ambiguous=0. The first zero-round move placed
+  the single class in the 2,600-line Strategic module and preserved behavior,
+  but independent review found a NEW import-weight class: importing the
+  lightweight published Scientist budgets path eagerly loaded Strategic and
+  NumPy (~0.73s; the later explicit reproduce measured 1.53s). That location
+  was withdrawn before commit.
+- The repaired canonical identity lives in existing lightweight
+  `ir.kernel.base`; Strategic and Scientist budgets import/re-export the same
+  object, and `budget_pass` continues through the published Scientist path.
+  Five fresh imports took 0.14-0.18s, loaded neither Strategic nor NumPy, and
+  both import orders avoided a cycle. This new direct module-level path consumes
+  round 8; no facade or `__all__` export was added.
+- Exact class AST, strict config, defaults, JSON, schema, all three nonnegative
+  constraints, and extra-field rejection match the former Scientist owner.
+  Real `solve_strategic_response -> _check_budget` exhaustion behavior and
+  `StrategicSCM` CAS persistence passed. The final implementation wave passed
+  30 tests in 33.25s; independent delta review passed 60 focused tests. Ruff,
+  compileall, and `git diff --check` completed exit 0.
+- Complete 5,044-file AST census (2,594 source + 2,450 tests, zero parse errors)
+  found one definition and exactly three production imports: Strategic and
+  Scientist budgets from kernel base, plus unchanged `budget_pass` from the
+  Scientist compatibility path. Independent `rg` agreed after one over-escaped
+  expression was rejected as a non-receipt. No IR-to-Scientist import remains;
+  the exact row literal completed exit 0 on the composite tree.
+- Manual final-baseline delta removes
+  `polisyos.ir.analytics.strategic -> polisyos.scientist.orchestration.kernel.budgets`
+  and adds the two direct edges from Strategic and Scientist budgets to
+  `polisyos.ir.kernel.base`. Generated schema/public companions are deferred to
+  the final serialized owner boundary.
+- Capability result: one typed identity, `StrategicSCM` carrier/persistence,
+  stable compatibility surface, real Foundry consumer, and positive/negative
+  semantic tests are intact. Round 8 stands; no incomplete label remains.

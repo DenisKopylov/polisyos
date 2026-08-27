@@ -200,6 +200,13 @@ git commit -m "fix(fabric): own world snapshot replacement" \
 - Modify: `src/polisyos/runtime/http/services/run_paper_projection.py`
 - Modify: `src/polisyos/runtime/http/routes/runs.py`
 - Modify: `src/polisyos/runtime/http/routes/governed_projections.py`
+- Modify (generated): `schemas/runtime_api_v1.openapi.json`
+- Modify (generated): `packages/runtime-api-client/types.ts`
+- Modify (generated): `packages/runtime-api-client/runtimeApiClient.ts`
+- Modify (generated): `packages/runtime-api-client/runtimeApiClient.js`
+- Modify (generated): `packages/runtime-api-client/canonicalRuntimeApiClient.ts`
+- Modify (generated): `packages/runtime-api-client/canonicalRuntimeApiClient.js`
+- Modify (generated): `apps/runtime-dashboard/src/api/types.ts`
 - Modify: `tests/unit/pdc/test_layer2_s2_design_search.py`
 - Modify: `tests/unit/runtime/quality/test_workspace_loop.py`
 - Modify: `tests/unit/runtime/quality/test_workspace_workflow_playbook_projection.py`
@@ -244,7 +251,7 @@ class PersistedS2DesignSearchRun(Layer2ReadinessModel):
     binding: RunBoundDesignRecordBinding
 ```
 
-The binding validator requires each digest to equal its ref artifact ID, both refs to carry exact kind/media/schema/producer metadata, and non-empty run/case/tenant identity. Tests must hold the DesignRecord bytes/hash constant while changing `run_id`, `tenant_id`, or `cell_id` and show the binding or resolver rejects the substitution. A ledger with a different `case_id` or `ledger_id` must fail even when its bytes and sidecar verify.
+The binding validator requires each digest to equal its ref artifact ID, exact observable ref kind/media, and non-empty run/case/tenant identity. `ArtifactRef` does not carry schema or producer, so the store-backed persistence path and resolver—not the binding model—must fetch each sidecar and require exact schema/producer equality. Tests must hold the DesignRecord bytes/hash constant while changing `run_id`, `tenant_id`, or `cell_id` and show the binding or resolver rejects the substitution. A ledger with a different `case_id` or `ledger_id` must fail even when its bytes and sidecar verify.
 
 - [ ] **Step 2: Write terminal-trace and CAS-matrix reds**
 
@@ -369,7 +376,7 @@ Before outputs, emit applicability/invocation/ledger/envelope events with candid
 
 - [ ] **Step 8: Translate absent tenant to the exact typed refusal**
 
-Catch `TenantContextNotSetError` before the broad WorkspaceLoop exception. Produce the exact non-receipt above plus a `ControlFailureEnvelope` with code `run_bound_design_record_tenant_scope_missing`, layer `pdc.gy`, phase `s2_design_search_persist`, the frozen message/next-action from the spec, `retryable=False`, exact job/run IDs, and empty artifact refs. Do not persist the normal failed-workspace proof artifacts on this branch because the falsifier requires zero DesignRecord, SearchLedger, or binding persistence and no fabricated scope.
+Catch `TenantContextNotSetError` in the exact-operation branch before the broad WorkspaceLoop/fixture exception wrapper. Produce the exact non-receipt above plus a `ControlFailureEnvelope` with code `run_bound_design_record_tenant_scope_missing`, layer `pdc.gy`, phase `s2_design_search_persist`, the frozen message/next-action from the spec, `retryable=False`, exact job/run IDs, and empty artifact refs, then raise `_WorkflowExecutionNonAuthorityError(progress=...)` so the worker preserves this packet. Do not persist the normal failed-workspace proof artifacts on this branch because the falsifier requires zero DesignRecord, SearchLedger, or binding persistence and no fabricated scope.
 
 - [ ] **Step 9: Implement direct resolution and the authority-abstaining paper arm**
 
@@ -385,9 +392,64 @@ RunPaperProjectionService(
 )
 ```
 
-The route may query the run index before construction for authorization/listing only. The service and resolver receive no run-index object. Feed the one trace-derived source into `RunPaperRun`, `RunPaperSourceBinding`, links, replay pins, and the case record.
+Derive `authorized_tenant_id` from
+`require_access_scope(request).tenant_id`, never from the run-index row. The
+route may query the run index before construction for authorization/listing
+only. The service and resolver receive no run-index object. Feed the one
+trace-derived source into `RunPaperRun`, `RunPaperSourceBinding`, links, replay
+pins, and the case record. Factor a pure shared trace parser; retain
+`recover_pending_run_finalize` only in legacy `load_core_run`, never in the
+strict projection reader.
 
-Alias `RunPaperDesignRecordBinding = RunBoundDesignRecordBinding`. Add `bound_cell_id` to source verification. Define three separate strict `RunPaperAuthorityNonReceipt` values for grounding, admission, and promotion, each with its own `missing_authority`, institutional `owner_route`, `status="not_established"`, `authority_state="absent/unallocated"`, and role-specific denied uses. `AuthorityAbstainingRunPaperCase` uses discriminator `availability="record_available_authority_abstaining"`, renders the verified record and binding, and carries `authority_projection="abstained"`. Apply one shared case/run/tenant/cell validator to it and the future available arm; never construct the available arm here.
+Alias `RunPaperDesignRecordBinding = RunBoundDesignRecordBinding`. Add `bound_cell_id` to source verification. Define three separate strict `RunPaperAuthorityNonReceipt` values, each also carrying `kind="run_paper_authority_nonreceipt"`, `status="not_established"`, and `authority_state="absent/unallocated"`:
+
+```python
+grounding = {
+    "missing_authority": "generation_cycle_grounding_authority",
+    "owner_route": "polisyos.runtime.quality.generation_cycle.GroundingStatus",
+    "denied_uses": (
+        "grounding_state", "grounded_case_projection", "available_run_paper_case"
+    ),
+}
+admission = {
+    "missing_authority": "hypothesis_ledger_admission_authority",
+    "owner_route": "polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState",
+    "denied_uses": (
+        "admission_state", "admitted_case_projection", "available_run_paper_case"
+    ),
+}
+promotion = {
+    "missing_authority": "layer3_g4_promotion_authority",
+    "owner_route": (
+        "polisyos.runtime.quality.proving_ground.governed_promotion_gate."
+        "Layer3G4PromotionRecord.promotion_state"
+    ),
+    "denied_uses": (
+        "promotion_state", "governed_case_projection", "available_run_paper_case"
+    ),
+}
+```
+
+The abstaining-arm validator rejects a value in the wrong role.
+`AuthorityAbstainingRunPaperCase` uses discriminator
+`availability="record_available_authority_abstaining"`, renders the verified
+record and binding, and carries `authority_projection="abstained"`. Apply one
+shared case/run/tenant/cell validator to it and the future available arm; never
+construct the available arm here.
+
+After the behavioral source tests pass, regenerate the public companions from
+their registered sources of truth:
+
+```bash
+PYTHONPATH=src:. uv run --extra runtime --extra ml python \
+  tools/ops_runners/runtime/export_runtime_openapi.py \
+  --output schemas/runtime_api_v1.openapi.json
+corepack pnpm --filter @polisyos/runtime-api-client run generate
+corepack pnpm --filter @polisyos/runtime-dashboard run generate:api
+```
+
+Review the generated diff and touch no dashboard component, snapshot, or visual
+specification.
 
 - [ ] **Step 10: Run focused case-record green checks and falsifier matrix**
 

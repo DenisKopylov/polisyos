@@ -403,6 +403,27 @@ inspectable and demonstrable; only the authority-bearing projection abstains.
 No shaped substitute, shared verifier, blank, or generic `unavailable` value
 is accepted.
 
+The three strict `RunPaperAuthorityNonReceipt` values are frozen as follows;
+the abstaining-arm validator rejects a value placed in the wrong role even if
+the rest of the packet is valid:
+
+- grounding: `missing_authority="generation_cycle_grounding_authority"`,
+  `owner_route="polisyos.runtime.quality.generation_cycle.GroundingStatus"`,
+  `denied_uses=("grounding_state", "grounded_case_projection",
+  "available_run_paper_case")`;
+- admission: `missing_authority="hypothesis_ledger_admission_authority"`,
+  `owner_route="polisyos.runtime.quality.hypothesis_ledger.HypothesisAdmissionState"`,
+  `denied_uses=("admission_state", "admitted_case_projection",
+  "available_run_paper_case")`;
+- promotion: `missing_authority="layer3_g4_promotion_authority"`,
+  `owner_route="polisyos.runtime.quality.proving_ground.governed_promotion_gate.Layer3G4PromotionRecord.promotion_state"`,
+  `denied_uses=("promotion_state", "governed_case_projection",
+  "available_run_paper_case")`.
+
+Each value also carries
+`kind="run_paper_authority_nonreceipt"`; these literals, rather than field
+presence alone, are the authority-role discriminator.
+
 One shared bound-case validator applies to both the abstaining arm and the
 future `AvailableRunPaperCase`. It binds case and record identity, and requires
 the binding's run, tenant, and cell to equal `RunPaperRun` exactly, including
@@ -430,6 +451,22 @@ bytes, or substitutes sidecar kind/media/schema/producer metadata while keeping
 the other roles correct. Every matrix member fails closed. Together these
 negatives prove resolution checks authority and content, not merely addresses
 or parseable bytes.
+
+The route-level run index remains authorization and listing only. The service's
+`authorized_tenant_id` comes from `require_access_scope(request).tenant_id`,
+not `run.details.tenant_id`; the resolver compares that authenticated scope to
+the terminal-trace identity. Likewise, absent ambient tenant is translated in
+the exact-operation branch to `_WorkflowExecutionNonAuthorityError` before the
+fixture wrapper or the worker's generic exception branch can replace the typed
+progress packet. The strict terminal reader shares pure trace-record parsing
+with `load_core_run` but never calls `recover_pending_run_finalize`.
+
+`ArtifactRef` exposes only artifact ID, kind, and media type. Consequently the
+PDC binding model validates only identities it can observe directly; the
+store-backed persistence path and resolver fetch and verify the DesignRecord,
+SearchLedger, binding, and terminal-manifest sidecars and enforce exact schema
+and producer equality there. A model-only assertion is not treated as sidecar
+authority.
 
 ### Re-derived source scope
 
@@ -460,6 +497,13 @@ uses these mechanism paths:
   `src/polisyos/runtime/http/routes/governed_projections.py` to pass the
   already-configured trusted `core_runs_root` into every
   `RunPaperProjectionService` construction;
+- `schemas/runtime_api_v1.openapi.json`, the five registered
+  `packages/runtime-api-client/` generated outputs, and
+  `apps/runtime-dashboard/src/api/types.ts` because the new public
+  `record_available_authority_abstaining` discriminator changes the committed
+  HTTP schema. These are generated P39 companions owned by `team-polisyos`,
+  not dashboard mechanism work; no dashboard component, snapshot, or visual
+  specification enters the write set;
 - `src/polisyos/fabric/data_plane/benchmarks.py` for the required facade import;
 - `tools/quality/timing_budgets.json` for the one wall-clock lane.
 

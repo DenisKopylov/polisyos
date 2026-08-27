@@ -4007,7 +4007,7 @@
         "polisyos.lex.knowledge"
       ],
       "major_subsystem": true,
-      "export_count": 52,
+      "export_count": 54,
       "exports": [
         "ActiveVersionResult",
         "ActiveVersionStrategy",
@@ -4022,6 +4022,7 @@
         "LegalEvaluationRequest",
         "LegalKnowledgeGraph",
         "LegalReportRef",
+        "LexBenchmarkOutcome",
         "LexError",
         "LexFabricEvidencePath",
         "LexIndexError",
@@ -4060,7 +4061,8 @@
         "evaluate_legality",
         "lex_evidence_from_fabric_decision_data",
         "propose_changes",
-        "resolve_active_version"
+        "resolve_active_version",
+        "run_legal_benchmark"
       ],
       "has___getattr__": true,
       "has___dir__": true,
@@ -4071,7 +4073,7 @@
         {
           "module": "polisyos.lex",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 52,
+          "export_count": 54,
           "exports": [
             "ActiveVersionResult",
             "ActiveVersionStrategy",
@@ -4086,6 +4088,7 @@
             "LegalEvaluationRequest",
             "LegalKnowledgeGraph",
             "LegalReportRef",
+            "LexBenchmarkOutcome",
             "LexError",
             "LexFabricEvidencePath",
             "LexIndexError",
@@ -4124,7 +4127,8 @@
             "evaluate_legality",
             "lex_evidence_from_fabric_decision_data",
             "propose_changes",
-            "resolve_active_version"
+            "resolve_active_version",
+            "run_legal_benchmark"
           ],
           "has___getattr__": true,
           "has___dir__": true,

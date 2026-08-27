@@ -99,7 +99,7 @@ publish recommendation, rollout, closeout, or policy-design authority.
 | `polisyos.evidence` | `internal` | `eager_exports` | 19 | `team-policyos-runtime` | `src/polisyos/evidence/README.md` |
 | `polisyos.runtime` | `public_stable` | `lazy_facade` | 10 | `team-polisyos` | `src/polisyos/runtime/README.md` |
 | `polisyos.runtime.quality` | `public_experimental` | `eager_exports` | 957 | `team-polisyos` | `src/polisyos/runtime/quality/README.md` |
-| `polisyos.lex` | `public_stable` | `lazy_facade` | 52 | `team-polisyos` | `src/polisyos/lex/README.md` |
+| `polisyos.lex` | `public_stable` | `lazy_facade` | 54 | `team-polisyos` | `src/polisyos/lex/README.md` |
 | `polisyos.scholar` | `public_experimental` | `lazy_facade` | 25 | `team-polisyos` | `src/polisyos/scholar/README.md` |
 | `polisyos.data_forge` | `public_experimental` | `lazy_facade` | 49 | `team-data-forge` | `src/polisyos/data_forge/README.md` |
 | `polisyos.berl` | `public_experimental` | `eager_exports` | 11 | `team-scientist` | `src/polisyos/berl/README.md` |
@@ -4044,7 +4044,7 @@ write_authority_envelope_json_schema
 
 | Entrypoint | Source | Facade | Exports |
 | --- | --- | --- | ---: |
-| `polisyos.lex` | `src/polisyos/lex/__init__.py` | `lazy_facade` | 52 |
+| `polisyos.lex` | `src/polisyos/lex/__init__.py` | `lazy_facade` | 54 |
 | `polisyos.lex.knowledge` | `src/polisyos/lex/knowledge/__init__.py` | `lazy_facade` | 10 |
 
 #### `polisyos.lex`
@@ -4053,7 +4053,7 @@ write_authority_envelope_json_schema
 - Facade: `lazy_facade`
 - Summary: Stable Lex facade for runtime legal evaluation, NormPack assembly, and interventions.
 
-<details><summary>Entrypoint exports (52)</summary>
+<details><summary>Entrypoint exports (54)</summary>
 
 ```text
 ActiveVersionResult
@@ -4069,6 +4069,7 @@ InterventionKnobSpec
 LegalEvaluationRequest
 LegalKnowledgeGraph
 LegalReportRef
+LexBenchmarkOutcome
 LexError
 LexFabricEvidencePath
 LexIndexError
@@ -4108,6 +4109,7 @@ evaluate_legality
 lex_evidence_from_fabric_decision_data
 propose_changes
 resolve_active_version
+run_legal_benchmark
 ```
 
 </details>
@@ -4135,7 +4137,7 @@ LegalThresholdEvaluation
 
 </details>
 
-<details><summary>Supported exports (52)</summary>
+<details><summary>Supported exports (54)</summary>
 
 ```text
 ActiveVersionResult
@@ -4151,6 +4153,7 @@ InterventionKnobSpec
 LegalEvaluationRequest
 LegalKnowledgeGraph
 LegalReportRef
+LexBenchmarkOutcome
 LexError
 LexFabricEvidencePath
 LexIndexError
@@ -4190,6 +4193,7 @@ evaluate_legality
 lex_evidence_from_fabric_decision_data
 propose_changes
 resolve_active_version
+run_legal_benchmark
 ```
 
 </details>

@@ -253,11 +253,11 @@ Commit message: `feat(scientist): own claim adjudication runtime`.
 - DataForge supplies benchmark fixtures/artifact refs.
 - Lex owns `NormPackBuildRequest`, `assemble_norm_pack`, graph search, and transport-constraint execution for rows 4–6.
 
-- [ ] **Step 1: Write failing Lex semantic benchmark tests**
-- [ ] **Step 2: Run `.venv/bin/python -m pytest tests/unit/lex/test_benchmark.py tests/unit/data_forge/legal_batch/test_benchmark.py -q` RED against the DataForge-owned consumer**
-- [ ] **Step 3: Move the semantic consumer to Lex and preserve persisted outputs**
-- [ ] **Step 4: Run the same focused files GREEN**
-- [ ] **Step 5: Commit and print ledger 6/8**
+- [x] **Step 1: Write failing Lex semantic benchmark tests**
+- [x] **Step 2: Run `.venv/bin/python -m pytest tests/unit/lex/test_benchmark.py tests/unit/data_forge/legal_batch/test_benchmark.py -q` RED against the DataForge-owned consumer**
+- [x] **Step 3: Move the semantic consumer to Lex and preserve persisted outputs**
+- [x] **Step 4: Run the same focused files GREEN**
+- [x] **Step 5: Commit and print ledger 6/8**
 
 Commit message: `feat(lex): own legal semantic benchmark`.
 

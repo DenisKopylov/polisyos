@@ -226,3 +226,64 @@ Python files) and found exactly:
   consumer-up bridge. No composite pass is claimed. The completed failure used
   `user=52.03s`, `sys=2.96s`; uptime advanced from 14:35/up 3 days 4:49 to
   14:36/up 3 days 4:50.
+
+## Task 6 — Lex-owned semantic benchmark
+
+### Ledger and pattern pass
+
+- Ledger: 6/8. Round 6 buys one Lex semantic-readiness surface through the
+  existing `polisyos.lex` facade. It clears frozen rows 4–6 together:
+  NormPack assembly/transport constraints, legal graph search, and the
+  `NormPackBuildRequest` consumer. The round stands.
+- Relevant patterns: P01/P02 (Data Forge fixtures, supported read API, real
+  injected pipeline bridge, and Lex consumer), P05/P10 (only Lex computes the
+  semantic readiness receipt), P27/P31 (one owner rather than copied Lex logic
+  below the boundary), P29/P38 (the pipeline runs the real Lex implementation,
+  not a marker), and P35/P37 (the four-case fixture denominator is explicit).
+- Data Forge now owns only the authority-neutral query fixtures and the
+  still-deferred Scientist retrieval diagnostic. That diagnostic is explicitly
+  `implemented_but_not_orchestrated`, carries empty `authoritative_for`, and
+  names legal admissibility/publication readiness in `may_not_use_for`; Round 7
+  must move its consumer. It cannot change the Lex receipt.
+
+### Task 6 receipts
+
+- RED: the two prescribed files failed collection because neither
+  `polisyos.lex.run_legal_benchmark` nor the Data Forge fixture function
+  existed.
+- GREEN: the Lex benchmark preserves the report and stage-manifest paths,
+  exercises graph retrieval, constraints, transport, NormPack, and legal
+  quality metrics, and is consumed by the real injected Data Forge pipeline
+  bridge. The Data Forge CLI fails closed instead of importing Lex.
+- Public surface: the canonical renderer and the committed inventory/Markdown
+  match byte-for-byte; the Lex facade has 54 exports. The module lives under
+  the existing `lex.knowledge` package to avoid creating root-file/layout debt.
+  The existing dynamic-import registration was narrowed to its measured line.
+- Focused blast radius: exit 0, 23 tests passed, including Lex/Data Forge
+  benchmark behavior, pipeline/CLI integration, and public-facade inventory.
+  The measured run used `user=2.38s`, `sys=0.32s`; uptime remained within
+  15:01/up 3 days 5:14. Changed-file Ruff exited 0 with no diagnostics
+  (`user=0.02s`, `sys=0.01s`).
+- Source import predicate: exit 1 with 44 findings, split ARCH001=41,
+  ARCH002=1, ARCH004=2, ARCH006=0. Canonical and independent AST derivations
+  agree over 2,583 `*.py` files; the ordered-pair sum is 41 and both set
+  differences are empty. The exact 47 -> 44 delta is the three frozen
+  Data Forge -> Lex statements in `legal.batch.benchmark`; no other rule moved.
+  The completed failure used `user=0.65s`, `sys=0.17s`; uptime stayed within
+  14:58/up 3 days 5:11.
+- Release guardrail predicate: exit 1 pending the final authorized baseline
+  transaction. Canonical and independent sets agree on current=3,605,
+  baseline=3,631, additions=29, removals=55, and no source-file mismatch over
+  2,583 files. Relative to Task 5, additions are unchanged and exactly five old
+  addresses were removed: Data Forge benchmark -> core artifact store, Fabric
+  claim persistence, Lex API, Lex graph search, and Lex types. The completed
+  failure used `user=26.54s`, `sys=5.96s`; uptime stayed within 14:58/up 3 days
+  5:11.
+- Package-import predicate: exit 1 with 151 findings and 36 unregistered
+  forbidden statements. The report field, list length, unique-key count, and
+  independent longest-exact-package AST derivation agree; both set differences
+  are empty over 2,583 files. The unchanged 151 total is two summary-row
+  replacements in each direction, while the substantive forbidden denominator
+  moves 39 -> 36 by exactly the three Data Forge -> Lex statements. The
+  completed failure used `user=52.96s`, `sys=3.00s`; uptime advanced from
+  14:58/up 3 days 5:11 to 14:59/up 3 days 5:12. No composite pass is claimed.

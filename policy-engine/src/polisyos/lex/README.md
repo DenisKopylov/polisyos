@@ -36,6 +36,7 @@ typed runtime/evaluation contracts.
 | `evaluate_legality()`                                        | Produce `lex.legal_report` and optional change proposals          |
 | `NormPackMutator`, `diff_norm_packs()`, `NormImpactAnalyzer` | What-if diff and impact analysis for norm changes                 |
 | `LegalKnowledgeGraph`                                        | Read-only search API over the offline legal graph                 |
+| `run_legal_benchmark()`, `LexBenchmarkOutcome`               | Execute Lex-owned semantic readiness over published Data Forge fixtures |
 | `LexInterventionCompiler`, `TemporalInterventionSequencer`   | Compile legal provisions into intervention/runtime artifacts      |
 
 Full reference: [docs/reference/lex/](../../../docs/reference/lex/index.md)
@@ -46,6 +47,8 @@ Full reference: [docs/reference/lex/](../../../docs/reference/lex/index.md)
 - `normpack/` owns NormPack assembly and provider contracts.
 - `legal_evaluation/` owns legality report generation and compliance checks.
 - `knowledge/` owns read-only access to Data Forge legal graph artifacts.
+- `knowledge/benchmark.py` owns NormPack, transport, graph, and legal-quality readiness;
+  Scientist retrieval diagnostics cannot override this receipt.
 - `interventions.py` and `intervention_artifacts.py` own provision-to-policy
   intervention mapping.
 - Offline legal batch and corpus write paths belong to
@@ -98,7 +101,9 @@ legal corpus or graph artifacts.
 
 ## Current State
 
-- Last updated: 2026-05-06
-- Files: 9 top-level Python files plus 6 subpackages
-- Exports: 58 lazy exports in `__init__.py`
-- Notable delta: root facade is runtime-only; offline legal corpus and batch entrypoints live in Data Forge.
+- Last updated: 2026-08-27
+- Files: 10 top-level Python files plus 5 tracked subpackages
+- Exports: 54 names in the lazy facade `__all__`
+- Notable delta: Lex owns the semantic legal benchmark; Data Forge publishes
+  query fixtures through its read API and no longer imports Lex benchmark
+  consumers.

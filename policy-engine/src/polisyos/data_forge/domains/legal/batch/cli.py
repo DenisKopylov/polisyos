@@ -976,12 +976,10 @@ def _cmd_qc(args: argparse.Namespace) -> None:
 
 
 def _cmd_benchmark(args: argparse.Namespace) -> None:
-    from polisyos.data_forge.domains.legal.batch.benchmark import run_benchmark
-
-    cfg = _minimal_cfg(args.output_dir)
-    outcome = run_benchmark(cfg)
-    if outcome.failed_checks:
-        pass
+    del args
+    raise RuntimeError(
+        "legal semantic benchmarking is Lex-owned; use polisyos.lex.run_legal_benchmark"
+    )
 
 
 def _cmd_publish(args: argparse.Namespace) -> None:

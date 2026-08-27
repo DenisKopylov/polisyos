@@ -24,6 +24,7 @@ __all__ = [
     "LegalEvaluationRequest",
     "LegalKnowledgeGraph",
     "LegalReportRef",
+    "LexBenchmarkOutcome",
     "LexError",
     "LexFabricEvidencePath",
     "LexIndexError",
@@ -63,6 +64,7 @@ __all__ = [
     "lex_evidence_from_fabric_decision_data",
     "propose_changes",
     "resolve_active_version",
+    "run_legal_benchmark",
 ]
 
 _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
@@ -87,6 +89,14 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "evaluate_legality": ("polisyos.lex.api", "evaluate_legality"),
     "propose_changes": ("polisyos.lex.api", "propose_changes"),
     "resolve_active_version": ("polisyos.lex.api", "resolve_active_version"),
+    "LexBenchmarkOutcome": (
+        "polisyos.lex.knowledge.benchmark",
+        "LexBenchmarkOutcome",
+    ),
+    "run_legal_benchmark": (
+        "polisyos.lex.knowledge.benchmark",
+        "run_legal_benchmark",
+    ),
     # errors
     "LexError": ("polisyos.lex.errors", "LexError"),
     "LexIndexError": ("polisyos.lex.errors", "LexIndexError"),

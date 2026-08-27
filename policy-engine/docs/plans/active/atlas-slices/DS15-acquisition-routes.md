@@ -120,10 +120,20 @@ measured corrections:
 - C00 review finding `timing_receipt_completeness` is a NEW class, first
   occurrence, repaired as P39 evidence with no widening round. The fresh N13a
   full rerun is green with complete wall/CPU/uptime fields. The fresh N13b full
-  rerun exits `1` with `n13b_acquisition_contract_drift`; exact slice-base
-  branch/input disjointness makes it a P41-inherited owner red, but it remains
-  an explicit non-receipt and may not support closure or authorize a generated
-  artifact/write-path edit.
+  rerun exits `1` with `n13b_acquisition_contract_drift`; that current-worktree
+  receipt is an explicit non-receipt and does not by itself establish inherited
+  provenance.
+- The second C00 review finding is SAME class `baseline_provenance`, one level
+  deeper: it challenges the inherited attribution, not the already-completed
+  timing fields. A temporary verifier at exact slice base
+  `f3e3d996bd6710e26f24fd913d4fe0547f1d1a0d` proved both `polisyos` and
+  `tools.lib.timing` imported from that base worktree under base-first
+  `PYTHONPATH=$PWD/src:$PWD`. The same N13b checker, catalog/L5 inputs, and 600s
+  ceiling then failed at both base and execution with the identical
+  `n13b_acquisition_contract_drift`. That exact-base pair, combined with the
+  zero changed-input intersection and equal external-input hashes, satisfies
+  P41 inherited attribution. It spends no widening round, remains non-green,
+  and may not support closure or authorize a generated artifact/write-path edit.
 
 The source-level qualification ruling and `fresh_positive_production_route`
 non-closure below are unchanged: C00 admits the real pending/unqualified and

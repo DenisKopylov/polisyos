@@ -58,7 +58,9 @@ plan and re-derived the focused artifact/path counts below.
 | six focused N13 owner-test files | `0`; 6 explicit production-catalog witness skips; `real 191.11`, `user 116.73`, `sys 9.56`, `user+sys=126.29`; uptime `23:17 up 3 days, 13:30` -> `23:20 up 3 days, 13:33` | inherited owner family green and byte-identical |
 | `test_production_acquisition_invokes_epoch_adapter_and_returns_policy_admission_missing` | `0`; launched untimed | functional qualification receipt only, not a timing baseline |
 | N13a recomputing checker `--check`, fresh full rerun | `0`; `real 12.12`, `user 15.91`, `sys 1.12`, `user+sys=17.03`; uptime `23:52 up 3 days, 14:05` -> `23:53 up 3 days, 14:06` | complete current owner timing receipt |
-| full N13b checker, fresh full rerun | `1`; `real 317.26`, `user 286.65`, `sys 10.58`, `user+sys=297.23`; uptime `23:53 up 3 days, 14:06` -> `23:58 up 3 days, 14:11`; failure `n13b_acquisition_contract_drift` for the committed N13b acquisition executor contract | inherited owner red / explicit baseline non-receipt; supersedes the interrupted attempt, is never green, and cannot support DS15 closure |
+| full N13b checker, fresh full rerun | `1`; `real 317.26`, `user 286.65`, `sys 10.58`, `user+sys=297.23`; uptime `23:53 up 3 days, 14:06` -> `23:58 up 3 days, 14:11`; failure `n13b_acquisition_contract_drift` for the committed N13b acquisition executor contract | current-worktree failure receipt; supersedes the interrupted attempt but does not alone establish inheritance, is never green, and cannot support DS15 closure |
+| full N13b checker, exact slice-base replay | `1`; `real 298.25`, `user 273.35`, `sys 10.85`, `user+sys=284.20`; uptime `00:13 up 3 days, 14:27` -> `00:18 up 3 days, 14:31`; failure `n13b_acquisition_contract_drift` | exact-base half of P41 pair; explicit non-receipt |
+| full N13b checker, execution replay paired to exact base | `1`; `real 297.36`, `user 272.69`, `sys 10.70`, `user+sys=283.39`; uptime `00:19 up 3 days, 14:32` -> `00:23 up 3 days, 14:37`; failure `n13b_acquisition_contract_drift` | execution half of P41 pair; identical inherited failure, explicit non-receipt |
 
 The entry worktree itself required no writer, dependency change, or expensive
 validator rerun for C00.
@@ -269,8 +271,22 @@ is replaced by the fresh full receipt above; the interrupted N13b attempt is
 superseded by the complete failing receipt. This is P39 evidence repair only:
 zero mechanism change in C00 and zero widening round.
 
-The N13b failure is classified under P41 only after two disjointness
-derivations. First, `git diff --name-status f3e3d996b..HEAD` exited `0` and
+The second review finding is bucketed as SAME class `baseline_provenance`, one
+level deeper. It does not reclassify the prior NEW timing-completeness finding:
+the first repair completed the timing record, while this repair proves whose
+red it is. It is C00 evidence repair only and spends no widening round.
+
+The temporary verifier checked out exact slice base
+`f3e3d996bd6710e26f24fd913d4fe0547f1d1a0d` and used base-first
+`PYTHONPATH=$PWD/src:$PWD`. Import-origin readback proved that both `polisyos`
+and `tools.lib.timing` resolved inside that base worktree, excluding execution
+or ambient module shadowing. With the same catalog/L5 inputs and a 600-second
+ceiling, the exact checker exited `1` at base and execution with identical
+`n13b_acquisition_contract_drift`; the complete timing pair is recorded above.
+
+The N13b failure is classified under P41 only after that exact-base replay and
+two disjointness derivations. First,
+`git diff --name-status f3e3d996b..HEAD` exited `0` and
 listed only the added DS15 plan and journal; the C00 review worktree likewise
 contains only those same two docs. Second,
 `git diff --quiet f3e3d996b..HEAD -- policy-engine/src policy-engine/tools
@@ -282,10 +298,12 @@ The controller's independent external-input hash pass exited `0` with catalog
 hash `4a1eab1363a948a875d00b0ae3929f47b763ba429c85776709641d6ca7960dd7`
 and L5 hash
 `90f341b2e71edb28b6208f580d8a920191d67240c240db9417ba18a225187aff`.
-The full rerun therefore establishes a base-owned current disagreement, not a
-DS15 mechanism regression. DS15 cannot rewrite the N13b generated artifact or
-write path; the red remains an explicit baseline non-receipt and is not used
-for closure.
+The matching exact-base/execution checker pair plus the zero input intersection
+and equal external-input hashes therefore establish a base-owned current
+disagreement, not a DS15 mechanism regression. No earlier non-base rerun alone
+supports that attribution. DS15 cannot rewrite the N13b generated artifact or
+write path; the red remains an explicit baseline non-receipt and is not used for
+closure.
 
 ## Executable red specifications
 
@@ -338,7 +356,7 @@ not claimed as executed until their named clusters materialize them.
 | P35/P36 | Historical 2,810 and expected-zero DS11 overlap were stale/supplied prose, not complete denominators. | Recompute complete path/type sets, record the 65/37/3 disagreement, cite owner artifacts/fields, and amend to the measured 2,811 baseline. |
 | P37/P38 | Supplied `63`, an expected zero, or enum presence is a proxy gate. | Fence turns on landing ancestry + dual complete set; availability turns on worker owner validation. Divergent cases are 65 paths despite `63`, three real overlaps despite expected zero, and a defined ID rejected without `_VALIDATORS`. |
 | P39 | Contributor/release records, complete timings, the worker, and exact Rego action contract were absent from the declared budget/evidence. | Name README/release companions outside the cap; replace incomplete timing receipts; add worker and Rego owners inside it; 39/39 and 11 rounds. |
-| P40/P41 | No repair ladder or unmeasured inherited-red attribution is allowed in C00. | Zero rounds spent; the full N13b drift is inherited only after exact slice-base path/input disjointness, remains a non-receipt, and cannot support closure. |
+| P40/P41 | No repair ladder or unmeasured inherited-red attribution is allowed in C00. | Zero rounds spent; SAME `baseline_provenance` is closed only by the identical exact-base/execution failure plus path/input disjointness and equal external-input hashes. The N13b drift remains a non-receipt and cannot support closure. |
 
 The source-level qualification capability remains
 `absent/unallocated + bridge_missing` at the institutional owner/composition
@@ -362,5 +380,6 @@ but no production-growth claim may.
   README/release companions exact.
 - C00 mechanism paths: 0. Widening rounds: 0. Serialized writer locks: none.
 - Qualification and fresh-positive-production non-closures: unchanged.
-- Timing review: N13a full receipt green; N13b full receipt red and preserved as
-  a P41-inherited baseline non-receipt with two disjointness derivations.
+- Timing review: N13a full receipt green; N13b exact-base and execution replays
+  both fail identically and, with two disjointness derivations plus equal input
+  hashes, preserve a P41-inherited baseline non-receipt.

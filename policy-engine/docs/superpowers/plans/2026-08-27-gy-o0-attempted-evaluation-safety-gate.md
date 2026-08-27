@@ -1217,14 +1217,24 @@ two-path intersection with O0's 36-path denominator:
 - `src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py`
 - `tests/unit/scientist/nodes/builtins/planning/test_run_hierarchical_policy_search.py`
 
-The four other Scientist chokepoints are clear and proceed on schedule:
-Scientist API/context/builder transport, causal evaluation, production policy
-backend, and blueprint runtime. Only the hierarchical-policy-search caller and
-its owner test wait. Immediately before that deferred pair, read back the
-relocation branch/worktree and local `main`. If the relocation work has landed,
-merge local `main` forward and replay the C04 owner falsifier before editing;
-otherwise continue waiting for its explicit release. Do not parallel-edit or
-guess around the reservation.
+The C00 execution readback records the lane moving while O0 was still
+read-only. At committed head
+`cd14d2da148d5b6cb8bc3865d1bb81393ac7c5bf`, the same two final-tree methods
+return 53 paths and the same two-path intersection. The dirty attached
+relocation worktree has a 129-path base-to-worktree union by two complete
+methods and adds a third live O0 collision:
+
+- `src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py`
+
+This dirty-worktree member is sequencing evidence, not a release or a claim
+that it will land. The three clear Scientist chokepoint groups proceed on
+schedule: Scientist API/context/builder transport, causal evaluation, and the
+production policy backend. Blueprint and hierarchical-policy-search source/test
+pairs wait for an explicit release readback. Immediately before either deferred
+group, read back the relocation branch/worktree and local `main`. If the
+relocation work has landed, merge local `main` forward and replay the C04 owner
+falsifier before editing; otherwise continue waiting for its explicit release.
+Do not parallel-edit or guess around the reservation.
 
 All CAS/event tests use isolated temporary stores. No shared DuckDB, fixed port,
 browser, dashboard, or production data writer is acquired.
@@ -1579,12 +1589,12 @@ tests/integration/runtime_quality/test_evaluation_safety_admission.py
 
 ### C04 — Inject the verifier port and strangle open-room Scientist executors
 
-**Split sequencing barrier:** execute and commit the four clear chokepoint
-groups first: facade/context/builder transport, causal evaluator, production
-policy backend, and blueprint runtime. Only
-`run_hierarchical_policy_search.py` and its owner test wait for the explicit
-relocation-lane release/readback in §11.2. The deferred pair is a continuation
-of C04, not a reason to hold the clear chokepoints.
+**Split sequencing barrier:** execute and commit the three clear chokepoint
+groups first: facade/context/builder transport, causal evaluator, and production
+policy backend. Blueprint runtime plus `run_hierarchical_policy_search.py` and
+its owner test wait for the explicit relocation-lane release/readback in
+§11.2. The deferred groups are continuations of C04, not a reason to hold the
+clear chokepoints.
 
 **Modify:**
 

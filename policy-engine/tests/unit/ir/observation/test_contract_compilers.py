@@ -6,6 +6,9 @@ from datetime import date, timedelta
 
 import numpy as np
 import pytest
+from pydantic import ValidationError
+
+from polisyos.foundry.data_plane import materialize_method_contract
 from polisyos.foundry.methods.catalog.causal.bounds_engine import BoundsEngineMethod
 from polisyos.foundry.methods.catalog.causal.did import StandardDifferenceInDifferences
 from polisyos.foundry.methods.catalog.causal.g_computation import ParametricGFormula
@@ -26,8 +29,19 @@ from polisyos.foundry.methods.catalog.sensitivity.specification import (
     SpecificationCurveEstimator,
 )
 from polisyos.ir.analytics.causal_graph import CausalEdge, CausalGraphModel, GraphType
+from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.ir.observation.bundles import (
+    DYNAMIC_TREATMENT_TARGET,
+    MULTIPLEX_NETWORK_TARGET,
+    NETWORK_ANALYSIS_TARGET,
+    NETWORK_DATA_TARGET,
+    PANEL_ECONOMETRIC_TARGET,
+    PANEL_OBSERVATIONAL_TARGET,
+    PROXY_MEASUREMENT_TARGET,
+    SURVEY_MICRODATA_TARGET,
+    SURVIVAL_DATA_TARGET,
     CausalPanelBundleManifest,
+    ContractCompatibilityTarget,
     DTRTreatmentSequenceBundleManifest,
     MicrosimSurveyContractBundle,
 )
@@ -74,9 +88,26 @@ from polisyos.ir.observation.contracts import (
     ObservationRecord,
     SourceConfidenceTier,
 )
-from polisyos.ir.model_layer.types import TimeFrequency
 from polisyos.scientist.methods.backtesting.orchestrator import BacktestOrchestrator
-from pydantic import ValidationError
+
+_FOUNDRY_METHOD_TARGETS: dict[str, ContractCompatibilityTarget] = {
+    "dynamic_treatment_data": DYNAMIC_TREATMENT_TARGET,
+    "multiplex_network_data": MULTIPLEX_NETWORK_TARGET,
+    "network_causal_data": NETWORK_DATA_TARGET,
+    "network_data": NETWORK_ANALYSIS_TARGET,
+    "panel_econometric_data": PANEL_ECONOMETRIC_TARGET,
+    "panel_observational_data": PANEL_OBSERVATIONAL_TARGET,
+    "proxy_measurement_data": PROXY_MEASUREMENT_TARGET,
+    "survey_micro_data": SURVEY_MICRODATA_TARGET,
+    "survival_data": SURVIVAL_DATA_TARGET,
+}
+
+
+def _materialize_artifact(artifact):
+    return materialize_method_contract(
+        contract_target=_FOUNDRY_METHOD_TARGETS[artifact.artifact_key],
+        contract_payload=artifact.contract,
+    )
 
 
 def _period(month: int) -> tuple[date, date]:
@@ -416,7 +447,7 @@ def test_survival_compiler_sets_right_censoring_flags() -> None:
         _suite_specs()["survival_spec"],  # type: ignore[arg-type]
     )
 
-    contract = artifact.contract
+    contract = _materialize_artifact(artifact)
     assert contract.events.shape[0] == 20
     assert int(np.sum(contract.events == 0)) == 10
     assert int(np.sum(contract.events == 1)) == 10
@@ -425,6 +456,7 @@ def test_survival_compiler_sets_right_censoring_flags() -> None:
 def test_compilers_round_trip_deterministic_bundles(tmp_path) -> None:
     suite = ObservationContractCompilerSuite()
     panel = _observation_panel()
+    graph = _graph_artifacts()
     firm_panels = _firm_panels()
     firm_events = _firm_events()
     region_sector_panels = _region_sector_panels()
@@ -432,9 +464,19 @@ def test_compilers_round_trip_deterministic_bundles(tmp_path) -> None:
     specs = _suite_specs()
 
     survey_artifact = suite.survey.compile(panel, specs["survey_spec"])  # type: ignore[arg-type]
+    network_artifacts = suite.network.compile(graph, specs["network_spec"])  # type: ignore[arg-type]
+    network_causal_artifact = suite.network_causal.compile(
+        panel,
+        graph,
+        specs["network_causal_spec"],  # type: ignore[arg-type]
+    )
     dynamic_artifact = suite.dynamic.compile(panel, specs["dynamic_treatment_spec"])  # type: ignore[arg-type]
     panel_artifact = suite.panel.compile(panel, specs["panel_spec"])  # type: ignore[arg-type]
     survival_artifact = suite.survival.compile(firm_events, firm_panels, specs["survival_spec"])  # type: ignore[arg-type]
+    panel_econometric_artifact = suite.panel_econometric.compile(
+        firm_panels,
+        specs["panel_econometric_spec"],  # type: ignore[arg-type]
+    )
     spec_artifact = suite.specification_curve.compile(panel, specs["specification_curve_spec"])  # type: ignore[arg-type]
     leontief_artifact = suite.leontief.compile(region_sector_panels, specs["leontief_spec"])  # type: ignore[arg-type]
     proxy_artifact = suite.proxy.compile(panel, proxy_map, specs["proxy_spec"])  # type: ignore[arg-type]
@@ -471,6 +513,26 @@ def test_compilers_round_trip_deterministic_bundles(tmp_path) -> None:
     assert proxy_artifact.bundle.proxy_map == {"c": "c_star"}
     assert leontief_artifact.bundle.contract_payload["sector_names"]
 
+    for artifact in (
+        survey_artifact,
+        network_artifacts["network_data"],
+        network_artifacts["multiplex_network_data"],
+        network_causal_artifact,
+        dynamic_artifact,
+        panel_artifact,
+        survival_artifact,
+        panel_econometric_artifact,
+        proxy_artifact,
+    ):
+        assert isinstance(artifact.contract, dict)
+        materialized = _materialize_artifact(artifact)
+        assert materialized.model_dump(mode="json") == artifact.contract
+        rematerialized = materialize_method_contract(
+            contract_target=_FOUNDRY_METHOD_TARGETS[artifact.artifact_key],
+            contract_payload=materialized.model_dump(mode="json"),
+        )
+        assert rematerialized.model_dump(mode="json") == artifact.contract
+
 
 def test_load_npz_payload_raises_on_malformed_json_scalar(tmp_path) -> None:
     npz_path = tmp_path / "broken_payload.npz"
@@ -506,7 +568,7 @@ def test_network_causal_compiler_shapes() -> None:
         _suite_specs()["network_causal_spec"],  # type: ignore[arg-type]
     )
 
-    contract = artifact.contract
+    contract = _materialize_artifact(artifact)
     assert contract.adjacency_matrix.shape == (20, 20)
     assert contract.cluster_id.shape == (20,)
     assert contract.coordinates.shape == (20, 2)
@@ -563,41 +625,51 @@ def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) 
         item.artifact_name == "backtest_plan_bundle.json" for item in result.manifest.artifacts
     )
 
-    microsim_out = StaticMicrosimEstimator.pure_step(
-        result.artifacts["survey_micro_data"].contract, {}
+    survey_contract = _materialize_artifact(result.artifacts["survey_micro_data"])
+    network_contract = _materialize_artifact(result.artifacts["network_data"])
+    multiplex_contract = _materialize_artifact(result.artifacts["multiplex_network_data"])
+    network_causal_contract = _materialize_artifact(result.artifacts["network_causal_data"])
+    panel_contract = _materialize_artifact(result.artifacts["panel_observational_data"])
+    dynamic_contract = _materialize_artifact(result.artifacts["dynamic_treatment_data"])
+    survival_contract = _materialize_artifact(result.artifacts["survival_data"])
+    panel_econometric_contract = _materialize_artifact(
+        result.artifacts["panel_econometric_data"]
     )
-    network_out = NetworkDiffusionEstimator.pure_step(result.artifacts["network_data"].contract, {})
+    proxy_contract = _materialize_artifact(result.artifacts["proxy_measurement_data"])
+
+    microsim_out = StaticMicrosimEstimator.pure_step(survey_contract, {})
+    network_out = NetworkDiffusionEstimator.pure_step(network_contract, {})
     multiplex_out = MultiplexNetworkEstimator.pure_step(
-        result.artifacts["multiplex_network_data"].contract, {}
+        multiplex_contract, {}
     )
     network_causal_out = NetworkAIPWEstimator.pure_step(
-        result.artifacts["network_causal_data"].contract,
+        network_causal_contract,
         {"n_bootstrap": 10, "confidence_level": 0.9},
     )
     panel_out = StandardDifferenceInDifferences.pure_step(
-        result.artifacts["panel_observational_data"].contract,
+        panel_contract,
         {},
     )
     dynamic_out = ParametricGFormula.pure_step(
-        result.artifacts["dynamic_treatment_data"].contract,
+        dynamic_contract,
         {"n_monte_carlo": 100, "n_bootstrap": 20},
     )
     survival_out = None
     if importlib.util.find_spec("lifelines") is not None:
         survival_out = SurvivalAnalysisEstimator.pure_step(
-            result.artifacts["survival_data"].contract, {}
+            survival_contract, {}
         )
     econometric_out = None
     if importlib.util.find_spec("linearmodels") is not None:
         econometric_out = PanelDataEstimator.pure_step(
-            result.artifacts["panel_econometric_data"].contract,
+            panel_econometric_contract,
             {"model": "fixed_effects"},
         )
     bounds_out = BoundsEngineMethod.pure_step(
         result.artifacts["bounds_estimation_input"].contract,
         {"has_iv": True, "has_selection": True, "use_auto_bounds": False},
     )
-    proxy_payload = result.artifacts["proxy_measurement_data"].contract.model_dump(mode="python")
+    proxy_payload = proxy_contract.model_dump(mode="python")
     proxy_out = MeasurementErrorEstimator.pure_step(
         proxy_payload,
         {"method": "bounds", "error_rate_bound": 0.1},
@@ -632,11 +704,11 @@ def test_compile_all_and_downstream_methods_accept_compiled_contracts(tmp_path) 
     if survival_out is not None:
         _assert_primary_payload(survival_out)
     else:
-        assert result.artifacts["survival_data"].contract.events.shape[0] == 20
+        assert survival_contract.events.shape[0] == 20
     if econometric_out is not None:
         _assert_primary_payload(econometric_out)
     else:
-        assert result.artifacts["panel_econometric_data"].contract.n_obs == 80
+        assert panel_econometric_contract.n_obs == 80
     _assert_primary_payload(bounds_out)
     _assert_primary_payload(proxy_out)
     assert getattr(id_result, "status", None) is not None

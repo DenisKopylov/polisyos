@@ -89,11 +89,11 @@ At every seam boundary:
 
 ### Seam 8: IR method-protocol binding — 7 statements
 
-- [ ] Keep IR manifests and pure codecs; move concrete causal, econometric,
+- [x] Keep IR manifests and pure codecs; move concrete causal, econometric,
   microsimulation, ML, and network DTO materializers to Foundry data-plane.
-- [ ] Make `TemporalDTRTask` carry a neutral payload and validate/materialize it
+- [x] Make `TemporalDTRTask` carry a neutral payload and validate/materialize it
   at the upper adapter.
-- [ ] Preserve deterministic round trips and one real downstream consumer.
+- [x] Preserve deterministic round trips and one real downstream consumer.
 
 ### Seam 9: IR strategic/transportability adapters — 3 statements
 

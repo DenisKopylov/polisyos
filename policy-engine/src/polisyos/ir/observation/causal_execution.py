@@ -21,8 +21,8 @@ from polisyos.ir.artifacts import (
     put_json_artifact,
 )
 from polisyos.ir.artifacts.contracts import ArtifactID
-from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.kernel.base import ID_PATTERN, KernelModel
+from polisyos.ir.model_layer.canon import CanonSpec
 from polisyos.ir.observation.contracts import (
     IdentificationMode,
     ObservationFamily,
@@ -36,7 +36,6 @@ from polisyos.ir.registry.refs import (
 )
 
 if TYPE_CHECKING:
-    from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
     from polisyos.ir.analytics.dynamic_regime import (
         ContinuousTimeQuery,
         TemporalInterventionTrajectory,
@@ -48,7 +47,6 @@ if TYPE_CHECKING:
     )
     from polisyos.ir.observation.contract_compilers import BoundsEstimationInput
 else:
-    from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
     from polisyos.ir.analytics.dynamic_regime import (
         ContinuousTimeQuery,
         TemporalInterventionTrajectory,
@@ -83,13 +81,13 @@ class BoundsEstimationTask(KernelModel):
 class TemporalDTRTask(KernelModel):
     """Executable dynamic treatment regime task for sequential interventions.
 
-    Tasks can be backed by fully materialized dynamic-treatment data, a bundle
+    Tasks can be backed by a neutral dynamic-treatment payload, a bundle
     manifest, an explicit temporal intervention sequence, or raw step payloads.
     """
 
     task_id: str = Field(..., pattern=ID_PATTERN)
     dtr_method: Literal["q_learning", "a_learning", "owl", "dr_dtr"] = "q_learning"
-    dynamic_treatment_data: DynamicTreatmentData | None = None
+    dynamic_treatment_data: dict[str, Any] | None = None
     bundle_manifest: DTRTreatmentSequenceBundleManifest | None = None
     temporal_sequence: TemporalInterventionSequence | None = None
     sequence_id: str | None = Field(default=None, pattern=ID_PATTERN)

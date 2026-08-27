@@ -83,6 +83,7 @@ Every row below was classified before the first source edit. Result:
 | seam 5 — calibration policy pair | 3/10 | Scientist now applies calibration meta-overrides before persisting Foundry inputs and resolves the complete CI-threshold scope before dispatch; Foundry consumes only a typed resolved policy set or declared local defaults. Cleared FS-02 and FS-03. | stands; round 3 bought the public-stable `CITestThresholdPolicySet` handoff and its explicit breaking migration surface |
 | seam 6 — composition failure-card contract | 4/10 | The dependency-neutral failure-card DTOs/enums have one IR identity consumed by the existing Foundry producer and Scientist persistence/orchestration paths. Cleared FS-04. | stands; round 4 bought the three-name stable IR contract surface and its schema/identity obligations; shared generated inventory projection is deferred intact to the final generator boundary |
 | seam 7 — policy-frontier embedders | 5/10 | Generic TF-IDF and optional sentence-transformer implementations now have one Foundry-owned identity; existing Foundry and Scientist consumers use the narrow stable root. Cleared FS-05 and closes `foundry -> scientist` 5/5. | stands; round 5 bought exactly three stable root names; the rejected 26-name backend publication was withdrawn and consumed no additional round |
+| seam 8 — IR method-protocol binding | 6/10 | IR now emits neutral JSON payloads for nine method-contract families; one fail-closed Foundry materializer admits them by exact contract ID and FQN, and both real upper consumers use that chokepoint. Cleared IF-01..07. | stands; round 6 bought the single new `foundry.data_plane.materialize_method_contract` export; the P31 consumer repair widened the same mechanism and consumed no additional round |
 
 No round has been withdrawn.
 
@@ -425,3 +426,48 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   future closure is a persisted immutable effective dependency/parallel-level
   plan across compilation and executors; that capability is outside this seam.
   Final independent delta review returned Ready after the lazy-facade repair.
+
+### Seam 8 — IR method-protocol binding
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 7 commit
+  `85f0b8f935ec` read back before staging.
+- Observed mechanism/test path set is exactly 10 paths: two existing Foundry
+  data-plane paths, two IR observation paths, two Scientist consumer paths,
+  and four focused test paths. This plan and journal are the two mandatory P39
+  record companions. The dirty C7 integration test belongs to Seam 11 and is
+  deliberately excluded from this commit.
+- IR emits deterministic JSON payloads for all nine causal, econometric,
+  microsimulation, ML, and network families. The existing Foundry data-plane
+  owns a single allow-registry/materializer that exact-matches both stable
+  contract ID and fully qualified name before strict DTO validation. Unknown
+  IDs, mismatched FQNs, and malformed known payloads fail closed.
+- The P31 reopen found the C7 survival adapter's direct `.features` assumption.
+  A complete 2,594/2,594-file production AST census, independently matched by
+  `rg --files`, found three materializer call sites: the central Foundry intake
+  and the two real neutral-payload consumers (DTR and C7 survival). Both real
+  consumers now use the same chokepoint; the apparent simulation route reloads
+  CAS data already admitted at Foundry intake. Six unused family outputs remain
+  `consumer_missing` if claimed individually; proxy is bundle-consumed. No
+  residual sibling consumer or ambiguous statement remains.
+- The P31 repair was demonstrated RED at the original dict `.features` escape
+  (2 failed; `real=44.40s`, `user=42.19s`, `sys=1.64s`) and GREEN after the
+  chokepoint repair (2 passed; `real=40.56s`, `user=38.99s`, `sys=1.41s`).
+  Independent review ran six decisive materialization/consumer tests in
+  37.09s and returned Ready. Root separately reran the previously failing real
+  C7 synthetic pipeline: direct exit 0, 1 passed, `real=53.64s`,
+  `user=53.66s`, `sys=3.08s`, with uptime 00:38/up 3d14:52 to
+  00:39/up 3d14:52. Changed-path Ruff, compile checks, and `git diff --check`
+  completed exit 0.
+- Independent two-file AST comparison reports the seven IR-to-Foundry
+  statements moved 7 -> 0 without a facade. The complete current source
+  linter reports 11 findings total and zero `ir -> foundry`; the row's exact
+  literal closure command completed direct exit 0. This seam claims IF-01..07;
+  the separately declared strategic, lowering, and compiler/JAX seams supply
+  the other six removals already present in the composite tree.
+- Capability result: neutral typed target/payload contract, IR producer,
+  persisted bundle/CAS routes, Foundry admission bridge, two real Scientist
+  consumers, strict negative verification, and internal audit-visible payloads
+  are wired. Materialization grants no policy authority. Round 6 is charged
+  solely for the new `foundry.data_plane` export; the same-class P31 repair
+  widened that one mechanism and consumed no second round.

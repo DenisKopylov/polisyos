@@ -13,7 +13,7 @@ from polisyos.core.run.context import RunContext
 from polisyos.foundry.methods.catalog.causal.protocols import DynamicTreatmentData
 from polisyos.ir.governance.policy_spec import TemporalInterventionSequence
 from polisyos.ir.model_layer.types import TimeFrequency
-from polisyos.ir.observation.causal_execution import load_causal_execution_bundle
+from polisyos.ir.observation.causal_execution import TemporalDTRTask, load_causal_execution_bundle
 from polisyos.ir.observation.contract_compilers import (
     DynamicTreatmentCompileSpec,
     ObservationContractCompilerSuite,
@@ -194,7 +194,7 @@ def test_temporal_compiler_runs_three_step_sequence_and_returns_dtr_result(tmp_p
 
 def test_temporal_compiler_accepts_direct_dynamic_data_and_method_override(tmp_path) -> None:
     compiler = TemporalInterventionSequenceCompiler(store=FileSystemCAS(tmp_path))
-    result = compiler.compile(
+    task = TemporalDTRTask.model_validate(
         {
             "task_id": "temporal_direct_task",
             "dynamic_treatment_data": _direct_dynamic_treatment_data().model_dump(mode="json"),
@@ -202,6 +202,9 @@ def test_temporal_compiler_accepts_direct_dynamic_data_and_method_override(tmp_p
             "params": {"n_bootstrap": 20},
         }
     )
+    assert isinstance(task.dynamic_treatment_data, dict)
+
+    result = compiler.compile(task)
 
     assert result.dtr_result is not None
     assert result.dtr_result.method == "a_learning"
@@ -220,6 +223,7 @@ def test_c3_dynamic_treatment_artifact_flows_into_temporal_compiler(tmp_path) ->
         ),
     )
     artifact = compiled.artifacts["dynamic_treatment_data"]
+    assert isinstance(artifact.contract, dict)
     result = TemporalInterventionSequenceCompiler(store=FileSystemCAS(tmp_path)).compile(
         {
             "task_id": "compiled_dynamic_task",

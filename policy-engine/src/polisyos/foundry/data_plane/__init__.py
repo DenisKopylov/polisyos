@@ -11,6 +11,7 @@ from .bindings import (
     inject_feedback_state,
     load_input_bindings,
     load_ukraine_foundry_intake,
+    materialize_method_contract,
     resolve_bound_state_snapshot_ref,
 )
 
@@ -23,5 +24,6 @@ __all__ = [
     "inject_feedback_state",
     "load_input_bindings",
     "load_ukraine_foundry_intake",
+    "materialize_method_contract",
     "resolve_bound_state_snapshot_ref",
 ]

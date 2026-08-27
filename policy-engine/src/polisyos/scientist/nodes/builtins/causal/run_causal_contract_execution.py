@@ -16,6 +16,7 @@ from pydantic import ValidationError
 
 from polisyos.core.artifacts.manifest import ArtifactRef
 from polisyos.core.components import Capability, ComponentId, ComponentKind, ComponentMetadata
+from polisyos.foundry.data_plane import materialize_method_contract
 from polisyos.foundry.methods.catalog.causal.causal_engine import CausalEngine
 from polisyos.foundry.methods.catalog.causal.dtr import (
     ALearningDTR,
@@ -28,6 +29,7 @@ from polisyos.ir.analytics.dynamic_regime import DTRResult, persist_dynamic_trea
 from polisyos.ir.artifacts import InputRef
 from polisyos.ir.governance.policy_spec import TemporalInterventionSequence
 from polisyos.ir.kernel.base import KernelModel
+from polisyos.ir.observation.bundles import DYNAMIC_TREATMENT_TARGET, ContractCompatibilityTarget
 from polisyos.ir.observation.causal_execution import (
     BoundsEstimationTask,
     CausalExecutionBundle,
@@ -188,10 +190,14 @@ class TemporalInterventionSequenceCompiler:
         task: TemporalDTRTask,
     ) -> tuple[DynamicTreatmentData, TemporalInterventionSequence | None]:
         if task.dynamic_treatment_data is not None:
-            return task.dynamic_treatment_data, task.temporal_sequence
+            return _materialize_dynamic_treatment_data(
+                DYNAMIC_TREATMENT_TARGET,
+                task.dynamic_treatment_data,
+            ), task.temporal_sequence
         if task.bundle_manifest is not None and task.bundle_manifest.contract_payload:
-            return DynamicTreatmentData.model_validate(
-                task.bundle_manifest.contract_payload
+            return _materialize_dynamic_treatment_data(
+                task.bundle_manifest.contract_target,
+                task.bundle_manifest.contract_payload,
             ), task.temporal_sequence
         sequence = task.temporal_sequence
         if sequence is None:
@@ -240,6 +246,24 @@ class TemporalInterventionSequenceCompiler:
         if task.temporal_sequence is not None:
             return "temporal_sequence"
         return "sequence_steps"
+
+
+def _materialize_dynamic_treatment_data(
+    contract_target: ContractCompatibilityTarget,
+    contract_payload: Mapping[str, Any],
+) -> DynamicTreatmentData:
+    """Materialize and narrow one neutral IR payload to the DTR method contract."""
+
+    materialized = materialize_method_contract(
+        contract_target=contract_target,
+        contract_payload=contract_payload,
+    )
+    if not isinstance(materialized, DynamicTreatmentData):
+        raise ValueError(
+            "temporal DTR task target must materialize DynamicTreatmentData, "
+            f"got {type(materialized).__name__}"
+        )
+    return materialized
 
 
 def _to_dynamic_treatment(

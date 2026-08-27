@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import importlib.util as _importlib_util
+
 from polisyos.fabric.world.store import (
     SEGMENTS_INDEX_NAME,
     WorldFactError,
@@ -40,8 +42,16 @@ from polisyos.fabric.world.store import (
     validate_world_facts,
     write_world_fact_segment,
 )
+from polisyos.fabric.world.write import (
+    WorldSnapshotBackendUnavailable,
+    WorldSnapshotFactWrite,
+    WorldSnapshotNodeWrite,
+    WorldSnapshotWriteRequest,
+    write_world_snapshot,
+)
 
-try:
+_DUCKDB_AVAILABLE = _importlib_util.find_spec("duckdb") is not None
+if _DUCKDB_AVAILABLE:
     from polisyos.fabric.world.materialize import (
         MergeStrategy,
         WorldArtifactReadError,
@@ -49,6 +59,7 @@ try:
         WorldKuzuImportError,
         WorldKuzuNotAvailable,
         WorldMaterializationError,
+        WorldMaterializationPolicy,
         WorldMaterializeSegmentStats,
         WorldMaterializeStats,
         WorldMergeConflict,
@@ -69,6 +80,7 @@ try:
         WorldKuzuImportError,
         WorldKuzuNotAvailable,
         WorldMaterializationError,
+        WorldMaterializationPolicy,
         WorldMaterializeSegmentStats,
         WorldMaterializeStats,
         WorldMergeConflict,
@@ -82,7 +94,7 @@ try:
         materialize_world_kuzu_from_duckdb,
     )
     _MATERIALIZE_AVAILABLE = True
-except ModuleNotFoundError:  # pragma: no cover - optional dependency path
+else:  # pragma: no cover - optional dependency path
     _MATERIALIZE_EXPORTS = ()
     _MATERIALIZE_AVAILABLE = False
 
@@ -91,6 +103,10 @@ __all__ = [
     "WorldFactError",
     "WorldIDError",
     "WorldSegmentError",
+    "WorldSnapshotBackendUnavailable",
+    "WorldSnapshotFactWrite",
+    "WorldSnapshotNodeWrite",
+    "WorldSnapshotWriteRequest",
     "WorldStoreError",
     "WorldValidationError",
     "append_world_segment_index",
@@ -123,6 +139,7 @@ __all__ = [
     "validate_world_event_id",
     "validate_world_facts",
     "write_world_fact_segment",
+    "write_world_snapshot",
 ]
 
 if _MATERIALIZE_AVAILABLE:

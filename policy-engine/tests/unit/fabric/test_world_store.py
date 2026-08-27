@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+import ast
+import json
+import os
+import subprocess
+import sys
 from collections import Counter
 from concurrent.futures import ThreadPoolExecutor
 from datetime import UTC, datetime
@@ -9,6 +14,8 @@ from types import SimpleNamespace
 
 import pandas as pd
 import pytest
+from pydantic import ValidationError
+
 from polisyos.core.observability import get_metrics, get_tracer
 from polisyos.fabric.world.providers import resolve_world_observability
 from polisyos.fabric.world.store import (
@@ -29,7 +36,18 @@ from polisyos.ir.world.abi import EdgeKind, NodeKind
 from polisyos.ir.world.claim import Claim, ClaimSourceKind
 from polisyos.ir.world.doc import DocMeta
 from polisyos.ir.world.ids import doc_source_id, doc_version_id_from_raw_artifact
-from pydantic import ValidationError
+
+REPO_ROOT = Path(__file__).resolve().parents[3]
+WORLD_FACADE = REPO_ROOT / "src" / "polisyos" / "fabric" / "world" / "__init__.py"
+UNCONDITIONAL_WRITE_DELTA = frozenset(
+    {
+        "WorldSnapshotBackendUnavailable",
+        "WorldSnapshotFactWrite",
+        "WorldSnapshotNodeWrite",
+        "WorldSnapshotWriteRequest",
+        "write_world_snapshot",
+    }
+)
 
 
 def _artifact_id(value: str) -> str:
@@ -335,3 +353,111 @@ def test_gc_world_segments_keeps_latest_and_unapplied(tmp_path: Path) -> None:
     assert not Path(manifests[0].path).exists()
     remaining = {manifest.segment_id for manifest in load_world_fact_manifests(tmp_path)}
     assert remaining == set(report.retained_segment_ids)
+
+
+def _world_facade_export_sets() -> tuple[frozenset[str], frozenset[str]]:
+    tree = ast.parse(WORLD_FACADE.read_text(encoding="utf-8"), filename=str(WORLD_FACADE))
+    base: set[str] = set()
+    materialization: set[str] = set()
+    for node in tree.body:
+        if isinstance(node, ast.Assign) and any(
+            isinstance(target, ast.Name) and target.id == "__all__" for target in node.targets
+        ):
+            assert isinstance(node.value, (ast.List, ast.Tuple))
+            base.update(
+                element.value
+                for element in node.value.elts
+                if isinstance(element, ast.Constant) and isinstance(element.value, str)
+            )
+        if (
+            isinstance(node, ast.If)
+            and isinstance(node.test, ast.Name)
+            and node.test.id == "_DUCKDB_AVAILABLE"
+        ):
+            for descendant in ast.walk(node):
+                if (
+                    isinstance(descendant, ast.ImportFrom)
+                    and descendant.module == "polisyos.fabric.world.materialize"
+                ):
+                    materialization.update(alias.asname or alias.name for alias in descendant.names)
+    return frozenset(base), frozenset(materialization)
+
+
+def _world_facade_subprocess(*, block_duckdb: bool, expected: frozenset[str]) -> dict[str, object]:
+    blocker = ""
+    if block_duckdb:
+        blocker = """
+import importlib.machinery
+import sys
+
+_path_finder = importlib.machinery.PathFinder
+
+class _DuckDBBlockingPathFinder:
+    @classmethod
+    def find_spec(cls, fullname, path=None, target=None):
+        if fullname == "duckdb" or fullname.startswith("duckdb."):
+            return None
+        return _path_finder.find_spec(fullname, path, target)
+
+sys.meta_path = [
+    _DuckDBBlockingPathFinder if finder is _path_finder else finder
+    for finder in sys.meta_path
+]
+"""
+    script = (
+        blocker
+        + """
+import json
+import os
+import polisyos.fabric.world as world
+
+expected = set(json.loads(os.environ["POLISYOS_EXPECTED_WORLD_EXPORTS"]))
+payload = {
+    "all": sorted(world.__all__),
+    "available": sorted(name for name in expected if hasattr(world, name)),
+}
+print(json.dumps(payload, sort_keys=True))
+"""
+    )
+    env = os.environ.copy()
+    env["PYTHONPATH"] = os.pathsep.join(
+        [str(REPO_ROOT / "src"), env.get("PYTHONPATH", "")]
+    )
+    env["POLISYOS_EXPECTED_WORLD_EXPORTS"] = json.dumps(sorted(expected))
+    completed = subprocess.run(
+        [sys.executable, "-c", script],
+        cwd=REPO_ROOT,
+        env=env,
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0, completed.stderr
+    return json.loads(completed.stdout.strip().splitlines()[-1])
+
+
+def test_world_facade_executes_source_derived_normal_and_blocked_branches() -> None:
+    base, materialization = _world_facade_export_sets()
+    legacy_base = base - UNCONDITIONAL_WRITE_DELTA
+
+    assert len(legacy_base) == 36
+    assert base >= UNCONDITIONAL_WRITE_DELTA
+    assert "WorldMaterializationPolicy" in materialization
+    assert base.isdisjoint(materialization)
+
+    normal_expected = base | materialization
+    blocked_expected = base
+    normal = _world_facade_subprocess(block_duckdb=False, expected=normal_expected)
+    blocked = _world_facade_subprocess(block_duckdb=True, expected=blocked_expected)
+
+    assert normal == {"all": sorted(normal_expected), "available": sorted(normal_expected)}
+    assert blocked == {"all": sorted(blocked_expected), "available": sorted(blocked_expected)}
+
+
+def test_world_store_preserves_lazy_snapshot_surface_when_backend_exists() -> None:
+    from polisyos.fabric.world import store
+    from polisyos.fabric.world.store import snapshots
+
+    for name in snapshots.__all__:
+        assert name in store.__all__
+        assert getattr(store, name) is getattr(snapshots, name)

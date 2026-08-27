@@ -636,7 +636,7 @@ def render_ledger(snapshot: _Snapshot) -> str:
             "| ladder | task ids | indexed here | why |",
             "| --- | ---: | ---: | --- |",
             f"| Atlas slice sequence | 21 | {len(snapshot.work)} | open slices only; closed ones stay in the master plan |",
-            f"| `GY-engine-subordination.md` | 37 | {sum(1 for row in snapshot.work if row.slice_id.startswith('GY-'))} | indexed from the authoritative task-standing table (§8.5), censused 2026-08-23: 24 `executed`, 1 `in_flight`, 1 `not_executable`, 11 `not_started`, 0 `ambiguous`. Only non-terminal rows are listed above. |",
+            f"| `GY-engine-subordination.md` | 37 | {sum(1 for row in snapshot.work if row.slice_id.startswith('GY-'))} | indexed from the authoritative task-standing table (§8.5), censused 2026-08-27: 25 `executed`, 0 `in_flight`, 1 `not_executable`, 11 `not_started`, 0 `ambiguous`. Only non-terminal rows are listed above. |",
             "| 16 further plans (Foundry, Fabric, Scientist, UPDC, Layer2/3, …) | 213 | 0 | dormant lanes; out of the declared scope, counted so the remainder is visible |",
             "",
             "Measured 2026-08-23 across `docs/plans/active/**`: **271 task ids in 18 plans**. This ledger",

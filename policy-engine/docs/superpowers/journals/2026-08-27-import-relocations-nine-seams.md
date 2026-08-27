@@ -85,6 +85,7 @@ Every row below was classified before the first source edit. Result:
 | seam 7 — policy-frontier embedders | 5/10 | Generic TF-IDF and optional sentence-transformer implementations now have one Foundry-owned identity; existing Foundry and Scientist consumers use the narrow stable root. Cleared FS-05 and closes `foundry -> scientist` 5/5. | stands; round 5 bought exactly three stable root names; the rejected 26-name backend publication was withdrawn and consumed no additional round |
 | seam 8 — IR method-protocol binding | 6/10 | IR now emits neutral JSON payloads for nine method-contract families; one fail-closed Foundry materializer admits them by exact contract ID and FQN, and both real upper consumers use that chokepoint. Cleared IF-01..07. | stands; round 6 bought the single new `foundry.data_plane.materialize_method_contract` export; the P31 consumer repair widened the same mechanism and consumed no additional round |
 | seam 9 — IR strategic/transportability adapters | 6/10 | Existing Foundry owners now interpret solve results, assemble strategic responses, and materialize `SourceDomain`; IR retains neutral declarations and persistence only. Cleared IF-08..10. | stands; consumer-up relocation into existing modules and already-allowed directions introduced no package, module, surface, authority publication, or constraint loosening |
+| seam 10 — IR kernel lowering | 6/10 | The duplicate execution-aware IR pass is removed; the existing Foundry compiler now carries a typed blocked kernel specification through real refusal execution and audit persistence. Cleared IF-11/12. | stands; consolidation and a private repair inside existing Foundry ownership introduced no new surface or constraint |
 
 No round has been withdrawn.
 
@@ -505,3 +506,38 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   and end-to-end strategic-response coverage supply the semantic negatives.
   This downward/consumer-up move uses existing modules and surfaces and consumes
   no widening round; the ledger remains 6/10.
+
+### Seam 10 — IR kernel lowering
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 9 commit
+  `c3ad78f933aa` read back after writing and before this boundary.
+- Observed mechanism/test path set is exactly four: the existing Foundry
+  estimand compiler, the IR pass implementation and facade, and the focused
+  Foundry kernel runtime test. This plan/journal pair are P39 record companions.
+  `docs/reference/ir/schema-catalog.md` is a mandatory generated companion that
+  still names the deleted pass and is explicitly deferred to the final
+  serialized generator boundary; its current `--check` correctly reports stale.
+- The duplicate, unwired `KernelLoweringPass` is removed from IR and its facade;
+  existing Foundry lowering remains canonical. Review exposed a NEW class inside
+  the same seam: the first test checked a recommendation marker, while the real
+  `KernelRefusal` could not execute because compilation omitted `kernel_spec`.
+  This was bucketed as `semantic_test_missing` / P38, not another ownership
+  relocation instance.
+- The repair deterministically rebuilds the same typed blocked
+  `KernelEstimatorSpec` at the existing Foundry compiler and binds its JSON to
+  the kernel-refusal node. A RED real compile -> execute -> audit test observed
+  `report is None` (`real=31.64s`, `user=29.56s`, `sys=1.38s`). GREEN reports
+  `ASSUMPTION_FAILED`, exact `operator_certificate_missing`, CAS-persisted
+  `proof_only` disposition, and audit method configuration (`real=33.27s`,
+  `user=31.41s`, `sys=1.45s`). The 12-test focused lowering/runtime wave passed;
+  independent review reran four kernel tests and returned Ready.
+- The refusal parameter is gated only on `causal.kernel.refusal@1.0.0`; the
+  existing generic recovery-refusal test remains green. Complete independent
+  AST census over 5,044 source/test Python files found zero live
+  `KernelLoweringPass` references and zero IR-to-Foundry imports. Changed-path
+  Ruff and `git diff --check` completed exit 0.
+- Capability result: the existing Foundry compiler produces the typed blocked
+  spec, the executable DAG carries it, the engine consumes it, CAS/audit persist
+  it, and the negative semantic test proves the refused path itself works.
+  Consolidation uses existing owners and surfaces, so the ledger remains 6/10.

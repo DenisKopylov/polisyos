@@ -104,9 +104,9 @@ At every seam boundary:
 
 ### Seam 10: IR kernel lowering — 2 statements
 
-- [ ] Remove the duplicate execution-aware IR lowering path and consolidate on
+- [x] Remove the duplicate execution-aware IR lowering path and consolidate on
   the existing Foundry estimand compiler/kernel lowering implementation.
-- [ ] Prove compile/execute/audit behavior and negative dispositions.
+- [x] Prove compile/execute/audit behavior and negative dispositions.
 
 ### Seam 11: IR calibration/JAX — 2 statements, two predicates
 

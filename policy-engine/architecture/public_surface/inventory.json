@@ -4007,7 +4007,7 @@
         "polisyos.lex.knowledge"
       ],
       "major_subsystem": true,
-      "export_count": 53,
+      "export_count": 52,
       "exports": [
         "ActiveVersionResult",
         "ActiveVersionStrategy",
@@ -4052,7 +4052,6 @@
         "TemporalInterventionSequenceCompiler",
         "TemporalInterventionSequencer",
         "TemporalInterventionStepInput",
-        "WorldEventRefLike",
         "assemble_norm_pack",
         "build_legal_authority_report",
         "build_legal_authority_requirement_artifact",
@@ -4072,7 +4071,7 @@
         {
           "module": "polisyos.lex",
           "facade_mode_observed": "lazy_facade",
-          "export_count": 53,
+          "export_count": 52,
           "exports": [
             "ActiveVersionResult",
             "ActiveVersionStrategy",
@@ -4117,7 +4116,6 @@
             "TemporalInterventionSequenceCompiler",
             "TemporalInterventionSequencer",
             "TemporalInterventionStepInput",
-            "WorldEventRefLike",
             "assemble_norm_pack",
             "build_legal_authority_report",
             "build_legal_authority_requirement_artifact",

@@ -1,24 +1,13 @@
-"""Lex runtime contracts plus compatibility aliases for legal corpus write contracts."""
+"""Lex runtime contracts for read-side legal workflows and NormPack assembly."""
 
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import TYPE_CHECKING
+from pathlib import Path
+from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel, ConfigDict
 
-from polisyos.data_forge.domains.legal.contracts import (
-    ActiveVersionResult,
-    ActiveVersionStrategy,
-    LegalDocSource,
-    LexIngestOptions,
-    LexIngestResult,
-    LexStructureOptions,
-    LexStructureResult,
-    LexVersionIndexOptions,
-    LexVersionIndexResult,
-    WorldEventRefLike,
-)
 from polisyos.fabric.docs import (
     DocChunkOptions,
     DocIngestOptions,
@@ -28,6 +17,34 @@ from polisyos.fabric.docs import (
 
 if TYPE_CHECKING:
     from polisyos.ir.loading.fact_log import FactSegmentManifest
+
+
+@dataclass(frozen=True)
+class ActiveVersionStrategy:
+    """How Lex resolves the active document revision for an ``as_of`` date."""
+
+    mode: Literal["by_version_index_v1"] = "by_version_index_v1"
+    version_index_artifact_id: str | None = None
+    fact_log_root: Path | None = None
+    as_of_semantics: Literal["date_inclusive"] = "date_inclusive"
+    tie_breaker: Literal["effective_from_then_published_then_doc_version_id"] = (
+        "effective_from_then_published_then_doc_version_id"
+    )
+    include_candidates: bool = False
+
+
+@dataclass(frozen=True)
+class ActiveVersionResult:
+    """Lex-owned outcome of active-version resolution."""
+
+    doc_source_id: str
+    as_of_iso: str
+    selected_doc_version_id: str | None
+    selected_doc_meta_artifact_id: str | None
+    selection_policy_id: str
+    used_version_index_artifact_id: str
+    explanation: list[str]
+    candidates: list[dict[str, str | None]] = field(default_factory=list)
 
 
 class ResolveCandidate(BaseModel):
@@ -130,17 +147,9 @@ __all__ = [
     "DocIngestOptions",
     "DocNormalizeOptions",
     "DocStructureOptions",
-    "LegalDocSource",
-    "LexIngestOptions",
-    "LexIngestResult",
-    "LexStructureOptions",
-    "LexStructureResult",
-    "LexVersionIndexOptions",
-    "LexVersionIndexResult",
     "NormPackBudgets",
     "NormPackBuildRequest",
     "NormPackBuildResult",
     "ResolveCandidate",
     "SelectedDocVersion",
-    "WorldEventRefLike",
 ]

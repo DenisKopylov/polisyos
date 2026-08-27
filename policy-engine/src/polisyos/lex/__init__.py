@@ -54,7 +54,6 @@ __all__ = [
     "TemporalInterventionSequenceCompiler",
     "TemporalInterventionSequencer",
     "TemporalInterventionStepInput",
-    "WorldEventRefLike",
     "assemble_norm_pack",
     "build_legal_authority_report",
     "build_legal_authority_requirement_artifact",
@@ -107,7 +106,6 @@ _LAZY_IMPORTS: dict[str, tuple[str, str]] = {
     "NormPackBudgets": ("polisyos.lex.types", "NormPackBudgets"),
     "NormPackBuildRequest": ("polisyos.lex.types", "NormPackBuildRequest"),
     "NormPackBuildResult": ("polisyos.lex.types", "NormPackBuildResult"),
-    "WorldEventRefLike": ("polisyos.lex.types", "WorldEventRefLike"),
     # knowledge
     "LegalKnowledgeGraph": ("polisyos.lex.knowledge.search", "LegalKnowledgeGraph"),
     # interventions

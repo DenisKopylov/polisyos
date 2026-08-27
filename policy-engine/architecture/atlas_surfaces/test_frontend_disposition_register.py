@@ -1541,7 +1541,8 @@ class ProducerBindingDebtTests(unittest.TestCase):
         self.assertEqual(
             checker.BASE_EXPECTED_FINDING_IDS
             | set(checker.GOVERNED_DEBT_DESCRIPTORS)
-            | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS),
+            | set(checker.AUTHORITY_PRESENTATION_DEBT_SPECS)
+            | set(checker.DS11_TRUST_PRESENTATION_FINDING_IDS),
             checker.EXPECTED_FINDING_IDS,
         )
 
@@ -3868,9 +3869,9 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         scan = checker._authority_presentation_scan()
         rows = checker._authority_presentation_rows(scan)
 
-        self.assertEqual(36, len(rows))
+        self.assertEqual(34, len(rows))
         self.assertEqual(
-            11,
+            9,
             sum(
                 row.get("authority_sink", {}).get("sink_kind") == "prop_boundary"
                 for row in rows
@@ -4035,6 +4036,177 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
                     errors,
                 )
 
+    def test_ds11_trust_presentation_writer_is_exact_idempotent_and_forgery_closed(
+        self,
+    ) -> None:
+        """C04 may replace only its two pinned preimages with semantic receipts."""
+        opening = _register_text_at("52182fe26")
+        scan = checker._authority_presentation_scan()
+        self.assertEqual([], checker._ds11_trust_presentation_semantic_errors(scan))
+
+        candidate = checker._ds11_trust_presentation_transition_text(
+            opening,
+            scan=scan,
+        )
+        self.assertNotEqual(opening, candidate)
+        self.assertEqual(
+            candidate,
+            checker._ds11_trust_presentation_transition_text(candidate, scan=scan),
+        )
+        self.assertEqual(
+            [],
+            checker._ds11_trust_presentation_preservation_errors(opening, candidate),
+        )
+        opening_report = _git_text(
+            "52182fe26",
+            "docs/reference/frontend/atlas-frontend-disposition-register.md",
+        )
+        candidate_report = checker._ds11_trust_presentation_report_transition_text(
+            opening_report,
+            opening_register_text=opening,
+            candidate_register_text=candidate,
+        )
+        self.assertNotEqual(opening_report, candidate_report)
+        self.assertEqual(
+            candidate_report,
+            checker._ds11_trust_presentation_report_transition_text(
+                candidate_report,
+                opening_register_text=opening,
+                candidate_register_text=candidate,
+            ),
+        )
+        candidate_data = json.loads(candidate)
+        target_rows = {
+            row["finding_id"]: row
+            for row in candidate_data["supplemental_findings"]
+            if row["finding_id"] in checker.DS11_TRUST_PRESENTATION_FINDING_IDS
+        }
+        self.assertEqual(
+            set(checker.DS11_TRUST_PRESENTATION_FINDING_IDS), set(target_rows)
+        )
+        self.assertTrue(all(row["status"] == "repaired" for row in target_rows.values()))
+        self.assertEqual(
+            [],
+            checker._ds11_trust_presentation_candidate_errors(
+                candidate_data,
+                report_parity=False,
+            ),
+        )
+
+        def replace_target(
+            text: str, finding_id: str, replacement: dict[str, object]
+        ) -> str:
+            _start, _end, spans = checker._supplemental_section_spans(text)
+            start, end = next(
+                (start, end)
+                for candidate_id, start, end in spans
+                if candidate_id == finding_id
+            )
+            return (
+                text[:start]
+                + checker._render_supplemental_finding(replacement)
+                + text[end + 1 :]
+            )
+
+        target_id = sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
+        with self.assertRaisesRegex(ValueError, "target cardinality"):
+            checker._ds11_trust_presentation_transition_text(
+                checker._remove_supplemental_finding_text(opening, target_id),
+                scan=scan,
+            )
+
+        _start, array_end, spans = checker._supplemental_section_spans(opening)
+        target_start, target_end = next(
+            (start, end)
+            for candidate_id, start, end in spans
+            if candidate_id == target_id
+        )
+        duplicated = (
+            opening[:array_end]
+            + ",\n    "
+            + opening[target_start : target_end + 1]
+            + opening[array_end:]
+        )
+        with self.assertRaisesRegex(ValueError, "target cardinality"):
+            checker._ds11_trust_presentation_transition_text(duplicated, scan=scan)
+
+        opening_data = json.loads(opening)
+        restamped = copy.deepcopy(
+            next(
+                row
+                for row in opening_data["supplemental_findings"]
+                if row["finding_id"] == target_id
+            )
+        )
+        restamped["decision_date"] = "2026-08-27"
+        with self.assertRaisesRegex(ValueError, "predecessor restamp"):
+            checker._ds11_trust_presentation_transition_text(
+                replace_target(opening, target_id, restamped),
+                scan=scan,
+            )
+
+        with self.assertRaisesRegex(ValueError, "predecessor restamp"):
+            checker._ds11_trust_presentation_transition_text(
+                replace_target(opening, target_id, target_rows[target_id]),
+                scan=scan,
+            )
+
+        report_target = sorted(checker.DS11_TRUST_PRESENTATION_FINDING_IDS)[0]
+        report_start, report_end, report_row = (
+            checker._ds11_trust_presentation_report_row_span(
+                opening_report,
+                report_target,
+            )
+        )
+        forged_report = (
+            opening_report[:report_start]
+            + report_row.replace("`open_debt`", "`repaired`", 1)
+            + opening_report[report_end:]
+        )
+        with self.assertRaisesRegex(ValueError, "report transition rejected:predecessor"):
+            checker._ds11_trust_presentation_report_transition_text(
+                forged_report,
+                opening_register_text=opening,
+                candidate_register_text=candidate,
+            )
+
+        _candidate_start, _candidate_end, candidate_spans = (
+            checker._supplemental_section_spans(candidate)
+        )
+        peer_start, peer_end = next(
+            (start, end)
+            for finding_id, start, end in candidate_spans
+            if finding_id not in checker.DS11_TRUST_PRESENTATION_FINDING_IDS
+        )
+        peer_mutated = (
+            candidate[:peer_start]
+            + candidate[peer_start : peer_end + 1].replace('"rationale":', '"rationale" :', 1)
+            + candidate[peer_end + 1 :]
+        )
+        self.assertEqual(
+            ["ds11_trust_presentation_peer_drift"],
+            checker._ds11_trust_presentation_preservation_errors(
+                candidate,
+                peer_mutated,
+            ),
+        )
+
+        forged_peer = copy.deepcopy(candidate_data)
+        peer_row = next(
+            row
+            for row in forged_peer["supplemental_findings"]
+            if row["finding_id"]
+            == "authority-presentation-prop-control-approval-readiness"
+        )
+        peer_row["status"] = "repaired"
+        peer_row.pop("capability_states")
+        peer_row.pop("closure_signal")
+        schema_errors = checker._schema_errors(forged_peer, checker.SCHEMA_PATH)
+        self.assertTrue(
+            any("prop-control-approval-readiness" in error for error in schema_errors),
+            schema_errors,
+        )
+
     def test_semantic_copy_debt_uses_simple_panel_only_closure_signal(self) -> None:
         finding_id = "semantic-copy-issuer-panel-consumer-deferral"
         descriptor = checker.PRODUCER_BINDING_DEBT_DESCRIPTORS[finding_id]
@@ -4091,8 +4263,8 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
         prop_records = [record for records in prop.values() for record in records]
         self.assertEqual(161, len(badge))
         self.assertEqual(161, len(set(badge)))
-        self.assertEqual(66, len(prop_records))
-        self.assertEqual(65, len(prop))
+        self.assertEqual(70, len(prop_records))
+        self.assertEqual(69, len(prop))
         shared = [records for records in prop.values() if len(records) == 2]
         self.assertEqual(
             [[
@@ -4286,7 +4458,7 @@ class AuthorityPresentationCensusTests(unittest.TestCase):
             },
         )
         self.assertEqual(
-            {"2026-08-02": 31, "2026-08-24": 5},
+            {"2026-08-02": 29, "2026-08-24": 5},
             dict(
                 Counter(
                     row["decision_date"]
@@ -5293,7 +5465,7 @@ it("second", () => {
             161, len(module.FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS)
         )
         self.assertEqual(  # noqa: PT009
-            65, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
+            69, len(module.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS)
         )
 
     def test_c21d_retired_address_owners_are_absent_and_counts_are_complete(self) -> None:
@@ -5312,7 +5484,7 @@ it("second", () => {
         self.assertEqual(102, sum(checker.BENIGN_BADGE_CLASS_COUNTS.values()))  # noqa: PT009
         self.assertEqual(18, len(checker.AUTHORITY_PROP_CLASSIFICATIONS))  # noqa: PT009
         self.assertEqual(  # noqa: PT009
-            30,
+            34,
             sum(
                 len(specification["consumer_paths"])
                 for specification in checker.AUTHORITY_PROP_CLASSIFICATIONS.values()
@@ -5338,7 +5510,7 @@ it("second", () => {
             for records in checker.FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.values()
             for record in records
         ]
-        self.assertEqual(66, len(prop_records))  # noqa: PT009
+        self.assertEqual(70, len(prop_records))  # noqa: PT009
 
         raw_address_residuals = {
             "benign_or_count_anchors": 0

@@ -12,6 +12,7 @@ import argparse
 import base64
 import binascii
 import copy
+import fcntl
 import hashlib
 import importlib.util
 import io
@@ -27,6 +28,7 @@ import tomllib
 import unittest
 from collections import Counter, defaultdict
 from collections.abc import Callable, Iterable, Mapping, Sequence
+from contextlib import contextmanager
 from functools import lru_cache
 from pathlib import Path, PurePosixPath
 from typing import Any
@@ -4272,33 +4274,27 @@ AUTHORITY_PROP_CLASSIFICATIONS: dict[str, dict[str, Any]] = {
         ),
     },
     "prop-dispute-status": {
-        "classification": "debt",
+        "classification": "branded:private_trust_presentation",
         "component": "DisputeBadge",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
-        "prop": "status",
+        "prop": "presentation",
         "consumer_paths": [
             "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
             "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
         ],
-        "owner_slice": "DS11",
-        "capability_states": ["bridge_missing", "semantic_test_missing"],
-        "closure_signal": _authority_closure(
-            "a private exhaustive dispute issuer owns clothing and runtime-novel dispute states render unrecognized"
-        ),
     },
     "prop-verification-status-icon-tone": {
-        "classification": "debt",
-        "component": "StatusIcon",
+        "classification": "branded:private_trust_presentation",
+        "component": "VerificationStatus",
         "component_declaration_path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
-        "prop": "tone",
+        "prop": "presentation",
         "consumer_paths": [
-            "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx"
+            "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+            "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx",
         ],
-        "owner_slice": "DS11",
-        "capability_states": ["verification_missing", "semantic_test_missing"],
-        "closure_signal": _authority_closure(
-            "the open string tone carrier is replaced by a private issued trust presentation and structural forgery is rejected"
-        ),
     },
     "prop-authority-badge-presentation": {
         "classification": "branded:authority_presentation",
@@ -4693,6 +4689,53 @@ if set(BENIGN_BADGE_CLASS_COUNTS) != set(BENIGN_BADGE_BASES):
 if sum(BENIGN_BADGE_CLASS_COUNTS.values()) != 102:
     raise RuntimeError("benign Badge class count drift")
 
+DS11_TRUST_PRESENTATION_FINDING_IDS = frozenset(
+    {
+        "authority-presentation-prop-dispute-status",
+        "authority-presentation-prop-verification-status-icon-tone",
+    }
+)
+DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS = frozenset(
+    finding_id.removeprefix("authority-presentation-")
+    for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
+)
+DS11_C04_DECISION_DATE = "2026-08-27"
+DS11_TRUST_GLYPHS_PATH = "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts"
+DS11_C04_MECHANISM_PATHS = (
+    "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+    "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+    "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+    "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+    "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+    "apps/runtime-dashboard/src/shared/ui/trust-view/index.ts",
+    "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx",
+    "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
+)
+DS11_C04_OPENING_ROW_SHA256 = {
+    "authority-presentation-prop-dispute-status": (
+        "669820665d7425076730ab3e7be3a6d6c7be2bd8bf918f0f0bbb5820cc840847"
+    ),
+    "authority-presentation-prop-verification-status-icon-tone": (
+        "24fb91517620644aeb6b4de8f66e3f6e6cfd3d2d2dfc6658d8e0d54605fc1c18"
+    ),
+}
+DS11_RAW_TRUST_ROOT_DESCRIPTORS = (
+    {
+        "descriptorId": "ds11-raw-dispute-status",
+        "component": "DisputeBadge",
+        "componentDeclarationPath": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
+        "prop": "status",
+    },
+    {
+        "descriptorId": "ds11-raw-verification-status-icon-tone",
+        "component": "StatusIcon",
+        "componentDeclarationPath": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
+        "prop": "tone",
+    },
+)
+if set(DS11_C04_OPENING_ROW_SHA256) != DS11_TRUST_PRESENTATION_FINDING_IDS:
+    raise RuntimeError("DS11 C04 opening-row denominator drift")
+
 AUTHORITY_PRESENTATION_DEBT_SPECS = {
     "authority-presentation-" + descriptor_id: spec
     for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items()
@@ -4711,19 +4754,19 @@ AUTHORITY_PRESENTATION_COUNTS = {
     "badge_debt": 53,
     "badge_benign": 102,
     "prop_total": 18,
-    "prop_branded": 2,
-    "prop_debt": 11,
+    "prop_branded": 4,
+    "prop_debt": 9,
     "prop_benign": 5,
-    "prop_use_total": 30,
-    "prop_use_branded": 4,
-    "prop_use_debt": 18,
+    "prop_use_total": 34,
+    "prop_use_branded": 11,
+    "prop_use_debt": 15,
     "prop_use_benign": 8,
 }
 AUTHORITY_BADGE_PARTITION_SHA256 = (
     "sha256:cf18b1aed1f8425dd855737cb7a2655bed48bc7ab3836f13a332cb3fd478f5a0"
 )
 AUTHORITY_PROP_PARTITION_SHA256 = (
-    "sha256:7f75fcc3b2ce0011713eee1b18259c76b45ec2d3eda6a66b78507982641ee5f9"
+    "sha256:d41e26792102015380983470c5a4d91e57cd86ecd7e95b0cc61fc7798d2bd55f"
 )
 
 
@@ -4740,11 +4783,28 @@ def _authority_prop_descriptors() -> list[dict[str, str]]:
     ]
 
 
+def _ds11_trust_presentation_path_descriptors() -> list[dict[str, str]]:
+    """Return the two repaired Trust View sink declarations for brand tracing."""
+    return [
+        descriptor
+        for descriptor in _authority_prop_descriptors()
+        if descriptor["descriptorId"]
+        in {
+            "prop-dispute-status",
+            "prop-verification-status-icon-tone",
+        }
+    ]
+
+
 @lru_cache(maxsize=1)
 def _authority_presentation_scan() -> dict[str, Any]:
     """Return the live finite sink census; no value-flow inference is performed."""
-    return status_checker._scan(
-        authority_prop_descriptors=_authority_prop_descriptors()
+    request = {
+        "authorityPathDescriptors": _ds11_trust_presentation_path_descriptors(),
+        "authorityPropDescriptors": _authority_prop_descriptors(),
+    }
+    return status_checker._scan_json(
+        json.dumps(request, sort_keys=True, separators=(",", ":"))
     )
 
 
@@ -5095,7 +5155,10 @@ def _authority_evidence_identities(scan: Mapping[str, Any]) -> dict[tuple[str, i
     """Create all authority evidence identities through one source snapshot/program."""
     anchors: list[dict[str, Any]] = []
     for descriptor_id, spec in AUTHORITY_PROP_CLASSIFICATIONS.items():
-        if spec["classification"] != "debt":
+        if (
+            spec["classification"] != "debt"
+            and descriptor_id not in DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS
+        ):
             continue
         fact = next(
             item for item in scan["authorityPropCensus"] if item["descriptorId"] == descriptor_id
@@ -6399,6 +6462,105 @@ FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS = {
     **DS9_ADDED_AUTHORITY_PROP_IDENTITIES,
 }
 
+DS11_C04_REMOVED_AUTHORITY_PROP_IDENTITIES = frozenset(
+    {
+        "22ce2429b6954c1461643264ddeb56ea9b906a4b4c7baa61513d0db4818a9d5c",
+        "463bfc23955e33fcf61719c3b4510aa516bcae5e1d025ad74596bff687bc2d37",
+        "9b0285075c32d8b904ad899c523bfd5dddde9eaa78876dec98ba96b57be00dbd",
+        "b0f22a17ed4d8431f2c8e16579664f17c226202b1a9cf742a3de4fa981a440eb",
+        "b1a02625d2fd21109e548cac22c0714690f5803eb15cc7b7be91e7db1f792048",
+        "cba019c47cf0748e39a681763c7d228872e1f3e33726c182359faad876a740ff",
+        "ead85722c60492a096a673bb40f117a9798ac462c647086ce7990f60e339f65e",
+    }
+)
+DS11_C04_ADDED_AUTHORITY_PROP_IDENTITIES = {
+    "0a8a3ec01b000614831669ae914c1a5edccf4ea75c37f82832e02797d66b52b1": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "consumer",
+        }
+    ],
+    "267d5625d47b60b00b16ac267e4d79a1e73cf913955c79197f7a422b1e460d0a": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-dispute-status",
+            "role": "consumer",
+        }
+    ],
+    "2fdb61e6682a970a6f682688386765f1ecdaa5b2fb12e113615401b235d9ca1a": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "prop_declaration",
+        }
+    ],
+    "320b5eec8742798157650fb765b74ab9eaaa6b5662ffc837aa4dcfacf55f3e62": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-dispute-status",
+            "role": "consumer",
+        }
+    ],
+    "3890eee23b0a997be2fa695690c1c1f967a98529ab93edc319d76c2268720543": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "consumer",
+        }
+    ],
+    "4494ddc9a4a66762a9c49a37f8d00c67c19c070a140cfb2608a5963b10dc6394": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-dispute-status",
+            "role": "component_declaration",
+        }
+    ],
+    "58cd81b9d47a2e08eac84129a261b0e0553b84561b96b15003b7ba9889c79cca": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-dispute-status",
+            "role": "prop_declaration",
+        }
+    ],
+    "59bf8834f231993eda28f48cbb7ddb84f4137cea72bdf65a164050c3140fac65": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "consumer",
+        }
+    ],
+    "738a7abd4f505cfc754a23924133657b698bcb67390b27bf289003848c6300f2": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "component_declaration",
+        }
+    ],
+    "788c8feb55e510fec18bfac0d364e9317fb6a195b397831637c2ffcf12a38d44": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "consumer",
+        }
+    ],
+    "f68fcfb550031690d602b87be888017faa6b340837e12f9a1e49b3181e45f2ff": [
+        {
+            "classification": "branded:private_trust_presentation",
+            "descriptor_id": "prop-verification-status-icon-tone",
+            "role": "consumer",
+        }
+    ],
+}
+FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS = {
+    **{
+        identity: records
+        for identity, records in FROZEN_AUTHORITY_PROP_IDENTITY_CLASSIFICATIONS.items()
+        if identity not in DS11_C04_REMOVED_AUTHORITY_PROP_IDENTITIES
+    },
+    **DS11_C04_ADDED_AUTHORITY_PROP_IDENTITIES,
+}
+
 AUTHORITY_BADGE_CLASSIFICATIONS = FROZEN_AUTHORITY_BADGE_CLASSIFICATIONS
 
 
@@ -6681,7 +6843,10 @@ def _authority_presentation_errors(
             continue
         if row.get("finding_kind") == "authority_presentation_debt":
             finding_id = str(row.get("finding_id", "unknown"))
-            if finding_id not in expected_by_id:
+            if (
+                finding_id not in expected_by_id
+                and finding_id not in DS11_TRUST_PRESENTATION_FINDING_IDS
+            ):
                 errors.append(
                     "authority_presentation_debt_descriptor_missing:" + finding_id
                 )
@@ -6689,6 +6854,287 @@ def _authority_presentation_errors(
         errors.extend(_badge_classification_errors(authority_scan))
         errors.extend(_authority_prop_classification_errors(authority_scan))
     return errors
+
+
+@lru_cache(maxsize=1)
+def _ds11_raw_trust_root_scan() -> dict[str, Any]:
+    """Scan the retired Trust View roots through the compiler, not a text grep."""
+    request = {
+        "authorityPathDescriptors": _ds11_trust_presentation_path_descriptors(),
+        "authorityPropDescriptors": list(DS11_RAW_TRUST_ROOT_DESCRIPTORS),
+    }
+    return status_checker._scan_json(
+        json.dumps(request, sort_keys=True, separators=(",", ":"))
+    )
+
+
+def _ds11_trust_presentation_semantic_errors(
+    scan: Mapping[str, Any],
+    *,
+    raw_scan: Mapping[str, Any] | None = None,
+) -> list[str]:
+    """Prove the two DS11 sinks use one private, identity-backed issuer."""
+    errors: list[str] = []
+    facts = scan.get("authorityPropCensus")
+    if not isinstance(facts, list):
+        return ["ds11_trust_presentation_census_invalid"]
+    observed_descriptors = {
+        str(fact.get("descriptorId"))
+        for fact in facts
+        if isinstance(fact, Mapping)
+    }
+    if not DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS <= observed_descriptors:
+        errors.append("ds11_trust_presentation_descriptor_missing")
+
+    raw_scan = raw_scan or _ds11_raw_trust_root_scan()
+    raw_facts = raw_scan.get("authorityPropCensus")
+    if not isinstance(raw_facts, list):
+        errors.append("ds11_trust_raw_root_census_invalid")
+    else:
+        raw_descriptor_ids = sorted(
+            str(fact.get("descriptorId"))
+            for fact in raw_facts
+            if isinstance(fact, Mapping)
+        )
+        if raw_descriptor_ids:
+            errors.append(
+                "ds11_trust_raw_root_live:" + ",".join(raw_descriptor_ids)
+            )
+
+    issuer = scan.get("authorityIssuerFacts")
+    if not isinstance(issuer, Mapping):
+        return [*errors, "ds11_trust_presentation_issuer_facts_invalid"]
+    modules = issuer.get("modules")
+    if not isinstance(modules, list) or [
+        module.get("path")
+        for module in modules
+        if isinstance(module, Mapping)
+    ] != [DS11_TRUST_GLYPHS_PATH]:
+        errors.append("ds11_trust_presentation_issuer_module_drift")
+
+    brands = issuer.get("brands")
+    if not isinstance(brands, list) or len(brands) != 1:
+        errors.append("ds11_trust_presentation_brand_cardinality")
+        brand_name = None
+    else:
+        brand = brands[0]
+        brand_name = brand.get("name") if isinstance(brand, Mapping) else None
+        if (
+            not isinstance(brand, Mapping)
+            or brand.get("path") != DS11_TRUST_GLYPHS_PATH
+            or brand.get("exported") is not False
+            or not isinstance(brand_name, str)
+        ):
+            errors.append("ds11_trust_presentation_brand_privacy")
+
+    factories = issuer.get("factories")
+    matching_factories = [
+        factory
+        for factory in factories if isinstance(factory, Mapping)
+        and factory.get("name") == "issueTrustPresentation"
+    ] if isinstance(factories, list) else []
+    if len(matching_factories) != 1:
+        errors.append("ds11_trust_presentation_issuer_cardinality")
+    else:
+        factory = matching_factories[0]
+        parameters = factory.get("parameters")
+        if (
+            factory.get("path") != DS11_TRUST_GLYPHS_PATH
+            or factory.get("returnBrands") != [brand_name]
+            or parameters
+            != [
+                {
+                    "name": "metadata",
+                    "type": "unknown",
+                    "generated": False,
+                    "generatedPaths": [],
+                    "broadString": False,
+                    "optional": False,
+                    "rest": False,
+                }
+            ]
+        ):
+            errors.append("ds11_trust_presentation_issuer_contract_drift")
+
+    stores = issuer.get("stores")
+    stores_by_name = {
+        str(store.get("name")): store
+        for store in stores
+        if isinstance(store, Mapping)
+    } if isinstance(stores, list) else {}
+    expected_stores = {
+        "issuedTrustPresentations": {
+            "kind": "WeakSet",
+            "reads": [
+                {
+                    "function": "isIssuedTrustPresentation",
+                    "method": "has",
+                    "argumentParameter": "value",
+                }
+            ],
+            "writes": [
+                {"function": "issueTrustPresentation", "method": "add"}
+            ],
+        },
+        "issuedTrustPresentationData": {
+            "kind": "WeakMap",
+            "reads": [
+                {
+                    "function": "presentTrustPresentation",
+                    "method": "get",
+                    "argumentParameter": "value",
+                }
+            ],
+            "writes": [
+                {"function": "issueTrustPresentation", "method": "set"}
+            ],
+        },
+    }
+    if set(stores_by_name) != set(expected_stores):
+        errors.append("ds11_trust_presentation_identity_store_cardinality")
+    for name, expected in expected_stores.items():
+        store = stores_by_name.get(name)
+        if (
+            not isinstance(store, Mapping)
+            or store.get("path") != DS11_TRUST_GLYPHS_PATH
+            or store.get("exported") is not False
+            or store.get("kind") != expected["kind"]
+            or store.get("reads") != expected["reads"]
+            or store.get("writes") != expected["writes"]
+        ):
+            errors.append("ds11_trust_presentation_identity_store_drift:" + name)
+
+    escape_sites = scan.get("authorityEscapeSites")
+    if isinstance(escape_sites, list):
+        unsafe_brand_assertions = [
+            site
+            for site in escape_sites
+            if isinstance(site, Mapping)
+            and site.get("construct") in {"as_assertion", "type_assertion"}
+            and site.get("target") == "TrustPresentation"
+            and site.get("path") != DS11_TRUST_GLYPHS_PATH
+        ]
+        if unsafe_brand_assertions:
+            errors.append("ds11_trust_presentation_external_brand_assertion")
+    else:
+        errors.append("ds11_trust_presentation_escape_census_invalid")
+    return errors
+
+
+def _ds11_trust_presentation_rows(
+    scan: Mapping[str, Any] | None = None,
+) -> list[dict[str, Any]]:
+    """Render the two repaired DS11 rows from compiler-resolved source facts."""
+    scan = scan or _authority_presentation_scan()
+    semantic_errors = _ds11_trust_presentation_semantic_errors(scan)
+    if semantic_errors:
+        raise RuntimeError(";".join(semantic_errors))
+    facts = {
+        str(fact["descriptorId"]): fact
+        for fact in scan["authorityPropCensus"]
+        if isinstance(fact, Mapping)
+        and str(fact.get("descriptorId"))
+        in DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS
+    }
+    if set(facts) != DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS:
+        raise RuntimeError("ds11_trust_presentation_finding_denominator_drift")
+    evidence_identities = _authority_evidence_identities(scan)
+    rows: list[dict[str, Any]] = []
+    for descriptor_id in sorted(DS11_TRUST_PRESENTATION_DESCRIPTOR_IDS):
+        fact = facts[descriptor_id]
+        consumer_sites = [
+            _source_receipt(
+                role="consumer",
+                path=str(site["path"]),
+                line=int(site["line"]),
+                sha256=str(site["siteSha256"]),
+                site=True,
+            )
+            for site in fact["consumerSites"]
+        ]
+        rows.append(
+            {
+                "finding_id": "authority-presentation-" + descriptor_id,
+                "finding_kind": "authority_presentation_debt",
+                "disposition": "rebind_pending",
+                "status": "repaired",
+                "evidence_refs": [
+                    "docs/plans/active/atlas-slices/DS11-trust-docs-posture.md#c04--trust-view-private-issuer-repair",
+                    DS11_TRUST_GLYPHS_PATH,
+                    evidence_identities[
+                        (
+                            str(fact["componentDeclarationPath"]),
+                            int(fact["componentDeclarationLine"]),
+                            "named_declaration",
+                        )
+                    ],
+                    *sorted(
+                        {
+                            evidence_identities[
+                                (str(site["path"]), int(site["line"]), "jsx_attribute")
+                            ]
+                            for site in fact["consumerSites"]
+                        }
+                    ),
+                ],
+                "owner_slice": "DS11",
+                "decision_date": DS11_C04_DECISION_DATE,
+                "rationale": (
+                    "DS11 C04 replaces the inherited caller-selected Trust View "
+                    "clothing boundary with one private identity-backed issuer. "
+                    "The compiler-resolved sink and consumer receipts bind the "
+                    "issued presentation; raw status/tone roots are absent."
+                ),
+                "authority_sink": {
+                    "sink_kind": "prop_boundary",
+                    "descriptor_id": descriptor_id,
+                    "component": fact["component"],
+                    "prop": fact["prop"],
+                    "component_declaration": _source_receipt(
+                        role="component_declaration",
+                        path=str(fact["componentDeclarationPath"]),
+                        line=int(fact["componentDeclarationLine"]),
+                        sha256=str(fact["componentDeclarationSha256"]),
+                    ),
+                    "prop_declaration": _source_receipt(
+                        role="prop_declaration",
+                        path=str(fact["propDeclarationPath"]),
+                        line=int(fact["propDeclarationLine"]),
+                        sha256=str(fact["propDeclarationSha256"]),
+                    ),
+                    "consumer_count": len(consumer_sites),
+                    "consumer_sites": consumer_sites,
+                },
+            }
+        )
+    return sorted(rows, key=lambda row: row["finding_id"])
+
+
+def _validate_ds11_trust_presentation_transition_findings(
+    data: Mapping[str, Any],
+    errors: list[str],
+    *,
+    scan: Mapping[str, Any] | None = None,
+) -> None:
+    """Bind only the two DS11 repaired rows to the private issuer source facts."""
+    try:
+        expected_rows = _ds11_trust_presentation_rows(scan)
+    except RuntimeError as exc:
+        errors.append("ds11_trust_presentation_source_invalid:" + str(exc))
+        return
+    expected_by_id = {str(row["finding_id"]): row for row in expected_rows}
+    stored_rows = data.get("supplemental_findings", [])
+    if not isinstance(stored_rows, list):
+        errors.append("ds11_trust_presentation_invalid_container")
+        return
+    for finding_id in sorted(DS11_TRUST_PRESENTATION_FINDING_IDS):
+        matches = [
+            row
+            for row in stored_rows
+            if isinstance(row, Mapping) and row.get("finding_id") == finding_id
+        ]
+        if len(matches) != 1 or matches[0] != expected_by_id.get(finding_id):
+            errors.append("ds11_trust_presentation_transition_drift:" + finding_id)
 
 GOVERNED_DEBT_DESCRIPTORS = {
     finding_id: {
@@ -7835,6 +8281,7 @@ EXPECTED_FINDING_IDS = (
     BASE_EXPECTED_FINDING_IDS
     | set(GOVERNED_DEBT_DESCRIPTORS)
     | set(AUTHORITY_PRESENTATION_DEBT_SPECS)
+    | set(DS11_TRUST_PRESENTATION_FINDING_IDS)
 )
 
 REPORT_PROJECTION_START = "<!-- BEGIN DS19 REGISTER PROJECTION -->"
@@ -9671,6 +10118,113 @@ def _failure_atomic_write_texts(
         temporary.unlink(missing_ok=True)
 
 
+def _ds11_trust_presentation_candidate_errors(
+    data: Mapping[str, Any],
+    *,
+    report_parity: bool,
+) -> list[str]:
+    """Permit only the independently declared C13 red while C04 writes."""
+    errors = validate_register(
+        data,
+        live_probes=False,
+        report_parity=report_parity,
+    )
+    expected = list(DS10_DECLARED_EXTERNAL_REGISTER_NONCLOSURES)
+    if Counter(errors) == Counter(expected):
+        return []
+    return [
+        "DS11 C04 candidate error set drift:"
+        + json.dumps(sorted(errors), ensure_ascii=False)
+    ]
+
+
+def _write_ds11_trust_presentation_family() -> dict[str, int]:
+    """Atomically repair the two C04 rows and their report under one lock."""
+    with _ds11_trust_presentation_register_lock():
+        original_texts = {
+            REGISTER_PATH: REGISTER_PATH.read_text(encoding="utf-8"),
+            REPORT_PATH: REPORT_PATH.read_text(encoding="utf-8"),
+        }
+        original_sources = {
+            REPO_ROOT / source_path: (REPO_ROOT / source_path).read_bytes()
+            for source_path in DS11_C04_MECHANISM_PATHS
+        }
+        scan = _authority_presentation_scan()
+        register_candidate = _ds11_trust_presentation_transition_text(
+            original_texts[REGISTER_PATH],
+            scan=scan,
+        )
+        preservation_errors = _ds11_trust_presentation_preservation_errors(
+            original_texts[REGISTER_PATH], register_candidate
+        )
+        if preservation_errors:
+            raise ValueError(
+                "DS11 C04 register candidate rejected:"
+                + ";".join(preservation_errors)
+            )
+        register_data = json.loads(register_candidate)
+        pre_errors = _ds11_trust_presentation_candidate_errors(
+            register_data,
+            report_parity=False,
+        )
+        if pre_errors:
+            raise ValueError(";".join(pre_errors))
+        report_candidate = _ds11_trust_presentation_report_transition_text(
+            original_texts[REPORT_PATH],
+            opening_register_text=original_texts[REGISTER_PATH],
+            candidate_register_text=register_candidate,
+        )
+        candidates = {
+            REGISTER_PATH: register_candidate,
+            REPORT_PATH: report_candidate,
+        }
+
+        def validate_after() -> list[str]:
+            errors: list[str] = []
+            for governed_path, expected_text in candidates.items():
+                if governed_path.read_text(encoding="utf-8") != expected_text:
+                    errors.append(
+                        "ds11_trust_presentation_family_readback_drift:"
+                        + str(governed_path)
+                    )
+            errors.extend(
+                _ds11_trust_presentation_candidate_errors(
+                    _load_json(REGISTER_PATH),
+                    report_parity=True,
+                )
+            )
+            for source_path, expected_bytes in original_sources.items():
+                if source_path.read_bytes() != expected_bytes:
+                    errors.append(
+                        "ds11_trust_presentation_source_readback_drift:"
+                        + str(source_path)
+                    )
+            return errors
+
+        def final_pre_promote_fence() -> None:
+            for governed_path, expected_text in original_texts.items():
+                if governed_path.read_text(encoding="utf-8") != expected_text:
+                    raise ValueError(
+                        "DS11 C04 governed preimage moved before promotion:"
+                        + str(governed_path)
+                    )
+            for source_path, expected_bytes in original_sources.items():
+                if source_path.read_bytes() != expected_bytes:
+                    raise ValueError(
+                        "DS11 C04 source moved before promotion:" + str(source_path)
+                    )
+
+        _failure_atomic_write_texts(
+            candidates,
+            validate_after=validate_after,
+            pre_promote=final_pre_promote_fence,
+        )
+        return {
+            "authority_findings": len(DS11_TRUST_PRESENTATION_FINDING_IDS),
+            "mechanism_paths": len(DS11_C04_MECHANISM_PATHS),
+        }
+
+
 def _c13_writer_fence() -> None:
     """Require the bound branch, clean governed family, and a free index."""
     branch = _c03_git_text("symbolic-ref", "-q", "HEAD").strip()
@@ -11132,6 +11686,7 @@ def _supplemental_findings() -> list[dict[str, Any]]:
         for _finding_id, descriptor in sorted(GOVERNED_DEBT_DESCRIPTORS.items())
     )
     findings.extend(copy.deepcopy(row) for row in _authority_presentation_rows())
+    findings.extend(copy.deepcopy(row) for row in _ds11_trust_presentation_rows())
     return findings
 
 
@@ -11266,7 +11821,10 @@ def _surgical_supplemental_finding_ids(text: str) -> set[str]:
         if row.get("finding_kind") in {
             "producer_binding_debt",
             "authority_presentation_debt",
-        } and finding_id not in descriptor_ids:
+        } and (
+            finding_id not in descriptor_ids
+            and finding_id not in DS11_TRUST_PRESENTATION_FINDING_IDS
+        ):
             descriptor_ids.add(finding_id)
     return descriptor_ids
 
@@ -11337,6 +11895,174 @@ def _c06_rendered_contrast_transition_text(text: str) -> str:
     return candidate
 
 
+def _ds11_trust_presentation_preservation_errors(
+    original_text: str, candidate_text: str
+) -> list[str]:
+    """Prove the DS11 writer changed only its two target JSON objects."""
+    try:
+        original_start, original_end, original_rows = _supplemental_section(
+            original_text
+        )
+        candidate_start, candidate_end, candidate_rows = _supplemental_section(
+            candidate_text
+        )
+    except (json.JSONDecodeError, ValueError) as exc:
+        return [f"ds11_trust_presentation_preservation_span_invalid:{exc}"]
+    if original_text[: original_start + 1] != candidate_text[: candidate_start + 1]:
+        return ["ds11_trust_presentation_prefix_drift"]
+    if original_text[original_end:] != candidate_text[candidate_end:]:
+        return ["ds11_trust_presentation_suffix_drift"]
+    original_peers = [
+        row
+        for row in original_rows
+        if row[0] not in DS11_TRUST_PRESENTATION_FINDING_IDS
+    ]
+    candidate_peers = [
+        row
+        for row in candidate_rows
+        if row[0] not in DS11_TRUST_PRESENTATION_FINDING_IDS
+    ]
+    if original_peers != candidate_peers:
+        return ["ds11_trust_presentation_peer_drift"]
+    return []
+
+
+def _ds11_trust_presentation_transition_text(
+    text: str,
+    *,
+    scan: Mapping[str, Any] | None = None,
+) -> str:
+    """Transition exactly two known DS11 predecessors, or admit their repair."""
+    expected_rows = {
+        str(row["finding_id"]): row
+        for row in _ds11_trust_presentation_rows(scan)
+    }
+    if set(expected_rows) != DS11_TRUST_PRESENTATION_FINDING_IDS:
+        raise ValueError("DS11 C04 transition generated denominator drift")
+    _start, _end, spans = _supplemental_section_spans(text)
+    target_spans = [
+        (finding_id, object_start, object_end)
+        for finding_id, object_start, object_end in spans
+        if finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
+    ]
+    if (
+        len(target_spans) != len(DS11_TRUST_PRESENTATION_FINDING_IDS)
+        or {finding_id for finding_id, _start, _end in target_spans}
+        != DS11_TRUST_PRESENTATION_FINDING_IDS
+    ):
+        raise ValueError("DS11 C04 transition rejected:target cardinality")
+    stored = {
+        finding_id: json.loads(text[object_start : object_end + 1])
+        for finding_id, object_start, object_end in target_spans
+    }
+    if all(
+        stored[finding_id] == expected_rows[finding_id]
+        for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
+    ):
+        return text
+    if any(
+        _canonical_sha256(stored[finding_id])
+        != DS11_C04_OPENING_ROW_SHA256[finding_id]
+        for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
+    ):
+        raise ValueError("DS11 C04 transition rejected:predecessor restamp")
+    candidate = text
+    for finding_id, object_start, object_end in sorted(
+        target_spans, key=lambda item: item[1], reverse=True
+    ):
+        candidate = (
+            candidate[:object_start]
+            + _render_supplemental_finding(expected_rows[finding_id])
+            + candidate[object_end + 1 :]
+        )
+    preservation_errors = _ds11_trust_presentation_preservation_errors(
+        text, candidate
+    )
+    if preservation_errors:
+        raise ValueError(
+            "DS11 C04 transition rejected:" + ";".join(preservation_errors)
+        )
+    return candidate
+
+
+def _ds11_trust_presentation_report_row_span(
+    text: str, finding_id: str
+) -> tuple[int, int, str]:
+    """Locate one rendered finding row without reserializing report peers."""
+    matches = list(
+        re.finditer(
+            r"^\| `" + re.escape(finding_id) + r"` \|.*\|$",
+            text,
+            re.MULTILINE,
+        )
+    )
+    if len(matches) != 1:
+        raise ValueError(
+            "DS11 C04 report transition rejected:target cardinality:" + finding_id
+        )
+    match = matches[0]
+    return match.start(), match.end(), match.group(0)
+
+
+def _ds11_trust_presentation_report_transition_text(
+    text: str,
+    *,
+    opening_register_text: str,
+    candidate_register_text: str,
+) -> str:
+    """Rewrite only the two C04 report rows and preserve every other byte."""
+    opening_report = render_report(json.loads(opening_register_text))
+    candidate_report = render_report(json.loads(candidate_register_text))
+    replacements: list[tuple[int, int, str]] = []
+    already_repaired = True
+    for finding_id in sorted(DS11_TRUST_PRESENTATION_FINDING_IDS):
+        start, end, stored = _ds11_trust_presentation_report_row_span(text, finding_id)
+        _opening_start, _opening_end, opening = _ds11_trust_presentation_report_row_span(
+            opening_report, finding_id
+        )
+        _candidate_start, _candidate_end, repaired = (
+            _ds11_trust_presentation_report_row_span(candidate_report, finding_id)
+        )
+        if stored == repaired:
+            continue
+        already_repaired = False
+        if stored != opening:
+            raise ValueError(
+                "DS11 C04 report transition rejected:predecessor restamp:"
+                + finding_id
+            )
+        replacements.append((start, end, repaired))
+    if already_repaired:
+        return text
+    candidate = text
+    for start, end, replacement in sorted(replacements, reverse=True):
+        candidate = candidate[:start] + replacement + candidate[end:]
+
+    original_spans = [
+        _ds11_trust_presentation_report_row_span(text, finding_id)
+        for finding_id in sorted(DS11_TRUST_PRESENTATION_FINDING_IDS)
+    ]
+    candidate_spans = [
+        _ds11_trust_presentation_report_row_span(candidate, finding_id)
+        for finding_id in sorted(DS11_TRUST_PRESENTATION_FINDING_IDS)
+    ]
+
+    def gaps(
+        source: str, spans: Sequence[tuple[int, int, str]]
+    ) -> list[str]:
+        result: list[str] = []
+        previous = 0
+        for start, end, _row in spans:
+            result.append(source[previous:start])
+            previous = end
+        result.append(source[previous:])
+        return result
+
+    if gaps(text, original_spans) != gaps(candidate, candidate_spans):
+        raise ValueError("DS11 C04 report transition rejected:peer drift")
+    return candidate
+
+
 def _refresh_supplemental_findings_text(text: str) -> str:
     """Upsert descriptor rows while preserving every other register byte."""
     descriptor_ids = (
@@ -11349,6 +12075,24 @@ def _refresh_supplemental_findings_text(text: str) -> str:
         for row in _supplemental_findings()
         if row["finding_id"] in descriptor_ids
     }
+    ds11_generated = {
+        row["finding_id"]: row
+        for row in _supplemental_findings()
+        if row["finding_id"] in DS11_TRUST_PRESENTATION_FINDING_IDS
+    }
+    _start, _end, stored_spans = _supplemental_section_spans(text)
+    stored_ds11 = {
+        finding_id: json.loads(text[object_start : object_end + 1])
+        for finding_id, object_start, object_end in stored_spans
+        if finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
+    }
+    if set(stored_ds11) != DS11_TRUST_PRESENTATION_FINDING_IDS or any(
+        stored_ds11[finding_id] != ds11_generated.get(finding_id)
+        for finding_id in DS11_TRUST_PRESENTATION_FINDING_IDS
+    ):
+        raise ValueError(
+            "trust presentation requires the dedicated DS11 C04 transition"
+        )
     refresh_owned_ids = _surgical_supplemental_finding_ids(text)
     refreshed = text
     for finding_id in sorted(refresh_owned_ids - descriptor_ids):
@@ -11819,6 +12563,29 @@ def _c03_git_text(*arguments: str) -> str:
             "C16 Git provenance query failed: " + completed.stderr.strip()
         )
     return completed.stdout
+
+
+@contextmanager
+def _ds11_trust_presentation_register_lock() -> Iterable[None]:
+    """Serialize the C04 register/report family on a worktree-local Git lock."""
+    lock_ref = _c03_git_text(
+        "rev-parse",
+        "--git-path",
+        "ds11-trust-presentation-register.lock",
+    ).strip()
+    lock_path = Path(lock_ref)
+    if not lock_path.is_absolute():
+        lock_path = REPO_ROOT.parent / lock_path
+    descriptor = os.open(lock_path, os.O_CREAT | os.O_RDWR, 0o600)
+    try:
+        try:
+            fcntl.flock(descriptor, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except OSError as exc:
+            raise ValueError("DS11 C04 register-family lock is held") from exc
+        yield
+    finally:
+        fcntl.flock(descriptor, fcntl.LOCK_UN)
+        os.close(descriptor)
 
 
 def _c03_git_bytes(*arguments: str) -> bytes:
@@ -13848,6 +14615,7 @@ def validate_register(
         errors,
         generated_supplemental,
     )
+    _validate_ds11_trust_presentation_transition_findings(data, errors)
     supplemental_rows = data.get("supplemental_findings", [])
     if isinstance(supplemental_rows, list):
         supplemental_ids = [
@@ -15605,6 +16373,11 @@ def _summary(data: Mapping[str, Any]) -> dict[str, Any]:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--check", action="store_true", help="validate the committed register")
+    parser.add_argument(
+        "--check-ds11-trust-presentation-lock",
+        action="store_true",
+        help="run the whole register check while holding the DS11 C04 family lock",
+    )
     parser.add_argument("--write-seed", action="store_true", help="write a fresh deterministic seed register")
     parser.add_argument(
         "--write-supplemental",
@@ -15650,6 +16423,11 @@ def main(argv: Sequence[str] | None = None) -> int:
         "--write-ds10-capability-discovery",
         action="store_true",
         help="surgically adjudicate the exact ten DS10 capability-discovery roots",
+    )
+    parser.add_argument(
+        "--write-ds11-trust-presentation-resolution",
+        action="store_true",
+        help="atomically repair only the two DS11 Trust View authority rows and report",
     )
     parser.add_argument(
         "--migrate-c21b",
@@ -15699,6 +16477,55 @@ def main(argv: Sequence[str] | None = None) -> int:
         help="compare custom architecture JSON against the active debt set",
     )
     args = parser.parse_args(argv)
+
+    if args.check_ds11_trust_presentation_lock:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"check", "check_ds11_trust_presentation_lock"}:
+            sys.stderr.write(
+                "DS11 C04 locked check requires only --check "
+                "--check-ds11-trust-presentation-lock\n"
+            )
+            return 1
+        try:
+            with _ds11_trust_presentation_register_lock():
+                completed = subprocess.run(
+                    [sys.executable, str(Path(__file__).resolve()), "--check"],
+                    cwd=REPO_ROOT,
+                    capture_output=True,
+                    text=True,
+                    check=False,
+                )
+        except (OSError, ValueError) as exc:
+            sys.stderr.write(f"DS11 C04 locked check rejected: {exc}\n")
+            return 1
+        sys.stdout.write(completed.stdout)
+        sys.stderr.write(completed.stderr)
+        return completed.returncode
+
+    if args.write_ds11_trust_presentation_resolution:
+        selected = {
+            name
+            for name, value in vars(args).items()
+            if value is not None and value is not False
+        }
+        if selected != {"write_ds11_trust_presentation_resolution"}:
+            sys.stderr.write(
+                "DS11 C04 transition requires only "
+                "--write-ds11-trust-presentation-resolution\n"
+            )
+            return 1
+        try:
+            summary = _write_ds11_trust_presentation_family()
+        except (OSError, ValueError, RuntimeError, json.JSONDecodeError) as exc:
+            sys.stderr.write(f"DS11 C04 transition rejected: {exc}\n")
+            return 1
+        sys.stdout.write("materialized DS11 C04 two-row register/report transition\n")
+        sys.stdout.write(json.dumps(summary, indent=2, sort_keys=True) + "\n")
+        return 0
 
     if args.write_ds10_capability_discovery:
         selected = {

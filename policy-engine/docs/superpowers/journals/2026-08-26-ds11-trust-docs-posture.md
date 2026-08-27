@@ -567,3 +567,52 @@ provenance remained valid while its self-supplied subject was relabeled to
 - Complete path comparison is exactly five already-owned C03 mechanism/test
   paths plus this journal and ignored report. Totals remain `18/34` mechanisms
   and `7/9` widening rounds.
+
+### C04 — private Trust View presentation issuer
+
+- Pattern pass: C04 closes the C01a authority-presentation instances under
+  `P04`/`P05` with one issuer rather than caller-selected strings; `P29` and
+  `P32` are met by executing the runtime identity path, not by checking prop
+  names. The full AST source census prevents the P35/P38 sampled/wrong-set
+  failure. `P39` keeps the eight product mechanisms separate from the focused
+  tests, checker/schema, register/report, this journal, and ignored handback.
+- Transport remains the generated owner contract:
+  `src/polisyos/core/contracts/runtime.py:814` defines `VerificationMetadata`;
+  `packages/runtime-api-client/runtimeApiClient.ts` owns the generated client
+  shape. C04 adds no generated/client/locales/config path.
+- `trust-glyphs.ts` is the only issuer: a module-private unique-symbol brand,
+  private `WeakSet` identity registry and `WeakMap` display data, frozen issued
+  objects/data, and guarded `Reflect.get` reads reject structural casts, copied
+  or proxied values, and hostile getters. The exhaustive calculus is explicit:
+  absent/non-object categorical data is unknown; novel categorical data is
+  unrecognized; disputed or under-review vetoes; stale is distinct; verified
+  requires current freshness plus nonblank hash/method/verifier; pending stays
+  nonpositive; untraced/incomplete/unknown freshness stays unknown; resolved
+  is not a veto.
+- Both clothing components now accept only the issued presentation. The issuer
+  is called once by TrustInspector, TrustMetadata, TrustViewBadge, and the
+  ProvenanceStrip sibling; raw metadata remains detail/HashChip/inspector
+  transport. The Trust View barrel omits issuer helpers/types. The full
+  TypeScript census is exactly `625 = 304 .ts + 321 .tsx`, excludes test/spec,
+  stories, declarations, and `src/test/**/*.tsx`, and has filesystem-to-Git
+  equality; it does not special-case generated or C03 sources.
+- The dedicated locked DS11 writer restored its two declared open predecessors
+  and atomically materialized only
+  `authority-presentation-prop-dispute-status` and
+  `authority-presentation-prop-verification-status-icon-tone`, with report
+  peer bytes preserved. `check_status_retirement_inventory.py` is not a C04
+  companion or mechanism: the disposition checker invokes its existing scanner
+  API read-only, so no status-inventory schema/state can express this repair.
+- Final receipts: 10 focused Trust View/a11y/AST files pass `18/18` (exit 0;
+  `real 4.20`, `user 18.75`, `sys 3.46`; uptime `02:59`, up 2d17:12).
+  App typecheck passes (exit 0; `real 10.48`, `user 18.05`, `sys 0.56`; uptime
+  `02:51`). The targeted writer/schema/forgery test passes (exit 0; `real
+  49.20`, `user 64.62`, `sys 6.81`; uptime `02:56`). The final whole checker
+  ran under the DS11 lock and returned only the inherited allowed C13 receipt:
+  `c13_print_receipt_invalid:C13 current evidence drift:apps/runtime-dashboard/src/features/runs/routes/RunDetailLayout.tsx`
+  (exit 1; `real 64.33`, `user 90.11`, `sys 8.68`; uptime `02:57 -> 02:58`);
+  it emitted no DS11 error. `git diff --check` is clean.
+- C04 owns exactly eight product mechanism paths and is narrowing-only. Slice
+  accounting moves `18/34 -> 26/34` mechanisms; widening remains `7/9`.
+  No DS6 evidence was changed, and no DEBT-REGISTER/LEDGER row is added;
+  any later debt-ledger decision remains C06-owned.

@@ -7546,51 +7546,47 @@
       "finding_id": "authority-presentation-prop-dispute-status",
       "finding_kind": "authority_presentation_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
-        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
-        "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpEaXNwdXRlQmFkZ2UiLCJzeW1ib2w6RGlzcHV0ZUJhZGdlIiwicmVzb2x2ZWQ6RGlzcHV0ZUJhZGdlIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvRGlzcHV0ZUJhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJEaXNwdXRlQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJkMDRkMWM3OGEzMmM5ZWQ5YWI0NTQ2MWFhODE0YmIzNzgxZDgwZTE1YzU3ZDUxMDE0ZWYyZmQwYjMyOWI1OWM3Iiwicm9sZSI6Im5hbWVkX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9zaGFyZWQvdWkvdHJ1c3Qtdmlldy9EaXNwdXRlQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
-        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRpc3B1dGVCYWRnZTpzdGF0dXM6ZW5jbG9zaW5nOlRydXN0SW5zcGVjdG9yIiwic3ltYm9sOnN0YXR1cyIsInJlc29sdmVkOnN0YXR1cyIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS90cnVzdC12aWV3L1RydXN0SW5zcGVjdG9yLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6InN0YXR1cyIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImIxMTY2OTRiNjYwODY4NjI0ZjEwZTdjYmU3YjI5NWRjZWViNTdlMjFlMzM2M2ExNTdmY2RhZDhjOTdhNzY2NGQiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVHJ1c3RJbnNwZWN0b3IudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6MTIiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDo0IiwiSnN4RWxlbWVudDoyIiwiSnN4RXhwcmVzc2lvbjo0IiwiQ29uZGl0aW9uYWxFeHByZXNzaW9uOjAiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6MiIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9",
-        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRpc3B1dGVCYWRnZTpzdGF0dXM6ZW5jbG9zaW5nOlRydXN0TWV0YWRhdGEiLCJzeW1ib2w6c3RhdHVzIiwicmVzb2x2ZWQ6c3RhdHVzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVHJ1c3RNZXRhZGF0YS50c3g6SnN4QXR0cmlidXRlIl0sImRpc2NyaW1pbmF0b3IiOiJzdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIyMjRlMTY3ODhkODU1YzczNzQ4OTY5NTY4NzYzZmExODQ2OTQ5YzJiYTVmM2I5Y2ZmNjFiYTdkYWViM2YzOWE3Iiwicm9sZSI6ImpzeF9hdHRyaWJ1dGUiLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS90cnVzdC12aWV3L1RydXN0TWV0YWRhdGEudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6NCIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFeHByZXNzaW9uOjQiLCJDb25kaXRpb25hbEV4cHJlc3Npb246MCIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjIiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6MCIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9"
+        "docs/plans/active/atlas-slices/DS11-trust-docs-posture.md#c04--trust-view-private-issuer-repair",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpEaXNwdXRlQmFkZ2UiLCJzeW1ib2w6RGlzcHV0ZUJhZGdlIiwicmVzb2x2ZWQ6RGlzcHV0ZUJhZGdlIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvRGlzcHV0ZUJhZGdlLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJEaXNwdXRlQmFkZ2UiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI1ZmQxMDVkNTc4ZjJjY2MwNDkzZGQxZDc5ODFjZWMzNGY1MjQzOTAyMTIyMGMyYmY0ZjJhM2NiMGNkMmM3YzhjIiwicm9sZSI6Im5hbWVkX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9zaGFyZWQvdWkvdHJ1c3Qtdmlldy9EaXNwdXRlQmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRpc3B1dGVCYWRnZTpwcmVzZW50YXRpb246ZW5jbG9zaW5nOlRydXN0SW5zcGVjdG9yIiwic3ltYm9sOnByZXNlbnRhdGlvbiIsInJlc29sdmVkOnByZXNlbnRhdGlvbiIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS90cnVzdC12aWV3L1RydXN0SW5zcGVjdG9yLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6InByZXNlbnRhdGlvbiIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjE5OGE1OTE3ZjUwYmJhMGY5YzI0MjYwNWNhZWJhYTg4ZjE3NmNhODE2YjUyZDMyMWM1MzU4ZWU5NDAzNzA4M2MiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVHJ1c3RJbnNwZWN0b3IudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6MTMiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDo0IiwiSnN4RWxlbWVudDoyIiwiSnN4U2VsZkNsb3NpbmdFbGVtZW50OjQiLCJKc3hBdHRyaWJ1dGVzOjEiLCJKc3hBdHRyaWJ1dGU6MCJdLCJ2ZXJzaW9uIjoxfQ",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOkRpc3B1dGVCYWRnZTpwcmVzZW50YXRpb246ZW5jbG9zaW5nOlRydXN0TWV0YWRhdGEiLCJzeW1ib2w6cHJlc2VudGF0aW9uIiwicmVzb2x2ZWQ6cHJlc2VudGF0aW9uIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVHJ1c3RNZXRhZGF0YS50c3g6SnN4QXR0cmlidXRlIl0sImRpc2NyaW1pbmF0b3IiOiJwcmVzZW50YXRpb24iLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxOThhNTkxN2Y1MGJiYTBmOWMyNDI2MDVjYWViYWE4OGYxNzZjYTgxNmI1MmQzMjFjNTM1OGVlOTQwMzcwODNjIiwicm9sZSI6ImpzeF9hdHRyaWJ1dGUiLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS90cnVzdC12aWV3L1RydXN0TWV0YWRhdGEudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6NSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6NCIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9"
       ],
       "owner_slice": "DS11",
-      "decision_date": "2026-08-02",
-      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
-      "capability_states": [
-        "bridge_missing",
-        "semantic_test_missing"
-      ],
-      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after a private exhaustive dispute issuer owns clothing and runtime-novel dispute states render unrecognized",
+      "decision_date": "2026-08-27",
+      "rationale": "DS11 C04 replaces the inherited caller-selected Trust View clothing boundary with one private identity-backed issuer. The compiler-resolved sink and consumer receipts bind the issued presentation; raw status/tone roots are absent.",
       "authority_sink": {
         "sink_kind": "prop_boundary",
         "descriptor_id": "prop-dispute-status",
         "component": "DisputeBadge",
-        "prop": "status",
+        "prop": "presentation",
         "component_declaration": {
           "role": "component_declaration",
           "path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
-          "line": 11,
-          "content_sha256": "sha256:66b9a2be27f7f6d20065b11f3229f1e805b87870b35fbd85fa9f4e76ca6c5e71"
+          "line": 14,
+          "content_sha256": "sha256:856681ad1f36a5238fd8cb1d5baa8a711c869ae6e341df4e384c85f0e64b4628"
         },
         "prop_declaration": {
           "role": "prop_declaration",
           "path": "apps/runtime-dashboard/src/shared/ui/trust-view/DisputeBadge.tsx",
-          "line": 7,
-          "content_sha256": "sha256:10e61aeba290847f729d9bef1e9064daedd57f3dadeb118c8df644147ed193b2"
+          "line": 10,
+          "content_sha256": "sha256:5b7667a2a8d4d34328c4a3d3e8df9a6df7d7406e8c1cd2fb2c4a9ee3ec45d433"
         },
         "consumer_count": 2,
         "consumer_sites": [
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
-            "line": 82,
-            "site_sha256": "sha256:27fcfa2499f281c5f9c1ef0f7f83ec01cc9d6851135402bcbceeef6cfbfab94d"
+            "line": 79,
+            "site_sha256": "sha256:6452472320d5077e9193a79186cea7f73673de0074cd0c8ca208027504a47f27"
           },
           {
             "role": "consumer",
             "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
-            "line": 79,
-            "site_sha256": "sha256:1e7369a34e3debbad6dbbca3f698b86c3910bbec2f77413dc02b0dfe724b87fa"
+            "line": 77,
+            "site_sha256": "sha256:6452472320d5077e9193a79186cea7f73673de0074cd0c8ca208027504a47f27"
           }
         ]
       }
@@ -7737,44 +7733,68 @@
       "finding_id": "authority-presentation-prop-verification-status-icon-tone",
       "finding_kind": "authority_presentation_debt",
       "disposition": "rebind_pending",
-      "status": "open_debt",
+      "status": "repaired",
       "evidence_refs": [
-        "docs/plans/active/atlas-slices/DS5-enforcement-waist.md#ds5-c01a--authority-sink-census-and-branddebt-boundary",
-        "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpTdGF0dXNJY29uIiwic3ltYm9sOlN0YXR1c0ljb24iLCJyZXNvbHZlZDpTdGF0dXNJY29uIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVmVyaWZpY2F0aW9uU3RhdHVzLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJTdGF0dXNJY29uIiwibm9ybWFsaXplZF90b2tlbnNfc2hhMjU2IjoiN2I4MmE0YjY1ZmM0M2Q1MjUwNDRhMjIyZWVkNmY1NDMyODRmOTI2ZjdmNzA3MDFhZmM3ZDAwZmI0YWM1OTliYiIsInJvbGUiOiJuYW1lZF9kZWNsYXJhdGlvbiIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVmVyaWZpY2F0aW9uU3RhdHVzLnRzeCIsInN0cnVjdHVyYWxfcGF0aCI6W10sInZlcnNpb24iOjF9",
-        "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlN0YXR1c0ljb246dG9uZTplbmNsb3Npbmc6VmVyaWZpY2F0aW9uU3RhdHVzIiwic3ltYm9sOnRvbmUiLCJyZXNvbHZlZDp0b25lIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVmVyaWZpY2F0aW9uU3RhdHVzLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6InRvbmUiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiI2NTVhODEyMDcxNTRkNjFlMTRlZDk3ODJjZmY3ZjExZDUxYzZmODkzNzg3MTM4OWE5NzY3Y2YxZjVjMjAwMWVkIiwicm9sZSI6ImpzeF9hdHRyaWJ1dGUiLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS90cnVzdC12aWV3L1ZlcmlmaWNhdGlvblN0YXR1cy50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiQmxvY2s6MyIsIlJldHVyblN0YXRlbWVudDozIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDoyIiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0"
+        "docs/plans/active/atlas-slices/DS11-trust-docs-posture.md#c04--trust-view-private-issuer-repair",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/trust-glyphs.ts",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJkZWNsYXJhdGlvbjpWZXJpZmljYXRpb25TdGF0dXMiLCJzeW1ib2w6VmVyaWZpY2F0aW9uU3RhdHVzIiwicmVzb2x2ZWQ6VmVyaWZpY2F0aW9uU3RhdHVzIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVmVyaWZpY2F0aW9uU3RhdHVzLnRzeDpGdW5jdGlvbkRlY2xhcmF0aW9uIl0sImRpc2NyaW1pbmF0b3IiOiJWZXJpZmljYXRpb25TdGF0dXMiLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiJjNzdjODQ0NTZmYjEwOTIzYTViM2UxNDNiNDVkZGYzNzJlMDlkMDZkZDEwYjk5N2RiM2NiYmFkZjE2OWEwNTllIiwicm9sZSI6Im5hbWVkX2RlY2xhcmF0aW9uIiwic291cmNlX3BhdGgiOiJhcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9zaGFyZWQvdWkvdHJ1c3Qtdmlldy9WZXJpZmljYXRpb25TdGF0dXMudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbXSwidmVyc2lvbiI6MX0",
+        "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlZlcmlmaWNhdGlvblN0YXR1czpwcmVzZW50YXRpb246ZW5jbG9zaW5nOlByb3ZlbmFuY2VTdHJpcCIsInN5bWJvbDpwcmVzZW50YXRpb24iLCJyZXNvbHZlZDpwcmVzZW50YXRpb24iLCJkZWNsYXJhdGlvbjphcHBzL3J1bnRpbWUtZGFzaGJvYXJkL3NyYy9zaGFyZWQvdWkvUHJvdmVuYW5jZVN0cmlwLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6InByZXNlbnRhdGlvbiIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6ImY4YTY4OWU0ZTUzYzg0MDFiMDAyZjg2NGEwMjViZGJkNTY3Y2E3ODNiODY0YWU4MThlODAzYWJkYjdlNzFiM2UiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL1Byb3ZlbmFuY2VTdHJpcC50c3giLCJzdHJ1Y3R1cmFsX3BhdGgiOlsiQmxvY2s6MyIsIlJldHVyblN0YXRlbWVudDoxIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6NCIsIkpzeEV4cHJlc3Npb246MiIsIkNhbGxFeHByZXNzaW9uOjAiLCJBcnJvd0Z1bmN0aW9uOjEiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4RWxlbWVudDowIiwiSnN4RXhwcmVzc2lvbjo2IiwiQ29uZGl0aW9uYWxFeHByZXNzaW9uOjAiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjoyIiwiSnN4U2VsZkNsb3NpbmdFbGVtZW50OjAiLCJKc3hBdHRyaWJ1dGVzOjEiLCJKc3hBdHRyaWJ1dGU6MCJdLCJ2ZXJzaW9uIjoxfQ",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlZlcmlmaWNhdGlvblN0YXR1czpwcmVzZW50YXRpb246ZW5jbG9zaW5nOlRydXN0SW5zcGVjdG9yIiwic3ltYm9sOnByZXNlbnRhdGlvbiIsInJlc29sdmVkOnByZXNlbnRhdGlvbiIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS90cnVzdC12aWV3L1RydXN0SW5zcGVjdG9yLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6InByZXNlbnRhdGlvbiIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjE5OGE1OTE3ZjUwYmJhMGY5YzI0MjYwNWNhZWJhYTg4ZjE3NmNhODE2YjUyZDMyMWM1MzU4ZWU5NDAzNzA4M2MiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVHJ1c3RJbnNwZWN0b3IudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjIiLCJSZXR1cm5TdGF0ZW1lbnQ6MTMiLCJQYXJlbnRoZXNpemVkRXhwcmVzc2lvbjowIiwiSnN4RWxlbWVudDowIiwiSnN4RWxlbWVudDo0IiwiSnN4RWxlbWVudDoyIiwiSnN4U2VsZkNsb3NpbmdFbGVtZW50OjIiLCJKc3hBdHRyaWJ1dGVzOjEiLCJKc3hBdHRyaWJ1dGU6MCJdLCJ2ZXJzaW9uIjoxfQ",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlZlcmlmaWNhdGlvblN0YXR1czpwcmVzZW50YXRpb246ZW5jbG9zaW5nOlRydXN0TWV0YWRhdGEiLCJzeW1ib2w6cHJlc2VudGF0aW9uIiwicmVzb2x2ZWQ6cHJlc2VudGF0aW9uIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVHJ1c3RNZXRhZGF0YS50c3g6SnN4QXR0cmlidXRlIl0sImRpc2NyaW1pbmF0b3IiOiJwcmVzZW50YXRpb24iLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxOThhNTkxN2Y1MGJiYTBmOWMyNDI2MDVjYWViYWE4OGYxNzZjYTgxNmI1MmQzMjFjNTM1OGVlOTQwMzcwODNjIiwicm9sZSI6ImpzeF9hdHRyaWJ1dGUiLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS90cnVzdC12aWV3L1RydXN0TWV0YWRhdGEudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJJZlN0YXRlbWVudDo0IiwiQmxvY2s6MSIsIlJldHVyblN0YXRlbWVudDowIiwiUGFyZW50aGVzaXplZEV4cHJlc3Npb246MCIsIkpzeEVsZW1lbnQ6MCIsIkpzeEVsZW1lbnQ6MiIsIkpzeFNlbGZDbG9zaW5nRWxlbWVudDoyIiwiSnN4QXR0cmlidXRlczoxIiwiSnN4QXR0cmlidXRlOjAiXSwidmVyc2lvbiI6MX0",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlZlcmlmaWNhdGlvblN0YXR1czpwcmVzZW50YXRpb246ZW5jbG9zaW5nOlRydXN0TWV0YWRhdGEiLCJzeW1ib2w6cHJlc2VudGF0aW9uIiwicmVzb2x2ZWQ6cHJlc2VudGF0aW9uIiwiZGVjbGFyYXRpb246YXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVHJ1c3RNZXRhZGF0YS50c3g6SnN4QXR0cmlidXRlIl0sImRpc2NyaW1pbmF0b3IiOiJwcmVzZW50YXRpb24iLCJub3JtYWxpemVkX3Rva2Vuc19zaGEyNTYiOiIxOThhNTkxN2Y1MGJiYTBmOWMyNDI2MDVjYWViYWE4OGYxNzZjYTgxNmI1MmQzMjFjNTM1OGVlOTQwMzcwODNjIiwicm9sZSI6ImpzeF9hdHRyaWJ1dGUiLCJzb3VyY2VfcGF0aCI6ImFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS90cnVzdC12aWV3L1RydXN0TWV0YWRhdGEudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6NSIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hFbGVtZW50OjIiLCJKc3hFbGVtZW50OjIiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6MiIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9",
+        "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx#ts-identity=eyJkZWNsYXJhdGlvbl9jaGFpbiI6WyJqc3hfYXR0cmlidXRlOlZlcmlmaWNhdGlvblN0YXR1czpwcmVzZW50YXRpb246ZW5jbG9zaW5nOlRydXN0Vmlld0JhZGdlIiwic3ltYm9sOnByZXNlbnRhdGlvbiIsInJlc29sdmVkOnByZXNlbnRhdGlvbiIsImRlY2xhcmF0aW9uOmFwcHMvcnVudGltZS1kYXNoYm9hcmQvc3JjL3NoYXJlZC91aS90cnVzdC12aWV3L1RydXN0Vmlld0JhZGdlLnRzeDpKc3hBdHRyaWJ1dGUiXSwiZGlzY3JpbWluYXRvciI6InByZXNlbnRhdGlvbiIsIm5vcm1hbGl6ZWRfdG9rZW5zX3NoYTI1NiI6IjE5OGE1OTE3ZjUwYmJhMGY5YzI0MjYwNWNhZWJhYTg4ZjE3NmNhODE2YjUyZDMyMWM1MzU4ZWU5NDAzNzA4M2MiLCJyb2xlIjoianN4X2F0dHJpYnV0ZSIsInNvdXJjZV9wYXRoIjoiYXBwcy9ydW50aW1lLWRhc2hib2FyZC9zcmMvc2hhcmVkL3VpL3RydXN0LXZpZXcvVHJ1c3RWaWV3QmFkZ2UudHN4Iiwic3RydWN0dXJhbF9wYXRoIjpbIkJsb2NrOjMiLCJSZXR1cm5TdGF0ZW1lbnQ6MiIsIlBhcmVudGhlc2l6ZWRFeHByZXNzaW9uOjAiLCJKc3hFbGVtZW50OjAiLCJKc3hTZWxmQ2xvc2luZ0VsZW1lbnQ6NCIsIkpzeEF0dHJpYnV0ZXM6MSIsIkpzeEF0dHJpYnV0ZTowIl0sInZlcnNpb24iOjF9"
       ],
       "owner_slice": "DS11",
-      "decision_date": "2026-08-02",
-      "rationale": "C01a classifies this authority-bearing prop boundary as unbranded typed debt; its owner must replace structural clothing with the existing private-issuer brand pattern.",
-      "capability_states": [
-        "verification_missing",
-        "semantic_test_missing"
-      ],
-      "closure_signal": "python3 architecture/atlas_surfaces/check_frontend_disposition_register.py --check --corruption-probes exits 0 after the open string tone carrier is replaced by a private issued trust presentation and structural forgery is rejected",
+      "decision_date": "2026-08-27",
+      "rationale": "DS11 C04 replaces the inherited caller-selected Trust View clothing boundary with one private identity-backed issuer. The compiler-resolved sink and consumer receipts bind the issued presentation; raw status/tone roots are absent.",
       "authority_sink": {
         "sink_kind": "prop_boundary",
         "descriptor_id": "prop-verification-status-icon-tone",
-        "component": "StatusIcon",
-        "prop": "tone",
+        "component": "VerificationStatus",
+        "prop": "presentation",
         "component_declaration": {
           "role": "component_declaration",
           "path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
-          "line": 74,
-          "content_sha256": "sha256:a031d1e2b4f4d9515d9de9bbef19a844638664fe4da47c5dc1bad413a56f069f"
+          "line": 18,
+          "content_sha256": "sha256:14eb082d85dea068deae05ad7314ca7ed78c3ad6170430c5f5df1e93065eae8e"
         },
         "prop_declaration": {
           "role": "prop_declaration",
           "path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
-          "line": 74,
-          "content_sha256": "sha256:93b32ce41788f3e2d12d1eef280ba8ff9015a36e5403249d1d9cdeef3cc8bd29"
+          "line": 13,
+          "content_sha256": "sha256:5b7667a2a8d4d34328c4a3d3e8df9a6df7d7406e8c1cd2fb2c4a9ee3ec45d433"
         },
-        "consumer_count": 1,
+        "consumer_count": 5,
         "consumer_sites": [
           {
             "role": "consumer",
-            "path": "apps/runtime-dashboard/src/shared/ui/trust-view/VerificationStatus.tsx",
-            "line": 43,
-            "site_sha256": "sha256:0d1b4ff81196ffb28c2d93b5284cae6529255f51469e0abfa95a852a2cfc4758"
+            "path": "apps/runtime-dashboard/src/shared/ui/ProvenanceStrip.tsx",
+            "line": 122,
+            "site_sha256": "sha256:9b139c6cf41ce5469241d6706ca9434424a7cea88abd18e1dc436645e6113115"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustInspector.tsx",
+            "line": 78,
+            "site_sha256": "sha256:6452472320d5077e9193a79186cea7f73673de0074cd0c8ca208027504a47f27"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+            "line": 54,
+            "site_sha256": "sha256:6452472320d5077e9193a79186cea7f73673de0074cd0c8ca208027504a47f27"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustMetadata.tsx",
+            "line": 75,
+            "site_sha256": "sha256:6452472320d5077e9193a79186cea7f73673de0074cd0c8ca208027504a47f27"
+          },
+          {
+            "role": "consumer",
+            "path": "apps/runtime-dashboard/src/shared/ui/trust-view/TrustViewBadge.tsx",
+            "line": 21,
+            "site_sha256": "sha256:6452472320d5077e9193a79186cea7f73673de0074cd0c8ca208027504a47f27"
           }
         ]
       }

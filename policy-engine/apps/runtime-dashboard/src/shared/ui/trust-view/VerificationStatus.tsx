@@ -4,51 +4,52 @@ import { useI18n } from "@/shared/i18n/LocaleProvider";
 import { cn } from "@/shared/lib/utils";
 
 import {
-  trustPresentationFromMetadata,
-  type VerificationMetadata,
+  isIssuedTrustPresentation,
+  presentTrustPresentation,
+  type TrustPresentation,
 } from "./trust-glyphs";
 
 type VerificationStatusProps = {
-  metadata?: VerificationMetadata | null;
+  presentation: TrustPresentation;
   className?: string;
   showLabel?: boolean;
 };
 
 export function VerificationStatus({
-  metadata,
+  presentation,
   className,
   showLabel = true,
 }: VerificationStatusProps) {
   const { t } = useI18n();
-  const presentation = trustPresentationFromMetadata(metadata);
+  const { status } = presentTrustPresentation(presentation);
   const label =
-    presentation.tone === "unknown"
+    status === "unknown" || status === "unrecognized"
       ? t("common.unknown")
-      : t(`shared.ui.trustView.status.${presentation.tone}`);
+      : t(`shared.ui.trustView.status.${status}`);
   return (
     <span
       className={cn(
         "inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold",
-        toneClassName(presentation.tone),
+        toneClassName(status),
         className,
       )}
       aria-label={label}
-      data-verification-presentation={presentation.tone}
+      data-verification-presentation={status}
       data-verification-source={
-        presentation.ownerContractPresent
-          ? "generated-owner"
-          : "absent-or-incomplete"
+        isIssuedTrustPresentation(presentation) ? "issued" : "unissued"
       }
     >
-      <StatusIcon tone={presentation.tone} />
+      <StatusIcon presentation={presentation} />
       <span aria-hidden={!showLabel}>
-        {showLabel ? label : trustGlyph(presentation.tone)}
+        {showLabel ? label : trustGlyph(status)}
       </span>
     </span>
   );
 }
 
-function toneClassName(tone: string) {
+function toneClassName(
+  tone: ReturnType<typeof presentTrustPresentation>["status"],
+) {
   if (tone === "verified") {
     return "border-[color-mix(in_srgb,var(--color-status-approved)_34%,transparent)] bg-[color-mix(in_srgb,var(--color-status-approved)_10%,transparent)] text-[var(--color-status-approved)]";
   }
@@ -63,7 +64,7 @@ function toneClassName(tone: string) {
     : "border-border bg-muted/40 text-muted-foreground";
 }
 
-function trustGlyph(tone: string) {
+function trustGlyph(tone: ReturnType<typeof presentTrustPresentation>["status"]) {
   if (tone === "verified") return "✓";
   if (tone === "pending") return "◌";
   if (tone === "disputed") return "!";
@@ -71,7 +72,8 @@ function trustGlyph(tone: string) {
   return "?";
 }
 
-function StatusIcon({ tone }: { tone: string }) {
+function StatusIcon({ presentation }: { presentation: TrustPresentation }) {
+  const { status: tone } = presentTrustPresentation(presentation);
   const className = "size-3.5";
   if (tone === "verified") {
     return <CheckCircle2 className={className} aria-hidden="true" />;

@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import pytest
+
+from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.observability.truthfulness import (
     TruthfulnessReceipt,
@@ -51,6 +54,39 @@ def test_simulation_proof_bridge_defaults_to_scenario_without_causal_context(tmp
     assert receipt.accepted is False
     assert proof.metadata["simulation_certification_status"] == "SCENARIO"
     assert "identification_proof_missing" in bridge.degradation_reasons
+
+
+def test_simulation_proof_bridge_rejects_method_execution_as_validity_evidence(
+    tmp_path,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+    simulation_ref = store.put_json(
+        {"schema_version": "1.3", "notes": []},
+        PutOptions(kind="foundry.simulation_result", media_type="application/json"),
+    )
+    method_evidence_ref = store.put_json(
+        {
+            "authority_purpose": "method_execution",
+            "authoritative_for": ["execution_reproducibility"],
+            "may_not_use_for": ["governance_admissibility", "method_validity"],
+        },
+        PutOptions(
+            kind="scientist.method_evidence",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.MethodExecutionEvidence",
+                version="0.1.0",
+            ),
+        ),
+    )
+
+    with pytest.raises(ValueError, match="causal_validity_bundle_ref"):
+        build_simulation_proof_bridge_artifacts(
+            store,
+            run_id="R_execution_is_not_validity",
+            simulation_result_ref=simulation_ref,
+            causal_validity_bundle_ref=method_evidence_ref,
+        )
 
 
 def test_simulation_proof_bridge_preserves_identified_base_proof_when_receipts_pass(

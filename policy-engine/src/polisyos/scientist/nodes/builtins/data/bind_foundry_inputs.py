@@ -7,7 +7,7 @@ from dataclasses import dataclass, replace
 from pathlib import Path
 from typing import Any
 
-from pydantic import ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from polisyos.common.logger import get_logger
 from polisyos.core.canon import from_canonical_bytes
@@ -18,6 +18,7 @@ from polisyos.foundry.data_plane import (
     build_input_bindings,
     load_ukraine_foundry_intake,
 )
+from polisyos.foundry.methods import MethodRegistry, ensure_all_methods_registered
 from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.nodes.builtins import errors as node_errors
 from polisyos.scientist.nodes.builtins.state_keys import (
@@ -27,6 +28,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     INPUT_INPUT_BINDINGS_REF,
     INPUT_REGISTRY_BUNDLE_REF,
     INPUT_TRINITY_BUNDLE_REF,
+    INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF,
+    INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF,
 )
 from polisyos.scientist.orchestration.engine.context import ExecutionContext
 from polisyos.scientist.orchestration.engine.protocol import (
@@ -45,6 +48,7 @@ _BINDING_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
 _BINDING_LOAD_ERRORS = (TypeError, ValueError, ValidationError, FileNotFoundError, OSError)
 _UKRAINE_INTAKE_CONFIG_KEY = "ukraine_foundry_intake"
 _UKRAINE_INTAKE_RECEIPT_KEY = "ukraine_foundry_intake_receipt_ref"
+_UKRAINE_METHOD_SELECTION_CONFIG_KEY = "ukraine_foundry_method_selection"
 
 _METADATA = ComponentMetadata(
     component_id=ComponentId.parse("scientist.node_bind_foundry_inputs@1.0.0"),
@@ -64,12 +68,17 @@ _SPEC = NodeSpec(
         f"inputs.{INPUT_TRINITY_BUNDLE_REF}",
         "params.foundry_input_binding_rules",
         f"params.{_UKRAINE_INTAKE_CONFIG_KEY}",
+        f"params.{_UKRAINE_METHOD_SELECTION_CONFIG_KEY}",
     ],
     state_writes=[
         f"inputs.{INPUT_INPUT_BINDINGS_REF}",
         f"artifacts_index.{ARTIFACT_STATE_SNAPSHOT_REF}",
         f"artifacts_index.{ARTIFACT_INPUT_BINDING_REPORT_REF}",
         f"artifacts_index.{_UKRAINE_INTAKE_RECEIPT_KEY}",
+        f"inputs.{INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF}",
+        f"inputs.{INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF}",
+        "observational_data_ref",
+        "causal_method_fqn",
         "params.proxy_identification_bundle",
     ],
     produces=[
@@ -77,8 +86,19 @@ _SPEC = NodeSpec(
         ARTIFACT_STATE_SNAPSHOT_REF,
         ARTIFACT_INPUT_BINDING_REPORT_REF,
         _UKRAINE_INTAKE_RECEIPT_KEY,
+        INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF,
+        INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF,
     ],
 )
+
+
+class _UkraineFoundryMethodSelection(BaseModel):
+    """Strict explicit method-input routing request; no default is permitted."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    contract_key: str = Field(min_length=1)
+    method_fqn: str = Field(min_length=1)
 
 
 @dataclass(frozen=True)
@@ -107,15 +127,26 @@ class BindFoundryInputsNode:
 
     def execute(self, ctx: ExecutionContext, state: ExperimentState) -> NodeOutcome:
         intake_config = state.params.get(_UKRAINE_INTAKE_CONFIG_KEY)
+        selection_config = state.params.get(_UKRAINE_METHOD_SELECTION_CONFIG_KEY)
         if INPUT_INPUT_BINDINGS_REF in state.inputs and intake_config is None:
             return NodeOutcome(status="ok", state=state)
 
         data_snapshot_ref = state.inputs.get(INPUT_DATA_SNAPSHOT_REF)
         registry_bundle_ref = state.inputs.get(INPUT_REGISTRY_BUNDLE_REF)
         intake: UkraineFoundryIntakeResult | None = None
+        selected_contract_ref = None
+        selected_method_fqn: str | None = None
+        selected_contract_key: str | None = None
         if intake_config is not None:
             try:
                 intake = _load_ukraine_intake(ctx, intake_config)
+                selection = _resolve_ukraine_method_selection(intake, selection_config)
+                if selection is not None:
+                    selected_contract_key = selection.contract_key
+                    selected_method_fqn = selection.method_fqn
+                    selected_contract_ref = intake.method_contract_refs[
+                        selection.contract_key
+                    ]
                 intake_snapshot_ref = intake.data_snapshot_ref
             except _BINDING_VALIDATION_ERRORS as exc:
                 error = NodeError(
@@ -138,6 +169,15 @@ class BindFoundryInputsNode:
                 )
                 return NodeOutcome(status="fail", state=state, error=error)
             data_snapshot_ref = intake_snapshot_ref
+        elif selection_config is not None:
+            error = NodeError(
+                code=node_errors.ERROR_INVALID_STATE,
+                message=(
+                    "ukraine_foundry_method_selection requires a verified "
+                    "ukraine_foundry_intake"
+                ),
+            )
+            return NodeOutcome(status="fail", state=state, error=error)
 
         if data_snapshot_ref is None or registry_bundle_ref is None:
             error = NodeError(
@@ -187,9 +227,14 @@ class BindFoundryInputsNode:
             write_paths.extend(
                 [
                     f"artifacts_index.{_UKRAINE_INTAKE_RECEIPT_KEY}",
+                    f"inputs.{INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF}",
                     "params.proxy_identification_bundle",
                 ]
             )
+        if selected_contract_ref is not None:
+            write_paths.append(f"inputs.{INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF}")
+        if selected_contract_key == "d2_panel_observational":
+            write_paths.extend(["observational_data_ref", "causal_method_fqn"])
         new_state = branch_state(
             state,
             write_paths=tuple(write_paths),
@@ -201,7 +246,19 @@ class BindFoundryInputsNode:
         )
         if intake is not None and intake_receipt_ref is not None:
             new_state.artifacts_index[_UKRAINE_INTAKE_RECEIPT_KEY] = intake_receipt_ref
+            new_state.inputs[INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF] = (
+                intake.method_input_bundle_ref
+            )
             new_state.params["proxy_identification_bundle"] = intake.proxy_identification_bundle
+        if selected_contract_ref is not None:
+            new_state.inputs[INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF] = selected_contract_ref
+        if (
+            selected_contract_key == "d2_panel_observational"
+            and selected_contract_ref is not None
+            and selected_method_fqn is not None
+        ):
+            new_state.observational_data_ref = selected_contract_ref
+            new_state.causal_method_fqn = selected_method_fqn
 
         artifacts = [
             result.input_bindings_ref,
@@ -210,6 +267,10 @@ class BindFoundryInputsNode:
         ]
         if intake_receipt_ref is not None:
             artifacts.append(intake_receipt_ref)
+        if intake is not None:
+            artifacts.append(intake.method_input_bundle_ref)
+        if selected_contract_ref is not None:
+            artifacts.append(selected_contract_ref)
         events = [
             NodeEvent(
                 level="info",
@@ -243,6 +304,45 @@ def _load_ukraine_intake(
         stage_manifests={str(key): Path(str(value)) for key, value in stage_manifests.items()},
         allowed_root=Path(allowed_root),
     )
+
+
+def _resolve_ukraine_method_selection(
+    intake: UkraineFoundryIntakeResult,
+    value: Any,
+) -> _UkraineFoundryMethodSelection | None:
+    """Validate one explicit contract/method pair against the registered signature."""
+
+    if value is None:
+        return None
+    try:
+        selection = _UkraineFoundryMethodSelection.model_validate(value)
+    except ValidationError as exc:
+        raise ValueError(f"invalid ukraine_foundry_method_selection: {exc}") from exc
+
+    contract = intake.method_contracts.get(selection.contract_key)
+    contract_ref = intake.method_contract_refs.get(selection.contract_key)
+    if contract is None or contract_ref is None:
+        raise ValueError(
+            f"unknown Ukraine Foundry contract key: {selection.contract_key}"
+        )
+    contract_id = getattr(contract, "contract_id", None)
+    if not isinstance(contract_id, str) or not contract_id:
+        raise ValueError(
+            f"Ukraine Foundry contract lacks a stable contract_id: {selection.contract_key}"
+        )
+
+    ensure_all_methods_registered()
+    signature = MethodRegistry.get_instance().get_signature(selection.method_fqn)
+    if signature is None:
+        raise ValueError(f"unknown Foundry method: {selection.method_fqn}")
+    accepted_contract_ids = {
+        slot.contract_id for slot in signature.input_slots if slot.contract_id is not None
+    }
+    if contract_id not in accepted_contract_ids:
+        raise ValueError(
+            f"Foundry method {selection.method_fqn} does not accept contract {contract_id}"
+        )
+    return selection
 
 
 def _parse_binding_rules(value: Any) -> list[FoundryInputBindingRule] | None:

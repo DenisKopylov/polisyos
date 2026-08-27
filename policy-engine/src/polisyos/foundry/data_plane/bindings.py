@@ -14,14 +14,16 @@ from collections.abc import Mapping
 from dataclasses import dataclass
 from decimal import ROUND_HALF_EVEN, Decimal, InvalidOperation
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import jax.numpy as jnp
 import numpy as np
+from pydantic import BaseModel, ConfigDict
 
+from polisyos.common.serialization import to_python_data
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import from_canonical_bytes
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot, DataSnapshotRef
 from polisyos.core.contracts.foundry import (
@@ -89,7 +91,45 @@ class UkraineFoundryIntakeResult:
     data_snapshot_ref: DataSnapshotRef
     proxy_identification_bundle: dict[str, Any]
     method_contracts: dict[str, Any]
+    method_contract_refs: dict[str, ArtifactRef]
+    stage_receipt_refs: dict[str, ArtifactRef]
+    method_input_bundle_ref: ArtifactRef
     receipt_ref: ArtifactRef
+
+
+class _UkraineMethodInputContract(BaseModel):
+    """Persisted transport metadata for one verified Foundry method input."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    contract_id: str
+    artifact_ref: ArtifactRef
+    stage_receipt_ref: ArtifactRef
+    consumption_state: Literal[
+        "exercised_workflow_consumer",
+        "selectable_unselected",
+    ]
+    residual_state: Literal["none", "consumer_missing"]
+    workflow_consumer: str | None = None
+
+
+class _UkraineMethodInputBundle(BaseModel):
+    """Strict CAS contract carrying all verified Ukraine Foundry inputs."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["polisyos.foundry.ukraine_method_input_bundle.v1"] = (
+        "polisyos.foundry.ukraine_method_input_bundle.v1"
+    )
+    authority_purpose: Literal["method_input_transport"] = "method_input_transport"
+    authoritative_for: tuple[Literal["verified_method_input_transport"], ...] = (
+        "verified_method_input_transport",
+    )
+    may_not_use_for: tuple[
+        Literal["governance_admissibility", "method_validity"],
+        ...,
+    ] = ("governance_admissibility", "method_validity")
+    contracts: dict[str, _UkraineMethodInputContract]
 
 
 def load_ukraine_foundry_intake(
@@ -224,6 +264,107 @@ def load_ukraine_foundry_intake(
     if not proxy_identification_bundle.get("proxy_channels"):
         raise ValueError("Ukraine proxy-identification bundle has no proxy_channels")
 
+    stage_receipt_refs: dict[str, ArtifactRef] = {}
+    for stage_id, stage_receipt in receipts.items():
+        stage_inputs = [
+            InputRef(
+                artifact_id=stage_receipt.manifest_ref.artifact_id,
+                role="verified_stage_manifest",
+            )
+        ]
+        stage_inputs.extend(
+            InputRef(
+                artifact_id=output.content_ref.artifact_id,
+                role=f"verified_stage_output:{output_name}",
+            )
+            for output_name, output in sorted(stage_receipt.outputs.items())
+        )
+        stage_receipt_refs[stage_id] = store.put_json(
+            stage_receipt,
+            PutOptions(
+                kind="foundry.ukraine_stage_intake_receipt",
+                media_type="application/json",
+                schema=SchemaInfo(
+                    name="polisyos.foundry.UkraineStageIntakeReceipt",
+                    version="2.0",
+                ),
+                inputs=stage_inputs,
+            ),
+        )
+
+    method_contract_refs: dict[str, ArtifactRef] = {}
+    method_input_contracts: dict[str, _UkraineMethodInputContract] = {}
+    contract_specs_by_name = {spec[0]: spec for spec in contract_specs}
+    for contract_name, contract in method_contracts.items():
+        _, stage_id, output_name, model_type = contract_specs_by_name[contract_name]
+        output_ref = receipts[stage_id].outputs[output_name].content_ref
+        contract_ref = store.put_json(
+            to_python_data(contract, sort_keys=True),
+            PutOptions(
+                kind="foundry.ukraine_method_input",
+                media_type="application/json",
+                schema=SchemaInfo(name=str(model_type.contract_id), version="1.0"),
+                inputs=[
+                    InputRef(
+                        artifact_id=output_ref.artifact_id,
+                        role="verified_stage_output",
+                    ),
+                    InputRef(
+                        artifact_id=stage_receipt_refs[stage_id].artifact_id,
+                        role="verified_stage_receipt",
+                    ),
+                ],
+            ),
+            canon_spec=CanonSpec(forbid_floats=False),
+        )
+        method_contract_refs[contract_name] = contract_ref
+        is_panel_consumer = contract_name == "d2_panel_observational"
+        method_input_contracts[contract_name] = _UkraineMethodInputContract(
+            contract_id=str(model_type.contract_id),
+            artifact_ref=contract_ref,
+            stage_receipt_ref=stage_receipt_refs[stage_id],
+            consumption_state=(
+                "exercised_workflow_consumer"
+                if is_panel_consumer
+                else "selectable_unselected"
+            ),
+            residual_state="none" if is_panel_consumer else "consumer_missing",
+            workflow_consumer=(
+                "scientist_causal_full.run_causal_evaluation"
+                if is_panel_consumer
+                else None
+            ),
+        )
+
+    method_input_bundle = _UkraineMethodInputBundle(contracts=method_input_contracts)
+    method_input_bundle_ref = store.put_json(
+        method_input_bundle,
+        PutOptions(
+            kind="foundry.ukraine_method_input_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.foundry.UkraineMethodInputBundle",
+                version="1.0",
+            ),
+            inputs=[
+                *(
+                    InputRef(
+                        artifact_id=ref.artifact_id,
+                        role=f"method_contract:{key}",
+                    )
+                    for key, ref in sorted(method_contract_refs.items())
+                ),
+                *(
+                    InputRef(
+                        artifact_id=ref.artifact_id,
+                        role=f"stage_receipt:{stage_id}",
+                    )
+                    for stage_id, ref in sorted(stage_receipt_refs.items())
+                ),
+            ],
+        ),
+    )
+
     receipt = {
         "schema_version": "polisyos.foundry.ukraine_intake_receipt.v1",
         "authority_purpose": "producer_artifact_content_binding",
@@ -232,6 +373,7 @@ def load_ukraine_foundry_intake(
             stage_id: receipt.model_dump(mode="json") for stage_id, receipt in receipts.items()
         },
         "validated_contracts": validated_contracts,
+        "method_input_bundle_ref": method_input_bundle_ref.model_dump(mode="json"),
         "proxy_identification_bundle": {
             "source_path": receipts["d1"]
             .outputs["proxy_identification_bundle_v1.json"]
@@ -250,6 +392,19 @@ def load_ukraine_foundry_intake(
             kind="foundry.ukraine_intake_receipt",
             media_type="application/json",
             schema=SchemaInfo(name="polisyos.foundry.UkraineIntakeReceipt", version="1.0"),
+            inputs=[
+                InputRef(
+                    artifact_id=method_input_bundle_ref.artifact_id,
+                    role="method_input_bundle",
+                ),
+                *(
+                    InputRef(
+                        artifact_id=ref.artifact_id,
+                        role=f"stage_receipt:{stage_id}",
+                    )
+                    for stage_id, ref in sorted(stage_receipt_refs.items())
+                ),
+            ],
         ),
     )
 
@@ -257,6 +412,9 @@ def load_ukraine_foundry_intake(
         data_snapshot_ref=data_snapshot_ref,
         proxy_identification_bundle=proxy_identification_bundle,
         method_contracts=method_contracts,
+        method_contract_refs=method_contract_refs,
+        stage_receipt_refs=stage_receipt_refs,
+        method_input_bundle_ref=method_input_bundle_ref,
         receipt_ref=receipt_ref,
     )
 

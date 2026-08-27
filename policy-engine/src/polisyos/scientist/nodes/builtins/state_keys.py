@@ -10,6 +10,8 @@ INPUT_REGISTRY_BUNDLE_REF = "registry_bundle_ref"
 INPUT_DATA_SNAPSHOT_REF = "data_snapshot_ref"
 INPUT_STATE_SNAPSHOT_REF = "state_snapshot_ref"
 INPUT_INPUT_BINDINGS_REF = "input_bindings_ref"
+INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF = "ukraine_foundry_method_input_bundle_ref"
+INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF = "ukraine_selected_foundry_method_contract_ref"
 INPUT_DATA_VIEW_REQUEST_REF = "data_view_request_ref"
 INPUT_KNOWLEDGE_BUNDLE_REF = "knowledge_bundle_ref"
 INPUT_RESEARCH_INTENT_REF = "research_intent_ref"
@@ -290,6 +292,8 @@ __all__ = [
     "INPUT_RESEARCH_INTENT_REF",
     "INPUT_STATE_SNAPSHOT_REF",
     "INPUT_TRINITY_BUNDLE_REF",
+    "INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF",
+    "INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF",
     "REPORT_CHANGE_PROPOSAL_REF",
     "REPORT_COMPILE_REPORT_REF",
     "REPORT_GOVERNANCE_REPORT_REF",

@@ -126,7 +126,7 @@ def causal_full_workflow_spec() -> WorkflowSpec:
             NodeInvocation(
                 alias="run_causal_evaluation",
                 node_id="scientist.node_run_causal_evaluation@1.2.0",
-                depends_on=["build_data_snapshot"],
+                depends_on=["build_data_snapshot", "bind_foundry_inputs"],
             ),
             NodeInvocation(
                 alias="run_causal_queries",

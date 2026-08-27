@@ -4,8 +4,10 @@ from typing import Any, ClassVar
 
 import numpy as np
 import pytest
+
 from polisyos.core.artifacts.manifest import SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.core.canon import from_canonical_bytes
 from polisyos.foundry.methods import (
     ComplexityClass,
     ComputeBackend,
@@ -118,6 +120,13 @@ def test_run_job_method_flow(tmp_path):
     assert result.method_evidence_ref is not None
     assert result.final_state is not None
     assert np.allclose(np.asarray(result.final_state["values"]), np.array([4.0, 5.0]))
+    evidence = from_canonical_bytes(cas.get_bytes(result.method_evidence_ref.artifact_id))
+    assert evidence["authority_purpose"] == "method_execution"
+    assert evidence["authoritative_for"] == ["execution_reproducibility"]
+    assert evidence["may_not_use_for"] == [
+        "governance_admissibility",
+        "method_validity",
+    ]
 
 
 def test_run_job_method_without_fqn_returns_issue(tmp_path):

@@ -53,6 +53,8 @@ from polisyos.scientist.nodes.builtins.state_keys import (
     ARTIFACT_HTE_RESULT_REF,
     ARTIFACT_POLICY_RECOMMENDATION_REF,
     ARTIFACT_SENSITIVITY_RESULT_REF,
+    INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF,
+    INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF,
 )
 from polisyos.scientist.orchestration.engine.protocol import (
     NodeError,
@@ -91,6 +93,9 @@ _SPEC = NodeSpec(
         "params.enable_causal_sensitivity",
         "params.causal_sensitivity_params",
         "params.causal_validity",
+        f"inputs.{INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF}",
+        f"inputs.{INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF}",
+        "artifacts_index.ukraine_foundry_intake_receipt_ref",
     ],
     state_writes=[
         "params.query_treatment",
@@ -141,6 +146,7 @@ _CAUSAL_EVALUATION_LOAD_ERRORS = (
     OSError,
 )
 _CAUSAL_EVALUATION_VALIDATION_ERRORS = (TypeError, ValueError, ValidationError)
+_UKRAINE_INTAKE_RECEIPT_KEY = "ukraine_foundry_intake_receipt_ref"
 
 
 def _is_rdd_method(method_fqn: str) -> bool:
@@ -402,11 +408,27 @@ class RunCausalEvaluationNode:
                 ),
             )
 
+        method_job_input_refs = {}
+        selected_contract_ref = state.inputs.get(
+            INPUT_UKRAINE_SELECTED_METHOD_CONTRACT_REF
+        )
+        method_input_bundle_ref = state.inputs.get(
+            INPUT_UKRAINE_FOUNDRY_METHOD_BUNDLE_REF
+        )
+        intake_receipt_ref = state.artifacts_index.get(_UKRAINE_INTAKE_RECEIPT_KEY)
+        if selected_contract_ref is not None:
+            method_job_input_refs["ukraine_selected_method_contract"] = selected_contract_ref
+        if method_input_bundle_ref is not None:
+            method_job_input_refs["ukraine_method_input_bundle"] = method_input_bundle_ref
+        if intake_receipt_ref is not None:
+            method_job_input_refs["ukraine_intake_receipt"] = intake_receipt_ref
+
         spec = JobSpec(
             job_kind="method",
             method_fqn=method_fqn,
             method_params=method_params,
             seed=seed,
+            input_refs=method_job_input_refs,
         )
         result = run_job(
             spec,

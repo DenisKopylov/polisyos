@@ -7,7 +7,7 @@ import numpy as np
 import pytest
 
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
-from polisyos.core.canon import CanonSpec
+from polisyos.core.canon import CanonSpec, from_canonical_bytes
 from polisyos.core.contracts import DataTrust, ValueOuterSet
 from polisyos.core.contracts.fabric import DataSnapshot
 from polisyos.core.registry import build_default_registry_bundle
@@ -253,8 +253,9 @@ def test_load_ukraine_foundry_intake_content_binds_and_validates_all_method_cont
         _admit_then_mutate_sources,
     )
 
+    intake_store = FileSystemCAS(tmp_path / "cas")
     intake = load_ukraine_foundry_intake(
-        FileSystemCAS(tmp_path / "cas"),
+        intake_store,
         stage_manifests=_ukraine_intake_manifests(tmp_path),
         allowed_root=tmp_path,
     )
@@ -277,6 +278,50 @@ def test_load_ukraine_foundry_intake_content_binds_and_validates_all_method_cont
     }
     receipt = intake.receipt_ref
     assert receipt.kind == "foundry.ukraine_intake_receipt"
+
+    assert set(intake.method_contract_refs) == set(intake.method_contracts)
+    assert set(intake.stage_receipt_refs) == {"d0_p0", "d1", "d2", "d3"}
+    bundle = from_canonical_bytes(
+        intake_store.get_bytes(intake.method_input_bundle_ref.artifact_id)
+    )
+    assert bundle["authority_purpose"] == "method_input_transport"
+    assert bundle["may_not_use_for"] == [
+        "governance_admissibility",
+        "method_validity",
+    ]
+    assert set(bundle["contracts"]) == set(intake.method_contracts)
+    assert {
+        entry["consumption_state"] for entry in bundle["contracts"].values()
+    } == {"exercised_workflow_consumer", "selectable_unselected"}
+    assert sum(
+        entry["consumption_state"] == "exercised_workflow_consumer"
+        for entry in bundle["contracts"].values()
+    ) == 1
+    assert sum(
+        entry["residual_state"] == "consumer_missing"
+        for entry in bundle["contracts"].values()
+    ) == 12
+    assert (
+        bundle["contracts"]["d2_panel_observational"]["workflow_consumer"]
+        == "scientist_causal_full.run_causal_evaluation"
+    )
+
+    for contract_key, contract_ref in intake.method_contract_refs.items():
+        store_payload = from_canonical_bytes(intake_store.get_bytes(contract_ref.artifact_id))
+        assert store_payload
+        entry = bundle["contracts"][contract_key]
+        assert entry["artifact_ref"]["artifact_id"] == str(contract_ref.artifact_id)
+        contract_manifest = intake_store.get_manifest(contract_ref.artifact_id)
+        assert {item.role for item in contract_manifest.inputs} == {
+            "verified_stage_output",
+            "verified_stage_receipt",
+        }
+
+    for stage_id, stage_receipt_ref in intake.stage_receipt_refs.items():
+        stage_manifest = intake_store.get_manifest(stage_receipt_ref.artifact_id)
+        roles = {item.role for item in stage_manifest.inputs}
+        assert "verified_stage_manifest" in roles
+        assert any(role.startswith("verified_stage_output:") for role in roles), stage_id
 
 
 def test_load_ukraine_foundry_intake_fails_closed_on_one_corrupted_method_artifact(

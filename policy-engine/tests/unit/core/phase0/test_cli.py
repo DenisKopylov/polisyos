@@ -3,9 +3,9 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from polisyos.core.components.cli import main
 from polisyos.ir.loading.norm_pack import NormPack, NormRule, RuleType
 from polisyos.scientist.methods.doe.designs import SensitivityMethod, SensitivityResult
+from tools.ops_runners.runtime_cli import main
 
 
 def _norm_rule(norm_id: str, description: str) -> NormRule:

@@ -5,7 +5,8 @@ import json
 import time
 from typing import TYPE_CHECKING
 
-from polisyos.core.components.cli import main
+from polisyos_tests_runtime_http_conftest import build_runtime_api_env
+
 from polisyos.core.security.rotation import (
     rotate_ed25519_signing_key,
     update_jwt_trust_anchor_manifest,
@@ -17,7 +18,7 @@ from polisyos.runtime.http.compliance import (
     summarize_runtime_audit,
     write_runtime_audit_report,
 )
-from polisyos_tests_runtime_http_conftest import build_runtime_api_env
+from tools.ops_runners.runtime_cli import main
 
 if TYPE_CHECKING:
     from pathlib import Path

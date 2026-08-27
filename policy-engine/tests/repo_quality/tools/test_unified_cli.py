@@ -4,12 +4,15 @@ import ast
 import json
 import subprocess
 import sys
+import tomllib
+from importlib.metadata import distribution
 from pathlib import Path
 
 from tools.cli import EX_CONFIG, main
 from tools.lib.output import ToolMessage, ToolResult, format_tool_result
 from tools.lib.runner import ToolStatus
 from tools.lib.timing import ToolRunRecord, append_timing_record, read_timing_records
+from tools.ops_runners.runtime_cli import main as polisyos_main
 from tools.registry import (
     CATEGORY_MANIFEST,
     TOOL_SPECS_BY_KEY,
@@ -19,6 +22,19 @@ from tools.registry import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
+
+
+def test_polisyos_console_script_uses_tools_composition_root() -> None:
+    project = tomllib.loads((REPO_ROOT / "pyproject.toml").read_text(encoding="utf-8"))
+    installed_entrypoint = next(
+        entrypoint
+        for entrypoint in distribution("policy-engine").entry_points
+        if entrypoint.group == "console_scripts" and entrypoint.name == "polisyos"
+    )
+
+    assert project["project"]["scripts"]["polisyos"] == "tools.ops_runners.runtime_cli:main"
+    assert installed_entrypoint.value == "tools.ops_runners.runtime_cli:main"
+    assert installed_entrypoint.load() is polisyos_main
 
 
 def _entry_callable(path: Path) -> str | None:

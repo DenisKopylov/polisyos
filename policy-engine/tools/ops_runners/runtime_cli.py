@@ -1,14 +1,16 @@
-"""CLI facade assembled from focused sub-modules."""
+"""Top-level composition root for the installed ``polisyos`` CLI."""
 
 from __future__ import annotations
 
 import argparse
 import importlib
+import json
 import sys
 from collections.abc import Callable
 from datetime import UTC, datetime
 from importlib.metadata import PackageNotFoundError, version
-from typing import cast
+from pathlib import Path
+from typing import TYPE_CHECKING, Any, cast
 
 from polisyos.core.artifacts.signing import (
     DEFAULT_IDENTITIES_PATH,
@@ -18,11 +20,15 @@ from polisyos.core.artifacts.signing import (
 from polisyos.core.components import ComponentKind
 from polisyos.core.security.rotation import DEFAULT_JWT_TRUST_ANCHORS_PATH
 
+if TYPE_CHECKING:
+    from polisyos.ir.analytics.metric_validation_report import MetricValidationReport
+    from polisyos.ir.artifacts import ArtifactStore as IrArtifactStore
+
 CommandHandler = Callable[[argparse.Namespace], int]
 
 
-def _dispatch_private(relative_module: str, handler_name: str, args: argparse.Namespace) -> int:
-    module = importlib.import_module(relative_module, package=__package__)
+def _dispatch_core(relative_module: str, handler_name: str, args: argparse.Namespace) -> int:
+    module = importlib.import_module(relative_module, package="polisyos.core.components")
     handler = cast("CommandHandler", getattr(module, handler_name))
     return handler(args)
 
@@ -30,9 +36,8 @@ def _dispatch_private(relative_module: str, handler_name: str, args: argparse.Na
 def main(argv: list[str] | None = None) -> int:
     """Dispatch the `polisyos` console script and return a process exit code.
 
-    Command handlers are imported lazily after argument parsing so importing
-    `polisyos.core.components.cli_parts` is safe in docs/tests that only need
-    parser metadata. `--version` exits early without loading subcommand modules.
+    Core command handlers are imported lazily after argument parsing so
+    ``--version`` exits early without loading subcommand modules.
     """
     argv = list(sys.argv[1:] if argv is None else argv)
     if "--version" in argv:
@@ -43,70 +48,215 @@ def main(argv: list[str] | None = None) -> int:
     args = parser.parse_args(argv)
 
     if args.command == "components" and args.components_command == "list":
-        return _dispatch_private("._cli_components", "_cmd_components_list", args)
+        return _dispatch_core("._cli_components", "_cmd_components_list", args)
     if args.command == "components" and args.components_command == "bootstrap":
-        return _dispatch_private("._cli_components", "_cmd_components_bootstrap", args)
+        return _dispatch_core("._cli_components", "_cmd_components_bootstrap", args)
     if args.command == "registry" and args.registry_command == "build":
-        return _dispatch_private("._cli_components", "_cmd_registry_build", args)
+        return _dispatch_core("._cli_components", "_cmd_registry_build", args)
     if args.command == "scholar" and args.scholar_command == "enrich":
-        return _dispatch_private("._cli_scholar", "_cmd_scholar_enrich", args)
+        return _dispatch_core("._cli_scholar", "_cmd_scholar_enrich", args)
     if args.command == "metric-validate":
-        return _dispatch_private("._cli_metric_validation", "_cmd_metric_validate", args)
+        return _cmd_metric_validate(args)
     if (
         args.command == "lex"
         and args.lex_command == "normpack"
         and args.lex_normpack_command == "build"
     ):
-        return _dispatch_private("._cli_lex", "_cmd_lex_normpack_build", args)
+        return _dispatch_core("._cli_lex", "_cmd_lex_normpack_build", args)
     if args.command == "lex" and args.lex_command == "impact":
-        return _dispatch_private("._cli_lex", "_cmd_lex_impact", args)
+        return _dispatch_core("._cli_lex", "_cmd_lex_impact", args)
     if args.command == "scientist" and args.scientist_command == "burn-in":
-        return _dispatch_private("._cli_scientist", "_cmd_scientist_burn_in", args)
+        return _dispatch_core("._cli_scientist", "_cmd_scientist_burn_in", args)
     if args.command == "scientist" and args.scientist_command == "calibration-report":
-        return _dispatch_private("._cli_scientist", "_cmd_scientist_calibration_report", args)
+        return _dispatch_core("._cli_scientist", "_cmd_scientist_calibration_report", args)
     if (
         args.command == "scientist"
         and args.scientist_command == "sensitivity"
         and args.scientist_sensitivity_command == "run"
     ):
-        return _dispatch_private("._cli_scientist", "_cmd_scientist_sensitivity_run", args)
+        return _dispatch_core("._cli_scientist", "_cmd_scientist_sensitivity_run", args)
     if args.command == "scientist" and args.scientist_command == "stress-test":
-        return _dispatch_private("._cli_scientist", "_cmd_scientist_stress_test", args)
+        return _dispatch_core("._cli_scientist", "_cmd_scientist_stress_test", args)
     if args.command == "scientist" and args.scientist_command == "provider-verify":
-        return _dispatch_private("._cli_scientist", "_cmd_scientist_provider_verify", args)
+        return _dispatch_core("._cli_scientist", "_cmd_scientist_provider_verify", args)
     if args.command == "scientist" and args.scientist_command == "agent-smoke":
-        return _dispatch_private("._cli_scientist", "_cmd_scientist_agent_smoke", args)
+        return _dispatch_core("._cli_scientist", "_cmd_scientist_agent_smoke", args)
     if args.command == "scientist" and args.scientist_command == "agent-eval":
-        return _dispatch_private("._cli_scientist", "_cmd_scientist_agent_eval", args)
+        return _dispatch_core("._cli_scientist", "_cmd_scientist_agent_eval", args)
     if args.command == "scientist" and args.scientist_command == "reflexion-replay-eval":
-        return _dispatch_private("._cli_scientist", "_cmd_scientist_reflexion_replay_eval", args)
+        return _dispatch_core("._cli_scientist", "_cmd_scientist_reflexion_replay_eval", args)
     if args.command == "scientist" and args.scientist_command == "backtest":
-        return _dispatch_private("._cli_scientist", "_cmd_scientist_backtest", args)
+        return _dispatch_core("._cli_scientist", "_cmd_scientist_backtest", args)
     if args.command == "replay":
-        return _dispatch_private("._cli_replay", "_cmd_replay", args)
+        return _dispatch_core("._cli_replay", "_cmd_replay", args)
     if args.command == "resume":
-        return _dispatch_private("._cli_replay", "_cmd_resume", args)
+        return _dispatch_core("._cli_replay", "_cmd_resume", args)
     if args.command == "keygen":
-        return _dispatch_private("._cli_crypto", "_cmd_keygen", args)
+        return _dispatch_core("._cli_crypto", "_cmd_keygen", args)
     if args.command == "sign":
-        return _dispatch_private("._cli_crypto", "_cmd_sign", args)
+        return _dispatch_core("._cli_crypto", "_cmd_sign", args)
     if args.command == "verify":
-        return _dispatch_private("._cli_crypto", "_cmd_verify", args)
+        return _dispatch_core("._cli_crypto", "_cmd_verify", args)
     if args.command == "audit" and args.audit_command == "export":
-        return _dispatch_private("._cli_audit", "_cmd_audit_export", args)
+        return _dispatch_core("._cli_audit", "_cmd_audit_export", args)
     if args.command == "audit" and args.audit_command == "verify":
-        return _dispatch_private("._cli_audit", "_cmd_audit_verify", args)
+        return _dispatch_core("._cli_audit", "_cmd_audit_verify", args)
     if args.command == "audit" and args.audit_command == "runtime-query":
-        return _dispatch_private("._cli_audit", "_cmd_audit_runtime_query", args)
+        return _dispatch_core("._cli_audit", "_cmd_audit_runtime_query", args)
     if args.command == "audit" and args.audit_command == "runtime-retention":
-        return _dispatch_private("._cli_audit", "_cmd_audit_runtime_retention", args)
+        return _dispatch_core("._cli_audit", "_cmd_audit_runtime_retention", args)
     if args.command == "security" and args.security_command == "rotate-jwt":
-        return _dispatch_private("._cli_security", "_cmd_security_rotate_jwt", args)
+        return _dispatch_core("._cli_security", "_cmd_security_rotate_jwt", args)
     if args.command == "security" and args.security_command == "rotate-ed25519":
-        return _dispatch_private("._cli_security", "_cmd_security_rotate_ed25519", args)
+        return _dispatch_core("._cli_security", "_cmd_security_rotate_ed25519", args)
 
     parser.print_help()
     return 2
+
+
+def _cmd_metric_validate(args: argparse.Namespace) -> int:
+    from polisyos.core.artifacts.ids import ArtifactID
+    from polisyos.core.components._cli_store import build_cli_artifact_store
+    from polisyos.core.contracts.foundry import MetricObservationBundleRef
+    from polisyos.ir.analytics.metric_validation_report import persist_metric_validation_report
+    from polisyos.scientist.validation.metrics import (
+        TestConfig,
+        compare_metric_family,
+        load_metric_observation_bundle,
+    )
+
+    store = build_cli_artifact_store(Path(args.cas_root))
+    ref = MetricObservationBundleRef(
+        artifact_id=ArtifactID.model_validate(_normalize_artifact_id(args.observation_bundle_ref)),
+        kind="foundry.metric_observation_bundle",
+        media_type="application/json",
+    )
+    try:
+        bundle = load_metric_observation_bundle(cast("IrArtifactStore", store), ref)
+    except Exception as exc:
+        print(f"ERROR: failed to load observation bundle: {exc}", file=sys.stderr)
+        return 2
+
+    try:
+        report = compare_metric_family(
+            bundle=bundle,
+            baseline_model_id=args.baseline,
+            candidate_model_ids=list(args.candidates),
+            metric_ids=list(args.metrics),
+            config=TestConfig(
+                alpha=args.alpha,
+                alternative=args.alternative,
+                n_resamples=args.n_resamples,
+                confidence_level=args.confidence_level,
+                correction=args.correction,
+                random_seed=args.random_seed,
+                exact_if_feasible=bool(args.exact_if_feasible),
+            ),
+            family_scope=args.family_scope,
+        )
+    except Exception as exc:
+        print(f"ERROR: metric validation failed: {exc}", file=sys.stderr)
+        return 1
+
+    report_ref = persist_metric_validation_report(
+        cast("IrArtifactStore", store),
+        report,
+    )
+    payload = _render_metric_validation_payload(
+        report,
+        report_ref.artifact_id.root,
+        args.format,
+    )
+    rendered = json.dumps(payload, ensure_ascii=True, indent=2, sort_keys=True)
+    if args.output:
+        Path(args.output).write_text(rendered, encoding="utf-8")
+        print(f"metric_validation_report={args.output}")
+    else:
+        print(rendered)
+    return 0
+
+
+def _normalize_artifact_id(value: str) -> str:
+    normalized = value.strip()
+    if normalized.startswith("sha256:"):
+        return normalized
+    return f"sha256:{normalized}"
+
+
+def _render_metric_validation_payload(
+    report: MetricValidationReport,
+    artifact_id: str,
+    format_name: str,
+) -> dict[str, Any]:
+    if format_name == "json":
+        payload = report.model_dump(mode="json")
+        payload["cas_artifact_id"] = artifact_id
+        return payload
+    if format_name == "avro-json":
+        payload = report.model_dump(mode="json")
+        payload["avro_schema"] = "polisyos.scientist.metric_validation_report"
+        payload["cas_artifact_id"] = artifact_id
+        return payload
+    if format_name == "proto-json":
+        payload = cast("dict[str, Any]", _camelize_keys(report.model_dump(mode="json")))
+        payload["casArtifactId"] = artifact_id
+        return payload
+    return _summary_metric_validation_payload(report, artifact_id)
+
+
+def _summary_metric_validation_payload(
+    report: MetricValidationReport,
+    artifact_id: str,
+) -> dict[str, Any]:
+    improvements: list[dict[str, Any]] = []
+    regressions: list[dict[str, Any]] = []
+    for comparison in report.comparisons:
+        significance = comparison.significance
+        is_significant = (
+            significance.reject_null_adj
+            if significance.reject_null_adj is not None
+            else significance.reject_null_raw
+        )
+        if not is_significant:
+            continue
+        item = {
+            "baseline": comparison.baseline_model_id,
+            "candidate": comparison.candidate_model_id,
+            "metric": comparison.metric_id,
+            "delta": comparison.delta_value,
+            "p_adj": significance.p_value_adj,
+        }
+        if _is_metric_improvement(comparison.metric_direction, comparison.delta_value):
+            improvements.append(item)
+        else:
+            regressions.append(item)
+    return {
+        "family_method": report.family_adjustment.method,
+        "alpha": report.family_adjustment.alpha,
+        "comparison_count": len(report.comparisons),
+        "significant_improvements": improvements,
+        "significant_regressions": regressions,
+        "cas_artifact_id": artifact_id,
+    }
+
+
+def _is_metric_improvement(metric_direction: str, delta_value: float) -> bool:
+    if metric_direction == "lower_is_better":
+        return delta_value < 0.0
+    return delta_value > 0.0
+
+
+def _camelize_keys(value: Any) -> Any:
+    if isinstance(value, dict):
+        return {_snake_to_camel(key): _camelize_keys(item) for key, item in value.items()}
+    if isinstance(value, list):
+        return [_camelize_keys(item) for item in value]
+    return value
+
+
+def _snake_to_camel(value: str) -> str:
+    head, *tail = value.split("_")
+    return head + "".join(part.capitalize() for part in tail)
 
 
 def _build_parser() -> argparse.ArgumentParser:

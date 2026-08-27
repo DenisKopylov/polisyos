@@ -182,15 +182,6 @@ source_glob = "src/polisyos/core/components/_cli_scientist.py"
 import_root = "scientist"
 
 [[exception]]
-id = "E-2026-04-CORE-CLI-METRIC-VALIDATION-SCIENTIST-001"
-owner = "team-polisyos"
-reason = "core metric-validation CLI imports Scientist metric comparison helpers until CLI glue moves out of Core"
-expires = "2026-07-01"
-issue = "docs/plans/archive/2026-05-07-repository-best-in-class-remediation-master-plan.md#phase-61---package-public-surface-and-import-gate-conversion"
-source_glob = "src/polisyos/core/components/_cli_metric_validation.py"
-import_root = "scientist"
-
-[[exception]]
 id = "E-2026-04-FABRIC-WORLD-DEEP-001"
 owner = "team-polisyos"
 reason = "Fabric benchmarks and observability still call world materialization/segment helpers before facade extraction"

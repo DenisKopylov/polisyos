@@ -532,24 +532,24 @@ allowed_targets = ["polisyos.scientist.orchestration.engine.registry"]
 notes = "Fail-closed whitelist: every target must resolve."
 
 [[pattern]]
-id = "dynamic-743de4c19cc8"
+id = "dynamic-421bb1d943c5"
 pattern = "relative_module"
-source_file = "src/polisyos/core/components/cli_parts.py"
-line = 25
+source_file = "tools/ops_runners/runtime_cli.py"
+line = 31
 call = "importlib.import_module"
-owner = "team-architecture"
+owner = "team-devx"
 target = "relative_module"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
 allowed_targets = []
-notes = "Dynamic pattern has no static in-repo target."
+notes = "Tooling dynamic import; inventoried but no decomposition target."
 
 [[pattern]]
-id = "dynamic-f20561d53e48"
+id = "dynamic-f8292d4d57dd"
 pattern = "polisyos.scientist.methods.backtesting.cli"
-source_file = "src/polisyos/core/components/cli_parts.py"
-line = 320
+source_file = "tools/ops_runners/runtime_cli.py"
+line = 470
 call = "importlib.import_module"
-owner = "team-architecture"
+owner = "team-devx"
 target = "polisyos.scientist.methods.backtesting.cli"
 verifier = "tools/quality/validation/decomposition_preflight.py::validate_dynamic_imports"
 allowed_targets = ["polisyos.scientist.methods.backtesting.cli"]

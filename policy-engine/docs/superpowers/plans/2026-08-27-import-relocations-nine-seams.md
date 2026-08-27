@@ -48,9 +48,9 @@ At every seam boundary:
 
 ### Seam 2: Core metric-validation CLI — 1 statement
 
-- [ ] Move the metric-validation handler to the legal composition owner.
-- [ ] Preserve parser, exit-code, and JSON behavior through the supported CLI.
-- [ ] Close its contribution to `core -> scientist`.
+- [x] Move the metric-validation handler to the legal composition owner.
+- [x] Preserve parser, exit-code, and JSON behavior through the supported CLI.
+- [x] Close its contribution to `core -> scientist`.
 
 ### Seam 3: Core Scientist CLI — 3 statements
 

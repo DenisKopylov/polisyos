@@ -77,6 +77,7 @@ Every row below was classified before the first source edit. Result:
 | --- | ---: | --- | --- |
 | pinned base / pre-edit census | 0/10 | No mechanism change; all 39 statements classified, 0 ambiguous. | stands; no round consumed |
 | seam 1 — Lex/Foundry intervention coupling | 0/10 | Existing IR now owns `CompiledLexIntervention`; existing Scientist nodes own hierarchical-search and temporal-DTR execution. Cleared `lex -> foundry` 3/3, `lex -> scientist` 4/4, and `foundry -> lex` 1/1. | stands; downward shared-contract completion and consumer-up relocation are round-free |
+| seam 2 — Core metric-validation CLI | 1/10 | One new packaged tools composition module owns the installed CLI and metric-validation handler. Cleared CO-01, the first 1/4 `core -> scientist` statements; the row remains open on CO-02..04. | stands; round 1 bought `tools/ops_runners/runtime_cli.py` |
 
 No round has been withdrawn.
 
@@ -106,11 +107,10 @@ will be recorded at their seam boundaries rather than inferred from contracts.
 - Attachment before closeout: prefix `policy-engine/`, branch
   `refs/heads/codex/import-relocations-nine-seams`, attached at the pinned-base
   descendant.
-- Mechanism path set (20 observed = 20 declared): IR contract/facades (3), Lex
-  contract/docs (4), existing Scientist planning/causal consumers (4), Foundry
-  wiring (1), focused tests (5), Lex reference docs (2), and the structured
-  release fragment (1). The spec, plan, and this journal are the three mandatory
-  P39 record companions and are outside the mechanism count.
+- Observed seam path set (20 observed = 20 declared): 11 source mechanism
+  paths plus 9 P39 companions (5 focused tests, 3 Lex/reference docs, and the
+  structured release fragment). The spec, plan, and this journal are three
+  additional global record companions outside the mechanism count.
 - TDD RED was the missing IR export during relocation (collection exit 2). The
   pre-source characterization also established the existing explicit-bounds
   failure in
@@ -146,3 +146,39 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   `to_dynamic_treatment` method is now explicit in both migration docs and the
   release fragment. A final negative probe also proves that neither old Lex
   module path silently re-exports `CompiledLexIntervention`.
+
+### Seam 2 — Core metric-validation CLI
+
+- Attachment/prefix at closeout: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 1 commit
+  `6a12c05ea` read back before this work was staged.
+- Observed seam path set (16 observed = 16 declared): 5 mechanism paths (the
+  new tools composition module, three deleted Core CLI modules, and the console
+  entry-point declaration) plus 11 P39 companions (dynamic/exception/Ruff
+  registries, CLI documentation, and six focused test paths). This journal and
+  the implementation plan are two additional record companions.
+- TDD RED: the installed-entrypoint ownership assertion failed against the old
+  Core target (direct exit 1). The plain metric characterization was a tooling
+  non-receipt because the default environment lacked `sklearn`; the declared
+  ML-extra run was the accepted receipt.
+- Final six-file CLI/importer wave under `--extra ml`: direct exit 0, 33 passed;
+  `real=37.27s`, `user=34.97s`, `sys=1.98s`, uptime 21:32/up 3d11:45 to
+  21:32/up 3d11:46. Changed-file Ruff and installed `polisyos --version`
+  each completed direct exit 0; the latter printed `polisyos 0.1.0`.
+- Complete AST traversal over all 205 Core Python files found three remaining
+  Core-to-Scientist statements, exactly CO-02..04 in `_cli_scientist.py`, and
+  zero imports of `scientist.validation.metrics`. A complete-tree `rg`
+  independently found zero metric imports. The row's own literal command
+  therefore correctly remains direct exit 1; the canonical linter independently
+  counts three remaining findings. No row closure is claimed at this boundary.
+- The dynamic-import collector and registry independently enumerate the same
+  two `runtime_cli.py` calls (lines 31 and 470). The exception TOML and its
+  Markdown projection independently count 22 rows after removing the obsolete
+  metric exception.
+- Review re-derived an unchanged parser AST and all 26 unaffected dispatch
+  mappings, confirmed the wheel includes the tools module, and found no
+  supported consumer of the deleted internal Core module. No finding remained.
+- Capability result: the stable console script is the surface; the upper tools
+  composition root is its real bridge/consumer and directly invokes the
+  existing typed metric producer/persistence path. The new module mints no
+  policy authority, but is a new surface and therefore consumes round 1.

@@ -88,6 +88,7 @@ Every row below was classified before the first source edit. Result:
 | seam 10 — IR kernel lowering | 6/10 | The duplicate execution-aware IR pass is removed; the existing Foundry compiler now carries a typed blocked kernel specification through real refusal execution and audit persistence. Cleared IF-11/12. | stands; consolidation and a private repair inside existing Foundry ownership introduced no new surface or constraint |
 | seam 11 — IR calibration/JAX | 7/10 | Existing Foundry measurement ownership now contains calibration-target compilation, placebo materialization, and optional JAX/NumPy tensors; IR retains neutral split/window/control declarations. Cleared IF-13 and IJ-01 separately, closing `ir -> foundry` 13/13 and `ir -> jax` 1/1. | stands; round 7 bought the two-name internal Foundry measurement execution surface; no root/package/module, stable root facade, or constraint was added |
 | seam 12 — IR backtesting | 7/10 | IR now emits sparse neutral validation-plan payloads; the existing Scientist matrix runner strictly materializes the complete bundle set before any execution. Cleared IS-01..03. | stands; existing modules, bundle surface, and Scientist plan authority were reused; no new surface, module, package, constraint, or authority publication |
+| seam 13 — IR alignment governance | 7/10 | One private Scientist chokepoint recomputes and content-binds ontology and latent-governance predicates for both real callers; IR consumes frozen governed snapshots and fails closed on absent/tampered inputs. Cleared IS-04/05. | stands; private consolidation in existing modules narrows the existing IR verifier surface and introduces no module/export/constraint/new surface |
 
 No round has been withdrawn.
 
@@ -633,3 +634,47 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   strict Scientist bridge, matrix/calibration consumers, and semantic negative
   plus e2e tests are wired. No incomplete label remains and the ledger stays
   7/10.
+
+### Seam 13 — IR alignment governance
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 12 commit
+  `a567ec30b7fa` read back after writing and before this boundary.
+- Observed seam path set is exactly 10: four existing production modules and
+  six focused semantic-test paths. This plan/journal pair are P39 record
+  companions. No generated or baseline path is attributed to the commit.
+- IS-04 and IS-05 are both `consumer-up`, ambiguous=0. IR performs deterministic
+  candidate verification only. One private Scientist chokepoint computes
+  ontology warnings/degraded outcomes and latent-governance admission, content
+  binds source candidate, governance-stripped candidate, governed CAS artifact,
+  and receipt, then supplies frozen inputs back to IR. Both real production
+  callers use the same chokepoint.
+- Missing or tampered governance becomes `INCOMPATIBLE` with no mapping;
+  caller-provided human flags and legacy strings cannot authorize a latent
+  bridge. Precomputed report/mapping reuse requires exact equality with a fresh
+  governed recomputation. A latent component permits promotion only when every
+  latent edge—not unrelated exact edges—permits it. Ontology service failure
+  preserves the typed degraded outcome rather than silently succeeding.
+- The final bounded wave passed 135/135 tests, direct exit 0
+  (`real=84.00s`, `user=75.94s`, `sys=3.10s`); AST counted the same 135 test
+  functions with no parametrization. The critical hardening replay passed 5/5
+  (`real=42.51s`). Ruff and `git diff --check` completed exit 0. Independent
+  delta review returned GO and separately replayed seven critical cases.
+- Complete production AST parse covered 2,594/2,594 Python files and found no
+  IR-to-Scientist imports; independent `rg` agreed. One whole-gate derivation
+  observed six residual findings while review observed seven under concurrent
+  work; the disagreement is retained rather than averaged or silently
+  reconciled. The exact `ir -> scientist` literal row command is nevertheless
+  direct exit 0 on the composite tree, and this seam claims only IS-04/05.
+- Manual final-baseline delta removes exactly
+  `polisyos.ir.analytics.alignment_certification -> polisyos.scientist.cross_graph.compiler`
+  and
+  `polisyos.ir.analytics.alignment_certification -> polisyos.scientist.methods.search.latent_governance`;
+  it adds no edge. The final public inventory/docs regeneration must reflect
+  the intentionally narrowed existing IR verifier signatures.
+- Capability result: internal producer, frozen typed snapshots, persisted CAS
+  artifacts/receipts, one bridge, two real consumers, fail-closed verification,
+  and semantic tests are wired. The private chokepoint is
+  `surface_out_of_scope`; `bridge_missing`, `consumer_missing`, and
+  `semantic_test_missing` are closed. No widening round is consumed and the
+  ledger remains 7/10.

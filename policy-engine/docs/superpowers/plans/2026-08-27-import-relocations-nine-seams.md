@@ -124,9 +124,9 @@ At every seam boundary:
 
 ### Seam 13: IR alignment governance — 2 statements
 
-- [ ] Have Scientist compute ontology warnings and latent-governance snapshots;
+- [x] Have Scientist compute ontology warnings and latent-governance snapshots;
   inject those frozen values into pure IR certificate construction/persistence.
-- [ ] Prove service failure degrades or blocks according to the status contract.
+- [x] Prove service failure degrades or blocks according to the status contract.
 
 ### Seam 14: IR strategic budget identity — 1 statement
 

@@ -25,6 +25,7 @@ import { evidenceRoute } from "@/features/evidence/routes.public";
 import { ModeAwareHome } from "@/app/routes/ModeAwareHome";
 import { lexRoute } from "@/features/lex";
 import { platformRoute } from "@/features/platform";
+import { trustRoute } from "@/features/trust/routes.public";
 import { resolveWorkspaceKey } from "@/app/workspaces";
 import {
   publicDecisionViewerRoute,
@@ -230,6 +231,7 @@ export const APP_ROUTES: RouteObject[] = [
       evidenceRoute,
       lexRoute,
       platformRoute,
+      trustRoute,
       { path: "launch", element: <Navigate replace to="/compose" /> },
       { path: "sources", element: <Navigate replace to="/evidence" /> },
       { path: "data", element: <Navigate replace to="/evidence" /> },

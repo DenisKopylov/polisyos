@@ -1184,7 +1184,7 @@ def test_real_census_replays_published_invariants() -> None:
     report = checker.audit_repository(REPO_ROOT)
     metrics = report.metrics
 
-    assert metrics["register_ids"] == 108
+    assert metrics["register_ids"] == 118
     assert metrics["gy_ids"] == 38
     assert metrics["atlas_debt_rows"] == 22
     assert metrics["frontend_disposition_entries"] == 261
@@ -1195,16 +1195,16 @@ def test_real_census_replays_published_invariants() -> None:
     assert metrics["ds5_nonclosure_rows"] == 27
     assert metrics["ds5_planless_routes"] == 6
     assert metrics["irregular_section_e_branch_rows"] == 1
-    assert metrics["closure_signal_pytest_selections"] == 23
+    assert metrics["closure_signal_pytest_selections"] == 32
     assert metrics["closure_signal_unsupported_runners"] == 1
     assert metrics["closure_signal_identities_without_commands"] == 1
     assert metrics["closure_signal_input_unresolvable"] == 0
-    assert metrics["closure_signal_identity_unresolvable"] == 10
+    assert metrics["closure_signal_identity_unresolvable"] == 18
     assert metrics["closure_signal_selects_nothing"] == 0
     assert metrics["closure_signal_collection_failed"] == 0
     assert metrics["closure_signal_collection_host_unknown"] == 0
     assert metrics["closure_signal_ast_collection_disagreements"] == 0
-    assert metrics["closure_signal_count_exit_disagreements"] == 10
+    assert metrics["closure_signal_count_exit_disagreements"] == 18
     # The Atlas mismatch this once pinned (published 13, observed 22) was the census
     # error itself and is repaired. Pin the exact live class set instead: any change —
     # a new class, or one of these resolving — must be acknowledged here, not absorbed.
@@ -1362,8 +1362,8 @@ def test_real_ledger_exposes_every_gy_block_receipt_and_typed_state() -> None:
     assert "implemented_but_not_orchestrated" not in gap8
     assert "bridge_missing" not in gap8
     assert (
-        "| `DEBT-REGISTER.md` | 108 | 108 | 66 | "
-        "ambiguous=12, blocked=10, closed=42, folded=2, foreign=6, open=36 |" in rendered
+        "| `DEBT-REGISTER.md` | 118 | 118 | 76 | "
+        "ambiguous=12, blocked=11, closed=42, folded=2, foreign=6, open=45 |" in rendered
     )
     assert "| Atlas master debt table | 22 | 22 | 8 |" in rendered
     assert (

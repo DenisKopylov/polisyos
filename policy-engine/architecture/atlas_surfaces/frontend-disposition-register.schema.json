@@ -1298,7 +1298,7 @@
     },
     "supplementalFinding": {
       "type": "object",
-      "description": "Supplemental debt is descriptor-derived; producer, integrate-contract, and authority-presentation debt remain open until their typed closure signals pass.",
+      "description": "Supplemental debt is descriptor-derived; producer and integrate-contract debt remain open until their typed closure signals pass, while the checker admits only named repaired authority-presentation transitions.",
       "additionalProperties": false,
       "required": [
         "finding_id",
@@ -1403,8 +1403,7 @@
               "finding_kind": {
                 "enum": [
                   "producer_binding_debt",
-                  "integrate_contract_debt",
-                  "authority_presentation_debt"
+                  "integrate_contract_debt"
                 ]
               }
             },
@@ -1417,15 +1416,65 @@
               "status": { "const": "open_debt" }
             },
             "not": { "required": ["repair_commit"] }
+          }
+        },
+        {
+          "if": {
+            "allOf": [
+              {
+                "properties": {
+                  "finding_kind": { "const": "authority_presentation_debt" }
+                },
+                "required": ["finding_kind"]
+              },
+              {
+                "properties": { "status": { "const": "open_debt" } },
+                "required": ["status"]
+              }
+            ]
           },
-          "else": {
+          "then": {
+            "required": ["capability_states", "closure_signal"],
+            "properties": {
+              "disposition": { "const": "rebind_pending" },
+              "status": { "const": "open_debt" }
+            },
+            "not": { "required": ["repair_commit"] }
+          }
+        },
+        {
+          "if": {
+            "allOf": [
+              {
+                "properties": {
+                  "finding_kind": { "const": "authority_presentation_debt" }
+                },
+                "required": ["finding_kind"]
+              },
+              {
+                "properties": { "status": { "const": "repaired" } },
+                "required": ["status"]
+              }
+            ]
+          },
+          "then": {
+            "properties": {
+              "finding_id": {
+                "enum": [
+                  "authority-presentation-prop-dispute-status",
+                  "authority-presentation-prop-verification-status-icon-tone"
+                ]
+              },
+              "disposition": { "const": "rebind_pending" },
+              "status": { "const": "repaired" }
+            },
             "not": {
               "anyOf": [
                 { "required": ["capability_states"] },
                 { "required": ["closure_signal"] },
+                { "required": ["repair_commit"] },
                 { "required": ["owner_team"] },
                 { "required": ["integrate_contract"] },
-                { "required": ["authority_sink"] },
                 { "required": ["authority_sink_absence"] }
               ]
             }
@@ -1446,6 +1495,34 @@
               "anyOf": [
                 { "required": ["owner_team"] },
                 { "required": ["integrate_contract"] }
+              ]
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "finding_kind": {
+                "not": {
+                  "enum": [
+                    "producer_binding_debt",
+                    "integrate_contract_debt",
+                    "authority_presentation_debt"
+                  ]
+                }
+              }
+            },
+            "required": ["finding_kind"]
+          },
+          "then": {
+            "not": {
+              "anyOf": [
+                { "required": ["capability_states"] },
+                { "required": ["closure_signal"] },
+                { "required": ["owner_team"] },
+                { "required": ["integrate_contract"] },
+                { "required": ["authority_sink"] },
+                { "required": ["authority_sink_absence"] }
               ]
             }
           }

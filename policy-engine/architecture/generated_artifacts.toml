@@ -2109,3 +2109,45 @@ check_command = [
   "--output-format",
   "json",
 ]
+
+[[family]]
+id = "trust-claim-posture-register"
+label = "Trust claim posture register"
+owner = "team-architecture"
+approval_owner = "team-architecture"
+lifecycle = "generated_committed"
+generator = "DS11 trust claim posture compiler write mode"
+verifier = "DS11 trust claim posture checker and architecture guardrails"
+promotion_target = "static trust posture artifact consumed by the public /trust surface"
+stale_output_behavior = "fail"
+source_of_truth = "tracked posture sources, ratified identity boundary, content-bound accessibility document, and historical page-a11y receipt"
+outputs = ["apps/runtime-dashboard/public/atlas/trust-claim-posture.v1.json"]
+regenerate_commands = [
+  "uv run python tools/quality/validation/check_trust_claim_posture.py --repo-root . --write --write-generated-reference",
+]
+commit_policy = "committed"
+freshness_rule = "Regenerate whenever an admitted posture source, rule, projection index, or historical accessibility receipt changes."
+drift_gate = "automated"
+workflow = "tools/quality/validation/check_trust_claim_posture.py"
+check_cwd = "."
+check_command = [
+  "uv",
+  "run",
+  "python",
+  "tools/quality/validation/check_trust_claim_posture.py",
+  "--repo-root",
+  ".",
+  "--check",
+]
+default_freshness_check = true
+output_probe_command = [
+  "env",
+  "PYTHONDONTWRITEBYTECODE=1",
+  "python",
+  "tools/quality/validation/check_trust_claim_posture.py",
+  "--repo-root",
+  ".",
+  "--write",
+  "--output-root",
+  "{output_root}",
+]

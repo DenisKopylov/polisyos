@@ -1091,7 +1091,22 @@ The base manifest is exactly **16 unique mechanism paths**:
 - Modify `src/polisyos/scientist/nodes/builtins/planning/run_hierarchical_policy_search.py`
 - Modify `src/polisyos/scientist/nodes/builtins/decide/run_policy_blueprint_runtime.py`
 
-No other source path is pre-authorized.
+No other source path was pre-authorized in the base manifest.
+
+**Execution amendment (2026-08-28): C03 spends its one widening round.** A
+red-first ownership trace found that the three C03 paths can bridge the
+projection into the terminal Core run manifest, but cannot make the binding
+remove-packet/keep-boundary falsifier fail at both existing egress consumers.
+The generic egress owner currently validates only the surviving top-level
+boundary, and run paper bypasses that gate. Admit exactly these two mechanism
+paths as one P31/P38 owner-plus-sibling-consumer class:
+
+- Modify `src/polisyos/runtime/quality/authority.py`
+- Modify `src/polisyos/runtime/http/services/run_paper_projection.py`
+
+The execution manifest is therefore **18 unique mechanism paths**: the explicit
+16-path base union plus this exact two-path set. C03 is now 5/5 and has no
+widening round left; the overall hard ceiling remains 24.
 
 ### 10.2 Two independent ceiling derivations
 
@@ -1108,6 +1123,12 @@ live in the already declared test companions; `GY-O0-NC-01`, capability labels,
 and lane ceilings are plan record. Both independent derivations therefore
 remain **16 base mechanism paths and 24 hard-ceiling mechanism paths**.
 
+The 2026-08-28 execution widening changes neither of those original ceiling
+derivations. It spends two of the eight slack paths: cluster arithmetic is
+`C01 4 + C02 2 + C03 5 + C04 7 = 18`, and the explicit set union is the
+16-path base plus two previously absent egress paths = 18. Both derivations
+agree on **18 current / 24 hard ceiling**, leaving six paths of aggregate slack.
+
 ### 10.3 Per-cluster mechanism caps and widening rounds
 
 | Cluster | Declared base | Hard cap | Widening budget |
@@ -1115,7 +1136,7 @@ remain **16 base mechanism paths and 24 hard-ceiling mechanism paths**.
 | C00 census and structural red witnesses | 0 | 0 | 0 |
 | C01 contracts, strict mode, pure gate, canonical N9 classifier, N8 local seam | 4 | 6 | 1 round, at most 2 paths |
 | C02 persistence, exact reconciliation, counters, projection adapter | 2 | 4 | 1 round, at most 2 paths |
-| C03 container/recursive composition and existing surface | 3 | 5 | 1 round, at most 2 paths |
+| C03 container/recursive composition and existing surface | 3 + 2 admitted | 5 | **spent**: authority egress owner + run-paper sibling consumer |
 | C04 Scientist verifier DI and executor strangle | 7 | 9 | 1 round, at most 2 paths |
 | C05 freeze/replay/handoff | 0 | 0 | 0 |
 
@@ -1185,23 +1206,27 @@ commit.
   from the 36-path O0 source/test/plan denominator; no coordination is needed.
 - The unbound-writes lane still owns `fabric/world/`,
   `runtime/quality/data_state_substrate.py`, `pdc/`, and
-  `tools/quality/timing_budgets.json`, but its corrected WorkspaceLoop and
-  trace-to-CAS run-paper design adds two O0 collisions:
-  `src/polisyos/runtime/http/services/control/run_lifecycle.py` and
-  `tests/unit/runtime/http/test_run_paper_api.py`.
+  `tools/quality/timing_budgets.json`. Its revised plan at
+  `55d7f39305893e0670833cb382e3a2b0b91da9ca` explicitly withdraws the
+  `run_lifecycle.py` source edit, while retaining
+  `tests/unit/runtime/http/test_run_paper_api.py` in its test set. The live
+  reservation is therefore one test collision, subject to the immediate
+  pre-touch re-derivation below.
 - Existing PDC slots `EVAL_SAFETY` and `GY_O0_EVAL_SAFETY` are reused without a
   PDC edit.
 
-The reservation's complete 36-path intersection and a separate exact-member
-walk both return those same two paths. The currently published
-`codex/unbound-writes` commit has not yet materialized those implementation
-edits, so a Git-diff-only walk currently returns zero; that disagreement is
-recorded rather than used to erase the live reservation. C03 edits
-`run_lifecycle.py` last, and its run-paper companion is run/edited last in the
-surface-test slice. Immediately before either path is touched, execution
-repeats both intersection derivations against the lane's then-current branch
-and worktree. If changes have landed, merge local `main` forward, rerun the
-cluster's red falsifier, and only then edit. Two writers never race.
+The earlier 36-path plan intersection and exact-member walk both returned the
+two historical paths; the revised plan text independently removes the source
+reservation and retains the test reservation. Current Git-object diff walks
+from both HEAD and merge base return neither path because that lane remains
+plan-only. This temporal disagreement is recorded, not averaged away. C03
+still edits `run_lifecycle.py` last and runs/edits its run-paper companion last
+in the surface-test slice. Immediately before either path is touched,
+execution repeats both intersection derivations against the lane's then-current
+branch and worktree. If changes have landed, merge local `main` forward, rerun
+the cluster's red falsifier, and only then edit. Reuse the lane's planned
+`runtime/http/services/adapters/core_run.py::derive_core_run_dir` if it has
+landed; do not add a competing helper path.
 
 `tools/quality/timing_budgets.json` remains forbidden. The unbound-writes
 lane's chronology-catalog edit is not a reason for O0 to touch or regenerate
@@ -1528,6 +1553,11 @@ tests/unit/runtime/quality/test_evaluation_safety.py
 - `src/polisyos/runtime/http/services/control/generation_cycle.py`
 - `src/polisyos/runtime/quality/recursive_generation_cycle.py`
 
+**Admitted C03 widening (one round, now spent):**
+
+- `src/polisyos/runtime/quality/authority.py`
+- `src/polisyos/runtime/http/services/run_paper_projection.py`
+
 **Collision order:** complete the two uncontended owners and their falsifiers
 first. Re-derive the unbound-writes intersection immediately before touching
 `run_lifecycle.py`; edit that mechanism path and
@@ -1549,6 +1579,11 @@ Tasks:
    governed projection, generated artifact, or dashboard edit.
 5. A valid EvalSafety certificate must not remove existing N8 owner/treatment,
    DataTrust, world, calibration, or promotion blockers.
+6. Route exact EvalSafety projection kind/schema through one type-specific
+   validation seam at the generic authority egress owner, then route run paper
+   through the same gate. A fresh valid-CAS projection with the packet removed
+   but the generic boundary and markers retained must fail both artifact and
+   run surfaces; corrupt bytes are not an adequate proxy.
 
 Red/green falsifiers:
 

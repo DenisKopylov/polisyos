@@ -38,6 +38,59 @@ def _dispatch_core(relative_module: str, handler_name: str, args: argparse.Names
     return handler(args)
 
 
+def _cmd_foundry_release_acceptance(args: argparse.Namespace) -> int:
+    from polisyos.scientist.governance.blueprint_release import (
+        run_verified_ukraine_d5_release,
+    )
+
+    manifest_path = Path(args.manifest_path)
+    try:
+        build_root = manifest_path.resolve().parents[2]
+    except IndexError as exc:
+        raise ValueError("release manifest path cannot identify the D5 build root") from exc
+    report = run_verified_ukraine_d5_release(
+        build_root=build_root,
+        release_manifest_path=manifest_path,
+        runtime_bundle_dir=Path(args.runtime_bundle_dir),
+        method_contract_bundle_dir=Path(args.method_contract_bundle_dir),
+        cas_root=Path(args.store_root),
+    )
+
+    if args.json:
+        print(json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True))
+        return 0 if report.passed else 1
+
+    print(
+        f"passed={report.passed} manifest={report.manifest_path} "
+        f"release_bundle_root={report.release_bundle_root}"
+    )
+    if report.governance_verdict:
+        print(f"governance_verdict={report.governance_verdict}")
+    if report.release_admissibility_status:
+        print(f"release_admissibility_status={report.release_admissibility_status}")
+    if report.packet_ref:
+        print(f"packet_ref={report.packet_ref}")
+    print("\nSteps:")
+    for step in report.steps:
+        print(f"  {step.step_id}: {step.status}")
+    if report.notes:
+        print("\nNotes:")
+        for note in report.notes:
+            print(f"  {note}")
+    return 0 if report.passed else 1
+
+
+def foundry_main(argv: list[str] | None = None) -> int:
+    """Compose the Foundry-owned parser with the Scientist release consumer."""
+
+    from polisyos.foundry.methods.cli import main as foundry_cli_main
+
+    return foundry_cli_main(
+        argv,
+        release_handler=_cmd_foundry_release_acceptance,
+    )
+
+
 def main(argv: list[str] | None = None) -> int:
     """Dispatch the `polisyos` console script and return a process exit code.
 
@@ -1232,7 +1285,7 @@ def _cli_version() -> str:
         return "0+unknown"
 
 
-__all__ = ["main"]
+__all__ = ["foundry_main", "main"]
 
 
 if __name__ == "__main__":  # pragma: no cover - CLI execution path

@@ -79,6 +79,7 @@ Every row below was classified before the first source edit. Result:
 | seam 1 — Lex/Foundry intervention coupling | 0/10 | Existing IR now owns `CompiledLexIntervention`; existing Scientist nodes own hierarchical-search and temporal-DTR execution. Cleared `lex -> foundry` 3/3, `lex -> scientist` 4/4, and `foundry -> lex` 1/1. | stands; downward shared-contract completion and consumer-up relocation are round-free |
 | seam 2 — Core metric-validation CLI | 1/10 | One new packaged tools composition module owns the installed CLI and metric-validation handler. Cleared CO-01, the first 1/4 `core -> scientist` statements; the row remains open on CO-02..04. | stands; round 1 bought `tools/ops_runners/runtime_cli.py` |
 | seam 3 — Core Scientist CLI | 1/10 | The already-paid tools composition module now owns all nine Scientist commands; Core's remaining three upper-runtime imports and its obsolete internal handler are gone. Cleared CO-02..04 and closed `core -> scientist` 4/4. | stands; no new module, package, public authority export, constraint loosening, or surface |
+| seam 4 — D5 release acceptance | 2/10 | A strict D5 handoff/admission/technical-receipt/Scientist-decision chain replaces Foundry's direct governance call. Cleared FS-01, the release-acceptance member of `foundry -> scientist`; the composite working tree also closes the row after the separately declared pending seams remove FS-02..05. | stands; round 2 bought the new typed D5 admission and release-decision surface, with purpose-limited authority and fail-closed predicate provenance |
 
 No round has been withdrawn.
 
@@ -221,3 +222,53 @@ will be recorded at their seam boundaries rather than inferred from contracts.
   sole minor finding was a stale prose denominator (`22`) in the exception
   projection; that P35 mismatch was corrected to the independently verified
   TOML/Markdown count of 21 before commit.
+
+### Seam 4 — D5 release acceptance
+
+- Attachment/prefix before staging: `policy-engine/` on attached
+  `refs/heads/codex/import-relocations-nine-seams`, with Seam 3 commit
+  `d5bb48724` read back before the seam was staged.
+- Observed seam path set (14 observed = 14 declared): 8 mechanism/configuration
+  paths (`pyproject.toml`, three DataForge producer/admission paths, two Foundry
+  technical-execution paths, one Scientist governance consumer, and the tools
+  composition root) plus 6 focused-test companions. This journal and the
+  implementation plan are two additional P39 record companions.
+- DataForge now emits a purpose-limited handoff whose exact manifest/evidence
+  set is admitted by path, hash, byte size, and CAS content. Foundry compiles,
+  executes, and replays only CAS-admitted inputs and emits a frozen technical
+  receipt with no release/legal authority. Scientist independently reconciles
+  compression evidence, reloads and exact-binds the persisted D4 receipt,
+  evaluates postflight checks, and emits the strict release-decision packet.
+- The gate predicates are frozen at admission as follows: artifact content and
+  hashes are recomputed; compression aggregates are
+  `independently_reconciled`; D4 is `independently_reconciled` only after the
+  persisted Scientist bundle and producer receipt exact-bind, otherwise
+  `not_established`; a missing/inconsistent predicate fails closed. Manifest
+  error findings, forged bytes, path escape, non-exact evidence, self-consistent
+  handoff mismatch, inadequate compression, missing D4, and postflight failure
+  each have a negative semantic test.
+- The first root 26-test receipt was rejected as a harness receipt: pytest
+  printed 26 passes, then zsh rejected the wrapper's read-only variable name
+  `status`, so the wrapper exited 1 after the product run. The corrected final
+  command completed direct exit 0 with 26 passed; `real=80.93s`,
+  `user=68.62s`, `sys=5.97s`, uptime 23:20/up 3d13:33 to
+  23:21/up 3d13:34. Changed-path Ruff and restricted `git diff --check` each
+  completed direct exit 0.
+- A complete AST traversal over all 600 Foundry Python files found zero imports
+  of `polisyos.scientist`. The earlier broader assertion "zero DataForge or
+  Scientist imports" was rejected: the same complete traversal found two
+  pre-existing DataForge imports outside this seam. The row-owned literal
+  command completed direct exit 0 on the composite tree; this seam claims only
+  FS-01 because the still-uncommitted, separately declared calibration,
+  failure-card, and embedder seams supply the removals of FS-02..05.
+- Capability result: DataForge is the typed producer and content-bound
+  admission owner; Foundry is the technical producer; Scientist is the real
+  governance bridge/consumer; CAS artifacts and the decision packet are the
+  persisted/audit-visible surface. The initial `consumer_missing` /
+  `bridge_missing` state is closed without laundering Foundry's technical pass
+  into publication or legal authority.
+- Independent review initially returned NO-GO for ignored manifest errors,
+  declared-only D4/compression predicates, ambiguous authority, compatibility
+  regressions, and missing negative cases. After one batched P40 repair, the
+  delta review returned Ready with no remaining Critical/Important/Minor
+  finding; its 15 falsifier/integration tests passed.

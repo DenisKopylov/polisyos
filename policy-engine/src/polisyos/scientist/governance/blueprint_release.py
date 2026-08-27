@@ -8,27 +8,41 @@ flows over processed observation panels.
 
 from __future__ import annotations
 
+import hashlib
 import json
+import math
 from collections.abc import Sequence
+from decimal import Decimal
 from enum import Enum
 from io import BytesIO
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 import numpy as np
 import pandas as pd
-from pydantic import BaseModel, ConfigDict, Field, ValidationError
+from pydantic import BaseModel, ConfigDict, Field, ValidationError, model_validator
 
 from polisyos.core.artifacts.manifest import ArtifactRef, InputRef, SchemaInfo
 from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
 from polisyos.core.canon import CanonSpec
 from polisyos.core.governance.profiles import ValidationProfile
+from polisyos.data_forge.domains.ukraine.manifests import ReleaseManifest
 from polisyos.data_forge.read_api.ukraine import (
     REAL_BACKTEST_BUNDLE_CONTRACT_FQN,
     UkraineStageArtifactVerificationError,
+    VerifiedUkraineReleaseArtifact,
+    VerifiedUkraineReleaseArtifacts,
     VerifiedUkraineStageArtifacts,
+    load_verified_release_artifact_bytes,
+    load_verified_release_artifacts,
     load_verified_stage_artifacts,
     load_verified_stage_output_bytes,
+)
+from polisyos.foundry.validation.release_acceptance import (
+    FoundryReleaseAcceptanceReceipt,
+    ReleaseAcceptanceReport,
+    ReleaseAcceptanceRunner,
+    ReleaseAcceptanceStep,
 )
 from polisyos.ir.analytics.abstraction import (
     AbstractionCertificate,
@@ -58,6 +72,13 @@ from polisyos.ir.analytics.interference import (
     NetworkInterferenceReport,
 )
 from polisyos.ir.analytics.transportability import TransportabilityStatus, TransportMode
+from polisyos.ir.governance.gate import GateDecision
+from polisyos.ir.governance.policy_spec import InterventionSpec, PolicySpec
+from polisyos.ir.governance.problem_frame import ProblemDomain, ProblemFrame
+from polisyos.ir.governance.schedule import ScheduleSpec
+from polisyos.ir.governance.selector_expr import SelectorPredicate
+from polisyos.ir.model_layer.model_spec import ModelSpec
+from polisyos.ir.model_layer.types import SelectorOperator
 from polisyos.ir.observation.bundles import (
     BacktestPlanBundle,
     ContractCompatibilityTarget,
@@ -69,6 +90,7 @@ from polisyos.ir.observation.contracts import (
     StrategicResponseChannel,
 )
 from polisyos.ir.registry.refs import ArtifactRefModel
+from polisyos.ir.trinity import TrinityBundle
 from polisyos.scientist.governance.accountability import GovernanceAccountabilityInput
 from polisyos.scientist.governance.backtest_matrix import BacktestKind
 from polisyos.scientist.governance.calibration import (
@@ -80,7 +102,9 @@ from polisyos.scientist.governance.calibration_validation import (
     CalibrationValidationRunner,
     CalibrationValidationRunnerInput,
     CalibrationValidationRunnerResult,
+    load_calibration_validation_bundle,
 )
+from polisyos.scientist.governance.postflight import postflight_checks
 from polisyos.scientist.methods.backtesting.plan import HistoricalValidationPlan, PredictionSource
 from polisyos.scientist.methods.discovery.utility_judge import (
     DownstreamUtilityReport,
@@ -133,6 +157,247 @@ class _UkraineD4GovernanceRequest(BaseModel):
     authority_purpose: str
     may_not_use_for: list[str]
     required_stage_manifests: dict[str, str]
+
+
+class _ScientistReleasePostflightReceipt(BaseModel):
+    """Scientist-owned, recomputed D5 postflight admissibility receipt."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.scientist.release_postflight.v1"] = (
+        "policyos.scientist.release_postflight.v1"
+    )
+    rule_version: Literal["scientist-release-postflight.v1"] = (
+        "scientist-release-postflight.v1"
+    )
+    status: Literal["admissible", "blocked"]
+    predicate_provenance: Literal["recomputed"] = "recomputed"
+    admission_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    foundry_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    postflight_state_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    gate_decision_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    reasons: tuple[str, ...] = ()
+    authoritative_for: tuple[str, ...] = ("scientist_release_postflight_admissibility",)
+    may_not_use_for: tuple[str, ...] = (
+        "legal_authority",
+        "publication_authorization",
+    )
+
+    @model_validator(mode="after")
+    def _enforce_postflight_scope(self) -> _ScientistReleasePostflightReceipt:
+        if self.authoritative_for != ("scientist_release_postflight_admissibility",):
+            raise ValueError("postflight receipt has an invalid authority scope")
+        if self.may_not_use_for != (
+            "legal_authority",
+            "publication_authorization",
+        ):
+            raise ValueError("postflight receipt must retain every authority denial")
+        return self
+
+
+class _D5CompressionLayer(BaseModel):
+    """One admitted graph-compression layer used for aggregate reconciliation."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    layer_id: str = Field(min_length=1)
+    coarsening_strategy: str = Field(min_length=1)
+    n_original_edges: int = Field(ge=0)
+    n_compressed_edges: int = Field(ge=0)
+    n_supernodes: int = Field(ge=0)
+    degree_preservation_score: float = Field(ge=0.0, le=1.0)
+    edge_weight_reconstruction_error: float = Field(ge=0.0)
+    neighborhood_overlap_stability: float = Field(ge=0.0, le=1.0)
+
+
+class _D5DownstreamStabilityDeclaration(BaseModel):
+    """Producer declaration retained as candidate context, never as a gate."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: str = Field(min_length=1)
+    reason: str = Field(min_length=1)
+
+
+class _D5CompressionFidelityMetrics(BaseModel):
+    """Producer aggregate metrics reconciled against admitted layer records."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    degree_preservation_score: float = Field(ge=0.0, le=1.0)
+    edge_weight_reconstruction_error: float = Field(ge=0.0)
+    neighborhood_overlap_stability: float = Field(ge=0.0, le=1.0)
+    downstream_policy_response_stability: _D5DownstreamStabilityDeclaration
+
+
+class _D5GraphCompressionBundle(BaseModel):
+    """Strict admitted graph-compression payload consumed by Scientist."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["1.0"] = "1.0"
+    method: str = Field(min_length=1)
+    layers: tuple[_D5CompressionLayer, ...]
+    fidelity_metrics: _D5CompressionFidelityMetrics
+
+
+class _D4ReleasePredicateContext(BaseModel):
+    """Internal D4 result reloaded from CAS for the D5 predicate."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    status: Literal["admissible", "blocked", "not_established"]
+    predicate_provenance: Literal["independently_reconciled", "not_established"]
+    reason: str
+    validation_bundle_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    stage_receipt_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    stage_receipt: VerifiedUkraineStageArtifacts | None = Field(default=None, exclude=True)
+
+
+class _ScientistReleasePredicateReceipt(BaseModel):
+    """Scientist receipt for the substantive predicates required by D5."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.scientist.release_predicates.v1"] = (
+        "policyos.scientist.release_predicates.v1"
+    )
+    rule_version: Literal["scientist-release-predicates.v1"] = (
+        "scientist-release-predicates.v1"
+    )
+    authority_purpose: Literal["scientist_release_predicate_receipt"] = (
+        "scientist_release_predicate_receipt"
+    )
+    authoritative_for: tuple[str, ...] = ()
+    verified_for: tuple[str, ...] = (
+        "manifest_error_scan",
+        "compression_fidelity_reconciliation",
+        "d4_release_eligibility",
+    )
+    may_not_use_for: tuple[str, ...] = (
+        "release_admissibility",
+        "publication_authorization",
+        "legal_authority",
+    )
+    status: Literal["admissible", "blocked"]
+    manifest_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    graph_compression_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    manifest_findings_provenance: Literal["institutionally_supplied"] = (
+        "institutionally_supplied"
+    )
+    manifest_no_errors_provenance: Literal["recomputed"] = "recomputed"
+    manifest_no_errors: bool
+    compression_predicate_provenance: Literal[
+        "independently_reconciled", "not_established"
+    ]
+    compression_status: Literal["admissible", "blocked", "not_established"]
+    compression_layer_count: int = Field(ge=0)
+    reconciled_degree_preservation_score: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+    )
+    reconciled_edge_weight_reconstruction_error: float | None = Field(
+        default=None,
+        ge=0.0,
+    )
+    reconciled_neighborhood_overlap_stability: float | None = Field(
+        default=None,
+        ge=0.0,
+        le=1.0,
+    )
+    d4_predicate_provenance: Literal["independently_reconciled", "not_established"]
+    d4_status: Literal["admissible", "blocked", "not_established"]
+    d4_validation_bundle_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    d4_stage_receipt_ref: str | None = Field(
+        default=None,
+        pattern=r"^sha256:[0-9a-f]{64}$",
+    )
+    reasons: tuple[str, ...] = ()
+
+    @model_validator(mode="after")
+    def _enforce_evidence_scope(self) -> _ScientistReleasePredicateReceipt:
+        if self.authoritative_for:
+            raise ValueError("predicate receipt cannot itself authorize release")
+        if self.verified_for != (
+            "manifest_error_scan",
+            "compression_fidelity_reconciliation",
+            "d4_release_eligibility",
+        ):
+            raise ValueError("predicate receipt must retain its exact verified scope")
+        if self.may_not_use_for != (
+            "release_admissibility",
+            "publication_authorization",
+            "legal_authority",
+        ):
+            raise ValueError("predicate receipt must retain every authority denial")
+        expected_status = (
+            "admissible"
+            if self.manifest_no_errors
+            and self.compression_status == "admissible"
+            and self.d4_status == "admissible"
+            else "blocked"
+        )
+        if self.status != expected_status:
+            raise ValueError("predicate receipt status must compose every required predicate")
+        if (self.compression_status == "not_established") != (
+            self.compression_predicate_provenance == "not_established"
+        ):
+            raise ValueError("compression status and provenance must agree")
+        if (self.d4_status == "not_established") != (
+            self.d4_predicate_provenance == "not_established"
+        ):
+            raise ValueError("D4 status and provenance must agree")
+        return self
+
+
+class ReleaseDecisionPacket(BaseModel):
+    """Scientist-owned D5 decision scoped only to release admissibility."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.scientist.release_decision_packet.v1"] = (
+        "policyos.scientist.release_decision_packet.v1"
+    )
+    rule_version: Literal["scientist-release-admissibility.v1"] = (
+        "scientist-release-admissibility.v1"
+    )
+    run_id: Literal["R_release_acceptance"] = "R_release_acceptance"
+    decision: Literal["admissible", "blocked"]
+    authority_purpose: Literal["scientist_release_admissibility_decision"] = (
+        "scientist_release_admissibility_decision"
+    )
+    authoritative_for: tuple[str, ...] = ("release_admissibility",)
+    may_not_use_for: tuple[str, ...] = (
+        "publication_authorization",
+        "legal_authority",
+    )
+    admission_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    predicate_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    foundry_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    postflight_receipt_ref: str = Field(pattern=r"^sha256:[0-9a-f]{64}$")
+    gate_decision_ref: str | None = Field(default=None, pattern=r"^sha256:[0-9a-f]{64}$")
+    execution_artifacts: dict[str, str] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _enforce_release_scope(self) -> ReleaseDecisionPacket:
+        if self.authoritative_for != ("release_admissibility",):
+            raise ValueError("decision packet may decide release admissibility only")
+        if self.may_not_use_for != (
+            "publication_authorization",
+            "legal_authority",
+        ):
+            raise ValueError("decision packet must retain publication and legal denials")
+        return self
 
 
 class _IdentityResolutionCohortRow(BaseModel):
@@ -1561,6 +1826,673 @@ def run_verified_ukraine_d4_governance(
     )
 
 
+def _verify_release_receipt_cas(
+    store: FileSystemCAS,
+    receipt: VerifiedUkraineReleaseArtifacts,
+    *,
+    allowed_root: Path,
+    release_manifest_path: Path,
+) -> None:
+    """Independently enforce admitted paths, set equality, and CAS bytes."""
+
+    root = allowed_root.resolve()
+    manifest_source = Path(receipt.manifest_source_path)
+    declared_release_root = Path(receipt.declared_release_root)
+    if (
+        not manifest_source.is_absolute()
+        or not manifest_source.is_relative_to(root)
+        or manifest_source != release_manifest_path.resolve()
+    ):
+        raise UkraineStageArtifactVerificationError(
+            "admitted release manifest path does not match the requested scoped path"
+        )
+    if (
+        not declared_release_root.is_absolute()
+        or not declared_release_root.is_relative_to(root)
+        or declared_release_root != manifest_source.parent
+    ):
+        raise UkraineStageArtifactVerificationError(
+            "admitted release root does not match the scoped manifest directory"
+        )
+    required_evidence = {
+        "cell_registry",
+        "d4_governance_request",
+        "d5_release_handoff_request",
+        "graph_compression_bundle",
+    }
+    if set(receipt.evidence) != required_evidence:
+        raise UkraineStageArtifactVerificationError(
+            "admitted release evidence does not match the exact Scientist contract"
+        )
+    for name, artifact in receipt.evidence.items():
+        source_path = Path(artifact.source_path)
+        if not source_path.is_absolute() or not source_path.is_relative_to(root):
+            raise UkraineStageArtifactVerificationError(
+                f"admitted release evidence path escapes Scientist root: {name}"
+            )
+    for bundle_name, bundle in receipt.bundle_contents.items():
+        bundle_root = declared_release_root / bundle_name
+        for relative_name, artifact in bundle.items():
+            source_path = Path(artifact.source_path)
+            if (
+                not source_path.is_absolute()
+                or not source_path.is_relative_to(bundle_root)
+                or source_path.relative_to(bundle_root).as_posix() != relative_name
+            ):
+                raise UkraineStageArtifactVerificationError(
+                    f"admitted release bundle path violates Scientist scope: {bundle_name}"
+                )
+    handoff_content_refs = receipt.handoff_request.content_refs
+    expected_handoff_names = required_evidence - {"d5_release_handoff_request"}
+    if set(handoff_content_refs) != expected_handoff_names:
+        raise UkraineStageArtifactVerificationError(
+            "admitted handoff refs do not match the exact Scientist evidence contract"
+        )
+    for name, handoff_ref in handoff_content_refs.items():
+        artifact = receipt.evidence[name]
+        if (
+            Path(handoff_ref.path).resolve() != Path(artifact.source_path)
+            or handoff_ref.sha256 != artifact.sha256
+            or handoff_ref.size_bytes != artifact.size_bytes
+        ):
+            raise UkraineStageArtifactVerificationError(
+                "admitted handoff refs do not match the exact Scientist evidence contract"
+            )
+    manifest_bytes = store.get_bytes(receipt.manifest_ref.artifact_id)
+    if len(manifest_bytes) != receipt.manifest_size_bytes:
+        raise UkraineStageArtifactVerificationError(
+            "admitted release manifest size does not match the admission receipt"
+        )
+    if hashlib.sha256(manifest_bytes).hexdigest() != receipt.manifest_sha256:
+        raise UkraineStageArtifactVerificationError(
+            "admitted release manifest is not content-bound in CAS"
+        )
+    for artifact in receipt.evidence.values():
+        load_verified_release_artifact_bytes(store, artifact)
+    for bundle in receipt.bundle_contents.values():
+        for artifact in bundle.values():
+            load_verified_release_artifact_bytes(store, artifact)
+
+
+def _require_release_bundle_artifact(
+    receipt: VerifiedUkraineReleaseArtifacts,
+    *,
+    bundle_name: str,
+    artifact_name: str,
+    expected_directory: Path,
+) -> VerifiedUkraineReleaseArtifact:
+    """Select one admitted bundle file and bind its declared directory."""
+
+    bundle = receipt.bundle_contents.get(bundle_name)
+    if bundle is None:
+        raise UkraineStageArtifactVerificationError(
+            f"verified release lacks required bundle: {bundle_name}"
+        )
+    artifact = bundle.get(artifact_name)
+    if artifact is None:
+        raise UkraineStageArtifactVerificationError(
+            f"verified release lacks required artifact: {bundle_name}:{artifact_name}"
+        )
+    declared_directory = Path(artifact.source_path).parent.resolve()
+    if declared_directory != expected_directory.resolve():
+        raise UkraineStageArtifactVerificationError(
+            f"release bundle directory mismatch for {bundle_name}:{artifact_name}"
+        )
+    return artifact
+
+
+def _build_d5_release_trinity(receipt: VerifiedUkraineReleaseArtifacts) -> TrinityBundle:
+    """Build the Scientist-owned candidate evaluated by Foundry and postflight."""
+
+    facts = receipt.handoff_request.producer_facts
+    return TrinityBundle(
+        problem_frame=ProblemFrame(
+            problem_id="ukraine_d5_release",
+            domain=ProblemDomain.FISCAL,
+        ),
+        policy_spec=PolicySpec(
+            policy_id="ukraine_d5_release_candidate",
+            interventions=[
+                InterventionSpec(
+                    intervention_id="release_candidate_probe",
+                    kind="income_tax",
+                    target=SelectorPredicate(
+                        field="id",
+                        operator=SelectorOperator.EQUALS,
+                        value="all",
+                    ),
+                    schedule=ScheduleSpec(start_step=0, duration_steps=1),
+                    params={"rate": Decimal("0.1")},
+                    target_region_ids=[facts.primary_region_id],
+                    target_sector_ids=[facts.primary_sector_id],
+                    notes=[
+                        "Candidate execution probe; producer facts do not authorize release."
+                    ],
+                )
+            ],
+        ),
+        model_spec=ModelSpec(
+            model_id="ukraine_d5_release_model",
+            data_snapshot_ref=str(receipt.manifest_ref.artifact_id),
+        ),
+    )
+
+
+def _postflight_is_explicitly_admissible(
+    state: dict[str, Any],
+    gate_decision: GateDecision | None,
+) -> bool:
+    """Require a completed recomputed trace; absence never means approval."""
+
+    if gate_decision is not None:
+        return False
+    trace = state.get("validation_trace")
+    issues = state.get("validation_issues")
+    if not isinstance(trace, dict) or not isinstance(issues, list):
+        return False
+    return bool(
+        trace.get("completed_at")
+        and trace.get("total_blockers") == 0
+        and not state.get("validation_blockers")
+    )
+
+
+def _run_d4_release_predicate(
+    store: FileSystemCAS,
+    *,
+    build_root: Path,
+    cas_root: Path,
+) -> _D4ReleasePredicateContext:
+    """Reload the real D4 result and its producer receipt from CAS."""
+
+    d4_manifest_path = build_root.resolve() / "manifests" / "build_run_d4.json"
+    if not d4_manifest_path.is_file():
+        return _D4ReleasePredicateContext(
+            status="not_established",
+            predicate_provenance="not_established",
+            reason="d4_governance_not_established",
+        )
+    try:
+        result = run_verified_ukraine_d4_governance(
+            build_root=build_root.resolve(),
+            d4_manifest_path=d4_manifest_path,
+            cas_root=cas_root,
+        )
+        bundle = load_calibration_validation_bundle(store, result.bundle_ref)
+        bundle_ref = str(result.bundle_ref.artifact_id)
+        producer_receipt_refs = bundle.metadata.get("producer_receipt_refs")
+        if not isinstance(producer_receipt_refs, dict):
+            raise ValueError("D4 validation bundle lacks producer receipt refs")
+        d4_stage_receipt_ref = producer_receipt_refs.get("d4")
+        if not isinstance(d4_stage_receipt_ref, str):
+            raise ValueError("D4 validation bundle lacks its D4 stage receipt ref")
+        stage_receipt = VerifiedUkraineStageArtifacts.model_validate_json(
+            store.get_bytes(d4_stage_receipt_ref)
+        )
+        if stage_receipt.stage_id != "d4":
+            raise ValueError("D4 validation bundle references a non-D4 stage receipt")
+    except Exception:
+        return _D4ReleasePredicateContext(
+            status="not_established",
+            predicate_provenance="not_established",
+            reason="d4_governance_not_established",
+        )
+
+    if bundle.status == "blocked_by_governance":
+        status: Literal["admissible", "blocked", "not_established"] = "blocked"
+        reason = "d4_governance_blocked"
+    elif bundle.status != "completed" or bundle.leaderboard_entry is None:
+        status = "not_established"
+        reason = "d4_governance_not_established"
+    elif (
+        bundle.governance_verdict == "approve"
+        and bundle.leaderboard_entry.metrics.eligible_for_promotion is True
+    ):
+        status = "admissible"
+        reason = ""
+    else:
+        status = "blocked"
+        reason = "d4_governance_blocked"
+    return _D4ReleasePredicateContext(
+        status=status,
+        predicate_provenance=(
+            "not_established" if status == "not_established" else "independently_reconciled"
+        ),
+        reason=reason,
+        validation_bundle_ref=bundle_ref,
+        stage_receipt_ref=d4_stage_receipt_ref,
+        stage_receipt=stage_receipt,
+    )
+
+
+def _bind_d4_release_predicate(
+    context: _D4ReleasePredicateContext,
+    admission: VerifiedUkraineReleaseArtifacts,
+) -> _D4ReleasePredicateContext:
+    """Bind the independently run D4 result to the D5-admitted request bytes."""
+
+    if context.stage_receipt is None:
+        return context
+    d4_output = context.stage_receipt.outputs.get(_UKRAINE_D4_REQUEST_OUTPUT)
+    admitted_request = admission.evidence["d4_governance_request"]
+    if d4_output is not None and (
+        Path(d4_output.source_path).resolve() == Path(admitted_request.source_path).resolve()
+        and d4_output.sha256 == admitted_request.sha256
+        and d4_output.size_bytes == admitted_request.size_bytes
+        and d4_output.content_ref.artifact_id == admitted_request.content_ref.artifact_id
+    ):
+        return context
+    return context.model_copy(
+        update={
+            "status": "not_established",
+            "predicate_provenance": "not_established",
+            "reason": "d4_governance_not_established",
+            "stage_receipt": None,
+        }
+    )
+
+
+def _evaluate_release_predicates(
+    store: FileSystemCAS,
+    admission: VerifiedUkraineReleaseArtifacts,
+    d4_context: _D4ReleasePredicateContext,
+) -> _ScientistReleasePredicateReceipt:
+    """Evaluate manifest, compression, and D4 predicates from admitted CAS bytes."""
+
+    manifest = ReleaseManifest.model_validate_json(
+        store.get_bytes(admission.manifest_ref.artifact_id)
+    )
+    manifest_no_errors = not any(
+        finding.severity.strip().casefold() == "error" for finding in manifest.validation
+    )
+    reasons: list[str] = []
+    if not manifest_no_errors:
+        reasons.append("producer_manifest_contains_errors")
+
+    compression_artifact = admission.evidence["graph_compression_bundle"]
+    compression_layer_count = 0
+    reconciled_degree: float | None = None
+    reconciled_weight_error: float | None = None
+    reconciled_overlap: float | None = None
+    compression_provenance: Literal["independently_reconciled", "not_established"]
+    compression_status: Literal["admissible", "blocked", "not_established"]
+    try:
+        compression = _D5GraphCompressionBundle.model_validate_json(
+            load_verified_release_artifact_bytes(store, compression_artifact)
+        )
+        compression_layer_count = len(compression.layers)
+        if not compression.layers:
+            raise ValueError("compression bundle has no layer records")
+        reconciled_degree = math.fsum(
+            layer.degree_preservation_score for layer in compression.layers
+        ) / compression_layer_count
+        reconciled_weight_error = math.fsum(
+            layer.edge_weight_reconstruction_error for layer in compression.layers
+        ) / compression_layer_count
+        reconciled_overlap = math.fsum(
+            layer.neighborhood_overlap_stability for layer in compression.layers
+        ) / compression_layer_count
+        declared_values = (
+            compression.fidelity_metrics.degree_preservation_score,
+            compression.fidelity_metrics.edge_weight_reconstruction_error,
+            compression.fidelity_metrics.neighborhood_overlap_stability,
+            admission.handoff_request.producer_facts.graph_compression_degree_preservation_score,
+            admission.handoff_request.producer_facts.graph_compression_edge_weight_reconstruction_error,
+            float(manifest.metrics["compression_degree_preservation_score"]),
+            float(manifest.metrics["compression_edge_weight_reconstruction_error"]),
+            float(manifest.metrics["compression_neighborhood_overlap_stability"]),
+        )
+        if not all(math.isfinite(value) for value in declared_values):
+            raise ValueError("compression declarations must be finite")
+        reconciled_and_declared = (
+            (reconciled_degree, declared_values[0]),
+            (reconciled_weight_error, declared_values[1]),
+            (reconciled_overlap, declared_values[2]),
+            (reconciled_degree, declared_values[3]),
+            (reconciled_weight_error, declared_values[4]),
+            (reconciled_degree, declared_values[5]),
+            (reconciled_weight_error, declared_values[6]),
+            (reconciled_overlap, declared_values[7]),
+        )
+        aggregate_matches = all(
+            math.isclose(actual, declared, rel_tol=0.0, abs_tol=1e-12)
+            for actual, declared in reconciled_and_declared
+        )
+        compression_provenance = "independently_reconciled"
+        if not aggregate_matches:
+            compression_status = "blocked"
+            reasons.append("compression_aggregate_mismatch")
+        elif reconciled_degree < 0.85 or reconciled_weight_error > 0.15:
+            compression_status = "blocked"
+            reasons.append("compression_threshold_failed")
+        else:
+            compression_status = "admissible"
+    except (KeyError, TypeError, ValueError, ValidationError):
+        compression_provenance = "not_established"
+        compression_status = "not_established"
+        reasons.append("compression_predicate_not_established")
+
+    if d4_context.status == "not_established":
+        reasons.append("d4_governance_not_established")
+    elif d4_context.status == "blocked":
+        reasons.append("d4_governance_blocked")
+    predicate_admissible = bool(
+        manifest_no_errors
+        and compression_status == "admissible"
+        and d4_context.status == "admissible"
+    )
+    return _ScientistReleasePredicateReceipt(
+        status="admissible" if predicate_admissible else "blocked",
+        manifest_ref=str(admission.manifest_ref.artifact_id),
+        graph_compression_ref=str(compression_artifact.content_ref.artifact_id),
+        manifest_no_errors=manifest_no_errors,
+        compression_predicate_provenance=compression_provenance,
+        compression_status=compression_status,
+        compression_layer_count=compression_layer_count,
+        reconciled_degree_preservation_score=reconciled_degree,
+        reconciled_edge_weight_reconstruction_error=reconciled_weight_error,
+        reconciled_neighborhood_overlap_stability=reconciled_overlap,
+        d4_predicate_provenance=d4_context.predicate_provenance,
+        d4_status=d4_context.status,
+        d4_validation_bundle_ref=d4_context.validation_bundle_ref,
+        d4_stage_receipt_ref=d4_context.stage_receipt_ref,
+        reasons=tuple(dict.fromkeys(reasons)),
+    )
+
+
+def run_verified_ukraine_d5_release(
+    *,
+    build_root: Path,
+    release_manifest_path: Path,
+    runtime_bundle_dir: Path,
+    method_contract_bundle_dir: Path,
+    cas_root: Path,
+    governance_profile: ValidationProfile | None = None,
+) -> ReleaseAcceptanceReport:
+    """Admit D5 bytes, run Foundry, and issue the Scientist postflight decision.
+
+    DataForge declarations remain non-authoritative. Scientist rechecks every
+    admitted CAS object, invokes Foundry only with CAS references, runs its own
+    postflight, and persists both positive and blocked outcomes.
+    """
+
+    store = FileSystemCAS(cas_root)
+    d4_context = _run_d4_release_predicate(
+        store,
+        build_root=build_root,
+        cas_root=cas_root,
+    )
+    admission = load_verified_release_artifacts(
+        release_manifest_path,
+        store=store,
+        allowed_root=build_root,
+        expected_stage="d5",
+    )
+    _verify_release_receipt_cas(
+        store,
+        admission,
+        allowed_root=build_root,
+        release_manifest_path=release_manifest_path,
+    )
+    d4_context = _bind_d4_release_predicate(d4_context, admission)
+    predicate_receipt = _evaluate_release_predicates(store, admission, d4_context)
+    predicate_receipt_ref = store.put_json(
+        predicate_receipt,
+        PutOptions(
+            kind="scientist.release_predicate_receipt",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.ReleasePredicateReceipt",
+                version="1.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    runtime_agents = _require_release_bundle_artifact(
+        admission,
+        bundle_name="runtime_bundle_v1",
+        artifact_name="agent_registry_runtime.parquet",
+        expected_directory=runtime_bundle_dir,
+    )
+    cell_registry = _require_release_bundle_artifact(
+        admission,
+        bundle_name="runtime_bundle_v1",
+        artifact_name="cell_registry_region_sector.parquet",
+        expected_directory=runtime_bundle_dir,
+    )
+    method_bundle = admission.bundle_contents.get("method_contract_bundle_v1")
+    if not method_bundle:
+        raise UkraineStageArtifactVerificationError(
+            "verified release lacks required method contract bundle contents"
+        )
+    if {
+        Path(artifact.source_path).parent.resolve() for artifact in method_bundle.values()
+    } != {method_contract_bundle_dir.resolve()}:
+        raise UkraineStageArtifactVerificationError(
+            "release bundle directory mismatch for method_contract_bundle_v1"
+        )
+
+    admission_receipt = store.put_json(
+        admission,
+        PutOptions(
+            kind="scientist.verified_release_artifact_receipt",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.data_forge.ukraine.VerifiedUkraineReleaseArtifacts",
+                version="v1",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    trinity = _build_d5_release_trinity(admission)
+    trinity_ref = store.put_json(
+        trinity,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity.schema_version),
+        ),
+    )
+    foundry_receipt: FoundryReleaseAcceptanceReceipt = ReleaseAcceptanceRunner(store).run(
+        release_manifest_ref=admission.manifest_ref,
+        runtime_agent_registry_ref=runtime_agents.content_ref,
+        cell_registry_ref=cell_registry.content_ref,
+        trinity_bundle_ref=trinity_ref,
+        manifest_path=admission.manifest_source_path,
+        release_bundle_root=admission.declared_release_root,
+    )
+    foundry_receipt_ref = store.put_json(
+        foundry_receipt,
+        PutOptions(
+            kind="foundry.release_acceptance_receipt",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.foundry.FoundryReleaseAcceptanceReceipt",
+                version="1.0",
+            ),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+
+    effective_trinity_ref = foundry_receipt.execution_artifacts.get(
+        "compiled_trinity_bundle_ref"
+    )
+    registry_bundle_ref = foundry_receipt.execution_artifacts.get("registry_bundle_ref")
+    if foundry_receipt.technical_passed and effective_trinity_ref and registry_bundle_ref:
+        effective_trinity = TrinityBundle.model_validate_json(
+            store.get_bytes(effective_trinity_ref)
+        )
+        postflight_input = {
+            "run_id": "R_release_acceptance",
+            "ir": effective_trinity.model_dump(mode="json"),
+            "trinity_bundle": effective_trinity.model_dump(mode="json"),
+            "registry_bundle_ref": {"artifact_id": registry_bundle_ref},
+            "simulation_result_ref": {
+                "artifact_id": foundry_receipt.original_simulation_result_ref
+            },
+            "cas_root": str(cas_root),
+        }
+        postflight_state, gate_decision = postflight_checks(
+            postflight_input,
+            profile=governance_profile or ValidationProfile.mvp(),
+        )
+    else:
+        postflight_state = {
+            "run_id": "R_release_acceptance",
+            "validation_trace": None,
+            "validation_issues": [],
+            "foundry_acceptance_passed": foundry_receipt.technical_passed,
+        }
+        gate_decision = None
+
+    postflight_state_ref = store.put_json(
+        postflight_state,
+        PutOptions(
+            kind="scientist.release_postflight_state",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.scientist.ReleasePostflightState", version="1.0"),
+        ),
+        canon_spec=CanonSpec(forbid_floats=False),
+    )
+    gate_decision_ref = (
+        None
+        if gate_decision is None
+        else store.put_json(
+            gate_decision,
+            PutOptions(
+                kind="scientist.release_gate_decision",
+                media_type="application/json",
+                schema=SchemaInfo(name="polisyos.ir.GateDecision", version="1.0"),
+            ),
+        )
+    )
+    postflight_admissible = bool(
+        foundry_receipt.technical_passed
+        and _postflight_is_explicitly_admissible(postflight_state, gate_decision)
+    )
+    if postflight_admissible:
+        postflight_reasons: tuple[str, ...] = ()
+    elif not foundry_receipt.technical_passed:
+        postflight_reasons = ("foundry_acceptance_failed",)
+    elif gate_decision is not None:
+        postflight_reasons = ("scientist_postflight_blocked",)
+    else:
+        postflight_reasons = ("scientist_postflight_outcome_not_established",)
+    postflight_receipt = _ScientistReleasePostflightReceipt(
+        status="admissible" if postflight_admissible else "blocked",
+        admission_receipt_ref=str(admission_receipt.artifact_id),
+        foundry_receipt_ref=str(foundry_receipt_ref.artifact_id),
+        postflight_state_ref=str(postflight_state_ref.artifact_id),
+        gate_decision_ref=(
+            None if gate_decision_ref is None else str(gate_decision_ref.artifact_id)
+        ),
+        reasons=postflight_reasons,
+    )
+    postflight_receipt_ref = store.put_json(
+        postflight_receipt,
+        PutOptions(
+            kind="scientist.release_postflight_receipt",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.ReleasePostflightReceipt",
+                version="1.0",
+            ),
+        ),
+    )
+    admissible = bool(
+        predicate_receipt.status == "admissible"
+        and foundry_receipt.technical_passed
+        and postflight_receipt.status == "admissible"
+    )
+    decision_packet = ReleaseDecisionPacket(
+        decision="admissible" if admissible else "blocked",
+        admission_receipt_ref=str(admission_receipt.artifact_id),
+        predicate_receipt_ref=str(predicate_receipt_ref.artifact_id),
+        foundry_receipt_ref=str(foundry_receipt_ref.artifact_id),
+        postflight_receipt_ref=str(postflight_receipt_ref.artifact_id),
+        gate_decision_ref=postflight_receipt.gate_decision_ref,
+        execution_artifacts=foundry_receipt.execution_artifacts,
+    )
+    packet_ref = store.put_json(
+        decision_packet,
+        PutOptions(
+            kind="scientist.decision_packet",
+            media_type="application/json",
+            schema=SchemaInfo(
+                name="polisyos.scientist.ReleaseDecisionPacket",
+                version="1.0",
+            ),
+        ),
+    )
+    steps = [
+        ReleaseAcceptanceStep(
+            step_id="verify_release_admission",
+            status="passed",
+            details={
+                "receipt_ref": str(admission_receipt.artifact_id),
+                "content_binding_provenance": admission.content_binding_provenance,
+            },
+        ),
+        ReleaseAcceptanceStep(
+            step_id="evaluate_release_predicates",
+            status="passed" if predicate_receipt.status == "admissible" else "failed",
+            details={
+                "receipt_ref": str(predicate_receipt_ref.artifact_id),
+                "status": predicate_receipt.status,
+                "manifest_no_errors_provenance": (
+                    predicate_receipt.manifest_no_errors_provenance
+                ),
+                "compression_predicate_provenance": (
+                    predicate_receipt.compression_predicate_provenance
+                ),
+                "d4_predicate_provenance": predicate_receipt.d4_predicate_provenance,
+                "reasons": list(predicate_receipt.reasons),
+            },
+        ),
+        *foundry_receipt.steps,
+        ReleaseAcceptanceStep(
+            step_id="run_scientist_postflight",
+            status="passed" if postflight_admissible else "failed",
+            details={
+                "receipt_ref": str(postflight_receipt_ref.artifact_id),
+                "status": postflight_receipt.status,
+                "reasons": list(postflight_reasons),
+            },
+        ),
+        ReleaseAcceptanceStep(
+            step_id="emit_scientist_decision_packet",
+            status="passed",
+            details={"packet_ref": str(packet_ref.artifact_id)},
+        ),
+    ]
+    return ReleaseAcceptanceReport(
+        passed=admissible,
+        manifest_path=foundry_receipt.manifest_path,
+        release_bundle_root=foundry_receipt.release_bundle_root,
+        packet_ref=str(packet_ref.artifact_id),
+        admission_receipt_ref=str(admission_receipt.artifact_id),
+        predicate_receipt_ref=str(predicate_receipt_ref.artifact_id),
+        foundry_receipt_ref=str(foundry_receipt_ref.artifact_id),
+        postflight_receipt_ref=str(postflight_receipt_ref.artifact_id),
+        original_simulation_result_ref=foundry_receipt.original_simulation_result_ref,
+        replay_simulation_result_ref=foundry_receipt.replay_simulation_result_ref,
+        governance_verdict="approve" if admissible else "reject",
+        release_admissibility_status="admissible" if admissible else "blocked",
+        execution_artifacts=foundry_receipt.execution_artifacts,
+        replay_verification=foundry_receipt.replay_verification,
+        steps=steps,
+        notes=list(
+            dict.fromkeys(
+                [
+                    *foundry_receipt.notes,
+                    *predicate_receipt.reasons,
+                    *postflight_reasons,
+                ]
+            )
+        ),
+    )
+
+
 __all__ = [
     "REQUIRED_SIGNOFF_FAMILIES",
     "CalibrationCandidateScore",
@@ -1572,6 +2504,7 @@ __all__ = [
     "FamilyTier",
     "HoldoutScoresManifest",
     "LossBreakdownManifest",
+    "ReleaseDecisionPacket",
     "SpecificationCurveRunner",
     "SpecificationCurveSummaryManifest",
     "StrategicResponseMetricsManifest",
@@ -1583,4 +2516,5 @@ __all__ = [
     "build_interference_evidence",
     "build_required_backtest_bundles",
     "run_verified_ukraine_d4_governance",
+    "run_verified_ukraine_d5_release",
 ]

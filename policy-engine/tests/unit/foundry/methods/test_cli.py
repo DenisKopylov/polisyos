@@ -3,7 +3,6 @@ from __future__ import annotations
 import importlib
 import json
 import sys
-import types
 
 import pytest
 
@@ -191,8 +190,7 @@ def test_evidence_command_emits_operator_summary_json(monkeypatch, capsys) -> No
     )
 
 
-def test_release_acceptance_command_emits_report_json(
-    monkeypatch,
+def test_release_acceptance_command_delegates_to_injected_handler(
     tmp_path,
     capsys,
 ) -> None:
@@ -202,38 +200,10 @@ def test_release_acceptance_command_emits_report_json(
     store_root = tmp_path / "acceptance_cas"
     calls: dict[str, object] = {}
 
-    class _FakeRunner:
-        def __init__(self, store) -> None:
-            calls["store_root"] = store.root
-
-        def run(self, **kwargs):
-            calls["kwargs"] = kwargs
-            return type(
-                "_FakeReport",
-                (),
-                {
-                    "passed": True,
-                    "model_dump": staticmethod(
-                        lambda mode="json": {
-                            "passed": True,
-                            "manifest_path": str(kwargs["release_manifest_path"]),
-                            "release_bundle_root": str(kwargs["release_manifest_path"].parent),
-                            "packet_ref": "packet-123",
-                            "governance_verdict": "approve",
-                            "steps": [
-                                {"step_id": "compile_exec_plan", "status": "passed"},
-                                {"step_id": "verify_replay_roundtrip", "status": "passed"},
-                            ],
-                        }
-                    ),
-                },
-            )
-
-    monkeypatch.setitem(
-        sys.modules,
-        "polisyos.foundry.validation.release_acceptance",
-        types.SimpleNamespace(ReleaseAcceptanceRunner=_FakeRunner),
-    )
+    def _release_handler(args) -> int:
+        calls["args"] = args
+        print(json.dumps({"passed": True, "packet_ref": "packet-123"}))
+        return 0
 
     rc = cli.main(
         [
@@ -247,7 +217,8 @@ def test_release_acceptance_command_emits_report_json(
             "--store-root",
             str(store_root),
             "--json",
-        ]
+        ],
+        release_handler=_release_handler,
     )
     out = capsys.readouterr().out
 
@@ -255,17 +226,65 @@ def test_release_acceptance_command_emits_report_json(
     payload = json.loads(out)
     assert payload["passed"] is True
     assert payload["packet_ref"] == "packet-123"
-    assert payload["governance_verdict"] == "approve"
-    assert [step["step_id"] for step in payload["steps"]] == [
-        "compile_exec_plan",
-        "verify_replay_roundtrip",
-    ]
-    assert calls["store_root"] == store_root
-    assert calls["kwargs"] == {
-        "release_manifest_path": manifest_path,
-        "runtime_bundle_dir": runtime_bundle_dir,
-        "method_contract_bundle_dir": method_contract_bundle_dir,
-    }
+    args = calls["args"]
+    assert args.manifest_path == manifest_path
+    assert args.runtime_bundle_dir == runtime_bundle_dir
+    assert args.method_contract_bundle_dir == method_contract_bundle_dir
+    assert args.store_root == store_root
+    assert args.json is True
+
+
+def test_release_acceptance_command_without_injected_handler_fails_closed(
+    tmp_path,
+    capsys,
+) -> None:
+    rc = cli.main(
+        [
+            "release-acceptance",
+            "--manifest-path",
+            str(tmp_path / "release_manifest.json"),
+            "--runtime-bundle-dir",
+            str(tmp_path / "runtime_bundle"),
+            "--method-contract-bundle-dir",
+            str(tmp_path / "method_contract_bundle"),
+            "--store-root",
+            str(tmp_path / "acceptance_cas"),
+        ]
+    )
+
+    captured = capsys.readouterr()
+    assert rc == 1
+    assert captured.out == ""
+    assert "release acceptance requires an injected consumer handler" in captured.err
+
+
+def test_release_acceptance_parse_error_exits_two() -> None:
+    with pytest.raises(SystemExit) as exc_info:
+        cli.main(["release-acceptance"])
+
+    assert exc_info.value.code == 2
+
+
+def test_release_acceptance_keyboard_interrupt_returns_130(tmp_path) -> None:
+    def _interrupt(_args) -> int:
+        raise KeyboardInterrupt
+
+    rc = cli.main(
+        [
+            "release-acceptance",
+            "--manifest-path",
+            str(tmp_path / "release_manifest.json"),
+            "--runtime-bundle-dir",
+            str(tmp_path / "runtime_bundle"),
+            "--method-contract-bundle-dir",
+            str(tmp_path / "method_contract_bundle"),
+            "--store-root",
+            str(tmp_path / "acceptance_cas"),
+        ],
+        release_handler=_interrupt,
+    )
+
+    assert rc == 130
 
 
 def test_release_acceptance_module_imports_without_ukraine_cycle() -> None:

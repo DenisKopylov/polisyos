@@ -1,12 +1,21 @@
 from __future__ import annotations
 
+import ast
+from io import BytesIO
 from pathlib import Path
 
+import pandas as pd
 import pytest
 import yaml
+from pydantic import ValidationError
+
+from polisyos.core.artifacts.manifest import SchemaInfo
+from polisyos.core.artifacts.store import FileSystemCAS, PutOptions
+from polisyos.foundry._quickstart import build_trivial_trinity_bundle
 from polisyos.foundry.methods.catalog import ensure_all_methods_registered
 from polisyos.foundry.methods.registry import MethodRegistry
 from polisyos.foundry.methods.testing.golden_yaml import GoldenRegistry
+from polisyos.foundry.validation.release_acceptance import ReleaseAcceptanceRunner
 
 _KEY_RELEASE_GATE_GOLDEN_DOMAINS = ("bayesian", "ml", "optimization", "survey")
 _NO_SKIP_GOLDEN_DOMAINS = ("bayesian", "econometrics", "network", "optimization", "spatial")
@@ -126,3 +135,98 @@ def test_release_gate_workflow_publishes_operator_and_numerical_evidence() -> No
         str(step.get("run", "")) for step in scheduled_steps if isinstance(step, dict)
     )
     assert "--junitxml=foundry-numerical-matrix.xml" in scheduled_run_text
+
+
+def test_release_acceptance_runs_compile_execute_replay_from_cas_only(
+    tmp_path: Path,
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    store = FileSystemCAS(tmp_path / "cas")
+
+    def _parquet_bytes(frame: pd.DataFrame) -> bytes:
+        buffer = BytesIO()
+        frame.to_parquet(buffer, index=False)
+        return buffer.getvalue()
+
+    runtime_agents_ref = store.put_bytes(
+        _parquet_bytes(pd.DataFrame({"agent_id": ["a1", "a2"], "cell_id": ["c1", "c2"]})),
+        PutOptions(kind="data_forge.ukraine.release_bundle_file_snapshot", media_type="application/vnd.apache.parquet"),
+    )
+    cell_registry_ref = store.put_bytes(
+        _parquet_bytes(pd.DataFrame({"cell_id": ["c1", "c2"]})),
+        PutOptions(kind="data_forge.ukraine.release_bundle_file_snapshot", media_type="application/vnd.apache.parquet"),
+    )
+    manifest_ref = store.put_bytes(
+        b'{"artifact_name":"release_manifest_v1.json"}',
+        PutOptions(kind="data_forge.ukraine.release_manifest_snapshot", media_type="application/json"),
+    )
+    trinity = build_trivial_trinity_bundle("sha256:" + "0" * 64)
+    trinity_ref = store.put_json(
+        trinity,
+        PutOptions(
+            kind="ir.trinity_bundle",
+            media_type="application/json",
+            schema=SchemaInfo(name="polisyos.ir.TrinityBundle", version=trinity.schema_version),
+        ),
+    )
+
+    read_bytes = Path.read_bytes
+
+    def _cas_only_read(path: Path) -> bytes:
+        if path.resolve().is_relative_to(store.root.resolve()):
+            return read_bytes(path)
+        raise AssertionError("Foundry reopened a producer path instead of using CAS")
+
+    monkeypatch.setattr(Path, "read_bytes", _cas_only_read)
+    report = ReleaseAcceptanceRunner(store).run(
+        release_manifest_ref=manifest_ref,
+        runtime_agent_registry_ref=runtime_agents_ref,
+        cell_registry_ref=cell_registry_ref,
+        trinity_bundle_ref=trinity_ref,
+        manifest_path="producer/release_manifest_v1.json",
+        release_bundle_root="producer/d5",
+    )
+
+    assert type(report).__name__ == "FoundryReleaseAcceptanceReceipt"
+    assert report.technical_passed is True
+    assert report.authority_purpose == "foundry_technical_acceptance_receipt"
+    assert report.authoritative_for == ()
+    assert report.verified_for == (
+        "technical_compilation",
+        "technical_execution",
+        "technical_replay",
+    )
+    assert report.may_not_use_for == (
+        "release_admissibility",
+        "governance_admissibility",
+        "publication_authorization",
+    )
+    assert report.execution_artifacts["release_manifest_ref"] == str(manifest_ref.artifact_id)
+    assert report.execution_artifacts["trinity_bundle_ref"] == str(trinity_ref.artifact_id)
+    assert report.original_simulation_result_ref
+    assert report.replay_simulation_result_ref
+    assert report.replay_verification["passed"] is True
+    with pytest.raises(ValidationError, match="technical_passed"):
+        type(report).model_validate(
+            {
+                **report.model_dump(mode="json"),
+                "replay_verification": {**report.replay_verification, "passed": False},
+            }
+        )
+    with pytest.raises(ValidationError, match="frozen"):
+        report.technical_passed = False
+
+
+def test_release_acceptance_has_no_data_forge_or_scientist_imports() -> None:
+    source = _REPO_ROOT / "src" / "polisyos" / "foundry" / "validation" / "release_acceptance.py"
+    tree = ast.parse(source.read_text(encoding="utf-8"))
+    imported = {
+        node.module
+        for node in ast.walk(tree)
+        if isinstance(node, ast.ImportFrom) and node.module is not None
+    }
+
+    assert not any(
+        module.startswith(("polisyos.data_forge", "polisyos.scientist"))
+        for module in imported
+    )

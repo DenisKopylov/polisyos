@@ -62,11 +62,11 @@ At every seam boundary:
 
 ### Seam 4: D5 release acceptance — 1 statement
 
-- [ ] Establish Scientist as the real postflight consumer of the content-bound
+- [x] Establish Scientist as the real postflight consumer of the content-bound
   D5 request; keep Foundry compilation/execution below it.
-- [ ] Persist the scoped admission result and add a negative producer-authority
+- [x] Persist the scoped admission result and add a negative producer-authority
   test.
-- [ ] Close this `foundry -> scientist` statement first.
+- [x] Close this `foundry -> scientist` statement first.
 
 ### Seam 5: Calibration policy pair — 2 statements
 

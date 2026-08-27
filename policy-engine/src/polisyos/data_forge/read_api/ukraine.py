@@ -9,6 +9,9 @@ from typing import TYPE_CHECKING, Literal
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 from polisyos.core import artifacts as core_artifacts
+from polisyos.data_forge.domains.ukraine.manifests import (  # noqa: TC001
+    D5ReleaseHandoffRequest,
+)
 
 from ._lazy import lazy_dir, load_lazy_export
 
@@ -127,6 +130,92 @@ class VerifiedUkraineStageArtifacts(BaseModel):
     def _manifest_ref_matches_verified_hash(self) -> VerifiedUkraineStageArtifacts:
         if self.manifest_ref.artifact_id.hex != self.manifest_sha256:
             raise ValueError("manifest_ref does not match the verified manifest hash")
+        return self
+
+
+class VerifiedUkraineReleaseArtifact(BaseModel):
+    """One D5 release file admitted into CAS after path and content verification."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    source_path: str = Field(min_length=1)
+    content_ref: core_artifacts.ArtifactRef
+    sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    size_bytes: int = Field(ge=0)
+
+    @model_validator(mode="after")
+    def _content_ref_matches_verified_hash(self) -> VerifiedUkraineReleaseArtifact:
+        if self.content_ref.artifact_id.hex != self.sha256:
+            raise ValueError("content_ref does not match the verified release artifact hash")
+        return self
+
+
+class VerifiedUkraineReleaseArtifacts(BaseModel):
+    """Non-authoritative admission receipt for a complete D5 release inventory."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+
+    schema_version: Literal["policyos.data_forge.ukraine.verified_release.v1"] = (
+        "policyos.data_forge.ukraine.verified_release.v1"
+    )
+    verification_rule_version: Literal["ukraine-release-artifacts.v1"] = (
+        "ukraine-release-artifacts.v1"
+    )
+    stage_id: Literal["d5"] = "d5"
+    declared_release_root: str = Field(min_length=1)
+    manifest_source_path: str = Field(min_length=1)
+    manifest_ref: core_artifacts.ArtifactRef
+    manifest_sha256: str = Field(pattern=r"^[0-9a-f]{64}$")
+    manifest_size_bytes: int = Field(ge=0)
+    provenance_ref: Literal[
+        "polisyos.data_forge.domains.ukraine.manifests.ReleaseManifest"
+    ] = "polisyos.data_forge.domains.ukraine.manifests.ReleaseManifest"
+    authority_purpose: Literal["non_authoritative_release_artifact_admission"] = (
+        "non_authoritative_release_artifact_admission"
+    )
+    stage_declaration_provenance: Literal["institutionally_supplied"] = (
+        "institutionally_supplied"
+    )
+    release_root_declaration_provenance: Literal["institutionally_supplied"] = (
+        "institutionally_supplied"
+    )
+    path_scope_provenance: Literal["recomputed"] = "recomputed"
+    content_binding_provenance: Literal["recomputed"] = "recomputed"
+    authoritative_for: tuple[str, ...] = ()
+    verified_for: tuple[str, ...] = (
+        "producer_artifact_identity",
+        "producer_artifact_content_binding",
+    )
+    may_not_use_for: tuple[str, ...] = (
+        "governance_admissibility",
+        "release_acceptance",
+        "publication",
+        "method_validity",
+    )
+    handoff_request: D5ReleaseHandoffRequest
+    bundle_contents: dict[str, dict[str, VerifiedUkraineReleaseArtifact]] = Field(
+        default_factory=dict
+    )
+    evidence: dict[str, VerifiedUkraineReleaseArtifact] = Field(default_factory=dict)
+
+    @model_validator(mode="after")
+    def _manifest_ref_matches_verified_hash(self) -> VerifiedUkraineReleaseArtifacts:
+        if self.manifest_ref.artifact_id.hex != self.manifest_sha256:
+            raise ValueError("manifest_ref does not match the verified release manifest hash")
+        if self.authoritative_for:
+            raise ValueError("release admission receipt cannot declare downstream authority")
+        if set(self.verified_for) != {
+            "producer_artifact_identity",
+            "producer_artifact_content_binding",
+        }:
+            raise ValueError("release admission receipt has an invalid evidence-band scope")
+        if set(self.may_not_use_for) != {
+            "governance_admissibility",
+            "release_acceptance",
+            "publication",
+            "method_validity",
+        }:
+            raise ValueError("release admission receipt must retain every authority denial")
         return self
 
 
@@ -304,6 +393,246 @@ def load_verified_stage_output_bytes(
     return output_bytes
 
 
+def load_verified_release_artifacts(
+    manifest_path: Path,
+    *,
+    store: core_artifacts.FileSystemCAS,
+    allowed_root: Path,
+    expected_stage: str,
+) -> VerifiedUkraineReleaseArtifacts:
+    """Admit the exact D5 manifest, bundle files, and evidence files into CAS.
+
+    The producer's stage and release-root fields remain institutional
+    declarations. Path containment, file-set completeness, hashes, sizes, and
+    CAS identity are recomputed by this boundary and cannot authorize release.
+
+    Args:
+        manifest_path: Producer-emitted ``ReleaseManifest`` path.
+        store: CAS receiving the exact bytes read during admission.
+        allowed_root: Root containing every declared release path.
+        expected_stage: Stage requested by the downstream consumer.
+
+    Returns:
+        A frozen, purpose-limited receipt for the admitted release bytes.
+
+    Raises:
+        UkraineStageArtifactVerificationError: If any declaration is missing,
+            malformed, out of scope, incomplete, or content-drifted.
+    """
+
+    from polisyos.data_forge.domains.ukraine.manifests import (
+        ArtifactRecord,
+        D5ReleaseContentRef,
+        D5ReleaseHandoffRequest,
+        ReleaseManifest,
+    )
+
+    required_evidence = {
+        "cell_registry",
+        "d4_governance_request",
+        "d5_release_handoff_request",
+        "graph_compression_bundle",
+    }
+    root = allowed_root.resolve()
+    resolved_manifest = _resolve_within_root(manifest_path, root=root, label="manifest")
+    try:
+        manifest_bytes = resolved_manifest.read_bytes()
+    except OSError as exc:
+        raise UkraineStageArtifactVerificationError(
+            f"failed to read release manifest {resolved_manifest}: {exc}"
+        ) from exc
+    try:
+        manifest = ReleaseManifest.model_validate_json(manifest_bytes)
+    except Exception as exc:
+        raise UkraineStageArtifactVerificationError(
+            f"failed to parse release manifest {resolved_manifest}: {exc}"
+        ) from exc
+    if set(manifest.evidence_refs) != required_evidence:
+        raise UkraineStageArtifactVerificationError(
+            "release manifest evidence_refs must match the exact D5 set"
+        )
+    if set(manifest.bundles) != set(manifest.bundle_contents):
+        raise UkraineStageArtifactVerificationError(
+            "release bundle declarations and content inventories must match exactly"
+        )
+
+    read_cache: dict[Path, bytes] = {}
+
+    def _read_record(
+        record: ArtifactRecord,
+        *,
+        label: str,
+        containing_directory: Path | None = None,
+    ) -> tuple[Path, bytes]:
+        resolved = _resolve_within_root(Path(record.path), root=root, label=label)
+        if containing_directory is not None and not resolved.is_relative_to(containing_directory):
+            raise UkraineStageArtifactVerificationError(
+                f"{label} path escapes declared bundle directory: {resolved}"
+            )
+        if not record.sha256:
+            raise UkraineStageArtifactVerificationError(
+                f"{label} is missing a declared content hash"
+            )
+        if resolved not in read_cache:
+            try:
+                read_cache[resolved] = resolved.read_bytes()
+            except OSError as exc:
+                raise UkraineStageArtifactVerificationError(
+                    f"failed to read {label} {resolved}: {exc}"
+                ) from exc
+        payload = read_cache[resolved]
+        if _sha256_bytes(payload) != record.sha256:
+            raise UkraineStageArtifactVerificationError(f"content hash mismatch for {label}")
+        if len(payload) != record.size_bytes:
+            raise UkraineStageArtifactVerificationError(f"content size mismatch for {label}")
+        return resolved, payload
+
+    verified_bundle_bytes: dict[str, dict[str, tuple[Path, bytes]]] = {}
+    for bundle_name, bundle_record in manifest.bundles.items():
+        bundle_root = _resolve_directory_within_root(
+            Path(bundle_record.path), root=root, label=f"bundle {bundle_name}"
+        )
+        declared_files: dict[str, tuple[Path, bytes]] = {}
+        for relative_name, record in manifest.bundle_contents[bundle_name].items():
+            declared_files[relative_name] = _read_record(
+                record,
+                label=f"bundle file {bundle_name}:{relative_name}",
+                containing_directory=bundle_root,
+            )
+            declared_path = declared_files[relative_name][0]
+            if declared_path.relative_to(bundle_root).as_posix() != relative_name:
+                raise UkraineStageArtifactVerificationError(
+                    f"bundle inventory key does not match its path for {bundle_name}"
+                )
+        actual_paths = {
+            candidate.resolve()
+            for candidate in bundle_root.rglob("*")
+            if candidate.is_file()
+        }
+        declared_paths = {path for path, _payload in declared_files.values()}
+        if actual_paths != declared_paths:
+            raise UkraineStageArtifactVerificationError(
+                f"bundle file inventory mismatch for {bundle_name}"
+            )
+        if sum(len(payload) for _path, payload in declared_files.values()) != (
+            bundle_record.size_bytes
+        ):
+            raise UkraineStageArtifactVerificationError(
+                f"bundle content size mismatch for {bundle_name}"
+            )
+        verified_bundle_bytes[bundle_name] = declared_files
+
+    verified_evidence_bytes = {
+        name: _read_record(record, label=f"release evidence {name}")
+        for name, record in manifest.evidence_refs.items()
+    }
+    _handoff_path, handoff_bytes = verified_evidence_bytes["d5_release_handoff_request"]
+    try:
+        handoff = D5ReleaseHandoffRequest.model_validate_json(handoff_bytes)
+    except Exception as exc:
+        raise UkraineStageArtifactVerificationError(f"invalid D5 release handoff: {exc}") from exc
+    if handoff.declared_stage != expected_stage:
+        raise UkraineStageArtifactVerificationError(
+            f"release stage mismatch: expected {expected_stage}, received {handoff.declared_stage}"
+        )
+    declared_release_root = _resolve_directory_within_root(
+        Path(handoff.declared_release_root), root=root, label="declared release root"
+    )
+    if declared_release_root != resolved_manifest.parent:
+        raise UkraineStageArtifactVerificationError(
+            "declared release root does not contain the release manifest"
+        )
+    expected_handoff_refs = {
+        name: D5ReleaseContentRef.from_artifact_record(record)
+        for name, record in manifest.evidence_refs.items()
+        if name != "d5_release_handoff_request"
+    }
+    if handoff.content_refs != expected_handoff_refs:
+        raise UkraineStageArtifactVerificationError(
+            "handoff content_refs must equal manifest evidence_refs without the handoff envelope"
+        )
+
+    def _persist(path: Path, payload: bytes, *, kind: str) -> VerifiedUkraineReleaseArtifact:
+        content_ref = store.put_bytes(
+            payload,
+            core_artifacts.PutOptions(
+                kind=kind,
+                media_type=_snapshot_media_type(path),
+            ),
+        )
+        return VerifiedUkraineReleaseArtifact(
+            source_path=str(path),
+            content_ref=content_ref,
+            sha256=_sha256_bytes(payload),
+            size_bytes=len(payload),
+        )
+
+    manifest_ref = store.put_bytes(
+        manifest_bytes,
+        core_artifacts.PutOptions(
+            kind="data_forge.ukraine.release_manifest_snapshot",
+            media_type="application/json",
+            schema=core_artifacts.SchemaInfo(
+                name="polisyos.data_forge.ukraine.ReleaseManifest",
+                version="1.0",
+            ),
+        ),
+    )
+    verified_bundles = {
+        bundle_name: {
+            relative_name: _persist(
+                path,
+                payload,
+                kind="data_forge.ukraine.release_bundle_file_snapshot",
+            )
+            for relative_name, (path, payload) in files.items()
+        }
+        for bundle_name, files in verified_bundle_bytes.items()
+    }
+    verified_evidence = {
+        name: _persist(
+            path,
+            payload,
+            kind=(
+                "data_forge.ukraine.release_handoff_snapshot"
+                if name == "d5_release_handoff_request"
+                else "data_forge.ukraine.release_evidence_snapshot"
+            ),
+        )
+        for name, (path, payload) in verified_evidence_bytes.items()
+    }
+    return VerifiedUkraineReleaseArtifacts(
+        stage_id="d5",
+        declared_release_root=str(declared_release_root),
+        manifest_source_path=str(resolved_manifest),
+        manifest_ref=manifest_ref,
+        manifest_sha256=_sha256_bytes(manifest_bytes),
+        manifest_size_bytes=len(manifest_bytes),
+        handoff_request=handoff,
+        bundle_contents=verified_bundles,
+        evidence=verified_evidence,
+    )
+
+
+def load_verified_release_artifact_bytes(
+    store: core_artifacts.FileSystemCAS,
+    artifact: VerifiedUkraineReleaseArtifact,
+) -> bytes:
+    """Read and recheck one admitted D5 file from CAS only."""
+
+    try:
+        payload = store.get_bytes(artifact.content_ref.artifact_id)
+    except Exception as exc:
+        raise UkraineStageArtifactVerificationError(
+            f"failed to read admitted release artifact: {exc}"
+        ) from exc
+    if len(payload) != artifact.size_bytes:
+        raise UkraineStageArtifactVerificationError("admitted release artifact size mismatch")
+    if _sha256_bytes(payload) != artifact.sha256:
+        raise UkraineStageArtifactVerificationError("admitted release artifact hash mismatch")
+    return payload
+
+
 def _resolve_within_root(path: Path, *, root: Path, label: str) -> Path:
     try:
         resolved = path.resolve(strict=True)
@@ -315,6 +644,20 @@ def _resolve_within_root(path: Path, *, root: Path, label: str) -> Path:
         )
     if not resolved.is_file():
         raise UkraineStageArtifactVerificationError(f"{label} path is not a file: {resolved}")
+    return resolved
+
+
+def _resolve_directory_within_root(path: Path, *, root: Path, label: str) -> Path:
+    try:
+        resolved = path.resolve(strict=True)
+    except OSError as exc:
+        raise UkraineStageArtifactVerificationError(f"{label} path is unavailable: {path}") from exc
+    if not resolved.is_relative_to(root):
+        raise UkraineStageArtifactVerificationError(
+            f"{label} path escapes allowed root: {resolved}"
+        )
+    if not resolved.is_dir():
+        raise UkraineStageArtifactVerificationError(f"{label} path is not a directory: {resolved}")
     return resolved
 
 
@@ -373,10 +716,14 @@ __all__ = sorted(
         *_EXPORTS,
         "REAL_BACKTEST_BUNDLE_CONTRACT_FQN",
         "UkraineStageArtifactVerificationError",
+        "VerifiedUkraineReleaseArtifact",
+        "VerifiedUkraineReleaseArtifacts",
         "VerifiedUkraineStageArtifact",
         "VerifiedUkraineStageArtifacts",
         "build_static_aging_state",
         "load_verified_stage_output_bytes",
         "load_verified_stage_artifacts",
+        "load_verified_release_artifact_bytes",
+        "load_verified_release_artifacts",
     )
 )

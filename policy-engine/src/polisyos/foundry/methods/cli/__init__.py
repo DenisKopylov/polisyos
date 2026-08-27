@@ -27,7 +27,7 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from dataclasses import asdict, is_dataclass
 from pathlib import Path
 
@@ -41,6 +41,8 @@ _CLI_SOFT_FAILURES = (
     TypeError,
     ValueError,
 )
+
+ReleaseAcceptanceHandler = Callable[[argparse.Namespace], int]
 
 # ---------------------------------------------------------------------------
 # Sub-command handlers
@@ -265,37 +267,13 @@ def _cmd_evidence(args: argparse.Namespace) -> int:
     return 0
 
 
-def _cmd_release_acceptance(args: argparse.Namespace) -> int:
-    from polisyos.core.artifacts.store import FileSystemCAS
-    from polisyos.foundry.validation.release_acceptance import ReleaseAcceptanceRunner
-
-    store = FileSystemCAS(args.store_root)
-    report = ReleaseAcceptanceRunner(store).run(
-        release_manifest_path=args.manifest_path,
-        runtime_bundle_dir=args.runtime_bundle_dir,
-        method_contract_bundle_dir=args.method_contract_bundle_dir,
-    )
-
-    if args.json:
-        print(json.dumps(report.model_dump(mode="json"), indent=2, sort_keys=True))
-        return 0 if report.passed else 1
-
-    print(
-        f"passed={report.passed} manifest={report.manifest_path} "
-        f"release_bundle_root={report.release_bundle_root}"
-    )
-    if report.governance_verdict:
-        print(f"governance_verdict={report.governance_verdict}")
-    if report.packet_ref:
-        print(f"packet_ref={report.packet_ref}")
-    print("\nSteps:")
-    for step in report.steps:
-        print(f"  {step.step_id}: {step.status}")
-    if report.notes:
-        print("\nNotes:")
-        for note in report.notes:
-            print(f"  {note}")
-    return 0 if report.passed else 1
+def _cmd_release_acceptance(
+    args: argparse.Namespace,
+    release_handler: ReleaseAcceptanceHandler | None,
+) -> int:
+    if release_handler is None:
+        raise RuntimeError("release acceptance requires an injected consumer handler")
+    return release_handler(args)
 
 
 def _cmd_advisor(args: argparse.Namespace) -> int:
@@ -581,8 +559,12 @@ def _build_parser() -> argparse.ArgumentParser:
 # ---------------------------------------------------------------------------
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    """Run the Foundry methods CLI and dispatch to the selected subcommand."""
+def main(
+    argv: Sequence[str] | None = None,
+    *,
+    release_handler: ReleaseAcceptanceHandler | None = None,
+) -> int:
+    """Run the Foundry CLI with an optional upper-layer release consumer."""
     parser = _build_parser()
     args = parser.parse_args(argv)
 
@@ -596,7 +578,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         "catalog": _cmd_catalog,
         "capabilities": _cmd_capabilities,
         "evidence": _cmd_evidence,
-        "release-acceptance": _cmd_release_acceptance,
+        "release-acceptance": lambda args: _cmd_release_acceptance(args, release_handler),
         "advisor": _cmd_advisor,
         "compat": _cmd_compat,
     }
